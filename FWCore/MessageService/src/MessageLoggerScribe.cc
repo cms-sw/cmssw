@@ -187,7 +187,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
@@ -211,12 +210,11 @@ namespace edm {
 namespace service {
 
 
-MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
+MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 : admin_p   ( new ELadministrator() )
-, early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
+, early_dest( admin_p->attach(std::make_shared<ELoutput>(std::cerr, false)) )
 , file_ps   ( )
 , job_pset_p( )
-, extern_dests( )
 , clean_slate_configuration( true )
 , active( true )
 , singleThread (queue.get() == 0)				// changeLog 36
@@ -230,7 +228,6 @@ MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
 MessageLoggerScribe::~MessageLoggerScribe()
 {
   admin_p->finish();
-  assert( extern_dests.empty() );  // nothing to do
 }
 
 
@@ -302,14 +299,14 @@ void
     }
     case MessageLoggerQ::CONFIGURE:  {			// changelog 17
       if (singleThread) {
-	job_pset_p.reset(static_cast<ParameterSet *>(operand));
+        job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(operand)); // propagate_const<T> has no reset() function
 	configure_errorlog();
 	break;
       } else {
 	ConfigurationHandshake * h_p = 
 		static_cast<ConfigurationHandshake *>(operand);
-	job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
-	boost::mutex::scoped_lock sl(h_p->m);   // get lock
+        job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p)); // propagate_const<T> has no reset() function
+  std::lock_guard<std::mutex> sl(h_p->m);   // get lock
 	try {
 	  configure_errorlog();
 	}
@@ -317,7 +314,7 @@ void
 	  {
 	    Place_for_passing_exception_ptr epp = h_p->epp;
 	    if (!(*epp)) { 
-	      *epp = boost::shared_ptr<edm::Exception>(new edm::Exception(e));
+	      *epp = std::make_shared<edm::Exception>(e);
 	    } else {
 	      Pointer_to_new_exception_on_heap ep = *epp;
 	      (*ep) << "\n and another exception: \n" << e.what();
@@ -332,30 +329,6 @@ void
 	// finally, release the scoped lock by letting it go out of scope 
 	break;
       }
-    }
-    case MessageLoggerQ::EXTERN_DEST: {
-      try {
-	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-	configure_external_dests();
-      }
-      catch(cms::Exception& e)				// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
-	       << "during extern dest configuration:\n"
-	       << e.what() << "\n"
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "However, the rest of the logger continues to run.\n";
-	}
-      catch(...)						// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-	       << "during extern dest configuration. "
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "The rest of the logger will attempt to continue to run.\n";
-	}
-      break;
     }
     case MessageLoggerQ::SUMMARIZE: {
       assert( operand == 0 );
@@ -397,8 +370,8 @@ void
       if (singleThread) return;
       ConfigurationHandshake * h_p = 
 	      static_cast<ConfigurationHandshake *>(operand);
-      job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
-      boost::mutex::scoped_lock sl(h_p->m);   // get lock
+      job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p)); // propagate_const<T> has no reset() function
+      std::lock_guard<std::mutex> sl(h_p->m);   // get lock
       h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
       // finally, release the scoped lock by letting it go out of scope 
       break;
@@ -419,7 +392,7 @@ void
       } else {
 	ConfigurationHandshake * h_p = 
 		static_cast<ConfigurationHandshake *>(operand);
-	boost::mutex::scoped_lock sl(h_p->m);   // get lock
+    std::lock_guard<std::mutex> sl(h_p->m);   // get lock
 	std::map<std::string, double> * smp = 
 		static_cast<std::map<std::string, double> *>(h_p->p);
 	triggerFJRmessageSummary(*smp);
@@ -457,7 +430,7 @@ void
     // configuration we are about to do, we issue the message (so it sits
     // on the queue), then copy the processing that the LOG_A_MESSAGE case
     // does.  We suppress the timestamp to allow for automated unit testing.
-    early_dest.suppressTime();
+    early_dest->suppressTime();
     LogError ("preconfiguration") << preconfiguration_message;
     if (!singleThread) {
       MessageLoggerQ::OpCode  opcode;
@@ -477,16 +450,13 @@ void
   }
   configure_ordinary_destinations();				// Change Log 16
   configure_statistics();					// Change Log 16
-
-  configure_external_dests();
-
 }  // MessageLoggerScribe::configure_errorlog()
 
 
 
 
 void
-  MessageLoggerScribe::configure_dest( ELdestControl & dest_ctrl
+  MessageLoggerScribe::configure_dest( std::shared_ptr<ELdestination> dest_ctrl
                                      , String const &  filename
 				     )
 {
@@ -569,14 +539,14 @@ void
     						// change log 1a
   if ( dest_default_limit != NO_VALUE_SET ) {
     if ( dest_default_limit < 0 ) dest_default_limit = 2000000000;
-    dest_ctrl.setLimit("*", dest_default_limit );
+    dest_ctrl->setLimit("*", dest_default_limit );
   } 						// change log 1b, 2a, 2b
   if ( dest_default_interval != NO_VALUE_SET ) {  // change log 6
-    dest_ctrl.setInterval("*", dest_default_interval );
+    dest_ctrl->setInterval("*", dest_default_interval );
   } 						
   if ( dest_default_timespan != NO_VALUE_SET ) {
     if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
-    dest_ctrl.setTimespan("*", dest_default_timespan );
+    dest_ctrl->setTimespan("*", dest_default_timespan );
   } 						// change log 1b, 2a, 2b
     						  
   // establish this destination's threshold:
@@ -593,7 +563,7 @@ void
   }
   if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
   ELseverityLevel  threshold_sev(dest_threshold);
-  dest_ctrl.setThreshold(threshold_sev);
+  dest_ctrl->setThreshold(threshold_sev);
   // change log 37
   if (threshold_sev <= ELseverityLevel::ELsev_success) 
   	{ edm::MessageDrop::debugAlwaysSuppressed = false; }
@@ -646,14 +616,14 @@ void
      
     if( limit     != NO_VALUE_SET )  {
       if ( limit < 0 ) limit = 2000000000;  
-      dest_ctrl.setLimit(msgID, limit);
+      dest_ctrl->setLimit(msgID, limit);
     }  						// change log 2a, 2b
     if( interval  != NO_VALUE_SET )  {
-      dest_ctrl.setInterval(msgID, interval);
+      dest_ctrl->setInterval(msgID, interval);
     }  						// change log 6
     if( timespan  != NO_VALUE_SET )  {
       if ( timespan < 0 ) timespan = 2000000000;  
-      dest_ctrl.setTimespan(msgID, timespan);
+      dest_ctrl->setTimespan(msgID, timespan);
     }						// change log 2a, 2b
 						
   }  // for
@@ -677,13 +647,13 @@ void
     }  
     if( limit    != NO_VALUE_SET )  {
       if (limit < 0) limit = 2000000000;			// change log 38
-      dest_ctrl.setLimit(severity, limit   );
+      dest_ctrl->setLimit(severity, limit   );
     }
     int  interval  = getAparameter<int>(sev_pset, "reportEvery", NO_VALUE_SET);
     if ( interval     == NO_VALUE_SET )  {			// change log 24
        interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
     }  
-    if( interval != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval);
+    if( interval != NO_VALUE_SET )  dest_ctrl->setInterval(severity, interval);
 						// change log 2
     int  timespan  = getAparameter<int>(sev_pset, "timespan", NO_VALUE_SET);
     if ( timespan     == NO_VALUE_SET )  {			// change log 24
@@ -691,7 +661,7 @@ void
     }  
     if( timespan    != NO_VALUE_SET )  {
       if (timespan < 0) timespan = 2000000000;			// change log 38
-      dest_ctrl.setTimespan(severity, timespan   );
+      dest_ctrl->setTimespan(severity, timespan   );
     }
   }  // for
 
@@ -702,7 +672,7 @@ void
   bool noLineBreaks 
   	= getAparameter<bool> (dest_pset, "noLineBreaks", noLineBreaks_default);
   if (noLineBreaks) {
-    dest_ctrl.setLineLength(32000);
+    dest_ctrl->setLineLength(32000);
   }
   else {
     int  lenDef = 80;
@@ -711,7 +681,7 @@ void
 						// change log 5
     int  lineLen = getAparameter<int> (dest_pset, "lineLength", lineLen_default);
     if (lineLen != lenDef) {
-      dest_ctrl.setLineLength(lineLen);
+      dest_ctrl->setLineLength(lineLen);
     }
   }
 
@@ -721,7 +691,7 @@ void
   bool suppressTime 
   	= getAparameter<bool> (dest_pset, "noTimeStamps", suppressTime_default);
   if (suppressTime) {
-    dest_ctrl.suppressTime();
+    dest_ctrl->suppressTime();
   }
 
 }  // MessageLoggerScribe::configure_dest()
@@ -750,7 +720,7 @@ void
   
   // dial down the early destination if other dest's are supplied:
   if( ! destinations.empty() )
-    early_dest.setThreshold(ELhighestSeverity);
+    early_dest->setThreshold(ELhighestSeverity);
 
   // establish each destination:
   for( vString::const_iterator it = destinations.begin()
@@ -833,20 +803,22 @@ void
     ordinary_destination_filenames.push_back(actual_filename);
 
     // attach the current destination, keeping a control handle to it:
-    ELdestControl dest_ctrl;
+    std::shared_ptr<ELdestination> dest_ctrl;
     if( actual_filename == "cout" )  {
-      dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+      dest_ctrl = std::make_shared<ELoutput>(std::cout);
+      admin_p->attach( dest_ctrl );
       stream_ps["cout"] = &std::cout;
     }
     else if( actual_filename == "cerr" )  {
-      early_dest.setThreshold(ELzeroSeverity); 
+      early_dest->setThreshold(ELzeroSeverity); 
       dest_ctrl = early_dest;
       stream_ps["cerr"] = &std::cerr;
     }
     else  {
-      boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
+      auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
       file_ps.push_back(os_sp);
-      dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
+      dest_ctrl = std::make_shared<ELoutput>(*os_sp);
+      admin_p->attach( dest_ctrl );
       stream_ps[actual_filename] = os_sp.get();
     }
 
@@ -969,7 +941,7 @@ void
       } else if ( actual_filename == "cerr" ) {
         os_p = &std::cerr;
       } else {
-        boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
+        auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
 	file_ps.push_back(os_sp);
         os_p = os_sp.get();
       }
@@ -981,49 +953,23 @@ void
        
     if (statistics_destination_is_real)	{			// change log 24
       // attach the statistics destination, keeping a control handle to it:
-      ELdestControl dest_ctrl;
-      dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
-      statisticsDestControls.push_back(dest_ctrl);
+      auto stat = std::make_shared<ELstatistics>(*os_p);
+      admin_p->attach( stat );
+      statisticsDestControls.push_back(stat);
       bool reset = getAparameter<bool>(stat_pset, "reset", false);
       statisticsResets.push_back(reset);
     
       // now configure this destination:
-      configure_dest(dest_ctrl, psetname);
+      configure_dest(stat, psetname);
 
       // and suppress the desire to do an extra termination summary just because
       // of end-of-job info messages
-      dest_ctrl.noTerminationSummary();
+      stat->noTerminationSummary();
     }
      
   }  // for [it = statistics.begin() to end()]
 
 } // configure_statistics
-
-void
-  MessageLoggerScribe::configure_external_dests()
-{
-  if( ! job_pset_p )  
-  {
-//  extern_dests.clear();				
-//  change log 12, removed by change log 13
-    return;
-  }
-
-  for( std::vector<NamedDestination*>::const_iterator it = extern_dests.begin()
-     ; it != extern_dests.end()
-     ;  ++it
-     )
-  {
-    ELdestination *  dest_p = (*it)->dest_p().get();
-    ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
-
-    // configure the newly-attached destination:
-    configure_dest( dest_ctrl, (*it)->name() );
-    delete *it;  // dispose of our (copy of the) NamedDestination
-  }
-  extern_dests.clear();
- 
-}  // MessageLoggerScribe::configure_external_dests
 
 void
   MessageLoggerScribe::parseCategories (std::string const & s,
@@ -1046,8 +992,8 @@ void
   MessageLoggerScribe::triggerStatisticsSummaries() {
     assert (statisticsDestControls.size() == statisticsResets.size());
     for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-      statisticsDestControls[i].summary( );
-      if (statisticsResets[i]) statisticsDestControls[i].wipe( );
+      statisticsDestControls[i]->summary( 0 );
+      if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
     }
 }
 
@@ -1058,7 +1004,7 @@ void
   if (statisticsDestControls.empty()) {
     sm["NoStatisticsDestinationsConfigured"] = 0.0;
   } else {
-    statisticsDestControls[0].summaryForJobReport(sm);
+    statisticsDestControls[0]->summaryForJobReport(sm);
   }
 }
 

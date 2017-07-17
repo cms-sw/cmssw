@@ -7,7 +7,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedPFJets = cms.EDFilter(
     "TauValPFJetSelector",
-    src = cms.InputTag('ak5PFJets'),
+    src = cms.InputTag('ak4PFJets'),
     cut = cms.string("pt > 15 & abs(eta) < 2.5"),
     filter = cms.bool(False)
 	)
@@ -21,7 +21,7 @@ PFJetsId = cms.EDFilter(
 
 CleanedPFJets = cms.EDProducer("TauValJetViewCleaner",
     srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
-    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gsfElectrons") ),
+    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gedGsfElectrons") ),
     deltaRMin            = cms.double(0.15)
 )
 
@@ -57,8 +57,8 @@ for newAttr in newProcAttributes:
 
 
 produceDenominatorRealData = cms.Sequence(
-      kinematicSelectedPFJets * 
-      PFJetsId * 
+      cms.ignore(kinematicSelectedPFJets) *
+      cms.ignore(PFJetsId) *
       CleanedPFJets
       )
 

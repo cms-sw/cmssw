@@ -50,7 +50,7 @@ class CmsShowMainBase
 {
 public:
    CmsShowMainBase();
-   virtual ~CmsShowMainBase();
+   virtual ~CmsShowMainBase() noexcept(false);
 
    FWModelChangeManager       *changeManager() {return m_changeManager.get(); }
    FWColorManager             *colorManager() { return  m_colorManager.get(); }
@@ -80,7 +80,10 @@ public:
 
    void writeToConfigFile(const std::string &config);
    void writeToCurrentConfigFile();
+   void writePartialToConfigFile();
    void reloadConfiguration(const std::string &config);
+   void partialWriteToConfigFile(const std::string &config);
+   void partialLoadConfiguration(const std::string &config);
    void setupConfiguration();
    
    void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);
@@ -114,16 +117,17 @@ public:
    void playForward();
    void playBackward();
    bool isPlaying() const { return m_isPlaying; }
-   void setIsPlaying(bool value) { m_isPlaying = value; }
-   virtual void stopPlaying() = 0;
+
+   virtual void checkKeyBindingsOnPLayEventsStateChanged() {}
+   virtual void stopPlaying();
    virtual void autoLoadNewEvent() = 0;
 
    void setPlayLoop();
    void unsetPlayLoop();
 
    void setAutoSaveAllViewsFormat(const std::string& fmt) { m_autoSaveAllViewsFormat = fmt; }
+   void setAutoSaveAllViewsHeight(int x) { m_autoSaveAllViewsHeight = x; }
 
-protected: 
    class SignalTimer : public TTimer {
    public:
       virtual Bool_t Notify() {
@@ -133,9 +137,11 @@ protected:
       sigc::signal<void> timeout_;
    };
 
+protected: 
    void eventChangedSlot();
    virtual void eventChangedImp();
    void sendVersionInfo();
+   fireworks::Context* context() { return m_contextPtr; }
 
 private:
    // The base class is responsible for the destruction of fwlite / FF
@@ -163,6 +169,7 @@ private:
    void unsetPlayLoopImp();
    
    std::string                           m_autoSaveAllViewsFormat;
+   int                                   m_autoSaveAllViewsHeight;
    bool                                  m_autoLoadTimerRunning;             
    bool                                  m_forward;
    bool                                  m_isPlaying;

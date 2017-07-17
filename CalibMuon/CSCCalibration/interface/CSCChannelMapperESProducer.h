@@ -2,7 +2,6 @@
 #define CSCChannelMapperESProducer_H
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -12,7 +11,7 @@
 class CSCChannelMapperESProducer : public edm::ESProducer {
 
  public:
-  typedef boost::shared_ptr<CSCChannelMapperBase> BSP_TYPE;
+  typedef std::shared_ptr<CSCChannelMapperBase> BSP_TYPE;
 
   CSCChannelMapperESProducer(const edm::ParameterSet&);
   ~CSCChannelMapperESProducer();

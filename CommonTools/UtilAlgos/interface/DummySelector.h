@@ -9,25 +9,26 @@
  *
  * \author Luca Lista, INFN
  */
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-namespace edm { 
-  class ParameterSet; 
+namespace edm {
+  class ParameterSet;
   class Event;
   class EventSetup;
 }
 
 class DummySelector {
 public:
-  explicit DummySelector(const edm::ParameterSet&) : updated_(false) { }
+  explicit DummySelector(const edm::ParameterSet&, edm::ConsumesCollector & iC) : updated_(false) { }
   void newEvent(const edm::Event&, const edm::EventSetup&) { updated_ = true; }
   template<typename T>
-  bool operator()(const T&) { 
-    if(!updated_)     
+  bool operator()(const T&) {
+    if(!updated_)
       throw edm::Exception(edm::errors::Configuration)
-	<< "DummySelector: forgot to call newEvent\n"; 
-    return true; 
-  }  
+	<< "DummySelector: forgot to call newEvent\n";
+    return true;
+  }
 private:
   bool updated_;
 };

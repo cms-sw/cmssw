@@ -16,6 +16,7 @@ HLTMCtruth::HLTMCtruth() {
 
   //set parameter defaults 
   _Monte=false;
+  _Gen=false;
   _Debug=false;
 }
 
@@ -25,10 +26,10 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
   
-  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
-	iParam != parameterNames.end(); iParam++ ){
-    if  ( (*iParam) == "Monte" ) _Monte =  myMCParams.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "Debug" ) _Debug =  myMCParams.getParameter<bool>( *iParam );
+  for (auto & parameterName : parameterNames){
+    if  ( parameterName == "Monte" ) _Monte =  myMCParams.getParameter<bool>( parameterName );
+    else if ( parameterName == "GenTracks" ) _Gen =  myMCParams.getParameter<bool>( parameterName );
+    else if ( parameterName == "Debug" ) _Debug =  myMCParams.getParameter<bool>( parameterName );
   }
 
   const int kMaxMcTruth = 10000;
@@ -40,7 +41,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   mcpt = new float[kMaxMcTruth];
   mceta = new float[kMaxMcTruth];
   mcphi = new float[kMaxMcTruth];
-
+  
   // MCtruth-specific branches of the tree 
   HltTree->Branch("NMCpart",&nmcpart,"NMCpart/I");
   HltTree->Branch("MCpid",mcpid,"MCpid[NMCpart]/I");
@@ -52,6 +53,8 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCeta",mceta,"MCeta[NMCpart]/F");
   HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
   HltTree->Branch("MCPtHat",&pthatf,"MCPtHat/F");
+  HltTree->Branch("MCWeight",&weightf,"MCWeight/F");
+  HltTree->Branch("MCWeightSign",&weightsignf,"MCWeightSign/F");
   HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
   HltTree->Branch("MCel3",&nel3,"MCel3/I");
   HltTree->Branch("MCbb",&nbb,"MCbb/I");
@@ -62,14 +65,18 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCZmumu",&nzmumu,"MCZmumu/I");
   HltTree->Branch("MCptEleMax",&ptEleMax,"MCptEleMax/F");
   HltTree->Branch("MCptMuMax",&ptMuMax,"MCptMuMax/F");
+  HltTree->Branch("NPUTrueBX0",&npubx0, "NPUTrueBX0/I");
+  HltTree->Branch("NPUgenBX0",&npuvertbx0, "NPUgenBX0/I");
 
 }
 
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 			 const double        & pthat,
+			 const double        & weight,
 			 const edm::Handle<std::vector<SimTrack> > & simTracks,
 			 const edm::Handle<std::vector<SimVertex> > & simVertices,
+			 const edm::Handle<std::vector< PileupSummaryInfo > > & PupInfo,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -88,29 +95,53 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     ptEleMax = -999.0;
     ptMuMax  = -999.0;    
     pthatf   = pthat;
+    weightf   = weight;
+    weightsignf   = (weight > 0) ? 1. : -1.;
+    npubx0  = 0.0;
+    npuvertbx0 = 0;
 
-    if((simTracks.isValid())&&(simVertices.isValid())){
-      for (unsigned int j=0; j<simTracks->size(); j++) {
-	int pdgid = simTracks->at(j).type();
-	if (abs(pdgid)!=13) continue;
-	double pt = simTracks->at(j).momentum().pt();
-	if (pt<2.5) continue;
-	double eta = simTracks->at(j).momentum().eta();
-	if (abs(eta)>2.5) continue;
-	if (simTracks->at(j).noVertex()) continue;
-	int vertIndex = simTracks->at(j).vertIndex();
-	double x = simVertices->at(vertIndex).position().x();
-	double y = simVertices->at(vertIndex).position().y();
-	double r = sqrt(x*x+y*y);
-	if (r>150.) continue; // I think units are cm here
-	double z = simVertices->at(vertIndex).position().z();
-	if (abs(z)>300.) continue; // I think units are cm here
-	mu3 += 1;
-	break;
+    int npvtrue = 0; 
+    int npuvert = 0;
+
+    if(PupInfo.isValid()) {
+      std::vector<PileupSummaryInfo>::const_iterator PVI;  
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
+	
+	int BX = PVI->getBunchCrossing();  
+	npvtrue = PVI->getTrueNumInteractions();  
+	npuvert = PVI->getPU_NumInteractions();
+	
+	if(BX == 0)  
+	  {  
+	    npubx0+=npvtrue; 
+	    npuvertbx0+=npuvert;
+	  } 
       }
     }
 
-    if (mctruth.isValid()){
+    if((simTracks.isValid())&&(simVertices.isValid())){
+      for (auto const & j : *simTracks) {
+	int pdgid = j.type();
+	if (abs(pdgid)!=13) continue;
+	double pt = j.momentum().pt();
+	if (pt<5.0) continue;
+	double eta = j.momentum().eta();
+	if (abs(eta)>2.5) continue;
+	if (j.noVertex()) continue;
+	int vertIndex = j.vertIndex();
+	double x = simVertices->at(vertIndex).position().x();
+	double y = simVertices->at(vertIndex).position().y();
+	double r = sqrt(x*x+y*y);
+	if (r>200.) continue; // I think units are cm here
+	double z = simVertices->at(vertIndex).position().z();
+	if (abs(z)>400.) continue; // I think units are cm here
+	mu3 += 1;
+	break;
+      }
+
+    }
+
+    if (_Gen && mctruth.isValid()){
 
       for (size_t i = 0; i < mctruth->size(); ++ i) {
 	const reco::Candidate & p = (*mctruth)[i];

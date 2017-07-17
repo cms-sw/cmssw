@@ -15,16 +15,14 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-  class RandPoissonQ;
 }
 
 class RPCSimAverage : public RPCSim
@@ -35,16 +33,15 @@ class RPCSimAverage : public RPCSim
   ~RPCSimAverage();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits);
+		const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
 
-  void simulateNoise(const RPCRoll*);
+  void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
-
-  int getClSize(float posX); 
+  int getClSize(float posX, CLHEP::HepRandomEngine*);
 
  private:
-  void init(){};
+  void init() override{};
  private:
   double aveEff;
   double aveCls;
@@ -66,11 +63,5 @@ class RPCSimAverage : public RPCSim
   std::ifstream *infile;
  
   RPCSynchronizer* _rpcSync;
-
-  //  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution_;
-  CLHEP::RandFlat* flatDistribution1;
-  CLHEP::RandFlat* flatDistribution2;
-  CLHEP::RandPoissonQ *poissonDistribution;
 };
 #endif

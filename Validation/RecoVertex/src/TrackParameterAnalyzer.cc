@@ -1,9 +1,25 @@
 #include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
-#include <string>
+
+//system includes
+#include <memory>
 #include <vector>
+
+// core framework
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+// Hep MC stuff from CLHEP
+#include "CLHEP/Vector/LorentzVector.h"
+
+// track
+#include "DataFormats/TrackReco/interface/Track.h"
+
+// Root
+#include <TH1.h>
+#include <TH2.h>
+#include <TFile.h>
 
 //
 //
@@ -17,21 +33,19 @@
 //
 // constructors and destructor
 //
-TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig) :
-  simG4_( iConfig.getParameter<edm::InputTag>( "simG4" ) ) {
+TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
+  : edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , recoTrackCollectionToken_( consumes<reco::TrackCollection>( edm::InputTag( iConfig.getUntrackedParameter<std::string>( "recoTrackProducer" ) ) ) )
+  , outputFile_( iConfig.getUntrackedParameter<std::string>( "outputFile" ) )
+  , simUnit_( 1.0 ) //  starting from  CMSSW_1_2_x, I think
+  , verbose_( iConfig.getUntrackedParameter<bool>( "verbose", false ) ) {
    //now do whatever initialization is needed
-
-  recoTrackProducer_   = iConfig.getUntrackedParameter<std::string>("recoTrackProducer");
   // open output file to store histograms}
-  outputFile_   = iConfig.getUntrackedParameter<std::string>("outputFile");
-  TString tversion(edm::getReleaseVersion());
-  tversion = tversion.Remove(0,1);
-  tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-  outputFile_  = std::string(tversion)+"_"+outputFile_;
-
+  auto tversion = edm::getReleaseVersion();
+  tversion = tversion.erase(tversion.size() - 1, 1).erase(0, 1);
+  outputFile_  = tversion + "_" + outputFile_;
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
-  verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
-  simUnit_=1.0;  //  starting from  CMSSW_1_2_x, I think
   if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
     simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
   }
@@ -40,7 +54,6 @@ TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
 
 TrackParameterAnalyzer::~TrackParameterAnalyzer()
 {
- 
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
   delete rootFile_;
@@ -113,16 +126,12 @@ bool TrackParameterAnalyzer::match(const ParameterVector  &a,
 void
 TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
    using CLHEP::HepLorentzVector;
 
-   //edm::ESHandle<TransientTrackBuilder> theB;
-   //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-   //double fBfield=((*theB).field()->inTesla(GlobalPoint(0.,0.,0.))).z();
    const double fBfield=3.8;
   
-   Handle<edm::SimVertexContainer> simVtcs;
-   iEvent.getByLabel( simG4_, simVtcs);
+   edm::Handle<edm::SimVertexContainer> simVtcs;
+   iEvent.getByToken( edmSimVertexContainerToken_, simVtcs );
    if(verbose_){
      std::cout << "SimVertex " << simVtcs->size() << std::endl;
      for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
@@ -139,8 +148,8 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    }
    
    // get the simulated tracks, extract perigee parameters
-   Handle<SimTrackContainer> simTrks;
-   iEvent.getByLabel( simG4_, simTrks);
+   edm::Handle<edm::SimTrackContainer> simTrks;
+   iEvent.getByToken( edmSimTrackContainerToken_, simTrks );
    
    if(verbose_){std::cout << "simtrks " << simTrks->size() << std::endl;}
    std::vector<ParameterVector > tsim;
@@ -161,7 +170,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 // such entries cause crashes, no idea what they are
 	 std::cout << "funny particle skipped  , code="  << pdgCode << std::endl;
        }else{
-	 double Q=0; //double Q=HepPDT::theTable().getParticleData(pdgCode)->charge();
+	 double Q=0;
 	 if ((pdgCode==11)||(pdgCode==13)||(pdgCode==15)||(pdgCode==-211)||(pdgCode==-2212)||(pdgCode==321)){Q=-1;}
 	 else if((pdgCode==-11)||(pdgCode==-13)||(pdgCode==-15)||(pdgCode==211)||(pdgCode==2212)||(pdgCode==321)){Q=1;}
 	 else {
@@ -211,8 +220,8 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    // loop over tracks and try to match them to simulated tracks
 
 
-   Handle<reco::TrackCollection> recTracks;
-   iEvent.getByLabel(recoTrackProducer_, recTracks);
+   edm::Handle<reco::TrackCollection> recTracks;
+   iEvent.getByToken( recoTrackCollectionToken_, recTracks );
 
    for(reco::TrackCollection::const_iterator t=recTracks->begin();
        t!=recTracks->end(); ++t){
@@ -220,12 +229,10 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
      reco::TrackBase::CovarianceMatrix c = t->covariance();
      if(verbose_){
        std::cout << "reco pars= " << p << std::endl;
-       //std::cout << "z0=" << p(4) << std::endl;
      }
      for(std::vector<ParameterVector>::const_iterator s=tsim.begin();
 	 s!=tsim.end(); ++s){
        if (match(*s,p)){
-	 //if(verbose_){ std::cout << "match found" << std::endl;}
 	 h1_pull0_->Fill((p(0)-(*s)(0))/sqrt(c(0,0)));
 	 h1_pull1_->Fill((p(1)-(*s)(1))/sqrt(c(1,1)));
 	 h1_pull2_->Fill((p(2)-(*s)(2))/sqrt(c(2,2)));
@@ -249,8 +256,4 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
      }
    }
 
-
-
-
 }
-

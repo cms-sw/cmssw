@@ -18,7 +18,7 @@ namespace reco { namespace tau {
 
 class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
   public:
-    explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset);
+  explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauTagInfoWorkaroundModifer() {}
     void operator()(PFTau&) const override;
     // Called by base class
@@ -26,16 +26,19 @@ class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
   private:
     edm::InputTag pfTauTagInfoSrc_;
     edm::Handle<PFTauTagInfoCollection> infos_;
+  edm::EDGetTokenT<PFTauTagInfoCollection> pfTauTagInfo_token;
 };
 
 RecoTauTagInfoWorkaroundModifer::RecoTauTagInfoWorkaroundModifer(
-    const edm::ParameterSet &pset):RecoTauModifierPlugin(pset) {
+   const edm::ParameterSet &pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin(pset,std::move(iC)) {
   pfTauTagInfoSrc_ = pset.getParameter<edm::InputTag>("pfTauTagInfoSrc");
+  pfTauTagInfo_token = iC.consumes<PFTauTagInfoCollection>(pfTauTagInfoSrc_);
 }
 
 // Load our tau tag infos from the event
 void RecoTauTagInfoWorkaroundModifer::beginEvent() {
-  evt()->getByLabel(pfTauTagInfoSrc_, infos_);
+
+  evt()->getByToken(pfTauTagInfo_token, infos_);
 }
 
 void RecoTauTagInfoWorkaroundModifer::operator()(PFTau& tau) const {

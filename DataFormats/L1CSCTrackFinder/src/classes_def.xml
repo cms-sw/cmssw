@@ -1,5 +1,6 @@
 <lcgdict>
-   <class name="csc::L1Track" ClassVersion="10">
+   <class name="csc::L1Track" ClassVersion="11">
+    <version ClassVersion="11" checksum="1536584001"/>
     <version ClassVersion="10" checksum="3522733234"/>
      <!-- <field name="scale" transient="true"/> -->
    </class>
@@ -12,7 +13,8 @@
     <version ClassVersion="10" checksum="3445513287"/>
    </class>
 
-   <class name="csctf::TrackStub" ClassVersion="10">
+   <class name="csctf::TrackStub" ClassVersion="11">
+    <version ClassVersion="11" checksum="2137081572"/>
     <version ClassVersion="10" checksum="2767475416"/>
      <field name="thePhiBinning" transient="true"/>
      <field name="theEtaBinning" transient="true"/>

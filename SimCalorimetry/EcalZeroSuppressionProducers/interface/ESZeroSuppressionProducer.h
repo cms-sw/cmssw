@@ -1,7 +1,8 @@
 #ifndef ESZEROSUPPRESSIONPRODUCER_H
 #define ESZEROSUPPRESSIONPRODUCER_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,7 +17,7 @@
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 
-class ESZeroSuppressionProducer : public edm::EDProducer
+class ESZeroSuppressionProducer : public edm::stream::EDProducer<>
 {
  public:
     
@@ -24,7 +25,7 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   virtual ~ESZeroSuppressionProducer();
   
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
   
   
  private:
@@ -35,6 +36,9 @@ class ESZeroSuppressionProducer : public edm::EDProducer
 
   edm::ESHandle<ESThresholds> esthresholds_;
   edm::ESHandle<ESPedestals> espeds_;
+
+  edm::EDGetTokenT<ESDigiCollection> ES_token;
+
 };
 
 #endif 

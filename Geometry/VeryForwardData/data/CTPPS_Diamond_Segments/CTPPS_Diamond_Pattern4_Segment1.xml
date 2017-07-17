@@ -1,0 +1,34 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <SolidSection label="CTPPS_Diamond_Pattern4_Segment1.xml">
+    <Box name="Diamond" dx="[CTPPS_Diamond_Parameters:Pat4_Str1_dx]/2" dy="[CTPPS_Diamond_Parameters:Diamond_dy]/2" dz="[CTPPS_Diamond_Parameters:Diamond_dz]/2"/>
+    <Box name="Metalized_Layer" dx="[CTPPS_Diamond_Parameters:Pat4_Str1_dx]/2" dy="[CTPPS_Diamond_Parameters:Str_dy]/2" dz="[CTPPS_Diamond_Parameters:Metalized_thick]/2"/>
+    <Box name="Gold_up" dx="[CTPPS_Diamond_Parameters:Pat4_Str1_dx]/2" dy="[CTPPS_Diamond_Parameters:Str_dy]/2" dz="[CTPPS_Diamond_Parameters:Gold_thick]/2"/>
+    <Box name="Gold_down" dx="[CTPPS_Diamond_Parameters:Pat4_Str1_dx]/2" dy="[CTPPS_Diamond_Parameters:Str_dy]/2" dz="[CTPPS_Diamond_Parameters:Gold_thick]/2"/>
+    <Box name="Chromium" dx="[CTPPS_Diamond_Parameters:Pat4_Str1_dx]/2" dy="[CTPPS_Diamond_Parameters:Str_dy]/2" dz="[CTPPS_Diamond_Parameters:Chromium_thick]/2"/>
+  </SolidSection>
+
+  <LogicalPartSection label="CTPPS_Diamond_Pattern4_Segment1.xml">
+    <LogicalPart name="CTPPS_Diamond_Segment" category="sensitive">
+      <rSolid name="Diamond"/>
+      <rMaterial name="materials:Diamond"/>
+    </LogicalPart>
+    <LogicalPart name="Metalized_Layer" category="unspecified">
+      <rSolid name="Metalized_Layer"/>
+      <rMaterial name="materials:Gold"/>
+    </LogicalPart>
+    <LogicalPart name="Gold_up" category="unspecified">
+      <rSolid name="Gold_up"/>
+      <rMaterial name="materials:Gold"/>
+    </LogicalPart>
+    <LogicalPart name="Gold_down" category="unspecified">
+      <rSolid name="Gold_down"/>
+      <rMaterial name="materials:Gold"/>
+    </LogicalPart>
+    <LogicalPart name="Chromium" category="unspecified">
+      <rSolid name="Chromium"/>
+      <rMaterial name="materials:Chromium"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+</DDDefinition>

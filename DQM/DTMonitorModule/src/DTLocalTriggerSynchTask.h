@@ -23,8 +23,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+// DT trigger
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+
 
 #include <vector>
 #include <string>
@@ -38,47 +45,48 @@ class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<std::array<int, 3>, 13 >, 5 > ,6> DTArr4int;
 
-class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
-  
+class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTLocalTriggerSynchTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTLocalTriggerSynchTask();
-  
- protected:
-  
-  // BeginJob
-  void beginJob();
-  
-  /// Book the histograms
-  void bookHistos(const DTChamberId& dtCh );
-  
-  /// Analyze
-  void analyze(const edm::Event& event, const edm::EventSetup& context);
 
-  /// Begin Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& context);
-  
-  /// EndJob
-  void endJob(void);
+ protected:
+
+  /// Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+ ///Beginrun
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+
+  /// Book the histograms
+  void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh );
+
+  /// Analyze
+  void analyze(const edm::Event& event, const edm::EventSetup& context) override;
 
   std::string & baseDir() { return baseDirectory; }
-    
+
+  const int wheelArrayShift = 3;
+
  private:
-  
+
   int nevents;
- 
-  int phCodeBestDCC[6][5][13];
-  int phCodeBXDCC[6][5][13][3];
-  int phCodeBestDDU[6][5][13];
-  int thCodeBestDDU[6][5][13];
-  int segHitBest[6][5][13];
+
+  DTArr3int phCodeBestTM;
+  DTArr4int phCodeBXTM;
+  DTArr3int phCodeBestDDU;
+  DTArr3int thCodeBestDDU;
+  DTArr3int segHitBest;
 
   float bxTime;
   bool rangeInBX;
@@ -91,12 +99,19 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
 
   std::string baseDirectory;
 
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > triggerHistos;
-  MonitorElement* dcc_IDDataErrorPlot;
+  MonitorElement* tm_IDDataErrorPlot;
 
+  edm::EDGetTokenT<L1MuDTChambPhContainer>   tm_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

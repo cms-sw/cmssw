@@ -13,7 +13,7 @@ eval `scramv1 r -sh`
 
 for rnum in 172791 173241 173243 173244
   do
-    # mv harvesting files for DQMROOT step out of our way
+    # mv harvesting files for DQMIO step out of our way
     if [ -e DQM_V0001_R000${rnum}__Jet__Run2011A-BoundaryTest-v1__DQM.root ]; then
       mv DQM_V0001_R000${rnum}__Jet__Run2011A-BoundaryTest-v1__DQM.root  DQM_V0001_R000${rnum}__Jet__Run2011A-BoundaryTest-CJ__DQM.root
     fi

@@ -32,7 +32,7 @@
  *  see Billoir et al. NIM in PR A311(1992) 139-150
  */
 
-class PerigeeLinearizedTrackState GCC11_FINAL : public LinearizedTrackState<5> {
+class PerigeeLinearizedTrackState final : public LinearizedTrackState<5> {
 
 
 public:

@@ -4,10 +4,6 @@
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
-#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
 
@@ -38,9 +34,9 @@ L1TBPTX::L1TBPTX(const ParameterSet & pset){
   m_parameters = pset;
 
   // Mapping parameter input variables
-  m_scalersSource       = pset.getParameter         <InputTag>("inputTagScalersResults");
-  m_l1GtDataDaqInputTag = pset.getParameter         <InputTag>("inputTagL1GtDataDaq");
-  m_l1GtEvmSource       = pset.getParameter         <InputTag>("inputTagtEvmSource");
+  m_scalersSource       = consumes<Level1TriggerScalersCollection>(pset.getParameter          <InputTag>("inputTagScalersResults"));
+  m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(pset.getParameter            <InputTag>("inputTagL1GtDataDaq"));
+  m_l1GtEvmSource       = consumes<L1GlobalTriggerEvmReadoutRecord>(pset.getParameter         <InputTag>("inputTagtEvmSource"));
   m_verbose             = pset.getUntrackedParameter<bool>    ("verbose",false);
 //  m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");
 
@@ -65,11 +61,6 @@ L1TBPTX::L1TBPTX(const ParameterSet & pset){
 
   m_monitorRates = pset.getParameter< vector<ParameterSet> >("MonitorRates");
 
-  if (pset.getUntrackedParameter < bool > ("dqmStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
 }
 
 //-------------------------------------------------------------------------------------
@@ -77,41 +68,13 @@ L1TBPTX::L1TBPTX(const ParameterSet & pset){
 L1TBPTX::~L1TBPTX(){}
 
 //-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TBPTX::beginJob(void){
-
-  if (m_verbose){cout << "[L1TBPTX] Called beginJob." << endl;}
-
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TBPTX");
-    dbe->rmdir("L1T/L1TBPTX");
-  }
-
-}
-
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TBPTX::endJob(void){
-
-  if (m_verbose){cout << "[L1TBPTX] Called endJob." << endl;}
-
-  if (m_outputFile.size() != 0 && dbe)
-    dbe->save(m_outputFile);
-
-  return;
-
-}
-
-//-------------------------------------------------------------------------------------
 /// BeginRun
 //-------------------------------------------------------------------------------------
-void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
+void L1TBPTX::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& iSetup){
 
   if (m_verbose){cout << "[L1TBPTX] Called beginRun." << endl;}
+
+  ibooker.setCurrentFolder("L1T/L1TBPTX");
 
   // Initializing variables
   int maxNbins = 2501;
@@ -135,8 +98,8 @@ void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   }
 
   // Initializing DQM Monitor Elements
-  dbe->setCurrentFolder("L1T/L1TBPTX");
-  m_ErrorMonitor = dbe->book1D("ErrorMonitor","ErrorMonitor",7,0,7);
+  ibooker.setCurrentFolder("L1T/L1TBPTX");
+  m_ErrorMonitor = ibooker.book1D("ErrorMonitor","ErrorMonitor",7,0,7);
   m_ErrorMonitor->setBinLabel(UNKNOWN                      ,"UNKNOWN");
   m_ErrorMonitor->setBinLabel(WARNING_DB_CONN_FAILED       ,"WARNING_DB_CONN_FAILED");        // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(WARNING_DB_QUERY_FAILED      ,"WARNING_DB_QUERY_FAILED");       // Errors from L1TOMDSHelper
@@ -152,29 +115,29 @@ void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
     int     bit      = m_monitorBits[i].getParameter<int>   ("bitNumber");
 
     TString meTitle = "";
-    dbe->setCurrentFolder("L1T/L1TBPTX/Efficiency/");
+    ibooker.setCurrentFolder("L1T/L1TBPTX/Efficiency/");
     if(isAlgo){
       meTitle="Algo ";meTitle+=bit; meTitle+=" - "; meTitle+=m_algoBit_Alias[bit]; meTitle+=" Efficiency";
-      m_meAlgoEfficiency[bit] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meAlgoEfficiency[bit] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meAlgoEfficiency[bit]->setAxisTitle("Lumi Section" ,1);
     }
     else{
       meTitle="Tech "; meTitle+=bit; meTitle+=" - "; meTitle+=m_techBit_Alias[bit]; meTitle+=" Efficiency";
-      m_meTechEfficiency[bit] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meTechEfficiency[bit] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meTechEfficiency[bit]->setAxisTitle("Lumi Section" ,1);
     }
     
     meTitle = "";
-    dbe->setCurrentFolder("L1T/L1TBPTX/MissFire/");
+    ibooker.setCurrentFolder("L1T/L1TBPTX/MissFire/");
     if(isAlgo){
       meTitle="Algo "; meTitle+=bit; meTitle+=" - "; meTitle+=m_algoBit_Alias[bit]; meTitle+="(1 - Miss Fire Rate)";
-      m_meAlgoMissFire[bit] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meAlgoMissFire[bit] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meAlgoMissFire[bit]->setAxisTitle("Lumi Section"      ,1);
       m_meAlgoMissFire[bit]->setAxisTitle("1 - Miss Fire Rate",2);
     }
     else{
       meTitle="Tech "; meTitle+=bit; meTitle+=" - "; meTitle+=m_techBit_Alias[bit]; meTitle+="(1 - Miss Fire Rate)";
-      m_meTechMissFire[bit] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meTechMissFire[bit] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meTechMissFire[bit]->setAxisTitle("Lumi Section"      ,1);
       m_meTechMissFire[bit]->setAxisTitle("1 - Miss Fire Rate",2);
     }
@@ -189,16 +152,16 @@ void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
     pair<bool,int> refME = pair<bool,int>(isAlgo,bit);
     
     TString meTitle = "";
-    dbe->setCurrentFolder("L1T/L1TBPTX/Rate/");
+    ibooker.setCurrentFolder("L1T/L1TBPTX/Rate/");
     if(isAlgo){
       meTitle="Algo "+bit; meTitle+=" - "; meTitle+=m_algoBit_Alias[bit]; meTitle+=" Rate";
-      m_meRate[refME] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meRate[refME] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meRate[refME]->setAxisTitle("Lumi Section"           ,1);
       m_meRate[refME]->setAxisTitle("Rate (unprescaled) [Hz]",2);
     }
     else{
       meTitle="Tech "+bit; meTitle+=" - "; meTitle+=m_techBit_Alias[bit]; meTitle+=" Rate";
-      m_meRate[refME] = dbe->book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
+      m_meRate[refME] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meRate[refME]->setAxisTitle("Lumi Section" ,1);
       m_meRate[refME]->setAxisTitle("Rate (unprescaled) [Hz]",2);
     }   
@@ -228,6 +191,10 @@ void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
     //TODO: Some error handling
   }  
   
+}
+
+void L1TBPTX::dqmBeginRun(const edm::Run&, const edm::EventSetup&){
+  //empty
 }
 
 //_____________________________________________________________________
@@ -340,13 +307,6 @@ void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   }
 }
 
-//_____________________________________________________________________
-void L1TBPTX::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-
-  if(m_verbose){cout << "[L1TBPTX] Called endRun." << endl;}
-
-  
-}
 
 //_____________________________________________________________________
 void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
@@ -360,7 +320,7 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     // Retriving information from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-    iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
+    iEvent.getByToken(m_l1GtEvmSource, gtEvmReadoutRecord);
 
     // Determining beam mode and fill number
     if(gtEvmReadoutRecord.isValid()){
@@ -408,7 +368,7 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     // Getting Final Decision Logic (FDL) Data from GT
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
-    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
+    iEvent.getByToken(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
     if(gtReadoutRecordData.isValid()){
 
@@ -467,7 +427,7 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
   // Rate calculation
   //______________________________________________________________________________
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
-  iEvent.getByLabel(m_scalersSource,triggerScalers);
+  iEvent.getByToken(m_scalersSource,triggerScalers);
 
   if(triggerScalers.isValid()){
     
@@ -487,7 +447,6 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
       else      {m_l1Rate[refTrig] = trigRates.gtTechCountsRate()[bit];}
     }
   }
-
 }
 
 //_____________________________________________________________________
@@ -582,6 +541,3 @@ void L1TBPTX::doFractionInSync(bool iForce,bool iBad){
 void L1TBPTX::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iValue){
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TBPTX);

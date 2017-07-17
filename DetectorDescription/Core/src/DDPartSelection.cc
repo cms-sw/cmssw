@@ -1,14 +1,9 @@
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-
-#include "boost/spirit/include/classic.hpp"
-
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <map>
+#include "boost/spirit/include/classic.hpp"
 
 namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
@@ -277,4 +272,4 @@ std::ostream & operator<<(std::ostream & os, const std::vector<DDPartSelection> 
 template class DDI::Singleton<DDSelLevelFtor>;
 //template class DDI::Singleton<DDI::Store<DDName, DDSelLevelCollector> >;
 template class DDI::Singleton<DDSelLevelCollector>;
-#include <DetectorDescription/Base/interface/Singleton.icc>
+#include <DetectorDescription/Core/interface/Singleton.icc>

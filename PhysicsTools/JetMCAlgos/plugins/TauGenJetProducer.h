@@ -7,40 +7,41 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-/**\class TauGenJetProducer 
+
+/**\class TauGenJetProducer
 \brief builds a GenJet from the visible daughters of each status 2 tau in the event.
 
 \author Colin Bernet
 \date   february 2008
 */
-class TauGenJetProducer : public edm::EDProducer {
+class TauGenJetProducer : public edm::global::EDProducer<> {
  public:
 
   explicit TauGenJetProducer(const edm::ParameterSet&);
 
   ~TauGenJetProducer();
-  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob();
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
-   
+
   /// Input PFCandidates
-  edm::InputTag   inputTagGenParticles_;
+  const edm::InputTag   inputTagGenParticles_;
+  const edm::EDGetTokenT<reco::GenParticleCollection>   tokenGenParticles_;
 
   /// if yes, neutrinos will be included, for debug purposes
-  bool   includeNeutrinos_;
-  
+  const bool   includeNeutrinos_;
+
   /// verbose ?
-  bool   verbose_;
+  const bool   verbose_;
 
 };
 

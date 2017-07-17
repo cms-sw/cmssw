@@ -14,8 +14,6 @@
 #include <iostream>
 #include <boost/bind.hpp>
 
-#include "TEveManager.h"
-
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
@@ -66,7 +64,7 @@ FWViewManagerManager::~FWViewManagerManager()
 // member functions
 //
 void
-FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
+FWViewManagerManager::add( std::shared_ptr<FWViewManagerBase> iManager)
 {
    m_viewManagers.push_back(iManager);
    iManager->setChangeManager(m_changeManager);
@@ -90,7 +88,7 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
    iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem,this,_1));
 
    //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
-   for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
+   for(std::vector<std::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
       (*itVM)->newItem(iItem);
@@ -113,7 +111,7 @@ FWTypeToRepresentations
 FWViewManagerManager::supportedTypesAndRepresentations() const
 {
    FWTypeToRepresentations returnValue;
-   for(std::vector<boost::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
+   for(std::vector<std::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
       FWTypeToRepresentations v = (*itVM)->supportedTypesAndRepresentations();
@@ -125,19 +123,15 @@ FWViewManagerManager::supportedTypesAndRepresentations() const
 void
 FWViewManagerManager::eventBegin()
 {
-   gEve->DisableRedraw();
-   for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
-         i != m_viewManagers.end(); ++i )
+   for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
       (*i)->eventBegin();
 }
 
 void
 FWViewManagerManager::eventEnd()
 {
-   for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
-         i != m_viewManagers.end(); ++i )
+   for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
       (*i)->eventEnd();
-   gEve->EnableRedraw();
 }
 
 //

@@ -28,15 +28,16 @@ namespace reco {
       hcalIso_(0.),
       HoE_(0.),
       fromGsfElectron_(false),
-      fromPhoton_(false){}
+      fromPhoton_(false),
+      fromPFSuperCluster_(false){}
       
     PFBlockElement* clone() const { return new PFBlockElementSuperCluster(*this); }
     
     /// \return reference to the corresponding cluster
-    SuperClusterRef  superClusterRef() const {return superClusterRef_;}
+    const SuperClusterRef&  superClusterRef() const {return superClusterRef_;}
 
     /// \return reference to seeding photon
-    PhotonRef photonRef() const {return photonRef_;}
+    const PhotonRef& photonRef() const {return photonRef_;}
 
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;
@@ -59,6 +60,8 @@ namespace reco {
     /// set provenance
     void setFromPhoton(bool val) {fromPhoton_=val;}
 
+    void setFromPFSuperCluster(bool val) { fromPFSuperCluster_ = val; }
+    
     /// set photonRef
     void setPhotonRef(const PhotonRef & ref) {photonRef_ = ref ;}
 
@@ -79,6 +82,10 @@ namespace reco {
 
     /// \return provenance
     bool fromPhoton() const {return fromPhoton_;}
+    
+    //SuperCluster comes from a PFSuperCluster (and can therefore be matched
+    // by ref back to the initial PFClusters)
+    bool fromPFSuperCluster() const { return fromPFSuperCluster_; }
 
   private:
     /// reference to the corresponding cluster
@@ -92,6 +99,7 @@ namespace reco {
 
     bool fromGsfElectron_;
     bool fromPhoton_;
+    bool fromPFSuperCluster_;
   };
 }
 

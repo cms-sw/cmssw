@@ -4,13 +4,10 @@
 
 #include <cmath>
 
-EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine,
-					 double A, double Z, double density, double radLen) :
-    MaterialEffectsSimulator(engine,A,Z,density,radLen) 
+EnergyLossSimulator::EnergyLossSimulator(double A, double Z, double density, double radLen) :
+    MaterialEffectsSimulator(A,Z,density,radLen)
 {
-
-  theGenerator = new LandauFluctuationGenerator(engine);
-
+  theGenerator = new LandauFluctuationGenerator();
 }
 
 EnergyLossSimulator::~EnergyLossSimulator() {
@@ -20,7 +17,7 @@ EnergyLossSimulator::~EnergyLossSimulator() {
 }
 
 void 
-EnergyLossSimulator::compute(ParticlePropagator &Particle)
+EnergyLossSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistribution const* random)
 {
 
   //  FamosHistos* myHistos = FamosHistos::instance();
@@ -60,7 +57,7 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   // meanEnergyLoss = 2.*eSpread * ( log ( 2.*eMass()*beta2*gama2 /excitE() ) - beta2 );
 
   // Generate the energy loss with Landau fluctuations
-  double dedx = mostProbableLoss + eSpread * theGenerator->landau();
+  double dedx = mostProbableLoss + eSpread * theGenerator->landau(random);
 
   // Compute the new energy and momentum
   double aBitAboveMass = Particle.mass()*1.0001;

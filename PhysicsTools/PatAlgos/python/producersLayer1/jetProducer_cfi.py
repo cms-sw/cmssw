@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-patJets = cms.EDProducer("PATJetProducer",
+_patJets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("ak5CaloJets"),
+    jetSource = cms.InputTag("ak4PFJetsCHS"),
     # add user data
     userData = cms.PSet(
       # add custom classes here
@@ -36,13 +36,30 @@ patJets = cms.EDProducer("PATJetProducer",
     addBTagInfo          = cms.bool(True),   ## master switch
     addDiscriminators    = cms.bool(True),   ## addition btag discriminators
     discriminatorSources = cms.VInputTag(
-        cms.InputTag("jetBProbabilityBJetTags"),
-        cms.InputTag("jetProbabilityBJetTags"),
-        cms.InputTag("trackCountingHighPurBJetTags"),
-        cms.InputTag("trackCountingHighEffBJetTags"),
-        cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
-        cms.InputTag("simpleSecondaryVertexHighPurBJetTags"),
-        cms.InputTag("combinedSecondaryVertexBJetTags")
+        cms.InputTag("pfJetBProbabilityBJetTags"),
+        cms.InputTag("pfJetProbabilityBJetTags"),
+        cms.InputTag("pfTrackCountingHighEffBJetTags"),
+        cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
+        cms.InputTag("pfSimpleInclusiveSecondaryVertexHighEffBJetTags"),
+        cms.InputTag("pfCombinedSecondaryVertexV2BJetTags"),
+        cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+        cms.InputTag("softPFMuonBJetTags"),
+        cms.InputTag("softPFElectronBJetTags"),
+        cms.InputTag("pfCombinedMVAV2BJetTags"),
+        # CTagging
+        cms.InputTag('pfCombinedCvsLJetTags'),
+        cms.InputTag('pfCombinedCvsBJetTags'),
+        # DeepFlavour
+        cms.InputTag('pfDeepCSVJetTags:probb'),
+        cms.InputTag('pfDeepCSVJetTags:probc'),
+        cms.InputTag('pfDeepCSVJetTags:probudsg'),
+        cms.InputTag('pfDeepCSVJetTags:probbb'),
+        # DeepCMVA
+        # cms.InputTag('pfDeepCMVAJetTags:probb'),
+        # cms.InputTag('pfDeepCMVAJetTags:probc'),
+        # cms.InputTag('pfDeepCMVAJetTags:probudsg'),
+        # cms.InputTag('pfDeepCMVAJetTags:probbb'),
+        # cms.InputTag('pfDeepCMVAJetTags:probcc'),
     ),
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos
@@ -51,13 +68,13 @@ patJets = cms.EDProducer("PATJetProducer",
     tagInfoSources  = cms.VInputTag(),
     # track association
     addAssociatedTracks    = cms.bool(True),
-    trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
+    trackAssociationSource = cms.InputTag("ak4JetTracksAssociatorAtVertexPF"),
     # jet charge
     addJetCharge    = cms.bool(True),
     jetChargeSource = cms.InputTag("patJetCharge"),
-    # add jet ID for calo jets. This should be of type ak5JetID, ak7JetID, ...
+    # add jet ID for calo jets. This should be of type ak4JetID, ak7JetID, ...
     addJetID = cms.bool(False),
-    jetIDMap = cms.InputTag("ak5JetID"),
+    jetIDMap = cms.InputTag("ak4JetID"),
     # mc matching
     addGenPartonMatch   = cms.bool(True),                           ## switch on/off matching to quarks from hard scatterin
     embedGenPartonMatch = cms.bool(True),                           ## switch on/off embedding of the GenParticle parton for this jet
@@ -69,7 +86,10 @@ patJets = cms.EDProducer("PATJetProducer",
     partonJetSource     = cms.InputTag("NOT_IMPLEMENTED"),          ## ParticleJet source to be used for the matching
     # jet flavour idetification configurables
     getJetMCFlavour    = cms.bool(True),
-    JetPartonMapSource = cms.InputTag("patJetFlavourAssociation"),
+    useLegacyJetMCFlavour = cms.bool(False),
+    addJetFlavourInfo  = cms.bool(True),
+    JetPartonMapSource = cms.InputTag("patJetFlavourAssociationLegacy"),
+    JetFlavourInfoSource = cms.InputTag("patJetFlavourAssociation"),
     # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
@@ -78,4 +98,4 @@ patJets = cms.EDProducer("PATJetProducer",
     resolutions     = cms.PSet()
 )
 
-
+patJets = _patJets.clone()

@@ -22,9 +22,7 @@ HLTBool::HLTBool(const edm::ParameterSet& iConfig) :
   LogDebug("HLTBool") << " configured result is: " << result_;
 }
 
-HLTBool::~HLTBool()
-{
-}
+HLTBool::~HLTBool() = default;
 
 void
 HLTBool::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -39,7 +37,7 @@ HLTBool::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool
-HLTBool::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTBool::filter(edm::StreamID, edm::Event & event, edm::EventSetup const & setup) const
 {
    return result_;
 }

@@ -1,11 +1,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
 
 namespace {
-  void
+  inline void
   throwExceptionUninitialized(const char *where)
   {
     throw cms::Exception("BaseTrackerRecHit") << 
@@ -19,20 +20,17 @@ namespace {
   }
 }
 
+#ifdef EDM_LM_DEBUG
+void BaseTrackerRecHit::check() const {
+  if (!hasPositionAndError()) throwExceptionUninitialized("localPosition or Error");
+}
+#endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
-    return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-           (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
-}
-
-LocalPoint BaseTrackerRecHit::localPosition() const {
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPosition");
-    return pos_;
-}
-
-LocalError BaseTrackerRecHit::localPositionError() const{ 
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPositionError");
-    return err_;
+  return det();
+  
+  //  return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
+  //       (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
 
@@ -40,24 +38,24 @@ LocalError BaseTrackerRecHit::localPositionError() const{
 void
 BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  // if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
   AlgebraicVector1 & pars = holder.params<1>();
   pars[0] = pos_.x(); 
   
   AlgebraicSymMatrix11 & errs = holder.errors<1>();
   errs(0,0) = err_.xx();
   
-  AlgebraicMatrix15 & proj = holder.projection<1>();
-  proj(0,3) = 1;
-  
-   holder.measuredParams<1>() = AlgebraicVector1( holder.tsosLocalParameters().At(3) );
-   holder.measuredErrors<1>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix11>( 3, 3 );
+  ProjectMatrix<double,5,1>  & pf = holder.projFunc<1>();
+  pf.index[0] = 3;
+
+  holder.measuredParams<1>() = AlgebraicVector1( holder.tsosLocalParameters().At(3) );
+  holder.measuredErrors<1>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix11>( 3, 3 );
 }
 
 void
 BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  //if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
    pars[1] = pos_.y();
@@ -67,15 +65,9 @@ BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const
    errs(0,1) = err_.xy();
    errs(1,1) = err_.yy();
 
-   
-   AlgebraicMatrix25 & proj = holder.projection<2>();
-   proj(0,3) = 1;
-   proj(1,4) = 1;
-
    ProjectMatrix<double,5,2>  & pf = holder.projFunc<2>();
    pf.index[0] = 3;
    pf.index[1] = 4;
-   holder.doUseProjFunc();
 
    holder.measuredParams<2>() = AlgebraicVector2( & holder.tsosLocalParameters().At(3), 2 );
    holder.measuredErrors<2>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix22>( 3, 3 );

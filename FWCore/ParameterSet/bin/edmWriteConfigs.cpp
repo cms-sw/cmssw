@@ -41,13 +41,12 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
 
 #include <string>
 #include <iostream>
 #include <vector>
 #include <exception>
+#include <functional>
 #include <memory>
 #include <utility>
 #include "FWCore/Utilities/interface/Signal.h"
@@ -80,22 +79,16 @@ namespace {
 
   void writeCfisForPlugin(std::string const& pluginName,
                           edm::ParameterSetDescriptionFillerPluginFactory* factory) {
-    std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
+    std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
 
     std::string baseType = filler->baseType();
 
     edm::ConfigurationDescriptions descriptions(filler->baseType());
 
     try {
-      try {
+      edm::convertException::wrap([&]() {
         filler->fill(descriptions);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-      catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-      catch(std::string& s) { edm::convertException::stringToEDM(s); }
-      catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-      catch (...) { edm::convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& e) {
       std::ostringstream ost;
@@ -105,15 +98,9 @@ namespace {
     }
 
     try {
-      try {
+      edm::convertException::wrap([&]() {
         descriptions.writeCfis(baseType, pluginName);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-      catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-      catch(std::string& s) { edm::convertException::stringToEDM(s); }
-      catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-      catch (...) { edm::convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& e) {
       std::ostringstream ost;
@@ -129,7 +116,9 @@ namespace {
     typedef std::vector< NameAndType > NameAndTypes;
 
     void newFactory(edmplugin::PluginFactoryBase const* iBase) {
-      iBase->newPluginAdded_.connect(boost::bind(boost::mem_fn(&Listener::newPlugin), this, _1, _2));
+      using std::placeholders::_1;
+      using std::placeholders::_2;
+      iBase->newPluginAdded_.connect(std::bind(std::mem_fn(&Listener::newPlugin), this, _1, _2));
     }
     void newPlugin(std::string const& iCategory, edmplugin::PluginInfo const& iInfo) {
       nameAndTypes_.push_back(NameAndType(iInfo.name_, iCategory));
@@ -148,6 +137,7 @@ namespace {
 
 int main (int argc, char **argv)
 try {
+  using std::placeholders::_1;
   boost::filesystem::path initialWorkingDirectory =
     boost::filesystem::initial_path<boost::filesystem::path>();
 
@@ -201,7 +191,7 @@ try {
   std::string library;
 
   try {
-    try {
+    edm::convertException::wrap([&]() {
 
       if(vm.count(kLibraryOpt)) {
         library = vm[kLibraryOpt].as<std::string>();
@@ -229,24 +219,24 @@ try {
         CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
 
         // No plugins in this category at all
-        if(itPlugins == catToInfos.end() ) return 0;
+        if(itPlugins == catToInfos.end() ) return;
 
         std::vector<edmplugin::PluginInfo> const& infos = itPlugins->second;
         std::string previousName;
 
-        edm::for_all(infos, boost::bind(&getMatchingPluginNames,
+        edm::for_all(infos, std::bind(&getMatchingPluginNames,
                                       _1,
-                                      boost::ref(pluginNames),
-                                      boost::ref(previousName),
-                                      boost::cref(library)));
+                                      std::ref(pluginNames),
+                                      std::ref(previousName),
+                                      std::cref(library)));
 
       } else {
       // the library name is part of a path
 
         Listener listener;
         edmplugin::PluginFactoryManager* pfm = edmplugin::PluginFactoryManager::get();
-        pfm->newFactory_.connect(boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
-        edm::for_all(*pfm, boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
+        pfm->newFactory_.connect(std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
+        edm::for_all(*pfm, std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
 
         boost::filesystem::path loadableFile(library);
 
@@ -272,7 +262,7 @@ try {
                       << "The executable will return success (0) so scram will continue,\n"
                       << "but no cfi files will be written.\n"
                       << iException.what() << std::endl;
-            return 0;
+            return;
           }
           else {
             throw;
@@ -284,22 +274,16 @@ try {
         factory =
           edm::ParameterSetDescriptionFillerPluginFactory::get();
 
-        edm::for_all(listener.nameAndTypes_, boost::bind(&getPluginsMatchingCategory,
+        edm::for_all(listener.nameAndTypes_, std::bind(&getPluginsMatchingCategory,
                                                          _1,
-                                                         boost::ref(pluginNames),
-                                                         boost::cref(factory->category())));
+                                                         std::ref(pluginNames),
+                                                         std::cref(factory->category())));
       }
 
-      edm::for_all(pluginNames, boost::bind(&writeCfisForPlugin,
+      edm::for_all(pluginNames, std::bind(&writeCfisForPlugin,
                                             _1,
                                             factory));
-    }
-    catch (cms::Exception& e) { throw; }
-    catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-    catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-    catch(std::string& s) { edm::convertException::stringToEDM(s); }
-    catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-    catch (...) { edm::convertException::unknownToEDM(); }
+    });
   }
   catch (cms::Exception & iException) {
     std::ostringstream ost;

@@ -220,7 +220,7 @@ processEGCandidateFillTree(const edm::Event& e,
     return;
   }
   const reco::SuperCluster& sc = *(pf->superClusterRef());
-  reco::SuperClusterRef egsc = pf->egammaExtraRef()->superClusterBoxRef();
+  reco::SuperClusterRef egsc = pf->egammaExtraRef()->superClusterPFECALRef();
   bool eleMatch(getPFCandMatch(*pf,pfCands,11));
   bool phoMatch(getPFCandMatch(*pf,pfCands,22));
 
@@ -337,7 +337,7 @@ getPFCandMatch(const reco::PFCandidate& cand,
 	       const int pdgid_search) {
   reco::PFCandidateEGammaExtraRef egxtra = cand.egammaExtraRef();
   if( egxtra.isAvailable() && egxtra.isNonnull() ) {
-    reco::SuperClusterRef scref = egxtra->superClusterBoxRef();
+    reco::SuperClusterRef scref = egxtra->superClusterPFECALRef();
     if( scref.isAvailable() && scref.isNonnull() ) {
       for( auto ipf = pf->begin(); ipf != pf->end(); ++ipf ) {
 	if( std::abs(ipf->pdgId()) == pdgid_search  && pdgid_search == 11) {

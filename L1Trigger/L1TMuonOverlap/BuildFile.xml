@@ -1,0 +1,28 @@
+<export>
+  <lib name="1"/>  
+  <use name="DataFormats/L1TMuon"/>
+  <use name="L1Trigger/RPCTrigger"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/RPCGeometry"/>  
+  <use name="root"/> 
+  <use name="xerces-c"/>
+</export>
+
+<use name="xerces-c"/>
+<use name="root"/>
+
+<use name="L1Trigger/RPCTrigger"/>
+<use name="DataFormats/L1TMuon"/>
+
+<use name="Geometry/Records"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/RPCGeometry"/>  
+
+<use name="L1Trigger/CSCCommonTrigger"/>
+<use name="L1Trigger/DTUtilities"/>
+
+<flags ADD_SUBDIR="1"/>

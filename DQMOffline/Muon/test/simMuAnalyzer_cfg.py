@@ -21,7 +21,7 @@ process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # the task
-process.load("DQMOffline.Muon.muonAnalyzer_cfi")
+process.load("DQMOffline.Muon.muonAnalyzer_cff")
 
 # the clients
 process.load("DQMOffline.Muon.trackResidualsTest_cfi")

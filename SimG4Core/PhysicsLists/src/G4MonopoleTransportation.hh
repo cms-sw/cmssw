@@ -55,11 +55,15 @@
 #include "G4Track.hh"
 #include "G4Step.hh"
 #include "G4ParticleChangeForTransport.hh"
-//#include "G4MonopoleFieldSetup.hh"
+
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 
 class G4SafetyHelper; 
 class G4Monopole;
+
+namespace sim {
+  class ChordFinderSetter;
+}
 
 #include <memory>
 
@@ -69,7 +73,7 @@ class G4MonopoleTransportation : public G4VProcess
 
   public:  // with description
 
-     G4MonopoleTransportation(const G4Monopole* p, sim::FieldBuilder *fieldBuilder, G4int verbosityLevel= 1);
+     G4MonopoleTransportation(const G4Monopole* p, sim::ChordFinderSetter *chordFinderSetter, G4int verbosityLevel= 1);
      ~G4MonopoleTransportation(); 
 
      G4double      AlongStepGetPhysicalInteractionLength(
@@ -157,7 +161,7 @@ class G4MonopoleTransportation : public G4VProcess
 
      //     G4MonopoleFieldSetup*  magSetup;
 
-     sim::FieldBuilder *fFieldBuilder;
+     sim::ChordFinderSetter *fChordFinderSetter;;
 
      G4Navigator*         fLinearNavigator;
      G4PropagatorInField* fFieldPropagator;

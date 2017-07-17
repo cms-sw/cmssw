@@ -7,7 +7,7 @@ class MultiTrajectoryStateMode ;
 class EcalClusterFunctionBaseClass ;
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-
+#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -24,6 +24,7 @@ class EcalClusterFunctionBaseClass ;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
@@ -32,19 +33,27 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
+
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
+#include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+
 #include <list>
 #include <string>
+
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 
 class GsfElectronAlgo {
 
@@ -52,20 +61,21 @@ class GsfElectronAlgo {
 
     struct InputTagsConfiguration
      {
-      edm::InputTag previousGsfElectrons ;
-      edm::InputTag pflowGsfElectronsTag ;
-      edm::InputTag gsfElectronCores ;
-      edm::InputTag hcalTowersTag ;
-      edm::InputTag barrelSuperClusters ;
-      edm::InputTag endcapSuperClusters ;
-      //edm::InputTag tracks ;
-      edm::InputTag barrelRecHitCollection ;
-      edm::InputTag endcapRecHitCollection ;
-      edm::InputTag pfMVA ;
-      edm::InputTag seedsTag ;
-      edm::InputTag ctfTracks ;
-      edm::InputTag beamSpotTag ;
-      edm::InputTag gsfPfRecTracksTag ;
+       edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons ;
+       edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag ;
+       edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores ;
+       edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag ;
+       edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters ;
+       edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters ;
+      //edm::EDGetTokenT tracks ;
+       edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection ;
+       edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection ;
+       edm::EDGetTokenT<edm::ValueMap<float> > pfMVA ;
+       edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag ;
+       edm::EDGetTokenT<reco::TrackCollection> ctfTracks ;
+       edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
+       edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag ;
+       edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
 
       //IsoVals (PF and EcalDriven)
       edm::ParameterSet pfIsoVals;
@@ -91,6 +101,12 @@ class GsfElectronAlgo {
       bool addPflowElectrons ;
       // for backward compatibility
       bool ctfTracksCheck ;
+      bool gedElectronMode;
+      float PreSelectMVA;	
+      float MaxElePtForOnlyMVA;
+      // GED-Regression (ECAL and combination)
+      bool useEcalRegression;
+      bool useCombinationRegression;  
      } ;
 
     struct CutsConfiguration
@@ -188,8 +204,11 @@ class GsfElectronAlgo {
       const IsolationConfiguration &,
       const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
-      EcalClusterFunctionBaseClass * crackCorrectionFunction
-     ) ;
+      EcalClusterFunctionBaseClass * crackCorrectionFunction,
+      const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
+      const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,	
+      const RegressionHelper::Configuration & regCfg
+      ) ;
 
     ~GsfElectronAlgo() ;
 
@@ -201,14 +220,16 @@ class GsfElectronAlgo {
     void beginEvent( edm::Event & ) ;
     void displayInternalElectrons( const std::string & title ) const ;
     void clonePreviousElectrons() ;
-    void completeElectrons() ; // do not redo cloned electrons done previously
-    void addPflowInfo() ;
+    void completeElectrons(const gsfAlgoHelpers::HeavyObjectCache*) ; // do not redo cloned electrons done previously
+    void addPflowInfo() ; // now deprecated
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
     void copyElectrons( reco::GsfElectronCollection & ) ;
+    void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
+    void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
+                       const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
     void endEvent() ;
-
 
   private :
 
@@ -222,15 +243,24 @@ class GsfElectronAlgo {
     EventData * eventData_ ;
     ElectronData * electronData_ ;
 
-    void createElectron() ;
+    void createElectron(const gsfAlgoHelpers::HeavyObjectCache*) ;
 
+    void setMVAepiBasedPreselectionFlag(reco::GsfElectron * ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
-    void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
+    void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
+                               reco::GsfElectron::ShowerShape & ) ;
+    void calculateShowerShape_full5x5( const reco::SuperClusterRef &, bool pflow,
+                                       reco::GsfElectron::ShowerShape & ) ;
+    void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&);
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
+    
+    // Pixel match variables
+    void setPixelMatchInfomation(reco::GsfElectron*) ;
+    
  } ;
 
 #endif // GsfElectronAlgo_H

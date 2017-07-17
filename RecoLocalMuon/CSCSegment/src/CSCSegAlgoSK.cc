@@ -1,13 +1,11 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  \author M. Sani
  */
  
 #include "CSCSegAlgoSK.h"
+#include "CSCSegFit.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
-// For clhep Matrix::solve
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,8 +16,8 @@
 #include <iostream>
 #include <string>
 
-CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps),
-	myName("CSCSegAlgoSK") {
+CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) 
+  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoSK"), sfit_(0) {
 	
   debugInfo = ps.getUntrackedParameter<bool>("verboseInfo");
     
@@ -77,11 +75,8 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
     }    
   }
   
-  if (debugInfo) {
-    // dump after sorting
-    dumpHits(rechits);
-  }
-  
+  //  if (debugInfo) dumpHits(rechits);
+
   if (rechits.size() < 2) {
     LogDebug("CSC") << myName << ": " << rechits.size() << 
       "	 hit(s) in chamber is not enough to build a segment.\n";
@@ -106,6 +101,9 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
   
   // Define buffer for segments we build 
   std::vector<CSCSegment> segments;
+
+  // This is going to point to fits to hits, and its content will be used to create a CSCSegment
+  sfit_ = 0;
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
@@ -144,7 +142,8 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
           GlobalPoint gp2 = l2->toGlobal(h2->localPosition());					
           LogDebug("CSC") << "start new segment from hits " << "h1: " 
                           << gp1 << " - h2: " << gp2 << "\n";
-          
+
+	  //@@ TRY ADDING A HIT - AND FIT           
           if (!addHit(h1, layer1)) { 
             LogDebug("CSC") << "  failed to add hit h1\n";
             continue;
@@ -155,7 +154,8 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
             continue;
           }
           
-          tryAddingHitsToSegment(rechits, used, layerIndex, i1, i2); 
+	  // Can only add hits if already have a segment
+          if ( sfit_ ) tryAddingHitsToSegment(rechits, used, layerIndex, i1, i2); 
           
           // Check no. of hits on segment, and if enough flag them as used
           // and store the segment
@@ -169,18 +169,13 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
               LogDebug("CSC") << "No segment has been found !!!\n";
             }	
             else {
-              
-              // calculate error matrix...
-              AlgebraicSymMatrix errors = calculateError();
-
-	      // but reorder components to match what's required by TrackingRecHit interface
-	      // i.e. slopes first, then positions
-
-              flipErrors( errors );
-
-              CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); 
-              
+	      // Create an actual CSCSegment - retrieve all info from the fit
+              CSCSegment temp(sfit_->hits(), sfit_->intercept(), 
+	  	        sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2() );
+              delete sfit_;
+              sfit_ = 0;              
               LogDebug("CSC") << "Found a segment !!!\n";
+              if ( debugInfo ) dumpSegment( temp );
               segments.push_back(temp);	
             }
           }
@@ -247,11 +242,9 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 }
 
 bool CSCSegAlgoSK::areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const {
-  float h1x = h1->localPosition().x();
-  float h2x = h2->localPosition().x();
-  float deltaX = (h1->localPosition()-h2->localPosition()).x();
-  LogDebug("CSC") << "    Hits at local x= " << h1x << ", " 
-		  << h2x << " have separation= " << deltaX;
+  float deltaX = ( h1->localPosition() - h2->localPosition() ).x();
+  LogDebug("CSC") << "    Hits at local x= " << h1->localPosition().x() << ", " 
+		  << h2->localPosition().x() << " have separation= " << deltaX;
   return (fabs(deltaX) < (dRPhiMax * windowScale))? true:false;   // +v
 }
 
@@ -308,11 +301,18 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D* h) const {
 
 float CSCSegAlgoSK::phiAtZ(float z) const {
   
+  if ( !sfit_ ) {
+      edm::LogVerbatim("CSCSegment") << "[CSCSegAlgoSK::phiAtZ] Segment fit undefined";
+      return 0.;
+  }
+
   // Returns a phi in [ 0, 2*pi )
   const CSCLayer* l1 = theChamber->layer((*(proto_segment.begin()))->cscDetId().layer());
-  GlobalPoint gp = l1->toGlobal(theOrigin);	
-  GlobalVector gv = l1->toGlobal(theDirection);	
-  
+  GlobalPoint gp = l1->toGlobal(sfit_->intercept());	
+  GlobalVector gv = l1->toGlobal(sfit_->localdir());	
+
+  LogTrace("CSCSegment") << "[CSCSegAlgoSK::phiAtZ] Global intercept = " << gp << ", direction = " << gv;  
+
   float x = gp.x() + (gv.x()/gv.z())*(z - gp.z());
   float y = gp.y() + (gv.y()/gv.z())*(z - gp.z());
   float phi = atan2(y, x);
@@ -326,13 +326,13 @@ void CSCSegAlgoSK::dumpHits(const ChamberHitContainer& rechits) const {
   
   // Dump positions of RecHit's in each CSCChamber
   ChamberHitContainerCIt it;
-  edm::LogInfo("CSC") << "CSCChamber rechit dump.\n";  	
+  edm::LogInfo("CSCSegment") << "CSCChamber rechit dump.\n";  	
   for(it=rechits.begin(); it!=rechits.end(); it++) {
     
     const CSCLayer* l1 = theChamber->layer((*it)->cscDetId().layer());
     GlobalPoint gp1 = l1->toGlobal((*it)->localPosition());	
     
-    edm::LogInfo("CSC") << "Global pos.: " << gp1 << ", phi: " << gp1.phi() << ". Local position: "
+    edm::LogInfo("CSCSegment") << "Global pos.: " << gp1 << ", phi: " << gp1.phi() << ". Local position: "
 			<< (*it)->localPosition() << ", phi: "
 			<< (*it)->localPosition().phi() << ". Layer: "
 			<< (*it)->cscDetId().layer() << "\n";
@@ -343,7 +343,7 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
   
   // If the chamber has 20 hits or fewer, require at least 3 hits on segment
   // If the chamber has >20 hits require at least 4 hits
-  //@@ THESE VALUES SHOULD BECOME PARAMETERS?
+
   bool ok = false;
   
   unsigned int iadd = ( rechitsInChamber.size() > 20 )?  1 : 0;  
@@ -379,295 +379,24 @@ bool CSCSegAlgoSK::addHit(const CSCRecHit2D* aHit, int layer) {
   // Return false if there is already a hit on the same layer, or insert failed.
   
   ChamberHitContainer::const_iterator it;
-  
+
   for(it = proto_segment.begin(); it != proto_segment.end(); it++)
     if (((*it)->cscDetId().layer() == layer) && (aHit != (*it)))
-      return false; 
+       return false; 
   
   proto_segment.push_back(aHit);
+
+  // make a fit
   updateParameters();
-  
   return true;
 }
 
-void CSCSegAlgoSK::updateParameters() {
-  
-  // Note that we need local position of a RecHit w.r.t. the CHAMBER
-  // and the RecHit itself only knows its local position w.r.t.
-  // the LAYER, so need to explicitly transform to global position.
-  
-  //  no. of hits in the RecHitsOnSegment
-  //  By construction this is the no. of layers with hits
-  //  since we allow just one hit per layer in a segment.
-  
-  int nh = proto_segment.size();
-  
-  // First hit added to a segment must always fail here
-  if (nh < 2) 
-    return;
-  
-  if (nh == 2) {
-    
-    // Once we have two hits we can calculate a straight line 
-    // (or rather, a straight line for each projection in xz and yz.)
-    ChamberHitContainer::const_iterator ih = proto_segment.begin();
-    int il1 = (*ih)->cscDetId().layer();
-    const CSCRecHit2D& h1 = (**ih);
-    ++ih;    
-    int il2 = (*ih)->cscDetId().layer();
-    const CSCRecHit2D& h2 = (**ih);
-    
-    //@@ Skip if on same layer, but should be impossible
-    if (il1 == il2) 
-      return;
-    
-    const CSCLayer* layer1 = theChamber->layer(il1);
-    const CSCLayer* layer2 = theChamber->layer(il2);
-    
-    GlobalPoint h1glopos = layer1->toGlobal(h1.localPosition());
-    GlobalPoint h2glopos = layer2->toGlobal(h2.localPosition());
-    
-    // localPosition is position of hit wrt layer (so local z = 0)
-    theOrigin = h1.localPosition();
-    
-    // We want hit wrt chamber (and local z will be != 0)
-    LocalPoint h1pos = theChamber->toLocal(h1glopos);  
-    LocalPoint h2pos = theChamber->toLocal(h2glopos);  
-    
-    float dz = h2pos.z()-h1pos.z();
-    uz = (h2pos.x()-h1pos.x())/dz ;
-    vz = (h2pos.y()-h1pos.y())/dz ;
-    
-    theChi2 = 0.;
-  }
-  else if (nh > 2) {
-    
-    // When we have more than two hits then we can fit projections to straight lines
-    fitSlopes();  
-    fillChiSquared();
-  } // end of 'if' testing no. of hits
-  
-  fillLocalDirection(); 
-}
+void CSCSegAlgoSK::updateParameters(void ) {
 
-void CSCSegAlgoSK::fitSlopes() {
-  
-  // Update parameters of fit
-  // ptc 13-Aug-02: This does a linear least-squares fit
-  // to the hits associated with the segment, in the z projection.
-  
-  // In principle perhaps one could fit the strip and wire
-  // measurements (u, v respectively), to
-  // u = u0 + uz * z
-  // v = v0 + vz * z
-  // where u0, uz, v0, vz are the parameters resulting from the fit.
-  // But what is actually done is fit to the local x, y coordinates 
-  // of the RecHits. However the strip measurement controls the precision
-  // of x, and the wire measurement controls that of y.
-  // Precision in local coordinate:
-  //       u (strip, sigma~200um), v (wire, sigma~1cm)
-  
-  // I have verified that this code agrees with the formulation given
-  // on p246-247 of 'Data analysis techniques for high-energy physics
-  // experiments' by Bock, Grote, Notz & Regler, and that on p111-113
-  // of 'Statistics' by Barlow.
-  
-  // Formulate the matrix equation representing the least-squares fit
-  // We have a vector of measurements m, which is a 2n x 1 dim matrix
-  // The transpose mT is (u1, v1, u2, v2, ..., un, vn)
-  // where ui is the strip-associated measurement and vi is the
-  // wire-associated measurement for a given RecHit i.
-  // The fit is to
-  // u = u0 + uz * z
-  // v = v0 + vz * z
-  // where u0, uz, v0, vz are the parameters to be obtained from the fit.
-  // These are contained in a vector p which is a 4x1 dim matrix, and
-  // its transpose pT is (u0, v0, uz, vz). Note the ordering!
-  // The covariance matrix for each pair of measurements is 2 x 2 and
-  // the inverse of this is the error matrix E.
-  // The error matrix for the whole set of n measurements is a diagonal
-  // matrix with diagonal elements the individual 2 x 2 error matrices
-  // (because the inverse of a diagonal matrix is a diagonal matrix
-  // with each element the inverse of the original.)
-  
-  // The matrix 'matrix' in method 'CSCSegment::weightMatrix()' is this 
-  // block-diagonal overall covariance matrix. It is inverted to the 
-  // block-diagonal error matrix right before it is returned.
-  
-  // Use the matrix A defined by
-  //    1   0   z1  0
-  //    0   1   0   z1
-  //    1   0   z2  0
-  //    0   1   0   z2
-  //    ..  ..  ..  ..
-  //    1   0   zn  0
-  //    0   1   0   zn
-  
-  // The matrix A is returned by 'CSCSegment::derivativeMatrix()'.
-  
-  // Then the normal equations are encapsulated in the matrix equation
-  //
-  //    (AT E A)p = (AT E)m
-  //
-  // where AT is the transpose of A.
-  // We'll call the combined matrix on the LHS, M, and that on the RHS, B:
-  //     M p = B
-  
-  // We solve this for the parameter vector, p.
-  // The elements of M and B then involve sums over the hits
-  
-  // The error matrix of the parameters is obtained by 
-  // (AT E A)^-1 calculated in 'calculateError()'.
-  
-  // The 4 values in p can be accessed from 'CSCSegment::parameters()'
-  // in the order uz, vz, u0, v0.
-  
-  // NOTE 1
-  // Do the #hits = 2 case separately.
-  // (I hope they're not on the same layer! They should not be, by construction.)
-  
-  // NOTE 2
-  // We need local position of a RecHit w.r.t. the CHAMBER
-  // and the RecHit itself only knows its local position w.r.t.
-  // the LAYER, so we must explicitly transform global position.
-  
-  CLHEP::HepMatrix M(4,4,0);
-  CLHEP::HepVector B(4,0);
-  
-  ChamberHitContainer::const_iterator ih = proto_segment.begin();
-  
-  for (ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
-    
-    const CSCRecHit2D& hit = (**ih);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());
-    LocalPoint  lp  = theChamber->toLocal(gp); 
-    
-    // ptc: Local position of hit w.r.t. chamber
-    double u = lp.x();
-    double v = lp.y();
-    double z = lp.z();
-    
-    // ptc: Covariance matrix of local errors 
-    CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,1) = IC(1,2); // since Cov is symmetric
-    IC(2,2) = hit.localPositionError().yy();
-    
-    // ptc: Invert covariance matrix (and trap if it fails!)
-    int ierr = 0;
-    IC.invert(ierr); // inverts in place
-    if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n";
-      
-      //@@ NOW WHAT TO DO? Exception? Return? Ignore?
-      //@@ Implement throw
-    }
-    
-    // ptc: Note that IC is no longer Cov but Cov^-1
-    M(1,1) += IC(1,1);
-    M(1,2) += IC(1,2);
-    M(1,3) += IC(1,1) * z;
-    M(1,4) += IC(1,2) * z;
-    B(1) += u * IC(1,1) + v * IC(1,2);
-    
-    M(2,1) += IC(2,1);
-    M(2,2) += IC(2,2);
-    M(2,3) += IC(2,1) * z;
-    M(2,4) += IC(2,2) * z;
-    B(2) += u * IC(2,1) + v * IC(2,2);
-    
-    M(3,1) += IC(1,1) * z;
-    M(3,2) += IC(1,2) * z;
-    M(3,3) += IC(1,1) * z * z;
-    M(3,4) += IC(1,2) * z * z;
-    B(3) += ( u * IC(1,1) + v * IC(1,2) ) * z;
-    
-    M(4,1) += IC(2,1) * z;
-    M(4,2) += IC(2,2) * z;
-    M(4,3) += IC(2,1) * z * z;
-    M(4,4) += IC(2,2) * z * z;
-    B(4) += ( u * IC(2,1) + v * IC(2,2) ) * z;
-  }
-  
-  // Solve the matrix equation using CLHEP's 'solve'
-  //@@ ptc: CAN solve FAIL?? UNCLEAR FROM (LACK OF) CLHEP DOC
-  CLHEP::HepVector p = solve(M, B);
-  
-  // Update member variables uz, vz, theOrigin
-  // Note it has local z = 0
-  theOrigin = LocalPoint(p(1), p(2), 0.);
-  uz = p(3);
-  vz = p(4);
-}
-
-void CSCSegAlgoSK::fillChiSquared() {
-  
-  // The chi-squared is (m-Ap)T E (m-Ap)
-  // where T denotes transpose.
-  // This collapses to a simple sum over contributions from each
-  // pair of measurements.
-  float u0 = theOrigin.x();
-  float v0 = theOrigin.y();
-  double chsq = 0.;
-  
-  ChamberHitContainer::const_iterator ih;
-  for (ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
-    
-    const CSCRecHit2D& hit = (**ih);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());
-    LocalPoint lp = theChamber->toLocal(gp);  // FIX !!
-    
-    double hu = lp.x();
-    double hv = lp.y();
-    double hz = lp.z();
-    
-    double du = u0 + uz * hz - hu;
-    double dv = v0 + vz * hz - hv;
-    
-    CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,1) = IC(1,2);
-    IC(2,2) = hit.localPositionError().yy();
-    
-    // Invert covariance matrix
-    int ierr = 0;
-    IC.invert(ierr);
-    if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
-      
-      // @@ NOW WHAT TO DO? Exception? Return? Ignore?
-    }
-    
-    chsq += du*du*IC(1,1) + 2.*du*dv*IC(1,2) + dv*dv*IC(2,2);
-  }
-  theChi2 = chsq;
-}
-
-void CSCSegAlgoSK::fillLocalDirection() {
-  // Always enforce direction of segment to point from IP outwards
-  // (Incorrect for particles not coming from IP, of course.)
-  
-  double dxdz = uz;
-  double dydz = vz;
-  double dz = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
-  double dx = dz*dxdz;
-  double dy = dz*dydz;
-  LocalVector localDir(dx,dy,dz);
-  
-  // localDir may need sign flip to ensure it points outward from IP
-  // ptc: Examine its direction and origin in global z: to point outward
-  // the localDir should always have same sign as global z...
-  
-  double globalZpos = ( theChamber->toGlobal( theOrigin ) ).z();
-  double globalZdir = ( theChamber->toGlobal( localDir ) ).z();
-  double directionSign = globalZpos * globalZdir;
-  
-  theDirection = (directionSign * localDir).unit();
-  
+  // Delete input CSCSegFit, create a new one and make the fit
+  delete sfit_;
+  sfit_ = new CSCSegFit( theChamber, proto_segment );
+  sfit_->fit();
 }
 
 bool CSCSegAlgoSK::hasHitOnLayer(int layer) const {
@@ -693,142 +422,70 @@ bool CSCSegAlgoSK::replaceHit(const CSCRecHit2D* h, int layer) {
       ++it;   
   }
   
-  return addHit(h, layer);				    
+  return addHit(h, layer);
 }
 
 void CSCSegAlgoSK::compareProtoSegment(const CSCRecHit2D* h, int layer) {
   
-  // compare the chi2 of two segments
-  double oldChi2 = theChi2;
-  LocalPoint oldOrigin = theOrigin;
-  LocalVector oldDirection = theDirection;
-  ChamberHitContainer oldSegment = proto_segment;
+  // Copy the input CSCSegFit
+  CSCSegFit* oldfit = new CSCSegFit( *sfit_ );
   
+  // May create a new fit
   bool ok = replaceHit(h, layer);
   
   if (ok) {
-    LogDebug("CSC") << "    hit in same layer as a hit on segment; try replacing old one..." 
-		    << " chi2 new: " << theChi2 << " old: " << oldChi2 << "\n";
+    LogDebug("CSCSegment") << "    hit in same layer as a hit on segment; try replacing old one..." 
+		    << " chi2 new: " << sfit_->chi2() << " old: " << oldfit->chi2() << "\n";
   }
   
-  if ((theChi2 < oldChi2) && (ok)) {
+  if ( ( sfit_->chi2() < oldfit->chi2() ) && ok ) {
     LogDebug("CSC")  << "    segment with replaced hit is better.\n";
+    delete oldfit;  // new fit is better 
   }
   else {
-    proto_segment = oldSegment;
-    theChi2 = oldChi2;
-    theOrigin = oldOrigin;
-    theDirection = oldDirection;
+    // keep original fit
+    delete sfit_; // now the new fit
+    sfit_ = oldfit;  // reset to the original input fit
   }
 }
 
 void CSCSegAlgoSK::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
   
-  double oldChi2 = theChi2;
-  LocalPoint oldOrigin = theOrigin;
-  LocalVector oldDirection = theDirection;
-  ChamberHitContainer oldSegment = proto_segment;
-  
+  // Copy input fit
+  CSCSegFit* oldfit = new CSCSegFit( *sfit_ );
+
+  // Creates a new fit  
   bool ok = addHit(h, layer);
   
   if (ok) {
-    LogDebug("CSC") << "    hit in new layer: added to segment, new chi2: " 
-		    << theChi2 << "\n";
+    LogDebug("CSCSegment") << "    hit in new layer: added to segment, new chi2: " 
+		    << sfit_->chi2() << "\n";
   }
   
-  int ndf = 2*proto_segment.size() - 4;
-  
-  if (ok && ((ndf <= 0) || (theChi2/ndf < chi2Max))) {
-    LogDebug("CSC") << "    segment with added hit is good.\n" ;		// FIX
+  //  int ndf = 2*proto_segment.size() - 4;
+
+  //@@ TEST ON ndof<=0 IS JUST TO ACCEPT nhits=2 CASE??  
+  if ( ok && ( (sfit_->ndof() <= 0) || (sfit_->chi2()/sfit_->ndof() < chi2Max)) ) {
+    LogDebug("CSCSegment") << "    segment with added hit is good.\n" ; 
+    delete oldfit;  // new fit is better 
   }	
   else {
-    proto_segment = oldSegment;
-    theChi2 = oldChi2;
-    theOrigin = oldOrigin;
-    theDirection = oldDirection;
+    // reset to original fit
+    delete sfit_;
+    sfit_ = oldfit;
   }			
 }		
 
-CLHEP::HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
-  
-  ChamberHitContainer::const_iterator it;
-  int nhits = proto_segment.size();
-  CLHEP::HepMatrix matrix(2*nhits, 4);
-  int row = 0;
-  
-  for(it = proto_segment.begin(); it != proto_segment.end(); ++it) {
-    
-    const CSCRecHit2D& hit = (**it);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());    	
-    LocalPoint lp = theChamber->toLocal(gp); 
-    float z = lp.z();
-    ++row;
-    matrix(row, 1) = 1.;
-    matrix(row, 3) = z;
-    ++row;
-    matrix(row, 2) = 1.;
-    matrix(row, 4) = z;
-  }
-  return matrix;
-}
+void CSCSegAlgoSK::dumpSegment( const CSCSegment& seg ) const {
 
-
-AlgebraicSymMatrix CSCSegAlgoSK::weightMatrix() const {
-  
-  std::vector<const CSCRecHit2D*>::const_iterator it;
-  int nhits = proto_segment.size();
-  AlgebraicSymMatrix matrix(2*nhits, 0);
-  int row = 0;
-  
-  for (it = proto_segment.begin(); it != proto_segment.end(); ++it) {
-    
-    const CSCRecHit2D& hit = (**it);
-    ++row;
-    matrix(row, row)   = hit.localPositionError().xx();
-    matrix(row, row+1) = hit.localPositionError().xy();
-    ++row;
-    matrix(row, row-1) = hit.localPositionError().xy();
-    matrix(row, row)   = hit.localPositionError().yy();
-  }
-  int ierr;
-  matrix.invert(ierr);
-  return matrix;
-}
-
-AlgebraicSymMatrix CSCSegAlgoSK::calculateError() const {
-  
-  AlgebraicSymMatrix weights = weightMatrix();
-  AlgebraicMatrix A = derivativeMatrix();
-  
-  // (AT W A)^-1
-  // from http://www.phys.ufl.edu/~avery/fitting.html, part I
-  int ierr;
-  AlgebraicSymMatrix result = weights.similarityT(A);
-  result.invert(ierr);
-  
-  // blithely assuming the inverting never fails...
-  return result;
-}
-
-void CSCSegAlgoSK::flipErrors( AlgebraicSymMatrix& a ) const {
-
-  // The CSCSegment needs the error matrix re-arranged
-
-  AlgebraicSymMatrix hold( a );
-
-  // errors on slopes into upper left
-  a(1,1) = hold(3,3);
-  a(1,2) = hold(3,4);
-  a(2,1) = hold(4,3);
-  a(2,2) = hold(4,4);
-  
-  // errors on positions into lower right
-  a(3,3) = hold(1,1);
-  a(3,4) = hold(1,2);
-  a(4,3) = hold(2,1);
-  a(4,4) = hold(2,2);
-
-  // off-diagonal elements remain unchanged
-
+  edm::LogVerbatim("CSCSegment") << "CSCSegment in " << theChamber->id()
+				 << "\nlocal position = " << seg.localPosition()
+				 << "\nerror = " << seg.localPositionError()
+				 << "\nlocal direction = " << seg.localDirection()
+				 << "\nerror =" << seg.localDirectionError()
+				 << "\ncovariance matrix"
+				 << seg.parametersError()
+				 << "chi2/ndf = " << seg.chi2() << "/" << seg.degreesOfFreedom()
+				 << "\n#rechits = " << seg.specificRecHits().size()
+				 << "\ntime = " << seg.time();
 }

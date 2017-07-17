@@ -6,7 +6,7 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBParticleId.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace TBDataFormats_HcalTBObjects {
   struct dictionary {
 
     edm::Wrapper<HcalTBTriggerData>   theTriggerData_;

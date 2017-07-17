@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+from Configuration.StandardSequences.GeometryDB_cff import *
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff import *
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *

@@ -1,7 +1,7 @@
 #ifndef SimpleCosmicBONSeeder_h
 #define SimpleCosmicBONSeeder_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -26,7 +27,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -34,8 +34,11 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-class SimpleCosmicBONSeeder : public edm::EDProducer
+class SeedingLayerSetsHits;
+
+class SimpleCosmicBONSeeder : public edm::stream::EDProducer<>
 {
  public:
 
@@ -59,7 +62,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   edm::ParameterSet conf_;
   std::string builderName;
 
-  SeedingLayerSetsBuilder theLsb;
+  edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
   GlobalTrackingRegion region_;
   double pMin_;
   bool writeTriplets_;
@@ -68,11 +71,11 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   double rescaleError_;
 
   uint32_t tripletsVerbosity_,seedVerbosity_, helixVerbosity_;
-  std::vector<std::string> layerTripletNames_;
  
   edm::ESHandle<MagneticField>                  magfield;
   edm::ESHandle<TrackerGeometry>                tracker;
   edm::ESHandle<TransientTrackingRecHitBuilder> TTTRHBuilder;
+  TkClonerImpl cloner; // FIXME
   KFUpdator               *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
@@ -91,7 +94,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   std::vector<int32_t> maxHitsPerModule_;
   bool checkCharge(const TrackingRecHit *hit) const ;
   bool checkCharge(const SiStripRecHit2D &hit, int subdetid) const ;
-  void checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const ;
+  void checkNoisyModules(const std::vector<SeedingHitSet::ConstRecHitPointer> &hits, std::vector<bool> &oks) const ;
 
   //***top-bottom
   bool positiveYOnly;

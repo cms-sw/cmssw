@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -47,7 +46,7 @@ public:
 
     /// public methods
 
-    boost::shared_ptr<L1GtPrescaleFactors> producePrescaleFactors(
+    std::shared_ptr<L1GtPrescaleFactors> producePrescaleFactors(
             const L1GtPrescaleFactorsAlgoTrigRcd&);
 
 private:

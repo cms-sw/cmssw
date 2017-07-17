@@ -17,8 +17,8 @@
 //
 
 #include "Geometry/HcalEventSetup/interface/HcalDDDGeometryEP.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 //#define DebugLog
 //
 // constants, enums and typedefs
@@ -33,26 +33,19 @@
 //
 
 HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
-   m_loader ( 0 ) ,
-   m_cpv    ( 0 ) ,
-   m_applyAlignment( ps.getUntrackedParameter<bool>("applyAlignment", false) ){
+  m_loader ( 0 ) ,
+  m_applyAlignment(ps.getUntrackedParameter<bool>("applyAlignment", false) ) {
 
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced( this,
-		    &HcalDDDGeometryEP::produceAligned,
-		    dependsOn( &HcalDDDGeometryEP::idealRecordCallBack ),
-		    "HCAL");
-
-// diable
-//   setWhatProduced( this,
-//		    &HcalDDDGeometryEP::produceIdeal,
-//		    edm::es::Label( "HCAL" ) );
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced( this,
+		   &HcalDDDGeometryEP::produceAligned,
+		   dependsOn( &HcalDDDGeometryEP::idealRecordCallBack ),
+		   "HCAL");
 }
 
-
 HcalDDDGeometryEP::~HcalDDDGeometryEP() { 
-   delete m_loader ;
+  if (m_loader) delete m_loader ;
 }
 
 
@@ -62,47 +55,28 @@ HcalDDDGeometryEP::~HcalDDDGeometryEP() {
 
 // ------------ method called to produce the data  ------------
 HcalDDDGeometryEP::ReturnType
-HcalDDDGeometryEP::produceIdeal(const IdealGeometryRecord& iRecord) {
-   idealRecordCallBack( iRecord ) ;
+HcalDDDGeometryEP::produceIdeal(const HcalRecNumberingRecord& iRecord) {
 
-   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
-   edm::ESHandle<HcalTopology> topology ;
-   iRecord.get( topology ) ;
+  edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+  edm::ESHandle<HcalDDDRecConstants> hcons;
+  iRecord.get( hcons ) ;
 
-   assert( 0 == m_loader ) ;
-   m_loader = new HcalDDDGeometryLoader(*m_cpv); 
+  edm::ESHandle<HcalTopology> topology ;
+  iRecord.get( topology ) ;
+
+  assert( 0 == m_loader ) ;
+  m_loader = new HcalDDDGeometryLoader(&(*hcons)); 
 #ifdef DebugLog
-   LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
+  LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
 #endif
-   ReturnType pC ( m_loader->load(*topology) ) ;
+  ReturnType pC ( m_loader->load(*topology) ) ;
 
-   return pC ;
+  return pC;
 }
 
 HcalDDDGeometryEP::ReturnType
 HcalDDDGeometryEP::produceAligned(const HcalGeometryRecord& iRecord) {
-   //now do what ever other initialization is needed
-   assert( 0 != m_cpv ) ;
 
-   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
-   edm::ESHandle<HcalTopology> topology ;
-   iRecord.get( topology ) ;
-
-   if( 0 == m_loader ) m_loader = new HcalDDDGeometryLoader(*m_cpv); 
-#ifdef DebugLog
-   LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
-#endif
-
-   ReturnType pC ( m_loader->load(*topology) ) ;
-
-   return pC ;
+  const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
+  return produceIdeal (idealRecord);
 }
-
-void
-HcalDDDGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord ) {
-   edm::ESTransientHandle<DDCompactView> pDD;
-   iRecord.get( pDD );
-   m_cpv = &(*pDD) ;
-}
-
-

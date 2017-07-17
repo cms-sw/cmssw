@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "FWCore/Framework/interface/Event.h"
 #include <memory>
 #include "boost/static_assert.hpp"
 #include "boost/type_traits.hpp"
@@ -28,7 +29,7 @@ namespace helper {
   
   template<typename T>
   struct IteratorToObjectConverter<edm::OwnVector<T> > {
-    typedef std::auto_ptr<T> value_type;
+    typedef std::unique_ptr<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
       return value_type( (*i)->clone() );
@@ -63,30 +64,7 @@ namespace helper {
     }
   };
 
-  /*
-  template<typename OutputCollection, typename InputCollection>
-  struct OutputCollectionCreator {
-    static std::auto_ptr<OutputCollection> createNewCollection( const edm::Handle<InputCollection> & ) {
-      return std::auto_ptr<OutputCollection>( new OutputCollection );
-    }
-  };
 
-  template<typename T, typename InputCollection>
-  struct OutputCollectionCreator<edm::RefToBaseVector<T>, InputCollection> {
-    static std::auto_ptr<edm::RefToBaseVector<T> > createNewCollection( const edm::Handle<InputCollection> & h ) {
-      return std::auto_ptr<edm::RefToBaseVector<T> >( new edm::RefToBaseVector<T>(h) );
-    }
-  };
-  */
-
-  /*
-  template<typename T1, typename T2>
-  struct OutputCollectionCreator<RefToBaseVector<T1>, RefToBaseVector<T2> > {
-    static RefToBaseVector<T1> * createNewCollection( const edm::Handle<RefToBaseVector<T2> > & h ) {
-      return new RefToBaseVector<T1>(h);
-    }
-  };
-  */
 
   template<typename OutputCollection, 
 	   typename ClonePolicy = IteratorToObjectConverter<OutputCollection> >
@@ -94,36 +72,35 @@ namespace helper {
     typedef OutputCollection collection;
     template<typename C>
     CollectionStoreManager( const edm::Handle<C> & h ) :
-    selected_( new OutputCollection ) { 
-      //      selected_ = OutputCollectionCreator<OutputCollection, C>::createNewCollection(h);
+      selected_( new OutputCollection ) { 
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
       using namespace std;
       for( I i = begin; i != end; ++ i ) {
 	typename ClonePolicy::value_type v = ClonePolicy::convert( i );
-        selected_->push_back( v );
+        selected_->push_back( std::move(v) );
       }
     }
     edm::OrphanHandle<collection> put( edm::Event & evt ) {
-      return evt.put( selected_ );
+      return evt.put(std::move(selected_));
     }
     size_t size() const { return selected_->size(); }
   private:
-    std::auto_ptr<collection> selected_;
+    std::unique_ptr<collection> selected_;
   };
 
-  template<typename OutputCollection>
-  struct ObjectSelectorBase : public edm::EDFilter {
-    ObjectSelectorBase( const edm::ParameterSet & cfg ) {
-      produces<OutputCollection>();
+  template<typename OutputCollection, typename EdmFilter>
+  struct ObjectSelectorBase : public EdmFilter {
+    ObjectSelectorBase( const edm::ParameterSet &) {
+      this-> template produces<OutputCollection>();
     }    
   };
 
-  template<typename OutputCollection>
+  template<typename OutputCollection, typename EdmFilter=edm::EDFilter>
   struct StoreManagerTrait {
-    typedef CollectionStoreManager<OutputCollection> type;
-    typedef ObjectSelectorBase<OutputCollection> base;
+    using type = CollectionStoreManager<OutputCollection>;
+    using base = ObjectSelectorBase<OutputCollection, EdmFilter>;
   };
 
 }

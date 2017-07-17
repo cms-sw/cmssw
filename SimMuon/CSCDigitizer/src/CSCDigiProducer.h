@@ -2,14 +2,14 @@
 #define CSCDigiProducer_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 class CSCStripConditions;
 
-class CSCDigiProducer : public edm::EDProducer
+class CSCDigiProducer : public edm::stream::EDProducer<>
 {
 public:
   typedef CSCDigitizer::DigiSimLinks DigiSimLinks;

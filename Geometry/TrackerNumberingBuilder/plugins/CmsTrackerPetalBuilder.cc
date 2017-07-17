@@ -19,7 +19,7 @@ void CmsTrackerPetalBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   if (comp.front()->type()==GeometricDet::ring)
     std::sort(comp.begin(),comp.end(),LessR_module());
@@ -33,7 +33,7 @@ void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   uint32_t startring = 8 - comp.size();
   
   for(uint32_t i=0; i<comp.size(); i++){
-    comp[i]->setGeographicalID(startring+i);
+    det->component(i)->setGeographicalID(startring+i);
   }
 }
 

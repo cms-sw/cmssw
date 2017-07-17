@@ -10,7 +10,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include <vector>
 
-class GlobalTrackingRegion GCC11_FINAL :  public TrackingRegion {
+class GlobalTrackingRegion final :  public TrackingRegion {
 public:
 
   /** Construct from minimal track P_t, and origin size and position.
@@ -20,10 +20,10 @@ public:
    *  in the transverse plane. 
    */
   GlobalTrackingRegion ( float ptMin, const GlobalPoint & origin, 
-      float originRadius, float originHalfLength, bool precise=false)
+      float originRadius, float originHalfLength, bool precise=false, bool useMS=false)
     :  TrackingRegionBase(GlobalVector( 0, 0, 0), origin,
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
-      thePrecise(precise) { }
+      thePrecise(precise), theUseMS(useMS) { }
 
   // obsolete constructor
   GlobalTrackingRegion ( float ptMin = 1., float originRadius = 0.2, 
@@ -33,26 +33,26 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
-  virtual TrackingRegion::Hits hits(
-      const edm::Event& ev,  
-      const edm::EventSetup& es, 
-      const ctfseeding::SeedingLayer* layer) const;
+  TrackingRegion::Hits hits(
+      const edm::EventSetup& es,
+      const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
  
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
 				       const DetLayer* outerlayer=0,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const ;
+				       float lr=0, float gz=0, float dr=0, float dz=0) const  override;
 
-  virtual GlobalTrackingRegion* clone() const { 
+  virtual GlobalTrackingRegion* clone() const override { 
     return new GlobalTrackingRegion(*this);
   }
 
-  virtual std::string name() const { return "GlobalTrackingRegion"; }
-  virtual std::string print() const;
+  virtual std::string name() const override { return "GlobalTrackingRegion"; }
+  virtual std::string print() const override;
 
 private:
-  bool  thePrecise;
+  bool  thePrecise=false;
+  bool  theUseMS=false;
 };
 #endif

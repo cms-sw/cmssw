@@ -19,7 +19,7 @@ AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*>& dtSt
   theDTStations.insert( theDTStations.end(), dtStations.begin(), dtStations.end() );
 
   setSurface( computeSurface() );
-   
+  compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
       
 

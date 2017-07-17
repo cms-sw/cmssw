@@ -15,7 +15,7 @@ int IsolatorByNominalEfficiency::ConeSizes::index(float dr) const
  return 0;
 }
 
-float IsolatorByNominalEfficiency::ConeSizes::cone_dr[]=
+const float IsolatorByNominalEfficiency::ConeSizes::cone_dr[]=
 { 0.001, 0.02, 0.045, 0.09, 0.13, 0.17, 0.20, 0.24, 0.28, 0.32, 0.38, 0.45, 0.5, 0.6, 0.7};
 
 IsolatorByNominalEfficiency::IsolatorByNominalEfficiency(const string & thrFile, 

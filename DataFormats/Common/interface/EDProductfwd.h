@@ -6,17 +6,15 @@
 Forward declarations of types in the EDM.
 
 ----------------------------------------------------------------------*/
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm 
 {
   class BasicHandle;
-  class WrapperHolder;
-  class WrapperOwningHolder;
   class EDProductGetter;
   class ProductID;
-  class OutputHandle;
   class RefCore;
+  class WrapperBase;
 
   template <typename C, typename T, typename F> class Ref;
   template <typename T> class RefToBase;
@@ -41,9 +39,6 @@ namespace edm
     template <class T> class BaseVectorHolder;
     template <class T, class REFVECTOR> class VectorHolder;
   }
-  typedef boost::shared_ptr<reftobase::RefHolderBase> helper_ptr;
-  typedef reftobase::RefVectorHolderBase helper_vector;
-  typedef boost::shared_ptr<reftobase::RefVectorHolderBase> helper_vector_ptr;
 }
 
 #endif

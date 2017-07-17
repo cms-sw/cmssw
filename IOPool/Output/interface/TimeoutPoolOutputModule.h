@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// Class TimeoutPoolOutputModule. Output module to POOL file with file 
+// Class TimeoutPoolOutputModule. Output module to POOL file with file
 // closure based on timeout. First file has only one event, second
 // file is closed after 15 seconds if at least one event was processed.
 // Then timeout is increased to 30 seconds and 60 seconds. After that
@@ -26,8 +26,8 @@ namespace edm {
     TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
     TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
   protected:
-    virtual bool shouldWeCloseFile() const;
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual bool shouldWeCloseFile() const override;
+    virtual void write(EventForOutput const& e) override;
 
   private:
     mutable time_t m_lastEvent;

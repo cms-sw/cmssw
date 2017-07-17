@@ -9,11 +9,11 @@ jec = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec43x_AK5PF'),
-            label  = cms.untracked.string('AK5PF')
+            tag    = cms.string('JetCorrectorParametersCollection_Jec43x_AK4PF'),
+            label  = cms.untracked.string('AK4PF')
             )
       ),
-      ## here you add as many jet types as you need (AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo, KT6PF, KT6Calo)
+      ## here you add as many jet types as you need (AK4Calo, AK4JPT, AK7PF, AK7Calo, KT4PF, KT4Calo, KT6PF, KT6Calo)
       connect = cms.string('sqlite_file:Jec43x.db')
 )
 

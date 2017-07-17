@@ -1,16 +1,14 @@
 #ifndef FWCore_Utilities_InputTag_h
 #define FWCore_Utilities_InputTag_h
 
-#ifndef __GCCXML__
 #include <atomic>
-#endif
-
 #include <iosfwd>
 #include <string>
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
 
@@ -28,14 +26,10 @@ namespace edm {
 
     InputTag(InputTag const& other);
 
-#ifndef __GCCXML__
     InputTag(InputTag&& other);
-#endif
     InputTag& operator=(InputTag const& other);
 
-#ifndef __GCCXML__
     InputTag& operator=(InputTag&& other);
-#endif
 
     std::string encode() const;
 
@@ -49,11 +43,12 @@ namespace edm {
     
     bool operator==(InputTag const& tag) const;
 
-    ProductHolderIndex indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
+    ProductResolverIndex indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
 
-    void tryToCacheIndex(ProductHolderIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
+    void tryToCacheIndex(ProductResolverIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
 
     static const std::string kSkipCurrentProcess;
+    static const std::string kCurrentProcess;
 
   private:
 
@@ -63,16 +58,12 @@ namespace edm {
     std::string instance_;
     std::string process_;
 
-    mutable TypeID typeID_;
-    mutable void const* productRegistry_;
+    CMS_THREAD_GUARD(index_) mutable TypeID typeID_;
+    CMS_THREAD_GUARD(index_) mutable void const* productRegistry_;
 
-#ifndef __GCCXML__
     mutable std::atomic<unsigned int> index_;
-#else
-    unsigned int index_;
-#endif
 
-    mutable char branchType_;
+    CMS_THREAD_GUARD(index_) mutable char branchType_;
 
     bool skipCurrentProcess_;
   };

@@ -15,6 +15,14 @@ void CosmicMuonGenerator::runCMG(){
   terminate();
 }
 
+void CosmicMuonGenerator::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  if (delRanGen)
+    delete RanGen;
+  RanGen = v;
+  delRanGen = false;
+  Cosmics->setRandomEngine(v);
+}
+
 void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
   if (delRanGen)
     delete RanGen;

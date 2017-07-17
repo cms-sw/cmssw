@@ -1,6 +1,8 @@
 // Author: Matevz Tadel
 // Shows full CMS geometry.
 
+#include "common_foos.C"
+
 TEveGeoTopNode *g_cms_all = 0;
 
 void geom_cms()

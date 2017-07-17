@@ -8,6 +8,9 @@
  *  Authors :
  *  P. Traczyk, SINS Warsaw
  *
+ *  \modified by C. Calabria, INFN & Universita  Bari
+ *  \modified by D. Nash, Northeastern University
+ *
  **/
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
@@ -41,16 +44,19 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
+#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -67,10 +73,13 @@ using namespace edm;
 //----------------
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
-				       const MuonServiceProxy* service) : 
+				       const MuonServiceProxy* service,
+				       edm::ConsumesCollector& iC) : 
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
+  theGEMRecHitLabel(par.getParameter<InputTag>("GEMRecHitLabel")),
+  theME0RecHitLabel(par.getParameter<InputTag>("ME0RecHitLabel")),
   theService(service) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalMuonRefitter");
@@ -79,6 +88,8 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
+  theGEMChi2Cut = par.getParameter<double>("Chi2CutGEM");
+  theME0Chi2Cut = par.getParameter<double>("Chi2CutME0");
 
   // Refit direction
   string refitDirectionName = par.getParameter<string>("RefitDirection");
@@ -105,7 +116,11 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
+  theDYTupdator = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
+  theDYTuseAPE = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  dytInfo        = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
@@ -113,10 +128,14 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   }
   else
     theRescaleErrorFactor = 1000.;
-  
 
   theCacheId_TRH = 0;
-
+  theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
+  theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
+  theGEMRecHitToken=iC.consumes<GEMRecHitCollection>(theGEMRecHitLabel);
+  theME0RecHitToken=iC.consumes<ME0SegmentCollection>(theME0RecHitLabel); 
+  CSCSegmentsToken = iC.consumes<CSCSegmentCollection>(InputTag("cscSegments"));
+  all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments"));
 }
 
 //--------------
@@ -124,6 +143,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 //--------------
 
 GlobalMuonRefitter::~GlobalMuonRefitter() {
+  delete dytInfo;
 }
 
 
@@ -133,14 +153,21 @@ GlobalMuonRefitter::~GlobalMuonRefitter() {
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
   theEvent = &event;
-  event.getByLabel(theDTRecHitLabel, theDTRecHits);
-  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
+  event.getByToken(theDTRecHitToken, theDTRecHits);
+  event.getByToken(theCSCRecHitToken, theCSCRecHits);
+  event.getByToken(theGEMRecHitToken, theGEMRecHits);   
+  event.getByToken(theME0RecHitToken, theME0RecHits);   
+  event.getByToken(CSCSegmentsToken, CSCSegments);
+  event.getByToken(all4DSegmentsToken, all4DSegments);
 }
 
 
 void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+  edm::ESHandle<TrajectoryFitter> aFitter;
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,aFitter);
+  theFitter = aFitter->clone();
+  
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
@@ -148,7 +175,10 @@ void GlobalMuonRefitter::setServices(const EventSetup& setup) {
     LogDebug(theCategory) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
+  theFitter->setHitCloner(&hitCloner);
+
 }
 
 
@@ -164,10 +194,12 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 
   reco::TransientTrack track(globalTrack,&*(theService->magneticField()),theService->trackingGeometry());
   
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
+
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if ((*hit)->isValid()) {
       if ((*hit)->geographicalId().det() == DetId::Tracker)
-	allRecHitsTemp.push_back(theTrackerRecHitBuilder->build(&**hit));
+	allRecHitsTemp.push_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) ) );
       else if ((*hit)->geographicalId().det() == DetId::Muon) {
 	if ((*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
 	  LogTrace(theCategory) << "RPC Rec Hit discarged"; 
@@ -236,12 +268,17 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     }     
 
     if (theMuonHitsOption == 4 ) {
-      // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
-	
+      //
+      // DYT 2.0 
+      //
       DynamicTruncation dytRefit(*theEvent,*theService);
-      dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
+      dytRefit.setProd(all4DSegments, CSCSegments);
+      dytRefit.setSelector(theDYTselector);
+      dytRefit.setThr(theDYTthrs);
+      dytRefit.setUpdateState(theDYTupdator);
+      dytRefit.setUseAPE(theDYTuseAPE);
       DYTRecHits = dytRefit.filter(globalTraj.front());
-      //vector<double> est = dytRefit.getEstimators();
+      dytInfo->CopyFrom(dytRefit.getDYTInfo());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
       outputTraj = transform(globalTrack, track, DYTRecHits);
@@ -362,7 +399,75 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 	         << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
-    }
+    } //end of CSC if
+    else if ( id.subdetId() == MuonSubdetId::GEM ) {
+      GEMDetId did(id.rawId());
+      chamberId=did.chamberId();
+
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          GEMDetId lid(id1.rawId());
+
+          // Get the GEM Rechits from this layer
+          GEMRecHitCollection::range dRecHits = theGEMRecHits->get(lid);
+          int layerHits=0;
+
+          for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+            double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+            if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the GEM Rechits from this layer
+        GEMRecHitCollection::range dRecHits = theGEMRecHits->get(did);
+
+        for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+          double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+          if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
+      }
+    } //end of GEM if
+    else if ( id.subdetId() == MuonSubdetId::ME0 ) {
+      ME0DetId did(id.rawId());
+      chamberId=did.chamberId();
+
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          ME0DetId lid(id1.rawId());
+
+          // Get the ME0 Rechits from this layer
+          ME0SegmentCollection::range dRecHits = theME0RecHits->get(lid);
+          int layerHits=0;
+
+          for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+            double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+            if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the ME0 Rechits from this layer
+        ME0SegmentCollection::range dRecHits = theME0RecHits->get(did);
+
+        for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+          double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+          if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
+      }
+    } //end of ME0 if
     else {
       if ( id.subdetId() != MuonSubdetId::RPC ) LogError(theCategory)<<" Wrong Hit Type ";
       continue;      
@@ -409,19 +514,21 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
     DetId id = (*ihit)->geographicalId();
     unsigned raw_id = id.rawId();
     if (!(*ihit)->isValid()) station = -1;
-      else {
+          else {
 	if (id.det() == DetId::Muon) {
 	  switch (id.subdetId()) {
 	  case MuonSubdetId::DT:  station = DTChamberId(raw_id).station(); break;
 	  case MuonSubdetId::CSC: station = CSCDetId(raw_id).station(); break;
+          case MuonSubdetId::GEM: station = GEMDetId(raw_id).station(); break;
+	  case MuonSubdetId::ME0: station = ME0DetId(raw_id).station(); break;
 	  case MuonSubdetId::RPC: station = RPCDetId(raw_id).station(); use_it = false; break;
 	  }
 	}
       }
 
+
     if (use_it && station > 0 && station < station_to_keep) station_to_keep = station;
     stations.push_back(station);
-
     LogTrace(theCategory) << "rawId: " << raw_id << " station = " << station << " station_to_keep is now " << station_to_keep;
   }
 
@@ -458,7 +565,7 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       muonRecHits.push_back((*im).recHit());
       continue;
     }  
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;
@@ -478,6 +585,20 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       chamberId = did.chamberId();
       threshold = theHitThreshold;
       chi2Cut = theCSCChi2Cut;
+    }
+    // get station of hit if it is in GEM
+    else if ( (*immrh).isGEM() ) {
+      GEMDetId did(id.rawId());
+      chamberId = did.chamberId();
+      threshold = theHitThreshold;
+      chi2Cut = theGEMChi2Cut;
+    }
+    // get station of hit if it is in ME0
+    else if ( (*immrh).isME0() ) {
+      ME0DetId did(id.rawId());
+      chamberId = did.chamberId();
+      threshold = theHitThreshold;
+      chi2Cut = theME0Chi2Cut;
     }
     // get station of hit if it is in RPC
     else if ( (*immrh).isRPC() ) {
@@ -711,7 +832,6 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
     LogDebug(theCategory) << "No Track refitted!" << endl;
     return vector<Trajectory>();
   }
-  
   return trajectories;
 }
 
@@ -778,6 +898,12 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStati
       } else if ( id.subdetId() == MuonSubdetId::CSC ) {
 	CSCDetId did(id.rawId());
 	station = did.station();
+      } else if ( id.subdetId() == MuonSubdetId::GEM ) {
+        GEMDetId did(id.rawId());
+        station = did.station();
+      } else if ( id.subdetId() == MuonSubdetId::ME0 ) {
+        ME0DetId did(id.rawId());
+        station = did.station();
       } else if ( id.subdetId() == MuonSubdetId::RPC ) {
 	RPCDetId rpcid(id.rawId());
 	station = rpcid.station();

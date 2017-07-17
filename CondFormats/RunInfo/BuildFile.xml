@@ -1,8 +1,10 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="FWCore/Utilities"/>
 <use   name="CoralBase"/>
-<use   name="rootrflx"/>
+<use   name="boost_serialization"/>
+
 <export>
   <lib   name="1"/>
 </export>

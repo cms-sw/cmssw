@@ -22,6 +22,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 
 #include "TGLabel.h"
@@ -84,6 +86,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
 
    Layout();
 }
+
 
 /** Handle pressing of esc. 
  */
@@ -162,23 +165,23 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
 
 /** Gets called by CMSSW as modules are about to be processed. **/
 void
-FWPathsPopup::postModule(edm::ModuleDescription const& description)
+FWPathsPopup::postModuleEvent(edm::StreamContext const &s, edm::ModuleCallingContext const &mcc)
 {
-   m_guiManager->updateStatus((description.moduleName() + " processed.").c_str());
+   m_guiManager->updateStatus((mcc.moduleDescription()->moduleName() + " processed.").c_str());
    gSystem->ProcessEvents();
 }
 
 /** Gets called by CMSSW as we process modules. **/
 void
-FWPathsPopup::preModule(edm::ModuleDescription const& description)
+FWPathsPopup::preModuleEvent(edm::StreamContext const &s, edm::ModuleCallingContext const &mcc)
 {
-   m_guiManager->updateStatus(("Processing " + description.moduleName() + "...").c_str());
+   m_guiManager->updateStatus(("Processing " + mcc.moduleDescription()->moduleName()  + "...").c_str());
    gSystem->ProcessEvents();
 }
 
 
 void
-FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
+FWPathsPopup::postEvent(edm::Event const &event)
 {
    m_guiManager->updateStatus("Done processing.");
    gSystem->ProcessEvents();

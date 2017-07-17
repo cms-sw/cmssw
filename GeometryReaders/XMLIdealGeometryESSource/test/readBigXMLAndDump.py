@@ -15,20 +15,20 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
-process.fred = cms.ESSource("XMLIdealGeometryESSource"
-                    ,geomXMLFiles = cms.vstring('GeometryReaders/XMLIdealGeometryESSource/test/fred.xml')
-                    ,rootNodeName = cms.string('cms:OCMS')
-                    )
+process.fred = cms.ESSource("XMLIdealGeometryESSource",
+                            geomXMLFiles = cms.vstring('GeometryReaders/XMLIdealGeometryESSource/test/fred.xml'),
+                            rootNodeName = cms.string('cms:OCMS')
+                            )
 
-process.pABF = cms.EDAnalyzer("PerfectGeometryAnalyzer"
-                              ,ddRootNodeName = cms.untracked.string("cms:OCMS")
-                              ,dumpPosInfo = cms.untracked.bool(True)
-                              ,label = cms.untracked.string("fred")
-                              ,isMagField = cms.untracked.bool(False)
-                              ,dumpSpecs = cms.untracked.bool(True)
-                              ,dumpGeoHistory = cms.untracked.bool(True)
-                              ,outFileName = cms.untracked.string("BDB")
-                              ,numNodesToDump = cms.untracked.uint32(0)
+process.pABF = cms.EDAnalyzer("PerfectGeometryAnalyzer",
+                              ddRootNodeName = cms.untracked.string("cms:OCMS"),
+                              dumpPosInfo = cms.untracked.bool(True),
+                              label = cms.untracked.string("fred"),
+                              isMagField = cms.untracked.bool(False),
+                              dumpSpecs = cms.untracked.bool(True),
+                              dumpGeoHistory = cms.untracked.bool(True),
+                              outFileName = cms.untracked.string("BDB"),
+                              numNodesToDump = cms.untracked.uint32(0)
                               )
 
 process.MessageLogger = cms.Service("MessageLogger",

@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include "RecoBTag/SoftLepton/src/MuonTaggerNoIPMLP.h"
+#include "RecoBTag/SoftLepton/interface/MuonTaggerNoIPMLP.h"
 
 /**  \class MuonTagger
  *
@@ -19,7 +19,6 @@ public:
 
   /// explicit ctor
   explicit MuonTaggerNoIP(const edm::ParameterSet & configuration) : 
-    theNet(),
     m_selector(configuration)
   { 
     uses("slTagInfos"); 
@@ -32,8 +31,6 @@ public:
   virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
-
-  mutable MuonTaggerNoIPMLP theNet;
 
   btag::LeptonSelector m_selector;
 

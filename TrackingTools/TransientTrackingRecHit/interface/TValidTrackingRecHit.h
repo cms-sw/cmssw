@@ -5,9 +5,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-class GeomDetUnit;
-
-
 /**
  *
  *  only for valid hits
@@ -15,35 +12,29 @@ class GeomDetUnit;
 class TValidTrackingRecHit : public TransientTrackingRecHit {
 public:
   
-  typedef ReferenceCountingPointer<TransientTrackingRecHit>        RecHitPointer;
-  typedef ConstReferenceCountingPointer<TransientTrackingRecHit>   ConstRecHitPointer;
-  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
-  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
-
-  TValidTrackingRecHit(const GeomDet * geom) : 
-    TransientTrackingRecHit(geom->geographicalId()), geom_(geom) {}
+  TValidTrackingRecHit(const GeomDet & geom) : 
+  TrackingRecHit(geom) {}
 
 
   template<typename... Args>
-  TValidTrackingRecHit(const GeomDet * geom, Args && ...args) : 
-    TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom) {}
+  TValidTrackingRecHit(Args && ...args) : 
+    TrackingRecHit(std::forward<Args>(args)...) {}
 
   // to be moved in children
   TrackingRecHit * cloneHit() const { return hit()->clone();}
 
   // Extension of the TrackingRecHit interface
-  virtual const GeomDet * det() const GCC11_FINAL {return geom_;}
-  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+  virtual const Surface * surface() const final {return &(det()->surface());}
 
 
-  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+  virtual GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
-  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
-  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalError globalPositionError() const final { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const final { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const final { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
   // once cache removed will obsolete the above
   TrackingRecHitGlobalState globalState() const {
@@ -72,9 +63,6 @@ public:
   virtual float clusterProbability() const { return 1.f; }
 
 private:
-  
-  const GeomDet * geom_ ;
-
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

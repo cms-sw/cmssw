@@ -38,7 +38,7 @@ class EventSetupRecordProviderFactoryManager
       virtual ~EventSetupRecordProviderFactoryManager();
 
       // ---------- const member functions ---------------------
-      std::auto_ptr<EventSetupRecordProvider> makeRecordProvider(const EventSetupRecordKey&) const;
+      std::unique_ptr<EventSetupRecordProvider> makeRecordProvider(const EventSetupRecordKey&) const;
 
       // ---------- static member functions --------------------
       static EventSetupRecordProviderFactoryManager& instance();

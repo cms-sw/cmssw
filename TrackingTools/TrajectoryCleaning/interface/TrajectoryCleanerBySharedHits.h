@@ -36,9 +36,9 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
   virtual void clean( TrajectoryPointerContainer&) const;
 
  private:
-  double theFraction;
-  double validHitBonus_;
-  double missingHitPenalty_;
+  float theFraction;
+  float validHitBonus_;
+  float missingHitPenalty_;
   bool allowSharedFirstHit;
 
 };

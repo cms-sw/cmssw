@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,22 +17,21 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
 class ConversionVertexFinder;
-class ConvertedPhotonProducer : public edm::EDProducer {
+class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -40,7 +39,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   virtual ~ConvertedPhotonProducer();
 
   virtual void beginRun(edm::Run const&, const edm::EventSetup &es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
   
@@ -66,23 +65,26 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
     
   
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> conversionOITrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> conversionIOTrackProducer_;
 
 
-  std::string outInTrackSCAssociationCollection_;
-  std::string inOutTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> 
+    outInTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation>
+    inOutTrackSCAssociationCollection_;
 
-
+  edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
+  
   std::string ConvertedPhotonCollection_;
   std::string CleanedConvertedPhotonCollection_;
   
-  edm::InputTag bcBarrelCollection_;
-  edm::InputTag bcEndcapCollection_;
-  edm::InputTag scHybridBarrelProducer_;
-  edm::InputTag scIslandEndcapProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
   edm::ParameterSet conf_;
-  edm::InputTag hcalTowers_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<MagneticField> theMF_;

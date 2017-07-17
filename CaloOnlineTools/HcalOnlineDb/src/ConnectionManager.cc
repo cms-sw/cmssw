@@ -4,7 +4,7 @@
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
-#include "ctype.h"
+#include <cctype>
 
 ConnectionManager::ConnectionManager() : env(0), conn(0) {
 }

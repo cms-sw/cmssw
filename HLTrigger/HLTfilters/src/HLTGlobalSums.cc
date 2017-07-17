@@ -7,6 +7,8 @@
  *
  */
 
+#include <cmath>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 
@@ -17,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<cmath>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -33,7 +35,7 @@ HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iC
   min_N_      (iConfig.template getParameter<int>("MinN")),
   tid_(triggerType_)
 {
-   LogDebug("") << "InputTags and cuts : " 
+   LogDebug("") << "InputTags and cuts : "
 		<< inputTag_.encode() << " "
 		<< triggerType_ << " "
 		<< observable_
@@ -64,9 +66,7 @@ HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iC
 }
 
 template<typename T>
-HLTGlobalSums<T>::~HLTGlobalSums()
-{
-}
+HLTGlobalSums<T>::~HLTGlobalSums() = default;
 
 template<typename T>
 void
@@ -79,7 +79,7 @@ HLTGlobalSums<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("Min",-1e125);
   desc.add<double>("Max",+1e125);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTGlobalSums<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTGlobalSums<T>>(), desc);
 }
 
 //
@@ -87,9 +87,9 @@ HLTGlobalSums<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T>
 bool
-HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

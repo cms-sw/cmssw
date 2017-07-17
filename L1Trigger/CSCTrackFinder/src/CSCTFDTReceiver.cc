@@ -14,8 +14,10 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
   dtstubs.clear();
   if( !dttrig ) return dtstubs;
 
-  const int dt_minBX = L1MuDTTFConfig::getBxMin();
-  const int dt_maxBX = L1MuDTTFConfig::getBxMax();
+  //Need a better way to get these values since this
+  // violates CMSSW coding policy
+  const int dt_minBX = L1MuDTTFConfig::getBxMinGlobally();
+  const int dt_maxBX = L1MuDTTFConfig::getBxMaxGlobally();
 
   const int dt_toffs = 0;// changed since DT tpg now centers around zero //abs(dt_maxBX - dt_minBX);
 
@@ -33,7 +35,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 	  for(int is = sector; is <= sector+1; ++is)
 	    {
 	      int iss = (is == 12) ? 0 : is;
-	      L1MuDTChambPhDigi* dtts[2];
+	      const L1MuDTChambPhDigi* dtts[2];
 
 	      for(int stub = 0; stub < 2; ++stub)
 		{

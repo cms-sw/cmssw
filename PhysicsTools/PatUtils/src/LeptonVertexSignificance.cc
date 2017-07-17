@@ -1,6 +1,3 @@
-//
-//
-
 #include "PhysicsTools/PatUtils/interface/LeptonVertexSignificance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,9 +7,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -21,7 +16,9 @@
 using namespace pat;
 
 // constructor
-LeptonVertexSignificance::LeptonVertexSignificance(const edm::EventSetup & iSetup) {
+LeptonVertexSignificance::LeptonVertexSignificance(const edm::EventSetup & iSetup, edm::ConsumesCollector && iC)
+: vertexToken_( iC.consumes< reco::VertexCollection >( edm::InputTag( "offlinePrimaryVerticesFromCTFTracks" ) ) )
+{
   // instantiate the transient-track builder
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
@@ -47,7 +44,7 @@ float LeptonVertexSignificance::calculate(const reco::Track & theTrack, const ed
   // FIXME: think more about how to handle events without vertices
   // lepton LR calculation should have nothing to do with event selection
   edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", vertexHandle);
+  iEvent.getByToken(vertexToken_, vertexHandle);
   if (vertexHandle.product()->size() == 0) return 0;
   reco::Vertex theVertex = vertexHandle.product()->front();
   // calculate the track-vertex association significance

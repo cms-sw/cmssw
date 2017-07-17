@@ -127,6 +127,10 @@ namespace npstat {
                    u_.isClose(r.u_, tol);
         }
 
+        /** Return uniformly rebinned axis */
+        inline DualHistoAxis rebin(const unsigned newBins) const
+            {return DualHistoAxis(newBins, min(), max(), label().c_str());}
+
         //@{
         // Method related to "geners" I/O
         inline gs::ClassId classId() const {return gs::ClassId(*this);}
@@ -138,9 +142,6 @@ namespace npstat {
         static DualHistoAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline DualHistoAxis()
-            : a_(dummy_vec()), u_(1U, 0.0, 1.0), uniform_(true) {}
-
         NUHistoAxis a_;
         HistoAxis u_;
         bool uniform_;
@@ -161,6 +162,8 @@ namespace npstat {
             return vec;
         }
 
+        inline DualHistoAxis()
+            : a_(dummy_vec()), u_(1U, 0.0, 1.0), uniform_(true) {}
     };
 }
 

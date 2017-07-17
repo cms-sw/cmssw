@@ -11,8 +11,8 @@ namespace edm {
       endEventID_(0U, 0U, EventID::maxEventNumber()) {
   }
 
-  EventRange::EventRange(RunNumber_t startRun, LumiNumber_t startLumi, EventNumber_t startEvent,
-                         RunNumber_t endRun, LumiNumber_t endLumi, EventNumber_t endEvent) :
+  EventRange::EventRange(RunNumber_t startRun, LuminosityBlockNumber_t startLumi, EventNumber_t startEvent,
+                         RunNumber_t endRun, LuminosityBlockNumber_t endLumi, EventNumber_t endEvent) :
       // Special cases since 0 means maximum
       startEventID_(startRun, startLumi, startEvent != 0 ? startEvent : EventID::maxEventNumber()),
       endEventID_(endRun, endLumi, endEvent != 0 ? endEvent : EventID::maxEventNumber()) {

@@ -10,32 +10,32 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 class PatZjetsJetAnalyzer : public edm::EDAnalyzer {
 
 public:
   explicit PatZjetsJetAnalyzer(const edm::ParameterSet&);
   ~PatZjetsJetAnalyzer();
-  
+
 private:
 
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
-  // simple map to contain all histograms; 
-  // histograms are booked in the beginJob() 
+
+  // simple map to contain all histograms;
+  // histograms are booked in the beginJob()
   // method
-  std::map<std::string,TH1F*> histContainer_; 
+  std::map<std::string,TH1F*> histContainer_;
 
-  // input tags  
-  edm::InputTag src_;
+  // input tags
+  edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
 };
-
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
 PatZjetsJetAnalyzer::PatZjetsJetAnalyzer(const edm::ParameterSet& iConfig):
   histContainer_(),
-  src_(iConfig.getUntrackedParameter<edm::InputTag>("src"))
+  srcToken_(consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("src")))
 {
 }
 
@@ -48,7 +48,7 @@ PatZjetsJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   // get electron collection
   edm::Handle<edm::View<pat::Jet> > jets;
-  iEvent.getByLabel(src_,jets);
+  iEvent.getByToken(srcToken_,jets);
 
   // loop jets
   for(edm::View<pat::Jet>::const_iterator ijet=jets->begin(); ijet!=jets->end(); ++ijet){
@@ -64,12 +64,12 @@ PatZjetsJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 }
 
-void 
+void
 PatZjetsJetAnalyzer::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;
-  
+
   // book histograms:
   histContainer_["pt"  ]=fs->make<TH1F>("pt"   , "pt"   ,  150,   0.,  150.);
   histContainer_["eta" ]=fs->make<TH1F>("eta"  , "eta"  ,   50,   0.,    5.);
@@ -78,8 +78,8 @@ PatZjetsJetAnalyzer::beginJob()
   histContainer_["dEta"]=fs->make<TH1F>("dEta" , "dEta" ,   40,   0.,    1.);
 }
 
-void 
-PatZjetsJetAnalyzer::endJob() 
+void
+PatZjetsJetAnalyzer::endJob()
 {
 }
 

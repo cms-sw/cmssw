@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -59,11 +61,14 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
+      ObjectParameter() : countOverflow(0) {}
         unsigned int countIndex;
         unsigned int countThreshold;
 
         bool countOverflow;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -95,6 +100,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

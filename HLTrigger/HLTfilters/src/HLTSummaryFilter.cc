@@ -29,13 +29,11 @@ HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) : HLTFilter
   edm::LogInfo("HLTSummaryFilter")
      << "Summary/member/cut/ncut : "
      << summaryTag_.encode() << " "
-     << memberTag_.encode() << " " 
+     << memberTag_.encode() << " "
      << cut_<< " " << min_N_ ;
 }
 
-HLTSummaryFilter::~HLTSummaryFilter()
-{
-}
+HLTSummaryFilter::~HLTSummaryFilter() = default;
 
 //
 // member functions
@@ -58,7 +56,7 @@ HLTSummaryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -69,8 +67,8 @@ HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    iEvent.getByToken(summaryToken_,summary);
 
    if (!summary.isValid()) {
-     LogError("HLTSummaryFilter") << "Trigger summary product " 
-				  << summaryTag_.encode() 
+     LogError("HLTSummaryFilter") << "Trigger summary product "
+				  << summaryTag_.encode()
 				  << " not found! Filter returns false always";
      return false;
    }
@@ -92,7 +90,7 @@ HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
        << " Filter objects: " << n << "/" << n1;
      return accept;
    }
-   
+
    // check if we want to cut on all physics objects of a full "L3" collection
    index=summary->collectionIndex(memberTag_);
    if (index<summary->sizeCollections()) {

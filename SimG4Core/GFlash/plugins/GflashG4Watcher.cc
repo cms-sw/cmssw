@@ -14,8 +14,8 @@
 
 #include <TVector2.h>
 
-const double radLength = 8.9; // mm
-const double rMoliere = 21.9; // mm
+using namespace CLHEP;
+
 // constructors and destructor
 //
 GflashG4Watcher::GflashG4Watcher(const edm::ParameterSet& p) {

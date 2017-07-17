@@ -45,8 +45,11 @@ MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset){
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugMuonSeed");
 
+
+  edm::ConsumesCollector iC = consumesCollector();
+
   // Builder which returns seed collection 
-  muonSeedBuilder_   = new MuonSeedBuilder( pset ); 
+  muonSeedBuilder_   = new MuonSeedBuilder( pset,iC ); 
 
 }
 
@@ -80,13 +83,13 @@ void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup)
 
    // Create pointer to the seed container
 
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection() );
+  auto output = std::make_unique<TrajectorySeedCollection>();
 
   //UNUED:  int nSeeds = 0;
   //UNUSED: nSeeds = 
   muonSeedBuilder_->build( event, eSetup, *output);
 
   // Append muon seed collection to event
-  event.put( output );
+  event.put(std::move(output));
 
 }

@@ -11,9 +11,10 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -31,10 +32,22 @@ namespace edm {
 //
 // constructor and destructor
 //
-  PtrVectorBase::PtrVectorBase() {
+  PtrVectorBase::PtrVectorBase(): cachedItems_(nullptr) {
   }
 
   PtrVectorBase::~PtrVectorBase() {
+    delete cachedItems_.load();
+  }
+
+  PtrVectorBase::PtrVectorBase( const PtrVectorBase& iOther):
+  core_(iOther.core_),
+  indicies_(iOther.indicies_),
+  cachedItems_(nullptr)
+  {
+    auto cache = iOther.cachedItems_.load();
+    if(cache) {
+      cachedItems_.store( new std::vector<void const*>(*cache));
+    }
   }
 
 //
@@ -50,23 +63,49 @@ namespace edm {
   PtrVectorBase::swap(PtrVectorBase& other) {
     core_.swap(other.core_);
     indicies_.swap(other.indicies_);
-    cachedItems_.swap(other.cachedItems_);
+    other.cachedItems_.store(cachedItems_.exchange(other.cachedItems_.load()));
   }
 
   void
   PtrVectorBase::push_back_base(RefCore const& core, key_type iKey, void const* iData) {
     core_.pushBackItem(core, false);
     //Did we already push a 'non-cached' Ptr into the container or is this a 'non-cached' Ptr?
-    if(indicies_.size() == cachedItems_.size()) {
+    if(not cachedItems_ and indicies_.empty()) {
+      cachedItems_.store( new std::vector<void const*>());
+      (*cachedItems_).reserve(indicies_.capacity());
+    }
+    auto tmpCachedItems = cachedItems_.load();
+    if(tmpCachedItems and (indicies_.size() == (*tmpCachedItems).size())) {
       if(iData) {
-        cachedItems_.push_back(iData);
+        tmpCachedItems->push_back(iData);
       } else if(key_traits<key_type>::value == iKey) {
-        cachedItems_.push_back(0);
+        tmpCachedItems->push_back(nullptr);
       } else {
-        cachedItems_.clear();
+        delete tmpCachedItems;
+        cachedItems_.store(nullptr);
       }
     }
     indicies_.push_back(iKey);
+  }
+
+  bool
+  PtrVectorBase::isAvailable() const {
+    if(indicies_.empty()) {
+      return core_.isAvailable();
+    }
+    if(!hasCache()) {
+      if(!id().isValid() || productGetter() == nullptr) {
+        return false;
+      }
+      getProduct_();
+    }
+    auto tmpCachedItems = cachedItems_.load();
+    for(auto ptr : *tmpCachedItems) {
+      if(ptr == nullptr) {
+        return false;
+      }
+    }
+    return true;
   }
 
 //
@@ -80,15 +119,61 @@ namespace edm {
     if(indicies_.size() == 0) {
       return;
     }
-    if(0 == productGetter()) {
+    //NOTE: Another thread could be getting the data
+    auto tmpProductGetter = productGetter();
+    if(nullptr == tmpProductGetter) {
       throw Exception(errors::LogicError) << "Tried to get data for a PtrVector which has no EDProductGetter\n";
     }
-    WrapperHolder product = productGetter()->getIt(id());
+    WrapperBase const* product = tmpProductGetter->getIt(id());
 
-    if(!product.isValid()) {
-      throw Exception(errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product which id " << id() << "\n";
+    auto tmpCachedItems = std::make_unique<std::vector<void const*>>();
+
+    if(product != nullptr) {
+      product->fillPtrVector(typeInfo(), indicies_, *tmpCachedItems);
+      
+      std::vector<void const*>* expected = nullptr;
+      if(cachedItems_.compare_exchange_strong(expected, tmpCachedItems.get())) {
+        //we were the first thread to change the value
+        tmpCachedItems.release();
+      }
+
+      return;
     }
-    product.fillPtrVector(typeInfo(), indicies_, cachedItems_);
+    
+    tmpCachedItems->resize(indicies_.size(), nullptr);
+
+    std::vector<unsigned int> thinnedKeys;
+    thinnedKeys.assign(indicies_.begin(), indicies_.end());
+    std::vector<WrapperBase const*> wrappers(indicies_.size(), nullptr);
+    tmpProductGetter->getThinnedProducts(id(), wrappers, thinnedKeys);
+    unsigned int nWrappers = wrappers.size();
+    assert(wrappers.size() == indicies_.size());
+    assert(wrappers.size() == tmpCachedItems->size());
+    for(unsigned k = 0; k < nWrappers; ++k) {
+      if (wrappers[k] != nullptr) {
+        wrappers[k]->setPtr(typeInfo(), thinnedKeys[k], (*tmpCachedItems)[k]);
+      }
+    }
+    {
+      std::vector<void const*>* expected = nullptr;
+      if(cachedItems_.compare_exchange_strong(expected, tmpCachedItems.get())) {
+        //we were the first thread to change the value
+        tmpCachedItems.release();
+      }
+    }
+  }
+
+  bool
+  PtrVectorBase::checkCachedItems() const {
+    auto tmp = cachedItems_.load();
+    if(not tmp) { return false;}
+    for(auto item : *tmp) {
+      if(item == nullptr) {
+        throw Exception(errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product with ProductID "
+                                                  << id() << "\n";
+      }
+    }
+    return true;
   }
 
   bool
@@ -102,10 +187,16 @@ namespace edm {
     return std::equal(indicies_.begin(),
                       indicies_.end(),
                       iRHS.indicies_.begin());
-    return true;
   }
 
 //
 // static member functions
 //
+
+  static const std::vector<void const*> s_emptyCache{};
+  
+  const std::vector<void const*>& PtrVectorBase::emptyCache() {
+    return s_emptyCache;
+  }
+  
 }

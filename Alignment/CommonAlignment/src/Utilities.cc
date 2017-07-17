@@ -1,8 +1,10 @@
 // #include "Math/GenVector/Rotation3D.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Parse.h"
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+
 
 align::EulerAngles align::toAngles(const RotationType& rot)
 {
@@ -209,4 +211,63 @@ void align::rectify(RotationType& rot)
 //   rot = RotationType(elems);
 
   rot = toMatrix( toAngles(rot) ); // fast rectification but less precise
+}
+
+
+align::RunRanges
+align::makeNonOverlappingRunRanges(const edm::VParameterSet& runRanges,
+                                   const RunNumber& defaultRun)
+{
+  const auto beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
+  const auto endValue = cond::timeTypeSpecs[cond::runnumber].endValue;
+  RunRanges uniqueRunRanges;
+  if (!runRanges.empty()) {
+    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
+    for (const auto& ipset: runRanges) {
+      const auto RunRangeStrings =
+        ipset.getParameter<std::vector<std::string> >("RunRanges");
+      for (const auto& irange: RunRangeStrings) {
+        if (irange.find(':')==std::string::npos) {
+          long int temp{strtol(irange.c_str(), 0, 0)};
+          auto first = (temp != -1) ? temp : beginValue;
+          uniqueFirstRunNumbers[first] = first;
+        } else {
+          edm::LogWarning("BadConfig")
+            << "@SUB=align::makeNonOverlappingRunRanges"
+            << "Config file contains old format for 'RunRangeSelection'. Only "
+            << "the start run number is used internally. The number of the last"
+            << " run is ignored and can besafely removed from the config file.";
+          auto tokens = edm::tokenize(irange, ":");
+          long int temp{strtol(tokens[0].c_str(), 0, 0)};
+          auto first = (temp != -1) ? temp : beginValue;
+          uniqueFirstRunNumbers[first] = first;
+        }
+      }
+    }
+
+    for (const auto& iFirst: uniqueFirstRunNumbers) {
+      uniqueRunRanges.push_back(std::make_pair(iFirst.first, endValue));
+    }
+    for (unsigned int i = 0;i<uniqueRunRanges.size()-1;++i) {
+      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
+    }
+  } else {
+    uniqueRunRanges.push_back(std::make_pair(defaultRun, endValue));
+  }
+
+  return uniqueRunRanges;
+}
+
+
+align::RunRanges
+align::makeUniqueRunRanges(const edm::VParameterSet& runRanges,
+                           const RunNumber& defaultRun) {
+  auto uniqueRunRanges =
+    align::makeNonOverlappingRunRanges(runRanges, defaultRun);
+  if (uniqueRunRanges.empty()) { // create dummy IOV
+    const RunRange runRange(defaultRun,
+			    cond::timeTypeSpecs[cond::runnumber].endValue);
+    uniqueRunRanges.push_back(runRange);
+  }
+  return uniqueRunRanges;
 }

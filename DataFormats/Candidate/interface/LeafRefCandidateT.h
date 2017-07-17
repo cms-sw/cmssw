@@ -9,16 +9,13 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Common/interface/RefCoreWithIndex.h"
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
-#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace reco {
   
-  template < class T >
-  class LeafRefCandidateT : public Candidate {
+  class LeafRefCandidateT : public LeafCandidate {
   public:
     /// collection of daughter candidates                                                 
     typedef CandidateCollection daughters;
@@ -36,132 +33,61 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor                                                               
-    LeafRefCandidateT() : 
-      mass_(0), 
-      cachePolarFixed_( false ) { }
+    LeafRefCandidateT() { }
     // constructor from T                                                        
-    explicit LeafRefCandidateT( const T & c, float m) :
-      ref_(c),
-      mass_( m ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
-
+    template < class REF >
+    LeafRefCandidateT( const REF & c, float m) :  
+      LeafCandidate(c->charge(),PolarLorentzVector(c->pt(), c->eta(), c->phi(), m ),c->vertex()),
+      ref_(c.refCore(), c.key()){}
     /// destructor
     virtual ~LeafRefCandidateT() {}
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
+
+protected:
+    // get the ref (better be the correct ref!)
+    template<typename REF>   
+    REF getRef() const { return REF(ref_.toRefCore(),ref_.index()); }
+
+public:
     /// number of daughters
-    virtual size_t numberOfDaughters() const GCC11_FINAL  { return 0; }
+    virtual size_t numberOfDaughters() const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate * daughter( size_type ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * daughter( size_type ) const final  { return 0; }
     /// number of mothers
-    virtual size_t numberOfMothers() const GCC11_FINAL  { return 0; }
+    virtual size_t numberOfMothers() const final  { return 0; }
     /// return mother at a given position (throws an exception)
-    virtual const Candidate * mother( size_type ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * mother( size_type ) const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    virtual Candidate * daughter( size_type ) GCC11_FINAL  { return 0; }
+    virtual Candidate * daughter( size_type ) final  { return 0; }
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s ) GCC11_FINAL  { return 0; }
+    virtual Candidate * daughter(const std::string& s ) final  { return 0; }
     /// return daughter with a specified role name                                        
-    virtual const Candidate * daughter(const std::string& s ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * daughter(const std::string& s ) const final  { return 0; }
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    virtual size_t numberOfSourceCandidatePtrs() const GCC11_FINAL  { return 0;}
+    virtual size_t numberOfSourceCandidatePtrs() const final  { return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const GCC11_FINAL  {
-      static CandidatePtr dummyPtr;
+    virtual CandidatePtr sourceCandidatePtr( size_type i ) const final  {
+      static const CandidatePtr dummyPtr;
       return dummyPtr;
     }
 
-    /// electric charge
-    virtual int charge() const GCC11_FINAL  { return ref_->charge(); }
-    /// pdg ID: dummy for now
-    virtual int pdgId() const GCC11_FINAL  { return 0; }
-
-    /// four-momentum Lorentz vector                                                      
-    virtual const LorentzVector & p4() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_; }
-    /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const GCC11_FINAL  { cachePolar(); return p4Polar_; }
-    /// spatial momentum vector                                                           
-    virtual Vector momentum() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Vect(); }
-    /// boost vector to boost a Lorentz vector                                            
-    /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.BoostToCM(); }
-    /// magnitude of momentum vector                                                      
-    virtual double p() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.P(); }
-    /// energy                                                                            
-    virtual double energy() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const GCC11_FINAL  { cachePolar(); return p4Polar_.Et(); }
-    /// mass                                                                              
-    virtual float mass() const GCC11_FINAL  { return mass_; }
-    /// mass squared                                                                      
-    virtual float massSqr() const GCC11_FINAL  { return mass_ * mass_; }
-    /// transverse mass                                                                   
-    virtual double mt() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt(); }
-    /// transverse mass squared                                                           
-    virtual double mtSqr() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt2(); }
-    /// x coordinate of momentum vector                                                   
-    virtual double px() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Px(); }
-    /// y coordinate of momentum vector                                                   
-    virtual double py() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Py(); }
-    /// z coordinate of momentum vector                                                   
-    virtual double pz() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Pz(); }
-    /// transverse momentum                                                               
-    virtual float pt() const GCC11_FINAL  { return ref_->pt(); } 
-    /// momentum azimuthal angle                                                          
-    virtual float phi() const GCC11_FINAL  { return ref_->phi(); }
-    /// momentum polar angle                                                              
-    virtual double theta() const GCC11_FINAL  { return ref_->theta(); }
-    /// momentum pseudorapidity                                                           
-    virtual float eta() const GCC11_FINAL  { return ref_->eta(); }
-    /// rapidity                                                                          
-    virtual double rapidity() const GCC11_FINAL  { cachePolar(); return p4Polar_.Rapidity(); }
-    /// rapidity                                                                          
-    virtual double y() const GCC11_FINAL  { return rapidity(); }
-
-    /// set particle mass                                                                 
-    virtual void setMass( double m ) GCC11_FINAL  {
-      mass_ = m;
-      clearCache();
-    }
-
-    /// vertex position                                                                   
-    virtual const Point & vertex() const GCC11_FINAL  { return ref_->vertex(); }
-    /// x coordinate of vertex position                                                   
-    virtual double vx() const GCC11_FINAL  { return ref_->vx(); }
-    /// y coordinate of vertex position                                                   
-    virtual double vy() const GCC11_FINAL  { return ref_->vy(); }
-    /// z coordinate of vertex position                                                   
-    virtual double vz() const GCC11_FINAL  { return ref_->vz(); }
-
-
-    /// returns a clone of the Candidate object                                           
-    virtual LeafRefCandidateT<T> * clone() const GCC11_FINAL  {
-      return new LeafRefCandidateT<T>( *this );
-    }
 
                      
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    virtual bool hasMasterClone() const GCC11_FINAL  { return false; }
+    virtual bool hasMasterClone() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    virtual const CandidateBaseRef & masterClone() const GCC11_FINAL  { 
-      static CandidateBaseRef dummyRef; return dummyRef; 
+    virtual const CandidateBaseRef & masterClone() const final  { 
+      static const CandidateBaseRef dummyRef; return dummyRef; 
     }
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    virtual bool hasMasterClonePtr() const GCC11_FINAL  { return false; }
+    virtual bool hasMasterClonePtr() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
-    virtual const CandidatePtr & masterClonePtr() const GCC11_FINAL  { 
-      static CandidatePtr dummyPtr; return dummyPtr; 
+    virtual const CandidatePtr & masterClonePtr() const final  { 
+      static const CandidatePtr dummyPtr; return dummyPtr; 
     }
 
     /// cast master clone reference to a concrete type                                                                 
@@ -199,61 +125,21 @@ namespace reco {
       else return reco::numberOf<C, Tag>( * this );
     }
 
-    template<typename S>
-      struct daughter_iterator GCC11_FINAL  {
-        typedef boost::filter_iterator<S, const_iterator> type;
-      };
 
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
+    virtual bool isElectron() const final  { return false; }
+    virtual bool isMuon() const final  { return false; }
+    virtual bool isStandAloneMuon() const final  { return false; }
+    virtual bool isGlobalMuon() const final  { return false; }
+    virtual bool isTrackerMuon() const final  { return false; }
+    virtual bool isCaloMuon() const final  { return false; }
+    virtual bool isPhoton() const final  { return false; }
+    virtual bool isConvertedPhoton() const final  { return false; }
+    virtual bool isJet() const final  { return false; }
 
-
-    virtual bool isElectron() const GCC11_FINAL  { return false; }
-    virtual bool isMuon() const GCC11_FINAL  { return false; }
-    virtual bool isStandAloneMuon() const GCC11_FINAL  { return false; }
-    virtual bool isGlobalMuon() const GCC11_FINAL  { return false; }
-    virtual bool isTrackerMuon() const GCC11_FINAL  { return false; }
-    virtual bool isCaloMuon() const GCC11_FINAL  { return false; }
-    virtual bool isPhoton() const GCC11_FINAL  { return false; }
-    virtual bool isConvertedPhoton() const GCC11_FINAL  { return false; }
-    virtual bool isJet() const GCC11_FINAL  { return false; }
+    CMS_CLASS_VERSION(13)
 
   protected:
-    /// T internally.
-    /// NOTE! T must satisfy ref_->pt(), ref_->phi(), etc, like a TrackRef
-    T    ref_;
-    /// mass hypothesis                                                  
-    float mass_;
-    /// internal cache for p4                                                             
-    mutable PolarLorentzVector p4Polar_;
-    /// internal cache for p4                                                             
-    mutable LorentzVector p4Cartesian_;
-    /// has cache been set?                                                               
-    mutable  edm::BoolCache cachePolarFixed_, cacheCartesianFixed_;
-    /// set internal cache                                                                
-    inline void cachePolar() const {
-      if ( cachePolarFixed_ ) return;
-      p4Polar_ = PolarLorentzVector( ref_->pt(), ref_->eta(), ref_->phi(), mass_ );
-      cachePolarFixed_ = true;
-    }
-    /// set internal cache                                                                
-    inline void cacheCartesian() const {
-      if ( cacheCartesianFixed_ ) return;
-      cachePolar();
-      p4Cartesian_ = p4Polar_;
-      cacheCartesianFixed_ = true;
-    }
-    /// clear internal cache                                                              
-    inline void clearCache() const {
-      cachePolarFixed_ = false;
-      cacheCartesianFixed_ = false;
-    }
+ 
     /// check overlap with another Candidate                                              
     virtual bool overlap( const Candidate & ) const;
     virtual bool overlap( const LeafRefCandidateT & ) const;
@@ -262,80 +148,43 @@ namespace reco {
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
+  protected:
+    edm::RefCoreWithIndex ref_;
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
-
 
     ///
     /// Hide these from all users:
     ///
-                                        
-    virtual void setCharge( Charge q ) GCC11_FINAL  { return; }                                         
-    virtual int threeCharge() const GCC11_FINAL  { return 0; }
-    virtual void setThreeCharge( Charge qx3 ) GCC11_FINAL  { return; }
-    virtual void setP4( const LorentzVector & p4 ) GCC11_FINAL  {
-      return;
-    }
-    virtual void setP4( const PolarLorentzVector & p4 ) GCC11_FINAL  {
-      return;
-    }
-    virtual void setPz( double pz ) GCC11_FINAL  {
-      return;
-    }                            
-    virtual void setVertex( const Point & vertex ) GCC11_FINAL  { return; }
-    virtual void setPdgId( int pdgId ) GCC11_FINAL  { return; }                                              
-    virtual int status() const GCC11_FINAL  { return 0; }                                      
-    virtual void setStatus( int status ) GCC11_FINAL  { return; }
-    static const unsigned int longLivedTag;                                               
-    virtual void setLongLived() GCC11_FINAL  { return; }                                      
-    virtual bool longLived() const GCC11_FINAL  { return false; }
-    static const unsigned int massConstraintTag;
-    virtual void setMassConstraint() GCC11_FINAL  { return;}
-    virtual bool massConstraint() const GCC11_FINAL  { return false; }  
-    virtual double vertexChi2() const GCC11_FINAL  { return 0.; }
-    virtual double vertexNdof() const GCC11_FINAL  { return 0.; }
-    virtual double vertexNormalizedChi2() const GCC11_FINAL  { return 0.; }
-    virtual double vertexCovariance(int i, int j) const GCC11_FINAL  { return 0.; }
-    CovarianceMatrix vertexCovariance() const GCC11_FINAL  { CovarianceMatrix m; return m; }
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const GCC11_FINAL  { return ; }
-    
+    /*                                    
+    virtual void setCharge( Charge q ) final  {}                                         
+    virtual void setThreeCharge( Charge qx3 ) final  {}
+    virtual void setP4( const LorentzVector & p4 ) final  {}
+    virtual void setP4( const PolarLorentzVector & p4 ) final  {}
+    virtual void setPz( double pz ) final  {}                            
+    virtual void setVertex( const Point & vertex ) final  {}
+    virtual void setPdgId( int pdgId ) final  {}                                              
+    virtual void setStatus( int status ) final  {}
+    virtual void setLongLived() final  {}                                      
+    virtual void setMassConstraint() final  {}
+
+    virtual double vertexChi2() const final  { return 0.; }
+    virtual double vertexNdof() const final  { return 0.; }
+    virtual double vertexNormalizedChi2() const final  { return 0.; }
+    virtual double vertexCovariance(int i, int j) const final  { return 0.; }
+    virtual void fillVertexCovariance(CovarianceMatrix & v) const final  {}
+    */
   };
 
 
 
-  template<class T>
-  Candidate::const_iterator LeafRefCandidateT<T>::begin() const  { 
-    return const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  template<class T>
-  Candidate::const_iterator LeafRefCandidateT<T>::end() const   { 
-    return  const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  template<class T>
-  Candidate::iterator LeafRefCandidateT<T>::begin()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  template<class T>
-  Candidate::iterator LeafRefCandidateT<T>::end()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  
-  template<class T>
-  bool LeafRefCandidateT<T>::overlap( const Candidate & o ) const  { 
+  inline
+  bool LeafRefCandidateT::overlap( const Candidate & o ) const  { 
     return  p4() == o.p4() && vertex() == o.vertex() && charge() == o.charge();
   }
   
-  
-  template<class T>
-  bool LeafRefCandidateT<T>::overlap( const LeafRefCandidateT & o ) const   { 
-    return  ref_ == o.ref_;
+  inline
+  bool LeafRefCandidateT::overlap( const LeafRefCandidateT & o ) const   { 
+    return  (ref_.id() == o.ref_.id()) & (ref_.index() == o.ref_.index());
   }
 
 

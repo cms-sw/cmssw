@@ -26,7 +26,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         tag = cms.string('DT1InversepbScenario200_mc')
     ), 
         cms.PSet(
-            record = cms.string('DTAlignmentErrorRcd'),
+            record = cms.string('DTAlignmentErrorExtendedRcd'),
             tag = cms.string('DT1InversepbScenarioErrors200_mc')
         ), 
         cms.PSet(
@@ -34,7 +34,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
             tag = cms.string('CSC1InversepbScenario200_mc')
         ), 
         cms.PSet(
-            record = cms.string('CSCAlignmentErrorRcd'),
+            record = cms.string('CSCAlignmentErrorExtendedRcd'),
             tag = cms.string('CSC1InversepbScenarioErrors200_mc')
         )),
     connect = cms.string('sqlite_file:Alignments.db')

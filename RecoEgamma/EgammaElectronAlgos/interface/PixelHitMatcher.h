@@ -33,9 +33,11 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include <vector>
+#include <unordered_map>
 #include <limits>
 
 /** Class to match an ECAL cluster to the pixel hits.
@@ -43,11 +45,30 @@
  */
 
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class MagneticField;
 class GeometricSearchTracker;
-class LayerMeasurements;
 class TrackerGeometry;
 class TrackerTopology;
+
+namespace std{
+  template<>
+    struct hash<std::pair<const GeomDet*,GlobalPoint> > {
+      std::size_t operator()(const std::pair<const GeomDet*,GlobalPoint>& g) const {
+	auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
+        unsigned long long k; memcpy(&k, &g.second,sizeof(k));
+        auto h2 = std::hash<unsigned long long>()(k);
+        return h1 ^ (h2 << 1);
+      }
+    };
+  template<>
+    struct equal_to<std::pair<const GeomDet*,GlobalPoint> > : public std::binary_function<std::pair<const GeomDet*,GlobalPoint>,std::pair<const GeomDet*,GlobalPoint>,bool> {
+      bool operator()(const std::pair<const GeomDet*,GlobalPoint>& a, 
+		      const std::pair<const GeomDet*,GlobalPoint>& b)  const {
+	return (a.first == b.first) & (a.second == b.second);
+      }
+    };
+}
 
 class RecHitWithDist
  {
@@ -56,6 +77,7 @@ class RecHitWithDist
     typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
     typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
     typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+    
 
     RecHitWithDist( ConstRecHitPointer rh, float & dphi )
      : rh_(rh), dphi_(dphi)
@@ -144,6 +166,10 @@ class PixelHitMatcher
     typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
     typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
     typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+    // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
+    // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
+    // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double> > REPPoint;
 
     PixelHitMatcher
      ( float phi1min, float phi1max,
@@ -155,16 +181,20 @@ class PixelHitMatcher
     virtual ~PixelHitMatcher() ;
     void setES( const MagneticField *, const MeasurementTracker * theMeasurementTracker, const TrackerGeometry * trackerGeometry ) ;
 
-    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
-    compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, 
-		   float energy, float charge,
-		   const TrackerTopology *tTopo) ;
+    void setEvent( const MeasurementTrackerEvent & event ) ;
 
-    // compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
     std::vector<SeedWithInfo>
     compatibleSeeds
       ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
         const GlobalPoint & vprim, float energy, float charge ) ;
+
+
+    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
+    compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, 
+		   float energy, float charge,
+		   const TrackerTopology *tTopo,
+                   const NavigationSchool& navigationSchool) ;
+
 
     std::vector<CLHEP::Hep3Vector> predicted1Hits() ;
     std::vector<CLHEP::Hep3Vector> predicted2Hits();
@@ -183,7 +213,6 @@ class PixelHitMatcher
 
     std::vector<CLHEP::Hep3Vector> pred1Meas ;
     std::vector<CLHEP::Hep3Vector> pred2Meas ;
-    FTSFromVertexToPointFactory myFTS ;
     BarrelMeasurementEstimator meas1stBLayer ;
     BarrelMeasurementEstimator meas2ndBLayer ;
     ForwardMeasurementEstimator meas1stFLayer ;
@@ -192,7 +221,9 @@ class PixelHitMatcher
     PropagatorWithMaterial * prop1stLayer ;
     PropagatorWithMaterial * prop2ndLayer ;
     const GeometricSearchTracker * theGeometricSearchTracker ;
-    const LayerMeasurements * theLayerMeasurements ;
+    const MeasurementTrackerEvent *theTrackerEvent;
+    const MeasurementTracker      *theTracker;
+    LayerMeasurements theLayerMeasurements ;
     const MagneticField* theMagField ;
     const TrackerGeometry * theTrackerGeometry ;
 
@@ -200,9 +231,8 @@ class PixelHitMatcher
 
     bool searchInTIDTEC_ ;
     bool useRecoVertex_ ;
-    std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_ ;
-    std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_ ;
-
+    std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> mapTsos2_fast_;    
+    std::vector<GlobalPoint> hit_gp_map_;    
 } ;
 
 #endif

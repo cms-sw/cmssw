@@ -12,7 +12,7 @@ namespace edm {
     int value_;
   };
 
-extern debugvalue debugit;
+[[cms::thread_safe]] extern debugvalue debugit;
 }
 
 #define FDEBUG(lev) if(lev <= debugit()) std::cerr

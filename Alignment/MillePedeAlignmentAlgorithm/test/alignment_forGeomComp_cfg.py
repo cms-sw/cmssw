@@ -42,7 +42,7 @@ process.MessageLogger.categories = ['Alignment']
 # initialize magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 # global tag and other conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'DESIGN42_V12::All' # take your favourite
@@ -60,7 +60,7 @@ process.trackerAlignment = cms.ESSource(
                                tag = cms.string("TrackerAlignment_GR10_v6_offline")
 #                               tag = cms.string("Alignments")
 #                               ),
-#                      cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                      cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
 #                               tag = cms.string("TrackerIdealGeometryErrors210_mc")
                                )
                       )

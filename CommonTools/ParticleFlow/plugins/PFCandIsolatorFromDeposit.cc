@@ -37,8 +37,8 @@ double PFCandIsolatorFromDeposits::SingleDeposit::toNumber(const std::string &st
     return atof(str.c_str());
 }
 
-PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
+PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) :
+  srcToken_(iC.consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("src"))),
   deltaR_(iConfig.getParameter<double>("deltaR")),
   weightExpr_(iConfig.getParameter<std::string>("weight")),
   skipDefaultVeto_(iConfig.getParameter<bool>("skipDefaultVeto")),
@@ -46,23 +46,23 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
 						      //,vetos_(new AbsVetos())
 {
   std::string mode = iConfig.getParameter<std::string>("mode");
-  if (mode == "sum") mode_ = Sum; 
-  else if (mode == "sumRelative") mode_ = SumRelative; 
-  else if (mode == "sum2") mode_ = Sum2;                  
+  if (mode == "sum") mode_ = Sum;
+  else if (mode == "sumRelative") mode_ = SumRelative;
+  else if (mode == "sum2") mode_ = Sum2;
   else if (mode == "sum2Relative") mode_ = Sum2Relative;
-  else if (mode == "max") mode_ = Max;                  
+  else if (mode == "max") mode_ = Max;
   else if (mode == "maxRelative") mode_ = MaxRelative;
   else if (mode == "nearestDR") mode_ = NearestDR;
   else if (mode == "count") mode_ = Count;
   else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
-    "Supported modes are 'sum', 'sumRelative', 'count'." << 
+    "Supported modes are 'sum', 'sumRelative', 'count'." <<
     //"Supported modes are 'sum', 'sumRelative', 'max', 'maxRelative', 'count'." << // TODO: on request only
     "New methods can be easily implemented if requested.";
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
-  reco::isodeposit::EventDependentAbsVeto *evdep=0; 
+  reco::isodeposit::EventDependentAbsVeto *evdep=0;
   static boost::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
-    
+
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
     boost::cmatch match;
     // in that case, make two series of vetoes
@@ -71,21 +71,21 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
 	{
 	  if(match[1] == "Barrel") {
 	    //	    std::cout << " Adding Barrel veto " << std::string(match[2]) << std::endl;
-	    barrelVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep)); // I don't know a better syntax
+	    barrelVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep, iC)); // I don't know a better syntax
 	  }
 	  if(match[1] == "Endcaps") {
 	    //	    std::cout << " Adding Endcap veto " << std::string(match[2]) << std::endl;
-	    endcapVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep));
+	    endcapVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep, iC));
 	  }
 	}
       else
 	{
-	  barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
-	  endcapVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+	  barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
+	  endcapVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
 	}
     } else {
       //only one serie of vetoes, just barrel
-      barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+      barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
     }
     if (evdep) evdepVetos_.push_back(evdep);
   }
@@ -114,7 +114,7 @@ void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
     evdepVetos_.clear();
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    iEvent.getByLabel(src_, hDeps_);
+    iEvent.getByToken(srcToken_, hDeps_);
     for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
         (*it)->setEvent(iEvent,iSetup);
     }
@@ -128,14 +128,14 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
     if( usePivotForBarrelEndcaps_) {
       const reco::PFCandidate * myPFCand = dynamic_cast<const reco::PFCandidate*>(&(*cand));
       if(myPFCand)  {
-	// exact barrel boundary 
+	// exact barrel boundary
 	barrel = fabs(myPFCand->positionAtECALEntrance().eta())<1.479;
       }
       else {
 	const reco::RecoCandidate * myRecoCand = dynamic_cast<const reco::RecoCandidate*>(&(*cand));
 	if(myRecoCand) {
-	  // not optimal. isEB should be used. 
-	  barrel = ( fabs(myRecoCand->superCluster()->eta())<1.479 );      
+	  // not optimal. isEB should be used.
+	  barrel = ( fabs(myRecoCand->superCluster()->eta())<1.479 );
 	}
       }
     }
@@ -164,7 +164,7 @@ PFCandIsolatorFromDeposits::PFCandIsolatorFromDeposits(const ParameterSet& par) 
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet depPSets = par.getParameter<VPSet>("deposits");
   for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
-    sources_.push_back(SingleDeposit(*it));
+    sources_.push_back(SingleDeposit(*it, consumesCollector()));
   }
   if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
   produces<CandDoubleMap>();
@@ -185,34 +185,34 @@ void PFCandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSe
   const IsoDepositMap & map = begin->map();
 
   if (map.size()==0) { // !!???
-        event.put(std::auto_ptr<CandDoubleMap>(new CandDoubleMap()));
+        event.put(std::unique_ptr<CandDoubleMap>(new CandDoubleMap()));
         return;
   }
-  std::auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  std::unique_ptr<CandDoubleMap> ret(new CandDoubleMap());
   CandDoubleMap::Filler filler(*ret);
 
-  typedef reco::IsoDepositMap::const_iterator iterator_i; 
-  typedef reco::IsoDepositMap::container::const_iterator iterator_ii; 
-  iterator_i depI = map.begin(); 
-  iterator_i depIEnd = map.end(); 
-  for (; depI != depIEnd; ++depI){ 
+  typedef reco::IsoDepositMap::const_iterator iterator_i;
+  typedef reco::IsoDepositMap::container::const_iterator iterator_ii;
+  iterator_i depI = map.begin();
+  iterator_i depIEnd = map.end();
+  for (; depI != depIEnd; ++depI){
     std::vector<double> retV(depI.size(),0);
     edm::Handle<edm::View<reco::Candidate> > candH;
     event.get(depI.id(), candH);
     const edm::View<reco::Candidate>& candV = *candH;
 
-    iterator_ii depII = depI.begin(); 
-    iterator_ii depIIEnd = depI.end(); 
+    iterator_ii depII = depI.begin();
+    iterator_ii depIIEnd = depI.end();
     size_t iRet = 0;
-    for (; depII != depIIEnd; ++depII,++iRet){ 
+    for (; depII != depIIEnd; ++depII,++iRet){
       double sum=0;
-      for (it = begin; it != end; ++it) sum += it->compute(candV.refAt(iRet)); 
+      for (it = begin; it != end; ++it) sum += it->compute(candV.refAt(iRet));
       retV[iRet] = sum;
     }
     filler.insert(candH, retV.begin(), retV.end());
   }
   filler.fill();
-  event.put(ret);
+  event.put(std::move(ret));
 }
 
 DEFINE_FWK_MODULE( PFCandIsolatorFromDeposits );

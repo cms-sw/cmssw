@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -50,6 +50,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 //ROOT inclusion
 #include "TROOT.h"
 #include "TFile.h"
@@ -71,7 +73,7 @@
 // class decleration
 //
 
-class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
+class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiStripBaselineAnalyzer(const edm::ParameterSet&);
       ~SiStripBaselineAnalyzer();
@@ -121,6 +123,7 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 
 
 SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
+  usesResource("TFileService");
    
   srcBaseline_ =  conf.getParameter<edm::InputTag>( "srcBaseline" );
   srcBaselinePoints_ = conf.getParameter<edm::InputTag>( "srcBaselinePoints" );
@@ -254,8 +257,8 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
       
     
       actualModule_++;
-      uint32_t event = e.id().event();
-      uint32_t run = e.id().run();
+      edm::RunNumber_t const run = e.id().run();
+      edm::EventNumber_t const event = e.id().event();
       //std::cout << "processing module N: " << actualModule_<< " detId: " << detId << " event: "<< event << std::endl; 
 	 
 
@@ -288,8 +291,8 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
       }
       
       sprintf(detIds,"%ul", detId);
-      sprintf(evs,"%ul", event);
-      sprintf(runs,"%ul", run);
+      sprintf(evs,"%llu", event);
+      sprintf(runs,"%u", run);
       char* dHistoName = Form("Id:%s_run:%s_ev:%s",detIds, runs, evs);
       h1ProcessedRawDigis_ = sdProcessedRawDigis_.make<TH1F>(dHistoName,dHistoName, bins, minx, maxx); 
       
@@ -351,7 +354,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 		    int firststrip = clus->firstStrip();
 	            //std::cout << "Found cluster in detId " << detId << " " << firststrip << " " << clus->amplitudes().size() << " -----------------------------------------------" << std::endl;		
      		    strip=0;
-		    for( std::vector<uint8_t>::const_iterator itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
+		    for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
 		      h1Clusters_->Fill(firststrip+strip, *itAmpl);
 		      ++strip;
 		    }

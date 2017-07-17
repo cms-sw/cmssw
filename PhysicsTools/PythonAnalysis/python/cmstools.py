@@ -3,6 +3,7 @@
 benedikt.hegner@cern.ch
 
 """
+from __future__ import absolute_import
 import re
 import ROOT
 import exceptions
@@ -16,7 +17,7 @@ except:
 
 
 # for adding iterators at runtime
-import iterators
+from . import iterators
 
 
 ### workaround iterator generators for ROOT classes
@@ -170,7 +171,7 @@ class EventBranch(object):
         return self._buffer
 
 
-class cmserror(exceptions.StandardError):
+class cmserror(exceptions.Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
           print "="*length

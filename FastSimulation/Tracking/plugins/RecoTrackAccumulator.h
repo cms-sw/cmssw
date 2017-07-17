@@ -18,40 +18,49 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 
-/*
 namespace edm {
-  class EDProducer;
-  class Event;
-  class EventSetup;
-  class ParameterSet;
+  class ConsumesCollector;
   template<typename T> class Handle;
-}
-*/
-namespace edm {
-  template<typename T> class Handle;
+  namespace stream {
+    class EDProducerBase;
+  }
+  class StreamID;
 }
 
 
 class RecoTrackAccumulator : public DigiAccumulatorMixMod 
 {
  public:
-  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::EDProducer& mixMod);
+  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~RecoTrackAccumulator();
   
-  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+
   
  private:
-  std::auto_ptr<reco::TrackCollection> NewTrackList_;
-  edm::InputTag GeneralTrackInput_;
-  std::string GeneralTrackOutput_;
+  template<class T> void accumulateEvent(const T& e, edm::EventSetup const& c,const edm::InputTag & label);
+
+  std::unique_ptr<reco::TrackCollection>  newTracks_;
+  std::unique_ptr<reco::TrackExtraCollection> newTrackExtras_;
+  std::unique_ptr<TrackingRecHitCollection> newHits_;
+
+  reco::TrackRefProd rNewTracks;
+  reco::TrackExtraRefProd rNewTrackExtras;
+  TrackingRecHitRefProd rNewHits;
+
+  edm::InputTag signalTracksTag;
+  edm::InputTag pileUpTracksTag;
+
+  std::string outputLabel;
+  
 };
 
 

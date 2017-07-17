@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # required parameters
     (options, args) = parser.parse_args()
     if len (args) != 3:
-        raise RuntimeError, "Must provide an input JSON file, an input CSV file, and an output CSV file"
+        raise RuntimeError("Must provide an input JSON file, an input CSV file, and an output CSV file")
 
     sepRE = re.compile (r'[\s,;:]+')
     runLumiDict = {}

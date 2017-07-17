@@ -50,7 +50,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_43_V3::All"
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("RecoTracker.Configuration.RecoTracker_cff")

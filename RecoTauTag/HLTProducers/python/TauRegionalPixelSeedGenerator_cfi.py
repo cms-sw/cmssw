@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 tauRegionalPixelSeedGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
-        SeedingLayers = cms.string('PixelLayerPairs')
+        SeedingLayers = cms.InputTag('PixelLayerPairs')
     ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
@@ -19,7 +19,9 @@ tauRegionalPixelSeedGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDPro
             ptMin = cms.double(5.0),
             JetSrc = cms.InputTag("icone5Tau1"),
             originZPos = cms.double(0.0),
-            vertexSrc = cms.InputTag("pixelVertices")
+            vertexSrc = cms.InputTag("pixelVertices"),
+            howToUseMeasurementTracker = cms.string("ForSiStrips"),
+            measurementTrackerName = cms.InputTag("MeasurementTrackerEvent"),
         )
     ),
     TTRHBuilder = cms.string('WithTrackAngle')

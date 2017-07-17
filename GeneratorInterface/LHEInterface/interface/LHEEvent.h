@@ -37,6 +37,7 @@ class LHEEvent {
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;
+	typedef LHEEventProduct::WGT WGT;
 
 	const boost::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
@@ -45,8 +46,21 @@ class LHEEvent {
 	const std::vector<std::string> &getComments() const { return comments; }
 	const int getReadAttempts() { return readAttemptCounter; }
 
+	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
 
+	double originalXWGTUP() const { return originalXWGTUP_; }
+	const std::vector<WGT>& weights() const { return weights_; }
+
+	const std::vector<float> &scales() const { return scales_; }
+	void setScales(const std::vector<float> &scales) { scales_ = scales; }
+	
+	int npLO() const { return npLO_; }
+	int npNLO() const { return npNLO_; }
+	
+	void setNpLO(int n) { npLO_ = n; }
+	void setNpNLO(int n) { npNLO_ = n; }
+	
 	void addComment(const std::string &line) { comments.push_back(line); }
 
 	static void removeParticle(lhef::HEPEUP &hepeup, int index);
@@ -75,9 +89,14 @@ class LHEEvent {
 
 	HEPEUP					hepeup;
 	std::auto_ptr<PDF>			pdf;
+	std::vector<WGT>	          	weights_;
 	std::vector<std::string>		comments;
 	bool					counted;
 	int                                     readAttemptCounter;
+	double                                  originalXWGTUP_;
+        std::vector<float>                      scales_; //scale value used to exclude EWK-produced partons from matching
+        int 					npLO_; //number of partons for LO process (used to steer matching/merging)
+        int 					npNLO_; //number of partons for NLO process (used to steer matching/merging)
 };
 
 } // namespace lhef

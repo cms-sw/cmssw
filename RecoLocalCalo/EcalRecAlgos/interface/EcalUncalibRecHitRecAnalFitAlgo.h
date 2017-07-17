@@ -37,7 +37,6 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
   };
 
   double pedestalFunction(double* var, double* par) {
-    double  x     = var[0];
     double ped    = par[0];
     return ped;
   };
@@ -67,13 +66,13 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     uint32_t flag = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
-      if ( dataFrame.isSaturated() != -1 ) 
+      if ( dataFrame.isSaturated() ) 
 	{
 	  gainId = 3;
 	  isSaturated = 1;
 	}
 
-      if (gainId != gainId0) iGainSwitch++ ;
+      if (gainId != gainId0) ++iGainSwitch ;
       if (!iGainSwitch)
 	frame[iSample] = double(dataFrame.sample(iSample).adc());
       else
@@ -126,14 +125,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
 
 
-    graph.Fit("pulseShape","QRM");
+    graph.Fit(&pulseShape,"QRM");
     //TF1 *pulseShape2=graph.GetFunction("pulseShape");
 
     if ( std::string(gMinuit->fCstatu.Data()) == std::string("CONVERGED ") ) {
 
       double amplitude_value=pulseShape.GetParameter(0);
 
-      graph.Fit("pedestal","QRL");
+      graph.Fit(&pedestal,"QRL");
       //TF1 *pedestal2=graph.GetFunction("pedestal");
       double pedestal_value=pedestal.GetParameter(0);
 

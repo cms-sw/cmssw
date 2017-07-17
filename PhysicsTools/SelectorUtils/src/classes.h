@@ -10,9 +10,10 @@
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PVSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/MakePyVIDClassBuilder.h"
 
 
-namespace {
+namespace PhysicsTools_SelectorUtils {
   struct dictionary {
 
     pat::strbitset strbitset;

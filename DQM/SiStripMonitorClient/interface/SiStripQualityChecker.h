@@ -44,29 +44,24 @@ class SiStripQualityChecker {
     std::string     detectorTag;
   };
 
-  struct TrackingMEs{
-    std::string     HistoName;
-    MonitorElement* TrackingFlag;
-    float           LowerCut;
-    float           UpperCut; 
-  };
-
   void fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
-  void fillTrackingStatus(DQMStore* dqm_store);
   void fillSubDetStatus(DQMStore* dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
-  void getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet);
+  void getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet, int& errdet_hasBadChan, int& errdet_hasTooManyDigis, int& errdet_hasTooManyClu, int& errdet_hasExclFed, int& errdet_hasDcsErr);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
   void initialiseBadModuleList();  
 
   void fillDetectorStatusAtLumi(DQMStore* dqm_store);
-  void fillTrackingStatusAtLumi(DQMStore* dqm_store);
   
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;
-  std::map<std::string, TrackingMEs> TrackingMEsMap;
   
   MonitorElement* DetFractionReportMap;
+  MonitorElement* DetFractionReportMap_hasBadChan;
+  MonitorElement* DetFractionReportMap_hasTooManyDigis;
+  MonitorElement* DetFractionReportMap_hasTooManyClu;
+  MonitorElement* DetFractionReportMap_hasExclFed;
+  MonitorElement* DetFractionReportMap_hasDcsErr;
   MonitorElement* SToNReportMap;
   MonitorElement* SummaryReportMap;
 
@@ -81,7 +76,6 @@ class SiStripQualityChecker {
   edm::ParameterSet pSet_;
 
   bool bookedStripStatus_;
-  bool bookedTrackingStatus_;
   int globalStatusFilling_;
   bool useGoodTracks_;
 

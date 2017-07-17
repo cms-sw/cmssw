@@ -1,11 +1,11 @@
 #ifndef DPGanalysis_SiStripTools_TinyEvent_H
 #define DPGanalysis_SiStripTools_TinyEvent_H
 
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include <vector>
 
 namespace edm {
   class Event;
-  class EventAuxiliary;
 }
 
 //class EventIdWithBX;
@@ -14,10 +14,10 @@ struct TinyEvent {
 
   TinyEvent():_event(0), _orbit(0), _bx(0) { }
 
-  explicit TinyEvent(const unsigned int event,const int orbit,const int bx):
+  explicit TinyEvent(const edm::EventNumber_t event,const int orbit,const int bx):
     _event(event), _orbit(orbit<0 ? 0 : orbit ), _bx(bx<0 ? 0 : bx) { }
 
-  explicit TinyEvent(const unsigned int event,const unsigned int orbit,const int bx):
+  explicit TinyEvent(const edm::EventNumber_t event,const unsigned int orbit,const int bx):
     _event(event), _orbit(orbit), _bx(bx<0 ? 0 : bx) { }
 
   TinyEvent(const TinyEvent& se):
@@ -84,7 +84,7 @@ struct TinyEvent {
 
   }
 
-  unsigned int _event;
+  edm::EventNumber_t _event;
   unsigned int _orbit;
   unsigned int _bx;
 

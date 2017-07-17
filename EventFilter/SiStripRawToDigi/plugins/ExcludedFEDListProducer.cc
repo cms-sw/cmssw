@@ -1,6 +1,5 @@
 #include "EventFilter/SiStripRawToDigi/plugins/ExcludedFEDListProducer.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
@@ -13,6 +12,8 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -20,12 +21,12 @@
 
 namespace sistrip {
 
-  ExcludedFEDListProducer::ExcludedFEDListProducer( const edm::ParameterSet& pset ) :
-    runNumber_(0),
-    productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
-    cabling_(0),
-    cacheId_(0)
-  {
+  ExcludedFEDListProducer::ExcludedFEDListProducer( const edm::ParameterSet& pset ) 
+    : runNumber_(0)
+    , cacheId_(0)
+    , cabling_(0)
+    , token_ ( consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel")) )
+  {    
     produces<DetIdCollection>();
   }
   
@@ -39,13 +40,21 @@ namespace sistrip {
     uint32_t cacheId = es.get<SiStripFedCablingRcd>().cacheIdentifier();
     
     if ( cacheId_ != cacheId ) {
-      
+
+      cacheId_ = cacheId;
+
       edm::ESHandle<SiStripFedCabling> c;
       es.get<SiStripFedCablingRcd>().get( c );
       cabling_ = c.product();
     }
   }
   
+  void ExcludedFEDListProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("ProductLabel",edm::InputTag("rawDataCollector"));
+    descriptions.add("siStripExcludedFEDListProducer",desc);
+  }
+
   void ExcludedFEDListProducer::produce( edm::Event& event, const edm::EventSetup& es)
   {
     if( runNumber_ != event.run() ) {
@@ -58,11 +67,10 @@ namespace sistrip {
       detids_.reserve(100);
     
       edm::Handle<FEDRawDataCollection> buffers;
-      event.getByLabel( productLabel_, buffers ); 
+      event.getByToken( token_, buffers ); 
  
       // Retrieve FED ids from cabling map and iterate through 
-      std::vector<uint16_t>::const_iterator ifed = cabling_->feds().begin();
-      for ( ; ifed != cabling_->feds().end(); ifed++ ) {
+      for (auto ifed = cabling_->fedIds().begin() ; ifed != cabling_->fedIds().end(); ifed++ ) {
       
 	// ignore trigger FED
 	// if ( *ifed == triggerFedId_ ) { continue; }
@@ -74,11 +82,10 @@ namespace sistrip {
 	if( input.size() == 0 ) {
 	  // std::cout << "Input size == 0 for FED number " << static_cast<int>(*ifed) << std::endl;
 	  // get the cabling connections for this FED
-	  const std::vector<FedChannelConnection>& conns = cabling_->connections(*ifed);
+	  auto conns = cabling_->fedConnections(*ifed);
 	  // Mark FED modules as bad
 	  detids_.reserve(detids_.size()+conns.size());
-	  std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-	  for ( ; iconn != conns.end(); ++iconn ) {
+	  for (auto iconn = conns.begin() ; iconn != conns.end(); ++iconn ) {
 	    if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
 	    detids_.push_back(iconn->detId()); //@@ Possible multiple entries
 	  }
@@ -86,12 +93,10 @@ namespace sistrip {
       }
     }
 
-    std::auto_ptr< DetIdCollection > detids( new DetIdCollection(detids_) );
-
     // for( unsigned int it = 0; it < detids->size(); ++it ) {
     //   std::cout << "detId = " << (*detids)[it]() << std::endl;
     // }
 
-    event.put(detids);
+    event.put(std::make_unique<DetIdCollection>(detids_));
   }
 }

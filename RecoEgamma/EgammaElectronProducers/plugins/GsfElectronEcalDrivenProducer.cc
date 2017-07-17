@@ -61,8 +61,8 @@ using namespace reco;
   descriptions.add("produceEcalDrivenGsfElectrons",desc) ;
  }
  */
-GsfElectronEcalDrivenProducer::GsfElectronEcalDrivenProducer( const edm::ParameterSet & cfg )
- : GsfElectronBaseProducer(cfg)
+GsfElectronEcalDrivenProducer::GsfElectronEcalDrivenProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
+  : GsfElectronBaseProducer(cfg,hoc)
  {}
 
 GsfElectronEcalDrivenProducer::~GsfElectronEcalDrivenProducer()
@@ -72,7 +72,7 @@ GsfElectronEcalDrivenProducer::~GsfElectronEcalDrivenProducer()
 void GsfElectronEcalDrivenProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
   beginEvent(event,setup) ;
-  algo_->completeElectrons() ;
+  algo_->completeElectrons(globalCache()) ;
   fillEvent(event) ;
   endEvent() ;
  }

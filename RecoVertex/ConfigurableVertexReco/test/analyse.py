@@ -7,8 +7,7 @@ process = cms.Process("cvrtest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-# nclude "SimTracker/TrackAssociation/data/TrackAssociatorByHits.cfi"
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
 # process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 # process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 # process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
@@ -38,11 +37,11 @@ process.cVRAnalysis = cms.EDFilter("CVRAnalysis",
         weightthreshold = cms.double(0.001)
     ),
     truth = cms.InputTag ('mergedtruth:MergedTrackTruth'),
-    associator = cms.string ( 'TrackAssociatorByChi2' ),
+    associator = cms.string ( 'trackAssociatorByChi2' ),
     vertexcoll = cms.string('offlinePrimaryVertices'),
     beamspot = cms.string('offlineBeamSpot')
 )
 
-process.p = cms.Path( process.offlinePrimaryVertices + process.cVRAnalysis )
+process.p = cms.Path( process.offlinePrimaryVertices + process.trackAssociatorByChi2 *process.cVRAnalysis )
 process.MessageLogger.debugModules = ['cVRAnalysis']
 

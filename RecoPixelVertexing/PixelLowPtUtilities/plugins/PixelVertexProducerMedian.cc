@@ -72,7 +72,7 @@ void PixelVertexProducerMedian::produce
             << tracks.size() << " (out of " << tracks_.size()
             << ")"; 
 
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   if(tracks.size() > 0)
   {
@@ -114,7 +114,7 @@ void PixelVertexProducerMedian::produce
     TF1 f1("f1","[0]*exp(-0.5 * ((x-[1])/[2])^2) + [3]");
     f1.SetParameters(10.,0.,0.01, 1.);
   
-    histo.Fit("f1","QN");
+    histo.Fit(&f1,"QN");
   
     LogTrace("MinBiasTracking")
               << "  [vertex position] fitted    = "
@@ -138,6 +138,6 @@ void PixelVertexProducerMedian::produce
     vertices->push_back(ver);
   }
   }
-  ev.put(vertices);
+  ev.put(std::move(vertices));
 }
 

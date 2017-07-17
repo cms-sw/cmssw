@@ -20,7 +20,6 @@
 // system include files
 #include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 
@@ -39,19 +38,19 @@
 //
 
 class HcalTPGCoderULUT : public edm::ESProducer {
-   public:
-      HcalTPGCoderULUT(const edm::ParameterSet&);
-      ~HcalTPGCoderULUT();
+public:
+  HcalTPGCoderULUT(const edm::ParameterSet&);
+  ~HcalTPGCoderULUT();
      
-      typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
-      void dbRecordCallback(const HcalDbRecord&);
+  typedef std::shared_ptr<HcalTPGCoder> ReturnType;
+  void dbRecordCallback(const HcalDbRecord&);
 
-      ReturnType produce(const HcalTPGRecord&);
-   private:
+  ReturnType produce(const HcalTPGRecord&);
+private:
   void buildCoder(const HcalTopology*);
-      // ----------member data ---------------------------
-      ReturnType coder_;  
-      HcaluLUTTPGCoder* theCoder_;
+  // ----------member data ---------------------------
+  ReturnType coder_;  
+  HcaluLUTTPGCoder* theCoder_;
   bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_;
   int maskBit_;
   edm::FileInPath fgfile_,ifilename_;
@@ -70,51 +69,51 @@ class HcalTPGCoderULUT : public edm::ESProducer {
 //
 HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) 
 {
-   read_Ascii_ = iConfig.getParameter<bool>("read_Ascii_LUTs");
-   read_XML_ = iConfig.getParameter<bool>("read_XML_LUTs");
-   read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs"); 
-   fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
-   //the following line is needed to tell the framework what
-   // data is being produced
-   if (!(read_Ascii_ || read_XML_)) {
-     setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
-     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
-     maskBit_ = iConfig.getParameter<int>("MaskBit");
-   } else {
-     ifilename_=iConfig.getParameter<edm::FileInPath>("inputLUTs");
-     setWhatProduced(this);
-   }
+  read_Ascii_ = iConfig.getParameter<bool>("read_Ascii_LUTs");
+  read_XML_ = iConfig.getParameter<bool>("read_XML_LUTs");
+  read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs"); 
+  fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
+  //the following line is needed to tell the framework what
+  // data is being produced
+  if (!(read_Ascii_ || read_XML_)) {
+    setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
+    LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
+    maskBit_ = iConfig.getParameter<int>("MaskBit");
+  } else {
+    ifilename_=iConfig.getParameter<edm::FileInPath>("inputLUTs");
+    setWhatProduced(this);
+  }
 
-   theCoder_=0;
+  theCoder_=0;
 }
 
   
 void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {  
-   using namespace edm::es;
-   theCoder_ = new HcaluLUTTPGCoder();
-   if (read_Ascii_ || read_XML_){
-     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
-     if (read_Ascii_) {
-       theCoder_->update(ifilename_.fullPath().c_str(),*topo);
-     } else if (read_XML_) theCoder_->updateXML(ifilename_.fullPath().c_str(),*topo);
-
-      // Read FG LUT and append to most significant bit 11
-     if (read_FGLut_) {
-       theCoder_->update(fgfile_.fullPath().c_str(), *topo,true);
-   } 
-   } else {
-     theCoder_->setLUTGenerationMode(LUTGenerationMode_);
-     theCoder_->setMaskBit(maskBit_);
-   }  
-   coder_=ReturnType(theCoder_);
+  using namespace edm::es;
+  theCoder_ = new HcaluLUTTPGCoder(topo);
+  if (read_Ascii_ || read_XML_){
+    edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
+    if (read_Ascii_) {
+      theCoder_->update(ifilename_.fullPath().c_str());
+    } else if (read_XML_) {
+      theCoder_->updateXML(ifilename_.fullPath().c_str());
+    }
+    // Read FG LUT and append to most significant bit 11
+    if (read_FGLut_) {
+      theCoder_->update(fgfile_.fullPath().c_str(), true);
+    } 
+  } else {
+    theCoder_->setLUTGenerationMode(LUTGenerationMode_);
+    theCoder_->setMaskBit(maskBit_);
+  }  
+  coder_=ReturnType(theCoder_);
 }
 
 
-HcalTPGCoderULUT::~HcalTPGCoderULUT()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+HcalTPGCoderULUT::~HcalTPGCoderULUT() {
+  
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -128,29 +127,31 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
   if (theCoder_==0) {
     edm::ESHandle<HcalTopology> htopo;
-    iRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     buildCoder(topo);
   }
-
+  
 
   return coder_;
 }
 
 void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
-   edm::ESHandle<HcalDbService> conditions;
-   theRec.get(conditions);
-   const HcalTopology* topo=conditions->getTopologyUsed();
+  edm::ESHandle<HcalDbService> conditions;
+  theRec.get(conditions);
+  edm::ESHandle<HcalTopology> htopo;
+  theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
-   if (theCoder_==0) {
-     buildCoder(topo);
-   }
+  if (theCoder_==0) {
+    buildCoder(topo);
+  }
 
-   theCoder_->update(*conditions);
+  theCoder_->update(*conditions);
 
-   // Temporary update for FG Lut
-   // Will be moved to DB
-   if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(),*topo,true);
+  // Temporary update for FG Lut
+  // Will be moved to DB
+  if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(),true);
 }
 
 //define this as a plug-in

@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -25,8 +24,6 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-//RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -46,7 +43,8 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
   // switch for detailed analysis
   detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
   // Get the map of noisy channels
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels",false);
   // # of bins in the time histos
@@ -58,9 +56,6 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
   phiSegmCut = pset.getUntrackedParameter<double>("phiSegmCut",30.);
   nhitsCut = pset.getUntrackedParameter<int>("nhitsCut",12);
 
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-
   // top folder for the histograms in DQMStore
   topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
@@ -70,26 +65,57 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
 
 
 DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
+  //FR moved fron endjob
+  delete hNevtPerLS;
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Destructor called!";
 }
 
 
-void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& context){ 
+void DTSegmentAnalysisTask::dqmBeginRun(const Run& run, const edm::EventSetup& context){
 
   // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
 
+}
+
+void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
+
   if (!hltDQMMode) {
-    theDbe->setCurrentFolder("DT/EventInfo/Counters");
-    nEventMonitor = theDbe->bookFloat("nProcessedEventsSegment");
+    ibooker.setCurrentFolder("DT/EventInfo/Counters");
+    nEventMonitor = ibooker.bookFloat("nProcessedEventsSegment");
+  }
+
+  for(int wh=-2; wh<=2; wh++){
+    stringstream wheel; wheel << wh;
+    ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
+    string histoName =  "numberOfSegments_W" + wheel.str();
+
+    summaryHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
+    summaryHistos[wh]->setAxisTitle("Sector",1);
+    summaryHistos[wh]->setBinLabel(1,"1",1);
+    summaryHistos[wh]->setBinLabel(2,"2",1);
+    summaryHistos[wh]->setBinLabel(3,"3",1);
+    summaryHistos[wh]->setBinLabel(4,"4",1);
+    summaryHistos[wh]->setBinLabel(5,"5",1);
+    summaryHistos[wh]->setBinLabel(6,"6",1);
+    summaryHistos[wh]->setBinLabel(7,"7",1);
+    summaryHistos[wh]->setBinLabel(8,"8",1);
+    summaryHistos[wh]->setBinLabel(9,"9",1);
+    summaryHistos[wh]->setBinLabel(10,"10",1);
+    summaryHistos[wh]->setBinLabel(11,"11",1);
+    summaryHistos[wh]->setBinLabel(12,"12",1);
+    summaryHistos[wh]->setBinLabel(1,"MB1",2);
+    summaryHistos[wh]->setBinLabel(2,"MB2",2);
+    summaryHistos[wh]->setBinLabel(3,"MB3",2);
+    summaryHistos[wh]->setBinLabel(4,"MB4",2);
   }
 
   // loop over all the DT chambers & book the histos
-  vector<DTChamber*> chambers = dtGeom->chambers();
-  vector<DTChamber*>::const_iterator ch_it = chambers.begin();
-  vector<DTChamber*>::const_iterator ch_end = chambers.end();
+  const vector<const DTChamber*>& chambers = dtGeom->chambers();
+  vector<const DTChamber*>::const_iterator ch_it = chambers.begin();
+  vector<const DTChamber*>::const_iterator ch_end = chambers.end();
   for (; ch_it != ch_end; ++ch_it) {
-    bookHistos((*ch_it)->id());
+    bookHistos(ibooker,(*ch_it)->id());
   }
 
   // book sector time-evolution histos
@@ -97,37 +123,28 @@ void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& cont
   if(!slideTimeBins) modeTimeHisto = 1;
   for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
     for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
-      stringstream wheelstr; wheelstr << wheel;	
+
+      stringstream wheelstr; wheelstr << wheel;
       stringstream sectorstr; sectorstr << sector;
       string sectorHistoName = "NSegmPerEvent_W" + wheelstr.str()
 	+ "_Sec" + sectorstr.str();
       string sectorHistoTitle = "# segm. W" + wheelstr.str() + " Sect." + sectorstr.str();
 
-      theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheelstr.str() +
+      ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheelstr.str() +
 	  "/Sector" + sectorstr.str());
-      histoTimeEvol[wheel][sector] = new DTTimeEvolutionHisto(&(*theDbe),sectorHistoName,sectorHistoTitle,
+
+      histoTimeEvol[wheel][sector] = new DTTimeEvolutionHisto(ibooker,sectorHistoName,sectorHistoTitle,
 	  nTimeBins,nLSTimeBin,slideTimeBins,modeTimeHisto);
+
     }
   }
 
-  if(hltDQMMode) theDbe->setCurrentFolder(topHistoFolder);
-  else theDbe->setCurrentFolder("DT/EventInfo/");
+  if(hltDQMMode) ibooker.setCurrentFolder(topHistoFolder);
+  else ibooker.setCurrentFolder("DT/EventInfo/");
 
-  hNevtPerLS = new DTTimeEvolutionHisto(&(*theDbe),"NevtPerLS","# evt.",nTimeBins,nLSTimeBin,slideTimeBins,2);
-
-}
-
-
-void DTSegmentAnalysisTask::endJob() {
-
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
-
-  delete hNevtPerLS;
-  //theDbe->save("testMonitoring.root");
+  hNevtPerLS = new DTTimeEvolutionHisto(ibooker,"NevtPerLS","# evt.",nTimeBins,nLSTimeBin,slideTimeBins,2);
 
 }
-
-
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
@@ -144,14 +161,14 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
     setup.get<DTStatusFlagRcd>().get(statusMap);
-  } 
+  }
 
 
   // -- 4D segment analysis  -----------------------------------------------------
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   if(!all4DSegments.isValid()) return;
 
@@ -178,7 +195,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	if((*segment4D).hasPhi()){
 	  const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
 	  vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-	  map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+	  map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap;
 	  for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
 	      hit != phiHits.end(); ++hit) {
 	    DTWireId wireId = (*hit).wireId();
@@ -194,7 +211,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    if(isNoisy) {
 	      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	      segmNoisy = true;
-	    }      
+	    }
 	  }
 	}
 
@@ -215,9 +232,9 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    if(isNoisy) {
 	      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	      segmNoisy = true;
-	    }     
+	    }
 	  }
-	} 
+	}
 
       } // end of switch on noisy channels
       if (segmNoisy) {
@@ -229,13 +246,13 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
       int nHits=0;
       if((*segment4D).hasPhi())
 	nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
-      if((*segment4D).hasZed()) 
+      if((*segment4D).hasZed())
 	nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
 
       double anglePhiSegm(0.);
       if( (*segment4D).hasPhi() ) {
-	double xdir = (*segment4D).phiSegment()->localDirection().x();      
-	double zdir = (*segment4D).phiSegment()->localDirection().z();      
+	double xdir = (*segment4D).phiSegment()->localDirection().x();
+	double zdir = (*segment4D).phiSegment()->localDirection().z();
 
 	anglePhiSegm = atan(xdir/zdir)*180./TMath::Pi();
       }
@@ -246,7 +263,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 
 	bool segmOk=false;
 	int mb(2);
-	while( mb < 4 ) { 
+	while( mb < 4 ) {
 	  DTChamberId checkMB((*chamberId).wheel(),mb,(*chamberId).sector());
 	  DTRecSegment4DCollection::range  ckrange = all4DSegments->get(checkMB);
 
@@ -257,7 +274,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    int nHits=0;
 	    if((*cksegment4D).hasPhi())
 	      nHits = (((*cksegment4D).phiSegment())->specificRecHits()).size();
-	    if((*cksegment4D).hasZed()) 
+	    if((*cksegment4D).hasZed())
 	      nHits = nHits + ((((*cksegment4D).zSegment())->specificRecHits()).size());
 
 	    if( nHits >= nhitsCut ) segmOk=true;
@@ -280,14 +297,14 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 
 
 // Book a set of histograms for a give chamber
-void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
+void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chamberId) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "   Booking histos for chamber: " << chamberId;
 
 
   // Compose the chamber name
-  stringstream wheel; wheel << chamberId.wheel();	
-  stringstream station; station << chamberId.station();	
+  stringstream wheel; wheel << chamberId.wheel();
+  stringstream station; station << chamberId.station();
   stringstream sector; sector << chamberId.sector();
 
   string chamberHistoName =
@@ -295,45 +312,17 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
     "_St" + station.str() +
     "_Sec" + sector.str();
 
-
-  for(int wh=-2; wh<=2; wh++){
-    stringstream wheel; wheel << wh;
-    theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
-    string histoName =  "numberOfSegments_W" + wheel.str();
-    if (theDbe->get(topHistoFolder + "/Wheel" + wheel.str() + "/" + histoName))
-      continue;
-    summaryHistos[wh] = theDbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
-    summaryHistos[wh]->setAxisTitle("Sector",1);
-    summaryHistos[wh]->setBinLabel(1,"1",1);
-    summaryHistos[wh]->setBinLabel(2,"2",1);
-    summaryHistos[wh]->setBinLabel(3,"3",1);
-    summaryHistos[wh]->setBinLabel(4,"4",1);
-    summaryHistos[wh]->setBinLabel(5,"5",1);
-    summaryHistos[wh]->setBinLabel(6,"6",1);
-    summaryHistos[wh]->setBinLabel(7,"7",1);
-    summaryHistos[wh]->setBinLabel(8,"8",1);
-    summaryHistos[wh]->setBinLabel(9,"9",1);
-    summaryHistos[wh]->setBinLabel(10,"10",1);
-    summaryHistos[wh]->setBinLabel(11,"11",1);
-    summaryHistos[wh]->setBinLabel(12,"12",1);
-    summaryHistos[wh]->setBinLabel(1,"MB1",2);
-    summaryHistos[wh]->setBinLabel(2,"MB2",2);
-    summaryHistos[wh]->setBinLabel(3,"MB3",2);
-    summaryHistos[wh]->setBinLabel(4,"MB4",2);  
-  }
-
-
-  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
       "/Sector" + sector.str() +
       "/Station" + station.str());
 
   // Create the monitor elements
   vector<MonitorElement *> histos;
-  histos.push_back(theDbe->book1D("h4DSegmNHits"+chamberHistoName,
+  histos.push_back(ibooker.book1D("h4DSegmNHits"+chamberHistoName,
 	"# of hits per segment",
 	16, 0.5, 16.5));
   if(detailedAnalysis){
-    histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
+    histos.push_back(ibooker.book1D("h4DChi2"+chamberHistoName,
 	  "4D Segment reduced Chi2",
 	  20, 0, 20));
   }
@@ -341,7 +330,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 }
 
 
-// Fill a set of histograms for a give chamber 
+// Fill a set of histograms for a give chamber
 void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
     int nHits,
     float chi2) {
@@ -355,7 +344,7 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
   summaryHistos[chamberId.wheel()]->Fill(sector,chamberId.station());
   histoTimeEvol[chamberId.wheel()][sector]->accumulateValueTimeSlot(1);
 
-  vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
+  vector<MonitorElement *> histos =  histosPerCh[chamberId];
   histos[0]->Fill(nHits);
   if(detailedAnalysis){
     histos[1]->Fill(chi2);
@@ -381,3 +370,8 @@ void DTSegmentAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 }
 
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

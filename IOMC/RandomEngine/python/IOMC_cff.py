@@ -106,7 +106,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         engineName = cms.untracked.string('TRandom3')
     ),
 
-    siTrackerGaussianSmearingRecHits = cms.PSet(
+    fastTrackerRecHits = cms.PSet(
         initialSeed = cms.untracked.uint32(24680),
         engineName = cms.untracked.string('TRandom3')
     ),
@@ -150,8 +150,11 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(987346),
         engineName = cms.untracked.string('TRandom3')
     ),
-
-
+   #CTPPS FastSim
+    CTPPSFastRecHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(1357987),
+        engineName = cms.untracked.string('TRandom3')
+     ),
     # filter for simulated beam spot
     simBeamSpotFilter = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
@@ -169,4 +172,45 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
 randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify(RandomNumberGeneratorService, simMuonGEMDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')) )
 
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify(
+    RandomNumberGeneratorService, 
+    simMuonGEMDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom'))
+)
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify(
+    RandomNumberGeneratorService,
+    simMuonME0Digis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')),
+    simMuonME0PseudoDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')),
+    simMuonME0PseudoReDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(7654321),
+        engineName = cms.untracked.string('HepJamesRandom')),
+    simMuonME0PseudoReDigisCoarse = cms.PSet(
+        initialSeed = cms.untracked.uint32(2234567),
+        engineName = cms.untracked.string('HepJamesRandom')),
+)
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    RandomNumberGeneratorService,
+    trackTimeValueMapProducer = cms.PSet( 
+        initialSeed = cms.untracked.uint32(1234567), 
+        engineName = cms.untracked.string('HepJamesRandom') 
+        ),
+    ecalBarrelClusterFastTimer = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+        )
+)

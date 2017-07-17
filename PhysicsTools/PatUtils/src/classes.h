@@ -1,5 +1,5 @@
 #include "PhysicsTools/PatUtils/interface/PATDiObjectProxy.h"
 
-namespace { struct dictionary  {  // apparenlty better than namespace { namespace {
+namespace PhysicsTools_PatUtils { struct dictionary { // apparenlty better than echo namespace PhysicsTools_PatUtils { echo namespace PhysicsTools_PatUtils {
     pat::DiObjectProxy patDiObjectProxy; 
 }; }

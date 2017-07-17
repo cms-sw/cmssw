@@ -28,6 +28,6 @@ public:
 
 	SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
   ~SiPixelTemplateDBObjectESProducer();
-	boost::shared_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd &);
+	std::shared_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd &);
  };
 #endif

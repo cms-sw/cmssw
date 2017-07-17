@@ -11,38 +11,54 @@
 <bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
 <bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat -ansi"/>
+  <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
 </bin>
 <bin   file="testApproximations.cpp" name="testMathApproximations">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
 <bin   file="testApproxMath.cpp" name="testMathApproxMath">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
-<bin   file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
-</bin>
+
+<release name="!.*ICC_X.*">
+  <bin   file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
+  </bin>
+</release>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
-</bin>
-<bin   file="SSEMathFun_t.cpp" name="DataFormatsSSEMathFun_t">
 </bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+<bin   file="arc.cpp" name="DataFormatsAsin_t">
+</bin>
+<bin file="testAtan2.cpp" />
+<bin file="testAtan2.cpp" name="testAtan2FastMath">
+   <flags CXXFLAGS="-ffast-math"/>
+</bin>
+<bin file="testAtan2.cpp" name="testAtan2VDT">
+  <use   name="vdt"/>
+</bin>
+
 <bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
+<bin   file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
+<flags CXXFLAGS="-Ofast"/>
+</bin>
+
 <bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
 </bin>

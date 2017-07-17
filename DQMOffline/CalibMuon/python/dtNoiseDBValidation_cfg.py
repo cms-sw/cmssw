@@ -30,7 +30,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 

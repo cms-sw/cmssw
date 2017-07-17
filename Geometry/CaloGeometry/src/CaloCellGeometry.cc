@@ -19,7 +19,7 @@ const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 CaloCellGeometry::CaloCellGeometry() :
    m_refPoint ( 0., 0., 0. ),
    m_corners  (  ) ,
-   m_parms    ( (CCGFloat*) 0 ), m_eta(0), m_phi(0) 
+   m_parms    ( (CCGFloat*) 0 )
 {}
 
 
@@ -28,15 +28,13 @@ CaloCellGeometry::~CaloCellGeometry()
 
 
 
-
-
 CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
-				    const CornersMgr*           mgr,
+				    CornersMgr*                 mgr,
 				    const CCGFloat*             par ) :
    m_refPoint ( gp  ),
    m_corners  ( mgr ),
    m_parms    ( par ),
-   m_eta(gp.eta()), m_phi(gp.phi())
+   m_rep(gp.perp(),gp.eta(),gp.barePhi())
 {}
 
 CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
@@ -46,20 +44,8 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
 		0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ), 
    m_corners  ( cv ),
    m_parms    ( par ),
-   m_eta( m_refPoint.eta()), m_phi(m_refPoint.phi())
+   m_rep( m_refPoint.perp(), m_refPoint.eta(), m_refPoint.barePhi())
 {}
-
-CaloCellGeometry::CornersVec& 
-CaloCellGeometry::setCorners() const 
-{
-   return m_corners ; 
-}
-
-const CaloCellGeometry::CornersVec&
-CaloCellGeometry::getCorners() const
-{
-   return m_corners ;
-}
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) 
 {

@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 
 class AlignableTracker;
@@ -38,7 +39,10 @@ public:
   /// True if hierarchy level 'sub' could be part of hierarchy level 'large'.
   virtual bool possiblyPartOf(const std::string &sub, const std::string &large) const;
 
-private: // Members
+private:
+  std::string stripOffModule(const align::StructureType& type) const;
+
+ // Members
 
   AlignableTracker* theAlignableTracker;   ///< Pointer to mother alignable object
   /// following things are needed in possiblyPartOf:

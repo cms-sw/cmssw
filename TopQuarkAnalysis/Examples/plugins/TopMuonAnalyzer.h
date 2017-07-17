@@ -1,4 +1,4 @@
-#ifndef TopMuonAnalyzer_h  
+#ifndef TopMuonAnalyzer_h
 #define TopMuonAnalyzer_h
 
 #include "TH1F.h"
@@ -10,10 +10,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 class TopMuonAnalyzer : public edm::EDAnalyzer {
 
  public:
-  
+
   explicit TopMuonAnalyzer(const edm::ParameterSet&);
   ~TopMuonAnalyzer();
 
@@ -22,8 +24,8 @@ class TopMuonAnalyzer : public edm::EDAnalyzer {
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-           	
-  edm::InputTag input_;
+
+  edm::EDGetTokenT<std::vector<pat::Muon> > inputToken_;
   bool verbose_;
 
   TH1F *mult_;
@@ -31,6 +33,6 @@ class TopMuonAnalyzer : public edm::EDAnalyzer {
   TH1F *pt_;
   TH1F *eta_;
   TH1F *phi_;
-};  
+};
 
-#endif  
+#endif

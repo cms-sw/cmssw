@@ -42,7 +42,7 @@ void ODWeightsDat::clear() {
 
 
 void ODWeightsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -58,7 +58,7 @@ void ODWeightsDat::prepareWrite()
 
 
 void ODWeightsDat::writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -85,7 +85,7 @@ void ODWeightsDat::writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
 
 
 void ODWeightsDat::fetchData(std::vector< ODWeightsDat >* p, ODFEWeightsInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -133,7 +133,7 @@ void ODWeightsDat::fetchData(std::vector< ODWeightsDat >* p, ODFEWeightsInfo* io
 }
 
 void ODWeightsDat::fetchData(ODWeightsDat * p)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -165,7 +165,7 @@ void ODWeightsDat::fetchData(ODWeightsDat * p)
 //  ************************************************************************   // 
 
 void ODWeightsDat::writeArrayDB(const std::vector< ODWeightsDat >& data, ODFEWeightsInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 

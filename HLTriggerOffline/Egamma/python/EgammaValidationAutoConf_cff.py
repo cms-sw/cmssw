@@ -11,17 +11,17 @@ samples=dummy()
 
 samples.names = ['Wenu',
                  'Zee',
-                 #'TripleEle',
+                 'TripleEle',
                  'GammaJet',
                  'DiGamma']
 samples.pdgid = [ 11,
                   11,
-                  #11,
+                  11,
                   22,
                   22]
 samples.num   = [1,
                  2,
-                 #3,
+                 3,
                  1,
                  2]
 
@@ -29,10 +29,9 @@ samples.num   = [1,
 # produce generated paricles in acceptance               #
 ##########################################################
 
-genp = cms.EDFilter("PdgIdAndStatusCandViewSelector",
-    status = cms.vint32(3),
+genp = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("genParticles"),
-    pdgId = cms.vint32(11)  # replaced in loop
+    cut = cms.string("isPromptFinalState() & abs(pdgId) = 11")  # replaced in loop
 )
 
 fiducial = cms.EDFilter("EtaPtMinCandViewSelector",
@@ -55,7 +54,7 @@ for samplenum in range(len(samples.names)):
     # clone genparticles and select correct type
     genpartname = "genpart"+samples.names[samplenum]
     globals()[genpartname] = genp.clone()
-    setattr(globals()[genpartname],"pdgId",cms.vint32(samples.pdgid[samplenum]) ) # set pdgId
+    setattr(globals()[genpartname],"cut",cms.string("isPromptFinalState() & abs(pdgId) = "+str(samples.pdgid[samplenum])) ) # set pdgId
     egammaSelectors *= globals()[genpartname]                            # add to sequence
 
     # clone generator fiducial region
@@ -66,8 +65,9 @@ for samplenum in range(len(samples.names)):
 
 egammaSelectors.remove(tmp)  # remove the initial dummy
 
-dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
+emdqm = cms.EDAnalyzer('EmDQM',
                            #processname = cms.string("HLT"), # can be obtained from triggerobject
+                           autoConfMode = cms.untracked.bool(True),
                            triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
                            genEtaAcc = cms.double(2.5),
                            genEtAcc = cms.double(2.0),
@@ -80,5 +80,4 @@ dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
                           )
 
 # selectors go into separate "prevalidation" sequence
-egammaValidationSequence   = cms.Sequence(dqmFeeder)
-egammaValidationSequenceFS = cms.Sequence(dqmFeeder)
+egammaValidationSequence   = cms.Sequence(emdqm)

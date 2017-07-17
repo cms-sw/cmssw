@@ -4,6 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLayerBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTLayerBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDiskBuilder.h"  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,22 +12,25 @@
 
 #include <bitset>
 
-CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder( unsigned int totalBlade )
-  : m_totalBlade( totalBlade )
+CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder()
 {}
 
 void
 CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
   CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
+  CmsTrackerOTLayerBuilder theCmsTrackerOTLayerBuilder;
   CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder( m_totalBlade );   
+  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;  
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::layer:
     theCmsTrackerLayerBuilder.build(fv,subdet,s);      
+    break;
+  case GeometricDet::OTPhase2Layer:
+    theCmsTrackerOTLayerBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::wheel:
     theCmsTrackerWheelBuilder.build(fv,subdet,s);      
@@ -46,13 +50,16 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
 void
 CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   switch( comp.front()->type())
   {
   case GeometricDet::layer:
     std::sort( comp.begin(), comp.end(), LessR());
     break;	
+  case GeometricDet::OTPhase2Layer:
+    std::sort( comp.begin(), comp.end(), LessR());
+    break;  
   case GeometricDet::wheel:
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;	
@@ -65,7 +72,7 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
-    comp[i]->setGeographicalID(i+1); // Every subdetector: Layer/Disk/Wheel Number
+    det->component(i)->setGeographicalID(i+1); // Every subdetector: Layer/Disk/Wheel Number
   }
 }
 

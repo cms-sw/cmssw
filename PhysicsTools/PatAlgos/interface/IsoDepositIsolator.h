@@ -10,9 +10,9 @@ namespace pat { namespace helper {
 class IsoDepositIsolator : public BaseIsolator {
     public:
         typedef edm::ValueMap<reco::IsoDeposit> Isolation;
- 
+
         IsoDepositIsolator() {}
-        IsoDepositIsolator(const edm::ParameterSet &conf, bool withCut) ;
+        IsoDepositIsolator(const edm::ParameterSet &conf, edm::ConsumesCollector & iC, bool withCut) ;
         virtual ~IsoDepositIsolator() ;
         virtual void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) ;
         virtual void endEvent() ;
@@ -27,6 +27,7 @@ class IsoDepositIsolator : public BaseIsolator {
         reco::isodeposit::AbsVetos vetos_;
         reco::isodeposit::EventDependentAbsVetos evdepVetos_; // subset of the above, don't delete twice
         bool skipDefaultVeto_;
+        edm::EDGetTokenT<Isolation> inputIsoDepositToken_;
 
         virtual float getValue(const edm::ProductID &id, size_t index) const ;
 }; // class IsoDepositIsolator

@@ -1,7 +1,8 @@
-TRACK_PT = 20.0  
+TRACK_PT = 20.0
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 
 generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'generalTracks',
@@ -22,26 +23,10 @@ TrackRefitterSkim = TrackRefitter.clone()
 TrackRefitterSkim.src = "generalTracksSkim"
 
 
-dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitterSkim"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim"),
-
-    estimator      = cms.string('generic'),
-    exponent       = cms.double(-2.0),
-
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(False),
-    MeVperADCStrip = cms.double(3.61e-06*265),
-    MeVperADCPixel = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(True),
-)
-
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
+dedxSkimNPHarm2 = dedxHarmonic2.clone()
+dedxSkimNPHarm2.tracks                     = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.UsePixel                   = cms.bool(False)
 
 DedxFilter = cms.EDFilter("HSCPFilter",
      inputMuonCollection = cms.InputTag("muons"),
@@ -61,13 +46,13 @@ DedxFilter = cms.EDFilter("HSCPFilter",
 
 )
 
-dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
+dedxSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
 
-muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
+muonEcalDetIdsEXOHSCP = cms.EDProducer("InterestingEcalDetIdProducer",
 								inputCollection = cms.InputTag("muons")
 								)
 highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
@@ -79,7 +64,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 
 
 
-detIdProduceSeq = cms.Sequence(muonEcalDetIds+highPtTrackEcalDetIds)
+detIdProduceSeq = cms.Sequence(muonEcalDetIdsEXOHSCP+highPtTrackEcalDetIds)
 
 reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
      recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
@@ -87,7 +72,7 @@ reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
              #muons
-             cms.InputTag("muonEcalDetIds")
+             cms.InputTag("muonEcalDetIdsEXOHSCP")
              ),
      reducedHitsCollection = cms.string('')
 )
@@ -97,7 +82,7 @@ reducedHSCPEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
              #muons
-             cms.InputTag("muonEcalDetIds")
+             cms.InputTag("muonEcalDetIdsEXOHSCP")
              ),
      reducedHitsCollection = cms.string('')
 )
@@ -110,7 +95,7 @@ reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 									 recHitsLabel = cms.InputTag("hbhereco",""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(TRACK_PT),					   
+									 TrackPt=cms.double(TRACK_PT),
 									 reducedHitsCollection = cms.string('')
 )
 
@@ -162,7 +147,7 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
   trackIsoOffsetEB = cms.double(2.),
   trackIsoSlopeEB =  cms.double(0.001),
   etaWidthEB  = cms.double(0.013),
-                                  
+
   ecalisoOffsetEE = cms.double(4.2),
   ecalisoSlopeEE = cms.double(0.006),
   hcalisoOffsetEE = cms.double(2.2),
@@ -172,9 +157,9 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
   trackIsoOffsetEE = cms.double(2.),
   trackIsoSlopeEE =  cms.double(0.001),
   etaWidthEE  = cms.double(0.03),
-                                  
 
- 
+
+
 )
 
 
@@ -212,8 +197,10 @@ EXOHSCPSkim_EventContent=cms.PSet(
       'keep *_HSCPIsolation01__*',
       'keep *_HSCPIsolation03__*',
       'keep *_HSCPIsolation05__*',
-      'keep recoPFJets_ak5PFJets__*', 
+      'keep recoPFJets_ak4PFJets__*',
       'keep recoPFMETs_pfMet__*',
       'keep recoBeamSpot_offlineBeamSpot__*',
       )
     )
+
+

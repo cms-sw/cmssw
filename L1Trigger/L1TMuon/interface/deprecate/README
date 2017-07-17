@@ -1,0 +1,5 @@
+
+
+The v1 Muon Emulator uses software inherited from software developed to simulate
+the trigger upgrade.  The classes in this area will be removed once
+hardware-centric bitwise emulators are implemented.

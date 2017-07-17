@@ -15,15 +15,17 @@
 #include <vector>
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "CLHEP/Random/RandFlat.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class NeutronWriter;
 
 /// doesn't have to be a producer.  Can act as an analyzer, too.
-class SubsystemNeutronWriter : public edm::EDProducer
+class SubsystemNeutronWriter : public edm::stream::EDProducer<>
 {
 public:
 
@@ -50,8 +52,7 @@ public:
 
 protected:
 
-
-  virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits);
+  virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits, CLHEP::HepRandomEngine*);
 
   void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
 
@@ -63,7 +64,7 @@ protected:
 
 private:
   NeutronWriter * theHitWriter;
-  CLHEP::RandFlat * theRandFlat;
+  bool useRandFlat;
   edm::InputTag theInputTag;
   double theNeutronTimeCut;
   double theTimeWindow;

@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_IDEALZPRISM_H 1
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include <memory>
 
 /** \class IdealZPrism
     
@@ -20,13 +21,14 @@ Internally, the "point of reference" is the center (eta/phi) of the
 front face of the prism.  Therefore, the only internally stored
 parameters are eta and phi HALF-widths and the tower z thickness.
 
-$Revision: 1.8 $
 \author J. Mans - Minnesota
 */
-class IdealZPrism : public CaloCellGeometry 
+class IdealZPrism final : public CaloCellGeometry 
 {
-   public:
-      
+ public:
+
+  enum DEPTH {None, EM, HADR};
+  
       typedef CaloCellGeometry::CCGFloat CCGFloat ;
       typedef CaloCellGeometry::Pt3D     Pt3D     ;
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
@@ -38,12 +40,11 @@ class IdealZPrism : public CaloCellGeometry
       IdealZPrism& operator=( const IdealZPrism& idzp ) ;
       
       IdealZPrism( const GlobalPoint& faceCenter , 
-		   const CornersMgr*  mgr        ,
-		   const CCGFloat*    parm         ) ;
+		   CornersMgr*        mgr        ,
+		   const CCGFloat*    parm       ,
+			  IdealZPrism::DEPTH depth) ;
       
-      virtual ~IdealZPrism() ;
-      
-      virtual const CornersVec& getCorners() const ;
+      ~IdealZPrism() override ;
       
       CCGFloat dEta() const ;
       CCGFloat dPhi() const ;
@@ -55,12 +56,20 @@ class IdealZPrism : public CaloCellGeometry
 				const CCGFloat* pv  ,
 				Pt3D&           ref   ) ;
       
-      virtual void vocalCorners( Pt3DVec&        vec ,
+      void vocalCorners( Pt3DVec&        vec ,
 				 const CCGFloat* pv  ,
-				 Pt3D&           ref   ) const ;
-      
+				 Pt3D&           ref   ) const override;
+
+
+  
+  
+      // corrected geom for PF
+      IdealZPrism const *  forPF() const  { return  m_geoForPF.get();}
+  
    private:
 
+      void initCorners(CornersVec& ) override;
+      
       static GlobalPoint etaPhiR( float eta ,
 				  float phi ,
 				  float rad   ) ;
@@ -72,6 +81,12 @@ class IdealZPrism : public CaloCellGeometry
       static GlobalPoint etaPhiZ( float eta , 
 				  float phi ,
 				  float z    ) ;
+
+
+private:
+      // corrected geom for PF
+      std::unique_ptr<IdealZPrism> m_geoForPF;
+
 };
 
 std::ostream& operator<<( std::ostream& s , const IdealZPrism& cell ) ;

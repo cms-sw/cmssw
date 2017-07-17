@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 //- Timing
-#include "Utilities/Timing/interface/TimingReport.h"
+//#include "Utilities/Timing/interface/TimingReport.h"
 
 //- Geometry
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -301,7 +301,7 @@ void Geant4ePropagatorAnalyzer::endJob() {
 
 
   theRootFile->Close();
-  TimingReport::current()->dump(std::cout);
+//  TimingReport::current()->dump(std::cout);
 }
 
 void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent, 
@@ -436,7 +436,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     LogDebug("Geant4e") << "G4e -- Track PDG " << simTrackPDG;
 
     //- Timing
-    TimeMe tProp("Geant4ePropagatorAnalyzer::analyze::propagate");
+//    TimeMe tProp("Geant4ePropagatorAnalyzer::analyze::propagate");
    
     //- Check if the track corresponds to a muon
     int trkPDG = simTracksIt->type();

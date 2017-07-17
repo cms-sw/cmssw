@@ -59,7 +59,7 @@ private:
 
   CutStruct leptonCuts, hadronCuts;
 
-  std::string label_;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   int noAccepted;
 };
 

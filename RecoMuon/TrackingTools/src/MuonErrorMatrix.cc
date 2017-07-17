@@ -8,6 +8,7 @@
 #include "TMath.h"
 
 #include <sstream>
+#include <atomic>
 
 using namespace std;
 
@@ -112,7 +113,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
       theD = new TFile(fullpath.c_str());
       theD->SetWritable(false);
     }else{
-      static unsigned int neverTheSame=0;
+      static std::atomic<unsigned int> neverTheSame{0};
       std::stringstream dirName("MuonErrorMatrixDirectory");
       dirName<<neverTheSame++;
       edm::LogInfo(theCategory)<<"using an error matrix object from configuration file. putting memory histograms to: "<<dirName.str();
@@ -520,10 +521,11 @@ void MuonErrorMatrix::adjust(TrajectoryStateOnSurface & state){
   LogDebug(theCategory+"|Adjust")<<"updated state COV(i,j): \n"<<finalTerms;  
 
   CurvilinearTrajectoryError oMat(finalTerms);
-  state = TrajectoryStateOnSurface(state.globalParameters(),
+  state = TrajectoryStateOnSurface(state.weight(),
+                                   state.globalParameters(),
 				   oMat,
 				   state.surface(),
-				   state.surfaceSide(),
-				   state.weight());
+				   state.surfaceSide()
+				  );
   LogDebug(theCategory+"|Adjust")<<"updated state:\n"<<state;
 }

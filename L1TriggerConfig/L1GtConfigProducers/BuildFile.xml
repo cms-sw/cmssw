@@ -1,4 +1,3 @@
-<flags   EDM_PLUGIN="1"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
@@ -7,3 +6,6 @@
 <use   name="CondTools/L1Trigger"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="xerces-c"/>
+<export>
+  <lib   name="1"/>
+</export>

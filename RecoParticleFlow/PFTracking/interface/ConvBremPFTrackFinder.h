@@ -1,3 +1,4 @@
+
 #include <memory>
 
 // user include files
@@ -24,14 +25,21 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "TMVA/Reader.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include <memory>
+
+#include "RecoParticleFlow/PFTracking/interface/ConvBremHeavyObjectCache.h"
+
 class PFEnergyCalibration;
 
 class ConvBremPFTrackFinder {
   
  public:
   ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
-			double mvaBremConvCut,
-			std::string mvaWeightFileConvBrem);  
+			double mvaBremConvCutBarrelLowPt,
+			double mvaBremConvCutBarrelHighPt,
+			double mvaBremConvCutEndcapsLowPt,	     
+			double mvaBremConvCutEndcapsHighPt);
   ~ConvBremPFTrackFinder();
   
   bool foundConvBremPFRecTrack(const edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCol,
@@ -39,6 +47,7 @@ class ConvBremPFTrackFinder {
 			       const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
 			       const edm::Handle<reco::PFConversionCollection >& pfConversions,
 			       const edm::Handle<reco::PFV0Collection >& pfV0,
+                               const convbremhelpers::HeavyObjectCache* cache,
 			       bool useNuclear,
 			       bool useConversions,
 			       bool useV0,
@@ -48,7 +57,7 @@ class ConvBremPFTrackFinder {
     found_ = false;
     runConvBremFinder(thePfRecTrackCol,primaryVertex,
 		      pfNuclears,pfConversions,
-		      pfV0,useNuclear,
+		      pfV0,cache,useNuclear,
 		      useConversions,useV0,
 		      theEClus,gsfpfrectk);
     return found_;};
@@ -62,6 +71,7 @@ class ConvBremPFTrackFinder {
 			 const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
 			 const edm::Handle<reco::PFConversionCollection >& pfConversions,
 			 const edm::Handle<reco::PFV0Collection >& pfV0,
+                         const convbremhelpers::HeavyObjectCache* cache,
 			 bool useNuclear,
 			 bool useConversions,
 			 bool useV0,
@@ -72,14 +82,11 @@ class ConvBremPFTrackFinder {
 
   bool found_;
   TransientTrackBuilder builder_;
-  double mvaBremConvCut_;
-  std::string mvaWeightFileConvBrem_;
-  TMVA::Reader    *tmvaReader_;
+  double mvaBremConvCutBarrelLowPt_,mvaBremConvCutBarrelHighPt_,mvaBremConvCutEndcapsLowPt_,mvaBremConvCutEndcapsHighPt_;
+  
   std::vector<reco::PFRecTrackRef> pfRecTrRef_vec_;
   float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
   //int nHITS1;
   float nHITS1;
-
-  PFEnergyCalibration* pfcalib_;
 
 };

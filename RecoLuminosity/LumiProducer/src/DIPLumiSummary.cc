@@ -26,9 +26,6 @@ DIPLumiSummary::intgRecLumiByLS()const{
 }
 float 
 DIPLumiSummary::deadtimefraction() const{
-  if(m_reclumi>0.0){
-    m_deadfrac=1.0-(m_reclumi/m_dellumi);
-  }
   return m_deadfrac;
 }
 int 

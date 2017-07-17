@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 ##process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = ('GR09_R_35X_V3::All')
-process.GlobalTag.globaltag = ('GR_P_V22::All')
+process.GlobalTag.globaltag = ('POSTLS161_V12::All')#GR_P_V22::All')
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
 
@@ -52,10 +52,16 @@ process.cscmakeptlut = cms.EDAnalyzer("CSCMakePTLUT",
    lutParam = cms.PSet(
                    LowQualityFlag = cms.untracked.uint32(4),
                    ReadPtLUT = cms.bool(False),
-                   PtMethod = cms.untracked.uint32(29)  
+                   PtMethod = cms.untracked.uint32(34)  
    )
 )
 
+process.cscmakeptlut_ascii = process.cscmakeptlut.clone()
+process.cscmakeptlut_ascii.BinaryOutput = cms.untracked.bool(False)
+
 #process.Path = cms.Path(process.cscmakesrlut)
 #process.Path = cms.Path(process.cscmakeptlut)				
-#process.Path = cms.Path(process.cscmakesrlut+process.cscmakeptlut)
+#process.Path = cms.Path(process.cscmakeptlut_ascii)				
+process.Path = cms.Path(process.cscmakesrlut+process.cscmakeptlut+process.cscmakeptlut_ascii)
+#process.Path = cms.Path(process.cscmakeptlut+process.cscmakeptlut_ascii)
+

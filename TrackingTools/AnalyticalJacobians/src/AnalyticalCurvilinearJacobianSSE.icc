@@ -7,10 +7,6 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
  const GlobalVector& h, 
  const double& s)
 { 
-#ifdef  CMS_USE_AVX
-  // needed fro gcc < 4.6    
-  mathSSE::ZeroUpper zu;
-#endif
 
   using mathSSE::Vec4D;
   using mathSSE::Vec3D;
@@ -40,7 +36,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   //   double q = -h.mag()*qbp;
   double q = qp*qbp;
 
-  double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
+  double theta = q*absS; double sint,cost;   vdt::fast_sincos(theta,sint,cost);
 
   Vec3D t1(p1.basicVector().v);
   Vec3D t2(p2.basicVector().v);
@@ -99,7 +95,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   
   //   1/p - doesn't change since |p1| = |p2|
-  
+  theJacobian(0,0) = 1.;  for (auto i=1;i<5; ++i) theJacobian(0,i)=0.;  
   //   lambda
   
   theJacobian(1,0) = -qp*anv*dot(t2,dx);

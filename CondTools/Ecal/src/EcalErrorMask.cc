@@ -23,7 +23,7 @@ std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
 std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
 std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
-void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
+void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) noexcept(false) {
 
   if( eConn ) {
 

@@ -26,16 +26,13 @@
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
-#include "boost/bind.hpp"
-
-
 namespace edm {
 
   EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(nullptr), moduleChanger_(nullptr),
                                  moduleDescription_("Looper", "looper"),
                                  moduleCallingContext_(&moduleDescription_)
  { }
-  EDLooperBase::~EDLooperBase() { }
+  EDLooperBase::~EDLooperBase() noexcept(false) { }
 
   void
   EDLooperBase::doStartingNewLoop() {
@@ -83,8 +80,8 @@ namespace edm {
 
     std::set<edm::eventsetup::EventSetupRecordKey> const& keys = modifyingRecords();
     for_all(keys,
-      boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
-                  esp, _1));
+      std::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
+                  esp, std::placeholders::_1));
   }
 
   void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob();}
@@ -158,14 +155,14 @@ namespace edm {
    
   void 
   EDLooperBase::copyInfo(const ScheduleInfo& iInfo){
-    scheduleInfo_ = std::auto_ptr<ScheduleInfo>(new ScheduleInfo(iInfo));
+    scheduleInfo_ = std::make_unique<ScheduleInfo>(iInfo);
   }
   void 
-  EDLooperBase::setModuleChanger(const ModuleChanger* iChanger) {
+  EDLooperBase::setModuleChanger(ModuleChanger* iChanger) {
     moduleChanger_ = iChanger;
   }
 
-  const ModuleChanger* EDLooperBase::moduleChanger() const {
+  ModuleChanger* EDLooperBase::moduleChanger() {
     return moduleChanger_;
   }
   const ScheduleInfo* EDLooperBase::scheduleInfo() const {

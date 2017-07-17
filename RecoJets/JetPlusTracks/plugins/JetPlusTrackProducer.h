@@ -22,12 +22,17 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "JetPlusTrackCorrector.h"
 #include "ZSPJPTJetCorrector.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 #include <string>
 
@@ -35,17 +40,15 @@
 // class declaration
 //
 
-class JetPlusTrackProducer : public edm::EDProducer {
+class JetPlusTrackProducer : public edm::stream::EDProducer<> {
    public:
       explicit JetPlusTrackProducer(const edm::ParameterSet&);
       ~JetPlusTrackProducer();
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
+   // ---------- private data members ---------------------------
    private:
       
-// Data      
       JetPlusTrackCorrector* mJPTalgo;
       ZSPJPTJetCorrector*       mZSPalgo; 
       edm::InputTag          src;
@@ -54,5 +57,8 @@ class JetPlusTrackProducer : public edm::EDProducer {
       bool                   vectorial_;
       bool                   useZSP;
       double                 ptCUT;
-      // ----------member data ---------------------------
+
+      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
+      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
+    
 };

@@ -28,13 +28,6 @@ CastorTopology::valid(const HcalCastorDetId& id) const
 bool CastorTopology::isExcluded(const HcalCastorDetId& id) const {
   bool exed=false;
 
-  //check the for side exclusions
-  switch(id.zside()){
-  case( 1): exed = excludeZP_; break;
-  case(-1): exed = excludeZN_; break;
-  default: exed = false;
-  }
-
   // check for section exclutions
   switch (id.section()) {
   case(HcalCastorDetId::EM)  : exed = excludeEM_; break; 

@@ -30,6 +30,7 @@ public:
   // quantile).
   void init(const double alpha, const tail_type t=equal_tailed);
 
+  virtual ~BinomialInterval() = default;
   // Methods which derived classes must implement.
 
   // Calculate the interval given a number of successes and a number

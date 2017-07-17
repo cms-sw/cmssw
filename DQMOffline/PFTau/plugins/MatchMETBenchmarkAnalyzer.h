@@ -4,19 +4,23 @@
 #include "DQMOffline/PFTau/plugins/BenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/interface/MatchMETBenchmark.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 class TH1F; 
 
 class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchmark {
  public:
   
   MatchMETBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
-  
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginJob() ;
-  void endJob();
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob(){};
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  protected:
-  edm::InputTag matchedinputLabel_;
+  edm::EDGetTokenT< edm::View<reco::MET> > myColl_;
+  edm::EDGetTokenT< edm::View<reco::MET> > myMatchColl_;
+  edm::InputTag matchedInputLabel_;
 };
 
 #endif 

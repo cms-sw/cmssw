@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -22,16 +23,19 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SiTrivialDigitalConverter.h"
-#include "SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
-#include "SiPileUpSignals.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
+
+#include <iostream>
+#include <fstream>
 
 class TrackerTopology;
 
@@ -55,12 +59,12 @@ class SiStripDigitizerAlgorithm {
   typedef float Amplitude;
   
   // Constructor
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf);
 
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
 
   void initializeEvent(const edm::EventSetup& iSetup);
 
@@ -68,9 +72,11 @@ class SiStripDigitizerAlgorithm {
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          size_t inputBeginGlobalIndex,
+			 unsigned int tofBin,
                          const StripGeomDetUnit *stripdet,
                          const GlobalVector& bfield,
-			 const TrackerTopology *tTopo);
+			 const TrackerTopology *tTopo,
+                         CLHEP::HepRandomEngine*);
 
   void digitize(
                 edm::DetSet<SiStripDigi>& outDigis,
@@ -80,7 +86,11 @@ class SiStripDigitizerAlgorithm {
                 edm::ESHandle<SiStripGain>&,
                 edm::ESHandle<SiStripThreshold>&, 
                 edm::ESHandle<SiStripNoises>&,
-                edm::ESHandle<SiStripPedestals>&);
+                edm::ESHandle<SiStripPedestals>&,
+		std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
+                CLHEP::HepRandomEngine*);
+
+  void calculateInstlumiScale(PileupMixingContent* puInfo);
 
   // ParticleDataTable
   void setParticleDataTable(const ParticleDataTable * pardt) {
@@ -95,7 +105,7 @@ class SiStripDigitizerAlgorithm {
   const double cmnRMStob;
   const double cmnRMStid;
   const double cmnRMStec;
-  const double APVSaturationProb;          
+  const double APVSaturationProbScaling_;          
   const bool makeDigiSimLinks_; //< Whether or not to create the association to sim truth collection. Set in configuration.
   const bool peakMode;
   const bool noise;
@@ -114,9 +124,14 @@ class SiStripDigitizerAlgorithm {
   const double cosmicShift;
   const double inefficiency;
   const double pedOffset;
+  const bool PreMixing_;
 
   const ParticleDataTable * pdt;
   const ParticleData * particle;
+
+  double APVSaturationProb_;
+  bool FirstLumiCalc_;
+  bool FirstDigitize_;
   
   const std::unique_ptr<SiHitDigitizer> theSiHitDigitizer;
   const std::unique_ptr<SiPileUpSignals> theSiPileUpSignals;
@@ -124,10 +139,9 @@ class SiStripDigitizerAlgorithm {
   const std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
   const std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
 
-  const std::unique_ptr<CLHEP::RandFlat> theFlatDistribution;
-
   // bad channels for each detector ID
   std::map<unsigned int, std::vector<bool> > allBadChannels;
+  std::map<unsigned int, std::vector<bool> > allHIPChannels;
   // first and last channel wit signal for each detector ID
   std::map<unsigned int, size_t> firstChannelsWithSignal;
   std::map<unsigned int, size_t> lastChannelsWithSignal;
@@ -143,13 +157,20 @@ class SiStripDigitizerAlgorithm {
     EncodedEventId eventID;
     float contributionToADC;
     size_t simHitGlobalIndex; ///< The array index of the sim hit, but in the array for all crossings
+    unsigned int tofBin;  // Needed along with subDet to determine which PSimHit collection simHitGlobalIndex indexes
   };
 
   typedef std::map<int, std::vector<AssociationInfo> >  AssociationInfoForChannel;
   typedef std::map<uint32_t, AssociationInfoForChannel>  AssociationInfoForDetId;
   /// Structure that holds the information on the SimTrack contributions. Only filled if makeDigiSimLinks_ is true.
   AssociationInfoForDetId associationInfoForDetId_;
+  
+  edm::FileInPath APVProbabilityFile;
 
+  std::ifstream APVProbaFile;
+  std::map < int , float> mapOfAPVprobabilities;
+  std::map < int , std::bitset<6> > SiStripTrackerAffectedAPVMap;
+  int NumberOfBxBetweenHIPandEvent;
 };
 
 #endif

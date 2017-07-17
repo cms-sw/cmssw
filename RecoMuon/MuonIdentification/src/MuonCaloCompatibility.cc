@@ -16,44 +16,114 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TFile.h"
+
 void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 {
-   MuonfileName_ = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
-   PionfileName_ = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
-   muon_templates.reset( new TFile(MuonfileName_.c_str(),"READ") );
-   pion_templates.reset( new TFile(PionfileName_.c_str(),"READ") );
+   const std::string muonfileName = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
+   const std::string pionfileName = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
+   TFile muon_templates(muonfileName.c_str(),"READ");
+   TFile pion_templates(pionfileName.c_str(),"READ");
 
-   pion_em_etaEmi  = (TH2D*) pion_templates->Get("em_etaEmi");
-   pion_had_etaEmi = (TH2D*) pion_templates->Get("had_etaEmi");
-	       	
-   pion_em_etaTmi  = (TH2D*) pion_templates->Get("em_etaTmi");
-   pion_had_etaTmi = (TH2D*) pion_templates->Get("had_etaTmi");
-		
-   pion_em_etaB    = (TH2D*) pion_templates->Get("em_etaB");
-   pion_had_etaB   = (TH2D*) pion_templates->Get("had_etaB");
-   pion_ho_etaB    = (TH2D*) pion_templates->Get("ho_etaB");
-   
-   pion_em_etaTpl  = (TH2D*) pion_templates->Get("em_etaTpl");
-   pion_had_etaTpl = (TH2D*) pion_templates->Get("had_etaTpl");
-	       	
-   pion_em_etaEpl  = (TH2D*) pion_templates->Get("em_etaEpl");
-   pion_had_etaEpl = (TH2D*) pion_templates->Get("had_etaEpl");
-		
-   muon_em_etaEmi  = (TH2D*) muon_templates->Get("em_etaEmi");
-   muon_had_etaEmi = (TH2D*) muon_templates->Get("had_etaEmi");
-	       	
-   muon_em_etaTmi  = (TH2D*) muon_templates->Get("em_etaTmi");
-   muon_had_etaTmi = (TH2D*) muon_templates->Get("had_etaTmi");
-	       	
-   muon_em_etaB    = (TH2D*) muon_templates->Get("em_etaB");
-   muon_had_etaB   = (TH2D*) muon_templates->Get("had_etaB");
-   muon_ho_etaB    = (TH2D*) muon_templates->Get("ho_etaB");
-	       	
-   muon_em_etaTpl  = (TH2D*) muon_templates->Get("em_etaTpl");
-   muon_had_etaTpl = (TH2D*) muon_templates->Get("had_etaTpl");
-		
-   muon_em_etaEpl  = (TH2D*) muon_templates->Get("em_etaEpl");
-   muon_had_etaEpl = (TH2D*) muon_templates->Get("had_etaEpl");
+   pion_em_etaEmi.reset((TH2D*) pion_templates.Get("em_etaEmi"));
+   pion_had_etaEmi.reset((TH2D*) pion_templates.Get("had_etaEmi"));
+
+   pion_em_etaTmi.reset((TH2D*) pion_templates.Get("em_etaTmi"));
+   pion_had_etaTmi.reset((TH2D*) pion_templates.Get("had_etaTmi"));
+
+   pion_em_etaB.reset((TH2D*) pion_templates.Get("em_etaB"));
+   pion_had_etaB.reset((TH2D*) pion_templates.Get("had_etaB"));
+   pion_ho_etaB.reset((TH2D*) pion_templates.Get("ho_etaB"));
+
+   pion_em_etaTpl.reset((TH2D*) pion_templates.Get("em_etaTpl"));
+   pion_had_etaTpl.reset((TH2D*) pion_templates.Get("had_etaTpl"));
+
+   pion_em_etaEpl.reset((TH2D*) pion_templates.Get("em_etaEpl"));
+   pion_had_etaEpl.reset((TH2D*) pion_templates.Get("had_etaEpl"));
+
+   muon_em_etaEmi.reset((TH2D*) muon_templates.Get("em_etaEmi"));
+   muon_had_etaEmi.reset((TH2D*) muon_templates.Get("had_etaEmi"));
+
+   muon_em_etaTmi.reset((TH2D*) muon_templates.Get("em_etaTmi"));
+   muon_had_etaTmi.reset((TH2D*) muon_templates.Get("had_etaTmi"));
+
+   muon_em_etaB.reset((TH2D*) muon_templates.Get("em_etaB"));
+   muon_had_etaB.reset((TH2D*) muon_templates.Get("had_etaB"));
+   muon_ho_etaB.reset((TH2D*) muon_templates.Get("ho_etaB"));
+
+   muon_em_etaTpl.reset((TH2D*) muon_templates.Get("em_etaTpl"));
+   muon_had_etaTpl.reset((TH2D*) muon_templates.Get("had_etaTpl"));
+
+   muon_em_etaEpl.reset((TH2D*) muon_templates.Get("em_etaEpl"));
+   muon_had_etaEpl.reset((TH2D*) muon_templates.Get("had_etaEpl"));
+
+   // Release from the opened file
+   pion_em_etaEmi->SetDirectory(0);
+   pion_had_etaEmi->SetDirectory(0);
+
+   pion_em_etaTmi->SetDirectory(0);
+   pion_had_etaTmi->SetDirectory(0);
+
+   pion_em_etaB->SetDirectory(0);
+   pion_had_etaB->SetDirectory(0);
+   pion_ho_etaB->SetDirectory(0);
+
+   pion_em_etaTpl->SetDirectory(0);
+   pion_had_etaTpl->SetDirectory(0);
+
+   pion_em_etaEpl->SetDirectory(0);
+   pion_had_etaEpl->SetDirectory(0);
+
+   muon_em_etaEmi->SetDirectory(0);
+   muon_had_etaEmi->SetDirectory(0);
+
+   muon_em_etaTmi->SetDirectory(0);
+   muon_had_etaTmi->SetDirectory(0);
+
+   muon_em_etaB->SetDirectory(0);
+   muon_had_etaB->SetDirectory(0);
+   muon_ho_etaB->SetDirectory(0);
+
+   muon_em_etaTpl->SetDirectory(0);
+   muon_had_etaTpl->SetDirectory(0);
+
+   muon_em_etaEpl->SetDirectory(0);
+   muon_had_etaEpl->SetDirectory(0);
+
+   // change names
+   const std::string prefixPion = "MuonCaloCompatibility_pion_";
+   pion_em_etaEmi->SetName((prefixPion+pion_em_etaEmi->GetName()).c_str());
+   pion_had_etaEmi->SetName((prefixPion+pion_had_etaEmi->GetName()).c_str());
+
+   pion_em_etaTmi->SetName((prefixPion+pion_em_etaTmi->GetName()).c_str());
+   pion_had_etaTmi->SetName((prefixPion+pion_had_etaTmi->GetName()).c_str());
+
+   pion_em_etaB->SetName((prefixPion+pion_em_etaB->GetName()).c_str());
+   pion_had_etaB->SetName((prefixPion+pion_had_etaB->GetName()).c_str());
+   pion_ho_etaB->SetName((prefixPion+pion_ho_etaB->GetName()).c_str());
+
+   pion_em_etaTpl->SetName((prefixPion+pion_em_etaTpl->GetName()).c_str());
+   pion_had_etaTpl->SetName((prefixPion+pion_had_etaTpl->GetName()).c_str());
+
+   pion_em_etaEpl->SetName((prefixPion+pion_em_etaEpl->GetName()).c_str());
+   pion_had_etaEpl->SetName((prefixPion+pion_had_etaEpl->GetName()).c_str());
+
+   const std::string prefixMuon = "MuonCaloCompatibility_muon_";
+   muon_em_etaEmi->SetName((prefixMuon+muon_em_etaEmi->GetName()).c_str());
+   muon_had_etaEmi->SetName((prefixMuon+muon_had_etaEmi->GetName()).c_str());
+
+   muon_em_etaTmi->SetName((prefixMuon+muon_em_etaTmi->GetName()).c_str());
+   muon_had_etaTmi->SetName((prefixMuon+muon_had_etaTmi->GetName()).c_str());
+
+   muon_em_etaB->SetName((prefixMuon+muon_em_etaB->GetName()).c_str());
+   muon_had_etaB->SetName((prefixMuon+muon_had_etaB->GetName()).c_str());
+   muon_ho_etaB->SetName((prefixMuon+muon_ho_etaB->GetName()).c_str());
+
+   muon_em_etaTpl->SetName((prefixMuon+muon_em_etaTpl->GetName()).c_str());
+   muon_had_etaTpl->SetName((prefixMuon+muon_had_etaTpl->GetName()).c_str());
+
+   muon_em_etaEpl->SetName((prefixMuon+muon_em_etaEpl->GetName()).c_str());
+   muon_had_etaEpl->SetName((prefixMuon+muon_had_etaEpl->GetName()).c_str());
 
    pbx = -1;
    pby = -1;
@@ -70,15 +140,15 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
    isConfigured_ = true;
 }
 
-bool MuonCaloCompatibility::accessing_overflow( TH2D* histo, double x, double y ) {
+bool MuonCaloCompatibility::accessing_overflow( const TH2D& histo, double x, double y ) {
   bool access = false;
 
-  if( histo->GetXaxis()->FindBin(x) == 0 || 
-      histo->GetXaxis()->FindBin(x) > histo->GetXaxis()->GetNbins() ) {
+  if( histo.GetXaxis()->FindBin(x) == 0 || 
+      histo.GetXaxis()->FindBin(x) > histo.GetXaxis()->GetNbins() ) {
     access = true;
   }
-  if( histo->GetYaxis()->FindBin(y) == 0 || 
-      histo->GetYaxis()->FindBin(y) > histo->GetYaxis()->GetNbins() ) {
+  if( histo.GetYaxis()->FindBin(y) == 0 || 
+      histo.GetYaxis()->FindBin(y) > histo.GetYaxis()->GetNbins() ) {
     access = true;
   }
   return access;
@@ -89,7 +159,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
      edm::LogWarning("MuonIdentification") << "MuonCaloCompatibility is not configured! Nothing is calculated.";
      return -9999;
   }
-   
+
   double eta = 0.;
   double p   = 0.;
   double em  = 0.;
@@ -106,16 +176,16 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   psz = 1.;
 
   muon_compatibility = -1.;
-  
+
   pion_template_em   = NULL;
   muon_template_em   = NULL;
-  
+
   pion_template_had  = NULL;
   muon_template_had  = NULL;
-  
+
   pion_template_ho   = NULL;
   muon_template_ho   = NULL;
-  
+
   // 071002: Get either tracker track, or SAmuon track.
   // CaloCompatibility templates may have to be specialized for 
   // the use with SAmuons, currently just using the ones produced
@@ -157,7 +227,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   else {
     eta = track->eta();
     p   = track->p();
-    
+
     // new 070904: Set lookup momentum to 1999.9 if larger than 2 TeV. 
     // Though the templates were produced with p<2TeV, we believe that
     // this approximation should be roughly valid. A special treatment
@@ -270,7 +340,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
       pion_template_had = pion_had_etaEmi;
       muon_template_had = muon_had_etaEmi;
     }
-    
+
     // just two eta regions for Ecal (+- 1.479 for barrel, else for rest), no correction:
 
     //    std::cout<<"We have a muon with an eta of: "<<track->eta()<<std::endl;
@@ -295,7 +365,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
       pion_template_em  = pion_em_etaEmi;
       muon_template_em  = muon_em_etaEmi;
     }
-    
+
     // just one barrel eta region for the HO, no correction
     //    if( track->eta() < 1.4 && track->eta() > -1.4 ) { // experimenting now...
     if( track->eta() < 1.28 && track->eta() > -1.28 ) {
@@ -305,7 +375,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
       muon_template_ho  = muon_ho_etaB;
     }
 
-    
+
   }
 
 
@@ -322,7 +392,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
 	     <<"cal uncorr:    em     had    ho "<<"\n"
 	     <<eta<<" "<<p<<" "<<amuon.calEnergy().em<<" "<<amuon.calEnergy().had<<" "<<amuon.calEnergy().ho;
   }
-  
+
 
   //  Look up Compatibility by, where x is p and y the energy. 
   //  We have a set of different histograms for different regions of eta.
@@ -330,7 +400,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   // need error meassage in case the template histos are missing / the template file is not present!!! 070412
 
   if( pion_template_em )  { // access ecal background template
-    if( accessing_overflow( pion_template_em, p, em ) ) {
+    if( accessing_overflow( *pion_template_em, p, em ) ) {
       pbx = 1.;
       psx = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ecal - defaulting signal and background  ";
@@ -339,7 +409,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     else pbx =  pion_template_em->GetBinContent(  pion_template_em->GetXaxis()->FindBin(p), pion_template_em->GetYaxis()->FindBin(em) );
   }
   if( pion_template_had ) { // access hcal background template
-    if( accessing_overflow( pion_template_had, p, had ) ) {
+    if( accessing_overflow( *pion_template_had, p, had ) ) {
       pby = 1.;
       psy = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for hcal - defaulting signal and background  ";
@@ -348,7 +418,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     else pby =  pion_template_had->GetBinContent(  pion_template_had->GetXaxis()->FindBin(p), pion_template_had->GetYaxis()->FindBin(had) );
   }
   if(pion_template_ho) { // access ho background template
-    if( accessing_overflow( pion_template_ho, p, ho ) ) {
+    if( accessing_overflow( *pion_template_ho, p, ho ) ) {
       pbz = 1.;
       psz = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
@@ -359,7 +429,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
 
 
   if( muon_template_em )  { // access ecal background template
-    if( accessing_overflow( muon_template_em, p, em ) ) {
+    if( accessing_overflow( *muon_template_em, p, em ) ) {
       psx = 1.;
       pbx = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ecal - defaulting signal and background  ";
@@ -368,7 +438,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     else psx =  muon_template_em->GetBinContent(  muon_template_em->GetXaxis()->FindBin(p), muon_template_em->GetYaxis()->FindBin(em) );
   }
   if( muon_template_had ) { // access hcal background template
-    if( accessing_overflow( muon_template_had, p, had ) ) {
+    if( accessing_overflow( *muon_template_had, p, had ) ) {
       psy = 1.;
       pby = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for hcal - defaulting signal and background  ";
@@ -377,7 +447,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     else psy =  muon_template_had->GetBinContent(  muon_template_had->GetXaxis()->FindBin(p), muon_template_had->GetYaxis()->FindBin(had) );
   }
   if(muon_template_ho) { // access ho background template
-    if( accessing_overflow( muon_template_ho, p, ho ) ) {
+    if( accessing_overflow( *muon_template_ho, p, ho ) ) {
       psz = 1.;
       pbz = 1.;
        LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
@@ -419,7 +489,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     psz = 1.;
     pbz = 1.;
   }
-  
+
 
   // Set em to neutral if no energy in em or negative energy measured. 
   // (These cases might indicate problems in the ecal association or readout?! The only 

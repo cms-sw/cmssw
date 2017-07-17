@@ -113,7 +113,7 @@ DTConfigLUTs::print() const {
 }
 
 void 
-DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f)
+DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f) const
 {
   DSPexp -= 15;
   *f = DSPmantissa * (float)pow( 2.0, DSPexp );
@@ -122,7 +122,7 @@ DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f)
 
 
 void
-DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
+DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) const
 {
   long int *pl=0, lm;
   bool sign=false;

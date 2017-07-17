@@ -10,8 +10,9 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
   class ParameterSet;
@@ -19,7 +20,7 @@ namespace edm {
   class ProducerSourceBase : public InputSource {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
-    virtual ~ProducerSourceBase();
+    virtual ~ProducerSourceBase() noexcept(false);
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
     unsigned int numberEventsInLumi() const {return numberEventsInLumi_;} 
@@ -38,9 +39,9 @@ namespace edm {
   protected:
 
   private:
-    virtual ItemType getNextItemType() override;
+    virtual ItemType getNextItemType() override final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) = 0;
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, EventAuxiliary::ExperimentType& etype) = 0;
     virtual void produce(Event& e) = 0;
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
@@ -50,8 +51,8 @@ namespace edm {
     virtual void beginLuminosityBlock(LuminosityBlock&) override;
     virtual void endLuminosityBlock(LuminosityBlock&) override;
     virtual void readEvent_(EventPrincipal& eventPrincipal) override;
-    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void skip(int offset) override;
     virtual void rewind_() override;
 
@@ -67,7 +68,7 @@ namespace edm {
 
     unsigned int numberEventsInThisRun_;
     unsigned int numberEventsInThisLumi_;
-    unsigned int const zerothEvent_;
+    EventNumber_t const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
     bool isRealData_;

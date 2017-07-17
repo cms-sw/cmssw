@@ -32,7 +32,7 @@ using namespace muonisolation;
 /// constructor with config
 CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
-  theCandCollectionTag(par.getParameter<edm::InputTag>("src")),
+  theCandCollectionToken(consumes< edm::View<reco::Candidate> >(par.getParameter<edm::InputTag>("src"))),
   theDepositNames(std::vector<std::string>(1,"")),
   theMultipleDepositsFlag(par.getParameter<bool>("MultipleDepositsFlag")),
   theExtractor(0)
@@ -41,12 +41,12 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
 
   edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   if (! theMultipleDepositsFlag) produces<reco::IsoDepositMap>();
   else {
     theDepositNames = extractorPSet.getParameter<std::vector<std::string> >("DepositInstanceLabels");
-    if (theDepositNames.size() > 10) throw cms::Exception("Configuration Error") << "This module supports only up to 10 deposits"; 
+    if (theDepositNames.size() > 10) throw cms::Exception("Configuration Error") << "This module supports only up to 10 deposits";
     for (unsigned int iDep=0; iDep<theDepositNames.size(); ++iDep){
       produces<reco::IsoDepositMap>(theDepositNames[iDep]);
     }
@@ -97,25 +97,22 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
   static const std::string metname = "CandIsoDepositProducer";
 
   edm::Handle< edm::View<reco::Candidate> > hCands;
-  event.getByLabel(theCandCollectionTag, hCands);
-    
+  event.getByToken(theCandCollectionToken, hCands);
+
   unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
-  static const unsigned int MAX_DEPS=10; 
-  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
-  
-  if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits"; 
-  for (unsigned int i =0;i<nDeps; ++i){ // check if nDeps > 10??
-    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap()); 
-  } 
-   
-  //! OK, now we know how many deps for how many muons each we will create 
-  //! might linearize this at some point (lazy) 
-  //! do it in case some muons are there only 
-  size_t nMuons = hCands->size();
-  if (nMuons > 0){ 
-    std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons)); 
+  static const unsigned int MAX_DEPS=10;
 
+  if (nDeps >MAX_DEPS ) LogError(metname)<<"Unable to handle more than 10 input deposits";
+
+  //! OK, now we know how many deps for how many muons each we will create
+  //! might linearize this at some point (lazy)
+  //! do it in case some muons are there only
+  size_t nMuons = hCands->size();
+  std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons));
+
+  if (nMuons > 0){
+    theExtractor->initEvent(event, eventSetup);
 
     Track dummy;
     for (size_t i=0; i<  nMuons; ++i) {
@@ -130,10 +127,9 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
         continue;
       }
       if (!theMultipleDepositsFlag){
-	IsoDeposit dep = ( ( theTrackType == CandidateT )
+	deps2D[0][i] = ( ( theTrackType == CandidateT )
 			     ? theExtractor->deposit(event, eventSetup, c)
 			     : theExtractor->deposit(event, eventSetup, *track) );
-	deps2D[0][i] = dep;
       } else {
 	std::vector<IsoDeposit> deps = ( ( theTrackType == CandidateT )
 					   ? theExtractor->deposits(event, eventSetup, c)
@@ -141,25 +137,26 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
 	for (unsigned int iDep=0; iDep < nDeps; ++iDep){ 	deps2D[iDep][i] =  deps[iDep];  }
       }
     }//! for(i<nMuons)
+  }//if (nMuons>0)
+
+  //! now fill in selectively
+  for (unsigned int iDep=0; iDep < nDeps; ++iDep){
+    //!some debugging stuff
+    for (unsigned int iMu = 0; iMu< nMuons; ++iMu){
+      LogTrace(metname)<<"Contents of "<<theDepositNames[iDep]
+		       <<" for a muon at index "<<iMu;
+      LogTrace(metname)<<deps2D[iDep][iMu].print();
+    }
     
+    //! fill the maps here
+    auto depMap = std::make_unique<reco::IsoDepositMap>();    
+    reco::IsoDepositMap::Filler filler(*depMap);
+    filler.insert(hCands, deps2D[iDep].begin(), deps2D[iDep].end());
+    deps2D[iDep].clear();
+    filler.fill();
+    event.put(std::move(depMap), theDepositNames[iDep]);
+  }//! for(iDep<nDeps)
 
-    //! now fill in selectively 
-    for (unsigned int iDep=0; iDep < nDeps; ++iDep){ 
-      //!some debugging stuff 
-      for (unsigned int iMu = 0; iMu< nMuons; ++iMu){ 
-        LogTrace(metname)<<"Contents of "<<theDepositNames[iDep] 
-                         <<" for a muon at index "<<iMu; 
-        LogTrace(metname)<<deps2D[iDep][iMu].print(); 
-      } 
- 
-      //! fill the maps here   
-      reco::IsoDepositMap::Filler filler(*depMaps[iDep]);      
-      filler.insert(hCands, deps2D[iDep].begin(), deps2D[iDep].end()); 
-      filler.fill();
-    }//! for(iDep<nDeps)
-  }//! if (nMuons>0)
-
-  for (unsigned int iMap = 0; iMap < nDeps; ++iMap) event.put(depMaps[iMap], theDepositNames[iMap]);
 }
 
 DEFINE_FWK_MODULE( CandIsoDepositProducer );

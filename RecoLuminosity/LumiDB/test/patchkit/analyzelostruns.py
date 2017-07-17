@@ -70,7 +70,7 @@ def fetchOldData(schema,oldlumidataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             lumilsnum=cursor.currentRow()['lumilsnum'].data()
             beamstatus=cursor.currentRow()['beamstatus'].data()
             beamenergy=cursor.currentRow()['beamenergy'].data()
@@ -156,7 +156,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata,
             beam2intensityArray=array.array('f')
             for bxidx in range(1,3565):
                 lumifraction=0.0
-                if perbunchrawdata.has_key(bxidx):
+                if bxidx in perbunchrawdata:
                     lumifraction=perbunchrawdata[bxidx]
                 bxlumivalue=float(instlumi*lumifraction)
                 bxdataArray.append(bxlumivalue)
@@ -204,7 +204,7 @@ def parsebunchFile(ifilename):
         for i in convertlist(result):
             perbunchdata[i[0]]=i[1]
         return perbunchdata
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
     
 def parseLSFile(ifilename):
@@ -219,7 +219,7 @@ def parseLSFile(ifilename):
         for i in convertlist(result):
             perlsdata[i[0]]=i[1]/constfactor
         return perlsdata
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
 
 def main(*args):

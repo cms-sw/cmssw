@@ -22,15 +22,16 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 // system include files
-#include "boost/static_assert.hpp"
-#include "boost/type_traits/is_base_of.hpp"
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
 // forward declarations
 namespace edm {
+  class ProductID;
   template <typename T> class PtrVector;
 
   template <typename T>
@@ -106,6 +107,7 @@ namespace edm {
     typedef PtrVectorItr<T> const_iterator;
     typedef PtrVectorItr<T> iterator; // make boost::sub_range happy (std allows this)
     typedef Ptr<T> value_type;
+    typedef T member_type;
     typedef void collection_type;
 
     friend class PtrVectorItr<T>;
@@ -115,7 +117,7 @@ namespace edm {
 
     template <typename U>
     PtrVector(PtrVector<U> const& iOther): PtrVectorBase(iOther) {
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert(std::is_base_of<T, U>::value, "PtrVector being copied is not of compatible type" );
     }
 
     // ---------- const member functions ---------------------
@@ -144,7 +146,7 @@ namespace edm {
     template<typename U>
     void push_back(Ptr<U> const& iPtr) {
       //check that types are assignable
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert( std::is_base_of<T, U>::value, "Ptr used in push_back can not be converted to type used by PtrVector." );
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
                            iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
@@ -160,7 +162,8 @@ namespace edm {
       return *this;
     }
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+                  FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(8)
@@ -179,20 +182,23 @@ namespace edm {
 
   template <typename T>
   void
-  PtrVector<T>::fillView(std::vector<void const*>& pointers) const {
+  PtrVector<T>::fillView(std::vector<void const*>& pointers,
+                         FillViewHelperVector& helpers) const {
     pointers.reserve(this->size());
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       Ptr<T> ref = *i;
       T const* address = ref.isNull() ? 0 : &*ref;
       pointers.push_back(address);
+      helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }
   }
 
-  // NOTE: the following implementation has unusual signature!
   template <typename T>
   inline void fillView(PtrVector<T> const& obj,
-                       std::vector<void const*>& pointers) {
-    obj.fillView(pointers);
+                       ProductID const&,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
+    obj.fillView(pointers,helpers);
   }
 
   template <typename T>

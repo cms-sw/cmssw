@@ -2,7 +2,7 @@
 //
 // Package:    MultiplicityTimeCorrelations
 // Class:      MultiplicityTimeCorrelations
-// 
+//
 /**\class MultiplicityTimeCorrelations MultiplicityTimeCorrelations.cc DPGAnalysis/SiStripTools/src/MultiplicityTimeCorrelations.cc
 
  Description: <one line class summary>
@@ -85,8 +85,9 @@ private:
   */
 
   edm::InputTag _hecollection;
-  edm::InputTag _apvphasecoll;
-  edm::InputTag _multiplicityMap;
+  edm::EDGetTokenT<EventWithHistory> _hecollectionToken;
+  edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollToken;
+  edm::EDGetTokenT<std::map<unsigned int, int> > _multiplicityMapToken;
   std::map<unsigned int, std::string> _subdets;
   std::map<unsigned int, int> _binmax;
 
@@ -114,11 +115,12 @@ private:
 // constructors and destructor
 //
 MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterSet& iConfig):
-  _digibxcorrhmevent(iConfig),
+  _digibxcorrhmevent(iConfig, consumesCollector()),
   _evfilter(),
   _hecollection(iConfig.getParameter<edm::InputTag>("historyProduct")),
-  _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
-  _multiplicityMap(iConfig.getParameter<edm::InputTag>("multiplicityMap")),
+  _hecollectionToken(consumes<EventWithHistory>(_hecollection)),
+  _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
+  _multiplicityMapToken(mayConsume<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
   _subdets(),
   _binmax(),
   _loworbit(iConfig.getUntrackedParameter<int>("lowedgeOrbit")),
@@ -147,7 +149,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
     filterConfig.addUntrackedParameter<std::vector<int> >("dbxTripletRange",dbxtrpltrange);
   }
 
-  _evfilter.set(filterConfig);
+  _evfilter.set(filterConfig, consumesCollector());
 
   //
 
@@ -156,7 +158,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
   // create map of labels
 
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
-					     
+
   for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
     _subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
     _binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
@@ -180,11 +182,11 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
     for(std::map<unsigned int, std::string>::const_iterator subd=_subdets.begin();subd!=_subdets.end();++subd) {
       if(_binmax.find(subd->first)==_binmax.end()) {
-	edm::LogVerbatim("DBXHistosNotConfiguredBinMax") << "Bin max for " << subd->second 
+	edm::LogVerbatim("DBXHistosNotConfiguredBinMax") << "Bin max for " << subd->second
 						     << " not configured: " << _trnumb.nstrips(int(subd->first)) << " used";
 	_binmax[subd->first] = _trnumb.nstrips(int(subd->first));
       }
- 
+
       edm::LogVerbatim("DBXHistosBinMaxValue") << "Bin max for " << subd->second << " is " << _binmax[subd->first];
 
 
@@ -233,7 +235,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
 MultiplicityTimeCorrelations::~MultiplicityTimeCorrelations()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -249,27 +251,27 @@ void
 MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
+
   // get Phase
 
   Handle<APVCyclePhaseCollection> apvphase;
-  iEvent.getByLabel(_apvphasecoll,apvphase);
+  iEvent.getByToken(_apvphasecollToken,apvphase);
 
   // get HE
 
   Handle<EventWithHistory> he;
-  iEvent.getByLabel(_hecollection,he);
+  iEvent.getByToken(_hecollectionToken,he);
 
   // check if the event is selected
 
-  if((_loworbit < 0 || iEvent.orbitNumber() >= _loworbit) && 
+  if((_loworbit < 0 || iEvent.orbitNumber() >= _loworbit) &&
      (_highorbit < 0 || iEvent.orbitNumber() <= _highorbit)) {
 
     if(_evfilter.selected(iEvent,iSetup)) {
-      
-      
+
+
       //Compute digi multiplicity
-      /*      
+      /*
       int ntkdigi=0;
       int ntibdigi=0;
       int ntiddigi=0;
@@ -277,23 +279,23 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
       int ntecdigi=0;
       */
       Handle<std::map<unsigned int, int> > mults;
-      iEvent.getByLabel(_multiplicityMap,mults);
+      iEvent.getByToken(_multiplicityMapToken,mults);
 
       // create map of digi multiplicity
-      
+
       std::map<int,int> digimap;
       for(std::map<unsigned int, int>::const_iterator mult=mults->begin();mult!=mults->end();++mult) {
 	if(_subdets.find(mult->first)!=_subdets.end()) digimap[int(mult->first)] = mult->second;
       }
-      
+
       _digibxcorrhmevent.fill(*he,digimap,apvphase);
-      
+
       // fill debug histos
 
       if(he->depth()!=0) {
 
 	long long dbx = he->deltaBX();
-	    
+
 	if(_dbxhistos.find(dbx)!=_dbxhistos.end()) {
 	  for(std::map<unsigned int,int>::const_iterator ndigi=mults->begin();ndigi!=mults->end();++ndigi) {
 	  _dbxhistos[dbx][ndigi->first]->Fill(ndigi->second);
@@ -311,14 +313,14 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
 	if(_dbxtkhistos.find(-1)!=_dbxtkhistos.end()) {
 	  _dbxtkhistos[-1]->Fill(ntkdigi);
 	}
-	
+
 	if(_dbxtibhistos.find(dbx)!=_dbxtibhistos.end()) {
 	  _dbxtibhistos[dbx]->Fill(ntibdigi);
 	}
 	if(_dbxtibhistos.find(-1)!=_dbxtibhistos.end()) {
 	  _dbxtibhistos[-1]->Fill(ntibdigi);
 	}
-	
+
 	if(_dbxtidhistos.find(dbx)!=_dbxtidhistos.end()) {
 	  _dbxtidhistos[dbx]->Fill(ntiddigi);
 	}
@@ -337,7 +339,7 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
 	if(_dbxtechistos.find(-1)!=_dbxtechistos.end()) {
 	  _dbxtechistos[-1]->Fill(ntecdigi);
 	}
-	*/	
+	*/
       }
     }
   }
@@ -345,7 +347,7 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 MultiplicityTimeCorrelations::beginJob()
 {
 
@@ -368,7 +370,7 @@ MultiplicityTimeCorrelations::beginRun(const edm::Run& iRun, const edm::EventSet
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 MultiplicityTimeCorrelations::endJob() {
 }
 //define this as a plug-in

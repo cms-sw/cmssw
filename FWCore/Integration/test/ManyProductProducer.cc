@@ -48,8 +48,7 @@ namespace edmtest {
   void ManyProductProducer::produce(edm::Event& e, edm::EventSetup const&) {
     for(unsigned int i = 0; i < nProducts_; ++i) {
     
-      std::auto_ptr<IntProduct> p(new IntProduct(1));
-      e.put(p, instanceNames_[i]);
+      e.put(std::make_unique<IntProduct>(1), instanceNames_[i]);
     }
   }
 

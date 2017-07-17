@@ -1,4 +1,4 @@
-#ifndef TopGenEventAnalyzer_h  
+#ifndef TopGenEventAnalyzer_h
 #define TopGenEventAnalyzer_h
 
 #include "TH1.h"
@@ -10,11 +10,13 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+
 
 class TopGenEventAnalyzer : public edm::EDAnalyzer {
 
  public:
-  
+
   explicit TopGenEventAnalyzer(const edm::ParameterSet&);
   ~TopGenEventAnalyzer();
 
@@ -23,8 +25,8 @@ class TopGenEventAnalyzer : public edm::EDAnalyzer {
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-           	
-  edm::InputTag inputGenEvent_;
+
+  edm::EDGetTokenT<TtGenEvent> inputGenEventToken_;
 
   TH1F *nLep_;
   TH1F *topPt_;
@@ -39,4 +41,4 @@ class TopGenEventAnalyzer : public edm::EDAnalyzer {
   TH1F *prodChan_;
 };
 
-#endif  
+#endif

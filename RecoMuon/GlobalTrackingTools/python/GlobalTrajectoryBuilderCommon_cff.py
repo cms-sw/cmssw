@@ -11,12 +11,12 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     GlobalMuonTrackMatcher,
     ScaleTECxFactor = cms.double(-1.0),
     ScaleTECyFactor = cms.double(-1.0),
-    TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+    TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
     RefitRPCHits = cms.bool(True),
     TrackTransformer = cms.PSet(
         Fitter = cms.string('KFFitterForRefitInsideOut'),
-        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+        TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         RefitDirection = cms.string('alongMomentum'),
@@ -29,26 +29,32 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     GlbRefitterParameters = cms.PSet(
         DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-        
+        GEMRecHitLabel = cms.InputTag("gemRecHits"),
+        ME0RecHitLabel = cms.InputTag("me0Segments"),
         MuonHitsOption = cms.int32(1),
         PtCut = cms.double(1.0),
         Chi2ProbabilityCut = cms.double(30.0),
         Chi2CutCSC = cms.double(150.0),
         Chi2CutDT = cms.double(10.0),
+        Chi2CutGEM = cms.double(1.0),
+        Chi2CutME0 = cms.double(1.0),
         Chi2CutRPC = cms.double(1.0),
         HitThreshold = cms.int32(1),
         
         Fitter = cms.string('GlbMuKFFitter'),
         Propagator = cms.string('SmartPropagatorAnyRK'),
-        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+        TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         DoPredictionsOnly = cms.bool(False),
         RefitDirection = cms.string('insideOut'),
         PropDirForCosmics = cms.bool(False),
         RefitRPCHits = cms.bool(True),
         
-        # only the first two are used
-        DYTthrs =  cms.vint32(30, 15),
+        # DYT stuff
+        DYTthrs = cms.vint32(20, 30),
+        DYTselector = cms.int32(1),
+        DYTupdator = cms.bool(False),
+        DYTuseAPE = cms.bool(False),
 
         # muon station to be skipped
         SkipStation		= cms.int32(-1),
@@ -57,6 +63,17 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         TrackerSkipSystem	= cms.int32(-1),
         
         # layer, wheel, or disk depending on the system
-        TrackerSkipSection	= cms.int32(-1)
+        TrackerSkipSection	= cms.int32(-1),
+
+	RefitFlag = cms.bool(True)
         ),
+)
+
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(GlobalTrajectoryBuilderCommon, # FIXME
+    TrackerRecHitBuilder = 'WithTrackAngle',
+    TrackTransformer = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
+    GlbRefitterParameters = dict(TrackerRecHitBuilder = 'WithTrackAngle'),
 )

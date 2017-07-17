@@ -5,7 +5,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//class ESElectronicsMapper;
+#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h" // definition in line 75
+
+class DQMStore;
+class MonitorElement;
+
 class ESDaqInfoTask: public edm::EDAnalyzer{
 
    public:

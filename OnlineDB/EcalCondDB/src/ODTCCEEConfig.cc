@@ -36,7 +36,7 @@ ODTCCEEConfig::~ODTCCEEConfig()
 {
 }
 
-int ODTCCEEConfig::fetchNextId()  throw(std::runtime_error) {
+int ODTCCEEConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -85,7 +85,7 @@ void ODTCCEEConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODTCCEEConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -143,7 +143,7 @@ void ODTCCEEConfig::prepareWrite()
 }
 
 void ODTCCEEConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -186,7 +186,7 @@ void ODTCCEEConfig::writeDB()
 
 
 void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -262,7 +262,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
 
 
 
-int ODTCCEEConfig::fetchID()    throw(std::runtime_error)
+int ODTCCEEConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;

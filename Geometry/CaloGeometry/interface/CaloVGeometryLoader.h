@@ -13,6 +13,7 @@ class CaloSubdetectorGeometry;
 class CaloVGeometryLoader 
 {
    public:
+      virtual ~CaloVGeometryLoader() = default;
       /// Load the subdetector geometry for the specified det and subdet
       virtual std::auto_ptr<CaloSubdetectorGeometry> 
                      load( DetId::Detector det, int subdet ) = 0;

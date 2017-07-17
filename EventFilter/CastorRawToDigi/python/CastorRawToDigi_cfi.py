@@ -7,10 +7,11 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     FilterDataQuality = cms.bool(True),
     # Number of the first CASTOR FED.  If this is not specified, the
     # default from FEDNumbering is used.
-    CastorFirstFED = cms.untracked.int32(690),
+    CastorFirstFED = cms.int32(690),
+    ZDCFirstFED = cms.int32(693),                         
     # FED numbers to unpack.  If this is not specified, all FEDs from
     # FEDNumbering will be unpacked.
-    FEDs = cms.untracked.vint32( 690, 691, 692 ),
+    FEDs = cms.untracked.vint32( 690, 691, 692, 693, 722),
     # Do not complain about missing FEDs
     ExceptionEmptyData = cms.untracked.bool(False),
     # Do not complain about missing FEDs
@@ -21,9 +22,14 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     firstSample = cms.int32(0),
     lastSample = cms.int32(9),
     # castor technical trigger processor
-    UnpackTTP = cms.untracked.bool(True),
+    UnpackTTP = cms.bool(True),
     # report errors
     silent = cms.untracked.bool(False),
     #
-    InputLabel = cms.InputTag("rawDataCollector")
-)
+    InputLabel = cms.InputTag("rawDataCollector"),
+    CastorCtdc = cms.bool(False),
+    UseNominalOrbitMessageTime = cms.bool(True),
+    ExpectedOrbitMessageTime = cms.int32(-1),
+    UnpackZDC = cms.bool(True),
+
+   )

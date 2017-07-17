@@ -7,17 +7,19 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#undef private
-
-#include "boost/shared_ptr.hpp"
 
 #include <cstdlib>
 #include <vector>
 #include <memory>
 #include <iostream>
+
+class TestServicesManagerOrder {
+public:
+  static edm::ServiceToken makeToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) {
+    return edm::ServiceToken(iManager);
+  }
+};
 
 int main() try {
   using namespace edm::serviceregistry;
@@ -41,16 +43,13 @@ int main() try {
   // demand is also tested.
 
   std::vector<edm::ParameterSet> vps;
-  boost::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
+  auto legacy = std::make_shared<ServicesManager>(vps);
 
   edm::ActivityRegistry ar;
   edm::ParameterSet pset;
-  std::auto_ptr<Service0> s0(new Service0(pset, ar));  
-  boost::shared_ptr<ServiceWrapper<Service0> > 
-      wrapper (new ServiceWrapper<Service0>(s0));
-  legacy->put(wrapper);
+  legacy->put(std::make_shared<ServiceWrapper<Service0>>(std::make_unique<Service0>(pset, ar)));
   legacy->copySlotsFrom(ar);
-  edm::ServiceToken legacyToken(legacy);
+  edm::ServiceToken legacyToken = TestServicesManagerOrder::makeToken(legacy);
 
   std::vector<edm::ParameterSet> vps1;
 
@@ -74,20 +73,15 @@ int main() try {
   ps2.addParameter("@service_type", typeName2);
   vps1.push_back(ps2);
 
-  boost::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,
-                                                                 kTokenOverrides,
-                                                                 vps1));
-  edm::ServiceToken legacyToken2(legacy2);
+  auto legacy2 = std::make_shared<ServicesManager>(legacyToken, kTokenOverrides, vps1);
+  edm::ServiceToken legacyToken2 = TestServicesManagerOrder::makeToken(legacy2);
 
 
   ServicesManager sm(legacyToken2, kOverlapIsError, vps);
 
   edm::ActivityRegistry ar4;
   edm::ParameterSet pset4;
-  std::auto_ptr<Service4> s4(new Service4(pset4, ar4));  
-  boost::shared_ptr<ServiceWrapper<Service4> > 
-      wrapper4 (new ServiceWrapper<Service4>(s4));
-  sm.put(wrapper4);
+  sm.put(std::make_shared<ServiceWrapper<Service4>>(std::make_unique<Service4>(pset4, ar4)));
   sm.copySlotsFrom(ar4);
 
 

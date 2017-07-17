@@ -30,7 +30,17 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
   EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
   EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
-  
+  // fix for consumes
+  HepMCLabel_Token_         = consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
+  EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
+  EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+  ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
+  EBuncalibrechitCollection_Token_ = consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
+  EEuncalibrechitCollection_Token_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));  
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+
   // ---------------------- 
   // DQM ROOT output 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -44,22 +54,6 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   // ---------------------- 
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();                   
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }                                                                  
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
 
   // ----------------------   
   meGunEnergy_                 = 0;
@@ -114,144 +108,136 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEERecHitSimHitFlag6_             = 0;
   meEERecHitSimHitFlag7_             = 0;
 
-
-  // ---------------------- 
-  std::string histo;
-   
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
-    
-    histo = "EcalRecHitsTask Gun Momentum";
-    meGunEnergy_ = dbe_->book1D(histo.c_str(), histo.c_str(), 100, 0., 1000.);
-  
-    histo = "EcalRecHitsTask Gun Eta";      
-    meGunEta_ = dbe_->book1D(histo.c_str(), histo.c_str(), 700, -3.5, 3.5);
-     
-    histo = "EcalRecHitsTask Gun Phi";  
-    meGunPhi_ = dbe_->book1D(histo.c_str(), histo.c_str(), 360, 0., 360.);    
-    
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio";  
-    meEBRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio"; 
-    meEERecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Preshower RecSimHit Ratio"; 
-    meESRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV";  
-    meEBRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
-
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"; 
-    meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";  
-    meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-
-    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio"; 
-    meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";  
-    meEBRecHitSimHitRatio1011_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11"; 
-    meEERecHitSimHitRatio1011_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=12";  
-    meEBRecHitSimHitRatio12_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12"; 
-    meEERecHitSimHitRatio12_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=13";  
-    meEBRecHitSimHitRatio13_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13"; 
-    meEERecHitSimHitRatio13_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-    histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";  
-    meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
-
-    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"; 
-    meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    histo = "EcalRecHitsTask Barrel Rec E5x5";
-    meEBe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
-
-    histo = "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5";
-    meEBe5x5OverSimHits_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    histo = "EcalRecHitsTask Barrel Rec E5x5 over gun energy";
-    meEBe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    histo = "EcalRecHitsTask Endcap Rec E5x5";
-    meEEe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
-
-    histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
-    meEEe5x5OverSimHits_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
-    meEEe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-    meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4. ); 
-    meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4. ); 
-    meESRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4. ); 
-    meEBRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    meEERecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    meESRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Preshower Log10En vs Hit Contribution", "EcalRecHits Preshower Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    meEBRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    meEERecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    
-
-    histo = "EB Occupancy Flag=5 6";  
-    meEBRecHitsOccupancyFlag5_6_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
-    histo = "EB Occupancy Flag=8 9";  
-    meEBRecHitsOccupancyFlag8_9_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
-
-    histo = "EE+ Occupancy Flag=5 6";  
-    meEERecHitsOccupancyPlusFlag5_6_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    histo = "EE- Occupancy Flag=5 6";  
-    meEERecHitsOccupancyMinusFlag5_6_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    histo = "EE+ Occupancy Flag=8 9";  
-    meEERecHitsOccupancyPlusFlag8_9_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    histo = "EE- Occupancy Flag=8 9";  
-    meEERecHitsOccupancyMinusFlag8_9_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-
-
-    histo = "EcalRecHitsTask Barrel Reco Flags";  
-    meEBRecHitFlags_ = dbe_->book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
-    histo = "EcalRecHitsTask Endcap Reco Flags";  
-    meEERecHitFlags_ = dbe_->book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";  
-    meEBRecHitSimHitvsSimHitFlag5_6_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6"; 
-    meEERecHitSimHitvsSimHitFlag5_6_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";  
-    meEBRecHitSimHitFlag6_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6"; 
-    meEERecHitSimHitFlag6_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-    histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=7";  
-    meEBRecHitSimHitFlag7_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
-    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7"; 
-    meEERecHitSimHitFlag7_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-    histo = "EcalRecHitsTask Barrel 5x5 RecSimHit Ratio vs SimHit Flag=8";  
-    meEB5x5RecHitSimHitvsSimHitFlag8_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
-
-  }
 }
 
 EcalRecHitsValidation::~EcalRecHitsValidation(){   
+
+}
+
+void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+
+  std::string histo;
+   
+  ibooker.setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
   
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);  
+  histo = "EcalRecHitsTask Gun Momentum";
+  meGunEnergy_ = ibooker.book1D(histo.c_str(), histo.c_str(), 100, 0., 1000.);
+
+  histo = "EcalRecHitsTask Gun Eta";      
+  meGunEta_ = ibooker.book1D(histo.c_str(), histo.c_str(), 700, -3.5, 3.5);
+   
+  histo = "EcalRecHitsTask Gun Phi";  
+  meGunPhi_ = ibooker.book1D(histo.c_str(), histo.c_str(), 360, 0., 360.);    
+  
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio";  
+  meEBRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio"; 
+  meEERecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Preshower RecSimHit Ratio"; 
+  meESRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV";  
+  meEBRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
+
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"; 
+  meEERecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";  
+  meEBUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+
+  histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio"; 
+  meEEUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";  
+  meEBRecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11"; 
+  meEERecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=12";  
+  meEBRecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12"; 
+  meEERecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=13";  
+  meEBRecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13"; 
+  meEERecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+  histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";  
+  meEBUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
+
+  histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"; 
+  meEEUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  histo = "EcalRecHitsTask Barrel Rec E5x5";
+  meEBe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
+
+  histo = "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5";
+  meEBe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  histo = "EcalRecHitsTask Barrel Rec E5x5 over gun energy";
+  meEBe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  histo = "EcalRecHitsTask Endcap Rec E5x5";
+  meEEe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
+
+  histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
+  meEEe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
+  meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+  meEBRecHitLog10Energy_ = ibooker.book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4. ); 
+  meEERecHitLog10Energy_ = ibooker.book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4. ); 
+  meESRecHitLog10Energy_ = ibooker.book1D( "EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4. ); 
+  meEBRecHitLog10EnergyContr_ = ibooker.bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+  meEERecHitLog10EnergyContr_ = ibooker.bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+  meESRecHitLog10EnergyContr_ = ibooker.bookProfile( "EcalRecHits Preshower Log10En vs Hit Contribution", "EcalRecHits Preshower Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+  meEBRecHitLog10Energy5x5Contr_ = ibooker.bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+  meEERecHitLog10Energy5x5Contr_ = ibooker.bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+  
+
+  histo = "EB Occupancy Flag=5 6";  
+  meEBRecHitsOccupancyFlag5_6_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+  histo = "EB Occupancy Flag=8 9";  
+  meEBRecHitsOccupancyFlag8_9_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+
+  histo = "EE+ Occupancy Flag=5 6";  
+  meEERecHitsOccupancyPlusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  histo = "EE- Occupancy Flag=5 6";  
+  meEERecHitsOccupancyMinusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  histo = "EE+ Occupancy Flag=8 9";  
+  meEERecHitsOccupancyPlusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  histo = "EE- Occupancy Flag=8 9";  
+  meEERecHitsOccupancyMinusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+
+  histo = "EcalRecHitsTask Barrel Reco Flags";  
+  meEBRecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
+  histo = "EcalRecHitsTask Endcap Reco Flags";  
+  meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";  
+  meEBRecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6"; 
+  meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";  
+  meEBRecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6"; 
+  meEERecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=7";  
+  meEBRecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
+  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7"; 
+  meEERecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  histo = "EcalRecHitsTask Barrel 5x5 RecSimHit Ratio vs SimHit Flag=8";  
+  meEB5x5RecHitSimHitvsSimHitFlag8_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
+
 }
 
-void EcalRecHitsValidation::beginJob(){  
-
-}
-
-void EcalRecHitsValidation::endJob(){
-
-}
 
 void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
@@ -270,7 +256,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
-  e.getByLabel(HepMCLabel, MCEvt);  
+  e.getByToken(HepMCLabel_Token_, MCEvt);  
   if (!MCEvt.isValid()) { skipMC = true; }
 
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
@@ -278,7 +264,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipBarrel = false;
   const EBUncalibratedRecHitCollection *EBUncalibRecHit =0;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  e.getByToken( EBuncalibrechitCollection_Token_, EcalUncalibRecHitEB);
   if (EcalUncalibRecHitEB.isValid()) {
     EBUncalibRecHit = EcalUncalibRecHitEB.product() ;    
   } else {
@@ -288,7 +274,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipEndcap = false;
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  e.getByToken( EEuncalibrechitCollection_Token_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()){ 
     EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
   } else {
@@ -297,7 +283,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   const EBRecHitCollection *EBRecHit = 0;
   Handle<EBRecHitCollection> EcalRecHitEB;
-  e.getByLabel( EBrechitCollection_, EcalRecHitEB);
+  e.getByToken( EBrechitCollection_Token_, EcalRecHitEB);
   if (EcalRecHitEB.isValid()){ 
     EBRecHit = EcalRecHitEB.product();
   } else {
@@ -306,7 +292,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   const EERecHitCollection *EERecHit = 0;
   Handle<EERecHitCollection> EcalRecHitEE;
-  e.getByLabel( EErechitCollection_, EcalRecHitEE);
+  e.getByToken( EErechitCollection_Token_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){
     EERecHit = EcalRecHitEE.product ();
   } else {
@@ -316,7 +302,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipPreshower = false;
   const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
-  e.getByLabel( ESrechitCollection_, EcalRecHitES);
+  e.getByToken( ESrechitCollection_Token_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
     ESRecHit = EcalRecHitES.product ();      
   } else {
@@ -357,10 +343,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipBarrel) {
 
     // 1) loop over simHits  
-    const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-    e.getByLabel("mix",barrelHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    e.getByToken(EBHits_Token_,crossingFrame);
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     
     MapType ebSimMap;
     MapType ebRecMap;
@@ -370,16 +354,16 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<ebcSize; i++ ) { ebcontr[i] = 0.0; ebcontr25[i] = 0.0; } 
     double ebtotal = 0.;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr)  {   
-      EBDetId ebid = EBDetId(hitItr->id());
+    for ( auto const & iHit : barrelHits ) {
+      EBDetId ebid = EBDetId(iHit.id());
       
       LogDebug("SimHitInfo, barrel") 
-	<< "CaloHit "   << hitItr->getName() << " DetID = " << hitItr->id()   << "\n"	
-	<< "Energy = "  << hitItr->energy()  << " Time = "  << hitItr->time() << "\n"
+	<< "CaloHit "   << iHit.getName() << " DetID = " << iHit.id()   << "\n"	
+	<< "Energy = "  << iHit.energy()  << " Time = "  << iHit.time() << "\n"
 	<< "EBDetId = " << ebid.ieta()       << " "         << ebid.iphi();
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr->energy();
+      ebSimMap[crystid] += iHit.energy();
     }
     
     
@@ -508,10 +492,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipEndcap ) {
 
     // 1) loop over simHits
-    const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-    e.getByLabel("mix",endcapHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    e.getByToken(EEHits_Token_,crossingFrame);
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
   
     MapType eeSimMap;
     MapType eeRecMap;
@@ -521,16 +503,16 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<eecSize; i++ ) { eecontr[i] = 0.0; eecontr25[i] = 0.0; } 
     double eetotal = 0.;
  
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) {   
-      EEDetId eeid = EEDetId(hitItr->id()) ;
-      
+    for ( auto const & iHit : endcapHits ) {
+      EEDetId eeid(iHit.id());
+
       LogDebug("Endcap, HitInfo")
-	<<" CaloHit "      << hitItr->getName() << " DetID = "        << hitItr->id()   << "\n"
-	<< "Energy = "     << hitItr->energy()  << " Time = "         << hitItr->time() << "\n"
+	<<" CaloHit "      << iHit.getName() << " DetID = "        << iHit.id()   << "\n"
+	<< "Energy = "     << iHit.energy()  << " Time = "         << iHit.time() << "\n"
 	<< "EEDetId side " << eeid.zside()      << " = " << eeid.ix() << " " << eeid.iy();
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr->energy();
+      eeSimMap[crystid] += iHit.energy();
     }
 
 
@@ -648,10 +630,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipPreshower ) {
 
     // 1) loop over simHits
-    const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
-    e.getByLabel("mix",preshowerHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    e.getByToken(ESHits_Token_,crossingFrame);
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
 
     MapType esSimMap;
     const int escSize = 90;
@@ -659,17 +639,15 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<escSize; i++ ) { escontr[i] = 0.0; }
     double estotal = 0.;
 
-  
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin(); hitItr != preshowerHits->end(); ++hitItr) {   
-      ESDetId esid = ESDetId(hitItr->id()) ;
-
+    for ( auto const & iHit : preshowerHits ) {
+      ESDetId esid(iHit.id());
       LogDebug("Preshower, HitInfo")
-	<<" CaloHit "       << hitItr->getName() << " DetID = "         << hitItr->id()   << "\n"
-	<< "Energy = "      << hitItr->energy()  << " Time = "          << hitItr->time() << "\n"
+	<<" CaloHit "       << iHit.getName() << " DetID = "         << iHit.id()   << "\n"
+	<< "Energy = "      << iHit.energy()  << " Time = "          << iHit.time() << "\n"
 	<< "ESDetId strip " << esid.strip()      << " = " << esid.six() << " " << esid.siy();
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
+      esSimMap[crystid] += iHit.energy();
     }
 
 

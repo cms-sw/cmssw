@@ -38,10 +38,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -56,14 +52,13 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
 
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
 #include <Geometry/CommonTopologies/interface/StripTopology.h>
 
@@ -119,51 +114,53 @@ SiStripFineDelayHit::~SiStripFineDelayHit()
 //
 // member functions
 //
-std::pair<uint32_t, uint32_t> SiStripFineDelayHit::deviceMask(const StripSubdetector::SubDetector subdet,const int substructure)
+SiStripFineDelayHit::DeviceMask SiStripFineDelayHit::deviceMask(const StripSubdetector::SubDetector subdet,const int substructure,const TrackerTopology* tkrTopo)
 {
   uint32_t rootDetId = 0;
   uint32_t maskDetId = 0;
+
+
   switch(subdet){
-    case (int)StripSubdetector::TIB :
+    case StripSubdetector::TIB :
     {
-      rootDetId = TIBDetId(substructure,0,0,0,0,0).rawId();
-      maskDetId = TIBDetId(15,0,0,0,0,0).rawId();
+      rootDetId = tkrTopo->tibDetId(substructure,0,0,0,0,0).rawId();
+      maskDetId = tkrTopo->tibDetId(15,0,0,0,0,0).rawId();
       break;
     }
-    case (int)StripSubdetector::TID :
+    case StripSubdetector::TID :
     {
-      rootDetId = TIDDetId(substructure>0 ? 2 : 1,abs(substructure),0,0,0,0).rawId();
-      maskDetId = TIDDetId(3,15,0,0,0,0).rawId();
+      rootDetId = tkrTopo->tidDetId(substructure>0 ? 2 : 1,abs(substructure),0,0,0,0).rawId();
+      maskDetId = tkrTopo->tidDetId(3,15,0,0,0,0).rawId();
       break;
     }
-    case (int)StripSubdetector::TOB :
+    case StripSubdetector::TOB :
     {
-      rootDetId = TOBDetId(substructure,0,0,0,0).rawId();
-      maskDetId = TOBDetId(15,0,0,0,0).rawId();
+      rootDetId = tkrTopo->tobDetId(substructure,0,0,0,0).rawId();
+      maskDetId = tkrTopo->tobDetId(15,0,0,0,0).rawId();
       break;
     }
-    case (int)StripSubdetector::TEC :
+    case StripSubdetector::TEC :
     {
-      rootDetId = TECDetId(substructure>0 ? 2 : 1,abs(substructure),0,0,0,0,0).rawId();
-      maskDetId = TECDetId(3,15,0,0,0,0,0).rawId();
+      rootDetId = tkrTopo->tecDetId(substructure>0 ? 2 : 1,abs(substructure),0,0,0,0,0).rawId();
+      maskDetId = tkrTopo->tecDetId(3,15,0,0,0,0,0).rawId();
       break;
     }
   }
   return std::make_pair(maskDetId,rootDetId);
 }
 
-std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const StripSubdetector::SubDetector subdet,const int substructure)
+std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker, const TrackerTopology* tkrTopo, const reco::Track* tk, const std::vector<Trajectory>& trajVec, const StripSubdetector::SubDetector subdet,const int substructure)
 {
-  if(substructure==0xff) return detId(tracker,tk,trajVec,0,0);
+  if(substructure==0xff) return detId(tracker,tkrTopo,tk,trajVec,0,0);
   // first determine the root detId we are looking for
-  std::pair<uint32_t, uint32_t> mask = deviceMask(subdet,substructure);
+  DeviceMask mask = deviceMask(subdet,substructure,tkrTopo);
   // then call the method that loops on recHits
-  return detId(tracker,tk,trajVec,mask.first,mask.second);
+  return detId(tracker,tkrTopo,tk,trajVec,mask.first,mask.second);
 }
 
-std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const uint32_t& maskDetId, const uint32_t& rootDetId)
+std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker, const TrackerTopology* tkrTopo, const reco::Track* tk, const std::vector<Trajectory>& trajVec, const uint32_t& maskDetId, const uint32_t& rootDetId)
 {
-  bool onDisk = ((maskDetId==TIDDetId(3,15,0,0,0,0).rawId())||(maskDetId==TECDetId(3,15,0,0,0,0,0).rawId())) ;
+  bool onDisk = ((maskDetId==tkrTopo->tidDetId(3,15,0,0,0,0).rawId())||(maskDetId==tkrTopo->tecDetId(3,15,0,0,0,0,0).rawId())) ;
   std::vector< std::pair<uint32_t,std::pair<double, double> > > result;
   std::vector<uint32_t> usedDetids;
   // now loop on recHits to find the right detId plus the track local angle
@@ -322,7 +319,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
 	  if(rangeStop !=DSViter->end()) ++rangeStop;
           // build a fake cluster 
           LogDebug("closestCluster") << "build a fake cluster ";
-          SiStripCluster* newCluster = new SiStripCluster(det_id,SiStripCluster::SiStripDigiRange(rangeStart,rangeStop)); // /!\ ownership transfered
+          SiStripCluster* newCluster = new SiStripCluster(SiStripCluster::SiStripDigiRange(rangeStart,rangeStop)); // /!\ ownership transfered
           result.first = newCluster;
           result.second = fabs(newCluster->barycenter()-hitStrip);
 	}
@@ -401,6 +398,9 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      //     iEvent.getByLabel(trackLabel_,TrajectoryCollection);
      iEvent.getByToken(trackToken_,TrajectoryCollection);
      trajVec = *(TrajectoryCollection.product());
+     // Get TrackerTopology
+     edm::ESHandle<TrackerTopology> tTopo;
+     iSetup.get<TrackerTopologyRcd>().get(tTopo);
      // loop on tracks
      for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); itrack++) {
        // first check the track Pt
@@ -419,10 +419,10 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          else if(((layerCode>>6)&0x3)==2) subdet = StripSubdetector::TID;
          else if(((layerCode>>6)&0x3)==3) subdet = StripSubdetector::TEC;
          int32_t layerIdx = (layerCode&0xF)*(((layerCode>>4)&0x3) ? -1 : 1);
-         intersections = detId(*tracker,&(*itrack),trajVec,subdet,layerIdx);
+         intersections = detId(*tracker,tTopo.product(),&(*itrack),trajVec,subdet,layerIdx);
        } else {
          // for latency scans, no layer is specified -> no cut on detid
-         intersections = detId(*tracker,&(*itrack),trajVec);
+         intersections = detId(*tracker,tTopo.product(),&(*itrack),trajVec);
        }
        LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
        for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();it++) {
@@ -434,11 +434,11 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            LogDebug("produce") << "    The cluster is close enough."<< std::endl;
   	 // build the rawdigi corresponding to the leading strip and save it
   	 // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
-  	 const std::vector< uint8_t >& amplitudes = candidateCluster.first->amplitudes();
+  	 const auto & amplitudes = candidateCluster.first->amplitudes();
   	 uint8_t leadingCharge = 0;
   	 uint8_t leadingStrip = candidateCluster.first->firstStrip();
   	 uint8_t leadingPosition = 0;
-  	 for(std::vector< uint8_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
+  	 for(auto amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
   	   if(leadingCharge<*amplit) {
   	     leadingCharge = *amplit;
   	     leadingPosition = leadingStrip;
@@ -482,8 +482,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    // add the selected hits to the event.
    LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
-   iEvent.put(formatedOutput,"FineDelaySelection");
+   std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
+   iEvent.put(std::move(formatedOutput),"FineDelaySelection");
 }
 
 // Simple solution when tracking is not available/ not working
@@ -491,6 +491,9 @@ void
 SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    event_ = &iEvent;
+   // Get TrackerTopology
+   edm::ESHandle<TrackerTopology> tTopo;
+   iSetup.get<TrackerTopologyRcd>().get(tTopo);
    // container for the selected hits
    std::vector< edm::DetSet<SiStripRawDigi> > output;
    output.reserve(100);
@@ -505,7 +508,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    else if(((layerCode>>6)&0x3)==2) subdet = StripSubdetector::TID;
    else if(((layerCode>>6)&0x3)==3) subdet = StripSubdetector::TEC;
    int32_t layerIdx = (layerCode&0xF)*(((layerCode>>4)&0x3) ? -1 : 1);
-   std::pair<uint32_t, uint32_t> mask = deviceMask(subdet,layerIdx);
+   DeviceMask mask = deviceMask(subdet,layerIdx,tTopo.product());
    // look at the clusters 
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    //   iEvent.getByLabel(clusterLabel_,clusters);
@@ -520,11 +523,11 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
      for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
          // build the rawdigi corresponding to the leading strip and save it
          // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
-	 const std::vector< uint8_t >& amplitudes = iter->amplitudes();
+	 auto const & amplitudes = iter->amplitudes();
 	 uint8_t leadingCharge = 0;
 	 uint8_t leadingStrip = iter->firstStrip();
 	 uint8_t leadingPosition = 0;
-	 for(std::vector< uint8_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
+	 for(auto amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
 	   if(leadingCharge<*amplit) {
 	     leadingCharge = *amplit;
 	     leadingPosition = leadingStrip;
@@ -558,8 +561,8 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    }
    // add the selected hits to the event.
    LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
-   iEvent.put(formatedOutput,"FineDelaySelection");
+   std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
+   iEvent.put(std::move(formatedOutput),"FineDelaySelection");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -569,9 +572,9 @@ SiStripFineDelayHit::beginRun(const edm::Run & run, const edm::EventSetup & iSet
    // Retrieve FED cabling object
    edm::ESHandle<SiStripFedCabling> cabling;
    iSetup.get<SiStripFedCablingRcd>().get( cabling );
-   const std::vector< uint16_t > & feds = cabling->feds() ;
-   for(std::vector< uint16_t >::const_iterator fedid = feds.begin();fedid<feds.end();++fedid) {
-     const std::vector< FedChannelConnection > & connections = cabling->connections(*fedid);
+   auto feds = cabling->fedIds() ;
+   for( auto fedid = feds.begin();fedid<feds.end();++fedid) {
+     auto connections = cabling->fedConnections(*fedid);
      for(std::vector< FedChannelConnection >::const_iterator conn=connections.begin();conn<connections.end();++conn) {
      /*
        SiStripFedKey key(conn->fedId(),

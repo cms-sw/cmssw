@@ -1,11 +1,12 @@
 #ifndef DD_DDsvalues_type_h
 #define DD_DDsvalues_type_h
 
+#include <algorithm>
+#include <map>
 //#include "DetectorDescription/Core/interface/DDAlgoPar.h"
 #include <ostream>
-#include <map>
+#include <utility>
 #include <vector>
-#include <algorithm>
 
 #include "DetectorDescription/Core/interface/DDValue.h"
 

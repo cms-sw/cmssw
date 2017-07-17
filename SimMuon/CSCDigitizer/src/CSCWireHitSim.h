@@ -8,41 +8,43 @@
  */
 
 #include <vector>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
+
 class CSCDriftSim;
 class CSCLayer;
 class CSCG3Hit;
 class CSCGasCollisions;
 class CSCLayerGeometry;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCWireHitSim
 {
 public:
-  explicit CSCWireHitSim(CSCDriftSim* driftSim);
+  explicit CSCWireHitSim(CSCDriftSim* driftSim, const edm::ParameterSet & p);
   ~CSCWireHitSim();
 
   // makes wire hits from the given g3hits
   std::vector<CSCDetectorHit> & simulate(const CSCLayer * layer, 
-				    const edm::PSimHitContainer & simHits);
- 
-  void setParticleDataTable(const ParticleDataTable * pdt);
+                                         const edm::PSimHitContainer & simHits,
+                                         CLHEP::HepRandomEngine*);
 
-  void setRandomEngine(CLHEP::HepRandomEngine& engine);
+  void setParticleDataTable(const ParticleDataTable * pdt);
 
 private:
   // Helper functions
   std::vector<Local3DPoint> getIonizationClusters(const PSimHit & hit, 
-                                             const CSCLayer *);
+                                                  const CSCLayer *,
+                                                  CLHEP::HepRandomEngine*);
   CSCDetectorHit driftElectronsToWire();
 
   // member data
-  CLHEP::RandFlat * theRandFlat;
   CSCDriftSim*  theDriftSim;
   CSCGasCollisions* theGasIonizer;
   std::vector<CSCDetectorHit> theNewWireHits;

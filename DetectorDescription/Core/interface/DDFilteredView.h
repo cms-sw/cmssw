@@ -1,27 +1,31 @@
 #ifndef DDCore_DDFilteredView_h
 #define DDCore_DDFilteredView_h
 
-#include <vector>
 #include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
+class DDCompactView;
+class DDLogicalPart;
 class DDScope;
 
 class DDFilteredView
 {
 public:
   typedef DDExpandedView::nav_type nav_type;
+
+  //!Keeps a pointer to the DDfilter
+  DDFilteredView(const DDCompactView &, const DDFilter&);
+
+  DDFilteredView() = delete;
   
-  DDFilteredView(const DDCompactView &);
-  
-  ~DDFilteredView();
-  
-  enum log_op { AND, OR };
-  
-  void addFilter(const DDFilter &, log_op op=AND);
-  
-    //! The logical-part of the current node in the filtered-view
+   //! The logical-part of the current node in the filtered-view
   const DDLogicalPart & logicalPart() const;
   
   //! The absolute translation of the current node
@@ -81,18 +85,10 @@ public:
      
 private:
   bool filter();
-  
-private:
-  DDExpandedView epv_;
-  const DDScope * scope_;
-  typedef DDFilter const * criterion_type;
-  typedef std::vector<criterion_type> criteria_type;
-  typedef std::vector<log_op> logops_type;
-  
-  criteria_type criteria_;
-  logops_type logOps_; // logical operation for merging the result of 2 filters
-  std::vector<DDGeoHistory> parents_; // filtered-parents
 
+  DDExpandedView epv_;
+  DDFilter const* filter_;
+  std::vector<DDGeoHistory> parents_; // filtered-parents
 };
 
 #endif

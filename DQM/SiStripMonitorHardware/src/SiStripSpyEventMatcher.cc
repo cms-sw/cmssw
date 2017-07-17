@@ -4,8 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -21,9 +22,9 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "boost/bind.hpp"
-#include "boost/shared_ptr.hpp"
 #include <algorithm>
 #include <limits>
+#include <memory>
 
 using edm::LogInfo;
 using edm::LogWarning;
@@ -64,7 +65,8 @@ namespace sistrip {
     productRegistry_->setFrozen();
 
     eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
-                                                  source_->branchIDListHelper(),
+                                                  std::make_shared<edm::BranchIDListHelper>(),
+                                                  std::make_shared<edm::ThinnedAssociationsHelper>(),
                                                   *processConfiguration_,
                                                   nullptr));
   }
@@ -72,19 +74,15 @@ namespace sistrip {
   std::unique_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig)
   {
     const edm::VectorInputSourceFactory* sourceFactory = edm::VectorInputSourceFactory::get();
-    edm::InputSourceDescription description(edm::ModuleDescription(),
-                                            *productRegistry_,
-                                            boost::shared_ptr<edm::BranchIDListHelper>(new edm::BranchIDListHelper),
-                                            boost::shared_ptr<edm::ActivityRegistry>(new edm::ActivityRegistry),
-                                            -1, -1,
-                                            edm::PreallocationConfiguration());
+    edm::VectorInputSourceDescription description(productRegistry_, edm::PreallocationConfiguration());
     return sourceFactory->makeVectorInputSource(sourceConfig, description);
   }
 
   void SpyEventMatcher::initialize()
   {
+    size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopSequential(*eventPrincipal_,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -226,14 +224,14 @@ namespace sistrip {
                                               SpyDataCollections& collectionsToCreate)
   {
     if (!matchingEvents) return;
+    size_t fileNameHash = 0U;
     FEDRawDataCollection outputRawData;
     MatchingOutput mo(outputRawData);
-    source_->loopSpecified(*eventPrincipal_,*matchingEvents,boost::bind(&SpyEventMatcher::getCollections,this,_1,
+    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),boost::bind(&SpyEventMatcher::getCollections,this,_1,
                                                        eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
-    SpyDataCollections collections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
+    collectionsToCreate = SpyDataCollections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
                                    mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get());
-    collectionsToCreate = collections;
   }
   
   void SpyEventMatcher::findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
@@ -325,8 +323,8 @@ namespace sistrip {
       }
       if (inputVirginRawDigis) {
         std::set<uint32_t> fedDetIds;
-        const std::vector<FedChannelConnection>& conns = cabling.connections(fedId);
-        for (std::vector<FedChannelConnection>::const_iterator iConn = conns.begin(); iConn != conns.end(); ++iConn) {
+        auto conns = cabling.fedConnections(fedId);
+        for (auto iConn = conns.begin(); iConn != conns.end(); ++iConn) {
           if (!iConn->isConnected()) continue;
           const uint32_t detId = iConn->detId();
           if (usedDetIds.find(detId) != usedDetIds.end()) {
@@ -411,18 +409,6 @@ namespace sistrip {
       reorderedDigis(),
       virginRawDigis()
   {}
-  
-  SpyEventMatcher::SpyDataCollections& SpyEventMatcher::SpyDataCollections::operator = (SpyDataCollections original)
-  {
-    rawData = original.rawData;
-    totalEventCounters = original.totalEventCounters;
-    l1aCounters = original.l1aCounters;
-    apvAddresses = original.apvAddresses;
-    scopeDigis = original.scopeDigis;
-    payloadDigis = original.payloadDigis;
-    virginRawDigis = original.virginRawDigis;
-    return *this;
-  }
   
   SpyEventMatcher::CountersWrapper::CountersWrapper(const Counters* theCounters)
     : pConst(theCounters),

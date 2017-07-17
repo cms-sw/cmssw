@@ -1,33 +1,7 @@
-/* Condition Objects
- * DTReadOutMapping
- * DTT0
- * DTRangeT0
- * DTTtrig
- * DTMtime
- * DTStatusFlag
- * DTDeadFlag
- * DTPerformance
- * DTLVStatus
- * DTHVStatus
- * DTCCBConfig
- * DTTPGParameters
- */
+#include "CondFormats/DTObjects/src/headers.h"
 
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DTObjects/interface/DTMtime.h"
-#include "CondFormats/DTObjects/interface/DTRangeT0.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
-#include "CondFormats/DTObjects/interface/DTPerformance.h"
-#include "CondFormats/DTObjects/interface/DTLVStatus.h"
-#include "CondFormats/DTObjects/interface/DTHVStatus.h"
-#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
-#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 
-namespace {
+namespace CondFormats_DTObjects {
   struct dictionary {
 //    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
     std::pair<        DTTtrigId,        DTTtrigData>       tTrigPair;
@@ -73,13 +47,20 @@ namespace {
 //    std::vector< std::pair<DTTtrigId,DTTtrigData> > blah3;
 //    std::vector< std::pair<DTMtimeId,DTMtimeData> > blah4;
 //    std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > blah5;
+
+    
+    std::pair<uint32_t, std::vector<float> > p_payload;
+    std::map<uint32_t, std::vector<float> > payload;
+    std::pair<uint32_t, std::vector<double> > p_payloadD;
+    std::map<uint32_t, std::vector<double> > payloadD;
+
   };
 }
 
 
 /*
 // wrapper declarations
-namespace {
+namespace CondFormats_DTObjects {
    struct wrappers {
       pool::Ptr<DTReadOutMapping >          pMap;
       cond::DataWrapper<DTReadOutMapping > dwMap;

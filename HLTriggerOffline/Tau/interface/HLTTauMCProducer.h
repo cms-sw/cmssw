@@ -20,6 +20,9 @@ in Offline Trigger DQM etc
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
 #include <vector>
 #include <string>
 #include "TLorentzVector.h"
@@ -37,19 +40,21 @@ public:
   
  private:
 
-  std::vector<reco::GenParticle*> getGenStableDecayProducts(const reco::GenParticle * particle);
+  void getGenDecayProducts(const reco::GenParticleRef&, reco::GenParticleRefVector&,
+			   int status=1, int pdgId=0);
 
   enum tauDecayModes {kElectron, kMuon, 
 		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
 		      kThreeProng0pi0, kThreeProng1pi0,
 		      kOther, kUndefined};
 
-  edm::InputTag MC_;
+  edm::EDGetTokenT<reco::GenParticleCollection> MC_;
+  edm::EDGetTokenT<reco::GenMETCollection> MCMET_;
   double ptMinMCTau_;
   double ptMinMCElectron_;
   double ptMinMCMuon_;
   std::vector<int> m_PDG_;
-  double etaMax;
+  double etaMin,etaMax,phiMin,phiMax;
 
 };
 

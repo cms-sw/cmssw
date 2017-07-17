@@ -7,7 +7,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,6 +19,13 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h" 
+
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 /**\class PFECALSuperClusterProducer 
 
@@ -29,19 +37,20 @@ Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
+class GBRForest;
+class GBRWrapperRcd;
 
-
-class PFECALSuperClusterProducer : public edm::EDProducer {
- public:
+class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
+ public:  
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer();
 
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
 
- private:
-
+ private:  
   // ----------member data ---------------------------
 
   /// clustering algorithm 
@@ -53,9 +62,6 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
-  
-  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
-  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClustersES_;
 
   std::string PFBasicClusterCollectionBarrel_;
   std::string PFSuperClusterCollectionBarrel_;
@@ -63,7 +69,11 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   std::string PFSuperClusterCollectionEndcap_;
   std::string PFBasicClusterCollectionPreshower_;
   std::string PFSuperClusterCollectionEndcapWithPreshower_;
+  std::string PFClusterAssociationEBEE_;
+  std::string PFClusterAssociationES_;
 
+  // OOT photons
+  bool isOOTCollection_;
 };
 
 #endif

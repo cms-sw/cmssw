@@ -21,8 +21,6 @@
 //         Created:  Tue Jan 12 15:31:00 CDT 2010
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
-
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -62,14 +60,12 @@ namespace edm {
    RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      convert_handle(bh, result);  // throws on conversion error
-      if (bh.failedToGet()) {
+      convert_handle(std::move(bh), result);  // throws on conversion error
+      if (result.failedToGet()) {
          return false;
       }
       return true;
    }
 
-
 }
-#endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/
 #endif

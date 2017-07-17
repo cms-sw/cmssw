@@ -8,13 +8,18 @@ process.MessageLogger.categories.append('TriggerSummaryAnalyzerRAW')
 process.MessageLogger.categories.append('HLTEventAnalyzerAOD')
 process.MessageLogger.categories.append('HLTEventAnalyzerRAW')
 process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.categories.append('L1TGlobalSummary')
 process.MessageLogger.categories.append('HLTrigReport')
 process.MessageLogger.categories.append('HLTSummaryFilter')
 process.MessageLogger.categories.append('HLTConfigProvider')
+process.MessageLogger.categories.append('HLTPrescaleProvider')
+process.MessageLogger.categories.append('HLTConfigData')
 
-from Configuration.AlCa.autoCond import autoCond
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = autoCond['startup'].split(',')[0]
+# process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+# process.load('Configuration.StandardSequences.CondDBESSource_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+# process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun')
+process.GlobalTag = customiseGlobalTag(None, globaltag = 'auto:run2_hlt_GRun')
 
 # process.Timing = cms.Service("Timing")
 
@@ -28,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:RelVal_HLT_GRun_STARTUP.root')
+    fileNames = cms.untracked.vstring('file:RelVal_HLT_GRun_DATA.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -45,18 +50,18 @@ process.tsa = cms.Path(process.tsaAOD)#+process.tsaRAW)
 
 import HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi
 process.hltAOD = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
-process.hltAOD.processName = cms.string("HLT1")
-process.hltAOD.triggerResults = cms.InputTag("TriggerResults","","HLT1")
-process.hltAOD.triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT1")
+process.hltAOD.processName = cms.string("HLT")
+process.hltAOD.triggerResults = cms.InputTag("TriggerResults","","HLT")
+process.hltAOD.triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 
 import HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi
 process.hltRAW = HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi.hltEventAnalyzerRAW.clone()
 process.hlt = cms.Path(process.hltAOD)#+process.hltRAW)
 
 
-import HLTrigger.HLTanalyzers.hlTrigReport_cfi
-process.hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
-process.hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT1")
+import HLTrigger.HLTanalyzers.hltTrigReport_cfi
+process.hltReport = HLTrigger.HLTanalyzers.hltTrigReport_cfi.hltTrigReport.clone()
+process.hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
 
 process.aom = cms.OutputModule("AsciiOutputModule")
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")

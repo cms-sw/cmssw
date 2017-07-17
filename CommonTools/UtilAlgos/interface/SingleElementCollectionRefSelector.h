@@ -4,7 +4,7 @@
  *
  * selects a subset of a collection based
  * on single element selection done via functor
- * 
+ *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.1 $
@@ -12,17 +12,25 @@
  * $Id: SingleElementCollectionRefSelector.h,v 1.1 2009/03/03 13:07:28 llista Exp $
  *
  */
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
 #include "DataFormats/Common/interface/View.h"
+
 namespace reco {
   namespace modules {
     template<typename S> struct SingleElementCollectionRefSelectorEventSetupInit;
   }
 }
-template<typename InputType, typename Selector, 
-	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type, 
+namespace edm {
+  class Event;
+  class EventSetup;
+}
+
+template<typename InputType, typename Selector,
+	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
 	 typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
 struct SingleElementCollectionRefSelector {
@@ -31,12 +39,12 @@ struct SingleElementCollectionRefSelector {
   typedef StoreContainer container;
   typedef Selector selector;
   typedef typename container::const_iterator const_iterator;
-  SingleElementCollectionRefSelector(const edm::ParameterSet & cfg) : 
-    select_(reco::modules::make<Selector>(cfg)) { }
+  SingleElementCollectionRefSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector && iC) :
+    select_(reco::modules::make<Selector>(cfg, iC)) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select(const edm::Handle<InputCollection> & c, const edm::Event &, const edm::EventSetup&) {
-    selected_.clear();    
+    selected_.clear();
     for(size_t idx = 0; idx < c->size(); ++ idx) {
       if(select_(c->refAt(idx))) addRef_(selected_, c, idx);
     }
@@ -54,7 +62,7 @@ namespace reco {
   namespace modules {
     template<typename S>
     struct SingleElementCollectionRefSelectorEventSetupInit {
-      static void init(S & s, const edm::Event & ev, const edm::EventSetup& es) { 
+      static void init(S & s, const edm::Event & ev, const edm::EventSetup& es) {
 	typedef typename EventSetupInit<typename S::selector>::type ESI;
 	ESI::init(s.select_, ev, es);
       }

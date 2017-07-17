@@ -25,7 +25,8 @@ class EvtGenTestAnalyzer : public edm::EDAnalyzer
    
      //
      std::string fOutputFileName ;
-     std::string theSrc ;
+     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+
      TFile*      fOutputFile ;
      TH1D*       hGeneralId ;	   
      TH1D*       hIdPhiDaugs ;

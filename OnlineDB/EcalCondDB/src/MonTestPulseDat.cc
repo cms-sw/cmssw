@@ -34,7 +34,7 @@ MonTestPulseDat::~MonTestPulseDat()
 
 
 void MonTestPulseDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -52,7 +52,7 @@ void MonTestPulseDat::prepareWrite()
 
 
 void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* item, MonRunIOV* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -83,7 +83,7 @@ void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* it
 
 
 void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -132,7 +132,7 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
 }
 
 void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

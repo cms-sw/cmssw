@@ -21,7 +21,6 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
-#include "boost/bind.hpp"
 
 #include <vector>
 #include <string>
@@ -96,26 +95,7 @@ namespace {
 
     ++iPlugin;
 
-    if (printOnlyPlugins) {
-
-      if (iPlugin == 1) {
-        os << std::setfill(' ') << std::setw(6) << "" << " ";
-        os << std::left << std::setw(50) << "Plugin Name"; 
-        os << " " << "Library Name" << "\n";
-        os << std::setfill(' ') << std::setw(6) << "" << " ";
-        os << std::left << std::setw(50) << "-----------"; 
-        os << " " << "------------" << "\n";
-      }
-      os << std::left << std::setw(6) << iPlugin << " " << std::setw(50) << pluginInfo.name_; 
-      os << " " << pluginInfo.loadable_.leaf() << "\n";
-      os.flags(oldFlags);
-      return;
-    }
-
-    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  " << pluginInfo.loadable_.leaf() << "\n";
-    os.flags(oldFlags);
-
-    std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler;
+    std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler;
 
     try {
       filler.reset(factory->create(pluginInfo.name_));
@@ -124,11 +104,38 @@ namespace {
       os << "\nSTART ERROR FROM edmPluginHelp\n";
       os << "The executable \"edmPluginHelp\" encountered a problem while creating a\n"
                    "ParameterSetDescriptionFiller, probably related to loading a plugin.\n"
-                   "This plugin is being skipped.  Here is the info from the exception:\n" 
-                << e.what() << std::endl;
+                   "This plugin is being skipped.  Here is the info from the exception:\n"
+         << e.what() << std::endl;
       os << "END ERROR FROM edmPluginHelp\n\n";
       return;
     }
+
+    std::string const & baseType = (filler->extendedBaseType().empty() ? filler->baseType() : filler->extendedBaseType());
+
+    if (printOnlyPlugins) {
+
+      os << std::setfill(' ');
+      os << std::left;
+      if (iPlugin == 1) {
+        os << std::setw(6) << "" << " ";
+        os << std::setw(50) << "Plugin Name";
+        os << std::setw(24) << "Plugin Type";
+        os << "Library Name" << "\n";
+        os << std::setw(6) << "" << " ";
+        os << std::setw(50) << "-----------";
+        os << std::setw(24) << "-----------";
+        os << "------------" << "\n";
+      }
+      os << std::setw(6) << iPlugin << " ";
+      os << std::setw(50) << pluginInfo.name_;
+      os << std::setw(24) << baseType;
+      os << pluginInfo.loadable_.leaf() << "\n";
+      os.flags(oldFlags);
+      return;
+    }
+
+    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf() << "\n";
+    os.flags(oldFlags);
 
     edm::ConfigurationDescriptions descriptions(filler->baseType());
 
@@ -174,7 +181,7 @@ try {
   descString += "configure plugins. Output is ordered by plugin name. Within a\n";
   descString += "plugin, the labels and parameters are ordered based on the order\n";
   descString += "declared by the plugin. Formatted as follows:\n\n";
-  descString += "PluginName Library\n";
+  descString += "PluginName (PluginType) Library\n";
   descString += "  ModuleLabel\n";
   descString += "    Details of parameters corresponding to this module label\n\n";
   descString += "For more information about the output format see:\n";
@@ -337,12 +344,12 @@ try {
 
     std::string previousName;
 
-    edm::for_all(infos, boost::bind(&getMatchingPlugins,
-                                    _1,
-                                    boost::ref(matchingInfos),
-                                    boost::ref(previousName),
-                                    boost::cref(library),
-                                    boost::cref(plugin)));
+    edm::for_all(infos, std::bind(&getMatchingPlugins,
+                                    std::placeholders::_1,
+                                    std::ref(matchingInfos),
+                                    std::ref(previousName),
+                                    std::cref(library),
+                                    std::cref(plugin)));
   }
   catch(cms::Exception& e) {
     std::cerr << "The executable \"edmPluginHelp\" failed while selecting plugins.\n"
@@ -363,15 +370,15 @@ try {
 
     int iPlugin = 0;
  
-    edm::for_all(matchingInfos, boost::bind(&writeDocForPlugin,
-                                            _1,
+    edm::for_all(matchingInfos, std::bind(&writeDocForPlugin,
+                                            std::placeholders::_1,
                                             factory,
-                                            boost::cref(moduleLabel),
+                                            std::cref(moduleLabel),
                                             brief,
                                             printOnlyLabels,
                                             printOnlyPlugins,
                                             lineWidth,
-                                            boost::ref(iPlugin)));
+                                            std::ref(iPlugin)));
   } catch(cms::Exception& e) {
     std::cerr << "\nThe executable \"edmPluginHelp\" failed. The following problem occurred:\n" 
               << e.what() << std::endl;

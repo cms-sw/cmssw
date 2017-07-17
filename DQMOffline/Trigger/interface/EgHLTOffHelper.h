@@ -26,7 +26,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -48,6 +48,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
@@ -58,6 +59,7 @@ namespace egHLT {
   class OffHelper {
 
   private:
+
     OffEgSel eleLooseCuts_; //loose selection cuts (loose has no relation to other 'loose' cuts)
     OffEgSel eleCuts_; //normal selection cuts
     OffEgSel phoLooseCuts_; //loose selection cuts (loose has no relation to other 'loose' cuts)
@@ -66,19 +68,19 @@ namespace egHLT {
     std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> > trigCuts_;//non sorted vector (for now)
     
     
-    edm::InputTag ecalRecHitsEBTag_;
-    edm::InputTag ecalRecHitsEETag_;
-    edm::InputTag caloJetsTag_;
-    edm::InputTag isolTrkTag_;
-    edm::InputTag hbheHitsTag_;
-    edm::InputTag hfHitsTag_;
-    edm::InputTag triggerSummaryLabel_;
-    edm::InputTag electronsTag_;
-    edm::InputTag photonsTag_;
-    edm::InputTag beamSpotTag_;
-    edm::InputTag caloTowersTag_;
-    edm::InputTag trigResultsTag_;
-    edm::InputTag vertexTag_;
+    edm::EDGetTokenT <EcalRecHitCollection>  ecalRecHitsEBToken;
+    edm::EDGetTokenT <EcalRecHitCollection>  ecalRecHitsEEToken;
+    edm::EDGetTokenT <reco::CaloJetCollection>  caloJetsToken;
+    edm::EDGetTokenT <reco::TrackCollection>  isolTrkToken;
+    edm::EDGetTokenT <HBHERecHitCollection>  hbheHitsToken;
+    edm::EDGetTokenT <HFRecHitCollection>  hfHitsToken;
+    edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+    edm::EDGetTokenT <reco::GsfElectronCollection>  electronsToken;
+    edm::EDGetTokenT <reco::PhotonCollection>  photonsToken;
+    edm::EDGetTokenT <reco::BeamSpot>  beamSpotToken;
+    edm::EDGetTokenT <CaloTowerCollection>  caloTowersToken;
+    edm::EDGetTokenT <edm::TriggerResults>  trigResultsToken;
+    edm::EDGetTokenT <reco::VertexCollection>  vertexToken;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
@@ -155,25 +157,24 @@ namespace egHLT {
     std::vector<edm::ParameterSet> trigCutParams_; //probably the least bad option
 
   private: //disabling copy / assignment
-    OffHelper& operator=(const OffHelper& rhs){return *this;}
-    OffHelper(const OffHelper& rhs){}
+    OffHelper & operator=(const OffHelper&) = delete;
+    OffHelper(const OffHelper&) = delete;
     
   public:
-    OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
+    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
-    void setup(const edm::ParameterSet& conf);
-    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed);
+    void setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed, const TrigCodes& trigCodes);
 
     //int is the error code, 0 = no error
     //it should never throw, print to screen or crash, this is the only error reporting it does
-    int makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setup,egHLT::OffEvt& offEvent);
-    
+    int makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setup,egHLT::OffEvt& offEvent,const TrigCodes& trigCodes);
     
     int getHandles(const edm::Event& event,const edm::EventSetup& setup);
     int fillOffEleVec(std::vector<OffEle>& offEles);
     int fillOffPhoVec(std::vector<OffPho>& offPhos);
-    int setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent);
+    int setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent, const TrigCodes& trigCodes);
 
     void fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData);
     void fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShapeData& clusShapeData);
@@ -188,15 +189,15 @@ namespace egHLT {
     const std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> >& trigCuts()const{return trigCuts_;}
     
     
-    template<class T> static bool getHandle(const edm::Event& event,const edm::InputTag& tag,edm::Handle<T>& handle);
+    template<class T> static bool getHandle(const edm::Event& event,const edm::EDGetTokenT<T>& token,edm::Handle<T>& handle);
     
   };
   
 
-  template<class T> bool OffHelper::getHandle(const edm::Event& event,const edm::InputTag& tag,edm::Handle<T>& handle)
+  template<class T> bool OffHelper::getHandle(const edm::Event& event,const edm::EDGetTokenT<T>& token, edm::Handle<T>& handle)
   {
   
-    bool success=event.getByLabel(tag,handle);
+    bool success=event.getByToken(token,handle);
     return success &&  handle.product();
     
 

@@ -8,7 +8,7 @@
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 
 
-namespace {
+namespace DataFormats_Alignment {
   struct dictionary {
     //////////////////////////////////////////////
     // for LAS interface to track-based alignment

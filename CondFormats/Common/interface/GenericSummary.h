@@ -1,6 +1,8 @@
 #ifndef Cond_GenericSummary_h
 #define Cond_GenericSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/Summary.h"
 
 namespace cond {
@@ -27,7 +29,9 @@ namespace cond {
     
     std::string m_me;
     
-  };
+  
+  COND_SERIALIZABLE;
+};
   
 
 }

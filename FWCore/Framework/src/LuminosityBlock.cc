@@ -3,12 +3,13 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
   std::string const LuminosityBlock::emptyString_;
 
-  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                                    ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(lbp, md),
         aux_(lbp.aux()),
@@ -17,9 +18,6 @@ namespace edm {
   }
 
   LuminosityBlock::~LuminosityBlock() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
   LuminosityBlockIndex
@@ -27,12 +25,10 @@ namespace edm {
     return luminosityBlockPrincipal().index();
   }
 
-  
-  LuminosityBlockPrincipal&
-  LuminosityBlock::luminosityBlockPrincipal() {
-    return dynamic_cast<LuminosityBlockPrincipal&>(provRecorder_.principal());
-  }
+  LuminosityBlock::CacheIdentifier_t
+  LuminosityBlock::cacheIdentifier() const {return luminosityBlockPrincipal().cacheIdentifier();}
 
+  
   void
   LuminosityBlock::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
@@ -40,6 +36,13 @@ namespace edm {
       const_cast<Run*>(run_.get())->setConsumer(iConsumer);
     }
   }
+  
+  void
+  LuminosityBlock::setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
+    provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
+    const_cast<Run*>(run_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+  }
+
 
   LuminosityBlockPrincipal const&
   LuminosityBlock::luminosityBlockPrincipal() const {
@@ -52,21 +55,31 @@ namespace edm {
   }
 
   void
-  LuminosityBlock::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    luminosityBlockPrincipal().getAllProvenance(provenances);
+  LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    luminosityBlockPrincipal().getAllStableProvenance(provenances);
   }
 
   void
-  LuminosityBlock::commit_() {
-    LuminosityBlockPrincipal& lbp = luminosityBlockPrincipal();
+  LuminosityBlock::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
+    LuminosityBlockPrincipal const& lbp = luminosityBlockPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-        lbp.put(*pit->second, pit->first);
-        // Ownership has passed, so clear the pointer.
-        pit->first.reset();
+        lbp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
         ++pit;
+    }
+    
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != putProducts().size()) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
     }
 
     // the cleanup is all or none
@@ -83,17 +96,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-  void
-  LuminosityBlock::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   BasicHandle
   LuminosityBlock::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
-    if (h.isValid()) {
-      addToGotBranchIDs(*(h.provenance()));
-    }
     return h;
   }
 }

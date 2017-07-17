@@ -36,7 +36,7 @@ using namespace std;
 
 GenericBenchmark::GenericBenchmark() {}
 
-GenericBenchmark::~GenericBenchmark() {}
+GenericBenchmark::~GenericBenchmark() noexcept(false) {}
 
 void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDeltaEt, float maxDeltaEt,
 			     float minDeltaPhi, float maxDeltaPhi, bool doMetPlots) {

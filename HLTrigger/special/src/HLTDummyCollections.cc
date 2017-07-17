@@ -32,7 +32,8 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // -- Ecal
-#include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitFacility.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 // -- Hcal
 #include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 // -- Ecal Preshower
@@ -53,7 +54,7 @@ Implementation:
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 // -- SiStrips
-#include "DataFormats/Common/interface/LazyGetter.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 // --- GCT
 #include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
@@ -69,16 +70,16 @@ Implementation:
 class HLTDummyCollections : public edm::EDProducer {
   public:
     explicit HLTDummyCollections(const edm::ParameterSet&);
-    ~HLTDummyCollections();
+    ~HLTDummyCollections() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
 
     std::string action_;
-    bool doEcal_ ;
+  //bool doEcal_ ;
     bool doHcal_; 
     bool unpackZDC_ ;
     bool doEcalPreshower_ ;
@@ -110,7 +111,7 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
   unpackZDC_        = iConfig.getParameter<bool>("UnpackZDC");
   ESdigiCollection_ = iConfig.getParameter<std::string>("ESdigiCollection");
 
-  doEcal_           = ( action_ == "doEcal");
+  //  doEcal_           = ( action_ == "doEcal");
   doHcal_           = ( action_ == "doHcal");
   doEcalPreshower_  = ( action_ == "doEcalPreshower");
   doMuonDTDigis_    = ( action_ == "doMuonDT");
@@ -120,10 +121,11 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
   doObjectMap_      = ( action_ == "doObjectMap");
   doGCT_	    = ( action_ == "doGCT");
 
+/* This interface is out of data and I do not know what is the proper replacement
   if (doEcal_) {
     // ECAL unpacking :
     produces< edm::LazyGetter<EcalRecHit> >();
-  }
+  } */
 
   if (doHcal_) {
     // HCAL unpacking
@@ -162,7 +164,7 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
   }
 
   if (doSiStrip_) {
-    produces< edm::LazyGetter<SiStripCluster> >();
+    produces< edmNew::DetSetVector<SiStripCluster> >();
   }
 
   if (doGCT_) {
@@ -212,100 +214,101 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
+  /*
   if (doEcal_) {
-    std::auto_ptr< edm::LazyGetter<EcalRecHit> > Ecalcollection( new edm::LazyGetter<EcalRecHit> );
-    iEvent.put(Ecalcollection);
-  }
+    std::unique_ptr< edm::LazyGetter<EcalRecHit> > Ecalcollection( new edm::LazyGetter<EcalRecHit> );
+    iEvent.put(std::move(Ecalcollection));
+    } */
 
   if (doHcal_) {
-    std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
-    std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
-    std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
-    std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
-    std::auto_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
-    iEvent.put(hbhe_prod);
-    iEvent.put(hf_prod);
-    iEvent.put(ho_prod);
-    iEvent.put(htp_prod);
-    iEvent.put(hotp_prod);
+    std::unique_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
+    std::unique_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
+    std::unique_ptr<HODigiCollection> ho_prod(new HODigiCollection());
+    std::unique_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
+    std::unique_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
+    iEvent.put(std::move(hbhe_prod));
+    iEvent.put(std::move(hf_prod));
+    iEvent.put(std::move(ho_prod));
+    iEvent.put(std::move(htp_prod));
+    iEvent.put(std::move(hotp_prod));
     if (unpackZDC_) {
-      std::auto_ptr<ZDCDigiCollection> zdcprod(new ZDCDigiCollection());
-      iEvent.put(zdcprod);
+      std::unique_ptr<ZDCDigiCollection> zdcprod(new ZDCDigiCollection());
+      iEvent.put(std::move(zdcprod));
     }
   }
 
   if (doEcalPreshower_) {
-    std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
-    iEvent.put(productDigis, ESdigiCollection_);
+    std::unique_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+    iEvent.put(std::move(productDigis), ESdigiCollection_);
   }
 
   if (doMuonDTDigis_) {
-    std::auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
-    std::auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
-    iEvent.put(detectorProduct);
-    iEvent.put(triggerProduct);
+    std::unique_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
+    std::unique_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
+    iEvent.put(std::move(detectorProduct));
+    iEvent.put(std::move(triggerProduct));
   }
 
   if (doMuonCSCDigis_) {
-    std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
-    std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
-    std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
-    std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-    std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
-    std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
-    std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
+    std::unique_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
+    std::unique_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
+    std::unique_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
+    std::unique_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
+    std::unique_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
+    std::unique_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
+    std::unique_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
 
-    iEvent.put(wireProduct,"MuonCSCWireDigi");
-    iEvent.put(stripProduct,"MuonCSCStripDigi");
-    iEvent.put(alctProduct,"MuonCSCALCTDigi");
-    iEvent.put(clctProduct,"MuonCSCCLCTDigi");
-    iEvent.put(comparatorProduct,"MuonCSCComparatorDigi");
-    iEvent.put(rpcProduct,"MuonCSCRPCDigi");
-    iEvent.put(corrlctProduct,"MuonCSCCorrelatedLCTDigi");
+    iEvent.put(std::move(wireProduct),"MuonCSCWireDigi");
+    iEvent.put(std::move(stripProduct),"MuonCSCStripDigi");
+    iEvent.put(std::move(alctProduct),"MuonCSCALCTDigi");
+    iEvent.put(std::move(clctProduct),"MuonCSCCLCTDigi");
+    iEvent.put(std::move(comparatorProduct),"MuonCSCComparatorDigi");
+    iEvent.put(std::move(rpcProduct),"MuonCSCRPCDigi");
+    iEvent.put(std::move(corrlctProduct),"MuonCSCCorrelatedLCTDigi");
   }
 
   if (doSiPixelDigis_) {
-    std::auto_ptr< edm::DetSetVector<PixelDigi> > SiPicollection( new edm::DetSetVector<PixelDigi> );
-    iEvent.put(SiPicollection);
+    std::unique_ptr< edm::DetSetVector<PixelDigi> > SiPicollection( new edm::DetSetVector<PixelDigi> );
+    iEvent.put(std::move(SiPicollection));
   }
 
   if (doSiStrip_) {
-    std::auto_ptr< edm::LazyGetter<SiStripCluster> > SiStripcollection( new edm::LazyGetter<SiStripCluster> );
-    iEvent.put(SiStripcollection);
+    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> > SiStripcollection( new edmNew::DetSetVector<SiStripCluster> );
+    iEvent.put(std::move(SiStripcollection));
   }
 
   if (doGCT_) {
-    std::auto_ptr<L1GctEmCandCollection> m_gctIsoEm( new L1GctEmCandCollection) ;
-    std::auto_ptr<L1GctEmCandCollection> m_gctNonIsoEm(new L1GctEmCandCollection);
-    std::auto_ptr<L1GctJetCandCollection> m_gctCenJets(new L1GctJetCandCollection);
-    std::auto_ptr<L1GctJetCandCollection> m_gctForJets(new L1GctJetCandCollection);
-    std::auto_ptr<L1GctJetCandCollection> m_gctTauJets(new L1GctJetCandCollection);
-    std::auto_ptr<L1GctHFBitCountsCollection> m_gctHfBitCounts(new L1GctHFBitCountsCollection);
-    std::auto_ptr<L1GctHFRingEtSumsCollection> m_gctHfRingEtSums(new L1GctHFRingEtSumsCollection);
-    std::auto_ptr<L1GctEtTotalCollection> m_gctEtTot(new L1GctEtTotalCollection);
-    std::auto_ptr<L1GctEtHadCollection> m_gctEtHad(new L1GctEtHadCollection);
-    std::auto_ptr<L1GctEtMissCollection> m_gctEtMiss(new L1GctEtMissCollection);
-    std::auto_ptr<L1GctHtMissCollection> m_gctHtMiss(new L1GctHtMissCollection);
-    std::auto_ptr<L1GctJetCountsCollection> m_gctJetCounts(new L1GctJetCountsCollection);  // DEPRECATED
+    std::unique_ptr<L1GctEmCandCollection> m_gctIsoEm( new L1GctEmCandCollection) ;
+    std::unique_ptr<L1GctEmCandCollection> m_gctNonIsoEm(new L1GctEmCandCollection);
+    std::unique_ptr<L1GctJetCandCollection> m_gctCenJets(new L1GctJetCandCollection);
+    std::unique_ptr<L1GctJetCandCollection> m_gctForJets(new L1GctJetCandCollection);
+    std::unique_ptr<L1GctJetCandCollection> m_gctTauJets(new L1GctJetCandCollection);
+    std::unique_ptr<L1GctHFBitCountsCollection> m_gctHfBitCounts(new L1GctHFBitCountsCollection);
+    std::unique_ptr<L1GctHFRingEtSumsCollection> m_gctHfRingEtSums(new L1GctHFRingEtSumsCollection);
+    std::unique_ptr<L1GctEtTotalCollection> m_gctEtTot(new L1GctEtTotalCollection);
+    std::unique_ptr<L1GctEtHadCollection> m_gctEtHad(new L1GctEtHadCollection);
+    std::unique_ptr<L1GctEtMissCollection> m_gctEtMiss(new L1GctEtMissCollection);
+    std::unique_ptr<L1GctHtMissCollection> m_gctHtMiss(new L1GctHtMissCollection);
+    std::unique_ptr<L1GctJetCountsCollection> m_gctJetCounts(new L1GctJetCountsCollection);  // DEPRECATED
 
-    iEvent.put(m_gctIsoEm, "isoEm");
-    iEvent.put(m_gctNonIsoEm, "nonIsoEm");
-    iEvent.put(m_gctCenJets,"cenJets");
-    iEvent.put(m_gctForJets,"forJets");
-    iEvent.put(m_gctTauJets,"tauJets");
-    iEvent.put(m_gctHfBitCounts);
-    iEvent.put(m_gctHfRingEtSums);
-    iEvent.put(m_gctEtTot);
-    iEvent.put(m_gctEtHad);
-    iEvent.put(m_gctEtMiss);
-    iEvent.put(m_gctHtMiss);
-    iEvent.put(m_gctJetCounts);  // Deprecated (empty collection still needed by GT)
+    iEvent.put(std::move(m_gctIsoEm), "isoEm");
+    iEvent.put(std::move(m_gctNonIsoEm), "nonIsoEm");
+    iEvent.put(std::move(m_gctCenJets),"cenJets");
+    iEvent.put(std::move(m_gctForJets),"forJets");
+    iEvent.put(std::move(m_gctTauJets),"tauJets");
+    iEvent.put(std::move(m_gctHfBitCounts));
+    iEvent.put(std::move(m_gctHfRingEtSums));
+    iEvent.put(std::move(m_gctEtTot));
+    iEvent.put(std::move(m_gctEtHad));
+    iEvent.put(std::move(m_gctEtMiss));
+    iEvent.put(std::move(m_gctHtMiss));
+    iEvent.put(std::move(m_gctJetCounts));  // Deprecated (empty collection still needed by GT)
   }
 
   if (doObjectMap_) {
-    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
+    std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
-    iEvent.put(gtObjectMapRecord);
+    iEvent.put(std::move(gtObjectMapRecord));
   }
 
 }

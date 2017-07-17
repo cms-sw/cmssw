@@ -2,7 +2,8 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -14,10 +15,10 @@ namespace edm {
 
   std::string const Event::emptyString_;
 
-  Event::Event(EventPrincipal& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
+  Event::Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
       provRecorder_(ep, md),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : 0),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
       gotBranchIDs_(),
       gotViews_(),
       streamID_(ep.streamID()),
@@ -26,9 +27,11 @@ namespace edm {
   }
 
   Event::~Event() {
-   // anything left here must be the result of a failure
-   // let's record them as failed attempts in the event principal
-    for_all(putProducts_, principal_get_adapter_detail::deleter());
+  }
+
+  Event::CacheIdentifier_t
+  Event::cacheIdentifier() const {
+    return eventPrincipal().cacheIdentifier();
   }
 
   void
@@ -36,15 +39,22 @@ namespace edm {
     provRecorder_.setConsumer(iConsumer);
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
   }
-
-  EventPrincipal&
-  Event::eventPrincipal() {
-    return dynamic_cast<EventPrincipal&>(provRecorder_.principal());
+  
+  void
+  Event::setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
+    provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
+    const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
   }
+
 
   EventPrincipal const&
   Event::eventPrincipal() const {
     return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
+  }
+
+  EDProductGetter const&
+  Event::productGetter() const {
+    return provRecorder_.principal();
   }
 
   ProductID
@@ -82,6 +92,11 @@ namespace edm {
     provRecorder_.principal().getAllProvenance(provenances);
   }
 
+  void
+  Event::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    provRecorder_.principal().getAllStableProvenance(provenances);
+  }
+
   bool
   Event::getProcessParameterSet(std::string const& processName,
                                 ParameterSet& ps) const {
@@ -94,22 +109,40 @@ namespace edm {
     return process_found;
   }
 
+  edm::ParameterSet const*
+  Event::parameterSet(edm::ParameterSetID const& psID) const{
+    return parameterSetForID_(psID);
+  }
+  
   BasicHandle
   Event::getByProductID_(ProductID const& oid) const {
     return eventPrincipal().getByProductID(oid);
   }
 
   void
-  Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut,
+                 std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+    auto nPut = putProducts().size()+putProductsWithoutParents().size();
     commit_aux(putProducts(), true, previousParentage, previousParentageId);
     commit_aux(putProductsWithoutParents(), false);
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != nPut) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
+    }
   }
 
   void
   Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
-    EventPrincipal& ep = eventPrincipal();
+    auto& ep = eventPrincipal();
 
     ProductPtrVec::iterator pit(products.begin());
     ProductPtrVec::iterator pie(products.end());
@@ -154,16 +187,14 @@ namespace edm {
     while(pit != pie) {
       // set provenance
       if(!sameAsPrevious) {
-        ProductProvenance prov(pit->second->branchID(), gotBranchIDVector);
+        ProductProvenance prov(pit->second->branchID(), std::move(gotBranchIDVector));
         *previousParentageId = prov.parentageID();
-        ep.put(*pit->second, pit->first, prov);
+        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
         sameAsPrevious = true;
       } else {
         ProductProvenance prov(pit->second->branchID(), *previousParentageId);
-        ep.put(*pit->second, pit->first, prov);
+        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
       }
-      // Ownership has passed, so clear the pointer.
-      pit->first.reset(); 
       ++pit;
     }
 
@@ -173,7 +204,7 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
+    gotBranchIDs_.insert(prov.originalBranchID());
   }
 
   ProcessHistory const&
@@ -195,6 +226,15 @@ namespace edm {
     return h;
   }
 
+  BasicHandle
+  Event::getImpl(std::type_info const&, ProductID const& pid) const {
+    BasicHandle h = this->getByProductID_(pid);
+    if(h.isValid()) {
+      addToGotBranchIDs(*(h.provenance()));
+    }
+    return h;
+  }
+
   TriggerNames const&
   Event::triggerNames(edm::TriggerResults const& triggerResults) const {
     edm::TriggerNames const* names = triggerNames_(triggerResults);
@@ -206,18 +246,9 @@ namespace edm {
   }
 
   TriggerResultsByName
-  Event::triggerResultsByName(std::string const& process) const {
+  Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 
-    Handle<TriggerResults> hTriggerResults;
-    InputTag tag(std::string("TriggerResults"),
-                 std::string(""),
-                 process);
-
-    getByLabel(tag, hTriggerResults);
-    if(!hTriggerResults.isValid()) {
-      return TriggerResultsByName(0, 0);
-    }
-    edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
-    return TriggerResultsByName(hTriggerResults.product(), names);
+    edm::TriggerNames const* names = triggerNames_(triggerResults);
+    return TriggerResultsByName(&triggerResults, names);
   }
 }

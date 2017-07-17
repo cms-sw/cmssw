@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -27,7 +28,7 @@ namespace edm
   DataMixingSiPixelWorker::DataMixingSiPixelWorker() { } 
 
   // Constructor 
-  DataMixingSiPixelWorker::DataMixingSiPixelWorker(const edm::ParameterSet& ps) : 
+  DataMixingSiPixelWorker::DataMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -40,6 +41,10 @@ namespace edm
     pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
     pixeldigi_collectionPile_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionPile");
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
+
+    PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionSig_);
+    PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionPile_);
+
 
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
@@ -60,7 +65,7 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    if( e.getByLabel(pixeldigi_collectionSig_,input) ) {
+    if( e.getByToken(PixelDigiToken_,input) ) {
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
@@ -96,7 +101,7 @@ namespace edm
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
+    std::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
       getProductByTag<edm::DetSetVector<PixelDigi> >(*ep, pixeldigi_collectionPile_, mcc);
 
     if(inputPTR ) {
@@ -221,11 +226,11 @@ namespace edm
 
     // make new digi collection
     
-    std::auto_ptr< edm::DetSetVector<PixelDigi> > MyPixelDigis(new edm::DetSetVector<PixelDigi>(vPixelDigi) );
+    std::unique_ptr< edm::DetSetVector<PixelDigi> > MyPixelDigis(new edm::DetSetVector<PixelDigi>(vPixelDigi) );
 
     // put collection
 
-    e.put( MyPixelDigis, PixelDigiCollectionDM_ );
+    e.put(std::move(MyPixelDigis), PixelDigiCollectionDM_ );
 
     // clear local storage for this event
     SiHitStorage_.clear();

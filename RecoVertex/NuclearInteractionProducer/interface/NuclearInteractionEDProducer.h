@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@
 class NuclearVertexBuilder;
 class NuclearLikelihood;
 
-class NuclearInteractionEDProducer : public edm::EDProducer {
+class NuclearInteractionEDProducer : public edm::stream::EDProducer<> {
 
 public:
       typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
@@ -55,13 +55,11 @@ public:
       ~NuclearInteractionEDProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-      bool isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
+      static bool isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
       void findAdditionalSecondaryTracks( reco::NuclearInteraction& nucl,
-                                          const edm::Handle<reco::TrackCollection>& additionalSecTracks);
+                                          const edm::Handle<reco::TrackCollection>& additionalSecTracks) const;
 
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
@@ -72,13 +70,12 @@ public:
       edm::EDGetTokenT<TrajTrackAssociationCollection> token_refMapH; 
       edm::EDGetTokenT<TrajectoryToSeedsMap> token_nuclMapH; 
 
-      std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
-      std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;
+      std::unique_ptr< NuclearVertexBuilder >  vertexBuilder;
+      std::unique_ptr< NuclearLikelihood >     likelihoodCalculator;
 
   edm::ESWatcher<IdealMagneticFieldRecord> magFieldWatcher_;
   edm::ESWatcher<TransientTrackRecord> transientTrackWatcher_;
 
 };
 
-void print(std::ostringstream& str, const reco::NuclearInteraction& nucl, const std::auto_ptr< NuclearVertexBuilder >& builder);
 #endif

@@ -24,22 +24,22 @@ using namespace std;
 using namespace edm;
 
 
-DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
-  debug = config.getUntrackedParameter<bool>("debug");
+DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
+:  debug(config.getUntrackedParameter<bool>("debug")),
   // The velocity of signal propagation along the wire (cm/ns)
-  theVPropWire = config.getParameter<double>("vPropWire");
+  theVPropWire(config.getParameter<double>("vPropWire")),
   // Switch on/off the T0 correction from pulses
-  doT0Correction = config.getParameter<bool>("doT0Correction");
+  doT0Correction(config.getParameter<bool>("doT0Correction")),
   // Switch on/off the TOF correction for particles from IP
-  doTOFCorrection = config.getParameter<bool>("doTOFCorrection");
-  theTOFCorrType = config.getParameter<int>("tofCorrType");
+  doTOFCorrection(config.getParameter<bool>("doTOFCorrection")),
+  theTOFCorrType(config.getParameter<int>("tofCorrType")),
   // Switch on/off the correction for the signal propagation along the wire
-  doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
-  theWirePropCorrType = config.getParameter<int>("wirePropCorrType");
+  doWirePropCorrection(config.getParameter<bool>("doWirePropCorrection")),
+  theWirePropCorrType(config.getParameter<int>("wirePropCorrType")),
   // spacing of BX in ns
-  theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
-
-  thetTrigLabel = config.getParameter<string>("tTrigLabel");
+  theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
+  thetTrigLabel(config.getParameter<string>("tTrigLabel"))
+{
 }
 
 
@@ -197,11 +197,6 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
   return t0 + ttrigMean + kFactor * ttrigSigma;
 
 }
-
-
-// Set the verbosity level
-bool DTTTrigSyncFromDB::debug = false;
-
 
 double DTTTrigSyncFromDB::emulatorOffset(const DTWireId& wireId,
 					 double &tTrig,

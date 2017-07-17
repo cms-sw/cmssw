@@ -24,6 +24,8 @@ process.GlobalTag.globaltag = 'MC_61_V11::All' # take your favourite
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 # Misalignment example scenario producer
 process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
@@ -60,8 +62,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('TrackerAlignment_XXX_mc')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('TrackerAlignmentErrors_XXX_mc')
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+            tag = cms.string('TrackerAlignmentErrorsExtended_XXX_mc')
         ))
 )
 #process.PoolDBOutputService.DBParameters.messageLevel = 2

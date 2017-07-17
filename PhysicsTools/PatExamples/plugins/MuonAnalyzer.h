@@ -10,6 +10,8 @@
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 namespace edm {
   class ParameterSet;
   class Event;
@@ -37,7 +39,7 @@ public:
 protected:
 
 private:
-  std::string theMuonLabel;
+  edm::EDGetTokenT<pat::MuonCollection> theMuonToken;
 
   // Histograms
   TH1I *hNMuons;

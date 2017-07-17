@@ -9,16 +9,15 @@ ModuleDescription: The description of a producer module.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <iosfwd>
+#include <limits>
 #include <string>
 
 namespace edm {
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
-  
+
 
   class ModuleDescription {
   public:
@@ -70,6 +69,11 @@ namespace edm {
     ///Returns a unique id each time called. Intended to be passed to ModuleDescription's constructor's modID argument. Thread safe.
     static unsigned int getUniqueID();
 
+    ///Returns a value identifying an invalid id (the max unsigned int value)
+    static constexpr unsigned int invalidID() {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
   private:
 
     // ID of parameter set of the creator
@@ -84,7 +88,7 @@ namespace edm {
 
     // The process configuration.
     ProcessConfiguration const* processConfigurationPtr_;
-    
+
     unsigned int id_;
   };
 

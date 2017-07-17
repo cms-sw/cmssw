@@ -9,7 +9,7 @@
 <GUID>4A2AFBF6-28CE-E111-8714-003048CB9882</GUID>
 <Branches>
   <Branch>CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_HLT.</Branch>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>DTLayerIdDTDigiSimLinkMuonDigiCollection_simMuonDTDigis__HLT.</Branch>
   <Branch>EBSrFlagsSorted_simEcalDigis_ebSrFlags_HLT.</Branch>
   <Branch>EESrFlagsSorted_simEcalDigis_eeSrFlags_HLT.</Branch>

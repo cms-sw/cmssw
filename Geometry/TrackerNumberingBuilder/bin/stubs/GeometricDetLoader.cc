@@ -18,9 +18,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//#include <map>
-//#include <sstream>
-//#include <algorithm>
 
 // just a reminder to self... beware errors caused by levels.  Look
 // at how tracker is built and how GeometricSearchTracker.h is built 
@@ -37,7 +34,7 @@ GeometricDetLoader::~GeometricDetLoader()
 }
 
 void
-GeometricDetLoader::beginJob( edm::EventSetup const& es) 
+GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup const& es) 
 {
   std::cout<<"GeometricDetLoader::beginJob"<<std::endl;
   PGeometricDet* pgd = new PGeometricDet;

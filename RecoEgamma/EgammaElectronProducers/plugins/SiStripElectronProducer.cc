@@ -15,7 +15,6 @@
 #include <sstream>
 
 // user include files
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -29,6 +28,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -60,6 +60,15 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
    superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
    superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
    
+   rphi_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siRphiHitCollection_));
+   stereo_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siStereoHitCollection_));
+   matched_sistrips2dtag_ = 
+     consumes<SiStripMatchedRecHit2DCollection>(edm::InputTag(siHitProducer_,siMatchedHitCollection_));
+   superClustertag_ = 
+     consumes<reco::SuperClusterCollection>(edm::InputTag(superClusterProducer_,superClusterCollection_));
+
    algo_p = new SiStripElectronAlgo(
       iConfig.getParameter<int32_t>("maxHitsOnDetId"),
       iConfig.getParameter<double>("originUncertainty"),
@@ -110,30 +119,30 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
    edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
+   iEvent.getByToken(rphi_sistrips2dtag_, rphiHitsHandle);
 
    edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
+   iEvent.getByToken(stereo_sistrips2dtag_, stereoHitsHandle);
 
    edm::Handle<SiStripMatchedRecHit2DCollection> matchedHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siMatchedHitCollection_, matchedHitsHandle);
+   iEvent.getByToken(matched_sistrips2dtag_, matchedHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
    edm::Handle<reco::SuperClusterCollection> superClusterHandle;
-   iEvent.getByLabel(superClusterProducer_, superClusterCollection_, superClusterHandle);
+   iEvent.getByToken(superClustertag_, superClusterHandle);
 
    // Set up SiStripElectronAlgo for this event
    algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, matchedHitsHandle, magneticFieldHandle);
 
    // Prepare the output electron candidates and clouds to be filled
-   std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
-   std::auto_ptr<TrackCandidateCollection> trackCandidateOut(new TrackCandidateCollection);
+   auto electronOut = std::make_unique<reco::SiStripElectronCollection>();
+   auto trackCandidateOut = std::make_unique<TrackCandidateCollection>();
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
    const TrackerTopology *tTopo=tTopoHand.product();
 
    // counter for electron candidates
@@ -165,8 +174,8 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    LogDebug("SiStripElectronProducer") << str.str();
 
    // Put the electron candidates and the tracking trajectories into the event
-   iEvent.put(electronOut, siStripElectronsLabel_);
-   iEvent.put(trackCandidateOut, trackCandidatesLabel_);
+   iEvent.put(std::move(electronOut), siStripElectronsLabel_);
+   iEvent.put(std::move(trackCandidateOut), trackCandidatesLabel_);
 }
 
 //

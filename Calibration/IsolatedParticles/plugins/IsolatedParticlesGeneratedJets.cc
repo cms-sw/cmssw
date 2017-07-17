@@ -21,7 +21,7 @@
 
 IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) {
 
-  debug   = iConfig.getUntrackedParameter<bool>  ("Debug", false);
+  debug      = iConfig.getUntrackedParameter<bool>  ("Debug", false);
   tok_jets_  = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
   tok_parts_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"));
 }
@@ -44,7 +44,7 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(tok_parts_, genParticles);
 
-  JetMatchingTools jetMatching (iEvent);
+  JetMatchingTools jetMatching (iEvent, consumesCollector());
   std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
 
   int njets = 0;

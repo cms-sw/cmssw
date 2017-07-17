@@ -10,32 +10,32 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 class PatZjetsElectronAnalyzer : public edm::EDAnalyzer {
 
 public:
   explicit PatZjetsElectronAnalyzer(const edm::ParameterSet&);
   ~PatZjetsElectronAnalyzer();
-  
+
 private:
 
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
-  // simple map to contain all histograms; 
-  // histograms are booked in the beginJob() 
+
+  // simple map to contain all histograms;
+  // histograms are booked in the beginJob()
   // method
-  std::map<std::string,TH1F*> histContainer_; 
+  std::map<std::string,TH1F*> histContainer_;
 
-  // input tags  
-  edm::InputTag src_;
+  // input tags
+  edm::EDGetTokenT<edm::View<pat::Electron> > srcToken_;
 };
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
 
 PatZjetsElectronAnalyzer::PatZjetsElectronAnalyzer(const edm::ParameterSet& iConfig):
   histContainer_(),
-  src_(iConfig.getUntrackedParameter<edm::InputTag>("src"))
+  srcToken_(consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("src")))
 {
 }
 
@@ -48,7 +48,7 @@ PatZjetsElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
   // get electron collection
   edm::Handle<edm::View<pat::Electron> > elecs;
-  iEvent.getByLabel(src_,elecs);
+  iEvent.getByToken(srcToken_,elecs);
 
   // loop electrons
   for(edm::View<pat::Electron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
@@ -79,12 +79,12 @@ PatZjetsElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 }
 
-void 
+void
 PatZjetsElectronAnalyzer::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;
-  
+
   // book histograms:
   histContainer_["pt"  ]=fs->make<TH1F>("pt"   , "pt"   ,  150,   0.,  150.);
   histContainer_["eta" ]=fs->make<TH1F>("eta"  , "eta"  ,   50,   0.,    5.);
@@ -96,8 +96,8 @@ PatZjetsElectronAnalyzer::beginJob()
   histContainer_["eIDs"]=fs->make<TH1F>("eIDs" , "eIDS" ,    5,   0.,    5.);
 }
 
-void 
-PatZjetsElectronAnalyzer::endJob() 
+void
+PatZjetsElectronAnalyzer::endJob()
 {
 }
 

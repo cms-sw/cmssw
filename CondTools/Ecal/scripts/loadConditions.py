@@ -9,7 +9,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-from   elementtree.ElementTree import parse
+from   xml.etree.ElementTree import parse
 import sys,os
 
 
@@ -74,7 +74,7 @@ analyzer_ =   {'EcalGainRatios':'EcalGainRatiosAnalyzer',             \
                'EcalChannelStatus':'EcalChannelStatusAnalyzer',       \
                'EcalTBWeights':'EcalTBWeightsAnalyzer',               \
                'EcalIntercalibConstants':'EcalIntercalibConstantsAnalyzer', \
-               'EcalIntercalibConstantsMC':'EcalIntercalibConstantsMCAnalyzer', \ 
+               'EcalIntercalibConstantsMC':'EcalIntercalibConstantsMCAnalyzer', \
                'EcalIntercalibErrors':'EcalIntercalibErrorsAnalyzer'
                }
 

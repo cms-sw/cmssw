@@ -9,7 +9,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
-namespace { 
+namespace DataFormats_SiStripCommon {
   struct dictionary1 { 
     // edm::Wrapper< SiStripFecKey > fec;
     // edm::Wrapper< SiStripFedKey > fed;
@@ -19,7 +19,7 @@ namespace {
 }
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
-namespace {
+namespace DataFormats_SiStripCommon {
   struct dictionary2 {
     edm::Wrapper< sistrip::RunType > run_type; 
     edm::Wrapper< sistrip::ApvReadoutMode > apv_mode; 

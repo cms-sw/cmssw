@@ -44,19 +44,11 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 process.generator.PGunParameters.PartID[0] = 13
-# replace FlatRandomPtGunSource.PGunParameters.PartID={13}
 process.generator.PGunParameters.MinPt = 0.9
 process.generator.PGunParameters.MaxPt = 50.0
 process.generator.PGunParameters.MinEta = -2.4
 process.generator.PGunParameters.MaxEta = 2.4
 process.generator.AddAntiParticle = False
-
-#process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
-#    enableDivByZeroEx = cms.untracked.bool(False),
-#    enableInvalidEx   = cms.untracked.bool(True),
-#    enableOverFlowEx  = cms.untracked.bool(False),
-#    enableUnderFlowEx = cms.untracked.bool(False)
-#)
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(

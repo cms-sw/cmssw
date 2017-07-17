@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -26,6 +27,8 @@ class EventMsgView;
 namespace edm {
   class BranchIDListHelper;
   class ParameterSetDescription;
+  class ThinnedAssociationsHelper;
+
   class StreamerInputSource : public RawInputSource {
   public:  
     explicit StreamerInputSource(ParameterSet const& pset,
@@ -33,15 +36,18 @@ namespace edm {
     virtual ~StreamerInputSource();
     static void fillDescription(ParameterSetDescription& description);
 
-    static
-    std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
+    std::unique_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
     void deserializeEvent(EventMsgView const& eventView);
 
     static
-    void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, BranchIDListHelper&, bool subsequent);
+    void mergeIntoRegistry(SendJobHeader const& header,
+                           ProductRegistry&,
+                           BranchIDListHelper&,
+                           ThinnedAssociationsHelper&,
+                           bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -67,8 +73,13 @@ namespace edm {
       EventPrincipalHolder();
       virtual ~EventPrincipalHolder();
 
-      virtual WrapperHolder getIt(edm::ProductID const& id) const override;
- 
+      virtual WrapperBase const* getIt(ProductID const& id) const override;
+      virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+      virtual void getThinnedProducts(ProductID const& pid,
+                                      std::vector<WrapperBase const*>& wrappers,
+                                      std::vector<unsigned int>& keys) const override;
+
+
       virtual unsigned int transitionIndex_() const override;
 
       void setEventPrincipal(EventPrincipal* ep);
@@ -84,16 +95,16 @@ namespace edm {
 
     virtual std::unique_ptr<FileBlock> readFile_();
 
-    TClass* tc_;
+    edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;
-    std::unique_ptr<SendEvent> sendEvent_;
-    EventPrincipalHolder eventPrincipalHolder_;
+    edm::propagate_const<std::unique_ptr<SendEvent>> sendEvent_;
+    edm::propagate_const<std::unique_ptr<EventPrincipalHolder>> eventPrincipalHolder_;
+    std::vector<edm::propagate_const<std::unique_ptr<EventPrincipalHolder>>> streamToEventPrincipalHolders_;
     bool adjustEventToNewProductRegistry_;
 
-    //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
-    static std::string processName_;
-    static unsigned int protocolVersion_;
+    std::string processName_;
+    unsigned int protocolVersion_;
   }; //end-of-class-def
 } // end of namespace-edm
   

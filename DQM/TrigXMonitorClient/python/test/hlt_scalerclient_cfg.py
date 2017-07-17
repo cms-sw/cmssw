@@ -27,7 +27,7 @@ l1tgtpath = cms.Path(l1GtUnpack*l1GtEvmUnpack*cms.SequencePlaceholder("l1tgt"))
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
@@ -88,10 +88,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
 process.MessageLogger = cms.Service("MessageLogger",
    #debugModules = cms.untracked.vstring('l1s', 'hlts', 'hltsClient', 'main_input'),

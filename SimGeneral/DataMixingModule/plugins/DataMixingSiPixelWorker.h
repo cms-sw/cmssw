@@ -1,4 +1,4 @@
-#ifndef DataMixingSiPixelWorker_h
+#ifndef SimDataMixingSiPixelWorker_h
 #define SimDataMixingSiPixelWorker_h
 
 /** \class DataMixingSiPixelWorker
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -41,7 +42,7 @@ namespace edm
       DataMixingSiPixelWorker();
 
      /** standard constructor*/
-      explicit DataMixingSiPixelWorker(const edm::ParameterSet& ps);
+      explicit DataMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingSiPixelWorker();
@@ -58,6 +59,9 @@ namespace edm
       edm::InputTag pixeldigi_collectionPile_ ; // secondary name given to collection of SiPixel digis
       std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
 
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > PixelDigiToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > PixelDigiPToken_ ;  // Token to retrieve information 
+
       // 
 
       typedef std::multimap<int, PixelDigi> OneDetectorMap;   // maps by pixel ID for later combination - can have duplicate pixels
@@ -73,4 +77,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingSiPixelWorker_h

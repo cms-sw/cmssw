@@ -22,4 +22,5 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="RecoMuon/TrackingTools"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="DQM/L1TMonitor"/>
 <flags   EDM_PLUGIN="1"/>

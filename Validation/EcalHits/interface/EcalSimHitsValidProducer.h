@@ -18,6 +18,10 @@ class G4Step;
 class EndOfEvent;
 class PEcalValidInfo;
 
+namespace edm {
+    class ParameterSet;
+}
+
 class EcalSimHitsValidProducer : public SimProducer,
                          public Observer<const BeginOfEvent*>,
                          public Observer<const G4Step*>,

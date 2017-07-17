@@ -19,8 +19,8 @@ from RecoTracker.TrackProducer.CTFNoOverlaps_cff import *
 from RecoTracker.TrackProducer.CTFPixelLess_cff import *
 from RecoTracker.TrackProducer.CTFCombinedSeeds_cff import *
 ctfTracksNoOverlaps = cms.Sequence(ckfTrackCandidatesNoOverlaps*ctfNoOverlaps)
-ctfTracksPixelLess = cms.Sequence(globalPixelLessSeeds*ckfTrackCandidatesPixelLess*ctfPixelLess)
-ctfTracksCombinedSeeds = cms.Sequence(globalSeedsFromPairsWithVertices*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
+ctfTracksPixelLess = cms.Sequence(pixelLessLayerPairs4PixelLessTracking*globalPixelLessSeeds*ckfTrackCandidatesPixelLess*ctfPixelLess)
+ctfTracksCombinedSeeds = cms.Sequence(MixedLayerPairs*globalSeedsFromPairsWithVertices*PixelLayerTriplets*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
 
 #
 # Regional reconstruction for cosmics
@@ -40,4 +40,4 @@ regionalCosmicTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.c
     src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
 )
 # Final Sequence
-regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )
+regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeedingLayers * regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )

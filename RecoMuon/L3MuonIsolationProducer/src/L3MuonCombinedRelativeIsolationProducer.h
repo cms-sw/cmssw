@@ -4,32 +4,36 @@
 /**  \class L3MuonCombinedRelativeIsolationProducer
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include <string>
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class L3MuonCombinedRelativeIsolationProducer : public edm::EDProducer {
+class L3MuonCombinedRelativeIsolationProducer : public edm::stream::EDProducer<> {
 
 public:
 
   /// constructor with config
   L3MuonCombinedRelativeIsolationProducer(const edm::ParameterSet&);
-  
-  /// destructor
-  virtual ~L3MuonCombinedRelativeIsolationProducer(); 
 
-  /// initialisation
-  virtual void beginJob();
-  
+  /// destructor
+  virtual ~L3MuonCombinedRelativeIsolationProducer();
+
+  /// ParameterSet descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 
@@ -37,6 +41,7 @@ private:
 
   // Muon track Collection Label
   edm::InputTag theMuonCollectionLabel;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theMuonCollectionToken;
 
   // Isolation cuts
   muonisolation::Cuts theCuts;
@@ -44,9 +49,13 @@ private:
   // Option to write MuIsoDeposits into the event
   bool optOutputIsoDeposits;
 
+  //! flag to include or exclude calo iso from calculation
+  bool useCaloIso;
+
   // Option to use rho-corrected calo deposits (ONLY if already available)
   bool useRhoCorrectedCaloDeps;
   edm::InputTag theCaloDepsLabel;
+  edm::EDGetTokenT<edm::ValueMap<float> > theCaloDepsToken;
 
   // MuIsoExtractor
   reco::isodeposit::IsoDepositExtractor * caloExtractor;

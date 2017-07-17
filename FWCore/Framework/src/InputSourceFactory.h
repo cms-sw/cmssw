@@ -17,16 +17,16 @@ namespace edm {
   public:
     ~InputSourceFactory();
 
-    static InputSourceFactory* get();
+    static InputSourceFactory const* get();
 
-    std::auto_ptr<InputSource>
+    std::unique_ptr<InputSource>
       makeInputSource(ParameterSet const&,
 		       InputSourceDescription const&) const;
     
 
   private:
     InputSourceFactory();
-    static InputSourceFactory singleInstance_;
+    static InputSourceFactory const singleInstance_;
   };
 
 }

@@ -43,11 +43,11 @@ void testfullChain::getfromDataproxyproviderTest()
 {
    eventsetup::EventSetupProvider provider;
 
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new DummyProxyProvider);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    const Timestamp time_1(1);
    const IOVSyncValue sync_1(time_1);
@@ -57,10 +57,10 @@ void testfullChain::getfromDataproxyproviderTest()
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != &(*pDummy));
+      CPPUNIT_ASSERT(0 != pDummy.product());
       
       eventSetup.getData(pDummy);
    
-      CPPUNIT_ASSERT(0 != &(*pDummy));
+      CPPUNIT_ASSERT(0 != pDummy.product());
    }
 }

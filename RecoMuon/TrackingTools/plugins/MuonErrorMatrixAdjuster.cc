@@ -13,6 +13,9 @@
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfig)
 {
   theCategory="MuonErrorMatrixAdjuster";
@@ -136,22 +139,24 @@ reco::TrackExtra * MuonErrorMatrixAdjuster::makeTrackExtra(const reco::Track & r
 bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
 				       reco::Track & recotrack,
 				       reco::TrackExtra & trackextra,
-				       TrackingRecHitCollection& RHcol){
+                                       TrackingRecHitCollection& RHcol,
+                                       const TrackerTopology& ttopo){
   //loop over the hits of the original track
   trackingRecHit_iterator recHit = recotrack_orig.recHitsBegin();
-  unsigned int irh=0;
+  auto const firstHitIndex = theRHi;
   for (; recHit!=recotrack_orig.recHitsEnd();++recHit){
     //clone it. this is meandatory
     TrackingRecHit * hit = (*recHit)->clone();
     
     //put it on the new track
-    recotrack.setHitPattern(*hit,irh++);
+    recotrack.appendHitPattern(*hit, ttopo);
     //copy them in the new collection
     RHcol.push_back(hit);
-    //do something with the trackextra 
-    trackextra.add(TrackingRecHitRef( theRefprodRH, theRHi++));
+    ++theRHi;
 
   }//loop over original rechits
+  //do something with the trackextra 
+  trackextra.setHits(theRefprodRH, firstHitIndex, theRHi-firstHitIndex);
   
   return true; //if nothing fails
 }
@@ -171,11 +176,15 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   //get the mag field
   iSetup.get<IdealMagneticFieldRecord>().get( theField);
-  
+
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
+
   //prepare the output collection
-  std::auto_ptr<reco::TrackCollection> Toutput(new reco::TrackCollection());
-  std::auto_ptr<TrackingRecHitCollection> TRHoutput(new TrackingRecHitCollection());
-  std::auto_ptr<reco::TrackExtraCollection> TEoutput(new reco::TrackExtraCollection());
+  auto Toutput = std::make_unique<reco::TrackCollection>();
+  auto TRHoutput = std::make_unique<TrackingRecHitCollection>();
+  auto TEoutput = std::make_unique<reco::TrackExtraCollection>();
   theRefprodTE = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   theTEi=0;
   theRefprodRH =iEvent.getRefBeforePut<TrackingRecHitCollection>();
@@ -208,7 +217,7 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	continue;}
       
       //attach the collection of rechits
-      if (!attachRecHits(recotrack_orig,recotrackref,*extra,*TRHoutput)){
+      if (!attachRecHits(recotrack_orig,recotrackref,*extra,*TRHoutput, ttopo)){
 	edm::LogError( theCategory)<<"cannot attach any rechits on this track";
 	//pop the inserted track
 	Toutput->pop_back();
@@ -221,9 +230,9 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   LogDebug( theCategory)<<"writing: "<<Toutput->size()<<" corrected reco::Track to the event.";
   
-  iEvent.put(Toutput, theInstanceName);
-  iEvent.put(TEoutput);
-  iEvent.put(TRHoutput);
+  iEvent.put(std::move(Toutput), theInstanceName);
+  iEvent.put(std::move(TEoutput));
+  iEvent.put(std::move(TRHoutput));
 
 }
 

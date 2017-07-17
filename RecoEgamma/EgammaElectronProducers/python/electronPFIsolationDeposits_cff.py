@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 
+# The following should be removed up to  <--- when moving to GED only
 #Now prepare the iso deposits
 elPFIsoDepositCharged=isoDepositReplace('pfElectronTranslator:pf','pfAllChargedHadrons')
 elPFIsoDepositChargedAll=isoDepositReplace('pfElectronTranslator:pf','pfAllChargedParticles')
@@ -15,4 +16,20 @@ electronPFIsolationDepositsSequence = cms.Sequence(
     elPFIsoDepositGamma+
     elPFIsoDepositNeutral+
     elPFIsoDepositPU
+    )
+# <---- Up to here
+
+#Now prepare the iso deposits
+gedElPFIsoDepositCharged=isoDepositReplace('gedGsfElectronsTmp','pfAllChargedHadrons')
+gedElPFIsoDepositChargedAll=isoDepositReplace('gedGsfElectronsTmp','pfAllChargedParticles')
+gedElPFIsoDepositNeutral=isoDepositReplace('gedGsfElectronsTmp','pfAllNeutralHadrons')
+gedElPFIsoDepositGamma=isoDepositReplace('gedGsfElectronsTmp','pfAllPhotons')
+gedElPFIsoDepositPU=isoDepositReplace('gedGsfElectronsTmp','pfPileUpAllChargedParticles')
+
+gedElectronPFIsolationDepositsSequence = cms.Sequence(
+    gedElPFIsoDepositCharged+
+    gedElPFIsoDepositChargedAll+
+    gedElPFIsoDepositGamma+
+    gedElPFIsoDepositNeutral+
+    gedElPFIsoDepositPU
     )

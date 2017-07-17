@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace {
+namespace SimDataFormats_Forward {
   struct dictionary {
     TotemTestHistoClass                   theTotemTestHisto;
     edm::Wrapper<TotemTestHistoClass>     theTotemTestHistoClass;

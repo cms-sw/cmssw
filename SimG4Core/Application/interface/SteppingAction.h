@@ -8,43 +8,99 @@
 #include "G4Region.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4VTouchable.hh"
+#include "G4Track.hh"
 
 #include <string>
 #include <vector>
 
 class EventAction;
-class G4VTouchable;
+class CMSSteppingVerbose;
+
+enum TrackStatus { 
+  sAlive = 0, 
+  sKilledByProcess = 1, 
+  sDeadRegion = 2, 
+  sOutOfTime = 3, 
+  sLowEnergy = 4, 
+  sLowEnergyInVacuum = 5
+};
 
 class SteppingAction: public G4UserSteppingAction {
 
 public:
-  SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
-  ~SteppingAction();
-  void UserSteppingAction(const G4Step * aStep);
+  explicit SteppingAction(EventAction * ea, const edm::ParameterSet & ps, 
+			  const CMSSteppingVerbose*, bool hasW);
+  virtual ~SteppingAction();
+
+  virtual void UserSteppingAction(const G4Step * aStep) final;
   
   SimActivityRegistry::G4StepSignal m_g4StepSignal;
+
 private:
-  void catchLowEnergyInVacuumHere(const G4Step * aStep);
-  void catchLowEnergyInVacuumNext(const G4Step * aStep);
-  bool catchLongLived            (const G4Step * aStep);
-  bool killLowEnergy             (const G4Step * aStep);
+
   bool initPointer();
-  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv);
-  void killTrack                 (const G4Step * aStep);
-private:
+
+  bool isInsideDeadRegion(const G4Region* reg) const;
+  bool isOutOfTimeWindow(G4Track* theTrack, const G4Region* reg) const;
+  bool isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const;
+
+  bool isLowEnergy(const G4Step * aStep) const;
+  void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
+
   EventAction                   *eventAction_;
-  bool                          initialized;
-  G4VPhysicalVolume             *tracker, *calo;
-  bool                          killBeamPipe;
+  const G4VPhysicalVolume       *tracker, *calo;
+  const CMSSteppingVerbose*     steppingVerbose;
   double                        theCriticalEnergyForVacuum;
   double                        theCriticalDensity;
   double                        maxTrackTime;
   std::vector<double>           maxTrackTimes, ekinMins;
   std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
-  std::vector<G4Region*>        maxTimeRegions;
+  std::vector<std::string>      deadRegionNames;
+  std::vector<const G4Region*>  maxTimeRegions;
+  std::vector<const G4Region*>  deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
-  int                           verbose;
+  unsigned int                  numberTimes;
+  unsigned int                  numberEkins;
+  unsigned int                  numberPart;
+  unsigned int                  ndeadRegions;
+
+  bool                          initialized;
+  bool                          killBeamPipe;
+  bool                          hasWatcher;
 };
+
+inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const
+{
+  bool res = false;
+  for(unsigned int i=0; i<ndeadRegions; ++i) {
+    if(reg == deadRegions[i]) {
+      res = true;
+      break;
+    }
+  }
+  return res;
+}
+
+inline bool 
+SteppingAction::isOutOfTimeWindow(G4Track* theTrack, const G4Region* reg) const
+{
+  double tofM = maxTrackTime;
+  for (unsigned int i=0; i<numberTimes; ++i) {
+    if (reg == maxTimeRegions[i]) {
+      tofM = maxTrackTimes[i];
+      break;
+    }
+  }
+  return (theTrack->GetGlobalTime() > tofM) ? true : false;
+}
+
+inline bool SteppingAction::isThisVolume(const G4VTouchable* touch, 
+					 const G4VPhysicalVolume* pv) const
+{
+  int level = (touch->GetHistoryDepth())+1;
+  return (level >= 3) ? (touch->GetVolume(level - 3) == pv) : false; 
+}
 
 #endif

@@ -34,6 +34,7 @@ inline GlobalPoint operator / ( const GlobalPoint & a, const double b )
     return GlobalPoint ( a.x() / b, a.y() / b, a.z() / b );
 }
 
+#ifndef __clang__
 inline GlobalPoint operator * ( const GlobalPoint & a, const double b )
 {
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
@@ -43,6 +44,7 @@ inline GlobalPoint operator * ( const double b , const GlobalPoint & a )
 {
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
 }
+#endif
 
 inline unsigned int sum ( unsigned int nr )
 {
@@ -229,9 +231,9 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::find (
 GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     const std::vector<reco::TransientTrack> & tracks ) const
 {
-    if ( tracks.size() < 2 )
-        throw LinPtException
-        ("CrossingPtBasedLinPtFinder: too few tracks given.");
+        if ( tracks.size() < 2 )
+          throw LinPtException
+          ("CrossingPtBasedLinPtFinder: too few tracks given.");
         std::vector < PointAndDistance > vgp;
         if ( theNPairs == -1 )
         {

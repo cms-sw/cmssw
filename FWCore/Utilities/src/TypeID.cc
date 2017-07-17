@@ -2,20 +2,19 @@
 
 ----------------------------------------------------------------------*/
 #include <cassert>
-#include <map>
 #include <ostream>
+#include "tbb/concurrent_unordered_map.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
-#include "boost/thread/tss.hpp"
 
 namespace edm {
   void
   TypeID::print(std::ostream& os) const {
     try {
       os << className();
-    } catch (cms::Exception const& e) {
+    } catch (cms::Exception const&) {
       os << typeInfo().name();
     }
   }
@@ -35,17 +34,22 @@ namespace {
     }
   }
 }
+  struct TypeIDHasher {
+    size_t operator()(TypeID const& tid) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher(std::string(tid.name()));
+    }
+  };
+
 
   std::string const&
   TypeID::className() const {
-    typedef std::map<edm::TypeID, std::string> Map;
-    static boost::thread_specific_ptr<Map> s_typeToName;
-    if(0 == s_typeToName.get()){
-      s_typeToName.reset(new Map);
-    }
-    Map::const_iterator itFound = s_typeToName->find(*this);
-    if(s_typeToName->end() == itFound) {
-      itFound = s_typeToName->insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
+    typedef tbb::concurrent_unordered_map<edm::TypeID, std::string, TypeIDHasher> Map;
+    static Map s_typeToName;
+
+    auto itFound = s_typeToName.find(*this);
+    if(s_typeToName.end() == itFound) {
+      itFound = s_typeToName.insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
     }
     return itFound->second;
   }

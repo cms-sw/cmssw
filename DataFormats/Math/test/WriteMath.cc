@@ -11,7 +11,7 @@ WriteMath::WriteMath( const ParameterSet& ) {
 }
 
 void WriteMath::produce( Event & evt, const EventSetup & ) {
-  auto_ptr<vector<Vector> > v( new vector<Vector> );  
+  std::unique_ptr<vector<Vector> > v( new vector<Vector> );  
   v->push_back( Vector( 1, 2, 3 ) );
-  evt.put( v );
+  evt.put( std::move(v) );
 }

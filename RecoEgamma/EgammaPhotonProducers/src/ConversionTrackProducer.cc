@@ -16,10 +16,10 @@
 #include <vector>
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -41,11 +41,17 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
   setArbitratedEcalSeeded ( conf.getParameter<bool>("setArbitratedEcalSeeded") ),    
   setArbitratedMerged ( conf.getParameter<bool>("setArbitratedMerged") ),
   setArbitratedMergedEcalGeneral ( conf.getParameter<bool>("setArbitratedMergedEcalGeneral") ),
-  beamSpotInputTag (  conf.getParameter<edm::InputTag>("beamSpotInputTag") ),
+  beamSpotInputTag (  consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotInputTag")) ),
   filterOnConvTrackHyp( conf.getParameter<bool>("filterOnConvTrackHyp") ),
   minConvRadius( conf.getParameter<double>("minConvRadius") )
 {
-
+  edm::InputTag thetp(trackProducer);
+  genericTracks =
+    consumes<edm::View<reco::Track> >(thetp);
+  kfTrajectories = 
+    consumes<TrajTrackAssociationCollection>(thetp);
+  gsfTrajectories = 
+    consumes<TrajGsfTrackAssociationCollection>(thetp);
   produces<reco::ConversionTrackCollection>();
   
 }
@@ -59,12 +65,11 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
   {
     //get input collection (through edm::View)
     edm::Handle<edm::View<reco::Track> > hTrks;
-    e.getByLabel(trackProducer, hTrks);
+    e.getByToken(genericTracks, hTrks);
 
     //get association maps between trajectories and tracks and build temporary maps
     edm::Handle< TrajTrackAssociationCollection > hTTAss;
-    edm::Handle< edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
-                                          reco::GsfTrackCollection,unsigned short> > > hTTAssGsf;    
+    edm::Handle< TrajGsfTrackAssociationCollection > hTTAssGsf;    
                                           
     std::map<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > tracktrajmap;
     std::map<reco::GsfTrackRef,edm::Ref<std::vector<Trajectory> > > gsftracktrajmap;
@@ -73,10 +78,10 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       if (hTrks->size()>0) {
         if (dynamic_cast<const reco::GsfTrack*>(&hTrks->at(0))) {
           //fill map for gsf tracks
-          e.getByLabel(trackProducer, hTTAssGsf);     
-          for ( edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
-                    reco::GsfTrackCollection,unsigned short> >::const_iterator iPair = hTTAssGsf->begin();
-            iPair != hTTAssGsf->end(); ++iPair) {
+          e.getByToken(gsfTrajectories, hTTAssGsf);     
+          for ( TrajGsfTrackAssociationCollection::const_iterator iPair = 
+		  hTTAssGsf->begin();
+		iPair != hTTAssGsf->end(); ++iPair) {
         
             gsftracktrajmap[iPair->val] = iPair->key;
 
@@ -85,7 +90,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
         }
         else {
           //fill map for standard tracks
-          e.getByLabel(trackProducer, hTTAss);
+          e.getByToken(kfTrajectories, hTTAss);
           for ( TrajTrackAssociationCollection::const_iterator iPair = hTTAss->begin();
             iPair != hTTAss->end();
             ++iPair) {
@@ -98,7 +103,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     }
 
     // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);    
+    outputTrks = std::make_unique<reco::ConversionTrackCollection>();    
 
     //--------------------------------------------------
     //Added by D. Giordano
@@ -106,14 +111,15 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     // Reduction of the track sample based on geometric hypothesis for conversion tracks
  
     edm::Handle<reco::BeamSpot> beamSpotHandle;
-    e.getByLabel(beamSpotInputTag,beamSpotHandle);
+    e.getByToken(beamSpotInputTag,beamSpotHandle);
    
     edm::ESHandle<MagneticField> magFieldHandle;
     es.get<IdealMagneticFieldRecord>().get( magFieldHandle );
 
 
     if(filterOnConvTrackHyp && !beamSpotHandle.isValid()) {
-      edm::LogError("Invalid Collection") << "invalid collection for the BeamSpot with InputTag " << beamSpotInputTag;
+      edm::LogError("Invalid Collection") 
+	<< "invalid collection for the BeamSpot";
       throw;
     }
 
@@ -123,7 +129,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
    
  
     // Simple conversion of tracks to conversion tracks, setting appropriate flags from configuration
-    for (edm::RefToBaseVector<reco::Track>::const_iterator it = hTrks->refVector().begin(); it != hTrks->refVector().end(); ++it) {
+    for (size_t i = 0; i < hTrks->size(); ++i) {
  
       //--------------------------------------------------
       //Added by D. Giordano
@@ -131,12 +137,12 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       // Reduction of the track sample based on geometric hypothesis for conversion tracks
       
       math::XYZVector beamSpot=  math::XYZVector(beamSpotHandle->position());
-
-      if( filterOnConvTrackHyp && ConvTrackPreSelector.isTangentPointDistanceLessThan( minConvRadius, it->get(), beamSpot )  )
+      edm::RefToBase<reco::Track> trackBaseRef = hTrks->refAt(i);
+      if( filterOnConvTrackHyp && ConvTrackPreSelector.isTangentPointDistanceLessThan( minConvRadius, trackBaseRef.get(), beamSpot )  )
 	continue;
       //--------------------------------------------------
 
-      reco::ConversionTrack convTrack(*it);
+      reco::ConversionTrack convTrack(trackBaseRef);
       convTrack.setIsTrackerOnly(setTrackerOnly);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
       convTrack.setIsArbitratedMerged(setArbitratedMerged);
@@ -145,17 +151,17 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       //fill trajectory association if configured, using correct map depending on track type
       if (useTrajectory) {
         if (gsftracktrajmap.size()) {
-          convTrack.setTrajRef(gsftracktrajmap.find(it->castTo<reco::GsfTrackRef>())->second);
+          convTrack.setTrajRef(gsftracktrajmap.find(trackBaseRef.castTo<reco::GsfTrackRef>())->second);
         }
         else {
-          convTrack.setTrajRef(tracktrajmap.find(it->castTo<reco::TrackRef>())->second);
+          convTrack.setTrajRef(tracktrajmap.find(trackBaseRef.castTo<reco::TrackRef>())->second);
         }
       }
       
       outputTrks->push_back(convTrack);
     }
     
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     return;
 
   }//end produce

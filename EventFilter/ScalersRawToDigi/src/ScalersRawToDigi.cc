@@ -16,10 +16,12 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -35,16 +37,19 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
-class ScalersRawToDigi : public edm::EDProducer 
+class ScalersRawToDigi : public edm::stream::EDProducer<> 
 {
   public:
     explicit ScalersRawToDigi(const edm::ParameterSet&);
     ~ScalersRawToDigi();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     edm::InputTag inputTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
+
 };
 
 // Constructor
@@ -61,10 +66,18 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
   {
     inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
   }
+  fedToken_=consumes<FEDRawDataCollection>(inputTag_);
+
 }
 
 // Destructor
 ScalersRawToDigi::~ScalersRawToDigi() {}
+
+void ScalersRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("scalersInputTag",edm::InputTag("rawDataCollector"));
+  descriptions.add("scalersRawToDigi",desc);
+}
 
 // Method called to produce the data 
 void ScalersRawToDigi::produce(edm::Event& iEvent, 
@@ -74,21 +87,18 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(inputTag_, rawdata);
+  iEvent.getByToken(fedToken_, rawdata);
 
-  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
+  auto pLumi = std::make_unique<LumiScalersCollection>();
 
-  std::auto_ptr<L1TriggerScalersCollection> 
-    pOldTrigger(new L1TriggerScalersCollection());
+  auto pOldTrigger = std::make_unique<L1TriggerScalersCollection>();
 
-  std::auto_ptr<Level1TriggerScalersCollection> 
-    pTrigger(new Level1TriggerScalersCollection());
+  auto pTrigger = std::make_unique<Level1TriggerScalersCollection>();
 
-  std::auto_ptr<L1AcceptBunchCrossingCollection> 
-    pBunch(new L1AcceptBunchCrossingCollection());
+  auto pBunch = std::make_unique<L1AcceptBunchCrossingCollection>();
 
-  std::auto_ptr<BeamSpotOnlineCollection> pBeamSpotOnline(new BeamSpotOnlineCollection());
-  std::auto_ptr<DcsStatusCollection> pDcsStatus(new DcsStatusCollection());
+  auto pBeamSpotOnline = std::make_unique<BeamSpotOnlineCollection>();
+  auto pDcsStatus = std::make_unique<DcsStatusCollection>();
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -146,12 +156,12 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       pDcsStatus->push_back(dcsStatus);
     }
   }
-  iEvent.put(pOldTrigger); 
-  iEvent.put(pTrigger); 
-  iEvent.put(pLumi); 
-  iEvent.put(pBunch);
-  iEvent.put(pBeamSpotOnline);
-  iEvent.put(pDcsStatus);
+  iEvent.put(std::move(pOldTrigger));
+  iEvent.put(std::move(pTrigger));
+  iEvent.put(std::move(pLumi));
+  iEvent.put(std::move(pBunch));
+  iEvent.put(std::move(pBeamSpotOnline));
+  iEvent.put(std::move(pDcsStatus));
 }
 
 // Define this as a plug-in

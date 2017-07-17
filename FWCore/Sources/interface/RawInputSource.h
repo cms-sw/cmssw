@@ -7,8 +7,6 @@
 #include <memory>
 #include <utility>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,14 +28,16 @@ namespace edm {
 
   private:
     virtual void readEvent_(EventPrincipal& eventPrincipal) override;
-    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void reset_();
     virtual void rewind_() override;
     virtual ItemType getNextItemType() override;
-    virtual void preForkReleaseResources() override;
+    virtual void closeFile_() override final;
+    virtual void genuineCloseFile() { }
 
     bool inputFileTransitionsEachEvent_;
+    bool fakeInputFileTransition_;
   };
 }
 #endif

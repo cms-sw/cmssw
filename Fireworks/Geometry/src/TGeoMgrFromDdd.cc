@@ -37,12 +37,14 @@
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoTorus.h"
+#include "TGeoEltu.h"
+#include "TGeoXtru.h"
 
 #include "Math/GenVector/RotationX.h"
 #include "Math/GenVector/RotationZ.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <math.h>
+#include <cmath>
 
 TGeoMgrFromDdd::TGeoMgrFromDdd( const edm::ParameterSet& pset )
   : m_level( pset.getUntrackedParameter<int> ( "level", 10 )),
@@ -93,7 +95,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    iRecord.getRecord<IdealGeometryRecord>().get(viewH);
 
    if ( ! viewH.isValid()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
@@ -111,14 +113,14 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    // geometry AND the magnetic field volumes!
    walker.firstChild();
    if( ! walker.firstChild()) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
    if (top == 0) {
-      return boost::shared_ptr<TGeoManager>();
+      return std::shared_ptr<TGeoManager>();
    }
 
    geo_mgr->SetTopVolume(top);
@@ -209,7 +211,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    nameToMaterial_.clear();
    nameToMedium_.clear();
 
-   return boost::shared_ptr<TGeoManager>(geo_mgr);
+   return std::shared_ptr<TGeoManager>(geo_mgr);
 }
 
 
@@ -261,6 +263,18 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                     params[0]/cm,
                                     params[3]/deg,
                                     params[3]/deg + params[4]/deg);
+	    break;
+	 case ddcuttubs:
+	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi,lx,ly,lz,tx,ty,tz
+	    rSolid= new TGeoCtub(
+				 iName.c_str(),
+				 params[1]/cm,
+				 params[2]/cm,
+				 params[0]/cm,
+				 params[3]/deg,
+				 params[3]/deg + params[4]/deg,
+				 params[5],params[6],params[7],
+				 params[8],params[9],params[10]);
 	    break;
 	 case ddtrap:
 	    rSolid =new TGeoTrap(
@@ -320,10 +334,32 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	       rSolid->SetDimensions(&(*(temp.begin())));
 	    }
 	    break;
+         case ddextrudedpolygon:
+	    {
+	      DDExtrudedPolygon extrPgon(iSolid);
+	      std::vector<double> x = extrPgon.xVec();
+	      std::transform(x.begin(), x.end(), x.begin(),[](double d) { return d/cm; });
+	      std::vector<double> y = extrPgon.yVec();
+	      std::transform(y.begin(), y.end(), y.begin(),[](double d) { return d/cm; });
+	      std::vector<double> z = extrPgon.zVec();
+	      std::vector<double> zx = extrPgon.zxVec();
+	      std::vector<double> zy = extrPgon.zyVec();
+	      std::vector<double> zscale = extrPgon.zscaleVec();
+	      
+	      TGeoXtru* mySolid = new TGeoXtru(z.size());
+	      mySolid->DefinePolygon(x.size(), &(*x.begin()), &(*y.begin()));
+	      for( size_t i = 0; i < params[0]; ++i )
+	      {
+		mySolid->DefineSection( i, z[i]/cm, zx[i]/cm, zy[i]/cm, zscale[i]);
+	      }
+	      
+	      rSolid = mySolid;
+	    }
+	    break;
 	 case ddpseudotrap:
 	 {
 	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
-	    static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
+	    const static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
 	    DDPseudoTrap pt( iSolid );
 
 	    double r = pt.radius();
@@ -340,14 +376,14 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    {
 	       x = pt.x2(); // tubs radius
 	    }
-	    double halfOpeningAngle = asin( x / abs( r ))/deg;
+	    double halfOpeningAngle = asin( x / std::abs( r ))/deg;
 	    double displacement = 0;
 	    double startPhi = 0;
 	    /* calculate the displacement of the tubs w.r.t. to the trap,
 	       determine the opening angle of the tubs */
 	    double delta = sqrt( r * r - x * x );
 
-	    if( r < 0 && abs( r ) >= x )
+	    if( r < 0 && std::abs( r ) >= x )
 	    {
 	      intersec = true; // intersection solid
 	      h = pt.y1() < pt.y2() ? pt.y2() : pt.y1(); // tubs half height
@@ -363,7 +399,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 		startPhi = -90.- halfOpeningAngle;
 	      }
 	    }
-	    else if( r > 0 && abs( r ) >= x )
+	    else if( r > 0 && std::abs( r ) >= x )
 	    {
 	      if( atMinusZ )
 	      {
@@ -392,7 +428,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      
 	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( pt.name().name().c_str(),
 							    0.,
-							    abs(r)/cm, // radius cannot be negative!!!
+							    std::abs(r)/cm, // radius cannot be negative!!!
 							    h/cm,
 							    startPhi,
 							    startPhi + halfOpeningAngle * 2. ));
@@ -597,6 +633,18 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 					       boolS);
 	    }
 	    break;
+	 }
+         case ddellipticaltube:
+	 {
+	   DDEllipticalTube eSolid(iSolid);
+	   if(!eSolid) {
+	     throw cms::Exception("GeomConvert") <<"conversion to DDEllipticalTube failed";
+	   }
+	   rSolid = new TGeoEltu(iName.c_str(),
+				 params[0]/cm,
+				 params[1]/cm,
+				 params[2]/cm);
+	   break;
 	 }
 	 default:
 	    break;

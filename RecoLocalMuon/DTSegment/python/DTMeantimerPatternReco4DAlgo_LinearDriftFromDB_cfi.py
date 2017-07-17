@@ -19,19 +19,22 @@ DTMeantimerPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
         # this are the RecSegment2D algo parameters!
         DTMeantimerPatternReco2DAlgo_LinearDriftFromDB,
         debug = cms.untracked.bool(False),
+
         # Parameters for the cleaner
         nUnSharedHitsMin = cms.int32(2),
+
         # the input type. 
         # If true the instructions in setDTRecSegment2DContainer will be schipped and the 
         # theta segment will be recomputed from the 1D rechits
         # If false the theta segment will be taken from the Event. Caveat: in this case the
         # event must contain the 2D segments!
         AllDTRecHits = cms.bool(True),
+
         # Parameters for  T0 fit segment in the Updator 
         performT0SegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
         performT0_vdriftSegCorrection = cms.bool(False),
-        perform_delta_rejecting = cms.bool(True)
+        perform_delta_rejecting = cms.bool(False)
     )
 )
 

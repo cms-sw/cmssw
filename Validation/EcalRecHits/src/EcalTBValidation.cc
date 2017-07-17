@@ -30,21 +30,15 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
   eventHeaderCollection_ = config.getParameter<std::string>("eventHeaderCollection");
   eventHeaderProducer_   = config.getParameter<std::string>("eventHeaderProducer");
 
+  digi_Token_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  hit_Token_ = consumes<EBUncalibratedRecHitCollection>(edm::InputTag(hitProducer_, hitCollection_));
+  hodoRec_Token_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
+  tdcRec_Token_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
+  eventHeader_Token_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
   //rootfile_              = config.getUntrackedParameter<std::string>("rootfile","EcalTBValidation.root");
 
   // verbosity...
   verbose_ = config.getUntrackedParameter<bool>("verbose", false);
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if( dbe_ ) {
-    if( verbose_ ) {
-      dbe_->setVerbose(1);
-      dbe_->showDirStructure();
-    }
-    else {
-      dbe_->setVerbose(0);
-    }
-  }
     
   meETBxib_ = 0;
   meETBampltdc_ = 0;
@@ -69,65 +63,62 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
   meETBe9e25vsX_ = 0;
   meETBe9e25vsY_ = 0;
 
-  if( dbe_ ) {
-
-    std::string hname;   
-    dbe_->setCurrentFolder( "EcalRecHitsV/EcalTBValidationTask" );
-
-    hname = "xtal in beam position";
-    meETBxib_          = dbe_->book2D( hname, hname, 85, 0., 85., 20,0., 20. );
-    hname = "Max Amplitude vs TDC offset";
-    meETBampltdc_      = dbe_->book2D( hname, hname, 100, 0., 1., 1000, 0., 4000. );
-    hname = "Beam Profile X";
-    meETBhodoX_        = dbe_->book1D( hname, hname, 100, -20., 20. );
-    hname = "Beam Profile Y";
-    meETBhodoY_        = dbe_->book1D( hname, hname, 100, -20., 20. );
-    hname = "E1x1 energy";
-    meETBe1x1_         = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E3x3 energy";
-    meETBe3x3_         = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E5x5 energy";
-    meETBe5x5_         = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E1x1 energy center";
-    meETBe1x1_center_  = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E3x3 energy center";
-    meETBe3x3_center_  = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E5x5 energy center";
-    meETBe5x5_center_  = dbe_->book1D( hname, hname, 1000, 0., 4000. );
-    hname = "E1 over E9 ratio";
-    meETBe1e9_         = dbe_->book1D( hname, hname, 600, 0., 1.2 );
-    hname = "E1 over E25 ratio";
-    meETBe1e25_        = dbe_->book1D( hname, hname, 600, 0., 1.2 );
-    hname = "E9 over E25 ratio";
-    meETBe9e25_        = dbe_->book1D( hname, hname, 600, 0., 1.2 );
-    hname = "E1 vs X";
-    meETBe1vsX_        = dbe_->book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );
-    hname = "E1 vs Y";
-    meETBe1vsY_        = dbe_->book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );  
-    hname = "E1 over E9 vs X";
-    meETBe1e9vsX_      = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "E1 over E9 vs Y";
-    meETBe1e9vsY_      = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "E1 over E25 vs X";
-    meETBe1e25vsX_     = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "E1 over E25 vs Y";
-    meETBe1e25vsY_     = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "E9 over E25 vs X";
-    meETBe9e25vsX_     = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "E9 over E25 vs Y";
-    meETBe9e25vsY_     = dbe_->book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
-    hname = "Xtal in Beam Shape";
-    meETBShape_        = dbe_->book2D( hname, hname, 250, 0, 10, 350, 0, 3500 );
-  }
-
 }
 
 
 EcalTBValidation::~EcalTBValidation(){}
 
-void EcalTBValidation::beginJob() {}
+void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
 
-void EcalTBValidation::endJob() {}
+  std::string hname;   
+  ibooker.setCurrentFolder( "EcalRecHitsV/EcalTBValidationTask" );
+
+  hname = "xtal in beam position";
+  meETBxib_          = ibooker.book2D( hname, hname, 85, 0., 85., 20,0., 20. );
+  hname = "Max Amplitude vs TDC offset";
+  meETBampltdc_      = ibooker.book2D( hname, hname, 100, 0., 1., 1000, 0., 4000. );
+  hname = "Beam Profile X";
+  meETBhodoX_        = ibooker.book1D( hname, hname, 100, -20., 20. );
+  hname = "Beam Profile Y";
+  meETBhodoY_        = ibooker.book1D( hname, hname, 100, -20., 20. );
+  hname = "E1x1 energy";
+  meETBe1x1_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E3x3 energy";
+  meETBe3x3_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E5x5 energy";
+  meETBe5x5_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E1x1 energy center";
+  meETBe1x1_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E3x3 energy center";
+  meETBe3x3_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E5x5 energy center";
+  meETBe5x5_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  hname = "E1 over E9 ratio";
+  meETBe1e9_         = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  hname = "E1 over E25 ratio";
+  meETBe1e25_        = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  hname = "E9 over E25 ratio";
+  meETBe9e25_        = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  hname = "E1 vs X";
+  meETBe1vsX_        = ibooker.book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );
+  hname = "E1 vs Y";
+  meETBe1vsY_        = ibooker.book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );  
+  hname = "E1 over E9 vs X";
+  meETBe1e9vsX_      = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "E1 over E9 vs Y";
+  meETBe1e9vsY_      = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "E1 over E25 vs X";
+  meETBe1e25vsX_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "E1 over E25 vs Y";
+  meETBe1e25vsY_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "E9 over E25 vs X";
+  meETBe9e25vsX_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "E9 over E25 vs Y";
+  meETBe9e25vsY_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  hname = "Xtal in Beam Shape";
+  meETBShape_        = ibooker.book2D( hname, hname, 250, 0, 10, 350, 0, 3500 );
+
+}
 
 void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
 
@@ -137,7 +128,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // digis
   const EBDigiCollection* theDigis=0;
   Handle<EBDigiCollection> pdigis;
-  event.getByLabel(digiProducer_, digiCollection_, pdigis);
+  event.getByToken(digi_Token_, pdigis);
   if(pdigis.isValid()){
     theDigis = pdigis.product(); 
   } 
@@ -149,7 +140,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // rechits
   const EBUncalibratedRecHitCollection* theHits=0;  
   Handle<EBUncalibratedRecHitCollection> phits;
-  event.getByLabel(hitProducer_, hitCollection_, phits);
+  event.getByToken(hit_Token_, phits);
   if(phits.isValid()){
     theHits = phits.product(); 
   } 
@@ -161,7 +152,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // hodoscopes
   const EcalTBHodoscopeRecInfo* theHodo=0;  
   Handle<EcalTBHodoscopeRecInfo> pHodo;
-  event.getByLabel(hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
+  event.getByToken(hodoRec_Token_, pHodo);
   if(pHodo.isValid()){ 
     theHodo = pHodo.product(); 
   }
@@ -173,7 +164,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // tdc
   const EcalTBTDCRecInfo* theTDC=0;
   Handle<EcalTBTDCRecInfo> pTDC;
-  event.getByLabel(tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
+  event.getByToken(tdcRec_Token_, pTDC);
   if(pTDC.isValid()){
     theTDC = pTDC.product(); 
   }
@@ -185,7 +176,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // event header
   const EcalTBEventHeader* evtHeader=0;
   Handle<EcalTBEventHeader> pEventHeader;
-  event.getByLabel(eventHeaderProducer_ , pEventHeader);
+  event.getByToken(eventHeader_Token_ , pEventHeader);
   if(pEventHeader.isValid()){
     evtHeader = pEventHeader.product(); 
   }

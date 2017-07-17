@@ -3,37 +3,36 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+namespace edm {class EventTime;}
 
-class PerformanceAnalyzer : public edm::EDAnalyzer 
+class PerformanceAnalyzer : public DQMEDAnalyzer
 {
 
-   public:
-   explicit PerformanceAnalyzer(const edm::ParameterSet&);
-   ~PerformanceAnalyzer();
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   virtual void beginJob(){} 
-   virtual void endJob() ;
- 
+public:
+  explicit PerformanceAnalyzer(const edm::ParameterSet&);
+  ~PerformanceAnalyzer();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   private:
-   DQMStore*   fDBE ;
-   std::string              fOutputFile ;
-   MonitorElement*          fVtxSmeared ;
-   MonitorElement*          fg4SimHits ;
-   MonitorElement*          fMixing ;
-   MonitorElement*          fSiPixelDigis ;
-   MonitorElement*          fSiStripDigis ;
-   MonitorElement*          fEcalUnsuppDigis ;
-   MonitorElement*          fEcalZeroSuppDigis ;
-   MonitorElement*          fPreShwZeroSuppDigis ;
-   MonitorElement*          fHcalUnsuppDigis ;
-   MonitorElement*          fMuonCSCDigis ;
-   MonitorElement*          fMuonDTDigis ;
-   MonitorElement*          fMuonRPCDigis ;
+private:
+  edm::EDGetTokenT<edm::EventTime> eventTime_Token_;
+  std::string              fOutputFile ;
+  MonitorElement*          fVtxSmeared ;
+  MonitorElement*          fg4SimHits ;
+  MonitorElement*          fMixing ;
+  MonitorElement*          fSiPixelDigis ;
+  MonitorElement*          fSiStripDigis ;
+  MonitorElement*          fEcalUnsuppDigis ;
+  MonitorElement*          fEcalZeroSuppDigis ;
+  MonitorElement*          fPreShwZeroSuppDigis ;
+  MonitorElement*          fHcalUnsuppDigis ;
+  MonitorElement*          fMuonCSCDigis ;
+  MonitorElement*          fMuonDTDigis ;
+  MonitorElement*          fMuonRPCDigis ;
 
 };
 

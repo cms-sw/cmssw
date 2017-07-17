@@ -2,18 +2,21 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
+class DQMHOAlCaRecoStream : public DQMEDAnalyzer {
    public:
       explicit DQMHOAlCaRecoStream(const edm::ParameterSet&);
       ~DQMHOAlCaRecoStream();
 
    private:
 
-      DQMStore* dbe_; 
 
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 
   MonitorElement* hMuonMultipl;
@@ -53,7 +56,7 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
   double m_highEdge;
 
   bool saveToFile_;
-  edm::InputTag hoCalibVariableCollectionTag;
+  edm::EDGetTokenT<HOCalibVariableCollection> hoCalibVariableCollectionTag;
 
       // ----------member data ---------------------------
 

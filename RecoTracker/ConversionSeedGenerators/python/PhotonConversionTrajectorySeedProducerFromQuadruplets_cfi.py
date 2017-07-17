@@ -9,14 +9,15 @@ photonConvTrajSeedFromQuadruplets  = cms.EDProducer("PhotonConversionTrajectoryS
                                                   DoxcheckSeedCandidates = cms.bool(False),
                                                   OrderedHitsFactoryPSet = cms.PSet(
                                                       maxElement = cms.uint32(900000),
-                                                      SeedingLayers = cms.string('conv2LayerPairs')
+                                                      SeedingLayers = cms.InputTag('conv2LayerPairs')
                                                       ),
                                                   SeedComparitorPSet = cms.PSet(
                                                       ComponentName = cms.string('PixelClusterShapeSeedComparitor'), #'LowPtClusterShapeSeedComparitor') #none
                                                       FilterAtHelixStage = cms.bool(True),#Def: True
                                                       FilterPixelHits = cms.bool(False),#Def: False
                                                       FilterStripHits = cms.bool(True),#Def: True                                                      
-                                                      ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+                                                      ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+                                                      ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
                                                       ),
                                                   ClusterCheckPSet = cms.PSet(
                                                       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),

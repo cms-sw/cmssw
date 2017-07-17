@@ -8,15 +8,18 @@
  *   \author  J.Alcaraz
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 
-class L2MuonIsolationProducer : public edm::EDProducer {
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
+class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -26,17 +29,18 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   /// destructor
   virtual ~L2MuonIsolationProducer(); 
 
-  /// setup the job  
-  virtual void beginJob();
+  /// ParameterSet descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   // ex virtual void reconstruct();
 
  private:
   
   // Muon track Collection Label
   edm::InputTag theSACollectionLabel;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theSACollectionToken;
 
   // Option to write MuIsoDeposits into the event
   bool optOutputDecision;

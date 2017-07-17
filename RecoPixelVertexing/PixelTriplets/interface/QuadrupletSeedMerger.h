@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <array>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,13 +28,10 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -41,6 +39,8 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
 class TrackerTopology;
+class SeedCreator;
+namespace edm { class ConsumesCollector; }
 
 ///
 /// helper class for extracting info
@@ -77,60 +77,38 @@ class QuadrupletSeedMerger {
 
  public:
 
-  QuadrupletSeedMerger( );
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC): QuadrupletSeedMerger(iConfig, iC) {}
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
+  QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();
 
   void update(const edm::EventSetup& );
   //const std::vector<SeedingHitSet> mergeTriplets( const OrderedSeedingHits&, const edm::EventSetup& );
   const OrderedSeedingHits& mergeTriplets( const OrderedSeedingHits&, const edm::EventSetup& );
-  const TrajectorySeedCollection mergeTriplets( const TrajectorySeedCollection&, const TrackingRegion&, const edm::EventSetup&, const edm::ParameterSet& );
-  bool isEqual( const TrackingRecHit*, const TrackingRecHit* ) const;
+  const TrajectorySeedCollection mergeTriplets( const TrajectorySeedCollection&, const TrackingRegion&, const edm::EventSetup&);
   std::pair<double,double> calculatePhiEta( SeedingHitSet const& ) const;
   void printHit( const TrackingRecHit* ) const;
-  void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
   void printNtuplet( const SeedingHitSet& ) const;
-  void setLayerListName( std::string );
   void setMergeTriplets( bool );
   void setAddRemainingTriplets( bool );
   void setTTRHBuilderLabel( std::string );
 
  private:
+  typedef std::array<SeedingHitSet::ConstRecHitPointer, 4> QuadrupletHits;
 
-  std::vector<TransientTrackingRecHit::ConstRecHitPointer> mySort(TransientTrackingRecHit::ConstRecHitPointer &h1,
-								  TransientTrackingRecHit::ConstRecHitPointer &h2,
-								  TransientTrackingRecHit::ConstRecHitPointer &h3,
-								  TransientTrackingRecHit::ConstRecHitPointer &h4);
-    
+  QuadrupletSeedMerger(const edm::ParameterSet& iConfig, SeedCreator *seedCreator, edm::ConsumesCollector& iC);
 
-  bool isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers,
-			  const TrackerTopology *tTopo) const; 
+  void mySort(QuadrupletHits& unsortedHits);
+
+  bool isValidQuadruplet(const QuadrupletHits& quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const;
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
-bool isTripletsShareHitsOnLayers( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-				  const SeedMergerPixelLayer &share1, const SeedMergerPixelLayer &share2,
-				  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
-				  const TrackerTopology *tTopo) const;
-
-//bool isTripletsShareHitsOnLayers( const SeedingHitSet&, const SeedingHitSet&, 
-//   const std::pair<SeedMergerPixelLayer, SeedMergerPixelLayer>&,
-//  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& ) const;
-//
-//  bool isMergeableHitsInTriplets( const SeedingHitSet&, const SeedingHitSet&, 
-//    const std::pair<SeedMergerPixelLayer, SeedMergerPixelLayer>&,
-//    std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& ) const;
-
-bool isMergeableHitsInTriplets( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-				const SeedMergerPixelLayer &nonShared1, const SeedMergerPixelLayer &nonShared2,
-				std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
-				const TrackerTopology *tTopo) const;
-
-
-
+  SeedingLayerSetsBuilder theLayerBuilder_;
   ctfseeding::SeedingLayerSets theLayerSets_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder_;
-  std::string layerListName_;
+  std::unique_ptr<SeedCreator> theSeedCreator_;
   bool isMergeTriplets_;
   bool isAddRemainingTriplets_;
   std::string theTTRHBuilderLabel_;

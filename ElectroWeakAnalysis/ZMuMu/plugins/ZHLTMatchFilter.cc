@@ -3,6 +3,7 @@
  * \author Pasquale Noli, Universita' di Napoli & INFN Napoli
  *
  */
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
@@ -15,10 +16,10 @@
 using namespace std;
 namespace modules {
   struct ZHLTMatchFilter {
-    ZHLTMatchFilter(const edm::ParameterSet& cfg) :
+    ZHLTMatchFilter(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC) :
     cond_(cfg.getParameter<std::string >("condition")),
     hltPath_(cfg.getParameter<std::string >("hltPath")){ }
-    bool operator()(const reco::Candidate & z) const { 
+    bool operator()(const reco::Candidate & z) const {
       assert(z.numberOfDaughters()==2);
       bool singleTrigFlag0 = false;
       bool singleTrigFlag1 = false;
@@ -28,18 +29,18 @@ namespace modules {
       bool FirstTriggerFlag = false;
       bool globalisTriggerFlag =false;
       if((((cond_ !="exactlyOneMatched" && cond_!="atLeastOneMatched") && cond_ !="bothMatched") && cond_ != "firstMatched") && cond_ != "globalisMatched")
-	throw edm::Exception(edm::errors::Configuration) 
+	throw edm::Exception(edm::errors::Configuration)
 	  << "Invalid condition type: " << cond_ << ". Valid types are:"
 	  << " exactlyOneMatched, atLeastOneMatched, bothMatched, firstMatched,globalisMatched\n";
       const reco::Candidate* dau0 = z.daughter(0);
       const reco::Candidate * m0 = &*dau0->masterClone();
       const pat::Muon * mu0 = dynamic_cast<const pat::Muon*>(m0);//cast in patMuon
-      bool firstismuon = (dau0->isGlobalMuon() ? true : false); 
-      bool firstisStandAlone = (dau0->isStandAloneMuon() ? true : false); 
-      bool firstisTrackerMuon = (dau0->isTrackerMuon() ? true : false); 
+      bool firstismuon = (dau0->isGlobalMuon() ? true : false);
+      bool firstisStandAlone = (dau0->isStandAloneMuon() ? true : false);
+      bool firstisTrackerMuon = (dau0->isTrackerMuon() ? true : false);
       if(mu0 != 0 && (firstismuon ||firstisStandAlone||firstisTrackerMuon )){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
-	const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	  mu0->triggerObjectMatchesByPath( hltPath_ );
 
 	int dimTrig0 = mu0HLTMatches.size();
@@ -49,13 +50,13 @@ namespace modules {
       }
       const reco::Candidate* dau1 = z.daughter(1);
       const reco::Candidate * m1 = &*dau1->masterClone();
-      bool secondismuon = (dau1->isGlobalMuon() ? true : false);    
-      bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false); 
-      bool secondisTrackerMuon = (dau1->isTrackerMuon() ? true : false); 
+      bool secondismuon = (dau1->isGlobalMuon() ? true : false);
+      bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false);
+      bool secondisTrackerMuon = (dau1->isTrackerMuon() ? true : false);
       const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);
       if(mu1 != 0 && (secondismuon ||secondisStandAlone||secondisTrackerMuon ) ){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
-	const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	  mu1->triggerObjectMatchesByPath( hltPath_ );
 
 	int dimTrig1 = mu1HLTMatches.size();
@@ -73,16 +74,16 @@ namespace modules {
       if(cond_=="exactlyOneMatched") return exactlyOneTriggerFlag;
       if(cond_=="atLeastOneMatched") return atLeastOneTriggerFlag;
       if(cond_=="bothMatched") return bothTriggerFlag;
-      if(cond_=="firstMatched") return FirstTriggerFlag; 
-      if(cond_=="globalisMatched") return globalisTriggerFlag; 
-      
+      if(cond_=="firstMatched") return FirstTriggerFlag;
+      if(cond_=="globalisMatched") return globalisTriggerFlag;
+
       return false;
       }
-  
+
   private:
   std::string cond_ ;
   std::string hltPath_;
-    
+
   };
 }
 

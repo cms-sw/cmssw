@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -43,7 +42,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
       typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-      typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
+      typedef std::shared_ptr<CaloSubdetectorGeometry > PtrType ;
       typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
       typedef CaloSubdetectorGeometry::DimVec DimVec     ;
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
@@ -58,7 +57,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 			  edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
       }
 
-      virtual ~CaloGeometryDBEP<T,U>() {}
+      ~CaloGeometryDBEP<T,U>() override {}
     
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {

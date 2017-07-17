@@ -38,7 +38,7 @@ DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {
 
 /* Operations */ 
 void
-DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
+DTGeometryBuilderFromCondDB::build(std::shared_ptr<DTGeometry> theGeometry,
                                    const RecoIdealGeometry& rig) {
   //  cout << "DTGeometryBuilderFromCondDB " << endl;
   const std::vector<DetId>& detids(rig.detIds());
@@ -116,6 +116,7 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
   // cout << "adding slayer " << slayer->id() << " to chamber "<<  chamber->id() << endl;
+  assert(chamber);
   chamber->add(slayer);
   return slayer;
 }
@@ -147,6 +148,7 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
   // cout << "adding layer " << layer->id() << " to sl "<<  sl->id() << endl;
 
+  assert(sl);
   sl->add(layer);
   return layer;
 }

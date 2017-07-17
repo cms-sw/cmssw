@@ -12,7 +12,7 @@ process.load("DQM.SiPixelMonitorRecHit.SiPixelMonitorRecHit_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRUZET3_V7.db"
@@ -34,10 +34,6 @@ process.source = cms.Source("PoolSource",
 )
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
 process.p1 = cms.Path(process.siPixelRecHits*process.SiPixelRecHitSource)
 process.SiPixelRecHitSource.saveFile = True

@@ -24,7 +24,7 @@ ODDCUCycle::~ODDCUCycle()
 
 
 void ODDCUCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODDCUCycle::prepareWrite()
 }
 
 
-void ODDCUCycle::writeDB()  throw(std::runtime_error)
+void ODDCUCycle::writeDB()  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODDCUCycle::clear(){
 
 
 int ODDCUCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODDCUCycle::fetchID()
 
 
 void ODDCUCycle::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODDCUCycle::setByID(int id)
 
 
 void ODDCUCycle::fetchData(ODDCUCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODDCUCycle::fetchData(ODDCUCycle * result)
 }
 
 void ODDCUCycle::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

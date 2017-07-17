@@ -174,10 +174,10 @@ testIOVSyncValue::invalidComparisonTest()
 
   CPPUNIT_ASSERT(! timeBased.comparable(eventBased));
   CPPUNIT_ASSERT(! eventBased.comparable(timeBased));
-  CPPUNIT_ASSERT_THROW( (timeBased < eventBased)  , cms::Exception);
-  CPPUNIT_ASSERT_THROW( (timeBased <= eventBased) , cms::Exception);
+  CPPUNIT_ASSERT_THROW( [&](){return timeBased < eventBased;}()  , cms::Exception);
+  CPPUNIT_ASSERT_THROW( [&](){return timeBased <= eventBased;}() , cms::Exception);
   CPPUNIT_ASSERT( !(timeBased == eventBased));
-  CPPUNIT_ASSERT( (timeBased != eventBased));
-  CPPUNIT_ASSERT_THROW( (timeBased > eventBased)  , cms::Exception);
-  CPPUNIT_ASSERT_THROW( (timeBased >= eventBased) , cms::Exception);
+  CPPUNIT_ASSERT( timeBased != eventBased);
+  CPPUNIT_ASSERT_THROW( [&]() {return timeBased > eventBased;}()  , cms::Exception);
+  CPPUNIT_ASSERT_THROW( [&]() {return timeBased >= eventBased;}() , cms::Exception);
 }

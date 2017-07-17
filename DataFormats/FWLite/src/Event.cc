@@ -29,7 +29,6 @@
 
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
@@ -61,9 +60,39 @@ namespace fwlite {
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
                 virtual
-                edm::WrapperHolder
+                edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
+                }
+
+                // getThinnedProduct assumes getIt was already called and failed to find
+                // the product. The input key is the index of the desired element in the
+                // container identified by ProductID (which cannot be found).
+                // If the return value is not null, then the desired element was found
+                // in a thinned container and key is modified to be the index into
+                // that thinned container. If the desired element is not found, then
+                // nullptr is returned.
+                virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
+                                                                  unsigned int& key) const override {
+                  return event_->getThinnedProduct(pid, key);
+                }
+
+
+                // getThinnedProducts assumes getIt was already called and failed to find
+                // the product. The input keys are the indexes into the container identified
+                // by ProductID (which cannot be found). On input the WrapperBase pointers
+                // must all be set to nullptr (except when the function calls itself
+                // recursively where non-null pointers mark already found elements).
+                // Thinned containers derived from the product are searched to see
+                // if they contain the desired elements. For each that is
+                // found, the corresponding WrapperBase pointer is set and the key
+                // is modified to be the key into the container where the element
+                // was found. The WrapperBase pointers might or might not all point
+                // to the same thinned container.
+                virtual void getThinnedProducts(edm::ProductID const& pid,
+                                                std::vector<edm::WrapperBase const*>& foundContainers,
+                                                std::vector<unsigned int>& keys) const override {
+                  event_->getThinnedProducts(pid, foundContainers, keys);
                 }
 
             private:
@@ -73,7 +102,7 @@ namespace fwlite {
                     return 0U;
                 }
 
-                Event* event_;
+                Event const* event_;
         };
     }
 //
@@ -81,24 +110,24 @@ namespace fwlite {
 //
   Event::Event(TFile* iFile):
   file_(iFile),
-//  eventTree_(0),
-  eventHistoryTree_(0),
+//  eventTree_(nullptr),
+  eventHistoryTree_(nullptr),
 //  eventIndex_(-1),
   branchMap_(iFile),
   pAux_(&aux_),
-  pOldAux_(0),
+  pOldAux_(nullptr),
   fileVersion_(-1),
   parameterSetRegistryFilled_(false),
   dataHelper_(branchMap_.getEventTree(),
-              boost::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
-              boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-              boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
+              std::make_shared<EventHistoryGetter>(this),
+              std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+              std::make_shared<internal::ProductGetter>(this),
               true) {
-    if(0 == iFile) {
+    if(nullptr == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
     }
 
-    if(0 == branchMap_.getEventTree()) {
+    if(nullptr == branchMap_.getEventTree()) {
       throw cms::Exception("NoEventTree") << "The TFile contains no TTree named " << edm::poolNames::eventTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
@@ -109,7 +138,7 @@ namespace fwlite {
     TTree* eventTree = branchMap_.getEventTree();
     if(fileVersion_ >= 3) {
       auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
-      if(0 == auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoEventAuxilliary") << "The TTree "
         << edm::poolNames::eventTreeName()
         << " does not contain a branch named 'EventAuxiliary'";
@@ -118,7 +147,7 @@ namespace fwlite {
     } else {
       pOldAux_ = new edm::EventAux();
       auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InEvent).c_str());
-      if(0 == auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoEventAux") << "The TTree "
           << edm::poolNames::eventTreeName()
           << " does not contain a branch named 'EventAux'";
@@ -130,7 +159,7 @@ namespace fwlite {
     if(fileVersion_ >= 7 && fileVersion_ < 17) {
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
     }
-    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
+    runFactory_ =  std::make_shared<RunFactory>();
 
 }
 
@@ -140,10 +169,8 @@ namespace fwlite {
 // }
 
 Event::~Event() {
-  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd = labels_.end();
-      it != itEnd;
-      ++it) {
-    delete [] *it;
+  for(auto const& label : labels_) {
+    delete [] label;
   }
   delete pOldAux_;
 }
@@ -262,10 +289,8 @@ Event::atEnd() const {
 std::vector<std::string> const&
 Event::getProcessHistory() const {
   if (procHistoryNames_.empty()) {
-    const edm::ProcessHistory& h = history();
-    for (edm::ProcessHistory::const_iterator iproc = h.begin(), eproc = h.end();
-         iproc != eproc; ++iproc) {
-      procHistoryNames_.push_back(iproc->processName());
+    for (auto const& proc : history()) {
+      procHistoryNames_.push_back(proc.processName());
     }
   }
   return procHistoryNames_;
@@ -294,19 +319,6 @@ Event::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
 }
 
-bool
-Event::getByLabel(std::type_info const& iInfo,
-                  char const* iModuleLabel,
-                  char const* iProductInstanceLabel,
-                  char const* iProcessLabel,
-                  edm::WrapperHolder& holder) const {
-    if(atEnd()) {
-        throw cms::Exception("OffEnd") << "You have requested data past the last event";
-    }
-    Long_t eventIndex = branchMap_.getEventEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, eventIndex);
-}
-
 edm::EventAuxiliary const&
 Event::eventAuxiliary() const {
    Long_t eventIndex = branchMap_.getEventEntry();
@@ -319,7 +331,7 @@ Event::updateAux(Long_t eventIndex) const {
   if(auxBranch_->GetEntryNumber() != eventIndex) {
     auxBranch_->GetEntry(eventIndex);
     //handling dealing with old version
-    if(0 != pOldAux_) {
+    if(nullptr != pOldAux_) {
       conversion(*pOldAux_,aux_);
     }
   }
@@ -339,7 +351,7 @@ Event::history() const {
   if(historyMap_.empty() || newFormat) {
     procHistoryNames_.clear();
     TTree *meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if(0 == meta) {
+    if(nullptr == meta) {
       throw cms::Exception("NoMetaTree") << "The TFile does not appear to contain a TTree named "
       << edm::poolNames::metaDataTreeName();
     }
@@ -389,23 +401,36 @@ Event::history() const {
 }
 
 
-edm::WrapperHolder
+edm::WrapperBase const*
 Event::getByProductID(edm::ProductID const& iID) const {
-  Long_t eventIndex = branchMap_.getEventEntry();
-  return dataHelper_.getByProductID(iID, eventIndex);
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getByProductID(iID, eventEntry);
 }
 
+edm::WrapperBase const*
+Event::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getThinnedProduct(pid, key, eventEntry);
+}
+
+void
+Event::getThinnedProducts(edm::ProductID const& pid,
+                          std::vector<edm::WrapperBase const*>& foundContainers,
+                          std::vector<unsigned int>& keys) const {
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getThinnedProducts(pid, foundContainers, keys, eventEntry);
+}
 
 edm::TriggerNames const&
 Event::triggerNames(edm::TriggerResults const& triggerResults) const {
   edm::TriggerNames const* names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   if (!parameterSetRegistryFilled_) {
     fillParameterSetRegistry();
     names = triggerNames_(triggerResults);
   }
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   throw cms::Exception("TriggerNamesNotFound")
     << "TriggerNames not found in ParameterSet registry";
@@ -418,7 +443,7 @@ Event::fillParameterSetRegistry() const {
   parameterSetRegistryFilled_ = true;
 
   TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-  if (0 == meta) {
+  if (nullptr == meta) {
     throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
       << edm::poolNames::metaDataTreeName();
   }
@@ -433,13 +458,13 @@ Event::fillParameterSetRegistry() const {
 
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
-  TTree* psetTree(0);
+  TTree* psetTree(nullptr);
   if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
     PsetMap *psetMapPtr = &psetMap;
     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
     b->SetAddress(&psetMapPtr);
     b->GetEntry(0);
-  } else if(0 == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
+  } else if(nullptr == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
     throw cms::Exception("NoParameterSetMapTree")
     << "The TTree "
     << edm::poolNames::parameterSetsTreeName() << " could not be found in the file.";
@@ -459,30 +484,32 @@ Event::fillParameterSetRegistry() const {
   } else {
     // Merge into the parameter set registry.
     edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-    for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
-        i != iEnd; ++i) {
-      edm::ParameterSet pset(i->second.pset());
-      pset.setID(i->first);
+    for(auto const&  item : psetMap) {
+      edm::ParameterSet pset(item.second.pset());
+      pset.setID(item.first);
       psetRegistry.insertMapped(pset);
     }
   }
 }
 
-edm::TriggerResultsByName
-Event::triggerResultsByName(std::string const& process) const {
-
-  fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  hTriggerResults.getByLabel(*this, "TriggerResults", "", process.c_str());
-  if (!hTriggerResults.isValid()) {
-    return edm::TriggerResultsByName(0,0);
-  }
-
-  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
-  if (names == 0 && !parameterSetRegistryFilled_) {
+edm::ParameterSet const*
+Event::parameterSet(edm::ParameterSetID const& psID) const {
+  if(!parameterSetRegistryFilled_) {
     fillParameterSetRegistry();
-    names = triggerNames_(*hTriggerResults);
   }
-  return edm::TriggerResultsByName(hTriggerResults.product(), names);
+  return parameterSetForID_(psID);
+}
+
+  
+edm::TriggerResultsByName
+Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
+
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
+  if (names == nullptr && !parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+    names = triggerNames_(triggerResults);
+  }
+  return edm::TriggerResultsByName(&triggerResults, names);
 }
 
 //
@@ -492,7 +519,7 @@ void
 Event::throwProductNotFoundException(std::type_info const& iType, char const* iModule, char const* iProduct, char const* iProcess) {
     edm::TypeID type(iType);
   throw edm::Exception(edm::errors::ProductNotFound) << "A branch was found for \n  type ='" << type.className() << "'\n  module='" << iModule
-    << "'\n  productInstance='" << ((0!=iProduct)?iProduct:"") << "'\n  process='" << ((0 != iProcess) ? iProcess : "") << "'\n"
+    << "'\n  productInstance='" << ((nullptr != iProduct)?iProduct:"") << "'\n  process='" << ((nullptr != iProcess) ? iProcess : "") << "'\n"
     "but no data is available for this Event";
 }
 
@@ -500,10 +527,8 @@ Event::throwProductNotFoundException(std::type_info const& iType, char const* iM
 fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
   if (not lumi_) {
     // Branch map pointer not really being shared, owned by event, have to trick Lumi
-    lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (
-             new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-             runFactory_)
-          );
+    lumi_ = std::make_shared<fwlite::LuminosityBlock> (std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+             runFactory_);
   }
   edm::RunNumber_t             run  = eventAuxiliary().run();
   edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();
@@ -512,7 +537,7 @@ fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
 }
 
 fwlite::Run const& Event::getRun() const {
-  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
+  run_ = runFactory_->makeRun(std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
   edm::RunNumber_t run = eventAuxiliary().run();
   run_->to(run);
   return *run_;

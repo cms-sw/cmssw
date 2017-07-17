@@ -1,17 +1,17 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
 
-SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, const DetId& id, 
-					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap):
-  BaseTrackerRecHit(pos,err,id,trackerHitRTTI::multi)	
+SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
+					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap, double annealing):
+  BaseTrackerRecHit(pos,err, idet,trackerHitRTTI::multi)	
 {
   for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
     theHits.push_back(ihit->first->clone());
     theWeights.push_back(ihit->second);
   }
+  annealing_ = annealing;
 }
 
 
@@ -61,10 +61,19 @@ vector<const TrackingRecHit*> SiTrackerMultiRecHit::recHits() const{
 }
 
 vector<TrackingRecHit*> SiTrackerMultiRecHit::recHits() {
-  //        vector<TrackingRecHit*> myhits;
-  //         for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
-  //                 const TrackingRecHit* ahit = &(*ihit);
-  //                 myhits.push_back(const_cast<TrackingRecHit*>(ahit));
-  //         }
   return theHits.data();
 }
+
+
+int SiTrackerMultiRecHit::dimension() const{
+  //supposing all the hits inside of a MRH have the same id == same type
+  int randomComponent = 0; 
+  if(theHits[randomComponent].dimension() == 1 ){  return 1;  }
+  else if(theHits[randomComponent].dimension() == 2 ){  return 2;  }
+  else {  return 0;  }
+}
+
+void SiTrackerMultiRecHit::getKfComponents( KfComponentsHolder & holder ) const { 
+  if (dimension() == 1)  getKfComponents1D(holder); 
+  if (dimension() == 2)  getKfComponents2D(holder); 
+} 

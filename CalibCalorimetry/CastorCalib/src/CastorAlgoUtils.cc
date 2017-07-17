@@ -20,10 +20,14 @@ namespace reco {
 
     float maxDiff(float one, float two, float three, float four){
       float max=-1000; float min = 1000;
-      if(one>max) max = one;      if(one<min) min = one;
-      if(two>max) max = two;      if(two<min) min = two;
-      if(three>max) max = three;  if(three<min) min = three;
-      if(four>max) max = four;    if(four<min) min = four;
+      if(one>max) max = one;
+      if(one<min) min = one;
+      if(two>max) max = two;
+      if(two<min) min = two;
+      if(three>max) max = three;
+      if(three<min) min = three;
+      if(four>max) max = four;
+      if(four<min) min = four;
       return fabs(max-min);
     }
 

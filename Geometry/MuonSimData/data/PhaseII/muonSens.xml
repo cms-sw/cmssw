@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="muonsensitive">
+    <SpecPar name="barrel">
+      <PartSelector path="//MBSLPhiGas"/>
+      <PartSelector path="//MBChimSLPhiGas"/>
+      <PartSelector path="//MB1SLZGas"/>
+      <PartSelector path="//MB2SLZGas"/>
+      <PartSelector path="//MB3SLZGas"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonDTHits"/>
+    </SpecPar>
+    <SpecPar name="rpc">
+      <PartSelector path="//MB.*RPC.*Gas.*"/>
+      <PartSelector path="//RE..*"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonRPCHits"/>
+    </SpecPar>
+    <SpecPar name="endcap">
+      <PartSelector path="//ME11_ActiveGasVol"/>
+      <PartSelector path="//ME12_ActiveGasVol"/>
+      <PartSelector path="//ME13_ActiveGasVol"/>
+      <PartSelector path="//ME1A_ActiveGasVol"/>
+      <PartSelector path="//ME21_ActiveGasVol"/>
+      <PartSelector path="//ME22_ActiveGasVol"/>
+      <PartSelector path="//ME31_ActiveGasVol"/>
+      <PartSelector path="//ME32_ActiveGasVol"/>
+      <PartSelector path="//ME41_ActiveGasVol"/>
+      <PartSelector path="//ME42_ActiveGasVol"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonCSCHits"/>
+    </SpecPar>
+    <SpecPar name="gem">
+      <PartSelector path="//GHA1..*"/>
+      <PartSelector path="//GHA2..*"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonGEMHits"/>
+    </SpecPar>
+    <SpecPar name="me0">
+      <PartSelector path="//ME0L.*"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonME0Hits"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

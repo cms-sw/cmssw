@@ -21,8 +21,8 @@
 // system include files
 #include <string>
 #include <map>
+#include <memory>
 #include <exception>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"
@@ -47,10 +47,10 @@ template<typename T>
    //~ComponentFactory();
 
    typedef  ComponentMakerBase<T> Maker;
-   typedef std::map<std::string, boost::shared_ptr<Maker> > MakerMap;
+   typedef std::map<std::string, std::shared_ptr<Maker> > MakerMap;
    typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
-   boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+   std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                       EventSetupProvider& iProvider,
                                       edm::ParameterSet const& iConfiguration,
                                       bool replaceExisting = false) const
@@ -61,7 +61,7 @@ template<typename T>
          
          if(it == makers_.end())
          {
-            boost::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
+            std::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
             
             if(wm.get() == 0) {
 	      Exception::throwThis(errors::Configuration,
@@ -79,7 +79,7 @@ template<typename T>
             //cerr << "Factory: created the worker" << endl;
             
             std::pair<typename MakerMap::iterator,bool> ret =
-               makers_.insert(std::pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
+               makers_.insert(std::pair<std::string,std::shared_ptr<Maker> >(modtype,wm));
             
             if(ret.second == false) {
 	      Exception::throwThis(errors::Configuration,"Maker Factory map insert failed");
@@ -89,15 +89,9 @@ template<typename T>
          }
          
          try {
-           try {
+           return convertException::wrap([&]() -> std::shared_ptr<base_type> {
              return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
-           }
-           catch (cms::Exception& e) { throw; }
-           catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-           catch (std::exception& e) { convertException::stdToEDM(e); }
-           catch(std::string& s) { convertException::stringToEDM(s); }
-           catch(char const* c) { convertException::charPtrToEDM(c); }
-           catch (...) { convertException::unknownToEDM(); }
+           });
          }
          catch(cms::Exception & iException) {
            std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
@@ -107,11 +101,11 @@ template<typename T>
            iException.addContext(ost.str());
            throw;
          }
-         return boost::shared_ptr<base_type>();
+         return std::shared_ptr<base_type>();
       }
    
       // ---------- static member functions --------------------
-      static ComponentFactory<T>* get();
+      static ComponentFactory<T> const* get();
 
       // ---------- member functions ---------------------------
 
@@ -129,9 +123,9 @@ template<typename T>
 }
 #define COMPONENTFACTORY_GET(_type_) \
 EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
-static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; \
+static edm::eventsetup::ComponentFactory<_type_> const s_dummyfactory; \
 namespace edm { namespace eventsetup { \
-template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() \
+template<> edm::eventsetup::ComponentFactory<_type_> const* edm::eventsetup::ComponentFactory<_type_>::get() \
 { return &s_dummyfactory; } \
   } } \
 typedef int componentfactory_get_needs_semicolon

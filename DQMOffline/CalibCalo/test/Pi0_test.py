@@ -6,13 +6,13 @@ from Geometry.CaloEventSetup.CaloTopology_cfi import *
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 

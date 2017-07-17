@@ -9,7 +9,6 @@
 #include <G4VSolid.hh>
 
 #include <string>
-#define private public
 #include <SimG4Core/Geometry/interface/DDG4SolidConverter.h>
 
 class testPseudoTrap : public CppUnit::TestFixture

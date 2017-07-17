@@ -17,6 +17,7 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"  
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"  
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"  
+#include "FWCore/Concurrency/interface/hardware_pause.h"
 
 using namespace l1extra ;
 
@@ -30,7 +31,7 @@ using namespace l1extra ;
 
 // EG = isolated OR non-isolated
 // Jet = central OR forward OR tau
-std::string
+const std::string
 L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "L1_SingleMu3",
    "L1_SingleMu5",
@@ -157,6 +158,14 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "L1_ZeroBias"
 } ;
 
+namespace {
+  enum IndexComboStates {
+    kUnset,
+    kSetting,
+    kSet
+  };
+}
+
 //
 // constructors and destructor
 //
@@ -175,6 +184,7 @@ L1ParticleMap::L1ParticleMap(
    const L1IndexComboVector& indexCombos )
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
+     indexCombosState_{static_cast<char>(indexCombos.size()>0? kSet:IndexComboStates::kUnset)},
      objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
@@ -184,10 +194,23 @@ L1ParticleMap::L1ParticleMap(
 {
 }
 
-// L1ParticleMap::L1ParticleMap(const L1ParticleMap& rhs)
-// {
-//    // do actual copying here;
-// }
+L1ParticleMap::L1ParticleMap(const L1ParticleMap& rhs):
+  triggerType_(rhs.triggerType_),
+  triggerDecision_(rhs.triggerDecision_),
+  indexCombosState_(IndexComboStates::kUnset),
+  objectTypes_(rhs.objectTypes_),
+  emParticles_(rhs.emParticles_),
+  jetParticles_(rhs.jetParticles_),
+  muonParticles_(rhs.muonParticles_),
+  etMissParticle_(rhs.etMissParticle_),
+  indexCombos_()
+{
+    // do actual copying here;
+  if(rhs.indexCombosState_.load(std::memory_order_acquire) == kSet) {
+    indexCombos_=rhs.indexCombos_;
+    indexCombosState_.store(kSet,std::memory_order_release);
+  }
+}
 
 L1ParticleMap::~L1ParticleMap()
 {
@@ -196,18 +219,30 @@ L1ParticleMap::~L1ParticleMap()
 //
 // assignment operators
 //
-// const L1ParticleMap& L1ParticleMap::operator=(const L1ParticleMap& rhs)
-// {
-//   //An exception safe implementation is
-//   L1ParticleMap temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+L1ParticleMap& L1ParticleMap::operator=(const L1ParticleMap& rhs)
+{
+   //An exception safe implementation is
+   L1ParticleMap temp(rhs);
+   swap(temp);
+
+   return *this;
+}
 
 //
 // member functions
 //
+void
+L1ParticleMap::swap( L1ParticleMap& rhs) {
+  std::swap(triggerType_,rhs.triggerType_);
+  std::swap(triggerDecision_,rhs.triggerDecision_);
+  indexCombosState_.store(rhs.indexCombosState_.exchange(indexCombosState_.load(std::memory_order_acquire),std::memory_order_acq_rel),std::memory_order_release);
+  std::swap(objectTypes_,rhs.objectTypes_);
+  std::swap(emParticles_,rhs.emParticles_);
+  std::swap(jetParticles_,rhs.jetParticles_);
+  std::swap(muonParticles_,rhs.muonParticles_);
+  std::swap(etMissParticle_,rhs.etMissParticle_);
+  std::swap(indexCombos_,rhs.indexCombos_);
+}
 
 //
 // const member functions
@@ -216,74 +251,96 @@ L1ParticleMap::~L1ParticleMap()
 const L1ParticleMap::L1IndexComboVector&
 L1ParticleMap::indexCombos() const
 {
-   if( indexCombos_.size() == 0 )
-   {
-      // Determine the number of non-global objects.  There should be 0 or 1.
-      int numNonGlobal = 0 ;
-      L1ObjectType nonGlobalType = kNumOfL1ObjectTypes ;
-      int nonGlobalIndex = -1 ;
-      for( int i = 0 ; i < numOfObjects() ; ++i )
-      {
-	 if( !objectTypeIsGlobal( objectTypes_[ i ] ) )
-	 {
-	    ++numNonGlobal ;
-	    nonGlobalType = objectTypes_[ i ] ;
-	    nonGlobalIndex = i ;
-	 }
-      }
-
-      if( numNonGlobal == 0 )
-      {
-	 // Dummy entry for each object type.
-	 L1IndexCombo tmpCombo ;
-
-	 for( int i = 0 ; i < numOfObjects() ; ++i )
-	 {
-	    tmpCombo.push_back( 0 ) ;
-	 }
-
-	 indexCombos_.push_back( tmpCombo ) ;
-      }
-      else if( numNonGlobal == 1 )
-      {
-	 int nParticles = 0 ;
-
-	 if( nonGlobalType == kEM )
-	 {
-	    nParticles = emParticles_.size() ;
-	 }
-	 else if( nonGlobalType == kJet )
-	 {
-	    nParticles = jetParticles_.size() ;
-	 }
-	 else if( nonGlobalType == kMuon )
-	 {
-	    nParticles = muonParticles_.size() ;
-	 }
-
-	 for( int i = 0 ; i < nParticles ; ++i )
-	 {
-	    L1IndexCombo tmpCombo ;
-
-	    for( int j = 0 ; j < numOfObjects() ; ++j )
-	    {
-	       if( j == nonGlobalIndex )
-	       {		  
-		  tmpCombo.push_back( i ) ;
-	       }
-	       else
-	       {
-		  tmpCombo.push_back( 0 ) ;
-	       }
-	    }
-
-	    indexCombos_.push_back( tmpCombo ) ;
-	 }
-      }
+   if(kSet != indexCombosState_.load(std::memory_order_acquire)) {
+      setIndexCombos();
    }
-
    return indexCombos_ ;
 }
+
+void
+L1ParticleMap::setIndexCombos() const {
+  // Determine the number of non-global objects.  There should be 0 or 1.
+  int numNonGlobal = 0 ;
+  L1ObjectType nonGlobalType = kNumOfL1ObjectTypes ;
+  int nonGlobalIndex = -1 ;
+
+  L1IndexComboVector tempIndexCombos;
+  for( int i = 0 ; i < numOfObjects() ; ++i )
+  {
+    if( !objectTypeIsGlobal( objectTypes_[ i ] ) )
+    {
+      ++numNonGlobal ;
+      nonGlobalType = objectTypes_[ i ] ;
+      nonGlobalIndex = i ;
+    }
+  }
+  
+  if( numNonGlobal == 0 )
+  {
+    // Dummy entry for each object type.
+    L1IndexCombo tmpCombo ;
+    tmpCombo.reserve(numOfObjects());
+    for( int i = 0 ; i < numOfObjects() ; ++i )
+    {
+      tmpCombo.push_back( 0 ) ;
+    }
+
+    tempIndexCombos.push_back( tmpCombo ) ;
+  }
+  else if( numNonGlobal == 1 )
+  {
+    int nParticles = 0 ;
+
+    if( nonGlobalType == kEM )
+    {
+      nParticles = emParticles_.size() ;
+    }
+    else if( nonGlobalType == kJet )
+    {
+      nParticles = jetParticles_.size() ;
+    }
+    else if( nonGlobalType == kMuon )
+    {
+      nParticles = muonParticles_.size() ;
+    }
+
+    tempIndexCombos.reserve(nParticles);
+    for( int i = 0 ; i < nParticles ; ++i )
+    {
+      L1IndexCombo tmpCombo ;
+      tmpCombo.reserve(numOfObjects());
+      for( int j = 0 ; j < numOfObjects() ; ++j )
+      {
+	if( j == nonGlobalIndex )
+	{		  
+	  tmpCombo.push_back( i ) ;
+	}
+	else
+	{
+	  tmpCombo.push_back( 0 ) ;
+	}
+      }
+
+      tempIndexCombos.push_back( tmpCombo ) ;
+    }
+  }
+  char expected = IndexComboStates::kUnset;
+  if(indexCombosState_.compare_exchange_strong(expected,kSetting,std::memory_order_acq_rel)) {
+    //If this was read from an old file, it is possible that indexCombos_ is already set.
+    // This is the only safe place to check since we know no other thread can be attempting 
+    // to change this value.
+    if(indexCombos_.empty()) {
+      indexCombos_.swap(tempIndexCombos);
+    }
+    indexCombosState_.store(kSet, std::memory_order_release);
+  } else {
+    //have to wait
+    while(kSet != indexCombosState_.load(std::memory_order_acquire)) {
+      hardware_pause();
+    }
+  }
+}
+
 
 const reco::LeafCandidate*
 L1ParticleMap::candidateInCombo( int aIndexInCombo,

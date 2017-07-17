@@ -38,6 +38,7 @@
 #include <string>
 
 class TrackingSlaveSD;
+class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
 		public Observer<const BeginOfEvent*>,
@@ -45,7 +46,7 @@ class TotemSD : public SensitiveTkDetector,
 
 public:
 
-  TotemSD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+  TotemSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~TotemSD();
 

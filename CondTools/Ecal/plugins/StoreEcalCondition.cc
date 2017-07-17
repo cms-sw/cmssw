@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

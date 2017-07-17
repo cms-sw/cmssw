@@ -18,7 +18,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,13 +46,15 @@
 // class decleration
 //
 
-class dumpEcalTrigTowerMapping : public edm::EDAnalyzer {
+class dumpEcalTrigTowerMapping : public edm::one::EDAnalyzer<> {
 public:
   explicit dumpEcalTrigTowerMapping( const edm::ParameterSet& );
-  ~dumpEcalTrigTowerMapping();
-  
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  ~dumpEcalTrigTowerMapping() override;
+    
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   // ----------member data ---------------------------
   void build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name);
@@ -145,10 +147,10 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
-      for (unsigned int i=0;i<eeDetIds.size();i++)
+      for (auto eeDetId : eeDetIds)
 	{
-	  EEDetId myId(eeDetIds[i]);
-	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
+	  EEDetId myId(eeDetId);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetId);      
 
 //	  std::cout<<"eedetid="<<EEDetId(eeDetIds[i])<<", myTower="<<myTower<<std::endl;
 
@@ -206,10 +208,10 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
-      for (unsigned int i=0;i<ebDetIds.size();i++)
+      for (auto ebDetId : ebDetIds)
 	{
-	  EBDetId myId(ebDetIds[i]);
-	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetIds[i]);      
+	  EBDetId myId(ebDetId);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetId);      
 
 	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
 

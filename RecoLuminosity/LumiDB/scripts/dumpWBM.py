@@ -23,9 +23,9 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.wbmschema)
         if not schema:
-            raise Exception,'cannot connect to schema'+c.wbmschema
+            raise Exception('cannot connect to schema'+c.wbmschema)
         if not schema.existsTable(c.algotable):
-            raise Exception,'non-existing view'+c.algotable
+            raise Exception('non-existing view'+c.algotable)
         
         query=schema.newQuery()
         algoBindVarList=coral.AttributeList()
@@ -45,14 +45,14 @@ def bitzeroForRun(dbsession,c,runnum):
         
         query.defineOutput(bitzeroOutput)
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             bitcount=cursor.currentRow()['bitcount'].data()
             result[cmslsnum]=bitcount
         del query
         dbsession.transaction().commit()
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -66,9 +66,9 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.wbmschema)
         if not schema:
-            raise Exception,'cannot connect to schema '+c.wbmschema
+            raise Exception('cannot connect to schema '+c.wbmschema)
         if not schema.existsTable(c.deadtable):
-            raise Exception,'non-existing table '+c.deadtable
+            raise Exception('non-existing table '+c.deadtable)
 
         deadOutput=coral.AttributeList()
         deadOutput.extend("lsnr","unsigned int")
@@ -87,7 +87,7 @@ def deadcountForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount
@@ -95,7 +95,7 @@ def deadcountForRun(dbsession,c,runnum):
         del query
         dbsession.transaction().commit()
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

@@ -24,6 +24,12 @@
 #include "TH2F.h"
 #include "TH1F.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 
 class AlignmentMonitorMuonVsCurvature: public AlignmentMonitorBase
 {
@@ -35,8 +41,6 @@ public:
 
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = NULL);
-
-  void afterAlignment(const edm::EventSetup &iSetup) override {}
 
 private:
   
@@ -191,6 +195,15 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
+  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
+  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
+
+  edm::ESHandle<Propagator> prop;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
+  
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
     for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
@@ -200,7 +213,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
 
       if (track->pt() > m_minTrackPt  && track->p() > m_minTrackP  &&  fabs(track->dxy(beamSpot->position())) < m_maxDxy )
       {
-        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, track, pNavigator(), 1000.);
+        MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack, traj );
       } // end if track pT is within range
     } // end loop over tracks

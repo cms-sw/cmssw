@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
     crossSection = cms.untracked.double(71.39e+09),
@@ -14,7 +14,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 	    'Main:timesAllowErrors    = 10000', 
             'ParticleDecays:limitTau0 = on',
 	    'ParticleDecays:tauMax = 10',
-            'SoftQCD:minBias = on',           
+            'SoftQCD:nonDiffractive = on',
             'SoftQCD:singleDiffractive = on', 
             'SoftQCD:doubleDiffractive = on', 
             'Tune:pp 2',                      

@@ -4,77 +4,41 @@
 // system include files
 #include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 // DQM includes
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-// ROOT include
-#include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
-#include "TProfile2D.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
-
-// Less than operator for sorting EcalRecHits according to energy.
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool>
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y)
-  {
-    return (x.energy() > y.energy());
-  }
-};
-
-
-class ESRecoSummary : public edm::EDAnalyzer {
+class ESRecoSummary : public DQMEDAnalyzer {
+ public:
+  explicit ESRecoSummary(const edm::ParameterSet&);
+  ~ESRecoSummary() {}
   
-      public:
-         explicit ESRecoSummary(const edm::ParameterSet&);
-	 ~ESRecoSummary();
-  
-  
-      private:
-	 virtual void beginJob() ;
-	 virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	 virtual void endJob() ;
+ private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      // DQM Store -------------------
-      DQMStore* dqmStore_;
-  
-      std::string prefixME_;
+  std::string prefixME_;
 
-      // PRESHOWER ----------------------------------------------
-      MonitorElement* h_recHits_ES_energyMax;
-      MonitorElement* h_recHits_ES_time;
+  // PRESHOWER ----------------------------------------------
+  MonitorElement* h_recHits_ES_energyMax;
+  MonitorElement* h_recHits_ES_time;
       
-      MonitorElement* h_esClusters_energy_plane1;
-      MonitorElement* h_esClusters_energy_plane2;
-      MonitorElement* h_esClusters_energy_ratio;
+  MonitorElement* h_esClusters_energy_plane1;
+  MonitorElement* h_esClusters_energy_plane2;
+  MonitorElement* h_esClusters_energy_ratio;
          
-      protected:
+ protected:
   
 
-	 // ----------member data ---------------------------
-      edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EE_;
-      edm::EDGetTokenT<ESRecHitCollection> esRecHitCollection_;
-      edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionX_ ;
-      edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionY_ ;
-	 
-
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EE_;
+  edm::EDGetTokenT<ESRecHitCollection> esRecHitCollection_;
+  edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionX_ ;
+  edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionY_ ;
 };
-
 
 #endif

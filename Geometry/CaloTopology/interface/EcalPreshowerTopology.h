@@ -8,14 +8,14 @@
 #include <vector>
 #include <iostream>
 
-class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
+class EcalPreshowerTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
   EcalPreshowerTopology() : theGeom_(0) {};
 
   /// virtual destructor
-  virtual ~EcalPreshowerTopology() { }  
+  ~EcalPreshowerTopology() override { }  
   
   /// create a new Topology from geometry
   EcalPreshowerTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
@@ -24,10 +24,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
 
   
   /// move the Topology north (increment iy)  
-  virtual DetId  goNorth(const DetId& id) const {
+  DetId  goNorth(const DetId& id) const override {
     return incrementIy(ESDetId(id));
   }
-  virtual std::vector<DetId> north(const DetId& id) const
+  std::vector<DetId> north(const DetId& id) const override
     { 
       ESDetId nextId= goNorth(id);
       std::vector<DetId> vNeighborsDetId;
@@ -37,10 +37,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
     }
 
   /// move the Topology south (decrement iy)
-  virtual DetId goSouth(const DetId& id) const {
+  DetId goSouth(const DetId& id) const override {
     return decrementIy(ESDetId(id));
   }
-  virtual std::vector<DetId> south(const DetId& id) const
+  std::vector<DetId> south(const DetId& id) const override
     { 
       ESDetId nextId= goSouth(id);
       std::vector<DetId> vNeighborsDetId;
@@ -50,10 +50,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
     }
 
   /// move the Topology east (positive ix)
-  virtual DetId  goEast(const DetId& id) const {
+  DetId  goEast(const DetId& id) const override {
     return incrementIx(ESDetId(id));
   }
-  virtual std::vector<DetId> east(const DetId& id) const
+  std::vector<DetId> east(const DetId& id) const override
   { 
     ESDetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
@@ -63,10 +63,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
   }
 
   /// move the Topology west (negative ix)
-  virtual DetId goWest(const DetId& id) const {
+  DetId goWest(const DetId& id) const override {
     return decrementIx(ESDetId(id));
   }
-  virtual std::vector<DetId> west(const DetId& id) const
+  std::vector<DetId> west(const DetId& id) const override
   { 
     ESDetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
@@ -75,10 +75,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
     return vNeighborsDetId;
   }
   
-  virtual DetId goUp(const DetId& id) const {
+  DetId goUp(const DetId& id) const override {
     return incrementIz(ESDetId(id));
   }
-  virtual std::vector<DetId> up(const DetId& id) const
+  std::vector<DetId> up(const DetId& id) const override
   {
     ESDetId nextId=goUp(id);
     std::vector<DetId> vNeighborsDetId;
@@ -87,10 +87,10 @@ class EcalPreshowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
     return  vNeighborsDetId;
   }
   
-  virtual DetId goDown(const DetId& id) const {
+  DetId goDown(const DetId& id) const override {
     return decrementIz(ESDetId(id));
   }
-  virtual std::vector<DetId> down(const DetId& id) const
+  std::vector<DetId> down(const DetId& id) const override
   {
     ESDetId nextId=goDown(id);
     std::vector<DetId> vNeighborsDetId;

@@ -3,7 +3,7 @@
 
 typedef PtIsolationAlgo<reco::Candidate,reco::CandidateCollection> CandPtIsolationAlgo;
 
-namespace {
+namespace PhysicsTools_IsolationUtils {
   struct dictionary {
     CandPtIsolationAlgo iso1;
   };

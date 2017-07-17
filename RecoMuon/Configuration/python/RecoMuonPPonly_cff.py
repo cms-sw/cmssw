@@ -10,8 +10,22 @@ from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 refittedStandAloneMuons = standAloneMuons.clone()
 refittedStandAloneMuons.STATrajBuilderParameters.DoRefit = True
 
+# Displaced SA muons
+from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
+displacedMuonSeeds = CosmicMuonSeed.clone()
+displacedMuonSeeds.ForcePointDown = False
+
+displacedStandAloneMuons = standAloneMuons.clone()
+displacedStandAloneMuons.InputObjects = cms.InputTag("displacedMuonSeeds")
+displacedStandAloneMuons.MuonTrajectoryBuilder = cms.string("StandAloneMuonTrajectoryBuilder")
+displacedStandAloneMuons.TrackLoaderParameters.VertexConstraint = cms.bool(False) 
+
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
+from RecoMuon.Configuration.iterativeTkDisplaced_cff import *
+displacedGlobalMuons = globalMuons.clone()
+displacedGlobalMuons.MuonCollectionLabel = cms.InputTag("displacedStandAloneMuons","")
+displacedGlobalMuons.TrackerCollectionLabel = cms.InputTag("displacedTracks")
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
@@ -34,8 +48,9 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # ---------------------------------------------------- #
 
 # Muon Tracking sequence
-standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons)
-globalmuontracking = cms.Sequence(globalMuons*tevMuons)
+standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
+displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
+globalmuontracking = cms.Sequence(globalMuons*tevMuons*displacedGlobalMuonTracking)
 muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
 
 # Muon Reconstruction
@@ -43,9 +58,8 @@ muonreco = cms.Sequence(muontracking*muonIdProducerSequence)
 
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolation = cms.Sequence(muonreco*muIsolation)
-muonreco_plus_isolation_plus_SET = cms.Sequence(muonreco_plus_isolation*muonreco_with_SET)
 
-muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
+muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequence)
 
 
 # _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_- #
@@ -57,7 +71,7 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTy
 
 #from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
-muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_SET)
+muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation)
 
 # ... instead, the sequences will be run in the following order:
 # 1st - standalonemuontracking
@@ -68,3 +82,8 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 # 6th - Run the remnant part of the muon sequence (muonGlobalReco) 
 
 ########################################################
+
+from RecoMuon.MuonIdentification.me0MuonReco_cff import *
+_phase2_muonGlobalReco = muonGlobalReco.copy()
+_phase2_muonGlobalReco += me0MuonReco
+phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )

@@ -22,13 +22,13 @@
 namespace edm {
   namespace eventsetup {
   // ---------------------------------------------------------------
-    std::auto_ptr<EventSetupProvider>
+    std::unique_ptr<EventSetupProvider>
     makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex) {
       std::vector<std::string> prefers =
         params.getParameter<std::vector<std::string> >("@all_esprefers");
 
       if(prefers.empty()) {
-        return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex));
+        return std::make_unique<EventSetupProvider>(subProcessIndex);
       }
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
@@ -96,7 +96,7 @@ namespace edm {
                                         preferPSet.getParameter<std::string>("@module_label"),
                                         false)] = recordToData;
       }
-      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex, &preferInfo));
+      return std::make_unique<EventSetupProvider>(subProcessIndex, &preferInfo);
     }
 
     // ---------------------------------------------------------------
@@ -148,20 +148,14 @@ namespace edm {
         moduleLabel = modtype;
       }
 
-      std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+      std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
         ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
       ConfigurationDescriptions descriptions(filler->baseType());
       filler->fill(descriptions);
       try {
-        try {
+        edm::convertException::wrap([&]() {
           descriptions.validate(pset, moduleLabel);
-        }
-        catch (cms::Exception& e) { throw; }
-        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch(std::string& s) { convertException::stringToEDM(s); }
-        catch(char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
+        });
       }
       catch (cms::Exception & iException) {
         std::ostringstream ost;

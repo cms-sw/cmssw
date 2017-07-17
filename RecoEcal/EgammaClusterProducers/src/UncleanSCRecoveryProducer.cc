@@ -35,37 +35,22 @@ many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
 */
 
 
-UncleanSCRecoveryProducer::UncleanSCRecoveryProducer(const edm::ParameterSet& ps)
+UncleanSCRecoveryProducer::UncleanSCRecoveryProducer(const edm::ParameterSet& ps):
+  cleanBcCollection_(consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("cleanBcCollection"))),
+  cleanScCollection_(consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("cleanScCollection"))),
+  uncleanBcCollection_(consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("uncleanBcCollection"))),
+  uncleanScCollection_(consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("uncleanScCollection"))),
+  bcCollection_(ps.getParameter<std::string>("bcCollection")),
+  scCollection_(ps.getParameter<std::string>("scCollection"))
 {
-
-	    using  reco::BasicClusterCollection;
-	    using  reco::SuperClusterCollection;
-
-        // get the parameters
-        // the cleaned collection:
-	    cleanBcCollection_ = 
-			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("cleanBcCollection"));
-        cleanScCollection_ = 
-			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("cleanScCollection"));
- 
-        // the uncleaned collection
-        uncleanBcCollection_ = 
-			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("uncleanBcCollection"));
-        uncleanScCollection_ = 
-			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("uncleanScCollection"));
-        // the names of the products to be produced:
-        bcCollection_ = ps.getParameter<std::string>("bcCollection");
-        scCollection_ = ps.getParameter<std::string>("scCollection");
         // the products:
         produces< reco::BasicClusterCollection >(bcCollection_);
         produces< reco::SuperClusterCollection >(scCollection_);
-
-
 }
 
 
-void UncleanSCRecoveryProducer::produce(edm::Event& evt, 
-                                        const edm::EventSetup& es)
+void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, 
+                                        const edm::EventSetup& es) const
 {
         // __________________________________________________________________________
         //
@@ -136,10 +121,10 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         }
         //
         // now export the basic clusters into the event and get them back
-        std::auto_ptr< reco::BasicClusterCollection> basicClusters_p(new reco::BasicClusterCollection);
+        auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
         basicClusters_p->assign(basicClusters.begin(), basicClusters.end());
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
-                evt.put(basicClusters_p, bcCollection_);
+                evt.put(std::move(basicClusters_p), bcCollection_);
         if (!(bccHandle.isValid())) {
 
                 edm::LogWarning("MissingInput") << "could not handle the new BasicClusters!";
@@ -196,11 +181,10 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
                 superClusters.push_back(newSC);
         }
 
-        std::auto_ptr< reco::SuperClusterCollection> 
-                superClusters_p(new reco::SuperClusterCollection);
+        auto superClusters_p = std::make_unique<reco::SuperClusterCollection>();
         superClusters_p->assign(superClusters.begin(), superClusters.end());
 
-        evt.put(superClusters_p, scCollection_);
+        evt.put(std::move(superClusters_p), scCollection_);
 
         LogTrace("EcalCleaning")<<"Clusters (Basic/Super) added to the Event! :-)";
 

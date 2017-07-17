@@ -70,6 +70,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+
+// tracker hit associator
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
 // ecal / hcal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -142,10 +146,6 @@ private:
 
   // map of trig bit, algo name and num events passed
   std::map< std::pair<unsigned int,std::string>, int> l1AlgoMap;
-  /// number of DAQ partitions
-  unsigned int m_numberDaqPartitions;
-  /// trigger masks & veto masks
-  const L1GtTriggerMask* m_l1GtTmAlgo;
   std::vector<unsigned int> m_triggerMaskAlgoTrig;
 
   double pvTracksPtMin_;
@@ -153,34 +153,31 @@ private:
   int    debugTrks_;
   bool   printTrkHitPattern_;
   int    myverbose_;
-  edm::InputTag L1extraTauJetSource_,  L1extraCenJetSource_,    L1extraFwdJetSource_;
-  edm::InputTag L1extraMuonSource_,    L1extraIsoEmSource_,     L1extraNonIsoEmSource_;
-  edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;  // there is no associated data access
-  edm::InputTag JetExtender_, JetSrc_;
-  edm::InputTag HBHERecHitSource_;
 
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extFwdJet_;
 
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMu_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1extIsoEm_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1extNoIsoEm_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extIsoEm_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extNoIsoEm_;
 
-  edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<reco::CaloJetCollection>           tok_jets_;
+  edm::EDGetTokenT<HBHERecHitCollection>              tok_hbhe_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
-  edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
+  edm::EDGetTokenT<reco::TrackCollection>             tok_genTrack_;
+  edm::EDGetTokenT<reco::VertexCollection>            tok_recVtx_;
+  edm::EDGetTokenT<reco::BeamSpot>                    tok_bs_;
 
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EE_;
+  edm::EDGetTokenT<edm::SimTrackContainer>            tok_simTk_;
+  edm::EDGetTokenT<edm::SimVertexContainer>           tok_simVtx_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloEB_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloEE_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloHH_;
 
   double minTrackP_, maxTrackEta_;
   double tMinE_, tMaxE_, tMinH_, tMaxH_;
@@ -259,9 +256,7 @@ private:
   std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
 
   std::vector<double> *t_maxNearP31x31;
-  std::vector<double> *t_maxNearP25x25;
   std::vector<double> *t_maxNearP21x21;
-  std::vector<double> *t_maxNearP15x15;
 
   std::vector<int>    *t_ecalSpike11x11;
   std::vector<double> *t_e7x7,       *t_e9x9,       *t_e11x11,       *t_e15x15;

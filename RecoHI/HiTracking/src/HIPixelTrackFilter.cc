@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -14,18 +14,22 @@ using namespace std;
 using namespace edm;
 
 /*****************************************************************************/
-HIPixelTrackFilter::HIPixelTrackFilter (const edm::ParameterSet& ps, const edm::EventSetup& es) :
-ClusterShapeTrackFilter(ps,es),
-theTIPMax( ps.getParameter<double>("tipMax") ),
-theNSigmaTipMaxTolerance( ps.getParameter<double>("nSigmaTipMaxTolerance")),
-theLIPMax( ps.getParameter<double>("lipMax") ),
-theNSigmaLipMaxTolerance( ps.getParameter<double>("nSigmaLipMaxTolerance")),
-theChi2Max( ps.getParameter<double>("chi2") ),
-thePtMin( ps.getParameter<double>("ptMin") ),
-useClusterShape( ps.getParameter<bool>("useClusterShape") ),
-theVertexCollection( ps.getParameter<edm::InputTag>("VertexCollection")),
-theVertices(0)
-{ 
+HIPixelTrackFilter::HIPixelTrackFilter(const SiPixelClusterShapeCache *cache, double ptMin, double ptMax, const edm::EventSetup& es,
+                                       const reco::VertexCollection *vertices,
+                                       double tipMax, double tipMaxTolerance,
+                                       double lipMax, double lipMaxTolerance,
+                                       double chi2max,
+                                       bool useClusterShape):
+  ClusterShapeTrackFilter(cache, ptMin, ptMax, es),
+  theVertices(vertices),
+  theTIPMax(tipMax),
+  theNSigmaTipMaxTolerance(tipMaxTolerance),
+  theLIPMax(lipMax),
+  theNSigmaLipMaxTolerance(lipMaxTolerance),
+  theChi2Max(chi2max),
+  thePtMin(ptMin),
+  useClusterShape(useClusterShape)
+{
 }
 
 /*****************************************************************************/
@@ -33,8 +37,7 @@ HIPixelTrackFilter::~HIPixelTrackFilter()
 { }
 
 /*****************************************************************************/
-bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFilter::Hits & recHits, 
-				     const TrackerTopology *tTopo) const
+bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFilterBase::Hits & recHits) const
 {
 
   if (!track) return false; 
@@ -65,30 +68,7 @@ bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
   if (theNSigmaLipMaxTolerance>0 && (fabs(dz)/dzsigma)>theNSigmaLipMaxTolerance) return false;
   
   bool ok = true;
-  if(useClusterShape) ok = ClusterShapeTrackFilter::operator() (track,recHits,tTopo);
+  if(useClusterShape) ok = ClusterShapeTrackFilter::operator() (track,recHits);
   
   return ok;
-}
-
-/*****************************************************************************/
-void HIPixelTrackFilter::update(edm::Event& ev)
-{
-  
-  // Get reco vertices
-  edm::Handle<reco::VertexCollection> vc;
-  ev.getByLabel(theVertexCollection, vc);
-  theVertices = vc.product();
-  
-  if(theVertices->size()>0) {
-    LogInfo("HeavyIonVertexing") 
-      << "[HIPixelTrackFilter] Pixel track selection based on best vertex"
-      << "\n   vz = " << theVertices->begin()->z()  
-      << "\n   vz sigma = " << theVertices->begin()->zError();
-  } else {
-    LogError("HeavyIonVertexing") // this can be made a warning when operator() is fixed
-      << "No vertex found in collection '" << theVertexCollection << "'";
-  }
-
-  return;
-  
 }

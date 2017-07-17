@@ -3,13 +3,14 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-//#include "CLHEP/Random/RandGaussQ.h"
+
 #include <iostream>
 
 //#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
 
 EcalCoder::EcalCoder( bool                  addNoise     , 
+		      bool                  PreMix1      ,
 		      EcalCoder::Noisifier* ebCorrNoise0 ,
 		      EcalCoder::Noisifier* eeCorrNoise0 ,
 		      EcalCoder::Noisifier* ebCorrNoise1 ,
@@ -21,8 +22,9 @@ EcalCoder::EcalCoder( bool                  addNoise     ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
-   m_addNoise    ( addNoise    )
-{
+   m_addNoise    ( addNoise    ) ,
+   m_PreMix1     ( PreMix1     ) 
+   {
    m_ebCorrNoise[0] = ebCorrNoise0 ;
    assert( 0 != m_ebCorrNoise[0] ) ;
    m_eeCorrNoise[0] = eeCorrNoise0 ;
@@ -70,11 +72,12 @@ EcalCoder::fullScaleEnergy( const DetId & detId ) const
 }
 
 void 
-EcalCoder::analogToDigital( const EcalSamples& clf , 
+EcalCoder::analogToDigital( CLHEP::HepRandomEngine* engine,
+                            const EcalSamples& clf ,
 			    EcalDataFrame&     df    ) const 
 {
    df.setSize( clf.size() ) ;
-   encode( clf, df );
+   encode( clf, df, engine );
 /*   std::cout<<"   **Id=" ;
    if( CaloGenericDetId( clf.id() ).isEB() )
    {
@@ -94,7 +97,8 @@ EcalCoder::analogToDigital( const EcalSamples& clf ,
 
 void 
 EcalCoder::encode( const EcalSamples& ecalSamples , 
-		   EcalDataFrame&     df            ) const
+		   EcalDataFrame&     df,
+                   CLHEP::HepRandomEngine* engine ) const
 {
    assert( 0 != m_peds ) ;
 
@@ -155,12 +159,17 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 
    if( m_addNoise )
    {
-      noisy[0]->noisify( noiseframe[0] ) ; // high gain
+     noisy[0]->noisify( noiseframe[0], engine ) ; // high gain
       if( 0 == noisy[1] ) noisy[0]->noisify( noiseframe[1] ,
+                                             engine,
 					     &noisy[0]->vecgau() ) ; // med 
       if( 0 == noisy[2] ) noisy[0]->noisify( noiseframe[2] ,
+                                             engine,
 					     &noisy[0]->vecgau() ) ; // low
    }
+
+
+   //   std::cout << " intercal, LSBs, gains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gains[0] << " " << gains[1] << " " << Emax <<  std::endl;
 
    int wait = 0 ;
    int gainId = 0 ;
@@ -187,15 +196,48 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 	     noiseframe[igain-1].isBlank()    ) // not already done
 	 {
 	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
+                                     engine,
 				     &noisy[0]->vecgau()   ) ;
-//	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
+	    //std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
-	 // noiseframe filled with zeros if !m_addNoise
-	 const double signal ( pedestals[igain] +
+	 double signal;
+
+	 if(!m_PreMix1) {
+
+	   // noiseframe filled with zeros if !m_addNoise
+	   const double asignal ( pedestals[igain] +
 			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
-	 
+	   signal = asignal;
+	 }
+	 else {  // Any changes made here must be reverse-engineered in EcalSignalGenerator!
+
+           if( igain == 1) {
+             const double asignal ( ecalSamples[i]*1000. );  // save low level info                   
+             signal = asignal;
+           }
+           else if( igain == 2) {
+             const double asignal ( ecalSamples[i]/( LSB[1]*icalconst ));
+             signal = asignal;
+           }
+           else if( igain == 3) {   // bet that no pileup hit has an energy over Emax/2             
+             const double asignal ( ecalSamples[i]/( LSB[2]*icalconst ) );
+             signal = asignal;
+           }
+	   else { //not sure we ever get here at gain=0, but hit wil be saturated anyway
+	     const double asignal ( ecalSamples[i]/( LSB[3]*icalconst ) ); // just calculate something
+             signal = asignal;
+	   }
+	   // old version
+	   //const double asignal ( // no pedestals for pre-mixing
+	   //			 ecalSamples[i] /( LSB[igain]*icalconst ) );
+	   //signal = asignal;
+	 }
+
+	 //	 std::cout << " " << ecalSamples[i] << " " << noiseframe[igain-1][i] << std::endl;
+
+
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?
 			    isignal : isignal + 1 ) ;

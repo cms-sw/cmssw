@@ -7,9 +7,9 @@
 using namespace pat::helper;
 
 void
-BasicOverlapTest::readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) 
+BasicOverlapTest::readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup)
 {
-    iEvent.getByLabel(src_, candidates_);
+    iEvent.getByToken(srcToken_, candidates_);
     isPreselected_.resize(candidates_->size());
     size_t idx = 0;
     for (reco::CandidateView::const_iterator it = candidates_->begin(); it != candidates_->end(); ++it, ++idx) {
@@ -20,7 +20,7 @@ BasicOverlapTest::readInput(const edm::Event & iEvent, const edm::EventSetup &iS
 }
 
 bool
-BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const 
+BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const
 {
     size_t idx = 0;
     std::vector<std::pair<float,size_t> > matches;
@@ -52,7 +52,7 @@ bool
 OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const
 {
     const reco::RecoCandidate * input = dynamic_cast<const reco::RecoCandidate *>(&item);
-    if (input == 0) throw cms::Exception("Type Error") << "Input to OverlapBySuperClusterSeed is not a RecoCandidate. " 
+    if (input == 0) throw cms::Exception("Type Error") << "Input to OverlapBySuperClusterSeed is not a RecoCandidate. "
                                                        << "It's a " << typeid(item).name() << "\n";
     reco::SuperClusterRef mySC = input->superCluster();
     if (mySC.isNull() || !mySC.isAvailable()) {
@@ -64,8 +64,10 @@ OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item, reco
     }
     bool hasOverlaps = false;
     size_t idx = 0;
-    for (edm::View<reco::RecoCandidate>::const_iterator it = others_->begin(); it != others_->end(); ++it, ++idx) {
-        reco::SuperClusterRef otherSc = it->superCluster();
+//     for (edm::View<reco::RecoCandidate>::const_iterator it = others_->begin(); it != others_->end(); ++it, ++idx) {
+    for (reco::CandidateView::const_iterator it = others_->begin(); it != others_->end(); ++it, ++idx) {
+        const reco::RecoCandidate * other = dynamic_cast<const reco::RecoCandidate *>(&*it);
+        reco::SuperClusterRef otherSc = other->superCluster();
         if (otherSc.isNull() || !otherSc.isAvailable()) {
             throw cms::Exception("Bad Reference") << "One item in the OverlapBySuperClusterSeed input list has a null or dangling superCluster reference\n";
         }

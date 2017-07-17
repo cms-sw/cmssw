@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-#include <math.h>
+#include <cmath>
 
 typedef IdealObliquePrism::CCGFloat CCGFloat ;
 typedef IdealObliquePrism::Pt3D     Pt3D     ;
@@ -23,10 +23,10 @@ IdealObliquePrism::operator=( const IdealObliquePrism& idop )
 }
 
 IdealObliquePrism::IdealObliquePrism( const GlobalPoint& faceCenter, 
-				      const CornersMgr*  mgr       ,
+				      CornersMgr*        mgr       ,
 				      const CCGFloat*    parm       )
   : CaloCellGeometry ( faceCenter, mgr, parm )
-{}
+{initSpan();}
 
 IdealObliquePrism::~IdealObliquePrism() 
 {}
@@ -69,15 +69,6 @@ IdealObliquePrism::vocalCorners( Pt3DVec&        vec ,
    localCorners( vec, pv, ref ) ; 
 }
 
-  /*
-   static GlobalPoint etaPhiR( float eta, float phi, float rad )
-   {
-      return GlobalPoint( rad*cosf(phi)/coshf(eta) , 
-			  rad*sinf(phi)/coshf(eta) ,
-			  rad*tanhf(eta)            ) ;
-   }
-  */
-
 GlobalPoint
 IdealObliquePrism::etaPhiPerp( float eta, float phi, float perp )  
 {
@@ -118,7 +109,7 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
       gc[ 0 ] = etaPhiPerp( eta + dEta , +dPhi , r_near ) ; // (+,+,near)
       gc[ 1 ] = etaPhiPerp( eta + dEta , -dPhi , r_near ) ; // (+,-,near)
       gc[ 2 ] = etaPhiPerp( eta - dEta , -dPhi , r_near ) ; // (-,-,near)
-      gc[ 3 ] = etaPhiPerp( eta - dEta , +dPhi , r_near ) ; // (-,+,far)
+      gc[ 3 ] = etaPhiPerp( eta - dEta , +dPhi , r_near ) ; // (-,+,near)
       gc[ 4 ] = etaPhiPerp( eta + dEta , +dPhi , r_far  ) ; // (+,+,far)
       gc[ 5 ] = etaPhiPerp( eta + dEta , -dPhi , r_far  ) ; // (+,-,far)
       gc[ 6 ] = etaPhiPerp( eta - dEta , -dPhi , r_far  ) ; // (-,-,far)
@@ -131,7 +122,7 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
       gc[ 0 ] = etaPhiZ( eta + dEta , +dPhi , z_near ) ; // (+,+,near)
       gc[ 1 ] = etaPhiZ( eta + dEta , -dPhi , z_near ) ; // (+,-,near)
       gc[ 2 ] = etaPhiZ( eta - dEta , -dPhi , z_near ) ; // (-,-,near)
-      gc[ 3 ] = etaPhiZ( eta - dEta , +dPhi , z_near ) ; // (-,+,far)
+      gc[ 3 ] = etaPhiZ( eta - dEta , +dPhi , z_near ) ; // (-,+,near)
       gc[ 4 ] = etaPhiZ( eta + dEta , +dPhi , z_far  ) ; // (+,+,far)
       gc[ 5 ] = etaPhiZ( eta + dEta , -dPhi , z_far  ) ; // (+,-,far)
       gc[ 6 ] = etaPhiZ( eta - dEta , -dPhi , z_far  ) ; // (-,-,far)
@@ -145,13 +136,11 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 }
 
-const CaloCellGeometry::CornersVec& 
-IdealObliquePrism::getCorners() const
+void IdealObliquePrism::initCorners(CaloCellGeometry::CornersVec& co)
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
    if( co.uninitialized() )
    {
-      CornersVec& corners ( setCorners() ) ;
+      CornersVec& corners ( co ) ;
       if( dz()>0 ) 
       { 
 	 /* In this case, the faces are parallel to the zaxis.  
@@ -196,7 +185,6 @@ IdealObliquePrism::getCorners() const
 	 
       }
    }
-   return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const IdealObliquePrism& cell ) 

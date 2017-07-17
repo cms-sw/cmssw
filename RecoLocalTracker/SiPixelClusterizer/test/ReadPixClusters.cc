@@ -1,8 +1,9 @@
 // File: ReadPixClusters.cc
-// Description: T0 test the pixel clusters. 
+// Description: To test the pixel clusters. 
 // Author: Danek Kotlinski 
 // Creation Date:  Initial version. 3/06
-// Modify to work with CMSSW354, 11/03/10 d.k.
+// Modify to work with CMSSW620, 8/13, CMSSW700, 10/13 d.k.
+// Add ByToken data access.
 //--------------------------------------------
 #include <memory>
 #include <string>
@@ -22,17 +23,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+//#include "FWCore/Utilities/interface/EDGetToken.h"  // not needed
 
-#include "DataFormats/Common/interface/EDProduct.h"
-
-//#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
@@ -41,7 +38,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 // For L1
@@ -70,7 +67,18 @@
 #include <TH2F.h>
 #include <TH1F.h>
 
+#define NEW_ID
+#ifdef NEW_ID
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#else 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
+#endif 
+
 #define HISTOS
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 using namespace std;
 
@@ -81,10 +89,10 @@ class ReadPixClusters : public edm::EDAnalyzer {
   
   explicit ReadPixClusters(const edm::ParameterSet& conf);  
   virtual ~ReadPixClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -105,9 +113,9 @@ class ReadPixClusters : public edm::EDAnalyzer {
   TH1F *hpixcharge1,*hpixcharge2, *hpixcharge3, *hpixcharge4, *hpixcharge5;
   TH1F *hcols1,*hcols2,*hcols3,*hrows1,*hrows2,*hrows3;
   TH1F *hpcols1,*hpcols2,*hpcols3,*hprows1,*hprows2,*hprows3;
-  TH1F *hsize1,*hsize2,*hsize3,
-    *hsizex1,*hsizex2,*hsizex3,
-    *hsizey1,*hsizey2,*hsizey3;
+  TH1F *hsize1,*hsize2,*hsize3,*hsize4,*hsize5,
+    *hsizex1,*hsizex2,*hsizex3,*hsizex4,*hsizex5,
+    *hsizey1,*hsizey2,*hsizey3,*hsizey4,*hsizey5;
 
   TH1F *hclusPerDet1,*hclusPerDet2,*hclusPerDet3;
   TH1F *hpixPerDet1,*hpixPerDet2,*hpixPerDet3;
@@ -130,23 +138,26 @@ class ReadPixClusters : public edm::EDAnalyzer {
   TH1F *hdets, *hmbits1,*hmbits2,*hmbits3, *hmaxPixPerDet;
 
   TH1F *hclusPerDisk1,*hclusPerDisk2,*hclusPerDisk3,*hclusPerDisk4;
-
+  TH1F *htest;
 };
 
 /////////////////////////////////////////////////////////////////
 // Contructor, empty.
 ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf) 
   : conf_(conf), src_(conf.getParameter<edm::InputTag>( "src" )) { 
+
   printLocal = conf.getUntrackedParameter<bool>("Verbosity",false);
   //src_ =  conf.getParameter<edm::InputTag>( "src" );
+
   cout<<" Construct "<<printLocal<<endl;
   tPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster>>( src_ );
+
 }
 // Virtual destructor needed.
 ReadPixClusters::~ReadPixClusters() { }  
 
 // ------------ method called at the begining   ------------
-void ReadPixClusters::beginRun(const edm::EventSetup& iSetup) {
+void ReadPixClusters::beginRun(edm::Run const&,const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<printLocal<<endl;
 }
 
@@ -250,17 +261,17 @@ void ReadPixClusters::beginJob() {
   hdetsPerLay2 = fs->make<TH1F>( "hdetsPerLay2", "Full dets per layer l2",
 				 257, -0.5, 256.5);
  
-  sizeH=1000;
+  sizeH=120;
   lowH = 0.;
-  highH = 100.0; // charge limit in kelec
+  highH = 121.0; // charge limit in kelec
   hcharge1 = fs->make<TH1F>( "hcharge1", "Clu charge l1", sizeH, 0.,highH); //in ke
   hcharge2 = fs->make<TH1F>( "hcharge2", "Clu charge l2", sizeH, 0.,highH);
   hcharge3 = fs->make<TH1F>( "hcharge3", "Clu charge l3", sizeH, 0.,highH);
   hcharge4 = fs->make<TH1F>( "hcharge4", "Clu charge d1", sizeH, 0.,highH);
   hcharge5 = fs->make<TH1F>( "hcharge5", "Clu charge d2", sizeH, 0.,highH);
  
-  sizeH=600;
-  highH = 60.0; // charge limit in kelec
+  sizeH=90;
+  highH = 61.0; // charge limit in kelec
   hpixcharge1 = fs->make<TH1F>( "hpixcharge1", "Pix charge l1",sizeH, 0.,highH);//in ke
   hpixcharge2 = fs->make<TH1F>( "hpixcharge2", "Pix charge l2",sizeH, 0.,highH);
   hpixcharge3 = fs->make<TH1F>( "hpixcharge3", "Pix charge l3",sizeH, 0.,highH);
@@ -289,6 +300,8 @@ void ReadPixClusters::beginJob() {
   hsize1 = fs->make<TH1F>( "hsize1", "layer 1 clu size",sizeH,-0.5,highH);
   hsize2 = fs->make<TH1F>( "hsize2", "layer 2 clu size",sizeH,-0.5,highH);
   hsize3 = fs->make<TH1F>( "hsize3", "layer 3 clu size",sizeH,-0.5,highH);
+  hsize4 = fs->make<TH1F>( "hsize4", "disk 1 clu size",sizeH,-0.5,highH);
+  hsize5 = fs->make<TH1F>( "hsize5", "disk 2 clu size",sizeH,-0.5,highH);
 
   hsizex1 = fs->make<TH1F>( "hsizex1", "lay1 clu size in x",
 		      10,-0.5,9.5);
@@ -296,11 +309,20 @@ void ReadPixClusters::beginJob() {
 		      10,-0.5,9.5);
   hsizex3 = fs->make<TH1F>( "hsizex3", "lay3 clu size in x",
 		      10,-0.5,9.5);
+  hsizex4 = fs->make<TH1F>( "hsizex4", "d1 clu size in x",
+		      10,-0.5,9.5);
+  hsizex5 = fs->make<TH1F>( "hsizex5", "d2 clu size in x",
+		      10,-0.5,9.5);
+
   hsizey1 = fs->make<TH1F>( "hsizey1", "lay1 clu size in y",
 		      20,-0.5,19.5);
   hsizey2 = fs->make<TH1F>( "hsizey2", "lay2 clu size in y",
 		      20,-0.5,19.5);
   hsizey3 = fs->make<TH1F>( "hsizey3", "lay3 clu size in y",
+		      20,-0.5,19.5);
+  hsizey4 = fs->make<TH1F>( "hsizey4", "d1 clu size in y",
+		      20,-0.5,19.5);
+  hsizey5 = fs->make<TH1F>( "hsizey5", "d2 clu size in y",
 		      20,-0.5,19.5);
 
   hevent = fs->make<TH1F>("hevent","event",1000,0,10000000.);
@@ -340,6 +362,8 @@ void ReadPixClusters::beginJob() {
 				416,0.,416.,160,0.,160.);
   hcluDetMap3 = fs->make<TH2F>( "hcluDetMap3", "clu det layer 1",
 				416,0.,416.,160,0.,160.);
+  htest = fs->make<TH1F>( "htest", "FPix R", 300, -15., 15.);
+
 #endif
 
   countEvents=0;
@@ -365,11 +389,18 @@ void ReadPixClusters::analyze(const edm::Event& e,
   es.get<TrackerDigiGeometryRecord>().get( geom );
   const TrackerGeometry& theTracker(*geom);
 
-  countAllEvents++;
-  int run       = e.id().run();
-  int event     = e.id().event();
+#ifdef NEW_ID
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<TrackerTopologyRcd>().get(tTopo);
+#endif
 
-  int lumiBlock = e.luminosityBlock();
+
+  countAllEvents++;
+  RunNumber_t const run       = e.id().run();
+  EventNumber_t const event     = e.id().event();
+  LuminosityBlockNumber_t const lumiBlock = e.luminosityBlock();
+
   int bx        = e.bunchCrossing();
   int orbit     = e.orbitNumber();
 
@@ -388,7 +419,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
   hdets->Fill(float(numOf)); // number of modules with pix
 
   // Select events with pixels
-  if(numOf<1) return; // skip events with  pixel dets
+  //if(numOf<1) return; // skip events with  pixel dets
   //if(numOf<4) return; // skip events with few pixel dets
 
   hevent->Fill(float(event));
@@ -501,7 +532,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
     // Endcap ids
     unsigned int disk=0; //1,2,3
     unsigned int blade=0; //1-24
-    unsigned int zindexF=0; //
+    unsigned int moduleF=0; // plaquette 1,2,3,4
     unsigned int side=0; //size=1 for -z, 2 for +z
     unsigned int panel=0; //panel=1
 
@@ -510,17 +541,27 @@ void ReadPixClusters::analyze(const edm::Event& e,
     // Subdet id, pix barrel=1, forward=2
     if(subid==2) {  // forward
 
+#ifdef NEW_ID
+      disk=tTopo->pxfDisk(detid); //1,2,3
+      blade=tTopo->pxfBlade(detid); //1-24
+      zindex=tTopo->pxfModule(detid); //
+      side=tTopo->pxfSide(detid); //size=1 for -z, 2 for +z
+      panel=tTopo->pxfPanel(detid); //panel=1
+#else 
       PXFDetId pdetId = PXFDetId(detid);       
       disk=pdetId.disk(); //1,2,3
       blade=pdetId.blade(); //1-24
-      zindexF=pdetId.module(); //
+      moduleF=pdetId.module(); // plaquette
       side=pdetId.side(); //size=1 for -z, 2 for +z
       panel=pdetId.panel(); //panel=1
+#endif
       
       if(printLocal) cout<<" forward det, disk "<<disk<<", blade "
- 		    <<blade<<", module "<<zindexF<<", side "<<side<<", panel "
+ 		    <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
  		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
  
+      bool fpixInner = ( ((panel==1) && (moduleF<=2)) || ((panel==2) && (moduleF<=1)) ); // make split at 10cm      
+      if(fpixInner) htest->Fill(detR);
 
 
     } else if (subid==1) {  // barrel
@@ -532,7 +573,13 @@ void ReadPixClusters::analyze(const edm::Event& e,
  
       //hcolsB->Fill(float(cols));
       //hrowsB->Fill(float(rows));
-      
+
+#ifdef NEW_ID
+      layerC=tTopo->pxbLayer(detid);
+      ladderC=tTopo->pxbLadder(detid);
+      zindex=tTopo->pxbModule(detid);
+      PixelBarrelName pbn(detid);
+#else      
       PXBDetId pdetId = PXBDetId(detid);
       //unsigned int detTypeP=pdetId.det();
       //unsigned int subidP=pdetId.subdetId();
@@ -542,9 +589,10 @@ void ReadPixClusters::analyze(const edm::Event& e,
       ladderC=pdetId.ladder();
       // Barrel Z-index=1,8
       zindex=pdetId.module();
-
       // Convert to online 
       PixelBarrelName pbn(pdetId);
+#endif
+
       // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
       PixelBarrelName::Shell sh = pbn.shell(); //enum
       sector = pbn.sectorName();
@@ -584,11 +632,13 @@ void ReadPixClusters::analyze(const edm::Event& e,
       numberOfClusters++;
       float ch = float(clustIt->charge())/1000.; // convert ke to electrons
       int size = clustIt->size();
-      int sizeX = clustIt->sizeX(); //x=row=rfi, 
-      int sizeY = clustIt->sizeY(); //y=col=z_global
+      int sizeX = clustIt->sizeX(); //x=row=rfi, starting from CMSSW6 this is limited to 64
+      int sizeY = clustIt->sizeY(); //y=col=z_global, starting from CMSSW6 this is limited to 64
       float x = clustIt->x(); // cluster position as float (int+0.5)
       float y = clustIt->y(); // analog average
+
       // Returns int index of the cluster min/max  
+      // This parameters are affected by the 64*64 limit on the cluster grid, so max-min<=64.
       int minPixelRow = clustIt->minPixelRow(); //x
       int maxPixelRow = clustIt->maxPixelRow();
       int minPixelCol = clustIt->minPixelCol(); //y
@@ -602,8 +652,6 @@ void ReadPixClusters::analyze(const edm::Event& e,
       bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) || 
  	(topol->isItEdgePixelInY(maxPixelCol)); 
 
-      bool edgeHitX2 = false; // edge method moved 
-      bool edgeHitY2 = false; // to topologu class
             
       if(printLocal) cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
 		    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
@@ -612,21 +660,25 @@ void ReadPixClusters::analyze(const edm::Event& e,
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel>& pixelsVec = clustIt->pixels();
       if(printLocal) cout<<" Pixels in this cluster "<<endl;
+
       bool bigInX=false, bigInY=false;
-      // Look at pixels in this cluster. ADC is calibrated, in electrons
-      bool edgeInX = false; // edge method moved 
-      bool edgeInY = false; // to topologu class
+      bool edgeHitX2 = false; // edge method moved 
+      bool edgeHitY2 = false; // to topologu class
+      //bool edgeInX = false; // edge method moved 
+      //bool edgeInY = false; // to topology class
       //SK:unused      bool cluBigInX = false; // does this clu include a big pixel
       //SK:unused      bool cluBigInY = false; // does this clu include a big pixel
       //int noisy = 0;
 
       if(pixelsVec.size()>maxPixPerClu) maxPixPerClu = pixelsVec.size();
- 
+
+      // Look at pixels in this cluster. ADC is calibrated, in electrons 
       for (unsigned int i = 0;  i < pixelsVec.size(); ++i) { // loop over pixels
 	numberOfPixels++;
-	float pixx = pixelsVec[i].x; // index as float=iteger, row index
-	float pixy = pixelsVec[i].y; // same, col index
+	float pixx = pixelsVec[i].x; // index as float=iteger, row index, 0-159
+	float pixy = pixelsVec[i].y; // same, col index, 0-415
 	float adc = (float(pixelsVec[i].adc)/1000.);
+
 	//int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
 	//bool binInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
 	//bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
@@ -706,19 +758,41 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 #endif // HISTOS
 	
-	edgeInX = topol->isItEdgePixelInX(int(pixx));
-	edgeInY = topol->isItEdgePixelInY(int(pixy));
+	// This looks if there is an edge pixel in the cluster
+	bool edgeInX = topol->isItEdgePixelInX(int(pixx));
+	bool edgeInY = topol->isItEdgePixelInY(int(pixy));
+	if(edgeInX) edgeHitX2=true;
+	if(edgeInY) edgeHitY2=true; 
 	
 	if(printLocal) cout<<i<<" "<<pixx<<" "<<pixy<<" "<<adc<<" "<<bigInX<<" "<<bigInY
 		      <<" "<<edgeInX<<" "<<edgeInY<<endl;
 	
-	if(edgeInX) edgeHitX2=true;
-	if(edgeInY) edgeHitY2=true; 
 	//SK:unused	if(bigInX) cluBigInX=true;
 	//SK:unused	if(bigInY) cluBigInY=true;
 
       } // pixel loop
-      
+
+
+      // if(edgeHitX ||  edgeHitX2 || edgeHitY ||  edgeHitY2) 
+      // 	cout<<" egde "<<edgeHitX<<" "<<edgeHitX2<<" "<<edgeHitY<<" "<<edgeHitY2<<" "
+      // 	    <<size<<" "<<sizeX<<" "<<sizeY<<" "
+      // 	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
+      // 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+
+      // This will happen  for clusters wider than 64
+      if( (edgeHitX != edgeHitX2) && sizeX<64 ) 
+	cout<<" wrong egdeX "<<edgeHitX<<" "<<edgeHitX2
+	  //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
+	    <<" size = "<<size<<" "<<sizeX<<" "<<sizeY<<" "
+	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
+	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+
+      if( (edgeHitY != edgeHitY2) && sizeY<64 ) 
+	cout<<" wrong egdeY "<<edgeHitY<<" "<<edgeHitY2
+	  //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
+	    <<" size = "<<size<<" "<<sizeX<<" "<<sizeY<<" "
+	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
+	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;     
 
 
 #ifdef HISTOS
@@ -771,7 +845,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 	  aveCharge3 += ch;
 
-	} // end if layer
+	} // end if bpix layer
 
       } else if (subid==2 ) {  // endcap
 
@@ -783,6 +857,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 	  hcharge4->Fill(ch);
 	  aveCharge4 += ch;
+	  hsize4->Fill(float(size));
+	  hsizex4->Fill(float(sizeX));
+	  hsizey4->Fill(float(sizeY));
 
 	} else if(disk==2) { // disk2 -+z
 
@@ -792,17 +869,16 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 	  hcharge5->Fill(ch);
 	  aveCharge5 += ch;
+	  hsize5->Fill(float(size));
+	  hsizex5->Fill(float(sizeX));
+	  hsizey5->Fill(float(sizeY));
 
-	} else cout<<" unknown disk "<<disk<<endl;
+	} else cout<<" unknown disk "<<disk<<endl; // end fpix disk 
 
-      } // end barrel/forward cluster loop
+      } // end if barrel/forward 
       
 #endif // HISTOS
 
-      if(edgeHitX != edgeHitX2) 
-	cout<<" wrong egdeX "<<edgeHitX<<" "<<edgeHitX2<<endl;
-      if(edgeHitY != edgeHitY2) 
-	cout<<" wrong egdeY "<<edgeHitY<<" "<<edgeHitY2<<endl;
 
     } // clusters 
 

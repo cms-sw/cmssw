@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 # PropagatorWithMaterialESProducer
 #include "TrackingTools/MaterialEffects/data/OppositeMaterialPropagator.cfi"
 # stripCPE

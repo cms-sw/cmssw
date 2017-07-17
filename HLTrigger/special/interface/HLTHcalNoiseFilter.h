@@ -19,7 +19,7 @@ class HLTHcalNoiseFilter : public HLTFilter {
    public:
       explicit HLTHcalNoiseFilter(const edm::ParameterSet&);
       ~HLTHcalNoiseFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
@@ -34,8 +34,6 @@ class HLTHcalNoiseFilter : public HLTFilter {
       double MetCut_;
       double JetMinE_;
       double JetHCALminEnergyFraction_;
-      int nAnomalousEvents;
-      int nEvents;
 };
 
 #endif

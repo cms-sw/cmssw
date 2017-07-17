@@ -13,17 +13,11 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
+#include<cstdlib>
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <set>
@@ -36,9 +30,7 @@ namespace edm{
 }
 
 namespace CLHEP {
-  class RandGaussianQ;
-  class RandPoissonQ;
-  class RandFlat;
+  class HepRandomEngine;
 }
 
 class RPCSynchronizer
@@ -47,14 +39,14 @@ class RPCSynchronizer
   RPCSynchronizer(const edm::ParameterSet& config);
   ~RPCSynchronizer();
 
-  int getSimHitBx(const PSimHit*);
+  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
+  int getSimHitBxAndTimingForIRPC(const PSimHit*, CLHEP::HepRandomEngine*);
   void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
   RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
-
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+  double getExactTime() const {return the_exact_time;}
+  double getSmearedTime() const {return the_smeared_time;} 
 
  private:
-
   double resRPC;
   double timOff;
   double dtimCs;
@@ -66,11 +58,11 @@ class RPCSynchronizer
   double cosmicPar;
   double LHCGate;
   bool cosmics;
-
-  CLHEP::RandGaussQ *gauss1;
-  CLHEP::RandGaussQ *gauss2;
+  double irpc_timing_res;
+  double irpc_electronics_jitter;
+  double the_exact_time;
+  double the_smeared_time;
   RPCSimSetUp * theSimSetUp;
-
+  int N_BX;
 };
 #endif
-

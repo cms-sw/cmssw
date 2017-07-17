@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/GFlash/interface/GflashEMShowerModel.h"
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
+#include "G4FastSimulationManagerProcess.hh"
 
 // Joanna Weng 08.2005
 // Physics process for Gflash parameterisation
@@ -22,10 +23,13 @@ class ParametrisedPhysics : public G4VPhysicsConstructor
 
  private:
   edm::ParameterSet theParSet;
-  GflashEMShowerModel *theEMShowerModel;
-  GflashEMShowerModel *theHadShowerModel;
-  GflashHadronShowerModel *theHadronShowerModel;
-
+  struct ThreadPrivate {
+    GflashEMShowerModel *theEMShowerModel;
+    GflashEMShowerModel *theHadShowerModel;
+    GflashHadronShowerModel *theHadronShowerModel;
+    G4FastSimulationManagerProcess *theFastSimulationManagerProcess;
+  };
+  static G4ThreadLocal ThreadPrivate* tpdata;    
 };
 
 #endif

@@ -23,19 +23,15 @@ class FEConfigFgrEETowerDat : public IDataItem {
   inline int getLutValue() const { return m_lut; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigFgrEETowerDat* item, FEConfigFgrInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigFgrEETowerDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrEETowerDat>* data, FEConfigFgrInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrEETowerDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigFgrEETowerDat >* fillMap, FEConfigFgrInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigFgrEETowerDat >* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
 
   // User data
 

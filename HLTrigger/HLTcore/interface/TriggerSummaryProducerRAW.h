@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -30,13 +30,13 @@ namespace edm {
 //
 // class declaration
 //
-class TriggerSummaryProducerRAW : public edm::EDProducer {
+class TriggerSummaryProducerRAW : public edm::stream::EDProducer<> {
   
  public:
   explicit TriggerSummaryProducerRAW(const edm::ParameterSet&);
-  ~TriggerSummaryProducerRAW();
+  virtual ~TriggerSummaryProducerRAW();
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   /// process name

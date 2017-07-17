@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -40,7 +40,7 @@ namespace pat {
 
   class LeptonLRCalc;
 
-  class PATPFParticleProducer : public edm::EDProducer {
+  class PATPFParticleProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -50,30 +50,26 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
-      void 
-	fetchCandidateCollection(edm::Handle< edm::View<reco::PFCandidate> >& c, 
-				 const edm::InputTag& tag, 
-				 const edm::Event& iSetup) const;
 
       // configurables
-      edm::InputTag pfCandidateSrc_;
+      edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidateToken_;
       bool          embedPFCandidate_;
       bool          addGenMatch_;
       bool          embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
       // tools
       GreaterByPt<PFParticle>      pTComparator_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
-      
+
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
 
- 
+
   };
 
 

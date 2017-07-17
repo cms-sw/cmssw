@@ -45,7 +45,7 @@ public:
 	void createCalibrators(const Calibrator& toClone, const unsigned nEta,
 			const double etaMin, const double etaMax, const unsigned nPhi,
 			const double phiMin, const double phiMax, const unsigned nEnergy,
-			const double energyMin, const double energyMax) throw(PFToolsException&);
+			const double energyMin, const double energyMax) noexcept(false);
 	
 	void createCalibrators(const Calibrator& toClone);
 

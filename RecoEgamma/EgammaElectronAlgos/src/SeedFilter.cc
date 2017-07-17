@@ -9,6 +9,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <vector>
 
@@ -19,12 +20,9 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -34,7 +32,9 @@
 using namespace std;
 using namespace reco;
 
-SeedFilter::SeedFilter(const edm::ParameterSet& conf)
+SeedFilter::SeedFilter(const edm::ParameterSet& conf,
+		       const SeedFilter::Tokens& tokens,
+		       edm::ConsumesCollector& iC)
  {
   edm::LogInfo("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
@@ -45,7 +45,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   deltaEta_     = regionPSet.getParameter<double>("deltaEtaRegion");
   deltaPhi_     = regionPSet.getParameter<double>("deltaPhiRegion");
   useZvertex_   = regionPSet.getParameter<bool>("useZInVertex");
-  vertexSrc_    = regionPSet.getParameter<edm::InputTag> ("VertexProducer");
+  vertexSrc_    = tokens.token_vtx;
 
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -55,21 +55,29 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   // -1 = look for existing hit collections for both pixels and strips
   // 0 = look for pixel hit collections and build strip hits on demand (regional unpacking)
   // 1 = build both pixel and strip hits on demand (regional unpacking)
-  hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
+  //
+  // FIXME: when next time altering the configuration of this class,
+  // please consider changing the type of useOnDemandTracker to a
+  // string corresponding to the UseMeasurementTracker enumeration
+  int tmp = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
+  if(tmp < -1 || tmp > 1)
+    throw cms::Exception("Configuration") << "SeedFilter: useOnDemandTracker must be -1, 0, or 1; got " << tmp;
+  hitsfactoryMode_ = RectangularEtaPhiTrackingRegion::intToUseMeasurementTracker(tmp);
 
   // get orderd hits generator from factory
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);
+  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
 
   // start seed generator
-  // FIXME??
-  edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
-                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+							       SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 				                  	       );
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
-  measurementTrackerName_ = conf.getParameter<std::string>("measurementTrackerName") ;
+  beamSpotTag_ = tokens.token_bs; ;
+  if(hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+    measurementTrackerToken_ = iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
  }
 
 SeedFilter::~SeedFilter() {
@@ -79,7 +87,7 @@ SeedFilter::~SeedFilter() {
 void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRef &scRef, TrajectorySeedCollection *output) {
 
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  std::auto_ptr<TrajectorySeedCollection> seedColl(new TrajectorySeedCollection());
+  auto seedColl = std::make_unique<TrajectorySeedCollection>();
 
   GlobalPoint vtxPos;
   double deltaZVertex;
@@ -98,7 +106,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   // get the primary vertex (if any)
   reco::VertexCollection vertices;
   edm::Handle<reco::VertexCollection> h_vertices;
-  if (e.getByLabel(vertexSrc_, h_vertices)) {
+  if (e.getByToken(vertexSrc_, h_vertices)) {
     vertices = *(h_vertices.product());
   } else {
 	  LogDebug("SeedFilter") << "SeedFilter::seeds"
@@ -112,7 +120,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   } else {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     //e.getByType(recoBeamSpotHandle);
-    e.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+    e.getByToken(beamSpotTag_,recoBeamSpotHandle);
     // gets its position
     const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
     double sigmaZ = recoBeamSpotHandle->sigmaZ();
@@ -120,6 +128,13 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
     double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
     vtxPos = GlobalPoint(BSPosition.x(), BSPosition.y(), BSPosition.z());
     deltaZVertex = 3*sq;
+  }
+
+  const MeasurementTrackerEvent *measurementTracker = nullptr;
+  if(!measurementTrackerToken_.isUninitialized()) {
+    edm::Handle<MeasurementTrackerEvent> hmte;
+    e.getByToken(measurementTrackerToken_, hmte);
+    measurementTracker = hmte.product();
   }
 
   //seeds selection
@@ -132,7 +147,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   //===============================================
 
   TrackCharge aCharge = -1 ;
-  FreeTrajectoryState fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aCharge);
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aCharge);
 
   RectangularEtaPhiTrackingRegion etaphiRegionMinus(fts.momentum(),
                                                     vtxPos,
@@ -145,7 +160,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_,
 						    true, /*default in header*/
-						    measurementTrackerName_
+						    measurementTracker
 						    );
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
 
@@ -159,7 +174,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   //===============================================
 
   TrackCharge aChargep = 1 ;
-  fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aChargep);
+  fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aChargep);
 
   RectangularEtaPhiTrackingRegion etaphiRegionPlus(fts.momentum(),
                                                    vtxPos,
@@ -172,7 +187,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_
 						   ,true, /*default in header*/
-						   measurementTrackerName_
+						   measurementTracker
 						   );
 
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);

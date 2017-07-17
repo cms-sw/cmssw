@@ -31,6 +31,9 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+#include "G4SystemOfUnits.hh"
+
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -53,14 +56,14 @@ static
 TrackerG4SimHitNumberingScheme&
 numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
 {
-   static TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
+   static thread_local TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
    return s_scheme;
 }
 
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
 								 const DDCompactView & cpv,
-								 SensitiveDetectorCatalog & clg, 
+								 const SensitiveDetectorCatalog & clg,
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, clg, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
@@ -102,9 +105,9 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
     slaveHighTof = new TrackingSlaveSD(name+"HighTof");
   
     // Now attach the right detectors (LogicalVolumes) to me
-    vector<string>  lvNames = clg.logicalNames(name);
+    const vector<string>&  lvNames = clg.logicalNames(name);
     this->Register();
-    for (vector<string>::iterator it = lvNames.begin();  it != lvNames.end(); it++)
+    for (vector<string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++)
     {
       edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << *it;
 	this->AssignSD(*it);
@@ -315,19 +318,19 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
       {
 	TrackInformation * temp = dynamic_cast<TrackInformation* >(info);
 	if (temp ==0) edm::LogError("TrackerSimInfo")<< " Error:G4VUserTrackInformation is not a TrackInformation.";
-	if (temp->storeTrack() == false) 
-	  {
+        else {
+          if (temp->storeTrack() == false) {
 	    // Go to the mother!
 	    LogDebug("TrackerSimDebug")<< " TkAccumulatingSensitiveDetector:createHit(): setting the TrackID from "
 		      << theTrackIDInsideTheSimHit;
 	    theTrackIDInsideTheSimHit = theTrack->GetParentID();
 	    LogDebug("TrackerSimDebug")<< " to the mother one " << theTrackIDInsideTheSimHit << " " << theEnergyLoss;
 	  }
-	else
-	  {
+          else {
 	    LogDebug("TrackerSimDebug")<< " TkAccumulatingSensitiveDetector:createHit(): leaving the current TrackID " 
 		      << theTrackIDInsideTheSimHit;
 	  }
+        }
       }
     
     px  = aStep->GetPreStepPoint()->GetMomentum().x()/GeV;

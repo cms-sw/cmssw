@@ -9,10 +9,16 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include <atomic>
+
+class HcalDDDGeometryLoader;
 
 class HcalDDDGeometry : public CaloSubdetectorGeometry {
 
 public:
+
+  friend class HcalDDDGeometryLoader;
 
   typedef std::vector<IdealObliquePrism> HBCellVec ;
   typedef std::vector<IdealObliquePrism> HECellVec ;
@@ -21,35 +27,51 @@ public:
 
   explicit HcalDDDGeometry(const HcalTopology& theTopo);
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
-  virtual ~HcalDDDGeometry();
+  ~HcalDDDGeometry() override;
   
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
-						    int             subdet = 0   ) const;
+  const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
+						    int             subdet = 0   ) const override;
 
-  virtual DetId getClosestCell(const GlobalPoint& r) const ;
+  DetId getClosestCell(const GlobalPoint& r) const override ;
 
   int insertCell (std::vector<HcalCellType> const & );
 
-  virtual void newCell( const GlobalPoint& f1 ,
+  void newCell( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) override ;
+					
+protected:
+
+  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
+
+private:
+
+  void newCellImpl( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) ;
-					
-protected:
 
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  //can only be used by friend classes, to ensure sorting is done at the end					
+  void newCellFast( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
 
-private:
+  void increaseReserve(unsigned int extra);
+  void sortValidIds();
 
   void fillDetIds() const ;
 
   std::vector<HcalCellType> hcalCells_;
-  mutable std::vector<DetId> m_hbIds ;
-  mutable std::vector<DetId> m_heIds ;
-  mutable std::vector<DetId> m_hoIds ;
-  mutable std::vector<DetId> m_hfIds ;
-  mutable std::vector<DetId> m_emptyIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hbIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_heIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hoIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hfIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_emptyIds ;
 
   const HcalTopology& topo_;
   double              etaMax_;
@@ -58,6 +80,7 @@ private:
   HECellVec m_heCellVec ;
   HOCellVec m_hoCellVec ;
   HFCellVec m_hfCellVec ;
+  mutable std::atomic<bool> m_filledDetIds;
 };
 
 #endif

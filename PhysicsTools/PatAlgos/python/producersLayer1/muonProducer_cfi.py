@@ -32,7 +32,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     ),
 
     # embedding objects
-    embedMuonBestTrack  = cms.bool(True),  ## embed in AOD externally stored muon best track
+    embedMuonBestTrack      = cms.bool(True),  ## embed in AOD externally stored muon best track from global pflow
+    embedTunePMuonBestTrack = cms.bool(True),  ## embed in AOD externally stored muon best track from muon only
+    forceBestTrackEmbedding = cms.bool(False), ## force embedding separately the best tracks even if they're already embedded e.g. as tracker or global tracks
     embedTrack          = cms.bool(False), ## embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
@@ -45,7 +47,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedCaloMETMuonCorrs = cms.bool(True),
     caloMETMuonCorrs = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),
     # embedding of muon MET corrections for tcMET
-    embedTcMETMuonCorrs   = cms.bool(True),
+    embedTcMETMuonCorrs   = cms.bool(False), # removed from RECO/AOD!
     tcMETMuonCorrs   = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"),
 
     # embed IsoDeposits
@@ -85,9 +87,21 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     # high level selections
     embedHighLevelSelection = cms.bool(True),
-    usePV                   = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
-    pvSrc                   = cms.InputTag("offlinePrimaryVertices")
+    pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
+
+    # ecal PF energy
+    embedPfEcalEnergy = cms.bool(True),
+    addPuppiIsolation = cms.bool(False),
+
+    # Compute and store Mini-Isolation.
+    # Implemention and a description of parameters can be found in:
+    # PhysicsTools/PatUtils/src/PFIsolation.cc
+    # only works in miniaod, so set to True in miniAOD_tools.py
+    computeMiniIso = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
+
 )
 
 

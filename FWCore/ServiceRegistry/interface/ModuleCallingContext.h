@@ -49,6 +49,8 @@ namespace edm {
                     ParentContext const& parent,
                     ModuleCallingContext const* previousOnThread);
 
+    void setState(State state) { state_ = state; }
+
     ModuleDescription const* moduleDescription() const { return moduleDescription_; }
     State state() const { return state_; }
     Type type() const { return parent_.type(); }
@@ -69,6 +71,10 @@ namespace edm {
     // find the highest level ModuleCallingContext. It will often return a
     // pointer to itself.
     ModuleCallingContext const* getTopModuleCallingContext() const;
+
+    // Returns the number of ModuleCallingContexts above this ModuleCallingContext
+    // in the series of linked context objects.
+    unsigned depth() const;
 
     ModuleCallingContext const* previousModuleOnThread() const { return previousModuleOnThread_; }
 

@@ -9,6 +9,7 @@
    \version  $Id: ElectronIDPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -19,31 +20,31 @@
 namespace pf2pat {
 
   struct ElectronIDPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
-    
-    ElectronIDPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
-      electrons_(  cfg.getParameter< edm::InputTag >( "recoGsfElectrons" ) ), 
-      electronId_( cfg.getParameter< edm::InputTag >( "electronIdMap" ) )
-    { 
+
+    ElectronIDPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
+      electronsToken_( iC.consumes<reco::GsfElectronCollection>( cfg.getParameter< edm::InputTag >( "recoGsfElectrons" ) ) ),
+      electronIdToken_( iC.consumes<edm::ValueMap<float> >( cfg.getParameter< edm::InputTag >( "electronIdMap" ) ) )
+    {
         if (cfg.exists("bitsToCheck")) {
-            isBitMap_ = true; 
+            isBitMap_ = true;
             mask_ = 0;
             if (cfg.existsAs<std::vector<std::string> >("bitsToCheck")) {
                 std::vector<std::string> strbits = cfg.getParameter<std::vector<std::string> >("bitsToCheck");
-                for (std::vector<std::string>::const_iterator istrbit = strbits.begin(), estrbit = strbits.end(); 
+                for (std::vector<std::string>::const_iterator istrbit = strbits.begin(), estrbit = strbits.end();
                         istrbit != estrbit; ++istrbit) {
                     if      (*istrbit == "id" )  { mask_ |= 1; }
                     else if (*istrbit == "iso")  { mask_ |= 2; }
                     else if (*istrbit == "conv") { mask_ |= 4; }
                     else if (*istrbit == "ip")   { mask_ |= 8; }
                     else throw cms::Exception("Configuration") << "ElectronIDPFCandidateSelector: " <<
-                        "bitsToCheck allowed string values are only id(0), iso(1), conv(2), ip(3).\n" << 
+                        "bitsToCheck allowed string values are only id(0), iso(1), conv(2), ip(3).\n" <<
                             "Otherwise, use uint32_t bitmask).\n";
                 }
             } else if (cfg.existsAs<uint32_t>("bitsToCheck")) {
                 mask_ = cfg.getParameter<uint32_t>("bitsToCheck");
             } else {
                 throw cms::Exception("Configuration") << "ElectronIDPFCandidateSelector: " <<
-                        "bitsToCheck must be either a vector of strings, or a uint32 bitmask.\n";   
+                        "bitsToCheck must be either a vector of strings, or a uint32 bitmask.\n";
             }
         } else {
             isBitMap_ = false;
@@ -51,25 +52,25 @@ namespace pf2pat {
         }
     }
 
-    void select( const HandleToCollection & hc, 
+    void select( const HandleToCollection & hc,
 		 const edm::Event & e,
 		 const edm::EventSetup& s) {
       selected_.clear();
 
       edm::Handle<reco::GsfElectronCollection> electrons;
-      e.getByLabel(electrons_, electrons);
+      e.getByToken(electronsToken_, electrons);
 
       edm::Handle<edm::ValueMap<float> > electronId;
-      e.getByLabel(electronId_, electronId);
+      e.getByToken(electronIdToken_, electronId);
 
       unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin(); 
+      for( collection::const_iterator pfc = hc->begin();
 	   pfc != hc->end(); ++pfc, ++key) {
 
         // Get GsfTrack for matching with reco::GsfElectron objects
         reco::GsfTrackRef PfTk = pfc->gsfTrackRef();
 
-        // skip ones without GsfTrack: they won't be matched anyway	
+        // skip ones without GsfTrack: they won't be matched anyway
         if (PfTk.isNull()) continue;
 
         int match = -1;
@@ -91,7 +92,7 @@ namespace pf2pat {
             float eleId = (*electronId)[ref];
             bool pass = false;
             if (isBitMap_) {
-                uint32_t thisval = eleId; 
+                uint32_t thisval = eleId;
                 pass = ((thisval & mask_) == mask_);
             } else {
                 pass = (eleId > value_);
@@ -104,10 +105,10 @@ namespace pf2pat {
         }
       }
     }
-    
+
     private:
-        edm::InputTag  electrons_;
-        edm::InputTag  electronId_;
+        edm::EDGetTokenT<reco::GsfElectronCollection>  electronsToken_;
+        edm::EDGetTokenT<edm::ValueMap<float> >  electronIdToken_;
         bool isBitMap_;
         uint32_t mask_;
         double   value_;

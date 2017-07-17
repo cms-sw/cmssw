@@ -127,7 +127,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     graph.Draw("ALP")
     avg_line.Draw("Same")
     
-    graph_canvas.Print("%s/graph.gif" %outdir,"gif")
+    graph_canvas.Print("%s/graph.png" %outdir,"png")
     
     # write it on file
     graph.Write()
@@ -137,7 +137,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     histo_canvas.cd()
     histo.Draw('')
 
-    histo_canvas.Print("%s/histo.gif" %outdir,"gif")
+    histo_canvas.Print("%s/histo.png" %outdir,"png")
     
     # write it on file
     histo.Write()
@@ -155,8 +155,8 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
     html_file.write('<table>\n'+\
-                    '<tr><td><img  src=graph.gif></img></td></tr>'+\
-                    '<tr><td><img  src=histo.gif></img></td></tr>'+\
+                    '<tr><td><img  src=graph.png></img></td></tr>'+\
+                    '<tr><td><img  src=histo.png></img></td></tr>'+\
                     '</table>\n')
     html_file.write('\n</body>\n</html>')
     html_file.close()    

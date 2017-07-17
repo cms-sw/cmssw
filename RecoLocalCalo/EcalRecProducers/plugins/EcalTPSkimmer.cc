@@ -50,10 +50,10 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
         es.get<IdealGeometryRecord>().get(ttMap_);
 
         // collection of rechits to put in the event
-        std::auto_ptr< EcalTrigPrimDigiCollection > tpOut( new EcalTrigPrimDigiCollection );
+        auto tpOut = std::make_unique<EcalTrigPrimDigiCollection>();
         
         if ( skipModule_ ) {
-                evt.put( tpOut, tpOutputCollection_ );
+                evt.put(std::move(tpOut), tpOutputCollection_);
                 return;
         }
 
@@ -74,7 +74,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
-                                code = (*chit).getStatusCode() & 0x001F;
+                                code = (*chit).getStatusCode();
                                 if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
                                         // retrieve the TP DetId
                                         EcalTrigTowerDetId ttDetId( ((EBDetId)id).tower() );
@@ -99,7 +99,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
-                                code = (*chit).getStatusCode() & 0x001F;
+                                code = (*chit).getStatusCode() ;
                                 if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
                                         // retrieve the TP DetId
                                         EcalTrigTowerDetId ttDetId = ttMap_->towerOf( id );
@@ -117,7 +117,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
         // put the collection of reconstructed hits in the event   
         LogInfo("EcalTPSkimmer") << "total # of TP inserted: " << tpOut->size();
 
-        evt.put( tpOut, tpOutputCollection_ );
+        evt.put(std::move(tpOut), tpOutputCollection_);
 }
 
 

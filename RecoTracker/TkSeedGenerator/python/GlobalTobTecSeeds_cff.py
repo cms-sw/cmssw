@@ -14,6 +14,6 @@ import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalTobTecSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
       ComponentName = cms.string('StandardHitPairGenerator'),
-      SeedingLayers = cms.string('TobTecLayerPairs')
+      SeedingLayers = cms.InputTag('TobTecLayerPairs')
     )
 )

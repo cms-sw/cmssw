@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MCPdgIndexFilter::MCPdgIndexFilter(const edm::ParameterSet& cfg) :
-  label_(cfg.getUntrackedParameter("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(cfg.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   pdgID(cfg.getParameter<std::vector<int> >("PdgId")),
   index(cfg.getParameter<std::vector<unsigned> >("Index")),
   maxIndex(*std::max_element(index.begin(),index.end())),
@@ -26,14 +26,14 @@ bool MCPdgIndexFilter::filter(edm::Event& evt, const edm::EventSetup&) {
   bool result = pass(evt);
   LogDebug("FilterResult") << (result?"Pass":"Fail");
   if (!taggingMode) return result;
-  evt.put( std::auto_ptr<bool>(new bool(result)), tag);
+  evt.put(std::move(std::unique_ptr<bool>(new bool(result))), tag);
   return true;
 }
 
 
 bool MCPdgIndexFilter::pass(const edm::Event& evt) {
   edm::Handle<edm::HepMCProduct> hepmc;
-  evt.getByLabel(label_, hepmc);
+  evt.getByToken(token_, hepmc);
 
   const HepMC::GenEvent * genEvent = hepmc->GetEvent();
 

@@ -83,6 +83,7 @@ namespace edm {
         RunSummaryCacheHolder() = default;
         RunSummaryCacheHolder( RunSummaryCacheHolder<C> const&) = delete;
         RunSummaryCacheHolder<C>& operator=(RunSummaryCacheHolder<C> const&) = delete;
+        virtual ~RunSummaryCacheHolder() noexcept(false) {}
       private:
         virtual void endRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
       };
@@ -93,6 +94,7 @@ namespace edm {
         LuminosityBlockSummaryCacheHolder() = default;
         LuminosityBlockSummaryCacheHolder( LuminosityBlockSummaryCacheHolder<C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<C>& operator=(LuminosityBlockSummaryCacheHolder<C> const&) = delete;
+        virtual ~LuminosityBlockSummaryCacheHolder() noexcept(false) {}
       private:
         
         virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;

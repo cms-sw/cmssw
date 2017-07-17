@@ -1,10 +1,10 @@
 *----------------------------------------------------------------------
 *
-*  Filename             : HYDJET1_8.F
+*  Filename             : HYDJET1_9.F
 *
 *  Author               : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
-*  Version              : HYDJET1_8.f
-*  Last revision        : 17-JUL-2011 
+*  Version              : HYDJET1_9.f  
+*  Last revision        : 1-JUL-2013 
 *
 *======================================================================
 *
@@ -57,7 +57,7 @@
 * printout of HYDJET versioning 
       write(6,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      >%%%%%%%%%%%%%%%%%%%%%%%%'
-      write(6,*) '%%                        This is HYDJET version 1.8  
+      write(6,*) '%%                        This is HYDJET version 1.9  
      >                      %%' 
       write(6,*) '%%         Corresponding author: Igor Lokhtin (Igor.Lo
      >khtin@cern.ch)        %%' 
@@ -201,11 +201,12 @@
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd
+      common /hypsi3/ psi3
       common /hyflow/ ytfl,ylfl,Tf,fpart
       common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
       common /pypars/ mstp(200),parp(200),msti(200),pari(200)
       save /pypars/,/pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
-     +     /hyflow/,/hyjpar/,/hypyin/
+     +     /hyflow/,/hyjpar/,/hypyin/,/hypsi3/
 
 * reset lujets and hyjets arrays before event generation 
 c      n=0 
@@ -291,12 +292,14 @@ c        k(ncl,j)=0
 
 * set of parameters for azimuthal anisotropy in hadron emission region
        anc=2.8d0
-       ank=0.25d0        
+       ank=0.25d0
        ane=0.5d0*ank*b1/RA
        anb=max(0.000000000001d0,anc*(1.-ane*ane)*ane)
        anl=max(0.000000000001d0,0.5d0*(dsqrt(1.d0+4.d0*anb*
      >    (ane+anb))-1.d0)/anb)  
        anr=RA*dsqrt(abs(1.d0-ane))
+       eps3=0.06*(b1/RA)**0.33333d0
+       psi3=2.d0*pi*(-0.5d0+pyr(0))/3.d0
 
 * generate sort of hadrons in jetset/pythia format
  5     yy=9999.d0*pyr(0)  
@@ -378,7 +381,8 @@ c       etaf=ylfl*(2.d0*pyr(0)-1.d0)         ! flat initial eta-spectrum
        phif=2.d0*pi*pyr(0) 
        RF=anr*dsqrt(abs(1.d0-ane*ane))/
      >   (dsqrt(abs(1.d0+ane*dcos(2.d0*phif))))
-       rrf=RF*RF*pyr(0) 
+       RF=RF*(1.d0+eps3*dcos(3.d0*(phif-psi3)))
+       rrf=RF*RF*pyr(0)
 
 * generate four-velocity of a fluid element
        vradf=dsinh(ytfl*dsqrt(rrf)/anr)  

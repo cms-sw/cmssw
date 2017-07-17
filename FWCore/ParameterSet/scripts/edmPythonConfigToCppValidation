@@ -23,6 +23,10 @@ def stringValueToString(param):
 def pythonValueToString(param):
     t,c = simpleParamHandlers[type(param).__name__]
     return t+"("+param.pythonValue()+")"
+def stringOrInputTagValueToString(param):
+    if isinstance(param, str):
+      param = cms.InputTag(param)
+    return pythonValueToString(param)
 
 simpleParamHandlers = {"int32":("int",simpleValueToString),
                        "uint32":("unsigned int",simpleValueToString),
@@ -39,8 +43,7 @@ simpleParamHandlers = {"int32":("int",simpleValueToString),
                        "FileInPath":("edm::FileInPath",pythonValueToString),
                        "LuminosityBlockID":("edm::LuminosityBlockID",pythonValueToString),
                        "LuminosityBlockRange":("edm::LuminosityBlockRange",pythonValueToString)
-                       
-                       }
+                      }
 
 
 itemParamHandlers = {"vint32":("int",simpleItemToString),
@@ -51,7 +54,7 @@ itemParamHandlers = {"vint32":("int",simpleItemToString),
                      "vbool":("bool",boolItemToString),
                      "vstring":("std::string",stringItemToString),
                      "VESInputTag":("edm::ESInputTag",pythonValueToString),
-                     "VInputTag":("edm::InputTag",stringItemToString),
+                     "VInputTag":("edm::InputTag",stringOrInputTagValueToString),
                      "VEventID":("edm::EventID",stringItemToString),
                      "VESInputTag":("edm::ESInputTag",pythonValueToString),
                      "VEventRange":("edm::EventRange",stringItemToString),
@@ -75,35 +78,56 @@ def printVPSetDescription(spacing,descName,pList,label,depth):
         newerSpacing = newSpacing+"  "
         otherTempName = "temp"+str(depth+1)
         print newerSpacing+"edm::ParameterSet "+otherTempName+";"
-        printParameterSet(newerSpacing,tempName,i,depth+1)
+        printParameterSet(newerSpacing,otherTempName,i,depth+1)
         print newerSpacing+tempName+".push_back("+otherTempName+");"
         print newSpacing+"}"
     
     trackiness=""
     if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+descName+".addVPSet"+trackiness+'("'+label+'",'+newDescName+","+tempName+");"
+    print newSpacing+descName+".addVPSet"+trackiness+'("'+label+'", '+newDescName+", "+tempName+");"
     print spacing+"}"
 
 def printListTypeParameterDescription(spacing,descName,pList,label,depth):
     if isinstance(pList,cms.VPSet):
         printVPSetDescription(spacing,descName,pList,label,depth)
         return
-    print spacing+"{"
-    newSpacing = spacing+"  "
     itemType,converter = itemParamHandlers[type(pList).__name__]
-    tempName = "temp"+str(depth)
-    print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
-    print newSpacing+tempName+".reserve("+str(len(pList))+");"
-    for i in pList:
-        print newSpacing+tempName+".push_back("+converter(i)+");"
     trackiness=""
     if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+descName+".add"+trackiness+"<std::vector<"+itemType+'> >("'+label+'",'+tempName+");"
-    print spacing+"}"
+    if len(pList) == 0:
+      print spacing+descName+".add"+trackiness+"<std::vector<"+itemType+'>>("'+label+'", {});'
+    else:
+      print spacing+descName+".add"+trackiness+"<std::vector<"+itemType+'>>("'+label+'", {'
+      for i in pList:
+          print spacing+'  '+converter(i)+','
+      print spacing+'});'
+
+
+def expandRefToPSet(pset):
+    # check whether we should expand a refToPSet_ parameter to full PSet
+    if not 'refToPSet_' in pset.parameters_():
+        return pset
+
+    if len(pset.parameters_()) > 1:
+        raise RuntimeError('A "refToPSet_" should be the only parameter in a PSet')
+    refToPSet = pset.parameters_()['refToPSet_']
+    if not isinstance(refToPSet, cms.string):
+        raise RuntimeError('A "refToPSet_" parameter is not a "cms.string"')
+    refToPSetName = refToPSet.value()
+    global config
+    if not refToPSetName in config:
+        raise RuntimeError('top-level PSet "%s", referenced by a refToPSet_, not found' % refToPSetName)
+    refToPSetValue = config[refToPSetName]
+    if not isinstance(refToPSetValue, cms.PSet):
+        raise RuntimeError('top-level parameter "%s", referenced by a refToPSet_, is not a cms.PSet' % refToPSetName)
+
+    return refToPSetValue
+
 
 def printParameterSetDescription(spacing,descName, pset, depth):
+    pset = expandRefToPSet(pset)
     for l,p in pset.parameters_().iteritems():
         if isinstance(p,cms.PSet):
             print spacing+"{"
@@ -114,7 +138,7 @@ def printParameterSetDescription(spacing,descName, pset, depth):
             trackiness=""
             if not p.isTracked():
                 trackiness="Untracked"
-            print newSpacing+descName+".add"+trackiness+'<edm::ParameterSetDescription>("'+l+'",'+newDescName+");"
+            print newSpacing+descName+".add"+trackiness+'<edm::ParameterSetDescription>("'+l+'", '+newDescName+");"
             print spacing+"}"
         else:
             if isinstance(p,_ValidatingParameterListBase):
@@ -126,7 +150,7 @@ def printParameterSetDescription(spacing,descName, pset, depth):
                 if not p.isTracked():
                     trackiness="Untracked"
                 (t,c) = simpleParamHandlers[type(p).__name__]
-                print spacing+descName+".add"+trackiness+"<"+t+'>("'+l+'",'+c(p)+");"
+                print spacing+descName+".add"+trackiness+"<"+t+'>("'+l+'", '+c(p)+");"
 
 def printVPSet(spacing,psetName,pList,label,depth):
     print spacing+"{"
@@ -146,29 +170,29 @@ def printVPSet(spacing,psetName,pList,label,depth):
     trackiness=""
     if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<edm::ParameterSet> >("'+label+'",'+tempName+");"
+    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<edm::ParameterSet>>("'+label+'", '+tempName+");"
     print spacing+"}"
 
 def printListTypeParameter(spacing,psetName,pList,label,depth):
     if isinstance(pList,cms.VPSet):
         printVPSet(spacing,psetName,pList,label,depth)
         return
-    print spacing+"{"
-    newSpacing = spacing+"  "
+
     itemType,converter = itemParamHandlers[type(pList).__name__]
-    tempName = "temp"+str(depth)
-    print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
-    print newSpacing+tempName+".reserve("+str(len(pList))+");"
-    for i in pList:
-        print newSpacing+tempName+".push_back("+converter(i)+");"
     trackiness=""
     if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<'+itemType+'> >("'+label+'",'+tempName+");"
-    print spacing+"}"
+    if len(pList) == 0:
+      print spacing+psetName+".add"+trackiness+'Parameter<std::vector<'+itemType+'>>("'+label+'", {});'
+    else:
+      print spacing+psetName+".add"+trackiness+'Parameter<std::vector<'+itemType+'>>("'+label+'", {'
+      for i in pList:
+          print spacing+'  '+converter(i)+','
+      print spacing+'});'
 
 
-def printParameterSet(spacing,psetName, pset, depth):
+def printParameterSet(spacing, psetName, pset, depth):
+    pset = expandRefToPSet(pset)
     for l,p in pset.parameters_().iteritems():
         if isinstance(p,cms.PSet):
             print spacing+"{"
@@ -179,7 +203,7 @@ def printParameterSet(spacing,psetName, pset, depth):
             trackiness=""
             if not p.isTracked():
                 trackiness="Untracked"
-            print newSpacing+psetName+".add"+trackiness+'Parameter<edm::ParameterSet>("'+l+'",'+newPSetName+");"
+            print newSpacing+psetName+".add"+trackiness+'Parameter<edm::ParameterSet>("'+l+'", '+newPSetName+");"
             print spacing+"}"
         else:
             if isinstance(p,_ValidatingParameterListBase):
@@ -191,7 +215,7 @@ def printParameterSet(spacing,psetName, pset, depth):
                 if not p.isTracked():
                     trackiness="Untracked"
                 (t,c) = simpleParamHandlers[type(p).__name__]
-                print spacing+psetName+".add"+trackiness+"Parameter<"+t+'>("'+l+'",'+c(p)+");"
+                print spacing+psetName+".add"+trackiness+"Parameter<"+t+'>("'+l+'", '+c(p)+");"
                 
 
 import optparse
@@ -213,28 +237,40 @@ exec f in config
 
 #print config
 
-mod = None
-modLabel = None
+modules = {}
 for item in config.iterkeys():
     #print item
     if item.startswith('_'):
         continue
     
     if isinstance(config[item], _Module):
-        if mod is None:
-            mod = config[item]
-            modLabel = item
-        else:
-            raise RuntimeError("The file '"+filename+"' contains more than one module");
+        modules[item] = config[item]
 
-if mod is None:
+if not modules:
     raise RuntimeError("No module found in file '"+filename+"'")
 
-spacing = "  ";
-print "void"
-print mod.type_()+"::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {"
-print spacing+"edm::ParameterSetDescription desc;"
-#print mod.parameters_()
-printParameterSetDescription(spacing,"desc",mod,0)
-print spacing+'descriptions.add("'+modLabel+'",desc);'
-print "}"
+modulesTypes = set(module.type_() for module in modules.itervalues())
+if len(modulesTypes) > 1:
+    raise RuntimeError("The file '"+filename+"' contains modules of different C++ types");
+moduleType = modulesTypes.pop()
+
+spacing = '  ';
+print '#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>'
+print '#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>'
+print
+print 'void'
+print moduleType + '::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {'
+if len(modules) > 1:
+  newSpacing = spacing + '  ';
+else:
+  newSpacing = spacing
+for label, module in modules.iteritems():
+  if len(modules) > 1:
+    print spacing+'{'
+  print newSpacing + '// ' + label
+  print newSpacing + 'edm::ParameterSetDescription desc;'
+  printParameterSetDescription(newSpacing, 'desc', module, 0)
+  print newSpacing + 'descriptions.add("' + label + '", desc);'
+  if len(modules) > 1:
+    print spacing+'}'
+print '}'

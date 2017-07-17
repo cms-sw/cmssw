@@ -25,6 +25,7 @@ public:
   int exclude(int zside, HcalZDCDetId::Section section, int ich1, int ich2);
 
   /** Is this a valid cell id? */
+  using CaloSubdetectorTopology::valid;
   virtual bool valid(const HcalZDCDetId& id) const;
 
   /** Get the transverse (X) neighbors of the given cell*/
@@ -34,15 +35,16 @@ public:
   virtual std::vector<DetId> longitudinal(const DetId& id) const;
 
   //** I have to put this here since they inherit from CaloSubdetectorTopology
-  virtual std::vector<DetId> east(const DetId& id) const;
-  virtual std::vector<DetId> west(const DetId& id) const; 
-  virtual std::vector<DetId> north(const DetId& id) const;
-  virtual std::vector<DetId> south(const DetId& id) const;
-  virtual std::vector<DetId> up(const DetId& id) const;
-  virtual std::vector<DetId> down(const DetId& id) const;
+  std::vector<DetId> east(const DetId& id) const override;
+  std::vector<DetId> west(const DetId& id) const override; 
+  std::vector<DetId> north(const DetId& id) const override;
+  std::vector<DetId> south(const DetId& id) const override;
+  std::vector<DetId> up(const DetId& id) const override;
+  std::vector<DetId> down(const DetId& id) const override;
   
   
   // how many channels (deph) for a given section
+  using CaloSubdetectorTopology::ncells;
   int ncells(HcalZDCDetId::Section section) const;
 
   //return first and last cell of each section
@@ -55,19 +57,21 @@ public:
   
   std::vector<HcalZDCDetId> exclusionList_;
   
-  bool excludeEM_, excludeHAD_, excludeLUM_, excludeZP_, excludeZN_;
+  bool excludeEM_, excludeHAD_, excludeLUM_, excludeRPD_, excludeZP_, excludeZN_;
   
   int firstEMModule_, lastEMModule_, firstHADModule_, lastHADModule_, 
-    firstLUMModule_, lastLUMModule_;
+    firstLUMModule_, lastLUMModule_, firstRPDModule_, lastRPDModule_;
    
   bool isExcluded(const HcalZDCDetId& id) const;
   
   int firstEMModule() const {return firstEMModule_;}
   int firstHADModule() const {return firstHADModule_;}  
   int firstLUMModule() const {return firstLUMModule_;}
+  int firstRPDModule() const {return firstRPDModule_;}
   int lastEMModule()  const {return lastEMModule_;}
   int lastHADModule() const {return lastHADModule_;}  
   int lastLUMModule() const {return lastLUMModule_;}
+  int lastRPDModule() const {return lastRPDModule_;}
 
 };
 

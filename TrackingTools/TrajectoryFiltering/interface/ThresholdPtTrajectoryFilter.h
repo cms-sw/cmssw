@@ -20,7 +20,7 @@ public:
 
   explicit ThresholdPtTrajectoryFilter( double ptThreshold, float nSigma = 5.F, int nH=3): thePtThreshold( ptThreshold), theNSigma(nSigma), theMinHits(nH) {}
 
-  explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset) :
+  explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
     thePtThreshold(pset.getParameter<double>("thresholdPt")),
     theNSigma(pset.getParameter<double>("nSigmaThresholdPt")),
     theMinHits(pset.getParameter<int>("minHitsThresholdPt"))
@@ -36,34 +36,7 @@ public:
 
  protected:
 
-  bool test( const TrajectoryMeasurement & tm, int foundHits) const 
-  {
-    //first check min number of hits 
-    if (foundHits < theMinHits ){ return true;}
-
-    // check for momentum below limit
-    const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
-
-    //avoid doing twice the check in TBC and QF
-    static bool answerMemory=false;
-    static FreeTrajectoryState ftsMemory;
-    if (ftsMemory.parameters().vector() == fts.parameters().vector()) { return answerMemory;}
-    ftsMemory=fts;
-
-    //if p_T is way too small: stop
-    double pT = fts.momentum().perp();
-    if (pT<0.010) {answerMemory=false; return false;}
-    //if error is way too big: stop
-    double invError = TrajectoryStateAccessor(fts).inversePtError();
-    if (invError > 1.e10) {answerMemory=false;return false;}
-
-    //calculate the actual pT cut: 
-    if ((1/pT + theNSigma*invError ) < 1/thePtThreshold ) {answerMemory=false; return false;}
-    //    first term is the minimal value of pT (pT-N*sigma(pT))
-    //    secon term is the cut
-
-    answerMemory=true; return true;
-  }
+  bool test( const TrajectoryMeasurement & tm, int foundHits) const;
 
   double thePtThreshold;
   double theNSigma;

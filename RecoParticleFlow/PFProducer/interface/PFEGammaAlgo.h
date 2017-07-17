@@ -12,6 +12,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
@@ -36,6 +37,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
@@ -44,12 +49,15 @@
 #include <forward_list>
 #include <unordered_map>
 
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
 
 class PFEGammaAlgo {
  public:
-  typedef reco::SuperCluster::EEtoPSAssociation EEtoPSAssociation;
+  typedef reco::PFCluster::EEtoPSAssociation EEtoPSAssociation;
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
@@ -68,7 +76,9 @@ class PFEGammaAlgo {
     std::vector<PFKFFlaggedElement> > GSFToTrackMap;
   typedef std::unordered_map<const PFClusterElement*, 
     std::vector<PFClusterFlaggedElement> > ClusterMap;  
-
+  typedef std::unordered_map<const PFKFElement*, 
+    float > KFValMap;  
+    
   struct ProtoEGObject {
     ProtoEGObject() : parentSC(NULL) {}
     reco::PFBlockRef parentBlock;
@@ -87,9 +97,14 @@ class PFEGammaAlgo {
     // for manual brem recovery 
     std::vector<PFGSFFlaggedElement> secondaryGSFs;
     std::vector<PFKFFlaggedElement> secondaryKFs;    
+    KFValMap singleLegConversionMvaMap;
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
+    // cluster closest to the gsf track(s), primary kf if none for gsf
+    // last brem tangent cluster if neither of those work
+    std::vector<const PFClusterElement*> electronClusters; 
+    int firstBrem, lateBrem, nBremsWithClusters;
   };  
   
   struct PFEGConfigInfo {
@@ -121,38 +136,20 @@ class PFEGammaAlgo {
   //constructor
   PFEGammaAlgo(const PFEGConfigInfo&);
   //destructor
-  ~PFEGammaAlgo(){delete tmvaReaderEle_; delete tmvaReader_;   };
+  ~PFEGammaAlgo(){ };
 
   void setEEtoPSAssociation(const edm::Handle<EEtoPSAssociation>& eetops) {
     eetops_ = eetops;
   }
 
-  void setGBRForest(const GBRForest *LCorrForest,
-		    const GBRForest *GCorrForest,
-		    const GBRForest *ResForest
-		    )
-  {
-    ReaderLC_=LCorrForest;
-    ReaderGC_=GCorrForest;
-    ReaderRes_=ResForest;
-  }  
-  
-  void setGBRForest(
-		    const GBRForest *LCorrForestEB,
-		    const GBRForest *LCorrForestEE,
-		    const GBRForest *GCorrForestBarrel,
-		    const GBRForest *GCorrForestEndcapHr9,
-		    const GBRForest *GCorrForestEndcapLr9,
-		    const GBRForest *PFEcalResolution
-		    )
-  {
-    ReaderLCEB_=LCorrForestEB;
-    ReaderLCEE_=LCorrForestEE;
-    ReaderGCEB_=GCorrForestBarrel;
-    ReaderGCEEhR9_=GCorrForestEndcapHr9;
-    ReaderGCEElR9_=GCorrForestEndcapLr9;
-    ReaderRes_=PFEcalResolution;
-  }  
+  void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
+    cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
+  }
+
+  void setESChannelStatus(const ESChannelStatus* channelStatus){
+    channelStatus_ = channelStatus;
+  }
+
   void setnPU(int nVtx){
     nVtx_=nVtx;
   }
@@ -160,16 +157,16 @@ class PFEGammaAlgo {
     cfg_.primaryVtx = & primary;
   }
 
-  void RunPFEG(const reco::PFBlockRef&  blockRef,
-	       std::vector< bool >& active
-	       );
-
+  void RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
+               const reco::PFBlockRef&  blockRef,
+               std::vector< bool >& active
+               );
+               
   //check candidate validity
-  bool isEGValidCandidate(const reco::PFBlockRef&  blockRef,
-			      std::vector< bool >&  active
-			      //      std::auto_ptr< reco::PFCandidateCollection > &pfElectronCandidates_  
-			      ){
-    RunPFEG(blockRef,active);
+  bool isEGValidCandidate(const pfEGHelpers::HeavyObjectCache* hoc,
+                          const reco::PFBlockRef&  blockRef,
+                          std::vector< bool >&  active){
+    RunPFEG(hoc,blockRef,active);
     return (egCandidate_.size()>0);
   };
   
@@ -199,7 +196,7 @@ private:
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops_;
+  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
@@ -224,7 +221,8 @@ private:
 
   // functions:
   // this runs the functions below
-  void buildAndRefineEGObjects(const reco::PFBlockRef& block);
+  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
+                               const reco::PFBlockRef& block);
 
   // build proto eg object using all available unflagged resources in block.
   // this will be kind of like the old 'SetLinks' but with simplified and 
@@ -238,12 +236,7 @@ private:
 			  std::vector<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
-  // for EGamma SCs
   int attachPSClusters(const PFClusterElement*,
-		       ClusterMap::mapped_type&);  
-  // for PF SCs
-  int attachPSClusters(const PFSCElement*,
-		       const PFClusterElement*,
 		       ClusterMap::mapped_type&);  
 
   
@@ -258,6 +251,7 @@ private:
   void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
+  void linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
   // WARNING! this should be ONLY used after doing the ECAL->track 
@@ -270,7 +264,8 @@ private:
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
   // which through arcane means I came to understand was conversion matching  
-  void linkRefinableObjectECALToSingleLegConv(ProtoEGObject&);
+  void linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
+                                              ProtoEGObject&);
 
   // wax off
 
@@ -285,18 +280,24 @@ private:
   
 
   // things for building the final candidate and refined SC collections    
-  void fillPFCandidates(const std::list<ProtoEGObject>&, 
+  void fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
+                        const std::list<ProtoEGObject>&, 
 			reco::PFCandidateCollection&,
 			reco::PFCandidateEGammaExtraCollection&);
   reco::SuperCluster buildRefinedSuperCluster(const ProtoEGObject&);
   
   // helper functions for that
 
+  float calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
+                          const ProtoEGObject&,
+			  reco::PFCandidateEGammaExtra&);
+  void fill_extra_info(const ProtoEGObject&,
+		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 
   
   
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
@@ -310,8 +311,6 @@ private:
   std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   PFEGConfigInfo cfg_;
-  
-  TMVA::Reader    *tmvaReaderEle_;
 
   const char  *mvaWeightFile_;
 
@@ -347,7 +346,7 @@ private:
                                               */ 
   //FOR SINGLE LEG MVA:					      
   const reco::Vertex  *  primaryVertex_;
-  TMVA::Reader *tmvaReader_;
+  //TMVA::Reader *tmvaReader_;
   const GBRForest *ReaderLC_;
   const GBRForest *ReaderGC_;
   const GBRForest *ReaderRes_;
@@ -394,6 +393,7 @@ private:
   float x0inner_, x0middle_, x0outer_;
   //for PileUP
   float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
+  const ESChannelStatus* channelStatus_;
   
   std::vector<unsigned int> AddFromElectron_;  
   
@@ -403,25 +403,10 @@ private:
 //   std::vector<reco::SuperCluser> sCluster_;
   reco::PFCandidateEGammaExtraCollection egExtra_;  
 
-  bool EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
-			    const reco::Vertex& primaryvtx, 
-			    unsigned int track_index);
-  
-  double ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClusters, 
-			float PFPhoPhi) const ;
-  float EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef );
-  float EvaluateGCorrMVA(const reco::PFCandidate&, 
-		    const std::vector<reco::CaloCluster>& PFClusters) ;
-  float EvaluateResMVA(const reco::PFCandidate& ,
-		     const std::vector<reco::CaloCluster>& PFClusters ) ;
- 
-  void EarlyConversion(
-		       //std::auto_ptr< reco::PFCandidateCollection > 
-		       //&pfElectronCandidates_,
-		       const std::vector<reco::PFCandidate>& 
-		       tempElectronCandidates,
-		       const reco::PFBlockElementSuperCluster* sc
-		       ); 
+  float EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                             const reco::PFBlockRef& blockref, 
+                             const reco::Vertex& primaryvtx, 
+                             unsigned int track_index);
 };
 
 #endif

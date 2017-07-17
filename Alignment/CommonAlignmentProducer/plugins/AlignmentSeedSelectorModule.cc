@@ -1,16 +1,17 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentSeedSelector.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h" 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 struct SeedConfigSelector {
 
   typedef std::vector<const TrajectorySeed*> container;
   typedef container::const_iterator const_iterator;
-  typedef TrajectorySeedCollection collection; 
+  typedef TrajectorySeedCollection collection;
 
-  SeedConfigSelector( const edm::ParameterSet & cfg ) :
+  SeedConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
     theSelector(cfg) {}
 
   const_iterator begin() const { return selected_.begin(); }

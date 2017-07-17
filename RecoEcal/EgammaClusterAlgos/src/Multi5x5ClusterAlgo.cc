@@ -92,16 +92,14 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
             double energy = it->energy();
             if (energy < threshold) continue; // need to check to see if this line is useful!
 
-            const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-            GlobalPoint position = thisCell->getPosition();
-
+            const auto & thisCell = *geometry_p->getGeometry(it->id());
             // Require that RecHit is within clustering region in case
             // of regional reconstruction
             bool withinRegion = false;
             if (regional) {
                 std::vector<EcalEtaPhiRegion>::const_iterator region;
                 for (region=regions.begin(); region!=regions.end(); region++) {
-                    if (region->inRegion(position)) {
+                    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
                         withinRegion =  true;
                         break;
                     }
@@ -109,7 +107,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
             }
 
             if (!regional || withinRegion) {
-                float ET = it->energy() * sin(position.theta());
+                float ET = it->energy() * thisCell.getPosition().basicVector().unit().perp();
                 if (ET > threshold) seeds.push_back(*it);
             }
         }

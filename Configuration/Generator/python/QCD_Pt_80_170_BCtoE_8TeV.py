@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+
 
 from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
-    filterEfficiency = cms.untracked.double(0.0109),
+    filterEfficiency = cms.untracked.double(0.056),
     crossSection = cms.untracked.double(1189000.),                         
     comEnergy = cms.double(8000.0),  # center of mass energy in GeV
     PythiaParameters = cms.PSet(
@@ -24,7 +24,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 # if you need some filter modules define and configure them here
 genParticlesForFilter = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generator", "unsmeared"),
     abortOnUnknownPDGCode = cms.untracked.bool(True)
 )
 

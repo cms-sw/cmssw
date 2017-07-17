@@ -149,8 +149,6 @@
 - HcalAllRcds
 - HcalCalibrationQIEDataRcd
 - HcalChannelQualityRcd
-- HcalCholeskyMatricesRcd
-- HcalCovarianceMatricesRcd
 - HcalDcsMapRcd
 - HcalDcsRcd
 - HcalElectronicsMapRcd
@@ -160,12 +158,14 @@
 - HcalL1TriggerObjectsRcd
 - HcalLUTCorrsRcd
 - HcalLongRecoParamsRcd
+- HcalZDCLowGainFractionsRcd
 - HcalLutMetadataRcd
 - HcalMCParamsRcd
 - HcalPFCorrsRcd
 - HcalPedestalWidthsRcd
 - HcalPedestalsRcd
 - HcalQIEDataRcd
+- HcalQIETypesRcd
 - HcalRecoParamsRcd
 - HcalRespCorrsRcd
 - HcalTimeCorrsRcd
@@ -278,6 +278,8 @@
 - SiPixelTemplateDBObject38TRcd
 - SiPixelTemplateDBObject4TRcd
 - SiPixelTemplateDBObjectRcd
+- SiPixel2DTemplateDBObjectRcd
+- SiPixelGenErrorDBObjectRcd
 - SiStripApvGainRcd
 - SiStripBadChannelRcd
 - SiStripBadFiberRcd

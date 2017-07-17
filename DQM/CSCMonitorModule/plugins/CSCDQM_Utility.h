@@ -27,12 +27,10 @@
 #include <stdint.h>
 #include <math.h>
 
-#ifndef CSC_RENDER_PLUGIN
-#include <xercesc/util/XMLString.hpp>
-#endif
-
 #include <TString.h>
 #include <TPRegexp.h>
+
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 namespace cscdqm {
 
@@ -90,42 +88,9 @@ namespace cscdqm {
       static double SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps);
       static double SignificanceLevelHigh(const unsigned int N, const unsigned int n);
 
-  };
-
-
-#ifndef CSC_RENDER_PLUGIN
-
-#define XERCES_TRANSCODE(str) cscdqm::XercesStringTranscoder(str).unicodeForm()
-
-  /**
-  * @class XercesStringTranscoder
-  * @brief This is a simple class that lets us do easy (though not terribly
-  * efficient) trancoding of char* data to XMLCh data.
-  */
-  class XercesStringTranscoder {
-
-    public :
-
-      XercesStringTranscoder(const char* const toTranscode) {
-        fUnicodeForm = XERCES_CPP_NAMESPACE::XMLString::transcode(toTranscode);
-      }
-
-      ~XercesStringTranscoder() {
-        XERCES_CPP_NAMESPACE::XMLString::release(&fUnicodeForm);
-      }
-
-      const XMLCh* unicodeForm() const {
-        return fUnicodeForm;
-      }
-
-    private :
-
-      XMLCh* fUnicodeForm;
+      static int getRUIfromDDUId(unsigned ddu_id);
 
   };
-
-#endif  
-
 }
 
 #endif

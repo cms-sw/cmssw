@@ -29,6 +29,14 @@
 
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
+//DataFormats
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -36,7 +44,7 @@
 #include <string>
 #include <vector>
 
-class L1TSync : public edm::EDAnalyzer {
+class L1TSync : public DQMEDAnalyzer {
 
   public:
 
@@ -82,14 +90,12 @@ class L1TSync : public edm::EDAnalyzer {
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-    void beginJob();                                               // BeginJob
-    void endJob  (void);                                           // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
   // Private Methods
@@ -101,8 +107,6 @@ class L1TSync : public edm::EDAnalyzer {
 
   // Variables
   private:
-
-    DQMStore * dbe; // The DQM Service Handle
 
     edm::ParameterSet                      m_parameters;
 
@@ -138,10 +142,10 @@ class L1TSync : public edm::EDAnalyzer {
     MonitorElement*                        m_ErrorMonitor;
 
     // Input tags
-    edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtEvmSource;
-    edm::InputTag                          m_l1GtDataDaqInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord>    m_l1GtEvmSource;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>       m_l1GtDataDaqInputTag;
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

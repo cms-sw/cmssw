@@ -10,7 +10,12 @@
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include <utility>
+
 namespace edm {
+
+  class EDProductGetter;
+
   namespace helpers {
     template<typename K, typename V>
     struct KeyVal {
@@ -18,6 +23,11 @@ namespace edm {
       typedef V value_type;
       KeyVal() : key(), val() { }
       KeyVal(const K & k, const V & v) : key(k), val(v) { }
+      template<typename K_, typename V_>
+      KeyVal(K_&& k, V_&& v) : key(std::forward<K_>(k)),val(std::forward<V_>(v)){}
+
+      KeyVal(EDProductGetter const* getter) : key(ProductID(), getter), val(ProductID(), getter) { }
+
       K key;
       V val;
     };
@@ -27,6 +37,11 @@ namespace edm {
       typedef K key_type;
       Key() { }
       Key(const K & k) : key(k) { }
+      template<typename K_>
+      Key(K_&& k) : key(std::forward<K_>(k)) { }
+
+      Key(EDProductGetter const* getter) : key(ProductID(), getter) { }
+
       K key;
     };
     

@@ -14,8 +14,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
@@ -23,13 +21,16 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+#include <cmath>
+
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 
 // constructor ----------------------------------------------------------------
 
-AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
+AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC) :
   applyBasicCuts_( cfg.getParameter<bool>( "applyBasicCuts" ) ),
   applyNHighestPt_( cfg.getParameter<bool>( "applyNHighestPt" ) ),
   applyMultiplicityFilter_( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
@@ -58,8 +59,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   theCharge_( cfg.getParameter<int>( "theCharge" ) ),
   minHitChargeStrip_( cfg.getParameter<double>( "minHitChargeStrip" ) ),
   minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
-  rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
-  matchedrecHitsTag_( cfg.getParameter<edm::InputTag>("matchedrecHits") ),
   countStereoHitAs2D_( cfg.getParameter<bool>( "countStereoHitAs2D" ) ),
   nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
   // Ugly to use the same getParameter n times, but this allows const cut variables...
@@ -81,10 +80,22 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinENDCAPminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAPminus" ) ),
   maxHitDiffEndcaps_( cfg.getParameter<double>( "maxHitDiffEndcaps" ) ),
   nLostHitMax_( cfg.getParameter<double>( "nLostHitMax" ) ),
+  RorZofFirstHitMin_( cfg.getParameter<std::vector<double> >( "RorZofFirstHitMin" ) ),
+  RorZofFirstHitMax_( cfg.getParameter<std::vector<double> >( "RorZofFirstHitMax" ) ),
+  RorZofLastHitMin_( cfg.getParameter<std::vector<double> >( "RorZofLastHitMin" ) ),
+  RorZofLastHitMax_( cfg.getParameter<std::vector<double> >( "RorZofLastHitMax" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
   applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
 {
+  if(applyIsolation_) {
+    rphirecHitsToken_ = iC.consumes<SiStripRecHit2DCollection>(cfg.getParameter<edm::InputTag>("rphirecHits"));
+    matchedrecHitsToken_ = iC.consumes<SiStripMatchedRecHit2DCollection>(cfg.getParameter<edm::InputTag>("matchedrecHits"));
+  }
+
+  if(applyPrescaledHitsFilter_) {
+    clusterValueMapToken_ = iC.consumes<AliClusterValueMap>(clusterValueMapTag_);
+  }
 
   //convert track quality from string to enum
   std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
@@ -171,6 +182,47 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
       << "apply cut on number of prescaled hits N>= " << minPrescaledHits_
       << " (prescale info from " << clusterValueMapTag_ << ")";
     
+  }
+
+  // Checking whether cuts on positions of first and last track hits are defined properly
+  if(RorZofFirstHitMin_.size() != 2){
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentTrackSelector::AlignmentTrackSelector" 
+	  << "Wrong configuration of 'RorZofFirstHitMin'."
+	  << " Must have exactly 2 values instead of configured " << RorZofFirstHitMin_.size() << ")";
+  } else {
+    RorZofFirstHitMin_.at(0)=std::fabs(RorZofFirstHitMin_.at(0));
+    RorZofFirstHitMin_.at(1)=std::fabs(RorZofFirstHitMin_.at(1));
+  }
+  if(RorZofFirstHitMax_.size() != 2){
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentTrackSelector::AlignmentTrackSelector" 
+	  << "Wrong configuration of 'RorZofFirstHitMax'."
+	  << " Must have exactly 2 values instead of configured " << RorZofFirstHitMax_.size() << ")";
+  } else {
+    RorZofFirstHitMax_.at(0) = std::fabs(RorZofFirstHitMax_.at(0));
+    RorZofFirstHitMax_.at(1) = std::fabs(RorZofFirstHitMax_.at(1));
+  }
+  if(RorZofLastHitMin_.size() != 2){
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentTrackSelector::AlignmentTrackSelector" 
+	  << "Wrong configuration of 'RorZofLastHitMin'."
+	  << " Must have exactly 2 values instead of configured " << RorZofLastHitMin_.size() << ")";
+  } else {
+    RorZofLastHitMin_.at(0) = std::fabs(RorZofLastHitMin_.at(0));
+    RorZofLastHitMin_.at(1) = std::fabs(RorZofLastHitMin_.at(1));
+  }
+  if(RorZofLastHitMax_.size() != 2){
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentTrackSelector::AlignmentTrackSelector" 
+	  << "Wrong configuration of 'RorZofLastHitMax'."
+	  << " Must have exactly 2 values instead of configured " << RorZofLastHitMax_.size() << ")";
+  } else {
+    RorZofLastHitMax_.at(0) = std::fabs(RorZofLastHitMax_.at(0));
+    RorZofLastHitMax_.at(1) = std::fabs(RorZofLastHitMax_.at(1));
+  }
+  // If first hit set to be at larger distance then the last hit
+  if(RorZofFirstHitMin_.at(0) > RorZofLastHitMax_.at(0) && RorZofFirstHitMin_.at(1) > RorZofLastHitMax_.at(1)){
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentTrackSelector::AlignmentTrackSelector" 
+	  << "Position of the first hit is set to larger distance than the last hit:."
+	  << " First hit(min): [" << RorZofFirstHitMin_.at(0) << ", " << RorZofFirstHitMin_.at(1) << "]; Last hit(max): [" 
+	  << RorZofLastHitMax_.at(0) << ", " << RorZofLastHitMax_.at(1) << "];";
   }
 
 }
@@ -283,7 +335,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // checking hit requirements beyond simple number of valid hits
@@ -294,7 +346,8 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       || minHitsinFPIXplus_ || minHitsinFPIXminus_
       || minHitsinTECplus_ || minHitsinTECminus_
       || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
-      || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
+      || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)
+      || RorZofFirstHitMin_.size() > 0 || RorZofFirstHitMax_.size() > 0 || RorZofLastHitMin_.size() > 0 || RorZofLastHitMax_.size() > 0 ) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
@@ -330,7 +383,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit).get();
+      const TrackingRecHit* therechit = (*iHit);
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
@@ -372,6 +425,40 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
+
+
+    // Checking whether the track satisfies requirement of the first and last hit positions
+    bool passedLastHitPositionR = true;
+    bool passedLastHitPositionZ = true;
+    bool passedFirstHitPositionR = true;
+    bool passedFirstHitPositionZ = true;
+    
+    if( RorZofFirstHitMin_.at(0) != 0.0 || RorZofFirstHitMin_.at(1) != 0.0 
+      || RorZofFirstHitMax_.at(0) != 999.0 || RorZofFirstHitMax_.at(1) != 999.0 ) {
+
+      const reco::TrackBase::Point firstPoint(trackp->innerPosition());
+
+      if( (std::fabs(firstPoint.R()) < RorZofFirstHitMin_.at(0) )) passedFirstHitPositionR = false;
+      if( (std::fabs(firstPoint.R()) > RorZofFirstHitMax_.at(0) )) passedFirstHitPositionR = false;
+      if( (std::fabs(firstPoint.Z()) < RorZofFirstHitMin_.at(1) )) passedFirstHitPositionZ = false;
+      if( (std::fabs(firstPoint.Z()) > RorZofFirstHitMax_.at(1) )) passedFirstHitPositionZ = false;
+    }
+    
+    if( RorZofLastHitMin_.at(0) != 0.0 || RorZofLastHitMin_.at(1) != 0.0 
+      || RorZofLastHitMax_.at(0) != 999.0 || RorZofLastHitMax_.at(1) != 999.0 ) {
+
+      const reco::TrackBase::Point lastPoint(trackp->outerPosition());
+
+      if( (std::fabs(lastPoint.R()) < RorZofLastHitMin_.at(0) )) passedLastHitPositionR = false;
+      if( (std::fabs(lastPoint.R()) > RorZofLastHitMax_.at(0) )) passedLastHitPositionR = false;
+      if( (std::fabs(lastPoint.Z()) < RorZofLastHitMin_.at(1) )) passedLastHitPositionZ = false;
+      if( (std::fabs(lastPoint.Z()) > RorZofLastHitMax_.at(1) )) passedLastHitPositionZ = false;
+    }
+
+    bool passedFirstHitPosition = passedFirstHitPositionR || passedFirstHitPositionZ;
+    bool passedLastHitPosition = passedLastHitPositionR || passedLastHitPositionZ;
+
+
   
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
@@ -382,7 +469,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
             && nhitinTECplus >= minHitsinTECplus_ && nhitinTECminus >= minHitsinTECminus_
             && nhitinBPIX >= minHitsinBPIX_ 
 	    && nhitinFPIX >= minHitsinFPIX_ && nhitinPIXEL>=minHitsinPIX_ 
-            && nHit2D >= nHitMin2D_);
+            && nHit2D >= nHitMin2D_ && passedFirstHitPosition && passedLastHitPosition);
   } else { // no cuts set, so we are just fine and can avoid loop on hits
     return true;
   }
@@ -502,7 +589,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D & siStripR
   double charge = 0.;
 
   SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D.cluster());
-  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
+  const auto &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
     charge += amplitudes[ia];
@@ -518,7 +605,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D & siStripR
   double charge = 0.;
 
   SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D.cluster());
-  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
+  const auto &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
     charge += amplitudes[ia];
@@ -538,8 +625,8 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   // es.get<TrackerDigiGeometryRecord>().get(tracker);
-  evt.getByLabel( rphirecHitsTag_, rphirecHits );
-  evt.getByLabel( matchedrecHitsTag_, matchedrecHits ); 
+  evt.getByToken( rphirecHitsToken_, rphirecHits );
+  evt.getByToken( matchedrecHitsToken_, matchedrecHits );
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istripSt; 
   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripStm; 
@@ -602,7 +689,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 
   //take Cluster-Flag Assomap
   edm::Handle<AliClusterValueMap> fMap;
-  evt.getByLabel( clusterValueMapTag_, fMap);
+  evt.getByToken( clusterValueMapToken_, fMap);
   const AliClusterValueMap &flagMap=*fMap;
 
   //for each track loop on hits and count the number of taken hits
@@ -612,7 +699,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
     //    float pt=trackp->pt();
 
     for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+      const TrackingRecHit *hit = (*ith); // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();

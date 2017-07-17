@@ -62,9 +62,8 @@ void EcalTBHodoscopeRecInfoProducer::produce(edm::Event& e, const edm::EventSetu
      }
 
   // Create empty output
-  std::auto_ptr<EcalTBHodoscopeRecInfo> recInfo(new EcalTBHodoscopeRecInfo(algo_->reconstruct(*ecalRawHodoscope)));
   
-  e.put(recInfo,recInfoCollection_);
+  e.put(std::make_unique<EcalTBHodoscopeRecInfo>(algo_->reconstruct(*ecalRawHodoscope)),recInfoCollection_);
 } 
 
 

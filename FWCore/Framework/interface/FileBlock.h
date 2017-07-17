@@ -9,10 +9,9 @@ FileBlock: Properties of an input file.
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 class TTree;
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <array>
 #include <string>
 
@@ -66,8 +65,7 @@ namespace edm {
       fileName_(),
       branchListIndexesUnchanged_(false),
       modifiedIDs_(false),
-      branchChildren_(new BranchChildren),
-      branchIDLists_(new BranchIDLists) {}
+      branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
               TTree const* ev, TTree const* meta,
@@ -78,8 +76,7 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              boost::shared_ptr<BranchChildren> branchChildren,
-              boost::shared_ptr<BranchIDLists const> branchIDLists) :
+              std::shared_ptr<BranchChildren const> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
       metaTree_(const_cast<TTree*>(meta)),
@@ -92,8 +89,7 @@ namespace edm {
       fileName_(fileName),
       branchListIndexesUnchanged_(branchListIndexesUnchanged),
       modifiedIDs_(modifiedIDs),
-      branchChildren_(branchChildren),
-      branchIDLists_(branchIDLists) {}
+      branchChildren_(branchChildren) {}
 
     ~FileBlock() {}
 
@@ -115,8 +111,7 @@ namespace edm {
       whyNotFastClonable_ |= why;
     }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
-    BranchIDLists const& branchIDLists() const { return *branchIDLists_; }
-    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = 0;}
+    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr;}
 
   private:
     FileFormatVersion fileFormatVersion_;
@@ -132,8 +127,7 @@ namespace edm {
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
-    boost::shared_ptr<BranchChildren> branchChildren_;
-    boost::shared_ptr<BranchIDLists const> branchIDLists_;
+    std::shared_ptr<BranchChildren const> branchChildren_;
   };
 }
 #endif

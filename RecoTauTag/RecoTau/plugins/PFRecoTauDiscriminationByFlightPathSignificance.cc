@@ -1,5 +1,4 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 /* class PFRecoTauDiscriminationByFlightPathSignificance
@@ -25,25 +24,25 @@ using namespace edm;
 class PFRecoTauDiscriminationByFlightPathSignificance
   : public PFTauDiscriminationProducerBase  {
   public:
-    explicit PFRecoTauDiscriminationByFlightPathSignificance(
-        const ParameterSet& iConfig)
-      :PFTauDiscriminationProducerBase(iConfig),
-      vertexAssociator_(iConfig.getParameter<ParameterSet>("qualityCuts")) {
+    explicit PFRecoTauDiscriminationByFlightPathSignificance(const ParameterSet& iConfig)
+      :PFTauDiscriminationProducerBase(iConfig){
       flightPathSig		= iConfig.getParameter<double>("flightPathSig");
       withPVError		= iConfig.getParameter<bool>("UsePVerror");
       booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
+      //      edm::ConsumesCollector iC(consumesCollector());
+      vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),consumesCollector());
     }
 
     ~PFRecoTauDiscriminationByFlightPathSignificance(){}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
 
   private:
-    double threeProngFlightPathSig(const PFTauRef&);
-    double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
+    double threeProngFlightPathSig(const PFTauRef&) const ;
+    double vertexSignificance(reco::Vertex const&,reco::Vertex const &,GlobalVector const&) const;
 
-    reco::tau::RecoTauVertexAssociator vertexAssociator_;
+    reco::tau::RecoTauVertexAssociator* vertexAssociator_;
 
     bool booleanOutput;
     double flightPathSig;
@@ -55,7 +54,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
 void PFRecoTauDiscriminationByFlightPathSignificance::beginEvent(
     const Event& iEvent, const EventSetup& iSetup){
 
-  vertexAssociator_.setEvent(iEvent);
+   vertexAssociator_->setEvent(iEvent);
 
   // Transient Tracks
   edm::ESHandle<TransientTrackBuilder> builder;
@@ -64,17 +63,17 @@ void PFRecoTauDiscriminationByFlightPathSignificance::beginEvent(
 
 }
 
-double PFRecoTauDiscriminationByFlightPathSignificance::discriminate(const PFTauRef& tau){
+double PFRecoTauDiscriminationByFlightPathSignificance::discriminate(const PFTauRef& tau) const{
 
   if(booleanOutput) return ( threeProngFlightPathSig(tau) > flightPathSig ? 1. : 0. );
   return threeProngFlightPathSig(tau);
 }
 
 double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
-    const PFTauRef& tau){
+    const PFTauRef& tau) const {
   double flightPathSignificance = 0;
 
-  reco::VertexRef primaryVertex = vertexAssociator_.associatedVertex(*tau);
+  reco::VertexRef primaryVertex = vertexAssociator_->associatedVertex(*tau);
 
   if (primaryVertex.isNull()) {
     edm::LogError("FlightPathSignficance") << "Could not get vertex associated"
@@ -83,13 +82,17 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
   }
 
   //Secondary vertex
-  const PFCandidateRefVector pfSignalCandidates = tau->signalPFChargedHadrCands();
+  const vector<PFCandidatePtr>& pfSignalCandidates = tau->signalPFChargedHadrCands();
   vector<TransientTrack> transientTracks;
-  RefVector<PFCandidateCollection>::const_iterator iTrack;
+  vector<PFCandidatePtr>::const_iterator iTrack;
   for(iTrack = pfSignalCandidates.begin(); iTrack!= pfSignalCandidates.end(); iTrack++){
     const PFCandidate& pfCand = *(iTrack->get());
     if(pfCand.trackRef().isNonnull()){
       const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.trackRef());
+      transientTracks.push_back(transientTrack);
+    }
+    else if(pfCand.gsfTrackRef().isNonnull()){
+      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.gsfTrackRef());
       transientTracks.push_back(transientTrack);
     }
   }
@@ -111,7 +114,7 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
 }
 
 double PFRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(
-    reco::Vertex& pv, Vertex& sv,GlobalVector& direction){
+    reco::Vertex const & pv, Vertex const & sv,GlobalVector const & direction) const {
   return SecondaryVertex::computeDist3d(pv,sv,direction,withPVError).significance();
 }
 

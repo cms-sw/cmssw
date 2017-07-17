@@ -28,7 +28,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
-
 // Define typedefs for convenience
 namespace pat {
   class Muon;
@@ -45,6 +44,7 @@ namespace reco {
 // Class definition
 namespace pat {
 
+  class PATMuonSlimmer;
 
   class Muon : public Lepton<reco::Muon> {
 
@@ -78,9 +78,19 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+      /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
+      const reco::Track * bestTrack() const { return muonBestTrack().get(); }
+      /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
+      reco::TrackRef      muonBestTrack() const ; 
+      /// Track selected to be the best measurement of the muon parameters (from muon information alone)
+      virtual reco::TrackRef tunePMuonBestTrack() const ;
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
-      void embedMuonBestTrack();
+      /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
+      void embedMuonBestTrack(bool force=false);
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
+      /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
+      void embedTunePMuonBestTrack(bool force=false);
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -126,7 +136,10 @@ namespace pat {
       void embedPFCandidate();
       /// get the number of non-null PF candidates
       size_t numberOfSourceCandidatePtrs() const { 
-	return pfCandidateRef_.isNonnull() ? 1 : 0;
+	size_t res=0;
+        if(pfCandidateRef_.isNonnull()) res++;
+        if(refToOrig_.isNonnull()) res++;
+	return res;
       }
       /// get the candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
@@ -147,6 +160,7 @@ namespace pat {
       /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
       bool isTightMuon(const reco::Vertex&) const;
       bool isLooseMuon() const;
+      bool isMediumMuon() const;
       bool isSoftMuon(const reco::Vertex&) const;
       bool isHighPtMuon(const reco::Vertex&) const;
 
@@ -166,6 +180,29 @@ namespace pat {
       /// ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
+      /// returns PUPPI isolations			
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+      /// returns PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
+      /// sets PUPPI isolations
+      void setIsolationPUPPI(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons;
+         puppiNeutralHadronIso_ = neutralhadrons;
+         puppiPhotonIso_ = photons;
+      }
+      /// sets PUPPINoLeptons isolations
+      void setIsolationPUPPINoLeptons(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons;
+         puppiNoLeptonsPhotonIso_ = photons;
+      }
+      
       /// Muon High Level Selection
       /// The user can choose to cache this info so they can drop the
       /// global tracks. If the global track is present these should
@@ -190,21 +227,21 @@ namespace pat {
 	//    muon->edB(pat::Muon::PV2D);
 	//
 	// IpType defines the type of the impact parameter
-	// None is default and reverts to old behavior controlled by 
-	// patMuons.usePV = True/False
 	typedef enum IPTYPE 
 	  {
-	    None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4
+	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
-	double dB(IpType type = None) const;
-	double edB(IpType type = None) const;
-	void   setDB ( double dB, double edB, IpType type = None ) { 
-	  if (type == None) {
-	    dB_ = dB; edB_ = edB; 
-	    cachedDB_ = true;
-	  }
-	  ip_[type] = dB; eip_[type] = edB; cachedIP_[type] = true;
+	double dB(IPTYPE type) const;
+	double edB(IPTYPE type) const;
+
+        /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+	double dB() const { return std::abs(dB(PV2D)); }
+        /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+	double edB() const { return std::abs(edB(PV2D)); }
+
+	void   setDB ( double dB, double edB, IPTYPE type = PV2D ) { 
+	  ip_[type] = dB; eip_[type] = edB; cachedIP_ |= (1 << int(type));
 	}
 
       /// numberOfValidHits returns the number of valid hits on the global track.
@@ -221,15 +258,23 @@ namespace pat {
       double segmentCompatibility(reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration) const ;
 
       /// pipe operator (introduced to use pat::Muon with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Muon& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Muon& obj);
+
+      friend class PATMuonSlimmer;
+
+      float pfEcalEnergy() const { return pfEcalEnergy_; }
+      void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
 
     protected:
 
       // ---- for content embedding ----
 
-      /// best muon track
+      /// best muon track (global pflow)
       bool embeddedMuonBestTrack_;
       std::vector<reco::Track> muonBestTrack_;
+      /// best muon track (muon only)
+      bool embeddedTunePMuonBestTrack_;
+      std::vector<reco::Track> tunePMuonBestTrack_;
       /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
@@ -267,20 +312,26 @@ namespace pat {
 
       // V+Jets group selection variables. 
       bool    cachedNormChi2_;         /// has the normalized chi2 been cached?
-      bool    cachedDB_;               /// has the dB been cached?
+      double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
 
       bool    cachedNumberOfValidHits_;/// has the numberOfValidHits been cached?
-      double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
-      double  dB_;                     /// dB and edB are the impact parameter at the primary vertex,
-      double  edB_;                    // and its uncertainty as recommended by the tracking group
-
-      // ---- cached impact parameters ----
-      std::vector<bool>    cachedIP_;  // has the IP (former dB) been cached?
-      std::vector<double>  ip_;        // dB and edB are the impact parameter at the primary vertex,
-      std::vector<double>  eip_;       // and its uncertainty as recommended by the tracking group
-
       unsigned int  numberOfValidHits_;/// globalTrack->numberOfValidHits()
 
+      // ---- cached impact parameters ----
+      uint8_t  cachedIP_;  // has the IP (former dB) been cached?
+      float  ip_[IpTypeSize];        // dB and edB are the impact parameter at the primary vertex,
+      float  eip_[IpTypeSize];       // and its uncertainty as recommended by the tracking group
+
+      /// PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
+      /// PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
+
+      float pfEcalEnergy_;
   };
 
 

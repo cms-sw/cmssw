@@ -2,6 +2,7 @@
 #define PhysicsTools_PatAlgos_interface_OverlapTest_h
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -17,8 +18,8 @@ namespace pat { namespace helper {
 class OverlapTest {
     public:
         /// constructor: reads 'src' and 'requireNoOverlaps' parameters
-        OverlapTest(const std::string &name, const edm::ParameterSet &iConfig) :
-            src_(iConfig.getParameter<edm::InputTag>("src")),
+        OverlapTest(const std::string &name, const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC) :
+            srcToken_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"))),
             name_(name),
             requireNoOverlaps_(iConfig.getParameter<bool>("requireNoOverlaps")) {}
         /// destructor, does nothing
@@ -31,19 +32,19 @@ class OverlapTest {
         /// end of event method. does nothing
         virtual void done() {}
         // -- basic getters ---
-       
+
         const std::string & name() const { return name_; }
-        bool requireNoOverlaps() const { return requireNoOverlaps_; } 
+        bool requireNoOverlaps() const { return requireNoOverlaps_; }
     protected:
-        edm::InputTag src_;
+        edm::EDGetTokenT<reco::CandidateView> srcToken_;
         std::string   name_;
         bool          requireNoOverlaps_;
 };
 
 class BasicOverlapTest : public OverlapTest {
     public:
-        BasicOverlapTest(const std::string &name, const edm::ParameterSet &iConfig) :
-            OverlapTest(name, iConfig),
+        BasicOverlapTest(const std::string &name, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) :
+            OverlapTest(name, iConfig, iC),
             presel_(iConfig.getParameter<std::string>("preselection")),
             deltaR_(iConfig.getParameter<double>("deltaR")),
             checkRecoComponents_(iConfig.getParameter<bool>("checkRecoComponents")),
@@ -73,15 +74,16 @@ class BasicOverlapTest : public OverlapTest {
 class OverlapBySuperClusterSeed : public OverlapTest {
     public:
         // constructor: nothing except initialize the base class
-        OverlapBySuperClusterSeed(const std::string &name, const edm::ParameterSet &iConfig) : OverlapTest(name, iConfig) {}
+        OverlapBySuperClusterSeed(const std::string &name, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) : OverlapTest(name, iConfig, iC) {}
         // every event: nothing except read the input list
-        virtual void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) { 
-            iEvent.getByLabel(src_, others_); 
+        virtual void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) {
+            iEvent.getByToken(srcToken_, others_);
         }
          /// Check for overlaps
         virtual bool fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const ;
     protected:
-        edm::Handle<edm::View<reco::RecoCandidate> > others_;
+//         edm::Handle<edm::View<reco::RecoCandidate> > others_;
+        edm::Handle<reco::CandidateView> others_;
 };
 
 

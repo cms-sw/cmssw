@@ -74,20 +74,20 @@ uncleanedOnlyConversionTrackProducers  = cms.Sequence(uncleanedOnlyGeneralConver
 
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
 uncleanedOnlyInOutOutInConversionTrackMerger = inOutOutInConversionTrackMerger.clone(
-    TrackProducer2 = cms.string('uncleanedOnlyOutInConversionTrackProducer'),
-    TrackProducer1 = cms.string('uncleanedOnlyInOutConversionTrackProducer')
+    TrackProducer2 = cms.InputTag('uncleanedOnlyOutInConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('uncleanedOnlyInOutConversionTrackProducer')
     )
 
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
 uncleanedOnlyGeneralInOutOutInConversionTrackMerger = generalInOutOutInConversionTrackMerger.clone(
-    TrackProducer2 = cms.string('uncleanedOnlyGeneralConversionTrackProducer'),
-    TrackProducer1 = cms.string('uncleanedOnlyInOutOutInConversionTrackMerger')
+    TrackProducer2 = cms.InputTag('uncleanedOnlyGeneralConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('uncleanedOnlyInOutOutInConversionTrackMerger')
     )
 
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
 uncleanedOnlyGsfGeneralInOutOutInConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone(
-    TrackProducer2 = cms.string('uncleanedOnlyGsfConversionTrackProducer'),
-    TrackProducer1 = cms.string('uncleanedOnlyGeneralInOutOutInConversionTrackMerger')
+    TrackProducer2 = cms.InputTag('uncleanedOnlyGsfConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('uncleanedOnlyGeneralInOutOutInConversionTrackMerger')
     )
 
 uncleanedOnlyConversionTrackMergers = cms.Sequence(uncleanedOnlyInOutOutInConversionTrackMerger*uncleanedOnlyGeneralInOutOutInConversionTrackMerger*uncleanedOnlyGsfGeneralInOutOutInConversionTrackMerger)

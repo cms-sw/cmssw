@@ -112,11 +112,21 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
   if unlikely( !myState.isValid()) return make_pair( false, myState);
 
+
+  // check z;  (are we sure?????)
+  // auto z = myState.localPosition().z();
+  // if ( z<bounds().minZ | z>bounds().maxZ) return make_pair( false, myState);
+
+  // check r
+  auto r2 =  myState.localPosition().perp2();
+  if ( (r2 > rmin()*rmin()) & (r2< rmax()*rmax()) ) return make_pair( true, myState);
+
+
   // take into account the thickness of the layer
-  float deltaR = 0.5f*surface().bounds().thickness() *
+  float deltaR = 0.5f*bounds().thickness() *
     myState.localDirection().perp()/std::abs(myState.localDirection().z());
 
-  // take into account the error on the predicted state
+  // and take into account the error on the predicted state
   const float nSigma = 3.;
   if (myState.hasError()) {
     LocalError err = myState.localError().positionError();
@@ -124,9 +134,8 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
     deltaR += nSigma * sqrt(err.xx() + err.yy());
   }
 
-  float zPos = 0.5f*(zmax()+zmin());
-  SimpleDiskBounds tmp( rmin()-deltaR, rmax()+deltaR, 
-			zmin()-zPos, zmax()-zPos);
-
-  return make_pair( tmp.inside(myState.localPosition()), myState);
+  // check r again;
+  auto ri2 = std::max(rmin()-deltaR,0.f); ri2*=ri2;
+  auto ro2 = rmax()+deltaR; ro2*=ro2;
+  return make_pair( (r2>ri2) & (r2<ro2), myState);
 }

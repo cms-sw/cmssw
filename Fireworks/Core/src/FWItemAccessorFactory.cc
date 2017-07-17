@@ -76,21 +76,21 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
     we return the a FWItemTVirtualCollectionProxyAccessor 
     constructed using the associated TVirtualCollectionProxy.
   
+    If above is not true, we lookup the plugin based
+    FWItemAccessorRegistry for a plugin that can handle the
+    given type.
+
     If the type is not a collection but it contains only
     one element which is a collection, we return a 
     FWItemTVirtualCollectionProxyAccessor using the 
     TVirtualCollectionProxy of that element.
-
-    If none of the above is true, we lookup the plugin based
-    FWItemAccessorRegistry for a plugin that can handle the
-    given type.
 
     Failing that, we return a FWItemSingleAccessor which threats
     the object as if it was not a collection. Notice that this also will
     mean that the product associated to @a iClass will not show up in the
     "Add Collection" table.
  */
-boost::shared_ptr<FWItemAccessorBase>
+std::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
    static const bool debug = false;
@@ -103,11 +103,27 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
       if (debug)
          fwLog(fwlog::kDebug) << "class " << iClass->GetName()
                               << " uses FWItemTVirtualCollectionProxyAccessor." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
+      return std::make_shared<FWItemTVirtualCollectionProxyAccessor>(iClass,
+            std::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate()));
    } 
-   else if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
+   
+   // Iterate on the available plugins and use the one which handles 
+   // the iClass type. 
+   // NOTE: This is done only a few times, not really performance critical.
+   // If you want this to be fast, the loop can be moved in the 
+   // constructor. Notice that this will require constructing FWEventItemsManager 
+   // after the plugin manager (i.e. invoking FWLiteEnabler::enable()) is configured
+   // (i.e. invoking FWLiteEnabler::enable()) in CmsShowMain.
+   std::string accessorName;
+   if (hasAccessor(iClass, accessorName))
+   {
+      if (debug)
+         fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
+                              << accessorName << "." << std::endl;
+      return std::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
+   }
+   
+   if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
    {
       if (debug)
          fwLog(fwlog::kDebug) << "class "<< iClass->GetName()
@@ -115,29 +131,12 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
                               << " which uses FWItemTVirtualCollectionProxyAccessor."
                               << std::endl;
    	   
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
-                                                   offset));
+      return std::make_shared<FWItemTVirtualCollectionProxyAccessor>(iClass,
+            std::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
+                                                   offset);
    }
-   
-   // Iterate on the available plugins and use the one which handles 
-   // the iClass type. 
-   // NOTE: This is done only a few times, not really performance critical.
-   // If you want this to be fast, the loop can be moved in the 
-   // constructor. Notice that this will require constructing FWEventItemsManager 
-   // after the plugin manager (i.e. invoking AutoLibraryLoader::enable()) is configured
-   // (i.e. invoking AutoLibraryLoader::enable()) in CmsShowMain.
-   std::string accessorName;
-   if (hasAccessor(iClass, accessorName))
-   {
-      if (debug)
-         fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
-                              << accessorName << "." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
-   }
-   
-   return boost::shared_ptr<FWItemAccessorBase>(new FWItemSingleAccessor(iClass));
+
+   return std::make_shared<FWItemSingleAccessor>(iClass);
 }
 
 /** Helper method which @return true if the passes @a iClass can be accessed via
@@ -204,8 +203,8 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
 bool
 FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
 {
-   const std::vector<edmplugin::PluginInfo> &available 
-      = FWItemAccessorRegistry::get()->available();
+   const std::vector<edmplugin::PluginInfo> &available
+      = edmplugin::PluginManager::get()->categoryToInfos().find("cmsShow FWItemAccessorBase")->second;
    
    for (size_t i = 0, e = available.size(); i != e; ++i)
    {
@@ -217,7 +216,7 @@ FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
          return true;
       }
    }
-   return false; 
+   return false;
 }
 
 /** Helper method which checks if the object will be treated as a collection.

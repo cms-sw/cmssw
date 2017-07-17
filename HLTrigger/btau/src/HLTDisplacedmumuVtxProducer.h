@@ -15,7 +15,7 @@
 
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,28 +29,28 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTDisplacedmumuVtxProducer : public edm::EDProducer {
+class HLTDisplacedmumuVtxProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTDisplacedmumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumuVtxProducer();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
  private:  
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
-  edm::InputTag                                          srcTag_;
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
-  edm::InputTag                                          previousCandTag_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
-  double maxEta_;
-  double minPt_;
-  double minPtPair_;
-  double minInvMass_;
-  double maxInvMass_;
-  int chargeOpt_;
+  const edm::InputTag                                          srcTag_;
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
+  const edm::InputTag                                          previousCandTag_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
+  const double maxEta_;
+  const double minPt_;
+  const double minPtPair_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const int chargeOpt_;
 };
 
 #endif

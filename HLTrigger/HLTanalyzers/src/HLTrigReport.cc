@@ -48,7 +48,8 @@ HLTrigReport::ReportEvery HLTrigReport::decode(const std::string & value) {
 // constructors and destructor
 //
 HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
-  hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
+  hlTriggerResults_(iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
+  hlTriggerResultsToken_(consumes<edm::TriggerResults>(hlTriggerResults_)),
   configured_(false),
   nEvents_(0),
   nWasRun_(0),
@@ -81,8 +82,6 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   serviceBy_(decode(iConfig.getUntrackedParameter<std::string>("serviceBy", "never")) ),
   hltConfig_()
 {
-  hlTriggerResultsToken_ = consumes<edm::TriggerResults>(hlTriggerResults_);
-
   const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets", edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
   if (isCustomDatasets_) {
@@ -115,7 +114,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
 
 }
 
-HLTrigReport::~HLTrigReport() { }
+HLTrigReport::~HLTrigReport() = default;
 
 void
 HLTrigReport::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -236,8 +235,8 @@ void HLTrigReport::reset(bool changed /* = false */) {
     // reset the matrix of hlAccTotDS_
     for (unsigned int ds = 0; ds < datasetNames_.size(); ds++) {
       hlAllTotDS_[ds]=0;
-      for (unsigned int i = 0; i < hlAccTotDS_[ds].size(); ++i)
-          hlAccTotDS_[ds][i] = 0;
+      for (unsigned int & i : hlAccTotDS_[ds])
+          i = 0;
     }
   }
 
@@ -269,8 +268,8 @@ void HLTrigReport::reset(bool changed /* = false */) {
     // reset the matrix of dsAccTotS_
     for (unsigned int s = 0; s < streamNames_.size(); ++s) {
       dsAllTotS_[s]=0;
-      for (unsigned int i = 0; i < dsAccTotS_[s].size(); ++i)
-        dsAccTotS_[s][i] = 0;
+      for (unsigned int & i : dsAccTotS_[s])
+        i = 0;
     }
   }
 

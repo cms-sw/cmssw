@@ -30,12 +30,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 // parameter parser header
@@ -49,7 +47,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetEFlowSmoother : public edm::EDProducer, public FFTJetInterface
+class FFTJetEFlowSmoother : public FFTJetInterface
 {
 public:
     explicit FFTJetEFlowSmoother(const edm::ParameterSet&);
@@ -227,11 +225,11 @@ void FFTJetEFlowSmoother::produce(
     const double bin0edge = g.phiBin0Edge();
 
     // We will fill the following histo
-    std::auto_ptr<TH3F> pTable(
-        new TH3F("FFTJetEFlowSmoother", "FFTJetEFlowSmoother",
+    auto pTable = std::make_unique<TH3F>(
+                 "FFTJetEFlowSmoother", "FFTJetEFlowSmoother",
                  nScales+1U, -1.5, nScales-0.5,
                  nEta, g.etaMin(), g.etaMax(),
-                 nPhi, bin0edge, bin0edge+2.0*M_PI));
+                 nPhi, bin0edge, bin0edge+2.0*M_PI);
     TH3F* h = pTable.get();
     h->SetDirectory(0);
     h->GetXaxis()->SetTitle("Scale");
@@ -266,7 +264,7 @@ void FFTJetEFlowSmoother::produce(
         }
     }
 
-    iEvent.put(pTable, outputLabel);
+    iEvent.put(std::move(pTable), outputLabel);
 }
 
 

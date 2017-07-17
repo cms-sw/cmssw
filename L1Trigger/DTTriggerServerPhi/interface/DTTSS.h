@@ -47,7 +47,7 @@ class DTTSS {
     void addDTTSCand(DTTSCand* cand);
 
     /// Set configuration
-    void setConfig(DTConfigTSPhi *config) {  _config=config; }
+    void setConfig(const DTConfigTSPhi *config) {  _config=config; }
 
     /// Set a flag to skip sort2
     void ignoreSecondTrack() { _ignoreSecondTrack=1; }
@@ -68,7 +68,7 @@ class DTTSS {
     inline int number() const { return _n; }
 
     /// Configuration set
-    inline DTConfigTSPhi* config() const { return _config; }
+    inline const DTConfigTSPhi* config() const { return _config; }
 
     /// Return the number of input tracks (first/second)
     unsigned nTracoT(int ifs) const;
@@ -99,7 +99,7 @@ class DTTSS {
 
   private:
 
-    DTConfigTSPhi* _config;
+    const DTConfigTSPhi* _config;
 
     // identification
     int _n;

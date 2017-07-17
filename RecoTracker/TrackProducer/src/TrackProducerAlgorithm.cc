@@ -17,9 +17,10 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
@@ -29,6 +30,18 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+#include<sstream>
+
+// #define VI_DEBUG
+// #define STAT_TSB
+
+#ifdef VI_DEBUG
+#define DPRINT(x) std::cout << x << ": "
+#else
+#define DPRINT(x) LogTrace(x)
+#endif
+  
+
 namespace {
 #ifdef STAT_TSB
   struct StatCount {
@@ -37,24 +50,25 @@ namespace {
     long long totGsfTrack=0;
     long long totFound=0;
     long long totLost=0;
-    long long totAlgo[12];
+    long long totAlgo[15];
     void track(int l) {
       if (l>0) ++totLoop; else ++totTrack;
     }
     void hits(int f, int l) { totFound+=f; totLost+=l;} 
     void gsf() {++totGsfTrack;}
-    void algo(int a) { if (a>=0 && a<12) ++totAlgo[a];}
+    void algo(int a) { if (a>=0 && a<15) ++totAlgo[a];}
 
 
     void print() const {
-      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits/algos "
-    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost;
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits//algos "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost<<'/';
       for (auto a : totAlgo) std::cout << '/'<< a;
 	std::cout  << std::endl;
     }
     StatCount() {}
     ~StatCount() { print();}
   };
+  StatCount statCount;
 
 #else
   struct StatCount {
@@ -63,9 +77,9 @@ namespace {
     void gsf(){}
     void algo(int){}
   };
+  [[cms::thread_safe]] StatCount statCount;
 #endif
 
-  StatCount statCount;
 
 }
 
@@ -82,20 +96,21 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 float ndof,
 						 const reco::BeamSpot& bs,
 						 SeedRef seedRef,
-						 int qualityMask,signed char nLoops)						 
+						 int qualityMask,signed char nLoops)
 {
   //variable declarations
-  reco::Track * theTrack;
-  Trajectory * theTraj; 
+
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if unlikely(!trajTmp.isValid()) return false;
+  if unlikely(!trajTmp.isValid()) {
+     DPRINT("TrackFitters") << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
+     return false;
+  }
   
   
-  
-  theTraj = new Trajectory(std::move(trajTmp));
+  auto theTraj = new Trajectory(std::move(trajTmp));
   theTraj->setSeedRef(seedRef);
   
   statCount.hits(theTraj->foundHits(),theTraj->lostHits());
@@ -117,6 +132,38 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   ndof -= 5.f;
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
+
+#if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
+int chit[7]={};
+int kk=0;
+for (auto const & tm : theTraj->measurements()) {
+  ++kk;
+  auto const & hit = tm.recHitR();
+  if (!hit.isValid()) ++chit[0];
+  if (hit.det()==nullptr) ++chit[1];
+  if ( trackerHitRTTI::isUndef(hit) ) continue;
+  if(0) std::cout << "h " << kk << ": "<< hit.localPosition() << ' ' << hit.localPositionError() << ' ' << tm.estimate() << std::endl;
+  if ( hit.dimension()!=2 ) {
+    ++chit[2];
+  } else {
+    auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+    auto const & clus = thit.firstClusterRef();
+    if (clus.isPixel()) ++chit[3];
+    else if (thit.isMatched()) {
+      ++chit[4];
+    } else  if (thit.isProjected()) {
+      ++chit[5];
+    } else {
+      ++chit[6];
+        }
+  }
+ }
+
+   std::ostringstream ss;
+   ss << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size()<<'|' << int(nLoops) << ' ';   for (auto c:chit) ss << c <<'/'; ss << std::endl;
+   DPRINT("TrackProducer") << ss.str();
+
+#endif
  
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
   //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
@@ -141,8 +188,19 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   
   LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
   
-  TSCBLBuilderNoMaterial tscblBuilder;
-  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+//  TSCBLBuilderNoMaterial tscblBuilder;
+//  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+
+  TrajectoryStateClosestToBeamLine tscbl;
+  if (usePropagatorForPCA_){
+    //std::cout << "PROPAGATOR FOR PCA" << std::endl;
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  } else {
+    TSCBLBuilderNoMaterial tscblBuilder;
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  }
+
   
   if unlikely(!tscbl.isValid()) {
     delete theTraj;
@@ -156,20 +214,23 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   
   LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
   
-  theTrack = new reco::Track(theTraj->chiSquared(),
+  auto theTrack = new reco::Track(theTraj->chiSquared(),
 			     int(ndof),//FIXME fix weight() in TrackingRecHit
 			     pos, mom, tscbl.trackStateAtPCA().charge(), 
 			     tscbl.trackStateAtPCA().curvilinearError(),
 			     algo_);
   
+  if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
+  if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
   theTrack->setQualityMask(qualityMask);
   theTrack->setNLoops(nLoops);
-  
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
   
   LogDebug("TrackProducer") <<"track done\n";
   
-  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  AlgoProduct aProduct{theTraj,theTrack,seedDir,0};
   algoResults.push_back(aProduct);
   
   statCount.track(nLoops);
@@ -189,44 +250,45 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    SeedRef seedRef,
 						    int qualityMask,signed char nLoops)
 {
-  //variable declarations
-  reco::GsfTrack * theTrack;
-  Trajectory * theTraj; 
+
   PropagationDirection seedDir = seed.direction();
   
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper: TrajectoryFitter::standard);
   if unlikely(!trajTmp.isValid()) return false;
   
   
-  theTraj = new Trajectory( std::move(trajTmp) );
+  auto theTraj = new Trajectory( std::move(trajTmp) );
   theTraj->setSeedRef(seedRef);
-  
-  //  TrajectoryStateOnSurface innertsos;
-  // TrajectoryStateOnSurface outertsos;
 
-  // if (theTraj->direction() == alongMomentum) {
-  //  innertsos = theTraj->firstMeasurement().updatedState();
-  //  outertsos = theTraj->lastMeasurement().updatedState();
-  // } else { 
-  //  innertsos = theTraj->lastMeasurement().updatedState();
-  //  outertsos = theTraj->firstMeasurement().updatedState();
-  // }
-  //     std::cout
-  //       << "Nr. of first / last states = "
-  //       << innertsos.components().size() << " "
-  //       << outertsos.components().size() << std::endl;
-  //     std::vector<TrajectoryStateOnSurface> components = 
-  //       innertsos.components();
-  //     double sinTheta = 
-  //       sin(innertsos.globalMomentum().theta());
-  //     for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
-  // 	  ic!=components.end(); ic++ ) {
-  //       std::cout << " comp " << ic-components.begin() << " "
-  // 		<< (*ic).weight() << " "
-  // 		<< (*ic).localParameters().vector()[0]/sinTheta << " "
-  // 		<< sqrt((*ic).localError().matrix()[0][0])/sinTheta << std::endl;
-  //     }
-  
+#ifdef EDM_ML_DEBUG  
+  TrajectoryStateOnSurface innertsos;
+  TrajectoryStateOnSurface outertsos;
+
+  if (theTraj->direction() == alongMomentum) {
+    innertsos = theTraj->firstMeasurement().updatedState();
+    outertsos = theTraj->lastMeasurement().updatedState();
+  } else { 
+    innertsos = theTraj->lastMeasurement().updatedState();
+     outertsos = theTraj->firstMeasurement().updatedState();
+  }
+  std::ostringstream ss;
+  auto dc = [&](TrajectoryStateOnSurface const & tsos){ 
+     std::vector<TrajectoryStateOnSurface> const & components = tsos.components();
+     auto sinTheta =  std::sin(tsos.globalMomentum().theta());
+     for (auto const & ic : components) ss << ic.weight() << "/"; ss << "\n";
+     for (auto const & ic : components) ss << ic.localParameters().vector()[0]/sinTheta << "/"; ss << "\n";
+     for (auto const & ic : components) ss << std::sqrt(ic.localError().matrix()(0,0))/sinTheta << "/"; 
+  };
+  ss  << "\ninner comps\n";
+  dc(innertsos);
+  ss  << "\nouter comps\n";
+  dc(outertsos);
+  LogDebug("TrackProducer")
+ 	   << "Nr. of first / last states = "
+  	   << innertsos.components().size() << " "
+           << outertsos.components().size() << ss.str();
+#endif  
+
   ndof = 0;
   for (auto const & tm : theTraj->measurements()) {
     auto const & h = tm.recHitR();
@@ -261,8 +323,18 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   
   LogDebug("GsfTrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
   
-  TSCBLBuilderNoMaterial tscblBuilder;
-  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+//  TSCBLBuilderNoMaterial tscblBuilder;
+//  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+
+  TrajectoryStateClosestToBeamLine tscbl;
+  if (usePropagatorForPCA_){
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);    
+  } else {
+    TSCBLBuilderNoMaterial tscblBuilder;
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  }  
+
   
   if unlikely(tscbl.isValid()==false) {
       delete theTraj;
@@ -276,17 +348,22 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   
   LogDebug("GsfTrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
   
-  theTrack = new reco::GsfTrack(theTraj->chiSquared(),
+  auto theTrack = new reco::GsfTrack(theTraj->chiSquared(),
 				int(ndof),//FIXME fix weight() in TrackingRecHit
 				//			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 				//			       0, //FIXME no corresponding method in trajectory.h
 				//			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
 				pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());    
   theTrack->setAlgorithm(algo_);
-  
+  if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
+  if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
+
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("GsfTrackProducer") <<"track done\n";
   
-  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  AlgoProduct aProduct{theTraj,theTrack,seedDir,0};
+
   LogDebug("GsfTrackProducer") <<"track done1\n";
   algoResults.push_back(aProduct);
   LogDebug("GsfTrackProducer") <<"track done2\n";

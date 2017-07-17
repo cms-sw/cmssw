@@ -7,7 +7,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 ### Expects test.root in current directory.
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring('file:test.root')
+    fileNames=cms.untracked.vstring('file:/home/alja/cms-dev/7.3/RelValZEE-reco.root')
 )
 
 # process.maxEvents = cms.untracked.PSet(

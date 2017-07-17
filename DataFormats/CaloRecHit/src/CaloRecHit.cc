@@ -9,7 +9,7 @@ CaloRecHit::CaloRecHit(const DetId& id, float energy, float time, uint32_t flags
 }
 
 
-static const uint32_t masks[] = {
+constexpr uint32_t masks[] = {
   0x00000000u,0x00000001u,0x00000003u,0x00000007u,0x0000000fu,0x0000001fu,
   0x0000003fu,0x0000007fu,0x000000ffu,0x000001ffu,0x000003ffu,0x000007ffu,
   0x00000fffu,0x00001fffu,0x00003fffu,0x00007fffu,0x0000ffffu,0x0001ffffu,

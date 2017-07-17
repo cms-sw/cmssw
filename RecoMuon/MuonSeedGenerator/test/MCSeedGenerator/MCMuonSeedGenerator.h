@@ -7,7 +7,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -25,7 +25,7 @@ class SimVertex;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class MCMuonSeedGenerator2 : public edm::EDProducer {
+class MCMuonSeedGenerator2 : public edm::stream::EDProducer<> {
  
 public:
 

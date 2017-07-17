@@ -5,25 +5,21 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <cassert>
@@ -45,10 +41,6 @@ namespace edm {
           if(count % 100 - lastDigit == 10) return th;
           return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
-        template <typename T>
-        boost::shared_ptr<T> createSharedPtrToStatic(T* ptr) {
-          return boost::shared_ptr<T>(ptr, do_nothing_deleter());
-        }
   }
 
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -59,13 +51,14 @@ namespace edm {
       maxLumis_(desc.maxLumis_),
       remainingLumis_(maxLumis_),
       readCount_(0),
+      maxSecondsUntilRampdown_(desc.maxSecondsUntilRampdown_),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
-      productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
+      productRegistry_(desc.productRegistry_),
       processHistoryRegistry_(new ProcessHistoryRegistry),
       branchIDListHelper_(desc.branchIDListHelper_),
-      primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
-      processGUID_(primary_ ? createGlobalIdentifier() : std::string()),
+      thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
+      processGUID_(createGlobalIdentifier()),
       time_(),
       newRun_(true),
       newLumi_(true),
@@ -74,7 +67,6 @@ namespace edm {
       runAuxiliary_(),
       lumiAuxiliary_(),
       statusFileName_(),
-      receiver_(),
       numberOfEventsBeforeBigSkip_(0) {
 
     if(pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
@@ -82,11 +74,10 @@ namespace edm {
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
-
-    // Secondary input sources currently do not have a product registry.
-    if(primary_) {
-      assert(desc.productRegistry_ != 0);
+    if (maxSecondsUntilRampdown_ > 0) {
+      processingStart_ = std::chrono::steady_clock::now();
     }
+
     std::string const defaultMode("RunsLumisAndEvents");
     std::string const runMode("Runs");
     std::string const runLumiMode("RunsAndLumis");
@@ -109,7 +100,7 @@ namespace edm {
     }
   }
 
-  InputSource::~InputSource() {}
+  InputSource::~InputSource() noexcept(false) {}
 
   void
   InputSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
@@ -138,26 +129,6 @@ namespace edm {
     "'RunsAndLumis':       process runs and lumis (not events).\n"
     "'Runs':               process runs (not lumis or events).");
     desc.addUntracked<bool>("writeStatusFile", false)->setComment("Write a status file. Intended for use by workflow management.");
-  }
-
-  bool
-  InputSource::skipForForking() {
-    if(eventLimitReached()) {
-      return false;
-    }
-    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
-      receiver_->receive();
-      unsigned long toSkip = receiver_->numberToSkip();
-      if(0 != toSkip) {
-        skipEvents(toSkip);
-        decreaseRemainingEventsBy(toSkip);
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
-        return false;
-      }
-    }
-    return true;
   }
 
   // This next function is to guarantee that "runs only" mode does not return events or lumis,
@@ -207,6 +178,8 @@ namespace edm {
       ItemType newState = nextItemType_();
       if(newState == IsStop) {
         state_ = IsStop;
+      } else if(newState == IsSynchronize) {
+        state_ = IsSynchronize;
       } else if(newState == IsFile || oldState == IsInvalid) {
         state_ = IsFile;
       } else if(newState == IsRun || oldState == IsFile) {
@@ -228,15 +201,15 @@ namespace edm {
     return state_;
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   InputSource::readLuminosityBlockAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockAuxiliary> >( [this](){ return readLuminosityBlockAuxiliary_(); },
+    return callWithTryCatchAndPrint<std::shared_ptr<LuminosityBlockAuxiliary> >( [this](){ return readLuminosityBlockAuxiliary_(); },
                                                                                    "Calling InputSource::readLuminosityBlockAuxiliary_" );
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   InputSource::readRunAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<RunAuxiliary> >( [this](){ return readRunAuxiliary_(); },
+    return callWithTryCatchAndPrint<std::shared_ptr<RunAuxiliary> >( [this](){ return readRunAuxiliary_(); },
                                                                        "Calling InputSource::readRunAuxiliary_" );
   }
 
@@ -248,6 +221,16 @@ namespace edm {
   void
   InputSource::doEndJob() {
     endJob();
+  }
+
+  std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>
+  InputSource::resourceSharedWithDelayedReader() {
+    return resourceSharedWithDelayedReader_();
+  }
+
+  std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>
+  InputSource::resourceSharedWithDelayedReader_() {
+    return std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>(nullptr,nullptr);
   }
 
   void
@@ -280,11 +263,11 @@ namespace edm {
   // containing Products.
   std::unique_ptr<FileBlock>
   InputSource::readFile_() {
-    return std::unique_ptr<FileBlock>(new FileBlock);
+    return std::make_unique<FileBlock>();
   }
 
   void
-  InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender& historyAppender) {
+  InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender& ) {
     RunSourceSentry sentry(*this);
     callWithTryCatchAndPrint<void>( [this,&runPrincipal](){ readRun_(runPrincipal); }, "Calling InputSource::readRun_" );
   }
@@ -296,7 +279,7 @@ namespace edm {
   }
 
   void
-  InputSource::readLuminosityBlock(LuminosityBlockPrincipal& lumiPrincipal, HistoryAppender& historyAppender) {
+  InputSource::readLuminosityBlock(LuminosityBlockPrincipal& lumiPrincipal, HistoryAppender& ) {
     LumiSourceSentry sentry(*this);
     callWithTryCatchAndPrint<void>( [this,&lumiPrincipal](){ readLuminosityBlock_(lumiPrincipal); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
@@ -327,17 +310,16 @@ namespace edm {
   }
 
   void
-  InputSource::readEvent(EventPrincipal& ep, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
+    {
+      // block scope, in order to issue the PostSourceEvent signal before calling postRead and issueReports
+      EventSourceSentry sentry(*this, streamContext);
 
-    callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
-    if(receiver_) {
-      --numberOfEventsBeforeBigSkip_;
+      callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
     }
 
-    Event event(ep, moduleDescription(), nullptr);
-    postRead(event);
     if(remainingEvents_ > 0) --remainingEvents_;
     ++readCount_;
     setTimestamp(ep.time());
@@ -345,16 +327,17 @@ namespace edm {
   }
 
   bool
-  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext& streamContext) {
     bool result = false;
 
-    if(!limitReached()) {
-      //result = callWithTryCatchAndPrint<bool>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
-      result = readIt(eventID, ep);
-      if(result) {
+    if (not limitReached()) {
+      // the Pre/PostSourceEvent signals should be generated only if the event is actually found.
+      // this should be taken care of by an EventSourceSentry in the implementaion of readIt()
 
-        Event event(ep, moduleDescription(), nullptr);
-        postRead(event);
+      //result = callWithTryCatchAndPrint<bool>( [this,&eventID,&ep](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
+      result = readIt(eventID, ep, streamContext);
+
+      if (result) {
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
         issueReports(ep.id());
@@ -381,11 +364,6 @@ namespace edm {
     setNewLumi();
     resetEventCached();
     callWithTryCatchAndPrint<void>( [this](){ rewind_(); }, "Calling InputSource::rewind_" );
-    if(receiver_) {
-      unsigned int numberToSkip = receiver_->numberToSkip();
-      skip(numberToSkip);
-      decreaseRemainingEventsBy(numberToSkip);
-    }
   }
 
   void
@@ -407,7 +385,7 @@ namespace edm {
   }
 
   bool
-  InputSource::readIt(EventID const&, EventPrincipal&) {
+  InputSource::readIt(EventID const&, EventPrincipal&, StreamContext&) {
     throw Exception(errors::LogicError)
       << "InputSource::readIt()\n"
       << "Random access is not implemented for this type of Input Source\n"
@@ -434,7 +412,7 @@ namespace edm {
   InputSource::skip(int) {
     throw Exception(errors::LogicError)
       << "InputSource::skip()\n"
-      << "Forking and random access are not implemented for this type of Input Source\n"
+      << "Random access are not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
 
@@ -451,7 +429,7 @@ namespace edm {
   InputSource::rewind_() {
     throw Exception(errors::LogicError)
       << "InputSource::rewind()\n"
-      << "Forking and random access are not implemented for this type of Input Source\n"
+      << "Random access are not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
 
@@ -468,54 +446,31 @@ namespace edm {
   }
 
   void
-  InputSource::postRead(Event& event) {
-    Service<RandomNumberGenerator> rng;
-    if(rng.isAvailable()) {
-      rng->postEventRead(event);
-    }
-  }
-
-  void
-  InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* processContext) {
+  InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
-    run.commit_();
+    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* processContext) {
-    rp.setEndTime(time_);
-    rp.setComplete();
+  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
-    run.commit_();
+    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
-  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* processContext) {
+  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
-    lb.commit_();
+    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* processContext) {
-    lbp.setEndTime(time_);
-    lbp.setComplete();
+  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
-    lb.commit_();
-  }
-
-  void
-  InputSource::doPreForkReleaseResources() {
-    callWithTryCatchAndPrint<void>( [this](){ preForkReleaseResources(); }, "Calling InputSource::preForkReleaseResources" );
-  }
-
-  void
-  InputSource::doPostForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
-    callWithTryCatchAndPrint<void>( [this, &iReceiver](){ postForkReacquireResources(iReceiver); },
-                                    "Calling InputSource::postForkReacquireResources" );
+    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   bool
@@ -553,17 +508,6 @@ namespace edm {
 
   void
   InputSource::endJob() {}
-
-  void
-  InputSource::preForkReleaseResources() {}
-
-  void
-  InputSource::postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
-    receiver_ = iReceiver;
-    receiver_->receive();
-    numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-    rewind();
-  }
 
   bool
   InputSource::randomAccess_() const {
@@ -606,8 +550,15 @@ namespace edm {
     post_();
   }
 
-  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceSignal_, source.actReg()->postSourceSignal_) {
+  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source, StreamContext & sc) :
+    source_(source),
+    sc_(sc)
+  {
+    source.actReg()->preSourceSignal_(sc_.streamID());
+  }
+
+  InputSource::EventSourceSentry::~EventSourceSentry() {
+    source_.actReg()->postSourceSignal_(sc_.streamID());
   }
 
   InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :

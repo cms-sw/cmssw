@@ -155,6 +155,7 @@ C
 C...Set kt clustering scheme (if not already set)
 C
       integer i
+      call initpydata
       write(*,*)"MGINIT: ickkw is ",ickkw
       write(*,*)"MGINIT: ktscheme is ",mektsc
       write(*,*)"MGINIT: QCut is ",qcut
@@ -908,7 +909,7 @@ C        write(*,*)'mektsc 357, 358: ',mektsc,' ',VINT(357),' ',VINT(358)
      $       THEN
 C            write(*,*)'rejection'  
           if(idbg.eq.1)
-     $       WRITE(LNHOUT,*),
+     $       WRITE(LNHOUT,*)
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',SQRT(YCUT)
           GOTO 999
         ENDIF
@@ -923,7 +924,7 @@ c     Highest multiplicity case
      $       THEN
 c     $     VINT(390).GT.PTCLUS(1)**2)THEN
           if(idbg.eq.1)
-     $       WRITE(LNHOUT,*),
+     $       WRITE(LNHOUT,*)
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',PTCLUS(1)
           GOTO 999
         ENDIF
@@ -1580,7 +1581,7 @@ c     if (found) write (*,*) name,var
         write (*,*) "         setting it to default value ",def_value
         var=def_value
       else
-        write(*,*),'Found parameter ',name,var
+        write(*,*) 'Found parameter ',name,var
       endif
       return
 
@@ -1976,6 +1977,50 @@ C...Inputs for the matching algorithm
             return
          endif
       enddo
+
+      return
+      end
+
+C*********************************************************************
+
+      subroutine initpydata
+
+      INTEGER KCHG
+      DOUBLE PRECISION PMAS,PARF,VCKM
+      COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
+      INTEGER MSTP,MSTI
+      DOUBLE PRECISION PARP,PARI
+      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
+
+      if(PMAS(1,1).lt.0.1D0.or.PMAS(1,1).gt.1.) THEN
+
+        PMAS(1,1) = 0.33D0
+        PMAS(2,1) = 0.33D0
+        PMAS(3,1) = 0.5D0
+        PMAS(4,1) = 1.5D0
+        PMAS(5,1) = 4.8D0
+        PMAS(6,1) = 175D0
+        PMas(7,1) = 400D0
+        PMas(8,1) = 400D0
+        PMas(9,1) = 0D0
+        PMas(10,1) = 0D0
+        PMas(11,1) = 0.0005D0
+        PMas(12,1) = 0D0
+        PMas(13,1) = 0.10566D0
+        PMas(14,1) = 0D0
+        PMas(15,1) = 1.777D0
+        PMas(16,1) = 0D0
+        PMas(17,1) = 400D0
+        PMas(18,1) = 0D0
+        PMas(19,1) = 0D0
+        PMas(20,1) = 0D0
+        PMAS(21,1) = 0D0
+
+        MSTP(61) = 2
+        MSTP(71) = 1
+        MSTP(183)= 2013
+
+      endif
 
       return
       end

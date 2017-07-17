@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -40,7 +39,7 @@ class L1RPCConeDefinitionProducer : public edm::ESProducer {
       L1RPCConeDefinitionProducer(const edm::ParameterSet&);
       ~L1RPCConeDefinitionProducer();
 
-      typedef boost::shared_ptr<L1RPCConeDefinition> ReturnType;
+      typedef std::shared_ptr<L1RPCConeDefinition> ReturnType;
 
       ReturnType produce(const L1RPCConeDefinitionRcd&);
    private:
@@ -190,7 +189,7 @@ L1RPCConeDefinitionProducer::ReturnType
 L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1RPCConeDefinition> pL1RPCConeDefinition(new L1RPCConeDefinition);
+   auto pL1RPCConeDefinition = std::make_shared<L1RPCConeDefinition>();
 
    pL1RPCConeDefinition->setFirstTower(m_towerBeg);
    pL1RPCConeDefinition->setLastTower(m_towerEnd);

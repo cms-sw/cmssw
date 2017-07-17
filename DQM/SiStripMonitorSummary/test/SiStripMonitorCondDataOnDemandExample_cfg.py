@@ -56,10 +56,12 @@ process.myOnDemandExample.MonitorSiStripApvGain       = False ## to be tested on
 
 process.myOnDemandExample.MonitorSiStripQuality      = True
 process.myOnDemandExample.MonitorSiStripLorentzAngle = False
+process.myOnDemandExample.MonitorSiStripBackPlaneCorrection = False
 process.myOnDemandExample.MonitorSiStripCabling      = False
 
 
 
 process.myOnDemandExample.SiStripNoisesDQM_PSet.GainRenormalisation   = False
+process.myOnDemandExample.SiStripNoisesDQM_PSet.SimGainRenormalisation   = False
 process.myOnDemandExample.SiStripNoisesDQM_PSet.CondObj_fillId        = 'onlyProfile'
 process.myOnDemandExample.SiStripPedestalsDQM_PSet.CondObj_fillId        = 'onlyProfile'

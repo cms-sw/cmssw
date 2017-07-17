@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -48,11 +48,19 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 
-class PFEGammaProducer : public edm::EDProducer {
+class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
  public:
-  explicit PFEGammaProducer(const edm::ParameterSet&);
+  explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
   ~PFEGammaProducer();
   
+  static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<pfEGHelpers::HeavyObjectCache>(new pfEGHelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {
+  }
+
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
@@ -63,17 +71,11 @@ class PFEGammaProducer : public edm::EDProducer {
   void setPFVertexParameters(bool useVertex,
 			     const reco::VertexCollection*  primaryVertices);	  
    
-  void setPFPhotonRegWeights(
-			     const GBRForest *LCorrForestEB,
-			     const GBRForest *LCorrForestEE,
-			     const GBRForest *GCorrForestBarrel,
-			     const GBRForest *GCorrForestEndcapHr9,
-			     const GBRForest *GCorrForestEndcapLr9,
-			     const GBRForest *PFEcalResolution
-			     );   
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd);
+  
   
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
-  edm::EDGetTokenT<reco::SuperCluster::EEtoPSAssociation> eetopsSrc_;
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
   edm::EDGetTokenT<reco::VertexCollection>  vertices_;
 
   //Use of HO clusters and links in PF Reconstruction
@@ -87,12 +89,12 @@ class PFEGammaProducer : public edm::EDProducer {
   const GBRForest* ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
-  const GBRForest* ReaderLCEB_;
-  const GBRForest* ReaderLCEE_;
-  const GBRForest* ReaderGCBarrel_;
-  const GBRForest* ReaderGCEndCapHighr9_;
-  const GBRForest* ReaderGCEndCapLowr9_;
-  const GBRForest* ReaderEcalRes_;
+  //const GBRForest* ReaderLCEB_;
+  //const GBRForest* ReaderLCEE_;
+  //const GBRForest* ReaderGCBarrel_;
+  //const GBRForest* ReaderGCEndCapHighr9_;
+  //const GBRForest* ReaderGCEndCapLowr9_;
+  //const GBRForest* ReaderEcalRes_;
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 
@@ -124,9 +126,10 @@ class PFEGammaProducer : public edm::EDProducer {
   
   reco::Vertex       primaryVertex_;
   
-  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
+  std::unique_ptr<reco::PFCandidateCollection> egCandidates_;
+  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::unique_ptr<reco::ConversionCollection> singleLegConv_;
+  std::unique_ptr<reco::SuperClusterCollection> sClusters_;  
 
   /// the unfiltered electron collection 
     
@@ -136,7 +139,13 @@ class PFEGammaProducer : public edm::EDProducer {
   
   /// particle flow algorithm
   std::unique_ptr<PFEGammaAlgo>      pfeg_;
+  
+  std::string ebeeClustersCollection_;
+  std::string esClustersCollection_;
 
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #endif

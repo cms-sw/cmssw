@@ -1,7 +1,7 @@
 #ifndef PixelFitterByHelixProjections_H
 #define PixelFitterByHelixProjections_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,38 +10,21 @@
 
 #include <vector>
 
-//namespace edm {class ParameterSet;}
-class TransientTrackingRecHitBuilder;
-class TrackerGeometry;
-class MagneticField;
+class TrackerTopology;
 
-
-class PixelFitterByHelixProjections : public PixelFitter {
+class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
-  PixelFitterByHelixProjections(  const edm::ParameterSet& cfg);
+  explicit PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field,
+                                         bool scaleErrorsForBPix1, float scaleFactor);
   virtual ~PixelFitterByHelixProjections() {}
-    virtual reco::Track* run(
-      const edm::EventSetup& es,
-      const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const;
-private:
-  /* these are just static and local moved to local namespace in cc .... 
-   *
-  int charge(const std::vector<GlobalPoint> & points) const;
-  float cotTheta(const GlobalPoint& pinner, const GlobalPoint& pouter) const;
-  float phi(float xC, float yC, int charge) const;
-  float pt(float curvature) const;
-  float zip(float d0, float phi_p, float curv, 
-    const GlobalPoint& pinner, const GlobalPoint& pouter) const;
-  double errZip2(float apt, float eta) const;
-  double errTip2(float apt, float eta) const;
-  */
-private:
-  edm::ParameterSet theConfig;
+  virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
+                                           const TrackingRegion& region) const override;
 
-  mutable const TrackerGeometry * theTracker;
-  mutable const MagneticField * theField;
-  mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;
-
+private:
+  const edm::EventSetup *theES;
+  const MagneticField *theField;
+  const bool thescaleErrorsForBPix1;
+  const float thescaleFactor;
+  TrackerTopology const * theTopo=nullptr;
 };
 #endif

@@ -19,8 +19,8 @@ class HltComparator : public edm::EDFilter
         ~HltComparator();
 
     private:
-        edm::InputTag hltOnlineResults_;
-        edm::InputTag hltOfflineResults_;
+        edm::EDGetTokenT<edm::TriggerResults> hltOnlineResults_;
+        edm::EDGetTokenT<edm::TriggerResults> hltOfflineResults_;
 
         std::vector<std::string> onlineActualNames_;
         std::vector<std::string> offlineActualNames_;

@@ -3,6 +3,8 @@
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtFullHadHypothesis.h"
 
+#include "DataFormats/PatCandidates/interface/Particle.h"
+
 class TtFullHadHypKinFit : public TtFullHadHypothesis  {
 
  public:
@@ -11,21 +13,21 @@ class TtFullHadHypKinFit : public TtFullHadHypothesis  {
   ~TtFullHadHypKinFit();
 
  private:
-  
+
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtFullHadronicEvent::kKinFit; };  
-  /// build event hypothesis from the reco objects of a full-hadronic event 
+  virtual void buildKey() { key_= TtFullHadronicEvent::kKinFit; };
+  /// build event hypothesis from the reco objects of a full-hadronic event
   virtual void buildHypo(edm::Event&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
 			 std::vector<int>&, const unsigned int iComb);
 
-  edm::InputTag status_;
-  edm::InputTag lightQTag_;
-  edm::InputTag lightQBarTag_;
-  edm::InputTag bTag_;
-  edm::InputTag bBarTag_;
-  edm::InputTag lightPTag_;
-  edm::InputTag lightPBarTag_;
+  edm::EDGetTokenT<std::vector<int> > statusToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightQToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightQBarToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > bToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > bBarToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightPToken_;
+  edm::EDGetTokenT<std::vector<pat::Particle> > lightPBarToken_;
 
 };
 

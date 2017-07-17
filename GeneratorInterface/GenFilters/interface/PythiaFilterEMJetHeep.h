@@ -27,6 +27,9 @@
 #include "TTree.h"
 class TFile;
 
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaFilterEMJetHeep : public edm::EDFilter {
    public:
@@ -41,7 +44,7 @@ class PythiaFilterEMJetHeep : public edm::EDFilter {
 
    private:
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        //
        double minEventPt;
        double etaMax;

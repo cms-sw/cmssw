@@ -3,7 +3,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-PATPrimaryVertexSelector::PATPrimaryVertexSelector (const edm::ParameterSet& cfg) :
+PATPrimaryVertexSelector::PATPrimaryVertexSelector (const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
   multiplicityCut_(cfg.getParameter<unsigned int>("minMultiplicity")),
   ptSumCut_(cfg.getParameter<double>("minPtSum")),
   trackEtaCut_(cfg.getParameter<double>("maxTrackEta")),
@@ -15,7 +15,7 @@ PATPrimaryVertexSelector::PATPrimaryVertexSelector (const edm::ParameterSet& cfg
 }
 
 void
-PATPrimaryVertexSelector::select (const edm::Handle<collection>& handle, 
+PATPrimaryVertexSelector::select (const edm::Handle<collection>& handle,
 				  const edm::Event& event,
 				  const edm::EventSetup& setup) {
   selected_.clear();

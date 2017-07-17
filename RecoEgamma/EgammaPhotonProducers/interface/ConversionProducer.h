@@ -9,7 +9,7 @@
  ***/
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,7 +27,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
@@ -55,6 +55,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -62,7 +63,7 @@
 class TransientTrackBuilder;
 class ConversionVertexFinder;
 
-class ConversionProducer : public edm::EDProducer {
+class ConversionProducer : public edm::stream::EDProducer<> {
     public:
       explicit ConversionProducer(const edm::ParameterSet&);
       ~ConversionProducer();
@@ -85,12 +86,12 @@ class ConversionProducer : public edm::EDProducer {
       typedef math::XYZPointF Point;
       typedef std::vector<Point> PointCollection;
 
-      edm::InputTag src_; 
+      edm::EDGetTokenT<edm::View<reco::ConversionTrack> > src_; 
 
-      edm::InputTag scBarrelProducer_;
-      edm::InputTag scEndcapProducer_;
-      edm::InputTag bcBarrelCollection_;
-      edm::InputTag bcEndcapCollection_;
+      edm::EDGetTokenT<edm::View<reco::CaloCluster> > scBarrelProducer_;
+      edm::EDGetTokenT<edm::View<reco::CaloCluster> > scEndcapProducer_;
+      edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+      edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
       std::string ConvertedPhotonCollection_;
 
       bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
@@ -98,7 +99,7 @@ class ConversionProducer : public edm::EDProducer {
       bool bypassPreselGsf_, bypassPreselEcal_, bypassPreselEcalEcal_;
       
       bool usePvtx_;//if use primary vertices
-      std::string vertexProducer_;
+      edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
       ConversionVertexFinder*         theVertexFinder_;
 
       const TransientTrackBuilder *thettbuilder_;

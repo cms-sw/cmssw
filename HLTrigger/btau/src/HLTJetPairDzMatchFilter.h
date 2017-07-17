@@ -8,7 +8,7 @@
 
 /** class HLTJetPairDzMatchFilter
  * an HLT filter which picks up a JetCollection (supposedly, of L2 tau jets)
- * and passes only events with at least one pair of non-overlapping jets with 
+ * and passes only events with at least one pair of non-overlapping jets with
  * vertices within some dz
  */
 namespace edm {
@@ -23,8 +23,8 @@ class HLTJetPairDzMatchFilter : public HLTFilter {
     explicit HLTJetPairDzMatchFilter(const edm::ParameterSet&);
     ~HLTJetPairDzMatchFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-    
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
   private:
 
     edm::InputTag                     m_jetTag;
@@ -37,4 +37,4 @@ class HLTJetPairDzMatchFilter : public HLTFilter {
 
 };
 
-#endif 
+#endif

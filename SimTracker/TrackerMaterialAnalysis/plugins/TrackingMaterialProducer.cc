@@ -3,12 +3,13 @@
 #include <string>
 #include <cassert>
 #include <exception>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -28,16 +29,29 @@
 
 #include "TrackingMaterialProducer.h"
 
+// Uncomment the following #define directive to have the full list of
+// volumes known to G4 printed to LogInfo("TrackingMaterialProducer")
+
+#define DEBUG_G4_VOLUMES
+
+using namespace CLHEP;
+using edm::LogInfo;
+
 // missing from GEANT4 < 9.0 : G4LogicalVolumeStore::GetVolume( name )
 static
 const G4LogicalVolume* GetVolume(const std::string& name) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
 
+#ifdef DEBUG_G4_VOLUMES
+  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume)
+    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes "
+                                         << (*volume)->GetName() << std::endl;
+#endif
+
   for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume) {
     if ((const std::string&) (*volume)->GetName() == name)
       return (*volume);
   }
-
   return 0;
 }
 
@@ -54,16 +68,16 @@ const G4AffineTransform& GetTransform(const G4TouchableHistory* touchable, int d
 //   - how may steps up in the hierarchy it is (0 is the starting volume)
 // if no sensitive detector is found, return a NULL pointer and 0
 
-boost::tuple<const G4VPhysicalVolume*, int> GetSensitiveVolume( const G4VTouchable* touchable )
+std::tuple<const G4VPhysicalVolume*, int> GetSensitiveVolume( const G4VTouchable* touchable )
 {
   int depth = touchable->GetHistoryDepth();
   for (int level = 0; level < depth; ++level) {      // 0 is self
     const G4VPhysicalVolume* volume = touchable->GetVolume(level);
     if (volume->GetLogicalVolume()->GetSensitiveDetector() != 0) {
-      return boost::make_tuple(volume, level);
+      return std::make_tuple(volume, level);
     }
   }
-  return boost::tuple<const G4VPhysicalVolume*, int>(0, 0);
+  return std::tuple<const G4VPhysicalVolume*, int>(0, 0);
 }
 
 //-------------------------------------------------------------------------
@@ -75,29 +89,38 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   m_tracks              = 0;
 
   produces< std::vector<MaterialAccountingTrack> >();
-}    
+  output_file_ = new TFile("radLen_vs_eta_fromProducer.root", "RECREATE");
+  output_file_->cd();
+  radLen_vs_eta_ = new TProfile("radLen", "radLen", 250., -5., 5., 0, 10.);
+}
 
 //-------------------------------------------------------------------------
-TrackingMaterialProducer::~TrackingMaterialProducer(void) 
+TrackingMaterialProducer::~TrackingMaterialProducer(void)
 {
 }
 
 //-------------------------------------------------------------------------
+void TrackingMaterialProducer::update(const EndOfJob* event)
+{
+  radLen_vs_eta_->Write();
+  output_file_->Close();
+}
+//-------------------------------------------------------------------------
 void TrackingMaterialProducer::update(const BeginOfJob* event)
 {
   // INFO
-  std::cout << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
-  for (std::vector<std::string>::const_iterator volume_name = m_selectedNames.begin(); volume_name != m_selectedNames.end(); ++volume_name) {
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
+  for (std::vector<std::string>::const_iterator volume_name = m_selectedNames.begin();
+       volume_name != m_selectedNames.end(); ++volume_name) {
     const G4LogicalVolume* volume = GetVolume(*volume_name);
     if (volume) {
-      std::cout << '\t' << *volume_name << std::endl;
+      LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: " << *volume_name << std::endl;
       m_selectedVolumes.push_back( volume );
     } else {
       // FIXME: throw an exception ?
       std::cerr << "TrackingMaterialProducer::update(const BeginOfJob*): WARNING: selected volume \"" << *volume_name << "\" not found in geometry " << std::endl;
     }
   }
-  std::cout << std::endl;
 }
 
 
@@ -119,14 +142,27 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event)
     track->SetTrackStatus(fStopAndKill);
   }
 }
- 
+
+bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
+  for (int d = touchable->GetHistoryDepth() -1; d >=0;  --d) {
+      if (
+           std::find(
+                     m_selectedNames.begin(),
+                     m_selectedNames.end(),
+                     touchable->GetVolume(d)->GetName())
+        != m_selectedNames.end())
+        return true;
+    }
+  return false;
+}
 
 //-------------------------------------------------------------------------
 void TrackingMaterialProducer::update(const G4Step* step)
 {
   const G4TouchableHistory* touchable = (G4TouchableHistory*)(step->GetTrack()->GetTouchable());
-  if (not isSelected( touchable )) {
-    //std::cout << "\t[...] skipping " << touchable->GetVolume()->GetName() << std::endl;
+  if (not isSelectedFast( touchable )) {
+    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer:\t[...] skipping "
+                                         << touchable->GetVolume()->GetName() << std::endl;
     return;
   }
 
@@ -135,9 +171,9 @@ void TrackingMaterialProducer::update(const G4Step* step)
   double length = step->GetStepLength() / cm;          // mm -> cm
   double X0 = material->GetRadlen() / cm;              // mm -> cm
   double Ne = material->GetElectronDensity() * cm3;    // 1/mm3 -> 1/cm3
-  double Xi = Ne / 6.0221415e23 * 0.307075 / 2.;        // MeV / cm
-  double radiationLengths = length / X0;                // 
-  double energyLoss       = length * Xi;                // MeV
+  double Xi = Ne / 6.0221415e23 * 0.307075 / 2;        // MeV / cm
+  double radiationLengths = length / X0;               //
+  double energyLoss       = length * Xi / 1000.;       // GeV
   //double energyLoss = step->GetDeltaEnergy()/MeV;  should we use this??
 
   G4ThreeVector globalPosPre  = step->GetPreStepPoint()->GetPosition();
@@ -145,7 +181,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
   GlobalPoint globalPositionIn(  globalPosPre.x()  / cm, globalPosPre.y()  / cm, globalPosPre.z() / cm );    // mm -> cm
   GlobalPoint globalPositionOut( globalPosPost.x() / cm, globalPosPost.y() / cm, globalPosPost.z() / cm );   // mm -> cm
 
-  // check for a sensitive detector 
+  // check for a sensitive detector
   bool enter_sensitive = false;
   bool leave_sensitive = false;
   double cosThetaPre  = 0.0;
@@ -153,13 +189,13 @@ void TrackingMaterialProducer::update(const G4Step* step)
   int level = 0;
   const G4VPhysicalVolume* sensitive = 0;
   GlobalPoint position;
-  boost::tuples::tie(sensitive, level) = GetSensitiveVolume(touchable);
+  std::tie(sensitive, level) = GetSensitiveVolume(touchable);
   if (sensitive) {
     const G4VSolid &          solid     = *touchable->GetSolid( level );
     const G4AffineTransform & transform = GetTransform( touchable, level );
     G4ThreeVector pos = transform.Inverse().TransformPoint( G4ThreeVector( 0., 0., 0. ) );
     position = GlobalPoint( pos.x() / cm, pos.y() / cm, pos.z() / cm );  // mm -> cm
-    
+
     G4ThreeVector localPosPre   = transform.TransformPoint( globalPosPre );
     EInside       statusPre     = solid.Inside( localPosPre );
     if (statusPre == kSurface) {
@@ -169,7 +205,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
       G4ThreeVector normalPre     = solid.SurfaceNormal( localPosPre );
       cosThetaPre  = normalPre.cosTheta( -localDirPre );
     }
-    
+
     G4ThreeVector localPosPost  = transform.TransformPoint( globalPosPost );
     EInside       statusPost    = solid.Inside( localPosPost );
     if (statusPost == kSurface) {
@@ -180,7 +216,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
       cosThetaPost = normalPost.cosTheta( localDirPost );
     }
   }
-    
+
   // update track accounting
   if (enter_sensitive)
     m_track.enterDetector( sensitive, position, cosThetaPre );
@@ -188,24 +224,32 @@ void TrackingMaterialProducer::update(const G4Step* step)
   if (leave_sensitive)
     m_track.leaveDetector( sensitive, cosThetaPost );
 
-  /*
-  for (int i = touchable->GetHistoryDepth(); i > 0; --i)
-    std::cout << touchable->GetVolume(i)->GetName() << "::";
-  std::cout << touchable->GetVolume()->GetName() << std::endl;
-  std::cout << "\tmade of " << material->GetName();
-  if (sensitive) {
-    std::cout << " (inside sensitive " << sensitive->GetName() << ")";
-    if (enter_sensitive)
-      std::cout << " (in: cos(theta) = " << cosThetaPre << ")";
-    if (leave_sensitive)
-      std::cout << " (out: cos(theta) = " << cosThetaPost << ")";
-  }
-  std::cout << std::endl;
-  std::cout << "\tStep length:       " << length << " cm" << std::endl;
-  std::cout << "\tRadiation lengths: " << radiationLengths << " \t\t(X0: " << X0 << " cm)" << std::endl;
-  std::cout << "\tEnergy loss:       " << energyLoss << " MeV  \t(Xi: " << Xi << " MeV/cm)" << std::endl;
-  std::cout << std::endl;
-  */
+  if (sensitive)
+    LogInfo("TrackingMaterialProducer") << "Track was near sensitive     volume "
+                                         << sensitive->GetName() << std::endl;
+  else
+    LogInfo("TrackingMaterialProducer") << "Track was near non-sensitive volume "
+                                         << touchable->GetVolume()->GetName() << std::endl;
+  LogInfo("TrackingMaterialProducer")  << "Step length:             "
+                                       << length << " cm\n"
+                                       << "globalPreStep(r,z): (" << globalPositionIn.perp()
+                                       << ", " << globalPositionIn.z() << ") cm\n"
+                                       << "globalPostStep(r,z): (" << globalPositionOut.perp()
+                                       << ", " << globalPositionOut.z() << ") cm\n"
+                                       << "position(r,z): ("
+                                       << position.perp()
+                                       << ", " << position.z() << ") cm\n"
+                                       << "Radiation lengths:       "
+                                       << radiationLengths << " \t\t(X0: "
+                                       << X0 << " cm)\n"
+                                       << "Energy loss:             "
+                                       << energyLoss << " MeV  \t(Xi: "
+                                       << Xi << " MeV/cm)\n"
+                                       << "Track was " << (enter_sensitive ? "entering " : "in none ")
+                                       << "sensitive volume\n"
+                                       << "Track was " << (leave_sensitive ? "leaving  " : "in none ")
+                                       << "sensitive volume\n";
+
 }
 
 
@@ -216,41 +260,40 @@ void TrackingMaterialProducer::update(const EndOfTrack* event)
   if (m_primaryTracks and track->GetParentID() != 0)
     return;
 
+  radLen_vs_eta_->Fill(track->GetMomentum().eta(), m_track.summary().radiationLengths());
   m_tracks->push_back(m_track);
 
-  // LogDebug
-  std::cout << "this track took " << m_track.steps().size() << " steps, and passed through " << m_track.detectors().size() << " sensitive detectors" << std::endl;
-  std::cout << "\ttrack length:      " << m_track.summary().length()           << " cm" << std::endl;
-  std::cout << "\tradiation lengths: " << m_track.summary().radiationLengths() << std::endl;
-  std::cout << "\tenergy loss:       " << m_track.summary().energyLoss()       << " MeV" << std::endl;
-
-  /* 
-  for (unsigned int i = 0; i < m_track.detectors().size(); ++i) {
-    std::cout << m_track.detectors()[i].volume()->GetName() 
-              << "\tR: " << m_track.detectors()[i].position().perp() 
-              << "\tZ: " << m_track.detectors()[i].position().z() << std::endl;
-    std::cout << "\tsegment length:    " << m_track.detectors()[i].material().length()           << " cm" << std::endl;
-    std::cout << "\tradiation lengths: " << m_track.detectors()[i].material().radiationLengths() << std::endl;
-    std::cout << "\tenergy loss:       " << m_track.detectors()[i].material().energyLoss()       << " MeV" << std::endl;
-  }
-  */
-  std::cout << std::endl;
+  // LogInfo
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: this track took "
+                                       << m_track.steps().size()
+                                       << " steps, and passed through "
+                                       << m_track.detectors().size()
+                                       << " sensitive detectors" << std::endl;
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: track length:       "
+                                       << m_track.summary().length()
+                                       << " cm" << std::endl;
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: radiation lengths: "
+                                       << m_track.summary().radiationLengths() << std::endl;
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: energy loss:        "
+                                       << m_track.summary().energyLoss()
+                                       << " MeV" << std::endl;
 }
 
 //-------------------------------------------------------------------------
-void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // transfer ownership to the Event
-  std::auto_ptr<std::vector<MaterialAccountingTrack> > tracks( m_tracks );
-  iEvent.put( tracks );
+  std::unique_ptr<std::vector<MaterialAccountingTrack> > tracks( m_tracks );
+  iEvent.put(std::move(tracks));
   m_tracks = 0;
 }
-  
+
 //-------------------------------------------------------------------------
-bool TrackingMaterialProducer::isSelected( const G4VTouchable* touchable ) 
+bool TrackingMaterialProducer::isSelected( const G4VTouchable* touchable )
 {
   for (size_t i = 0; i < m_selectedVolumes.size(); ++i)
-    if (m_selectedVolumes[i]->IsAncestor( touchable->GetVolume() ) or m_selectedVolumes[i] == touchable->GetVolume()->GetLogicalVolume())
+    if (m_selectedVolumes[i]->IsAncestor( touchable->GetVolume() )
+        or m_selectedVolumes[i] == touchable->GetVolume()->GetLogicalVolume())
       return true;
 
   return false;

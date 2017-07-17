@@ -1,0 +1,4 @@
+<bin   name="TestJetMETCorrectionsModulesJetResolutionObject" file="TestDriver.cc">
+  <flags TEST_RUNNER_ARGS="/bin/bash JetMETCorrections/Modules/test test_jetresolution.sh"/>
+  <use   name="FWCore/Utilities" />
+</bin>

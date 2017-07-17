@@ -1,8 +1,0 @@
-./xmlToolsRun --list-iovs-for-o2o --tag-name gak_v2 --pool-connect-string 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_HCAL'
-
-cmscond_list_iov -c 'sqlite:testExample.db' -t gak_v2
-
-./xmlToolsRun --get-iovs-from-omds --tag-name gak_v2
-
-./xmlToolsRun --list-iovs-for-o2o --tag-name gak_v2 --pool-connect-string 'sqlite:testExample.db'
-

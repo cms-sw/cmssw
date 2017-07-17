@@ -94,23 +94,19 @@ def customiseL1Menu(process):
 
     if l1MenuSource == 'sqlFile' :
         # the menu will be read from the SQL file instead of the global tag
-        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db'
-        menuDbTag = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc'
+        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v2/sqlFile/L1Menu_Collisions2015_25ns_v2_mc.db'
+        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v2_mc'
     elif l1MenuSource == 'xmlFile' :
         # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
         luminosityDirectory = "startup"
-        useXmlFile = 'L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml'
-
+        useXmlFile = 'L1Menu_Collisions2015_25ns_v2_L1T_Scales_20141121_Imp0_0x1030.xml'
     else :
-        print '   Using default L1 trigger menu from Global Tag '
+        # use the default L1 trigger menu from the global tag
+        pass
 
     ####### end of user choices - do not change the following
 
     if l1MenuSource == 'xmlFile' :
-        print '   Retrieve L1 trigger menu only from XML file '
-        print '       ', useXmlFile
-        print '       '
-
         process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
         process.l1GtTriggerMenuXml.TriggerMenuLuminosity = luminosityDirectory
         process.l1GtTriggerMenuXml.DefXmlFile = useXmlFile
@@ -118,14 +114,8 @@ def customiseL1Menu(process):
         process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
         process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 
-
-
     elif l1MenuSource == 'sqlFile' :
         if useSqlFile != '' :
-            print '   Retrieve L1 trigger menu only from SQLlite file '
-            print '       ', useSqlFile
-            print '       '
-
             from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
             process.l1conddb = cms.ESSource("PoolDBESSource",
                                     CondDBSetup,
@@ -139,10 +129,6 @@ def customiseL1Menu(process):
 
         else :
             print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'
-
-    else :
-        print ''
-
 
     return process
 
@@ -173,7 +159,7 @@ def customiseL1EmulatorFromRaw(process):
     process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
 
     process.CaloTPG_SimL1Emulator = cms.Sequence(
-        process.CaloTriggerPrimitives + 
+        process.CaloTriggerPrimitives +
         process.SimL1Emulator )
 
     for path in process._Process__paths.itervalues():
@@ -212,27 +198,27 @@ def customiseL1GtEmulatorFromRaw(process):
     # RPC Technical Trigger
     import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
     process.simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
-    
+
     process.simRpcTriggerDigis.label = 'muonRPCDigis'
     process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'
 
     # HCAL Technical Trigger
     import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
     process.simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
-     
+
 
     # Global Trigger emulator
-    
+
     # do not run calo emulators - instead, use unpacked GCT digis for GT input
     process.simGtDigis.GctInputTag = 'gctDigis'
-    
-    # do not run muon emulators - instead, use unpacked GMT digis for GT input 
+
+    # do not run muon emulators - instead, use unpacked GMT digis for GT input
     # (GMT digis produced by same module as the GT digis, as GT and GMT have common unpacker)
-    process.simGtDigis.GmtInputTag = 'gtDigis'                                                                                                                                                               
-    
+    process.simGtDigis.GmtInputTag = 'gtDigis'
+
     # technical triggers
     process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
-        cms.InputTag( 'simBscDigis' ), 
+        cms.InputTag( 'simBscDigis' ),
         cms.InputTag( 'simRpcTechTrigDigis' ),
         cms.InputTag( 'simHcalTechTrigDigis' )
         )
@@ -262,22 +248,22 @@ def customiseL1GtEmulatorFromRaw(process):
 ##############################################################################
 
 def customiseL1CaloAndGtEmulatorsFromRaw(process):
-    # customization fragment to run calorimeter emulators (TPGs and L1 calorimeter emulators) 
-    # and GT emulator starting from a RAW file assuming that "RawToDigi_cff" and "SimL1Emulator_cff" 
+    # customization fragment to run calorimeter emulators (TPGs and L1 calorimeter emulators)
+    # and GT emulator starting from a RAW file assuming that "RawToDigi_cff" and "SimL1Emulator_cff"
     # have already been loaded
 
     # run Calo TPGs on unpacked digis
     process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
     process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
     process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
-        cms.InputTag('hcalDigis'), 
+        cms.InputTag('hcalDigis'),
         cms.InputTag('hcalDigis')
     )
-    
-    # do not run muon emulators - instead, use unpacked GMT digis for GT input 
+
+    # do not run muon emulators - instead, use unpacked GMT digis for GT input
     # (GMT digis produced by same module as the GT digis, as GT and GMT have common unpacker)
-    process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'                                                                                                                                                                                           
-    process.simGtDigis.GmtInputTag = 'gtDigis'                                                                                                                                                                                                          
+    process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'
+    process.simGtDigis.GmtInputTag = 'gtDigis'
 
     # run Calo TPGs, L1 GCT, technical triggers, L1 GT
     SimL1Emulator = cms.Sequence(

@@ -5,7 +5,7 @@
 // 
 
 //
-// Jordi Duarte Campderros (based on the Jason Slaunwhite 
+// Jordi Duarte Campderros (based on the Jason Slaunwhite
 // and Jeff Klukas coded from the HLTriggerOffline/Muon package
 //
 //
@@ -22,77 +22,76 @@
 //////// Class Methods ///////////////////////////////////////////////////////
 // Constructor
 HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
-      	_pset(pset),
-	_analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-	_collections(0),
-	_dbe(0)
+        _pset(pset),
+    _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
+    _collections(0)
 {
-	_collections = new EVTColContainer;
+    _collections = new EVTColContainer;
+
+    //pass consumes list to the helper classes
+    for(size_t i = 0; i < _analysisnames.size() ; ++i)
+    {
+        HLTHiggsSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector());
+        _analyzers.push_back(analyzer);
+    }
+
 }
 
 HLTHiggsValidator::~HLTHiggsValidator()
 {
-	if( _collections != 0 )
-	{
-		delete _collections;
-		_collections = 0;
-	}
+    if( _collections != 0 )
+    {
+        delete _collections;
+        _collections = 0;
+    }
 }
 
-
-void HLTHiggsValidator::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) 
+void HLTHiggsValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
-	for(size_t i = 0; i < _analysisnames.size() ; ++i)
-	{
-		HLTHiggsSubAnalysis analyzer(_pset, _analysisnames.at(i));
-		_analyzers.push_back(analyzer);
-	}
-	// Call the Plotter beginRun (which stores the triggers paths..:)
-      	for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
-			iter != _analyzers.end(); ++iter) 
-	{
-	    	iter->beginRun(iRun, iSetup);
-	}
+    // Call the Plotter beginRun (which stores the triggers paths..:)
+    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
+        iter != _analyzers.end(); ++iter) 
+    {
+        iter->beginRun(iRun, iSetup);
+    }
 }
-	
+    
+void HLTHiggsValidator::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup){
+    // Call the Plotter bookHistograms (which stores the triggers paths..:)
+    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin();
+        iter != _analyzers.end(); ++iter)
+    {
+        iter->bookHistograms(ibooker);
+    }
+    
+}
 
 void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-      	static int eventNumber = 0;
-      	eventNumber++;
-      	LogTrace("HiggsValidation") << "In HLTHiggsSubAnalysis::analyze,  " 
-		<< "Event: " << eventNumber;
-	
-	// Initialize the event collections
-	this->_collections->reset();
+    // Initialize the event collections
+    this->_collections->reset();
 
-      	for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
-			iter != _analyzers.end(); ++iter) 
-	{
-	     	iter->analyze(iEvent, iSetup, this->_collections);
-      	}
+    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
+        iter != _analyzers.end(); ++iter) 
+    {
+        iter->analyze(iEvent, iSetup, this->_collections);
+    }
 }
 
 
 
-void HLTHiggsValidator::beginJob()
-{
-}
 
 void HLTHiggsValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
-      	// vector<HLTMuonPlotter>::iterator iter;
-      	// for(std::vector<HLTHiggsPlotter>::iterator iter = _analyzers.begin(); 
-	//                 iter != analyzers_.end(); ++iter) 
-	// {
-      	//         iter->endRun(iRun, iSetup);
-      	// }
+        // vector<HLTMuonPlotter>::iterator iter;
+        // for(std::vector<HLTHiggsPlotter>::iterator iter = _analyzers.begin(); 
+    //                 iter != analyzers_.end(); ++iter) 
+    // {
+        //         iter->endRun(iRun, iSetup);
+        // }
 }
 
 
-void HLTHiggsValidator::endJob()
-{
-}
 
 
 

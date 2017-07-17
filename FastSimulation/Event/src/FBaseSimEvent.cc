@@ -16,10 +16,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/Event/interface/BetaFuncPrimaryVertexGenerator.h"
-#include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
-#include "FastSimulation/Event/interface/FlatPrimaryVertexGenerator.h"
-#include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 
@@ -37,12 +33,8 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   nSimVertices(0),
   nGenParticles(0),
   nChargedParticleTracks(0),
-  initialSize(5000),
-  random(0)
+  initialSize(5000)
 {
-
-  theVertexGenerator = new NoPrimaryVertexGenerator();
-  theBeamSpot = math::XYZPoint(0.0,0.0,0.0);
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new std::vector<HepMC::GenParticle*>(); 
@@ -66,63 +58,11 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
-
-}
-
-FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
-			     const edm::ParameterSet& kine,
-			     const RandomEngine* engine) 
-  :
-  nSimTracks(0),
-  nSimVertices(0),
-  nGenParticles(0),
-  nChargedParticleTracks(0), 
-  initialSize(5000),
-  theVertexGenerator(0), 
-  random(engine)
-{
-
-  // Initialize the vertex generator
-  std::string vtxType = vtx.getParameter<std::string>("type");
-  if ( vtxType == "Gaussian" ) 
-    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
-  else if ( vtxType == "Flat" ) 
-    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx,random);
-  else if ( vtxType == "BetaFunc" )
-    theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx,random);
-  else
-    theVertexGenerator = new NoPrimaryVertexGenerator();
-  // Initialize the beam spot, if not read from the DataBase
-  theBeamSpot = math::XYZPoint(0.0,0.0,0.0);
 
   // Initialize the distance from (0,0,0) after which *generated* particles are 
   // no longer considered - because the mother could have interacted before.
   // unit : cm x cm
   lateVertexPosition = 2.5*2.5;
-
-  // Initialize the vectors of particles and vertices
-  theGenParticles = new std::vector<HepMC::GenParticle*>(); 
-  theSimTracks = new std::vector<FSimTrack>;
-  theSimVertices = new std::vector<FSimVertex>;
-  theChargedTracks = new std::vector<unsigned>();
-  theFSimVerticesType = new FSimVertexTypeCollection();
-
-  // Reserve some size to avoid mutiple copies
-  /* */
-  theSimTracks->resize(initialSize);
-  theSimVertices->resize(initialSize);
-  theGenParticles->resize(initialSize);
-  theChargedTracks->resize(initialSize);
-  theFSimVerticesType->resize(initialSize);
-  theTrackSize = initialSize;
-  theVertexSize = initialSize;
-  theGenSize = initialSize;
-  theChargedSize = initialSize;
-  /* */
-
-  // Initialize the Particle filter
-  myFilter = new KineParticleFilter(kine);
-
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
@@ -151,13 +91,6 @@ FBaseSimEvent::initializePdt(const HepPDT::ParticleDataTable* aPdt) {
 
 }
 
-/*
-const HepPDT::ParticleDataTable*
-FBaseSimEvent::theTable() const {
-  return pdt;
-}
-*/
-
 void
 FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   
@@ -166,25 +99,6 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 
   // Add the particles in the FSimEvent
   addParticles(myGenEvent);
-
-  /*
-  std::cout << "The MC truth! " << std::endl;
-  printMCTruth(myGenEvent);
-
-  std::cout << std::endl  << "The FAMOS event! " << std::endl;
-  print();
-  */
-
-}
-
-void
-FBaseSimEvent::fill(const reco::GenParticleCollection& myGenParticles) {
-  
-  // Clear old vectors
-  clear();
-
-  // Add the particles in the FSimEvent
-  addParticles(myGenParticles);
 
 }
 
@@ -235,9 +149,9 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 				  simVertices[0].position().z(),
 				  simVertices[0].position().t());
   //
-  myFilter->setMainVertex(primaryVertex);
+  //myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
-  addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
+  addSimVertex(/*myFilter->vertex()*/primaryVertex, -1, FSimVertexType::PRIMARY_VERTEX);
   myVertices[0] = 0;
 
   for( unsigned trackId=0; trackId<nTks; ++trackId ) {
@@ -286,7 +200,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
 
     bool notBremInDetector =
-      (abs(motherType) != 11 && abs(motherType) != 13) ||
+      (abs(motherType) != 11 && std::abs(motherType) != 13) ||
       motherType != track.type() ||
       position.Perp2() < lateVertexPosition ;
 
@@ -424,7 +338,6 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   }
 }
 
-
 void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
@@ -438,51 +351,27 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // Are there particles in the FSimEvent already ? 
   int offset = nGenParts();
 
-  // Primary vertex (already smeared by the SmearedVtx module)
+  // Primary vertex
   HepMC::GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
 
-  // Beginning of workaround a bug in pythia particle gun
-  unsigned primaryMother = primaryVertex->particles_in_size();
-  if ( primaryMother ) {
-    unsigned partId = (*(primaryVertex->particles_in_const_begin()))->pdg_id();
-    if ( abs(partId) == 2212 ) primaryMother = 0;
-  }
-  // End of workaround a bug in pythia particle gun
-
+  // unit transformation (needs review)
   XYZTLorentzVector primaryVertexPosition(primaryVertex->position().x()/10.,
 					  primaryVertex->position().y()/10.,
 					  primaryVertex->position().z()/10.,
 					  primaryVertex->position().t()/10.);
-  // Actually this is the true end of the workaround
-  primaryVertexPosition *= (1-primaryMother);
-  // THE END.
 
-  // Smear the main vertex if needed
-  // Now takes the origin from the database
-  XYZTLorentzVector smearedVertex; 
-  if ( primaryVertexPosition.Vect().Mag2() < 1E-16 ) {
-    theVertexGenerator->generate();
-    smearedVertex = XYZTLorentzVector(
-      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
-      theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
-      theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+theBeamSpot.Z(),
-      0.);
-  }
-
-  // Set the main vertex
-  myFilter->setMainVertex(primaryVertexPosition+smearedVertex);
-
-  // This is the smeared main vertex
-  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
-
-  HepMC::GenEvent::particle_const_iterator piter;
-  HepMC::GenEvent::particle_const_iterator pbegin = myGenEvent.particles_begin();
-  HepMC::GenEvent::particle_const_iterator pend = myGenEvent.particles_end();
+  // This is the main vertex index
+  int mainVertex = addSimVertex(primaryVertexPosition, -1, FSimVertexType::PRIMARY_VERTEX);
 
   int initialBarcode = 0; 
-  if ( pbegin != pend ) initialBarcode = (*pbegin)->barcode();
+  if ( myGenEvent.particles_begin() != myGenEvent.particles_end() )
+  {
+      initialBarcode = (*myGenEvent.particles_begin())->barcode();
+  }
+
   // Loop on the particles of the generated event
-  for ( piter = pbegin; piter != pend; ++piter ) {
+  for ( auto piter =  myGenEvent.particles_begin(); piter !=  myGenEvent.particles_end(); ++piter ) 
+  {
 
     // This is the generated particle pointer - for the signal event only
     HepMC::GenParticle* p = *piter;
@@ -505,17 +394,17 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       unsigned productionMother = productionVertex->particles_in_size();
       if ( productionMother ) {
 	unsigned motherId = (*(productionVertex->particles_in_const_begin()))->pdg_id();
-	if ( abs(motherId) < 1000000 ) 
+	if ( motherId < 1000000 ) 
 	  productionVertexPosition = 
 	    XYZTLorentzVector(productionVertex->position().x()/10.,
 			      productionVertex->position().y()/10.,
 			      productionVertex->position().z()/10.,
-			      productionVertex->position().t()/10.) + smearedVertex;
+			      productionVertex->position().t()/10.);
       }
     }
-    if ( !myFilter->accept(productionVertexPosition) ) continue;
+    if ( !myFilter->acceptVertex(productionVertexPosition) ) continue;
 
-    int abspdgId = abs(p->pdg_id());
+    int abspdgId = std::abs(p->pdg_id());
     HepMC::GenVertex* endVertex = p->end_vertex();
 
     // Keep only: 
@@ -529,7 +418,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	  XYZTLorentzVector(endVertex->position().x()/10.,
 			    endVertex->position().y()/10.,
 			    endVertex->position().z()/10.,
-			    endVertex->position().t()/10.) + smearedVertex;
+			    endVertex->position().t()/10.);
 	// If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
 	if ( decayPosition.Perp2() > lateVertexPosition ) testStable = true;
       }
@@ -625,8 +514,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	XYZTLorentzVector(p->end_vertex()->position().x()/10.,
 			  p->end_vertex()->position().y()/10.,
 			  p->end_vertex()->position().z()/10.,
-			  p->end_vertex()->position().t()/10.) +
-	smearedVertex;
+			  p->end_vertex()->position().t()/10.);
       //	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack, FSimVertexType::DECAY_VERTEX);
 
@@ -638,150 +526,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
 }
 
-void
-FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
-
-  // If no particles, no work to be done !
-  unsigned int nParticles = myGenParticles.size();
-  nGenParticles = nParticles;
-
-  if ( !nParticles ) return;
-
-  /// Some internal array to work with.
-  std::map<const reco::Candidate*,int> myGenVertices;
-
-  // Are there particles in the FSimEvent already ? 
-  int offset = nTracks();
-
-  // Skip the incoming protons
-  nGenParticles = 0;
-  unsigned int ip = 0;
-  if ( nParticles > 1 && 
-       myGenParticles[0].pdgId() == 2212 &&
-       myGenParticles[1].pdgId() == 2212 ) { 
-    ip = 2;
-    nGenParticles = 2;
-  }
-
-  // Primary vertex (already smeared by the SmearedVtx module)
-  XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
-				   myGenParticles[ip].vy(),
-				   myGenParticles[ip].vz(),
-				   0.);
-
-  // Smear the main vertex if needed
-  XYZTLorentzVector smearedVertex;
-  if ( primaryVertex.mag() < 1E-8 ) {
-    theVertexGenerator->generate();
-    smearedVertex = XYZTLorentzVector(
-      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
-      theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
-      theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+theBeamSpot.Z(),
-      0.);
-  }
-
-  // Set the main vertex
-  myFilter->setMainVertex(primaryVertex+smearedVertex);
-
-  // This is the smeared main vertex
-  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
-
-  // Loop on the particles of the generated event
-  for ( ; ip<nParticles; ++ip ) { 
-    
-    // nGenParticles = ip;
-    
-    nGenParticles++;
-    const reco::GenParticle& p = myGenParticles[ip];
-
-    // Reject particles with late origin vertex (i.e., coming from late decays)
-    // This should not happen, but one never knows what users may be up to!
-    // For example exotic particles might decay late - keep the decay products in the case.
-    XYZTLorentzVector productionVertexPosition(0.,0.,0.,0.);
-    const reco::Candidate* productionMother = p.numberOfMothers() ? p.mother(0) : 0;
-    if ( productionMother ) {
-      unsigned motherId = productionMother->pdgId();
-      if ( abs(motherId) < 1000000 )
-	productionVertexPosition = XYZTLorentzVector(p.vx(), p.vy(), p.vz(), 0.) + smearedVertex;
-    }
-    if ( !myFilter->accept(productionVertexPosition) ) continue;
-
-    // Keep only: 
-    // 1) Stable particles
-    bool testStable = p.status()%1000==1;
-    // Declare stable standard particles that decay after a macroscopic path length 
-    // (except if exotic particle)
-    if ( p.status() == 2 && abs(p.pdgId()) < 1000000 ) {
-      unsigned int nDaughters = p.numberOfDaughters();
-      if ( nDaughters ) { 
-	const reco::Candidate* daughter = p.daughter(0);
-	XYZTLorentzVector decayPosition = 
-	  XYZTLorentzVector(daughter->vx(), daughter->vy(), daughter->vz(), 0.) + smearedVertex;
-	// If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
-	if ( decayPosition.Perp2() > lateVertexPosition ) testStable = true;
-      }
-    }
-
-    // 2) or particles with stable daughters
-    bool testDaugh = false;
-    unsigned int nDaughters = p.numberOfDaughters();
-    if ( !testStable  && 
-	 //	 p.status() == 2 && 
-	 nDaughters ) {  
-      for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
-	const reco::Candidate* daughter = p.daughter(iDaughter);
-	if ( daughter->status()%1000==1 ) {
-	  testDaugh=true;
-	  break;
-	}
-      }
-    }
-
-    // 3) or particles that fly more than one micron.
-    double dist = 0.;
-    if ( !testStable && !testDaugh ) {
-      XYZTLorentzVector productionVertex(p.vx(),p.vy(),p.vz(),0.);
-      dist = (primaryVertex-productionVertex).Vect().Mag2();
-    }
-    bool testDecay = ( dist > 1e-8 ) ? true : false; 
-
-    // Save the corresponding particle and vertices
-    if ( testStable || testDaugh || testDecay ) {
-      
-      const reco::Candidate* mother = p.numberOfMothers() ? p.mother(0) : 0;
-
-      int originVertex = 
-	mother &&  
-	myGenVertices.find(mother) != myGenVertices.end() ? 
-      	myGenVertices[mother] : mainVertex;
-      
-      XYZTLorentzVector momentum(p.px(),p.py(),p.pz(),p.energy());
-      RawParticle part(momentum, vertex(originVertex).position());
-      part.setID(p.pdgId());
-
-      // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
-
-      // It there an end vertex ?
-      if ( !nDaughters ) continue; 
-      const reco::Candidate* daughter = p.daughter(0);
-
-      // Add the vertex to the event and to the various lists
-      XYZTLorentzVector decayVertex = 
-	XYZTLorentzVector(daughter->vx(), daughter->vy(),
-			  daughter->vz(), 0.) + smearedVertex;
-      int theVertex = addSimVertex(decayVertex,theTrack, FSimVertexType::DECAY_VERTEX);
-
-      if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
-
-      // There we are !
-    }
-  }
-
-  // There is no GenParticle's in that case...
-  // nGenParticles=0;
-
-}
 
 int 
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
@@ -789,7 +533,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
   
   // Check that the particle is in the Famos "acceptance"
   // Keep all primaries of pile-up events, though
-  if ( !myFilter->accept(p) && ig >= -1 ) return -1;
+  if ( !myFilter->acceptParticle(*p) && ig >= -1 ) return -1;
 
   // The new track index
   int trackId = nSimTracks++;
@@ -827,7 +571,7 @@ int
 FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type) {
   
   // Check that the vertex is in the Famos "acceptance"
-  if ( !myFilter->accept(v) ) return -1;
+  if ( !myFilter->acceptVertex(v) ) return -1;
 
   // The number of vertices
   int vertexId = nSimVertices++;
@@ -989,32 +733,8 @@ FBaseSimEvent::chargedTrack(int id) const {
     return -1;
 }
 
-/* 
-const SimTrack & 
-FBaseSimEvent::embdTrack(int i) const {  
-  return (*theSimTracks)[i].simTrack();
-}
-
-const SimVertex & 
-FBaseSimEvent::embdVertex(int i) const { 
-  return (*theSimVertices)[i].simVertex();
-}
-*/
-
 const HepMC::GenParticle* 
 FBaseSimEvent::embdGenpart(int i) const {
   return (*theGenParticles)[i]; 
 }
 
-/*
-FSimTrack&  
-FBaseSimEvent::track(int id) const { 
-  return (*theSimTracks)[id];
-}
-
-
-FSimVertex&  
-FBaseSimEvent::vertex(int id) const { 
-  return (*theSimVertices)[id];
-}
-*/

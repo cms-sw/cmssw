@@ -8,7 +8,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     # vertex selection 
     useVertices = cms.bool(True),
     useVtxError = cms.bool(False),
-    vertices = cms.InputTag("pixelVertices"),
+    vertices = cms.InputTag("firstStepPrimaryVertices"),
     vtxNumber = cms.int32(-1),
     vertexCut = cms.string('ndof>=2&!isFake'),
 

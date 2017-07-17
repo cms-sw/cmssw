@@ -47,6 +47,17 @@ public:
     theCurvilinearError(InvalidError())
   {}
   
+
+  FreeTrajectoryState(const GlobalPoint& aX,
+                      const GlobalVector& aP,
+                      TrackCharge aCharge,
+                      const MagneticField* fieldProvider,
+		      GlobalVector fieldValue) :
+    theGlobalParameters(aX, aP, aCharge, fieldProvider,fieldValue),
+    theCurvilinearError(InvalidError())
+  {}
+
+
   
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
@@ -122,12 +133,16 @@ public:
     createCurvilinearError(CartesianTrajectoryError(err)); 
   }
 
+  CurvilinearTrajectoryError & setCurvilinearError() {
+        return theCurvilinearError;
+  }
+
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
         theCurvilinearError = err;
   }
-  void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
-        theCurvilinearError = CurvilinearTrajectoryError(err); 
-  }
+//  void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
+//        theCurvilinearError = CurvilinearTrajectoryError(err); 
+//  }
 
 private:
 

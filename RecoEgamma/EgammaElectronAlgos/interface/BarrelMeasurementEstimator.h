@@ -44,9 +44,9 @@ class BarrelMeasurementEstimator : public MeasurementEstimator
      { theZMin=zmin ; theZMax=zmax ; }
 
     // zero value indicates incompatible ts - hit pair
-    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TransientTrackingRecHit & hit ) const ;
-    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, GlobalPoint & gp ) const ;
-    virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, GlobalPoint & gp ) const ;
+    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const ;
+    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
+    virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
     virtual bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
 
     virtual BarrelMeasurementEstimator* clone() const

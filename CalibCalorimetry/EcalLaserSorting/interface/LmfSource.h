@@ -14,8 +14,8 @@
 class LmfSource: public edm::ProducerSourceBase{
 private:
   struct IndexRecord{
-    int orbit;
-    std::streampos filePos;
+    uint32_t orbit;
+    uint32_t filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
@@ -33,7 +33,7 @@ private:
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
 
   bool openFile(int iFile);
   
@@ -80,7 +80,7 @@ private:
    */
   std::vector<uint32_t> header_;
 
-  static unsigned fileHeaderSize;
+  static const unsigned fileHeaderSize;
   
   /** Buffer for file header readout
    */
@@ -89,11 +89,11 @@ private:
 
   /** Minimal LMF data format version supported.
    */
-  static unsigned char minDataFormatVersion_;
+  static const unsigned char minDataFormatVersion_;
   
   /** Maximal LMF data format version supported.
    */
-  static unsigned char maxDataFormatVersion_;
+  static const unsigned char maxDataFormatVersion_;
 
   /** Filtering events. Used for prescale.
    * @return true of event accepted, false if rejected

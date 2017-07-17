@@ -8,20 +8,21 @@
  */
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
-#include <FWCore/Framework/interface/EDProducer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 class CSCMonitorInterface;
 
-class CSCDCCUnpacker: public edm::EDProducer {
+class CSCDCCUnpacker: public edm::stream::EDProducer<> {
  public:
   /// Constructor
   CSCDCCUnpacker(const edm::ParameterSet & pset);
   
   /// Destructor
   virtual ~CSCDCCUnpacker();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);

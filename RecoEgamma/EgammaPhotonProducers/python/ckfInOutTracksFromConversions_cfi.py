@@ -10,7 +10,7 @@ ckfInOutTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     producer = cms.string('conversionTrackCandidates'),
     Fitter = cms.string('KFFittingSmootherForInOut'),
     trackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
-    TrajectoryInEvent = cms.bool(True),
+    TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #string AlgorithmName = "ecalSeededConv"
     AlgorithmName = cms.string('inOutEcalSeededConv'),
@@ -20,6 +20,7 @@ ckfInOutTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     beamSpot = cms.InputTag("offlineBeamSpot"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     MeasurementTracker = cms.string(''),                              
+    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
 
 

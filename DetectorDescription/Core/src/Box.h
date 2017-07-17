@@ -2,6 +2,9 @@
 #define DDI_Box_h
 
 #include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "Solid.h"
 
 
@@ -17,10 +20,10 @@ namespace DDI {
       p_.push_back(yHalf);
       p_.push_back(zHalf);
     }  
-    ~Box() { }
+    ~Box() override { }
     
-    double volume() const { return 8.*p_[0]*p_[1]*p_[2]; }
-    void stream(std::ostream & os) const;
+    double volume() const override { return 8.*p_[0]*p_[1]*p_[2]; }
+    void stream(std::ostream & os) const override;
   };
 
 }

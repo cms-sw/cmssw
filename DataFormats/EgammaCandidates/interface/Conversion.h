@@ -86,16 +86,13 @@ namespace reco {
 		  const reco::Vertex  &  convVtx,
 		  ConversionAlgorithm=undefined);
       
-           
       
-      /// destructor
-      virtual ~Conversion();
       /// returns a clone of the candidate
       Conversion * clone() const;
       /// Pointer to CaloCluster (foe Egamma Conversions it points to  a SuperCluster)
       reco::CaloClusterPtrVector caloCluster() const {return caloCluster_ ;}
       /// vector of track to base references 
-      std::vector<edm::RefToBase<reco::Track> > tracks() const ; 
+      std::vector<edm::RefToBase<reco::Track> > const& tracks() const ; 
       /// returns  the reco conversion vertex
       const reco::Vertex & conversionVertex() const  { return theConversionVertex_ ; }
       /// Bool flagging objects having track size >0
@@ -190,18 +187,14 @@ namespace reco {
       
       /// vector pointer to a/multiple seed CaloCluster(s)
       reco::CaloClusterPtrVector caloCluster_;
-      ///  vector of Track references
-      std::vector<reco::TrackRef>  tracks_;
       /// vector Track RefToBase
-      mutable std::vector<edm::RefToBase<reco::Track> >  trackToBaseRefs_;
+      std::vector<edm::RefToBase<reco::Track> >  trackToBaseRefs_;
       /// position at the ECAl surface of the track extrapolation
       std::vector<math::XYZPointF>  thePositionAtEcal_;
       /// Fitted Kalman conversion vertex
       reco::Vertex theConversionVertex_;
       /// Clusters mathing the tracks (these are not the seeds)
       std::vector<reco::CaloClusterPtr> theMatchingBCs_;
-      /// Distance of min approach of the two tracks
-      float theMinDistOfApproach_;
       /// P_in of tracks
       std::vector<math::XYZPointF> theTrackInnerPosition_;    
       /// P_in of tracks
@@ -212,15 +205,17 @@ namespace reco {
       std::vector<uint8_t> nHitsBeforeVtx_;
       ///signed decay length and uncertainty from nearest hit on track to conversion vertex
       std::vector<Measurement1DFloat> dlClosestHitToVtx_;
-      ///number of shared hits between tracks
-      uint8_t nSharedHits_;
-      /// TMVA output
-      float theMVAout_;
       /// vectors of TMVA outputs from pflow for one leg conversions
       std::vector<float>  theOneLegMVA_;
+      /// Distance of min approach of the two tracks
+      float theMinDistOfApproach_;
+      /// TMVA output
+      float theMVAout_;
+      uint16_t qualityMask_;
+      ///number of shared hits between tracks
+      uint8_t nSharedHits_;
       /// conversion algorithm/provenance
       uint8_t algorithm_;
-      uint16_t qualityMask_;
 
 
   };

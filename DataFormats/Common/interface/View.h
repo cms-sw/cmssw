@@ -7,7 +7,7 @@
 //
 /**\class edm::View<T>
 
-Description: Provide access to the collected elements contained by any EDProduct that is a sequence.
+Description: Provide access to the collected elements contained by any WrapperBase that is a sequence.
 
 */
 //
@@ -16,15 +16,20 @@ Description: Provide access to the collected elements contained by any EDProduct
 //
 
 #include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
-#include "DataFormats/Common/interface/RefVectorHolderBase.h"
-#include "DataFormats/Common/interface/RefToBaseVector.h"
-
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/IndirectHolder.h"
+#include "DataFormats/Common/interface/RefHolder_.h"
 #include "boost/iterator/indirect_iterator.hpp"
 
 #include <vector>
+#include <memory>
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <cassert>
 
 namespace edm {
+  class EDProductGetter;
 
   //------------------------------------------------------------------
   // Class ViewBase
@@ -38,13 +43,13 @@ namespace edm {
   class ViewBase {
   public:
     virtual ~ViewBase();
-    ViewBase* clone() const;
+    std::unique_ptr<ViewBase> clone() const;
 
   protected:
     ViewBase();
     ViewBase(ViewBase const&);
     ViewBase& operator=(ViewBase const&);
-    virtual ViewBase* doClone() const = 0;
+    virtual std::unique_ptr<ViewBase> doClone() const = 0;
     void swap(ViewBase&) {} // Nothing to swap
   };
 
@@ -95,7 +100,8 @@ namespace edm {
     // This function is dangerous, and should only be called from the
     // infrastructure code.
     View(std::vector<void const*> const& pointers,
-         helper_vector_ptr const& helpers);
+         FillViewHelperVector const& helpers,
+         EDProductGetter const* getter);
 
     virtual ~View();
 
@@ -121,14 +127,10 @@ namespace edm {
     const_reference operator[](size_type pos) const;
     RefToBase<value_type> refAt(size_type i) const;
     Ptr<value_type> ptrAt(size_type i) const;
-    RefToBaseVector<T> const& refVector() const { return refs_; }
-    PtrVector<T> const& ptrVector() const { return ptrs_; }
+    std::vector<Ptr<value_type> > const& ptrs() const;
 
     const_reference front() const;
     const_reference back() const;
-    void pop_back();
-    ProductID id() const;
-    EDProductGetter const* productGetter() const;
 
     // No erase, because erase is required to return an *iterator*,
     // not a *const_iterator*.
@@ -136,15 +138,10 @@ namespace edm {
     // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output);
 
-    void const* product() const {
-      return refs_.product();
-    }
-
   private:
     seq_t items_;
-    RefToBaseVector<T> refs_;
-    PtrVector<T> ptrs_;
-    ViewBase* doClone() const;
+    std::vector<Ptr<value_type> > vPtrs_;
+    std::unique_ptr<ViewBase> doClone() const override;
   };
 
   // Associated free functions (same as for std::vector)
@@ -163,39 +160,35 @@ namespace edm {
   inline
   View<T>::View() :
     items_(),
-    refs_(),
-    ptrs_() {
+    vPtrs_() {
   }
 
   template<typename T>
   View<T>::View(std::vector<void const*> const& pointers,
-                helper_vector_ptr const& helpers) :
+                FillViewHelperVector const& helpers,
+                EDProductGetter const* getter) :
     items_(),
-    refs_(),
-    ptrs_() {
+    vPtrs_() {
     size_type numElements = pointers.size();
 
     // If the two input vectors are not of the same size, there is a
     // logic error in the framework code that called this.
     // constructor.
-    if(helpers.get() != 0) {
-      assert(numElements == helpers->size());
+    assert(numElements == helpers.size());
 
-      items_.reserve(numElements);
-       ptrs_.reserve(refs_.size());
-      for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
-        void const* p = pointers[i];
-        items_.push_back(static_cast<pointer>(p));
-        if(0!=p) {
-           ptrs_.push_back(Ptr<T>(helpers->id(), static_cast<T const*>(p), helpers->keyForIndex(i)));
-        } else if(helpers->productGetter() != 0) {
-           ptrs_.push_back(Ptr<T>(helpers->id(), helpers->keyForIndex(i), helpers->productGetter()));
-        } else {
-           ptrs_.push_back(Ptr<T>(helpers->id(), 0, helpers->keyForIndex(i)));
-        }
+    items_.reserve(numElements);
+    vPtrs_.reserve(numElements);
+    for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
+      void const* p = pointers[i];
+      auto const& h = helpers[i];
+      items_.push_back(static_cast<pointer>(p));
+      if(0!=p) {
+         vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
+      } else if(getter != nullptr) {
+         vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));
+      } else {
+         vPtrs_.push_back(Ptr<T>(h.first, nullptr, h.second));
       }
-      RefToBaseVector<T> temp(helpers);
-      refs_.swap(temp);
     }
   }
 
@@ -209,8 +202,7 @@ namespace edm {
   View<T>::swap(View& other) {
     this->ViewBase::swap(other);
     items_.swap(other.items_);
-    refs_.swap(other.refs_);
-    ptrs_.swap(other.ptrs_);
+    vPtrs_.swap(other.vPtrs_);
   }
 
   template<typename T>
@@ -287,16 +279,33 @@ namespace edm {
   inline
   RefToBase<T>
   View<T>::refAt(size_type i) const {
-    return refs_[i];
+    //NOTE: considered creating a special BaseHolder for edm::Ptr.
+    // But the IndirectHolder and RefHolder would still be needed
+    // for other reasons. To reduce the number of dictionaries needed
+    // we avoid using a more efficient BaseHolder.
+    return RefToBase<T>(std::unique_ptr<reftobase::BaseHolder<T>>{
+                          new reftobase::IndirectHolder<T>{
+                            std::unique_ptr<reftobase::RefHolder<edm::Ptr<T>>>{
+                              new reftobase::RefHolder<Ptr<T>>{ptrAt(i)}
+                            }
+                          }
+                        } );
   }
-
+  
   template<typename T>
   inline
   Ptr<T>
   View<T>::ptrAt(size_type i) const {
-    RefToBase<T> ref = refAt(i);
-    return Ptr<T>(ref.id(), (ref.isAvailable() ? ref.get(): 0), ref.key());
+    return vPtrs_[i];
   }
+  
+  template<typename T>
+  inline
+  std::vector<Ptr<T> > const&
+  View<T>::ptrs() const {
+    return vPtrs_;
+  }
+
 
   template<typename T>
   inline
@@ -312,26 +321,6 @@ namespace edm {
     return *items_.back();
   }
 
-  template<typename T>
-  inline
-  void
-  View<T>::pop_back() {
-    items_.pop_back();
-  }
-
-  template<typename T>
-  inline
-  ProductID
-  View<T>::id() const {
-    return refs_.id();
-  }
-  template<typename T>
-  inline
-  EDProductGetter const*
-  View<T>::productGetter() const {
-    return refs_.productGetter();
-  }
-
   // The following is for testing only.
   template<typename T>
   inline
@@ -343,11 +332,11 @@ namespace edm {
   }
 
   template<typename T>
-  ViewBase*
+  std::unique_ptr<ViewBase>
   View<T>::doClone() const {
-    return new View(*this);
+    return std::unique_ptr<ViewBase>{new View(*this)};
   }
-
+  
   template<typename T>
   inline
   View<T>&

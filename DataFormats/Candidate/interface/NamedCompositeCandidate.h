@@ -12,7 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 #include <string>
 #include <map>
@@ -60,7 +59,7 @@ namespace reco {
     virtual const Candidate * daughter( size_type i ) const  { return CompositeCandidate::daughter(i); }
     // Add daughters
     void                    addDaughter( const Candidate &, const std::string&s );
-    void                    addDaughter( std::auto_ptr<Candidate>, const std::string& s );
+    void                    addDaughter( std::unique_ptr<Candidate>, const std::string& s );
     // Clear daughters and roles
     void                    clearDaughters() { CompositeCandidate::clearDaughters(); }
     void                    clearRoles() { roles_.clear(); }

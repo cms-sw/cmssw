@@ -6,23 +6,16 @@
  */
 
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 //
@@ -34,7 +27,7 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
    originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
    softJetPt_(iConfig.getParameter<double> ("SoftJetPt")),
    hardJetPt_(iConfig.getParameter<double> ("HardJetPt")),
-   minDeltaEta_(iConfig.getParameter<double> ("MinDeltaEta")), 
+   minDeltaEta_(iConfig.getParameter<double> ("MinDeltaEta")),
    thirdJetPt_(iConfig.getParameter<double> ("ThirdJetPt")),
    maxAbsJetEta_(iConfig.getParameter<double> ("MaxAbsJetEta")),
    maxAbsThirdJetEta_(iConfig.getParameter<double> ("MaxAbsThirdJetEta")),
@@ -46,7 +39,7 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
 }
 
 template <typename T>
-HLTJetCollectionsVBFFilter<T>::~HLTJetCollectionsVBFFilter(){}
+HLTJetCollectionsVBFFilter<T>::~HLTJetCollectionsVBFFilter()= default;
 
 template <typename T>
 void
@@ -63,13 +56,13 @@ HLTJetCollectionsVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("MaxAbsThirdJetEta",2.6);
   desc.add<unsigned int>("MinNJets",2);
   desc.add<int>("TriggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsVBFFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetCollectionsVBFFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------
 template <typename T>
 bool
-HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
@@ -90,9 +83,9 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
   // filter decision
   bool accept(false);
   std::vector < TRef > goodJetRefs;
-  
+
   for(unsigned int collection = 0; collection < theJetCollections.size(); ++ collection) {
-    
+
     const TRefVector & refVector =  theJetCollections[collection];
     if(refVector.size() < minNJets_) continue;
 
@@ -101,47 +94,47 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
     // 3rd Jet check decision
     bool goodThirdJet(false);
     if ( minNJets_ < 3 ) goodThirdJet = true;
-    
+
     //empty the good jets collection
     goodJetRefs.clear();
-            
+
     TRef refOne;
     TRef refTwo;
     typename TRefVector::const_iterator jetOne ( refVector.begin() );
     int firstJetIndex=100, secondJetIndex=100, thirdJetIndex=100;
 
-    // Cycle to look for VBF jets 
+    // Cycle to look for VBF jets
     for (; jetOne != refVector.end(); jetOne++) {
       TRef jetOneRef(*jetOne);
-            
+
       if ( thereAreVBFJets ) break;
       if ( jetOneRef->pt() < hardJetPt_ ) break;
       if ( std::abs(jetOneRef->eta()) > maxAbsJetEta_ ) continue;
-      
+
       typename TRefVector::const_iterator jetTwo = jetOne + 1;
-      secondJetIndex = firstJetIndex; 
+      secondJetIndex = firstJetIndex;
       for (; jetTwo != refVector.end(); jetTwo++) {
         TRef jetTwoRef(*jetTwo);
-      
+
         if ( jetTwoRef->pt() < softJetPt_ ) break;
         if ( std::abs(jetTwoRef->eta()) > maxAbsJetEta_ ) continue;
-        
+
         if ( std::abs(jetTwoRef->eta() - jetOneRef->eta()) < minDeltaEta_ ) continue;
-        
+
         thereAreVBFJets = true;
-        refOne = TRef(refVector, distance(refVector.begin(), jetOne));
+        refOne = *jetOne;
         goodJetRefs.push_back(refOne);
-        refTwo = TRef(refVector, distance(refVector.begin(), jetTwo));
+        refTwo = *jetTwo;
         goodJetRefs.push_back(refTwo);
-        
+
         firstJetIndex = (int) (jetOne - refVector.begin());
         secondJetIndex= (int) (jetTwo - refVector.begin());
-        
+
         break;
-        
+
       }
     }// Close looop on VBF
-        
+
     // Look for a third jet, if you've found the previous 2
     if ( minNJets_ > 2 && thereAreVBFJets ) {
       TRef refThree;
@@ -150,12 +143,12 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
         thirdJetIndex = (int) (jetThree - refVector.begin());
 
         TRef jetThreeRef(*jetThree);
-          
+
         if ( thirdJetIndex == firstJetIndex || thirdJetIndex == secondJetIndex ) continue;
-      
+
         if (jetThreeRef->pt() >= thirdJetPt_ && std::abs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
           goodThirdJet = true;
-          refThree = TRef(refVector, distance(refVector.begin(), jetThree));
+          refThree = *jetThree;
           goodJetRefs.push_back(refThree);
           break;
         }

@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackProducer = cms.EDProducer("TrackProducer",
+    useSimpleMF = cms.bool(False),
+    SimpleMagneticField = cms.string(""),
     src = cms.InputTag("ckfTrackCandidates"),
     clusterRemovalInfo = cms.InputTag(""),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
     useHitsSplitting = cms.bool(False),
     alias = cms.untracked.string('ctfWithMaterialTracks'),
-    TrajectoryInEvent = cms.bool(True),
+    TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
@@ -21,8 +23,12 @@ TrackProducer = cms.EDProducer("TrackProducer",
     ### These are paremeters related to the filling of the Secondary hit-patterns                               
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)    
     NavigationSchool = cms.string('SimpleNavigationSchool'),          
-    MeasurementTracker = cms.string('')                   
+    MeasurementTracker = cms.string(''),
+    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
 
-
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(TrackProducer, TTRHBuilder = 'WithTrackAngle') # FIXME
 

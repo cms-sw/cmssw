@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="IOPool/Streamer"/>
+<use   name="IOPool/Output"/>
+<use   name="EventFilter/Utilities"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
+
+<library   file="*.cc" name="DQMServicesStreamerIOPlugins">
+  <flags   EDM_PLUGIN="1"/>
+  <flags   REM_CXXFLAGS="-Werror=unused-variable"/>
+</library>

@@ -24,8 +24,9 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,6 +35,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalHaloAlgo.h"
 //Included Classes (semi-alphabetical)
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -62,7 +64,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -82,7 +84,7 @@
 
 namespace reco
 {
-  class HcalHaloDataProducer : public edm::EDProducer {
+  class HcalHaloDataProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit HcalHaloDataProducer(const edm::ParameterSet&);
@@ -96,6 +98,15 @@ namespace reco
     edm::InputTag IT_HBHERecHit;
     edm::InputTag IT_HORecHit;
     edm::InputTag IT_HFRecHit;
+    edm::InputTag IT_CaloTowers;
+    edm::InputTag IT_EBRecHit;
+    edm::InputTag IT_EERecHit;
+
+    edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
+    edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
+    edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
+    edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;

@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 
@@ -44,29 +45,30 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/cstdint.hpp>
 
- class SiPixelRawDataErrorSource : public edm::EDAnalyzer {
+ class SiPixelRawDataErrorSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelRawDataErrorSource(const edm::ParameterSet& conf);
        ~SiPixelRawDataErrorSource();
 
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
+       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs();
+       virtual void bookMEs(DQMStore::IBooker &);
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag src_;
+       edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
+       edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
+       std::string topFolderName_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -74,13 +76,28 @@
        bool modOn;
        bool ladOn;
        bool bladeOn;
+       bool isUpgrade;
        int eventNo;
-       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
        bool firstRun;
        MonitorElement* byLumiErrors; 
        MonitorElement* errorRate;
+       MonitorElement* fedcounter;
+
+       MonitorElement* meErrorType_[40];
+       MonitorElement* meNErrors_[40];
+       MonitorElement* meFullType_[40];
+       MonitorElement* meTBMMessage_[40];
+       MonitorElement* meTBMType_[40];
+       MonitorElement* meEvtNbr_[40];
+       MonitorElement* meEvtSize_[40];
+
+       MonitorElement* meFedChNErr_[40];
+       MonitorElement* meFedChLErr_[40];
+       MonitorElement* meFedETypeNErr_[40];
+
+       std::map<std::string,MonitorElement**> meMapFEDs_;
        
  };
 

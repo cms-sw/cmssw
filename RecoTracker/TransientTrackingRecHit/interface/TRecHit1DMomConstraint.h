@@ -4,55 +4,54 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-class GeomDetUnit;
 
-class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
+
+class TRecHit1DMomConstraint final : public TransientTrackingRecHit {
  public:
 
   virtual ~TRecHit1DMomConstraint() {}
 
-  virtual AlgebraicVector parameters() const {
+  virtual AlgebraicVector parameters() const override {
     AlgebraicVector result(1);
     result[0] = charge_/fabs(mom_);
     return result;
   }
   
-  virtual AlgebraicSymMatrix parametersError() const {
+  virtual AlgebraicSymMatrix parametersError() const override {
     AlgebraicSymMatrix m(1);
     m[0][0] = err_/(mom_*mom_);//parametersErrors are squared
     m[0][0] *= m[0][0];
     return m;
   }
 
-  virtual AlgebraicMatrix projectionMatrix() const {
+  virtual AlgebraicMatrix projectionMatrix() const override {
     AlgebraicMatrix theProjectionMatrix;
     theProjectionMatrix = AlgebraicMatrix( 1, 5, 0);
     theProjectionMatrix[0][0] = 1;
     return theProjectionMatrix;
   }
-  virtual int dimension() const {return 1;}
+  virtual int dimension() const override {return 1;}
 
-  virtual LocalPoint localPosition() const {return LocalPoint(0,0,0);}
-  virtual LocalError localPositionError() const {return LocalError(0,0,0);}
+  virtual LocalPoint localPosition() const override {return LocalPoint(0,0,0);}
+  virtual LocalError localPositionError() const override {return LocalError(0,0,0);}
 
   double mom() const {return mom_;}
   double err() const {return err_;}
   int charge() const {return charge_;}
 
 
-  virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-  virtual TrackingRecHit * cloneHit() const { return 0;}
+  virtual const TrackingRecHit * hit() const override {return 0;}//fixme return invalid
+  virtual TrackingRecHit * cloneHit() const override { return 0;}
 
-  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
-  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
+  virtual std::vector<const TrackingRecHit*> recHits() const override { return std::vector<const TrackingRecHit*>(); }
+  virtual std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>(); }
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const override { return false;}
 
-  virtual bool canImproveWithTrack() const {return false;}
+  virtual bool canImproveWithTrack() const override {return false;}
 
-  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
-  virtual const GeomDetUnit* detUnit() const {return 0;}
-  virtual const GeomDet* det() const {return 0;}
+  virtual const GeomDetUnit* detUnit() const override {return 0;}
 
   static RecHitPointer build(const int charge,
 			     const double mom,
@@ -61,13 +60,13 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
     return RecHitPointer( new TRecHit1DMomConstraint( charge, mom, err, surface));
   }
 
-  virtual const Surface * surface() const {return surface_;}
+  virtual const Surface * surface() const override {return surface_;}
 
-  virtual GlobalPoint globalPosition() const { return GlobalPoint();  }
-  virtual GlobalError globalPositionError() const { return GlobalError();}
-  virtual float errorGlobalR() const { return 0;}
-  virtual float errorGlobalZ() const { return 0; }
-  virtual float errorGlobalRPhi() const { return 0; }
+  virtual GlobalPoint globalPosition() const override { return GlobalPoint();  }
+  virtual GlobalError globalPositionError() const override { return GlobalError();}
+  virtual float errorGlobalR() const override { return 0;}
+  virtual float errorGlobalZ() const override { return 0; }
+  virtual float errorGlobalRPhi() const override { return 0; }
 
 
  private:
@@ -85,7 +84,7 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
   TRecHit1DMomConstraint( const TRecHit1DMomConstraint& other ):
     charge_( other.charge() ), mom_( other.mom() ),err_( other.err() ), surface_((other.surface())) {}
   
-  virtual TRecHit1DMomConstraint * clone() const {
+  virtual TRecHit1DMomConstraint * clone() const override {
     return new TRecHit1DMomConstraint(*this);
   }
 

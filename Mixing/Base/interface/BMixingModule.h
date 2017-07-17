@@ -16,21 +16,31 @@
  ************************************************************/
 
 #include <vector>
+#include <memory>
 
-#include "boost/shared_ptr.hpp"
-
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
 
-
 namespace edm {
-  class BMixingModule : public edm::EDProducer {
+  namespace MixingCache {
+    struct Config {
+      Config(edm::ParameterSet const& pset, unsigned int maxNbSources);
+      int bunchSpace_;
+      int minBunch_;
+      int maxBunch_;
+      bool playback_;
+      std::vector<std::string> sourceNames_;
+      std::vector<std::shared_ptr<PileUpConfig>> inputConfigs_;
+    };
+  }
+
+  class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>> {
     public:
       /** standard constructor*/
-      explicit BMixingModule(const edm::ParameterSet& ps);
+      explicit BMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
       virtual ~BMixingModule();
@@ -49,6 +59,9 @@ namespace edm {
       virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
       virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
 
+      static std::unique_ptr<MixingCache::Config> initializeGlobalCache(edm::ParameterSet const&);
+      static void globalEndJob(MixingCache::Config*) {}
+
       // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
 
@@ -59,25 +72,23 @@ namespace edm {
       // Should 'poisson' return 0 or 1 if there is no mixing? See also averageNumber above.
       bool poisson() const {return inputSources_[0] ? inputSources_[0]->poisson() : 0.0 ;}
 
-      virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      virtual void checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
-      virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
-      virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
-      virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
-      virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void doPileUp(edm::Event &e, const edm::EventSetup& c) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
-      virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
-      virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
+      virtual void createnewEDProduct();
+      virtual void checkSignal(const edm::Event &e);
+      virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {}
+      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {}
+      virtual void setBcrOffset ();
+      virtual void setSourceOffset (const unsigned int s);
+      virtual void put(edm::Event &e,const edm::EventSetup& c) {}
+      virtual void doPileUp(edm::Event &e, const edm::EventSetup& c);
 
   protected:
       void setupPileUpEvent(const edm::EventSetup& setup);
       void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
-      virtual void beginJob() override;
-      virtual void endJob() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void endStream() override;
       //      std::string type_;
       int bunchSpace_;
-      static int vertexoffset;
+      int vertexOffset_;
       bool checktof_;
       int minBunch_;
       int maxBunch_;
@@ -87,14 +98,13 @@ namespace edm {
       bool readDB_;
       bool playback_;
       const static unsigned int maxNbSources_;
-      std::vector<std::string> sourceNames_;
       bool doit_[4];//FIXME
       std::vector< float > TrueNumInteractions_;
 
       unsigned int eventId_;
 
       // input, cosmics, beamhalo_plus, beamhalo_minus
-      std::vector<boost::shared_ptr<PileUp> > inputSources_;
+      std::vector<std::shared_ptr<PileUp>> inputSources_;
 
       void update(edm::EventSetup const&);
       edm::ESWatcher<MixingRcd> parameterWatcher_;

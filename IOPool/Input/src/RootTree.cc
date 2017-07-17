@@ -25,7 +25,7 @@ namespace edm {
       return branch;
     }
   }
-  RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
+  RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
                      unsigned int nIndexes,
                      unsigned int maxVirtualSize,
@@ -46,7 +46,7 @@ namespace edm {
     triggerSet_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
-    entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, -1LL)),
+    entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, IndexIntoFile::invalidEntry)),
     branchNames_(),
     branches_(new BranchMap),
     trainNow_(false),
@@ -56,12 +56,15 @@ namespace edm {
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
     enablePrefetching_(enablePrefetching),
-    enableTriggerCache_(branchType_ == InEvent),
+    //enableTriggerCache_(branchType_ == InEvent),
+    enableTriggerCache_(false), // Disable, for now. Using the trigger cache in the multithreaded environment causes the assert on line 331 to fire occasionally.
     rootDelayedReader_(new RootDelayedReader(*this, filePtr, inputType)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility
     {
-      assert(tree_);
+      if(not tree_) {
+        throw cms::Exception("WrongFileFormat")<< "The ROOT file does not contain a TTree named "<<BranchTypeToProductTreeName(branchType)<<"\n This is either not an edm ROOT file or is one that has been corrupted.";
+      }
       // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
       // TODO: On newer merged files, we should be able to get this from the cluster iterator.
       long treeAutoFlush = (tree_ ? tree_->GetAutoFlush() : 0);
@@ -112,8 +115,13 @@ namespace edm {
   }
 
   DelayedReader*
-  RootTree::rootDelayedReader() const {
+  RootTree::resetAndGetRootDelayedReader() const {
     rootDelayedReader_->reset();
+    return rootDelayedReader_.get();
+  }
+
+  DelayedReader*
+  RootTree::rootDelayedReader() const {
     return rootDelayedReader_.get();
   }  
 
@@ -367,6 +375,22 @@ namespace edm {
     }
   }
 
+  bool
+  RootTree::skipEntries(unsigned int& offset) {
+    entryNumber_ += offset;
+    bool retval = (entryNumber_ < entries_);
+    if(retval) {
+      offset = 0;
+    } else {
+      // Not enough entries in the file to skip.
+      // The +1 is needed because entryNumber_ is -1 at the initialization of the tree, not 0.
+      long long overshoot = entryNumber_ + 1 - entries_;
+      entryNumber_ = entries_;
+      offset = overshoot;
+    }
+    return retval;
+  }
+
   void
   RootTree::startTraining() {
     if (cacheSize_ == 0) {
@@ -388,7 +412,10 @@ namespace edm {
     rawTreeCache_->StopLearningPhase();
     treeCache_->StartLearningPhase();
     treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
-    treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+    // Make sure that 'branchListIndexes' branch exist in input file
+    if (filePtr_->Get(poolNames::branchListIndexesBranchName().c_str()) != nullptr) {
+      treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+    }
     treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
     trainedSet_.clear();
     triggerSet_.clear();
@@ -454,6 +481,14 @@ namespace edm {
     } 
  
   }
+  
+  void
+  RootTree::setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                       signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+    rootDelayedReader_->setSignals(preEventReadSource,
+                                   postEventReadSource);
+  }
+
 
   namespace roottree {
     Int_t

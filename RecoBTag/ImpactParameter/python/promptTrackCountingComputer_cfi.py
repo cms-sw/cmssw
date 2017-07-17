@@ -7,9 +7,10 @@ import FWCore.ParameterSet.Config as cms
 # If you also wish to apply a cut on the maximum allowed impact parameter,
 # you can do this in the TagInfoProducer.
 
-promptTrackCounting = cms.ESProducer("PromptTrackCountingESProducer",
+promptTrackCountingComputer = cms.ESProducer("PromptTrackCountingESProducer",
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
-
+    minimumImpactParameter = cms.double(-1),                                     
+    useSignedImpactParameterSig = cms.bool(True), 
     maximumDistanceToJetAxis = cms.double(999999.0),
     deltaR = cms.double(-1.0), ## maximum deltaR of track to jet. If -ve just use cut from JTA
     deltaRmin = cms.double(0.0), ## minimum deltaR of track to jet.                                     

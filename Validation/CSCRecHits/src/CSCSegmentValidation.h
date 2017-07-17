@@ -3,6 +3,8 @@
 
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -10,9 +12,10 @@
 class CSCSegmentValidation : public CSCBaseValidation
 {
 public:
-  CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag);
-
-  virtual ~CSCSegmentValidation() {}
+  CSCSegmentValidation(const edm::InputTag & inputTag,
+                       edm::ConsumesCollector && iC);
+  virtual ~CSCSegmentValidation();
+  void bookHistograms(DQMStore::IBooker &);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
@@ -21,6 +24,8 @@ public:
 
   bool hasSegment(int chamberId) const;
   static int whatChamberType(int detId);
+
+  edm::EDGetTokenT<CSCSegmentCollection> segments_Token_;
 
   // map to count how many layers are hit.  First index is chamber detId, second is layers
   // that have hits
@@ -48,8 +53,6 @@ public:
   MonitorElement* thedYdZResolutionPlots[10];
   MonitorElement* thedYdZPullPlots[10];
 
-
-
   MonitorElement* theTypePlot4HitsNoShower;
   MonitorElement* theTypePlot4HitsNoShowerSeg;
   MonitorElement* theTypePlot4HitsShower;
@@ -62,8 +65,6 @@ public:
   MonitorElement* theTypePlot6HitsNoShowerSeg;
   MonitorElement* theTypePlot6HitsShower;
   MonitorElement* theTypePlot6HitsShowerSeg;
-
-
 };
 
 #endif

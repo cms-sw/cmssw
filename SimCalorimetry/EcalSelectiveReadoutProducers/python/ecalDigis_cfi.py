@@ -25,6 +25,12 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # Switch for reading SRP settings from condition database
     configFromCondDB = cms.bool(True),
 
+    # Switch to turn off SRP altogether using special DB payload
+    UseFullReadout = cms.bool(False),
+
+    # ES label?
+    # NZSLabel = cms.ESInputTag(' '),
+
     # Label name of input ECAL trigger primitive collection
     trigPrimProducer = cms.string('simEcalTriggerPrimitiveDigis'),
 

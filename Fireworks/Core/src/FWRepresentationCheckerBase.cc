@@ -29,8 +29,9 @@
 //
 FWRepresentationCheckerBase::FWRepresentationCheckerBase(const std::string& iPurpose, 
                                                          unsigned int iBitPackedViews,
-                                                         bool iRepresentsSubPart) :
-   m_purpose(iPurpose), m_bitPackedViews(iBitPackedViews), m_representsSubPart(iRepresentsSubPart)
+                                                         bool iRepresentsSubPart,
+                                                         bool iRequiresFF) :
+   m_purpose(iPurpose), m_bitPackedViews(iBitPackedViews), m_representsSubPart(iRepresentsSubPart), m_requiresFF(iRequiresFF)
 {
 }
 

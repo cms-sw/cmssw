@@ -59,7 +59,7 @@ class batchRender():
         self.__canvas.SaveAs(self.__outfile)
 if __name__=='__main__':
       
-    da = TDatime(2010,03,30,13,10,00)
+    da = TDatime(2010,3,30,13,10,00)
     h1f = TH1F("Luminposity","",1000,0.,1000)
     h1f.GetXaxis().SetNdivisions(-503)
     h1f.GetXaxis().SetTimeDisplay(1)

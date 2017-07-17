@@ -23,7 +23,7 @@
 
 PlotMillePedeIOV::PlotMillePedeIOV(const char *fileName, Int_t maxIov,
 				   Int_t hieraLevel)
-  : fHistManager(new GFHistManager)
+  : fHistManager(new GFHistManager), fTitle("")
 {
   if (maxIov <= 0) { // find maximum IOV in file if not specified
     maxIov = 0;
@@ -153,6 +153,9 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
       const TString errPar(Form("#sigma(%s)", i0->NamePede(iMulti).Data()));
       h->SetTitle(errPar + " IOVs" += i0->TitleAdd() += ";IOV;"
 		  + errPar + i0->UnitPede(iMulti));
+    } else if (fTitle != "" ) {
+      h->SetTitle(i0->NamePede(iMulti) + " IOVs" + i0->TitleAdd() + ", " + fTitle + ";IOV;"
+		  + i0->NamePede(iMulti) += i0->UnitPede(iMulti));
     } else {     // 'usual' title for drawing parameter values
       h->SetTitle((i0->NamePede(iMulti) += " IOVs") += i0->TitleAdd() += ";IOV;"
 		  + i0->NamePede(iMulti) += i0->UnitPede(iMulti));
@@ -162,6 +165,9 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
     // Create legend refering to graphs and add to manager:  
     Double_t x1, x2, y1, y2; fHistManager->GetLegendX1Y1X2Y2(x1, y1, x2, y2);
     TLegend *legend = new TLegend(x1, y1, x2, y2);
+    legend->SetFillColor(kWhite);
+    legend->SetTextFont(42);
+    legend->SetBorderSize(1);
     fHistManager->AddLegend(legend, layer, iMulti);
     Int_t nGr = 0;
     while (TGraph* graph = static_cast<TGraph*>(iter.Next())){

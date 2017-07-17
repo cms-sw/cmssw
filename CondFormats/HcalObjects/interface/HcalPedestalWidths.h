@@ -7,6 +7,8 @@
 POOL container to store PedestalWidth values 4xCapId, using template
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 
@@ -27,11 +29,13 @@ class HcalPedestalWidths: public HcalCondObjectContainer<HcalPedestalWidth>
   // set unit boolean
   void setUnitADC(bool isADC) {unitIsADC = isADC;}
 
-  std::string const myname() {return (std::string)"HcalPedestalWidths";}
+  std::string myname() const {return (std::string)"HcalPedestalWidths";}
 
  private:
   bool unitIsADC;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

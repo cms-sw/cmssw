@@ -14,7 +14,7 @@ class SiStripHashedDetIdESProducer : public edm::ESProducer {
   
   virtual ~SiStripHashedDetIdESProducer();
   
-  std::auto_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
+  std::unique_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
   
 };
 

@@ -29,6 +29,7 @@ namespace reco {
       DET_HF_EM,
       DET_HF_HAD,
       DET_HO,
+      DET_HGCAL_ENDCAP,
       DET_NONE
     };
 

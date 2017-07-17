@@ -76,7 +76,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 ##4 lines below are necessary to pick up right conditions in which data was taken.?????
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'CRAFT_31X::All'

@@ -1,13 +1,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
-
-
-
+#include <iostream>
+#include <typeinfo>
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include<iostream>
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 namespace {
   
@@ -17,10 +15,9 @@ namespace {
       ref.isValid() << " " <<
       ref.isPixel() << " " <<
       ref.isStrip()  << " " <<
-      ref.isRegional() << " " <<
+//      ref.isRegional() << " " <<
       ref.cluster_strip().isNull() << " " <<
-      ref.cluster_pixel().isNull() << " " <<
-      ref.cluster_regional().isNull()  << " " << std::endl;
+      ref.cluster_pixel().isNull()  << " " << std::endl;
   }
   
   void verify(TrackingRecHit const * thit) {
@@ -89,7 +86,7 @@ namespace {
   }
   
   bool doingCheck = false;
-  void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
+  inline void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
     doingCheck=true;
     if (!one->sharesInput(one,TrackingRecHit::all)) problem(one,"all");
     if (!one->sharesInput(one,TrackingRecHit::some)) problem(one,"some");
@@ -111,13 +108,10 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
   if (!sameDetModule(*other)) return false;
 
   // move to switch?
-  if (trackerHitRTTI::isSingle(*other)) {
+  if (trackerHitRTTI::isSingleType(*other)) {
     const TrackerSingleRecHit & otherCast = static_cast<const TrackerSingleRecHit&>(*other);
     return sharesInput(otherCast);
   } 
-
-  if (trackerHitRTTI::isProjected(*other)) 
-    return other->sharesInput(this,what);
 
   if (trackerHitRTTI::isMatched(*other) ) {
     if (what == all) return false;

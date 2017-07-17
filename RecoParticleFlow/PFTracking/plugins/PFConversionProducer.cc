@@ -1,9 +1,6 @@
 #include <memory>
 #include "RecoParticleFlow/PFTracking/plugins/PFConversionProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,9 +25,9 @@ PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig):
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFConversionCollection>();
 
-  pfConversionContainer_ = 
-    iConfig.getParameter< InputTag >("conversionCollection");
-  vtx_h=iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel");
+  pfConversionContainer_ =consumes<reco::ConversionCollection>(iConfig.getParameter< InputTag >("conversionCollection")); 
+
+  vtx_h=consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel"));
 }
 
 PFConversionProducer::~PFConversionProducer()
@@ -43,24 +40,20 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   
   //create the empty collections 
-  auto_ptr< reco::PFConversionCollection > 
-    pfConversionColl (new reco::PFConversionCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pfRecTrackColl (new reco::PFRecTrackCollection);
+  auto pfConversionColl = std::make_unique<reco::PFConversionCollection>();
+  auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
   
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   Handle<reco::ConversionCollection> convCollH;
-  iEvent.getByLabel(pfConversionContainer_, convCollH);
+  iEvent.getByToken(pfConversionContainer_, convCollH);
   
   const reco::ConversionCollection& convColl = *(convCollH.product());
   
-  Handle<reco::TrackCollection> trackColl;
-  iEvent.getByLabel(pfTrackContainer_, trackColl);
   Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vtx_h, vertex);
+  iEvent.getByToken(vtx_h, vertex);
   //Find PV for IP calculation, if there is no PV in collection than use dummy 
   reco::Vertex dummy;
   const reco::Vertex* pv=&dummy;    
@@ -107,11 +100,11 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		  int shared=0;
 		  for(trackingRecHit_iterator iHit1=trackRef1->recHitsBegin(); iHit1!=trackRef1->recHitsEnd(); iHit1++) 
 		    {
-		      const TrackingRecHit *h_1=iHit1->get();
+		      const TrackingRecHit *h_1=(*iHit1);
 		      if(h_1->isValid()){		  
 			for(trackingRecHit_iterator iHit2=trackRef2->recHitsBegin(); iHit2!=trackRef2->recHitsEnd(); iHit2++)
 			  {
-			    const TrackingRecHit *h_2=iHit2->get();
+			    const TrackingRecHit *h_2=(*iHit2);
 			    if(h_2->isValid() && h_1->sharesInput(h_2, TrackingRecHit::some))shared++;//count number of shared hits
 			  }
 		      }
@@ -179,8 +172,8 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
       reco::ConversionRef niRef(convCollH, collindex);
       pfConversionColl->push_back( reco::PFConversion( niRef, pfRecTkcoll ));
     }//end loop over collections
-  iEvent.put(pfRecTrackColl);
-  iEvent.put(pfConversionColl);    
+  iEvent.put(std::move(pfRecTrackColl));
+  iEvent.put(std::move(pfConversionColl));    
 }
   
 // ------------ method called once each job just before starting event loop  ------------

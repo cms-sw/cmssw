@@ -8,14 +8,14 @@
 
 #include <vector>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class RadialInterval
 {
  public:
   /// Standard constructor Rc: mean Radius
   RadialInterval(double RC,unsigned nSpots, double energy,
-		 const RandomEngine* engine);
+		 const RandomEngineAndDistribution* engine);
   ~RadialInterval(){;}
   
   /// Add an interval : first argument is the radius, the second is the
@@ -67,7 +67,7 @@ class RadialInterval
   double energyFractionInRadius(double rm);
 
   // Famos Random Engine
-  const RandomEngine* random;
+  const RandomEngineAndDistribution* random;
   
 };
 #endif

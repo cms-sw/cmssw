@@ -2,7 +2,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace SimDataFormats_TrackingHit {
   struct dictionary {
     PSimHit dummy444;
     edm::PSimHitContainer sdummy777;

@@ -4,8 +4,7 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 
-namespace {
- namespace {
+namespace AnalysisDataFormats_SUSYBSMObjects {
   susybsm::HSCParticle pa;
 /*  susybsm::DriftTubeTOF dtitof;
 
@@ -66,7 +65,4 @@ namespace {
   edm::Wrapper<susybsm::HSCPDeDxInfo> hscpDEDXW;
   edm::Wrapper<susybsm::HSCPDeDxInfoCollection> hscpDEDXcW;
   edm::Wrapper<susybsm::HSCPDeDxInfoValueMap> hscpDEDXvmW;
-
-  
- }
 }

@@ -31,7 +31,7 @@ The following classes of "interesting id" are considered
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,13 +44,13 @@ The following classes of "interesting id" are considered
 class CaloTopology;
 class EcalSeverityLevelAlgo;
 
-class InterestingDetIdCollectionProducer : public edm::EDProducer {
+class InterestingDetIdCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit InterestingDetIdCollectionProducer(const edm::ParameterSet&);
       virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
       //! producer
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
    private:
       // ----------member data ---------------------------

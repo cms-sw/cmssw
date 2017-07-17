@@ -14,10 +14,13 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("GeneratorInterface.ExternalDecays.TauSpinner_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   generator = cms.PSet(
-    initialSeed = cms.untracked.uint32(123456789),
-    engineName = cms.untracked.string('HepJamesRandom')
-    )
+                                                   generator = cms.PSet(initialSeed = cms.untracked.uint32(123456789),
+                                                                        engineName = cms.untracked.string('HepJamesRandom')
+                                                                        ),
+                                                   TauSpinnerGen  = cms.PSet(initialSeed = cms.untracked.uint32(123456789),
+                                                                             engineName = cms.untracked.string('HepJamesRandom')
+                                                                             
+                                                                             )
                                                    )
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
@@ -95,7 +98,7 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
                                     # so only two more PDF sets can be added in PdfSetNames if not "")
                                     #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
                                     #GenTag = cms.untracked.InputTag("genParticles"),
-                                    PdfInfoTag = cms.untracked.InputTag("generator"),
+                                    PdfInfoTag = cms.untracked.InputTag("VtxSmeared"),
                                     PdfSetNames = cms.untracked.vstring(
     #    "cteq66.LHgrid"
     #    , "MRST2006nnlo.LHgrid" ,

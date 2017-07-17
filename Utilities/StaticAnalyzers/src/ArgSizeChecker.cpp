@@ -41,7 +41,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 //	llvm::errs()<<"\n";
 
 	for (clang::Stmt::const_child_iterator I = E->child_begin(), F = E->child_end(); I!=F; ++I) {
-		const Expr * child = llvm::dyn_cast<Expr>(*I);
+		const Expr * child = llvm::dyn_cast_or_null<Expr>(*I);
 		if (! child) continue;
 		if ( llvm::isa<DeclRefExpr>(child->IgnoreImpCasts())) {
 //			(*I)->dump();
@@ -62,7 +62,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					|| PQT->isMemberFunctionPointerType() || PQT->isArrayType()
 					|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType() ) continue;
 				uint64_t size_param = ctx.getASTContext().getTypeSize(PQT);
-				int64_t max_bits=128;
+				uint64_t max_bits=128;
 				if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 				std::string pname = PQT.getAsString();
@@ -77,7 +77,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				std::string cername = "const class edm::Ptr<";
 				std::string cepname = "const class edm::Ref<";
 				std::string erviname = "class edm::RefVectorIterator<";
-				const CXXMethodDecl * MD = llvm::dyn_cast<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
+				const CXXMethodDecl * MD = llvm::dyn_cast_or_null<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
 //				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
 //					|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
 //					|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
@@ -88,8 +88,8 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
 					<<"' function '";
-				std::string fname = MD->getNameAsString();
-				if (MD) { os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); }
+				
+				if (MD) { std::string fname = MD->getNameAsString();os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); }
 				os << "'\n";
 
 				std::string oname = "operator"; 
@@ -98,10 +98,10 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				const clang::ento::PathDiagnosticLocation DLoc =
 			   		clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
 
-				BugType * BT = new BugType("Function parameter copied by value with size > max","ArgSize");
-				BugReport *report = new BugReport(*BT, os.str() , DLoc);
+				BugType * BT = new BugType(this,"Function parameter copied by value with size > max","ArgSize");
+				std::unique_ptr<BugReport> report = llvm::make_unique<BugReport>(*BT, os.str() , DLoc);
 				report->addRange(PVD->getSourceRange());
-	 			ctx.emitReport(report);
+	 			ctx.emitReport(std::move(report));
 				}	
 			}
 	}
@@ -128,7 +128,7 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		if (PQT->isReferenceType() || PQT->isPointerType() || PQT->isMemberFunctionPointerType() 
 			|| PQT->isArrayType()|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType()  ) continue;
 		uint64_t size_param = mgr.getASTContext().getTypeSize(PQT);
-		int64_t max_bits=128;
+		uint64_t max_bits=128;
 		if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 		std::string pname = PQT.getAsString();
@@ -163,9 +163,9 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		std::string oname = "operator"; 
 //		if ( fname.substr(0,oname.length()) == oname ) continue;
 
-		BugType * BT = new BugType("Function parameter with size > max", "ArgSize");
-	  	BugReport *report = new BugReport(*BT, os.str() , DLoc);
-	  	BR.emitReport(report);
+		BugType * BT = new BugType(this,"Function parameter with size > max", "ArgSize");
+	  	std::unique_ptr<BugReport> report = llvm::make_unique<BugReport>(*BT, os.str() , DLoc);
+	  	BR.emitReport(std::move(report));
 	}
 } 
 

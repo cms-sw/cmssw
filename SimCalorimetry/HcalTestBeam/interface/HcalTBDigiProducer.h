@@ -1,7 +1,7 @@
 #ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 #define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,30 +11,39 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include<vector>
 #include<string>
 
+class PEcalTBInfo;
+
+namespace edm {
+  class StreamID;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~HcalTBDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override ;
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
@@ -44,6 +53,8 @@ private:
   void updateGeometry();
 
   void setPhaseShift(const DetId & detId);
+
+  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
 private:
 
@@ -65,7 +76,7 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HOHitFilter   theHOHitFilter;
 
-  HcalHitCorrection * theHitCorrection;
+  HcalTimeSlewSim * theTimeSlewSim;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer   * theHODigitizer;
@@ -81,7 +92,8 @@ private:
 
   bool   doPhaseShift;
   double tunePhaseShift;
+
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif
-

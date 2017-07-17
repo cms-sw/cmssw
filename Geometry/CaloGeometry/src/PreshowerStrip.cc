@@ -30,14 +30,11 @@ PreshowerStrip::operator=( const PreshowerStrip& tr )
   return *this ; 
 }
 
-const CaloCellGeometry::CornersVec& 
-PreshowerStrip::getCorners() const 
+void
+PreshowerStrip::initCorners(CaloCellGeometry::CornersVec& corners) 
 {
-  const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-  if( co.uninitialized() ) 
+  if( corners.uninitialized() ) 
   {
-    CornersVec& corners ( setCorners() ) ;
-
     const GlobalPoint& ctr ( getPosition() ) ;
     const CCGFloat x ( ctr.x() ) ;
     const CCGFloat y ( ctr.y() ) ;
@@ -72,7 +69,6 @@ PreshowerStrip::getCorners() const
       }
     }
   }
-  return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell ) 

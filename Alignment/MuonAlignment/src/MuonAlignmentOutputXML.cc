@@ -28,7 +28,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 //
 // constants, enums and typedefs
@@ -109,12 +109,12 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
    outputFile << "<MuonAlignment>" << std::endl << std::endl;
    
    std::map<align::ID, CLHEP::HepSymMatrix> errors;
-   AlignmentErrors *dtErrors = alignableMuon->dtAlignmentErrors();
-   AlignmentErrors *cscErrors = alignableMuon->cscAlignmentErrors();
-   for (std::vector<AlignTransformError>::const_iterator dtError = dtErrors->m_alignError.begin();  dtError != dtErrors->m_alignError.end();  ++dtError) {
+   AlignmentErrorsExtended *dtErrors = alignableMuon->dtAlignmentErrorsExtended();
+   AlignmentErrorsExtended *cscErrors = alignableMuon->cscAlignmentErrorsExtended();
+   for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();  dtError != dtErrors->m_alignError.end();  ++dtError) {
       errors[dtError->rawId()] = dtError->matrix();
    }
-   for (std::vector<AlignTransformError>::const_iterator cscError = cscErrors->m_alignError.begin();  cscError != cscErrors->m_alignError.end();  ++cscError) {
+   for (std::vector<AlignTransformErrorExtended>::const_iterator cscError = cscErrors->m_alignError.begin();  cscError != cscErrors->m_alignError.end();  ++cscError) {
       errors[cscError->rawId()] = cscError->matrix();
    }
 
@@ -130,10 +130,10 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       DTGeometryBuilderFromDDD DTGeometryBuilder;
       CSCGeometryBuilderFromDDD CSCGeometryBuilder;
  
-      boost::shared_ptr<DTGeometry> dtGeometry(new DTGeometry );
+      auto dtGeometry = std::make_shared<DTGeometry>();
       DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
 
-      boost::shared_ptr<CSCGeometry> boost_cscGeometry(new CSCGeometry);
+      auto boost_cscGeometry = std::make_shared<CSCGeometry>();
       CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
 
       AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*boost_cscGeometry));
@@ -141,21 +141,25 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       align::Alignables ideal_barrels = ideal_alignableMuon.DTBarrel();
       align::Alignables ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
 
-      writeComponents(barrels, ideal_barrels, errors, outputFile, true);
-      writeComponents(endcaps, ideal_endcaps, errors, outputFile, false);
+      writeComponents(barrels, ideal_barrels, errors, outputFile, true, alignableMuon->objectIdProvider());
+      writeComponents(endcaps, ideal_endcaps, errors, outputFile, false, alignableMuon->objectIdProvider());
    }
    else {
       align::Alignables empty1, empty2;
 
-      writeComponents(barrels, empty1, errors, outputFile, true);
-      writeComponents(endcaps, empty2, errors, outputFile, false);
+      writeComponents(barrels, empty1, errors, outputFile, true, alignableMuon->objectIdProvider());
+      writeComponents(endcaps, empty2, errors, outputFile, false, alignableMuon->objectIdProvider());
    }
 
    outputFile << "</MuonAlignment>" << std::endl;
 }
 
-void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, align::Alignables &ideals,
-					     std::map<align::ID, CLHEP::HepSymMatrix>& errors, std::ofstream &outputFile, bool DT) const {
+void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
+                                             align::Alignables &ideals,
+                                             std::map<align::ID, CLHEP::HepSymMatrix>& errors,
+                                             std::ofstream &outputFile,
+                                             bool DT,
+                                             const AlignableObjectId& objectIdProvider) const {
    align::Alignables::const_iterator ideal = ideals.begin();
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       if (m_survey  &&  (*alignable)->survey() == NULL) {
@@ -181,7 +185,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 
 	 if (DT) {
 	    if (m_rawIds  &&  rawId != 0) {
-	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
+	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDTSuperLayer) typeName = std::string("DTSuperLayer");
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("DTLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
@@ -219,7 +223,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 
 	 else { // CSC
 	    if (m_rawIds  &&  rawId != 0) {
-	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
+	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("CSCLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
@@ -341,10 +345,15 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 	 }
 
 	 else if (rawId != 0) {
+
 	    CLHEP::HepSymMatrix err = errors[(*alignable)->id()];
 
-	    outputFile << "  <setape xx=\"" << err(1,1) << "\" xy=\"" << err(1,2) << "\" xz=\"" << err(1,3)
-		       << "\" yy=\"" << err(2,2) << "\" yz=\"" << err(2,3) << "\" zz=\"" << err(3,3) << "\" />" << std::endl;
+            outputFile <<"  <setape xx=\"" << err(0,0) << "\" xy=\"" << err(0,1) << "\" xz=\"" << err(0,2) << "\" xa=\"" << err(0,3) << "\" xb=\"" << err(0,4) << "\" xc=\"" << err(0,5)
+                       << "\" yy=\"" << err(1,1) << "\" yz=\"" << err(1,2) << "\" ya=\"" << err(1,3) << "\" yb=\"" << err(1,4) << "\" yc=\"" << err(1,5)
+                       << "\" zz=\"" << err(2,2) << "\" za=\"" << err(2,3) << "\" zb=\"" << err(2,4) << "\" zc=\"" << err(2,5)
+                       << "\" aa=\"" << err(3,3) << "\" ab=\"" << err(3,4) << "\" ac=\"" << err(3,5)
+                       << "\" bb=\"" << err(4,4) << "\" bc=\"" << err(4,5)
+                       << "\" cc=\"" << err(5,5) << "\" />" << std::endl;
 	 }
 
 	 outputFile << "</operation>" << std::endl << std::endl;
@@ -355,13 +364,13 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
       if (ideal != ideals.end()) {
 	 align::Alignables components = (*alignable)->components();
 	 align::Alignables ideal_components = (*ideal)->components();
-	 writeComponents(components, ideal_components, errors, outputFile, DT);
+	 writeComponents(components, ideal_components, errors, outputFile, DT, objectIdProvider);
 	 ++ideal; // important for synchronization in the "for" loop!
       }
       else {
 	 align::Alignables components = (*alignable)->components();
 	 align::Alignables dummy;
-	 writeComponents(components, dummy, errors, outputFile, DT);
+	 writeComponents(components, dummy, errors, outputFile, DT, objectIdProvider);
       }
 
    } // end loop over alignables

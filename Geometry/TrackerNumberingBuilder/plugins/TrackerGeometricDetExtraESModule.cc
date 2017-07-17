@@ -29,9 +29,9 @@ TrackerGeometricDetExtraESModule::TrackerGeometricDetExtraESModule(const edm::Pa
 
 TrackerGeometricDetExtraESModule::~TrackerGeometricDetExtraESModule() {}
 
-boost::shared_ptr<std::vector<GeometricDetExtra> >
+std::shared_ptr<std::vector<GeometricDetExtra> >
 TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
-  boost::shared_ptr<std::vector<GeometricDetExtra> > gde (new std::vector<GeometricDetExtra>);
+  auto gde = std::make_shared<std::vector<GeometricDetExtra> >();
   // get the GeometricDet which has a nav_type
   edm::ESHandle<GeometricDet> gd;
   iRecord.get ( gd );
@@ -168,14 +168,14 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
     gde->reserve(pgdes.size());
     std::vector<DDExpandedNode> evs; //EMPTY
     std::string nm; //EMPTY
-    for (unsigned int i = 0; i < pgdes.size(); ++i) {
+    for (const auto & pgde : pgdes) {
 	//   GeometricDetExtra( GeometricDet const *gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, const std::string& mat, const std::string& name, bool dd=false );
-      gde->push_back( GeometricDetExtra(helperMap[pgdes[i]._geographicalId], pgdes[i]._geographicalId, evs
-				       , pgdes[i]._volume, pgdes[i]._density, pgdes[i]._weight, pgdes[i]._copy
-				       , pgdes[i]._material, nm));
+      gde->push_back( GeometricDetExtra(helperMap[pgde._geographicalId], pgde._geographicalId, evs
+				       , pgde._volume, pgde._density, pgde._weight, pgde._copy
+				       , pgde._material, nm));
     }
   }
-  return boost::shared_ptr<std::vector<GeometricDetExtra> >(gde);
+  return std::shared_ptr<std::vector<GeometricDetExtra> >(gde);
 }
 
 void TrackerGeometricDetExtraESModule::putOne(std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev ) {

@@ -1,0 +1,8 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <MaterialSection label="CTPPS_Diamond_Materials.xml">
+    <ElementaryMaterial name="PPS_Timing_Primary_Vacuum" density="1e-13*mg/cm3" symbol=" " atomicWeight="1*g/mole" atomicNumber="1"/>
+    <ElementaryMaterial name="PPS_Timing_Secondary_Vacuum" density="1e-13*mg/cm3" symbol=" " atomicWeight="1*g/mole" atomicNumber="1"/>
+  </MaterialSection>
+
+</DDDefinition>

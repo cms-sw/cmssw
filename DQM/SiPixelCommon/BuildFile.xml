@@ -2,7 +2,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/SiPixelDetId"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

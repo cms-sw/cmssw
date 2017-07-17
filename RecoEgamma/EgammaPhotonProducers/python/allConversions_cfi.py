@@ -6,12 +6,12 @@ allConversions = cms.EDProducer('ConversionProducer',
     src = cms.InputTag("gsfGeneralInOutOutInConversionTrackMerger"),
     convertedPhotonCollection = cms.string(''), ## or empty
 
-    bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
-    bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    scBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
-    scEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+    bcEndcapCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap'),
+    bcBarrelCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel'),
+    scBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel'),
+    scEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower'),
 
-    primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
+    primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
 
     deltaEta = cms.double(0.4), #track pair search range in eta (applied even in case of preselection bypass)
 
@@ -61,3 +61,6 @@ allConversions = cms.EDProducer('ConversionProducer',
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(False) #Require second leg matching basic cluster
 )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( allConversions, bypassPreselGsf = cms.bool(False) )

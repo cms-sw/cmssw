@@ -1,3 +1,5 @@
+#include <string>
+
 #include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -5,9 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include<typeinfo>
-#include<string>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T>
 HLTJetL1MatchProducer<T>::HLTJetL1MatchProducer(const edm::ParameterSet& iConfig)
@@ -34,10 +34,7 @@ void HLTJetL1MatchProducer<T>::beginJob()
 }
 
 template<typename T>
-HLTJetL1MatchProducer<T>::~HLTJetL1MatchProducer()
-{
-
-}
+HLTJetL1MatchProducer<T>::~HLTJetL1MatchProducer() = default;
 
 template<typename T>
 void HLTJetL1MatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -47,7 +44,7 @@ void HLTJetL1MatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("L1CenJets",edm::InputTag("hltL1extraParticles","Central"));
   desc.add<edm::InputTag>("L1ForJets",edm::InputTag("hltL1extraParticles","Forward"));
   desc.add<double>("DeltaR",0.5);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetL1MatchProducer<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetL1MatchProducer<T>>(), desc);
 }
 
 template<typename T>
@@ -59,7 +56,7 @@ void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup
   edm::Handle<TCollection> jets;
   iEvent.getByToken(m_theJetToken, jets);
 
-  std::auto_ptr<TCollection> result (new TCollection);
+  std::unique_ptr<TCollection> result (new TCollection);
 
 
   edm::Handle<l1extra::L1JetParticleCollection> l1TauJets;
@@ -104,7 +101,7 @@ void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup
 
   } // jet_iter
 
-  iEvent.put( result);
+  iEvent.put(std::move(result));
 
 }
 

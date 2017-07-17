@@ -3,13 +3,15 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerPhiClusterAlgo.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
@@ -18,7 +20,7 @@
 #include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-class PreshowerPhiClusterProducer : public edm::EDProducer {
+class PreshowerPhiClusterProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -63,6 +65,8 @@ class PreshowerPhiClusterProducer : public edm::EDProducer {
   double alpha3_;
   double aEta_[4];
   double bEta_[4];
+
+  double etThresh_;
 
   PreshowerPhiClusterAlgo * presh_algo; // algorithm doing the real work
    // The set of used DetID's

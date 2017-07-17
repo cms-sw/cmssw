@@ -18,7 +18,7 @@ DTLayerType::DTLayerType() :
 
 /* Operations */ 
 const Topology& DTLayerType::topology() const {
-  static DTTopology result(0,0,0.);
+  static const DTTopology result(0,0,0.);
   return result;
 }
 

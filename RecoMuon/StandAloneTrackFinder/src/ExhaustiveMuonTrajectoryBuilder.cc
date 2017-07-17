@@ -5,8 +5,9 @@
 
 
 ExhaustiveMuonTrajectoryBuilder::ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, 
-                                                         const MuonServiceProxy* proxy)
-: theTrajBuilder(pset, proxy),
+								 const MuonServiceProxy* proxy,
+								 edm::ConsumesCollector & iC)
+  : theTrajBuilder(pset, proxy,iC),
   theSeeder(),
   theService(proxy)
 {
@@ -44,8 +45,6 @@ ExhaustiveMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
     TrajectoryContainer trajectories(theTrajBuilder.trajectories(tmpSeed));
     result.insert(result.end(), trajectories.begin(), trajectories.end());
   }
-  // choose the best trajectory
-  if(!result.empty()) clean(result);
   return result;
 }
 

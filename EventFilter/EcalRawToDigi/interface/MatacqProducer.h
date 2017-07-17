@@ -17,10 +17,12 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
 #include <inttypes.h>
@@ -52,7 +54,7 @@ public:
 private:
 #ifdef USE_STORAGE_MANAGER
   typedef IOOffset filepos_t;
-  typedef std::auto_ptr<Storage> FILE_t;
+  typedef std::unique_ptr<Storage> FILE_t;
 #else
   typedef off_t filepos_t;
   typedef FILE* FILE_t;
@@ -158,6 +160,10 @@ private:
 
   uint32_t getRunNumber(edm::Event& ev) const;
   uint32_t getOrbitId(edm::Event& ev) const;
+
+  
+  bool getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb);
+
   int getCalibTriggerType(edm::Event& ev) const;
 
   /** Loading orbit correction table from file. @see orbitOffsetFile_
@@ -233,10 +239,16 @@ private:
    */
   bool produceRaw_;
 
-  /** Name of raw data collection the Matacq data must be merge to
+  /** Name of the raw data collection the Matacq data must be merge to
    * if merging is enabled.
    */
   edm::InputTag inputRawCollection_;
+
+
+  /** EDM token to access the raw data collection the Matacq data must be merge to
+   * if merging is enabled.
+   */
+  edm::EDGetTokenT<FEDRawDataCollection> inputRawCollectionToken_;
 
   /** Switch for merging Matacq raw data with existing raw data
    * collection.
@@ -257,7 +269,7 @@ private:
   //                                      matacq event size.
   std::vector<unsigned char> data_;
   MatacqDataFormatter formatter_;
-  static int orbitTolerance_;
+  const static int orbitTolerance_;
   uint32_t openedFileRunNumber_;
   int32_t lastOrb_;
   int fastRetrievalThresh_;
@@ -292,7 +304,7 @@ private:
     double nNonLaserEventsWithMatacq;
   } stats_;
 
-  static stats_t stats_init;
+  const static stats_t stats_init;
   /** Log file name
    */
   std::string logFileName_;

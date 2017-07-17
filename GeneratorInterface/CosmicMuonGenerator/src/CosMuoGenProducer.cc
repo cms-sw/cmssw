@@ -1,8 +1,6 @@
-#include <CLHEP/Random/RandomEngine.h>
 
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -47,17 +45,11 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   AllMu(pset.getParameter<bool>("AcptAllMu")),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  cmVerbosity_(pset.getParameter<bool>("Verbosity"))
+  cmVerbosity_(pset.getParameter<bool>("Verbosity")),
+  isInitialized_(false)
   {
     //if not specified (i.e. negative) then use MinP also for MinP_CMS
     if(MinP_CMS < 0) MinP_CMS = MinP;
-
-    edm::Service<RandomNumberGenerator> rng;
-    if (!rng.isAvailable())
-      throw cms::Exception("Configuration")
-         << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-            "which appears to be absent.  Please add that service to your configuration\n"
-            "or remove the modules that require it." << std::endl;
 
     // set up the generator
     CosMuoGen = new CosmicMuonGenerator();
@@ -99,10 +91,9 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->setNuProdAlt(NuPrdAlt);
     CosMuoGen->setAcptAllMu(AllMu);
-    CosMuoGen->initialize(&rng->getEngine());
-    produces<HepMCProduct>();
+    produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
   }
 
 edm::CosMuoGenProducer::~CosMuoGenProducer(){
@@ -112,9 +103,18 @@ edm::CosMuoGenProducer::~CosMuoGenProducer(){
   clear();
 }
 
+void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
+{
+  if(!isInitialized_) {
+    isInitialized_ = true;
+    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, lumi.index());
+    CosMuoGen->initialize(randomEngineSentry.randomEngine());
+  }
+}
+
 void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
 {
-  std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
 
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
   if (MultiMuon) genRunInfo->setInternalXSec(0.);
@@ -122,7 +122,7 @@ void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
   genRunInfo->setExternalXSecLO(extCrossSect);
   genRunInfo->setFilterEfficiency(extFilterEff);
 
-  run.put(genRunInfo);
+  run.put(std::move(genRunInfo));
 
   CosMuoGen->terminate();
 }
@@ -131,6 +131,8 @@ void edm::CosMuoGenProducer::clear(){}
 
 void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
+  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, e.streamID());
+
   // generate event
   if (!MultiMuon) {
     CosMuoGen->nextEvent();
@@ -142,7 +144,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   }
 
   if (Debug) {
-    std::cout << "CosMuoGenSource.cc: CosMuoGen->EventWeight=" << CosMuoGen->EventWeight 
+    std::cout << "CosMuoGenProducer.cc: CosMuoGen->EventWeight=" << CosMuoGen->EventWeight 
 	      << "  CosMuoGen: Nmuons=" << CosMuoGen->Id_sf.size() << std::endl; 
     std::cout << "CosMuoGen->Id_at=" << CosMuoGen->Id_at
 	      << "  CosMuoGen->Vx_at=" << CosMuoGen->Vx_at 
@@ -181,7 +183,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   							     CosMuoGen->Vy_at, //[mm]
   							     CosMuoGen->Vz_at, //[mm]
   							     CosMuoGen->T0_at)); //[mm]
-  //cout << "CosMuoGenSource.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
+  //cout << "CosMuoGenProducer.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
   HepMC::FourVector p_at(CosMuoGen->Px_at,CosMuoGen->Py_at,CosMuoGen->Pz_at,CosMuoGen->E_at);
   HepMC::GenParticle* Part_at =
     new HepMC::GenParticle(p_at,CosMuoGen->Id_at, 3);//Comment mother particle in
@@ -230,11 +232,11 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   if (cmVerbosity_) fEvt->print();
 
-  std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   CMProduct->addHepMCData( fEvt );
-  e.put(CMProduct);
+  e.put(std::move(CMProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
+  e.put(std::move(genEventInfo));
 
 }

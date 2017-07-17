@@ -3,10 +3,23 @@
 
 /** \class DTCalibrationMap
  *  Allow saving and retrieving of calibration constants to/from txt file.
- *  This is mainly provided for backward compatibility with the ORCA MuBarDigiParameters file.
+ *  This was originally provided for backward compatibility with the ORCA MuBarDigiParameters file.
  *  Can be used to save an arbitrary number of constants with the
  *  needed granularity and to retrieve them back using the wireId.
- *  The first 5 fields for each key are allocated to ttri, sigma_ttrig, kfactor, vdrift and sigma_vdrift.
+ *  Current field allocation: fields for each key are allocated to:
+ *  --First block: legacy descriptors-- 
+ *  [0] ttrig 
+ *  [1] sigma_ttrig  (obsolete)
+ *  [2] kfactor      (obsolete)
+ *  [3] vdrift       
+ *  [4] sigma_vdrift (obsolete, was formerly hacked to include reoslution)
+ *  [5] t0
+ *  [6] t0rms
+ *  [7] noisy or dead flag
+ *  [8-9] left for future usage 
+ * --Second block (optional): free fields
+ *  [10] Encoded information of free fields: (1000*version)+(100*type)+(number of fields); type is: ttrig=0, vdrift=1, uncertainties=3
+ *  [11-end] free fields
  *
  *  \author G. Cerminara - INFN Torino
  */

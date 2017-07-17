@@ -1,19 +1,23 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+
 #include <ostream>
 
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDValue;
 
 void
 DD_NC( const DDName & n )
 {
-  std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
-  typedef std::vector<DDName>::iterator IT;
+  auto & ns = LPNAMES::instance()[n.name()];
   bool alreadyIn( false );
-  for( IT p = ns.begin(); p != ns.end(); ++p )
+  for( const auto& p : ns )
   {
-    if( p->ns() == n.ns())
+    if( p.ns() == n.ns())
     {
       alreadyIn = true;
       break;
@@ -121,7 +125,6 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
 		             DDEnums::Category cat) 
  : DDBase<DDName,DDI::LogicalPart*>() 
 { 
-   DCOUT('C', "create LogicalPart ddname=" << ddname << " mat=" << material.name() << " sol=" << solid.name());
    prep_ = StoreT::instance().create(ddname, new DDI::LogicalPart(material,solid,cat));
    DD_NC(ddname);
 }
@@ -238,9 +241,8 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 }  
 
 // for internal use only
-void DDLogicalPart::addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+void DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
-   DCOUT('S', "lp=" << name());
    rep().addSpecifics(s);
 }
 void DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
@@ -258,7 +260,7 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 // - nm corresponds to a regular expression, but will be anchored ( ^regexp$ )
 // - ns corresponds to a regular expression, but will be anchored ( ^regexp$ )
 #include <regex.h>
-#include <set>
+#include <stddef.h>
 
 namespace
 {
@@ -346,8 +348,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
     for (LPNAMES::value_type::const_iterator it=bn; it != ed; ++it)
       if(aRegex.match(it->first)) candidates.push_back(it);
   }
-  for (int i=0; i<int(candidates.size()); ++i) {
-    LPNAMES::value_type::const_iterator it = candidates[i];
+  for (const auto & it : candidates) {
     //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
     std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
     if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
@@ -403,7 +404,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   return std::make_pair(flag,message);
 }
 
-const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & 
+const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & 
 DDLogicalPart::attachedSpecifics( void ) const
 {
   return rep().attachedSpecifics();

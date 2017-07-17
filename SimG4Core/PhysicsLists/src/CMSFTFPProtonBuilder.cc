@@ -3,6 +3,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ProcessManager.hh"
 #include "G4ProtonInelasticCrossSection.hh"
+#include "G4SystemOfUnits.hh"
 
 CMSFTFPProtonBuilder::
 CMSFTFPProtonBuilder(G4bool quasiElastic) 

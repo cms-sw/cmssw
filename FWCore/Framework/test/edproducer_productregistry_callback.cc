@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
@@ -120,11 +120,11 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    SignallingProductRegistry preg;
 
    //Need access to the ConstProductRegistry service
-   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
-   ServiceToken token = ServiceRegistry::createContaining(cReg);
+   auto cReg = std::make_unique<ConstProductRegistry>(preg);
+   ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
    ServiceRegistry::Operate startServices(token);
    
-   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -143,12 +143,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
   
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
-   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
+   auto pc = std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
 
    edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
    edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
@@ -196,11 +196,11 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
-   ServiceToken token = ServiceRegistry::createContaining(cReg);
+   auto cReg = std::make_unique<ConstProductRegistry>(preg);
+   ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
    ServiceRegistry::Operate startServices(token);
    
-   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -219,12 +219,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
   
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
-   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
+   auto pc = std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
 
    edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
    edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
@@ -271,11 +271,11 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
-   ServiceToken token = ServiceRegistry::createContaining(cReg);
+   auto cReg = std::make_unique<ConstProductRegistry>(preg);
+   ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
    ServiceRegistry::Operate startServices(token);
    
-   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -294,19 +294,19 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
   
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
-   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
+   auto pc = std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
 
    edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
    edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
    l1.addParameter("@module_edm_type",std::string("EDProducer") );
    l1.registerIt();
    
-   std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
+   std::unique_ptr<Maker> lFM = std::make_unique<WorkerMaker<ListenFloatMod>>();
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );

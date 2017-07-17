@@ -19,12 +19,12 @@
 #define METProducers_SignCaloMETAlgo_h
 
 //____________________________________________________________________________||
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
-#include "TMatrixD.h"
 
 namespace metsig {
   class SignAlgoResolutions;
@@ -39,9 +39,9 @@ public:
   ~SignCaloSpecificAlgo();
 
   void usePreviousSignif(const std::vector<double> &values);
-  void usePreviousSignif(const TMatrixD &matrix) { matrix_ = matrix; }
+  void usePreviousSignif(const reco::METCovMatrix &matrix) { matrix_ = matrix; }
   double getSignificance(){return significance_;}
-  TMatrixD getSignificanceMatrix()const {return matrix_;}
+  reco::METCovMatrix getSignificanceMatrix()const {return matrix_;}
 
   void calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers,  const CommonMETData& met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
   
@@ -50,7 +50,7 @@ public:
   std::vector<metsig::SigInputObj> makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Candidate> > towers, const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalthreshold);
   
   double significance_;
-  TMatrixD matrix_;
+  reco::METCovMatrix matrix_;
 };
 
 

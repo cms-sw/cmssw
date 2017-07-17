@@ -2,6 +2,8 @@
 <use   name="MagneticField/VolumeBasedEngine"/>
 <use   name="MagneticField/Records"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="DetectorDescription/Parser"/>
+
 <library   file="*.cc" name="MagneticFieldGeomBuilderPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

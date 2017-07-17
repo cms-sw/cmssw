@@ -24,8 +24,9 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,6 +54,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h" 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -70,7 +72,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -90,7 +92,7 @@
 
 namespace reco
 {
-  class EcalHaloDataProducer : public edm::EDProducer {
+  class EcalHaloDataProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit EcalHaloDataProducer(const edm::ParameterSet&);
@@ -104,10 +106,18 @@ namespace reco
     edm::InputTag IT_EBRecHit;
     edm::InputTag IT_EERecHit;
     edm::InputTag IT_ESRecHit;
+    edm::InputTag IT_HBHERecHit;
 
     //Higher Level Reco
     edm::InputTag IT_SuperCluster;
     edm::InputTag IT_Photon;
+
+    edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
+    edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
+    edm::EDGetTokenT<ESRecHitCollection> esrechit_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> supercluster_token_;
+    edm::EDGetTokenT<reco::PhotonCollection> photon_token_;
     
     float  EBRecHitEnergyThreshold;
     float  EERecHitEnergyThreshold;

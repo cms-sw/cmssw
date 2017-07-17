@@ -1,4 +1,6 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletLargeTipGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "ThirdHitRZPrediction.h"
@@ -7,13 +9,12 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "MatchedHitRZCorrectionFromBending.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
+#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at our version...
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
 #include <algorithm>
@@ -22,53 +23,57 @@
 #include <cmath>
 #include <map>
 
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
+#include "CommonTools/Utils/interface/DynArray.h"
+
 using namespace std;
-using namespace ctfseeding;
 
-typedef PixelRecoRange<float> Range;
-
-typedef ThirdHitPredictionFromCircle::HelixRZ HelixRZ;
+using Range=PixelRecoRange<float>;
+using HelixRZ=ThirdHitPredictionFromCircle::HelixRZ;
 
 namespace {
   struct LayerRZPredictions {
     ThirdHitRZPrediction<PixelRecoLineRZ> line;
     ThirdHitRZPrediction<HelixRZ> helix1, helix2;
     MatchedHitRZCorrectionFromBending rzPositionFixup;
+    ThirdHitCorrection correction;
   };
 }
 
 constexpr double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
-constexpr double nSigmaPhi = 3.;
-static float fnSigmaRZ = std::sqrt(12.f);
+constexpr float nSigmaPhi = 3.;
+constexpr float fnSigmaRZ = nSigmaRZ;
 
-PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg)
-  : thePairGenerator(0),
-    theLayerCache(0),
+
+PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+  : HitTripletGeneratorFromPairAndLayers(cfg),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
     extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
     extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
     useMScat(cfg.getParameter<bool>("useMultScattering")),
-    useBend(cfg.getParameter<bool>("useBending"))
-{    theMaxElement=cfg.getParameter<unsigned int>("maxElement");
-  if (useFixedPreFiltering)
-    dphi = cfg.getParameter<double>("phiPreFiltering");
-}
+    useBend(cfg.getParameter<bool>("useBending")),
+    dphi(useFixedPreFiltering ? cfg.getParameter<double>("phiPreFiltering") : 0) {}
 
-void PixelTripletLargeTipGenerator::init(const HitPairGenerator & pairs,
-					 const std::vector<SeedingLayer> &layers,
-					 LayerCacheType *layerCache)
-{
-  thePairGenerator = pairs.clone();
-  theLayers = layers;
-  theLayerCache = layerCache;
-}
+PixelTripletLargeTipGenerator::~PixelTripletLargeTipGenerator() {}
 
+void PixelTripletLargeTipGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  HitTripletGeneratorFromPairAndLayers::fillDescriptions(desc);
+  // Defaults for the extraHit*tolerance are set to 0 here since that
+  // was already the case in practice in all offline occurrances.
+  desc.add<double>("extraHitRPhitolerance", 0); // default in old python was 0.032
+  desc.add<double>("extraHitRZtolerance", 0); // default in old python was 0.037
+  desc.add<bool>("useMultScattering", true);
+  desc.add<bool>("useBending", true);
+  desc.add<bool>("useFixedPreFiltering", false);
+  desc.add<double>("phiPreFiltering", 0.3);
+}
 
 namespace {
   inline
   bool intersect(Range &range, const Range &second)
   {
-    if (range.first > second.max() || range.second < second.min())
+    if ( (range.min() > second.max()) | (range.max() < second.min()) )
       return false;
     if (range.first < second.min())
       range.first = second.min();
@@ -81,44 +86,85 @@ namespace {
 void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, 
 						OrderedHitTriplets & result,
 						const edm::Event & ev,
-						const edm::EventSetup& es)
+						const edm::EventSetup& es,
+						const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
+						const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 { 
+  auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
+  
+  if (doublets.empty()) return;
+
+  assert(theLayerCache);
+  hitTriplets(region, result, ev, es, doublets,thirdLayers, nullptr, *theLayerCache);
+}
+
+void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, OrderedHitTriplets& result,
+                                                const edm::Event& ev, const edm::EventSetup& es,
+                                                const HitDoublets& doublets,
+                                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                                                std::vector<int> *tripletLastLayerIndex,
+                                                LayerCacheType& layerCache) {
+  int size = thirdLayers.size();
+  const RecHitsSortedInPhi * thirdHitMap[size];
+  vector<const DetLayer *> thirdLayerDetLayer(size,0);
+  for (int il=0; il<size; ++il) 
+    {
+      thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+      thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
+    }
+  hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, tripletLastLayerIndex);
+}
+
+
+void PixelTripletLargeTipGenerator::hitTriplets(
+						const TrackingRegion& region, 
+						OrderedHitTriplets & result,
+						const edm::EventSetup & es,
+						const HitDoublets & doublets,
+						const RecHitsSortedInPhi ** thirdHitMap,
+						const std::vector<const DetLayer *> & thirdLayerDetLayer,
+						const int nThirdLayers)
+{
+  hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, nullptr);
+}
+
+void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, OrderedHitTriplets & result,
+                                                const edm::EventSetup & es,
+                                                const HitDoublets & doublets,
+                                                const RecHitsSortedInPhi ** thirdHitMap,
+                                                const std::vector<const DetLayer *> & thirdLayerDetLayer,
+                                                const int nThirdLayers,
+                                                std::vector<int> *tripletLastLayerIndex) {
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  auto const & doublets = thePairGenerator->doublets(region,ev,es);
   
-  if (doublets.empty()) return;
-   
   auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
-
-
-  int size = theLayers.size();
-
 
   using NodeInfo = KDTreeNodeInfo<unsigned int>;
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used throughout
   foundNodes.reserve(100);
-  KDTreeLinkerAlgo<unsigned int> hitTree[size];
 
-  float rzError[size]; //save maximum errors
-  float maxphi = Geom::ftwoPi(), minphi = -maxphi; //increase to cater for any range
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>, nThirdLayers, hitTree);
+  declareDynArray(LayerRZPredictions, nThirdLayers, mapPred);
 
-  LayerRZPredictions mapPred[size];
+  float rzError[nThirdLayers]; //save maximum errors
 
-  const RecHitsSortedInPhi * thirdHitMap[size];
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
+  const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
+  const float safePhi = M_PI-maxDelphi; // sideband
 
-  for(int il = 0; il < size; il++) {
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+  for(int il = 0; il < nThirdLayers; il++) {
+    
     auto const & hits = *thirdHitMap[il];
  
-    const DetLayer *layer = theLayers[il].detLayer();
+    const DetLayer *layer = thirdLayerDetLayer[il];
     LayerRZPredictions &predRZ = mapPred[il];
     predRZ.line.initLayer(layer);
     predRZ.helix1.initLayer(layer);
@@ -127,7 +173,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     predRZ.helix1.initTolerance(extraHitRZtolerance);
     predRZ.helix2.initTolerance(extraHitRZtolerance);
     predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer,tTopo);
-    
+    predRZ.correction.init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), *thirdLayerDetLayer[il], useMScat, false);
+
+
     layerTree.clear();
     float minv=999999.0; float maxv = -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
@@ -139,10 +187,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       float myerr = hits.dv[i];
       maxErr = std::max(maxErr,myerr);
       layerTree.emplace_back(i, angle, v); // save it
-      if (angle < 0)  // wrap all points in phi
-	{ layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);}
-      else
-	{ layerTree.emplace_back(i, angle-Geom::ftwoPi(), v);}
+      // populate side-bands
+      if (angle>safePhi) layerTree.emplace_back(i, angle-Geom::ftwoPi(), v);
+      else if (angle<-safePhi) layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);
     }
     KDTreeBox phiZ(minphi, maxphi, minv-0.01f, maxv+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
@@ -164,6 +211,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     GlobalPoint gp1(xi,yi,zi);
     GlobalPoint gp2(xo,yo,zo);
 
+    auto toPos = std::signbit(zo-zi); 
+
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), zo);
     ThirdHitPredictionFromCircle predictionRPhi(gp1, gp2, extraHitRPhitolerance);
@@ -171,17 +220,23 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     Range generalCurvature = predictionRPhi.curvature(region.originRBound());
     if (!intersect(generalCurvature, Range(-curv, curv))) continue;
 
-    for(int il = 0; il < size; il++) {
+    for(int il = 0; il < nThirdLayers; il++) {
       if (hitTree[il].empty()) continue; // Don't bother if no hits
-      const DetLayer *layer = theLayers[il].detLayer();
+      const DetLayer *layer = thirdLayerDetLayer[il];
       bool barrelLayer = layer->isBarrel();
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
       
       Range curvature = generalCurvature;
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2,  outSeq, useMScat);
-      
+
       LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
-      
+
+      auto & correction = predRZ.correction;
+      correction.init(line, point2,  outSeq);
+
+
       Range rzRange;
       if (useBend) {
         // For the barrel region:
@@ -257,34 +312,44 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
           if (!intersect(radius, predRZ.line.detSize()))
             continue;
         }
-	
-        Range rPhi1 = predictionRPhi(curvature, radius.first);
-        Range rPhi2 = predictionRPhi(curvature, radius.second);
-        correction.correctRPhiRange(rPhi1);
-        correction.correctRPhiRange(rPhi2);
-        rPhi1.first  /= radius.first;
-        rPhi1.second /= radius.first;
-        rPhi2.first  /= radius.second;
-        rPhi2.second /= radius.second;
-        phiRange = mergePhiRanges(rPhi1, rPhi2);
+         
+        //gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
+        if ( (curvature.first<0.0f) & (curvature.second<0.0f) ) {
+          radius.swap();
+        } else if ( (curvature.first>=0.0f) & (curvature.second>=0.0f) ) {;}
+        else {
+          radius.first=radius.second;
+        }
+        auto phi12 = predictionRPhi.phi(curvature.first,radius.first);
+        auto phi22 = predictionRPhi.phi(curvature.second,radius.second);
+        phi12 = normalizedPhi(phi12);
+        phi22 = proxim(phi22,phi12);
+        phiRange = Range(phi12,phi22); phiRange.sort();
+        auto rmean = radius.mean();
+        phiRange.first *= rmean;
+      	phiRange.second *= rmean;
+	correction.correctRPhiRange(phiRange);
+      	phiRange.first /= rmean;
+        phiRange.second /= rmean;
+
       }
       
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
-      if ((prmax-prmin) > Geom::ftwoPi())
-	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
-      else
-	{ while (prmax>maxphi) { prmin -= Geom::ftwoPi(); prmax -= Geom::ftwoPi();}
-	  while (prmin<minphi) { prmin += Geom::ftwoPi(); prmax += Geom::ftwoPi();}
-	  // This needs range -twoPi to +twoPi to work
-	}
+
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax =	prm + 0.5f*maxDelphi;
+      }
+
       if (barrelLayer) {
 	Range regMax = predRZ.line.detRange();
 	Range regMin = predRZ.line(regMax.min());
 	regMax = predRZ.line(regMax.max());
 	correction.correctRZRange(regMin);
 	correction.correctRZRange(regMax);
-	if (regMax.min() < regMin.min()) { swap(regMax, regMin);}
+	if (regMax.min() < regMin.min()) { std::swap(regMax, regMin);}
 	KDTreeBox phiZ(prmin, prmax,
 		       regMin.min()-fnSigmaRZ*rzError[il],
 		       regMax.max()+fnSigmaRZ*rzError[il]);
@@ -300,7 +365,6 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       MatchedHitRZCorrectionFromBending l2rzFixup(doublets.hit(ip,HitDoublets::outer)->det()->geographicalId(), tTopo);
       MatchedHitRZCorrectionFromBending l3rzFixup = predRZ.rzPositionFixup;
 
-      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
       auto const & hits = *thirdHitMap[il];
       for (auto KDdata : foundNodes) {
 	GlobalPoint p3 = hits.gp(KDdata); 
@@ -312,8 +376,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	correction.correctRPhiRange(rangeRPhi);
 
 	float ir = 1.f/p3_r;
-	float phiErr = nSigmaPhi *  hits.drphi[KDdata]*ir;
-	if (!checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr))
+        // limit error to 90 degree
+        constexpr float maxPhiErr = 0.5*M_PI;
+        float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+        phiErr = std::min(maxPhiErr, phiErr);
+	if (!checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr, maxPhiErr))
 	  continue;
 	
 	Basic2DVector<double> thc(p3.x(), p3.y());
@@ -344,28 +411,16 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
 	if (theMaxElement!=0 && result.size() >= theMaxElement) {
 	  result.clear();
+	  if(tripletLastLayerIndex) tripletLastLayerIndex->clear();
 	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	  return;
 	}
 	result.emplace_back( doublets.hit(ip,HitDoublets::inner), doublets.hit(ip,HitDoublets::outer), hits.theHits[KDdata].hit()); 
+        // to bookkeep the triplets and 3rd layers in triplet EDProducer
+        if(tripletLastLayerIndex) tripletLastLayerIndex->push_back(il);
       }
     }
   }
   // std::cout << "found triplets " << result.size() << std::endl;
 }
 
-bool PixelTripletLargeTipGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
-{ while (phi > phi2) phi -= 2. * M_PI;
-  while (phi < phi1) phi += 2. * M_PI;
-  return phi <= phi2;
-}  
-
-std::pair<float, float>
-PixelTripletLargeTipGenerator::mergePhiRanges(const std::pair<float, float> &r1,
-					      const std::pair<float, float> &r2) const
-{ float r2Min = r2.first;
-  float r2Max = r2.second;
-  while (r1.first - r2Min > +M_PI) r2Min += 2. * M_PI, r2Max += 2. * M_PI;
-  while (r1.first - r2Min < -M_PI) r2Min -= 2. * M_PI, r2Max -= 2. * M_PI;
-  return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
-}

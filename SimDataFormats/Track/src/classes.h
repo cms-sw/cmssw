@@ -5,7 +5,7 @@
 
 #include <vector>
  
-namespace {
+namespace SimDataFormats_Track {
   struct dictionary {
     SimTrack dummy22;
     edm::SimTrackContainer dummy222;

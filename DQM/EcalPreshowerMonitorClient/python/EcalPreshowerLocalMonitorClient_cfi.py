@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-ecalPreshowerLocalMonitorClient = cms.EDAnalyzer('EcalPreshowerMonitorClient',	
+ecalPreshowerLocalMonitorClient = DQMEDHarvester('EcalPreshowerMonitorClient',	
                                             LookupTable = cms.untracked.FileInPath('EventFilter/ESDigiToRaw/data/ES_lookup_table.dat'),
-                                            OutputFile = cms.untracked.string(''),
-                                            InputFile = cms.untracked.string(''),
                                             enableCleanup = cms.untracked.bool(False),
                                             enabledClients = cms.untracked.vstring('Pedestal'),
                                             prefixME = cms.untracked.string('EcalPreshower'),

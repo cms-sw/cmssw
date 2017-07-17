@@ -1,11 +1,11 @@
 '''
-    Created on Jun 26, 2013 
+    Created on Jun 26, 2013
     @author:  Mantas Stankevicius
     @contact: mantas.stankevicius@cern.ch
     http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
-    
-    @responsible: 
-    
+
+    @responsible:
+
 '''
 
 json = {
@@ -45,7 +45,7 @@ json = {
      {
       "instance": "impactParameterTagInfos",
       "container": "reco::TrackIPTagInfo",
-      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak5JetTracksAssociatorAtVertex collection as input."
+      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak4JetTracksAssociatorAtVertex collection as input."
      },
      {
       "instance": "jetProbabilityBJetTags",
@@ -265,7 +265,7 @@ json = {
      {
       "instance": "impactParameterTagInfos",
       "container": "reco::TrackIPTagInfo",
-      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak5JetTracksAssociatorAtVertex collection as input."
+      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak4JetTracksAssociatorAtVertex collection as input."
      },
      {
       "instance": "jetProbabilityBJetTags",

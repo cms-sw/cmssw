@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <string>
 #include <set>
+#include <vector>
 
 namespace edm
 {
@@ -29,7 +30,7 @@ namespace edm
 
   void loadExtraClasses();
   TClass* getTClass(const std::type_info& ti);
-  void loadCap(const std::string& name);
+  bool loadCap(const std::string& name, std::vector<std::string>& missingDictionaries);
   void doBuildRealData(const std::string& name);
 }
 

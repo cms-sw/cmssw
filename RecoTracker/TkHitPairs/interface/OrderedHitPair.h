@@ -10,10 +10,11 @@ public:
   typedef SeedingHitSet::ConstRecHitPointer OuterRecHit; 
   typedef SeedingHitSet::ConstRecHitPointer InnerRecHit; 
 
+  OrderedHitPair(){}
   OrderedHitPair( const InnerRecHit & ih, const OuterRecHit & oh) : SeedingHitSet(ih, oh){}
  
-  const InnerRecHit & inner() const { return get(0); }
-  const OuterRecHit & outer() const { return get(1); } 
+  InnerRecHit  inner() const { return get(0); }
+  OuterRecHit  outer() const { return get(1); } 
 };
 
 #endif

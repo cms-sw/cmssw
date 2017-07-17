@@ -21,6 +21,10 @@ ClusterCount::~ClusterCount()
 
 }
 
+void ClusterCount::bookHistograms(DQMStore::IBooker & iBooker,
+                                  edm::Run const &,
+                                  edm::EventSetup const &) {
+}
 
 //
 // member functions
@@ -33,7 +37,6 @@ ClusterCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    // look at the clusters
    edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
-   //   iEvent.getByLabel(clusterLabel_, clusters);
    iEvent.getByToken(clusterToken_, clusters);
    const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
    // loop on the detsetvector<cluster>

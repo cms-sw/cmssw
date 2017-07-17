@@ -18,13 +18,12 @@ namespace edm {
     moduleName_(),
     moduleLabel_(),
     processConfigurationPtr_(nullptr),
-    id_(std::numeric_limits<unsigned int>::max()){}
+    id_(invalidID()){}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
 		std::string const& modName,
-		std::string const& modLabel) : ModuleDescription{pid, modName, modLabel, nullptr,
-        std::numeric_limits<unsigned int>::max()} {}
+		std::string const& modLabel) : ModuleDescription{pid, modName, modLabel, nullptr, invalidID()} {}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
@@ -40,12 +39,12 @@ namespace edm {
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
-		std::string const& modLabel) : ModuleDescription{ParameterSetID(), modName, modLabel, nullptr,std::numeric_limits<unsigned int>::max()} {}
+		std::string const& modLabel) : ModuleDescription{ParameterSetID(), modName, modLabel, nullptr, invalidID()} {}
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
 		std::string const& modLabel,
-		ProcessConfiguration const* procConfig) : ModuleDescription{ParameterSetID(), modName, modLabel, procConfig,std::numeric_limits<unsigned int>::max()} {}
+		ProcessConfiguration const* procConfig) : ModuleDescription{ParameterSetID(), modName, modLabel, procConfig, invalidID()} {}
 
   ModuleDescription::~ModuleDescription() {}
 
@@ -104,7 +103,7 @@ namespace edm {
   ModuleDescription::getUniqueID() {
     return s_id++;
   }
-  
+
   void
   ModuleDescription::write(std::ostream& os) const {
     os  << "Module type=" << moduleName() << ", "

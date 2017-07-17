@@ -17,6 +17,7 @@
 #include "G4Track.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DebugLog
 
@@ -56,11 +57,17 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " successfully"; 
   }
 
-  TTree* event = (TTree *) hf ->Get("Events");
+  newForm = (branchEvInfo == "");
+  TTree* event(0);
+  if (newForm) event = (TTree *) hf ->Get("HFSimHits");
+  else         event = (TTree *) hf ->Get("Events");
   if (event) {
-    std::string info = branchEvInfo + branchPost;
-    TBranch *evtInfo = event->GetBranch(info.c_str());
-    if (evtInfo) {
+    TBranch *evtInfo(0);
+    if (!newForm) {
+      std::string info = branchEvInfo + branchPost;
+      evtInfo          = event->GetBranch(info.c_str());
+    }
+    if (evtInfo || newForm) {
       loadEventInfo(evtInfo);
     } else {
       edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
@@ -91,6 +98,13 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   nameBr           = branchPre + hadName + branchPost;
   hadBranch        = event->GetBranch(nameBr.c_str());
   if (verbose) hadBranch->Print();
+
+  v3version=false;
+  if ( emBranch->GetClassName() == std::string("vector<float>") ) {
+    v3version=true;
+  }
+  
+
   edm::LogInfo("HFShower") << "HFShowerLibrary:Branch " << emName 
 			   << " has " << emBranch->GetEntries() 
 			   << " entries and Branch " << hadName 
@@ -103,50 +117,8 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			   << probMax << "  Back propagation of light prob. "
                            << backProb ;
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-
-    //Radius (minimum and maximum)
-    int nR     = -1;
-    std::vector<double> rTable = getDDDArray("rTable",sv,nR);
-    rMin = rTable[0];
-    rMax = rTable[nR-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
-			     << " cm and rMax " << rMax/cm;
-
-    //Delta phi
-    int nEta   = -1;
-    std::vector<double> etaTable = getDDDArray("etaTable",sv,nEta);
-    int nPhi   = nEta + nR - 2;
-    std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
-    dphi       = phibin[nEta-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
-			     << dphi/deg;
-
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF",sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
-			       << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-  
   fibre = new HFFibre(name, cpv, p);
+  photo = new HFShowerPhotonCollection;
   emPDG = epPDG = gammaPDG = 0;
   pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
   anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
@@ -154,10 +126,15 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  if (fibre)  delete   fibre;  fibre  = 0;
+  if (fibre)  delete   fibre;
+  fibre  = 0;
+  if (photo)  delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
+void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
+			      HcalDDDSimConstants* hcons) {
+
+  if (fibre) fibre->initRun(hcons);
 
   G4String parName;
   emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
@@ -182,6 +159,26 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 			   << ", anti_nu_e = " << anuePDG << ", anti_nu_mu = " 
 			   << anumuPDG << ", anti_nu_tau = " << anutauPDG;
 #endif
+  
+  //Radius (minimum and maximum)
+  std::vector<double> rTable = hcons->getRTableHF();
+  rMin = rTable[0];
+  rMax = rTable[rTable.size()-1];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+                           << " cm and rMax " << rMax/cm;
+
+  //Delta phi
+  std::vector<double> phibin   = hcons->getPhiTableHF();
+  dphi       = phibin[0];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+                           << dphi/deg;
+
+  //Special Geometry parameters
+  gpar      = hcons->getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerLibrary: " <<gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
 }
 
 
@@ -202,16 +199,40 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
+#ifdef DebugLog
+  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+  double zoff   = localPos.z() + 0.5*gpar[1];
+  //  if (zoff < 0) zoff = 0;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
+                           << " of energy " << pin/GeV << " GeV"
+                           << "  dir.orts " << momDir.x() << ", " <<momDir.y()
+                           << ", " << momDir.z() << "  Pos x,y,z = "
+                           << hitPoint.x() << "," << hitPoint.y() << ","
+                           << hitPoint.z() << " (" << zoff
+                           << ")   sphi,cphi,stheta,ctheta  = " << sin(momDir.phi())
+                           << ","  << cos(momDir.phi()) << ", " << sin(momDir.theta()) 
+                           << "," << cos(momDir.theta());
+#endif
+
+  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
+  double pin    = preStepPoint->GetTotalEnergy();
+
+  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+}
+
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
+                               G4ThreeVector & momDir,
+                               int parCode, double pin, bool & ok,
+                               double weight, double tSlice,bool onlyLong) {
+
   std::vector<HFShowerLibrary::Hit> hit;
   ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
     return hit;
   ok = true;
 
-  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
-  double pin    = preStepPoint->GetTotalEnergy();
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
 
@@ -224,20 +245,6 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-#ifdef DebugLog
-  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-  double zoff   = localPos.z() + 0.5*gpar[1];
-  //  if (zoff < 0) zoff = 0;
-  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
-			   << " of energy " << pin/GeV << " GeV"
-			   << "  dir.orts " << momDir.x() << ", " <<momDir.y() 
-			   << ", " << momDir.z() << "  Pos x,y,z = " 
-			   << hitPoint.x() << "," << hitPoint.y() << "," 
-			   << hitPoint.z() << " (" << zoff 
-			   << ")   sphi,cphi,stheta,ctheta  = " << sphi 
-			   << ","  << cphi << ", " << stheta << "," << ctheta; 
-#endif    
-                       
   if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
@@ -373,7 +380,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
-  return hit;
+ return hit;
 
 }
 
@@ -387,38 +394,87 @@ void HFShowerLibrary::getRecord(int type, int record) {
 
   int nrc     = record-1;
   photon.clear();
+  photo->clear();
   if (type > 0) {
-    hadBranch->SetAddress(&photon);
-    hadBranch->GetEntry(nrc);
+    if (newForm) {
+      if ( !v3version ) {
+	hadBranch->SetAddress(&photo);
+	hadBranch->GetEntry(nrc+totEvents);
+      }
+      else{
+	std::vector<float> t;
+	std::vector<float> *tp=&t;
+	hadBranch->SetAddress(&tp);
+	hadBranch->GetEntry(nrc+totEvents);
+	unsigned int tSize=t.size()/5;
+	photo->reserve(tSize);
+	for ( unsigned int i=0; i<tSize; i++ ) {
+	  photo->push_back( HFShowerPhoton( t[i], t[1*tSize+i], t[2*tSize+i], t[3*tSize+i], t[4*tSize+i] ) );
+	}
+      }
+    } else {
+      hadBranch->SetAddress(&photon);
+      hadBranch->GetEntry(nrc);
+    }
   } else {
-    emBranch->SetAddress(&photon);
-    emBranch->GetEntry(nrc);
+    if (newForm) {
+      if (!v3version) {
+	emBranch->SetAddress(&photo);
+	emBranch->GetEntry(nrc);
+      }
+      else{
+	std::vector<float> t;
+	std::vector<float> *tp=&t;
+	emBranch->SetAddress(&tp);
+	emBranch->GetEntry(nrc);
+	unsigned int tSize=t.size()/5;
+	photo->reserve(tSize);
+	for ( unsigned int i=0; i<tSize; i++ ) {
+	  photo->push_back( HFShowerPhoton( t[i], t[1*tSize+i], t[2*tSize+i], t[3*tSize+i], t[4*tSize+i] ) );
+	}
+      }
+    } else {
+      emBranch->SetAddress(&photon);
+      emBranch->GetEntry(nrc);
+    }
   }
 #ifdef DebugLog
-  int nPhoton = photon.size();
+  int nPhoton = (newForm) ? photo->size() : photon.size();
   LogDebug("HFShower") << "HFShowerLibrary::getRecord: Record " << record
 		       << " of type " << type << " with " << nPhoton 
 		       << " photons";
   for (int j = 0; j < nPhoton; j++) 
-    LogDebug("HFShower") << "Photon " << j << " " << photon[j];
+    if (newForm) LogDebug("HFShower") << "Photon " << j << " " << photo->at(j);
+    else         LogDebug("HFShower") << "Photon " << j << " " << photon[j];
 #endif
 }
 
 void HFShowerLibrary::loadEventInfo(TBranch* branch) {
 
-  std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
-  branch->SetAddress(&eventInfoCollection);
-  branch->GetEntry(0);
-  edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
-			   << " EventInfo Collection of size "
-			   << eventInfoCollection.size() << " records";
-  totEvents   = eventInfoCollection[0].totalEvents();
-  nMomBin     = eventInfoCollection[0].numberOfBins();
-  evtPerBin   = eventInfoCollection[0].eventsPerBin();
-  libVers     = eventInfoCollection[0].showerLibraryVersion();
-  listVersion = eventInfoCollection[0].physListVersion();
-  pmom        = eventInfoCollection[0].energyBins();
-  for (unsigned int i=0; i<pmom.size(); i++) 
+  if (branch) {
+    std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
+    branch->SetAddress(&eventInfoCollection);
+    branch->GetEntry(0);
+    edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
+			     << " EventInfo Collection of size "
+			     << eventInfoCollection.size() << " records";
+    totEvents   = eventInfoCollection[0].totalEvents();
+    nMomBin     = eventInfoCollection[0].numberOfBins();
+    evtPerBin   = eventInfoCollection[0].eventsPerBin();
+    libVers     = eventInfoCollection[0].showerLibraryVersion();
+    listVersion = eventInfoCollection[0].physListVersion();
+    pmom        = eventInfoCollection[0].energyBins();
+  } else {
+    edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
+			     << " EventInfo from hardwired numbers";
+    nMomBin     = 16;
+    evtPerBin   = 5000;
+    totEvents   = nMomBin*evtPerBin;
+    libVers     = 1.1;
+    listVersion = 3.6;
+    pmom        = {2,3,5,7,10,15,20,30,50,75,100,150,250,350,500,1000};
+  }
+  for (int i=0; i<nMomBin; i++) 
     pmom[i] *= GeV;
 }
 
@@ -429,7 +485,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
 		       << " GeV with " << nMomBin << " momentum bins and " 
 		       << evtPerBin << " entries/bin -- total " << totEvents;
 #endif
-  int irc[2];
+  int irc[2]={0,0};
   double w = 0.;
   double r = G4UniformRand();
 
@@ -482,7 +538,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   for (int ir=0; ir < 2; ir++) {
     if (irc[ir]>0) {
       getRecord (type, irc[ir]);
-      int nPhoton = photon.size();
+      int nPhoton = (newForm) ? photo->size() : photon.size();
       npold      += nPhoton;
       for (int j=0; j<nPhoton; j++) {
 	r = G4UniformRand();
@@ -493,7 +549,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
     }
   }
 
-  if (npe > npold || (npold == 0 && irc[0] > 0)) 
+  if ((npe > npold || (npold == 0 && irc[0] > 0)) && !(npe == 0 && npold == 0))
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation Warning =="
 				<< " records " << irc[0] << " and " << irc[1]
 				<< " gives a buffer of " << npold 
@@ -548,7 +604,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   for (int ir=0; ir<nrec; ir++) {
     if (irc[ir]>0) {
       getRecord (type, irc[ir]);
-      int nPhoton = photon.size();
+      int nPhoton = (newForm) ? photo->size() : photon.size();
       npold      += nPhoton;
       for (int j=0; j<nPhoton; j++) {
 	double r = G4UniformRand();
@@ -585,7 +641,8 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
 
 void HFShowerLibrary::storePhoton(int j) {
 
-  pe.push_back(photon[j]);
+  if (newForm) pe.push_back(photo->at(j));
+  else         pe.push_back(photon[j]);
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " 
 		       << npe << " " << pe[npe];

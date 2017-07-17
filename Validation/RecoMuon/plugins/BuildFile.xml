@@ -21,7 +21,6 @@
 <use   name="SimTracker/Common"/>
 <use   name="SimTracker/Records"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>

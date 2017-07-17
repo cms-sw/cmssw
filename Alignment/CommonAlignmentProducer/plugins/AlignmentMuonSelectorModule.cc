@@ -3,7 +3,7 @@
  * selects a subset of a muon collection and clones
  * Track, TrackExtra parts and RecHits collection
  * for SA, GB and Tracker Only options
- * 
+ *
  * \author Javier Fernandez, IFCA
  *
  * \version $Revision: 1.3 $
@@ -12,10 +12,11 @@
  *
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 // the following include is necessary to clone all track branches
 // including recoTrackExtras and TrackingRecHitsOwned.
@@ -26,9 +27,9 @@ struct MuonConfigSelector {
 
   typedef std::vector<const reco::Muon*> container;
   typedef container::const_iterator const_iterator;
-  typedef reco::MuonCollection collection; 
+  typedef reco::MuonCollection collection;
 
-  MuonConfigSelector( const edm::ParameterSet & cfg ) :
+  MuonConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
     theSelector(cfg) {}
 
   const_iterator begin() const { return selected_.begin(); }
@@ -43,7 +44,7 @@ struct MuonConfigSelector {
          i != iE; ++i){
       all_.push_back(& * i );
     }
-    selected_ = theSelector.select(all_, evt); // might add dummy 
+    selected_ = theSelector.select(all_, evt); // might add dummy
   }
 
 private:

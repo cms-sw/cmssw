@@ -20,6 +20,7 @@
 
 // system include files
 #include <string>
+#include <set>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,22 +28,28 @@
 // forward declarations
 
 namespace edm {
+   class SharedResourcesAcquirer;
+   
    namespace one {
       namespace impl {
          
-         class SharedResourcesUser {
+         template<typename T>
+         class SharedResourcesUser : public virtual T {
          public:
             template< typename... Args>
-            SharedResourcesUser(Args...) {}
+            SharedResourcesUser(Args... args) : T(args...) {}
             SharedResourcesUser(SharedResourcesUser const&) = delete;
             SharedResourcesUser& operator=(SharedResourcesUser const&) = delete;
             
             virtual ~SharedResourcesUser() {}
             
          protected:
-            static const std::string kUnknownResource;
             
-            void usesResource(std::string const& iName = kUnknownResource);
+            void usesResource(std::string const& iName);
+            void usesResource();
+         private:
+            SharedResourcesAcquirer createAcquirer() override;
+            std::set<std::string> resourceNames_;
          };
          
          template <typename T>
@@ -51,6 +58,7 @@ namespace edm {
             RunWatcher() = default;
             RunWatcher(RunWatcher const&) = delete;
             RunWatcher& operator=(RunWatcher const&) = delete;
+            ~RunWatcher() noexcept(false) {};
             
          private:
             void doBeginRun_(Run const& rp, EventSetup const& c) override final;
@@ -67,6 +75,7 @@ namespace edm {
             LuminosityBlockWatcher() = default;
             LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
             LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
+            ~LuminosityBlockWatcher() noexcept(false) {};
             
          private:
             void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final;
@@ -82,6 +91,7 @@ namespace edm {
             BeginRunProducer() = default;
             BeginRunProducer( BeginRunProducer const&) = delete;
             BeginRunProducer& operator=(BeginRunProducer const&) = delete;
+            ~BeginRunProducer() noexcept(false) {};
             
          private:
             void doBeginRunProduce_(Run& rp, EventSetup const& c) override final;
@@ -95,6 +105,7 @@ namespace edm {
             EndRunProducer() = default;
             EndRunProducer( EndRunProducer const&) = delete;
             EndRunProducer& operator=(EndRunProducer const&) = delete;
+            ~EndRunProducer() noexcept(false) {};
             
          private:
             
@@ -109,6 +120,7 @@ namespace edm {
             BeginLuminosityBlockProducer() = default;
             BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
             BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
+            ~BeginLuminosityBlockProducer() noexcept(false) {};
             
          private:
             void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) override final;
@@ -122,6 +134,7 @@ namespace edm {
             EndLuminosityBlockProducer() = default;
             EndLuminosityBlockProducer( EndLuminosityBlockProducer const&) = delete;
             EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
+            ~EndLuminosityBlockProducer() noexcept(false) {};
             
          private:
             void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) override final;

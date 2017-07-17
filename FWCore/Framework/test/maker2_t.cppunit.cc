@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -53,7 +53,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker2);
 void testmaker2::maker2Test()
 //int main()
 {
-  std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type",std::string("TestMod") );
@@ -71,7 +71,7 @@ void testmaker2::maker2Test()
 
   edm::ProductRegistry preg;
   edm::PreallocationConfiguration prealloc;
-  boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  auto pc = std::make_shared<ProcessConfiguration>("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 

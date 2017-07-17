@@ -19,22 +19,31 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    #allowUnscheduled = cms.untracked.bool(True), # What happens to the Looper?
     wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.task = cms.Task()
 
-## std sequence for ttGenEvent
+## std sequence for pat
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
+
+process.load("PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff")
+process.task.add(process.cleanPatCandidatesTask)
+process.cleanPatElectrons.checkOverlaps.muons.requireNoOverlaps = True
+process.cleanPatJets.checkOverlaps.muons.requireNoOverlaps     = True
+process.cleanPatJets.checkOverlaps.electrons.requireNoOverlaps = True
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff")
@@ -44,8 +53,4 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff 
 process.looper = looper
 
 ## produce pat objects and ttGenEvt and make mva training
-process.p = cms.Path(process.particleFlowPtrs *
-                     process.patCandidates *
-                     process.selectedPatCandidates *
-                     process.makeGenEvt *
-                     process.saveTrainTree)
+process.p = cms.Path(process.saveTrainTree, process.task)

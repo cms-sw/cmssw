@@ -71,10 +71,14 @@ class LHERunInfo {
 	};
 
 	struct XSec {
-		XSec() : value(0.0), error(0.0) {}
-
-		double	value;
-		double	error;
+	public:
+	XSec() : value_(0.0), error_(0.0) {}
+	XSec(double v, double e): value_(v), error_(e){}
+	  double value(){return value_;}
+	  double error(){return error_;}
+	private:
+	  double	value_;
+	  double	error_;
 	};
 
 	void count(int process, CountMode count, double eventWeight = 1.0,
@@ -84,45 +88,91 @@ class LHERunInfo {
 
 	std::pair<int, int> pdfSetTranslation() const;
 
-    private:
 	struct Counter {
-		Counter() : n(0), sum(0.0), sum2(0.0) {}
-
-		inline void add(double weight)
-		{
-			n++;
-			sum += weight;
-			sum2 += weight * weight;
-		}
-
-		unsigned int	n;
-		double		sum;
-		double		sum2;
+	public:
+	Counter() : n_(0), sum_(0.0), sum2_(0.0) {}
+	Counter(unsigned int n1, double sum1, double sum21) 
+	:n_(n1), sum_(sum1), sum2_(sum21) {}
+	  inline void add(double weight)
+	  {
+	    n_++;
+	    sum_ += weight;
+	    sum2_ += weight * weight;
+	  }
+	  unsigned int n() const {return n_;}
+	  double sum() const {return sum_;}
+	  double sum2() const {return sum2_;}
+	private: 
+	  unsigned int	n_;
+	  double		sum_;
+	  double		sum2_;
 	};
 
 	struct Process {
-		int		process;
-		unsigned int	heprupIndex;
-		Counter		tried;
-		Counter		selected;
-		Counter		killed;
-		Counter		accepted;
-		Counter		acceptedBr;
+	public:
+	Process(): process_(-1), heprupIndex_(-1), nPassPos_(0), nPassNeg_(0), nTotalPos_(0), nTotalNeg_(0){}
+	Process(int id): process_(id), heprupIndex_(-1), nPassPos_(0), nPassNeg_(0), nTotalPos_(0), nTotalNeg_(0){}
+	  // accessors
+	  int process() const {return process_;} 
+	  unsigned int heprupIndex() const {return heprupIndex_;}
+          XSec  getLHEXSec() const {return lheXSec_;}
 
-		inline bool operator < (const Process &other) const
-		{ return process < other.process; }
-		inline bool operator < (int process) const
-		{ return this->process < process; }
-		inline bool operator == (int process) const
-		{ return this->process == process; }
+	  unsigned int nPassPos() const {return nPassPos_;}
+	  unsigned int nPassNeg() const {return nPassNeg_;}
+	  unsigned int nTotalPos() const {return nTotalPos_;}
+	  unsigned int nTotalNeg() const {return nTotalNeg_;}
+
+	  Counter tried() const {return tried_;}
+	  Counter selected() const {return selected_;}
+	  Counter killed() const {return killed_;}
+	  Counter accepted() const {return accepted_;}
+	  Counter acceptedBr() const {return acceptedBr_;}	        
+	  
+	  // setters
+	  void setProcess(int id) {process_ = id;}
+	  void setHepRupIndex(int id) {heprupIndex_ = id;}
+          void setLHEXSec(double value, double error) {lheXSec_ = XSec(value,error);}
+
+	  void addNPassPos(unsigned int n=1) { nPassPos_ += n; }
+	  void addNPassNeg(unsigned int n=1) { nPassNeg_ += n; }
+	  void addNTotalPos(unsigned int n=1) { nTotalPos_ += n; }
+	  void addNTotalNeg(unsigned int n=1) { nTotalNeg_ += n; }
+
+	  void addTried(double w) {tried_.add(w);}
+	  void addSelected(double w) {selected_.add(w);}
+	  void addKilled(double w) {killed_.add(w);}
+	  void addAccepted(double w) {accepted_.add(w);}
+	  void addAcceptedBr(double w) {acceptedBr_.add(w);}	        
+	  
+	private:
+	  int		        process_;
+          XSec                  lheXSec_;
+	  unsigned int	        heprupIndex_;
+	  unsigned int          nPassPos_;
+	  unsigned int          nPassNeg_;
+	  unsigned int          nTotalPos_;
+	  unsigned int          nTotalNeg_;
+	  Counter		tried_;
+	  Counter		selected_;
+	  Counter		killed_;
+	  Counter		accepted_;
+	  Counter		acceptedBr_;
 	};
-
+	
+ private:
 	void init();
 
 	HEPRUP				heprup;
 	std::vector<Process>		processes;
 	std::vector<Header>		headers;
 	std::vector<std::string>	comments;
+
+ public:
+    const std::vector<Process>& getLumiProcesses() const {return processesLumi;}
+    const int getHEPIDWTUP() const {return heprup.IDWTUP;}
+    void initLumi();
+  private:
+    std::vector<Process>       	processesLumi;
 };
 
 } // namespace lhef

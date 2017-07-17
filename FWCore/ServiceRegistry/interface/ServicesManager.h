@@ -25,9 +25,10 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeIDBase.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <cassert>
 #include <vector>
@@ -42,17 +43,17 @@ namespace edm {
       class ServicesManager {
 public:
          struct MakerHolder {
-            MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
+            MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
                         ParameterSet& iPSet,
                         ActivityRegistry&) ;
             bool add(ServicesManager&) const;
 
-            boost::shared_ptr<ServiceMakerBase> maker_;
+            edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
             ParameterSet* pset_;
-            ActivityRegistry* registry_;
+            ActivityRegistry* registry_; // We do not use propagate_const because the registry itself is mutable
             mutable bool wasAdded_;
          };
-         typedef std::map<TypeIDBase, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
+         typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase> > Type2Service;
          typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
 
          ServicesManager(std::vector<ParameterSet>& iConfiguration);
@@ -82,14 +83,14 @@ public:
                         typeid(T).name(),
                         "'.\n");
                } else {
-                  itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+                  const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
                }
             }
             //convert it to its actual type
-            boost::shared_ptr<ServiceWrapper<T> > ptr(boost::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
+            std::shared_ptr<ServiceWrapper<T> > ptr(std::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
             assert(0 != ptr.get());
             return ptr->get();
          }
@@ -107,7 +108,7 @@ public:
                } else {
                   //Actually create the service in order to 'flush out' any
                   // configuration errors for the service
-                  itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+                 const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
@@ -121,7 +122,7 @@ public:
          // ---------- member functions ---------------------------
          ///returns false if put fails because a service of this type already exists
          template<typename T>
-         bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) {
+         bool put(std::shared_ptr<ServiceWrapper<T> > iPtr) {
             Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
             if(itFound != type2Service_.end()) {
                return false;
@@ -149,17 +150,18 @@ private:
 
          void fillListOfMakers(std::vector<ParameterSet>&);
          void createServices();
+         void createServiceFor(MakerHolder const&);
 
          // ---------- member data --------------------------------
          //hold onto the Manager passed in from the ServiceToken so that
          // the ActivityRegistry of that Manager does not go out of scope
          // This must be first to get the Service destructors called in
          // the correct order.
-         boost::shared_ptr<ServicesManager> associatedManager_;
+         edm::propagate_const<std::shared_ptr<ServicesManager>> associatedManager_;
 
          ActivityRegistry registry_;
          Type2Service type2Service_;
-         std::auto_ptr<Type2Maker> type2Maker_;
+         edm::propagate_const<std::unique_ptr<Type2Maker>> type2Maker_;
          std::vector<TypeIDBase> requestedCreationOrder_;
          std::vector<TypeIDBase> actualCreationOrder_;
       };

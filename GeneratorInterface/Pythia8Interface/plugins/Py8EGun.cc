@@ -3,7 +3,10 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
+
+// EvtGen plugin
+//
+#include "Pythia8Plugins/EvtGen.h"
 
 namespace gen {
 
@@ -55,17 +58,12 @@ bool Py8EGun::generatePartonsAndHadronize()
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
-      // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
-      //
-      double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
-      double ee   = (fMaxE-fMinE) * randomEngine->flat() + fMinE;
-      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
-      double the  = 2.*atan(exp(-eta));                                                                          
-      
-      double mass = (fMasterGen->particleData).mass( particleID );
-//      double mass = (pythia->particleData).m0( particleID );
+      double phi = (fMaxPhi-fMinPhi) * randomEngine().flat() + fMinPhi;
+      double ee   = (fMaxE-fMinE) * randomEngine().flat() + fMinE;
+      double eta  = (fMaxEta-fMinEta) * randomEngine().flat() + fMinEta;
+      double the  = 2.*atan(exp(-eta));
+
+      double mass = (fMasterGen->particleData).m0( particleID );
 
       double pp = sqrt( ee*ee - mass*mass );
       double px = pp * sin(the) * cos(phi);
@@ -77,6 +75,11 @@ bool Py8EGun::generatePartonsAndHadronize()
          particleID = std::fabs(particleID) ;
       }
       (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+      int eventSize = (fMasterGen->event).size()-1;
+// -log(flat) = exponential distribution
+      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+      (fMasterGen->event)[eventSize].tau( tauTmp );
+
 
 // Here also need to add anti-particle (if any)
 // otherwise just add a 2nd particle of the same type 
@@ -86,22 +89,26 @@ bool Py8EGun::generatePartonsAndHadronize()
       {
          if ( (fMasterGen->particleData).isParticle( -particleID ) )
 	 {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
 	 else
 	 {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
+         eventSize = (fMasterGen->event).size()-1;
+// -log(flat) = exponential distribution
+         tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+         (fMasterGen->event)[eventSize].tau( tauTmp );
       }
 
    }
    
    if ( !fMasterGen->next() ) return false;
    
+   if (evtgenDecays.get()) evtgenDecays->decay();
+
    event().reset(new HepMC::GenEvent);
-   toHepMC.fill_next_event( fMasterGen->event, event().get() );
-      
-   return true;   
+   return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   
 }
 

@@ -14,7 +14,20 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+#include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
 #include "TVector2.h"
 
@@ -44,21 +57,17 @@ class PFECALSuperClusterAlgo {
   // simple class for associating calibrated energies
   class CalibratedPFCluster {
   public:
-    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p,
-			const double ce) : cluptr(p), calib_e(ce) {}
+    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
     
-    double energy() const { return calib_e; }
+    double energy() const { return cluptr->correctedEnergy(); }
     double energy_nocalib() const { return cluptr->energy(); }
     double eta() const { return cluptr->positionREP().eta(); }
     double phi() const { return cluptr->positionREP().phi(); }
     
-    void resetCalibratedEnergy(const double ce) { calib_e = ce; }
-   
     edm::Ptr<reco::PFCluster> the_ptr() const { return cluptr; }
 
   private:
-    edm::Ptr<reco::PFCluster> cluptr;
-    double calib_e;
+    edm::Ptr<reco::PFCluster> cluptr;    
   };
   typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
   typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
@@ -77,6 +86,10 @@ class PFECALSuperClusterAlgo {
 
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
 
+  void setUseRegression(bool useRegression) { useRegression_ = useRegression; }
+  
+  void setThreshSuperClusterEt(double thresh) { threshSuperClusterEt_ = thresh; }
+  
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
   void setThreshPFClusterBarrel(double thresh){ threshPFClusterBarrel_ = thresh;}
   void setThreshPFClusterSeedEndcap(double thresh){ threshPFClusterSeedEndcap_ = thresh;}
@@ -98,27 +111,37 @@ class PFECALSuperClusterAlgo {
   //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
+  void setIsOOTCollection( bool isOOTCollection ){ isOOTCollection_ = isOOTCollection; }
+
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
-
-  std::auto_ptr<reco::SuperClusterCollection>
+  
+  void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  void update(const edm::EventSetup&);
+  
+  
+  std::unique_ptr<reco::SuperClusterCollection>&
     getEBOutputSCCollection() { return superClustersEB_; }
-  std::auto_ptr<reco::SuperClusterCollection>
-    getEEOutputSCCollection() { return superClustersEE_; } 
-  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation>
-    getEEtoPSAssociation() { return EEtoPS_; } 
+  std::unique_ptr<reco::SuperClusterCollection>&
+    getEEOutputSCCollection() { return superClustersEE_; }
 
-  void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
-			     const edm::View<reco::PFCluster>& psclusters);
+  void loadAndSortPFClusters(const edm::Event &evt);
   
   void run();
 
  private:  
 
+  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;   
+  edm::EDGetTokenT<reco::BeamSpot>   inputTagBeamSpot_;
+   
+  const reco::BeamSpot *beamSpot_;
+  const ESChannelStatus* channelStatus_;
+  
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
-  std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
-  std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
-  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation> EEtoPS_;
+  std::unique_ptr<reco::SuperClusterCollection> superClustersEB_;
+  std::unique_ptr<reco::SuperClusterCollection> superClustersEE_;
+  const reco::PFCluster::EEtoPSAssociation* EEtoPS_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
   energy_weight   _eweight;
@@ -128,6 +151,12 @@ class PFECALSuperClusterAlgo {
 			 CalibratedClusterPtrVector&); 
 
   bool verbose_;
+  
+  // regression
+  bool useRegression_;
+  std::unique_ptr<SCEnergyCorrectorSemiParm> regr_;  
+  
+  double threshSuperClusterEt_;  
 
   double threshPFClusterSeed_;
   double threshPFCluster_;
@@ -155,6 +184,12 @@ class PFECALSuperClusterAlgo {
 
   bool usePS;
 
+  // OOT photons
+  bool isOOTCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> inputTagBarrelRecHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> inputTagEndcapRecHits_;
+  const EcalRecHitCollection * barrelRecHits_;
+  const EcalRecHitCollection * endcapRecHits_;
 };
 
 #endif

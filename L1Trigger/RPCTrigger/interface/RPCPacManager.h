@@ -23,7 +23,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
-#include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdlib>
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -88,7 +87,6 @@ public:
         }
       } 
     } 
-    cms::concurrency::xercesTerminate();
   };
 
   
@@ -164,7 +162,6 @@ public:
         }
       } 
     } 
-    cms::concurrency::xercesTerminate();
   };
   
   /** Returns the pointer to m_PAC for given LogCone defined by m_tower, logSector, logSegment.

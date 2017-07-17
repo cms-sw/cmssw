@@ -8,8 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <array>
 #include <vector>
 #include <string>
@@ -339,7 +337,7 @@ try {
   ans.push_back(ans3);
   
   
-  std::vector<bool> ans4;  	// Answers for criteria 4:{{"DEBUG*1","HLT?2"}};;
+  std::vector<bool> ans4;  	// Answers for criteria 4:{{"DEBUG*1","HLT?2"}};
   ans4.push_back (false);	// f f f f f f f f f f f f
   ans4.push_back (true);	// t t t t t t t t t t t t
   ans4.push_back (false);	// t f f f f f f f f f f f
@@ -450,8 +448,7 @@ try {
   typedef edm::service::TriggerNamesService TNS;
   typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-  boost::shared_ptr<w_TNS> tnsptr
-    (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
+  auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(proc_pset));
 
   ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
 

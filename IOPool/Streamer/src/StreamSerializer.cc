@@ -2,7 +2,7 @@
  * StreamSerializer.cc
  *
  * Utility class for serializing framework objects (e.g. ProductRegistry and
- * EventPrincipal) into streamer message objects.
+ * Event) into streamer message objects.
  */
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -15,17 +15,17 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
 #include <algorithm>
 #include <cstdlib>
-#include <list>
+#include <iostream>
+#include <vector>
 
 namespace edm {
 
@@ -42,25 +42,26 @@ namespace edm {
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists) {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
+                                          const BranchIDLists &branchIDLists,
+                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
-
-    SelectedProducts::const_iterator i(selections_->begin()), e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
 
 
     for(auto const& selection : *selections_)  {
-        sd.push_back(*selection);
-        FDEBUG(9) << "StreamOutput got product = " << selection->className()
+        sd.push_back(*selection.first);
+        FDEBUG(9) << "StreamOutput got product = " << selection.first->className()
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
+    sd.setThinnedAssociationsHelper(thinnedAssociationsHelper);
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::fillMap(*pset::Registry::instance(), psetMap);
+    pset::Registry::instance()->fillMap(psetMap);
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();
@@ -99,7 +100,7 @@ namespace edm {
    data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
    data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
    // calculate the adler32 checksum and fill it into the struct
-   data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+   data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.bufferPointer(), data_buffer.curr_space_used_);
    //std::cout << "Adler32 checksum of init message = " << data_buffer.adler32_chksum_ << std::endl;
    return data_buffer.curr_space_used_;
   }
@@ -124,36 +125,51 @@ namespace edm {
 
 
    */
-  int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
+  int StreamSerializer::serializeEvent(EventForOutput const& event,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer &data_buffer,
-                                       ModuleCallingContext const* mcc) {
-    Parentage parentage;
+                                       SerializeDataBuffer& data_buffer) {
 
-    EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
+    EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
-    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
+    SendEvent se(event.eventAuxiliary(), event.processHistory(), selectionIDs, event.branchListIndexes());
 
-    SelectedProducts::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
-    for(SelectedProducts::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
-      BranchDescription const& desc = **i;
-      BranchID const& id = desc.branchID();
+    // Historical note. I fixed two bugs in the code below in
+    // March 2017. One would have caused any Parentage written
+    // using the Streamer output module to be total nonsense
+    // prior to the fix. The other would have caused seg faults
+    // when the Parentage was dropped in an earlier process.
 
-      OutputHandle const oh = eventPrincipal.getForOutput(id, true, mcc);
-      if(!oh.productProvenance()) {
+    // FIX ME. The code below stores the direct parentage of
+    // kept products, but it does not save the parentage of
+    // dropped objects that are ancestors of kept products like
+    // the PoolOutputModule. That information is currently
+    // lost when the streamer output module is used.
+
+    for(auto const& selection : *selections_) {
+      BranchDescription const& desc = *selection.first;
+      BasicHandle result;
+      event.getByToken(selection.second, desc.unwrappedTypeID(), result);
+      if(!result.isValid()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
-        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenance()->parentageID(), parentage);
-        assert(found);
-        se.products().push_back(StreamedProduct(oh.wrapper(),
-                                                desc,
-                                                oh.wrapper() != 0,
-                                                &parentage.parents()));
+        if (result.provenance()->productProvenance()) {
+          Parentage const* parentage = ParentageRegistry::instance()->getMapped(result.provenance()->productProvenance()->parentageID());
+          assert(parentage);
+          se.products().push_back(StreamedProduct(result.wrapper(),
+                                                  desc,
+                                                  result.wrapper() != nullptr,
+                                                  &parentage->parents()));
+        } else {
+          se.products().push_back(StreamedProduct(result.wrapper(),
+                                                  desc,
+                                                  result.wrapper() != nullptr,
+                                                  nullptr));
+	}
       }
     }
 
@@ -167,7 +183,7 @@ namespace edm {
         {
           throw cms::Exception("StreamTranslation","Event serialization failed")
             << "StreamSerializer failed to serialize event: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
       case 1: // succcess
@@ -177,7 +193,7 @@ namespace edm {
           throw cms::Exception("StreamTranslation","Event serialization truncated")
             << "StreamSerializer module attempted to serialize an event\n"
             << "that is to big for the allocated buffers: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
     default: // unknown
@@ -185,7 +201,7 @@ namespace edm {
           throw cms::Exception("StreamTranslation","Event serialization failed")
             << "StreamSerializer module got an unknown error code\n"
             << " while attempting to serialize event: "
-            << eventPrincipal.id();
+            << event.id();
           break;
         }
       }
@@ -215,7 +231,7 @@ namespace edm {
       }
     }
     // calculate the adler32 checksum and fill it into the struct
-    data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+    data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.bufferPointer(), data_buffer.curr_space_used_);
     //std::cout << "Adler32 checksum of event = " << data_buffer.adler32_chksum_ << std::endl;
 
     return data_buffer.curr_space_used_;

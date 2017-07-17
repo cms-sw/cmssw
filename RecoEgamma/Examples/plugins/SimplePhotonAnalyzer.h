@@ -22,6 +22,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -48,7 +52,8 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       std::string mcCollection_;
       std::string photonCollectionProducer_;
       std::string photonCollection_;
-
+      std::string valueMapPFCandPhoton_;
+      edm::InputTag pfEgammaCandidates_;
       edm::InputTag barrelEcalHits_;
       edm::InputTag endcapEcalHits_;
 
@@ -57,35 +62,34 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       std::string vertexProducer_;
       float sample_;
 
+      DQMStore *dbe_;
 
-      TProfile* effEta_;
-      TProfile* effPhi_;
       
-      TH1F* h1_scEta_;
-      TH1F* h1_deltaEtaSC_;
-      TH1F* h1_pho_E_;
-      TH1F* h1_pho_Et_;
-      TH1F* h1_pho_Eta_;
-      TH1F* h1_pho_Phi_;
-      TH1F* h1_pho_R9Barrel_;
-      TH1F* h1_pho_R9Endcap_;
-      TH1F* h1_pho_sigmaIetaIetaBarrel_;
-      TH1F* h1_pho_sigmaIetaIetaEndcap_;
-      TH1F* h1_pho_hOverEBarrel_;
-      TH1F* h1_pho_hOverEEndcap_;
-      TH1F* h1_pho_ecalIsoBarrel_;
-      TH1F* h1_pho_ecalIsoEndcap_;
-      TH1F* h1_pho_hcalIsoBarrel_;
-      TH1F* h1_pho_hcalIsoEndcap_;
-      TH1F* h1_pho_trkIsoBarrel_;
-      TH1F* h1_pho_trkIsoEndcap_;
+      MonitorElement* h1_scEta_;
+      MonitorElement* h1_deltaEtaSC_;
+      MonitorElement* h1_pho_E_;
+      MonitorElement* h1_pho_Et_;
+      MonitorElement* h1_pho_Eta_;
+      MonitorElement* h1_pho_Phi_;
+      MonitorElement* h1_pho_R9Barrel_;
+      MonitorElement* h1_pho_R9Endcap_;
+      MonitorElement* h1_pho_sigmaIetaIetaBarrel_;
+      MonitorElement* h1_pho_sigmaIetaIetaEndcap_;
+      MonitorElement* h1_pho_hOverEBarrel_;
+      MonitorElement* h1_pho_hOverEEndcap_;
+      MonitorElement* h1_pho_ecalIsoBarrel_;
+      MonitorElement* h1_pho_ecalIsoEndcap_;
+      MonitorElement* h1_pho_hcalIsoBarrel_;
+      MonitorElement* h1_pho_hcalIsoEndcap_;
+      MonitorElement* h1_pho_trkIsoBarrel_;
+      MonitorElement* h1_pho_trkIsoEndcap_;
 
 
 
-      TH1F* h1_recEoverTrueEBarrel_ ;
-      TH1F* h1_recEoverTrueEEndcap_ ;
-      TH1F* h1_deltaEta_;
-      TH1F* h1_deltaPhi_ ;
+      MonitorElement* h1_recEoverTrueEBarrel_ ;
+      MonitorElement* h1_recEoverTrueEEndcap_ ;
+      MonitorElement* h1_deltaEta_;
+      MonitorElement* h1_deltaPhi_ ;
 
 
 

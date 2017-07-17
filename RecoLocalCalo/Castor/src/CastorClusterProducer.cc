@@ -75,7 +75,6 @@ class CastorClusterProducer : public edm::EDProducer {
 // constants, enums and typedefs
 //
 
-const double MYR2D = 180/M_PI;
 
 //
 // static data member definitions
@@ -128,7 +127,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CastorTowerCollection> InputTowers;
   iEvent.getByToken(tok_input_, InputTowers);
 
-  std::auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
+  auto OutputClustersfromClusterAlgo = std::make_unique<CastorClusterCollection>();
   
   // get and check input size
   int nTowers = InputTowers->size();
@@ -146,7 +145,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // build cluster from ClusterAlgo
   if (clusteralgo_ == true) {
     // code
-    iEvent.put(OutputClustersfromClusterAlgo);
+    iEvent.put(std::move(OutputClustersfromClusterAlgo));
   }
   
   }
@@ -159,7 +158,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	Handle<CastorTowerCollection> ctCollection;
 	iEvent.getByToken(tok_tower_,ctCollection);
 	
-	std::auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
+	auto OutputClustersfromBasicJets = std::make_unique<CastorClusterCollection>();
 	
 	if (bjCollection->size()==0) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
    
@@ -234,7 +233,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		OutputClustersfromBasicJets->push_back(cc);
    	}
 	
-	iEvent.put(OutputClustersfromBasicJets);
+	iEvent.put(std::move(OutputClustersfromBasicJets));
   
   }
  

@@ -6,7 +6,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <string>
 
@@ -37,6 +34,7 @@ static const std::string category("Muon|RecoMuon|L3MuonCandidateProducerFromMuon
 L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet) :
   m_L3CollectionLabel( parameterSet.getParameter<InputTag>("InputObjects") )       // standAlone Collection Label
 {
+  muonToken_ = consumes<reco::MuonCollection>(m_L3CollectionLabel);
   LogTrace(category)<<" constructor called";
   produces<RecoChargedCandidateCollection>();
 }
@@ -48,15 +46,15 @@ L3MuonCandidateProducerFromMuons::~L3MuonCandidateProducerFromMuons(){
 
 
 /// reconstruct muons
-void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& eventSetup){
+void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const EventSetup& eventSetup) const {
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<m_L3CollectionLabel.label();
   Handle<reco::MuonCollection> muons;
-  event.getByLabel(m_L3CollectionLabel,muons);
+  event.getByToken(muonToken_,muons);
 
   if (not muons.isValid()) {
     LogError(category) << muons.whyFailed()->what();
@@ -79,5 +77,5 @@ void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& e
       candidates->push_back(cand);
     }
   }
-  event.put(candidates);
+  event.put(std::move(candidates));
 }

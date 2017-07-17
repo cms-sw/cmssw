@@ -12,7 +12,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 WValidation::WValidation(const edm::ParameterSet& iPSet): 
@@ -21,57 +21,48 @@ WValidation::WValidation(const edm::ParameterSet& iPSet):
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
 
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 WValidation::~WValidation() {}
 
-void WValidation::beginJob()
-{
-  if(dbe){
+void WValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
     std::string folderName = "Generator/W";
     folderName+=_name;
-    dbe->setCurrentFolder(folderName.c_str());
+    DQMHelper dqm(&i); i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
     
     //Kinematics
-    Wmass = dbe->book1D("Wmass","inv. Mass W", 70 ,0,140);
-    WmassPeak = dbe->book1D("WmassPeak","inv. Mass W", 80 ,80 ,100);
-    Wpt = dbe->book1D("Wpt","W pt",100,0,200);
-    WptLog = dbe->book1D("WptLog","log(W pt)",100,0.,5.);
-    Wrap = dbe->book1D("Wrap", "W y", 100, -5, 5);
-    Wdaughters = dbe->book1D("Wdaughters", "W daughters", 60, -30, 30);
+    Wmass = dqm.book1dHisto("Wmass","inv. Mass W", 70 ,0,140,"M_{T}^{W} (GeV)","Number of Events");
+    WmassPeak = dqm.book1dHisto("WmassPeak","inv. Mass W", 80 ,80 ,100,"M_{T}^{W} (GeV)","Number of Events");
+    Wpt = dqm.book1dHisto("Wpt","W pt",100,0,200,"P_{T}^{W} (GeV)","Number of Events");
+    WptLog = dqm.book1dHisto("WptLog","log(W pt)",100,0.,5.,"Log_{10}(P_{T}^{W}) (GeV)","Number of Events");
+    Wrap = dqm.book1dHisto("Wrap", "W y", 100, -5, 5,"Y^{W}","Number of Events");
+    Wdaughters = dqm.book1dHisto("Wdaughters", "W daughters", 60, -30, 30,"W daughters (PDG ID)","Number of Events");
 
-    lepmet_mT = dbe->book1D("lepmet_mT","lepton-met transverse mass", 70 ,0,140);
-    lepmet_mTPeak = dbe->book1D("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100);
-    lepmet_pt = dbe->book1D("lepmet_pt","lepton-met",100,0,200);
-    lepmet_ptLog = dbe->book1D("lepmet_ptLog","log(lepton-met pt)",100,0.,5.);
+    lepmet_mT = dqm.book1dHisto("lepmet_mT","lepton-met transverse mass", 70 ,0,140,"M_{T}^{Lepton_{T}+E_{T}^{Miss}} (GeV)","Number of Events");
+    lepmet_mTPeak = dqm.book1dHisto("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100,"M_{T}^{Lepton_{T}+E_{T}^{Miss}} (GeV)","Number of Events");
+    lepmet_pt = dqm.book1dHisto("lepmet_pt","lepton-met",100,0,200,"P_{T}^{Lepton_{T}+E_{T}^{Miss}} (GeV)","Number of Events");
+    lepmet_ptLog = dqm.book1dHisto("lepmet_ptLog","log(lepton-met pt)",100,0.,5.,"log_{10}(P_{T}^{Lepton_{T}+E_{T}^{Miss}}) (Log_{10}(GeV))","Number of Events");
 
-    gamma_energy = dbe->book1D("gamma_energy", "photon energy in W rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = dbe->book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1);
+    gamma_energy = dqm.book1dHisto("gamma_energy", "photon energy in W rest frame", 200, 0., 100.,"E_{#gamma}^{W rest-frame}","Number of Events");
+    cos_theta_gamma_lepton = dqm.book1dHisto("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1,"cos(#theta_{#gamma-lepton}^{W rest-frame})","Number of Events");
 
-    leppt = dbe->book1D("leadpt","lepton pt", 200, 0., 200.);    
-    met   = dbe->book1D("met","met", 200, 0., 200.);    
-    lepeta = dbe->book1D("leadeta","leading lepton eta", 100, -5., 5.);
+    leppt = dqm.book1dHisto("leadpt","lepton pt", 200, 0., 200.,"P_{t}^{Lead-Lepton} (GeV)","Number of Events");    
+    met   = dqm.book1dHisto("met","met", 200, 0., 200.,"E_{T}^{Miss} (GeV)","Number of Events");    
+    lepeta = dqm.book1dHisto("leadeta","leading lepton eta", 100, -5., 5.,"#eta^{Lead-Lepton}","Number of Events");
 
-  }
   return;
 }
 
-void WValidation::endJob(){return;}
-void WValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
+void WValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
 }
-void WValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
+
 void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   
@@ -92,19 +83,19 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   std::vector<const HepMC::GenParticle*> allneutrinos; 
 
   //requires status 1 for leptons and neutrinos (except tau)
-  int requiredstatus = (abs(_flavor) == 11 || abs(_flavor) ==13 ) ? 1 : 3;
+  int requiredstatus = (std::abs(_flavor) == 11 || std::abs(_flavor) ==13 ) ? 1 : 3;
 
-  bool vetotau = true; //(abs(_flavor) == 11 || abs(_flavor) == 12 || abs(_flavor) ==13 || abs(_flavor) ==14 || abs(_flavor) ==16) ? true : false;  
+  bool vetotau = true; //(std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? true : false;  
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return;
+      if ((*iter)->status()==3 && std::abs((*iter)->pdg_id()) == 15)  return;
     }
     if((*iter)->status()==requiredstatus) {
       //@todo: improve this selection	
       if((*iter)->pdg_id()==_flavor)
 	allleptons.push_back(*iter);
-      else if (abs((*iter)->pdg_id()) == abs(_flavor)+1)
+      else if (std::abs((*iter)->pdg_id()) == std::abs(_flavor)+1)
 	allneutrinos.push_back(*iter);	
     }
   }

@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
-  jets_             (cfg.getParameter<edm::InputTag>("jets"             )),
-  leps_             (cfg.getParameter<edm::InputTag>("leps"             )),
+  jetsToken_             (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"             ))),
+  lepsToken_             (consumes< edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"             ))),
   maxNJets_         (cfg.getParameter<int>          ("maxNJets"         )),
   useDeltaR_        (cfg.getParameter<bool>         ("useDeltaR"        )),
   useBTagging_      (cfg.getParameter<bool>         ("useBTagging"      )),
@@ -17,7 +17,7 @@ TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
   maxBDiscLightJets_(cfg.getParameter<double>       ("maxBDiscLightJets"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
-    throw cms::Exception("WrongConfig") 
+    throw cms::Exception("WrongConfig")
       << "Parameter maxNJets can not be set to " << maxNJets_ << ". \n"
       << "It has to be larger than 4 or can be set to -1 to take all jets.";
 
@@ -32,34 +32,34 @@ TtSemiLepJetCombGeom::~TtSemiLepJetCombGeom()
 void
 TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::unique_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
+  std::unique_ptr<int> pJetsConsidered(new int);
 
   std::vector<int> match;
-  for(unsigned int i = 0; i < 4; ++i) 
+  for(unsigned int i = 0; i < 4; ++i)
     match.push_back( -1 );
 
   // get jets
   edm::Handle< std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   // get leptons
-  edm::Handle< edm::View<reco::RecoCandidate> > leps; 
-  evt.getByLabel(leps_, leps);
+  edm::Handle< edm::View<reco::RecoCandidate> > leps;
+  evt.getByToken(lepsToken_, leps);
 
   // skip events without lepton candidate or less than 4 jets
   if(leps->empty() || jets->size() < 4){
     pOut->push_back( match );
-    evt.put(pOut);
+    evt.put(std::move(pOut));
     *pJetsConsidered = jets->size();
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
+    evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
     return;
   }
 
   unsigned maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
   *pJetsConsidered = maxNJets;
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 
   std::vector<bool> isBJet;
   std::vector<bool> isLJet;
@@ -71,7 +71,7 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
       if((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    )cntBJets++;
     }
   }
-  
+
   // -----------------------------------------------------
   // associate those two jets to the hadronic W boson that
   // have the smallest distance to each other
@@ -98,7 +98,7 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // -----------------------------------------------------
   // associate to the hadronic b quark the remaining jet
-  // that has the smallest distance to the hadronic W 
+  // that has the smallest distance to the hadronic W
   // -----------------------------------------------------
   minDist=-1.;
   int hadB=-1;
@@ -140,13 +140,13 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
   match[TtSemiLepEvtPartons::LepB     ] = lepB;
 
   pOut->push_back( match );
-  evt.put(pOut);
+  evt.put(std::move(pOut));
 }
 
 double
 TtSemiLepJetCombGeom::distance(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2)
 {
-  // calculate the distance between two lorentz vectors 
+  // calculate the distance between two lorentz vectors
   // using DeltaR or DeltaTheta
   if(useDeltaR_) return ROOT::Math::VectorUtil::DeltaR(v1, v2);
   return fabs(v1.theta() - v2.theta());

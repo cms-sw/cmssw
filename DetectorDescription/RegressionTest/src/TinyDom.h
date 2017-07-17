@@ -1,12 +1,13 @@
 #ifndef x_TinyDom_h
 #define x_TinyDom_h
 
-#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include <iostream>
+#include <map>
+#include <string>
+
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
-#include <string>
-#include <map>
-#include <iostream>
+#include "DetectorDescription/RegressionTest/src/TagName.h"
 
 class AnotherDummy {};
 

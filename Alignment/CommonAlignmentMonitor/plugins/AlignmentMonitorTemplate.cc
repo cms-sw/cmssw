@@ -32,7 +32,7 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
 
       void book() override;
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
-      void afterAlignment(const edm::EventSetup &iSetup) override;
+      void afterAlignment() override;
 
    private:
       TH1F *m_hist, *m_ihist, *m_otherdir, *m_otherdir2;
@@ -120,7 +120,7 @@ void AlignmentMonitorTemplate::event(const edm::Event &iEvent, const edm::EventS
    } // end loop over tracks/trajectories
 }
 
-void AlignmentMonitorTemplate::afterAlignment(const edm::EventSetup &iSetup) {
+void AlignmentMonitorTemplate::afterAlignment() {
    m_otherdir->Fill(iteration());  // this one will only get one fill per iteration, because it's called in afterAlignment()
 }
 

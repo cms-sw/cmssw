@@ -4,16 +4,17 @@
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include <memory>
 
 using namespace pat;
 
 PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false),
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false),
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector() )
 {
   // initialize the configurables
-  src_ = iConfig.getParameter<edm::InputTag>( "src" );
+  srcToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>( "src" ));
 
   // RECO embedding
   embedTrack_        = iConfig.getParameter<bool>( "embedTrack" );
@@ -23,21 +24,21 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
   embedSuperCluster_ = iConfig.getParameter<bool>( "embedSuperCluster" );
   embedTracks_       = iConfig.getParameter<bool>( "embedMultipleTracks" );
   embedCaloTower_    = iConfig.getParameter<bool>( "embedCaloTower" );
-  
+
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+      embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
       if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+        genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genParticleMatch" )));
       } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+        genMatchTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" ), [this](edm::InputTag const & tag){return consumes<edm::Association<reco::GenParticleCollection> >(tag);});
       }
   }
 
   // quality
   addQuality_ = iConfig.getParameter<bool>("addQuality");
-  qualitySrc_ = iConfig.getParameter<edm::InputTag>("qualitySource");
+  qualitySrcToken_ = mayConsume<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("qualitySource"));
 
   // produces vector of particles
   produces<std::vector<GenericParticle> >();
@@ -56,11 +57,12 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
         }
      }
   }
+  isoDepositTokens_ = edm::vector_transform(isoDepositLabels_, [this](std::pair<IsolationKeys,edm::InputTag> const & label){return consumes<edm::ValueMap<IsoDeposit> >(label.second);});
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
 
   // Resolution configurables
@@ -70,7 +72,7 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
   }
 
   if (iConfig.exists("vertexing")) {
-     vertexingHelper_ = pat::helper::VertexingHelper(iConfig.getParameter<edm::ParameterSet>("vertexing")); 
+     vertexingHelper_ = pat::helper::VertexingHelper(iConfig.getParameter<edm::ParameterSet>("vertexing"), consumesCollector());
   }
 
   // Check to see if the user wants to add user data
@@ -86,7 +88,7 @@ PATGenericParticleProducer::~PATGenericParticleProducer() {
 void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // Get the vector of GenericParticle's from the event
   edm::Handle<edm::View<reco::Candidate> > cands;
-  iEvent.getByLabel(src_, cands);
+  iEvent.getByToken(srcToken_, cands);
 
   // prepare isolation
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
@@ -96,25 +98,25 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   if (vertexingHelper_.enabled())  vertexingHelper_.newEvent(iEvent,iSetup);
 
   // prepare IsoDeposits
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
+  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositTokens_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-    iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
+    iEvent.getByToken(isoDepositTokens_[j], deposits[j]);
   }
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchTokens_.size());
   if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
+        for (size_t j = 0, nd = genMatchTokens_.size(); j < nd; ++j) {
+            iEvent.getByToken(genMatchTokens_[j], genMatches[j]);
         }
   }
 
   // prepare the quality
   edm::Handle<edm::ValueMap<float> > qualities;
-  if (addQuality_) iEvent.getByLabel(qualitySrc_, qualities);
+  if (addQuality_) iEvent.getByToken(qualitySrcToken_, qualities);
 
   // loop over cands
-  std::vector<GenericParticle> * PATGenericParticles = new std::vector<GenericParticle>(); 
+  std::vector<GenericParticle> * PATGenericParticles = new std::vector<GenericParticle>();
   for (edm::View<reco::Candidate>::const_iterator itGenericParticle = cands->begin(); itGenericParticle != cands->end(); itGenericParticle++) {
     // construct the GenericParticle from the ref -> save ref to original object
     unsigned int idx = itGenericParticle - cands->begin();
@@ -185,8 +187,8 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   std::sort(PATGenericParticles->begin(), PATGenericParticles->end(), eTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<GenericParticle> > myGenericParticles(PATGenericParticles);
-  iEvent.put(myGenericParticles);
+  std::unique_ptr<std::vector<GenericParticle> > myGenericParticles(PATGenericParticles);
+  iEvent.put(std::move(myGenericParticles));
   if (isolator_.enabled()) isolator_.endEvent();
 
 }

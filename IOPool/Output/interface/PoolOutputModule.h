@@ -11,23 +11,32 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <array>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
-#include "boost/shared_ptr.hpp"
+#include <vector>
+#include <regex>
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 
 class TTree;
 namespace edm {
 
+  class EDGetToken;
   class ModuleCallingContext;
   class ParameterSet;
   class RootOutputFile;
   class ConfigurationDescriptions;
+  class ProductProvenanceRetriever;
 
-  class PoolOutputModule : public OutputModule {
+  class PoolOutputModule : public one::OutputModule<WatchInputFiles> {
   public:
     enum DropMetaData { DropNone, DropDroppedPrior, DropPrior, DropAll };
     explicit PoolOutputModule(ParameterSet const& ps);
@@ -53,6 +62,7 @@ namespace edm {
 
     std::string const& currentFileName() const;
 
+    static void fillDescription(ParameterSetDescription& desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     using OutputModule::selectorConfig;
@@ -71,12 +81,12 @@ namespace edm {
         explicit Sorter(TTree* tree);
         bool operator() (OutputItem const& lh, OutputItem const& rh) const;
       private:
-        boost::shared_ptr<std::map<std::string, int> > treeMap_;
+        std::shared_ptr<std::map<std::string, int> > treeMap_;
       };
 
       OutputItem();
 
-      explicit OutputItem(BranchDescription const* bd, int splitLevel, int basketSize);
+      explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
 
       ~OutputItem() {}
 
@@ -88,6 +98,7 @@ namespace edm {
       }
 
       BranchDescription const* branchDescription_;
+      EDGetToken token_;
       mutable void const* product_;
       int splitLevel_;
       int basketSize_;
@@ -97,23 +108,47 @@ namespace edm {
 
     typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
+    struct SpecialSplitLevelForBranch {
+      SpecialSplitLevelForBranch(std::string const& iBranchName, int iSplitLevel):
+      branch_(convert(iBranchName)),
+      splitLevel_(iSplitLevel < 1? 1: iSplitLevel) //minimum is 1
+      {}
+      bool match(std::string const& iBranchName) const;
+      std::regex convert(std::string const& iGlobBranchExpression )const;
+      
+      std::regex branch_;
+      int splitLevel_;
+    };
+    
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
+
+    BranchChildren const& branchChildren() const {return branchChildren_;}
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void write(EventForOutput const& e) override;
+
+    virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
+    virtual void doExtrasAfterCloseFile();
   private:
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override;
+
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*) override;
-    virtual void writeRun(RunPrincipal const& r, ModuleCallingContext const*) override;
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
+    virtual void writeRun(RunForOutput const& r) override;
     virtual bool isFileOpen() const override;
-    virtual void reallyOpenFile() override;
+    void reallyOpenFile();
     virtual void reallyCloseFile() override;
     virtual void beginJob() override;
+
+    typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
+    void updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,
+                                         BranchID const& branchID);
+    void updateBranchParents(EventForOutput const& e);
+    void fillDependencyGraph();
 
     void startEndFile();
     void writeFileFormatVersion();
@@ -124,6 +159,7 @@ namespace edm {
     void writeProductDescriptionRegistry();
     void writeParentageRegistry();
     void writeBranchIDListRegistry();
+    void writeThinnedAssociationsHelper();
     void writeProductDependencies();
     void finishEndFile();
 
@@ -133,6 +169,7 @@ namespace edm {
     RootServiceChecker rootServiceChecker_;
     AuxItemArray auxItems_;
     OutputItemListArray selectedOutputItemList_;
+    std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
     std::string const fileName_;
     std::string const logicalFileName_;
     std::string const catalog_;
@@ -152,10 +189,14 @@ namespace edm {
     int inputFileCount_;
     unsigned int childIndex_;
     unsigned int numberOfDigitsInIndex_;
+    BranchParents branchParents_;
+    BranchChildren branchChildren_;
+    std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
-    std::unique_ptr<RootOutputFile> rootOutputFile_;
+    edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
   };
 }
 
 #endif
+

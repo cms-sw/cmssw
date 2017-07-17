@@ -23,8 +23,9 @@ public:
   void beginJob(DQMStore *);
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c ,const std::vector<MonitorElement *>& , const std::vector<RPCDetId>&);
+   void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
+  void getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId>& );
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

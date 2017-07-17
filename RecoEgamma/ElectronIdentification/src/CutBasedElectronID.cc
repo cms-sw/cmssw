@@ -1,22 +1,26 @@
 #include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 //#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <algorithm>
 
+CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf,edm::ConsumesCollector & iC)
+{
+  verticesCollection_ = iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
+
+}
+
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
 
   // Get all the parameters
-  baseSetup(conf);
+  //baseSetup(conf);
 
   type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
-  verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
+  //verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
   
   if (type_ == "classbased" and (version_ == "V06")) {
     newCategories_ = conf.getParameter<bool>("additionalCategories");
@@ -138,7 +142,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double hcalIso = electron->dr04HcalTowerSumEt();
@@ -151,7 +155,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
   if (version_ != "V01" or version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
-    e.getByLabel(verticesCollection_, vtxH);
+    e.getByToken(verticesCollection_, vtxH);
     if (vtxH->size() != 0) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
@@ -468,7 +472,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
@@ -485,7 +489,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   if (version_ == "V03" or version_ == "V04") {
     edm::Handle<reco::BeamSpot> pBeamSpot;
     // uses the same name for the vertex collection to avoid adding more new names
-    e.getByLabel(verticesCollection_, pBeamSpot);
+    e.getByToken(verticesCollection_, pBeamSpot);
     if (pBeamSpot.isValid()) {
       const reco::BeamSpot *bspot = pBeamSpot.product();
       const math::XYZPoint bspotPosition = bspot->position();
@@ -504,7 +508,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
 
   if (version_ == "V05") {
     edm::Handle<reco::VertexCollection> vtxH;
-    e.getByLabel(verticesCollection_, vtxH);
+    e.getByToken(verticesCollection_, vtxH);
     if (vtxH->size() != 0) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
@@ -553,7 +557,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
     if (mishits > cut[22]) // expected missing hits
       return result;
     // positive cut[23] means to demand a valid hit in 1st layer PXB
-    if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+    if (cut[23] > 0 && !electron->gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
       return result;
 
     // cut[24]: Dist cut[25]: dcot

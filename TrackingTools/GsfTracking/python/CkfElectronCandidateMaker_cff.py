@@ -1,18 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 #Chi2 estimator
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
 ElectronChi2.ComponentName = 'ElectronChi2'
 ElectronChi2.MaxChi2 = 2000.
 ElectronChi2.nSigma = 3.
+ElectronChi2.MaxDisplacement = 100
+ElectronChi2.MaxSagitta = -1
 
 # Trajectory Filter
-from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-TrajectoryFilterForElectrons.ComponentName = 'TrajectoryFilterForElectrons'
-TrajectoryFilterForElectrons.filterPset = cms.PSet(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     chargeSignificance = cms.double(-1.0),
     minPt = cms.double(2.0),
     minHitsMinPt = cms.int32(-1),
@@ -21,14 +20,15 @@ TrajectoryFilterForElectrons.filterPset = cms.PSet(
     maxNumberOfHits = cms.int32(-1),
     maxConsecLostHits = cms.int32(1),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(5)
+    minimumNumberOfHits = cms.int32(5),
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 # Trajectory Builder
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
-TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
-TrajectoryBuilderForElectrons.ComponentName = 'TrajectoryBuilderForElectrons'
-TrajectoryBuilderForElectrons.trajectoryFilterName = 'TrajectoryFilterForElectrons'
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
+TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
+TrajectoryBuilderForElectrons.trajectoryFilter.refToPSet_ = 'TrajectoryFilterForElectrons'
 TrajectoryBuilderForElectrons.maxCand = 5
 TrajectoryBuilderForElectrons.intermediateCleaning = False
 TrajectoryBuilderForElectrons.propagatorAlong = 'fwdGsfElectronPropagator'
@@ -48,7 +48,7 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 electronCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 electronCkfTrackCandidates.src = cms.InputTag('electronMergedSeeds')
-electronCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectrons'
+electronCkfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'TrajectoryBuilderForElectrons'
 #electronCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 electronCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 electronCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'

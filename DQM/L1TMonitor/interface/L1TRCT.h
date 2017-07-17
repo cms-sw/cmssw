@@ -1,36 +1,5 @@
-// -*-C++-*-
 #ifndef L1TRCT_H
 #define L1TRCT_H
-
-/*
- * \file L1TRCT.h
- *
- * \author P. Wittich
- *
- * Revision 1.7  2009/11/19 14:34:14  puigh
- * modify beginJob
- *
- * Revision 1.6  2008/11/08 08:45:42  asavin
- * changing the fine grain to HfPlusTau
- *
- * Revision 1.5  2008/07/02 16:53:20  asavin
- * new L1TRCT.h
- *
- * Revision 1.4  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
- * Revision 1.3  2007/09/03 15:14:42  wittich
- * updated RCT with more diagnostic and local coord histos
- *
- * Revision 1.2  2007/02/23 21:58:43  wittich
- * change getByType to getByLabel and add InputTag
- *
- * Revision 1.1  2007/02/19 22:49:53  wittich
- * - Add RCT monitor
- *
- *
- *
-*/
 
 // system include files
 #include <memory>
@@ -58,16 +27,17 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-// Trigger Headers
 
-
+// GCT and RCT data formats
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 //
 // class declaration
 //
 
-class L1TRCT : public edm::EDAnalyzer {
+class L1TRCT : public DQMEDAnalyzer {
 
 public:
 
@@ -79,34 +49,23 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginJob
- void beginJob(void);
-
-// EndJob
-void endJob(void);
-
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+ 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // trigger type information
   MonitorElement *triggerType_;
 
-  // region global coordinates
+  // RCT
+  // regions
   MonitorElement* rctRegionsEtEtaPhi_;
   MonitorElement* rctRegionsOccEtaPhi_;
-
-  // region local coordinates
-  MonitorElement* rctRegionsLocalEtEtaPhi_;
-  MonitorElement* rctRegionsLocalOccEtaPhi_;
-  MonitorElement* rctTauVetoLocalEtaPhi_;
-
-  // Region rank
   MonitorElement* rctRegionRank_;
-
-
   MonitorElement* rctOverFlowEtaPhi_;
   MonitorElement* rctTauVetoEtaPhi_;
   MonitorElement* rctMipEtaPhi_;
@@ -118,10 +77,6 @@ private:
   MonitorElement *rctEmBx_;
 
   // em
-  // HW coordinates
-  MonitorElement *rctEmCardRegion_;
-
-
   MonitorElement* rctIsoEmEtEtaPhi_;
   MonitorElement* rctIsoEmOccEtaPhi_;
   MonitorElement* rctNonIsoEmEtEtaPhi_;
@@ -129,18 +84,57 @@ private:
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
 
+  MonitorElement* rctNotCentralRegionsEtEtaPhi_;
+  MonitorElement* rctNotCentralRegionsOccEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmOccEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmOccEtaPhi_;
+
+
+  // Layer2
+  // regions
+  MonitorElement* layer2RegionsEtEtaPhi_;
+  MonitorElement* layer2RegionsOccEtaPhi_;
+  MonitorElement* layer2RegionRank_;
+  MonitorElement* layer2OverFlowEtaPhi_;
+  MonitorElement* layer2TauVetoEtaPhi_;
+  MonitorElement* layer2MipEtaPhi_;
+  MonitorElement* layer2QuietEtaPhi_;
+  MonitorElement* layer2HfPlusTauEtaPhi_;
+
+  // Bx
+  MonitorElement *layer2RegionBx_;
+  MonitorElement *layer2EmBx_;
+
+  // em
+  MonitorElement* layer2IsoEmEtEtaPhi_;
+  MonitorElement* layer2IsoEmOccEtaPhi_;
+  MonitorElement* layer2NonIsoEmEtEtaPhi_;
+  MonitorElement* layer2NonIsoEmOccEtaPhi_;
+  MonitorElement* layer2IsoEmRank_;
+  MonitorElement* layer2NonIsoEmRank_;
+
+  // run/lumi
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
+
 
   int nev_; // Number of events processed
+  std::string histFolder_;
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;
-
-  edm::InputTag rctSource_;
-
+  
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_GCT_L1CRCollection_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSource_GCT_L1CEMCollection_;
+  
   /// filter TriggerType
   int filterTriggerType_;
-
+  int selectBX_;
 };
 
 #endif

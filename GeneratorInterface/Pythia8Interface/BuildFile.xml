@@ -1,9 +1,12 @@
+<use name="FWCore/Concurrency"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
 <use name="boost"/>
 <use name="pythia8"/>
+<use name="evtgen"/>
 <use name="hepmc"/>
 <use name="clhep"/>
 <export>

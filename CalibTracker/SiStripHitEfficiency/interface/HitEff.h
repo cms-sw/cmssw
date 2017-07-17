@@ -25,7 +25,10 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -57,6 +60,18 @@ class HitEff : public edm::EDAnalyzer {
 
         // ----------member data ---------------------------
 
+  const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
+  
+  bool addLumi_;
+  bool addCommonMode_;
+
+  const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
+  const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
+  const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;
+  const edm::EDGetTokenT<DetIdCollection> digis_token_;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
+
   edm::ParameterSet conf_;
   
   TTree* traj;
@@ -82,6 +97,8 @@ class HitEff : public edm::EDAnalyzer {
   int dedxNOM;
   int tquality;
   int istep;
+  float instLumi, PU;
+  float commonMode;
 };
 
 

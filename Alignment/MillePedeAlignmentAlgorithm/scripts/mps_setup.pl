@@ -166,7 +166,7 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw cmsexpress "," ".get_class("mille")." ")>-1) {
   print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
@@ -191,14 +191,6 @@ if ($mssDir ne "") {
     $mssDirPool =~ s/:.+?$//; # Remove all that follows ":"
 
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
-  }
-
-  #$testMssDir = `nsls -d $mssDir`;
-  $testMssDir = `cmsLs -d $mssDir`;
-  chomp $testMssDir;
-  if ($testMssDir eq "") {
-    print "Bad MSS directory name $mssDir\n";
-    exit 1;
   }
 
 }
@@ -327,8 +319,8 @@ for ($j = 1; $j <= $nJobs; ++$j) {
     @JOBSTATUS[$i-1] = "FAIL";
   }
   $theIsn = sprintf "%03d",$i;
-  print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
-  system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
+  print "mps_splice.py $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
+  system "mps_splice.py $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
   # create the run script
   print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool\n";
   system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool";
@@ -349,6 +341,8 @@ push @JOBSP1,"";
 push @JOBSP2,"";
 push @JOBSP3,"";
 
+write_db();
+
 # if merge mode, create the directory and set up contents
 if ($driver eq "merge") {
 
@@ -360,8 +354,8 @@ if ($driver eq "merge") {
   my $nJobsMerge = $nJobs+$nJobExist;
 
   # create  merge job cfg
-  print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge\n";
-  system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge";
+  print "mps_merge.py -w $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge\n";
+  system "mps_merge.py -w $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge";
 
   # create merge job script
   print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $mssDirPool\n";

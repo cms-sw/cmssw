@@ -420,7 +420,9 @@ namespace h {
   HIST_ID(EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT) \
   HIST_ID(EMU_FED_DDU_L1A_MISMATCH_CNT) \
   HIST_ID(EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_CNT) \
-  HIST_ID(EMU_FED_STATS)
+  HIST_ID(EMU_FED_STATS) \
+  HIST_ID(EMU_ALL_DDUS_OUTPUT_PATH_STATUS)
+
 
 #define HIST_NAME_TABLE \
   HIST_NAME("Actual_DMB_CFEB_DAV_Frequency") \
@@ -811,7 +813,8 @@ namespace h {
   HIST_NAME("FED_DDU_L1A_mismatch_with_CSC_data_fract") \
   HIST_NAME("FED_DDU_L1A_mismatch_cnt") \
   HIST_NAME("FED_DDU_L1A_mismatch_with_CSC_data_cnt") \
-  HIST_NAME("FED_Stats")
+  HIST_NAME("FED_Stats") \
+  HIST_NAME("All_DDUs_Output_Path_Status")
 
 #define HIST_ID(a) a,
   enum HistoId {

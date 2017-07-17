@@ -40,12 +40,11 @@ L1GtTriggerMaskVetoTechTrigConfigOnlineProd::~L1GtTriggerMaskVetoTechTrigConfigO
 
 // public methods
 
-boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskVetoTechTrigConfigOnlineProd::newObject(
+std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskVetoTechTrigConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // shared pointer for L1GtTriggerMask
-    boost::shared_ptr<L1GtTriggerMask> pL1GtTriggerMask = boost::shared_ptr<L1GtTriggerMask>(
-            new L1GtTriggerMask());
+    auto pL1GtTriggerMask = std::make_shared<L1GtTriggerMask>();
 
     // l1GtTriggerMaskVetoTechTrig: VETO_TT_FK key in GT_PARTITION_VETO_TT
 

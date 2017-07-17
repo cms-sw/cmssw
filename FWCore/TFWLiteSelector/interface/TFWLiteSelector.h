@@ -32,7 +32,7 @@
       your workers, you can create a new TList and assign it to 'itemsForProcessing' and then add the objects you 
       want passed into that list. 
       NOTE: you are responsible for deleting the created TList and for deleting all items held by the TList. The easiest
-      way to do this is to add a 'std::auto_ptr<TList>' member data to your Selector and then call 'SetOwner()' on the TList.
+      way to do this is to add a 'std::unique_ptr<TList>' member data to your Selector and then call 'SetOwner()' on the TList.
     2) 'terminate(TList&)'
        this is called after all processing has finished.  The TList& contains all the accumulated information
        from all the workers.
@@ -43,13 +43,14 @@
 //
 
 // system include files
+#include <memory>
+
 class TList;
 
 // user include files
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 template <class TWorker>
@@ -72,7 +73,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       const TFWLiteSelector& operator=(const TFWLiteSelector&); // stop default
 
       virtual void preProcessing(const TList*in, TList& out) {
-        worker_.reset(new TWorker(in,out));
+        worker_ = std::make_shared<TWorker>(in,out);
       }
       virtual void process(const edm::Event& iEvent) {
         worker_->process(iEvent);
@@ -82,7 +83,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       }
       
       // ---------- member data --------------------------------
-      boost::shared_ptr<TWorker> worker_;
+      edm::propagate_const<std::shared_ptr<TWorker>> worker_;
       ClassDef(TFWLiteSelector,2)
 };
 

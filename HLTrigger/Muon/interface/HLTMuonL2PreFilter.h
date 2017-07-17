@@ -3,7 +3,7 @@
 
 /** \class HLTMuonL2PreFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a first
  *  filtering for HLT muons
  *
@@ -26,7 +26,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     explicit HLTMuonL2PreFilter(const edm::ParameterSet&);
     ~HLTMuonL2PreFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
     /// input tag of the beam spot
@@ -51,7 +51,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// maxEta cut
     double maxEta_;
 
-    /// |eta| bins for minNstations cut 
+    /// |eta| bins for minNstations cut
     /// (#bins must match #minNstations cuts and #minNhits cuts)
     std::vector<double> absetaBins_;
 
@@ -66,7 +66,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
 
     /// minimum number of valid chambers
     std::vector<int> minNchambers_;
-    
+
     /// cut on impact parameter wrt to the beam spot
     double maxDr_;
 

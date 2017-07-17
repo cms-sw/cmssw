@@ -97,6 +97,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
      */
     DTBtiTrig* storeTrigger(DTBtiTrigData);
 
+    using  BTICache::reconstruct;
     // run the trigger algorithm
     virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
  
@@ -133,7 +134,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     std::vector<DTDigi*> _digis; 
 
     bool _debug;
-    DTConfigPedestals* _pedestals;
+    const DTConfigPedestals* _pedestals;
 
     bool _flag_acc;
 };

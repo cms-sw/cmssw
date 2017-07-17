@@ -20,7 +20,9 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 // Less than operator for sorting EcalRecHits according to energy.
@@ -39,7 +41,7 @@ public:
 class DQMStore;
 class MonitorElement;
 
-class DQMSourcePi0 : public edm::EDAnalyzer {
+class DQMSourcePi0 : public DQMEDAnalyzer {
 
 public:
 
@@ -50,17 +52,17 @@ protected:
    
   void beginJob();
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+//  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
+                            const edm::EventSetup& context)  override;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& c) override;
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   void endJob();
 
@@ -73,7 +75,6 @@ protected:
 private:
  
 
-  DQMStore*   dbe_;  
   int eventCounter_;      
   PositionCalc posCalculator_ ;                        
 
@@ -239,12 +240,12 @@ private:
 
 
   /// object to monitor
-  edm::InputTag productMonitoredEBpi0_;
-  edm::InputTag productMonitoredEBeta_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBpi0_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBeta_;
 
  /// object to monitor
-  edm::InputTag productMonitoredEEpi0_;
-  edm::InputTag productMonitoredEEeta_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEpi0_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEeta_;
 
       int gammaCandEtaSize_;
       int gammaCandPhiSize_;

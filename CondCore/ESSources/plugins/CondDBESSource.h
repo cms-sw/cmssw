@@ -13,29 +13,27 @@
 // system include files
 #include <string>
 #include <map>
+#include <memory>
 #include <set>
 // user include files
-#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "CondCore/DBCommon/interface/TagMetadata.h"
-#include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
+//#include "CondCore/DBCommon/interface/Time.h"
 
 namespace edm{
   class ParameterSet;
 }
+
 namespace cond{
-  class DbSession;
-  class BasePayloadProxy;
   class DataProxyWrapperBase;
 }
 
 class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
-  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
+  typedef std::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
 
   typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
@@ -57,16 +55,17 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 
   // ----------member data ---------------------------
 
-  cond::DbConnection m_connection;
+  cond::persistency::ConnectionPool m_connection;
+  std::string m_connectionString;
 
   // Container of DataProxy, implemented as multi-map keyed by records
   ProxyMap m_proxies;
 
 
-  typedef std::map< std::string, cond::TagMetadata > TagCollection;
+  typedef std::map< std::string, cond::GTEntry_t > TagCollection;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
-  std::map<std::string,std::pair<cond::DbSession,std::string> > m_sessionPool;
+  std::map<std::string,std::pair<cond::persistency::Session,std::string> > m_sessionPool;
   std::map<std::string,unsigned int> m_lastRecordRuns;
   
   struct Stats {
@@ -92,16 +91,18 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 
   void fillList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type);
 
-  void fillTagCollectionFromGT(const std::string & coraldb,
+  void fillTagCollectionFromGT(const std::string & connectionString,
                                const std::string & prefix,
                                const std::string & postfix,
                                const std::string & roottag,
-                               std::set< cond::TagMetadata > & tagcoll);
+                               std::set< cond::GTEntry_t > & tagcoll,
+			       cond::GTMetadata_t& gtMetadata);
 
-  void fillTagCollectionFromDB( const std::vector<std::string> & coraldbList,
-                                const std::vector<std::string> & prefix,
-                                const std::vector<std::string> & postfix,
+  void fillTagCollectionFromDB( const std::vector<std::string> & connectionStringList,
+                                const std::vector<std::string> & prefixList,
+                                const std::vector<std::string> & postfixList,
                                 const std::vector<std::string> & roottagList,
-                                std::map<std::string,cond::TagMetadata>& replacement);
+                                std::map<std::string,cond::GTEntry_t>& replacement,
+				cond::GTMetadata_t& gtMetadata);
 };
 #endif

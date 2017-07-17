@@ -8,14 +8,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include <boost/bind.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/mem_fn.hpp>
 #include <boost/program_options.hpp>
 
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <set>
 #include <string>
@@ -39,7 +38,7 @@ using namespace edmplugin;
 #ifdef __APPLE__
 #define PER_PROCESS_DSO 20
 #else
-#define PER_PROCESS_DSO 200
+#define PER_PROCESS_DSO 2000
 #endif
 
 namespace std {
@@ -61,7 +60,9 @@ namespace {
     typedef edmplugin::CacheParser::NameAndTypes NameAndTypes;
 
     void newFactory(edmplugin::PluginFactoryBase const* iBase) {
-      iBase->newPluginAdded_.connect(boost::bind(boost::mem_fn(&Listener::newPlugin), this, _1, _2));
+      using std::placeholders::_1; 
+      using std::placeholders::_2; 
+      iBase->newPluginAdded_.connect(std::bind(std::mem_fn(&Listener::newPlugin), this, _1, _2));
     }
     void newPlugin(std::string const& iCategory, edmplugin::PluginInfo const& iInfo) {
       nameAndTypes_.push_back(NameAndType(iInfo.name_, iCategory));
@@ -72,6 +73,7 @@ namespace {
 }
 int main (int argc, char **argv) try {
   using namespace boost::program_options;
+  using std::placeholders::_1; 
 
   static char const* const kPathsOpt = "paths";
   static char const* const kPathsCommandOpt = "paths,p";
@@ -157,7 +159,7 @@ int main (int argc, char **argv) try {
         path shortName(file->path().filename());
         std::string stringName = shortName.string();
 
-        static std::string kPluginPrefix(standard::pluginPrefix());
+        static std::string const kPluginPrefix(standard::pluginPrefix());
         if (stringName.size() < kPluginPrefix.size()) {
           continue;
         }
@@ -212,8 +214,8 @@ int main (int argc, char **argv) try {
     //load each file and 'listen' to which plugins are loaded
     Listener listener;
     edmplugin::PluginFactoryManager* pfm =  edmplugin::PluginFactoryManager::get();
-    pfm->newFactory_.connect(boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
-    edm::for_all(*pfm, boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
+    pfm->newFactory_.connect(std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
+    edm::for_all(*pfm, std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
 
     // We open the cache file before forking so that all the children will
     // use it.

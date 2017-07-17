@@ -321,7 +321,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 		}
 
 		// Loop over all PFCands for cluster plots  
-		PFCandidateRefVector myPFCands=(*thePFTau).pfTauTagInfoRef()->PFCands();
+		std::vector<PFCandidatePtr> myPFCands=(*thePFTau).pfTauTagInfoRef()->PFCands();
 		for(int i=0;i<(int)myPFCands.size();i++){
 
 		  math::XYZPointF candPos;

@@ -27,24 +27,26 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "Randomize.hh"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 //
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): histo(0) {
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB02Analysis");
   hcalOnly      = m_Anal.getUntrackedParameter<bool>("HcalClusterOnly",true);
@@ -62,12 +64,7 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): histo(0) {
 HcalTB02Analysis::~HcalTB02Analysis() {
 
   finish();
-
-  if (histo)   {
-    delete histo;
-    histo  = 0;
-  }
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis is deleting";
+  delete histo;
 }
 
 //
@@ -76,9 +73,9 @@ HcalTB02Analysis::~HcalTB02Analysis() {
 
 void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
+  std::unique_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent * evt) {
@@ -90,15 +87,8 @@ void HcalTB02Analysis::update(const BeginOfEvent * evt) {
 
 void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "HcalTB02Analysis requires the RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+  CLHEP::HepRandomEngine* engine = G4Random::getTheEngine();
+  CLHEP::RandGaussQ  randGauss(*engine);
 
   // Look for the Hit Collection
   LogDebug("HcalTBSim") << "HcalTB02Analysis::Fill event " 
@@ -111,8 +101,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
   // HCAL
   std::string sd = names[0];
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
-  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
-  HcalTB02HcalNumberingScheme *org = new HcalTB02HcalNumberingScheme();   
+  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid); 
   LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd 
 			<< " of ID " << HCHCid << " is obtained at " <<theHCHC;
 
@@ -128,10 +117,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     // XTALS
     sd      = names[1];
     XTALSid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
-    //    assert (XTALSid != 0);
     theXTHC = (CaloG4HitCollection*) allHC->GetHC(XTALSid);
-    //    assert (theXTHC != 0);
-    //HcalTB02XtalNumberingScheme *xorg = new HcalTB02XtalNumberingScheme();
     LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd
 			  << " of ID " << XTALSid << " is obtained at " 
 			  << theXTHC;
@@ -143,13 +129,12 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 			<< " HCal hits, and" << xentries  << " xtal hits";
 
   float ETot=0., xETot=0.;
-  //float maxE = 0.; 
-  //int maxI=0, 
   int scintID=0, xtalID=0;
 
   // HCAL
+  HcalTB02HcalNumberingScheme *org = new HcalTB02HcalNumberingScheme();   
 
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for ( ihit = 0; ihit < nentries; ihit++) {
 
       CaloG4Hit* aHit = (*theHCHC)[ihit]; 
@@ -220,15 +205,8 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     for (int iphi=0 ; iphi<8; iphi++) {
       for (int jeta=0 ; jeta<18; jeta++) {
 	
-	//SEnergyN += TowerEneCF[iphi][jeta] + 3.2*randGauss.fire(); // LHEP
 	SEnergyN += TowerEneCF[iphi][jeta] + 3.*randGauss.fire(); // QGSP
 
-	//double dR=0.08727*sqrt( (jeta-8.)*(jeta-8.)+(iphi-3.)*(iphi-3.) );
-	//cout.testOut << " phi= " << iphi << " eta= " << jeta 
-	//	     << " TowerEne[iphi,jeta]= " << TowerEne[iphi][jeta] 
-	//	     << "dR= "  << dR << endl;
-	
-      	//double Rand = 3.2*randGauss.fire(); // LHEP
       	double Rand = 3.*randGauss.fire(); // QGSP
 	
 	if ( (iphi>=0) && (iphi<7) ) {
@@ -309,7 +287,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
     // XTALS
 
-    if (XTALSid >= 0 && theXTHC > 0) {
+    if (XTALSid >= 0 && theXTHC != nullptr) {
       for (int xihit = 0; xihit < xentries; xihit++) {
 
 	CaloG4Hit* xaHit = (*theXTHC)[xihit]; 
@@ -381,6 +359,8 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     std::cout << " Event " << iEvt << std::endl;
   else if ((iEvt < 10000) && (iEvt%1000 == 0)) 
     std::cout << " Event " << iEvt << std::endl;
+
+  delete org;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {

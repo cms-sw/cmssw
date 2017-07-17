@@ -27,6 +27,13 @@
 *
 *
 * \author: Christophe Saout, Andreas Oehler
+* 
+* Modifications:
+* 
+*    04.08.2014: Dinko Ferencek
+*                Added support for Pythia8 (status=22 for intermediate resonances)
+*    23.09.2014: Dinko Ferencek
+*                Generalized code to work with miniAOD (except for the partonicFinalState which requires AOD)
 *
 */
 
@@ -41,6 +48,7 @@ using namespace std;
 
 InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterSet &params ):
   inTag(params.getParameter<edm::InputTag>("src")),
+  prunedInTag(params.exists("prunedGenParticles") ? params.getParameter<edm::InputTag>("prunedGenParticles") : edm::InputTag("prunedGenParticles")),
   partonicFinalState(params.getParameter<bool>("partonicFinalState")),
   excludeResonances(params.getParameter<bool>("excludeResonances")),
   tausAsJets(params.getParameter<bool>("tausAsJets")),
@@ -50,8 +58,18 @@ InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterS
 			("ignoreParticleIDs"));
   setExcludeFromResonancePids(params.getParameter<std::vector<unsigned int> >
 			("excludeFromResonancePids"));
+  isMiniAOD = ( params.exists("isMiniAOD") ? params.getParameter<bool>("isMiniAOD") : (inTag.label()=="packedGenParticles") );
 
-  produces <reco::GenParticleRefVector> ();
+  if (isMiniAOD && partonicFinalState){
+    edm::LogError("PartonicFinalStateFromMiniAOD") << "Partonic final state not supported for MiniAOD. Falling back to the stable particle selection.";
+    partonicFinalState = false;
+  }
+
+  produces <reco::CandidatePtrVector> ();
+
+  input_genpartcoll_token_ = consumes<reco::CandidateView>(inTag);
+  if(isMiniAOD)
+    input_prunedgenpartcoll_token_ = consumes<reco::CandidateView>(prunedInTag);
       
 }
 
@@ -71,7 +89,7 @@ void InputGenJetsParticleSelector::setExcludeFromResonancePids(const std::vector
 
 bool InputGenJetsParticleSelector::isParton(int pdgId) const{
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
+  return (pdgId > 0 && pdgId < 6) ||
     pdgId == 9 || (tausAsJets && pdgId == 15) || pdgId == 21;
   // tops are not considered "regular" partons
   // but taus eventually are (since they may hadronize later)
@@ -88,7 +106,7 @@ bool InputGenJetsParticleSelector::isResonance(int pdgId)
 {
   // gauge bosons and tops
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 8 ;  //BUG! war 21. 22=gamma..
+  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 7 || pdgId == 8 ;  //BUG! was 21. 22=gamma..
 }
 
 bool InputGenJetsParticleSelector::isIgnored(int pdgId) const
@@ -113,8 +131,7 @@ bool InputGenJetsParticleSelector::isExcludedFromResonance(int pdgId) const
 }
 
 static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &p,
-			    //const reco::GenParticle *particle)
-			    const reco::GenParticle *particle)
+			       const reco::Candidate *particle)
 {
   InputGenJetsParticleSelector::ParticleVector::const_iterator pos =
     std::lower_bound(p.begin(), p.end(), particle);
@@ -128,18 +145,18 @@ static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &
     
 static void invalidateTree(InputGenJetsParticleSelector::ParticleBitmap &invalid,
 			   const InputGenJetsParticleSelector::ParticleVector &p,
-			   const reco::GenParticle *particle)
+			   const reco::Candidate *particle)
 {
   unsigned int npart=particle->numberOfDaughters();
   if (!npart) return;
 
   for (unsigned int i=0;i<npart;++i){
-    unsigned int idx=partIdx(p,dynamic_cast<const reco::GenParticle*>(particle->daughter(i)));
+    unsigned int idx=partIdx(p,particle->daughter(i));
     if (invalid[idx])
       continue;
     invalid[idx] = true;
     //cout<<"Invalidated: ["<<setw(4)<<idx<<"] With pt:"<<particle->daughter(i)->pt()<<endl;
-    invalidateTree(invalid, p, dynamic_cast<const reco::GenParticle*>(particle->daughter(i)));
+    invalidateTree(invalid, p, particle->daughter(i));
   }
 }
   
@@ -147,13 +164,13 @@ static void invalidateTree(InputGenJetsParticleSelector::ParticleBitmap &invalid
 int InputGenJetsParticleSelector::testPartonChildren
 (InputGenJetsParticleSelector::ParticleBitmap &invalid,
  const InputGenJetsParticleSelector::ParticleVector &p,
- const reco::GenParticle *particle) const
+ const reco::Candidate *particle) const
 {
   unsigned int npart=particle->numberOfDaughters();
   if (!npart) {return 0;}
 
   for (unsigned int i=0;i<npart;++i){
-    unsigned int idx = partIdx(p,dynamic_cast<const reco::GenParticle*>(particle->daughter(i)));
+    unsigned int idx = partIdx(p,particle->daughter(i));
     if (invalid[idx])
       continue;
     if (isParton((particle->daughter(i)->pdgId()))){
@@ -162,7 +179,7 @@ int InputGenJetsParticleSelector::testPartonChildren
     if (isHadron((particle->daughter(i)->pdgId()))){
       return -1;
     }
-    int result = testPartonChildren(invalid,p,dynamic_cast<const reco::GenParticle*>(particle->daughter(i)));
+    int result = testPartonChildren(invalid,p,particle->daughter(i));
     if (result) return result;
   }
   return 0;
@@ -171,14 +188,14 @@ int InputGenJetsParticleSelector::testPartonChildren
 InputGenJetsParticleSelector::ResonanceState
 InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
 							   const ParticleVector &p,
-							   const reco::GenParticle *particle) const
+							   const reco::Candidate *particle) const
 {
   unsigned int idx = partIdx(p, particle);
   int id = particle->pdgId();
 
   if (invalid[idx]) return kIndirect;
       
-  if (isResonance(id) && particle->status() == 3){
+  if (isResonance(id) && (particle->status() == 3 || particle->status() == 22) ){
     return kDirect;
   }
 
@@ -194,12 +211,12 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
   
 
   for(unsigned int i=0;i<nMo;++i){
-    ResonanceState result = fromResonance(invalid,p,dynamic_cast<const reco::GenParticle*>(particle->mother(i)));
+    ResonanceState result = fromResonance(invalid,p,particle->mother(i));
     switch(result) {
     case kNo:
       break;
     case kDirect:
-      if (dynamic_cast<const reco::GenParticle*>(particle->mother(i))->pdgId()==id || isResonance(id))
+      if (particle->mother(i)->pdgId()==id || isResonance(id))
 	return kDirect;
       if(!isExcludedFromResonance(id))
 	break;
@@ -213,25 +230,39 @@ return kNo;
     
 bool InputGenJetsParticleSelector::hasPartonChildren(ParticleBitmap &invalid,
 						     const ParticleVector &p,
-						     const reco::GenParticle *particle) const {
+						     const reco::Candidate *particle) const {
   return testPartonChildren(invalid, p, particle) > 0;
 }
     
 //######################################################
 //function NEEDED and called per EVENT by FRAMEWORK:
-void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSetup &evtSetup){
+void InputGenJetsParticleSelector::produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const{
 
  
-  std::auto_ptr<reco::GenParticleRefVector> selected_ (new reco::GenParticleRefVector);
-    
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  //  evt.getByLabel("genParticles", genParticles );
-  evt.getByLabel(inTag, genParticles );
-    
+  auto selected_ = std::make_unique<reco::CandidatePtrVector>();
     
   ParticleVector particles;
-  for (reco::GenParticleCollection::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){
-    particles.push_back(&*iter); 
+  
+  edm::Handle<reco::CandidateView> prunedGenParticles;
+  if(isMiniAOD)
+  {
+    evt.getByToken(input_prunedgenpartcoll_token_, prunedGenParticles );
+
+    for (edm::View<reco::Candidate>::const_iterator iter=prunedGenParticles->begin();iter!=prunedGenParticles->end();++iter)
+    {
+      if(iter->status()!=1) // to avoid double-counting, skipping stable particles already contained in the collection of PackedGenParticles
+        particles.push_back(&*iter);
+    }
+  }
+
+  edm::Handle<reco::CandidateView> genParticles;
+  evt.getByToken(input_genpartcoll_token_, genParticles );
+
+  std::map<const reco::Candidate*,size_t> particlePtrIdxMap;
+
+  for (edm::View<reco::Candidate>::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){
+    particles.push_back(&*iter);
+    particlePtrIdxMap[&*iter] = (iter - genParticles->begin());
   }
   
   std::sort(particles.begin(), particles.end());
@@ -241,10 +272,10 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
   ParticleBitmap invalid(size, false);
 
   for(unsigned int i = 0; i < size; i++) {
-    const reco::GenParticle *particle = particles[i];
+    const reco::Candidate *particle = particles[i];
     if (invalid[i])
       continue;
-    if (particle->status() == 1)
+    if (particle->status() == 1) // selecting stable particles
       selected[i] = true;
     if (partonicFinalState && isParton(particle->pdgId())) {
 	  
@@ -261,9 +292,9 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     }
 	
   }
- unsigned int count=0;
-  for(size_t idx=0;idx<genParticles->size();++idx){ 
-    const reco::GenParticle *particle = particles[idx];
+
+  for(size_t idx = 0; idx < size; ++idx){ 
+    const reco::Candidate *particle = particles[idx];
     if (!selected[idx] || invalid[idx]){
       continue;
     }
@@ -281,13 +312,11 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
 
    
     if (particle->pt() >= ptMin){
-      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,idx);
-      selected_->push_back(particleRef);
+      selected_->push_back(genParticles->ptrAt(particlePtrIdxMap[particle]));
       //cout<<"Finally we have: ["<<setw(4)<<idx<<"] "<<setw(4)<<particle->pdgId()<<" "<<particle->pt()<<endl;
-      count++;
     }
   }
-  evt.put(selected_);
+  evt.put(std::move(selected_));
 }
       
       

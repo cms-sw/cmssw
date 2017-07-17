@@ -4,10 +4,11 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -18,7 +19,7 @@
 
 // authors A. Kyriakis, D. Maletic
 
-class PreshowerClusterShapeProducer : public edm::EDProducer {
+class PreshowerClusterShapeProducer : public edm::stream::EDProducer<> {
 
  public:
 

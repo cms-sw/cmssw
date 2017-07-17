@@ -19,17 +19,17 @@ using reco::IsoDeposit;
 using namespace muonisolation;
 
 
-MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf) 
+MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC)
   : theExtractor(0), theIsolator(0)
 {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
-  string extractorName = extractorPSet.getParameter<string>("ComponentName"); 
-  theExtractor = IsoDepositExtractorFactory::get()->create(extractorName, extractorPSet);
+  string extractorName = extractorPSet.getParameter<string>("ComponentName");
+  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet, iC);
 
   theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
   float coneSize =  conf.getUntrackedParameter<double>("ConeSize", 0.);
   vector<double> weights(1,1.);
-  theIsolator = new IsolatorByDeposit(coneSize, weights); 
+  theIsolator = new IsolatorByDeposit(coneSize, weights);
 }
 
 MuIsoByTrackPt::~MuIsoByTrackPt()
@@ -45,11 +45,11 @@ void MuIsoByTrackPt::setConeSize(float dr)
 
 float MuIsoByTrackPt::isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::Track & muon)
 {
-  IsoDeposit dep = extractor()->deposit(ev,es,muon); 
+  IsoDeposit dep = extractor()->deposit(ev,es,muon);
   MuIsoBaseIsolator::DepositContainer deposits;
   deposits.push_back(&dep);
   if (isolator()->resultType() == MuIsoBaseIsolator::ISOL_FLOAT_TYPE){
-    return isolator()->result(deposits).valFloat; 
+    return isolator()->result(deposits).valFloat;
   }
 
   return -999.;

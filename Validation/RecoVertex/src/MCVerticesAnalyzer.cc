@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -54,28 +54,26 @@
 //
 
 
-class MCVerticesAnalyzer : public edm::EDAnalyzer {
+class MCVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCVerticesAnalyzer(const edm::ParameterSet&);
   ~MCVerticesAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
       // ----------member data ---------------------------
 
   
 
-  edm::InputTag m_pileupcollection;
-  edm::InputTag m_mctruthcollection;
   const bool m_useweight;
-  edm::InputTag m_weight;
+
+  edm::EDGetTokenT< double > m_doubleToken;
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > m_vecPileupSummaryInfoToken;
+  edm::EDGetTokenT< edm::HepMCProduct > m_hepMCProductToken;
 
   TH1F* m_hnvtx;
+  TH2F* m_hnvtxvsbx;
   TH1F* m_hlumi;
   TH2F* m_hnvtxvslumi;
   TH1F* m_hnvtxweight;
@@ -98,22 +96,25 @@ private:
 //
 // constructors and destructor
 //
-MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
-  m_mctruthcollection(iConfig.getParameter<edm::InputTag>("mcTruthCollection")),
-  m_useweight(iConfig.getParameter<bool>("useWeight")),
-  m_weight(iConfig.getParameter<edm::InputTag>("weightProduct"))
-
-
+MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig)
+  : m_useweight( iConfig.getParameter< bool >( "useWeight" ) )
+  , m_doubleToken( consumes< double >( iConfig.getParameter< edm::InputTag >( "weightProduct" ) ) )
+  , m_vecPileupSummaryInfoToken( consumes< std::vector<PileupSummaryInfo> >( iConfig.getParameter< edm::InputTag >( "pileupSummaryCollection" ) ) )
+  , m_hepMCProductToken( consumes< edm::HepMCProduct >( iConfig.getParameter< edm::InputTag >( "mcTruthCollection" ) ) )
 {
    //now do what ever initialization is needed
 
 
 
+  usesResource("TFileService");
   edm::Service<TFileService> tfserv;
 
   m_hnvtx = tfserv->make<TH1F>("nvtx","Number of pileup vertices",60,-0.5,59.5);
   m_hnvtx->GetXaxis()->SetTitle("Number of Interactions");
+
+  m_hnvtxvsbx = tfserv->make<TH2F>("nvtxvsbx","Number of pileup vertices vs BX",9,-4.5,4.5,60,-0.5,59.5);
+  m_hnvtxvsbx->GetXaxis()->SetTitle("BX number");
+  m_hnvtxvsbx->GetYaxis()->SetTitle("Number of Interactions");
 
   m_hlumi = tfserv->make<TH1F>("lumi","BX luminosity*xsect",200,0.,50.);
   m_hlumi->GetXaxis()->SetTitle("Average Number of Interactions");
@@ -157,21 +158,20 @@ MCVerticesAnalyzer::~MCVerticesAnalyzer()
 void
 MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 
    double weight = 1.;
 
    if(m_useweight) {
-     Handle<double> weightprod;
-     iEvent.getByLabel(m_weight,weightprod);
+     edm::Handle<double> weightprod;
+     iEvent.getByToken( m_doubleToken, weightprod );
 
      weight = *weightprod;
 
    }
 
 
-   Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
-   iEvent.getByLabel(m_pileupcollection,pileupinfos);
+   edm::Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
+   iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
    //
 
@@ -180,6 +180,12 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // look for the intime PileupSummaryInfo
 
      std::vector<PileupSummaryInfo>::const_iterator pileupinfo;
+
+     for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
+       m_hnvtxvsbx->Fill(pileupinfo->getBunchCrossing(),pileupinfo->getPU_NumInteractions(),weight);
+     } 
+
+
      for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
        if(pileupinfo->getBunchCrossing()==0) break;
      } 
@@ -211,8 +217,8 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
    // main interaction part
 
-   Handle< HepMCProduct > EvtHandle ;
-   iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+   edm::Handle< edm::HepMCProduct > EvtHandle ;
+   iEvent.getByToken( m_hepMCProductToken, EvtHandle );
 
    if(EvtHandle.isValid()) {
 
@@ -228,30 +234,6 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
      }
    }
-}
-
-void 
-MCVerticesAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-void 
-MCVerticesAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCVerticesAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCVerticesAnalyzer::endJob() 
-{
 }
 
 //define this as a plug-in

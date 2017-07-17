@@ -4,7 +4,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/PipeAddrToTimeLookupTable.h"
 
@@ -43,26 +42,24 @@ void FEDErrors::initialiseEvent() {
 
   subDetId_.clear();
 
-  FEDCounters & lFedCounter = FEDErrors::getFEDErrorsCounters();
-  lFedCounter.nFEDErrors = 0;
-  lFedCounter.nDAQProblems = 0;
-  lFedCounter.nFEDsWithFEProblems = 0;
-  lFedCounter.nCorruptBuffers = 0;
-  lFedCounter.nBadChannels = 0;
-  lFedCounter.nBadActiveChannels = 0;
-  lFedCounter.nFEDsWithFEOverflows = 0;
-  lFedCounter.nFEDsWithFEBadMajorityAddresses = 0;
-  lFedCounter.nFEDsWithMissingFEs = 0;
-  lFedCounter.nTotalBadChannels = 0;
-  lFedCounter.nTotalBadActiveChannels = 0;
+  lFedCounter_.nFEDErrors = 0;
+  lFedCounter_.nDAQProblems = 0;
+  lFedCounter_.nFEDsWithFEProblems = 0;
+  lFedCounter_.nCorruptBuffers = 0;
+  lFedCounter_.nBadChannels = 0;
+  lFedCounter_.nBadActiveChannels = 0;
+  lFedCounter_.nFEDsWithFEOverflows = 0;
+  lFedCounter_.nFEDsWithFEBadMajorityAddresses = 0;
+  lFedCounter_.nFEDsWithMissingFEs = 0;
+  lFedCounter_.nTotalBadChannels = 0;
+  lFedCounter_.nTotalBadActiveChannels = 0;
 
-  ChannelCounters & lChCounter = FEDErrors::getChannelErrorsCounters();
-  lChCounter.nNotConnected = 0;
-  lChCounter.nUnlocked = 0;
-  lChCounter.nOutOfSync = 0;
-  lChCounter.nAPVStatusBit = 0;
-  lChCounter.nAPVError = 0;
-  lChCounter.nAPVAddressError = 0;
+  lChCounter_.nNotConnected = 0;
+  lChCounter_.nUnlocked = 0;
+  lChCounter_.nOutOfSync = 0;
+  lChCounter_.nAPVStatusBit = 0;
+  lChCounter_.nAPVError = 0;
+  lChCounter_.nAPVAddressError = 0;
 
   feCounter_.nFEOverflows = 0; 
   feCounter_.nFEBadMajorityAddresses = 0; 
@@ -120,7 +117,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {
     
-      const FedChannelConnection & lConnection = aCabling->connection(fedID_,iCh);
+      const FedChannelConnection & lConnection = aCabling->fedConnection(fedID_,iCh);
       connected_[iCh] = lConnection.isConnected();
       detid_[iCh] = lConnection.detId();
       nChInModule_[iCh] = lConnection.nApvPairs();
@@ -318,7 +315,7 @@ float FEDErrors::fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
   for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
     bool lIsConnected = false;
     if (aCabling) {
-      const FedChannelConnection & lConnection = aCabling->connection(fedID_,iCh);
+      const FedChannelConnection & lConnection = aCabling->fedConnection(fedID_,iCh);
       lIsConnected = lConnection.isConnected();
     }
     else lIsConnected = connected_[iCh];
@@ -952,14 +949,12 @@ const unsigned int FEDErrors::fedID(){
 
 FEDErrors::FEDCounters & FEDErrors::getFEDErrorsCounters()
 {
-  static FEDCounters lFedCounter;
-  return lFedCounter;
+  return lFedCounter_;
 }
 
 FEDErrors::ChannelCounters & FEDErrors::getChannelErrorsCounters()
 {
-  static ChannelCounters lChCounter;
-  return lChCounter;
+  return lChCounter_;
 }
 
 FEDErrors::FECounters & FEDErrors::getFEErrorsCounters()
@@ -1034,12 +1029,12 @@ void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors & aAPV, bool & aFirst)
   incrementAPVCounters(aAPV);
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
-    (FEDErrors::getFEDErrorsCounters().nBadChannels)++;
+    lFedCounter_.nBadChannels++;
     chErrors_.push_back(std::pair<unsigned int, bool>(aAPV.ChannelID,aAPV.IsActive));
     if (aAPV.IsActive) {
       //print(aAPV);
       fedErrors_.BadActiveChannelStatusBit = true;
-      (FEDErrors::getFEDErrorsCounters().nBadActiveChannels)++;
+      lFedCounter_.nBadActiveChannels++;
       //std::cout << "------ nBadActiveChannels = " << FEDErrors::getFEDErrorsCounters().nBadActiveChannels << std::endl;
     }
     aFirst = false;
@@ -1055,31 +1050,31 @@ void FEDErrors::incrementFEDCounters()
       fedErrors_.BadIDs         ||
       fedErrors_.BadDAQPacket
       ) {
-    (FEDErrors::getFEDErrorsCounters().nDAQProblems)++;
-    (FEDErrors::getFEDErrorsCounters().nFEDErrors)++;
+    lFedCounter_.nDAQProblems++;
+    lFedCounter_.nFEDErrors++;
   }
 
   //FElevel errors
   if (fedErrors_.FEsOverflow){
-    (FEDErrors::getFEDErrorsCounters().nFEDsWithFEOverflows)++;
+    lFedCounter_.nFEDsWithFEOverflows++;
   }
   else if (fedErrors_.FEsMissing){
-    (FEDErrors::getFEDErrorsCounters().nFEDsWithMissingFEs)++;
+    lFedCounter_.nFEDsWithMissingFEs++;
   }
   else if (fedErrors_.FEsBadMajorityAddress){
-    (FEDErrors::getFEDErrorsCounters().nFEDsWithFEBadMajorityAddresses)++;
+    lFedCounter_.nFEDsWithFEBadMajorityAddresses++;
   }
 
   if (fedErrors_.FEsOverflow ||
       fedErrors_.FEsBadMajorityAddress ||
       fedErrors_.FEsMissing
       ){
-    (FEDErrors::getFEDErrorsCounters().nFEDsWithFEProblems)++;
-    (FEDErrors::getFEDErrorsCounters().nFEDErrors)++;
+    lFedCounter_.nFEDsWithFEProblems++;
+    lFedCounter_.nFEDErrors++;
   }
   else if (fedErrors_.CorruptBuffer) {
-    (FEDErrors::getFEDErrorsCounters().nCorruptBuffers)++;
-    (FEDErrors::getFEDErrorsCounters().nFEDErrors)++;
+    lFedCounter_.nCorruptBuffers++;
+    lFedCounter_.nFEDErrors++;
   }
 
 
@@ -1088,17 +1083,17 @@ void FEDErrors::incrementFEDCounters()
 
 void FEDErrors::incrementChannelCounters(const FEDErrors::ChannelLevelErrors & aChannel)
 {
-  if (aChannel.Unlocked && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nUnlocked)++; 
-  if (aChannel.OutOfSync && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nOutOfSync)++;
-  if (!aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nNotConnected)++;
+  if (aChannel.Unlocked && aChannel.Connected) lChCounter_.nUnlocked++; 
+  if (aChannel.OutOfSync && aChannel.Connected) lChCounter_.nOutOfSync++;
+  if (!aChannel.Connected) lChCounter_.nNotConnected++;
 }
 
 void FEDErrors::incrementAPVCounters(const FEDErrors::APVLevelErrors & aAPV)
 {
   if (aAPV.Connected && aAPV.IsActive){
-    if (aAPV.APVStatusBit) (FEDErrors::getChannelErrorsCounters().nAPVStatusBit)++; 
-    if (aAPV.APVAddressError) (FEDErrors::getChannelErrorsCounters().nAPVAddressError)++; 
-    if (aAPV.APVError) (FEDErrors::getChannelErrorsCounters().nAPVError)++; 
+    if (aAPV.APVStatusBit) lChCounter_.nAPVStatusBit++; 
+    if (aAPV.APVAddressError) lChCounter_.nAPVAddressError++; 
+    if (aAPV.APVError) lChCounter_.nAPVError++; 
   }
 }
 

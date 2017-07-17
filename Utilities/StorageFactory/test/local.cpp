@@ -6,7 +6,7 @@ int main (int, char **/*argv*/) try
 {
   initTest();
 
-  Storage	*s = StorageFactory::get ()->open ("/etc/passwd");
+  auto s = StorageFactory::get ()->open ("/etc/passwd");
   char		buf [1024];
   IOSize	n;
 
@@ -14,9 +14,8 @@ int main (int, char **/*argv*/) try
 	std::cout.write (buf, n);
 
   s->close();
-  delete s;
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText (true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

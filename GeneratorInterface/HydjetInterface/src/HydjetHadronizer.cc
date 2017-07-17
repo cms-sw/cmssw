@@ -1,5 +1,10 @@
 /*
- *
+
+ ######################## 
+ #  Hydjet1		#
+ #  version: 1.9 patch1 #
+ ########################
+
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
@@ -10,15 +15,14 @@
 
 #include "boost/lexical_cast.hpp"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetHadronizer.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -48,6 +52,8 @@ namespace {
    }
 }
 
+const std::vector<std::string> HydjetHadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
+                                                                        gen::FortranInstance::kFortranInstance };
 
 //_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
@@ -55,6 +61,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     evt(0), 
     pset_(pset),
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
+    angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
     bfixed_(pset.getParameter<double>("bFixed")),
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
@@ -111,6 +118,13 @@ HydjetHadronizer::~HydjetHadronizer()
 
 
 //_____________________________________________________________________
+void HydjetHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+  pythia6Service_->setRandomEngine(v);
+}
+
+
+//_____________________________________________________________________
 void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   // heavy ion record in the final CMSSW Event
@@ -130,7 +144,7 @@ void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     0,                                   // Nwounded_Nwounded_collisions
     hyfpar.bgen * nuclear_radius(),      // impact_parameter in [fm]
     phi0_,                                // event_plane_angle
-    0,                                   // eccentricity
+    0,//hypsi3.psi3,                                   // eccentricity
     hyjpar.sigin                         // sigma_inel_NN
   );
 
@@ -381,6 +395,9 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 
   // set inelastic nucleon-nucleon cross section
   hyjpar.sigin  = signn_;
+
+  // angular emitted gluon spectrum selection
+  pyqpar.ianglu = angularspecselector_;
 
   // number of active quark flavors in qgp
   pyqpar.nfu    = nquarkflavor_;

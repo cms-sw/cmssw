@@ -1,5 +1,18 @@
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
+
+#include <stddef.h>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "Math/GenVector/Rotation3D.h"
 
 DDCompareEPV::DDCompareEPV() : ddco_() { }
 
@@ -215,12 +228,14 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case dd_not_init:
     case ddbox:
     case ddtubs:
+    case ddcuttubs:
     case ddtrap: 
     case ddcons:
     case ddpolycone_rz:
     case ddpolyhedra_rz:
     case ddpolycone_rrz:
     case ddpolyhedra_rrz:
+    case ddextrudedpolygon:
     case ddtorus:
     case ddpseudotrap:
     case ddtrunctubs:

@@ -23,7 +23,7 @@ namespace npstat {
         inline ArrayRange() {}
 
         /** Constructor from a given number of dimensions */
-        inline ArrayRange(unsigned dim) : BoxND<unsigned>(dim) {}
+        inline explicit ArrayRange(unsigned dim) : BoxND<unsigned>(dim) {}
 
         /** The given interval is repeated for every dimension */
         inline ArrayRange(unsigned dim, const Interval<unsigned>& r1)
@@ -35,7 +35,8 @@ namespace npstat {
         // which is used to represent the upper limit. The
         // lower limit in each dimension is set to 0.
         */
-        inline ArrayRange(const ArrayShape& shape) : BoxND<unsigned>(shape) {}
+        inline explicit ArrayRange(const ArrayShape& shape)
+            : BoxND<unsigned>(shape) {}
         ArrayRange(const unsigned* shape, unsigned shapeLen);
         //@}
 

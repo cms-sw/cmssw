@@ -28,7 +28,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 class PatBJetTrackAnalyzer : public edm::EDAnalyzer  {
-    public: 
+    public:
 	/// constructor and destructor
 	PatBJetTrackAnalyzer(const edm::ParameterSet &params);
 	~PatBJetTrackAnalyzer();
@@ -39,10 +39,10 @@ class PatBJetTrackAnalyzer : public edm::EDAnalyzer  {
 
     private:
 	// configuration parameters
-	edm::InputTag jets_;
-	edm::InputTag tracks_;
-	edm::InputTag beamSpot_;
-	edm::InputTag primaryVertices_;
+	edm::EDGetTokenT<pat::JetCollection> jetsToken_;
+	edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+	edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+	edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken_;
 
 	double jetPtCut_;		// minimum (uncorrected) jet energy
 	double jetEtaCut_;		// maximum |eta| for jet
@@ -77,10 +77,10 @@ class PatBJetTrackAnalyzer : public edm::EDAnalyzer  {
 };
 
 PatBJetTrackAnalyzer::PatBJetTrackAnalyzer(const edm::ParameterSet &params) :
-	jets_(params.getParameter<edm::InputTag>("jets")),
-	tracks_(params.getParameter<edm::InputTag>("tracks")),
-	beamSpot_(params.getParameter<edm::InputTag>("beamSpot")),
-	primaryVertices_(params.getParameter<edm::InputTag>("primaryVertices")),
+	jetsToken_(consumes<pat::JetCollection>(params.getParameter<edm::InputTag>("jets"))),
+	tracksToken_(consumes<reco::TrackCollection>(params.getParameter<edm::InputTag>("tracks"))),
+	beamSpotToken_(consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"))),
+	primaryVerticesToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"))),
 	jetPtCut_(params.getParameter<double>("jetPtCut")),
 	jetEtaCut_(params.getParameter<double>("jetEtaCut")),
 	maxDeltaR_(params.getParameter<double>("maxDeltaR")),
@@ -177,22 +177,22 @@ static bool significanceHigher(const Measurement1D &meas1,
 { return meas1.significance() > meas2.significance(); }
 
 void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
-{  
+{
 	// handle to the primary vertex collection
 	edm::Handle<reco::VertexCollection> pvHandle;
-	event.getByLabel(primaryVertices_, pvHandle);
+	event.getByToken(primaryVerticesToken_, pvHandle);
 
 	// handle to the tracks collection
 	edm::Handle<reco::TrackCollection> tracksHandle;
-	event.getByLabel(tracks_, tracksHandle);
+	event.getByToken(tracksToken_, tracksHandle);
 
 	// handle to the jets collection
 	edm::Handle<pat::JetCollection> jetsHandle;
-	event.getByLabel(jets_, jetsHandle);
+	event.getByToken(jetsToken_, jetsHandle);
 
 	// handle to the beam spot
 	edm::Handle<reco::BeamSpot> beamSpot;
-	event.getByLabel(beamSpot_, beamSpot);
+	event.getByToken(beamSpotToken_, beamSpot);
 
 	// rare case of no reconstructed primary vertex
 	if (pvHandle->empty())
@@ -228,7 +228,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 		    default:
 			flavour = NONID_JETS;
 		}
-	
+
 		// simply count the number of accepted jets
 		flavours_->Fill(ALL_JETS);
 		flavours_->Fill(flavour);
@@ -290,7 +290,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 			// the point of closest approach to the vertex
 			// is in front or behind the vertex.
 			// Again, we a linear approximation
-			// 
+			//
 			// dot product between reference point and jet axis
 
 			math::XYZVector closestPoint = track->referencePoint() - beamSpot->position();
@@ -360,7 +360,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 		plots_[flavour].negativeIPSig->Fill(trk->significance());
 	}
 }
-	
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PatBJetTrackAnalyzer);

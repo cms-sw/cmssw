@@ -16,17 +16,19 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 //
 // class declaration
 //
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-class DQMStore;
 class MonitorElement;
 class L1MuDTTrackCand;
 class L1MuRegionalCand;
 
-class L1TDTTF : public edm::EDAnalyzer {
+class L1TDTTF : public DQMEDAnalyzer {
 
  public:
 
@@ -38,25 +40,16 @@ class L1TDTTF : public edm::EDAnalyzer {
 
  protected:
   // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // BeginJob
-  void beginJob(void);
-
-  // EndJob
-  void endJob(void);
-
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-			    edm::EventSetup const& context){};
-
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-			  edm::EventSetup const& context){};
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
  private:
 
-
-  void fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
-		std::vector<L1MuRegionalCand> & gmtDttfCands );
+  void fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer, std::vector<L1MuRegionalCand>& gmtDttfCands );
   void setWheelLabel(MonitorElement *me);
   void setQualLabel(MonitorElement *me, int axis);
   void bookEta( int wh, int & nbins, float & start, float & stop );
@@ -68,7 +61,6 @@ class L1TDTTF : public edm::EDAnalyzer {
   std::string l1tsubsystemfolder_;
   bool online_;
   bool verbose_;
-  DQMStore * dbe_;
   std::string outputFile_; //file name for ROOT ouput
   edm::InputTag trackInputTag_;
 
@@ -99,12 +91,18 @@ class L1TDTTF : public edm::EDAnalyzer {
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
+  
   // MonitorElement* dttf_gmt_ghost_phys;
 
   int nev_; // Number of events processed
   int nev_dttf_; //Number of events with at least one DTTF track
   int nev_dttf_track2_; //Number of events with at least one DTTF 2nd track
   int numTracks[6][12];
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1MuDTTrackContainer> trackInputToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonCollectionToken_;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSourceToken_;
 };
 
 #endif

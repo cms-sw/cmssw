@@ -22,6 +22,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -63,13 +64,15 @@ HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
-   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
+   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")),
    max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
-   max_YTriplet_   (iConfig.getParameter<double>("MaxRapidityTriplet"))
+   max_YTriplet_   (iConfig.getParameter<double>("MaxRapidityTriplet")),
+   theL3LinksLabel (iConfig.getParameter<InputTag>("InputLinks")),
+   linkToken_ (consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel))
 {
 
    LogDebug("HLTMuonTrimuonL3Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityTriplet : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityTriplet : "
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -86,9 +89,7 @@ HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
       << " " << max_YTriplet_;
 }
 
-HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter()
-{
-}
+HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter() = default;
 
 void
 HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -115,6 +116,7 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("NSigmaPt",0.0);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityTriplet",999999.0);
+  desc.add<edm::InputTag>("InputLinks",edm::InputTag(""));
   descriptions.add("hltMuonTrimuonL3Filter",desc);
 }
 
@@ -124,7 +126,7 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    double const MuMass = 0.106;
@@ -137,15 +139,54 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<RecoChargedCandidateCollection> mucands;
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
    iEvent.getByToken(candToken_,mucands);
+
+   // Test to see if we can use L3MuonTrajectorySeeds:
+   if (mucands->empty()) return false;
+   auto const &tk = (*mucands)[0].track();
+   bool useL3MTS=false;
+
+   if (tk->seedRef().isNonnull()){
+	   auto a = dynamic_cast<const L3MuonTrajectorySeed*>(tk->seedRef().get());
+	   useL3MTS = a != nullptr;
+   }
+
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
-   unsigned int maxI = mucands->size();
-   for (unsigned int i=0;i!=maxI;i++){
-     TrackRef tk = (*mucands)[i].track();
-     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
-     TrackRef staTrack = l3seedRef->l2Track();
-     L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+
+   // If we can use L3MuonTrajectory seeds run the older code:
+   if (useL3MTS){
+     unsigned int maxI = mucands->size();
+     for (unsigned int i=0;i!=maxI;i++){
+       const TrackRef &tk = (*mucands)[i].track();
+       edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+       TrackRef staTrack = l3seedRef->l2Track();
+       L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+     }
    }
+   // Using normal TrajectorySeeds:
+   else{
+     // Read Links collection:
+     edm::Handle<reco::MuonTrackLinksCollection> links;
+     iEvent.getByToken(linkToken_, links);
+
+     // Loop over RecoChargedCandidates:
+     for(unsigned int i(0); i < mucands->size(); ++i){
+	RecoChargedCandidateRef cand(mucands,i);
+	for(auto const & link : *links){
+	  TrackRef tk = cand->track();
+
+	  // Using the same method that was used to create the links between L3 and L2
+	  // ToDo: there should be a better way than dR,dPt matching
+	  const reco::Track& globalTrack = *link.globalTrack();
+	  float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
+	  float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
+          const TrackRef staTrack = link.standAloneTrack();
+	  if (dR2 < 0.02*0.02 and dPt < 0.001) {
+	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	  }
+        } //MTL loop
+     } //RCC loop
+   } //end of using normal TrajectorySeeds
 
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByToken(previousCandToken_,previousLevelCands);
@@ -157,7 +198,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    // Needed for DCA calculation
    ESHandle<MagneticField> bFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-  
+
    // needed to compare to L2
    vector<RecoChargedCandidateRef> vl2cands;
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
@@ -167,13 +208,13 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    double e1,e2,e3;
    Particle::LorentzVector p,p1,p2,p3;
 
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it1 = L2toL3s.begin();
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   auto L2toL3s_it1 = L2toL3s.begin();
+   auto L2toL3s_end = L2toL3s.end();
    bool atLeastOneTriplet=false;
    for (; L2toL3s_it1!=L2toL3s_end; ++L2toL3s_it1){
 
      if (!triggeredByLevel2(L2toL3s_it1->first,vl2cands)) continue;
-     
+
      //loop over the L3Tk reconstructed for this L2.
      unsigned int iTk1=0;
      unsigned int maxItk1=L2toL3s_it1->second.size();
@@ -186,17 +227,17 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 					 << tk1->charge()*tk1->pt() << " (" << cand1->charge()*cand1->pt()<< ") " << ", eta= " << tk1->eta() << " (" << cand1->eta() << ") " << ", hits= " << tk1->numberOfValidHits();
 
        if (fabs(cand1->eta())>max_Eta_) continue;
-       
+
        // cut on number of hits
        if (tk1->numberOfValidHits()<min_Nhits_) continue;
-       
+
        //dr cut
        //      if (fabs(tk1->d0())>max_Dr_) continue;
        if (fabs( (- (cand1->vx()-beamSpot.x0()) * cand1->py() + (cand1->vy()-beamSpot.y0()) * cand1->px() ) / cand1->pt() ) >max_Dr_) continue;
-       
+
        //dz cut
        if (fabs((cand1->vz()-beamSpot.z0()) - ((cand1->vx()-beamSpot.x0())*cand1->px()+(cand1->vy()-beamSpot.y0())*cand1->py())/cand1->pt() * cand1->pz()/cand1->pt())>max_Dz_) continue;
-       
+
        // Pt threshold cut
        double pt1 = cand1->pt();
        //       double err1 = tk1->error(0);
@@ -205,32 +246,32 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
        // Don't convert to 90% efficiency threshold
        LogDebug("HLTMuonTrimuonL3Filter") << " ... 1st muon in loop, pt1= "
 					 << pt1 << ", ptLx1= " << ptLx1;
-       std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
+       auto L2toL3s_it2 = L2toL3s_it1;
        L2toL3s_it2++;
        for (; L2toL3s_it2!=L2toL3s_end; ++L2toL3s_it2){
 	 if (!triggeredByLevel2(L2toL3s_it2->first,vl2cands)) continue;
-	 
+	
 	    //loop over the L3Tk reconstructed for this L2.
 	    unsigned int iTk2=0;
 	    unsigned int maxItk2=L2toL3s_it2->second.size();
 	    for (; iTk2!=maxItk2; iTk2++){
 	      RecoChargedCandidateRef & cand2=L2toL3s_it2->second[iTk2];
 	      TrackRef tk2 = cand2->get<TrackRef>();
-	      
+	
 	      // eta cut
 	      LogDebug("HLTMuonTrimuonL3Filter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << " (" << cand2->charge()*cand2->pt() << ") " << ", eta= " << tk2->eta() << " (" << cand2->eta() << ") " << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0() ;
 	      if (fabs(cand2->eta())>max_Eta_) continue;
-	      
+	
 	      // cut on number of hits
 	      if (tk2->numberOfValidHits()<min_Nhits_) continue;
-	      
+	
 	      //dr cut
 	      // if (fabs(tk2->d0())>max_Dr_) continue;
 	      if (fabs( (- (cand2->vx()-beamSpot.x0()) * cand2->py() + (cand2->vy()-beamSpot.y0()) * cand2->px() ) / cand2->pt() ) >max_Dr_) continue;
-	      
+	
 	      //dz cut
-	      if (fabs((cand2->vz()-beamSpot.z0()) - ((cand2->vx()-beamSpot.x0())*cand2->px()+(cand2->vy()-beamSpot.y0())*cand2->py())/cand2->pt() * cand2->pz()/cand2->pt())>max_Dz_) continue;	      
-	      
+	      if (fabs((cand2->vz()-beamSpot.z0()) - ((cand2->vx()-beamSpot.x0())*cand2->px()+(cand2->vy()-beamSpot.y0())*cand2->py())/cand2->pt() * cand2->pz()/cand2->pt())>max_Dz_) continue;	
+	
 	      // Pt threshold cut
 	      double pt2 = cand2->pt();
 	      //	      double err2 = tk2->error(0);
@@ -239,8 +280,8 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 	      // Don't convert to 90% efficiency threshold
 	      LogDebug("HLTMuonTrimuonL3Filter") << " ... 2nd muon in loop, pt2= "
 						 << pt2 << ", ptLx2= " << ptLx2;
-	      
-	      std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it3 = L2toL3s_it2;
+	
+	      auto L2toL3s_it3 = L2toL3s_it2;
 	      L2toL3s_it3++;
 	      for (; L2toL3s_it3!=L2toL3s_end; ++L2toL3s_it3){
 		
@@ -255,19 +296,19 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  // eta cut
 		  LogDebug("HLTMuonTrimuonL3Filter") << " 3rd muon in loop: q*pt= "
 						     << tk3->charge()*tk3->pt() << " (" << cand3->charge()*cand3->pt()<< ") " << ", eta= " << tk3->eta() << " (" << cand3->eta() << ") " << ", hits= " << tk3->numberOfValidHits();
-		  
+		
 		  if (fabs(cand3->eta())>max_Eta_) continue;
-		  
+		
 		  // cut on number of hits
 		  if (tk3->numberOfValidHits()<min_Nhits_) continue;
-		  
+		
 		  //dr cut
 		  //      if (fabs(tk1->d0())>max_Dr_) continue;
 		  if (fabs( (- (cand3->vx()-beamSpot.x0()) * cand3->py() + (cand3->vy()-beamSpot.y0()) * cand3->px() ) / cand3->pt() ) >max_Dr_) continue;
-		  
+		
 		  //dz cut
 		  if (fabs((cand3->vz()-beamSpot.z0()) - ((cand3->vx()-beamSpot.x0())*cand3->px()+(cand3->vy()-beamSpot.y0())*cand3->py())/cand3->pt() * cand3->pz()/cand3->pt())>max_Dz_) continue;
-		  
+		
 		  // Pt threshold cut
 		  double pt3 = cand3->pt();
 		  //       double err3 = tk3->error(0);
@@ -276,7 +317,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  // Don't convert to 90% efficiency threshold
 		  LogDebug("HLTMuonTrimuonL3Filter") << " ... 3rd muon in loop, pt3= "
 						     << pt3 << ", ptLx3= " << ptLx3;
-		  
+		
 		  if (ptLx1>ptLx2 && ptLx1>ptLx3 && ptLx1<min_PtMax_) continue;
 		  else if (ptLx2>ptLx1 && ptLx2>ptLx3 && ptLx2<min_PtMax_) continue;
                   else if (ptLx3<ptLx2 && ptLx3>ptLx1 && ptLx3<min_PtMax_) continue;
@@ -284,11 +325,11 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  if (ptLx1<ptLx2 && ptLx1<ptLx3 && ptLx1<min_PtMin_) continue;
 		  else if (ptLx2<ptLx1 && ptLx2<ptLx3 && ptLx2<min_PtMin_) continue;
                   else if (ptLx3<ptLx2 && ptLx3<ptLx1 && ptLx3<min_PtMin_) continue;
-		  
+		
 		  if (chargeOpt_>0) {
 		    if (abs (cand1->charge()+cand2->charge()+cand3->charge()) != chargeOpt_) continue;
 		  }
-		  
+		
 		  // Acoplanarity
 		  double acop = fabs(cand1->phi()-cand2->phi());
 		  if (acop>M_PI) acop = 2*M_PI - acop;
@@ -310,7 +351,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  LogDebug("HLTMuonTrimuonL3Filter") << " ... 3-2 acop= " << acop;
 		  if (acop<min_Acop_) continue;
 		  if (acop>max_Acop_) continue;
-		  
+		
 		  // Pt balance
 		  double ptbalance = fabs(cand1->pt()-cand2->pt());
 		  if (ptbalance<min_PtBalance_) continue;
@@ -321,7 +362,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  ptbalance = fabs(cand3->pt()-cand2->pt());
 		  if (ptbalance<min_PtBalance_) continue;
 		  if (ptbalance>max_PtBalance_) continue;
-		  
+		
 		  // Combined trimuon system
 		  e1 = sqrt(cand1->momentum().Mag2()+MuMass2);
 		  e2 = sqrt(cand2->momentum().Mag2()+MuMass2);
@@ -330,21 +371,21 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  p2 = Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
 		  p3 = Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
 		  p = p1+p2+p3;
-		  
+		
 		  double pt123 = p.pt();
 		  LogDebug("HLTMuonTrimuonL3Filter") << " ... 1-2 pt123= " << pt123;
 		  if (pt123<min_PtTriplet_) continue;
-		  
+		
 		  double invmass = abs(p.mass());
 		  // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
 		  LogDebug("HLTMuonTrimuonL3Filter") << " ... 1-2 invmass= " << invmass;
 		  if (invmass<min_InvMass_) continue;
 		  if (invmass>max_InvMass_) continue;
-		  
+		
 		  // Delta Z between the two muons
 		  //double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
 		  //if ( DeltaZMuMu > max_DzMuMu_) continue;
-		  
+		
 		  // DCA between the three muons
 		  TransientTrack mu1TT(*tk1, &(*bFieldHandle));
 		  TransientTrack mu2TT(*tk2, &(*bFieldHandle));
@@ -364,25 +405,25 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		    if (!cApp.status()
 			|| cApp.distance() > max_DCAMuMu_) continue;
 		  }
-		  
+		
 		  // Max dimuon |rapidity|
 		  double rapidity = fabs(p.Rapidity());
 		  if ( rapidity > max_YTriplet_) continue;
-		  
+		
 		  // Add this triplet
 		  n++;
 		  LogDebug("HLTMuonTrimuonL3Filter") << " Track1 passing filter: pt= " << cand1->pt() << ", eta: " << cand1->eta();
 		  LogDebug("HLTMuonTrimuonL3Filter") << " Track2 passing filter: pt= " << cand2->pt() << ", eta: " << cand2->eta();
 		  LogDebug("HLTMuonTrimuonL3Filter") << " Track2 passing filter: pt= " << cand3->pt() << ", eta: " << cand3->eta();
 		  LogDebug("HLTMuonTrimuonL3Filter") << " Invmass= " << invmass;
-		  
+		
 		  bool i1done = false;
 		  bool i2done = false;
 		  bool i3done = false;
 		  vector<RecoChargedCandidateRef> vref;
 		  filterproduct.getObjects(TriggerMuon,vref);
-		  for (unsigned int i=0; i<vref.size(); i++) {
-		    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+		  for (auto & i : vref) {
+		    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
 		    TrackRef tktmp = candref->get<TrackRef>();
 		    if (tktmp==tk1) {
 		      i1done = true;
@@ -393,17 +434,17 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		    }
 		    if (i1done && i2done && i3done) break;
 		  }
-		  
-		  if (!i1done) { 
+		
+		  if (!i1done) {
 		    filterproduct.addObject(TriggerMuon,cand1);
 		  }
-		  if (!i2done) { 
+		  if (!i2done) {
 		    filterproduct.addObject(TriggerMuon,cand2);
 		  }
-		  if (!i3done) { 
+		  if (!i3done) {
 		    filterproduct.addObject(TriggerMuon,cand3);
 		  }
-		  
+		
 		  //break anyway since a L3 track triplet has been found matching the criteria
 		  thisL3Index1isDone=true;
 		  atLeastOneTriplet=true;
@@ -416,8 +457,8 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 	    //break the loop if fast accept.
 	    if (atLeastOneTriplet && fast_Accept_) break;
        }//loop on the second L2
-       
-       
+
+
        //break the loop if fast accept.
        if (atLeastOneTriplet && fast_Accept_) break;
        if (thisL3Index1isDone) break;
@@ -425,12 +466,12 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
      //break the loop if fast accept.
      if (atLeastOneTriplet && fast_Accept_) break;
    }//loop on the first L2
-   
+
    // filter decision
    const bool accept (n >= 1);
-   
-   LogDebug("HLTMuonTrimuonL3Filter") << " >>>>> Result of HLTMuonTrimuonL3Filter is "<< accept << ", number of muon triplets passing thresholds= " << n; 
-   
+
+   LogDebug("HLTMuonTrimuonL3Filter") << " >>>>> Result of HLTMuonTrimuonL3Filter is "<< accept << ", number of muon triplets passing thresholds= " << n;
+
    return accept;
 }
 
@@ -439,8 +480,8 @@ bool
 HLTMuonTrimuonL3Filter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  for (unsigned int i=0; i<vcands.size(); i++) {
-    if ( vcands[i]->get<TrackRef>() == staTrack ) {
+  for (auto & vcand : vcands) {
+    if ( vcand->get<TrackRef>() == staTrack ) {
       ok=true;
       LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;

@@ -1,4 +1,4 @@
-#ifndef HcalNoiseStorage_h
+#ifndef SimHcalNoiseStorage_h
 #define SimHcalNoiseStorage_h
 
 /** \class HcalNoiseStorage
@@ -29,6 +29,9 @@
 #include <vector>
 #include <string>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace edm
 {
@@ -45,11 +48,11 @@ namespace edm
       /**Default destructor*/
       //virtual ~HcalNoiseStorage();
 
-      void fillNoiseSignals() {};
+      void fillNoiseSignals(CLHEP::HepRandomEngine*) override {};
 
     private:
 
     };
 }//edm
 
-#endif
+#endif // SimHcalNoiseStorage_h

@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-G4Allocator<TrackInformation> TrackInformationAllocator;
+G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator = 0;
 
 void TrackInformation::Print() const {
   LogDebug("TrackInformation") << " TrackInformation : storeTrack = " << storeTrack_ << "\n"

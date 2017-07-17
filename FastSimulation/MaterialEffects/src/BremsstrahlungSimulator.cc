@@ -1,24 +1,20 @@
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 
 BremsstrahlungSimulator::BremsstrahlungSimulator(double photonEnergyCut, 
-						 double photonFractECut,
-						 const RandomEngine* engine) : 
-  MaterialEffectsSimulator(engine) 
+						 double photonFractECut)
 {
-
   // Set the minimal photon energy for a Brem from e+/-
   photonEnergy = photonEnergyCut;
   photonFractE = photonFractECut;
-
 }
 
 
 void 
-BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
+BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistribution const* random)
 {
 
   // Protection : Just stop the electron if more than 1 radiation lengths.
@@ -39,7 +35,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
 
   
   // Number of photons to be radiated.
-  unsigned int nPhotons = poisson(bremProba);
+  unsigned int nPhotons = poisson(bremProba, random);
   _theUpdatedState.reserve(nPhotons);
 
   if ( !nPhotons ) return;
@@ -57,7 +53,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
     if ( Particle.e() < photonEnergy ) break;
 
     // Add a photon
-    RawParticle thePhoton(22,brem(Particle));    
+    RawParticle thePhoton(22,brem(Particle, random));
     thePhoton.rotate(rotY);
     thePhoton.rotate(rotZ);
     _theUpdatedState.push_back(thePhoton);
@@ -69,7 +65,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
 }
 
 XYZTLorentzVector 
-BremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
+BremsstrahlungSimulator::brem(ParticlePropagator& pp, RandomEngineAndDistribution const* random) const {
 
   // This is a simple version (a la PDG) of a Brem generator.
   // It replaces the buggy GEANT3 -> C++ former version.
@@ -90,7 +86,7 @@ BremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
   // Isotropic in phi
   const double phi = random->flatShoot()*2*M_PI;
   // theta from universal distribution
-  const double theta = gbteth(pp.e(),emass,xp)*emass/pp.e(); 
+  const double theta = gbteth(pp.e(),emass,xp,random)*emass/pp.e();
   
   // Make momentum components
   double stheta = std::sin(theta);
@@ -105,7 +101,8 @@ BremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
 double
 BremsstrahlungSimulator::gbteth(const double ener,
 				const double partm,
-				const double efrac) const {
+				const double efrac,
+                                RandomEngineAndDistribution const* random) const {
   const double alfa = 0.625;
 
   const double d = 0.13*(0.8+1.3/theZ())*(100.0+(1.0/ener))*(1.0+efrac);
@@ -123,7 +120,7 @@ BremsstrahlungSimulator::gbteth(const double ener,
 
 
 unsigned int 
-BremsstrahlungSimulator::poisson(double ymu) {
+BremsstrahlungSimulator::poisson(double ymu, RandomEngineAndDistribution const* random) {
 
   unsigned int n = 0;
   double prob = std::exp(-ymu);

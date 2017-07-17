@@ -15,7 +15,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 HiggsValidation::HiggsValidation(const edm::ParameterSet& iPSet): 
@@ -24,63 +24,51 @@ HiggsValidation::HiggsValidation(const edm::ParameterSet& iPSet):
   particle_id(iPSet.getParameter<int>("pdg_id")),
   particle_name(iPSet.getParameter<std::string>("particleName"))
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  
   monitoredDecays = new MonitoredDecays(iPSet);
-
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 HiggsValidation::~HiggsValidation() {}
 
-void HiggsValidation::beginJob()
-{
-  if(dbe){
+void HiggsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
+}
+
+void HiggsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+
     ///Setting the DQM top directories
-    TString dir="Generator/";
+  std::string dir="Generator/";
     dir+=particle_name;
-    dbe->setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir);
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
     
     //decay type
     
     std::string channel = particle_name+"_DecayChannels";
-    HiggsDecayChannels = dbe->book1D(channel.c_str(),(particle_name+" decay channels").c_str(),monitoredDecays->size(),0,monitoredDecays->size());
+    HiggsDecayChannels = dqm.book1dHisto(channel.c_str(),(particle_name+" decay channels").c_str(),monitoredDecays->size(),0,monitoredDecays->size(),"Decay Channels","Number of Events");
     
-    for(size_t i = 0; i < monitoredDecays->size(); ++i){
-      HiggsDecayChannels->setBinLabel(1+i,monitoredDecays->channel(i));
+    for(size_t j = 0; j < monitoredDecays->size(); ++j){
+      HiggsDecayChannels->setBinLabel(1+j,monitoredDecays->channel(j));
     }
-  }
+  
 
   //Kinematics 
-  Higgs_pt = dbe->book1D((particle_name+"_pt"),(particle_name+" p_{t}"),50,0,250);
-  Higgs_eta  = dbe->book1D((particle_name+"_eta"),(particle_name+" #eta"),50,-5,5); 
-  Higgs_mass = dbe->book1D((particle_name+"_m"),(particle_name+" M"),500,0,500);
+    Higgs_pt = dqm.book1dHisto((particle_name+"_pt"),(particle_name+" p_{t}"),50,0,250,"P_{t}^{"+particle_name+"} (GeV)","Number of Events");
+    Higgs_eta  = dqm.book1dHisto((particle_name+"_eta"),(particle_name+" #eta"),50,-5,5,"#eta^{"+particle_name+"}","Number of Events"); 
+    Higgs_mass = dqm.book1dHisto((particle_name+"_m"),(particle_name+" M"),500,0,500,"M^{"+particle_name+"}","Number of Events");
 
   int idx=0;
-  for(unsigned int i=0;i<monitoredDecays->NDecayParticles();i++){
-    HiggsDecayProd_pt.push_back(dbe->book1D((monitoredDecays->ConvertIndex(idx)+"_pt"),(monitoredDecays->ConvertIndex(idx)+" p_{t}"),50,0,250));
-    HiggsDecayProd_eta.push_back(dbe->book1D((monitoredDecays->ConvertIndex(idx)+"_eta"),(monitoredDecays->ConvertIndex(idx)+" #eta"),50,-5,5));
+  for(unsigned int j=0;j<monitoredDecays->NDecayParticles();j++){
+    HiggsDecayProd_pt.push_back(dqm.book1dHisto((monitoredDecays->ConvertIndex(idx)+"_pt"),(monitoredDecays->ConvertIndex(idx)+" p_{t}"),50,0,250,"P_{t}^{"+monitoredDecays->ConvertIndex(idx)+"} (GeV)","Number of Events"));
+    HiggsDecayProd_eta.push_back(dqm.book1dHisto((monitoredDecays->ConvertIndex(idx)+"_eta"),(monitoredDecays->ConvertIndex(idx)+" #eta"),50,-5,5,"#eta^{"+monitoredDecays->ConvertIndex(idx)+"}","Number of Events"));
     idx++;
   }
 
   return;
 }
 
-void HiggsValidation::endJob(){
-  return;
-}
-
-void HiggsValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
-}
-void HiggsValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void HiggsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   double weight =   wmanager_.weight(iEvent);  
@@ -97,7 +85,7 @@ void HiggsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
   bool filled = false;
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); 
       iter!= myGenEvent->particles_end() && !filled; ++iter) {
-    if(particle_id == fabs((*iter)->pdg_id())){
+    if(particle_id == std::abs((*iter)->pdg_id())){
       std::vector<HepMC::GenParticle*> decayprod;
       int channel = findHiggsDecayChannel(*iter,decayprod);
       HiggsDecayChannels->Fill(channel,weight);
@@ -120,9 +108,7 @@ void HiggsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
 }//analyze
 
 int HiggsValidation::findHiggsDecayChannel(const HepMC::GenParticle* genParticle,std::vector<HepMC::GenParticle*> &decayprod){
-  
   if(genParticle->status() == 1) return monitoredDecays->stable();
-  
   std::vector<int> children;
   if ( genParticle->end_vertex() ) {
     HepMC::GenVertex::particle_iterator des;
@@ -139,9 +125,8 @@ int HiggsValidation::findHiggsDecayChannel(const HepMC::GenParticle* genParticle
     }
   }
   
-  if(children.size() == 2 && children.at(0) != 0 && children.at(1) != 0) return monitoredDecays->position(children.at(0),children.at(1));
+  if(children.size() == 2 && children.at(0) != 0 && children.at(1) != 0){
+    return monitoredDecays->position(children.at(0),children.at(1));
+  }
   return monitoredDecays->undetermined();
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(HiggsValidation);

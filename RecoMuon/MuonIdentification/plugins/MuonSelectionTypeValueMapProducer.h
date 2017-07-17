@@ -8,14 +8,14 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
+class MuonSelectionTypeValueMapProducer : public edm::stream::EDProducer<> {
     public:
         explicit MuonSelectionTypeValueMapProducer(const edm::ParameterSet& iConfig) :
             inputMuonCollection_(iConfig.getParameter<edm::InputTag>("inputMuonCollection")),
@@ -23,13 +23,16 @@ class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
         {
             selectionType_ = muon::selectionTypeFromString(selectionTypeLabel_);
             produces<edm::ValueMap<bool> >().setBranchAlias("muid"+selectionTypeLabel_);
+	    muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
         }
         virtual ~MuonSelectionTypeValueMapProducer() {}
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&);
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
         edm::InputTag inputMuonCollection_;
+	edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+
         std::string selectionTypeLabel_;
         muon::SelectionType selectionType_;
 };
@@ -39,7 +42,7 @@ MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventS
 {
     // input muon collection
     edm::Handle<reco::MuonCollection> muonsH;
-    iEvent.getByLabel(inputMuonCollection_, muonsH);
+    iEvent.getByToken(muonToken_, muonsH);
 
     // reserve some space
     std::vector<bool> values;
@@ -50,13 +53,13 @@ MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventS
         values.push_back(muon::isGoodMuon(*it, selectionType_));
 
     // create and fill value map
-    std::auto_ptr<edm::ValueMap<bool> > out(new edm::ValueMap<bool>());
+    auto out = std::make_unique<edm::ValueMap<bool>>();
     edm::ValueMap<bool>::Filler filler(*out);
     filler.insert(muonsH, values.begin(), values.end());
     filler.fill();
 
     // put value map into event
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #endif

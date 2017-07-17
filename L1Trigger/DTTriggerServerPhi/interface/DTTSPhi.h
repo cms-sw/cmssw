@@ -61,7 +61,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   ~DTTSPhi();
 
   /// Return the configuration class
-  inline DTConfigTSPhi* config() const {return _config; }
+  inline const DTConfigTSPhi* config() const {return _config; }
 
   /// Set configuration
   void setConfig(const DTConfigManager *conf);
@@ -111,7 +111,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   
   DTTracoCard* _tracocard;
 
-  DTConfigTSPhi* _config;
+  const DTConfigTSPhi* _config;
   
   // Components
   std::vector<DTTSS*> _tss[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];

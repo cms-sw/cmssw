@@ -25,7 +25,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace trigger;
-using namespace l1extra;
 
 
 
@@ -36,7 +35,12 @@ typedef vector<ParameterSet> Parameters;
 HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
                                string hltPath,
                                const std::vector<string>& moduleLabels,
-                               const std::vector<string>& stepLabels) :
+                               const std::vector<string>& stepLabels,
+			       const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+		                                  edm::EDGetTokenT<reco::GenParticleCollection>,
+		                                  edm::EDGetTokenT<reco::MuonCollection> >& tokens
+			       ) :
+			       
   l1Matcher_(pset)
 {
 
@@ -44,9 +48,6 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
   hltProcessName_  = pset.getParameter<string>("hltProcessName");
-
-  genParticleLabel_ = pset.getParameter<string>("genParticleLabel");
-      recMuonLabel_ = pset.getParameter<string>(    "recMuonLabel");
 
   cutsDr_      = pset.getParameter< vector<double> >("cutsDr"     );
 
@@ -60,8 +61,10 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
   genMuonSelector_ = 0;
   recMuonSelector_ = 0;
 
-  dbe_ = Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
+  //set tokens
+  hltTriggerSummaryRAW_ = tokens.get<0>();
+  genParticleLabel_ = tokens.get<1>();
+  recMuonLabel_ = tokens.get<2>();
 
 }
 
@@ -70,12 +73,14 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
 void 
 HLTMuonPlotter::beginJob() 
 {
+
 }
 
 
 
 void 
-HLTMuonPlotter::beginRun(const Run & iRun, const EventSetup & iSetup) 
+HLTMuonPlotter::beginRun(DQMStore::IBooker & iBooker,
+			 const Run & iRun, const EventSetup & iSetup) 
 {
 
   static int runNumber = 0;
@@ -102,28 +107,25 @@ HLTMuonPlotter::beginRun(const Run & iRun, const EventSetup & iSetup)
   if (cutMinPt_ < 0.) cutMinPt_ = 0.;
   
   string baseDir = "HLT/Muon/Distributions/";
-  dbe_->setCurrentFolder(baseDir + hltPath_);
+  iBooker.setCurrentFolder(baseDir + hltPath_);
 
   vector<string> sources(2);
   sources[0] = "gen";
   sources[1] = "rec";
 
-  if (dbe_->get(baseDir + hltPath_ + "/CutMinPt") == 0) {
+  elements_["CutMinPt" ] = iBooker.bookFloat("CutMinPt" );
+  elements_["CutMaxEta"] = iBooker.bookFloat("CutMaxEta");
+  elements_["CutMinPt" ]->Fill(cutMinPt_);
+  elements_["CutMaxEta"]->Fill(cutMaxEta_);
 
-      elements_["CutMinPt" ] = dbe_->bookFloat("CutMinPt" );
-      elements_["CutMaxEta"] = dbe_->bookFloat("CutMaxEta");
-      elements_["CutMinPt" ]->Fill(cutMinPt_);
-      elements_["CutMaxEta"]->Fill(cutMaxEta_);
-
-      for (size_t i = 0; i < sources.size(); i++) {
-        string source = sources[i];
-        for (size_t j = 0; j < stepLabels_.size(); j++) {
-          bookHist(hltPath_, stepLabels_[j], source, "Eta");
-          bookHist(hltPath_, stepLabels_[j], source, "Phi");
-          bookHist(hltPath_, stepLabels_[j], source, "MaxPt1");
-          bookHist(hltPath_, stepLabels_[j], source, "MaxPt2");
-        }
-      }
+  for (size_t i = 0; i < sources.size(); i++) {
+    string source = sources[i];
+    for (size_t j = 0; j < stepLabels_.size(); j++) {
+      bookHist(iBooker, hltPath_, stepLabels_[j], source, "Eta");
+      bookHist(iBooker, hltPath_, stepLabels_[j], source, "Phi");
+      bookHist(iBooker, hltPath_, stepLabels_[j], source, "MaxPt1");
+      bookHist(iBooker, hltPath_, stepLabels_[j], source, "MaxPt2");
+    }
   }
 
 }
@@ -147,11 +149,11 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
   Handle<                MuonCollection> recMuons;
   Handle<         GenParticleCollection> genParticles;
 
-  iEvent.getByLabel("hltTriggerSummaryRAW", rawTriggerEvent);
+  iEvent.getByToken(hltTriggerSummaryRAW_, rawTriggerEvent);
   if (rawTriggerEvent.failedToGet())
     {LogError("HLTMuonVal") << "No trigger summary found"; return;}
-  iEvent.getByLabel(    recMuonLabel_, recMuons     );
-  iEvent.getByLabel(genParticleLabel_, genParticles );
+  iEvent.getByToken(recMuonLabel_, recMuons);
+  iEvent.getByToken(genParticleLabel_, genParticles );
 
   vector<string> sources;
   if (genParticles.isValid()) sources.push_back("gen");
@@ -186,7 +188,7 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     const size_t nSteps     = stepLabels_.size();
     const size_t nStepsHlt  = nSteps - 2;
     const int nObjectsToPassPath = (isDoubleMuonPath) ? 2 : 1;
-    vector< L1MuonParticleRef > candsL1;
+    l1t::MuonVectorRef candsL1;
     vector< vector< RecoChargedCandidateRef      > > refsHlt(nStepsHlt);
     vector< vector< const RecoChargedCandidate * > > candsHlt(nStepsHlt);
     
@@ -221,9 +223,13 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     
     for (size_t step = 0; step < nSteps; step++) {
       
-      const size_t hltStep = (step >= 2) ? step - 2 : 0;
+      size_t hltStep = (step >= 2) ? step - 2 : 0;
+      if (nSteps == 6) hltStep=hltStep-1; // case of the tracker muon (it has no L2)
       size_t level = 0;
-      if (stepLabels_[step].find("L3") != string::npos) level = 3;
+      if ((stepLabels_[step].find("L3TkIso") != string::npos)||(stepLabels_[step].find("TkTkIso") != string::npos)) level = 6;
+      else if ((stepLabels_[step].find("L3HcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 5;
+      else if ((stepLabels_[step].find("L3EcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 4;
+      else if ((stepLabels_[step].find("L3") != string::npos)||(stepLabels_[step].find("Tk") != string::npos)) level = 3;
       else if (stepLabels_[step].find("L2") != string::npos) level = 2;
       else if (stepLabels_[step].find("L1") != string::npos) level = 1;
       
@@ -282,10 +288,30 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
 
 
 
+boost::tuple<
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+  edm::EDGetTokenT<reco::GenParticleCollection>,
+  edm::EDGetTokenT<reco::MuonCollection> > HLTMuonPlotter::getTokens(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
+{
+
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> _hltTriggerSummaryRAW = iC.consumes<TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW"));
+  edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel = iC.consumes<GenParticleCollection>(pset.getParameter<string>("genParticleLabel"));
+  edm::EDGetTokenT<reco::MuonCollection> _recMuonLabel = iC.consumes<MuonCollection>(pset.getParameter<string>("recMuonLabel"));
+
+  boost::tuple<
+    edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+    edm::EDGetTokenT<reco::GenParticleCollection>,
+    edm::EDGetTokenT<reco::MuonCollection> > myTuple(_hltTriggerSummaryRAW,_genParticleLabel,_recMuonLabel);
+
+  return (myTuple);
+}
+
+
+
 void
 HLTMuonPlotter::findMatches(
     vector<MatchStruct> & matches,
-    const std::vector<L1MuonParticleRef>& candsL1,
+    const l1t::MuonVectorRef& candsL1,
     const std::vector< vector< const RecoChargedCandidate *> >& candsHlt)
 {
 
@@ -294,7 +320,7 @@ HLTMuonPlotter::findMatches(
   set<size_t> indicesL1;
   for (size_t i = 0; i < candsL1.size(); i++) 
     indicesL1.insert(i);
-
+  
   vector< set<size_t> > indicesHlt(candsHlt.size());
   for (size_t i = 0; i < candsHlt.size(); i++)
     for (size_t j = 0; j < candsHlt[i].size(); j++)
@@ -307,27 +333,29 @@ HLTMuonPlotter::findMatches(
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
     for (it = indicesL1.begin(); it != indicesL1.end(); it++) {
-     if (candsL1[*it].isAvailable()) {
+     if (candsL1[*it].isAvailable()) { 
       double dR = deltaR(cand->eta(), cand->phi(),
                          candsL1[*it]->eta(), candsL1[*it]->phi());
       if (dR < bestDeltaR) {
         bestMatch = *it;
         bestDeltaR = dR;
       }
-      // TrajectoryStateOnSurface propagated;
-      // float dR = 999., dPhi = 999.;
-      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 
-      //                                 dR, dPhi, propagated);
-      // if (isValid && dR < bestDeltaR) {
-      //   bestMatch = *it;
-      //   bestDeltaR = dR;
-      // }
+      // TrajectoryStateOnSurface propagated;		
+      // float dR = 999., dPhi = 999.;		
+      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 		
+      //                                 dR, dPhi, propagated);		
+      // if (isValid && dR < bestDeltaR) {		
+      //   bestMatch = *it;		
+      //   bestDeltaR = dR;		
+      // }		
      } else {
        LogWarning("HLTMuonPlotter")
 	 << "Ref candsL1[*it]: product not available "
 	 << *it;
      }
     }
+    
+    
     if (bestMatch != kNull)
       matches[i].candL1 = & * candsL1[bestMatch];
     indicesL1.erase(bestMatch);
@@ -368,7 +396,8 @@ HLTMuonPlotter::findMatches(
 
 
 void 
-HLTMuonPlotter::bookHist(string path, string label, 
+HLTMuonPlotter::bookHist(DQMStore::IBooker & iBooker,
+			 string path, string label, 
                          string source, string type)
 {
 
@@ -399,7 +428,7 @@ HLTMuonPlotter::bookHist(string path, string label,
   }
 
   h->Sumw2();
-  elements_[name] = dbe_->book1D(name, h);
+  elements_[name] = iBooker.book1D(name, h);
   delete h;
 
 }

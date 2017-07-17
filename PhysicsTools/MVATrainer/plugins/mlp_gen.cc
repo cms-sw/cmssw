@@ -43,10 +43,9 @@ dbl **Hessian;
 /* The following lines are needed to use the dgels routine from the LAPACK
    library in Reslin() 							    */
 
-#include "mlp_lapack.h"
-/* Subroutine */ int dgels_(char *trans, integer *m, integer *n, integer *
-	nrhs, doublereal *a, integer *lda, doublereal *b, integer *ldb, 
-	doublereal *work, integer *lwork, integer *info);
+/* Subroutine */ int dgels_(char *trans, int *m, int *n, int *
+	nrhs, double *a, int *lda, double *b, int *ldb, 
+	double *work, int *lwork, int *info);
     
 /***********************************************************/
 /* MLP_Out                                                 */
@@ -62,8 +61,7 @@ dbl **Hessian;
    
 /* extern "C"Dllexport */void MLP_Out(type_pat *rrin, dbl *rrout)
 {
-//  	static int i, il, in, j, ilm1, m, mp1;  
-  	static int i, il, in, j, m, mp1;  
+        int i, il, in, j, m, mp1;
 	dbl **deriv1;
 
 /* input layer */  
@@ -114,8 +112,8 @@ L10:
    
 /* extern "C"Dllexport */void MLP_Out_T(type_pat *rrin)
 {
-  	static int i, il, in, j, ilm1, m, mp1;  
-	register dbl a;
+        int i, il, in, j, ilm1, m, mp1;
+	dbl a;
 
 /* input layer */  
 
@@ -185,11 +183,10 @@ L20:
    
 /* extern "C"Dllexport */void MLP_Out2(type_pat *rrin)
 {
-//  	static int il, in, m, mp1, i0, ilm1;  
-  	static int il, in, m, mp1;
-	register int i;
+  	int il, in, m, mp1;
+	int i;
 	dbl **rrout, **deriv1;
-	register dbl *prrout;
+	dbl *prrout;
 	type_pat *prrin;
 	int nhid = NET.Nneur[1];
 	int nin = NET.Nneur[0];
@@ -525,7 +522,7 @@ L25:
 	int il, in1, in, itest2;
 	dbl deriv, deriv1, deriv2, deriv3, deriv4, pond;
 	dbl eta, eps;
-	register dbl a, b, dd, a1, a2, a3, a4;
+	dbl a, b, dd, a1, a2, a3, a4;
 	dbl *pout, *pdelta, *pw1, *pw2, *pw3, *pw4;
 	dbl ***weights;
     
@@ -1129,7 +1126,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 /*	dbl err[NMAX][4]; */
 	dbl deriv;
 	dbl *pout, *pdedw, *pdelta;
-	register dbl a, b;
+	dbl a, b;
 /*	char buf[50];*/
 
 /* output layer */ 
@@ -1425,7 +1422,7 @@ void SetDefaultFuncs()
 	dble factor=0; 
 	dble *Hgamma;
 	dble *tmp;
-	register dble a, b;
+	dble a, b;
 	int i,j;
 	
 	Hgamma = (dble *) malloc(Nweights*sizeof(dble));
@@ -1445,7 +1442,12 @@ void SetDefaultFuncs()
 		tmp[i] = b;	
 		factor += (dble) Gamma[i]*Hgamma[i];
 		}
-	if(deltaTgamma == 0) return 1;
+	if(deltaTgamma == 0) 
+        {
+          free(tmp);
+          free(Hgamma);
+          return 1;
+        }
 	a = 1 / deltaTgamma;	
 	factor = 1 + factor*a;
 	
@@ -1754,7 +1756,7 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 /* extern "C"Dllexport */
 void MLP_Line(dbl ***w0, dbl alpha)
 {
-	register int il,in,jn;
+	int il,in,jn;
 	
 	for(il=1; il<NET.Nlayer; il++)
 		for(in=0; in<NET.Nneur[il]; in++)
@@ -1970,16 +1972,16 @@ void MLP_ResLin()
 {
 /*	dbl rrans[NMAX], rrout[NMAX];*/
 /*	type_pat rrin[NMAX];*/
-	doublereal *HR,*dpat; //,*wlin,*SV;
+	double *HR,*dpat; //,*wlin,*SV;
 	double err,lambda,lambda2;
-	integer Nl,M,Nhr,khr,nrhs,iret,ierr;
+	int Nl,M,Nhr,khr,nrhs,iret,ierr;
 	int   il, in, inl, ipat;
 	/*register dbl a;*/ //a unused
 	char Trans = 'N';
 
 	
-/*	integer rank; */
-//	doublereal rcond = -1;	/* use machine precision */
+/*	int rank; */
+//	double rcond = -1;	/* use machine precision */
 	
 	lambda2 = LEARN.Alambda;
 	
@@ -1988,16 +1990,16 @@ void MLP_ResLin()
 	Nl = NET.Nneur[NET.Nlayer-2] + 1;
 	M = PAT.Npat[0]+Nl;
 
-	integer Lwork = 5 * M;
-        doublereal *Work = (doublereal*) malloc((int) Lwork*sizeof(doublereal));
+	int Lwork = 5 * M;
+        double *Work = (double*) malloc((int) Lwork*sizeof(double));
 	
 /* memory allocation */
-	dpat = (doublereal*) malloc((int) M*sizeof(doublereal));
-//	wlin = (doublereal*) malloc((int) Nl*sizeof(doublereal));
-//	SV = (doublereal*) malloc((int) Nl*sizeof(doublereal));
+	dpat = (double*) malloc((int) M*sizeof(double));
+//	wlin = (double*) malloc((int) Nl*sizeof(double));
+//	SV = (double*) malloc((int) Nl*sizeof(double));
 	
 	Nhr = M * Nl;
-	HR = (doublereal*) malloc((int) Nhr*sizeof(doublereal));
+	HR = (double*) malloc((int) Nhr*sizeof(double));
 	err = 0.;
 	for(ipat=0;ipat<PAT.Npat[0];ipat++)
 		{
@@ -2915,10 +2917,10 @@ int MLP_PrCFun(char *filename)
 			{
 			fprintf(W,"      out%d[%d] = %e\n",il+1,in,
 					(double) NET.Weights[il][in][0]);
-			for(jn=1;jn<=NET.Nneur[il-1]; jn++)
+			for(jn=1;jn<=NET.Nneur[il-1]; jn++) 
 				fprintf(W,"      +(%e) * out%d[%d]\n",
 					(double) NET.Weights[il][in][jn],il,jn-1);
-				fprintf(W,"      ;\n");
+		   fprintf(W,"      ;\n"); 
 			}
 		fprintf(W,"\n");
 		for(in=0; in<NET.Nneur[il]; in++)
@@ -3380,16 +3382,18 @@ int MLP_PrintInputStat()
 
 /* allocate memory */
 	mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (mean == 0) return -111;
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (sigma == 0) return -111;
 	STAT.mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (STAT.mean == 0) return -111;
 	STAT.sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (STAT.sigma == 0) return -111;
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (minimum == 0) return -111;
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (maximum == 0) return -111;
 	
-	if(mean == 0 || sigma == 0 || minimum == 0
-	   || maximum == 0 || STAT.mean == 0 ||
-	   STAT.sigma == 0) return -111;
-
 	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
 			mean,sigma,minimum,maximum);
 
@@ -3678,7 +3682,7 @@ int MLP_SetNet(int *nl, int *nn)
 void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m+1]);
 	dbl *pM3 = &(M[2*(m+1)]);
@@ -3744,7 +3748,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m]);
 	dbl *pM3 = &(M[2*m]);

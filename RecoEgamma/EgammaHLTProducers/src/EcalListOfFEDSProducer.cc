@@ -1,4 +1,6 @@
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalListOfFEDSProducer.h"
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
@@ -42,31 +44,31 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
     
     EMl1TagIsolated_    = consumes<L1EmParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("EM_l1TagIsolated"));
     EMl1TagNonIsolated_ = consumes<L1EmParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("EM_l1TagNonIsolated"));
-    EMdoIsolated_       = pset.getUntrackedParameter<bool>("EM_doIsolated",true);
+    EMdoIsolated_       = pset.getUntrackedParameter<bool>("EM_doIsolated",  true);
     EMdoNonIsolated_    = pset.getUntrackedParameter<bool>("EM_doNonIsolated",true);
-    EMregionEtaMargin_  = pset.getUntrackedParameter<double>("EM_regionEtaMargin",0.25);
-    EMregionPhiMargin_  = pset.getUntrackedParameter<double>("EM_regionPhiMargin",0.40);
-    Ptmin_iso_          = pset.getUntrackedParameter<double>("Ptmin_iso",0.);
-    Ptmin_noniso_       = pset.getUntrackedParameter<double>("Ptmin_noniso",0.);
+    EMregionEtaMargin_  = pset.getUntrackedParameter<double>("EM_regionEtaMargin", 0.25);
+    EMregionPhiMargin_  = pset.getUntrackedParameter<double>("EM_regionPhiMargin", 0.40);
+    Ptmin_iso_          = pset.getUntrackedParameter<double>("Ptmin_iso", 0.);
+    Ptmin_noniso_       = pset.getUntrackedParameter<double>("Ptmin_noniso", 0.);
   }
   
   if (Muon_) {
-    MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin",1.0);
-    MUregionPhiMargin_ = pset.getUntrackedParameter<double>("MU_regionPhiMargin",1.0);
-    Ptmin_muon_        = pset.getUntrackedParameter<double>("Ptmin_muon",0.);
+    MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin", 1.0);
+    MUregionPhiMargin_ = pset.getUntrackedParameter<double>("MU_regionPhiMargin", 1.0);
+    Ptmin_muon_        = pset.getUntrackedParameter<double>("Ptmin_muon", 0.);
     MuonSource_        = consumes<L1MuonParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("MuonSource"));
   }
 
  if (Jets_) {
-   JETSregionEtaMargin_ = pset.getUntrackedParameter<double>("JETS_regionEtaMargin",1.0);
-   JETSregionPhiMargin_ = pset.getUntrackedParameter<double>("JETS_regionPhiMargin",1.0);
-   Ptmin_jets_          = pset.getUntrackedParameter<double>("Ptmin_jets",0.);
+   JETSregionEtaMargin_ = pset.getUntrackedParameter<double>("JETS_regionEtaMargin", 1.0);
+   JETSregionPhiMargin_ = pset.getUntrackedParameter<double>("JETS_regionPhiMargin", 1.0);
+   Ptmin_jets_          = pset.getUntrackedParameter<double>("Ptmin_jets", 0.);
    CentralSource_       = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("CentralSource"));
    ForwardSource_       = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("ForwardSource"));
    TauSource_           = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("TauSource"));
-   JETSdoCentral_       = pset.getUntrackedParameter<bool>("JETS_doCentral",true);
-   JETSdoForward_       = pset.getUntrackedParameter<bool>("JETS_doForward",true);
-   JETSdoTau_           = pset.getUntrackedParameter<bool>("JETS_doTau",true);
+   JETSdoCentral_       = pset.getUntrackedParameter<bool>("JETS_doCentral", true);
+   JETSdoForward_       = pset.getUntrackedParameter<bool>("JETS_doForward", true);
+   JETSdoTau_           = pset.getUntrackedParameter<bool>("JETS_doTau", true);
  }
 
  OutputLabel_ = pset.getUntrackedParameter<std::string>("OutputLabel");
@@ -80,6 +82,39 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
 
 EcalListOfFEDSProducer::~EcalListOfFEDSProducer() {
   delete TheMapping;
+}
+
+void EcalListOfFEDSProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("debug", false);
+ desc.add<edm::InputTag>("Pi0ListToIgnore", edm::InputTag(""));
+ desc.add<bool>("EGamma",false);
+ desc.add<bool>("Muon",false);
+ desc.add<bool>("Jets",false);
+ desc.add<edm::InputTag>("EM_l1TagIsolated", edm::InputTag(""));
+ desc.add<edm::InputTag>("EM_l1TagNonIsolated", edm::InputTag(""));
+ desc.add<bool>("EM_doIsolated",true);
+ desc.add<bool>("EM_doNonIsolated",true);
+ desc.add<double>("EM_regionEtaMargin",0.25);
+ desc.add<double>("EM_regionPhiMargin",0.40);
+ desc.add<double>("Ptmin_iso",0.);
+ desc.add<double>("Ptmin_noniso",0.);
+ desc.add<double>("MU_regionEtaMargin",1.0);
+ desc.add<double>("MU_regionPhiMargin",1.0);
+ desc.add<double>("Ptmin_muon",0.);
+ desc.add<edm::InputTag>("MuonSource", edm::InputTag(""));
+ desc.add<double>("JETS_regionEtaMargin",1.0);
+ desc.add<double>("JETS_regionPhiMargin",1.0);
+ desc.add<double>("Ptmin_jets",0.);
+ desc.add<edm::InputTag>("CentralSource", edm::InputTag(""));
+ desc.add<edm::InputTag>("ForwardSource", edm::InputTag(""));
+desc.add<edm::InputTag>("TauSource", edm::InputTag(""));
+ desc.add<bool>("JETS_doCentral",true);
+ desc.add<bool>("JETS_doForward",true);
+ desc.add<bool>("JETS_doTau",true);
+desc.add<std::string>("OutputLabel", "");
+  descriptions.add(("hltEcalListOfFEDSProducer"), desc);  
 }
 
 void EcalListOfFEDSProducer::beginJob()
@@ -98,7 +133,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
     first_ = false;
   }                                                                                              
   
-  std::auto_ptr<EcalListOfFEDS> productAddress(new EcalListOfFEDS);
+  auto productAddress = std::make_unique<EcalListOfFEDS>();
   
   std::vector<int> feds;		// the list of FEDS produced by this module
   
@@ -153,7 +188,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
     std::cout << " Warning : no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() << std::endl;
   
   productAddress.get() -> SetList(feds);
-  e.put(productAddress,OutputLabel_);
+  e.put(std::move(productAddress),OutputLabel_);
 }
 
 void EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs ) {

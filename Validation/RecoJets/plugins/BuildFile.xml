@@ -9,6 +9,7 @@
 <use   name="RecoJets/JetProducers"/>
 <use   name="Validation/RecoJets"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="root"/>
 <library   file="*.cc" name="ValidationRecoJetsPlugins">
   <flags   EDM_PLUGIN="1"/>

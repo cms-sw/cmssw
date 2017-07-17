@@ -35,6 +35,9 @@
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 //
 // class decleration
 //
@@ -51,9 +54,7 @@ class MapTester : public edm::EDAnalyzer {
       bool generateTextfiles_;
       bool generateEmap_;
 
-      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       // ----------member data ---------------------------
 };
@@ -71,17 +72,10 @@ MapTester::~MapTester()
 
 }
 
+
 // ------------ method called to for each event  ------------
-void
-MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
 void 
-MapTester::beginJob()
+MapTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   char tempbuff[128];
 
@@ -90,8 +84,11 @@ MapTester::beginJob()
 
   strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
 
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  
   HcalLogicalMapGenerator mygen;
-  HcalLogicalMap mymap=mygen.createMap(mapIOV_);
+  HcalLogicalMap mymap=mygen.createMap(&(*topo),mapIOV_);
 
   if (generateTextfiles_) mymap.printMap(mapIOV_);
 
@@ -104,23 +101,18 @@ MapTester::beginJob()
     if      (mapIOV_==1) file<<"version_A_emap.txt";
     else if (mapIOV_==2) file<<"version_B_emap.txt";
     else if (mapIOV_==3) file<<"version_C_emap.txt";
-    else                 file<<"version_D_emap.txt";
+    else if (mapIOV_==4) file<<"version_D_emap.txt";
+    else                 file<<"version_E_emap.txt";
 
     std::ofstream outStream( file.str().c_str() );
     char buf [1024];
     sprintf(buf,"#file creation series : %s",tempbuff);
     outStream<<buf<< std::endl;
 
-    HcalElectronicsMap myemap;
     edm::LogInfo( "MapTester") <<"generating the emap..."<<std::endl;
-    myemap = mymap.generateHcalElectronicsMap();
+    auto myemap = mymap.generateHcalElectronicsMap();
     edm::LogInfo( "MapTester") <<"dumping the emap..."<<std::endl;
-    HcalDbASCIIIO::dumpObject(outStream,myemap);}
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MapTester::endJob() {
+    HcalDbASCIIIO::dumpObject(outStream,*myemap);}
 }
 
 //define this as a plug-in

@@ -32,7 +32,7 @@ MuonChi2MeasurementEstimator::MuonChi2MeasurementEstimator(double dtMaxChi2, dou
 
 std::pair<bool,double> 
 MuonChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				       const TransientTrackingRecHit& recHit) const {
+				       const TrackingRecHit& recHit) const {
   
   DetId id = recHit.geographicalId();
   

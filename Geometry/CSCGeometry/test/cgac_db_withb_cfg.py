@@ -9,8 +9,8 @@ process = cms.Process("GeometryAsChambersWithB")
 
 # To access the FULL geometry requires
 # ====================================
-process.load('Configuration/StandardSequences/GeometryDB_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Any 'MC' tag is always ideal !BEWARE!
 ##process.GlobalTag.globaltag = 'MC_42_V6::All'
 process.GlobalTag.globaltag = 'START42_V6::All'
@@ -21,8 +21,8 @@ process.GlobalTag.globaltag = 'START42_V6::All'
 ##process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 ##process.load('Geometry.CSCGeometryBuilder.cscGeometryDB_cfi')
 ##process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometryDB_cff')
-# note following is cfi not cff (unnec for csc geom)
-##process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
+# note: the following is the standard entry point for condition records (necessary for CSC geometry)
+##process.load('Configuration.StandardSequences.CondDBESSource_cff')
 # Any 'MC' tag is always ideal !BEWARE!
 ##process.GlobalTag.globaltag = 'MC_42_V6::All'
 ##process.GlobalTag.globaltag = 'START42_V6::All'

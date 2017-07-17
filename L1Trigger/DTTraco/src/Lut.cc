@@ -11,7 +11,7 @@
 // Constructors --
 //----------------
 
-Lut::Lut(DTConfigLUTs* conf, int ntc, float SL_shift): _conf_luts(conf) {
+Lut::Lut(const DTConfigLUTs* conf, int ntc, float SL_shift): _conf_luts(conf) {
 
   // set parameters from configuration
   m_d		= _conf_luts->D(); 
@@ -106,7 +106,7 @@ void Lut::setForTestBeam( int station, int board, int traco ) {
 }
 
 
-int Lut::get_k( int addr ) {
+int Lut::get_k( int addr ) const{
 //FIX attenzione controlla addr - 511 o -512???
   int i;
   float x;
@@ -120,7 +120,7 @@ int Lut::get_k( int addr ) {
   return (int)x;
 }
 
-int Lut::get_x( int addr ) {
+int Lut::get_x( int addr ) const{
   int i;
   float a,b,x;
 

@@ -19,6 +19,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,6 +28,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
+#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
@@ -34,6 +36,7 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackingRegion;
 class MuonServiceProxy;
@@ -46,7 +49,7 @@ public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  TSGForRoadSearch(const edm::ParameterSet &pset);
+  TSGForRoadSearch(const edm::ParameterSet &pset,edm::ConsumesCollector& IC);
 
   virtual ~TSGForRoadSearch();
 
@@ -86,6 +89,10 @@ private:
 
   edm::ESHandle<MeasurementTracker> theMeasurementTracker;
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
+
+  edm::InputTag theMeasurementTrackerEventTag;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
+  const MeasurementTrackerEvent * theMeasurementTrackerEvent;
 
   TrajectoryStateUpdator * theUpdator;
   const MuonServiceProxy * theProxyService;

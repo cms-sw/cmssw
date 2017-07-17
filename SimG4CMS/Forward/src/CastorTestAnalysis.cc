@@ -9,13 +9,12 @@
 // Original Author: P. Katsas
 //         Created: 02/2007 
 //
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-//#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
 #include <cmath>
@@ -41,21 +40,21 @@ CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
   stepNtFileName           = m_Anal.getParameter<std::string>("StepNtupleFileName");
   eventNtFileName          = m_Anal.getParameter<std::string>("EventNtupleFileName");
 
-  if (verbosity > 0)
-   std::cout<<std::endl;
-   std::cout<<"============================================================================"<<std::endl;
-   std::cout << "CastorTestAnalysis:: Initialized as observer"<< std::endl;
-   if (doNTcastorstep  > 0){
-     std::cout <<" Step Ntuple will be created"<< std::endl;
-     std::cout <<" Step Ntuple file: "<<stepNtFileName<<std::endl;
-   }
-   if (doNTcastorevent > 0){
-     std::cout <<" Event Ntuple will be created"<< std::endl;
-     std::cout <<" Step Ntuple file: "<<stepNtFileName<<std::endl;
-   }
-   std::cout<<"============================================================================"<<std::endl;
-   std::cout<<std::endl;
-  
+  if (verbosity > 0) {
+      std::cout<<std::endl;
+      std::cout<<"============================================================================"<<std::endl;
+      std::cout << "CastorTestAnalysis:: Initialized as observer"<< std::endl;
+      if (doNTcastorstep  > 0){
+        std::cout <<" Step Ntuple will be created"<< std::endl;
+        std::cout <<" Step Ntuple file: "<<stepNtFileName<<std::endl;
+      }
+      if (doNTcastorevent > 0){
+        std::cout <<" Event Ntuple will be created"<< std::endl;
+        std::cout <<" Step Ntuple file: "<<stepNtFileName<<std::endl;
+      }
+      std::cout<<"============================================================================"<<std::endl;
+      std::cout<<std::endl;
+  }
   if (doNTcastorstep  > 0)  
   castorstepntuple = new TNtuple("NTcastorstep","NTcastorstep","evt:trackid:charge:pdgcode:x:y:z:stepl:stepe:eta:phi:vpx:vpy:vpz");
   

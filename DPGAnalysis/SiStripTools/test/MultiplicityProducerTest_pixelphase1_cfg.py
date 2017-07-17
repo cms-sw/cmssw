@@ -8,7 +8,7 @@ process = cms.Process("MultiplicityProducerTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -144,14 +144,14 @@ process.ssclustermultprodnew = process.ssclustermultprod.clone(wantedSubDets = c
 process.load("DPGAnalysis.SiStripTools.clustersummarymultiplicityprod_cfi")
 
 process.clustsummmultprod.wantedSubDets = cms.VPSet(
-    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"), subDetEnum = cms.int32(0), subDetVariable = cms.string("cHits")),
-    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"), subDetEnum = cms.int32(1), subDetVariable = cms.string("cHits")),
-    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"), subDetEnum = cms.int32(2), subDetVariable = cms.string("cHits")),
-    cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TID"), subDetEnum = cms.int32(3), subDetVariable = cms.string("cHits")),
-    cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TEC"), subDetEnum = cms.int32(4), subDetVariable = cms.string("cHits")),
-    cms.PSet(detSelection = cms.uint32(1005),detLabel = cms.string("Pixel"), subDetEnum = cms.int32(5), subDetVariable = cms.string("pHits")),
-    cms.PSet(detSelection = cms.uint32(1006),detLabel = cms.string("FPIX"), subDetEnum = cms.int32(6), subDetVariable = cms.string("pHits")),
-    cms.PSet(detSelection = cms.uint32(1007),detLabel = cms.string("BPIX"), subDetEnum = cms.int32(7), subDetVariable = cms.string("pHits"))
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),      subDetEnum = cms.int32(0)),
+    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"),     subDetEnum = cms.int32(1)),
+    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"),     subDetEnum = cms.int32(2)),
+    cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TID"),     subDetEnum = cms.int32(3)),
+    cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TEC"),     subDetEnum = cms.int32(4)),
+    cms.PSet(detSelection = cms.uint32(1005),detLabel = cms.string("Pixel"),subDetEnum = cms.int32(5)),
+    cms.PSet(detSelection = cms.uint32(1006),detLabel = cms.string("FPIX"), subDetEnum = cms.int32(6)),
+    cms.PSet(detSelection = cms.uint32(1007),detLabel = cms.string("BPIX"), subDetEnum = cms.int32(7)),
     )
 
 #process.ssclustermultprod.clusterdigiCollection = cms.InputTag("calZeroBiasClusters")
@@ -556,8 +556,9 @@ process.p0 = cms.Path(
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 if options.testTag==1:
     process.stripConditions = cms.ESSource(

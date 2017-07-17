@@ -1,6 +1,0 @@
-<use   name="Alignment/KalmanAlignmentAlgorithm"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<use   name="Alignment/ReferenceTrajectories"/>
-<library   file="*.cc" name="AlignmentKalmanAlignmentPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

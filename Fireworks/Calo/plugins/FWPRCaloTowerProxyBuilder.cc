@@ -7,7 +7,7 @@
 class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
-   FWPRCaloTowerProxyBuilder( void ) {}  
+   FWPRCaloTowerProxyBuilder( void ) {} 
    virtual ~FWPRCaloTowerProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -16,6 +16,7 @@ private:
    FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ); 			// stop default
    const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
 
+   using FWDigitSetProxyBuilder::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
@@ -44,4 +45,4 @@ void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
    }
 } 
 
-REGISTER_FWPROXYBUILDER( FWPRCaloTowerProxyBuilder, CaloTowerCollection, "CaloTower", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWPRCaloTowerProxyBuilder, CaloTowerCollection, "PRCaloTower", FWViewType::kISpyBit );

@@ -16,15 +16,12 @@
 //
 //
 
-
-// system include files
 #include <memory>
 #include <iostream>
 #include <fstream>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,57 +40,24 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
-
-//
-// class decleration
-//
-
-class TestIdealGeometryESProducer : public edm::EDAnalyzer {
+class TestIdealGeometryESProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestIdealGeometryESProducer( const edm::ParameterSet& );
-  ~TestIdealGeometryESProducer();
+  ~TestIdealGeometryESProducer() override;
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TestIdealGeometryESProducer::TestIdealGeometryESProducer( const edm::ParameterSet& iConfig ) 
-// :   label_(iConfig.getUntrackedParameter<std::string>("label","")),
-//   isMagField_(iConfig.getUntrackedParameter<bool>("isMagField",false))
 {
-//   dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpGeoHistory");
-//   dumpPosInfo_=iConfig.getUntrackedParameter<bool>("dumpPosInfo");
-//   dumpSpecs_=iConfig.getUntrackedParameter<bool>("dumpSpecs");
-//   if ( isMagField_ ) {
-//     label_ = "magfield";
-//   }
 }
-
 
 TestIdealGeometryESProducer::~TestIdealGeometryESProducer()
 {
- 
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 TestIdealGeometryESProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -108,6 +72,4 @@ TestIdealGeometryESProducer::analyze( const edm::Event& iEvent, const edm::Event
    std::cout << "finished" << std::endl;
 }
 
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(TestIdealGeometryESProducer);

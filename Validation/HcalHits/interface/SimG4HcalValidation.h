@@ -27,6 +27,10 @@ class BeginOfRun;
 class BeginOfEvent;
 class EndOfEvent;
 
+namespace edm {
+  class ParameterSet;
+}
+
 class SimG4HcalValidation : public SimProducer,
 			    public Observer<const BeginOfJob *>, 
 			    public Observer<const BeginOfRun *>, 

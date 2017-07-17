@@ -147,7 +147,10 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
   if ( hits.front()->isValid() ) {
 
-    TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
+    // FIXME  FIXME  CLONE !!!
+   //  TrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
+   auto preciseHit = hits.front();
+ 
     LogTrace(category_)<<"first hit is at det "<< hits.front()->det()->surface().position();
 
     currTsos = theUpdator->update(predTsos, *preciseHit);
@@ -174,11 +177,15 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<< "Error: invalid hit.";
       continue;
     }
-   if (currTsos.isValid())  {
+    if (currTsos.isValid() && currTsos.globalMomentum().mag2() > 1e-18f)  {
      LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
                        <<"mom "<<currTsos.globalMomentum();
     } else {
-      LogTrace(category_)<<"current state invalid";
+      LogTrace(category_)<<"current state invalid or momentum is too low";
+      //logically, there's no way out: can't expect a valid result out of an invalid state
+      LogTrace(category_)
+	<<"Input state is not valid. This loop over hits is doomed: breaking out";
+      break;
     }
 
     predTsos = propagatorAlong()->propagate(currTsos, (**ihit).det()->surface());
@@ -203,9 +210,11 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 //      return vector<Trajectory>();
       continue;
     } else if ( (**ihit).isValid() ) {
-      // update
-      TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
-
+          // FIXME  FIXME  CLONE !!!
+      // update  (FIXME!)
+      // TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
+      auto preciseHit = *ihit;
+ 
       if ( !preciseHit->isValid() ) {
         currTsos = predTsos;
         myTraj.push(TrajectoryMeasurement(predTsos, *ihit));

@@ -208,7 +208,7 @@ SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPair> &outDerivI
     if (hit.det()) { // otherwise 'constraint hit' or whatever
       
       const int index = moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(),
-                                                                    eventInfo.eventId_.run());
+									 eventInfo.eventId().run());
       if (index >= 0) { // otherwise not treated
         edm::ESHandle<MagneticField> magneticField;
         setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -432,7 +432,7 @@ bool SiStripBackplaneCalibration::checkBackPlaneCorrectionInput(const edm::Event
 	// 'floating point comparison' problems (FIXME?)
 	throw cms::Exception("BadInput")
 	  << "SiStripBackplaneCalibration::checkBackPlaneCorrectionInput:\n"
-	  << "Content of SiStripBackPlaneCorrection changed at run " << eventInfo.eventId_.run()
+	  << "Content of SiStripBackPlaneCorrection changed at run " << eventInfo.eventId().run()
 	  << ", but algorithm expects constant input!\n";
 	return false; // not reached...
       }

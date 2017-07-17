@@ -6,7 +6,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,15 +63,13 @@ reco::Muon::MuonTrackTypePair tevOptimizedTMR(const reco::Muon& muon, const reco
   return delta > threshold ? make_pair(trackerTrack,reco::Muon::InnerTrack) : make_pair(combinedTrack,reco::Muon::CombinedTrack);
 }
 
-class MuonsFromRefitTracksProducer : public edm::EDProducer {
+class MuonsFromRefitTracksProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonsFromRefitTracksProducer(const edm::ParameterSet&);
   ~MuonsFromRefitTracksProducer() {}
 
 private:
-  virtual void beginJob() override {}
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
   bool storeMatchMaps(const edm::Event& event);
@@ -84,7 +82,7 @@ private:
 
   // The input muons -- i.e. the merged collection of reco::Muons.
   edm::InputTag src;
-
+ 
   // Allow building the muon from just the tracker track. This
   // functionality should go away after understanding the difference
   // between the output of option 1 of GlobalMuonProducer and just
@@ -137,6 +135,18 @@ private:
   edm::Handle<reco::TrackToTrackMap> trackMapDefault;
   edm::Handle<reco::TrackToTrackMap> trackMapFirstHit;
   edm::Handle<reco::TrackToTrackMap> trackMapPicky;
+
+
+
+  // All the tokens
+  edm::EDGetTokenT<edm::View<reco::Muon> > srcToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> trackMapToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> trackMapDefaultToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> trackMapFirstHitToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> trackMapPickyToken_;
+
+
+
 };
 
 MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const edm::ParameterSet& cfg)
@@ -152,19 +162,30 @@ MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const edm::ParameterS
     ptThreshold(cfg.getParameter<double>("ptThreshold"))
 {
   fromTeVRefit = tevMuonTracks != "none";
+
+
+  srcToken_ = consumes<edm::View<reco::Muon> >(src) ;
+  trackMapToken_ = consumes<reco::TrackToTrackMap> (edm::InputTag(tevMuonTracks, "default"));
+  trackMapDefaultToken_ = consumes<reco::TrackToTrackMap>(edm::InputTag(tevMuonTracks)) ;
+  trackMapFirstHitToken_ = consumes<reco::TrackToTrackMap>(edm::InputTag(tevMuonTracks, "firstHit"));
+  trackMapPickyToken_ = consumes<reco::TrackToTrackMap> (edm::InputTag(tevMuonTracks, "picky"));
+
+
+
+
   produces<reco::MuonCollection>();
 }
 
 bool MuonsFromRefitTracksProducer::storeMatchMaps(const edm::Event& event) {
   if (fromCocktail || fromTMR) {
-    event.getByLabel(tevMuonTracks, "default",  trackMapDefault);
-    event.getByLabel(tevMuonTracks, "firstHit", trackMapFirstHit);
-    event.getByLabel(tevMuonTracks, "picky",    trackMapPicky);
+    event.getByToken(trackMapDefaultToken_,trackMapDefault);
+    event.getByToken(trackMapFirstHitToken_, trackMapFirstHit);
+    event.getByToken(trackMapPickyToken_,    trackMapPicky);
     return !trackMapDefault.failedToGet() && 
       !trackMapFirstHit.failedToGet() && !trackMapPicky.failedToGet();
   }
   else {
-    event.getByLabel(edm::InputTag(tevMuonTracks), trackMap);
+    event.getByToken(trackMapToken_, trackMap);
     return !trackMap.failedToGet();
   }
 }
@@ -198,7 +219,7 @@ reco::Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const reco::Muon& 
 void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSetup& eSetup) {
   // Get the global muons from the event.
   edm::Handle<edm::View<reco::Muon> > muons;
-  event.getByLabel(src, muons);
+  event.getByToken(srcToken_, muons);
 
   // If we can't get the global muon collection, or below the
   // track-to-track maps needed, still produce an empty collection of
@@ -214,7 +235,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
     ok = storeMatchMaps(event);
 
   // Make the output collection.
-  std::auto_ptr<reco::MuonCollection> cands(new reco::MuonCollection);
+  auto cands = std::make_unique<reco::MuonCollection>();
 
   if (ok) {
     edm::View<reco::Muon>::const_iterator muon;
@@ -234,8 +255,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 	if (fromTMR)
 	  tevTk = tevOptimizedTMR(*muon, *trackMapFirstHit, TMRcut);
 	else if (fromCocktail)
-	  tevTk = muon::tevOptimized(*muon, *trackMapDefault, *trackMapFirstHit,
-				     *trackMapPicky);
+          tevTk = muon::tevOptimized(*muon);	  
 	else if (fromSigmaSwitch)
 	  tevTk = sigmaSwitch(*muon, nSigmaSwitch, ptThreshold);
 	else {
@@ -276,7 +296,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
       << "either " << src << " or the track map(s) " << tevMuonTracks
       << " not present in the event; producing empty collection";
   
-  event.put(cands);
+  event.put(std::move(cands));
 }
 
 DEFINE_FWK_MODULE(MuonsFromRefitTracksProducer);

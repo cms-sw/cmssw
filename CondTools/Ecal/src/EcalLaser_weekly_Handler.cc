@@ -2,7 +2,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSextuple.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
@@ -73,7 +73,7 @@ void popcon::EcalLaser_weekly_Handler::getNewObjects() {
   //  for(int week = 0; week < 1; week++) {
   EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;  
 
-  EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr = {0, 0, 0};
+  EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr;
   int fileIOV;
   std::cout << " which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 

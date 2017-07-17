@@ -14,13 +14,13 @@
  *  of components. The relevant formulas can be found in
  *  R. Fruhwirth, Computer Physics Communications 100 (1997), 1.
  */
-class BasicMultiTrajectoryState GCC11_FINAL : public BasicTrajectoryState {
+class BasicMultiTrajectoryState final : public BasicTrajectoryState {
 
   typedef TrajectoryStateOnSurface        TSOS;  
   
 public:
 
-  BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec); 
+  explicit BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec); 
 
   BasicMultiTrajectoryState() {}
 
@@ -33,29 +33,32 @@ public:
 
   void rescaleError(double factor);
 
-  virtual BasicMultiTrajectoryState* clone() const {
-    return new BasicMultiTrajectoryState(*this);
+  pointer clone() const override {
+    return build<BasicMultiTrajectoryState>(*this);
   }
 
-  virtual std::vector<TrajectoryStateOnSurface> components() const {
+  using	Components = BasicTrajectoryState::Components;
+  Components const & components() const override {
     return theStates;
   }
+  bool singleState() const override { return false;}
 
 
-  virtual bool canUpdateLocalParameters() const { return false; }
+  virtual bool canUpdateLocalParameters() const override { return false; }
   virtual void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side ) ;
-  virtual void update( const LocalTrajectoryParameters& p,
+                       const SurfaceSide side ) override;
+
+  virtual void update(double weight,
+                       const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side,
-                       double weight ) ;
+                       const SurfaceSide side) override;
 private:
 
-  std::vector<TSOS> theStates;
+  Components theStates;
 
   void combine() dso_internal;
 

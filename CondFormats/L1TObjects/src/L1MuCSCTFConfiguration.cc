@@ -1,6 +1,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include <sstream>
 #include <iostream>
+#include <stdlib.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
@@ -247,7 +248,7 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
     std::string comments_;     std::getline(line,comments_);
 
     if( register_=="CSR_REQ" && chip_=="SP" ){
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+      unsigned int value = ::strtol(writeValue_.c_str(),NULL,16);
       run_core        = (value&0x8000);
       trigger_on_ME1a = (value&0x0001);
       trigger_on_ME1b = (value&0x0002);
@@ -260,7 +261,7 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
 
 
     if( register_=="CSR_SCC" && chip_=="SP" ){
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+      unsigned int value = ::strtol(writeValue_.c_str(),NULL,16);
       
       BXAdepth   = (value&0x3);
       useDT      = ( (value&0x80)>>7 );
@@ -270,46 +271,46 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
 
 
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M1" )
-      QualityEnableME1a = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1a = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M2" )
-      QualityEnableME1b = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1b = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M3" )
-      QualityEnableME1c = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1c = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M1" )
-      QualityEnableME1d = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1d = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M2" )
-      QualityEnableME1e = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1e = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M3" )
-      QualityEnableME1f = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME1f = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M1" )
-      QualityEnableME2a = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME2a = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M2" )
-      QualityEnableME2b = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME2b = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M3" )
-      QualityEnableME2c = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME2c = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M1" )
-      QualityEnableME3a = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME3a = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M2" )
-      QualityEnableME3b = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME3b = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M3" )
-      QualityEnableME3c = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME3c = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M1" )
-      QualityEnableME4a = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME4a = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M2" )
-      QualityEnableME4b = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME4b = ::strtol(writeValue_.c_str(),NULL,16);
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M3" )
-      QualityEnableME4c = strtol(writeValue_.c_str(),'\0',16);
+      QualityEnableME4c = ::strtol(writeValue_.c_str(),NULL,16);
 
     if( register_=="CSR_KFL" )
-      kill_fiber = strtol(writeValue_.c_str(),'\0',16);
+      kill_fiber = ::strtol(writeValue_.c_str(),NULL,16);
 
     if( register_=="CSR_SFC" && chip_=="SP" ){
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+      unsigned int value = ::strtol(writeValue_.c_str(),NULL,16);
       singlesTrackOutput = ((value&0x3000)>>12);
     }
 
     if( register_=="CNT_ETA" && chip_=="SP" ){
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+      unsigned int value = ::strtol(writeValue_.c_str(),NULL,16);
       eta_cnt = value;
     }
     
@@ -317,7 +318,7 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
     // LATEST VERSION FROM CORE 2010-01-22 at http://www.phys.ufl.edu/~madorsky/sp/2010-01-22
     if( register_=="DAT_ETA" && chip_=="SP" ){
       
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+      unsigned int value = ::strtol(writeValue_.c_str(),NULL,16);
 
       //std::cout<<"DAT_ETA SP value:"<<value<<std::endl;
 

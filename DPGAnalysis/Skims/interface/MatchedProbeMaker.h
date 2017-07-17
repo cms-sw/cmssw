@@ -37,9 +37,9 @@ class MatchedProbeMaker : public edm::EDProducer
       ~MatchedProbeMaker();
       
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_candidateSource;
@@ -74,8 +74,8 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
   using namespace reco;
 
-  std::auto_ptr< edm::RefVector< collection > > outputCollection_matched( new edm::RefVector< collection > );
-  std::auto_ptr< edm::RefVector< collection > > outputCollection_unmatched(new edm::RefVector< collection > );
+  std::unique_ptr<edm::RefVector< collection> > outputCollection_matched(new edm::RefVector<collection>);
+  std::unique_ptr<edm::RefVector< collection> > outputCollection_unmatched(new edm::RefVector<collection>);
   
   // Get the candidates from the event
   edm::Handle< edm::RefVector< collection > > Cands;
@@ -127,8 +127,8 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }  
   }
   
-  if( matched_ ) iEvent.put( outputCollection_matched );
-  else           iEvent.put( outputCollection_unmatched );
+  if(matched_) iEvent.put(std::move(outputCollection_matched));
+  else         iEvent.put(std::move(outputCollection_unmatched));
   
 }
 

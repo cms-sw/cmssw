@@ -15,7 +15,7 @@ namespace {
   void verify(DetId id,
 	      sn::Side ss) {
     LocalTrajectoryParameters tp;
-    PTrajectoryStateOnDet p(tp, id, ss);
+    PTrajectoryStateOnDet p(tp, 0., id, ss);
     assert(p.detId()==id);
     assert(p.surfaceSide()==ss);
   }

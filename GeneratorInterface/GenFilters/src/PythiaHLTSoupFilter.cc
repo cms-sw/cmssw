@@ -9,7 +9,7 @@ using namespace std;
 
 
 PythiaHLTSoupFilter::PythiaHLTSoupFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minptelectron(iConfig.getUntrackedParameter("MinPtElectron", 0.)),
 minptmuon(iConfig.getUntrackedParameter("MinPtMuon", 0.)),
 maxetaelectron(iConfig.getUntrackedParameter("MaxEtaElectron", 10.)),
@@ -42,7 +42,7 @@ bool PythiaHLTSoupFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
 
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     

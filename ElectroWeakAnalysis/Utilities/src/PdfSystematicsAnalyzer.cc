@@ -1,6 +1,7 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 class PdfSystematicsAnalyzer: public edm::EDFilter {
 public:
@@ -12,6 +13,8 @@ public:
 private:
       std::string selectorPath_;
       std::vector<edm::InputTag> pdfWeightTags_;
+      std::vector<edm::EDGetTokenT<std::vector<double> > > pdfWeightTokens_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       unsigned int originalEvents_;
       unsigned int selectedEvents_;
       std::vector<int> pdfStart_;
@@ -29,12 +32,15 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "FWCore/Utilities/interface/transform.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfSystematicsAnalyzer::PdfSystematicsAnalyzer(const edm::ParameterSet& pset) :
   selectorPath_(pset.getUntrackedParameter<std::string> ("SelectorPath","")),
-  pdfWeightTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> > ("PdfWeightTags")) { 
+  pdfWeightTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> > ("PdfWeightTags")),
+  pdfWeightTokens_(edm::vector_transform(pdfWeightTags_, [this](edm::InputTag const & tag){return consumes<std::vector<double> >(tag);})),
+  triggerResultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -76,11 +82,11 @@ void PdfSystematicsAnalyzer::endJob(){
             unsigned int npairs = (nmembers-1)/2;
             edm::LogVerbatim("PDFAnalysis") << "RATE Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
 
-            double events_central = weightedSelectedEvents_[pdfStart_[i]]; 
+            double events_central = weightedSelectedEvents_[pdfStart_[i]];
             edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member: " << int(events_central) << " [events]";
             double events2_central = weighted2SelectedEvents_[pdfStart_[i]];
             edm::LogVerbatim("PDFAnalysis") << "\ti.e. [" << std::setprecision(4) << 100*(events_central-selectedEvents_)/selectedEvents_ << " +- " <<
-                100*sqrt(events2_central-events_central+selectedEvents_*(1-originalAcceptance))/selectedEvents_ 
+                100*sqrt(events2_central-events_central+selectedEvents_*(1-originalAcceptance))/selectedEvents_
             << "] % relative variation with respect to original PDF";
 
             if (npairs>0) {
@@ -91,17 +97,17 @@ void PdfSystematicsAnalyzer::endJob(){
               unsigned int nminus = 0;
               for (unsigned int j=0; j<npairs; ++j) {
                   double wa = weightedSelectedEvents_[pdfStart_[i]+2*j+1]/events_central-1.;
-                  double wb = weightedSelectedEvents_[pdfStart_[i]+2*j+2]/events_central-1.; 
+                  double wb = weightedSelectedEvents_[pdfStart_[i]+2*j+2]/events_central-1.;
                   if (nnpdfFlag) {
                         if (wa>0.) {
-                              wplus += wa*wa; 
+                              wplus += wa*wa;
                               nplus++;
                         } else {
                               wminus += wa*wa;
                               nminus++;
                         }
                         if (wb>0.) {
-                              wplus += wb*wb; 
+                              wplus += wb*wb;
                               nplus++;
                         } else {
                               wminus += wb*wb;
@@ -144,11 +150,11 @@ void PdfSystematicsAnalyzer::endJob(){
             double acc_central = 0.;
             double acc2_central = 0.;
             if (weightedEvents_[pdfStart_[i]]>0) {
-                  acc_central = weightedSelectedEvents_[pdfStart_[i]]/weightedEvents_[pdfStart_[i]]; 
-                  acc2_central = weighted2SelectedEvents_[pdfStart_[i]]/weightedEvents_[pdfStart_[i]]; 
+                  acc_central = weightedSelectedEvents_[pdfStart_[i]]/weightedEvents_[pdfStart_[i]];
+                  acc2_central = weighted2SelectedEvents_[pdfStart_[i]]/weightedEvents_[pdfStart_[i]];
             }
             double waverage = weightedEvents_[pdfStart_[i]]/originalEvents_;
-            edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member acceptance: [" << acc_central*100 << " +- " << 
+            edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member acceptance: [" << acc_central*100 << " +- " <<
             100*sqrt((acc2_central/waverage-acc_central*acc_central)/originalEvents_)
             << "] %";
             double xi = acc_central-originalAcceptance;
@@ -169,14 +175,14 @@ void PdfSystematicsAnalyzer::endJob(){
                   if (weightedEvents_[pdfStart_[i]+2*j+2]>0) wb = (weightedSelectedEvents_[pdfStart_[i]+2*j+2]/weightedEvents_[pdfStart_[i]+2*j+2])/acc_central-1.;
                   if (nnpdfFlag) {
                         if (wa>0.) {
-                              wplus += wa*wa; 
+                              wplus += wa*wa;
                               nplus++;
                         } else {
                               wminus += wa*wa;
                               nminus++;
                         }
                         if (wb>0.) {
-                              wplus += wb*wb; 
+                              wplus += wb*wb;
                               nplus++;
                         } else {
                               wminus += wb*wb;
@@ -216,7 +222,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
 
       edm::Handle<std::vector<double> > weightHandle;
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) {
+            if (!ev.getByToken(pdfWeightTokens_[i], weightHandle)) {
                   if (originalEvents_==0) {
                         edm::LogError("PDFAnalysis") << ">>> WARNING: some weights not found!";
                         edm::LogError("PDFAnalysis") << ">>> But maybe OK, if you are prefiltering!";
@@ -230,7 +236,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
 
       bool selectedEvent = false;
       edm::Handle<edm::TriggerResults> triggerResults;
-      if (!ev.getByLabel(edm::InputTag("TriggerResults"), triggerResults)) {
+      if (!ev.getByToken(triggerResultsToken_, triggerResults)) {
             edm::LogError("PDFAnalysis") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
@@ -247,7 +253,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
       if (selectedEvent) selectedEvents_++;
 
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) return false;
+            if (!ev.getByToken(pdfWeightTokens_[i], weightHandle)) return false;
             std::vector<double> weights = (*weightHandle);
             unsigned int nmembers = weights.size();
             // Set up arrays the first time wieghts are read
@@ -259,7 +265,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
                         weighted2SelectedEvents_.push_back(0.);
                   }
             }
-            
+
             for (unsigned int j=0; j<nmembers; ++j) {
                   weightedEvents_[pdfStart_[i]+j] += weights[j];
                   if (selectedEvent) {

@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 gedPhotonCore = cms.EDProducer("GEDPhotonCoreProducer",
  #   conversionProducer = cms.InputTag("conversions"),
     pfEgammaCandidates = cms.InputTag("particleFlowEGamma"),
-    gedPhotonCoreCollection = cms.string(''),
-    pixelSeedProducer = cms.string('electronMergedSeeds')
-#    minSCEt = cms.double(10.0)
+    pixelSeedProducer = cms.InputTag('electronMergedSeeds'),
+    gedPhotonCoreCollection = cms.string('')
+
 )
 
 

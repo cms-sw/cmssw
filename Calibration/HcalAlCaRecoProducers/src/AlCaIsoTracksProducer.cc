@@ -1,560 +1,544 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Calibration/HcalAlCaRecoProducers/interface/AlCaIsoTracksProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Utilities/interface/Exception.h"
+// -*- C++ -*-
+//#define DebugLog
 
-#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "Math/GenVector/VectorUtil.h"
-#include "Math/GenVector/PxPyPzE4D.h"
-
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-
-#include "DataFormats/Provenance/interface/ProductID.h"
-
-#include "Calibration/HcalAlCaRecoProducers/plugins/ConeDefinition.h"
-
+// system include files
+#include <atomic>
+#include <memory>
+#include <string>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <vector>
 #include <boost/regex.hpp> 
 
-double getDistInCM(double eta1, double phi1, double eta2, double phi2)
-{
-  double dR, Rec;
-  double theta1=2*atan(exp(-eta1));
-  double theta2=2*atan(exp(-eta2));
-  if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
-  else Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-  //|vect| times tg of acos(scalar product)
-  double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
-  if (angle<acos(-1)/2)
-    {
-      dR=fabs((Rec/sin(theta1))*tan(angle));
-      return dR;
-    }
-  else return 1000;
-}
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h" 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalIsolatedTrack/interface/HcalIsolatedTrackCandidate.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
-double getDist(double eta1, double phi1, double eta2, double phi2)
-{
-  double dphi = fabs(phi1 - phi2); 
-  if(dphi>acos(-1)) dphi = 2*acos(-1)-dphi;
-  double dr = sqrt(dphi*dphi + std::pow(eta1-eta2,2));
-  return dr;
-}
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-bool checkHLTMatch(edm::Event& iEvent, edm::EDGetTokenT<trigger::TriggerEvent> &hltToken, std::vector<std::string> hltFilterTag_, double eta, double phi, double hltMatchingCone_)
-{
-  bool match =false;
-  double minDDD=1000;
-  
-  edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByToken(hltToken,trEv);
-  const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
-  
-  trigger::Keys KEYS;
-  const trigger::size_type nFilt(trEv->sizeFilters());
-  for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
-    {
-      for (unsigned l=0; l<hltFilterTag_.size(); l++)
-	{
-	  if ((trEv->filterTag(iFilt).label()).substr(0,27)==hltFilterTag_[l]) 
-	    {
-	      KEYS=trEv->filterKeys(iFilt);
-	    }
-	}
-    }
-  trigger::size_type nReg=KEYS.size();
-  for (trigger::size_type iReg=0; iReg<nReg; iReg++)
-    {
-      const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
-      double dHit=getDist(TObj.eta(),TObj.phi(),eta,phi); 
-      if (dHit<minDDD) minDDD=dHit;
-    }
-  if (minDDD>hltMatchingCone_) match=false;
-  else match=true;
-     
-  return match;
-}
+#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
+#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+#include "Calibration/IsolatedParticles/interface/eCone.h"
+#include "Calibration/IsolatedParticles/interface/TrackSelection.h"
 
-std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::EDGetTokenT<trigger::TriggerEvent> &hltToken, std::string l1FilterTag_)
-{
-  edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByToken(hltToken,trEv);
-  const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
-  
-  trigger::Keys KEYS;
-  const trigger::size_type nFilt(trEv->sizeFilters());
-  for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++)
-    {
-      if ((trEv->filterTag(iFilt).label()).substr(0,14)==l1FilterTag_) KEYS=trEv->filterKeys(iFilt); 
-    }
-  trigger::size_type nReg=KEYS.size();
-  double etaTrig=-10000;
-  double phiTrig=-10000;
-  double ptMax=0;
-  for (trigger::size_type iReg=0; iReg<nReg; iReg++)
-    {
-      const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
-      if (TObj.pt()>ptMax)
-	{
-	  etaTrig=TObj.eta();
-	  phiTrig=TObj.phi();
-	  ptMax=TObj.pt();
-	}
-    }
-  return std::pair<double,double>(etaTrig,phiTrig);
-}
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 
-AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
-{ 
-  
-  tok_track_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("InputTracksLabel"));
-
-  tok_ho_  = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("HOInput"));
-
-  ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ECALInputs");
-  const unsigned nLabels = ecalLabels_.size();
-  for ( unsigned i=0; i != nLabels; i++ )
-	toks_ecal_.push_back( consumes<EcalRecHitCollection>(ecalLabels_[i]) );
-
-  tok_ps_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalPreshowerRecHit","EcalRecHitsES"));
-
-  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHEInput"));
-  
-  m_dvCut = iConfig.getParameter<double>("vtxCut");
-  m_ddirCut = iConfig.getParameter<double>("RIsolAtHCALSurface");
-  useConeCorr_=iConfig.getParameter<bool>("UseLowPtConeCorrection");
-  m_pCut = iConfig.getParameter<double>("MinTrackP");
-  m_ptCut = iConfig.getParameter<double>("MinTrackPt");
-  m_ecalCut = iConfig.getUntrackedParameter<double>("NeutralIsolCut",8.);
-
-  taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
-  taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",1.0);
-
-  skipNeutrals_=iConfig.getUntrackedParameter<bool>("SkipNeutralIsoCheck",false);
-
-  nHitsMinCore_=iConfig.getParameter<int>("MinNumberOfHitsCoreTrack");
-  nHitsMinIso_=iConfig.getParameter<int>("MinNumberOfHitsInConeTracks");
-
-  isolE_ = iConfig.getParameter<double>("MaxNearbyTrackEnergy");
-  etaMax_= iConfig.getParameter<double>("MaxTrackEta");
-  cluRad_ = iConfig.getParameter<double>("ECALClusterRadius");
-  ringOutRad_ = iConfig.getParameter<double>("ECALRingOuterRadius");
-  ringInnRad_=iConfig.getParameter<double>("ECALRingInnerRadius");  
-
-  useECALCluMatrix_=iConfig.getParameter<bool>("ClusterECALasMatrix");
-  matrixSize_=iConfig.getParameter<int>("ECALMatrixFullSize");
-
-  checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
-  tok_hlt_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel")); 
-  hltFiltTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
-  hltMatchingCone_=iConfig.getParameter<double>("hltMatchingCone");
-  l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
-  l1jetVetoCone_=iConfig.getParameter<double>("l1JetVetoCone");
-  
-  //////////
 //
-// Parameters for track associator   ===========================
-//  
-  edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
-  trackAssociator_.useDefaultPropagator();
-// ===============================================================
+// class declaration
+//
+
+namespace AlCaIsoTracks {
+  struct Counters {
+    Counters() : nAll_(0), nGood_(0), nRange_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_, nRange_;
+  };
+}
+
+class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
+public:
+  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
+  ~AlCaIsoTracksProducer();
+  
+  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
+    return std::make_unique<AlCaIsoTracks::Counters>();
+  }
+
+  virtual void produce(edm::Event &, edm::EventSetup const&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
+ 
+private:
+
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe, double ptL1, double etaL1, double phiL1);
+  void setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1);
+
+  // ----------member data ---------------------------
+  HLTConfigProvider               hltConfig_;
+  std::vector<std::string>        trigNames_, HLTNames_;
+  unsigned int                    nRun_, nAll_, nGood_, nRange_;
+  spr::trackSelectionParameters   selectionParameter_;
+  std::string                     theTrackQuality_, processName_;
+  double                          maxRestrictionP_, slopeRestrictionP_;
+  double                          a_mipR_, a_coneR_, a_charIsoR_;
+  double                          pTrackMin_, eEcalMax_, eIsolate_;
+  double                          pTrackLow_, pTrackHigh_;
+  int                             preScale_;
+  edm::InputTag                   labelTriggerEvent_, labelTriggerResults_;
+  edm::InputTag                   labelGenTrack_, labelRecVtx_,  labelHltGT_;
+  edm::InputTag                   labelEB_, labelEE_, labelHBHE_, labelBS_;
+  std::string                     labelIsoTk_;
+  const MagneticField            *bField;
+  const CaloGeometry             *geo;
+
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  tok_hltGT_;
+  edm::EDGetTokenT<trigger::TriggerEvent>                 tok_trigEvt_;
+  edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
+  edm::EDGetTokenT<reco::TrackCollection>                 tok_genTrack_;
+  edm::EDGetTokenT<reco::VertexCollection>                tok_recVtx_;
+  edm::EDGetTokenT<reco::BeamSpot>                        tok_bs_;
+  edm::EDGetTokenT<EcalRecHitCollection>                  tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>                  tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>                  tok_hbhe_;
+};
+
+
+AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters) :
+  nRun_(0), nAll_(0), nGood_(0), nRange_(0) {
+  //Get the run parameters
+  const double isolationRadius(28.9);
+  trigNames_                          = iConfig.getParameter<std::vector<std::string> >("Triggers");
+  theTrackQuality_                    = iConfig.getParameter<std::string>("TrackQuality");
+  processName_                        = iConfig.getParameter<std::string>("ProcessName");
+  selectionParameter_.minPt           = iConfig.getParameter<double>("MinTrackPt");;
+  selectionParameter_.minQuality      = reco::TrackBase::qualityByName(theTrackQuality_);
+  selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
+  selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
+  selectionParameter_.maxChi2         = iConfig.getParameter<double>("MaxChi2");
+  selectionParameter_.maxDpOverP      = iConfig.getParameter<double>("MaxDpOverP");
+  selectionParameter_.minOuterHit     = iConfig.getParameter<int>("MinOuterHit");
+  selectionParameter_.minLayerCrossed = iConfig.getParameter<int>("MinLayerCrossed");
+  selectionParameter_.maxInMiss       = iConfig.getParameter<int>("MaxInMiss");
+  selectionParameter_.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
+  a_coneR_                            = iConfig.getParameter<double>("ConeRadius");
+  a_charIsoR_                         = a_coneR_ + isolationRadius;
+  a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
+  pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
+  eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
+  // Different isolation cuts are described in DN-2016/029
+  // Tight cut uses 2 GeV; Loose cut uses 10 GeV
+  // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
+  // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
+  // maxRestrictionP_ = 8 GeV as came from a study
+  maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
+  slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
+  eIsolate_                           = iConfig.getParameter<double>("IsolationEnergy");
+  pTrackLow_                          = iConfig.getParameter<double>("MomentumRangeLow");
+  pTrackHigh_                         = iConfig.getParameter<double>("MomentumRangeHigh");
+  preScale_                           = iConfig.getParameter<int>("PreScaleFactor");
+  labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
+  labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
+  labelBS_                            = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
+  labelEB_                            = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
+  labelEE_                            = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
+  labelHBHE_                          = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
+  labelHltGT_                         = iConfig.getParameter<edm::InputTag>("L1GTSeedLabel");
+  labelTriggerEvent_                  = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
+  labelTriggerResults_                = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  labelIsoTk_                         = iConfig.getParameter<std::string>("IsoTrackLabel");
+
+  // define tokens for access
+  tok_hltGT_    = consumes<trigger::TriggerFilterObjectWithRefs>(labelHltGT_);
+  tok_trigEvt_  = consumes<trigger::TriggerEvent>(labelTriggerEvent_);
+  tok_trigRes_  = consumes<edm::TriggerResults>(labelTriggerResults_);
+  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
+  tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
+  tok_bs_       = consumes<reco::BeamSpot>(labelBS_);
+  tok_EB_       = consumes<EcalRecHitCollection>(labelEB_);
+  tok_EE_       = consumes<EcalRecHitCollection>(labelEE_);
+  tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
+
+  edm::LogInfo("HcalIsoTrack") <<"Parameters read from config file \n" 
+			       <<"\t minPt "           << selectionParameter_.minPt
+			       <<"\t theTrackQuality " << theTrackQuality_
+			       <<"\t minQuality "      << selectionParameter_.minQuality
+			       <<"\t maxDxyPV "        << selectionParameter_.maxDxyPV          
+			       <<"\t maxDzPV "         << selectionParameter_.maxDzPV          
+			       <<"\t maxChi2 "         << selectionParameter_.maxChi2          
+			       <<"\t maxDpOverP "      << selectionParameter_.maxDpOverP
+			       <<"\t minOuterHit "     << selectionParameter_.minOuterHit
+			       <<"\t minLayerCrossed " << selectionParameter_.minLayerCrossed
+			       <<"\t maxInMiss "       << selectionParameter_.maxInMiss
+			       <<"\t maxOutMiss "      << selectionParameter_.maxOutMiss << "\n"
+			       <<"\t a_coneR "         << a_coneR_
+			       <<"\t a_charIsoR "      << a_charIsoR_
+			       <<"\t a_mipR "          << a_mipR_
+			       <<"\t pTrackMin "       << pTrackMin_
+			       <<"\t eEcalMax "        << eEcalMax_ 
+			       <<"\t maxRestrictionP_ "<< maxRestrictionP_
+			       <<"\t slopeRestrictionP_ " << slopeRestrictionP_
+			       <<"\t eIsolate_ "       << eIsolate_
+			       <<"\t Process "         << processName_ << "\n"
+			       <<"\t Precale factor "  << preScale_
+			       <<"\t in momentum range " << pTrackLow_
+			       <<":" << pTrackHigh_;
+  for (unsigned int k=0; k<trigNames_.size(); ++k)
+    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
-  produces<reco::IsolatedPixelTrackCandidateCollection>("HcalIsolatedTrackCollection");
+  produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk_);
+  produces<reco::VertexCollection>(labelRecVtx_.label());
+  produces<EcalRecHitCollection>(labelEB_.instance());
+  produces<EcalRecHitCollection>(labelEE_.instance());
+  produces<HBHERecHitCollection>(labelHBHE_.label());
 
-  produces<reco::TrackCollection>("IsoTrackTracksCollection");
-  produces<reco::TrackExtraCollection>("IsoTrackExtraTracksCollection");
-
-  produces<EcalRecHitCollection>("IsoTrackEcalRecHitCollection");
-  produces<EcalRecHitCollection>("IsoTrackPSEcalRecHitCollection");
-  
-  produces<HBHERecHitCollection>("IsoTrackHBHERecHitCollection");
-  produces<HORecHitCollection>("IsoTrackHORecHitCollection");
-
+  edm::LogInfo("HcalIsoTrack") << " Expected to produce the collections:\n"
+			       << "reco::HcalIsolatedTrackCandidateCollection "
+			       << " with label HcalIsolatedTrackCollection\n"
+			       << "reco::VertexCollection with label " << labelRecVtx_.label() << "\n"
+			       << "EcalRecHitCollection with label EcalRecHitsEB\n"
+			       << "EcalRecHitCollection with label EcalRecHitsEE\n"
+			       << "HBHERecHitCollection with label " << labelHBHE_.label();
 }
 
 
 AlCaIsoTracksProducer::~AlCaIsoTracksProducer() { }
 
 
-void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> outputHcalIsoTrackColl(new reco::IsolatedPixelTrackCandidateCollection);
-  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputExTColl(new reco::TrackExtraCollection);
-  
-  reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>("IsoTrackExtraTracksCollection"); 
-  std::auto_ptr<EcalRecHitCollection> outputEColl(new EcalRecHitCollection);
-  std::auto_ptr<EcalRecHitCollection> outputESColl(new EcalRecHitCollection);
-  std::auto_ptr<HBHERecHitCollection> outputHColl(new HBHERecHitCollection);
-  std::auto_ptr<HORecHitCollection> outputHOColl(new HORecHitCollection);
-  
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
-  
-  edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByToken(tok_track_,trackCollection);
-  
-  
-  // temporary collection of EB+EE recHits
-  std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
-  
-  std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
-  for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) 
-    {
-      edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByToken(*i,ec);
-      for(EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit)
-	{
-	  tmpEcalRecHitCollection->push_back(*recHit);
+void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+
+  nAll_++;
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " 
+			       << iEvent.id().event() << " Luminosity " 
+			       << iEvent.luminosityBlock() << " Bunch " 
+			       << iEvent.bunchCrossing();
+#endif
+  bool valid(true);
+  //Step1: Get all the relevant containers
+  trigger::TriggerEvent triggerEvent;
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerEvent_;
+    valid = false;
+  }
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByToken(tok_trigRes_, triggerResults);
+  if (!triggerResults.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerResults_;
+    valid = false;
+  }
+
+  edm::Handle<reco::TrackCollection> trkCollection;
+  iEvent.getByToken(tok_genTrack_, trkCollection);
+  if (!trkCollection.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+    valid = false;
+  }
+  reco::TrackCollection::const_iterator trkItr;
+
+  edm::Handle<reco::VertexCollection> recVtxs;
+  iEvent.getByToken(tok_recVtx_, recVtxs);  
+  if (!recVtxs.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+    valid = false;
+  }
+
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  iEvent.getByToken(tok_bs_, beamSpotH);
+  math::XYZPoint leadPV(0,0,0);
+  if (valid) {
+    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+      leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
+			      (*recVtxs)[0].z());
+    } else if (beamSpotH.isValid()) {
+      leadPV = beamSpotH->position();
+    }
+  }
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
+#endif
+
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
+  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
+    valid = false;
+  }
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
+  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
+    valid = false;
+  }
+  edm::Handle<HBHERecHitCollection> hbhe;
+  iEvent.getByToken(tok_hbhe_, hbhe);
+  if (!hbhe.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
+    valid = false;
+  }
+
+  //Get L1 trigger object
+  double ptL1(0), etaL1(0), phiL1(0);
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
+  iEvent.getByToken(tok_hltGT_, l1trigobj);
+
+  if (l1trigobj.isValid()) {
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+    l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+    setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
+
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+    setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
+
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
+    setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+  } else {
+    valid = false;
+  }
+
+  auto outputHcalIsoTrackColl = std::make_unique<reco::HcalIsolatedTrackCandidateCollection>();
+  auto outputVColl = std::make_unique<reco::VertexCollection>();
+  auto outputEBColl = std::make_unique<EBRecHitCollection>();
+  auto outputEEColl = std::make_unique<EERecHitCollection>();
+  auto outputHBHEColl = std::make_unique<HBHERecHitCollection>();
+
+  //For valid HLT record
+  if (!valid) {
+    edm::LogWarning("HcalIsoTrack") << "Error! Can't get some of the products";
+  } else {
+    trigger::TriggerEvent triggerEvent = *(triggerEventHandle.product());
+    if (triggerResults.isValid()) {
+      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+      const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
+      reco::HcalIsolatedTrackCandidateCollection* isotk = select(triggerResults, triggerNames_, trkCollection, leadPV, barrelRecHitsHandle, endcapRecHitsHandle, hbhe, ptL1, etaL1, phiL1);
+#ifdef DebugLog
+      edm::LogInfo("HcalIsoTrack") << "AlCaIsoTracksProducer::select returns "
+				   << isotk->size() << " isolated tracks";
+#endif
+    
+      if (isotk->size() > 0) {
+	int  ntrin(0), ntrout(0);
+	for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr) {
+	  if (itr->p() > pTrackLow_ && itr->p() < pTrackHigh_) ntrin++;
+	  else                                                 ntrout++;
 	}
-    }      
-  
-  edm::Handle<HBHERecHitCollection> hbheRHcol;
-  iEvent.getByToken(tok_hbhe_, hbheRHcol);
-
-  const reco::TrackCollection tC = *(trackCollection.product());
-  
-  int itrk=0;
-  int nisotr=0;
-  edm::Ref<reco::TrackExtraCollection>::key_type  idx = 0;
-  
-  //   Parameters for TrackDetAssociator ================================
-  // For Low momentum tracks need to look for larger cone for search ====
-  // ====================================================================
-  
-  parameters_.useEcal = true;
-  parameters_.useHcal = true;
-  parameters_.useCalo = false;
-  parameters_.useMuon = false;
-  parameters_.dREcal = taECALCone_;
-  parameters_.dRHcal = taHCALCone_;
-  
-  ///////////////////////////////
-  
-  ///vector of used hits:
-  std::vector<HcalDetId> usedHitsHC;
-  std::vector<int> usedHitsEC;
-  ///
-
-  // main loop over input tracks
-  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++) {
-    bool noChargedTracks = true;
-    int itrk1=0;
-    itrk++;
-    double px = track->px();
-    double py = track->py();
-    double pz = track->pz();
-    double ptrack = sqrt(px*px+py*py+pz*pz);
-    
-    if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
- 
-    if (track->hitPattern().numberOfValidHits() < nHitsMinCore_) continue;
-
-    // check that track is not in the region of L1 jet
-    double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).first,getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).second);
-    if (l1jDR<l1jetVetoCone_) continue;
-    ///
-	    
-    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
-    
-    GlobalPoint gPointHcal(info.trkGlobPosAtHcal.x(),info.trkGlobPosAtHcal.y(),info.trkGlobPosAtHcal.z());
-
-    GlobalVector trackMomAtHcal = info.trkMomAtHcal;
-    
-    double etaecal=info.trkGlobPosAtEcal.eta();
-    double phiecal=info.trkGlobPosAtEcal.phi();
-
-    if (etaecal==0&&phiecal==0) continue;    
-
-    //check matching to HLT object (optional)
-
-    if (checkHLTMatch_&&!checkHLTMatch(iEvent, tok_hlt_, hltFiltTag_, etaecal, phiecal,hltMatchingCone_)) continue;
-    
-    if (fabs(track->eta())>etaMax_) continue;
-    
-    // check charged isolation from all other tracks
-    double maxPNearby=-10;
-    double sumPNearby=0;
-    for (reco::TrackCollection::const_iterator track1=tC.begin(); track1!=tC.end(); track1++)
-      {
-	itrk1++;
-	if (track == track1) continue;
-        if (track->hitPattern().numberOfValidHits() < nHitsMinIso_) continue;
-	double ptrack1 = sqrt(track1->px()*track1->px()+track1->py()*track1->py()+track1->pz()*track1->pz());
-	
-	TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters_);
-	
-	GlobalPoint gPointHcal1(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
-
-	double etaecal1=info1.trkGlobPosAtEcal.eta();
-	double phiecal1=info1.trkGlobPosAtEcal.phi();
-   
-        if (etaecal1==0&&phiecal1==0) continue;	
-
-	double hcDist=getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, gPointHcal1);
-
-//        double hcDist=getDistInCM(etaecal,phiecal,etaecal1,phiecal1);
-
-	// increase required separation for low momentum tracks
-	double factor=1.;
-	double factor1=1.;
-
-	if (useConeCorr_)
-	   {
-	     if(ptrack<10.)factor+=(10.-ptrack)/20.;
-	     if(ptrack1<10.)factor1+=(10.-ptrack1)/20.;
-	   }
-	
-	if( hcDist <  m_ddirCut*factor*factor1 ) 
-	  {
-	    //calculate maximum P and sum P near seed track
-	    if (track1->p()>maxPNearby)
-	      {
-		maxPNearby=track1->p();
-	      }
-	    sumPNearby+=track1->p();
-	    
-	    //apply loose isolation criteria
-	    if (track1->p()>isolE_) 
-	      {
-		noChargedTracks = false;
-		break;
-	      }
-	    //////////////
-	  }
-	
-      } //second track loop
-
-    bool noNeutrals = false;
-    
-    // we have a good charge-isolated track, so check neutral isolation and write it out
-	
-    if(noChargedTracks) 
-      {
-	//find ecal cluster energy and write ecal recHits
-	double ecClustR=0;
-	double ecClustN=0;
-	double ecOutRingR=0;
-
-	//get index of ECAL crystal hit by track
-	std::vector<const EcalRecHit*> crossedECids=info.crossedEcalRecHits;
-	int etaIDcenter=-10000;
-	int phiIDcenter=-10000;
-	double enMax=0;
-	for (unsigned int i=0; i<crossedECids.size(); i++)
-	  {
-	    if ((*crossedECids[i]).id().subdetId()==EcalEndcap)
-	      {
-		EEDetId did(crossedECids[i]->id());
-		if (crossedECids[i]->energy()>enMax)
-		  {
-		    enMax=crossedECids[i]->energy();
-		    etaIDcenter=did.iy();
-		    phiIDcenter=did.ix();
-		  }
-	      }
-	    if ((*crossedECids[i]).id().subdetId()==EcalBarrel)
-	      {
-		EBDetId did(crossedECids[i]->id());
-		if (crossedECids[i]->energy()>enMax)
-		  {
-		    enMax=crossedECids[i]->energy();
-		    etaIDcenter=did.ieta();
-		    phiIDcenter=did.iphi();
-		  }
-	      }
-	  }
-	for (std::vector<EcalRecHit>::const_iterator ehit=tmpEcalRecHitCollection->begin(); ehit!=tmpEcalRecHitCollection->end(); ehit++) 
-	  {
-	    ////////////////////// FIND ECAL CLUSTER ENERGY
-	    // R scheme of ECAL CLUSTERIZATION
-	    GlobalPoint posH = geo->getPosition((*ehit).detid());
-	    double phihit = posH.phi();
-	    double etahit = posH.eta();
-	    
-	    double dHit=deltaR(etaecal,phiecal,etahit,phihit);
-	    
-	    double dHitCM=getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, posH);
-	    
-	    if (dHitCM<cluRad_)
-	      {
-		ecClustR+=ehit->energy();
-	      }
-	    
-	    if (dHitCM>ringInnRad_&&dHitCM<ringOutRad_)
-	      {
-		ecOutRingR+=ehit->energy();
-	      }
-
-	    //////////////////////////////////
-	    //NxN scheme & check whether hit was used or not, if not used push into usedHits
-	    bool hitIsUsed=false;
-	    int hitHashedIndex=-10000;
-	    if (ehit->id().subdetId()==EcalBarrel)
-	      {
-		EBDetId did(ehit->id());
-		hitHashedIndex=did.hashedIndex();
-		if (fabs(did.ieta()-etaIDcenter)<=matrixSize_/2&&fabs(did.iphi()-phiIDcenter)<=matrixSize_/2) ecClustN+=ehit->energy();
-	      }
-	    
-	    if (ehit->id().subdetId()==EcalEndcap)
-	      {
-		EEDetId did(ehit->id());
-		hitHashedIndex=did.hashedIndex();
-		if (fabs(did.iy()-etaIDcenter)<=matrixSize_/2&&fabs(did.ix()-phiIDcenter)<=matrixSize_/2) ecClustN+=ehit->energy();
-	      }
-	    for (uint32_t i=0; i<usedHitsEC.size(); i++)
-	      {
-		if (usedHitsEC[i]==hitHashedIndex) hitIsUsed=true;
-	      }
-
-	    if (hitIsUsed) continue; //skip if used
-	    usedHitsEC.push_back(hitHashedIndex);
-	    /////////////////////////////////
-	    
-	    if(dHit<1.)  
-	      {
-		outputEColl->push_back(*ehit);
-	      }   
-	  }
-
-	//check neutrals 
-        if (ecOutRingR<m_ecalCut) noNeutrals=true;
-	else noNeutrals=false;
-
-	if (noNeutrals||skipNeutrals_)
-	{
-
-        // Take info on the track extras and keep it in the outercollection
-
-        reco::TrackExtraRef myextra = (*track).extra();
-        reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
-
-        outputTColl->push_back(*track);
-        reco::Track & mytrack = outputTColl->back();
-
-        mytrack.setExtra( teref );
-        outputExTColl->push_back(*myextra);
-        //      reco::TrackExtra & tx = outputExTColl->back();
-
-        //Create IsolatedPixelTrackCandidate (will change naming in future release)
-        reco::IsolatedPixelTrackCandidate newHITCandidate(reco::Candidate::LorentzVector(track->px(),track->py(),track->pz(),track->p()));
-	newHITCandidate.SetSumPtPxl(sumPNearby);
-	newHITCandidate.SetMaxPtPxl(maxPNearby);
-
-	//set cluster energy deposition and ring energy deposition and push_back
-	if (!useECALCluMatrix_) newHITCandidate.SetEnergyIn(ecClustR);
-	else newHITCandidate.SetEnergyIn(ecClustN);
-	newHITCandidate.SetEnergyOut(ecOutRingR);
-	outputHcalIsoTrackColl->push_back(newHITCandidate);
-
-	//save hcal recHits
-	for (std::vector<HBHERecHit>::const_iterator hhit=hbheRHcol->begin(); hhit!=hbheRHcol->end(); hhit++) 
-	  {
-	    //check that this hit was not considered before and push it into usedHits
-	    bool hitIsUsed=false;
-	    for (uint32_t i=0; i<usedHitsHC.size(); i++)
-	      {
-		if (usedHitsHC[i]==hhit->id()) hitIsUsed=true;
-	      }
-	    if (hitIsUsed) continue;
-	    usedHitsHC.push_back(hhit->id());
-	    ////////////
-	    
-	    GlobalPoint posH = geo->getPosition((*hhit).detid());
-	    double phihit = posH.phi();
-	    double etahit = posH.eta();
-	    
-	    double dHit=deltaR(etaecal,phiecal,etahit,phihit);
-	    
-	    if(dHit<1.)  
-
-	      {
-		outputHColl->push_back(*hhit);
-	      }
-	    }
-	  }
-	
-	nisotr++;
-	
-      } //if (noNeutrals....
-  
-  } // end of main track loop
-  
-  if(outputTColl->size() > 0)
-    {
-      //   Take HO collection
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByToken(tok_ho_,ho);
-      
-      const HORecHitCollection Hitho = *(ho.product());
-      for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
-	{
-	  outputHOColl->push_back(*hoItr);
+	bool selectEvent = ntrout > 0;
+	if (!selectEvent && ntrin > 0) {
+	  ++nRange_;
+	  if      (preScale_ <= 1)         selectEvent = true;
+	  else if (nRange_%preScale_ == 1) selectEvent = true;
 	}
-           
-      // Take Preshower collection      
+	if (selectEvent) {
+	  for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr)
+	    outputHcalIsoTrackColl->push_back(*itr);
+	
+	  for (reco::VertexCollection::const_iterator vtx=recVtxs->begin(); vtx!=recVtxs->end(); ++vtx)
+	    outputVColl->push_back(*vtx);
       
-      // get the ps geometry
-      edm::ESHandle<CaloGeometry> geoHandle;
-      iSetup.get<CaloGeometryRecord>().get(geoHandle);
-      
-      // get the ps topology
-      EcalPreshowerTopology psTopology(geoHandle);
-      
-      // process rechits
-      edm::Handle<EcalRecHitCollection> pRecHits;
-      iEvent.getByToken(tok_ps_,pRecHits);
-      const EcalRecHitCollection& psrechits = *(pRecHits.product());
-
-      typedef EcalRecHitCollection::const_iterator IT;
-      
-      for(IT i=psrechits.begin(); i!=psrechits.end(); i++) 
-	{
-	  outputESColl->push_back( *i );
+	  for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=barrelRecHitsHandle->begin(); ehit!=barrelRecHitsHandle->end(); ++ehit)
+	    outputEBColl->push_back(*ehit);
+    
+	  for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=endcapRecHitsHandle->begin(); ehit!=endcapRecHitsHandle->end(); ++ehit)
+	    outputEEColl->push_back(*ehit);
+    
+	  for (std::vector<HBHERecHit>::const_iterator hhit=hbhe->begin(); hhit!=hbhe->end(); ++hhit)
+	    outputHBHEColl->push_back(*hhit);
+	  ++nGood_;
 	}
-    }  
-
-  iEvent.put( outputHcalIsoTrackColl, "HcalIsolatedTrackCollection");
-  iEvent.put( outputTColl, "IsoTrackTracksCollection");
-  iEvent.put( outputExTColl, "IsoTrackExtraTracksCollection");
-  iEvent.put( outputEColl, "IsoTrackEcalRecHitCollection");
-  iEvent.put( outputESColl, "IsoTrackPSEcalRecHitCollection");
-  iEvent.put( outputHColl, "IsoTrackHBHERecHitCollection");
-  iEvent.put( outputHOColl, "IsoTrackHORecHitCollection");
+      }
+    }
+  }
+  iEvent.put(std::move(outputHcalIsoTrackColl), labelIsoTk_);
+  iEvent.put(std::move(outputVColl),            labelRecVtx_.label());
+  iEvent.put(std::move(outputEBColl),           labelEB_.instance());
+  iEvent.put(std::move(outputEEColl),           labelEE_.instance());
+  iEvent.put(std::move(outputHBHEColl),         labelHBHE_.label());
 }
 
-void AlCaIsoTracksProducer::endJob(void) {}
+void AlCaIsoTracksProducer::endStream() {
+  globalCache()->nAll_   += nAll_;
+  globalCache()->nGood_  += nGood_;
+  globalCache()->nRange_ += nRange_;
+}
 
+void AlCaIsoTracksProducer::globalEndJob(const AlCaIsoTracks::Counters* count) {
+  edm::LogInfo("HcalIsoTrack") << "Finds " << count->nGood_ <<" good tracks in "
+			       << count->nAll_ << " events and " << count->nRange_
+			       << " events in the momentum raange";
+}
+
+void AlCaIsoTracksProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  bool changed(false);
+  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() 
+			       << " hltconfig.init " << hltConfig_.init(iRun,iSetup,processName_,changed);
+
+  edm::ESHandle<MagneticField> bFieldH;
+  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
+  bField = bFieldH.product();
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  geo    = pG.product();
+}
+
+void AlCaIsoTracksProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
+  edm::LogInfo("HcalIsoTrack") << "endRun [" << nRun_ << "] " << iRun.run();
+  ++nRun_;
+}
+
+reco::HcalIsolatedTrackCandidateCollection* 
+AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults, 
+			      const std::vector<std::string> & triggerNames_,
+			      edm::Handle<reco::TrackCollection>& trkCollection,
+			      math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, 
+			      edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, 
+			      edm::Handle<HBHERecHitCollection>& hbhe,
+			      double ptL1, double etaL1, double phiL1) {
+  
+  reco::HcalIsolatedTrackCandidateCollection* trackCollection=new reco::HcalIsolatedTrackCandidateCollection;
+  bool ok(false);
+
+  // Find a good HLT trigger
+  for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
+    int hlt    = triggerResults->accept(iHLT);
+    for (unsigned int i=0; i<trigNames_.size(); ++i) {
+      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	if (hlt > 0) {
+	  ok = true;
+	}
+	edm::LogInfo("HcalIsoTrack") << "The trigger we are looking for "
+				     << triggerNames_[iHLT] << " Flag " 
+				     << hlt << ":" << ok;
+      }
+    }
+  }
+
+  //Propagate tracks to calorimeter surface)
+  std::vector<spr::propagatedTrackDirection> trkCaloDirections;
+  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
+		     trkCaloDirections, false);
+
+  std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
+  unsigned int nTracks(0), nselTracks(0);
+  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
+       trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
+    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+    math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
+			       pTrack->pz(), pTrack->p());
+#ifdef DebugLog
+    edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
+				 << " (pt|eta|phi|p) :" << pTrack->pt() 
+				 << "|" << pTrack->eta() << "|" 
+				 << pTrack->phi() << "|" << pTrack->p();
+#endif	    
+    //Selection of good track
+    bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameter_,false);
+#ifdef DebugLog
+    edm::LogInfo("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
+				 << "|" << trkDetItr->okECAL << "|"  
+				 << trkDetItr->okHCAL;
+#endif
+    if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
+      double t_p        = pTrack->p();
+      nselTracks++;
+      int    nRH_eMipDR(0), nNearTRKs(0);
+      double eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				      endcapRecHitsHandle,
+				      trkDetItr->pointHCAL,
+				      trkDetItr->pointECAL, a_mipR_,
+				      trkDetItr->directionECAL, 
+				      nRH_eMipDR);
+      double hmaxNearP = spr::chargeIsolationCone(nTracks,
+						  trkCaloDirections,
+						  a_charIsoR_,
+						  nNearTRKs, false);
+      HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
+      int       ieta = detId.ietaAbs();
+      double eIsolation = (maxRestrictionP_*exp(slopeRestrictionP_*((double)(ieta))));
+      if (eIsolation < eIsolate_) eIsolation = eIsolate_;
+#ifdef DebugLog
+      edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
+				   << " (pt|eta|phi|p) :"  << pTrack->pt() 
+				   << "|" << pTrack->eta() << "|" 
+				   << pTrack->phi() << "|" << t_p 
+				   << " e_MIP " << eMipDR 
+				   << " Chg Isolation " << hmaxNearP
+				   << ":" << eIsolation;
+#endif
+      if (t_p>pTrackMin_ && eMipDR<eEcalMax_ && hmaxNearP<eIsolation) {
+	reco::HcalIsolatedTrackCandidate newCandidate(v4);
+	newCandidate.SetMaxP(hmaxNearP);
+	newCandidate.SetEnergyEcal(eMipDR);
+	newCandidate.setL1(ptL1,etaL1,phiL1);
+	newCandidate.SetEtaPhiEcal((trkDetItr->pointECAL).eta(),
+				   (trkDetItr->pointECAL).phi());
+	HcalDetId detId = HcalDetId(trkDetItr->detIdHCAL);
+	newCandidate.SetEtaPhiHcal((trkDetItr->pointHCAL).eta(),
+				   (trkDetItr->pointHCAL).phi(),
+				   detId.ieta(), detId.iphi());
+	int indx(0);
+	reco::TrackCollection::const_iterator trkItr1;
+	for (trkItr1=trkCollection->begin(); trkItr1 != trkCollection->end(); ++trkItr1,++indx) {
+	  const reco::Track* pTrack1 = &(*trkItr1);
+	  if (pTrack1 == pTrack) {
+	    reco::TrackRef tRef = reco::TrackRef(trkCollection,indx);
+	    newCandidate.setTrack(tRef);
+	    break;
+	  }
+	}
+	trackCollection->push_back(newCandidate);
+      }
+    }
+  }
+  return trackCollection;
+}
+
+void AlCaIsoTracksProducer::setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1) {
+
+  for (unsigned int p=0; p<objref.size(); p++) {
+    if (objref[p]->pt()>ptL1) {
+      ptL1  = objref[p]->pt(); 
+      phiL1 = objref[p]->phi();
+      etaL1 = objref[p]->eta();
+    }
+  }
+}
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(AlCaIsoTracksProducer);

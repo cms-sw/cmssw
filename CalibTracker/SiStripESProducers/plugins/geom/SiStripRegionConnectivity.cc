@@ -6,6 +6,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace sistrip;
 
@@ -21,7 +22,7 @@ SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& ps
 
 SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
 
-std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
+std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
 
   edm::ESHandle<SiStripDetCabling> detcabling;
   iRecord.getRecord<SiStripDetCablingRcd>().get( detcabling );
@@ -29,6 +30,10 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   edm::ESHandle<TrackerGeometry> tkgeom;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( tkgeom );
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   //here build an object of type SiStripRegionCabling using the information from class SiStripDetCabling **PLUS** the geometry.
   
   //Construct region cabling object
@@ -43,8 +48,8 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     if (!idet->first || (idet->first == sistrip::invalid32_)) continue;
 
     // Check if geom det unit exists
-    GeomDetUnit* geom_det = const_cast<GeomDetUnit*>( tkgeom->idToDetUnit(DetId(idet->first)) );
-    StripGeomDetUnit* strip_det = dynamic_cast<StripGeomDetUnit*>( geom_det );
+    auto geom_det = tkgeom->idToDetUnit(DetId(idet->first));
+    auto strip_det = dynamic_cast<StripGeomDetUnit const *>( geom_det );
     if ( !strip_det ) { continue; }
     
     //Calculate region from geometry
@@ -56,7 +61,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdetFromDetId(idet->first));
     
     //Find layer from det-id
-    uint32_t layer = SiStripRegionCabling::layerFromDetId(idet->first);
+    uint32_t layer = tTopo->layer(idet->first);
 
     //@@ BELOW IS TEMP FIX TO HANDLE BUG IN DET CABLING
     std::vector<const FedChannelConnection *> conns = idet->second;
@@ -64,10 +69,12 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     std::vector<const FedChannelConnection *>::iterator jconn = conns.end();
 
     //Update region cabling map
-    regioncabling[reg][subdet][layer][idet->first].resize(conns.size());
+    regioncabling[reg][subdet][layer].push_back(SiStripRegionCabling::Element());
+    auto &  elem = regioncabling[reg][subdet][layer].back();
+    elem.first=idet->first; elem.second.resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
       if ( ((*iconn) != 0) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
-	regioncabling[reg][subdet][layer][idet->first][(*iconn)->apvPairNumber()] = **iconn;
+	elem.second[(*iconn)->apvPairNumber()] = **iconn;
       }
     }
   }
@@ -75,6 +82,6 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   //Add map to region cabling object
   RegionConnections->setRegionCabling(regioncabling);
   
-  return std::auto_ptr<SiStripRegionCabling>( RegionConnections );
+  return std::unique_ptr<SiStripRegionCabling>( RegionConnections );
 }
 

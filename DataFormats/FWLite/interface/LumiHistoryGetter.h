@@ -17,7 +17,6 @@
 // Original Author:
 //         Created:  Wed Feb 10 11:15:16 CST 2010
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
@@ -42,5 +41,4 @@ namespace fwlite {
 
 }
 
-#endif /*__CINT__ */
 #endif

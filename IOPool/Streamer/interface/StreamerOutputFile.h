@@ -3,6 +3,8 @@
 
 /** StreamerOutputFile: Class for doing Streamer Write operations */
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 #include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -12,7 +14,7 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <exception>
 #include <fstream>
@@ -45,16 +47,12 @@ class StreamerOutputFile
       Performs write on EventMsgBuilder type,
       Header + Blob, both are written out.
       RETURNS the Offset in Stream while at
-              which Event was written.
+              which EventForOutputwas written.
      */
      uint64 write(const EventMsgView&);
 
      uint64 writeEventFragment(uint32 fragIndex, uint32 fragCount,
                                const char *dataPtr, uint32 dataSize);
-
-     //Returns how many bytes were written out
-     uint32 writeEOF(uint32 statusCode,
-                     const std::vector<uint32>& hltStats);
 
      uint32 adler32() const { return streamerfile_->adler32(); }
 
@@ -63,7 +61,7 @@ class StreamerOutputFile
      void writeStart(const InitMsgView& inview);
 
   private:
-     boost::shared_ptr<OutputFile> streamerfile_;
+     edm::propagate_const<std::shared_ptr<OutputFile>> streamerfile_;
 };
 
 #endif

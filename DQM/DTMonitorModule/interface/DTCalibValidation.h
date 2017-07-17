@@ -1,3 +1,4 @@
+
 #ifndef DTCalibValidation_H
 #define DTCalibValidation_H
 
@@ -13,6 +14,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -34,8 +39,9 @@ class MonitorElement;
 class DTGeometry;
 class DTChamber;
 
+// FR class DTCalibValidation: public edm::EDAnalyzer{
+class DTCalibValidation: public DQMEDAnalyzer{
 
-class DTCalibValidation: public edm::EDAnalyzer{
  public:
   /// Constructor
   DTCalibValidation(const edm::ParameterSet& pset);
@@ -43,27 +49,18 @@ class DTCalibValidation: public edm::EDAnalyzer{
   /// Destructor
   virtual ~DTCalibValidation();
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-
-  /// Endjob
-  void endJob();
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 
  protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 
  private:
-
-  // To remove into CMSSW versions before 20X
-  DQMStore* theDbe;
-  // To add into CMSSW versions before 20X
-  //DaqMonitorBEInterface* theDbe;
 
   // Switch for verbosity
   //bool debug;
@@ -77,11 +74,11 @@ class DTCalibValidation: public edm::EDAnalyzer{
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 1D rechits in the event
-  std::string recHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   // Lable of 2D segments in the event
-  std::string segment2DLabel;
+  edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
   // Lable of 4D segments in the event
-  std::string segment4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
@@ -96,7 +93,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
     map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
 
   template  <typename type>
-  const type* 
+  const type*
   findBestRecHit(const DTLayer* layer,
 		 DTWireId wireId,
 		 const std::vector<type>& recHits,
@@ -110,7 +107,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   float recHitPosition(const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1D
   float recHitPosition(const DTRecHit1D& recHit, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
-  
+
   // Does the real job
   template  <typename type>
     void compute(const DTGeometry *dtGeom,
@@ -120,7 +117,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
-  // Fill a set of histograms for a give chamber 
+  // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distance,
 		  float residualOnDistance,
@@ -134,4 +131,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
 #endif
 
 
-
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

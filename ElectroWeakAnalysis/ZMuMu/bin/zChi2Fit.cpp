@@ -15,7 +15,7 @@
 #include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "PhysicsTools/Utilities/interface/Expression.h"
 #include "PhysicsTools/Utilities/interface/HistoPdf.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TH1.h"

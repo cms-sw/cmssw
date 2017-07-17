@@ -31,9 +31,7 @@ class TestPSetAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
       virtual void analyze(edm::Event const&, edm::EventSetup const&);
-      virtual void endJob() ;
 
       edm::LuminosityBlockID                 testLumi_;
       edm::LuminosityBlockRange              testLRange_;
@@ -42,6 +40,18 @@ class TestPSetAnalyzer : public edm::EDAnalyzer {
       std::vector<edm::LuminosityBlockID>    testVLumi_;
       std::vector<edm::LuminosityBlockRange> testVLRange_;
       std::vector<edm::EventRange>           testVERange_;
+
+      edm::EventID                           testEventID1_;
+      edm::EventID                           testEventID2_;
+      edm::EventID                           testEventID3_;
+      edm::EventID                           testEventID4_;
+      std::vector<edm::EventID>              testVEventID_;
+      edm::EventRange                        testERange1_;
+      edm::EventRange                        testERange2_;
+      edm::EventRange                        testERange3_;
+      edm::EventRange                        testERange4_;
+      edm::EventRange                        testERange5_;
+      std::vector<edm::EventRange>           testVERange2_;
 
       // ----------member data ---------------------------
 };
@@ -66,32 +76,54 @@ TestPSetAnalyzer::TestPSetAnalyzer(edm::ParameterSet const& iConfig) {
     testERange_           = iConfig.getParameter<edm::EventRange>("testERange");
     testVERange_          = iConfig.getParameter<std::vector<edm::EventRange> >("testVERange");
 
+    testEventID1_          = iConfig.getParameter<edm::EventID>("testEventID1");
+    testEventID2_          = iConfig.getParameter<edm::EventID>("testEventID2");
+    testEventID3_          = iConfig.getParameter<edm::EventID>("testEventID3");
+    testEventID4_          = iConfig.getParameter<edm::EventID>("testEventID4");
+    testVEventID_         = iConfig.getParameter<std::vector<edm::EventID> >("testVEventID");
+    testERange1_          = iConfig.getParameter<edm::EventRange>("testERange1");
+    testERange2_          = iConfig.getParameter<edm::EventRange>("testERange2");
+    testERange3_          = iConfig.getParameter<edm::EventRange>("testERange3");
+    testERange4_          = iConfig.getParameter<edm::EventRange>("testERange4");
+    testERange5_          = iConfig.getParameter<edm::EventRange>("testERange5");
+    testVERange2_         = iConfig.getParameter<std::vector<edm::EventRange> >("testVERange2");
+
     std::cout << "Lumi PSet test "   << testLumi_  << std::endl;
     std::cout << "LRange PSet test "  << testLRange_ << std::endl;
     std::cout << "ERange PSet test "  << testERange_ << std::endl;
 
-    for(std::vector<edm::LuminosityBlockID>::const_iterator i = testVLumi_.begin();
-        i !=  testVLumi_.end(); ++i) {
-      std::cout << "VLumi PSet test " << *i << std::endl;
+    for(auto const& i : testVLumi_) {
+      std::cout << "VLumi PSet test " << i << std::endl;
     }
 
-    for(std::vector<edm::LuminosityBlockRange>::const_iterator i = testVLRange_.begin();
-        i !=  testVLRange_.end(); ++i) {
-      std::cout << "VLRange PSet test " << *i << std::endl;
+    for(auto const& i : testVLRange_) {
+      std::cout << "VLRange PSet test " << i << std::endl;
     }
 
-    for(std::vector<edm::EventRange>::const_iterator i = testVERange_.begin();
-        i !=  testVERange_.end(); ++i) {
-      std::cout << "VERange PSet test " << *i << std::endl;
+    for(auto const& i : testVERange_) {
+      std::cout << "VERange PSet test " << i << std::endl;
     }
 
-   //now do what ever initialization is needed
+    std::cout << "EventID1 PSet test "  << testEventID1_ << std::endl;
+    std::cout << "EventID2 PSet test "  << testEventID2_ << std::endl;
+    std::cout << "EventID3 PSet test "  << testEventID3_ << std::endl;
+    std::cout << "EventID4 PSet test "  << testEventID4_ << std::endl;
+    std::cout << "ERange1 PSet test "  << testERange1_ << std::endl;
+    std::cout << "ERange2 PSet test "  << testERange2_ << std::endl;
+    std::cout << "ERange3 PSet test "  << testERange3_ << std::endl;
+    std::cout << "ERange4 PSet test "  << testERange4_ << std::endl;
+    std::cout << "ERange5 PSet test "  << testERange5_ << std::endl;
 
+    for( auto const& i : testVEventID_) {
+      std::cout << "VEventID PSet test " << i << std::endl;
+    }
+
+    for( auto const& i : testVERange2_) {
+      std::cout << "VERange2 PSet test " << i << std::endl;
+    }
 }
 
 TestPSetAnalyzer::~TestPSetAnalyzer() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -112,16 +144,6 @@ TestPSetAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-TestPSetAnalyzer::beginJob() {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-TestPSetAnalyzer::endJob() {
 }
 
 //define this as a plug-in

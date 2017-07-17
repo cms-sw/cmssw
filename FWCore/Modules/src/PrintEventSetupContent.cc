@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -39,7 +39,7 @@
 //
 
 namespace edm {
-  class PrintEventSetupContent : public EDAnalyzer {
+  class PrintEventSetupContent : public one::EDAnalyzer<one::WatchRuns,one::WatchLuminosityBlocks> {
     public:
       explicit PrintEventSetupContent(ParameterSet const&);
       ~PrintEventSetupContent();
@@ -52,12 +52,16 @@ namespace edm {
       virtual void analyze(Event const&, EventSetup const&) override;
       virtual void endJob() override ;
       virtual void beginRun(Run const&, EventSetup const&) override;
+      virtual void endRun(Run const&, EventSetup const&) override;
       virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+      virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
       void print(EventSetup const&);
 
       // ----------member data ---------------------------
-  std::map<eventsetup::EventSetupRecordKey, unsigned long long > cacheIdentifiers_;
+      const bool printProviders_;
+      const bool compact_;
+      std::map<eventsetup::EventSetupRecordKey, unsigned long long > cacheIdentifiers_;
 };
 
 //
@@ -71,7 +75,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-  PrintEventSetupContent::PrintEventSetupContent(ParameterSet const&) {
+  PrintEventSetupContent::PrintEventSetupContent(ParameterSet const& config) :
+      printProviders_(config.getUntrackedParameter<bool>("printProviders")),
+      compact_(config.getUntrackedParameter<bool>("compact"))
+  {
   //now do what ever initialization is neededEventSetupRecordDataGetter::EventSetupRecordDataGetter(ParameterSet const& iConfig):
   //  getter = new EventSetupRecordDataGetter::EventSetupRecordDataGetter(iConfig);
   }
@@ -97,8 +104,16 @@ namespace edm {
   }
 
   void
+  PrintEventSetupContent::endRun(Run const&, EventSetup const& iSetup){
+  }
+
+  void
   PrintEventSetupContent::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup){
     print(iSetup);
+  }
+
+  void
+  PrintEventSetupContent::endLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup){
   }
 
   void
@@ -109,27 +124,43 @@ namespace edm {
     Records records;
     Data data;
     iSetup.fillAvailableRecordKeys(records);
-    int iflag=0;
+    std::unique_ptr<LogSystem> msg;
 
     for(Records::iterator itrecords = records.begin(), itrecordsend = records.end();
        itrecords != itrecordsend; ++itrecords ) {
 
       eventsetup::EventSetupRecord const* rec = iSetup.find(*itrecords);
 
-      if(0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier() ) {
-        ++iflag;
-        if(iflag==1) {
-          LogSystem("ESContent") << "\n" << "Changed Record" << "\n  " << "<datatype>" << " " << "'label' provider: 'provider label' <provider module type>";
-        }
+      if (0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
-        LogAbsolute("ESContent") << itrecords->name() << std::endl;
-
-        LogAbsolute("ESContent") << " start: " << rec->validityInterval().first().eventID() << " time: " << rec->validityInterval().first().time().value() << std::endl;
-        LogAbsolute("ESContent") << " end:   " << rec->validityInterval().last().eventID() << " time: " << rec->validityInterval().last().time().value() << std::endl;
         rec->fillRegisteredDataKeys(data);
-        for(Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata){
-          edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
-          LogAbsolute("ESContent") << "  " << itdata->type().name() << " '" << itdata->name().value() << "'" << " provider:'" << cd->label_ << "' " << cd->type_ << std::endl;
+        if (compact_) {
+          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
+            if (not msg)
+              msg.reset(new LogSystem("ESContent"));
+            else
+              *msg << '\n';
+            *msg << "ESContent> " << "record:" << itrecords->name() << " data:" << itdata->type().name() << " '" << itdata->name().value() << "'";
+            if (printProviders_) {
+              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
+              *msg << " provider:" << cd->type_ << " '" << cd->label_ << "'";
+            }
+          }
+        } else {
+          if (not msg) {
+            msg.reset(new LogSystem("ESContent"));
+            *msg << "Changed Record" << "\n  " << "<datatype>" << " " << "'label' provider: 'provider label' <provider module type>";
+          }
+          *msg << "\n" << itrecords->name();
+          *msg << "\n start: " << rec->validityInterval().first().eventID() << " time: " << rec->validityInterval().first().time().value();
+          *msg << "\n end:   " << rec->validityInterval().last().eventID() << " time: " << rec->validityInterval().last().time().value();
+          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
+            *msg << "\n  " << itdata->type().name() << " '" << itdata->name().value() << "'";
+            if (printProviders_) {
+              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
+              *msg << " provider:" << cd->type_ << " '" << cd->label_ << "'";
+            }
+          }
         }
       }
     }
@@ -158,9 +189,13 @@ namespace edm {
   // ------------ method called once each job for validation  ------------
   void
   PrintEventSetupContent::fillDescriptions(ConfigurationDescriptions& descriptions) {
-    ParameterSetDescription desc;
     descriptions.setComment("Print what data is available in each available EventSetup Record in the job.\n"
                             "As part of the data is the C++ class type, label and which module makes that data.");
+    ParameterSetDescription desc;
+    desc.addUntracked<bool>( "compact", false )->setComment(
+      "If 'true' produces a more compact view, similar to the one used by PrintEventSetupDataRetrieval");
+    desc.addUntracked<bool>("printProviders", true)->setComment(
+      "If 'true' also print which ES module provides the data");
     descriptions.add("printEventSetupContent", desc);
   }
 }

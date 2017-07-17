@@ -1,4 +1,4 @@
-#ifndef TopTauAnalyzer_h  
+#ifndef TopTauAnalyzer_h
 #define TopTauAnalyzer_h
 
 #include "TH1F.h"
@@ -10,26 +10,28 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 class TopTauAnalyzer : public edm::EDAnalyzer {
 
  public:
-  
+
   explicit TopTauAnalyzer(const edm::ParameterSet&);
   ~TopTauAnalyzer();
-  
+
  private:
-  
+
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  edm::InputTag input_;
+  edm::EDGetTokenT<std::vector<pat::Tau> > inputToken_;
 
   TH1F *mult_;
   TH1F *en_;
   TH1F *pt_;
   TH1F *eta_;
   TH1F *phi_;
-};  
+};
 
-#endif  
+#endif

@@ -17,6 +17,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTHcalIsolationDoubleConeProducers::EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet& config) : conf_(config)
 {
@@ -37,6 +39,17 @@ EgammaHLTHcalIsolationDoubleConeProducers::EgammaHLTHcalIsolationDoubleConeProdu
 
 
 EgammaHLTHcalIsolationDoubleConeProducers::~EgammaHLTHcalIsolationDoubleConeProducers(){delete test_;}
+
+void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("hbRecHitProducer"), edm::InputTag("hltHbhereco"));
+  desc.add<edm::InputTag>(("hfRecHitProducer"), edm::InputTag("hltHfreco"));
+  desc.add<double>(("egHcalIsoPtMin"), 0.);
+  desc.add<double>(("egHcalIsoConeSize"), 0.3);
+  desc.add<double>(("egHcalExclusion"), 0.15);
+  descriptions.add(("hltEgammaHLTHcalIsolationDoubleConeProducers"), desc);
+}
 
 void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get the HLT filtered objects
@@ -66,7 +79,6 @@ void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::Event& iEvent, cons
     isoMap.insert(recoecalcandref, isol);
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
 
 }

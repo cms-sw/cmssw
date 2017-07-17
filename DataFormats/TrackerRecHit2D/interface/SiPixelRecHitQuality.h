@@ -2,20 +2,13 @@
 #define DataFormats_SiPixelRecHitQuality_h 1
 
 //--- pow():
-#include <math.h>
-
-//--- &&& I'm not sure why we need this. [Petar]
-#include <utility>
-
-//--- uint32_t definition:
-#include <boost/cstdint.hpp>
-
+#include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 class SiPixelRecHitQuality {
  public:
-  typedef uint32_t QualWordType;
+  typedef unsigned int QualWordType;
   
   
  public:
@@ -127,7 +120,7 @@ class SiPixelRecHitQuality {
     //--- Setters: the inverse of the above.
     //------------------------------------------------------
     //
-    inline void setProbabilityXY( float prob, QualWordType & qualWord ) {
+    inline void setProbabilityXY( float prob, QualWordType & qualWord ) const {
       if(prob<0 || prob>1) {
         edm::LogWarning("OutOfBounds") << "Prob XY outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
         prob=0;
@@ -137,7 +130,7 @@ class SiPixelRecHitQuality {
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
-    inline void setProbabilityQ( float prob, QualWordType & qualWord ) {
+    inline void setProbabilityQ( float prob, QualWordType & qualWord ) const {
       if(prob<0 || prob>1) {
         edm::LogWarning("OutOfBounds") << "Prob Q outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
         prob=0;
@@ -149,7 +142,7 @@ class SiPixelRecHitQuality {
     }
     
     
-    inline void setQBin( int qbin, QualWordType & qualWord ) {
+    inline void setQBin( int qbin, QualWordType & qualWord ) const {
       if(qbin<0 || qbin >7) {
         edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
         qbin=0;
@@ -157,22 +150,22 @@ class SiPixelRecHitQuality {
       qualWord |= ((qbin & qBin_mask) << qBin_shift);
     }
     
-    inline void setIsOnEdge( bool flag, QualWordType & qualWord ) {
+    inline void setIsOnEdge( bool flag, QualWordType & qualWord ) const {
       qualWord |= ((flag & edge_mask) << edge_shift);
     }
-    inline void setHasBadPixels( bool flag, QualWordType & qualWord ) {
+    inline void setHasBadPixels( bool flag, QualWordType & qualWord ) const {
       qualWord |= ((flag & bad_mask) << bad_shift);
     }
-    inline void setSpansTwoROCs( bool flag, QualWordType & qualWord ) {
+    inline void setSpansTwoROCs( bool flag, QualWordType & qualWord ) const {
       qualWord |= ((flag & twoROC_mask) << twoROC_shift);
     }
-    inline void setHasFilledProb( bool flag, QualWordType & qualWord ) {
+    inline void setHasFilledProb( bool flag, QualWordType & qualWord ) const {
       qualWord |= ((flag & hasFilledProb_mask) << hasFilledProb_shift);
     }
   };
   
 public:
-  static Packing   thePacking;
+  static const Packing   thePacking;
 };  
 
 #endif

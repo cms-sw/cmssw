@@ -51,7 +51,7 @@ class TrackValidator : public edm::EDAnalyzer {
     }
   }
 
-  void beginRun(edm::Run & run, const edm::EventSetup& setup) {
+  void beginRun(edm::Run const& run, const edm::EventSetup& setup) override {
 
     for (unsigned int j=0;j<label.size();j++){
       
@@ -118,7 +118,7 @@ class TrackValidator : public edm::EDAnalyzer {
 
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override{
 std::cout << "In TrackValidator\n";
     edm::ESHandle<TransientTrackBuilder> theB;
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
@@ -289,7 +289,7 @@ std::cout << "In TrackValidator\n";
 
   }
 
-  void endJob() {
+  void endJob() override {
 
     for (unsigned int w=0;w<label.size();w++){
       TDirectory * p = hFile->mkdir(label[w].c_str());

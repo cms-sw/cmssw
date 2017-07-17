@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -27,7 +28,7 @@ namespace edm
   DataMixingEMWorker::DataMixingEMWorker() { }
 
   // Constructor 
-  DataMixingEMWorker::DataMixingEMWorker(const edm::ParameterSet& ps) : 
+  DataMixingEMWorker::DataMixingEMWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -41,6 +42,10 @@ namespace edm
     EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
     ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
 
+    EBRecHitToken_ = iC.consumes<EBRecHitCollection>(EBProducerSig_);
+    EERecHitToken_ = iC.consumes<EERecHitCollection>(EEProducerSig_);
+    ESRecHitToken_ = iC.consumes<ESRecHitCollection>(ESProducerSig_);
+
 
     EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
     EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
@@ -50,19 +55,14 @@ namespace edm
     EEPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("EEPileRecHitInputTag");
     ESPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("ESPileRecHitInputTag");
 
+    EBPileRecHitToken_ = iC.consumes<EBRecHitCollection>(EBPileRecHitInputTag_);
+    EEPileRecHitToken_ = iC.consumes<EERecHitCollection>(EEPileRecHitInputTag_);
+    ESPileRecHitToken_ = iC.consumes<ESRecHitCollection>(ESPileRecHitInputTag_);
+
 
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
     ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
-   //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
-
-   //EBalgo_ = new EcalRecHitSimpleAlgo();
-   //EEalgo_ = new EcalRecHitSimpleAlgo();
-
-   // don't think I can "produce" in a sub-class...
-
-   //produces< EBRecHitCollection >(EBRecHitCollectionDM_);
-   //produces< EERecHitCollection >(EERecHitCollectionDM_);
 
   }
 	       
@@ -82,7 +82,7 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   if(e.getByLabel(EBProducerSig_, pEBRecHits) ){
+   if(e.getByToken(EBRecHitToken_, pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
@@ -110,7 +110,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if(e.getByLabel(EEProducerSig_, pEERecHits) ){
+   if(e.getByToken(EERecHitToken_, pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
    } 
@@ -138,7 +138,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if(e.getByLabel( ESProducerSig_, pESRecHits) ){
+   if(e.getByToken( ESRecHitToken_, pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
@@ -174,7 +174,7 @@ namespace edm
 
     // EB first
 
-    boost::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
+    std::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
       getProductByTag<EBRecHitCollection>(*ep, EBPileRecHitInputTag_, mcc);
 
     if(EBRecHitsPTR ) {
@@ -199,7 +199,7 @@ namespace edm
 
     // EE Next
 
-    boost::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
+    std::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
       getProductByTag<EERecHitCollection>(*ep, EEPileRecHitInputTag_, mcc);
 
     if(EERecHitsPTR ) {
@@ -224,7 +224,7 @@ namespace edm
 
     // ES Next
 
-    boost::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
+    std::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
       getProductByTag<ESRecHitCollection>(*ep, ESPileRecHitInputTag_, mcc);
 
     if(ESRecHitsPTR ) {
@@ -253,9 +253,9 @@ namespace edm
   void DataMixingEMWorker::putEM(edm::Event &e) {
 
     // collection of rechits to put in the event
-    std::auto_ptr< EBRecHitCollection > EBrechits( new EBRecHitCollection );
-    std::auto_ptr< EERecHitCollection > EErechits( new EERecHitCollection );
-    std::auto_ptr< ESRecHitCollection > ESrechits( new ESRecHitCollection );
+    std::unique_ptr< EBRecHitCollection > EBrechits( new EBRecHitCollection );
+    std::unique_ptr< EERecHitCollection > EErechits( new EERecHitCollection );
+    std::unique_ptr< ESRecHitCollection > ESrechits( new ESRecHitCollection );
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
@@ -376,9 +376,9 @@ namespace edm
     LogInfo("DataMixingEMWorker") << "total # EE Merged rechits: " << EErechits->size() ;
     LogInfo("DataMixingEMWorker") << "total # ES Merged rechits: " << ESrechits->size() ;
 
-    e.put( EBrechits, EBRecHitCollectionDM_ );
-    e.put( EErechits, EERecHitCollectionDM_ );
-    e.put( ESrechits, ESRecHitCollectionDM_ );
+    e.put(std::move(EBrechits), EBRecHitCollectionDM_ );
+    e.put(std::move(EErechits), EERecHitCollectionDM_ );
+    e.put(std::move(ESrechits), ESRecHitCollectionDM_ );
     
     // clear local storage after this event
 
@@ -389,3 +389,5 @@ namespace edm
   }
 
 } //edm
+
+//  LocalWords:  ESProducerSig

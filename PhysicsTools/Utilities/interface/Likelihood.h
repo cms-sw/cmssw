@@ -56,7 +56,7 @@ namespace fit {
     PDF * pdf_;
     Yield * yield_;
     Sample sample_;
-    mutable unsigned int sampleSize_;
+    mutable unsigned int sampleSize_ = 0u;
   };
 
   template<typename Sample, typename PDF>

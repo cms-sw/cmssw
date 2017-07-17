@@ -9,41 +9,34 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 #include <cmath>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <CLHEP/Random/RandGaussQ.h>
-#include <CLHEP/Random/RandFlat.h>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<stdlib.h>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -60,6 +53,7 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+  eledig = config.getParameter<bool>("digitizeElectrons"); //flag to turn on/off electron digitization
 
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
@@ -67,38 +61,27 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   frate=config.getParameter<double>("Frate");
 
   if (rpcdigiprint) {
-    std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
-    std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
-    std::cout <<"RPC Time Resolution       = "<<resRPC<<" ns"<<std::endl;
-    std::cout <<"RPC Signal formation time = "<<timOff<<" ns"<<std::endl;
-    std::cout <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<std::endl;
-    std::cout <<"Electronic Jitter         = "<<resEle<<" ns"<<std::endl;
-    std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
-    std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
+    edm::LogInfo("RPC digitizer parameters")<<"Average Efficiency        = "<<aveEff<<'\n'
+					    <<"Average Cluster Size      = "<<aveCls<<" strips"<<'\n'
+					    <<"RPC Time Resolution       = "<<resRPC<<" ns"<<'\n'
+					    <<"RPC Signal formation time = "<<timOff<<" ns"<<'\n'
+					    <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<'\n'
+					    <<"Electronic Jitter         = "<<resEle<<" ns"<<'\n'
+					    <<"Signal propagation time   = "<<sspeed<<" x c"<<'\n'
+					    <<"Link Board Gate Width     = "<<lbGate<<" ns"<<'\n';
   }
 
   _rpcSync = new RPCSynchronizer(config);
 
 }
 
-void RPCSimAverageNoiseEffCls::setRandomEngine(CLHEP::HepRandomEngine& eng){
-  flatDistribution = new CLHEP::RandFlat(eng);
-  flatDistribution2 = new CLHEP::RandFlat(eng);
-  poissonDistribution_ = new CLHEP::RandPoissonQ(eng);
-  _rpcSync->setRandomEngine(eng);
-}
-
 RPCSimAverageNoiseEffCls::~RPCSimAverageNoiseEffCls()
 {
-  //Deleting the distribution defined in the constructor
-  delete flatDistribution;
-  delete flatDistribution2;
-  delete poissonDistribution_;
   delete _rpcSync;
 }
 
 
-int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX)
+int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine* engine)
 {
   std::vector<double> clsForDetId = getRPCSimSetUp()->getCls(id);
 
@@ -111,7 +94,7 @@ int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX)
   sum_clsize = clsForDetId;
   int vectOffset(0);
 
-  double rr_cl = flatDistribution->fire(1);
+  double rr_cl = CLHEP::RandFlat::shoot(engine);
 
   if(0.0 <= posX && posX < 0.2)  {
     func = clsForDetId[19]*(rr_cl);
@@ -147,7 +130,7 @@ int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX)
   return min;
 }
 
-int RPCSimAverageNoiseEffCls::getClSize(float posX)
+int RPCSimAverageNoiseEffCls::getClSize(float posX, CLHEP::HepRandomEngine* engine)
 {
 
   std::map< int, std::vector<double> > clsMap = getRPCSimSetUp()->getClsMap();
@@ -157,7 +140,7 @@ int RPCSimAverageNoiseEffCls::getClSize(float posX)
   double func=0.0;
   std::vector<double> sum_clsize;
 
-  double rr_cl = flatDistribution->fire(1);
+  double rr_cl = CLHEP::RandFlat::shoot(engine);
   if(0.0 <= posX && posX < 0.2)  {
     func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
     sum_clsize = clsMap[1];
@@ -194,9 +177,9 @@ int RPCSimAverageNoiseEffCls::getClSize(float posX)
 
 void
 RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits)
+                                   const edm::PSimHitContainer& rpcHits,
+                                   CLHEP::HepRandomEngine* engine)
 {
-
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
@@ -211,19 +194,18 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
 
-    if(_hit-> particleType() == 11) continue;
-
+    if(!eledig && _hit-> particleType() == 11) continue;
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
     // Effinciecy
     int centralStrip = topology.channel(entr)+1;;
-    float fire = flatDistribution->fire(1);
+    float fire = CLHEP::RandFlat::shoot(engine);
 
     if (fire < veff[centralStrip-1]) {
 
@@ -231,10 +213,7 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
       int lstrip=centralStrip;
 
       // Compute the cluster size
-      double w = flatDistribution->fire(1);
-      if (w < 1.e-10) w=1.e-10;
-//       int clsize = this->getClSize(posX); // This is for one and the same cls for all the chambers
-      int clsize = this->getClSize(rpcId.rawId(),posX); // This is for cluster size chamber by chamber
+      int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
       std::vector<int> cls;
       cls.push_back(centralStrip);
       if (clsize > 1){
@@ -269,7 +248,7 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
 	if(*i != centralStrip){
-	  if(flatDistribution->fire(1) < veff[*i-1]){
+	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
 	    strips.insert(digi);
 
@@ -287,13 +266,13 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
   }
 }
 
-void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll)
+void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll,
+                                             CLHEP::HepRandomEngine* engine)
 {
 
   RPCDetId rpcId = roll->id();
 
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
@@ -334,11 +313,12 @@ void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll)
     double ave =
       vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips());
 
-    N_hits = poissonDistribution_->fire(ave);
+    CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
+    N_hits = randPoissonQ.fire();
 
     for (int i = 0; i < N_hits; i++ ){
       
-      int time_hit = (static_cast<int>(flatDistribution2->fire((nbxing*gate)/gate))) - nbxing/2;
+      int time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate))) - nbxing/2;
       std::pair<int, int> digi(j+1,time_hit);
       strips.insert(digi);
     }

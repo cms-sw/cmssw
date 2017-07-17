@@ -43,7 +43,7 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   andOr_        (iConfig.getParameter<bool> ("andOr")),
   throw_        (iConfig.getParameter<bool> ("throw")),
   eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
-  watchAlCaRecoTriggerBitsRcd_(0),
+  watchAlCaRecoTriggerBitsRcd_(nullptr),
   HLTPatterns_  (iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
   HLTPathsByName_(),
   HLTPathsByIndex_()
@@ -132,7 +132,7 @@ void HLTHighLevel::init(const edm::TriggerResults & result,
             edm::LogInfo("Configuration") << "requested pattern \"" << pattern <<  "\" does not match any HLT paths";
         } else {
           // store the matching patterns
-          BOOST_FOREACH(std::vector<std::string>::const_iterator match, matches)
+          BOOST_FOREACH(auto match, matches)
             HLTPathsByName_.push_back(*match);
         }
       } else {
@@ -191,7 +191,7 @@ HLTHighLevel::pathsFromSetup(const std::string &key, const edm::Event &event, co
   typedef std::map<std::string, std::string> TriggerMap;
   const TriggerMap &triggerMap = triggerBits->m_alcarecoToTrig;
 
-  TriggerMap::const_iterator listIter = triggerMap.find(key);
+  auto listIter = triggerMap.find(key);
   if (listIter == triggerMap.end()) {
     throw cms::Exception("Configuration")
       << " HLTHighLevel [instance: " << moduleLabel() << " - path: " << pathName(event)

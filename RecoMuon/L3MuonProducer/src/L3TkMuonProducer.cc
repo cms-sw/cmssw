@@ -7,7 +7,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,9 +28,22 @@ L3TkMuonProducer::L3TkMuonProducer(const ParameterSet& parameterSet){
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
+  trackToken_ = consumes<reco::TrackCollection>(theL3CollectionLabel); 
   produces<TrackCollection>();
   produces<TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
+
+
+
+  callWhenNewProductsRegistered( [this](const edm::BranchDescription& iBD) {
+				   edm::TypeID id(typeid(L3MuonTrajectorySeedCollection));
+				   if(iBD.unwrappedTypeID() == id) {
+				     this->mayConsume<L3MuonTrajectorySeedCollection>(edm::InputTag{iBD.moduleLabel(), iBD.productInstanceName(),iBD.processName()} );
+				   }
+				 });
+
+
+
 }
   
 /// destructor
@@ -52,7 +64,7 @@ bool L3TkMuonProducer::sharedSeed(const L3MuonTrajectorySeed& s1,const L3MuonTra
   //quit right away if first detId does not match. front exist because of ==0 ->quit test
   if(i1_b->geographicalId() != i2_b->geographicalId()) return false;
   //then check hit by hit if they are the same
-  for (i1=i1_b,i2=i2_b;i1!=i1_e,i2!=i2_e;++i1,++i2){
+  for (i1=i1_b,i2=i2_b;i1!=i1_e && i2!=i2_e;++i1,++i2){
     if (!i1->sharesInput(&(*i2),TrackingRecHit::all)) return false;
   }
   return true;
@@ -93,13 +105,13 @@ string printseed(const L3TkMuonProducer::SeedRef & s){
 }
 
 /// reconstruct muons
-void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
+void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const string metname = "Muon|RecoMuon|L3TkMuonProducer";
   
   // Take the L3 container
   LogDebug(metname)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
   Handle<TrackCollection> tracks; 
-  event.getByLabel(theL3CollectionLabel,tracks);
+  event.getByToken(trackToken_,tracks);
 
   //make the LX->L3s pools
   LXtoL3sMap LXtoL3s;
@@ -181,10 +193,10 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
 
 
   //prepare the output
-  std::auto_ptr<TrackCollection> outTracks( new TrackCollection(LXtoL3s.size()));
-  std::auto_ptr<TrackExtraCollection> outTrackExtras( new TrackExtraCollection(LXtoL3s.size()));
+  auto outTracks = std::make_unique<TrackCollection>(LXtoL3s.size());
+  auto outTrackExtras = std::make_unique<TrackExtraCollection>(LXtoL3s.size());
   reco::TrackExtraRefProd rTrackExtras = event.getRefBeforePut<TrackExtraCollection>();
-  std::auto_ptr<TrackingRecHitCollection> outRecHits( new TrackingRecHitCollection());
+  auto outRecHits = std::make_unique<TrackingRecHitCollection>();
   TrackingRecHitRefProd rHits = event.getRefBeforePut<TrackingRecHitCollection>();
 
   LogDebug(metname)<<"reading the map to make "<< LXtoL3s.size()<<"products.";
@@ -213,17 +225,17 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
     unsigned int iRH=0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit,++iRH ) {
       outRecHits->push_back((*hit)->clone());
-      (*outTrackExtras)[i].add( TrackingRecHitRef( rHits, iRH));
     }
+    (*outTrackExtras)[i].setHits( rHits, 0, iRH);
   }
   
   LogDebug(metname)<<"made: "<<outTracks->size()<<" tracks, "<<outTrackExtras->size()<<" extras and "<<outRecHits->size()<<" rechits.";
 
   //put the collection in the event
   LogDebug(metname)<<"loading...";
-  event.put(outTracks);
-  event.put(outTrackExtras);
-  event.put(outRecHits);
+  event.put(std::move(outTracks));
+  event.put(std::move(outTrackExtras));
+  event.put(std::move(outRecHits));
   LogDebug(metname)<<" Event loaded"
 		   <<"================================";
 }

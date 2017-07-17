@@ -95,7 +95,7 @@ CastorFastClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    iEvent.getByLabel("genParticles", genParticles);
    
    // make pointer to towers that will be made
-   auto_ptr<CastorClusterCollection> CastorClusters (new CastorClusterCollection);
+   unique_ptr<CastorClusterCollection> CastorClusters (new CastorClusterCollection);
    
    /*
    // declare castor array
@@ -341,7 +341,7 @@ CastorFastClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
    */
     	
-   iEvent.put(CastorClusters); 
+   iEvent.put(std::move(CastorClusters));
    
 }
 

@@ -10,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/filesystem.hpp>
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -17,8 +18,6 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -78,12 +77,12 @@ using namespace edm;
 Pythia6Service* Pythia6Service::fPythia6Owner = 0;
 
 Pythia6Service::Pythia6Service()
-  : fRandomEngine(&getEngineReference()), fUnitSLHA(24), fUnitPYUPDA(25)
+  : fRandomEngine(nullptr), fUnitSLHA(24), fUnitPYUPDA(25)
 {
 }
 
 Pythia6Service::Pythia6Service( const ParameterSet& ps )
-  : fRandomEngine(&getEngineReference()), fUnitSLHA(24), fUnitPYUPDA(25)
+  : fRandomEngine(nullptr), fUnitSLHA(24), fUnitPYUPDA(25)
 {
    if (fPythia6Owner)
       throw cms::Exception("PythiaError") <<
@@ -383,11 +382,11 @@ void Pythia6Service::setPYUPDAParams(bool afterPyinit)
 
 void Pythia6Service::setSLHAFromHeader( const std::vector<std::string> &lines )
 {
-
 	std::set<std::string> blocks;
 	unsigned int model = 0, subModel = 0;
 
-	const char *fname = std::tmpnam(NULL);
+        std::string fnamest = boost::filesystem::unique_path().string();
+        const char *fname = fnamest.c_str();
 	std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
 	std::string block;
 	for(std::vector<std::string>::const_iterator iter = lines.begin();

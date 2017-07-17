@@ -31,7 +31,7 @@ MonCrystalConsistencyDat::~MonCrystalConsistencyDat()
 
 
 void MonCrystalConsistencyDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -49,7 +49,7 @@ void MonCrystalConsistencyDat::prepareWrite()
 
 
 void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystalConsistencyDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -77,7 +77,7 @@ void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystal
 }
 
 void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsistencyDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -126,7 +126,7 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
 }
 
 void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrystalConsistencyDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

@@ -1,6 +1,8 @@
 #ifndef CondFormats_L1TObjects_L1TriggerKey_h
 #define CondFormats_L1TObjects_L1TriggerKey_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <map>
 
@@ -37,9 +39,9 @@ public:
       } ;
 
     // Empty strings cannot be stored in the CondDB, so define a null key string.
-    static std::string kNullKey ;
+    const static std::string kNullKey ;
 
-    static std::string kEmptyKey ;
+    const static std::string kEmptyKey ;
 
     // Constructors
     L1TriggerKey ()
@@ -107,6 +109,8 @@ protected:
     // wsun 03/2008: add data member for TSC key
     std::string m_tscKey ;
     std::string m_subsystemKeys[ kNumberSubsystems ] ;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

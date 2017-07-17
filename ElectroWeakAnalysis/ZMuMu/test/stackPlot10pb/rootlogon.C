@@ -9,6 +9,6 @@
   gSystem->AddIncludePath("$CMSSW_BASE/src");
   gROOT->ProcessLine(".L setTDRStyle.C");
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   setTDRStyle();
 }

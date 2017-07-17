@@ -844,7 +844,7 @@ sub mpssave_cmd {
 sub mpsstat_cmd {
   my $status_cmd = "";
   
-  $status_cmd = sprintf "mps_stat.pl";
+  $status_cmd = sprintf "mps_stat.py";
   $mpsstat_output=`$status_cmd 2>&1`;
 
   $ZWIDGETS{'ROText1'}->insert('end',"$mpsstat_output \n");
@@ -855,7 +855,7 @@ sub mpsstat_cmd {
 sub mpsfire_cmd {
   my $fire_cmd = "";
   
-  $fire_cmd = sprintf "mps_fire.pl %s %s",$firemerge_variable,
+  $fire_cmd = sprintf "mps_fire.py %s %s",$firemerge_variable,
     $njobsfir_variable;
   $mpsfire_output=`$fire_cmd 2>&1`;
 
@@ -878,7 +878,7 @@ sub mpsfetch_cmd {
 
   my $fetch_cmd = "";
   
-    $fetch_cmd = sprintf "mps_fetch.pl";
+    $fetch_cmd = sprintf "mps_fetch.py";
 	$mpsfetch_output=`$fetch_cmd 2>&1`;
 
   $ZWIDGETS{'ROText1'}->insert('end',"$mpsfetch_output \n");

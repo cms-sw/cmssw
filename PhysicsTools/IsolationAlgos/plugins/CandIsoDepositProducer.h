@@ -1,8 +1,9 @@
 #ifndef MuonIsolationProducers_CandIsoDepositProducer_H
 #define MuonIsolationProducers_CandIsoDepositProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
@@ -16,7 +17,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class CandIsoDepositProducer : public edm::EDProducer {
+class CandIsoDepositProducer : public edm::stream::EDProducer<> {
 
 public:
   CandIsoDepositProducer(const edm::ParameterSet&);
@@ -24,12 +25,12 @@ public:
   virtual ~CandIsoDepositProducer();
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
 private:
-  inline const reco::Track *extractTrack(const reco::Candidate &cand, reco::Track *dummyStorage) const; 
+  inline const reco::Track *extractTrack(const reco::Candidate &cand, reco::Track *dummyStorage) const;
   enum TrackType { FakeT, BestT, StandAloneMuonT, CombinedMuonT, TrackT, GsfT, CandidateT };
   edm::ParameterSet theConfig;
-  edm::InputTag theCandCollectionTag;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > theCandCollectionToken;
   TrackType     theTrackType;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;

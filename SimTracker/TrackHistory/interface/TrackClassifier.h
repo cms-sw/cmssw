@@ -2,6 +2,7 @@
 #ifndef TrackClassifier_h
 #define TrackClassifier_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -12,6 +13,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "SimTracker/TrackHistory/interface/CMSProcessTypes.h"
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 #include "SimTracker/TrackHistory/interface/TrackQuality.h"
@@ -34,7 +36,8 @@ public:
     typedef TrackCategories Categories;
 
     //! Constructor by ParameterSet
-    TrackClassifier(edm::ParameterSet const &);
+    TrackClassifier(edm::ParameterSet const &,
+                    edm::ConsumesCollector&& );
 
     //! Pre-process event information (for accessing reconstraction information)
     void newEvent(edm::Event const &, edm::EventSetup const &);
@@ -74,33 +77,11 @@ private:
     unsigned int numberOfInnerLayers_;
     unsigned int minTrackerSimHits_;
 
-    struct G4
-    {
-        enum Process
-        {
-            Undefined = 0,
-            Unknown,
-            Primary,
-            Hadronic,
-            Decay,
-            Compton,
-            Annihilation,
-            EIoni,
-            HIoni,
-            MuIoni,
-            Photon,
-            MuPairProd,
-            Conversions,
-            EBrem,
-            SynchrotronRadiation,
-            MuBrem,
-            MuNucl
-        };
-    };
-
     TrackHistory tracer_;
 
     TrackQuality quality_;
+
+    const G4toCMSLegacyProcTypeMap g4toCMSProcMap_;
 
     edm::ESHandle<MagneticField> magneticField_;
 

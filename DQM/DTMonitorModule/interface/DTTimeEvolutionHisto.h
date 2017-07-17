@@ -10,6 +10,8 @@
 #include <string>
 #include <map>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 class DQMStore;
 class MonitorElement;
 
@@ -22,13 +24,13 @@ public:
   ///    - title of the MonitorElement <br>
   ///    - # of bins <br>
   ///    - # of LumiSections per bin <br>
-  ///    - mode: <br> 
-  ///         0 -> rate (over event) <br> 
+  ///    - mode: <br>
+  ///         0 -> rate (over event) <br>
   ///              need to fill using accumulateValueTimeSlot and updateTimeSlot methods <br>
   ///         1 -> # of entries <br>
   ///         2 -> # of events <br>
   ///         3 -> mean over LSs <br>
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
 		       const std::string& title,
 		       int nbins,
 		       int lsPrescale,
@@ -36,7 +38,7 @@ public:
 		       int mode = 0);
 
 
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
 		       const std::string& title,
 		       int nbins,
 		       int firstLS,
@@ -45,19 +47,18 @@ public:
 		       int mode = 0);
 
 
-
-  /// retrieve the monitor element from DQMStore
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name);
+  //FR changed the previous 2 argument constructor to the following one
+  DTTimeEvolutionHisto(MonitorElement*);
 
   /// Destructor
   virtual ~DTTimeEvolutionHisto();
 
   // Operations
-  
+
   void setTimeSlotValue(float value, int timeSlot);
-  
+
   void accumulateValueTimeSlot(float value);
-  
+
   void updateTimeSlot(int ls, int nEventsInLS);
 
   void normalizeTo(const MonitorElement *histForNorm);
@@ -74,7 +75,12 @@ private:
   int nBookedBins;
   int theMode;
   MonitorElement *histo;
-  
+
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

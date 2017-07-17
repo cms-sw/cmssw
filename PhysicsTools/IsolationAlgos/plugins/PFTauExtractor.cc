@@ -4,17 +4,15 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-PFTauExtractor::PFTauExtractor(const edm::ParameterSet& cfg)
+PFTauExtractor::PFTauExtractor(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC)
 {
-  tauSource_ = cfg.getParameter<edm::InputTag>("tauSource");
-  candidateSource_ = cfg.getParameter<edm::InputTag>("candidateSource");
+  tauSourceToken_ = iC.consumes<reco::PFTauCollection>(cfg.getParameter<edm::InputTag>("tauSource"));
+  candidateSourceToken_ = iC.mayConsume<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("candidateSource"));
   maxDxyTrack_ = cfg.getParameter<double>("Diff_r");
   maxDzTrack_ = cfg.getParameter<double>("Diff_z");
   dRmatchPFTau_ = cfg.getParameter<double>("dRmatchPFTau");
@@ -34,7 +32,7 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 
 //--- find PFTau closest to tauDirection
   edm::Handle<reco::PFTauCollection> pfTaus;
-  evt.getByLabel(tauSource_, pfTaus);
+  evt.getByToken(tauSourceToken_, pfTaus);
 
   double dR_min = -1.;
   const reco::PFTau* pfTau_matched = 0;
@@ -50,7 +48,7 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 //--- compute IsoDeposit for matched PFTau
   if ( pfTau_matched != 0 && dR_min < dRmatchPFTau_ ) {
     edm::Handle<edm::View<reco::Candidate> > candidates;
-    evt.getByLabel(candidateSource_, candidates);
+    evt.getByToken(candidateSourceToken_, candidates);
 
     const reco::Particle::Point& tauVertex = pfTau_matched->vertex();
     double dRsignalCone_max = 0.;
@@ -67,12 +65,12 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 //--- check that the candidate is not associated to one of the tau decay products
 //    within the signal cone of the PFTau
 	bool isSignalCone = false;
-	for ( reco::PFCandidateRefVector::const_iterator tauSignalConeConstituent = pfTau_matched->signalPFCands().begin();
+	for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalConeConstituent = pfTau_matched->signalPFCands().begin();
 	      tauSignalConeConstituent != pfTau_matched->signalPFCands().end(); ++tauSignalConeConstituent ) {
 	  double dR = deltaR(candidate->momentum(), (*tauSignalConeConstituent)->momentum());
 	  if ( dR <= dRvetoPFTauSignalConeConstituents_ ) isSignalCone = true;
 	}
-	
+
 	if ( !isSignalCone ) {
 	  reco::isodeposit::Direction candidateDirection(candidate->eta(), candidate->phi());
 	  isoDeposit.addDeposit(candidateDirection, candidate->pt());
@@ -80,16 +78,16 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
       }
     }
 
-//--- set size of veto cone of IsoDeposit to largest distance 
+//--- set size of veto cone of IsoDeposit to largest distance
 //    of any tau decay product within the signal cone of the PFTau
-//    (add a small positive number in order to avoid issues 
+//    (add a small positive number in order to avoid issues
 //     with rounding errors and "<" versus "<=" comparisson)
     reco::IsoDeposit::Veto isoDepositVeto;
     isoDepositVeto.vetoDir = tauCandidateDirection;
     isoDepositVeto.dR = dRsignalCone_max + 1.e-3;
     isoDeposit.setVeto(isoDepositVeto);
   } else {
-    edm::LogWarning ("PFTauExtractor::depositFromObject") << " Failed to match PFTau to tauCandidate direction given by" 
+    edm::LogWarning ("PFTauExtractor::depositFromObject") << " Failed to match PFTau to tauCandidate direction given by"
 							  << " eta = " << tauCandidate.eta() << ", phi = " << tauCandidate.phi()
 							  << " --> skipping computation of IsoDeposit !!";
   }

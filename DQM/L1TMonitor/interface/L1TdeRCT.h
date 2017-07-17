@@ -1,68 +1,5 @@
-// -*-C++-*-
 #ifndef L1TdeRCT_H
 #define L1TdeRCT_H
-
-/*
- * \file L1TdeRCT.h
- *
- * Version 0.0. A.Savin 2008/04/26
- *
- * \author P. Wittich
- *
- * Revision 1.14  2011/10/13 09:29:16  swanson
- * Added exper bit monitoring
- *
- * Revision 1.13  2010/09/30 22:26:45  bachtis
- * Add RCT FED vector monitoring
- *
- * Revision 1.12  2010/03/25 13:46:02  weinberg
- * removed quiet bit information
- *
- * Revision 1.11  2009/11/19 14:35:32  puigh
- * modify beginJob
- *
- * Revision 1.10  2009/10/11 21:12:58  asavin
- * *** empty log message ***
- *
- * Revision 1.9  2008/12/11 09:20:16  asavin
- * efficiency curves in L1TdeRCT
- *
- * Revision 1.8  2008/11/07 15:54:03  weinberg
- * Changed fine grain bit to HF plus tau bit
- *
- * Revision 1.7  2008/09/22 16:48:32  asavin
- * reg1D overeff added
- *
- * Revision 1.6  2008/07/25 13:06:48  weinberg
- * added GCT region/bit information
- *
- * Revision 1.5  2008/06/30 07:34:36  asavin
- * TPGs inculded in the RCT code
- *
- * Revision 1.4  2008/05/06 18:04:02  nuno
- * cruzet update
- *
- * Revision 1.3  2008/05/05 18:42:23  asavin
- * DataOcc added
- *
- * Revision 1.2  2008/05/05 15:01:37  asavin
- * single channel histos are added
- *
- * Revision 1.4  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
- * Revision 1.3  2007/09/03 15:14:42  wittich
- * updated RCT with more diagnostic and local coord histos
- *
- * Revision 1.2  2007/02/23 21:58:43  wittich
- * change getByType to getByLabel and add InputTag
- *
- * Revision 1.1  2007/02/19 22:49:53  wittich
- * - Add RCT monitor
- *
- *
- *
-*/
 
 // system include files
 #include <memory>
@@ -91,48 +28,47 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+// GCT and RCT data formats
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+// TPGs
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 // Trigger Headers
-
-
-
-
-
 //
 // class declaration
 //
 
-class L1TdeRCT : public edm::EDAnalyzer {
+class L1TdeRCT : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
-  L1TdeRCT(const edm::ParameterSet& ps);
+ L1TdeRCT(const edm::ParameterSet& ps);
 
 // Destructor
  virtual ~L1TdeRCT();
 
 protected:
 // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  // BeginJob
-  void beginJob(void);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  //For FED vector monitoring 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+//For FED vector monitoring 
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void readFEDVector(MonitorElement*,const edm::EventSetup&); 
-
-
-
-
-// EndJob
-void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // begin GT decision information
   MonitorElement *triggerAlgoNumbers_;
@@ -313,7 +249,7 @@ private:
 
 
   //begin fed vector information
-  static const int crateFED[90];
+  static const int crateFED[108];
   MonitorElement *fedVectorMonitorRUN_;
   MonitorElement *fedVectorMonitorLS_;
   ///////////////////////////////
@@ -328,16 +264,23 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
 
-  edm::InputTag rctSourceEmul_;
-  edm::InputTag rctSourceData_;
-  edm::InputTag ecalTPGData_;
-  edm::InputTag hcalTPGData_;
-  edm::InputTag gtDigisLabel_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_rgnEmul_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
+  edm::EDGetTokenT<L1CaloRegionCollection> gctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> gctSourceData_emData_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
   std::string gtEGAlgoName_; // name of algo to determine EG trigger threshold
   int doubleThreshold_; // value of ET at which to make 2-D eff plot
 
   /// filter TriggerType
   int filterTriggerType_;
+  int selectBX_;
+
+  std::string dataInputTagName_;
 
 
   int trigCount,notrigCount;

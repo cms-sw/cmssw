@@ -245,7 +245,7 @@ ViewerParameterGUI::requestTab(const char* name)
 ViewerParameterGUI&
 ViewerParameterGUI::addParam( const FWParameterBase* param)
 {
-   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)param) );
+   std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)param) );
    ptr->attach((FWParameterBase*)param, this);
    TGCompositeFrame* parent = m_tab->GetCurrentContainer();
 

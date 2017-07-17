@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 // -*- C++ -*-
 //
@@ -37,9 +38,9 @@ class TauHadronDecayFilter : public edm::EDFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
-  edm::ParameterSet  vertexGenerator_; 
   edm::ParameterSet  particleFilter_;
   FSimEvent* mySimEvent;
+  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
 };
 
 #endif

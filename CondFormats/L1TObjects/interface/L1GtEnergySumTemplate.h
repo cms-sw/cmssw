@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -59,14 +61,19 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
-        unsigned int etThreshold;
-        bool energyOverflow;
+      unsigned int etThreshold;
+      bool energyOverflow;
 
-        // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
-        // one word used for HTM
-        unsigned long long phiRange0Word;
-        unsigned long long phiRange1Word;
-    };
+      // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
+      // one word used for HTM
+      unsigned long long phiRange0Word;
+      unsigned long long phiRange1Word;
+
+      // make sure all objects (esp. the bool) are properly initialised to avoid problems with serialisation:
+      ObjectParameter() : etThreshold(0), energyOverflow(0), phiRange0Word(0), phiRange1Word(0) { /*nop*/;};
+
+    COND_SERIALIZABLE;
+};
 
 public:
 
@@ -93,6 +100,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

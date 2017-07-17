@@ -1,6 +1,6 @@
 #ifndef HLTMuonTrackMassFilter_h_
 #define HLTMuonTrackMassFilter_h_
-/** HLT filter by muon+track mass (taken from two RecoChargedCandidate collections). 
+/** HLT filter by muon+track mass (taken from two RecoChargedCandidate collections).
  *  Tracks are subject to quality and momentum cuts. The match with previous muon
  *  (and possibly track, if run after another mass filter) candidates is checked.
 */
@@ -21,12 +21,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   bool pairMatched (std::vector<reco::RecoChargedCandidateRef>& prevMuonRefs,
 		    std::vector<reco::RecoChargedCandidateRef>& prevTrackRefs,
 		    const reco::RecoChargedCandidateRef& muonRef,
 		    const reco::RecoChargedCandidateRef& trackRef) const;
-      
+
 private:
   edm::InputTag                    beamspotTag_;   ///< beamspot used for quality cuts
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_; ///< beamspot used for quality cuts

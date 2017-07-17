@@ -1,8 +1,15 @@
 #include <iostream>
-#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/Core/interface/DDMap.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
@@ -41,7 +48,7 @@ int main() {
     cout << "dd_map['second']=" << get_value(dd_map,"second") << endl;
     cout << "dd_map['xyz']=" << get_value(dd_map,"xyz") << endl;
   }
-  catch(const DDException & e) {
+  catch(const cms::Exception & e) {
     cout << "EXCEPTION: " << e.what() << endl;
   }
 

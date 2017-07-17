@@ -28,8 +28,10 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include <cassert>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Common/interface/HandleExceptionFactory.h"
+#include <algorithm>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace cms {
   class Exception;
@@ -38,34 +40,29 @@ namespace edm {
   class HandleBase {
   public:
     HandleBase() :
-      product_(0),
-      prov_(0) {}
-
+    product_(0),
+    prov_(0) {}
+    
     HandleBase(void const* prod, Provenance const* prov) :
-      product_(prod), prov_(prov) {
+    product_(prod), prov_(prov) {
       assert(prod);
       assert(prov);
     }
-
-    ///Used when the attempt to get the data failed
-    HandleBase(boost::shared_ptr<cms::Exception> const& iWhyFailed) :
-    product_(),
-    prov_(0),
-    whyFailed_(iWhyFailed) {}
     
     ~HandleBase() {}
-
+    
     void clear() {
       product_ = 0;
       prov_ = 0;
-      whyFailed_.reset();
+      whyFailedFactory_.reset();
     }
-
+    
+    
     void swap(HandleBase& other) {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailed_, other.whyFailed_);
+      swap(whyFailedFactory_, other.whyFailedFactory_);
     }
     
     HandleBase& operator=(HandleBase const& rhs) {
@@ -73,24 +70,48 @@ namespace edm {
       this->swap(temp);
       return *this;
     }
-
+    
     bool isValid() const {
       return product_ && prov_;
     }
-
+    
     bool failedToGet() const {
-      return 0 != whyFailed_.get();
+      return bool(whyFailedFactory_);
     }
+
     
     Provenance const* provenance() const {
       return prov_;
     }
-
+    
     ProductID id() const;
+    
+    HandleBase(HandleBase const&) = default;
+    
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailed_;
+    ///Used when the attempt to get the data failed
+    HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed) :
+    product_(),
+    prov_(0),
+    whyFailedFactory_(iWhyFailed) {}
+    
+
+    HandleBase& operator=(HandleBase&& rhs) {
+      product_ = rhs.product_;
+      prov_ = rhs.prov_;
+      whyFailedFactory_ = std::move(rhs.whyFailedFactory_);
+      return *this;
     }
+
+    std::shared_ptr<cms::Exception> whyFailed() const {
+      if(whyFailedFactory_.get()) {
+        return whyFailedFactory_->make();
+      }
+      return std::shared_ptr<cms::Exception>();
+    }
+    
+    std::shared_ptr<HandleExceptionFactory> const&
+    whyFailedFactory() const { return whyFailedFactory_;}
 
   protected:
 
@@ -99,7 +120,7 @@ namespace edm {
   private:
     void const* product_;
     Provenance const* prov_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
   // Free swap function

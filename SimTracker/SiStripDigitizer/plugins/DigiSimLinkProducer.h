@@ -9,7 +9,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,11 +27,7 @@
 #include <vector>
 #include <map>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class DigiSimLinkProducer : public edm::EDProducer
+class DigiSimLinkProducer : public edm::stream::EDProducer<>
 {
 public:
   
@@ -57,7 +53,6 @@ private:
   vstring trackerContainers;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
-  CLHEP::HepRandomEngine* rndEngine;
   std::string geometryType;
   std::string alias;
   bool zeroSuppression;

@@ -8,7 +8,7 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace { 
+namespace DPGAnalysis_SiStripTools {
   struct dictionary {
     TinyEventCollection dummycoll;
     SingleSiStripDigiMultiplicity dummy1;

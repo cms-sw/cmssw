@@ -1,0 +1,11 @@
+<library file="*.cc" name="EventFilterCTPPSRawToDigiTest">
+	<flags EDM_PLUGIN="1"/>
+
+	<use name="FWCore/Framework"/>
+	<use name="FWCore/Utilities"/>
+	
+	<use name="DataFormats/FEDRawData"/>
+	<use name="DataFormats/CTPPSDigi"/>
+	
+	<use name="EventFilter/CTPPSRawToDigi"/>
+</library>

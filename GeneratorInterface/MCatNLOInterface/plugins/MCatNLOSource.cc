@@ -40,7 +40,7 @@ using namespace lhef;
 MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	ProducerSourceFromFiles(params, desc, false),
-        gen::Herwig6Instance(0),
+        gen::Herwig6Instance(),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
         nEvents(0),
         ihpro(0),
@@ -113,7 +113,7 @@ void MCatNLOSource::beginRun(edm::Run &run)
   heprup.PDFGUP.first = 0;
   heprup.PDFGUP.second = 0;
 
-  std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+  std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
 
   LHERunInfoProduct::Header hw6header("herwig6header");
   hw6header.addLine("\n");
@@ -150,12 +150,12 @@ void MCatNLOSource::beginRun(edm::Run &run)
 
   runInfo->addHeader(hw6header);
 
-  run.put(runInfo);
+  run.put(std::move(runInfo));
 
   return;
 }
 
-bool MCatNLOSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
+bool MCatNLOSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
   InstanceWrapper wrapper(this);
 
@@ -186,9 +186,9 @@ void MCatNLOSource::produce(edm::Event &event)
   lhef::CommonBlocks::readHEPRUP(&heprup);
   lhef::CommonBlocks::readHEPEUP(&hepeup);
   hepeup.IDPRUP = heprup.LPRUP[0];
-  std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
+  std::unique_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup,hepeup.XWGTUP));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
-  event.put(lhEvent);
+  event.put(std::move(lhEvent));
 }
 
 bool MCatNLOSource::hwwarn(const std::string &fn, int code)

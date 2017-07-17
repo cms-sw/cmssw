@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
-#include <iostream>
-#include <ostream>
 
 static
 void throwInvalidRefFromNullOrInvalidRef(const edm::TypeID& id) {
@@ -32,20 +32,33 @@ void throwInvalidRefFromNoCache(const edm::TypeID& id, edm::ProductID const& pro
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      cachePtr_(prodPtr?prodPtr:prodGetter),
+      cachePtr_(prodPtr),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex())
       {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter(prodGetter);
         }
       }
+  
+  RefCore::RefCore( RefCore const& iOther) :
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {
+       cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+     }
+  
+  RefCore& RefCore::operator=( RefCore const& iOther) {
+    cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    processIndex_ = iOther.processIndex_;
+    productIndex_ = iOther.productIndex_;
+    return *this;
+  }
 
-  WrapperHolder
-  RefCore::getProductPtr(std::type_info const& type) const {
+  WrapperBase const*
+  RefCore::getProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
     // EDProductGetter::instance() is called will be one where a
@@ -67,17 +80,61 @@ namespace edm {
     }
 
     //if (productPtr() == 0 && productGetter() == 0) {
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
-    WrapperHolder product = productGetter()->getIt(tId);
-    if (!product.isValid()) {
+    WrapperBase const* product = prodGetter->getIt(tId);
+    if (product == nullptr) {
       productNotFoundException(type);
     }
-    if(!(type == product.dynamicTypeInfo())) {
-      wrongTypeException(type, product.dynamicTypeInfo());
+    if(!(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
     }
     return product;
+  }
+
+  WrapperBase const*
+  RefCore::tryToGetProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
+    ProductID tId = id();
+    assert (!isTransient());
+    if (!tId.isValid()) {
+      throwInvalidRefFromNullOrInvalidRef(TypeID(type));
+    }
+
+    if (cachePtrIsInvalid()) {
+      throwInvalidRefFromNoCache(TypeID(type),tId);
+    }
+    WrapperBase const* product = prodGetter->getIt(tId);
+    if(product != nullptr && !(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
+    }
+    return product;
+  }
+
+  WrapperBase const*
+  RefCore::getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey, EDProductGetter const* prodGetter) const {
+
+    ProductID tId = id();
+    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
+
+    if (product == nullptr) {
+      productNotFoundException(type);
+    }
+    if(!(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
+    }
+    return product;
+  }
+
+  bool
+  RefCore::isThinnedAvailable(unsigned int thinnedKey, EDProductGetter const* prodGetter) const {
+    ProductID tId = id();
+    if(!tId.isValid() || prodGetter == nullptr) {
+      //another thread may have changed it
+      return nullptr != productPtr();
+    }
+    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
+    return product != nullptr;
   }
 
   void
@@ -111,13 +168,17 @@ namespace edm {
   bool
   RefCore::isAvailable() const {
     ProductID tId = id();
-    return productPtr() != 0 || (tId.isValid() && productGetter() != 0 && productGetter()->getIt(tId).isValid());
+    //If another thread changes the cache, it will change a non-null productGetter
+    // into a null productGeter but productPtr will be non-null
+    // Therefore reading productGetter() first is the safe order
+    auto prodGetter = productGetter();
+    auto prodPtr = productPtr();
+    return prodPtr != nullptr || (tId.isValid() && prodGetter != nullptr && prodGetter->getIt(tId) != nullptr);
   }
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    cachePtr_ = prodGetter;
-    unsetCacheIsProductPtr();
+    setCacheIsProductGetter(prodGetter);
   }
   
   void 
@@ -168,11 +229,51 @@ namespace edm {
     //Since productPtr and productGetter actually share the same pointer internally,
     // we want to be sure that if the productPtr is set we use that one and only if
     // it isn't set do we set the productGetter if available
-    if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+    if (productPtr() == nullptr && productToBeInserted.productPtr() != nullptr) {
       setProductPtr(productToBeInserted.productPtr());
-    } else if (productPtr() == 0 && productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      setProductGetter(productToBeInserted.productGetter());
+    } else {
+      auto getter = productToBeInserted.productGetter();
+      if (cachePtrIsInvalid() && getter != nullptr) {
+        setProductGetter(getter);
+      }
     }
   }
-  
+
+  void
+  RefCore::pushBackRefItem(RefCore const& productToBeInserted) {
+    if (productToBeInserted.isNull() && !productToBeInserted.isTransient()) {
+      throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	<< "RefCore::pushBackRefItem: Ref has invalid (zero) product ID, so it cannot be added to RefVector."
+	<< "id should be (" << id() << ")\n";
+    }
+    if (isNonnull() || isTransient()) {
+      if (isTransient() != productToBeInserted.isTransient()) {
+        if (productToBeInserted.isTransient()) {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Transient Ref cannot be added to persistable RefVector. "
+	    << "id should be (" << id() << ")\n";
+        } else {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Persistable Ref cannot be added to transient RefVector. "
+	    << "id is (" << productToBeInserted.id() << ")\n";
+        }
+      }
+      if (!productToBeInserted.isTransient() && id() != productToBeInserted.id()) {
+        throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	  << "RefCore::pushBackRefItem: Ref is inconsistent with RefVector"
+	  << "id = (" << productToBeInserted.id() << ") should be (" << id() << ")\n";
+      }
+    } else {
+      if (productToBeInserted.isTransient()) {
+        setTransient();
+      }
+      if (productToBeInserted.isNonnull()) {
+        setId(productToBeInserted.id());
+      }
+    }
+    auto prodGetter = productToBeInserted.productGetter();
+    if (productGetter() == 0 &&  prodGetter != 0) {
+      setProductGetter(prodGetter);
+    }
+  }
 }

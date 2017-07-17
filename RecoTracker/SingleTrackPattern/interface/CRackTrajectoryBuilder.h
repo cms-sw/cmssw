@@ -197,6 +197,9 @@ class CRackTrajectoryBuilder
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
@@ -229,11 +232,12 @@ class CRackTrajectoryBuilder
 
     std::pair<TrajectoryStateOnSurface, const GeomDet*>
      innerState( const Trajectory& traj) const;
+
+
  
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
-   edm::ParameterSet conf_;
    
    PropagatorWithMaterial  *thePropagator;
    PropagatorWithMaterial  *thePropagatorOp;
@@ -259,6 +263,7 @@ class CRackTrajectoryBuilder
    TransientTrackingRecHit::RecHitContainer  hits;
    bool seed_plus;
    std::string geometry;
+   std::string theBuilderName;
 //   TransientInitialStateEstimator*  theInitialState;
 };
 

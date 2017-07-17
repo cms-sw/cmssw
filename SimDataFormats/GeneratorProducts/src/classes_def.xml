@@ -1,7 +1,8 @@
 <lcgdict>
 	<!-- HepMC externals -->
 
-	<class name="HepMC::GenEvent" ClassVersion="10">
+	<class name="HepMC::GenEvent" ClassVersion="11">
+  <version ClassVersion="11" checksum="2967452289"/>
   <version ClassVersion="10" checksum="2993730389"/>
  </class>
 	<class name="HepMC::GenVertex" ClassVersion="10">
@@ -15,11 +16,13 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="12">
+	<class name="HepMC::WeightContainer" ClassVersion="14">
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
-  </class>
+  <version ClassVersion="13" checksum="1293886956"/>
+  <version ClassVersion="14" checksum="481001444"/>
+ </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
@@ -74,8 +77,10 @@
 	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenVertex*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
@@ -97,17 +102,69 @@
 
 	<!-- GenFilterInfo -->
 
-	<class name="GenFilterInfo" ClassVersion="10">
+	<class name="GenFilterInfo" ClassVersion="11">
+  <version ClassVersion="11" checksum="1506634242"/>
   <version ClassVersion="10" checksum="2060912306"/>
  </class>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="numPassPositiveEvents_">
+	  <![CDATA[numPassPositiveEvents_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numPassNegativeEvents_">
+	  <![CDATA[numPassNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="numTotalPositiveEvents_">
+	  <![CDATA[numTotalPositiveEvents_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numTotalNegativeEvents_">
+	  <![CDATA[numTotalNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights_">
+	  <![CDATA[sumPassWeights_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights2_">
+	  <![CDATA[sumPassWeights2_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights_">
+	  <![CDATA[sumTotalWeights_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights2_">
+	  <![CDATA[sumTotalWeights2_ = onfile.numEventsTried_;]]>
+	</ioread> 
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
+	<!-- GenLumiInfoProduct -->
+
+	<class name="GenLumiInfoProduct" ClassVersion="10">
+	  <version ClassVersion="10" checksum="2365797689"/> 
+	</class>
+	<class name="GenLumiInfoHeader" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1270500179"/> 
+	</class>
+	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1937303025"/>  
+	</class>
+	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1482608724"/> 
+	</class>
+	<class name="std::vector&lt;GenLumiInfoProduct::ProcessInfo&gt;"/>
+	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
+	  <version ClassVersion="10" checksum="621228037"/>
+	</class>
+	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
+        <class name="edm::Wrapper&lt;GenLumiInfoHeader&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 
-	<class name="GenEventInfoProduct" ClassVersion="10">
+ <class name="GenEventInfoProduct" ClassVersion="11">
+  <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
+    <![CDATA[nMEPartons_ = -1;]]>
+ </ioread> 
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartonsFiltered_">
+    <![CDATA[nMEPartonsFiltered_ = -1;]]>
+ </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
 
 	<!-- LHE products -->
@@ -125,28 +182,42 @@
 	<class name="LHERunInfoProduct::Header" ClassVersion="10">
   <version ClassVersion="10" checksum="1310911082"/>
  </class>
- <class name="LHEXMLStringProduct" ClassVersion="10">
+ <class name="LHEXMLStringProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="4158740350"/>
+  <version ClassVersion="11" checksum="3778311764"/>
  </class> 
  <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
 	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="10">
+	<class name="LHEEventProduct" ClassVersion="13">
   <version ClassVersion="10" checksum="1026978494"/>
+  <version ClassVersion="11" checksum="619154414"/>
+  <version ClassVersion="12" checksum="259352862"/>
+  <version ClassVersion="13" checksum="3927731647"/>
  </class>
+ <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
+    <![CDATA[npLO_ = -99;]]>
+  </ioread> 
+ <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npNLO_">
+    <![CDATA[npNLO_ = -99;]]>
+  </ioread>   
+ <class name="gen::WeightsInfo" ClassVersion="10">
+  <version ClassVersion="10" checksum="2663143460"/>
+ </class>
+ <class name="std::vector<gen::WeightsInfo>"/>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
-<!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
-<ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
+ <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
+ <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
    <![CDATA[m_defined=true;
    ]]>
-</ioread>
-<ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
+ </ioread>
+ <ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
    <![CDATA[hepmc_rootio::weightcontainer_set_default_names(onfile.m_weights.size(),m_names);
    ]]>
-</ioread>        
+ </ioread>        
 
 </lcgdict>

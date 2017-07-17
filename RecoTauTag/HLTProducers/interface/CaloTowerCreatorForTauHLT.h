@@ -16,41 +16,47 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include <string>
-#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
 }
 
-class CaloTowerCreatorForTauHLT : public edm::EDProducer {
+class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
  public:
   /// constructor from parameter set
   CaloTowerCreatorForTauHLT( const edm::ParameterSet & );
   /// destructor
   ~CaloTowerCreatorForTauHLT();
+  /// 
+  static void fillDescriptions( edm::ConfigurationDescriptions& desc );
 
  private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& ) override;
-  /// verbosity
-  int mVerbose;
-  /// label of source collection
- edm::InputTag mtowers;
-  /// use only towers in cone mCone around L1 candidate for regional jet reco
-  double mCone;
-  /// label of tau trigger type analysis
-  edm::InputTag mTauTrigger;
-  /// imitator of L1 seeds
-  edm::InputTag ml1seeds;
-  /// ET threshold
-  double mEtThreshold;
-  /// E threshold
-  double mEThreshold;
+  void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
 
+  /// verbosity
+  const int mVerbose;
+  /// label of source collection
+  const edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
+  /// use only towers in cone mCone around L1 candidate for regional jet reco
+  const double mCone;
+  /// label of tau trigger type analysis
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> mTauTrigger_token;
+  /// imitator of L1 seeds
+  //edm::InputTag ml1seeds;
+  /// ET threshold
+  const double mEtThreshold;
+  /// E threshold
+  const double mEThreshold;
   //
-  int mTauId;
+  const int mTauId;
 
 };
 

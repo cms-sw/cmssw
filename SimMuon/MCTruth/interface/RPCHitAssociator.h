@@ -11,6 +11,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <vector>
 #include <map>
@@ -35,13 +36,16 @@ class RPCHitAssociator {
    typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
   // Constructor with configurable parameters
-  RPCHitAssociator(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
+   RPCHitAssociator(const edm::ParameterSet&, edm::ConsumesCollector && ic); 
+   RPCHitAssociator(const edm::Event& e, const edm::EventSetup& eventSetup, const edm::ParameterSet& conf );
 
+   void initEvent(const edm::Event&, const edm::EventSetup&);
+  
   // Destructor
   ~RPCHitAssociator(){}
 
-   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit);
-   std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx);
+   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit) const;
+   std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const;
    //   const PSimHit* linkToSimHit(RPCDigiSimLink link);
 
 
@@ -52,6 +56,10 @@ class RPCHitAssociator {
    bool crossingframe;
    edm::InputTag RPCsimhitsTag;
    edm::InputTag RPCsimhitsXFTag;
+
+   edm::EDGetTokenT<CrossingFrame<PSimHit> > RPCsimhitsXFToken_;
+   edm::EDGetTokenT<edm::PSimHitContainer> RPCsimhitsToken_;
+   edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink> > RPCdigisimlinkToken_; 
 
    std::map<unsigned int, edm::PSimHitContainer> _SimHitMap;
 

@@ -6,6 +6,8 @@
 #include <iostream>
 
 // Framework headers
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -106,6 +108,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   
   // Error collection
   produces<L1TriggerErrorCollection>();
+  consumes<FEDRawDataCollection>(inputLabel_);
 }
 
 
@@ -116,16 +119,31 @@ GctRawToDigi::~GctRawToDigi()
   delete formatTranslator_;
 }
 
+void GctRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("unpackSharedRegions",false);
+  desc.add<unsigned int>("numberOfGctSamplesToUnpack",1);
+  desc.add<unsigned int>("numberOfRctSamplesToUnpack",1);
+  desc.add<bool>("hltMode",false);
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  static const char* const kComment=
+    " \n"
+    "   value   |                        Unpacker/RAW Format Version \n"
+    "-----------|---------------------------------------------------------------------------- \n"
+    "     0     |   Auto-detects RAW Format in use - the recommended option \n"
+    "     1     |   Force usage of the Monte-Carlo Legacy unpacker (unpacks DigiToRaw events) \n"
+    "     2     |   Force usage of the RAW Format V35 unpacker \n"
+    "     3     |   Force usage of the RAW Format V38 unpacker \n";
+  desc.add<unsigned int>("unpackerVersion",0)->setComment(kComment);
+  desc.addUntracked<int>("gctFedId",745);
+  desc.addUntracked<bool>("checkHeaders",false),
+  desc.addUntracked<bool>("verbose",false);
+  descriptions.add("gctRawToDigi",desc);
+}
 
 //
 // member functions
 //
-
-// ------------ method called once each job just before starting event loop  ------------
-void GctRawToDigi::beginJob()
-{
-}
-
 
 // ------------ method called to produce the data  ------------
 void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -133,7 +151,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::auto_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));  
+  std::unique_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));  
   errors_ = colls->errors();
   
   // get raw data collection

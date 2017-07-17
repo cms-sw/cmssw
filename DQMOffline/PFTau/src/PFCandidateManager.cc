@@ -1,9 +1,9 @@
 #include "DQMOffline/PFTau/interface/PFCandidateManager.h"
 
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <TROOT.h>
@@ -42,11 +42,8 @@ void PFCandidateManager::setParameters( float dRMax,
   
 }
 
-void PFCandidateManager::setup() {
-  candBench_.setup();
-  pfCandBench_.setup();
-  matchCandBench_.setup();
+void PFCandidateManager::setup(DQMStore::IBooker& b) {
+  candBench_.setup(b);
+  pfCandBench_.setup(b);
+  matchCandBench_.setup(b);
 }
-
-
-

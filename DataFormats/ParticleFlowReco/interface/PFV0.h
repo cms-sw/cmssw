@@ -37,10 +37,10 @@ namespace reco {
     const reco::VertexCompositeCandidateRef& originalV0() const   {return originalV0_;} 
     
     /// Vector of a Refs of PFRecTrack
-    std::vector<reco::PFRecTrackRef> pfTracks() const {return pfTracks_ ;} 
+    const std::vector<reco::PFRecTrackRef>& pfTracks() const {return pfTracks_ ;} 
 
     /// Vector of a Refs of Track
-    std::vector<reco::TrackRef> Tracks() const {return tracks_;} 
+    const std::vector<reco::TrackRef>& Tracks() const {return tracks_;} 
 
   private:
     

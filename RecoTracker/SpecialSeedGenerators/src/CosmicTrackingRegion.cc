@@ -23,20 +23,37 @@ using namespace std;
 using namespace ctfseeding; 
 
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
-						const edm::EventSetup& es,
+TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::EventSetup& es,
 						const  ctfseeding::SeedingLayer* layer) const
+{
+  TrackingRegion::ctfHits result;
+  TrackingRegion::Hits tmp;
+  hits_(es, *layer, tmp);
+  result.reserve(tmp.size());
+  for ( auto h : tmp) result.emplace_back(*h); // not owned
+  return result;
+}
+
+TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
+						const SeedingLayerSetsHits::SeedingLayer& layer) const
+{
+  TrackingRegion::Hits result;
+  hits_(es, layer, result);
+  return result;
+}
+
+template <typename T>
+void CosmicTrackingRegion::hits_(const edm::EventSetup& es,
+				 const T& layer, TrackingRegion::Hits  & result) const
 {
 
   //get and name collections
   //++++++++++++++++++++++++
 
-  //tracking region
-  TrackingRegion::Hits result;
-
+ 
   //detector layer
-  const DetLayer * detLayer = layer->detLayer();
-  LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer->name();
+  const DetLayer * detLayer = layer.detLayer();
+  LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer.name();
   EtaPhiMeasurementEstimator est(0.3,0.3);
 
   //magnetic field
@@ -97,34 +114,26 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
   //++++++++
 
   //measurement tracker (find hits)
-  edm::ESHandle<MeasurementTracker> measurementTrackerESH;
-  es.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerESH);
-  const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
-  measurementTracker->update(ev);
-  LayerMeasurements lm(measurementTracker);
+  LayerMeasurements lm(theMeasurementTracker_->measurementTracker(), *theMeasurementTracker_);
   vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, est);
   LogDebug("CosmicTrackingRegion") << "Number of Trajectory measurements = " << meas.size()
 				   <<" but the last one is always an invalid hit, by construction.";
 
   //trajectory measurement
-  typedef vector<TrajectoryMeasurement>::const_iterator IM;
 
-  for (IM im = meas.begin(); im != meas.end(); im++) {//loop on measurement tracker
-    TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
+  // std::cout <<"CRegion b " << cache.size() << std::endl;
 
-    if (ptrHit->isValid()) { 
-      LogDebug("CosmicTrackingRegion") << "Hit found in the region at position: "<<ptrHit->globalPosition();
-      result.push_back(  ptrHit );
-    }//end if isValid()
+  // waiting for a migration at LayerMeasurements level and at seed builder level
+  for (auto const & im : meas) {
+    if(!im.recHit()->isValid()) continue;
+    assert(!trackerHitRTTI::isUndef(*im.recHit()->hit()));
+    auto ptrHit = (BaseTrackerRecHit *)(im.recHit()->hit()->clone());
+    cache.emplace_back(ptrHit);
+    result.emplace_back(ptrHit);
+  }
 
-    else LogDebug("CosmicTrackingRegion") << "No valid hit";
-  }//end loop on measurement tracker
+  // std::cout <<"CRegion a " << cache.size() << std::endl;
 
-  
-  //result
-  //++++++
-
-  return result;
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef Cond_IOVKeysDescription_h
 #define Cond_IOVKeysDescription_h
 
+#include "CondFormats/Common/interface/IOVDescription.h"
 #include "CondFormats/Common/interface/SmallWORMDict.h"
 #include <string>
 
@@ -29,7 +30,9 @@ namespace cond {
     SmallWORMDict dict_m;
     std::string m_tag;
 
-  };
+  
+ COND_SERIALIZABLE;
+};
 
 
 }

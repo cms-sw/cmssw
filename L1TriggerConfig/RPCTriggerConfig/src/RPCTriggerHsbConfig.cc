@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -41,7 +40,7 @@ class RPCTriggerHsbConfig : public edm::ESProducer {
       RPCTriggerHsbConfig(const edm::ParameterSet&);
       ~RPCTriggerHsbConfig();
 
-      typedef std::auto_ptr<L1RPCHsbConfig> ReturnType;
+      typedef std::unique_ptr<L1RPCHsbConfig> ReturnType;
 
       ReturnType produce(const L1RPCHsbConfigRcd&);
    private:
@@ -97,7 +96,7 @@ RPCTriggerHsbConfig::produce(const L1RPCHsbConfigRcd& iRecord)
 {
 
    using namespace edm::es;
-   std::auto_ptr<L1RPCHsbConfig> pRPCTriggerHsbConfig = std::auto_ptr<L1RPCHsbConfig>( new L1RPCHsbConfig() );
+   auto pRPCTriggerHsbConfig = std::make_unique<L1RPCHsbConfig>();
 
    pRPCTriggerHsbConfig->setHsbMask(0, m_hsb0);
    pRPCTriggerHsbConfig->setHsbMask(1, m_hsb1);

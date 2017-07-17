@@ -1,12 +1,92 @@
-#include "GeneratorInterface/Core/interface/GenFilterEfficiencyProducer.h"
+// F. Cossutti
+// 
 
+// producer of a summary information product on filter efficiency for a user specified path
+// meant for the generator filter efficiency calculation
+
+// system include files
+#include <memory>
+#include <string>
+#include <atomic>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+namespace genFilterEff {
+  struct Sums {
+    mutable std::atomic<unsigned int> numEventsPassPos_ ={0};
+    mutable std::atomic<unsigned int> numEventsPassNeg_ ={0};
+    mutable std::atomic<unsigned int> numEventsTotalPos_ ={0};
+    mutable std::atomic<unsigned int> numEventsTotalNeg_ ={0};
+    mutable std::atomic<double> sumpass_w_ ={0};
+    mutable std::atomic<double> sumpass_w2_ ={0};
+    mutable std::atomic<double> sumtotal_w_ ={0};
+    mutable std::atomic<double> sumtotal_w2_ ={0};
+  };
+}
+
+namespace {
+  void atomic_sum_double(std::atomic<double>& oValue, double element) {
+    double v = oValue.load();
+    double sum = v+element;
+    while( not oValue.compare_exchange_strong(v, sum) ) {
+      //some other thread updated oValue
+      sum = v+element;
+    }
+  }
+}
+using namespace genFilterEff;
+
+class GenFilterEfficiencyProducer : public edm::global::EDProducer<edm::EndLuminosityBlockProducer,
+                                                                   edm::LuminosityBlockCache<Sums>> {
+public:
+  explicit GenFilterEfficiencyProducer(const edm::ParameterSet&);
+  ~GenFilterEfficiencyProducer();
+  
+  
+private:
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) const override;
+
+  std::shared_ptr<Sums> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
+  
+  std::string filterPath;
+
+  edm::service::TriggerNamesService* tns_;
+
+  std::string thisProcess;
+  unsigned int pathIndex;
+
+};
+
 
 GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet& iConfig) :
   filterPath(iConfig.getParameter<std::string>("filterPath")),
   tns_(),
-  thisProcess(),pathIndex(100000),
-  numEventsTotal(0),numEventsPassed(0)
+  thisProcess(),pathIndex(100000)
 {
    //now do what ever initialization is needed
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
@@ -23,8 +103,11 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
       edm::LogError("ServiceNotAvailable") << "TriggerNamesServive not available, no filter information stored";
   }
 
-  produces<GenFilterInfo, edm::InLumi>(); 
+  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",thisProcess));
+  genEventInfoToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator",""));
+  produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>(); 
 
+  
 }
 
 
@@ -40,35 +123,83 @@ GenFilterEfficiencyProducer::~GenFilterEfficiencyProducer()
 
 // ------------ method called to for each event  ------------
 void
-GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-  edm::InputTag theTrig("TriggerResults","",thisProcess);
   edm::Handle<edm::TriggerResults> trigR;
-  iEvent.getByLabel(theTrig,trigR); 
- 
+  iEvent.getByToken(triggerResultsToken_,trigR); 
+  edm::Handle<GenEventInfoProduct>    genEventScale;
+  iEvent.getByToken(genEventInfoToken_,genEventScale);
+  if (!genEventScale.isValid()) return;
+  double weight = genEventScale->weight();
+
+  auto sums = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+
+  
   unsigned int nSize = (*trigR).size();
   // std::cout << "Number of paths in TriggerResults = " << nSize  << std::endl;
   if ( nSize >= pathIndex ) {
-    if ( trigR->wasrun(pathIndex) ) { numEventsTotal++; }
-    if ( trigR->accept(pathIndex) ) { numEventsPassed++; }
+
+    if (!trigR->wasrun(pathIndex))return;
+    if ( trigR->accept(pathIndex) ) { 
+      atomic_sum_double(sums->sumpass_w_, weight);
+      atomic_sum_double(sums->sumpass_w2_, weight*weight);
+      
+      atomic_sum_double(sums->sumtotal_w_, weight);
+      atomic_sum_double(sums->sumtotal_w2_, weight*weight);
+
+      if(weight > 0)
+	{
+	  sums->numEventsPassPos_++;
+	  sums->numEventsTotalPos_++;
+	}
+      else
+	{
+	  sums->numEventsPassNeg_++;
+	  sums->numEventsTotalNeg_++;
+	}
+
+    }
+    else // if fail the filter
+      {
+	atomic_sum_double(sums->sumtotal_w_,weight);
+	atomic_sum_double(sums->sumtotal_w2_, weight*weight);
+
+	if(weight > 0)
+	  sums->numEventsTotalPos_++;
+	else
+	  sums->numEventsTotalNeg_++;
+      }
     //    std::cout << "Total events = " << numEventsTotal << " passed = " << numEventsPassed << std::endl;
+
   }
+  
+}
+
+std::shared_ptr<Sums> 
+GenFilterEfficiencyProducer::globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const {
+  return std::make_shared<Sums>();
 }
 
 void
-GenFilterEfficiencyProducer::beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) {
-
-  numEventsTotal = 0;
-  numEventsPassed = 0;  
-}
-void
-GenFilterEfficiencyProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) {
+GenFilterEfficiencyProducer::globalEndLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) const {
 }
 
 void
-GenFilterEfficiencyProducer::endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup&) {
-
-  std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(numEventsTotal,numEventsPassed));
-  iLumi.put(thisProduct);
+GenFilterEfficiencyProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup&) const {
+  auto sums = luminosityBlockCache(iLumi.index());
+  std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+                                                               sums->numEventsPassPos_,
+                                                               sums->numEventsPassNeg_,
+                                                               sums->numEventsTotalPos_,
+                                                               sums->numEventsTotalNeg_,
+                                                               sums->sumpass_w_,
+                                                               sums->sumpass_w2_,
+                                                               sums->sumtotal_w_,
+                                                               sums->sumtotal_w2_
+							     ));
+  iLumi.put(std::move(thisProduct));
 }
+
+DEFINE_FWK_MODULE(GenFilterEfficiencyProducer);
+

@@ -2,9 +2,9 @@
 
 /**
   \class    ElectronConversionRejectionVars"
-  \brief    Store electron partner track conversion-rejection quantities 
+  \brief    Store electron partner track conversion-rejection quantities
             ("dist" and "dcot") in the TP tree.
-            
+
   \author   Kalanand Mishra
   Fermi National Accelerator Laboratory
 */
@@ -38,11 +38,15 @@ class ElectronConversionRejectionVars : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
-        edm::InputTag probes_;            
+        edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;
+        edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+        edm::EDGetTokenT<reco::GsfElectronCollection> gsfElecsToken_;
 };
 
 ElectronConversionRejectionVars::ElectronConversionRejectionVars(const edm::ParameterSet & iConfig) :
-    probes_(iConfig.getParameter<edm::InputTag>("probes"))
+    probesToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("probes"))),
+    tracksToken_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks")))                     ,
+    gsfElecsToken_(consumes<reco::GsfElectronCollection>(edm::InputTag("gsfElectrons")))
 {
     produces<edm::ValueMap<float> >("dist");
     produces<edm::ValueMap<float> >("dcot");
@@ -55,7 +59,7 @@ ElectronConversionRejectionVars::~ElectronConversionRejectionVars()
 {
 }
 
-void 
+void
 ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
 
@@ -64,41 +68,41 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
     edm::Handle<reco::TrackCollection> tracks_h;
     edm::Handle<reco::GsfElectronCollection> elHandle;
 
-    iEvent.getByLabel(probes_,  probes);
-    iEvent.getByLabel("generalTracks", tracks_h );
-    iEvent.getByLabel("gsfElectrons", elHandle);
-    
+    iEvent.getByToken(probesToken_,  probes);
+    iEvent.getByToken(tracksToken_, tracks_h );
+    iEvent.getByToken(gsfElecsToken_, elHandle);
+
     float evt_bField = 3.8;
 
 
-    // prepare vector for output   
+    // prepare vector for output
     std::vector<float> values;
     std::vector<float> values2;
     std::vector<float> values3;
     std::vector<float> values4;
 
-    // fill: use brute force    
+    // fill: use brute force
     double dist = 0.0;
     double dcot = 0.0;
     double convradius = 0.0;
     double passConvRej = 0.0;
     ConversionFinder convFinder;
 
-    View<reco::Candidate>::const_iterator probe, endprobes = probes->end(); 
+    View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
     const reco::GsfElectronCollection* electronCollection = elHandle.product();
     reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
 
     for (probe = probes->begin(); probe != endprobes; ++probe) {
       for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
-	if( fabs(eleIt->et() - probe->et() ) < 0.05 && fabs(eleIt->eta() - probe->eta() ) < 0.01 
+	if( fabs(eleIt->et() - probe->et() ) < 0.05 && fabs(eleIt->eta() - probe->eta() ) < 0.01
 	    && fabs(eleIt->phi() - probe->phi() ) < 0.01 ){
-	  //we have a match    
+	  //we have a match
 	  ConversionInfo convInfo = convFinder.getConversionInfo(*eleIt, tracks_h, evt_bField);
 	  dist = convInfo.dist();
 	  dcot = convInfo.dcot();
 	  convradius = convInfo.radiusOfConversion();
 	  if( fabs(dist)>0.02 && fabs(dcot)>0.02)  passConvRej = 1.0;
-	  break; //got our guy, so break  
+	  break; //got our guy, so break
 	}
       }
       values.push_back(dist);
@@ -109,34 +113,34 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
 
 
     // convert into ValueMap and store
-    std::auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+    auto valMap = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler(*valMap);
     filler.insert(probes, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, "dist");
+    iEvent.put(std::move(valMap), "dist");
 
 
-    // ---> same for dcot   
-    std::auto_ptr<ValueMap<float> > valMap2(new ValueMap<float>());
+    // ---> same for dcot
+    auto valMap2 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler2(*valMap2);
     filler2.insert(probes, values2.begin(), values2.end());
     filler2.fill();
-    iEvent.put(valMap2, "dcot");
+    iEvent.put(std::move(valMap2), "dcot");
 
-    // ---> same for convradius   
-    std::auto_ptr<ValueMap<float> > valMap3(new ValueMap<float>());
+    // ---> same for convradius
+    auto valMap3 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler3(*valMap3);
     filler3.insert(probes, values3.begin(), values3.end());
     filler3.fill();
-    iEvent.put(valMap3, "convradius");
+    iEvent.put(std::move(valMap3), "convradius");
 
 
-    // ---> same for passConvRej  
-    std::auto_ptr<ValueMap<float> > valMap4(new ValueMap<float>());
+    // ---> same for passConvRej
+    auto valMap4 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler4(*valMap4);
     filler4.insert(probes, values4.begin(), values4.end());
     filler4.fill();
-    iEvent.put(valMap4, "passConvRej");
+    iEvent.put(std::move(valMap4), "passConvRej");
 }
 
 

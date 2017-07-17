@@ -24,6 +24,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //   3D and RPZ proxy builder with shared track list
@@ -36,8 +38,15 @@ public:
    FWElectronProxyBuilder() ;
    virtual ~FWElectronProxyBuilder();
 
+   using FWProxyBuilderBase::haveSingleProduct;
    virtual bool haveSingleProduct() const override { return false; }
+   using FWProxyBuilderBase::cleanLocal;
    virtual void cleanLocal() override;
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::buildViewType;
+   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::setItem;
+   virtual void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -45,8 +54,7 @@ private:
    FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
   
-   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
-
+ 
    TEveElementList* requestCommon();
 
    TEveElementList* m_common;
@@ -65,11 +73,24 @@ FWElectronProxyBuilder::~FWElectronProxyBuilder()
    m_common->DecDenyDestroy();
 }
 
+
+void
+FWElectronProxyBuilder::setItem(const FWEventItem* iItem)
+{
+   FWProxyBuilderBase::setItem(iItem);
+   
+   if (iItem) {
+      iItem->getConfig()->assertParam("LineWidth", long(1), long(1), long(4));
+   }
+}
+
+
 TEveElementList*
 FWElectronProxyBuilder::requestCommon()
 {
    if( m_common->HasChildren() == false )
    {
+      int width = item()->getConfig()->value<long>("LineWidth");
       for (int i = 0; i < static_cast<int>(item()->size()); ++i)
       {
          const reco::GsfElectron& electron = modelData(i);
@@ -82,6 +103,7 @@ FWElectronProxyBuilder::requestCommon()
             track = fireworks::prepareCandidate( electron,
                                                  context().getTrackPropagator());
          track->MakeTrack();
+         track->SetLineWidth(width);
          setupElement( track );
          m_common->AddElement( track );
       }
@@ -129,6 +151,7 @@ class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 public:
    FWElectronGlimpseProxyBuilder() {}
    virtual ~FWElectronGlimpseProxyBuilder() {}
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::build;
 
    REGISTER_PROXYBUILDER_METHODS();
 

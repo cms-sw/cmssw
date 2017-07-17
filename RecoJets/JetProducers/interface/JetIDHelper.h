@@ -1,7 +1,14 @@
 #ifndef RecoJets_JetProducers_interface_JetIDHelper_h
 #define RecoJets_JetProducers_interface_JetIDHelper_h
 
+#include <atomic>
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -17,7 +24,7 @@ namespace reco {
     public : 
       // construction
       JetIDHelper() {}
-      JetIDHelper( edm::ParameterSet const & pset );
+      JetIDHelper( edm::ParameterSet const & pset, edm::ConsumesCollector&& iC );
       ~JetIDHelper() {} 
 
       void fillDescription(edm::ParameterSetDescription& iDesc);
@@ -126,7 +133,15 @@ namespace reco {
       edm::InputTag ebRecHitsColl_;
       edm::InputTag eeRecHitsColl_;
 
-      static int sanity_checks_left_;
+      static std::atomic<int> sanity_checks_left_;
+
+      edm::EDGetTokenT<HBHERecHitCollection> input_HBHERecHits_token_;
+      edm::EDGetTokenT<HORecHitCollection> input_HORecHits_token_;
+      edm::EDGetTokenT<HFRecHitCollection> input_HFRecHits_token_;
+      edm::EDGetTokenT<EBRecHitCollection> input_EBRecHits_token_;
+      edm::EDGetTokenT<EERecHitCollection> input_EERecHits_token_;
+
+
     };
   }
 }

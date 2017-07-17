@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_GsfTrackReco {
   struct dictionary {
     reco::GsfTrackExtraCollection v4;
     edm::Wrapper<reco::GsfTrackExtraCollection> c4;

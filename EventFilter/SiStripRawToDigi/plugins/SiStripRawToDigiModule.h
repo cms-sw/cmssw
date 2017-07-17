@@ -1,10 +1,11 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -22,7 +23,7 @@ class SiStripFedCabling;
 
 namespace sistrip {
   
-  class RawToDigiModule : public edm::EDProducer {
+  class dso_hidden RawToDigiModule final : public edm::stream::EDProducer<> {
     
   public:
     
@@ -37,7 +38,7 @@ namespace sistrip {
     void updateCabling( const edm::EventSetup& );
     
     RawToDigiUnpacker* rawToDigi_;
-    edm::InputTag productLabel_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
     const SiStripFedCabling* cabling_;
     uint32_t cacheId_;
     bool extractCm_;    

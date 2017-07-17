@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,20 +16,17 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -37,7 +34,7 @@ class OutInConversionTrackFinder;
 class InOutConversionTrackFinder;
 
 // ConversionTrackCandidateProducer inherits from EDProducer, so it can be a module:
-class ConversionTrackCandidateProducer : public edm::EDProducer {
+class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -45,8 +42,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   ~ConversionTrackCandidateProducer();
   
   virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void endRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 
@@ -62,14 +58,14 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::string OutInTrackSuperClusterAssociationCollection_;
   std::string InOutTrackSuperClusterAssociationCollection_;
   
-  edm::InputTag bcBarrelCollection_;
-  edm::InputTag bcEndcapCollection_;
-  edm::InputTag scHybridBarrelProducer_;
-  edm::InputTag scIslandEndcapProducer_;
-  edm::ParameterSet conf_;
-  edm::InputTag hcalTowers_;
-  edm::InputTag barrelecalCollection_;
-  edm::InputTag endcapecalCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkEvtToken_;
  
   double hOverEConeSize_;
   double maxHOverE_;
@@ -93,11 +89,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
-  const NavigationSchool*     theNavigationSchool_;
-  OutInConversionSeedFinder*  theOutInSeedFinder_;
-  OutInConversionTrackFinder* theOutInTrackFinder_;
-  InOutConversionSeedFinder*  theInOutSeedFinder_;
-  InOutConversionTrackFinder* theInOutTrackFinder_;
+  std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
+
+  std::unique_ptr<OutInConversionSeedFinder>  theOutInSeedFinder_;
+  std::unique_ptr<OutInConversionTrackFinder> theOutInTrackFinder_;
+  std::unique_ptr<InOutConversionSeedFinder>  theInOutSeedFinder_;
+  std::unique_ptr<InOutConversionTrackFinder> theInOutTrackFinder_;
 
 
   std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecOutIn_; 
@@ -110,7 +107,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 			const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
-			CaloRecHitMetaCollectionV* metaEcalRecHits,
+			const EcalRecHitCollection& ecalRecHits,
 			const EcalSeverityLevelAlgo* sevLev,
 			//edm::ESHandle<EcalChannelStatus>  chStatus,
 			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,

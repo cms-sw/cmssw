@@ -6,11 +6,7 @@
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-// Can move the second constructor to .cc, too ... or make all 
-// functions inline?
-// class MagneticField;
-#include "MagneticField/Engine/interface/MagneticField.h"
-
+class MagneticField;
 /** Class providing access to a set of relevant parameters of a trajectory
  *  in the global, Cartesian frame. The basic data members used to calculate
  *  these parameters are the charge and global position and momentum.
@@ -28,16 +24,28 @@ public:
   /** Constructing class from global position, global momentum and charge.
    */
 
+  GlobalTrajectoryParameters(
+                            const GlobalPoint& aX,
+                            const GlobalVector& aP,
+                            TrackCharge aCharge,
+                            const MagneticField* fieldProvider) :
+    theField(fieldProvider),
+    theX(aX), theP(aP),
+    theCharge(aCharge)
+    {setCache();}
+
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& aP,
-                             TrackCharge aCharge, 
-			     const MagneticField* fieldProvider) :
+                             TrackCharge aCharge,
+                             const MagneticField* fieldProvider,
+                             GlobalVector fieldValue):
     theField(fieldProvider),
-    theX(aX), theP(aP),     
+    theX(aX), theP(aP),
+    cachedMagneticField(fieldValue),
     theCharge(aCharge)
-  {
-    cachedMagneticField = theField ? theField->inTesla(theX) : GlobalVector(0, 0, 0);
-  } // we must initialize cache to non-NAN to avoid FPE
+    {}
+
+
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
@@ -48,6 +56,14 @@ public:
                              const GlobalVector& direction,
                              float transverseCurvature, int, 
 			     const MagneticField* fieldProvider);
+
+
+  GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& direction,
+                             float transverseCurvature, int,
+                             const MagneticField* fieldProvider,  
+                             GlobalVector fieldValue);
+
 
   /** Global position.
    */
@@ -102,13 +118,6 @@ public:
    */
 
   AlgebraicVector6 vector() const {
-    //AlgebraicVector6 v;
-    //v[0] = theX.x();
-    //v[1] = theX.y();
-    //v[2] = theX.z();
-    //v[3] = theP.x();
-    //v[4] = theP.y();
-    //v[5] = theP.z();
     return AlgebraicVector6(theX.x(),theX.y(),theX.z(),theP.x(),theP.y(),theP.z());
   }
 
@@ -118,8 +127,14 @@ public:
     return 2.99792458e-3f * cachedMagneticField;
   }
 
+  GlobalVector magneticFieldInTesla() const {
+    return cachedMagneticField;
+  }
+
   const MagneticField& magneticField() const {return *theField;}
 
+private:
+  void setCache();
 
 private:
   const MagneticField* theField;

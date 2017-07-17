@@ -13,9 +13,18 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     PreCkfLabel = cms.string('SeedsForCkf'),
     NHitsInSeed = cms.int32(3),
     Fitter = cms.string('GsfTrajectoryFitter_forPreId'),
+    TTRHBuilder = cms.string('WithAngleAndTemplate'),
     PreGsfLabel = cms.string('SeedsForGsf'),
     MinEOverP = cms.double(0.3),
-    Weights = cms.string('RecoParticleFlow/PFTracking/data/BDT_weights_21.txt'),
+    Weights1 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat1.xml'),
+    Weights2 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat2.xml'),
+    Weights3 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat3.xml'),
+    Weights4 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat4.xml'),
+    Weights5 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat5.xml'),
+    Weights6 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat6.xml'),
+    Weights7 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat7.xml'),
+    Weights8 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat8.xml'),
+    Weights9 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat9.xml'),                                        
     PFEcalClusterLabel = cms.InputTag("particleFlowClusterECAL"),
     PFHcalClusterLabel = cms.InputTag("particleFlowClusterHCAL"),
     PSThresholdFile = cms.string('RecoParticleFlow/PFTracking/data/PSThreshold.dat'),
@@ -36,7 +45,11 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     UsePreShower =cms.bool(False),
     PreIdLabel = cms.string('preid'),
     ProducePreId = cms.untracked.bool(True),
-    PtThresholdSavePreId = cms.untracked.double(1.0)  
+    PtThresholdSavePreId = cms.untracked.double(1.0),
+    Min_dr = cms.double(0.2)
 )
 
-
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle') # FIXME

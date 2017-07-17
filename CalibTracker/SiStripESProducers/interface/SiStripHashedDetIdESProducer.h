@@ -22,7 +22,7 @@ class SiStripHashedDetIdESProducer : public edm::ESProducer {
   virtual ~SiStripHashedDetIdESProducer();
 
   /** Calls pure virtual make() method, to force concrete implementation. */
-  virtual std::auto_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
+  virtual std::unique_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
   
  private:
   

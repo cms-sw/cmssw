@@ -96,6 +96,7 @@ public:
     ~FFTJetCorrectionProducer();
 
 private:
+
     virtual void beginJob() override ;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override ;
@@ -136,6 +137,9 @@ private:
 
     // Event counter
     unsigned long eventCount;
+ 
+    // tokens for data access
+    edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::Jet> > > input_jets_token_;  
 };
 
 
@@ -171,8 +175,6 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
                                                 const edm::EventSetup& iSetup)
 {
     using reco::FFTJet;
-
-    // Various useful typedefs
     typedef reco::FFTAnyJet<Jet> MyJet;
     typedef std::vector<MyJet> MyCollection;
     typedef typename FFTJetCorrectorSequenceTypemap<MyJet>::loader Loader;
@@ -222,11 +224,11 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
 
     // Load the jet collection
     edm::Handle<MyCollection> jets;
-    iEvent.getByLabel(inputLabel, jets);
+    iEvent.getByToken(input_jets_token_, jets);
 
     // Create the output collection
     const unsigned nJets = jets->size();
-    std::auto_ptr<MyCollection> coll(new MyCollection());
+    auto coll = std::make_unique<MyCollection>();
     coll->reserve(nJets);
 
     // Cycle over jets and apply the corrector sequences
@@ -338,7 +340,7 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
     // Create the uncertainty sequence
     if (writeUncertainties)
     {
-        std::auto_ptr<std::vector<float> > unc(new std::vector<float>());
+        auto unc = std::make_unique<std::vector<float>>();
         unc->reserve(nJets);
         for (unsigned ijet=0; ijet<nJets; ++ijet)
         {
@@ -346,10 +348,10 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
             unc->push_back(j.pileup());
             j.setPileup(0.f);
         }
-        iEvent.put(unc, outputLabel);
+        iEvent.put(std::move(unc), outputLabel);
     }
 
-    iEvent.put(coll, outputLabel);
+    iEvent.put(std::move(coll), outputLabel);
     ++eventCount;
 }
 
@@ -374,6 +376,8 @@ FFTJetCorrectionProducer::FFTJetCorrectionProducer(const edm::ParameterSet& ps)
 
     if (writeUncertainties)
         produces<std::vector<float> >(outputLabel).setBranchAlias(alias);
+
+    input_jets_token_ = consumes<std::vector<reco::FFTAnyJet<reco::Jet> > >(inputLabel);
 }
 
 

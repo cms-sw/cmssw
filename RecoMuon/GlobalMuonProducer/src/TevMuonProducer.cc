@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/TevMuonProducer.h"
 
@@ -24,19 +25,10 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 
-// Input and output collection
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
+using namespace reco;
 
 //
 // constructor with config
@@ -47,20 +39,23 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
 
   // GLB Muon Collection Label
   theGLBCollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
+  glbMuonsToken=consumes<reco::TrackCollection>(theGLBCollectionLabel);
+  glbMuonsTrajToken=consumes<std::vector<Trajectory> >(theGLBCollectionLabel.label());
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-  
+  edm::ConsumesCollector iC  = consumesCollector();  
+
   // TrackRefitter parameters
   ParameterSet refitterParameters = parameterSet.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+  theRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  theTrackLoader = new MuonTrackLoader(trackLoaderParameters,theService);
+  theTrackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
 
   theRefits = parameterSet.getParameter< std::vector<std::string> >("Refits");
   theRefitIndex = parameterSet.getParameter< std::vector<int> >("RefitIndex");
@@ -74,6 +69,7 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
     produces<TrajTrackAssociationCollection>(theRefits[ww]);
     produces<reco::TrackToTrackMap>(theRefits[ww]);
   }
+  produces<DYTestimators> ("dytInfo");
 }
 
 
@@ -107,13 +103,18 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  eventSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  eventSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
   // Take the GLB muon container(s)
   Handle<reco::TrackCollection> glbMuons;
-  event.getByLabel(theGLBCollectionLabel,glbMuons);
+  event.getByToken(glbMuonsToken,glbMuons);
+
+  auto dytInfo = std::make_unique<DYTestimators>();
+  DYTestimators::Filler filler(*dytInfo);
+  size_t GLBmuonSize = glbMuons->size();
+  vector<DYTInfo> dytTmp(GLBmuonSize);
 
   Handle<vector<Trajectory> > glbMuonsTraj;
 
@@ -121,7 +122,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   vector<MuonTrajectoryBuilder::TrackCand> glbTrackCands;
 
-  event.getByLabel(theGLBCollectionLabel.label(), glbMuonsTraj);
+  event.getByToken(glbMuonsTrajToken, glbMuonsTraj);
     
   const reco::TrackCollection *glbTracks = glbMuons.product();
   
@@ -130,10 +131,14 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     std::vector<std::pair<Trajectory*,reco::TrackRef> > miniMap;
     vector<Trajectory*> trajectories;
     reco::TrackRef::key_type trackIndex = 0;
+    int glbCounter = 0;
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track!=glbTracks->end(); track++ , ++trackIndex) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
       
       vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww],tTopo);
+
+      if (theRefits[ww] == "dyt") dytTmp[glbCounter] = *theRefitter->getDYTInfo();
+      glbCounter++;
 
       if (refitted.size()>0) {
         Trajectory *refit = new Trajectory(refitted.front());
@@ -143,9 +148,12 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 	miniMap.push_back(thisPair);
       }
     }
-    theTrackLoader->loadTracks(trajectories,event,miniMap,theRefits[ww]);
+    theTrackLoader->loadTracks(trajectories,event,miniMap,glbMuons, *tTopo, theRefits[ww]);
   }
+
+  filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());
+  filler.fill();
+  event.put(std::move(dytInfo), "dytInfo");
     
   LogTrace(metname) << "Done." << endl;    
-
 }

@@ -1,253 +1,134 @@
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterProducer.h"
+#include "PFClusterProducer.h"
 
-#include <memory>
+#ifdef PFLOW_DEBUG
+#define LOGVERB(x) edm::LogVerbatim(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) edm::LogInfo(x)
+#else
+#define LOGVERB(x) LogTrace(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) LogDebug(x)
+#endif
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-// Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
-using namespace std;
-using namespace edm;
-
-namespace {
-  const std::string PositionCalcType__EGPositionCalc("EGPositionCalc");
-  const std::string PositionCalcType__EGPositionFormula("EGPositionFormula");
-  const std::string PositionCalcType__PFPositionCalc("PFPositionCalc");
-}
-
-PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
+PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
+  _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters",false))
 {
-    
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  // parameters for clustering
-  
-  double threshBarrel = 
-    iConfig.getParameter<double>("thresh_Barrel");
-  double threshSeedBarrel = 
-    iConfig.getParameter<double>("thresh_Seed_Barrel");
-
-  double threshPtBarrel = 
-    iConfig.getParameter<double>("thresh_Pt_Barrel");
-  double threshPtSeedBarrel = 
-    iConfig.getParameter<double>("thresh_Pt_Seed_Barrel");
-
-  double threshCleanBarrel = 
-    iConfig.getParameter<double>("thresh_Clean_Barrel");
-  std::vector<double> minS4S1CleanBarrel = 
-    iConfig.getParameter< std::vector<double> >("minS4S1_Clean_Barrel");
-
-  double threshEndcap = 
-    iConfig.getParameter<double>("thresh_Endcap");
-  double threshSeedEndcap = 
-    iConfig.getParameter<double>("thresh_Seed_Endcap");
-
-  double threshPtEndcap = 
-    iConfig.getParameter<double>("thresh_Pt_Endcap");
-  double threshPtSeedEndcap = 
-    iConfig.getParameter<double>("thresh_Pt_Seed_Endcap");
-
-  double threshCleanEndcap = 
-    iConfig.getParameter<double>("thresh_Clean_Endcap");
-  std::vector<double> minS4S1CleanEndcap = 
-    iConfig.getParameter< std::vector<double> >("minS4S1_Clean_Endcap");
-
-  double threshDoubleSpikeBarrel = 
-    iConfig.getParameter<double>("thresh_DoubleSpike_Barrel");
-  double minS6S2DoubleSpikeBarrel = 
-    iConfig.getParameter<double>("minS6S2_DoubleSpike_Barrel");
-  double threshDoubleSpikeEndcap = 
-    iConfig.getParameter<double>("thresh_DoubleSpike_Endcap");
-  double minS6S2DoubleSpikeEndcap = 
-    iConfig.getParameter<double>("minS6S2_DoubleSpike_Endcap");
-
-  int nNeighbours = 
-    iConfig.getParameter<int>("nNeighbours");
-
-//   double posCalcP1 = 
-//     iConfig.getParameter<double>("posCalcP1");
-
-  int posCalcNCrystal = 
-    iConfig.getParameter<int>("posCalcNCrystal");
-    
-  double showerSigma = 
-    iConfig.getParameter<double>("showerSigma");
-    
-  bool useCornerCells =
-    iConfig.getParameter<bool>("useCornerCells");
-
-  bool cleanRBXandHPDs =
-    iConfig.getParameter<bool>("cleanRBXandHPDs");
-
-
-  clusterAlgo_.setThreshBarrel( threshBarrel );
-  clusterAlgo_.setThreshSeedBarrel( threshSeedBarrel );
-  
-  clusterAlgo_.setThreshPtBarrel( threshPtBarrel );
-  clusterAlgo_.setThreshPtSeedBarrel( threshPtSeedBarrel );
-  
-  clusterAlgo_.setThreshCleanBarrel(threshCleanBarrel);
-  clusterAlgo_.setS4S1CleanBarrel(minS4S1CleanBarrel);
-
-  clusterAlgo_.setThreshDoubleSpikeBarrel( threshDoubleSpikeBarrel );
-  clusterAlgo_.setS6S2DoubleSpikeBarrel( minS6S2DoubleSpikeBarrel );
-
-  clusterAlgo_.setThreshEndcap( threshEndcap );
-  clusterAlgo_.setThreshSeedEndcap( threshSeedEndcap );
-
-  clusterAlgo_.setThreshPtEndcap( threshPtEndcap );
-  clusterAlgo_.setThreshPtSeedEndcap( threshPtSeedEndcap );
-
-  clusterAlgo_.setThreshCleanEndcap(threshCleanEndcap);
-  clusterAlgo_.setS4S1CleanEndcap(minS4S1CleanEndcap);
-
-  clusterAlgo_.setThreshDoubleSpikeEndcap( threshDoubleSpikeEndcap );
-  clusterAlgo_.setS6S2DoubleSpikeEndcap( minS6S2DoubleSpikeEndcap );
-
-  clusterAlgo_.setNNeighbours( nNeighbours );
-
-  // setup the position calculation (only affects ECAL position correction)
-  std::string poscalctype = PositionCalcType__PFPositionCalc;
-  if( iConfig.existsAs<std::string>("PositionCalcType") ) {
-    poscalctype = iConfig.getParameter<std::string>("PositionCalcType");
+  _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource")); 
+  //setup rechit cleaners
+  const edm::VParameterSet& cleanerConfs = 
+    conf.getParameterSetVector("recHitCleaners");
+  for( const auto& conf : cleanerConfs ) {
+    const std::string& cleanerName = 
+      conf.getParameter<std::string>("algoName");
+    RHCB* cleaner = 
+      RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf);
+    _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
   }
-  if( poscalctype == PositionCalcType__EGPositionCalc ) {
-    clusterAlgo_.setPositionCalcType(PFClusterAlgo::EGPositionCalc);    
-    edm::ParameterSet pc_config = 
-      iConfig.getParameterSet("PositionCalcConfig");
-    clusterAlgo_.setEGammaPosCalc(pc_config);
-  } else if( poscalctype == PositionCalcType__EGPositionFormula) {
-    clusterAlgo_.setPositionCalcType(PFClusterAlgo::EGPositionFormula);
-    edm::ParameterSet pc_config = 
-      iConfig.getParameterSet("PositionCalcConfig");
-    double w0 = pc_config.getParameter<double>("W0");
-    clusterAlgo_.setPosCalcW0(w0);
-  } else if( poscalctype == PositionCalcType__PFPositionCalc) {
-    clusterAlgo_.setPositionCalcType(PFClusterAlgo::PFPositionCalc);
+  edm::ConsumesCollector sumes = consumesCollector();
+
+  // setup seed finding
+  const edm::ParameterSet& sfConf = 
+    conf.getParameterSet("seedFinder");
+  const std::string& sfName = sfConf.getParameter<std::string>("algoName");
+  SeedFinderBase* sfb = SeedFinderFactory::get()->create(sfName,sfConf);
+  _seedFinder.reset(sfb);
+  //setup topo cluster builder
+  const edm::ParameterSet& initConf = 
+    conf.getParameterSet("initialClusteringStep");
+  const std::string& initName = initConf.getParameter<std::string>("algoName");
+  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
+  _initialClustering.reset(initb);
+  //setup pf cluster builder if requested
+  _pfClusterBuilder.reset(nullptr);
+  const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
+  if( !pfcConf.empty() ) {
+    const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
+    PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
+    _pfClusterBuilder.reset(pfcb);
+  }
+  //setup (possible) recalcuation of positions
+  _positionReCalc.reset(nullptr);
+  const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
+  if( !pConf.empty() ) {
+    const std::string& pName = pConf.getParameter<std::string>("algoName");
+    PosCalc* pcalc = PFCPositionCalculatorFactory::get()->create(pName,pConf);
+    _positionReCalc.reset(pcalc);
+  }
+  // see if new need to apply corrections, setup if there.
+  const edm::ParameterSet& cConf =  conf.getParameterSet("energyCorrector");
+  if( !cConf.empty() ) {
+    const std::string& cName = cConf.getParameter<std::string>("algoName");
+    PFClusterEnergyCorrectorBase* eCorr =
+      PFClusterEnergyCorrectorFactory::get()->create(cName,cConf);
+    _energyCorrector.reset(eCorr);
+  }
+  
+
+  if( _prodInitClusters ) {
+    produces<reco::PFClusterCollection>("initialClusters");
+  }
+  produces<reco::PFClusterCollection>();
+}
+
+void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
+					     const edm::EventSetup& es) {
+  _initialClustering->update(es);
+  if( _pfClusterBuilder ) _pfClusterBuilder->update(es);
+  if( _positionReCalc ) _positionReCalc->update(es);
+  
+}
+
+void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+  _initialClustering->reset();
+  if( _pfClusterBuilder ) _pfClusterBuilder->reset();
+
+  edm::Handle<reco::PFRecHitCollection> rechits;
+  e.getByToken(_rechitsLabel,rechits);  
+  
+  _initialClustering->updateEvent(e);
+
+  std::vector<bool> mask(rechits->size(),true);
+  for( const auto& cleaner : _cleaners ) {
+    cleaner->clean(rechits, mask);
+  }
+
+
+
+  std::vector<bool> seedable(rechits->size(),false);
+  _seedFinder->findSeeds(rechits,mask,seedable);
+
+
+
+  auto initialClusters = std::make_unique<reco::PFClusterCollection>();
+  _initialClustering->buildClusters(rechits, mask, seedable, *initialClusters);
+  LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
+
+
+
+
+  auto pfClusters = std::make_unique<reco::PFClusterCollection>();
+  pfClusters.reset(new reco::PFClusterCollection);
+  if( _pfClusterBuilder ) { // if we've defined a re-clustering step execute it
+    _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
+    LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
   } else {
-    throw cms::Exception("InvalidClusteringType")
-      << "You have not chosen a valid position calculation type,"
-      << " please choose from \""
-      << PositionCalcType__EGPositionCalc << "\", \""
-      << PositionCalcType__EGPositionFormula << "\", or \""
-      << PositionCalcType__PFPositionCalc << "\"!";
-  }
-
-  // p1 set to the minimum rechit threshold:
-  double posCalcP1 = threshBarrel<threshEndcap ? threshBarrel:threshEndcap;
-  clusterAlgo_.setPosCalcP1( posCalcP1 );
-  clusterAlgo_.setPosCalcNCrystal( posCalcNCrystal );
-  clusterAlgo_.setShowerSigma( showerSigma );
-
-  clusterAlgo_.setUseCornerCells( useCornerCells  );
-  clusterAlgo_.setCleanRBXandHPDs( cleanRBXandHPDs);
-
-  int dcormode = 
-    iConfig.getParameter<int>("depthCor_Mode");
-  
-  double dcora = 
-    iConfig.getParameter<double>("depthCor_A");
-  double dcorb = 
-    iConfig.getParameter<double>("depthCor_B");
-  double dcorap = 
-    iConfig.getParameter<double>("depthCor_A_preshower");
-  double dcorbp = 
-    iConfig.getParameter<double>("depthCor_B_preshower");
-
-  if( dcormode !=0 )
-    reco::PFCluster::setDepthCorParameters( dcormode, 
-					    dcora, dcorb, 
-					    dcorap, dcorbp );
-
-
-  geom = NULL;
-  // access to the collections of rechits from the various detectors:
-
-  
-  inputTagPFRecHits_ = 
-    iConfig.getParameter<InputTag>("PFRecHits");
-  //---ab
-
-  //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    
- 
-  // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
-   produces<reco::PFClusterCollection>();
-   produces<reco::PFRecHitCollection>("Cleaned");
-
-    //---ab
-}
-
-
-
-PFClusterProducer::~PFClusterProducer() {}
-
-
-void PFClusterProducer::beginLuminosityBlock(edm::LuminosityBlock const& iL, 
-					     edm::EventSetup const& iE) {
-  const CaloGeometryRecord& temp = iE.get<CaloGeometryRecord>();
-  if( geom == NULL || (geom->cacheIdentifier() != temp.cacheIdentifier()) ) {
-    geom = &temp;    
-    edm::ESHandle<CaloGeometry> cgeom;
-    geom->get(cgeom);
-    clusterAlgo_.setEBGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
-							 EcalBarrel));
-    clusterAlgo_.setEEGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
-							 EcalEndcap));
-    clusterAlgo_.setPreshowerGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
-							       EcalPreshower));
-  }
-}
-
-void PFClusterProducer::produce(edm::Event& iEvent, 
-				const edm::EventSetup& iSetup) {
-  
-
-  edm::Handle< reco::PFRecHitCollection > rechitsHandle;
-  
-  // access the rechits in the event
-  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );  
-
-  if(!found ) {
-
-    ostringstream err;
-    err<<"cannot find rechits: "<<inputTagPFRecHits_;
-    LogError("PFClusterProducer")<<err.str()<<endl;
-    
-    throw cms::Exception( "MissingProduct", err.str());
+    pfClusters->insert(pfClusters->end(),
+		       initialClusters->begin(),initialClusters->end());
   }
 
 
-  // do clustering
-  clusterAlgo_.doClustering( rechitsHandle );
-  
-  if( verbose_ ) {
-    LogInfo("PFClusterProducer")
-      <<"  clusters --------------------------------- "<<endl
-      <<clusterAlgo_<<endl;
-  }    
-  
-  // get clusters out of the clustering algorithm 
-  // and put them in the event. There is no copy.
-  auto_ptr< vector<reco::PFCluster> > outClusters( clusterAlgo_.clusters() ); 
-  auto_ptr< vector<reco::PFRecHit> > recHitsCleaned ( clusterAlgo_.rechitsCleaned() ); 
-  iEvent.put( outClusters );    
-  iEvent.put( recHitsCleaned, "Cleaned" );    
 
+  
+  if( _positionReCalc ) {
+    _positionReCalc->calculateAndSetPositions(*pfClusters);
+  }
+
+  if( _energyCorrector ) {
+    _energyCorrector->correctEnergies(*pfClusters);
+  }
+
+  if( _prodInitClusters ) e.put(std::move(initialClusters),"initialClusters");
+  e.put(std::move(pfClusters));
 }
-  
-
-

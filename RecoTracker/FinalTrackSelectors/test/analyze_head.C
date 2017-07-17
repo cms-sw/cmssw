@@ -1,7 +1,7 @@
 {
 
   gSystem->Load("libFWCoreFWLite.so"); 
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 //  TFile file("merger.root");
   TFile file("tau.root");
 

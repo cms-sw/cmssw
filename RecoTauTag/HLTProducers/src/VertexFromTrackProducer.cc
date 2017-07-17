@@ -1,19 +1,13 @@
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
@@ -30,23 +24,23 @@
 //
 // constructors and destructor
 //
-VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf)
+VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf) : 
+  trackToken( consumes<edm::View<reco::Track> >(conf.getParameter<edm::InputTag>("trackLabel")) ),
+  candidateToken( consumes<edm::View<reco::RecoCandidate> >(conf.getParameter<edm::InputTag>("trackLabel")) ),
+  triggerFilterElectronsSrc( consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc")) ),
+  triggerFilterMuonsSrc( consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc")) ),
+  vertexLabel( consumes<edm::View<reco::Vertex> >(conf.getParameter<edm::InputTag>("vertexLabel")) ),
+  beamSpotLabel( consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel")) ),
+  fIsRecoCandidate( conf.getParameter<bool>("isRecoCandidate") ),
+  fUseBeamSpot( conf.getParameter<bool>("useBeamSpot") ),
+  fUseVertex( conf.getParameter<bool>("useVertex") ),
+  fUseTriggerFilterElectrons( conf.getParameter<bool>("useTriggerFilterElectrons") ),
+  fUseTriggerFilterMuons( conf.getParameter<bool>("useTriggerFilterMuons") ),
+  fVerbose( conf.getUntrackedParameter<bool>("verbose", false) )
 {
   edm::LogInfo("PVDebugInfo") 
     << "Initializing  VertexFromTrackProducer" << "\n";
-  fVerbose = conf.getUntrackedParameter<bool>("verbose", false);
-  trackLabel = conf.getParameter<edm::InputTag>("trackLabel");
-  fIsRecoCandidate = conf.getParameter<bool>("isRecoCandidate");
-  fUseBeamSpot = conf.getParameter<bool>("useBeamSpot");
-  fUseVertex = conf.getParameter<bool>("useVertex");
-  fUseTriggerFilterElectrons = conf.getParameter<bool>("useTriggerFilterElectrons");
-  fUseTriggerFilterMuons = conf.getParameter<bool>("useTriggerFilterMuons");
-  triggerFilterElectronsSrc = conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc");
-  triggerFilterMuonsSrc = conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc");
-  vertexLabel = conf.getParameter<edm::InputTag>("vertexLabel");
-  beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
- 
+
   produces<reco::VertexCollection>();
 
 }
@@ -60,11 +54,11 @@ VertexFromTrackProducer::~VertexFromTrackProducer() {}
 
 // ------------ method called to produce the data  ------------
 void
-VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
-  std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
+  std::unique_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
 
   math::XYZPoint vertexPoint;
@@ -72,7 +66,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotLabel,recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()){
     reco::BeamSpot beamSpot = *recoBeamSpotHandle;
     vertexPoint = beamSpot.position();
@@ -84,7 +78,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   {
     // get the Vertex
     edm::Handle<edm::View<reco::Vertex> > recoVertexHandle;
-    iEvent.getByLabel(vertexLabel,recoVertexHandle);
+    iEvent.getByToken(vertexLabel,recoVertexHandle);
     if ((recoVertexHandle.isValid()) && (recoVertexHandle->size()>0)){
       reco::Vertex vertex = recoVertexHandle->at(0);
       vertexPoint = vertex.position();
@@ -99,7 +93,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   if(fIsRecoCandidate)
   {
     edm::Handle<edm::View<reco::RecoCandidate> > candidateHandle;
-    iEvent.getByLabel(trackLabel, candidateHandle);
+    iEvent.getByToken(candidateToken, candidateHandle);
     if ((candidateHandle.isValid())&&(candidateHandle->size()>0)){
       double maxpt=0.;
       unsigned i_maxpt=0;
@@ -116,7 +110,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   } 
   else if(fUseTriggerFilterElectrons) {
     edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-    iEvent.getByLabel(triggerFilterElectronsSrc, triggerfilter);
+    iEvent.getByToken(triggerFilterElectronsSrc, triggerfilter);
     std::vector<reco::ElectronRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerElectron,recocandidates);
     if ((recocandidates.size()>0)){
@@ -135,7 +129,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }  
   else if(fUseTriggerFilterMuons) {
     edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-    iEvent.getByLabel(triggerFilterMuonsSrc, triggerfilter);
+    iEvent.getByToken(triggerFilterMuonsSrc, triggerfilter);
     std::vector<reco::RecoChargedCandidateRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerMuon,recocandidates);
     if ((recocandidates.size()>0)){
@@ -154,7 +148,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
   else {
     edm::Handle<edm::View<reco::Track> > trackHandle;
-    iEvent.getByLabel(trackLabel, trackHandle);
+    iEvent.getByToken(trackToken, trackHandle);
     if ((trackHandle.isValid())&&(trackHandle->size()>0)){
       double maxpt=0.;
       unsigned i_maxpt=0;
@@ -192,21 +186,46 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   if(fVerbose){
     int ivtx=0;
+    edm::LogInfo("PVDebugInfo")<< "Vertices by VertexFromTrackProducer: \n"; 
     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
 	v!=vColl.end(); ++v){
-      std::cout << "recvtx "<< ivtx++ 
-		<< " x "  << std::setw(6) << v->position().x() 
-		<< " dx " << std::setw(6) << v->xError()
-		<< " y "  << std::setw(6) << v->position().y() 
-		<< " dy " << std::setw(6) << v->yError()
-		<< " z "  << std::setw(6) << v->position().z() 
-		<< " dz " << std::setw(6) << v->zError()
-		<< std::endl;
+      edm::LogInfo("PVDebugInfo")<< "\t" 
+				 << "recvtx "<< ivtx++ 
+				 << " x "  << std::setw(6) << v->position().x() 
+				 << " dx " << std::setw(6) << v->xError()
+				 << " y "  << std::setw(6) << v->position().y() 
+				 << " dy " << std::setw(6) << v->yError()
+				 << " z "  << std::setw(6) << v->position().z() 
+				 << " dz " << std::setw(6) << v->zError()
+				 << " \n ";
     }
   }
 
   
   *result = vColl;
-  iEvent.put(result);
+  iEvent.put(std::move(result));
   
+}
+
+void
+VertexFromTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
+  edm::ParameterSetDescription desc;
+
+  desc.add<bool>("isRecoCandidate",false)->setComment("If isRecoCandidate=True \"trackLabel\" is used and assumed to be collection of candidates.\nOtherwise it is assumed that \"trackLabel\" is collection of tracks and is used when useTriggerFilterElectrons=False and useTriggerFilterMuons=False");
+  desc.add<edm::InputTag>("trackLabel",edm::InputTag("hltL3MuonCandidates"))->setComment("Collection of tracks or candidates");
+  desc.add<bool>("useTriggerFilterElectrons",false)->setComment("Use leading electron passing \"triggerFilterElectronsSrc\" filter to determine z vertex position");
+  desc.add<edm::InputTag>("triggerFilterElectronsSrc",edm::InputTag("hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoL1JetTrackIsoFilter"))->setComment("Name of electron filter");
+  desc.add<bool>("useTriggerFilterMuons",true)->setComment("Use leading muon passing \"triggerFilterMuonsSrc\" filter to determine z vertex position");
+  desc.add<edm::InputTag>("triggerFilterMuonsSrc",edm::InputTag("hltSingleMuIsoL3IsoFiltered15"))->setComment("Name of muon filter");
+  desc.add<bool>("useBeamSpot",true)->setComment("Use beam spot for x/y vertex position");
+  desc.add<edm::InputTag>("beamSpotLabel",edm::InputTag("hltOnlineBeamSpot"))->setComment("Beamspot collection");
+  desc.add<bool>("useVertex",true)->setComment("Use vertex for x/y vertex position (beam spot is used when PV does not exit)");
+  desc.add<edm::InputTag>("vertexLabel",edm::InputTag("hltPixelVertices"))->setComment("Vertex collection");
+
+  desc.addUntracked<bool>("verbose",false)->setComment("Switch on/off verbosity");
+  descriptions.setComment("This module produces vertex with z-coordinate determined with the highest-Pt lepton track and x/y-coordinates taken from BeamSpot/Vertex");
+  descriptions.add("hltVertexFromTrackProducer",desc);
+
 }

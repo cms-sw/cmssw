@@ -1,5 +1,6 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class HIPUserVariables : public AlignmentUserVariables {
 
@@ -11,7 +12,9 @@ class HIPUserVariables : public AlignmentUserVariables {
     jtve(npar,0) ,
     alichi2(0.0),
     alindof(0),
-    nhit(0)
+    nhit(0),
+    alipar(npar,0),
+    alierr(npar,0)
     //iterpar(maxiter,npar,0),
     //iterpos(maxiter,3,0),
     //iterrot(maxiter,9,0),
@@ -32,6 +35,8 @@ class HIPUserVariables : public AlignmentUserVariables {
   double alichi2;
   int alindof;
   int nhit;
+  AlgebraicVector alipar;
+  AlgebraicVector alierr;
   //AlgebraicMatrix iterpar;
   //AlgebraicMatrix iterpos,iterrot;
   //AlgebraicMatrix iterrpos,iterrrot;

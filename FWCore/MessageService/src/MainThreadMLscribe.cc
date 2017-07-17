@@ -13,7 +13,7 @@
 namespace edm {
 namespace service {
 
-MainThreadMLscribe::MainThreadMLscribe(boost::shared_ptr<ThreadQueue> tqp) 
+MainThreadMLscribe::MainThreadMLscribe(std::shared_ptr<ThreadQueue> tqp) 
   : m_queue(tqp) 
 {
 }
@@ -30,7 +30,7 @@ runCommand(MessageLoggerQ::OpCode  opcode, void * operand)
     void * v(static_cast<void *>(&h));
     Pointer_to_new_exception_on_heap ep;
     {
-      boost::mutex::scoped_lock sl(h.m);       // get lock
+      std::unique_lock<std::mutex> sl(h.m);       // get lock
       m_queue->produce (opcode, v);
       // wait for result to appear (in epp)
       h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified

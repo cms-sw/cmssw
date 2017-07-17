@@ -1,17 +1,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/Calibration"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="RelationalAccess"/>
-<bin   file="testWriteCondData.cpp">
-</bin>
-<bin   file="writeBasicData.cpp">
-</bin>
-<bin   file="writeExtraData.cpp">
-</bin>
 <library   file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -24,11 +14,5 @@
 <library   file="stubs/EfficiencyByLabelAnalyzer.cc" name="ExEfficiencyByLabelAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="stubs/KeyListAnalyzer.cc" name="KeyListAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="stubs/TestUpdater.cc" name="TestUpdater">
-  <use   name="CondFormats/Common"/>
-  <use   name="CondCore/PluginSystem"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
+
+

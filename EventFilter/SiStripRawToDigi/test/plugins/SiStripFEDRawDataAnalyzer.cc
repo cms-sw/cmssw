@@ -25,6 +25,7 @@ SiStripFEDRawDataAnalyzer::SiStripFEDRawDataAnalyzer( const edm::ParameterSet& p
     << "[SiStripFEDRawDataAnalyzer::"
     << __func__ << "]"
     << "Constructing object...";
+  consumes<FEDRawDataCollection>( label_ );
 }
 
 // -----------------------------------------------------------------------------
@@ -68,7 +69,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
   event.getByLabel( label_, buffers ); 
   
   // Local cache of fed ids from cabling
-  vector<uint16_t> fed_ids = cabling->feds();
+  auto fed_ids = cabling->fedIds();
   
   // Containers storing fed ids and buffer sizes
   Feds trg_feds; // trigger feds
@@ -193,7 +194,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
     uint16_t ifed = trk_feds[ii].first;
 
     // record connections
-    vector<FedChannelConnection> channels = cabling->connections(ifed);
+    auto channels = cabling->fedConnections(ifed);
     for ( uint16_t chan = 0; chan < channels.size(); ++chan ) {
       if ( channels[chan].isConnected() ) {
 	connected[ifed].push_back(channels[chan].fedCh());
@@ -221,7 +222,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
 
 	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED && sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE && sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
+	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 && sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 	
 	else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW && sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 	

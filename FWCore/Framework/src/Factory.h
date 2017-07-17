@@ -10,6 +10,7 @@
 #include <string>
 #include <memory>
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
   typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
@@ -17,11 +18,11 @@ namespace edm {
   class Factory  
   {
   public:
-    typedef std::map<std::string, Maker*> MakerMap;
+    typedef std::map<std::string, edm::propagate_const<Maker*>> MakerMap;
 
     ~Factory();
 
-    static Factory* get();
+    static Factory const* get();
 
     std::shared_ptr<maker::ModuleHolder> makeModule(const MakeModuleParams&,
                                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
@@ -33,7 +34,7 @@ namespace edm {
   private:
     Factory();
     Maker* findMaker(const MakeModuleParams& p) const;
-    static Factory singleInstance_;
+    static Factory const singleInstance_;
     mutable MakerMap makers_;
   };
 

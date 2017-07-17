@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -27,13 +27,15 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
 }
-
+class DQMStore;
 class HTracks;
 class HResolution;
 
@@ -42,24 +44,25 @@ class KFUpdator;
 class MeasurementEstimator;
 class HResolution1DRecHit;
 
-class MuonTrackResidualAnalyzer: public edm::EDAnalyzer {
+class MuonTrackResidualAnalyzer: public DQMEDAnalyzer {
   
  public:
   enum EtaRange{all,barrel,endcap};
 
 public:
   /// Constructor
-  MuonTrackResidualAnalyzer(const edm::ParameterSet& pset);
+  MuonTrackResidualAnalyzer(const edm::ParameterSet& ps);
   
   /// Destructor
   virtual ~MuonTrackResidualAnalyzer();
   
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   virtual void beginJob() ;
-  virtual void endJob() ;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 
@@ -81,7 +84,8 @@ private:
   
   DQMStore* dbe_;
   std::string dirName_;
-  
+  std::string subsystemname_;
+  edm::ParameterSet pset;
   std::string out;
   
   edm::InputTag theDataType;

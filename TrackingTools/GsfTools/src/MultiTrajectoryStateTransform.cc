@@ -101,10 +101,10 @@ MultiTrajectoryStateTransform::stateOnSurface (const std::vector<double>& weight
     LocalTrajectoryParameters lp(pars,pzSign);
     LocalTrajectoryError le(cov);
     // create component
-    components.push_back(TrajectoryStateOnSurface(lp,le,surface,field,weights[i]));
+    components.push_back(TrajectoryStateOnSurface(weights[i], lp,le,surface,field));
   }
   return 
-    TrajectoryStateOnSurface(new BasicMultiTrajectoryState(components));
+    TrajectoryStateOnSurface((BasicTrajectoryState *)(new BasicMultiTrajectoryState(components)) );
 }
 
 bool

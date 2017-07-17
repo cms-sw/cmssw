@@ -5,9 +5,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
@@ -17,26 +18,23 @@ class CSCComparatorDigiValidation;
 class CSCALCTDigiValidation;
 class CSCCLCTDigiValidation;
 
-class CSCDigiValidation : public edm::EDAnalyzer {
+class CSCDigiValidation : public DQMEDAnalyzer {
 public:
   explicit CSCDigiValidation(const edm::ParameterSet&);
   ~CSCDigiValidation();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
- 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-  DQMStore* dbe_;
-  std::string outputFile_;
+private:
+  bool doSim_;
   PSimHitMap theSimHitMap;
-  CSCGeometry * theCSCGeometry;
+  CSCGeometry* theCSCGeometry;
 
-  CSCStripDigiValidation      * theStripDigiValidation;
-  CSCWireDigiValidation       * theWireDigiValidation;
-  CSCComparatorDigiValidation * theComparatorDigiValidation;
-  CSCALCTDigiValidation * theALCTDigiValidation;
-  CSCCLCTDigiValidation * theCLCTDigiValidation;
-
+  CSCStripDigiValidation*      theStripDigiValidation;
+  CSCWireDigiValidation*       theWireDigiValidation;
+  CSCComparatorDigiValidation* theComparatorDigiValidation;
+  CSCALCTDigiValidation*       theALCTDigiValidation;
+  CSCCLCTDigiValidation*       theCLCTDigiValidation;
 };
 
 #endif

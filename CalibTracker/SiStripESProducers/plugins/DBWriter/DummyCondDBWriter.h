@@ -9,7 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/Time.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -48,6 +47,7 @@ template< typename TObject , typename TObjectO ,typename TRecord >
 void DummyCondDBWriter<TObject,TObjectO,TRecord>::endRun(const edm::Run & run, const edm::EventSetup & es){
 
   std::string rcdName=iConfig_.getParameter<std::string>("record");
+  std::string labelName=iConfig_.getUntrackedParameter<std::string>("label","");
 
   if( cacheID == es.get<TRecord>().cacheIdentifier()){
       edm::LogInfo("DummyCondDBWriter") << "not needed to store objects with Record "<< rcdName << " at run " << run.run() << std::endl;    return;
@@ -55,7 +55,7 @@ void DummyCondDBWriter<TObject,TObjectO,TRecord>::endRun(const edm::Run & run, c
   cacheID = es.get<TRecord>().cacheIdentifier();
 
   edm::ESHandle<TObject> esobj;
-  es.get<TRecord>().get( esobj );
+  es.get<TRecord>().get( labelName, esobj );
   TObjectO *obj= new TObjectO(*(esobj.product()));
   cond::Time_t Time_;  
   

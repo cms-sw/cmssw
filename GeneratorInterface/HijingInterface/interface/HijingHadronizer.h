@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include <map>
 #include <string>
@@ -16,7 +15,9 @@ namespace HepMC {
   class GenVertex;
 }
 
-extern CLHEP::HepRandomEngine* hijRandomEngine;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen
 {
@@ -44,7 +45,10 @@ namespace gen
     const char* classname() const;
 
   private:
-    
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_hijing( int index, int barcode );	
     HepMC::GenVertex*                           build_hijing_vertex(int i, int id);
@@ -76,6 +80,8 @@ namespace gen
     double            sinphi0_;
     double            cosphi0_;
     bool              rotate_;                // Switch to rotate event plane
+
+    static const std::vector<std::string> theSharedResources;
 
     //    unsigned int      shadowingswitch_;       // shadowing switcher
                                               // 1-ON, 0-OFF

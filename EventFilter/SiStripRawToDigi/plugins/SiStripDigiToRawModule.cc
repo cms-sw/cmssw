@@ -1,20 +1,34 @@
+#include "SiStripDigiToRawModule.h"
+#include "SiStripDigiToRaw.h"
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <cstdlib>
 
 namespace sistrip {
+	
+  //fill Descriptions needed to define default parameters	
+  void DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("InputModuleLabel", "simSiStripDigis");
+    desc.add<std::string>("InputDigiLabel", "ZeroSuppressed");
+    desc.add<std::string>("FedReadoutMode", "ZERO_SUPPRESSED");
+    desc.add<bool>("UseFedKey", false);
+    desc.add<bool>("UseWrongDigiType", false);
+    desc.add<bool>("CopyBufferHeader", false);
+    desc.add<edm::InputTag>("RawDataTag", edm::InputTag("rawDataCollector"));
+    descriptions.add("SiStripDigiToRawModule",desc);
+  }
 
   // -----------------------------------------------------------------------------
   /** 
@@ -23,23 +37,35 @@ namespace sistrip {
   DigiToRawModule::DigiToRawModule( const edm::ParameterSet& pset ) :
     inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
     inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
+    copyBufferHeader_(pset.getParameter<bool>("CopyBufferHeader")),
     mode_( fedReadoutModeFromString(pset.getParameter<std::string>( "FedReadoutMode" ))),
     rawdigi_( false ),
     digiToRaw_(0),
-    eventCounter_(0)
+    eventCounter_(0),
+    rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag"))
   {
     if ( edm::isDebugEnabled() ) {
       LogDebug("DigiToRawModule") 
 	<< "[sistrip::DigiToRawModule::DigiToRawModule]"
 	<< " Constructing object...";
     }  
+
     
     switch(mode_) {
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE: rawdigi_ = false; break;
-    case READOUT_MODE_ZERO_SUPPRESSED:      rawdigi_ = false; break;
-    case READOUT_MODE_VIRGIN_RAW:      rawdigi_ = true; break;
-    case READOUT_MODE_PROC_RAW:        rawdigi_ = true; break;
-    case READOUT_MODE_SCOPE:           rawdigi_ = true; break;
+    case READOUT_MODE_ZERO_SUPPRESSED:                         rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:                    rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:                  rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:       rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:                   rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:        rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:            rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE: rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:            rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE: rawdigi_ = false; break;
+    case READOUT_MODE_PREMIX_RAW:                              rawdigi_ = false; break; 
+    case READOUT_MODE_VIRGIN_RAW:                              rawdigi_ = true; break;
+    case READOUT_MODE_PROC_RAW:                                rawdigi_ = true; break;
+    case READOUT_MODE_SCOPE:                                   rawdigi_ = true; break;
     case READOUT_MODE_INVALID: {
       if( edm::isDebugEnabled()) {
 	edm::LogWarning("DigiToRawModule") 
@@ -64,7 +90,22 @@ namespace sistrip {
 
     // Create instance of DigiToRaw formatter
     digiToRaw_ = new DigiToRaw( mode_, pset.getParameter<bool>("UseFedKey") );
-  
+
+    if (rawdigi_) {
+      tokenRawDigi = consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+    } else {
+      tokenDigi = consumes< edm::DetSetVector<SiStripDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+    }
+    if (copyBufferHeader_){
+      //CAMM input raw module label or same as digi ????
+      if( edm::isDebugEnabled()) {
+	edm::LogWarning("DigiToRawModule") 
+	  << "[sistrip::DigiToRawModule::DigiToRawModule]"
+	  << "Copying buffer header from collection " << rawDataTag_;
+      }
+      tokenRawBuffer = consumes<FEDRawDataCollection>(rawDataTag_);
+    }
+
     produces<FEDRawDataCollection>();
 
   }
@@ -92,22 +133,44 @@ namespace sistrip {
 
     eventCounter_++; 
   
-    std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
+    auto buffers = std::make_unique<FEDRawDataCollection>();
 
     edm::ESHandle<SiStripFedCabling> cabling;
     iSetup.get<SiStripFedCablingRcd>().get( cabling );
 
-    if( rawdigi_ ) {
-      edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawdigis;
-      iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, rawdigis );
-      digiToRaw_->createFedBuffers( iEvent, cabling, rawdigis, buffers );
-    } else {
-      edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
-      iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, digis );
-      digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
+    //get buffer header from original rawdata
+    edm::Handle<FEDRawDataCollection> rawbuffers;
+    if (copyBufferHeader_){
+      if( edm::isDebugEnabled()) {
+	edm::LogWarning("DigiToRawModule") 
+	  << "[sistrip::DigiToRawModule::DigiToRawModule]"
+	  << "Getting raw buffer: ";
+      }
+      try {
+	iEvent.getByToken( tokenRawBuffer, rawbuffers );
+      } catch (const cms::Exception& e){
+	if( edm::isDebugEnabled()) {
+	  edm::LogWarning("DigiToRawModule") 
+	    << "[sistrip::DigiToRawModule::DigiToRawModule]"
+	    << " Failed to get collection " << rawDataTag_;
+	}
+      }
     }
 
-    iEvent.put( buffers );
+    if( rawdigi_ ) {
+      edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawdigis;
+      iEvent.getByToken( tokenRawDigi, rawdigis );
+      if (copyBufferHeader_) digiToRaw_->createFedBuffers( iEvent, cabling, rawbuffers, rawdigis, buffers );
+      else digiToRaw_->createFedBuffers( iEvent, cabling, rawdigis, buffers );
+    } else {
+      edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
+      iEvent.getByToken( tokenDigi, digis );
+      if (copyBufferHeader_) digiToRaw_->createFedBuffers( iEvent, cabling, rawbuffers, digis, buffers );
+      else digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
+    }
+
+
+    iEvent.put(std::move(buffers));
   
   }
 

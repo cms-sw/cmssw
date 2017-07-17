@@ -27,32 +27,12 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
+#include "FWCore/Framework/interface/stream/makeGlobal.h"
 // forward declarations
 
 namespace edm {
+  class ConfigurationDescriptions;
   namespace stream {
-    namespace impl {
-      template<typename T, typename G>
-      std::unique_ptr<G> makeGlobal(edm::ParameterSet const& iPSet, G const*) {
-        return T::initializeGlobalCache(iPSet);
-      }
-      template<typename T>
-      dummy_ptr makeGlobal(edm::ParameterSet const& iPSet, void const*) {
-        return dummy_ptr();
-      }
-      
-      template< typename T, typename G>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          G const* iGlobal) {
-        return new T(iPSet,iGlobal);
-      }
-
-      template< typename T>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          void const* ) {
-        return new T(iPSet);
-      }
-    }
     
     template<typename T, typename M, typename B>
     class ProducingModuleAdaptor : public B
@@ -67,7 +47,7 @@ namespace edm {
         m_runSummaries.resize(1);
         m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy=nullptr;
-        m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
+        m_global = impl::makeGlobal<T>(iPSet,dummy);
       }
       ~ProducingModuleAdaptor() {
       }
@@ -92,7 +72,11 @@ namespace edm {
       typedef CallEndLuminosityBlockProduce<T> MyEndLuminosityBlockProduce;
       
       void setupStreamModules() override final {
-        this->createStreamModules([this] () -> M* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        this->createStreamModules([this] () -> M* {
+          auto tmp = impl::makeStreamModule<T>(*m_pset,m_global.get());
+          MyGlobal::set(tmp,m_global.get());
+          return tmp;
+        });
         m_pset= nullptr;
       }
 
@@ -100,13 +84,13 @@ namespace edm {
         MyGlobal::endJob(m_global.get());
       }
       void setupRun(M* iProd, RunIndex iIndex) override final {
-        MyGlobal::set(iProd,m_global.get());
         MyGlobalRun::set(iProd, m_runs[iIndex].get());
       }
       void streamEndRunSummary(M* iProd,
                                edm::Run const& iRun,
                                edm::EventSetup const& iES) override final {
         auto s = m_runSummaries[iRun.index()].get();
+        std::lock_guard<decltype(m_runSummaryLock)> guard(m_runSummaryLock);
         MyGlobalRunSummary::streamEndRunSummary(iProd,iRun,iES,s);
       }
  
@@ -118,10 +102,11 @@ namespace edm {
                                            edm::LuminosityBlock const& iLumi,
                                            edm::EventSetup const& iES) override final {
         auto s = m_lumiSummaries[iLumi.index()].get();
+        std::lock_guard<decltype(m_lumiSummaryLock)> guard(m_lumiSummaryLock);
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd,iLumi,iES,s);
       }
 
-      void doBeginRun(RunPrincipal& rp,
+      void doBeginRun(RunPrincipal const& rp,
                       EventSetup const& c,
                       ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
@@ -138,7 +123,7 @@ namespace edm {
           }
         }
       }
-      void doEndRun(RunPrincipal& rp,
+      void doEndRun(RunPrincipal const& rp,
                     EventSetup const& c,
                     ModuleCallingContext const* mcc) override final
       {
@@ -158,7 +143,7 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                   ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
@@ -178,7 +163,7 @@ namespace edm {
         }
         
       }
-      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                 EventSetup const& c,
                                 ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
@@ -207,7 +192,9 @@ namespace edm {
       typename impl::choose_shared_vec<typename T::RunCache const>::type m_runs;
       typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
+      typename impl::choose_mutex<typename T::RunSummaryCache>::type m_runSummaryLock;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
+      typename impl::choose_mutex<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaryLock;
       ParameterSet const* m_pset;
     };
   }

@@ -118,6 +118,7 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     m_gtfeWord = new L1GtfeExtWord();
     m_tcsWord = new L1TcsWord();
     m_gtFdlWord = new L1GtFdlWord();
+    consumes<FEDRawDataCollection>(m_evmGtInputTag);
 
 }
 
@@ -131,12 +132,6 @@ L1GlobalTriggerEvmRawToDigi::~L1GlobalTriggerEvmRawToDigi() {
 }
 
 // member functions
-
-void L1GlobalTriggerEvmRawToDigi::beginJob() {
-
-    // empty now
-
-}
 
 // method called to produce the data
 void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
@@ -420,7 +415,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
     int maxBxInEvent = std::max(m_recordLength0, m_recordLength1);
 
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
             new L1GlobalTriggerEvmReadoutRecord(maxBxInEvent, numberFdlBoards));
 
     // ... then unpack modules other than GTFE, if requested
@@ -687,7 +682,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     }
 
     // put records into event
-    iEvent.put(gtReadoutRecord);
+    iEvent.put(std::move(gtReadoutRecord));
 
 }
 
@@ -793,12 +788,12 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(const unsigned char* trlPtr, FED
 // produce empty products in case of problems
 void L1GlobalTriggerEvmRawToDigi::produceEmptyProducts(edm::Event& iEvent) {
 
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
             new L1GlobalTriggerEvmReadoutRecord());
 
     // put empty records into event
 
-    iEvent.put(gtReadoutRecord);
+    iEvent.put(std::move(gtReadoutRecord));
 }
 
 // dump FED raw data
@@ -822,12 +817,6 @@ void L1GlobalTriggerEvmRawToDigi::dumpFedRawData(
                 << payload[i] << std::dec << std::setfill(' ') << std::endl;
     }
 
-}
-
-//
-void L1GlobalTriggerEvmRawToDigi::endJob() {
-
-    // empty now
 }
 
 // static class members

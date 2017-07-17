@@ -130,76 +130,67 @@ process.outputSkimBField = cms.OutputModule(
 ######################################Super Pointing#################################################
 
 process.cosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                   SALabel = cms.string("cosmicMuonsBarrelOnly"),
-                                                   PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                   radius = cms.double(10.0),
-                                                   maxZ = cms.double(50.0),
-                                                   saveTags = cms.bool(False)
-                                                   )
+    SALabel = cms.InputTag("cosmicMuonsBarrelOnly"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.cosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                         SALabel = cms.string("cosmicMuons"),
-                                         PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                         radius = cms.double(10.0),
-                                         maxZ = cms.double(50.0),
-                                         saveTags = cms.bool(False)
-                                         )
+    SALabel = cms.InputTag("cosmicMuons"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.cosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                       SALabel = cms.string("cosmicMuons1Leg"),
-                                                       PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                       radius = cms.double(10.0),
-                                                       maxZ = cms.double(50.0),
-                                                       saveTags = cms.bool(False)
-                                                       )
+    SALabel = cms.InputTag("cosmicMuons1Leg"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.globalCosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                         SALabel = cms.string("globalCosmicMuonsBarrelOnly"),
-                                                         PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                         radius = cms.double(10.0),
-                                                         maxZ = cms.double(50.0),
-                                                         saveTags = cms.bool(False)
-                                                         )
+    SALabel = cms.InputTag("globalCosmicMuonsBarrelOnly"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.cosmictrackfinderP5Filter = cms.EDFilter("HLTMuonPointingFilter",
-                                                 SALabel = cms.string("cosmictrackfinderP5"),
-                                                 PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                 radius = cms.double(10.0),
-                                                 maxZ = cms.double(50.0),
-                                                 saveTags = cms.bool(False)
-                                                 )
+    SALabel = cms.InputTag("cosmictrackfinderP5"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.globalCosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                               SALabel = cms.string("globalCosmicMuons"),
-                                               PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                               radius = cms.double(10.0),
-                                               maxZ = cms.double(50.0),
-                                               saveTags = cms.bool(False)
-                                               )
+    SALabel = cms.InputTag("globalCosmicMuons"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.rsWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
-                                                    SALabel = cms.string("rsWithMaterialTracksP5"),
-                                                    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                    radius = cms.double(10.0),
-                                                    maxZ = cms.double(50.0),
-                                                    saveTags = cms.bool(False)
-                                                    )
+    SALabel = cms.InputTag("rsWithMaterialTracksP5"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.globalCosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                             SALabel = cms.string("globalCosmicMuons1Leg"),
-                                                             PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                             radius = cms.double(10.0),
-                                                             maxZ = cms.double(50.0),
-                                                             saveTags = cms.bool(False)
-                                                             )
+    SALabel = cms.InputTag("globalCosmicMuons1Leg"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 process.ctfWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
-                                                     SALabel = cms.string("ctfWithMaterialTracksP5"),
-                                                     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                     radius = cms.double(10.0),
-                                                     maxZ = cms.double(50.0),
-                                                     saveTags = cms.bool(False)
-                                                     )
+    SALabel = cms.InputTag("ctfWithMaterialTracksP5"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(10.0),
+    maxZ = cms.double(50.0),
+)
 
 
 process.cosmicMuonsBarrelOnlyPath = cms.Path(process.cosmicMuonsBarrelOnlyFilter)
@@ -248,7 +239,7 @@ process.rsWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
                                                          )
 
 process.cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                     SALabel = cms.string("cosmicMuonsBarrelOnly"),
+                                                     SALabel = cms.InputTag("cosmicMuonsBarrelOnly"),
                                                      PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                      radius = cms.double(90.0),
                                                      maxZ = cms.double(130.0)

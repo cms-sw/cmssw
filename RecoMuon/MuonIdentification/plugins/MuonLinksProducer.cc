@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+//#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,8 +23,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "RecoMuon/MuonIdentification/plugins/MuonLinksProducer.h"
 
@@ -34,17 +32,18 @@ MuonLinksProducer::MuonLinksProducer(const edm::ParameterSet& iConfig)
 {
    produces<reco::MuonTrackLinksCollection>();
    m_inputCollection = iConfig.getParameter<edm::InputTag>("inputCollection");
+   muonToken_ = consumes<reco::MuonCollection>(m_inputCollection);
 }
 
 MuonLinksProducer::~MuonLinksProducer()
 {
 }
 
-void MuonLinksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonLinksProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   std::auto_ptr<reco::MuonTrackLinksCollection> output(new reco::MuonTrackLinksCollection());
+   auto output = std::make_unique<reco::MuonTrackLinksCollection>();
    edm::Handle<reco::MuonCollection> muons; 
-   iEvent.getByLabel(m_inputCollection, muons);
+   iEvent.getByToken(muonToken_,muons);
    
    for ( reco::MuonCollection::const_iterator muon = muons->begin(); 
 	 muon != muons->end(); ++muon )
@@ -52,5 +51,5 @@ void MuonLinksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if ( ! muon->isGlobalMuon() ) continue;
 	output->push_back( reco::MuonTrackLinks( muon->track(), muon->standAloneMuon(), muon->combinedMuon() ) );
      }
-   iEvent.put( output );
+   iEvent.put(std::move(output));
 }

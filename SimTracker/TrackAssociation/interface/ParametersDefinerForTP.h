@@ -7,6 +7,8 @@
  * \author Boris Mangano (UCSD)  5/7/2009
  */
 
+#include <memory>
+
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -18,6 +20,7 @@ class ParametersDefinerForTP {
 
  public:
   ParametersDefinerForTP(){};
+  ParametersDefinerForTP(const edm::ParameterSet& iConfig);
   virtual ~ParametersDefinerForTP() {};
 
     typedef int Charge; ///< electric charge type
@@ -27,7 +30,7 @@ class ParametersDefinerForTP {
   virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	const Charge ch, const Point & vtx, const LorentzVector& lv) const;
 
-  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef tpr) const{
+  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const{
     return momentum(iEvent, iSetup, tpr->charge(),tpr->vertex(),tpr->p4());
   }
 
@@ -46,7 +49,11 @@ class ParametersDefinerForTP {
     return vertex(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
   }
 
-  virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const { }
+  virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) { }
+
+  virtual std::unique_ptr<ParametersDefinerForTP> clone() const { return std::unique_ptr<ParametersDefinerForTP>(new ParametersDefinerForTP(*this)); }
+
+  edm::InputTag beamSpotInputTag_;
 
 };
 

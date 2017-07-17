@@ -1,0 +1,533 @@
+<?xml version="1.0" ?>
+<top>
+  <arm id="1">
+    <station id="2">
+      <rp_detector_set id="1">
+        <rp_plane id="0">
+          <vfat fullmask="no" id="1">
+            <channel id="125"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="1">
+            <channel id="66"/>
+          </vfat>
+          <vfat fullmask="yes" id="3"/>
+          <vfat fullmask="no" id="2">
+            <channel id="5"/>
+            <channel id="88"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="0">
+            <channel id="61"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="4">
+          <vfat fullmask="no" id="0">
+            <channel id="80"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="1">
+            <channel id="1"/>
+            <channel id="71"/>
+          </vfat>
+          <vfat fullmask="yes" id="2"/>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="2">
+            <channel id="84"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="9">
+          <vfat fullmask="no" id="1">
+            <channel id="79"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="8">
+          <vfat fullmask="no" id="0">
+            <channel id="109"/>
+            <channel id="110"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="0">
+        <rp_plane id="2">
+          <vfat fullmask="no" id="2">
+            <channel id="28"/>
+            <channel id="66"/>
+            <channel id="27"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="0">
+            <channel id="83"/>
+            <channel id="84"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="3">
+        <rp_plane id="9">
+          <vfat fullmask="no" id="1">
+            <channel id="73"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="77"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="1">
+            <channel id="42"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="81"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="1">
+            <channel id="87"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="0">
+            <channel id="84"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="2">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="1">
+            <channel id="81"/>
+            <channel id="82"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="0">
+          <vfat fullmask="no" id="2">
+            <channel id="24"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="1">
+            <channel id="0"/>
+            <channel id="1"/>
+            <channel id="2"/>
+            <channel id="3"/>
+            <channel id="5"/>
+            <channel id="6"/>
+            <channel id="7"/>
+            <channel id="8"/>
+            <channel id="9"/>
+            <channel id="10"/>
+            <channel id="11"/>
+            <channel id="12"/>
+            <channel id="13"/>
+            <channel id="31"/>
+            <channel id="14"/>
+            <channel id="15"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="0"/>
+            <channel id="1"/>
+            <channel id="2"/>
+            <channel id="4"/>
+            <channel id="8"/>
+            <channel id="11"/>
+            <channel id="14"/>
+            <channel id="15"/>
+            <channel id="23"/>
+            <channel id="26"/>
+            <channel id="33"/>
+            <channel id="41"/>
+            <channel id="42"/>
+            <channel id="46"/>
+            <channel id="59"/>
+            <channel id="62"/>
+            <channel id="64"/>
+            <channel id="67"/>
+            <channel id="68"/>
+            <channel id="74"/>
+            <channel id="78"/>
+            <channel id="84"/>
+            <channel id="114"/>
+            <channel id="117"/>
+            <channel id="121"/>
+            <channel id="124"/>
+            <channel id="65"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="4">
+          <vfat fullmask="no" id="1">
+            <channel id="39"/>
+            <channel id="62"/>
+            <channel id="70"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="21"/>
+            <channel id="22"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="1">
+            <channel id="91"/>
+            <channel id="95"/>
+            <channel id="116"/>
+          </vfat>
+          <vfat fullmask="no" id="3">
+            <channel id="3"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="30"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="2">
+            <channel id="14"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="9">
+          <vfat fullmask="no" id="3">
+            <channel id="16"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="5">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="0">
+            <channel id="5"/>
+            <channel id="34"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="9">
+          <vfat fullmask="no" id="0">
+            <channel id="66"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="3">
+            <channel id="100"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="1">
+            <channel id="90"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="4">
+        <rp_plane id="9">
+          <vfat fullmask="no" id="0">
+            <channel id="4"/>
+            <channel id="0"/>
+            <channel id="1"/>
+            <channel id="2"/>
+            <channel id="3"/>
+            <channel id="5"/>
+          </vfat>
+          <vfat fullmask="no" id="3">
+            <channel id="96"/>
+            <channel id="97"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="1">
+            <channel id="119"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="101"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="4">
+          <vfat fullmask="no" id="2">
+            <channel id="114"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="0">
+            <channel id="47"/>
+            <channel id="87"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+    </station>
+  </arm>
+  <arm id="0">
+    <station id="2">
+      <rp_detector_set id="1">
+        <rp_plane id="9">
+          <vfat fullmask="no" id="3">
+            <channel id="102"/>
+            <channel id="111"/>
+            <channel id="121"/>
+            <channel id="123"/>
+            <channel id="122"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="0">
+          <vfat fullmask="no" id="1">
+            <channel id="8"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="2">
+            <channel id="77"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="4">
+          <vfat fullmask="no" id="0">
+            <channel id="32"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="0">
+        <rp_plane id="9">
+          <vfat fullmask="yes" id="3"/>
+        </rp_plane>
+        <rp_plane id="8">
+          <vfat fullmask="no" id="1">
+            <channel id="60"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="58"/>
+          </vfat>
+          <vfat fullmask="no" id="3">
+            <channel id="2"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="2">
+            <channel id="88"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="4">
+          <vfat fullmask="no" id="2">
+            <channel id="125"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="3">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="1">
+            <channel id="96"/>
+            <channel id="97"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="0">
+          <vfat fullmask="no" id="0">
+            <channel id="41"/>
+            <channel id="94"/>
+          </vfat>
+          <vfat fullmask="no" id="3">
+            <channel id="92"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="0">
+            <channel id="1"/>
+            <channel id="49"/>
+            <channel id="84"/>
+            <channel id="124"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="39"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="1">
+            <channel id="73"/>
+            <channel id="72"/>
+          </vfat>
+          <vfat fullmask="no" id="3">
+            <channel id="29"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="39"/>
+            <channel id="40"/>
+            <channel id="63"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="1">
+            <channel id="114"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="22"/>
+            <channel id="78"/>
+            <channel id="110"/>
+          </vfat>
+          <vfat fullmask="yes" id="2"/>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="3">
+            <channel id="90"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="20"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="1">
+            <channel id="36"/>
+            <channel id="109"/>
+            <channel id="60"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="95"/>
+            <channel id="124"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="8">
+          <vfat fullmask="no" id="3">
+            <channel id="3"/>
+            <channel id="17"/>
+            <channel id="55"/>
+            <channel id="123"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="2">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="1">
+            <channel id="68"/>
+            <channel id="99"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="1">
+            <channel id="66"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="0">
+            <channel id="93"/>
+            <channel id="120"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="1">
+            <channel id="8"/>
+            <channel id="56"/>
+            <channel id="121"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="29"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="1">
+            <channel id="3"/>
+            <channel id="50"/>
+            <channel id="81"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="1">
+            <channel id="119"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="9">
+          <vfat fullmask="no" id="3">
+            <channel id="107"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="8">
+          <vfat fullmask="no" id="3">
+            <channel id="14"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="11"/>
+            <channel id="12"/>
+            <channel id="13"/>
+            <channel id="10"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="5">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="0">
+            <channel id="2"/>
+          </vfat>
+          <vfat fullmask="no" id="2">
+            <channel id="69"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="0">
+          <vfat fullmask="no" id="1">
+            <channel id="117"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="2">
+            <channel id="49"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="5">
+          <vfat fullmask="no" id="0">
+            <channel id="96"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="1">
+            <channel id="62"/>
+            <channel id="120"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="13"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="1">
+            <channel id="70"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="76"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="9">
+          <vfat fullmask="no" id="2">
+            <channel id="104"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+      <rp_detector_set id="4">
+        <rp_plane id="1">
+          <vfat fullmask="no" id="1">
+            <channel id="1"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="3">
+          <vfat fullmask="no" id="0">
+            <channel id="40"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="2">
+          <vfat fullmask="no" id="2">
+            <channel id="91"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="7">
+          <vfat fullmask="no" id="1">
+            <channel id="120"/>
+          </vfat>
+          <vfat fullmask="no" id="0">
+            <channel id="11"/>
+            <channel id="103"/>
+            <channel id="104"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="6">
+          <vfat fullmask="no" id="3">
+            <channel id="124"/>
+          </vfat>
+        </rp_plane>
+        <rp_plane id="8">
+          <vfat fullmask="no" id="0">
+            <channel id="22"/>
+            <channel id="45"/>
+          </vfat>
+        </rp_plane>
+      </rp_detector_set>
+    </station>
+  </arm>
+</top>
+

@@ -1,11 +1,11 @@
 #ifndef SiStripRecHitConverter_h
 #define SiStripRecHitConverter_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
 
-class SiStripRecHitConverter : public edm::EDProducer
+class SiStripRecHitConverter : public edm::stream::EDProducer<>
 {
   
  public:
@@ -17,8 +17,7 @@ class SiStripRecHitConverter : public edm::EDProducer
   
   SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
   std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
-  edm::InputTag clusterProducer, lazyGetterProducer;
-  bool regional;
-  
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducer;
+
 };
 #endif

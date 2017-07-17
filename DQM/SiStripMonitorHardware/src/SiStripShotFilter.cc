@@ -115,7 +115,6 @@ SiStripShotFilter::filter(edm::Event& iEvent,
   
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-  //  iEvent.getByLabel(digicollection_,digis);
   iEvent.getByToken(digiToken_,digis);
 
   // loop on detector with digis
@@ -137,7 +136,7 @@ SiStripShotFilter::filter(edm::Event& iEvent,
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {//loop on channels
 	  
-      const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+      const FedChannelConnection & lConnection = cabling_->fedConnection(fedId,iCh);
 
       uint32_t lDetId = lConnection.detId();
       short lAPVPair = lConnection.apvPairNumber();

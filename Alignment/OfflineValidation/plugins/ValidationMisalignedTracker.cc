@@ -26,13 +26,17 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 //
 // constructors and destructor
@@ -236,14 +240,15 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
 void
 ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if (watchTrackAssociatorRecord_.check(iSetup)) {
-     associatore.clear();
-     edm::ESHandle<TrackAssociatorBase> theAssociator;
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associatore;
+
+  {
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
      for (unsigned int w=0;w<associators.size();w++) {
-       iSetup.get<TrackAssociatorRecord>().get(associators[w], theAssociator);
+       iEvent.getByLabel(associators[w], theAssociator);
        associatore.push_back( theAssociator.product() );
      }
-   }
+  }
    
    edm::LogInfo("Tracker Misalignment Validation") << "\n Starting!";
 
@@ -298,7 +303,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
    //
    edm::ESHandle<TrackerGeometry> trackerGeometry;
    iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-   GeomDet* testGeomDet = trackerGeometry->detsTOB().front();
+   auto testGeomDet = trackerGeometry->detsTOB().front();
    std::cout << testGeomDet->position() << std::endl;
    
    
@@ -354,13 +359,12 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
       //associate tracks
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
            reco::RecoToSimCollection recSimColl=associatore[ww]->associateRecoToSim(trackCollection,
-      							      TPCollectionHfake,
-      								      &iEvent,&iSetup);
+                                                                                    TPCollectionHfake);
       
       LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
       reco::SimToRecoCollection simRecColl=associatore[ww]->associateSimToReco(trackCollection,
-      								      TPCollectionHeff, 
-									       &iEvent, &iSetup);
+                                                                               TPCollectionHeff);
+									       
 
    
 

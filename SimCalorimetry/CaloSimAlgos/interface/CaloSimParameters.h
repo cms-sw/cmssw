@@ -20,7 +20,7 @@ public:
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics, bool syncPhase=true);
 
-  CaloSimParameters(const edm::ParameterSet & p);
+  CaloSimParameters(const edm::ParameterSet & p, bool skipPe2Fc=false);
 
   virtual ~CaloSimParameters() {};
 

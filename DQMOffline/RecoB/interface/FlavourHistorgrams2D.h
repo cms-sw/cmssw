@@ -32,10 +32,16 @@ class FlavourHistograms2D {
 public:
 
   FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-		      int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                      int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-		      bool statistics_ , bool update, std::string folder, unsigned int mc,
-                      bool createProfile) ;
+		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+		       std::string folder, unsigned int mc,
+		       bool createProfile, DQMStore::IGetter & iget) ;
+
+  FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+		       bool statistics_ , std::string folder, unsigned int mc,
+		       bool createProfile, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms2D () ;
 
@@ -54,10 +60,14 @@ public:
 
 
   void settitle(const char* titleX, const char* titleY) ;
+
+  void plot (TPad * theCanvas = 0) ;
+  void epsPlot(const std::string& name);
   
   // needed for efficiency computations -> this / b
   // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
   void divide ( const FlavourHistograms2D<T, G> & bHD ) const ;
+  void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max;}
   inline void SetMinimum(const double& min) { theMin = min;}
@@ -85,6 +95,7 @@ public:
   inline TH2F * histo_ni   () const { return theHisto_ni->getTH2F()   ; }
   inline TH2F * histo_dus  () const { return theHisto_dus->getTH2F()  ; }
   inline TH2F * histo_dusg () const { return theHisto_dusg->getTH2F() ; }
+  inline TH2F * histo_pu   () const { return theHisto_pu->getTH2F()   ; }
 
   TProfile * profile_all  () const { return theProfile_all->getTProfile()  ; }    
   TProfile * profile_d    () const { return theProfile_d ->getTProfile()   ; }    
@@ -96,6 +107,7 @@ public:
   TProfile * profile_ni   () const { return theProfile_ni->getTProfile()   ; }
   TProfile * profile_dus  () const { return theProfile_dus->getTProfile()  ; }
   TProfile * profile_dusg () const { return theProfile_dusg->getTProfile() ; }
+  TProfile * profile_pu   () const { return theProfile_pu->getTProfile()   ; }
 
   std::vector<TH2F*> getHistoVector() const;
 
@@ -140,6 +152,7 @@ protected:
   MonitorElement *theHisto_ni   ;
   MonitorElement *theHisto_dus  ;
   MonitorElement *theHisto_dusg ;
+  MonitorElement *theHisto_pu ;
 
   // the profiles
   MonitorElement *theProfile_all  ;    
@@ -152,6 +165,7 @@ protected:
   MonitorElement *theProfile_ni   ;
   MonitorElement *theProfile_dus  ;
   MonitorElement *theProfile_dusg ;
+  MonitorElement *theProfile_pu ;
 
   //  DQMStore * dqmStore_; 
 
@@ -169,13 +183,115 @@ protected:
 
 template <class T, class G>
 FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-					  int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                                          int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-					  bool statistics_ ,
-					  bool update, std::string folder, unsigned int mc, bool createProfile) :
+						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ , std::string folder, 
+						unsigned int mc, bool createProfile, DQMStore::IGetter & iget) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
-  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
+  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_.Data() ) , theBaseNameDescription ( baseNameDescription_.Data() ) ,
+  theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 
+  theLowerBoundX ( lowerBoundX_ ) , theUpperBoundX ( upperBoundX_ ) ,
+  theLowerBoundY ( lowerBoundY_ ) , theUpperBoundY ( upperBoundY_ ) ,
+  theMin(-1.), theMax(-1.), mcPlots_(mc), createProfile_(createProfile)
+{
+  // defaults for array dimensions
+  theArrayDimension = 0  ;
+    
+  if(mcPlots_%2 == 0) theHisto_all = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "ALL" ) ; 
+  else theHisto_all = 0;
+  if (mcPlots_) {  
+    if (mcPlots_>2) {
+      theHisto_d     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "D"   ) ; 
+      theHisto_u     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "U"   ) ; 
+      theHisto_s     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "S"   ) ;
+      theHisto_g     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "G"   ) ; 
+      theHisto_dus   = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "DUS" ) ; 
+    } 
+    else {
+      theHisto_d = 0;
+      theHisto_u = 0;
+      theHisto_s = 0;
+      theHisto_g = 0;
+      theHisto_dus = 0;
+    }
+    theHisto_c     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "C"   ) ; 
+    theHisto_b     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "B"   ) ; 
+    theHisto_ni    = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "NI"  ) ; 
+    theHisto_dusg  = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "DUSG") ;
+    theHisto_pu    = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "PU"  ) ;
+  }
+  else{
+    theHisto_d = 0;
+    theHisto_u = 0;
+    theHisto_s = 0;
+    theHisto_c = 0;
+    theHisto_b = 0;
+    theHisto_g = 0;
+    theHisto_ni = 0;
+    theHisto_dus = 0;
+    theHisto_dusg = 0;
+    theHisto_pu = 0;
+  }
+  
+  if(createProfile_) {
+    if(mcPlots_%2 == 0) theProfile_all = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_ALL");
+    else theProfile_all = 0;
+    if(mcPlots_) {
+      if (mcPlots_>2) {
+	theProfile_d     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_D"   ) ; 
+	theProfile_u     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_U"   ) ; 
+	theProfile_s     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_S"   ) ;
+	theProfile_g     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_G"   ) ; 
+	theProfile_dus   = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_DUS" ) ; 
+      } 
+      else {
+	theProfile_d = 0;
+	theProfile_u = 0;
+	theProfile_s = 0;
+	theProfile_g = 0;
+	theProfile_dus = 0;
+      }
+      theProfile_c     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_C"   ) ; 
+      theProfile_b     = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_B"   ) ; 
+      theProfile_ni    = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_NI"  ) ; 
+      theProfile_dusg  = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_DUSG") ;
+      theProfile_pu    = iget.get("Btag/" + folder + "/" + theBaseNameTitle + "_Profile_PU"  ) ;
+    } 
+    else{
+      theProfile_d = 0;
+      theProfile_u = 0;
+      theProfile_s = 0;
+      theProfile_c = 0;
+      theProfile_b = 0;
+      theProfile_g = 0;
+      theProfile_ni = 0;
+      theProfile_dus = 0;
+      theProfile_dusg = 0;
+      theProfile_pu = 0;
+    } 
+  }  
+  else {
+    theProfile_all = 0;
+    theProfile_d = 0;
+    theProfile_u = 0;
+    theProfile_s = 0;
+    theProfile_c = 0;
+    theProfile_b = 0;
+    theProfile_g = 0;
+    theProfile_ni = 0;
+    theProfile_dus = 0;
+    theProfile_dusg = 0;
+    theProfile_pu = 0;
+  }
+}
+
+template <class T, class G>
+FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+						bool statistics_ , std::string folder, 
+						unsigned int mc, bool createProfile, DQMStore::IBooker & ibook) :
+  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_.Data() ) , theBaseNameDescription ( baseNameDescription_.Data() ) ,
   theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 
   theLowerBoundX ( lowerBoundX_ ) , theUpperBoundX ( upperBoundX_ ) ,
   theLowerBoundY ( lowerBoundY_ ) , theUpperBoundY ( upperBoundY_ ) ,
@@ -184,169 +300,130 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
   // defaults for array dimensions
   theArrayDimension = 0  ;
     
-  if (!update) {
-    // book histos
-    HistoProviderDQM prov("Btag",folder);
-    if(mcPlots_%2 == 0) theHisto_all   = (prov.book2D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
-    else theHisto_all = 0;
-    if (mcPlots_) {  
-      if (mcPlots_>2) {
-	theHisto_d     = (prov.book2D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
-	theHisto_u     = (prov.book2D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	theHisto_s     = (prov.book2D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	theHisto_g     = (prov.book2D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	theHisto_dus   = (prov.book2D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-      }
-      else {
-	theHisto_d = 0;
-	theHisto_u = 0;
-	theHisto_s = 0;
-	theHisto_g = 0;
-        theHisto_dus = 0;
-      }
-      theHisto_c     = (prov.book2D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-      theHisto_b     = (prov.book2D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-      theHisto_ni    = (prov.book2D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-      theHisto_dusg  = (prov.book2D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
-    }else{
+  // book histos
+  HistoProviderDQM prov("Btag",folder,ibook);
+  if(mcPlots_%2 == 0) theHisto_all   = (prov.book2D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
+  else theHisto_all = 0;
+  if (mcPlots_) {  
+    if (mcPlots_>2) {
+      theHisto_d     = (prov.book2D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
+      theHisto_u     = (prov.book2D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theHisto_s     = (prov.book2D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theHisto_g     = (prov.book2D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theHisto_dus   = (prov.book2D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+    }
+    else {
       theHisto_d = 0;
       theHisto_u = 0;
       theHisto_s = 0;
-      theHisto_c = 0;
-      theHisto_b = 0;
       theHisto_g = 0;
-      theHisto_ni = 0;
       theHisto_dus = 0;
-      theHisto_dusg = 0;
     }
+    theHisto_c     = (prov.book2D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+    theHisto_b     = (prov.book2D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+    theHisto_ni    = (prov.book2D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+    theHisto_dusg  = (prov.book2D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
+    theHisto_pu    = (prov.book2D ( theBaseNameTitle + "PU"   , theBaseNameDescription + " pu-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
+  }else{
+    theHisto_d = 0;
+    theHisto_u = 0;
+    theHisto_s = 0;
+    theHisto_c = 0;
+    theHisto_b = 0;
+    theHisto_g = 0;
+    theHisto_ni = 0;
+    theHisto_dus = 0;
+    theHisto_dusg = 0;
+    theHisto_pu = 0;
+  }
 
-    if (createProfile_) {
-      if(mcPlots_%2 == 0) theProfile_all = (prov.bookProfile( theBaseNameTitle + "_Profile_ALL" , theBaseNameDescription + " all jets" , theNBinsX, theLowerBoundX, theUpperBoundX, theNBinsY, theLowerBoundY, theUpperBoundY));
-      else theProfile_all = 0;
-      if (mcPlots_) {
-	if (mcPlots_>2) {
-	  theProfile_d     = (prov.bookProfile ( theBaseNameTitle + "_Profile_D"    , theBaseNameDescription + " d-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
-	  theProfile_u     = (prov.bookProfile ( theBaseNameTitle + "_Profile_U"    , theBaseNameDescription + " u-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	  theProfile_s     = (prov.bookProfile ( theBaseNameTitle + "_Profile_S"    , theBaseNameDescription + " s-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	  theProfile_g     = (prov.bookProfile ( theBaseNameTitle + "_Profile_G"    , theBaseNameDescription + " g-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	  theProfile_dus   = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUS"  , theBaseNameDescription + " dus-jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-	}
-	else {
-	  theProfile_d = 0;
-          theProfile_u = 0;
-	  theProfile_s = 0;
-          theProfile_g = 0;
-	  theProfile_dus = 0;
-	}
-        theProfile_c     = (prov.bookProfile ( theBaseNameTitle + "_Profile_C"    , theBaseNameDescription + " c-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-        theProfile_b     = (prov.bookProfile ( theBaseNameTitle + "_Profile_B"    , theBaseNameDescription + " b-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-        theProfile_ni    = (prov.bookProfile ( theBaseNameTitle + "_Profile_NI"   , theBaseNameDescription + " ni-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
-        theProfile_dusg  = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUSG" , theBaseNameDescription + " dusg-jets" , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
-      } else{
-          theProfile_d = 0;
-          theProfile_u = 0;
-          theProfile_s = 0;
-          theProfile_c = 0;
-          theProfile_b = 0;
-          theProfile_g = 0;
-          theProfile_ni = 0;
-          theProfile_dus = 0;
-          theProfile_dusg = 0;
-      } 
-    }  else {
-          theProfile_all = 0;
-          theProfile_d = 0;
-          theProfile_u = 0;
-          theProfile_s = 0;
-          theProfile_c = 0;
-          theProfile_b = 0;
-          theProfile_g = 0;
-          theProfile_ni = 0;
-          theProfile_dus = 0;
-          theProfile_dusg = 0;
-    }
-      // statistics if requested
-    if ( theStatistics ) {
-      if(theHisto_all) theHisto_all ->getTH2F()->Sumw2() ; 
-      if(createProfile)
-        if(theProfile_all) theProfile_all ->getTProfile()->Sumw2() ; 
-      if (mcPlots_) {  
-	if (mcPlots_>2) {
-	  theHisto_d   ->getTH2F()->Sumw2() ; 
-	  theHisto_u   ->getTH2F()->Sumw2() ; 
-	  theHisto_s   ->getTH2F()->Sumw2() ;
-	  theHisto_g   ->getTH2F()->Sumw2() ; 
-	  theHisto_dus ->getTH2F()->Sumw2() ; 
-	} 
-	theHisto_c   ->getTH2F()->Sumw2() ; 
-	theHisto_b   ->getTH2F()->Sumw2() ; 
-	theHisto_ni  ->getTH2F()->Sumw2() ; 
-	theHisto_dusg->getTH2F()->Sumw2() ;
-
-        if(createProfile) {
-	  if (mcPlots_>2) {
-	    theProfile_d   ->getTProfile()->Sumw2() ; 
-	    theProfile_u   ->getTProfile()->Sumw2() ; 
-	    theProfile_s   ->getTProfile()->Sumw2() ;
-	    theProfile_g   ->getTProfile()->Sumw2() ; 
-	    theProfile_dus ->getTProfile()->Sumw2() ; 
-	  } 
-	  theProfile_c   ->getTProfile()->Sumw2() ; 
-	  theProfile_b   ->getTProfile()->Sumw2() ; 
-	  theProfile_ni  ->getTProfile()->Sumw2() ; 
-	  theProfile_dusg->getTProfile()->Sumw2() ;
-        }
+  if (createProfile_) {
+    if(mcPlots_%2 == 0) theProfile_all = (prov.bookProfile( theBaseNameTitle + "_Profile_ALL" , theBaseNameDescription + " all jets" , theNBinsX, theLowerBoundX, theUpperBoundX, theNBinsY, theLowerBoundY, theUpperBoundY));
+    else theProfile_all = 0;
+    if (mcPlots_) {
+      if (mcPlots_>2) {
+	theProfile_d     = (prov.bookProfile ( theBaseNameTitle + "_Profile_D"    , theBaseNameDescription + " d-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
+	theProfile_u     = (prov.bookProfile ( theBaseNameTitle + "_Profile_U"    , theBaseNameDescription + " u-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+	theProfile_s     = (prov.bookProfile ( theBaseNameTitle + "_Profile_S"    , theBaseNameDescription + " s-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+	theProfile_g     = (prov.bookProfile ( theBaseNameTitle + "_Profile_G"    , theBaseNameDescription + " g-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+	theProfile_dus   = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUS"  , theBaseNameDescription + " dus-jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
       }
-    }
-  } else {
-    HistoProviderDQM prov("Btag",folder);
-    if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
+      else {
+	theProfile_d = 0;
+	theProfile_u = 0;
+	theProfile_s = 0;
+	theProfile_g = 0;
+	theProfile_dus = 0;
+      }
+      theProfile_c     = (prov.bookProfile ( theBaseNameTitle + "_Profile_C"    , theBaseNameDescription + " c-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theProfile_b     = (prov.bookProfile ( theBaseNameTitle + "_Profile_B"    , theBaseNameDescription + " b-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theProfile_ni    = (prov.bookProfile ( theBaseNameTitle + "_Profile_NI"   , theBaseNameDescription + " ni-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+      theProfile_dusg  = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUSG" , theBaseNameDescription + " dusg-jets" , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
+      theProfile_pu    = (prov.bookProfile ( theBaseNameTitle + "_Profile_PU"   , theBaseNameDescription + " pu-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
+    } else{
+      theProfile_d = 0;
+      theProfile_u = 0;
+      theProfile_s = 0;
+      theProfile_c = 0;
+      theProfile_b = 0;
+      theProfile_g = 0;
+      theProfile_ni = 0;
+      theProfile_dus = 0;
+      theProfile_dusg = 0;
+      theProfile_pu = 0;
+    } 
+  }  else {
+    theProfile_all = 0;
+    theProfile_d = 0;
+    theProfile_u = 0;
+    theProfile_s = 0;
+    theProfile_c = 0;
+    theProfile_b = 0;
+    theProfile_g = 0;
+    theProfile_ni = 0;
+    theProfile_dus = 0;
+    theProfile_dusg = 0;
+    theProfile_pu = 0;
+  }
+  // statistics if requested
+  if ( theStatistics ) {
+    if(theHisto_all) theHisto_all ->getTH2F()->Sumw2() ; 
+    if(createProfile)
+      if(theProfile_all) theProfile_all ->getTProfile()->Sumw2() ; 
     if (mcPlots_) {  
       if (mcPlots_>2) {
-	theHisto_d     = prov.access(theBaseNameTitle + "D"   ) ; 
-	theHisto_u     = prov.access(theBaseNameTitle + "U"   ) ; 
-	theHisto_s     = prov.access(theBaseNameTitle + "S"   ) ;
-	theHisto_g     = prov.access(theBaseNameTitle + "G"   ) ; 
-	theHisto_dus   = prov.access(theBaseNameTitle + "DUS" ) ; 
+	theHisto_d   ->getTH2F()->Sumw2() ; 
+	theHisto_u   ->getTH2F()->Sumw2() ; 
+	theHisto_s   ->getTH2F()->Sumw2() ;
+	theHisto_g   ->getTH2F()->Sumw2() ; 
+	theHisto_dus ->getTH2F()->Sumw2() ; 
       } 
-      theHisto_c     = prov.access(theBaseNameTitle + "C"   ) ; 
-      theHisto_b     = prov.access(theBaseNameTitle + "B"   ) ; 
-      theHisto_ni    = prov.access(theBaseNameTitle + "NI"  ) ; 
-      theHisto_dusg  = prov.access(theBaseNameTitle + "DUSG") ;
-    }
-
-    if(createProfile_) {
-      if(theProfile_all) theProfile_all = prov.access(theBaseNameTitle + "_Profile_ALL");
-      if(mcPlots_) {
+      theHisto_c   ->getTH2F()->Sumw2() ; 
+      theHisto_b   ->getTH2F()->Sumw2() ; 
+      theHisto_ni  ->getTH2F()->Sumw2() ; 
+      theHisto_dusg->getTH2F()->Sumw2() ;
+      theHisto_pu  ->getTH2F()->Sumw2() ;
+      
+      if(createProfile) {
 	if (mcPlots_>2) {
-	  theProfile_d     = prov.access(theBaseNameTitle + "_Profile_D"   ) ; 
-	  theProfile_u     = prov.access(theBaseNameTitle + "_Profile_U"   ) ; 
-	  theProfile_s     = prov.access(theBaseNameTitle + "_Profile_S"   ) ;
-	  theProfile_g     = prov.access(theBaseNameTitle + "_Profile_G"   ) ; 
-	  theProfile_dus   = prov.access(theBaseNameTitle + "_Profile_DUS" ) ; 
+	  theProfile_d   ->getTProfile()->Sumw2() ; 
+	  theProfile_u   ->getTProfile()->Sumw2() ; 
+	  theProfile_s   ->getTProfile()->Sumw2() ;
+	  theProfile_g   ->getTProfile()->Sumw2() ; 
+	  theProfile_dus ->getTProfile()->Sumw2() ; 
 	} 
-        theProfile_c     = prov.access(theBaseNameTitle + "_Profile_C"   ) ; 
-        theProfile_b     = prov.access(theBaseNameTitle + "_Profile_B"   ) ; 
-        theProfile_ni    = prov.access(theBaseNameTitle + "_Profile_NI"  ) ; 
-        theProfile_dusg  = prov.access(theBaseNameTitle + "_Profile_DUSG") ;
+	theProfile_c   ->getTProfile()->Sumw2() ; 
+	theProfile_b   ->getTProfile()->Sumw2() ; 
+	theProfile_ni  ->getTProfile()->Sumw2() ; 
+	theProfile_dusg->getTProfile()->Sumw2() ;
+	theProfile_pu  ->getTProfile()->Sumw2() ;
       }
     }
   }
 }
 
-
 template <class T, class G>
 FlavourHistograms2D<T, G>::~FlavourHistograms2D () {}
-
-
-// define arrays (if needed)
-// template <class T, class G>
-// void FlavourHistograms2D<T, G>::defineArray ( int * dimension , int max , int indexToPlot ) {
-//   // indexToPlot < 0 if all to be plotted
-//   theArrayDimension = dimension ;
-//   theMaxDimension   = max ;
-//   theIndexToPlot    = indexToPlot ;
-// }
   
 // fill entry
 template <class T, class G> void
@@ -420,6 +497,7 @@ void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY)
       if(theHisto_ni) theHisto_ni  ->setAxisTitle(titleY, 2) ;
       if(theHisto_dus) theHisto_dus ->setAxisTitle(titleY, 2) ;
       if(theHisto_dusg)theHisto_dusg->setAxisTitle(titleY, 2) ;
+      if(theHisto_pu) theHisto_pu  ->setAxisTitle(titleY, 2) ;
     }
 
   if(createProfile_) {
@@ -445,8 +523,111 @@ void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY)
       if(theProfile_ni) theProfile_ni  ->setAxisTitle(titleY, 2) ;
       if(theProfile_dus) theProfile_dus ->setAxisTitle(titleY, 2) ;
       if(theProfile_dusg)theProfile_dusg->setAxisTitle(titleY, 2) ;
+      if(theProfile_pu) theProfile_pu  ->setAxisTitle(titleY, 2) ;
     }
   }
+}
+
+template <class T, class G>
+void FlavourHistograms2D<T, G>::plot (TPad * theCanvas /* = 0 */) {
+
+//fixme:
+  bool btppNI = false;
+  bool btppColour = true;
+
+  if (theCanvas)
+    theCanvas->cd();
+
+  RecoBTag::setTDRStyle()->cd();
+  gPad->UseCurrentStyle();
+  gPad->SetLogy  ( 0 ) ;
+  gPad->SetGridx ( 0 ) ;
+  gPad->SetGridy ( 0 ) ;
+  gPad->SetTitle ( 0 ) ;
+
+  MonitorElement * histo[4];
+  int col[4], lineStyle[4], markerStyle[4];
+  int lineWidth = 1 ;
+
+  const double markerSize = gPad->GetWh() * gPad->GetHNDC() / 500.;
+  histo[0] = theHisto_dusg ;
+  histo[1] = theHisto_b ;
+  histo[2] = theHisto_c ;
+  histo[3]= 0 ;
+
+  double max = theMax;
+  if (theMax<=0.) {
+    max = theHisto_dusg->getTH2F()->GetMaximum();
+    if (theHisto_b->getTH2F()->GetMaximum() > max) max = theHisto_b->getTH2F()->GetMaximum();
+    if (theHisto_c->getTH2F()->GetMaximum() > max) max = theHisto_c->getTH2F()->GetMaximum();
+  } 
+
+  if (btppNI) {
+    histo[3] = theHisto_ni ;
+    if (theHisto_ni->getTH2F()->GetMaximum() > max) max = theHisto_ni->getTH2F()->GetMaximum();
+  }
+
+  if ( btppColour ) { // print colours 
+    col[0] = 4 ;
+    col[1] = 2 ;
+    col[2] = 6 ;
+    col[3] = 3 ;
+    lineStyle[0] = 1 ;
+    lineStyle[1] = 1 ;
+    lineStyle[2] = 1 ;
+    lineStyle[3] = 1 ;
+    markerStyle[0] = 20 ;
+    markerStyle[1] = 21 ;
+    markerStyle[2] = 22 ;
+    markerStyle[3] = 23 ;
+   lineWidth = 1 ;
+  }
+  else { // different marker/line styles
+    col[1] = 1 ;
+    col[2] = 1 ;
+    col[3] = 1 ;
+    col[0] = 1 ;
+    lineStyle[0] = 2 ;
+    lineStyle[1] = 1 ;
+    lineStyle[2] = 3 ;
+    lineStyle[3] = 4 ;
+    markerStyle[0] = 20 ;
+    markerStyle[1] = 21 ;
+    markerStyle[2] = 22 ;
+    markerStyle[3] = 23 ;
+  }
+
+  histo[0] ->getTH2F()->GetXaxis()->SetTitle ( theBaseNameDescription.c_str() ) ;
+  histo[0] ->getTH2F()->GetYaxis()->SetTitle ( "Arbitrary Units" ) ;
+  histo[0] ->getTH2F()->GetYaxis()->SetTitleOffset(1.25) ;
+
+  for (int i=0; i != 4; ++i) {
+    if (histo[i]== 0 ) continue;
+    histo[i] ->getTH2F()->SetStats ( false ) ;
+    histo[i] ->getTH2F()->SetLineStyle ( lineStyle[i] ) ;
+    histo[i] ->getTH2F()->SetLineWidth ( lineWidth ) ;
+    histo[i] ->getTH2F()->SetLineColor ( col[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerStyle ( markerStyle[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerColor ( col[i] ) ;
+    histo[i] ->getTH2F()->SetMarkerSize ( markerSize ) ;
+  }
+
+    histo[0]->getTH2F()->SetMaximum(max*1.05);
+    if (theMin!=-1.) histo[0]->getTH2F()->SetMinimum(theMin);
+    histo[0]->getTH2F()->Draw() ;
+    histo[1]->getTH2F()->Draw("Same") ;
+    histo[2]->getTH2F()->Draw("Same") ;
+    if ( histo[3] != 0 ) histo[3]->getTH2F()->Draw("Same") ;
+
+}
+
+template <class T, class G>
+void FlavourHistograms2D<T, G>::epsPlot(const std::string& name)
+{
+   TCanvas tc(theBaseNameTitle.c_str() , theBaseNameDescription.c_str());
+
+   plot(&tc);
+   tc.Print((name + theBaseNameTitle + ".eps").c_str());
 }
 
 // needed for efficiency computations -> this / b
@@ -471,9 +652,28 @@ void FlavourHistograms2D<T, G>::divide ( const FlavourHistograms2D<T, G> & bHD )
       theHisto_b    ->getTH2F()-> Divide ( theHisto_b ->getTH2F()   , bHD.histo_b   () , 1.0 , 1.0 , "b" ) ;
       theHisto_ni   ->getTH2F()-> Divide ( theHisto_ni->getTH2F()   , bHD.histo_ni  () , 1.0 , 1.0 , "b" ) ;
       theHisto_dusg ->getTH2F()-> Divide ( theHisto_dusg->getTH2F() , bHD.histo_dusg() , 1.0 , 1.0 , "b" ) ;
+      theHisto_pu   ->getTH2F()-> Divide ( theHisto_pu->getTH2F()   , bHD.histo_pu  () , 1.0 , 1.0 , "b" ) ;
     }
 }
   
+template <class T, class G>
+void FlavourHistograms2D<T, G>::setEfficiencyFlag(){
+  if(theHisto_all) theHisto_all ->setEfficiencyFlag();
+  if (mcPlots_) {
+    if (mcPlots_>2 ) {
+      theHisto_d    ->setEfficiencyFlag();
+      theHisto_u    ->setEfficiencyFlag();
+      theHisto_s    ->setEfficiencyFlag();
+      theHisto_g    ->setEfficiencyFlag();
+      theHisto_dus  ->setEfficiencyFlag();
+    }
+    theHisto_c    ->setEfficiencyFlag();
+    theHisto_b    ->setEfficiencyFlag();
+    theHisto_ni   ->setEfficiencyFlag();
+    theHisto_dusg ->setEfficiencyFlag();
+    theHisto_pu   ->setEfficiencyFlag();
+  }
+}
 
 template <class T, class G>
   void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY , const float & w) const {
@@ -559,6 +759,11 @@ template <class T, class G>
         theProfile_dusg->Fill(varX, varY);
       }
       return;
+    case 20:
+      theHisto_pu->Fill( varX, varY,w );
+      //if(createProfile_) theProfile_pu->Fill(varX, varY,w);                                                                                                                                 
+      if(createProfile_) theProfile_pu->Fill(varX, varY);
+      return;
     default:
       theHisto_ni->Fill( varX, varY,w );
       //if(createProfile_) theProfile_ni->Fill(varX, varY,w);
@@ -584,6 +789,7 @@ std::vector<TH2F*> FlavourHistograms2D<T, G>::getHistoVector() const
       histoVector.push_back ( theHisto_b->getTH2F()   );
       histoVector.push_back ( theHisto_ni->getTH2F()  );
       histoVector.push_back ( theHisto_dusg->getTH2F());
+      histoVector.push_back ( theHisto_pu->getTH2F()  );
     }
   return histoVector;
 }
@@ -606,6 +812,7 @@ std::vector<TProfile*> FlavourHistograms2D<T, G>::getProfileVector() const
         profileVector.push_back ( theProfile_b->getTProfile()   );
         profileVector.push_back ( theProfile_ni->getTProfile()  );
         profileVector.push_back ( theProfile_dusg->getTProfile());
+        profileVector.push_back ( theProfile_pu->getTProfile()  );
       }
   }
   return profileVector;

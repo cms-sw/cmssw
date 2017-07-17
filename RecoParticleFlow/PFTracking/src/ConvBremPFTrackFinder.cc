@@ -14,32 +14,24 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "TMath.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
+#include "TMVA/MethodBDT.h"
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
 ConvBremPFTrackFinder::ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
-					     double mvaBremConvCut,
-					     string mvaWeightFileConvBrem):
+					     double mvaBremConvCutBarrelLowPt,
+					     double mvaBremConvCutBarrelHighPt,
+					     double mvaBremConvCutEndcapsLowPt,	     
+					     double mvaBremConvCutEndcapsHighPt):
   builder_(builder),
-  mvaBremConvCut_(mvaBremConvCut),
-  mvaWeightFileConvBrem_(mvaWeightFileConvBrem)
-{
-  tmvaReader_ = new TMVA::Reader("!Color:Silent");
-  tmvaReader_->AddVariable("secR",&secR);
-  tmvaReader_->AddVariable("sTIP",&sTIP);
-  tmvaReader_->AddVariable("nHITS1",&nHITS1);
-  tmvaReader_->AddVariable("secPin",&secPin);
-  tmvaReader_->AddVariable("Epout",&Epout);
-  tmvaReader_->AddVariable("detaBremKF",&detaBremKF);
-  tmvaReader_->AddVariable("ptRatioGsfKF",&ptRatioGsfKF);
-  tmvaReader_->BookMVA("BDT",mvaWeightFileConvBrem.c_str());
-
-  pfcalib_ = new PFEnergyCalibration();
-
-}
-ConvBremPFTrackFinder::~ConvBremPFTrackFinder(){delete tmvaReader_; delete pfcalib_; }
+  mvaBremConvCutBarrelLowPt_(mvaBremConvCutBarrelLowPt), 
+  mvaBremConvCutBarrelHighPt_(mvaBremConvCutBarrelHighPt), 
+  mvaBremConvCutEndcapsLowPt_(mvaBremConvCutEndcapsLowPt), 
+  mvaBremConvCutEndcapsHighPt_(mvaBremConvCutEndcapsHighPt) 
+{ }
+ConvBremPFTrackFinder::~ConvBremPFTrackFinder(){ }
 
 void
 ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& thePfRecTrackCol,
@@ -47,6 +39,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 					 const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
 					 const edm::Handle<reco::PFConversionCollection >& pfConversions,
 					 const edm::Handle<reco::PFV0Collection >& pfV0,
+                                         const convbremhelpers::HeavyObjectCache* cache,
 					 bool useNuclear,
 					 bool useConversions,
 					 bool useV0,
@@ -308,7 +301,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  ps1=ps2=0.;
 	  if(dist < MinDist) {
 	    MinDist = dist;
-	    EE_calib = pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
+	    EE_calib = cache->pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
 	  }
 	}
       }
@@ -364,16 +357,17 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	trackingRecHit_iterator  nhit_end=refGsf->recHitsEnd();
 	unsigned int tmp_sh = 0;
 	//uint ish=0;
-	
+	int kfhitcounter=0;
 	for (;nhit!=nhit_end;++nhit){
 	  if ((*nhit)->isValid()){
 	    trackingRecHit_iterator  ihit=trkRef->recHitsBegin();
 	    trackingRecHit_iterator  ihit_end=trkRef->recHitsEnd();
+	    kfhitcounter=0;	    
 	    for (;ihit!=ihit_end;++ihit){
 	      if ((*ihit)->isValid()) {
 		// method 1
 		if((*nhit)->sharesInput(&*(*ihit),TrackingRecHit::all))  tmp_sh++;
-		
+		kfhitcounter++; 
 		// method 2 to switch in case of problem with rechit collections
 		//  if(((*ihit)->geographicalId()==(*nhit)->geographicalId())&&
 		//  (((*nhit)->localPosition()-(*ihit)->localPosition()).mag()<0.01)) ish++;
@@ -385,21 +379,50 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	}
 	  
 	nHITS1 = tmp_sh;
+
+	TString weightfilepath ="";
+	double mvaValue =  -10; 
+	double cutvalue = -10;
+
+        float vars[6] = {secR, sTIP, nHITS1, Epout, detaBremKF, ptRatioGsfKF};
+	if(refGsf->pt()<20 && fabs(refGsf->eta())<1.479 ){
+	  mvaValue = cache->gbrBarrelLowPt_->GetClassifier(vars); 
+	  cutvalue = mvaBremConvCutBarrelLowPt_; 
+	}
+	if(refGsf->pt()>20 && fabs(refGsf->eta())<1.479 ){
+	  mvaValue = cache->gbrBarrelHighPt_->GetClassifier(vars); 
+	  cutvalue = mvaBremConvCutBarrelHighPt_;
+	}
+	if(refGsf->pt()<20 && fabs(refGsf->eta())>1.479 ){
+	  mvaValue = cache->gbrEndcapsLowPt_->GetClassifier(vars);
+	  cutvalue = mvaBremConvCutEndcapsLowPt_;
+	}
+	if(refGsf->pt()>20 && fabs(refGsf->eta())>1.479 ){
+	  mvaValue = cache->gbrEndcapsHighPt_->GetClassifier(vars);
+	  cutvalue = mvaBremConvCutEndcapsHighPt_;
+	}
+
+
+
+
+	if(debug) cout << "Gsf track Pt, Eta " << refGsf->pt() << " " << refGsf->eta()<< endl; 
+	if(debug) cout << "Cutvalue " <<  cutvalue << endl; 
 	
-	double mvaValue = tmvaReader_->EvaluateMVA("BDT");
 	
+	if( (kfhitcounter-nHITS1) <=3 && nHITS1>3) mvaValue = 2;  // this means duplicates tracks, very likely not physical
+
+
 	if(debug) 
-	  cout << " The imput variables for conv brem tracks identification " << endl
+	  cout << " The input variables for conv brem tracks identification " << endl
 	       << " secR          " << secR << " gsfR " << gsfR  << endl
 	       << " N shared hits " << nHITS1 << endl
 	       << " sTIP          " << sTIP << endl
 	       << " detaBremKF    " << detaBremKF << endl
 	       << " E/pout        " << Epout << endl
-	       << " pin           " << secPin << endl
 	       << " ptRatioKFGsf  " << ptRatioGsfKF << endl
 	       << " ***** MVA ***** " << mvaValue << endl;
 	
-	if(mvaValue > mvaBremConvCut_) {
+	if(mvaValue > cutvalue) {
 	  found_ = true;
 	  pfRecTrRef_vec_.push_back(AllPFRecTracks[iPF]);
 	  
@@ -407,12 +430,13 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
       } // end MinDIST
     } // end selection kf - brem tangents
   } // loop on the kf tracks
-
+ 
 
 
 
 
     
 }
+
 
 

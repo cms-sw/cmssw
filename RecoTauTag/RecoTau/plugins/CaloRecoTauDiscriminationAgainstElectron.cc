@@ -12,9 +12,10 @@
  *                Evan Friis (UC Davis)
  */
 
-using namespace reco;
 
-class CaloRecoTauDiscriminationAgainstElectron : public  CaloTauDiscriminationProducerBase {
+namespace {
+using namespace reco;
+class CaloRecoTauDiscriminationAgainstElectron final  : public  CaloTauDiscriminationProducerBase {
    public:
       explicit CaloRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
          CaloTauProducer_                            = iConfig.getParameter<edm::InputTag>("CaloTauProducer");
@@ -24,7 +25,7 @@ class CaloRecoTauDiscriminationAgainstElectron : public  CaloTauDiscriminationPr
          ApplyCut_leadTrackavoidsECALcrack_          = iConfig.getParameter<bool>("ApplyCut_leadTrackavoidsECALcrack");
       }
       ~CaloRecoTauDiscriminationAgainstElectron(){} 
-      double discriminate(const CaloTauRef& theCaloTauRef) override;
+      double discriminate(const CaloTauRef& theCaloTauRef) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
    private:  
       edm::ESHandle<MagneticField> theMagneticField;
@@ -45,7 +46,7 @@ void CaloRecoTauDiscriminationAgainstElectron::beginEvent(const edm::Event& even
 }
 
 
-double CaloRecoTauDiscriminationAgainstElectron::discriminate(const CaloTauRef& theCaloTauRef)
+double CaloRecoTauDiscriminationAgainstElectron::discriminate(const CaloTauRef& theCaloTauRef) const 
 {
    if (ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_){
       // optional selection : ask for small |deta| between direction of propag. leading Track - ECAL inner surf. contact point and direction of highest Et hit among HCAL hits inside a 3x3 calo. tower matrix centered on direction of propag. leading Track - ECAL inner surf. contact point
@@ -80,7 +81,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
-  auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorAgainstElectron(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
+  auto theCaloTauDiscriminatorAgainstElectron = std::make_unique<CaloTauDiscriminator>(CaloTauRefProd(theCaloTauCollection));
 
   for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
     CaloTauRef theCaloTauRef(theCaloTauCollection,iCaloTau);
@@ -119,7 +120,9 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
     }
   }
    
-  iEvent.put(theCaloTauDiscriminatorAgainstElectron);
+  iEvent.put(std::move(theCaloTauDiscriminatorAgainstElectron));
 }
 */
+
+}
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstElectron);

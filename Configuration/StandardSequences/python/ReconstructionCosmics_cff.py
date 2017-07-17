@@ -3,10 +3,16 @@ import FWCore.ParameterSet.Config as cms
 # luminosity
 #
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
+# no bunchspacing in cosmics
+bunchSpacingProducer.overrideBunchSpacing= cms.bool(True)
+bunchSpacingProducer.bunchSpacingOverride= cms.uint32(50)
+
 #
 # tracker
 #
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.Configuration.RecoTrackerBHM_cff import *
@@ -38,15 +44,13 @@ from RecoMET.Configuration.RecoMET_Cosmics_cff import *
 from RecoEgamma.Configuration.RecoEgammaCosmics_cff import *
 
 # local reco
-trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
-hbhereco = hbheprereco.clone()
-calolocalreco.replace(hbheprereco,hbhereco)
-caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
-caloCosmics_HcalNZS = cms.Sequence(calolocalrecoNZS*ecalClusters)
+trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*MeasurementTrackerEvent*tracksP5)
+caloCosmics = cms.Sequence(calolocalrecoCosmics*ecalClustersCosmics)
+caloCosmics_HcalNZS = cms.Sequence(calolocalrecoCosmicsNZS*ecalClustersCosmics)
 muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
 
-localReconstructionCosmics         = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
-localReconstructionCosmics_HcalNZS = cms.Sequence(trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer)
+localReconstructionCosmics         = cms.Sequence(bunchSpacingProducer*trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
+localReconstructionCosmics_HcalNZS = cms.Sequence(bunchSpacingProducer*trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer)
 
 
 # global reco
@@ -63,6 +67,7 @@ reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*
                                              jetsCosmics*
                                              muonsCosmics*
                                              regionalCosmicTracksSeq*
+                                             cosmicDCTracksSeq*
                                              metrecoCosmics*
                                              egammaCosmics*
                                              logErrorHarvester)
@@ -71,6 +76,7 @@ reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*
                                              jetsCosmics*
                                              muonsCosmics*
                                              regionalCosmicTracksSeq*
+                                             cosmicDCTracksSeq*
                                              metrecoCosmics*
                                              egammaCosmics*
                                              logErrorHarvester)
@@ -78,5 +84,6 @@ reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*
                                              jetsCosmics*
                                              muonsCosmics*
                                              regionalCosmicTracksSeq*
+                                             cosmicDCTracksSeq*
                                              metrecoCosmics*
                                              egammaCosmics)

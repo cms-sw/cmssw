@@ -2,11 +2,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
 #include "IOVPayloadEndOfJob.h"
 #include <cstdlib>
+#include <iostream>
 
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){

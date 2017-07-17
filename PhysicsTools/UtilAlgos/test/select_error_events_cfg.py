@@ -8,10 +8,11 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 ## Options and Output Report
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_1_1-START61_V11/RelValZTT/GEN-SIM-RECO/v1/00000/0633BF33-EC76-E211-B3B6-003048F0E1BE.root'),
-                            inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*") # drop the DQM histograms
-                            )
+  fileNames = filesRelValTTbarGENSIMRECO,
+  inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*") # drop the DQM histograms
+)
 ## Maximal Number of Events
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 

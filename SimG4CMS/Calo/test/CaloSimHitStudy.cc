@@ -6,7 +6,7 @@
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","generator")));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
@@ -17,6 +17,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   double maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
   tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
   eMIP_     = ps.getUntrackedParameter<double>("MIPCut",  0.70);
+  storeRL_  = ps.getUntrackedParameter<bool>("StoreRL", false);
 
   muonLab[0]  = "MuonRPCHits";
   muonLab[1]  = "MuonCSCHits";
@@ -267,8 +268,10 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     }
     int idx = -1;
     if (indx != 3) {
-      if (indx == 0)  idx = hits[i].depth();
-      else            idx = indx+2;
+      if (indx == 0) {
+	if (storeRL_)  idx = 0;
+	else           idx = hits[i].depth();
+      } else           idx = indx+2;
       time_[idx]->Fill(time);
       edep_[idx]->Fill(edep);
       edepEM_[idx]->Fill(edepEM);

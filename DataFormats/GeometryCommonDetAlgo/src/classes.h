@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_GeometryCommonDetAlgo {
   struct dictionary {
     Measurement1D m;
     Measurement1DFloat f;

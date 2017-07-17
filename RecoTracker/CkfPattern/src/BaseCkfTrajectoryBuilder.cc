@@ -1,55 +1,57 @@
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
   
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-
-BaseCkfTrajectoryBuilder::
-BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			 const TrajectoryStateUpdator*         updator,
-			 const Propagator*                     propagatorAlong,
-			 const Propagator*                     propagatorOpposite,
-			 const Chi2MeasurementEstimatorBase*   estimator,
-			 const TransientTrackingRecHitBuilder* recHitBuilder,
-			 const MeasurementTracker*             measurementTracker,
-			 const TrajectoryFilter*               filter,
-                         const TrajectoryFilter*               inOutFilter):
-  theUpdator(updator),
-  thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
-  theEstimator(estimator),theTTRHBuilder(recHitBuilder),
-  theMeasurementTracker(measurementTracker),
-  theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
-  theForwardPropagator(0),theBackwardPropagator(0),
+BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                                   TrajectoryFilter *filter,
+                                                   TrajectoryFilter *inOutFilter):
+  theUpdator(nullptr),
+  thePropagatorAlong(nullptr),
+  thePropagatorOpposite(nullptr),
+  theEstimator(nullptr),
+  theTTRHBuilder(nullptr),
+  theMeasurementTracker(nullptr),
   theFilter(filter),
-  theInOutFilter(inOutFilter)
+  theInOutFilter(inOutFilter),
+  theUpdatorName(conf.getParameter<std::string>("updator")),
+  thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
+  thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
+  theEstimatorName(conf.getParameter<std::string>("estimator")),
+  theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder"))
 {
-  if (conf.exists("clustersToSkip")){
-    skipClusters_=true;
-    clustersToSkip_=conf.getParameter<edm::InputTag>("clustersToSkip");
-  }
-  else
-    skipClusters_=false;
-}
- 
-BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
-  delete theLayerMeasurements;
+  if (conf.exists("clustersToSkip")) edm::LogError("BaseCkfTrajectoryBuilder") << "ERROR: " << typeid(*this).name() << " has a clustersToSkip parameter set";
 }
 
+
+BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
+}
+
+TrajectoryFilter *BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+}
 
 void
 BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTrajectory & result) const
@@ -61,12 +63,12 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
   PTrajectoryStateOnDet pState( seed.startingState());
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
   TSOS outerState = trajectoryStateTransform::transientState(pState, &(gdet->surface()),
-							     theForwardPropagator->magneticField());
+							     forwardPropagator(seed)->magneticField());
 
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
  
-   TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
+    TrackingRecHit::RecHitPointer recHit = ihit->cloneSH();
     const GeomDet* hitGeomDet = recHit->det();
  
     const DetLayer* hitLayer = 
@@ -84,7 +86,14 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
       result.emplace(invalidState, outerState, recHit, 0, hitLayer);
     }
     else {
-      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
+      TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
+
+      // try to recover if propagation failed
+      if unlikely(!innerState.isValid())
+        innerState =
+          trajectoryStateTransform::transientState(pState, &(hitGeomDet->surface()),
+                                                            forwardPropagator(seed)->magneticField());
+
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
@@ -102,16 +111,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
 TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  TempTrajectory result(seed.direction());
-  if (  seed.direction() == alongMomentum) {
-    theForwardPropagator = &(*thePropagatorAlong);
-    theBackwardPropagator = &(*thePropagatorOpposite);
-  }
-  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theBackwardPropagator = &(*thePropagatorAlong);
-  }
-
+  TempTrajectory result(seed.direction(),seed.nHits());
   seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")
@@ -123,7 +123,7 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 
 bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) const
 {
-  if (traj.measurements().size() > 400) {
+  if unlikely(traj.measurements().size() > 400) {
     edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
     LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop") << 
               "Cropping Track After 400 Measurements:\n" <<
@@ -135,7 +135,7 @@ bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) 
   // Called after each new hit is added to the trajectory, to see if it is 
   // worth continuing to build this track candidate.
   if (inOut) {
-    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
+    // if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
     return theInOutFilter->toBeContinued(traj);
   } else {
     return theFilter->toBeContinued(traj);
@@ -148,7 +148,7 @@ bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) 
   // Called after building a trajectory is completed, to see if it is good enough
   // to keep.
   if (inOut) {
-    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
+    // if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
     return theInOutFilter->qualityFilter(traj);
   } else {
     return theFilter->qualityFilter(traj);
@@ -216,36 +216,67 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
       const Surface * surface=&g->surface();
       
       
-      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,forwardPropagator(seed)->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
-      return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
+      return StateAndLayers(currentState,theNavigationSchool->nextLayers(*lastLayer,*currentState.freeState(), traj.direction()) );
     }
   else
     {  
       TSOS const & currentState = traj.lastMeasurement().updatedState();
-      return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+      return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
     }
 }
 
 BaseCkfTrajectoryBuilder::StateAndLayers
 BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
-  assert(!traj.empty());
- 
+  //assert(!traj.empty());
+  if ( traj.empty() ) {
+    edm::LogWarning("CkfPattern")<< "empty traj. Skipping.";
+    return StateAndLayers();
+  }
+
   TSOS const & currentState = traj.lastMeasurement().updatedState();
-  return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+  return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
 }
 
 
+void BaseCkfTrajectoryBuilder::setData(const MeasurementTrackerEvent *data) 
+{
+    // possibly do some sanity check here
+    theMeasurementTracker = data;
+}
 
 void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-  {
-    theMeasurementTracker->update(event);
-    if (skipClusters_)
-      theMeasurementTracker->setClusterToSkip(clustersToSkip_,event);
-  }
+{
+    std::cerr << "ERROR SetEvent called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
+}
 
 void BaseCkfTrajectoryBuilder::unset() const
 {
-  if (skipClusters_)
-    theMeasurementTracker->unsetClusterToSkip();
+    std::cerr << "ERROR unSet called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
+}
+
+void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data) {
+  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
+  edm::ESHandle<Propagator>             propagatorAlongHandle;
+  edm::ESHandle<Propagator>             propagatorOppositeHandle;
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
+  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
+
+  iSetup.get<TrackingComponentsRecord>().get(theUpdatorName, updatorHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorAlongName, propagatorAlongHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, propagatorOppositeHandle);
+  iSetup.get<TrackingComponentsRecord>().get(theEstimatorName, estimatorHandle);
+  iSetup.get<TransientRecHitRecord>().get(theRecHitBuilderName, recHitBuilderHandle);
+
+  theUpdator = updatorHandle.product();
+  thePropagatorAlong = propagatorAlongHandle.product();
+  thePropagatorOpposite = propagatorOppositeHandle.product();
+  theEstimator = estimatorHandle.product();
+  theTTRHBuilder = recHitBuilderHandle.product();
+
+  setData(data);
+  if(theFilter) theFilter->setEvent(iEvent, iSetup);
+  if(theInOutFilter) theInOutFilter->setEvent(iEvent, iSetup);
+  setEvent_(iEvent, iSetup);
 }

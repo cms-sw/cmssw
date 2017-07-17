@@ -1,6 +1,6 @@
 /** \class HLTEcalTowerFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
@@ -30,15 +30,15 @@
 class HLTEcalTowerFilter : public HLTFilter {
 public:
   explicit HLTEcalTowerFilter(const edm::ParameterSet &);
-  ~HLTEcalTowerFilter();
+  ~HLTEcalTowerFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_; // input tag identifying product
-  double min_E_;           // energy threshold in GeV 
+  double min_E_;           // energy threshold in GeV
   double max_Eta_;         // maximum eta
   int min_N_;              // minimum number
 
@@ -61,9 +61,7 @@ HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) : HLTFil
                << min_N_ ;
 }
 
-HLTEcalTowerFilter::~HLTEcalTowerFilter()
-{
-}
+HLTEcalTowerFilter::~HLTEcalTowerFilter() = default;
 
 void
 HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -81,8 +79,8 @@ HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-  bool 
-HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  bool
+HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
@@ -104,8 +102,8 @@ HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // look at all objects, check cuts and add to filter object
   int n = 0;
-  for (CaloTowerCollection::const_iterator i = towers->begin(); i != towers->end(); ++i) {
-    if (i->emEnergy() >= min_E_ and fabs(i->eta()) <= max_Eta_) {
+  for (auto const & i : *towers) {
+    if (i.emEnergy() >= min_E_ and fabs(i.eta()) <= max_Eta_) {
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
       //filterproduct.addObject(TriggerJet, ref);

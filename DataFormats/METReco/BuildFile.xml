@@ -1,9 +1,12 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/HcalRecHit"/>
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

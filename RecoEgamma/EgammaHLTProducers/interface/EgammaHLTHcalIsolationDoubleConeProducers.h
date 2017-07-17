@@ -30,12 +30,17 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTHcalIsolationDoubleConeProducers : public edm::EDProducer {
 public:
   explicit EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationDoubleConeProducers();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;

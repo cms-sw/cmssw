@@ -5,11 +5,12 @@
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include <iterator>
 #include <vector>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_PatCandidates {
+  struct dictionarytrigger {
 
   pat::TriggerObjectCollection v_p_to;
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;
@@ -88,6 +89,8 @@ namespace {
   pat::TriggerAlgorithmRefVectorIterator rv_p_ta_i;
 
   edm::Wrapper<pat::TriggerEvent> w_p_te;
+
+  edm::Wrapper<pat::PackedTriggerPrescales> w_p_ptp;
 
   std::iterator<std::random_access_iterator_tag,edm::Ref<std::vector<pat::TriggerPath>,pat::TriggerPath,edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerPath>,pat::TriggerPath> >,long,edm::Ref<std::vector<pat::TriggerPath>,pat::TriggerPath,edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerPath>,pat::TriggerPath> >*,edm::Ref<std::vector<pat::TriggerPath>,pat::TriggerPath,edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerPath>,pat::TriggerPath> >&> iter_big_1;
 

@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,16 +42,15 @@
 //
 namespace edm
 {
-class TestMixedSource : public edm::EDAnalyzer {
+  class TestMixedSource : public edm::one::EDAnalyzer<> {
    public:
       explicit TestMixedSource(const edm::ParameterSet&);
       ~TestMixedSource();
 
-
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       std::ofstream outputFile;
@@ -72,6 +71,14 @@ class TestMixedSource : public edm::EDAnalyzer {
       TH1I * histHepMCProduct_bunch_;
       TFile *histFile_;
        
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> TrackerToken0_;
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> MuonToken_;
+
+    edm::EDGetTokenT<CrossingFrame<PCaloHit>> CaloToken1_;
+
+    edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
+    edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
+    edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> HepMCToken_;
 
 };
 }//edm

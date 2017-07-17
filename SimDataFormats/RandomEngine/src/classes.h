@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace { 
+namespace SimDataFormats_RandomEngine {
   struct dictionary {
     edm::Wrapper<std::vector<RandomEngineState> > dummy1;
     edm::Wrapper<edm::RandomEngineStates> dummy2;

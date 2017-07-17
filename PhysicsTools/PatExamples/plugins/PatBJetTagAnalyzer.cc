@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 class PatBJetTagAnalyzer : public edm::EDAnalyzer  {
-    public: 
+    public:
 	/// constructor and destructor
 	PatBJetTagAnalyzer(const edm::ParameterSet &params);
 	~PatBJetTagAnalyzer();
@@ -29,7 +29,7 @@ class PatBJetTagAnalyzer : public edm::EDAnalyzer  {
 
     private:
 	// configuration parameters
-	edm::InputTag jets_;
+	edm::EDGetTokenT<pat::JetCollection> jetsToken_;
 
 	double jetPtCut_;		// minimum (uncorrected) jet energy
 	double jetEtaCut_;		// maximum |eta| for jet
@@ -54,7 +54,7 @@ class PatBJetTagAnalyzer : public edm::EDAnalyzer  {
 };
 
 PatBJetTagAnalyzer::PatBJetTagAnalyzer(const edm::ParameterSet &params) :
-	jets_(params.getParameter<edm::InputTag>("jets")),
+	jetsToken_(consumes<pat::JetCollection>(params.getParameter<edm::InputTag>("jets"))),
 	jetPtCut_(params.getParameter<double>("jetPtCut")),
 	jetEtaCut_(params.getParameter<double>("jetEtaCut"))
 {
@@ -113,10 +113,10 @@ void PatBJetTagAnalyzer::beginJob()
 }
 
 void PatBJetTagAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
-{  
+{
 	// handle to the jets collection
 	edm::Handle<pat::JetCollection> jetsHandle;
-	event.getByLabel(jets_, jetsHandle);
+	event.getByToken(jetsToken_, jetsHandle);
 
 	// now go through all jets
 	for(pat::JetCollection::const_iterator jet = jetsHandle->begin();
@@ -164,7 +164,7 @@ void PatBJetTagAnalyzer::analyze(const edm::Event &event, const edm::EventSetup 
 		plots_[flavour].discrCSV->Fill(discrCSV);
 	}
 }
-	
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PatBJetTagAnalyzer);

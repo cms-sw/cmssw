@@ -4,7 +4,7 @@
 //
 // Package:    HLTDTActivityFilter
 // Class:      HLTDTActivityFilter
-// 
+//
 
 
 /*
@@ -55,22 +55,21 @@ public:
 
   explicit HLTDTActivityFilter(const edm::ParameterSet&);
   virtual ~HLTDTActivityFilter();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
-  bool hasActivity(const std::bitset<4> &);  
-  bool matchChamber(const uint32_t &, const L1MuRegionalCand&);
-  
+  bool hasActivity(const std::bitset<4> &) const;
+  bool matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const;
+
   enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
-  
+
 
   // ----------member data ---------------------------
 
-  edm::InputTag inputTag_[4]; 
+  edm::InputTag inputTag_[4];
   bool process_[4];
   std::bitset<15> activeSecs_;
 
@@ -78,8 +77,6 @@ private:
   edm::EDGetTokenT<DTLocalTriggerCollection> inputDDUToken_;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> inputRPCToken_;
   edm::EDGetTokenT<DTDigiCollection>         inputDigiToken_;
-
-  edm::ESHandle<DTGeometry> dtGeom_;
 
   bool  orTPG_;
   bool  orRPC_;
@@ -91,7 +88,7 @@ private:
   int   maxBX_[3];
   int   minActiveChambs_;
   int   minChambLayers_;
-  
+
   float maxDeltaPhi_;
   float maxDeltaEta_;
 

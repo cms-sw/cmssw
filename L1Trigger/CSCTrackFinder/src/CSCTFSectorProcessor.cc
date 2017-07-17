@@ -26,7 +26,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   
   // allows a configurable option to handle unganged ME1a
   m_gangedME1a = pset.getUntrackedParameter<bool>("gangedME1a", true);
-
+  
   // Parameter below should always present in ParameterSet:
   m_latency = pset.getParameter<unsigned>("CoreLatency");
   m_minBX = pset.getParameter<int>("MinBX");
@@ -168,8 +168,12 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   //2012 core: 4 station track at |eta|>2.1 -> ME2-ME3-ME4
   firmSP_Map.insert(std::pair<int,int>(20120313,20120313));
   firmSP_Map.insert(std::pair<int,int>(20120319,20120313));
-  //2012 core: 4 station track at |eta|>2.1 -> ME1-ME3-ME4 test
+  //2012 core: 4 station track at |eta|>2.1 -> ME1-ME2-ME3 test
   firmSP_Map.insert(std::pair<int,int>(20120730,20120730));
+  //2014 core: 4 station track at |eta|>2.1 -> ME1-ME2-ME3 test + correct F/R bit set
+  firmSP_Map.insert(std::pair<int,int>(20140424,20140424));
+  //2014 core: 4 station track at |eta|>2.1 -> ME1-ME2-ME3 test + correct F/R bit set + bug fix 
+  firmSP_Map.insert(std::pair<int,int>(20140515,20140515));
 }
 
 
@@ -791,7 +795,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
           lclphidat lclPhi;
           try {
-            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
+            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend(), m_gangedME1a);
           } catch( cms::Exception &e ) {
             bzero(&lclPhi,sizeof(lclPhi));
             edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from LocalPhi LUT in " << FPGAs[fpga]
@@ -802,7 +806,9 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
           try {
             unsigned csc_id = itr->cscid();
             if (!m_gangedME1a) csc_id = itr->cscidSeparateME1a();
-            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id);
+            //std::cout << "station="<<id.station()<<" ring="<<id.ring()<<" strip="<<itr->getStrip()<<" WG="<<itr->getKeyWG()<<std::endl;
+            //std::cout << "csc_id=" << csc_id << std::endl;
+            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
         
           } catch( cms::Exception &e ) {
             bzero(&gblPhi,sizeof(gblPhi));
@@ -812,7 +818,10 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
           gbletadat gblEta;
           try {
-            gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+	    unsigned csc_id = itr->cscid();
+            if (!m_gangedME1a) csc_id = itr->cscidSeparateME1a();
+	    gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
+            //gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
           } catch( cms::Exception &e ) {
             bzero(&gblEta,sizeof(gblEta));
             edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalEta LUT in " << FPGAs[fpga]
@@ -821,7 +830,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
           gblphidat gblPhiDT;
           try {
-            gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+            gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->getKeyWG(), itr->cscid(), m_gangedME1a);
           } catch( cms::Exception &e ) {
             bzero(&gblPhiDT,sizeof(gblPhiDT));
             edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi DT LUT in " << FPGAs[fpga]
@@ -857,7 +866,8 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   std::vector<csc::L1Track> tftks;
 
   if(run_core){
-    core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
+       core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX, m_gangedME1a);
+    //    core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX, true);
     if( core_->run(m_endcap, m_sector, m_latency,
 		   m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
 		   m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
@@ -892,7 +902,6 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
       {
         ptadd thePtAddress(titr->ptLUTAddress());
         ptdat thePtData = ptLUT_->Pt(thePtAddress);
-
         if(thePtAddress.track_fr)
 	  {
 	    titr->setRank(thePtData.front_rank);

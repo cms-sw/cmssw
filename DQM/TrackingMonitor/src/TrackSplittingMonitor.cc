@@ -29,27 +29,18 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <string>
 
-TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig) {
-	dqmStore_ = edm::Service<DQMStore>().operator->();
-	conf_ = iConfig;
-}
+TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig) 
+  : dqmStore_( edm::Service<DQMStore>().operator->() )
+  , conf_( iConfig )
+{
 
-TrackSplittingMonitor::~TrackSplittingMonitor() { 
-}
-
-void TrackSplittingMonitor::beginJob(void) {
-	
-  std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
-  dqmStore_->setCurrentFolder(MEFolderName);
-  
-  //get input tags
   splitTracks_ = conf_.getParameter< edm::InputTag >("splitTrackCollection");
   splitMuons_ = conf_.getParameter< edm::InputTag >("splitMuonCollection");
-  plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
-
   splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
   splitMuonsToken_  = mayConsume<std::vector<reco::Muon> >(splitMuons_);
-  
+
+  plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
+
   // cuts
   pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
   totalHitsPerLeg_ = conf_.getParameter<int>("totalHitsPerLeg");
@@ -57,7 +48,20 @@ void TrackSplittingMonitor::beginJob(void) {
   dzCut_ = conf_.getParameter<double>("dzCut");
   ptCut_ = conf_.getParameter<double>("ptCut");
   norchiCut_ = conf_.getParameter<double>("norchiCut");
+	  
+}
+
+TrackSplittingMonitor::~TrackSplittingMonitor() { 
+}
+
+void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+					   edm::Run const & /* iRun */,
+					   edm::EventSetup const & /* iSetup */)
   
+{
+
+  std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
+  ibooker.setCurrentFolder(MEFolderName);
   
   // bin declarations
   int    ddxyBin = conf_.getParameter<int>("ddxyBin");
@@ -89,34 +93,34 @@ void TrackSplittingMonitor::beginJob(void) {
   double normMax = conf_.getParameter<double>("normMax");	
 	
   // declare histogram
-  ddxyAbsoluteResiduals_tracker_ = dqmStore_->book1D( "ddxyAbsoluteResiduals_tracker", "ddxyAbsoluteResiduals_tracker", ddxyBin, ddxyMin, ddxyMax );
-  ddzAbsoluteResiduals_tracker_ = dqmStore_->book1D( "ddzAbsoluteResiduals_tracker", "ddzAbsoluteResiduals_tracker", ddzBin, ddzMin, ddzMax );
-  dphiAbsoluteResiduals_tracker_ = dqmStore_->book1D( "dphiAbsoluteResiduals_tracker", "dphiAbsoluteResiduals_tracker", dphiBin, dphiMin, dphiMax );
-  dthetaAbsoluteResiduals_tracker_ = dqmStore_->book1D( "dthetaAbsoluteResiduals_tracker", "dthetaAbsoluteResiduals_tracker", dthetaBin, dthetaMin, dthetaMax );
-  dptAbsoluteResiduals_tracker_ = dqmStore_->book1D( "dptAbsoluteResiduals_tracker", "dptAbsoluteResiduals_tracker", dptBin, dptMin, dptMax );
-  dcurvAbsoluteResiduals_tracker_ = dqmStore_->book1D( "dcurvAbsoluteResiduals_tracker", "dcurvAbsoluteResiduals_tracker", dcurvBin, dcurvMin, dcurvMax );
+  ddxyAbsoluteResiduals_tracker_ = ibooker.book1D( "ddxyAbsoluteResiduals_tracker", "ddxyAbsoluteResiduals_tracker", ddxyBin, ddxyMin, ddxyMax );
+  ddzAbsoluteResiduals_tracker_ = ibooker.book1D( "ddzAbsoluteResiduals_tracker", "ddzAbsoluteResiduals_tracker", ddzBin, ddzMin, ddzMax );
+  dphiAbsoluteResiduals_tracker_ = ibooker.book1D( "dphiAbsoluteResiduals_tracker", "dphiAbsoluteResiduals_tracker", dphiBin, dphiMin, dphiMax );
+  dthetaAbsoluteResiduals_tracker_ = ibooker.book1D( "dthetaAbsoluteResiduals_tracker", "dthetaAbsoluteResiduals_tracker", dthetaBin, dthetaMin, dthetaMax );
+  dptAbsoluteResiduals_tracker_ = ibooker.book1D( "dptAbsoluteResiduals_tracker", "dptAbsoluteResiduals_tracker", dptBin, dptMin, dptMax );
+  dcurvAbsoluteResiduals_tracker_ = ibooker.book1D( "dcurvAbsoluteResiduals_tracker", "dcurvAbsoluteResiduals_tracker", dcurvBin, dcurvMin, dcurvMax );
   
-  ddxyNormalizedResiduals_tracker_ = dqmStore_->book1D( "ddxyNormalizedResiduals_tracker", "ddxyNormalizedResiduals_tracker", normBin, normMin, normMax );
-  ddzNormalizedResiduals_tracker_ = dqmStore_->book1D( "ddzNormalizedResiduals_tracker", "ddzNormalizedResiduals_tracker", normBin, normMin, normMax );
-  dphiNormalizedResiduals_tracker_ = dqmStore_->book1D( "dphiNormalizedResiduals_tracker", "dphiNormalizedResiduals_tracker", normBin, normMin, normMax );
-  dthetaNormalizedResiduals_tracker_ = dqmStore_->book1D( "dthetaNormalizedResiduals_tracker", "dthetaNormalizedResiduals_tracker", normBin, normMin, normMax );
-  dptNormalizedResiduals_tracker_ = dqmStore_->book1D( "dptNormalizedResiduals_tracker", "dptNormalizedResiduals_tracker", normBin, normMin, normMax );
-  dcurvNormalizedResiduals_tracker_ = dqmStore_->book1D( "dcurvNormalizedResiduals_tracker", "dcurvNormalizedResiduals_tracker", normBin, normMin, normMax );
+  ddxyNormalizedResiduals_tracker_ = ibooker.book1D( "ddxyNormalizedResiduals_tracker", "ddxyNormalizedResiduals_tracker", normBin, normMin, normMax );
+  ddzNormalizedResiduals_tracker_ = ibooker.book1D( "ddzNormalizedResiduals_tracker", "ddzNormalizedResiduals_tracker", normBin, normMin, normMax );
+  dphiNormalizedResiduals_tracker_ = ibooker.book1D( "dphiNormalizedResiduals_tracker", "dphiNormalizedResiduals_tracker", normBin, normMin, normMax );
+  dthetaNormalizedResiduals_tracker_ = ibooker.book1D( "dthetaNormalizedResiduals_tracker", "dthetaNormalizedResiduals_tracker", normBin, normMin, normMax );
+  dptNormalizedResiduals_tracker_ = ibooker.book1D( "dptNormalizedResiduals_tracker", "dptNormalizedResiduals_tracker", normBin, normMin, normMax );
+  dcurvNormalizedResiduals_tracker_ = ibooker.book1D( "dcurvNormalizedResiduals_tracker", "dcurvNormalizedResiduals_tracker", normBin, normMin, normMax );
 	
   if (plotMuons_){
-    ddxyAbsoluteResiduals_global_ = dqmStore_->book1D( "ddxyAbsoluteResiduals_global", "ddxyAbsoluteResiduals_global", ddxyBin, ddxyMin, ddxyMax );
-    ddzAbsoluteResiduals_global_ = dqmStore_->book1D( "ddzAbsoluteResiduals_global", "ddzAbsoluteResiduals_global", ddzBin, ddzMin, ddzMax );
-    dphiAbsoluteResiduals_global_ = dqmStore_->book1D( "dphiAbsoluteResiduals_global", "dphiAbsoluteResiduals_global", dphiBin, dphiMin, dphiMax );
-    dthetaAbsoluteResiduals_global_ = dqmStore_->book1D( "dthetaAbsoluteResiduals_global", "dthetaAbsoluteResiduals_global", dthetaBin, dthetaMin, dthetaMax );
-    dptAbsoluteResiduals_global_ = dqmStore_->book1D( "dptAbsoluteResiduals_global", "dptAbsoluteResiduals_global", dptBin, dptMin, dptMax );
-    dcurvAbsoluteResiduals_global_ = dqmStore_->book1D( "dcurvAbsoluteResiduals_global", "dcurvAbsoluteResiduals_global", dcurvBin, dcurvMin, dcurvMax );
+    ddxyAbsoluteResiduals_global_ = ibooker.book1D( "ddxyAbsoluteResiduals_global", "ddxyAbsoluteResiduals_global", ddxyBin, ddxyMin, ddxyMax );
+    ddzAbsoluteResiduals_global_ = ibooker.book1D( "ddzAbsoluteResiduals_global", "ddzAbsoluteResiduals_global", ddzBin, ddzMin, ddzMax );
+    dphiAbsoluteResiduals_global_ = ibooker.book1D( "dphiAbsoluteResiduals_global", "dphiAbsoluteResiduals_global", dphiBin, dphiMin, dphiMax );
+    dthetaAbsoluteResiduals_global_ = ibooker.book1D( "dthetaAbsoluteResiduals_global", "dthetaAbsoluteResiduals_global", dthetaBin, dthetaMin, dthetaMax );
+    dptAbsoluteResiduals_global_ = ibooker.book1D( "dptAbsoluteResiduals_global", "dptAbsoluteResiduals_global", dptBin, dptMin, dptMax );
+    dcurvAbsoluteResiduals_global_ = ibooker.book1D( "dcurvAbsoluteResiduals_global", "dcurvAbsoluteResiduals_global", dcurvBin, dcurvMin, dcurvMax );
     
-    ddxyNormalizedResiduals_global_ = dqmStore_->book1D( "ddxyNormalizedResiduals_global", "ddxyNormalizedResiduals_global", normBin, normMin, normMax );
-    ddzNormalizedResiduals_global_ = dqmStore_->book1D( "ddzNormalizedResiduals_global", "ddzNormalizedResiduals_global", normBin, normMin, normMax );
-    dphiNormalizedResiduals_global_ = dqmStore_->book1D( "dphiNormalizedResiduals_global", "dphiNormalizedResiduals_global", normBin, normMin, normMax );
-    dthetaNormalizedResiduals_global_ = dqmStore_->book1D( "dthetaNormalizedResiduals_global", "dthetaNormalizedResiduals_global", normBin, normMin, normMax );
-    dptNormalizedResiduals_global_ = dqmStore_->book1D( "dptNormalizedResiduals_global", "dptNormalizedResiduals_global", normBin, normMin, normMax );
-    dcurvNormalizedResiduals_global_ = dqmStore_->book1D( "dcurvNormalizedResiduals_global", "dcurvNormalizedResiduals_global", normBin, normMin, normMax );
+    ddxyNormalizedResiduals_global_ = ibooker.book1D( "ddxyNormalizedResiduals_global", "ddxyNormalizedResiduals_global", normBin, normMin, normMax );
+    ddzNormalizedResiduals_global_ = ibooker.book1D( "ddzNormalizedResiduals_global", "ddzNormalizedResiduals_global", normBin, normMin, normMax );
+    dphiNormalizedResiduals_global_ = ibooker.book1D( "dphiNormalizedResiduals_global", "dphiNormalizedResiduals_global", normBin, normMin, normMax );
+    dthetaNormalizedResiduals_global_ = ibooker.book1D( "dthetaNormalizedResiduals_global", "dthetaNormalizedResiduals_global", normBin, normMin, normMax );
+    dptNormalizedResiduals_global_ = ibooker.book1D( "dptNormalizedResiduals_global", "dptNormalizedResiduals_global", normBin, normMin, normMax );
+    dcurvNormalizedResiduals_global_ = ibooker.book1D( "dcurvNormalizedResiduals_global", "dcurvNormalizedResiduals_global", normBin, normMin, normMax );
   }
   
   ddxyAbsoluteResiduals_tracker_->setAxisTitle( "(#delta d_{xy})/#sqrt{2} [#mum]" );
@@ -148,8 +152,9 @@ void TrackSplittingMonitor::beginJob(void) {
     ddxyNormalizedResiduals_global_->setAxisTitle( "#delta p_{T}/#sigma(p_{T})" );
     ddxyNormalizedResiduals_global_->setAxisTitle( "#delta 1/p_{T}/#sigma(1/p_{T})" );
   }
-	  
+
 }
+
 
 //
 // -- Analyse
@@ -164,13 +169,11 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
   
   edm::Handle<std::vector<reco::Track> > splitTracks;
-  //  iEvent.getByLabel(splitTracks_, splitTracks);
   iEvent.getByToken(splitTracksToken_, splitTracks);
   if (!splitTracks.isValid()) return;
 
   edm::Handle<std::vector<reco::Muon> > splitMuons;
   if (plotMuons_){
-    //    iEvent.getByLabel(splitMuons_, splitMuons);
     iEvent.getByToken(splitMuonsToken_, splitMuons);
   }
   
@@ -354,13 +357,5 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 }
 
 
-void TrackSplittingMonitor::endJob(void) {
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-}
 
 DEFINE_FWK_MODULE(TrackSplittingMonitor);

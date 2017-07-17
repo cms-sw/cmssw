@@ -21,7 +21,6 @@
 #include "TH1.h"
 #include "TCanvas.h"
 #include "Riostream.h"
-// #include "FWCore/FWLite/src/AutoLibraryLoader.h"
 
 #include "TBufferFile.h"
 
@@ -158,7 +157,7 @@ namespace perftools {
 
   namespace detail {
 
-    void dump(ostream& co, EdmEventSize::BranchRecord const & br) {
+    void dump(std::ostream& co, EdmEventSize::BranchRecord const & br) {
       co << br.name << " " <<  br.uncompr_size <<  " " << br.compr_size << "\n"; 
     }
   }
@@ -203,7 +202,7 @@ namespace perftools {
 	  if ( um > 0 && um < mn ) mn = um;
 	}
 	mn *= 0.8;
-	double mx = max( compressed.GetMaximum(), uncompressed.GetMaximum() );
+	double mx = std::max( compressed.GetMaximum(), uncompressed.GetMaximum() );
 	mx *= 1.2;
 	uncompressed.SetMinimum( mn );
 	uncompressed.SetMaximum( mx );

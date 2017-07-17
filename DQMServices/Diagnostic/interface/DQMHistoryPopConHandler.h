@@ -1,4 +1,4 @@
-#ifndef SISTRIPPOPCON_DB_HANDLE_H
+#ifndef DQMHISTORYPOPCON_DB_HANDLER_H
 #define DQMHISTORYPOPCON_DB_HANDLER_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -6,8 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/DBCommon/interface/TagInfo.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
+//#include "CondCore/DBCommon/interface/TagInfo.h"
+//#include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 
 #include <sstream>

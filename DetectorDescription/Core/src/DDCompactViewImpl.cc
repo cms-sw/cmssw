@@ -1,9 +1,15 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-// Message logger.
+#include <math.h>
+#include <ostream>
+#include <utility>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDCompactViewImpl::DDCompactViewImpl(const DDLogicalPart & rootnodedata)
@@ -33,14 +39,16 @@ DDCompactViewImpl::~DDCompactViewImpl()
 
 graphwalker<DDLogicalPart,DDPosData*> DDCompactViewImpl::walker() const
 {
-   DCOUT('C',"DDCompactView::walker() root_=" << root_);
-   return graphwalker<DDLogicalPart,DDPosData*>(graph_,root_);
+  return graphwalker<DDLogicalPart,DDPosData*>(graph_,root_);
 }
 
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 // calculates the weight and caches it in LogicalPartImpl
 //double DDCompactViewImpl::weight(DDLogicalPart & part)
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
+
+class DDDivision;
+
 double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
 {
  // return 0;
@@ -55,7 +63,7 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
    // weigth = (parent.vol - children.vol)*parent.density + weight(children)
    double childrenVols=0;
    double childrenWeights=0;
-   walker_type walker(graph_,part);
+   WalkerType walker(graph_,part);
    if(walker.firstChild()) {
      bool doIt=true;
      while(doIt) {
@@ -66,8 +74,6 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
          edm::LogError("DDCompactViewImpl")  << "DD-WARNING: volume of solid=" << aPart.solid() 
 	       << "is zero or negative, vol=" << a_vol/m3 << "m3" << std::endl;
        }
-       DCOUT_V('C', "DC: weightcalc, currently=" << child.ddname().name()
-            << " vol=" << a_vol/cm3 << "cm3");
        childrenVols += a_vol;
        childrenWeights += weight(child); // recursive
        doIt=walker.nextSibling();

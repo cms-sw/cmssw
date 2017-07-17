@@ -27,13 +27,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
-// #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/FFTJetAlgorithms/interface/gridConverters.h"
@@ -53,7 +50,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetPileupProcessor : public edm::EDProducer, public FFTJetInterface
+class FFTJetPileupProcessor : public FFTJetInterface
 {
 public:
     explicit FFTJetPileupProcessor(const edm::ParameterSet&);
@@ -293,15 +290,11 @@ void FFTJetPileupProcessor::produce(
 
     // Convert percentile data into a more convenient storable object
     // and put it into the event record
-    std::auto_ptr<reco::DiscretizedEnergyFlow> pTable(
-        new reco::DiscretizedEnergyFlow(
+    iEvent.put(std::make_unique<reco::DiscretizedEnergyFlow>(
             &percentileData[0], "FFTJetPileupProcessor",
-            -0.5, nScales-0.5, 0.0, nScales, nPercentiles));
-    iEvent.put(pTable, outputLabel);
+            -0.5, nScales-0.5, 0.0, nScales, nPercentiles), outputLabel);
 
-    std::auto_ptr<std::pair<double,double> > etSum(
-        new std::pair<double,double>(densityBeforeMixing, densityAfterMixing));
-    iEvent.put(etSum, outputLabel);
+    iEvent.put(std::make_unique<std::pair<double,double>>(densityBeforeMixing, densityAfterMixing), outputLabel);
 }
 
 

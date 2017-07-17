@@ -18,7 +18,7 @@ generalConversionTrackProducerReReco = RecoEgamma.EgammaPhotonProducers.conversi
     useTrajectory = cms.bool(False),
 )
 
-#producer from iter8 tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
+#producer from conversionStep tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 conversionStepConversionTrackProducerReReco = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('conversionStepTracks'),
     setTrackerOnly = cms.bool(True),

@@ -12,10 +12,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
-class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+
+class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
   ~SUSYDQMAnalyzer();
@@ -23,18 +27,16 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
  private:
   edm::ParameterSet iConfig;
 
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event& , const edm::EventSetup&) override;
 
-  edm::InputTag theCaloMETCollectionLabel;
-  edm::InputTag thePFMETCollectionLabel;
-  edm::InputTag theTCMETCollectionLabel;
+  edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken;
 
-  edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag thePFJetCollectionLabel;
-  edm::InputTag theJPTJetCollectionLabel;
+  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollectionToken;
+  //edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
+  //edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
 
   double _ptThreshold;
   double _maxNJets;
@@ -42,25 +44,24 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
 
   std::string SUSYFolder;
   static const char* messageLoggerCatregory;
-  
-  DQMStore* dqm;
 
   //Susy DQM storing elements
+  //remove TCMET and JPT related variables
 
   MonitorElement* hCaloHT;
-  MonitorElement* hJPTHT;
+  //MonitorElement* hJPTHT;
   MonitorElement* hPFHT;
 
   MonitorElement* hCaloMET;
   MonitorElement* hPFMET;
-  MonitorElement* hTCMET;
+  //MonitorElement* hTCMET;
   
   MonitorElement* hCaloMHT;
-  MonitorElement* hJPTMHT;
+  //MonitorElement* hJPTMHT;
   MonitorElement* hPFMHT;  
 
   MonitorElement* hCaloAlpha_T;
-  MonitorElement* hJPTAlpha_T;
+  //MonitorElement* hJPTAlpha_T;
   MonitorElement* hPFAlpha_T;
   
 };

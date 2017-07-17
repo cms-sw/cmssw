@@ -1,5 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("TEST")
 
@@ -68,7 +69,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     sign = cms.untracked.string('*'),
     hcalselector = cms.untracked.string('noise'),
     ecalselector = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(True) 
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
@@ -127,17 +127,17 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = DQMEDHarvester("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME_ZS.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'
 process.p = cms.Path(
  process.VtxSmeared *
  process.g4SimHits * 

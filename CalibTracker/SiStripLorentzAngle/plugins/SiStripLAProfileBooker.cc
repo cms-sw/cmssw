@@ -19,15 +19,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -68,11 +68,11 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 
   //BeginRun
 
-void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
+void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
  
   //get magnetic field and geometry from ES
@@ -196,8 +196,8 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       std::string hid;
       //Mono single sided detectors
       LocalPoint p;
-      const GeomDetUnit * stripdet=dynamic_cast<const GeomDetUnit*>(tracker->idToDet(subid));
-      if(stripdet==0)continue;
+      auto stripdet = tracker->idToDet(subid);
+      if(!stripdet->isLeaf())continue;
       const StripTopology& topol=(const StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();
       
@@ -271,7 +271,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   RunNumber = e.id().run();
@@ -361,13 +361,14 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	pitch_detector=-1;       
 	HitNr = 1;    
 	
+        SiStripRecHit2D lhit;
 	TrajectoryStateOnSurface tsos=itm->updatedState();
 	const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 	if((thit->geographicalId().subdetId() == int(StripSubdetector::TIB)) ||  thit->geographicalId().subdetId()== int(StripSubdetector::TOB)){ //include only barrel
 	  const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
 	  const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>((*thit).hit());
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
-	  if(phit) hit=&(phit->originalHit());
+	  if(phit) {lhit = phit->originalHit(); hit = &lhit;}
 	  
 	  LocalVector trackdirection=tsos.localDirection();
 	  
@@ -395,14 +396,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
             const GlobalPoint monogposition = (monodet->surface()).toGlobal(monoposition);
 	    ClSize = (monocluster->amplitudes()).size();
 	    
-	    const std::vector<uint8_t> amplitudes = monocluster->amplitudes();
+	    const auto & amplitudes = monocluster->amplitudes();
 	    
 	    barycenter = monocluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = monocluster->firstStrip();
-	    std::vector<uint8_t>::const_iterator idigi;
-	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
+	    auto begin=amplitudes.begin();
 	    nstrip=0;
-	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+	    for(auto idigi=begin; idigi!=amplitudes.end(); idigi++){
 	      Amplitudes[nstrip]=*idigi;
 	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 	      HitCharge+=*idigi;
@@ -492,14 +492,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      
 	      ClSize = (stereocluster->amplitudes()).size();
 	      
-	      const std::vector<uint8_t> amplitudes = stereocluster->amplitudes();
+	      const auto &  amplitudes = stereocluster->amplitudes();
 	      
 	      barycenter = stereocluster->barycenter()- 0.5; 
 	      uint16_t FirstStrip = stereocluster->firstStrip();
-	      std::vector<uint8_t>::const_iterator idigi;
-	      std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
+	      auto begin=amplitudes.begin();
 	      nstrip=0;
-	      for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+	      for(auto idigi=begin; idigi!=amplitudes.end(); idigi++){
 		Amplitudes[nstrip]=*idigi;
 		sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 		HitCharge+=*idigi;
@@ -589,14 +588,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    
 	    ClSize = (cluster->amplitudes()).size();
 	    
-	    const std::vector<uint8_t> amplitudes = cluster->amplitudes();
+	    const auto &  amplitudes = cluster->amplitudes();
 	    
 	    barycenter = cluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = cluster->firstStrip();
-	    std::vector<uint8_t>::const_iterator idigi;
-	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
-	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+            auto begin =amplitudes.begin();
+	    for(auto idigi=amplitudes.begin(); idigi!=amplitudes.end(); idigi++){
 	      Amplitudes[nstrip]=*idigi;
 	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 	      HitCharge+=*idigi;

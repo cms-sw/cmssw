@@ -11,13 +11,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
+//RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <string>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
+class DTSegmentsTask: public DQMEDAnalyzer{
 
-class DTSegmentsTask: public edm::EDAnalyzer{
 public:
   /// Constructor
   DTSegmentsTask(const edm::ParameterSet& pset);
@@ -26,33 +33,25 @@ public:
   virtual ~DTSegmentsTask();
 
   /// book the histos
-  void beginJob(void);
-
-  /// Endjob
-  void endJob();
-
-  // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:
 
 private:
 
-  // The BE interface
-  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;
-
-  // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
-
+  bool checkNoisyChannels;
   edm::ParameterSet parameters;
   
   // the histos
   std::vector<MonitorElement*> phiHistos;
   std::vector<MonitorElement*> thetaHistos;
-
+  
+  // Label of 4D segments in the event
+  edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DLabel_;
 };
 #endif
 

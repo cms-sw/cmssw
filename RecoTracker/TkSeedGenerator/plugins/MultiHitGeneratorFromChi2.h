@@ -7,56 +7,99 @@
     provided Layers
  */
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "CombinedMultiHitGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
+
 
 #include <utility>
 #include <vector>
 
+class HitPairGeneratorFromLayerPair;
 
-class MultiHitGeneratorFromChi2 : public MultiHitGeneratorFromPairAndLayers {
+class dso_hidden MultiHitGeneratorFromChi2 final : public MultiHitGeneratorFromPairAndLayers {
 
 typedef CombinedMultiHitGenerator::LayerCacheType       LayerCacheType;
 
 public:
-  MultiHitGeneratorFromChi2( const edm::ParameterSet& cfg);
+  MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg);
 
-  virtual ~MultiHitGeneratorFromChi2() { delete thePairGenerator; }
+  virtual ~MultiHitGeneratorFromChi2();
 
-  virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static const char *fillDescriptionsLabel() { return "multiHitFromChi2"; }
+
+
+  void initES(const edm::EventSetup& es) override; 
 
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
-      const edm::Event & ev, const edm::EventSetup& es);
+                        const edm::Event & ev, const edm::EventSetup& es,
+                        SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
 
-  const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
+  void hitSets(const TrackingRegion& region, OrderedMultiHits& trs,
+               const edm::Event& ev, const edm::EventSetup& es,
+               const HitDoublets& doublets,
+               const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+               LayerCacheType& layerCache,
+               cacheHits& refittedHitStorage);
 
+  void hitTriplets(
+		   const TrackingRegion& region, 
+		   OrderedMultiHits & result,
+		   const edm::EventSetup & es,
+		   const HitDoublets & doublets,
+		   const RecHitsSortedInPhi ** thirdHitMap,
+		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+		   const int nThirdLayers)override;
+
+  void hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+               const edm::EventSetup& es,
+               const HitDoublets& doublets,
+               const RecHitsSortedInPhi **thirdHitMap,
+               const std::vector<const DetLayer *>& thirdLayerDetLayer,
+               const int nThirdLayers,
+               cacheHits& refittedHitStorage);
 private:
+  using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;
 
-  bool checkPhiInRange(float phi, float phi1, float phi2) const;
-  std::pair<float,float> mergePhiRanges(
-      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
-
-
+  void refit2Hits(HitOwnPtr & hit0,
+		  HitOwnPtr & hit1,
+		  TrajectoryStateOnSurface& tsos0,
+		  TrajectoryStateOnSurface& tsos1,
+		  const TrackingRegion& region, float nomField, bool isDebug);
+  /*
+  void refit3Hits(HitOwnPtr & hit0,
+		  HitOwnPtr & hit1,
+		  HitOwnPtr & hit2,
+		  TrajectoryStateOnSurface& tsos0,
+		  TrajectoryStateOnSurface& tsos1,
+		  TrajectoryStateOnSurface& tsos2,
+		  float nomField, bool isDebug);
+  */
 private:
-  HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
   const ClusterShapeHitFilter* filter;
+  TkTransientTrackingRecHitBuilder const * builder;
+  TkClonerImpl cloner;
 
   bool useFixedPreFiltering;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
+  float extraZKDBox;
+  float extraRKDBox;
   float extraPhiKDBox;
   float dphi;
   const MagneticField* bfield;
+  UniformMagneticField ufield = 0.;
   float nomField;
   double nSigmaRZ, nSigmaPhi, fnSigmaRZ;
   bool chi2VsPtCut;
@@ -64,10 +107,16 @@ private:
   std::vector<double> pt_interv;
   std::vector<double> chi2_cuts;
   bool refitHits;
-  bool debug;
   std::string filterName_;
+  std::string builderName_;
+
+  bool useSimpleMF_;
+  std::string mfName_;
+
   std::vector<int> detIdsToDebug;
-  
+
+
+
 };
 #endif
 

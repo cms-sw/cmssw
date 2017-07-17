@@ -124,10 +124,21 @@ namespace sistrip {
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,false);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED:
+    //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
       break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled);
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled,mode);
+      break;
+    case READOUT_MODE_PREMIX_RAW:
+      fillPreMixRawChannelBuffer(channelBuffer,data,channelEnabled);
       break;
     default:
       std::ostringstream ss;
@@ -179,7 +190,8 @@ namespace sistrip {
     }
     //if channel is not empty
     //add space for channel length
-    channelBuffer->push_back(0xFF); channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
     //packet code
     channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
     //add medians
@@ -189,7 +201,7 @@ namespace sistrip {
     channelBuffer->push_back(medians.second & 0xFF);
     channelBuffer->push_back((medians.second & 0x300) >> 8);
     //clusters
-    fillClusterData(channelBuffer,data);
+    fillClusterData(channelBuffer,data,READOUT_MODE_ZERO_SUPPRESSED);
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -198,7 +210,8 @@ namespace sistrip {
   
   void FEDBufferPayloadCreator::fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                                    const FEDStripData::ChannelData& data,
-                                                                   const bool channelEnabled) const
+                                                                   const bool channelEnabled,
+                                                                   const FEDReadoutMode mode) const
   {
     channelBuffer->reserve(50);
     //if channel is disabled then create empty channel header and return
@@ -210,41 +223,133 @@ namespace sistrip {
     }
     //if channel is not empty
     //add space for channel length
-    channelBuffer->push_back(0xFF); channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
     //clusters
-    fillClusterData(channelBuffer,data);
+    fillClusterData(channelBuffer,data,mode);
+    //set fibre length
+    const uint16_t length = channelBuffer->size();
+    (*channelBuffer)[0] = (length & 0xFF);
+    (*channelBuffer)[1] = ((length & 0x300) >> 8);
+  }
+  
+  void FEDBufferPayloadCreator::fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer,
+                                                                   const FEDStripData::ChannelData& data,
+                                                                   const bool channelEnabled) const
+  {
+   channelBuffer->reserve(50);
+    //if channel is disabled then create empty channel header and return
+    if (!channelEnabled) {
+      //min length 7
+      channelBuffer->push_back(7);
+      channelBuffer->push_back(0);
+      //packet code
+      channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+      //4 bytes of medians
+      channelBuffer->insert(channelBuffer->end(),4,0);
+      return;
+    }
+    //if channel is not empty
+    //add space for channel length
+    channelBuffer->push_back(0xFF); channelBuffer->push_back(0xFF);
+    //packet code
+    channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+    //add medians
+    const std::pair<uint16_t,uint16_t> medians = data.getMedians();
+    channelBuffer->push_back(medians.first & 0xFF);
+    channelBuffer->push_back((medians.first & 0x300) >> 8);
+    channelBuffer->push_back(medians.second & 0xFF);
+    channelBuffer->push_back((medians.second & 0x300) >> 8);
+    //clusters
+    fillClusterDataPreMixMode(channelBuffer,data);
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
   
-  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
+  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
   {
     uint16_t clusterSize = 0;
     const uint16_t nSamples = data.size();
+    uint16_t size;
+    switch (mode) {
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        size = 2; break;
+      default:
+        size = 1; break;
+    }
     for( uint16_t strip = 0; strip < nSamples; ++strip) {
-      const uint8_t adc = data.get8BitSample(strip);
+      uint16_t adc;
+      switch (mode) {
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          adc = data.get10BitSample(strip); break;
+        default:
+          adc = data.get8BitSample(strip,mode); break;
+      }
 
       if(adc) {
 	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
 	  if(clusterSize) { 
-	    *(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	    *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
 	    clusterSize = 0; 
 	  }
 	  channelBuffer->push_back(strip); 
 	  channelBuffer->push_back(0); //clustersize	  
 	}
-	channelBuffer->push_back(adc);
+        switch (mode) {
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+	    channelBuffer->push_back(adc & 0xFF);
+            channelBuffer->push_back((adc & 0x0300) >> 8);
+            break;
+          default:
+            channelBuffer->push_back(adc & 0xFF);
+            break;
+        }
 	++clusterSize;
       }
 
       else if(clusterSize) { 
-	*(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	*(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
 	clusterSize = 0; 
       }
     }
-    if(clusterSize) *(channelBuffer->end() - clusterSize - 1) = clusterSize ;
+    if(clusterSize) *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ;
+  }
+
+  void FEDBufferPayloadCreator::fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
+  {
+    uint16_t clusterSize = 0;
+    const uint16_t nSamples = data.size();
+    for( uint16_t strip = 0; strip < nSamples; ++strip) {
+      const uint16_t adc = data.get10BitSample(strip);
+
+      if(adc) {
+	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
+	  if(clusterSize) { 
+	    *(channelBuffer->end() - 2*clusterSize - 1) = clusterSize ; 
+	    clusterSize = 0; 
+	  }
+	  channelBuffer->push_back(strip); 
+	  channelBuffer->push_back(0); //clustersize	  
+	}
+	channelBuffer->push_back(adc & 0xFF);
+	channelBuffer->push_back((adc & 0x0300) >> 8);
+
+	++clusterSize;
+      }
+
+      else if(clusterSize) { 
+	*(channelBuffer->end() - 2*clusterSize - 1) = clusterSize ; 
+	clusterSize = 0; 
+      }
+    }
+    if(clusterSize) {
+      *(channelBuffer->end() - 2*clusterSize - 1) = clusterSize ;
+    }
   }
 
   //FEDBufferGenerator
@@ -252,10 +357,10 @@ namespace sistrip {
   FEDBufferGenerator::FEDBufferGenerator(const uint32_t l1ID, const uint16_t bxID,
                                          const std::vector<bool>& feUnitsEnabled, const std::vector<bool>& channelsEnabled,
                                          const FEDReadoutMode readoutMode, const FEDHeaderType headerType, const FEDBufferFormat bufferFormat,
-                                         const FEDDAQEventType evtType, const FEDDataType dataType)
+                                         const FEDDAQEventType evtType)
     : defaultDAQHeader_(l1ID,bxID,0,evtType),
       defaultDAQTrailer_(0,0),
-      defaultTrackerSpecialHeader_(bufferFormat,readoutMode,headerType,dataType),
+      defaultTrackerSpecialHeader_(bufferFormat,readoutMode,headerType),
       defaultFEHeader_(FEDFEHeader::newFEHeader(headerType)),
       feUnitsEnabled_(feUnitsEnabled),
       channelsEnabled_(channelsEnabled)

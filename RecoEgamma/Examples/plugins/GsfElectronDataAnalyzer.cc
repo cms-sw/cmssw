@@ -1113,7 +1113,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxEndcaps_) continue;
 	if (gsfIter->isEB() && gsfIter->hadronicOverEm() > hadronicOverEmMaxBarrel_) continue;
 	if (gsfIter->isEE() && gsfIter->hadronicOverEm() > hadronicOverEmMaxEndcaps_) continue;
-	if (gsfIter->mva() < mvaMin_) continue;
+	if (gsfIter->mva_e_pi() < mvaMin_) continue;
 
 	double d = (gsfIter->vertex().x()-bs.position().x())
 		  *(gsfIter->vertex().x()-bs.position().x())+
@@ -1154,7 +1154,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = gsfIter->superCluster();
-	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->pflowSuperCluster();
+	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->parentSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -1314,7 +1314,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
          if (gsfIter->classification() == GsfElectron::SHOWERING)
 	  h_ele_PtinVsPtoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
 
-        h_ele_mva->Fill(gsfIter->mva());
+        h_ele_mva->Fill(gsfIter->mva_e_pi());
 	if (gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(1.);
 	if (gsfIter->trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
 	if (gsfIter->trackerDrivenSeed()||gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(0.);

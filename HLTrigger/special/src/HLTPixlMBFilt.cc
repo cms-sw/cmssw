@@ -27,7 +27,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
@@ -41,9 +41,7 @@ HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
 }
 
-HLTPixlMBFilt::~HLTPixlMBFilt()
-{
-}
+HLTPixlMBFilt::~HLTPixlMBFilt() = default;
 
 void
 HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -61,7 +59,7 @@ HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -71,8 +69,9 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
-
-
+   if (saveTags()) {
+       filterproduct.addCollectionTag(pixlTag_);
+   }
 
    // Specific filter code
 
@@ -87,15 +86,16 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    vector<double> phistore;
    vector<int> itstore;
    bool accept;
-   RecoChargedCandidateCollection::const_iterator apixl(tracks->begin());
-   RecoChargedCandidateCollection::const_iterator epixl(tracks->end());
+   auto apixl(tracks->begin());
+   auto epixl(tracks->end());
    RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
    unsigned int nsame_vtx=0;
    int itrk = -1;
    if (tracks->size() >= min_trks_) {
-     for (ipixl=apixl; ipixl!=epixl; ipixl++){ 
+     for (ipixl=apixl; ipixl!=epixl; ipixl++){
+       if (ipixl->pt() < min_Pt_) continue;
        itrk++;
-       const double& ztrk1 = ipixl->vz();		    
+       const double& ztrk1 = ipixl->vz();		
        const double& etatrk1 = ipixl->momentum().eta();
        const double& phitrk1 = ipixl->momentum().phi();
        nsame_vtx=1;
@@ -109,9 +109,10 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
          //  check this track against all others to see if others start from same point
 	 int jtrk=-1;
          for (jpixl=apixl; jpixl!=epixl; jpixl++) {
+	   if (jpixl->pt() < min_Pt_) continue;
 	   jtrk++;
 	   if (jpixl==ipixl) continue;
-           const double& ztrk2 = jpixl->vz();		    
+           const double& ztrk2 = jpixl->vz();		
            const double& etatrk2 = jpixl->momentum().eta();
            const double& phitrk2 = jpixl->momentum().phi();
            double eta_dist=etatrk2-etatrk1;
@@ -164,8 +165,7 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    // we now move them to the filterproduct
 
    if (accept) {
-     for (unsigned int ipos=0; ipos < itstore.size(); ipos++) {
-       int iaddr=itstore.at(ipos);
+     for (int iaddr : itstore) {
        filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
      }
    }

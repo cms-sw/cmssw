@@ -29,6 +29,13 @@
 
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
+//Data Formats
+#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -62,7 +69,7 @@ class RateBuffer{
   
 };
 
-class L1TBPTX : public edm::EDAnalyzer {
+class L1TBPTX : public DQMEDAnalyzer {
 
   public:
 
@@ -107,14 +114,12 @@ class L1TBPTX : public edm::EDAnalyzer {
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-    void beginJob();                                               // BeginJob
-    void endJob  (void);                                           // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
 
 
   // Private Methods
@@ -126,8 +131,6 @@ class L1TBPTX : public edm::EDAnalyzer {
 
   // Variables
   private:
-
-    DQMStore * dbe; // The DQM Service Handle
 
     edm::ParameterSet                      m_parameters;
     std::vector<edm::ParameterSet>         m_monitorBits;
@@ -179,9 +182,9 @@ class L1TBPTX : public edm::EDAnalyzer {
     MonitorElement*                        m_ErrorMonitor;
 
     // Input tags
-    edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtEvmSource;
-    edm::InputTag                          m_l1GtDataDaqInputTag;
+    edm::EDGetTokenT<Level1TriggerScalersCollection>  m_scalersSource;       // Where to get L1 Scalers
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>    m_l1GtDataDaqInputTag;
 
 };
 

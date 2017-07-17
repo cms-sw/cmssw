@@ -14,7 +14,6 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="Utilities/Timing"/>
 <use   name="SimG4Core/Geometry"/>
 <use   name="DetectorDescription/Core"/>
 <library   file="Geant4ePropagatorAnalyzer.cc" name="Geant4ePropagatorAnalyzer">

@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,15 +29,17 @@
 // class decleration
 //
 
-class TopBottomClusterInfoProducer : public edm::EDProducer {
+class TopBottomClusterInfoProducer : public edm::global::EDProducer<> {
 public:
   TopBottomClusterInfoProducer(const edm::ParameterSet& iConfig) ;
   ~TopBottomClusterInfoProducer() ;
-  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
+  void produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override ;
   
 private:
-  edm::InputTag stripClustersOld_, pixelClustersOld_;
-  edm::InputTag stripClustersNew_, pixelClustersNew_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersNew_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersOld_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersNew_;
 };
 
 
@@ -45,13 +47,13 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TopBottomClusterInfoProducer::TopBottomClusterInfoProducer(const ParameterSet& iConfig):
-    stripClustersOld_(iConfig.getParameter<InputTag>("stripClustersOld")),
-    pixelClustersOld_(iConfig.getParameter<InputTag>("pixelClustersOld")),
-    stripClustersNew_(iConfig.getParameter<InputTag>("stripClustersNew")),
-    pixelClustersNew_(iConfig.getParameter<InputTag>("pixelClustersNew"))
+TopBottomClusterInfoProducer::TopBottomClusterInfoProducer(const ParameterSet& iConfig)
 {
-    produces< ClusterRemovalInfo >();
+  pixelClustersOld_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("stripClustersOld"));
+  stripClustersOld_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("pixelClustersOld"));
+  pixelClustersNew_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("stripClustersNew"));
+  stripClustersNew_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("pixelClustersNew"));
+  produces< ClusterRemovalInfo >();
 }
 
 
@@ -60,20 +62,20 @@ TopBottomClusterInfoProducer::~TopBottomClusterInfoProducer()
 }
 
 void
-TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
+TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
 {
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld;
-    iEvent.getByLabel(pixelClustersOld_, pixelClustersOld);
+    iEvent.getByToken(pixelClustersOld_, pixelClustersOld);
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersOld;
-    iEvent.getByLabel(stripClustersOld_, stripClustersOld);
+    iEvent.getByToken(stripClustersOld_, stripClustersOld);
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClustersNew;
-    iEvent.getByLabel(pixelClustersNew_, pixelClustersNew);
+    iEvent.getByToken(pixelClustersNew_, pixelClustersNew);
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersNew;
-    iEvent.getByLabel(stripClustersNew_, stripClustersNew);
+    iEvent.getByToken(stripClustersNew_, stripClustersNew);
 
-    auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelClustersOld, stripClustersOld));
+    auto cri = std::make_unique<ClusterRemovalInfo>(pixelClustersOld, stripClustersOld);
     ClusterRemovalInfo::Indices& pixelInd = cri->pixelIndices();
     ClusterRemovalInfo::Indices& stripInd = cri->stripIndices();
     stripInd.reserve(stripClustersNew->size()); 
@@ -148,7 +150,7 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
     cri->setNewPixelClusters(edm::OrphanHandle<SiPixelClusterCollectionNew>(pixelClustersNew.product(),pixelClustersNew.id()));
     cri->setNewStripClusters(edm::OrphanHandle<edmNew::DetSetVector<SiStripCluster> >(stripClustersNew.product(),stripClustersNew.id()));
 
-    iEvent.put(cri);
+    iEvent.put(std::move(cri));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

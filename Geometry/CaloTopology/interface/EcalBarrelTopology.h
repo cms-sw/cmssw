@@ -8,7 +8,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
+class EcalBarrelTopology final : public CaloSubdetectorTopology
 {
 
  public:
@@ -16,7 +16,7 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
   EcalBarrelTopology(): theGeom_(0) {};
 
   /// virtual destructor
-  virtual ~EcalBarrelTopology() { }  
+  ~EcalBarrelTopology() override { }  
 
   /// create a new Topology from geometry
   EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
@@ -24,10 +24,10 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
   
  /// move the Topology north (increment iphi)
-  virtual DetId  goNorth(const DetId& id) const {
+  DetId  goNorth(const DetId& id) const override {
     return incrementIphi(EBDetId(id));
   }
-  virtual std::vector<DetId> north(const DetId& id) const
+  std::vector<DetId> north(const DetId& id) const override
     { 
       EBDetId nextId=goNorth(id);
       std::vector<DetId> vNeighborsDetId;
@@ -37,10 +37,10 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology south (decrement iphi)
-  virtual DetId goSouth(const DetId& id) const {
+  DetId goSouth(const DetId& id) const override {
     return decrementIphi(EBDetId(id));
   }
-  virtual std::vector<DetId> south(const DetId& id) const
+  std::vector<DetId> south(const DetId& id) const override
     { 
       EBDetId nextId=goSouth(id);
       std::vector<DetId> vNeighborsDetId;
@@ -50,10 +50,10 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology east (negative ieta)
-  virtual DetId  goEast(const DetId& id) const {
+  DetId  goEast(const DetId& id) const override {
     return decrementIeta(EBDetId(id));
   }
-  virtual std::vector<DetId> east(const DetId& id) const
+  std::vector<DetId> east(const DetId& id) const override
     { 
       EBDetId nextId=goEast(id);
       std::vector<DetId> vNeighborsDetId;
@@ -63,10 +63,10 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology west (positive ieta)
-  virtual DetId  goWest(const DetId& id) const {
+  DetId  goWest(const DetId& id) const override {
     return incrementIeta(EBDetId(id));
   }
-  virtual std::vector<DetId> west(const DetId& id) const
+  std::vector<DetId> west(const DetId& id) const override
     { 
       EBDetId nextId=goWest(id);
       std::vector<DetId> vNeighborsDetId;
@@ -76,14 +76,14 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
   
   
-  virtual std::vector<DetId> up(const DetId& /*id*/) const
+  std::vector<DetId> up(const DetId& /*id*/) const override
     {
       std::cout << "EcalBarrelTopology::up() not yet implemented" << std::endl; 
       std::vector<DetId> vNeighborsDetId;
       return  vNeighborsDetId;
     }
   
-  virtual std::vector<DetId> down(const DetId& /*id*/) const
+  std::vector<DetId> down(const DetId& /*id*/) const override
     {
       std::cout << "EcalBarrelTopology::down() not yet implemented" << std::endl; 
       std::vector<DetId> vNeighborsDetId;

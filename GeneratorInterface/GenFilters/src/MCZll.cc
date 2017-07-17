@@ -11,7 +11,9 @@ using namespace std;
 
 
 MCZll::MCZll(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))), nEvents_(0), nAccepted_(0)
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+  nEvents_(0),
+  nAccepted_(0)
 {
   leptonFlavour_ = iConfig.getUntrackedParameter<int>("leptonFlavour",11);
   leptonPtMin_ = iConfig.getUntrackedParameter<double>("leptonPtMin",5.);
@@ -34,7 +36,7 @@ MCZll::MCZll(const edm::ParameterSet& iConfig) :
       << "\n=========================================================" ;
   edm::LogVerbatim("MCZllInfo") <<  str.str() ;
   if (filter_)
-    produces< HepMCProduct >();
+    produces<HepMCProduct>();
 }
 
 
@@ -56,13 +58,13 @@ void MCZll::endJob()
 // ------------ method called to skim the data  ------------
 bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct()); 
+  std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
   nEvents_++;
   using namespace edm;
   bool accepted = false;
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
   HepMC::GenEvent * zEvent = new HepMC::GenEvent();
 
@@ -128,7 +130,7 @@ bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(zEvent)  
 	bare_product->addHepMCData(zEvent);
       if (filter_)
-	iEvent.put(bare_product);
+	iEvent.put(std::move(bare_product));
       nAccepted_++;
       //      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++"<< std::endl;
       LogDebug("MCZll") << "Event " << iEvent.id().event()  << " accepted" << std::endl; 

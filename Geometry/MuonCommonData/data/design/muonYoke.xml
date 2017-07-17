@@ -14,7 +14,9 @@
 		<PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.1015*m" dy2="0.1015*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/>
 		<Tubs name="YE34" rMin="1.1300*m" rMax="1.5300*m" dz="0.2725*m" startPhi="75*deg" deltaPhi="30*deg"/>
 		<Tubs name="ShieldingME4" rMin="1.1300*m" rMax="2.5000*m" dz="0.0375*m" startPhi="75*deg" deltaPhi="30*deg"/>
-		<PseudoTrap name="YE4" dx1="0.647073*m" dx2="1.86356*m" dy1="0.0500*m" dy2="0.0500*m" dz="2.27000*m" radius="-2.5000*m" atMinusZ="true"/> 
+		<PseudoTrap name="YE4" dx1="0.647073*m" dx2="1.86356*m" dy1="0.0625*m" dy2="0.0625*m" dz="2.27000*m" radius="-2.5000*m" atMinusZ="true"/> 
+		<!-- PseudoTrap name="YE4_in" dx1="0.622073*m" dx2="1.83856*m" dy1="0.0375*m" dy2="0.0375*m" dz="2.24500*m" radius="-2.5000*m" atMinusZ="true"/> -->
+		<Trd1 name="YE4_in" dx1="0.664117*m" dx2="1.743285*m" dy1="0.0375*m" dy2="0.0375*m" dz="2.014*m"/> 
 		<Trapezoid name="YB1_w0_b1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.186343*m" tl1="0.198401*m" h1="0.045*m" alp2="-7.63074*deg" bl2="0.186343*m" tl2="0.198401*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
 		<Box name="YB1_w0_b2" dx="0.7925*m" dy="0.0450*m" dz="0.62495*m"/>
 		<Trapezoid name="YB1_w0_b3" dz="1.268*m" alp1="7.63074*deg" bl1="0.257742*m" tl1="0.2698*m" h1="0.045*m" alp2="7.63074*deg" bl2="0.257742*m" tl2="0.2698*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
@@ -308,6 +310,10 @@
 		<LogicalPart name="YE4" category="unspecified"> 
 		        <rSolid name="YE4"/> 
 			<rMaterial name="materials:AISI-1018-Steel"/> 
+		</LogicalPart> 
+		<LogicalPart name="YE4_in" category="unspecified"> 
+		        <rSolid name="YE4_in"/> 
+			<rMaterial name="materials:Heavy Boron concrete"/> 
 		</LogicalPart> 
 		<LogicalPart name="YB1_w0_b1" category="unspecified">
 			<rSolid name="YB1_w0_b1"/>
@@ -1373,9 +1379,15 @@
 			<Numeric name="StartAngle"  value="0*deg"/> 
 			<Numeric name="RangeAngle"  value="360*deg"/> 
 			<Numeric name="Radius"      value="4.68491*m"/> 
-			<Vector  name="Center" type="numeric" nEntries="3"> 0, 0, 10.73*m </Vector>
+			<Vector  name="Center" type="numeric" nEntries="3"> 0, 0, 10.7425*m </Vector>
 			<Vector  name="RotateSolid" type="numeric" nEntries="6"> 90*deg, 0.*deg, 90*deg, 0.*deg, 0.*deg, 90*deg </Vector>
 		</Algorithm> 
+		<PosPart copyNumber="3">
+			<rParent name="muonYoke:YE4"/>
+			<rChild name="YE4_in"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*m" y="0*m" z="0*m"/>
+		</PosPart>
 		<Algorithm name="global:DDAngular">
 			<rParent name="mf:MEN"/>
 			<String name="ChildName" value="YN12p_a"/>
@@ -1541,7 +1553,7 @@
 			<Numeric name="StartAngle"  value="0*deg"/> 
 			<Numeric name="RangeAngle"  value="360*deg"/> 
 			<Numeric name="Radius"      value="4.68491*m"/> 
-			<Vector  name="Center" type="numeric" nEntries="3"> 0, 0, 10.73*m </Vector>
+			<Vector  name="Center" type="numeric" nEntries="3"> 0, 0, 10.7425*m </Vector>
 			<Vector  name="RotateSolid" type="numeric" nEntries="6"> 90*deg, 0.*deg, 90*deg, 0.*deg, 0.*deg, 90*deg </Vector>
 		</Algorithm> 
 		<Algorithm name="global:DDAngular">

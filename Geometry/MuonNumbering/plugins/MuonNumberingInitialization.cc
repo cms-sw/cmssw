@@ -17,27 +17,26 @@
 //
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
-#include <FWCore/Framework/interface/ModuleFactory.h>
-#include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESTransientHandle.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
-#include <Geometry/Records/interface/MuonNumberingRecord.h>
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
 
 class MuonNumberingInitialization : public edm::ESProducer
 {
 public:
   
   MuonNumberingInitialization( const edm::ParameterSet& );
-  ~MuonNumberingInitialization();
+  ~MuonNumberingInitialization() override;
 
-  typedef std::auto_ptr<MuonDDDConstants> ReturnType;
+  typedef std::unique_ptr<MuonDDDConstants> ReturnType;
 
   ReturnType produce( const MuonNumberingRecord& );
 

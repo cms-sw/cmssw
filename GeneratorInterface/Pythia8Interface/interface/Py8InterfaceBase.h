@@ -5,22 +5,31 @@
 #include <string>
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
+#include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "HepMC/IO_AsciiParticles.h"
+
+#include <Pythia8/Pythia.h>
+#include <Pythia8Plugins/HepMC2.h>
+
+class EvtGenDecays;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen {
 
-   class Py8InterfaceBase {
+   class Py8InterfaceBase : public BaseHadronizer {
 
       public:
          
 	 Py8InterfaceBase( edm::ParameterSet const& ps );
-	 ~Py8InterfaceBase() {}
+	 virtual ~Py8InterfaceBase() {}
 	 
          virtual bool generatePartonsAndHadronize() = 0;
          bool decay() { return true; } // NOT used - let's call it "design imperfection"
-         virtual bool residualDecay();
          bool readSettings( int ); // common func
          virtual bool initializeForInternalPartons() = 0;
          bool declareStableParticles( const std::vector<int>& ); // common func
@@ -28,20 +37,37 @@ namespace gen {
          virtual void finalizeEvent() = 0; 
          virtual void statistics();
          virtual const char* classname() const = 0;
-	       
+
+         void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_.setRandomEngine(v); }
+         P8RndmEngine& randomEngine() { return p8RndmEngine_; }
+
       protected:
          
 	 std::auto_ptr<Pythia8::Pythia> fMasterGen;
 	 std::auto_ptr<Pythia8::Pythia> fDecayer;
-	 HepMC::I_Pythia8               toHepMC;
-	 ParameterCollector	        fParameters;
+	 HepMC::Pythia8ToHepMC          toHepMC;
+// 	 ParameterCollector	        fParameters;
+         edm::ParameterSet	        fParameters;
 	 
 	 unsigned int                   pythiaPylistVerbosity;
          bool                           pythiaHepMCVerbosity;
+         bool                           pythiaHepMCVerbosityParticles;
 	 unsigned int                   maxEventsToPrint;
+         HepMC::IO_AsciiParticles*      ascii_io;
 
+         // EvtGen plugin
+         //
+         bool useEvtGen;
+         std::auto_ptr<EvtGenDecays> evtgenDecays;
+         std::string evtgenDecFile;
+         std::string evtgenPdlFile;
+         std::vector<std::string> evtgenUserFiles;
+         
+         std::string slhafile_;
+         
+      private:
+
+         P8RndmEngine p8RndmEngine_;
    };
-
 }
-
 #endif

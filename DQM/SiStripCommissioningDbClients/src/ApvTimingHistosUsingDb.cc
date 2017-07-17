@@ -284,12 +284,11 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Retrieve FED ids from cabling
-  std::vector<uint16_t> ids = cabling()->feds();
+  auto ids = cabling()->fedIds();
   
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( auto ifed = feds.begin(); ifed != feds.end(); ++ifed ) {
     
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; } 
@@ -297,7 +296,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
       // Build FED and FEC keys
-      const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
+      const FedChannelConnection& conn = cabling()->fedConnection( (*ifed)->getFedId(), ichan );
       if ( conn.fecCrate() == sistrip::invalid_ ||
 	   conn.fecSlot() == sistrip::invalid_ ||
 	   conn.fecRing() == sistrip::invalid_ ||

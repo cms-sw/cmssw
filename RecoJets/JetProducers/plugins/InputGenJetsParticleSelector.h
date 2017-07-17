@@ -14,28 +14,28 @@
  */
 
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class InputGenJetsParticleSelector : public edm::EDProducer {
+class InputGenJetsParticleSelector : public edm::global::EDProducer<> {
   // collection type
  public:
   typedef std::vector<bool>     ParticleBitmap;
-  typedef std::vector<const reco::GenParticle*> ParticleVector;
+  typedef std::vector<const reco::Candidate*> ParticleVector;
       
   InputGenJetsParticleSelector(const edm::ParameterSet & ); 
   ~InputGenJetsParticleSelector(); 
   // select object from a collection and 
   // possibly event content
-  virtual void produce (edm::Event &evt, const edm::EventSetup &evtSetup);
+  virtual void produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const override;
       
   bool getPartonicFinalState() const { return partonicFinalState; }
   bool getExcludeResonances() const { return excludeResonances; }
@@ -57,7 +57,7 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   bool isIgnored(int pdgId) const;
   bool hasPartonChildren(ParticleBitmap &invalid,
 			 const ParticleVector &p,
-			 const reco::GenParticle *particle) const;
+			 const reco::Candidate *particle) const;
   
   enum ResonanceState {
     kNo = 0,
@@ -66,7 +66,7 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   };
   ResonanceState fromResonance(ParticleBitmap &invalid,
 			       const ParticleVector &p,
-			       const reco::GenParticle *particle) const;
+			       const reco::Candidate *particle) const;
   
   
   // iterators over selected objects: collection begin
@@ -76,9 +76,10 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   InputGenJetsParticleSelector(){} //should not be used!
   
   edm::InputTag inTag;
+  edm::InputTag prunedInTag;
   int testPartonChildren(ParticleBitmap &invalid,
 			 const ParticleVector &p,
-			 const reco::GenParticle *particle) const;
+			 const reco::Candidate *particle) const;
   
   std::vector<unsigned int>	ignoreParticleIDs;
   std::vector<unsigned int> excludeFromResonancePids;
@@ -89,9 +90,11 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   bool			partonicFinalState;
   bool			excludeResonances;
   bool			tausAsJets;
-  double			ptMin;
+  bool			isMiniAOD;
+  double		ptMin;
   
-  
+  edm::EDGetTokenT<reco::CandidateView> input_genpartcoll_token_;
+  edm::EDGetTokenT<reco::CandidateView> input_prunedgenpartcoll_token_;
   
 };
 

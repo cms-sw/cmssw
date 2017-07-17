@@ -12,13 +12,16 @@
 
 ________________________________________________________________**/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-class BeamSpotOnlineProducer: public edm::EDProducer {
+
+class BeamSpotOnlineProducer: public edm::stream::EDProducer<> {
 
   public:
 	typedef std::vector<edm::ParameterSet> Parameters;
@@ -29,14 +32,17 @@ class BeamSpotOnlineProducer: public edm::EDProducer {
 	~BeamSpotOnlineProducer();
 	
 	/// produce a beam spot class
-	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
-	
-	edm::InputTag scalertag_;
-	bool changeFrame_;
-	double theMaxZ,theMaxR2,theSetSigmaZ;
-	edm::InputTag thel1GtEvmReadoutRecordTag;
+
+	const bool changeFrame_;
+	const double theMaxZ,theSetSigmaZ;
+	double theMaxR2;
+	const edm::EDGetTokenT<BeamSpotOnlineCollection> scalerToken_;
+	const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> l1GtEvmReadoutRecordToken_;
+
+	const unsigned int theBeamShoutMode;
 };
 
 #endif

@@ -3,7 +3,7 @@
 using namespace std;
 
 void VertexRecoManager::registerReconstructor (
-    const string & name, AbstractConfReconstructor * o, const string & d )
+					       const string & name, std::function<AbstractConfReconstructor*()> o, const string & d )
 {
   theAbstractConfReconstructors[name]=o;
   theDescription[name]=d;
@@ -11,18 +11,15 @@ void VertexRecoManager::registerReconstructor (
 
 VertexRecoManager::~VertexRecoManager()
 {
-  // why should we delete?
-  /*
-  for ( map < string, AbstractConfReconstructor * >::iterator i=theAbstractConfReconstructors.begin(); 
-        i!=theAbstractConfReconstructors.end() ; ++i )
-  {
-    delete i->second;
-  }*/
 }
 
-std::string VertexRecoManager::describe ( const std::string & d )
+std::string VertexRecoManager::describe ( const std::string & d ) const
 {
-  return theDescription[d];
+  auto found = theDescription.find(d);
+  if(found == theDescription.end()) {
+    return std::string();
+  }
+  return found->second;
 }
 
 VertexRecoManager * VertexRecoManager::clone() const
@@ -47,18 +44,29 @@ VertexRecoManager::VertexRecoManager ( const VertexRecoManager & o )
 
 VertexRecoManager & VertexRecoManager::Instance()
 {
-  static VertexRecoManager singleton;
+  //The singleton's internal structure only changes while
+  // this library is being loaded. All other methods are const.
+  [[cms::thread_safe]] static VertexRecoManager singleton;
   return singleton;
 }
 
-AbstractConfReconstructor * VertexRecoManager::get ( const string & s )
+std::unique_ptr<AbstractConfReconstructor> VertexRecoManager::get ( const string & s ) const
 {
-  return theAbstractConfReconstructors[s];
+  auto found = theAbstractConfReconstructors.find(s);
+  if( found == theAbstractConfReconstructors.end()) {
+    return std::unique_ptr<AbstractConfReconstructor>{};
+  }
+  return std::unique_ptr<AbstractConfReconstructor>{found->second()};
 }
 
-map < string, AbstractConfReconstructor * > VertexRecoManager::get()
+std::vector<std::string> VertexRecoManager::getNames() const 
 {
-  return theAbstractConfReconstructors;
+  std::vector<std::string> ret;
+  ret.reserve(theAbstractConfReconstructors.size());
+  for(const auto& i : theAbstractConfReconstructors ) {
+    ret.push_back(i.first);
+  }
+  return ret;
 }
 
 VertexRecoManager::VertexRecoManager()

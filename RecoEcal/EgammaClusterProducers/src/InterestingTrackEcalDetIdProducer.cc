@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,15 +46,13 @@
 // class declaration
 //
 
-class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
+class InterestingTrackEcalDetIdProducer : public edm::stream::EDProducer<> {
    public:
       explicit InterestingTrackEcalDetIdProducer(const edm::ParameterSet&);
       ~InterestingTrackEcalDetIdProducer();
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
       void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
       
@@ -93,7 +91,8 @@ InterestingTrackEcalDetIdProducer::InterestingTrackEcalDetIdProducer(const edm::
   trackCollectionToken_=
 	  consumes<reco::TrackCollection> (iConfig.getParameter<edm::InputTag>("TrackCollection"));	 
   trackAssociator_.useDefaultPropagator();
-  trackAssociatorParameters_.loadParameters(trackAssociatorPS_);
+  edm::ConsumesCollector iC = consumesCollector();
+  trackAssociatorParameters_.loadParameters(trackAssociatorPS_, iC);
 
   produces<DetIdCollection>(); 
 }
@@ -118,7 +117,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
 
-   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+   auto interestingDetIdCollection = std::make_unique<DetIdCollection>();
 
    // Get tracks from event
    edm::Handle<reco::TrackCollection> tracks;
@@ -151,7 +150,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
    }
 
-   iEvent.put(interestingDetIdCollection);
+   iEvent.put(std::move(interestingDetIdCollection));
 
 }
 
@@ -160,17 +159,6 @@ void InterestingTrackEcalDetIdProducer::beginRun(edm::Run const& run, const edm:
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   caloTopology_ = &(*theCaloTopology); 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-InterestingTrackEcalDetIdProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-InterestingTrackEcalDetIdProducer::endJob() {
 }
 
 //define this as a plug-in

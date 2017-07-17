@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   // set nice style for histograms
   setNiceStyle();

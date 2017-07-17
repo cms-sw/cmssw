@@ -4,9 +4,8 @@ CaloJetParameters = cms.PSet(
     src            = cms.InputTag('towerMaker'),
     srcPVs         = cms.InputTag('offlinePrimaryVertices'),
     jetType        = cms.string('CaloJet'),
-    doOutputJets   = cms.bool(True),
     # minimum jet pt
-    jetPtMin       = cms.double(3.0),
+    jetPtMin       = cms.double(10.0),
     # minimum calo tower input et
     inputEtMin     = cms.double(0.3),
     # minimum calo tower input energy

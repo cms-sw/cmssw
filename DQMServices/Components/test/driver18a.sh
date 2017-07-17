@@ -6,7 +6,7 @@ tnum=18
 numev=10
 DQMSEQUENCE=DQM
 
-cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --no_exec --python_filename=test_${tnum}.py
+cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@fake -n ${numev} --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --no_exec --python_filename=test_${tnum}.py
 
 cmsRun -e test_${tnum}.py >& p${tnum}.0.log
 

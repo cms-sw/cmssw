@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <time.h>
+#include <memory>
 
 using namespace std;
 
@@ -98,7 +99,8 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   if      (mapIOV==1) IOVlabel = "A";
   else if (mapIOV==2) IOVlabel = "B";
   else if (mapIOV==3) IOVlabel = "C";
-  else                IOVlabel = "D";
+  else if (mapIOV==4) IOVlabel = "D";
+  else                IOVlabel = "E";
 
   HBEFmapstr  = "./HCALmapHBEF_"+IOVlabel+".txt";
   HOXmapstr   = "./HCALmapHO_"+IOVlabel+".txt";
@@ -152,22 +154,21 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
 }
 
 /**************/
-HcalElectronicsMap HcalLogicalMap::generateHcalElectronicsMap()
+std::unique_ptr<HcalElectronicsMap> HcalLogicalMap::generateHcalElectronicsMap()
 {
-  HcalElectronicsMap* theemap = new HcalElectronicsMap();
+  HcalElectronicsMapAddons::Helper theemapHelper;
   
   for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
+    theemapHelper.mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
   for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
+    theemapHelper.mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
   for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
+    theemapHelper.mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
+    theemapHelper.mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
   for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
-    theemap->mapEId2tId( it->getHcalTrigElectronicsId(), it->getDetId() );}
-  theemap->sort();
-  return *theemap;
+    theemapHelper.mapEId2tId( it->getHcalTrigElectronicsId(), it->getDetId() );}
+  return std::make_unique<HcalElectronicsMap>(theemapHelper);
 }
 /**************/
 

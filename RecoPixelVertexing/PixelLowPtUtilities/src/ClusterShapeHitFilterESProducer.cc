@@ -4,7 +4,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,7 +15,13 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
 {
   
   std::string componentName = iConfig.getParameter<std::string>("ComponentName");
-  
+  minGoodPixelCharge_= 0,
+  minGoodStripCharge_ = (clusterChargeCut(iConfig));
+  cutOnPixelCharge_ = false;
+  cutOnStripCharge_ = minGoodStripCharge_>0;
+  cutOnPixelShape_ = (iConfig.exists("doPixelShapeCut") ? iConfig.getParameter<bool>("doPixelShapeCut") : true);
+  cutOnStripShape_ = (iConfig.exists("doStripShapeCut") ? iConfig.getParameter<bool>("doStripShapeCut") : true);
+
   edm::LogInfo("ClusterShapeHitFilterESProducer")
     << " with name: "            << componentName;
       
@@ -63,6 +69,8 @@ ClusterShapeHitFilterESProducer::produce
                                       pixel.product(),
                                       strip.product(),
                                       &use_PixelShapeFile));
-
+  aFilter->setShapeCuts(cutOnPixelShape_, cutOnStripShape_);
+  aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_,
+    minGoodStripCharge_);
   return aFilter;
 }

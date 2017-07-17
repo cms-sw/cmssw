@@ -146,7 +146,7 @@ PFDisplacedVertex::momentum(M_Hypo massHypo, VertexTrackType T, bool useRefitted
 
 	TrackBaseRef trackRef = originalTrack(refittedTracks()[i]);
 
-	double p2 = trackRef->innerMomentum().Mag2();
+	double p2 = trackRef->momentum().Mag2();
 	P += math::XYZTLorentzVector (trackRef->momentum().x(),
 				      trackRef->momentum().y(),
 				      trackRef->momentum().z(),

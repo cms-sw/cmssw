@@ -1,5 +1,5 @@
 #ifndef _HLTHFAsymmetryFilter_H
-#define _HLTHFAsymetryFilter_H
+#define _HLTHFAsymmetryFilter_H
 
 
 ///////////////////////////////////////////////////////
@@ -65,4 +65,4 @@ class HLTHFAsymmetryFilter : public edm::EDFilter {
 
 };
 
-#endif
+#endif // _HLTHFAsymmetryFilter_H

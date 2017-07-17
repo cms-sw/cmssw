@@ -56,7 +56,7 @@ class Multi5x5BremRecoveryClusterAlgo
 
   
   // the method called from outside to do the SuperClustering - returns a vector of SCs:
-  reco::SuperClusterCollection makeSuperClusters(reco::CaloClusterPtrVector & clusters);
+  reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector & clusters);
   
  private:
   
@@ -64,13 +64,7 @@ class Multi5x5BremRecoveryClusterAlgo
   void makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 			       double etaRoad, double phiRoad);
   
-  // return true if the cluster is within the search phi-eta window of the seed
-  bool match(reco::CaloClusterPtr seed_p, 
-	     reco::CaloClusterPtr cluster_p,
-	     double etaRoad, double phiRoad);
-  
-  //
-
+ 
   double eb_rdeta_;
   double eb_rdphi_;
   double ec_rdeta_;

@@ -33,7 +33,7 @@ process = cms.Process(processName)
 
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuTester_cfi")
 process.l1GtTriggerMenuTester.OverwriteHtmlFile = True
-process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.html"
+process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.html"
 process.l1GtTriggerMenuTester.UseHltMenu = useHltMenuOption
 process.l1GtTriggerMenuTester.HltProcessName = processName
 #process.l1GtTriggerMenuTester.NoThrowIncompatibleMenu = False

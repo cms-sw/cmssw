@@ -58,7 +58,7 @@ FWTypeToRepresentations::~FWTypeToRepresentations()
 // member functions
 //
 void
-FWTypeToRepresentations::add( boost::shared_ptr<FWRepresentationCheckerBase> iChecker)
+FWTypeToRepresentations::add( std::shared_ptr<FWRepresentationCheckerBase> iChecker)
 {
    m_checkers.push_back(iChecker);
    if(m_typeToReps.size()) {
@@ -78,7 +78,7 @@ void
 FWTypeToRepresentations::insert( const FWTypeToRepresentations& iOther)
 {
    m_typeToReps.clear();
-   for(std::vector<boost::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it =iOther.m_checkers.begin(),
+   for(std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it =iOther.m_checkers.begin(),
                                                                                     itEnd = iOther.m_checkers.end();
        it != itEnd;
        ++it) {
@@ -96,15 +96,16 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
    if(itFound == m_typeToReps.end()) {
       std::vector<FWRepresentationInfo> reps;
       //check all reps
-      for(std::vector<boost::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
-                                                                                       itEnd = m_checkers.end();
+      for(std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
+             itEnd = m_checkers.end();
           it != itEnd;
           ++it) {
-         FWRepresentationInfo info = (*it)->infoFor(iTypeName);
-         if(info.isValid()) {
+
+         FWRepresentationInfo info = (*it)->infoFor(iTypeName);         
+         if(info.isValid()) 
             reps.push_back(info);
-         }
       }
+   
       m_typeToReps.insert(std::make_pair(iTypeName,reps));
       itFound = m_typeToReps.find(iTypeName);
    }

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
 
     ComponentName = cms.string('PixelCPEGeneric'),
-    TanLorentzAnglePerTesla = cms.double(0.106),
     Alpha2Order = cms.bool(True),
     PixelErrorParametrization = cms.string('NOTcmsim'),
 
@@ -40,9 +39,36 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     LoadTemplatesFromDB = cms.bool(True),                                       
 
     # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0)         
+    ClusterProbComputationFlag = cms.int32(0),
 
+    # new parameters added in 1/14, dk
+    # LA defined by hand, FOR TESTING ONLY, not for production   
+    # 0.0 means that the offset is taken from DB        
+    #lAOffset = cms..double(0.0),
+    #lAWidthBPix = cms.double(0.0),
+    #lAWidthFPix = cms.double(0.0),
+
+    # Flag to select the source of LA-Width
+    # Normal = True, use LA from DB
+    useLAWidthFromDB = cms.bool(True),                             
+    # if lAWith=0 and useLAWidthFromDB=false than width is calculated from lAOffset.         
+    # Use the LA-Offsets from Alignment instead of our calibration
+    useLAAlignmentOffsets = cms.bool(False),                             
                                            
+    #MagneticFieldRecord: e.g. "" or "ParabolicMF"
+    MagneticFieldRecord = cms.ESInputTag(""),
 )
 
+# This customization will be removed once we get the templates for phase2 pixel
+# FIXME::Is the Upgrade variable actually used?
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(PixelCPEGenericESProducer, 
+  useLAWidthFromDB = False,
+  UseErrorsFromTemplates = False,
+  LoadTemplatesFromDB = False,
+  TruncatePixelCharge = False,
+  IrradiationBiasCorrection = False,
+  DoCosmics = False,
+  Upgrade = cms.bool(True)
+)
 

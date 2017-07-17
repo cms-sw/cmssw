@@ -23,7 +23,7 @@ class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupR
   SiStripPedestalsESSource( const edm::ParameterSet& );
   virtual ~SiStripPedestalsESSource() {;}
   
-  virtual std::auto_ptr<SiStripPedestals> produce( const SiStripPedestalsRcd& );
+  virtual std::unique_ptr<SiStripPedestals> produce( const SiStripPedestalsRcd& );
   
  protected:
 

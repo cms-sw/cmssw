@@ -13,7 +13,7 @@ PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const 
  par  = conversions.extendedPerigeeFromKinematicParameters(state,pt);
    
 //creating the error
- AlgebraicSymMatrix77 err = state.kinematicParametersError().matrix();
+ AlgebraicSymMatrix77 const & err = state.kinematicParametersError().matrix();
 
 //making jacobian for curvilinear frame
  JacobianCartesianToCurvilinear jj(state.freeTrajectoryState().parameters());  

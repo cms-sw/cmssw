@@ -112,8 +112,8 @@
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 
@@ -121,29 +121,28 @@
 // class declaration
 //
 
-class L1TGCT : public edm::EDAnalyzer {
+class L1TGCT : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
   L1TGCT(const edm::ParameterSet& ps);
-
+  
 // Destructor
  virtual ~L1TGCT();
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginJob
- void beginJob(void);
-
-// EndJob
-void endJob(void);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
+
+  std::string monitorDir_;
 
   // trigger type information
   MonitorElement *triggerType_;
@@ -153,19 +152,22 @@ private:
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
   MonitorElement* l1GctForJetsEtEtaPhi_;
   MonitorElement* l1GctTauJetsEtEtaPhi_;
+  MonitorElement* l1GctIsoTauJetsEtEtaPhi_;
   MonitorElement* l1GctIsoEmRankEtaPhi_;
   MonitorElement* l1GctNonIsoEmRankEtaPhi_;
 
   MonitorElement* l1GctAllJetsOccEtaPhi_; 
   MonitorElement* l1GctCenJetsOccEtaPhi_;
   MonitorElement* l1GctForJetsOccEtaPhi_;  
-  MonitorElement* l1GctTauJetsOccEtaPhi_;  
+  MonitorElement* l1GctTauJetsOccEtaPhi_;
+  MonitorElement* l1GctIsoTauJetsOccEtaPhi_;
   MonitorElement* l1GctIsoEmOccEtaPhi_;    
   MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
 
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
   MonitorElement* l1GctTauJetsRank_;
+  MonitorElement* l1GctIsoTauJetsRank_;
   MonitorElement* l1GctIsoEmRank_;
   MonitorElement* l1GctNonIsoEmRank_;
 
@@ -218,12 +220,29 @@ private:
   edm::InputTag gctCenJetsSource_;
   edm::InputTag gctForJetsSource_;
   edm::InputTag gctTauJetsSource_;
+  edm::InputTag gctIsoTauJetsSource_;
   edm::InputTag gctEnergySumsSource_;
   edm::InputTag gctIsoEmSource_;
   edm::InputTag gctNonIsoEmSource_;
 
   /// filter TriggerType
+  bool m_stage1_layer2_;
   int filterTriggerType_;
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmSourceToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmSourceToken_;
+  edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsSourceToken_;
+  edm::EDGetTokenT<L1GctJetCandCollection> gctForJetsSourceToken_;
+  edm::EDGetTokenT<L1GctJetCandCollection> gctTauJetsSourceToken_;
+  edm::EDGetTokenT<L1GctJetCandCollection> gctIsoTauJetsSourceToken_;
+  edm::EDGetTokenT<L1GctHFRingEtSumsCollection> gctEnergySumsSourceToken_;
+  edm::EDGetTokenT<L1GctHFBitCountsCollection> l1HFCountsToken_;
+  edm::EDGetTokenT<L1GctEtMissCollection> l1EtMissToken_;
+  edm::EDGetTokenT<L1GctHtMissCollection> l1HtMissToken_;
+  edm::EDGetTokenT<L1GctEtHadCollection> l1EtHadToken_;
+  edm::EDGetTokenT<L1GctEtTotalCollection> l1EtTotalToken_;
+
 };
 
 #endif

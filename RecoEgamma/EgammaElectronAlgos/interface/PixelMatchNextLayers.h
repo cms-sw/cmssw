@@ -18,6 +18,7 @@
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -28,6 +29,7 @@ class FreeTrajectoryState;
 class PropagatorWithMaterial;
 class LayerMeasurements;
 class TrackerTopology;
+class NavigationSchool;
 
 class PixelMatchNextLayers {
 
@@ -37,6 +39,7 @@ public:
 		       const BarrelMeasurementEstimator *aBarrelMeas,
 		       const ForwardMeasurementEstimator *aForwardMeas,
 		       const TrackerTopology *tTopo,
+                       const NavigationSchool& navigationSchool,
 		       bool searchInTIDTEC);
   std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;

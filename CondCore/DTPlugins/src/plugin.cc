@@ -37,21 +37,92 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondCore/IOVService/interface/KeyListProxy.h"
+#include "CondCore/CondDB/interface/KeyListProxy.h"
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 
+//
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/External/interface/DetID.h"
+
+#include <memory>
+
+namespace cond {
+  template <> std::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+						 const Binary& payloadData,
+						 const Binary& streamerInfoData ){
+    DESERIALIZE_BASE_CASE( BaseKeyed );                                                                                                                                                                                                             
+    DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, DTKeyedConfig );
+
+    // here we come if none of the deserializations above match the payload type:                                                                                                                                                                                             
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+  }
+}
+
+
+namespace {
+  struct InitDTCCBConfig {void operator()(DTCCBConfig& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTDeadFlag {void operator()(DTDeadFlag& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTHVStatus {void operator()(DTHVStatus& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTLVStatus {void operator()(DTLVStatus& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTMtime {void operator()(DTMtime& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTPerformance {void operator()(DTPerformance& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTRangeT0 {void operator()(DTRangeT0& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTStatusFlag {void operator()(DTStatusFlag& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTTPGParameters {void operator()(DTTPGParameters& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTTtrig {void operator()(DTTtrig& e){ e.initialize();}};
+}
 
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
 REGISTER_PLUGIN(DTT0RefRcd,DTT0);
-REGISTER_PLUGIN(DTRangeT0Rcd,DTRangeT0);
-REGISTER_PLUGIN(DTTtrigRcd,DTTtrig);
-REGISTER_PLUGIN(DTMtimeRcd,DTMtime);
-REGISTER_PLUGIN(DTStatusFlagRcd,DTStatusFlag);
-REGISTER_PLUGIN(DTDeadFlagRcd,DTDeadFlag);
-REGISTER_PLUGIN(DTPerformanceRcd,DTPerformance);
-REGISTER_PLUGIN(DTCCBConfigRcd,DTCCBConfig);
-REGISTER_PLUGIN(DTTPGParametersRcd,DTTPGParameters);
-REGISTER_PLUGIN(DTHVStatusRcd,DTHVStatus);
-REGISTER_PLUGIN(DTLVStatusRcd,DTLVStatus);
+REGISTER_PLUGIN_INIT(DTRangeT0Rcd,DTRangeT0,InitDTRangeT0);
+REGISTER_PLUGIN_INIT(DTTtrigRcd,DTTtrig,InitDTTtrig);
+REGISTER_PLUGIN_INIT(DTMtimeRcd,DTMtime,InitDTMtime);
+REGISTER_PLUGIN_INIT(DTStatusFlagRcd,DTStatusFlag,InitDTStatusFlag);
+REGISTER_PLUGIN_INIT(DTDeadFlagRcd,DTDeadFlag,InitDTDeadFlag);
+REGISTER_PLUGIN_INIT(DTPerformanceRcd,DTPerformance,InitDTPerformance);
+REGISTER_PLUGIN_INIT(DTCCBConfigRcd,DTCCBConfig,InitDTCCBConfig);
+REGISTER_PLUGIN_INIT(DTTPGParametersRcd,DTTPGParameters,InitDTTPGParameters);
+REGISTER_PLUGIN_INIT(DTHVStatusRcd,DTHVStatus,InitDTHVStatus);
+REGISTER_PLUGIN_INIT(DTLVStatusRcd,DTLVStatus,InitDTLVStatus);
 REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
-REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::KeyList,DTKeyedConfigContainerRcd);
+REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
+REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
+//New flexyble payloads for ttrig, vdrift, uncertainty
+REGISTER_PLUGIN(DTRecoConditionsTtrigRcd, DTRecoConditions);
+REGISTER_PLUGIN(DTRecoConditionsVdriftRcd, DTRecoConditions);
+REGISTER_PLUGIN(DTRecoConditionsUncertRcd, DTRecoConditions);
+
+

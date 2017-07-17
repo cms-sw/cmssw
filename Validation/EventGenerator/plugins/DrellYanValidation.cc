@@ -13,7 +13,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet): 
@@ -22,59 +22,50 @@ DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet):
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 DrellYanValidation::~DrellYanValidation() {}
 
-void DrellYanValidation::beginJob()
-{
-  if(dbe){
+void DrellYanValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
+}
+
+void DrellYanValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+
     ///Setting the DQM top directories
     std::string folderName = "Generator/DrellYan";
     folderName+=_name;
-    dbe->setCurrentFolder(folderName.c_str());
+    DQMHelper dqm(&i); i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
     
     //Kinematics
-    Zmass = dbe->book1D("Zmass","inv. Mass Z", 70 ,0,140);
-    ZmassPeak = dbe->book1D("ZmassPeak","inv. Mass Z", 80 ,80 ,100);
-    Zpt = dbe->book1D("Zpt","Z pt",100,0,200);
-    ZptLog = dbe->book1D("ZptLog","log(Z pt)",100,0.,5.);
-    Zrap = dbe->book1D("Zrap", "Z y", 100, -5, 5);
-    Zdaughters = dbe->book1D("Zdaughters", "Z daughters", 60, -30, 30);
+    Zmass = dqm.book1dHisto("Zmass","inv. Mass Z", 70 ,0,140,"M_{Z} (GeV)","Number of Events");
+    ZmassPeak = dqm.book1dHisto("ZmassPeak","inv. Mass Z", 80 ,80 ,100,"M_{Z} (GeV)","Number of Events");
+    Zpt = dqm.book1dHisto("Zpt","Z pt",100,0,200,"P_{t}^{Z} (GeV)","Number of Events");
+    ZptLog = dqm.book1dHisto("ZptLog","log(Z pt)",100,0.,5.,"log_{10}(P_{t}^{Z}) (log_{10}(GeV))","Number of Events");
+    Zrap = dqm.book1dHisto("Zrap", "Z y", 100, -5, 5,"Y_{Z}","Number of Events");
+    Zdaughters = dqm.book1dHisto("Zdaughters", "Z daughters", 60, -30, 30,"Z daughters (PDG ID)","Number of Events");
 
-    dilep_mass = dbe->book1D("dilep_mass","inv. Mass dilepton", 70 ,0,140);
-    dilep_massPeak = dbe->book1D("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100);
-    dilep_pt = dbe->book1D("dilep_pt","dilepton pt",100,0,200);
-    dilep_ptLog = dbe->book1D("dilep_ptLog","log(dilepton pt)",100,0.,5.);
-    dilep_rap = dbe->book1D("dilep_rap", "dilepton y", 100, -5, 5);
+    dilep_mass = dqm.book1dHisto("dilep_mass","inv. Mass dilepton", 70 ,0,140,"M_{ll} (GeV)","Number of Events");
+    dilep_massPeak = dqm.book1dHisto("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100,"M_{ll} (GeV)","Number of Events");
+    dilep_pt = dqm.book1dHisto("dilep_pt","dilepton pt",100,0,200,"P_{t}^{ll} (GeV)","Number of Events");
+    dilep_ptLog = dqm.book1dHisto("dilep_ptLog","log(dilepton pt)",100,0.,5.,"log_{10}(P_{t}^{ll}) (log_{10}(GeV))","Number of Events");
+    dilep_rap = dqm.book1dHisto("dilep_rap", "dilepton y", 100, -5, 5,"Y_{ll}","Number of Events");
 
-    gamma_energy = dbe->book1D("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = dbe->book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1);
+    gamma_energy = dqm.book1dHisto("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.,"E_{#gamma}^{Z rest-frame} (GeV)","Number of Events");
+    cos_theta_gamma_lepton = dqm.book1dHisto("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1,"cos(#theta_{#gamma-lepton}^{Z rest-frame})","Number of Events");
 
-    leadpt = dbe->book1D("leadpt","leading lepton pt", 200, 0., 200.);    
-    secpt  = dbe->book1D("secpt","second lepton pt", 200, 0., 200.);    
-    leadeta = dbe->book1D("leadeta","leading lepton eta", 100, -5., 5.);
-    seceta  = dbe->book1D("seceta","second lepton eta", 100, -5., 5.);
+    leadpt = dqm.book1dHisto("leadpt","leading lepton pt", 200, 0., 200.,"P_{t}^{1st-lepton}","Number of Events");    
+    secpt  = dqm.book1dHisto("secpt","second lepton pt", 200, 0., 200.,"P_{t}^{2nd-lepton}","Number of Events");    
+    leadeta = dqm.book1dHisto("leadeta","leading lepton eta", 100, -5., 5.,"#eta^{1st-lepton}","Number of Events");
+    seceta  = dqm.book1dHisto("seceta","second lepton eta", 100, -5., 5.,"#eta^{2nd-lepton}","Number of Events");
 
-  }
   return;
 }
 
-void DrellYanValidation::endJob(){return;}
-void DrellYanValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
-}
-void DrellYanValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   
@@ -96,16 +87,16 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   std::vector<const HepMC::GenParticle*> allproducts; 
 
   //requires status 1 for leptons and neutrinos (except tau)
-  int requiredstatus = (abs(_flavor) == 11 || abs(_flavor) == 12 || abs(_flavor) ==13 || abs(_flavor) ==14 || abs(_flavor) ==16) ? 1 : 3;
+  int requiredstatus = (std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? 1 : 3;
 
-  bool vetotau = true; //(abs(_flavor) == 11 || abs(_flavor) == 12 || abs(_flavor) ==13 || abs(_flavor) ==14 || abs(_flavor) ==16) ? true : false;  
+  bool vetotau = true; //(std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? true : false;  
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return; 
+      if ((*iter)->status()==3 && std::abs((*iter)->pdg_id()) == 15)  return; 
     }
     if((*iter)->status()==requiredstatus) {
-      if(abs((*iter)->pdg_id())==_flavor)
+      if(std::abs((*iter)->pdg_id())==_flavor)
 	allproducts.push_back(*iter);
     }
   }

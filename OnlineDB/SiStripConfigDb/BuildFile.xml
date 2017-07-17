@@ -6,6 +6,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="tkonlineswdb"/>
 <use   name="boost"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

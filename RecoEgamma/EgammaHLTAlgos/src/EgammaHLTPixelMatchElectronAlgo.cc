@@ -46,11 +46,11 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet &conf) :
-  trackProducer_(conf.getParameter<edm::InputTag>("TrackProducer")),
-  gsfTrackProducer_(conf.getParameter<edm::InputTag>("GsfTrackProducer")),
+EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector && iC) :
+  trackProducer_(iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackProducer"))),
+  gsfTrackProducer_(iC.consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("GsfTrackProducer"))),
   useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
-  bsProducer_(conf.getParameter<edm::InputTag>("BSProducer")), 
+  bsProducer_(iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"))), 
   mtsMode_(new MultiTrajectoryStateMode()),
   mtsTransform_(0),
   cacheIDTDGeom_(0),
@@ -96,16 +96,16 @@ void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle
   // get the input 
   edm::Handle<TrackCollection> tracksH;
   if (!useGsfTracks_)
-    e.getByLabel(trackProducer_,tracksH);
+    e.getByToken(trackProducer_,tracksH);
 
   // get the input 
   edm::Handle<GsfTrackCollection> gsfTracksH;
   if (useGsfTracks_)
-    e.getByLabel(gsfTrackProducer_, gsfTracksH);
+    e.getByToken(gsfTrackProducer_, gsfTracksH);
 
   //Get the Beam Spot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel(bsProducer_,recoBeamSpotHandle);
+  e.getByToken(bsProducer_,recoBeamSpotHandle);
 
   // gets its position
   const BeamSpot::Point& bsPosition = recoBeamSpotHandle->position(); 
@@ -233,8 +233,8 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 bool EgammaHLTPixelMatchElectronAlgo::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer) {
   
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
-  unsigned int iLostHits = iGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
   
   if (nLostHits!=iLostHits) {
     return (nLostHits > iLostHits);

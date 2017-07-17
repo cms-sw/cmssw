@@ -5,6 +5,8 @@
 #include <vector>
 
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -22,7 +24,7 @@ class PFCandWithSuperClusterExtractor : public reco::isodeposit::IsoDepositExtra
 public:
 
   PFCandWithSuperClusterExtractor(){};
-  PFCandWithSuperClusterExtractor(const edm::ParameterSet& par);
+  PFCandWithSuperClusterExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
   virtual ~PFCandWithSuperClusterExtractor(){}
 
@@ -31,17 +33,17 @@ public:
 
 
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Track & muon) const { 
+				    const edm::EventSetup & evSetup, const reco::Track & muon) const {
     return depositFromObject(ev, evSetup, muon);
   }
-  
+
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Candidate & cand) const { 
+				    const edm::EventSetup & evSetup, const reco::Candidate & cand) const {
 
     const reco::Photon * myPhoton= dynamic_cast<const reco::Photon*>(&cand);
     if(myPhoton)
       return depositFromObject(ev, evSetup,*myPhoton);
-    
+
     const reco::GsfElectron * myElectron = dynamic_cast<const reco::GsfElectron*>(&cand);
     if(myElectron)
       return depositFromObject(ev,evSetup,*myElectron);
@@ -66,7 +68,7 @@ private:
 				      const edm::EventSetup & evSetup, const reco::PFCandidate &cand) const ;
 
   // Parameter set
-  edm::InputTag thePFCandTag; // Track Collection Label
+  edm::EDGetTokenT<reco::PFCandidateCollection> thePFCandToken; // Track Collection Label
   std::string theDepositLabel;         // name for deposit
   bool theVetoSuperClusterMatch;         //SuperClusterRef Check
   bool theMissHitVetoSuperClusterMatch;   // veto PF photons sharing SC with supercluster if misshits >0

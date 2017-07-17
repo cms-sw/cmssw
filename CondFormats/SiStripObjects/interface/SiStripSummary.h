@@ -1,6 +1,8 @@
 #ifndef SiStripSummary_h
 #define SiStripSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -39,7 +41,9 @@ class SiStripSummary {
 		struct DetRegistry{
 			uint32_t detid;
 			uint32_t ibegin;
-		};
+		
+    COND_SERIALIZABLE;
+};
                 
 		class StrictWeakOrdering{
 			public:
@@ -134,7 +138,9 @@ class SiStripSummary {
 	        const short getPosition(std::string elementName) const;
 	
 	
-   };
+   
+  COND_SERIALIZABLE;
+};
 		
 
 #endif

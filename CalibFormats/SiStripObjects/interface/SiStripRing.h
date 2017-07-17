@@ -23,6 +23,7 @@ class SiStripRing {
 
   /** */
   inline const std::vector<SiStripCcu>& ccus() const;
+  inline std::vector<SiStripCcu>& ccus();
 
   /** */
   inline const uint16_t& fecRing() const;
@@ -46,6 +47,7 @@ class SiStripRing {
 // ---------- inline methods ----------
 
 const std::vector<SiStripCcu>& SiStripRing::ccus() const { return ccus_; }
+std::vector<SiStripCcu>& SiStripRing::ccus() { return ccus_; }
 const uint16_t& SiStripRing::fecRing() const { return fecRing_; }
 
 #endif // CalibTracker_SiStripObjects_SiStripRing_H

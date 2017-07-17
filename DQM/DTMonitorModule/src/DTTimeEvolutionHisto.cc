@@ -15,69 +15,19 @@ using namespace std;
 using namespace edm;
 
 
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const string& name,
 					   const string& title,
 					   int nbins,
 					   int lsPrescale,
 					   bool sliding,
-					   int mode) : valueLastTimeSlot(0),
-						       theFirstLS(1),
-						       theLSPrescale(lsPrescale),
-						       doSlide(sliding),
-						       theMode(mode) {
-  
-  DTTimeEvolutionHisto(dbe, name, title, nbins, theFirstLS, lsPrescale, sliding, mode);
-  histo = dbe->get(dbe->pwd() + "/" + name);
-  nBookedBins = histo->getNbinsX();
+					   int mode) :
+             DTTimeEvolutionHisto(ibooker, name, title, nbins, 1, lsPrescale, sliding, mode) {
+
+    nBookedBins = histo->getNbinsX();
 }
 
 
-// DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
-// 					   const string& title,
-// 					   int nbins,
-// 					   int lsPrescale,
-// 					   bool sliding,
-// 					   int mode) : valueLastTimeSlot(0),
-// 						       theLSPrescale(lsPrescale),
-// 						       doSlide(sliding),
-// 						       theMode(mode) {
-//   // set the number of bins to be booked
-//   nBookedBins = nbins;
-//   if(sliding) nBookedBins++;
-//   if(!sliding && theMode == 0)
-//     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-//       << "[DTTimeEvolutionHisto]***Error: wrong configuration" << endl;
-
-
-//   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
-
-//   // book the ME
-//   histo = dbe->book1D(name, realTitle.str(), nBookedBins, 1., nBookedBins+1.);
-
-//   // set the axis label
-//   if(sliding) {
-//     histo->setBinLabel(1,"avg. previous",1);
-//   } else {
-//     // loop over bins and 
-//     for(int bin =1; bin != nBookedBins+1; ++bin) {    
-//       stringstream label;
-//       if(theLSPrescale > 1) {
-// 	label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
-//       } else {
-// 	label << "LS " << ((bin-1)*theLSPrescale)+1;
-//       }
-//       histo->setBinLabel(bin, label.str(),1);
-
-//     }
-
-//   }
-
-// }
-
-
-
-
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const string& name,
 					   const string& title,
 					   int nbins,
 					   int firstLS,
@@ -95,42 +45,40 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto]***Error: wrong configuration" << endl;
 
-
   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
 
   // book the ME
-  histo = dbe->book1D(name, realTitle.str(), nBookedBins, (float)theFirstLS, nBookedBins+1.);
+
+  histo = ibooker.book1D(name, realTitle.str(), nBookedBins, (float)theFirstLS, nBookedBins+1.);
 
   // set the axis label
   if(sliding) {
     histo->setBinLabel(1,"avg. previous",1);
   } else {
-    // loop over bins and 
-    for(int bin =1; bin != nBookedBins+1; ++bin) {    
+    // loop over bins and
+
+    for(int bin =1; bin != nBookedBins+1; ++bin) {
       stringstream label;
       if(theLSPrescale > 1) {
 	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS << "-" << bin*theLSPrescale+theFirstLS;
       } else {
 	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS;
       }
-      histo->setBinLabel(bin, label.str(),1);
-
+      if (bin%(2*(int)theLSPrescale)==0) histo->setBinLabel(bin, label.str(),1); //JF to allow easy reading of x-axis
     }
-
   }
-
 }
 
+//FR changed previous constructor with 2 arguments:
+//no igetter here!! so I get the histo from the client and just instanciate here a DTTimeEvolutionHisto
 
-
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name) : valueLastTimeSlot(0),
-										theFirstLS(1),
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(MonitorElement* histoGot) : valueLastTimeSlot(0), theFirstLS(1),
 										theLSPrescale(-1),
 										doSlide(false),
 										theMode(0) { // FIXME: set other memebers to sensible values
   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-    << "[DTTimeEvolutionHisto] Retrieve ME with name: " << name << endl;
-  histo = dbe->get(name);
+    << "[DTTimeEvolutionHisto] Retrieve ME with name: " << " "<< endl;
+  histo = histoGot;
 }
 
 
@@ -139,23 +87,22 @@ DTTimeEvolutionHisto::~DTTimeEvolutionHisto(){}
 
 
 void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
-  //   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-  //   << "[DTTimeEvolutionHisto] ME name: " <<  histo->getName() << endl;
+
   if(!doSlide) {
-    //     LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-    //     << "        fill bin: " << timeSlot << " with value: " << value << endl;
+
     histo->Fill(timeSlot,value);
   } else {
     for(int bin = 1; bin != nBookedBins; ++bin) {
       float value = histo->getBinContent(bin);
-      //       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-      //  << "        bin: " << bin << " has value: " << value << endl;
+
       if(bin == 1) { // average of previous time slots (fixme)
 	histo->setBinContent(bin, (value + histo->getBinContent(bin+1))/2.);
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
 	histo->setBinError(bin, histo->getBinError(bin+1));
-	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1);
+	//JF to allow easy reading of x-axis
+	if (bin%(2*(int)theLSPrescale)==0){ histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); }
+	else  histo->setBinLabel(bin,"");
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -170,7 +117,7 @@ void DTTimeEvolutionHisto::accumulateValueTimeSlot(float value) {
 
 
 void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
-  
+
   if(doSlide) { // sliding bins
     // count LS in this time-slot
     if (nEventsInLastTimeSlot.find(ls) != nEventsInLastTimeSlot.end()) {
@@ -180,21 +127,21 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       nEventsInLastTimeSlot[ls] = nEventsInLS;
       nLumiTrInLastTimeSlot[ls] = 1;
     }
-    
+
 
     if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
-      
+
       map<int,int>::const_iterator nEventsIt  = nEventsInLastTimeSlot.begin();
       map<int,int>::const_iterator nEventsEnd = nEventsInLastTimeSlot.end();
 
       int nEvents = 0;
-      for (;nEventsIt!=nEventsEnd;++nEventsIt) 
-	nEvents+=nEventsIt->second;	
-	
+      for (;nEventsIt!=nEventsEnd;++nEventsIt)
+	nEvents+=nEventsIt->second;
+
       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-	<< "[DTTimeEvolutionHisto] Update time-slot, # entries: " << valueLastTimeSlot 
+	<< "[DTTimeEvolutionHisto] Update time-slot, # entries: " << valueLastTimeSlot
 	<< " # events: " << nEvents << endl;
       // set the bin content
 
@@ -210,8 +157,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 	map<int,int>::const_iterator nLumiTrEnd = nLumiTrInLastTimeSlot.end();
 
 	float nLumiTr = 0.;
-	for (;nLumiTrIt!=nLumiTrEnd;++nLumiTrIt) 
-	  nLumiTr+=nLumiTrIt->second;	
+	for (;nLumiTrIt!=nLumiTrEnd;++nLumiTrIt)
+	  nLumiTr+=nLumiTrIt->second;
 
 	value = valueLastTimeSlot/nLumiTr;
       }
@@ -220,12 +167,13 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 	<< "       updated value: " << histo->getBinContent(nBookedBins) << endl;
 
       // set the bin label
-      stringstream binLabel; 
+      stringstream binLabel;
       binLabel << "LS " << firstLSinTimeSlot;
-      if(nEventsInLastTimeSlot.size() > 1) 
+      if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      histo->setBinLabel(nBookedBins,binLabel.str(),1);
+      //if(nBookedBins%(int)theLSPrescale==0) 
+	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
       nEventsInLastTimeSlot.clear();
@@ -278,3 +226,8 @@ void DTTimeEvolutionHisto::normalizeTo(const MonitorElement *histForNorm) {
     }
   }
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

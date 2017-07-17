@@ -7,7 +7,7 @@
 HLTTauRelvalQTester::HLTTauRelvalQTester(const edm::ParameterSet& ps):
 QualityTester(ps)
 {
-  refMothers_ = ps.getParameter<edm::InputTag >("refMothers");
+  refMothers_ = consumes<std::vector<int> >(ps.getParameter<edm::InputTag >("refMothers"));
   mothers_ = ps.getParameter<std::vector<int> >("mothers");
   runQTests = false;
 }
@@ -23,7 +23,7 @@ void
 HLTTauRelvalQTester::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
   edm::Handle<std::vector<int> > refMothers;
-  if(e.getByLabel(refMothers_,refMothers))
+  if(e.getByToken(refMothers_,refMothers))
     for(unsigned int i=0;i<refMothers->size();++i)
       {
 	int mother = (*refMothers)[i];

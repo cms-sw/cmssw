@@ -50,7 +50,7 @@ std::vector<MonRunIOV> MonRunList::getRuns()
 
 
 void MonRunList::fetchRuns()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -147,7 +147,7 @@ void MonRunList::fetchRuns()
 }
 
 void MonRunList::fetchRuns(int min_run, int max_run)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -257,7 +257,7 @@ void MonRunList::fetchRuns(int min_run, int max_run)
 }
 
 void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)

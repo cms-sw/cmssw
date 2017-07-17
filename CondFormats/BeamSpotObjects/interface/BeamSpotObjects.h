@@ -11,6 +11,8 @@
  *
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <math.h>
 #include <sstream>
 #include <cstring>
@@ -129,6 +131,8 @@ class BeamSpotObjects {
 	double emittanceY_;
 	double betaStar_;
 	
+
+  COND_SERIALIZABLE;
 };
 
 std::ostream& operator<< ( std::ostream&, BeamSpotObjects beam );

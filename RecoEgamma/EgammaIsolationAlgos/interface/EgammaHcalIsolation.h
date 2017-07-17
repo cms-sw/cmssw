@@ -16,13 +16,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 //Sum helper functions
 double scaleToE(const double& eta);
@@ -43,7 +42,7 @@ class EgammaHcalIsolation {
                 double etLowB,
                 double etLowE,
                 edm::ESHandle<CaloGeometry> theCaloGeom ,
-                HBHERecHitMetaCollection*  mhbhe
+                const HBHERecHitCollection&  mhbhe
                 );
 
         //destructor 
@@ -95,9 +94,9 @@ class EgammaHcalIsolation {
 
 
         edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
-        HBHERecHitMetaCollection* mhbhe_ ;
+        const HBHERecHitCollection&  mhbhe_ ;
 
-        CaloDualConeSelector* doubleConeSel_;
+        CaloDualConeSelector<HBHERecHit>* doubleConeSel_;
 
 };
 

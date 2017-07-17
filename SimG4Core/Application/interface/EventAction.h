@@ -16,40 +16,50 @@
 
 #include <vector>
 #include <map>
+#include <string>
  
-class RunManager;
+class SimRunInterface;
 class BeginOfEvent;
 class EndOfEvent;
+class CMSSteppingVerbose;
  
 class EventAction: public G4UserEventAction
 {
 public:
 
-    EventAction(const edm::ParameterSet& ps,
-                RunManager*,
-		SimTrackManager*);
-    ~EventAction();
+    explicit EventAction(const edm::ParameterSet& ps,
+			 SimRunInterface*, SimTrackManager*,
+			 CMSSteppingVerbose*);
+    virtual ~EventAction();
 
-    void BeginOfEventAction(const G4Event * evt);
-    void EndOfEventAction(const G4Event * evt);
+    virtual void BeginOfEventAction(const G4Event * evt);
+    virtual void EndOfEventAction(const G4Event * evt);
 
     void abortEvent();
 
-    const TrackContainer * trackContainer() const { 
+    inline const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();
     }
-    void addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor);
-    void addTkCaloStateInfo(uint32_t t,const std::pair<math::XYZVectorD,math::XYZTLorentzVectorD>& p); 
-    void prepareForNewPrimary() { m_trackManager->cleanTracksWithHistory(); }
+
+    inline void addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor) {
+      m_trackManager->addTrack(iTrack, inHistory, withAncestor);
+    }
+
+    void addTkCaloStateInfo(uint32_t t,
+			    const std::pair<math::XYZVectorD,math::XYZTLorentzVectorD>& p);
+
+    inline void prepareForNewPrimary() { m_trackManager->cleanTracksWithHistory(); }
 
     SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
     SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;
 
 private:
-    //does not own the manager
-    RunManager*      m_runManager;
+
+    SimRunInterface* m_runInterface;
     SimTrackManager* m_trackManager;
+    CMSSteppingVerbose* m_SteppingVerbose;
     std::string m_stopFile;
+    bool m_printRandom;
     bool m_debug;
 };
 

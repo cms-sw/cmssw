@@ -1,5 +1,3 @@
-
-
 /*
  *  See header file for a description of this class.
  *
@@ -37,26 +35,11 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
 
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-
-  theDbe->setCurrentFolder("DT/DTChamberEfficiencyTask");
-
   parameters = pset;
 
-}
-
-
-DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
-  
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
-}  
-
-
-void DTChamberEfficiencyTask::beginJob(){
-
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(parameters.getParameter<string>("recHits4DLabel")));
 
   // parameters to use for the segment quality check
   theMinHitsSegment = static_cast<unsigned int>(parameters.getParameter<int>("minHitsSegment"));
@@ -73,10 +56,15 @@ void DTChamberEfficiencyTask::beginJob(){
 }
 
 
+DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
+}
+
 void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask]: Begin of LS transition";
-  
+
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0 && onlineMonitor) {
     for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
 	histo != histosPerCh.end();
@@ -87,79 +75,76 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
       }
     }
   }
-  
+
 }
 
 
-void DTChamberEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetup& setup){
-  
+void DTChamberEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup){
+
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
+}
+
+void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
+
+  ibooker.setCurrentFolder("DT/DTChamberEfficiencyTask");
+
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
-    bookHistos((*ch_it)->id());
+    bookHistos(ibooker, (*ch_it)->id());
   }
 
 }
 
-
-
-void DTChamberEfficiencyTask::endJob(){
-
-    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask] endjob called!";
-}
-  
-
-
 // Book a set of histograms for a given Layer
-void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
-  
+void DTChamberEfficiencyTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId) {
+
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "   Booking histos for CH : " << chId;
-  
+
   // Compose the chamber name
-  stringstream wheel; wheel << chId.wheel();	
-  stringstream station; station << chId.station();	
-  stringstream sector; sector << chId.sector();	
-  
+  stringstream wheel; wheel << chId.wheel();
+  stringstream station; station << chId.station();
+  stringstream sector; sector << chId.sector();
+
   string HistoName =
     "_W" + wheel.str() +
     "_St" + station.str() +
     "_Sec" + sector.str();
-  
-  theDbe->setCurrentFolder("DT/01-DTChamberEfficiency/Task/Wheel" + wheel.str() +
+
+  ibooker.setCurrentFolder("DT/01-DTChamberEfficiency/Task/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
                            "/Station" + station.str());
-		
+
   // Create the monitor elements
   vector<MonitorElement *> histos;
 
   //efficiency selection cuts
   // a- number of segments of the top chamber > 0 && number of segments of the bottom chamber > 0
   // b- number of segments of the middle chamber > 0
-  // c- check of the top and bottom segment quality 
+  // c- check of the top and bottom segment quality
   // d- check if interpolation falls inside the middle chamber
-  // e- check of the middle segment quality 
+  // e- check of the middle segment quality
   // f- check if the distance between the reconstructed and the exstrapolated segments is ok
 
 
   // histo for efficiency with cuts a-/c-/d-
-  histos.push_back(theDbe->book2D("hEffGoodSegVsPosDen"+HistoName,"Eff vs local position (good) ",25,-250.,250., 25,-250.,250.));
+  histos.push_back(ibooker.book2D("hEffGoodSegVsPosDen"+HistoName,"Eff vs local position (good) ",25,-250.,250., 25,-250.,250.));
   // histo for efficiency with cuts a-/b-/c-/d-/e-/f-
-  histos.push_back(theDbe->book2D("hEffGoodCloseSegVsPosNum"+HistoName, "Eff vs local position (good and close segs) ", 25,-250.,250., 25,-250.,250.));
+  histos.push_back(ibooker.book2D("hEffGoodCloseSegVsPosNum"+HistoName, "Eff vs local position (good and close segs) ", 25,-250.,250., 25,-250.,250.));
   if(detailedAnalysis){
-    histos.push_back(theDbe->book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
+    histos.push_back(ibooker.book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
     // histo for efficiency from segment counting
-    histos.push_back(theDbe->book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.));
+    histos.push_back(ibooker.book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.));
     // histo for efficiency with cuts a-/c-
-  histos.push_back(theDbe->book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));    
+  histos.push_back(ibooker.book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));
     // histo for efficiency with cuts a-/b-/c-/d-
-    histos.push_back(theDbe->book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
+    histos.push_back(ibooker.book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
     // histo for efficiency with cuts a-/b-/c-/d-/e-
-    histos.push_back(theDbe->book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
+    histos.push_back(ibooker.book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
   }
   histosPerCh[chId] = histos;
 }
@@ -169,18 +154,18 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event();
-  
+
   // Get the 4D rechit collection from the event
-  event.getByLabel(theRecHits4DLabel, segs);
+  event.getByToken(recHits4DToken_, segs);
 
   int bottom=0, top=0;
 
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
-    
+
     DTChamberId ch = (*ch_it)->id();
     int wheel =  ch.wheel();
     int sector = ch.sector();
@@ -188,13 +173,13 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 
 
     DTChamberId MidId(wheel, station, sector);
-    
-    // get efficiency for MB1 using MB2 and MB3	
+
+    // get efficiency for MB1 using MB2 and MB3
     if( station == 1 ) {
       bottom = 2;
       top = 3;
     }
-    
+
     // get efficiency for MB2 using MB1 and MB3
     if( station == 2 ) {
       bottom = 1;
@@ -206,7 +191,7 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
       bottom = 2;
       top = 4;
     }
-    
+
     // get efficiency for MB4 using MB2 and MB3
     if( station == 4 ) {
       bottom = 2;
@@ -215,26 +200,26 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 
     // Select events with (good) segments in Bot and Top
     DTChamberId BotId(wheel, bottom, sector);
-    DTChamberId TopId(wheel, top, sector);	
-    
+    DTChamberId TopId(wheel, top, sector);
+
     // Get segments in the bottom chambers (if any)
     DTRecSegment4DCollection::range segsBot= segs->get(BotId);
     int nSegsBot=segsBot.second-segsBot.first;
     // check if any segments is there
     if (nSegsBot==0) continue;
 
-    vector<MonitorElement *> histos =  histosPerCh[MidId];  
-    
+    vector<MonitorElement *> histos =  histosPerCh[MidId];
+
     // Get segments in the top chambers (if any)
     DTRecSegment4DCollection::range segsTop= segs->get(TopId);
     int nSegsTop=segsTop.second-segsTop.first;
-    
+
     // Select one segment for the bottom chamber
     const DTRecSegment4D& bestBotSeg= getBestSegment(segsBot);
-    
+
     // Select one segment for the top chamber
     DTRecSegment4D* pBestTopSeg=0;
-    if (nSegsTop>0) 
+    if (nSegsTop>0)
       pBestTopSeg = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop));
     //if top chamber is MB4 sector 10, consider also sector 14
     if (TopId.station() == 4 && TopId.sector() == 10) {
@@ -250,27 +235,27 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
     }
     if (!pBestTopSeg) continue;
     const DTRecSegment4D& bestTopSeg= *pBestTopSeg;
-    
+
     DTRecSegment4DCollection::range segsMid= segs->get(MidId);
     int nSegsMid=segsMid.second-segsMid.first;
-    
+
     if(detailedAnalysis){
       // very trivial efficiency, just count segments
       histos[3]->Fill(0);
       if (nSegsMid>0) histos[3]->Fill(1);
     }
-    
+
     // get position at Mid by interpolating the position (not direction) of best
     // segment in Bot and Top to Mid surface
     LocalPoint posAtMid = interpolate(bestBotSeg, bestTopSeg, MidId);
-    
+
     // is best segment good enough?
     if (isGoodSegment(bestBotSeg) && isGoodSegment(bestTopSeg)) {
       if(detailedAnalysis)
 	histos[4]->Fill(posAtMid.x(),posAtMid.y());
       //check if interpolation fall inside middle chamber
       if ((dtGeom->chamber(MidId))->surface().bounds().inside(posAtMid)) {
-	histos[0]->Fill(posAtMid.x(),posAtMid.y());	    
+	histos[0]->Fill(posAtMid.x(),posAtMid.y());
 	if (nSegsMid>0) {
 
 	  if(detailedAnalysis){
@@ -281,15 +266,15 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 	  const DTRecSegment4D& bestMidSeg= getBestSegment(segsMid);
 	  // check if middle segments is good enough
 	  if (isGoodSegment(bestMidSeg)) {
-	
+
 	    if(detailedAnalysis)
 	      histos[6]->Fill(posAtMid.x(),posAtMid.y());
 	    LocalPoint midSegPos=bestMidSeg.localPosition();
-	    
+
 	    // check if middle segments is also close enough
 	    double dist;
-	    if (bestMidSeg.hasPhi()) { 
-	      if (bestTopSeg.hasZed() && bestBotSeg.hasZed() && bestMidSeg.hasZed()) { 
+	    if (bestMidSeg.hasPhi()) {
+	      if (bestTopSeg.hasZed() && bestBotSeg.hasZed() && bestMidSeg.hasZed()) {
 		dist = (midSegPos-posAtMid).mag();
 	      } else {
 		    dist = fabs((midSegPos-posAtMid).x());
@@ -312,7 +297,7 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 
 
 
-	
+
 // requirements : max number of hits and min chi2
 const DTRecSegment4D& DTChamberEfficiencyTask::getBestSegment(const DTRecSegment4DCollection::range& segs) const{
   DTRecSegment4DCollection::const_iterator bestIter;
@@ -349,7 +334,7 @@ const DTRecSegment4D* DTChamberEfficiencyTask::getBestSegment(const DTRecSegment
   nHits2+= (s2->hasZed() ?  s2->zSegment()->recHits().size() : 0 );
 
   if (nHits1==nHits2) {
-    if (s1->chi2()/s1->degreesOfFreedom() < s2->chi2()/s2->degreesOfFreedom() ) 
+    if (s1->chi2()/s1->degreesOfFreedom() < s2->chi2()/s2->degreesOfFreedom() )
       return s1;
     else
       return s2;
@@ -397,3 +382,8 @@ bool DTChamberEfficiencyTask::isGoodSegment(const DTRecSegment4D& seg) const {
   return ( nHits >= theMinHitsSegment &&
 	   seg.chi2()/seg.degreesOfFreedom() < theMinChi2NormSegment );
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

@@ -14,11 +14,13 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -27,7 +29,7 @@
 
 #include <string>
 
-class PFchsMETcorrInputProducer : public edm::EDProducer  
+class PFchsMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -40,7 +42,7 @@ class PFchsMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // input vertex collection
+  edm::EDGetTokenT<reco::VertexCollection> token_;
 
   unsigned goodVtxNdof_;
   double goodVtxZ_;

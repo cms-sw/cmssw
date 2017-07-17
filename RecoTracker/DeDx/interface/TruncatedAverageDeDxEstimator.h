@@ -1,6 +1,7 @@
 #ifndef RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 #define RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include <numeric>
@@ -8,7 +9,9 @@
 class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
- TruncatedAverageDeDxEstimator(float fraction): m_fraction(fraction) {}
+ TruncatedAverageDeDxEstimator(const edm::ParameterSet& iConfig){
+    m_fraction = iConfig.getParameter<double>("fraction");
+ }
 
  virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
     int nTrunc = int( Hits.size()*m_fraction);

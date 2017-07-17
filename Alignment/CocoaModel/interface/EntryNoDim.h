@@ -25,22 +25,15 @@ public:
  // Access DATA MEMBERS
   //----------- Return value and sigma dimension factors (1. as object of this class have no dimension)
   virtual ALIdouble ValueDimensionFactor() const{
-    return _ValueDimensionFactor;
+    return 1.0;
   }
   virtual ALIdouble SigmaDimensionFactor() const{
-    return _SigmaDimensionFactor;
+    return 1.0;
   }
   //----- Return starting displacement for derivative
   virtual ALIdouble startingDisplacement() {
-     return _startingDisplacement;
+     return 0.1;
   }
-
-
-private:
- // static DATA MEMBERS
-  static ALIdouble _ValueDimensionFactor;
-  static ALIdouble _SigmaDimensionFactor;
-  static ALIdouble _startingDisplacement;
 };
 
 #endif

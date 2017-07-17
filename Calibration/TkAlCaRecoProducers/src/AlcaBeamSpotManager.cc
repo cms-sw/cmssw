@@ -21,11 +21,14 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(void){
 }
 
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig) :
+AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig, edm::ConsumesCollector&& iC) :
   beamSpotOutputBase_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   beamSpotModuleName_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotModuleName")),
-  beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel"))
+  beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel")),
+  sigmaZCut_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZCut"))
 {
+  edm::InputTag beamSpotTag_(beamSpotModuleName_, beamSpotLabel_);
+  beamSpotToken_ = iC.consumes<reco::BeamSpot,edm::InLumi>(beamSpotTag_);
   LogInfo("AlcaBeamSpotManager") 
     << "Output base: " << beamSpotOutputBase_ 
     << std::endl;
@@ -44,8 +47,7 @@ void AlcaBeamSpotManager::reset(void){
 void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 
   Handle<BeamSpot> beamSpotHandle;
-  iLumi.getByLabel(beamSpotModuleName_,beamSpotLabel_, beamSpotHandle);
-  //iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
+  iLumi.getByToken(beamSpotToken_, beamSpotHandle);
 
   if(beamSpotHandle.isValid()) { // check the product
     beamSpotMap_[iLumi.luminosityBlock()] = *beamSpotHandle;
@@ -69,7 +71,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 void AlcaBeamSpotManager::createWeightedPayloads(void){
   vector<bsMap_iterator> listToErase;
   for(bsMap_iterator it=beamSpotMap_.begin(); it!=beamSpotMap_.end();it++){
-    if(it->second.type() != BeamSpot::Tracker){
+    if(it->second.type() != BeamSpot::Tracker || it->second.sigmaZ()<sigmaZCut_ ) {
       listToErase.push_back(it);
     }
   }
@@ -304,7 +306,8 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
 	  																															    
       }
       //tmprun = currentBS->second.Run																														    
-      ++countlumi;																																    
+      // increase the counter by one only if the IOV hasn't been closed																														    
+      if (!docreate) ++countlumi;																																    
       
       currentBS = nextBS;
       nextBS	= nextNextBS;

@@ -16,7 +16,7 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
   float wphimin, wphimax;
   for (vector<const TECWedge*>::const_iterator i = wedges.begin(); i != wedges.end(); i++){
     float zdiff = (**i).surface().position().z() - zStart;
-    if ( fabs( zdiff) > 5.) 
+    if ( std::abs( zdiff) > 5.) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
 				   << "Petal from Wedges at different z ! Delta Z = " << zdiff ;
     float wphi = (**i).surface().position().phi();
@@ -62,8 +62,8 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
     float ro = (**iw).specificSurface().outerRadius();
     float zmi = (**iw).surface().position().z() - (**iw).specificSurface().bounds().thickness()/2.;
     float zma = (**iw).surface().position().z() + (**iw).specificSurface().bounds().thickness()/2.;
-    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiExtension()/2.;
-    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiExtension()/2.;
+    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiHalfExtension();
+    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiHalfExtension();
     rmin = min( rmin, ri);
     rmax = max( rmax, ro);
     zmin = min( zmin, zmi);

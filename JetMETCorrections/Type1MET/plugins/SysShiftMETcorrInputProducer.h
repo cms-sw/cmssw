@@ -12,17 +12,20 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include <TFormula.h>
 
 #include <string>
 
-class SysShiftMETcorrInputProducer : public edm::EDProducer  
+class SysShiftMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -35,8 +38,10 @@ class SysShiftMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFCandidate input collection
-  edm::InputTag srcVertices_; // Vertex input collection
+  edm::EDGetTokenT<edm::View<reco::MET> > token_;
+  edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+
+  bool useNvtx;
 
   TFormula* corrPx_;
   TFormula* corrPy_;

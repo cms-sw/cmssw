@@ -33,15 +33,16 @@ class LHEReader {
 	class XMLHandler;
 
 	const std::vector<std::string>	fileURLs;
-    const std::string               strName;
+	const std::string               strName;
 	unsigned int			firstEvent;
 	int				maxEvents;
 	unsigned int			curIndex;
+	std::vector<std::string>        weightsinconfig;
 
-	std::auto_ptr<Source>		curSource;
-	std::auto_ptr<XMLDocument>	curDoc;
+	std::unique_ptr<Source>		curSource;
+	std::unique_ptr<XMLDocument>	curDoc;
 	boost::shared_ptr<LHERunInfo>	curRunInfo;
-	std::auto_ptr<XMLHandler>	handler;
+	std::unique_ptr<XMLHandler>	handler;
 };
 
 } // namespace lhef

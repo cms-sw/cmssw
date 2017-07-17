@@ -14,21 +14,19 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "RecoMuon/MuonIdentification/plugins/CaloMuonProducer.h"
 
 CaloMuonProducer::CaloMuonProducer(const edm::ParameterSet& iConfig)
 {
    produces<reco::CaloMuonCollection>();
    inputCollection = iConfig.getParameter<edm::InputTag>("inputCollection");
+   muonToken_ = consumes<reco::CaloMuonCollection>(inputCollection);
 }
 
 CaloMuonProducer::~CaloMuonProducer()
@@ -38,12 +36,12 @@ CaloMuonProducer::~CaloMuonProducer()
 void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    edm::Handle<reco::CaloMuonCollection> iMuons;
-   iEvent.getByLabel(inputCollection,iMuons);
-   std::auto_ptr<reco::CaloMuonCollection> oMuons( new reco::CaloMuonCollection );
+   iEvent.getByToken(muonToken_,iMuons);
+   auto oMuons = std::make_unique<reco::CaloMuonCollection>();
    for ( reco::CaloMuonCollection::const_iterator muon = iMuons->begin();
 	 muon != iMuons->end(); ++muon )
      oMuons->push_back( *muon );
-   iEvent.put(oMuons);
+   iEvent.put(std::move(oMuons));
 }
 
 //define this as a plug-in

@@ -10,7 +10,7 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_EcalDetId {
   struct dictionary {
     edm::EDCollection<EBDetId> vEBDI_;
     edm::EDCollection<EEDetId> vEEDI_;

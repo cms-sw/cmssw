@@ -95,12 +95,6 @@ else:
   process.dataCertificationJetMET.fileName = cms.untracked.string(test_histogram_file)
 
 #-----------------------------
-# JetMET DQM Client Module 
-#-----------------------------
-
-process.jetMETDQMOfflineClient.Verbose = cms.untracked.int32(0)
-
-#-----------------------------
 # 
 #-----------------------------
 process.load("DQMOffline.Trigger.JetMETHLTOfflineClient_cfi")

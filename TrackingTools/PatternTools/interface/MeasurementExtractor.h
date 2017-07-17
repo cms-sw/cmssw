@@ -20,17 +20,17 @@ class MeasurementExtractor {
   // Following methods can be overloaded against their argument
   // thus allowing one to have different behaviour for different RecHit types
  
-  AlgebraicVector measuredParameters(const  TransientTrackingRecHit&);
-  AlgebraicSymMatrix measuredError(const  TransientTrackingRecHit&);
+  AlgebraicVector measuredParameters(const  TrackingRecHit&);
+  AlgebraicSymMatrix measuredError(const  TrackingRecHit&);
 
-  template <unsigned int D> typename AlgebraicROOTObject<D>::Vector measuredParameters(const TransientTrackingRecHit &hit) {
+  template <unsigned int D> typename AlgebraicROOTObject<D>::Vector measuredParameters(const TrackingRecHit &hit) {
       typedef typename AlgebraicROOTObject<D,5>::Matrix Mat;
       AlgebraicVector5 par5( theTSoS.localParameters().vector());
       Mat H = asSMatrix<D,5>( hit.projectionMatrix() );
       return H*par5;
   }
 
-  template <unsigned int D> typename AlgebraicROOTObject<D>::SymMatrix measuredError(const TransientTrackingRecHit &hit) {
+  template <unsigned int D> typename AlgebraicROOTObject<D>::SymMatrix measuredError(const TrackingRecHit &hit) {
       typedef typename AlgebraicROOTObject<D,5>::Matrix Mat;
       const AlgebraicSymMatrix55 &err5 =  theTSoS.localError().matrix();
       Mat H = asSMatrix<D,5>( hit.projectionMatrix() );

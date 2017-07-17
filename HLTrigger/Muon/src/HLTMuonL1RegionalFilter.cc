@@ -20,7 +20,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   using namespace std;
   using namespace edm;
 
-  // read in the eta-range dependent parameters  
+  // read in the eta-range dependent parameters
   const vector<ParameterSet> cuts = iConfig.getParameter<vector<ParameterSet> >("Cuts");
   size_t ranges = cuts.size();
   if(ranges==0){
@@ -48,11 +48,11 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
     //set the quality bit masks
     qualityBitMasks_.push_back( 0 );
     vector<unsigned int> qualities = cuts[i].getParameter<vector<unsigned int> >("QualityBits");
-    for(size_t j=0; j<qualities.size(); j++){
-      if(7U < qualities[j]){ // qualities[j] >= 0, since qualities[j] is unsigned
+    for(unsigned int qualitie : qualities){
+      if(7U < qualitie){ // qualities[j] >= 0, since qualities[j] is unsigned
         throw edm::Exception(errors::Configuration) << "QualityBits must be between 0 and 7 !";
       }
-      qualityBitMasks_[i] |= 1 << qualities[j];
+      qualityBitMasks_[i] |= 1 << qualitie;
     }
   }
 
@@ -83,8 +83,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   }
 }
 
-HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter(){
-}
+HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter()= default;
 
 void
 HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -153,7 +152,7 @@ HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("hltMuonL1RegionalFilter", desc);
 }
 
-bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
+bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -172,7 +171,7 @@ bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(previousCandToken_, previousLevelCands);
   vector<L1MuonParticleRef> prevMuons;
   previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
-   
+
   // look at all mucands,  check cuts and add to filter object
   int n = 0;
   for (size_t i = 0; i < allMuons->size(); i++) {

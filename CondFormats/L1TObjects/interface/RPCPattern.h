@@ -7,6 +7,8 @@
  * muon sign and ptCode, etc.
  * \author Karol Bunkowski (Warsaw)
  */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 //-----------------------------------------------------------------------------
@@ -27,7 +29,9 @@ public:
        unsigned char m_StripFrom;
        ///Next-to-last strip in range.
        unsigned char m_StripTo;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
     typedef std::vector<RPCPattern> RPCPatVec;
 
@@ -38,7 +42,9 @@ public:
         char m_logsector;
         char m_logsegment;
         signed char m_tower;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
     typedef std::vector<TQuality> TQualityVec;
 	      
@@ -131,6 +137,8 @@ private:
   short m_Number;
 
 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

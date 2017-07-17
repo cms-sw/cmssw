@@ -8,9 +8,10 @@ ewkDQM = cms.EDAnalyzer("EwkDQM",
             triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
 
             muonCollection           = cms.InputTag("muons"),
-            electronCollection       = cms.InputTag("gsfElectrons"),
-            PFJetCollection          = cms.InputTag("ak5PFJets"),
-            caloMETCollection        = cms.InputTag("corMetGlobalMuons"),
+            electronCollection       = cms.InputTag("gedGsfElectrons"),
+            PFJetCollection          = cms.InputTag("ak4PFJets"),
+            caloMETCollection        = cms.InputTag("caloMetM"),
+            vertexCollection         = cms.InputTag("offlinePrimaryVertices"),
             #genParticleCollection    = cms.InputTag("genParticles")
             EJetMin = cms.untracked.double(15.0)
 )

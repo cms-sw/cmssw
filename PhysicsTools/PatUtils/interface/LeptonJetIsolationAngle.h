@@ -13,11 +13,11 @@
    CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
 */
 
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
@@ -34,7 +34,7 @@ namespace pat {
 
     public:
 
-      LeptonJetIsolationAngle();
+      LeptonJetIsolationAngle(edm::ConsumesCollector && iC);
       ~LeptonJetIsolationAngle();
 
       float calculate(const Electron & anElectron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
@@ -48,6 +48,8 @@ namespace pat {
     private:
 
       TrackerIsolationPt trkIsolator_;
+      edm::EDGetTokenT<reco::CaloJetCollection>         jetToken_;
+      edm::EDGetTokenT<std::vector<reco::GsfElectron> > electronsToken_;
 
   };
 

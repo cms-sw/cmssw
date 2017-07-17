@@ -6,6 +6,8 @@ SiStripDigiToRaw = cms.EDProducer(
     InputDigiLabel = cms.string('ZeroSuppressed'),
     FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
     UseFedKey = cms.bool(False),
-    UseWrongDigiType = cms.bool(False)
+    UseWrongDigiType = cms.bool(False),
+    CopyBufferHeader = cms.bool(False),
+    RawDataTag = cms.InputTag('rawDataCollector')
     )
 

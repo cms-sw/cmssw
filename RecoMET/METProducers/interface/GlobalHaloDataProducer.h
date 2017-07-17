@@ -24,8 +24,9 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -125,7 +126,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -152,7 +153,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -178,7 +179,7 @@
 
 namespace reco
 {
-  class GlobalHaloDataProducer : public edm::EDProducer {
+  class GlobalHaloDataProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit GlobalHaloDataProducer(const edm::ParameterSet&);
@@ -188,21 +189,34 @@ namespace reco
     
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
+    GlobalHaloAlgo GlobalAlgo;
+
     edm::InputTag IT_CaloTower;
     edm::InputTag IT_met;
     edm::InputTag IT_CSCRecHit;
     edm::InputTag IT_CSCSegment;
+    edm::InputTag IT_Muon;
 
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;
     edm::InputTag IT_HcalHaloData;
+
+    edm::EDGetTokenT<edm::View<reco::Candidate> > calotower_token_;
+    edm::EDGetTokenT<reco::CaloMETCollection> calomet_token_;
+    edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
+    edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<reco::MuonCollection> muon_token_;
+    edm::EDGetTokenT<CSCHaloData> cschalo_token_;
+    edm::EDGetTokenT<EcalHaloData> ecalhalo_token_;
+    edm::EDGetTokenT<HcalHaloData> hcalhalo_token_;
 
     float EcalMinMatchingRadius;
     float  EcalMaxMatchingRadius;
     float HcalMinMatchingRadius;
     float HcalMaxMatchingRadius;
     float CaloTowerEtThreshold;
-    
+
+    bool ishlt;
   };
 }
 

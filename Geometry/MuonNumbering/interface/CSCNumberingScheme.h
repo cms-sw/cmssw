@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_CSCNumberingScheme_h
-#define MuonNumbering_CSCNumberingScheme_h
+#ifndef Geometry_MuonNumbering_CSCNumberingScheme_h
+#define Geometry_MuonNumbering_CSCNumberingScheme_h
 
 /** \class CSCNumberingScheme
  *
@@ -21,9 +21,9 @@ class CSCNumberingScheme : public MuonNumberingScheme {
 
   CSCNumberingScheme( const MuonDDDConstants& muonConstants );
   CSCNumberingScheme( const DDCompactView& cpv );
-  ~CSCNumberingScheme(){};
+  ~CSCNumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
  private:
 

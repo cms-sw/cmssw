@@ -6,7 +6,8 @@
  *  Set of functions that select among the different track refits
  *  based on the fit quality, in order to achieve optimal resolution.
  *
- *  \author Piotr Traczyk
+ *  \author Piotr Traczyk,
+ *   modified by Raffaella Radogna
  */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -19,6 +20,7 @@ namespace muon {
 					     const reco::TrackRef& trackerTrack,
 					     const reco::TrackRef& tpfmsTrack,
 					     const reco::TrackRef& pickyTrack,
+					     const reco::TrackRef& dytTrack,
 					     const double ptThreshold = 200.,
 					     const double tune1 = 17.,
 					     const double tune2 = 40.,
@@ -35,6 +37,7 @@ namespace muon {
 			muon.innerTrack(),
 			muon.tpfmsTrack(),
 			muon.pickyTrack(),
+			muon.dytTrack(),
 			ptThreshold,
 			tune1,
 			tune2,
@@ -43,42 +46,6 @@ namespace muon {
 
   reco::TrackRef getTevRefitTrack(const reco::TrackRef& combinedTrack,
 				  const reco::TrackToTrackMap& map);
-  
-  // The next two versions of tevOptimized are for backward
-  // compatibility; TrackToTrackMaps are to be removed from the
-  // EventContent, so these versions will go away (along with the
-  // helper getter function) after a deprecation period. Since they
-  // are just for backward compatibility and not for new code, we
-  // don't bother to expose the tune parameters.
-
-  inline reco::Muon::MuonTrackTypePair tevOptimized(const reco::TrackRef& combinedTrack,
-						    const reco::TrackRef& trackerTrack,
-						    const reco::TrackToTrackMap& tevMap1,
-						    const reco::TrackToTrackMap& tevMap2,
-						    const reco::TrackToTrackMap& tevMap3,
-						    const double ptThreshold = 200.,
-						    const double tune1 = 17.,
-						    const double tune2 = 40.,
-						    const double dptcut = 0.25) {
-    return tevOptimized(combinedTrack,
-			trackerTrack,
-			getTevRefitTrack(combinedTrack, tevMap2),
-			getTevRefitTrack(combinedTrack, tevMap3),
-			ptThreshold,
-			tune1,
-			tune2,
-			dptcut);
-  }
-  
-  inline reco::Muon::MuonTrackTypePair tevOptimized(const reco::Muon& muon,
-						    const reco::TrackToTrackMap& tevMap1,
-						    const reco::TrackToTrackMap& tevMap2,
-						    const reco::TrackToTrackMap& tevMap3 ) {
-    return tevOptimized(muon.combinedMuon(),
-			muon.track(),
-			getTevRefitTrack(muon.combinedMuon(), tevMap2),
-			getTevRefitTrack(muon.combinedMuon(), tevMap3));
-  }
   
   // The cocktail used as the soon-to-be-old default momentum
   // assignment for the reco::Muon.

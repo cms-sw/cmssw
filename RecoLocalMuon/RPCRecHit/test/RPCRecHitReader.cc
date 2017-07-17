@@ -13,23 +13,23 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "math.h"
+#include <cmath>
 #include <vector>
 #include <iomanip>
 #include <set>
 #include <stdio.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>//
-#include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <Geometry/RPCGeometry/interface/RPCRoll.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -126,7 +126,7 @@ void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
     GlobalPoint cntr10, cntr11;
     for (RPCGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();
 	 it<rpcGeo->dets().end();it++){
-      RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
+      RPCRoll const* ir = dynamic_cast<const RPCRoll*>(*it);
       RPCDetId id = ir->id();
       
       const Surface& bSurface = ir->surface();
@@ -263,7 +263,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
   if(_mapTrig.size() == 0) return;
 
   char folder[128];
-  sprintf(folder,"HistoXYFit_%d",event.id().event());
+  sprintf(folder,"HistoXYFit_%llu",event.id().event());
   TH1F* histoXYFit = new TH1F(folder,folder,300,-300,300);
 
   for(unsigned int i = 0; i < globalX.size(); ++i){

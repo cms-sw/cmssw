@@ -61,7 +61,7 @@ void DTConfigPedestals::setES(DTTPGParameters const *tpgParams,
 }
 
 
-float DTConfigPedestals::getOffset(const DTWireId& wire){
+float DTConfigPedestals::getOffset(const DTWireId& wire) const{
 
   int   nc = 0;
   float ph = 0.;

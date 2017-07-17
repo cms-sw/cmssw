@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include <utility>
 
@@ -43,9 +43,9 @@ public:
 public:
   virtual ~TrackingRegion(){}
   typedef PixelRecoRange<float> Range;
-  typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
-  typedef std::vector<Hit> Hits;
-
+  typedef SeedingLayerSetsHits::ConstRecHitPointer Hit;
+  typedef SeedingLayerSetsHits::Hits Hits;
+  using   ctfHits = ctfseeding::SeedingLayer::Hits;
 
 public:
 
@@ -54,8 +54,8 @@ public:
                   const Range        & invPtRange,
                   const float &        originRBound,
                   const float &        originZBound)
-    : theDirection( direction), theVertexPos( originPos), 
-      theInvPtRange( invPtRange),
+    : theDirection( direction), theUnitDirection(direction.unit()), theVertexPos( originPos), 
+      theInvPtRange( invPtRange), thePhi(direction.barePhi()),
       thePtMin(1.f/std::max( std::abs(invPtRange.max()), std::abs(invPtRange.min()) )),
       theVertexRBound( originRBound),
       theVertexZBound( originZBound) { }    
@@ -63,6 +63,9 @@ public:
 
   /// the direction around which region is constructed 
   GlobalVector const & direction() const { return theDirection; } 
+  GlobalVector const & unitDirection() const { return theUnitDirection; }
+
+  float phiDirection() const { return thePhi;}
 
  /** The origin (centre,vertex) of the region. <BR> 
   *  The origin with bounds is ment to constraint point of the <BR>
@@ -93,11 +96,9 @@ public:
 
 
 /// get hits from layer compatible with region constraints 
-    virtual Hits hits(
-        const edm::Event& ev, 
-        const edm::EventSetup& es, 
-        const ctfseeding::SeedingLayer* layer) const = 0; 
-
+  virtual Hits hits(const edm::EventSetup& es,
+		    const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
+  
   /// clone region with new vertex position
   TrackingRegion* restrictedRegion( const GlobalPoint &  originPos,
       const float & originRBound, const float & originZBound) const {
@@ -118,13 +119,15 @@ public:
     return str.str();
   }
 
-  void setDirection(const GlobalVector & dir ) { theDirection = dir; }
+  // void setDirection(const GlobalVector & dir ) { theDirection = dir; }
 
 private:
   
-  GlobalVector theDirection;
+  GlobalVector theDirection; // this is not direction is momentum...
+  GlobalVector theUnitDirection; // the real direction
   GlobalPoint  theVertexPos;
   Range        theInvPtRange;
+  float        thePhi;
   float        thePtMin;
   float        theVertexRBound;
   float        theVertexZBound;

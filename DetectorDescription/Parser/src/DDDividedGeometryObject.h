@@ -6,12 +6,15 @@
 //            DDD version
 //---------------------------------------------------------------------
 
-#include "DetectorDescription/Core/interface/DDAxes.h"
-#include "DetectorDescription/Core/interface/DDDivision.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include <string>
 
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
+
+class DDCompactView;
 
 enum DivisionType { DivNDIVandWIDTH, DivNDIV, DivWIDTH };
 
@@ -25,10 +28,10 @@ public:
   
   DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
   
-  virtual ~DDDividedGeometryObject( void );
+  virtual ~DDDividedGeometryObject( void ) = default; // inline
   
   virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-  virtual DDRotation    makeDDRotation   ( const int copyNo ) const ;
+  virtual DDRotation    makeDDRotation   ( const int copyNo ) const;
   virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
 
   virtual const std::string& getType( void ) const;

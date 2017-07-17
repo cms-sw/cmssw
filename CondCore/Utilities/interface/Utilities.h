@@ -1,14 +1,17 @@
 #ifndef Utilities_Utilities_h
 #define Utilities_Utilities_h
 
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/CondDB/interface/Exception.h"
 #include <boost/program_options.hpp>
 #include <sstream>
 #include <set>
 
+namespace edm {
+  class ServiceToken;
+}
+
 namespace cond {
-  class DbConnection;
+  //class DbConnection;
 
   class UtilitiesError : public Exception {
     public:
@@ -24,16 +27,10 @@ namespace cond {
 
     virtual int execute();
     int run( int argc, char** argv );
-    
+
+    void addConnectOption( std::string const& fullName, std::string const& shortName, std::string const& helpEntry );
     void addAuthenticationOptions();
-    void addConnectOption();
-    void addConnectOption(const std::string& connectionOptionName,
-                          const std::string& shortName,
-                          const std::string& helpEntry );
-    void addLogDBOption();
-    void addDictionaryOption();
     void addConfigFileOption();
-    void addSQLOutputOption();
 
     template <typename T> void addOption(const std::string& fullName,
                                          const std::string& shortName,
@@ -52,19 +49,22 @@ namespace cond {
     bool hasOptionValue(const std::string& fullName);
     bool hasDebug();
     void initializePluginManager();
-    cond::DbSession openDbSession( const std::string& connectionParameterName, bool readOnly=false );
-    cond::DbSession openDbSession( const std::string& connectionParameterName, const std::string& role, bool readOnly=false );
+    //cond::DbSession openDbSession( const std::string& connectionParameterName, bool readOnly=false );
+    //cond::DbSession openDbSession( const std::string& connectionParameterName, const std::string& role, bool readOnly=false );
 
     protected:
-    cond::DbSession newDbSession(  const std::string& connectionString, bool readOnly=false );
-    cond::DbSession newDbSession(  const std::string& connectionString, const std::string& role, bool readOnly=false );
+    //cond::DbSession newDbSession(  const std::string& connectionString, bool readOnly=false );
+    //cond::DbSession newDbSession(  const std::string& connectionString, const std::string& role, bool readOnly=false );
+    //void initializeForDbConnection();
   
     private:
 
     std::string getValueIfExists(const std::string& fullName);
     void sendException( const std::string& message );
     void sendError( const std::string& message );
-    void initializeForDbConnection();
+
+    protected:
+    edm::ServiceToken* m_currentToken = nullptr;
     
     private:
 
@@ -73,9 +73,8 @@ namespace cond {
     boost::program_options::options_description m_options;
     boost::program_options::positional_options_description m_positionalOptions;
     boost::program_options::variables_map m_values;
-    cond::DbConnection* m_dbConnection;
-    bool m_pluginMgrInitialized;
-    std::set<std::string> m_dbSessions;
+    //cond::DbConnection* m_dbConnection;
+    //std::set<std::string> m_dbSessions;
   };
   
 

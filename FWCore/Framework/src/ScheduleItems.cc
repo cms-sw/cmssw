@@ -3,6 +3,8 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
@@ -22,17 +24,21 @@
 
 namespace edm {
   ScheduleItems::ScheduleItems() :
-      actReg_(new ActivityRegistry),
-      preg_(new SignallingProductRegistry),
-      branchIDListHelper_(new BranchIDListHelper()),
+      actReg_(std::make_shared<ActivityRegistry>()),
+      preg_(std::make_shared<SignallingProductRegistry>()),
+      branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+      thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
+      subProcessParentageHelper_(),
       act_table_(),
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om) :
-      actReg_(new ActivityRegistry),
-      preg_(new SignallingProductRegistry(preg)),
-      branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, SubProcess const& om) :
+      actReg_(std::make_shared<ActivityRegistry>()),
+      preg_(std::make_shared<SignallingProductRegistry>(preg)),
+      branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+      thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
+      subProcessParentageHelper_(std::make_shared<SubProcessParentageHelper>()),
       act_table_(),
       processConfiguration_() {
 
@@ -46,15 +52,18 @@ namespace edm {
     std::set<BranchID> keptBranches;
     SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for(auto const& item : keptVectorR) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorL = om.keptProducts()[InLumi];
     for(auto const& item : keptVectorL) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorE = om.keptProducts()[InEvent];
     for(auto const& item : keptVectorE) {
-      keptBranches.insert(item->branchID());
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
     }
     for(auto& item : preg_->productListUpdator()) {
       BranchDescription& prod = item.second;
@@ -91,8 +100,7 @@ namespace edm {
 
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    boost::shared_ptr<w_CPR>
-      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_))));
+    auto reg = std::make_shared<w_CPR>(std::make_unique<ConstProductRegistry>(*preg_));
     ServiceToken tempToken(ServiceRegistry::createContaining(reg,
                                                              token,
                                                              serviceregistry::kOverlapIsError));
@@ -103,52 +111,55 @@ namespace edm {
     typedef service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-    boost::shared_ptr<w_TNS> tnsptr
-      (new w_TNS(std::auto_ptr<TNS>(new TNS(parameterSet))));
+    auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(parameterSet));
 
     return ServiceRegistry::createContaining(tnsptr,
                                              tempToken,
                                              serviceregistry::kOverlapIsError);
   }
 
-  boost::shared_ptr<CommonParams>
+  std::shared_ptr<CommonParams>
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
     act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
-    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
-    boost::shared_ptr<CommonParams>
-        common(new CommonParams(parameterSet.getUntrackedParameterSet(
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, getReleaseVersion(), getPassID()); // propagate_const<T> has no reset() function
+    auto common = std::make_shared<CommonParams>(
+                                parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1)));
+                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                                parameterSet.getUntrackedParameterSet(
+                                   "maxSecondsUntilRampdown", ParameterSet()).getUntrackedParameter<int>("input", -1));
     return common;
   }
 
-  std::auto_ptr<Schedule>
+  std::unique_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
-                              ParameterSet const* subProcessPSet,
+                              bool hasSubprocesses,
                               PreallocationConfiguration const& config,
                               ProcessContext const* processContext) {
-    std::auto_ptr<Schedule> schedule(
-        new Schedule(parameterSet,
+    return std::make_unique<Schedule>(
+                     parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
                      *preg_,
                      *branchIDListHelper_,
+                     *thinnedAssociationsHelper_,
+                     subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
                      *act_table_,
                      actReg_,
-                     processConfiguration_,
-                     subProcessPSet,
+                     processConfiguration(),
+                     hasSubprocesses,
                      config,
-                     processContext));
-    return schedule;
+                     processContext);
   }
 
   void
   ScheduleItems::clear() {
-    actReg_.reset();
-    preg_.reset();
-    branchIDListHelper_.reset();
-    processConfiguration_.reset();
+    // propagate_const<T> has no reset() function
+    actReg_ = nullptr;
+    preg_ = nullptr;
+    branchIDListHelper_ = nullptr;
+    thinnedAssociationsHelper_ = nullptr;
+    processConfiguration_ = nullptr;
   }
 }
-

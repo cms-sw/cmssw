@@ -10,9 +10,12 @@ import os
 import sys
 
 from Configuration.DataProcessing.Reco import Reco
-from Configuration.DataProcessing.RecoTLR import customiseCosmicData
 
 class cosmics(Reco):
+    def __init__(self):
+        Reco.__init__(self)
+        self.recoSeq=''
+        self.cbSc='cosmics'
     """
     _cosmics_
 
@@ -31,9 +34,12 @@ class cosmics(Reco):
         """
         if not 'skims' in args:
             args['skims']= ['@allForPromptCosmics']
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicData']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicData')
         process = Reco.promptReco(self,globalTag, **args)
 
-        customiseCosmicData(process)  
         return process
 
 
@@ -47,7 +53,41 @@ class cosmics(Reco):
 
         if not 'skims' in args:
             args['skims']= ['@allForExpressCosmics']
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicData']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicData')
         process = Reco.expressProcessing(self,globalTag, **args)
 
-        customiseCosmicData(process)  
         return process
+
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Cosmic data taking visualization processing
+
+        """
+
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseCosmicData']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicData')
+        process = Reco.visualizationProcessing(self,globalTag, **args)
+
+        process.reconstructionCosmics.remove(process.lumiProducer)
+
+        return process
+
+    def alcaHarvesting(self, globalTag, datasetName, **args):
+        """
+        _alcaHarvesting_
+
+        Proton collisions data taking AlCa Harvesting
+
+        """
+
+        if not 'skims' in args and not 'alcapromptdataset' in args:
+            args['skims']=['SiStripQuality']
+            
+        return Reco.alcaHarvesting(self, globalTag, datasetName, **args)

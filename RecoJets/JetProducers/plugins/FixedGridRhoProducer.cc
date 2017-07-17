@@ -15,6 +15,9 @@ FixedGridRhoProducer::FixedGridRhoProducer(const edm::ParameterSet& iConfig) {
     myEtaRegion = FixedGridEnergyDensity::Central;
   }
   produces<double>();
+
+  input_pfcoll_token_ = consumes<reco::PFCandidateCollection>(pfCandidatesTag_);
+
 }
 
 FixedGridRhoProducer::~FixedGridRhoProducer(){} 
@@ -22,13 +25,12 @@ FixedGridRhoProducer::~FixedGridRhoProducer(){}
 void FixedGridRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    edm::Handle<reco::PFCandidateCollection> pfColl;
-   iEvent.getByLabel(pfCandidatesTag_,pfColl);
+   iEvent.getByToken(input_pfcoll_token_, pfColl);
 
    algo = new FixedGridEnergyDensity(pfColl.product());
 
    double result = algo->fixedGridRho(myEtaRegion);
-   std::auto_ptr<double> output(new double(result));
-   iEvent.put(output);
+   iEvent.put(std::make_unique<double>(result));
 
    delete algo;
  

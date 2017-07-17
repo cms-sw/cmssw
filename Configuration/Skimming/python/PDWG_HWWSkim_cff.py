@@ -12,7 +12,7 @@ goodHwwMuons = cms.EDFilter("MuonRefSelector",
 
               
 goodHwwElectrons = cms.EDFilter("GsfElectronRefSelector",
-                             src = cms.InputTag("gsfElectrons"),
+                             src = cms.InputTag("gedGsfElectrons"),
                              cut = cms.string(    "pt > 10 &&" +
                                                   " abs(deltaEtaSuperClusterTrackAtVtx) < 0.010 &&" +
                                                   " (( isEB && sigmaIetaIeta < 0.011) ||" +

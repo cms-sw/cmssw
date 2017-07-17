@@ -29,19 +29,15 @@ class FEConfigLUTParamDat : public IDataItem {
   inline float getTTThreshhigh() const{ return m_tthreshhigh; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigLUTParamDat* item, FEConfigLUTInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigLUTParamDat* item, FEConfigLUTInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigLUTParamDat>* data, FEConfigLUTInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigLUTParamDat>* data, FEConfigLUTInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigLUTParamDat >* fillMap, FEConfigLUTInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigLUTParamDat >* fillMap, FEConfigLUTInfo* iconf) noexcept(false);
 
   // User data
 float  m_etsat ;

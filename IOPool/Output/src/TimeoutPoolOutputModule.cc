@@ -3,12 +3,13 @@
 
 namespace edm {
 
-  void TimeoutPoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  void TimeoutPoolOutputModule::write(EventForOutput const& e) {
     eventsWrittenInCurrentFile++;
-    PoolOutputModule::write(e, mcc);
+    PoolOutputModule::write(e);
   }
   
   TimeoutPoolOutputModule::TimeoutPoolOutputModule(ParameterSet const& ps):
+      edm::one::OutputModuleBase::OutputModuleBase(ps),
       PoolOutputModule(ps), 
       m_lastEvent(time(NULL)),
       eventsWrittenInCurrentFile(0),

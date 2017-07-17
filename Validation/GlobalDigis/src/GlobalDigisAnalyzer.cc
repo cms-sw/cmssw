@@ -8,7 +8,7 @@
 #include "Validation/GlobalDigis/interface/GlobalDigisAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -41,7 +41,29 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   MuCSCStripSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCStripSrc");
   MuCSCWireSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCWireSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
-  
+
+  ECalEBSrc_Token_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame> >(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi> >(iPSet.getParameter<edm::InputTag>("SiStripSrc")); 
+  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi> >(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+  MuDTSrc_Token_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
+  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
+  MuRPCSrc_Token_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  //
+  const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
+  const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
+  const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
+
+  RPCSimHit_Token_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -81,339 +103,17 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       << "===============================\n";
   }
   
-  //Put in analyzer stuff here.... Pasted from Rec Hits... 
-  
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  if (dbe) {
-    if (verbosity > 0 ) {
-      dbe->setVerbose(1);
-    } else {
-      dbe->setVerbose(0);
-    }
-  }
-  if (dbe) {
-    if (verbosity > 0 ) dbe->showDirStructure();
-  }
-  
-  //monitor elements 
-  
-  //Si Strip
-  if (dbe) {
-    std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", 
-				     "TECW5", "TECW6", "TECW7", "TECW8", 
-				     "TIBL1", "TIBL2", "TIBL3", "TIBL4", 
-				     "TIDW1", "TIDW2", "TIDW3", "TOBL1", 
-				     "TOBL2", "TOBL3", "TOBL4"};
-    for(int i = 0; i<19; ++i) {
-      mehSiStripn[i]=0;
-      mehSiStripADC[i]=0;
-      mehSiStripStrip[i]=0;
-    }
-    std::string hcharname, hchartitle;
-    dbe->setCurrentFolder("GlobalDigisV/SiStrips");
-    for(int amend = 0; amend < 19; ++amend) { 
-      hcharname = "hSiStripn_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+"  Digis";
-      mehSiStripn[amend] = dbe->book1D(hcharname,hchartitle,5000,0.,10000.);
-      mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
-      mehSiStripn[amend]->setAxisTitle("Count",2);
-      
-      hcharname = "hSiStripADC_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+" ADC";
-      mehSiStripADC[amend] = dbe->book1D(hcharname,hchartitle,150,0.0,300.);
-      mehSiStripADC[amend]->setAxisTitle("ADC",1);
-      mehSiStripADC[amend]->setAxisTitle("Count",2);
-      
-      hcharname = "hSiStripStripADC_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+" Strip";
-      mehSiStripStrip[amend] = dbe->book1D(hcharname,hchartitle,200,0.0,800.);
-      mehSiStripStrip[amend]->setAxisTitle("Strip Number",1);
-      mehSiStripStrip[amend]->setAxisTitle("Count",2);
-    }
-    
-    //HCal
-    std::string HCalString[4] = {"HB", "HE", "HO","HF"}; 
-    float calnUpper[4] = {30000.,30000.,30000.,20000.}; 
-    float calnLower[4]={0.,0.,0.,0.}; 
-    float SHEUpper[4]={1.,1.,1.,1.};
-    float SHEvAEEUpper[4] = {5000, 5000, 5000, 5000}; 
-    float SHEvAEELower[4] = {-5000, -5000, -5000, -5000}; 
-    int SHEvAEEnBins[4] = {200,200,200,200};
-    double ProfileUpper[4] = {1.,1.,1.,1.};  
-    
-    for(int i =0; i<4; ++i) {
-      mehHcaln[i]=0;
-      mehHcalAEE[i]=0;
-      mehHcalSHE[i]=0;
-      mehHcalAEESHE[i]=0;
-      mehHcalSHEvAEE[i]=0;
-    }
-    dbe->setCurrentFolder("GlobalDigisV/HCals");
-    
-    for(int amend = 0; amend < 4; ++amend) {
-      hcharname = "hHcaln_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"  digis";
-      mehHcaln[amend] = dbe->book1D(hcharname,hchartitle, 10000, calnLower[amend], 
-				    calnUpper[amend]);
-      mehHcaln[amend]->setAxisTitle("Number of Digis",1);
-      mehHcaln[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hHcalAEE_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"Cal AEE";
-      mehHcalAEE[amend] = dbe->book1D(hcharname,hchartitle, 60, -10., 50.);
-      mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-      mehHcalAEE[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hHcalSHE_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"Cal SHE";
-      mehHcalSHE[amend] = dbe->book1D(hcharname,hchartitle, 1000, 0.0, 
-				      SHEUpper[amend]);
-      mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
-      mehHcalSHE[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hHcalAEESHE_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"Cal AEE/SHE";
-      mehHcalAEESHE[amend] = dbe->book1D(hcharname, hchartitle, SHEvAEEnBins[amend], 
-					 SHEvAEELower[amend], 
-					 SHEvAEEUpper[amend]);
-      mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE",1);
-      mehHcalAEESHE[amend]->setAxisTitle("Count",2);
-      
-      hcharname = "hHcalSHEvAEE_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"Cal SHE vs. AEE";
-      mehHcalSHEvAEE[amend] = dbe->bookProfile(hcharname,hchartitle, 60, -10., 
-					       50., 100, 0., 
-					       (float)ProfileUpper[amend],"");
-      mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE",1);
-      mehHcalSHEvAEE[amend]->setAxisTitle("SHE",2);
-
-    }
-    
-    //Ecal
-    std::string ECalString[2] = {"EB","EE"}; 
-    
-    for(int i =0; i<2; ++i) {
-      mehEcaln[i]=0;
-      mehEcalAEE[i]=0;
-      mehEcalSHE[i]=0;
-      mehEcalMaxPos[i]=0;
-      mehEcalMultvAEE[i]=0;
-      mehEcalSHEvAEESHE[i]=0;
-    }
-    dbe->setCurrentFolder("GlobalDigisV/ECals");
-    
-    for(int amend = 0; amend < 2; ++amend) {
-      hcharname = "hEcaln_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"  digis";
-      mehEcaln[amend] = dbe->book1D(hcharname,hchartitle, 3000, 0., 40000.);
-      mehEcaln[amend]->setAxisTitle("Number of Digis",1);
-      mehEcaln[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hEcalAEE_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"Cal AEE";
-      mehEcalAEE[amend] = dbe->book1D(hcharname,hchartitle, 1000, 0., 100.);
-      mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-      mehEcalAEE[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hEcalSHE_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"Cal SHE";
-      mehEcalSHE[amend] = dbe->book1D(hcharname,hchartitle, 500, 0., 50.);
-      mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
-      mehEcalSHE[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hEcalMaxPos_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"Cal MaxPos";
-      mehEcalMaxPos[amend] = dbe->book1D(hcharname,hchartitle,10, 0., 10.);
-      mehEcalMaxPos[amend]->setAxisTitle("Maximum Position",1);
-      mehEcalMaxPos[amend]->setAxisTitle("Count",2);
-      
-      hcharname = "hEcalSHEvAEESHE_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
-      mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hcharname,hchartitle,1000, 0., 100., 
-						  500, 0., 50.,"");
-      mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
-      mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
-
-      hcharname = "hEcalMultvAEE_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
-      mehEcalMultvAEE[amend] = dbe->bookProfile(hcharname,hchartitle, 1000, 0., 100., 
-						4000, 0., 40000.,"");
-      mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-      mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);      
-    }
-    mehEScaln = 0;
-
-    hcharname = "hEcaln_ES";
-    hchartitle= "ESCAL  digis";
-    mehEScaln = dbe->book1D(hcharname,hchartitle, 1000, 0., 5000.);
-    mehEScaln->setAxisTitle("Number of Digis",1);
-    mehEScaln->setAxisTitle("Count",2);
-
-    std::string ADCNumber[3] = {"0", "1", "2"};
-    for(int i =0; i<3; ++i) {
-      mehEScalADC[i] = 0;
-      hcharname = "hEcalADC"+ADCNumber[i]+"_ES";
-      hchartitle= "ESCAL  ADC"+ADCNumber[i];
-      mehEScalADC[i] = dbe->book1D(hcharname,hchartitle, 1500, 0., 1500.);
-      mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
-      mehEScalADC[i]->setAxisTitle("Count",2);
-    }
-    
-    //Si Pixels ***DONE***  
-    std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", 
-				    "FWD2n", "FWD2p"};
-    for(int j =0; j<7; ++j) {
-      mehSiPixeln[j]=0;
-      mehSiPixelADC[j]=0;
-      mehSiPixelRow[j]=0;
-      mehSiPixelCol[j]=0;
-    }
-    
-    dbe->setCurrentFolder("GlobalDigisV/SiPixels");
-    for(int amend = 0; amend < 7; ++amend) {
-      hcharname = "hSiPixeln_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" Digis";
-      if(amend<3) mehSiPixeln[amend] = dbe->book1D(hcharname,hchartitle,500,0.,1000.);
-      else mehSiPixeln[amend] = dbe->book1D(hcharname,hchartitle,500,0.,1000.);
-      mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
-      mehSiPixeln[amend]->setAxisTitle("Count",2);
-      
-      hcharname = "hSiPixelADC_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" ADC";
-      mehSiPixelADC[amend] = dbe->book1D(hcharname,hchartitle,150,0.0,300.);
-      mehSiPixelADC[amend]->setAxisTitle("ADC",1);
-      mehSiPixelADC[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hSiPixelRow_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" Row";
-      mehSiPixelRow[amend] = dbe->book1D(hcharname,hchartitle,100,0.0,100.);
-      mehSiPixelRow[amend]->setAxisTitle("Row Number",1);
-      mehSiPixelRow[amend]->setAxisTitle("Count",2);
-
-      hcharname = "hSiPixelColumn_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" Column";
-      mehSiPixelCol[amend] = dbe->book1D(hcharname,hchartitle,200,0.0,500.);
-      mehSiPixelCol[amend]->setAxisTitle("Column Number",1);
-      mehSiPixelCol[amend]->setAxisTitle("Count",2);
-    }
-
-    //Muons
-    dbe->setCurrentFolder("GlobalDigisV/Muons");
-
-    //DT
-    std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
-    
-    for(int i =0; i < 4; ++i) {
-      mehDtMuonn[i] = 0;
-      mehDtMuonLayer[i] = 0;
-      mehDtMuonTime[i] = 0;
-      mehDtMuonTimevLayer[i] = 0;
-    }
-    
-    for(int j = 0; j < 4; ++j) {
-      hcharname = "hDtMuonn_"+MuonString[j];
-      hchartitle= MuonString[j]+"  digis";
-      mehDtMuonn[j] = dbe->book1D(hcharname,hchartitle,250, 0., 500.);
-      mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
-      mehDtMuonn[j]->setAxisTitle("Count",2);
-
-      hcharname = "hDtLayer_"+MuonString[j];
-      hchartitle= MuonString[j]+"  Layer";
-      mehDtMuonLayer[j] = dbe->book1D(hcharname,hchartitle,12, 1., 13.);
-      mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
-      mehDtMuonLayer[j]->setAxisTitle("Count",2);
-
-      hcharname = "hDtMuonTime_"+MuonString[j];
-      hchartitle= MuonString[j]+"  Time";
-      mehDtMuonTime[j] = dbe->book1D(hcharname,hchartitle,300, 400., 1000.);
-      mehDtMuonTime[j]->setAxisTitle("Time",1);
-      mehDtMuonTime[j]->setAxisTitle("Count",2);
-
-      hcharname = "hDtMuonTimevLayer_"+MuonString[j];
-      hchartitle= MuonString[j]+"  Time vs. Layer";
-      mehDtMuonTimevLayer[j] = dbe->bookProfile(hcharname,hchartitle,12, 1., 13., 300, 
-						400., 1000.,"");
-      mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
-      mehDtMuonTimevLayer[j]->setAxisTitle("Time",2);
-    }
-
-    //CSC 
-    mehCSCStripn = 0;
-    hcharname = "hCSCStripn";
-    hchartitle = "CSC Strip digis";
-    mehCSCStripn = dbe->book1D(hcharname,hchartitle,250, 0., 500.);
-    mehCSCStripn->setAxisTitle("Number of Digis",1);
-    mehCSCStripn->setAxisTitle("Count",2);
-    
-    mehCSCStripADC = 0;
-    hcharname = "hCSCStripADC";
-    hchartitle = "CSC Strip ADC";
-    mehCSCStripADC = dbe->book1D(hcharname,hchartitle, 110, 0., 1100.);
-    mehCSCStripADC->setAxisTitle("ADC",1);
-    mehCSCStripADC->setAxisTitle("Count",2);
-    
-    mehCSCWiren = 0;
-    hcharname = "hCSCWiren";
-    hchartitle = "CSC Wire digis";
-    mehCSCWiren = dbe->book1D(hcharname,hchartitle,250, 0., 500.);
-    mehCSCWiren->setAxisTitle("Number of Digis",1);
-    mehCSCWiren->setAxisTitle("Count",2);
-    
-    mehCSCWireTime = 0;
-    hcharname = "hCSCWireTime";
-    hchartitle = "CSC Wire Time";
-    mehCSCWireTime = dbe->book1D(hcharname,hchartitle,10, 0., 10.);
-    mehCSCWireTime->setAxisTitle("Time",1);
-    mehCSCWireTime->setAxisTitle("Count",2);
-    
-    // RPC 
-    mehRPCMuonn = 0;
-    hcharname = "hRPCMuonn";
-    hchartitle = "RPC digis";
-    mehCSCStripn = dbe->book1D(hcharname,hchartitle,250, 0., 500.);
-    mehCSCStripn->setAxisTitle("Number of Digis",1);
-    mehCSCStripn->setAxisTitle("Count",2);
-
-    std::string MuonRPCString[5] = {"Wmin2", "Wmin1", "W0", "Wpu1", "Wpu2"};
-    for(int i =0; i < 5; ++i) {
-      mehRPCRes[i] = 0;
-    }
-
-    for(int j = 0; j < 5; ++j) {    
-      hcharname = "hRPCRes_"+MuonRPCString[j];
-      hchartitle= MuonRPCString[j]+"  Digi - Sim";   
-      mehRPCRes[j] = dbe->book1D(hcharname,hchartitle,200, -8., 8.);
-      mehRPCRes[j]->setAxisTitle("Digi - Sim center of strip x",1);
-      mehRPCRes[j]->setAxisTitle("Count",2);
-    }
-  }
-
   // set default constants
   // ECal
   
-  ECalgainConv_[0] = 0.;
-  ECalgainConv_[1] = 1.;
-  ECalgainConv_[2] = 2.;
-  ECalgainConv_[3] = 12.;  
   ECalbarrelADCtoGeV_ = 0.035;
   ECalendcapADCtoGeV_ = 0.06;
-}
- 
-GlobalDigisAnalyzer::~GlobalDigisAnalyzer() {}
 
-void GlobalDigisAnalyzer::beginJob( void )
-{
-  std::string MsgLoggerCat = "GlobalDigisAnalyzer_beginJob";
-  
-  EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
-  
+  EcalMGPAGainRatio defaultRatios;  
   ECalgainConv_[0] = 0.;
   ECalgainConv_[1] = 1.;
-  ECalgainConv_[2] = defaultRatios->gain12Over6() ;
-  ECalgainConv_[3] = ECalgainConv_[2]*(defaultRatios->gain6Over1()) ;
-  
-  delete defaultRatios;
+  ECalgainConv_[2] = defaultRatios.gain12Over6() ;
+  ECalgainConv_[3] = ECalgainConv_[2]*(defaultRatios.gain6Over1()) ;
   
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
@@ -421,18 +121,299 @@ void GlobalDigisAnalyzer::beginJob( void )
       << ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
       << ", g3 = " << ECalgainConv_[3];
   }
-  
-  return;
 }
+ 
+GlobalDigisAnalyzer::~GlobalDigisAnalyzer() {}
+  
+void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
+  // Si Strip
+  std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", 
+			     "TECW5", "TECW6", "TECW7", "TECW8", 
+			     "TIBL1", "TIBL2", "TIBL3", "TIBL4", 
+			     "TIDW1", "TIDW2", "TIDW3", "TOBL1", 
+			     "TOBL2", "TOBL3", "TOBL4"};
+  for(int i = 0; i<19; ++i) {
+    mehSiStripn[i]=0;
+    mehSiStripADC[i]=0;
+    mehSiStripStrip[i]=0;
+  }
+  std::string hcharname, hchartitle;
+  iBooker.setCurrentFolder("GlobalDigisV/SiStrips");
+  for(int amend = 0; amend < 19; ++amend) { 
+    hcharname = "hSiStripn_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+"  Digis";
+    mehSiStripn[amend] = iBooker.book1D(hcharname,hchartitle,5000,0.,10000.);
+    mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
+    mehSiStripn[amend]->setAxisTitle("Count",2);
+    
+    hcharname = "hSiStripADC_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+" ADC";
+    mehSiStripADC[amend] = iBooker.book1D(hcharname,hchartitle,150,0.0,300.);
+    mehSiStripADC[amend]->setAxisTitle("ADC",1);
+    mehSiStripADC[amend]->setAxisTitle("Count",2);
+    
+    hcharname = "hSiStripStripADC_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+" Strip";
+    mehSiStripStrip[amend] = iBooker.book1D(hcharname,hchartitle,200,0.0,800.);
+    mehSiStripStrip[amend]->setAxisTitle("Strip Number",1);
+    mehSiStripStrip[amend]->setAxisTitle("Count",2);
+  }
+  
+  //HCal
+  std::string HCalString[4] = {"HB", "HE", "HO","HF"}; 
+  float calnUpper[4] = {30000.,30000.,30000.,20000.}; 
+  float calnLower[4]={0.,0.,0.,0.}; 
+  float SHEUpper[4]={1.,1.,1.,1.};
+  float SHEvAEEUpper[4] = {5000, 5000, 5000, 5000}; 
+  float SHEvAEELower[4] = {-5000, -5000, -5000, -5000}; 
+  int SHEvAEEnBins[4] = {200,200,200,200};
+  double ProfileUpper[4] = {1.,1.,1.,1.};  
+  
+  for(int i =0; i<4; ++i) {
+    mehHcaln[i]=0;
+    mehHcalAEE[i]=0;
+    mehHcalSHE[i]=0;
+    mehHcalAEESHE[i]=0;
+    mehHcalSHEvAEE[i]=0;
+  }
+  iBooker.setCurrentFolder("GlobalDigisV/HCals");
+  
+  for(int amend = 0; amend < 4; ++amend) {
+    hcharname = "hHcaln_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"  digis";
+    mehHcaln[amend] = iBooker.book1D(hcharname,hchartitle, 10000, calnLower[amend], 
+			    calnUpper[amend]);
+    mehHcaln[amend]->setAxisTitle("Number of Digis",1);
+    mehHcaln[amend]->setAxisTitle("Count",2);
 
+    hcharname = "hHcalAEE_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"Cal AEE";
+    mehHcalAEE[amend] = iBooker.book1D(hcharname,hchartitle, 60, -10., 50.);
+    mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+    mehHcalAEE[amend]->setAxisTitle("Count",2);
 
-void GlobalDigisAnalyzer::endJob()
-{
-  std::string MsgLoggerCat = "GlobalDigisAnalyzer_endJob";
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " events.";
-  return;
+    hcharname = "hHcalSHE_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"Cal SHE";
+    mehHcalSHE[amend] = iBooker.book1D(hcharname,hchartitle, 1000, 0.0, 
+			      SHEUpper[amend]);
+    mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
+    mehHcalSHE[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hHcalAEESHE_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"Cal AEE/SHE";
+    mehHcalAEESHE[amend] = iBooker.book1D(hcharname, hchartitle, SHEvAEEnBins[amend], 
+				 SHEvAEELower[amend], 
+				 SHEvAEEUpper[amend]);
+    mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE",1);
+    mehHcalAEESHE[amend]->setAxisTitle("Count",2);
+    
+    hcharname = "hHcalSHEvAEE_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"Cal SHE vs. AEE";
+    mehHcalSHEvAEE[amend] = iBooker.bookProfile(hcharname,hchartitle, 60, -10., 
+				       50., 100, 0., 
+				       (float)ProfileUpper[amend],"");
+    mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE",1);
+    mehHcalSHEvAEE[amend]->setAxisTitle("SHE",2);
+
+  }
+  
+  //Ecal
+  std::string ECalString[2] = {"EB","EE"}; 
+  
+  for(int i =0; i<2; ++i) {
+    mehEcaln[i]=0;
+    mehEcalAEE[i]=0;
+    mehEcalSHE[i]=0;
+    mehEcalMaxPos[i]=0;
+    mehEcalMultvAEE[i]=0;
+    mehEcalSHEvAEESHE[i]=0;
+  }
+  iBooker.setCurrentFolder("GlobalDigisV/ECals");
+  
+  for(int amend = 0; amend < 2; ++amend) {
+    hcharname = "hEcaln_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"  digis";
+    mehEcaln[amend] = iBooker.book1D(hcharname,hchartitle, 3000, 0., 40000.);
+    mehEcaln[amend]->setAxisTitle("Number of Digis",1);
+    mehEcaln[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hEcalAEE_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"Cal AEE";
+    mehEcalAEE[amend] = iBooker.book1D(hcharname,hchartitle, 1000, 0., 100.);
+    mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+    mehEcalAEE[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hEcalSHE_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"Cal SHE";
+    mehEcalSHE[amend] = iBooker.book1D(hcharname,hchartitle, 500, 0., 50.);
+    mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
+    mehEcalSHE[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hEcalMaxPos_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"Cal MaxPos";
+    mehEcalMaxPos[amend] = iBooker.book1D(hcharname,hchartitle,10, 0., 10.);
+    mehEcalMaxPos[amend]->setAxisTitle("Maximum Position",1);
+    mehEcalMaxPos[amend]->setAxisTitle("Count",2);
+    
+    hcharname = "hEcalSHEvAEESHE_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
+    mehEcalSHEvAEESHE[amend] = iBooker.bookProfile(hcharname,hchartitle,1000, 0., 100., 
+					  500, 0., 50.,"");
+    mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
+    mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
+
+    hcharname = "hEcalMultvAEE_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
+    mehEcalMultvAEE[amend] = iBooker.bookProfile(hcharname,hchartitle, 1000, 0., 100., 
+					4000, 0., 40000.,"");
+    mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+    mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);      
+  }
+  mehEScaln = 0;
+
+  hcharname = "hEcaln_ES";
+  hchartitle= "ESCAL  digis";
+  mehEScaln = iBooker.book1D(hcharname,hchartitle, 1000, 0., 5000.);
+  mehEScaln->setAxisTitle("Number of Digis",1);
+  mehEScaln->setAxisTitle("Count",2);
+
+  std::string ADCNumber[3] = {"0", "1", "2"};
+  for(int i =0; i<3; ++i) {
+    mehEScalADC[i] = 0;
+    hcharname = "hEcalADC"+ADCNumber[i]+"_ES";
+    hchartitle= "ESCAL  ADC"+ADCNumber[i];
+    mehEScalADC[i] = iBooker.book1D(hcharname,hchartitle, 1500, 0., 1500.);
+    mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
+    mehEScalADC[i]->setAxisTitle("Count",2);
+  }
+  
+  //Si Pixels ***DONE***  
+  std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", 
+			    "FWD2n", "FWD2p"};
+  for(int j =0; j<7; ++j) {
+    mehSiPixeln[j]=0;
+    mehSiPixelADC[j]=0;
+    mehSiPixelRow[j]=0;
+    mehSiPixelCol[j]=0;
+  }
+  
+  iBooker.setCurrentFolder("GlobalDigisV/SiPixels");
+  for(int amend = 0; amend < 7; ++amend) {
+    hcharname = "hSiPixeln_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" Digis";
+    if(amend<3) mehSiPixeln[amend] = iBooker.book1D(hcharname,hchartitle,500,0.,1000.);
+    else mehSiPixeln[amend] = iBooker.book1D(hcharname,hchartitle,500,0.,1000.);
+    mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
+    mehSiPixeln[amend]->setAxisTitle("Count",2);
+    
+    hcharname = "hSiPixelADC_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" ADC";
+    mehSiPixelADC[amend] = iBooker.book1D(hcharname,hchartitle,150,0.0,300.);
+    mehSiPixelADC[amend]->setAxisTitle("ADC",1);
+    mehSiPixelADC[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hSiPixelRow_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" Row";
+    mehSiPixelRow[amend] = iBooker.book1D(hcharname,hchartitle,100,0.0,100.);
+    mehSiPixelRow[amend]->setAxisTitle("Row Number",1);
+    mehSiPixelRow[amend]->setAxisTitle("Count",2);
+
+    hcharname = "hSiPixelColumn_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" Column";
+    mehSiPixelCol[amend] = iBooker.book1D(hcharname,hchartitle,200,0.0,500.);
+    mehSiPixelCol[amend]->setAxisTitle("Column Number",1);
+    mehSiPixelCol[amend]->setAxisTitle("Count",2);
+  }
+
+  //Muons
+  iBooker.setCurrentFolder("GlobalDigisV/Muons");
+
+  //DT
+  std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
+  
+  for(int i =0; i < 4; ++i) {
+    mehDtMuonn[i] = 0;
+    mehDtMuonLayer[i] = 0;
+    mehDtMuonTime[i] = 0;
+    mehDtMuonTimevLayer[i] = 0;
+  }
+  
+  for(int j = 0; j < 4; ++j) {
+    hcharname = "hDtMuonn_"+MuonString[j];
+    hchartitle= MuonString[j]+"  digis";
+    mehDtMuonn[j] = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
+    mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
+    mehDtMuonn[j]->setAxisTitle("Count",2);
+
+    hcharname = "hDtLayer_"+MuonString[j];
+    hchartitle= MuonString[j]+"  Layer";
+    mehDtMuonLayer[j] = iBooker.book1D(hcharname,hchartitle,12, 1., 13.);
+    mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
+    mehDtMuonLayer[j]->setAxisTitle("Count",2);
+
+    hcharname = "hDtMuonTime_"+MuonString[j];
+    hchartitle= MuonString[j]+"  Time";
+    mehDtMuonTime[j] = iBooker.book1D(hcharname,hchartitle,300, 400., 1000.);
+    mehDtMuonTime[j]->setAxisTitle("Time",1);
+    mehDtMuonTime[j]->setAxisTitle("Count",2);
+
+    hcharname = "hDtMuonTimevLayer_"+MuonString[j];
+    hchartitle= MuonString[j]+"  Time vs. Layer";
+    mehDtMuonTimevLayer[j] = iBooker.bookProfile(hcharname,hchartitle,12, 1., 13., 300, 
+					400., 1000.,"");
+    mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
+    mehDtMuonTimevLayer[j]->setAxisTitle("Time",2);
+  }
+
+  //CSC 
+  mehCSCStripn = 0;
+  hcharname = "hCSCStripn";
+  hchartitle = "CSC Strip digis";
+  mehCSCStripn = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
+  mehCSCStripn->setAxisTitle("Number of Digis",1);
+  mehCSCStripn->setAxisTitle("Count",2);
+  
+  mehCSCStripADC = 0;
+  hcharname = "hCSCStripADC";
+  hchartitle = "CSC Strip ADC";
+  mehCSCStripADC = iBooker.book1D(hcharname,hchartitle, 110, 0., 1100.);
+  mehCSCStripADC->setAxisTitle("ADC",1);
+  mehCSCStripADC->setAxisTitle("Count",2);
+  
+  mehCSCWiren = 0;
+  hcharname = "hCSCWiren";
+  hchartitle = "CSC Wire digis";
+  mehCSCWiren = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
+  mehCSCWiren->setAxisTitle("Number of Digis",1);
+  mehCSCWiren->setAxisTitle("Count",2);
+  
+  mehCSCWireTime = 0;
+  hcharname = "hCSCWireTime";
+  hchartitle = "CSC Wire Time";
+  mehCSCWireTime = iBooker.book1D(hcharname,hchartitle,10, 0., 10.);
+  mehCSCWireTime->setAxisTitle("Time",1);
+  mehCSCWireTime->setAxisTitle("Count",2);
+  
+  // RPC 
+  mehRPCMuonn = 0;
+  hcharname = "hRPCMuonn";
+  hchartitle = "RPC digis";
+  mehCSCStripn = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
+  mehCSCStripn->setAxisTitle("Number of Digis",1);
+  mehCSCStripn->setAxisTitle("Count",2);
+
+  std::string MuonRPCString[5] = {"Wmin2", "Wmin1", "W0", "Wpu1", "Wpu2"};
+  for(int i =0; i < 5; ++i) {
+    mehRPCRes[i] = 0;
+  }
+
+  for(int j = 0; j < 5; ++j) {    
+    hcharname = "hRPCRes_"+MuonRPCString[j];
+    hchartitle= MuonRPCString[j]+"  Digi - Sim";   
+    mehRPCRes[j] = iBooker.book1D(hcharname,hchartitle,200, -8., 8.);
+    mehRPCRes[j]->setAxisTitle("Digi - Sim center of strip x",1);
+    mehRPCRes[j]->setAxisTitle("Count",2);
+  }
 }
 
 void GlobalDigisAnalyzer::analyze(const edm::Event& iEvent, 
@@ -461,8 +442,8 @@ void GlobalDigisAnalyzer::analyze(const edm::Event& iEvent,
 
 
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
   
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -479,8 +460,8 @@ void GlobalDigisAnalyzer::analyze(const edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
     
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
     
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -547,7 +528,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalDigiEB);
   bool validDigiEB = true;
   if (!EcalDigiEB.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -561,8 +542,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
       
       // loop over simhits
       MapType ebSimMap;
-      const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
-      iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+      iEvent.getByToken(EBHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -570,19 +550,15 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
 	
 	// keep track of sum of simhit energy in each crystal
-	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = barrelHits->begin();
-	     hitItr != barrelHits->end();
-	     ++hitItr) {
+	for ( auto const & iHit : barrelHits ) {
 	  
-	  EBDetId ebid = EBDetId(hitItr->id());
+	  EBDetId ebid = EBDetId(iHit.id());
 	  
 	  uint32_t crystid = ebid.rawId();
-	  ebSimMap[crystid] += hitItr->energy();
+	  ebSimMap[crystid] += iHit.energy();
 	}
       }
 
@@ -674,7 +650,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalDigiEE);
   bool validDigiEE = true;
   if (!EcalDigiEE.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -688,8 +664,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
       
       // loop over simhits
       MapType eeSimMap;
-      const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
-      iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+      iEvent.getByToken(EEHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -697,19 +672,15 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
 	
 	// keep track of sum of simhit energy in each crystal
-	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = endcapHits->begin();
-	     hitItr != endcapHits->end();
-	     ++hitItr) {
+	for ( auto const & iHit : endcapHits ) {
 	  
-	  EEDetId eeid = EEDetId(hitItr->id());
+	  EEDetId eeid = EEDetId(iHit.id());
 	  
 	  uint32_t crystid = eeid.rawId();
-	  eeSimMap[crystid] += hitItr->energy();
+	  eeSimMap[crystid] += iHit.energy();
 	}
       }
 
@@ -803,7 +774,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  iEvent.getByLabel(ECalESSrc_, EcalDigiES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalDigiES);
   bool validDigiES = true;
   if (!EcalDigiES.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -820,8 +791,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     if (isPreshower) {
       
       // loop over simhits
-      const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
-      iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+      iEvent.getByToken(ESHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -829,20 +799,16 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
 	
 	// keep track of sum of simhit energy in each crystal
 	MapType esSimMap;
-	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = preshowerHits->begin();
-	     hitItr != preshowerHits->end();
-	     ++hitItr) {
+	for ( auto const & iHit : preshowerHits ) { 
 	  
-	  ESDetId esid = ESDetId(hitItr->id());
+	  ESDetId esid = ESDetId(iHit.id());
 	  
 	  uint32_t crystid = esid.rawId();
-	  esSimMap[crystid] += hitItr->energy();
+	  esSimMap[crystid] += iHit.energy();
 	}
       }
 
@@ -917,7 +883,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   bool validhcalHits = true;
   if (!hcalHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -957,7 +923,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByLabel(HCalDigi_,hbhe);
+  iEvent.getByToken(HBHEDigi_Token_,hbhe);
   bool validHBHE = true;
   if (!hbhe.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1047,7 +1013,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByLabel(HCalDigi_,ho);
+  iEvent.getByToken(HODigi_Token_,ho);
   bool validHO = true;
   if (!ho.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1103,7 +1069,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByLabel(HCalDigi_,hf);
+  iEvent.getByToken(HFDigi_Token_,hf);
   bool validHF = true;
   if (!hf.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1166,7 +1132,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -1178,7 +1144,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
   
   // get strip information
   edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
-  iEvent.getByLabel(SiStripSrc_, stripDigis);
+  iEvent.getByToken(SiStripSrc_Token_, stripDigis);
   bool validstripDigis = true;
   if (!stripDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1325,7 +1291,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
 
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
-  iEvent.getByLabel(SiPxlSrc_, pixelDigis);
+  iEvent.getByToken(SiPxlSrc_Token_, pixelDigis);
   bool validpixelDigis = true;
   if (!pixelDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1435,7 +1401,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   
   // get DT information
   edm::Handle<DTDigiCollection> dtDigis;  
-  iEvent.getByLabel(MuDTSrc_, dtDigis);
+  iEvent.getByToken(MuDTSrc_Token_, dtDigis);
   bool validdtDigis = true;
   if (!dtDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1498,7 +1464,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
 
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
-  iEvent.getByLabel(MuCSCStripSrc_, strips);
+  iEvent.getByToken(MuCSCStripSrc_Token_, strips);
   bool validstrips = true;
   if (!strips.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1542,7 +1508,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
 
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
-  iEvent.getByLabel(MuCSCWireSrc_, wires);
+  iEvent.getByToken(MuCSCWireSrc_Token_, wires);
   bool validwires = true;
   if (!wires.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1583,7 +1549,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   }
   
   edm::Handle<edm::PSimHitContainer> rpcsimHit;
-  iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcsimHit);
+  iEvent.getByToken(RPCSimHit_Token_, rpcsimHit);
   bool validrpcsim = true;
   if (!rpcsimHit.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1592,7 +1558,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   }   
   
   edm::Handle<RPCDigiCollection> rpcDigis;  
-  iEvent.getByLabel(MuRPCSrc_, rpcDigis);
+  iEvent.getByToken(MuRPCSrc_Token_, rpcDigis);
   bool validrpcdigi = true;
   if (!rpcDigis.isValid()) {
     LogDebug(MsgLoggerCat)

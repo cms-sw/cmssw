@@ -2,27 +2,30 @@
 #define Validation_RecoVertex_VertexHistogramMaker_H
 
 #include <string>
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class Run;
-}
 
 class TH1F;
 class TH2F;
 class TProfile;
 class TFileDirectory;
 
+namespace edm {
+  class ConsumesCollector;
+}
+
+class LumiDetails;
+
 class VertexHistogramMaker {
 
  public:
-  VertexHistogramMaker();
-  VertexHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  VertexHistogramMaker(edm::ConsumesCollector&& iC);
+  VertexHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~VertexHistogramMaker();
 
   void book(const std::string dirname="");
@@ -44,6 +47,7 @@ class VertexHistogramMaker {
   const bool m_runHisto2D;
   const bool m_bsConstrained;
   const edm::ParameterSet m_histoParameters;
+  edm::EDGetTokenT<LumiDetails> m_lumiDetailsToken;
 
   RunHistogramManager m_rhm;
   RunHistogramManager m_fhm;
@@ -58,10 +62,10 @@ class VertexHistogramMaker {
   TH1F* m_hndof;
   TH1F* m_haveweight;
   TH2F* m_hndofvstracks;
-  TProfile* m_hndofvsvtxz; 
-  TProfile* m_hntracksvsvtxz; 
-  TProfile* m_haveweightvsvtxz; 
-  TProfile* m_haveweightvsvtxzchk; 
+  TProfile* m_hndofvsvtxz;
+  TProfile* m_hntracksvsvtxz;
+  TProfile* m_haveweightvsvtxz;
+  TProfile* m_haveweightvsvtxzchk;
   TH1F* m_hweights;
   TH1F* m_hvtxx;
   TH1F* m_hvtxy;

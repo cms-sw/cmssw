@@ -1,0 +1,16 @@
+
+cmsRun DYToLLtaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_LHE_GEN_VALIDATION.py
+cmsDriver.py step3 -s HARVESTING:genHarvesting --harvesting AtJobEnd --conditions auto:mc  --mc --filein file:step1.root
+cp DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root DYToLLtaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_LHE_GEN_VALIDATION.root
+
+cmsRun DYToLLtaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_LHESPINCORR_GEN_VALIDATION.py
+cmsDriver.py step3 -s HARVESTING:genHarvesting --harvesting AtJobEnd --conditions auto:mc  --mc --filein file:step1.root
+cp DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root DYToLLtaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_LHESPINCORR_GEN_VALIDATION.root
+
+cmsRun WToLNutaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_taupinu_LHE_GEN_VALIDATION.py
+cmsDriver.py step3 -s HARVESTING:genHarvesting --harvesting AtJobEnd --conditions auto:mc  --mc --filein file:step1.root
+cp DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WToLNutaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_taupinu_LHE_GEN_VALIDATION.root
+
+cmsRun WToLNutaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_taupinu_LHESPINCORR_GEN_VALIDATION.py
+cmsDriver.py step3 -s HARVESTING:genHarvesting --harvesting AtJobEnd --conditions auto:mc  --mc --filein file:step1.root
+cp DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WToLNutaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_taupinu_LHESPINCORR_GEN_VALIDATION.root

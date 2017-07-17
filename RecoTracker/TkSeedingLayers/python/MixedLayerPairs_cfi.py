@@ -3,9 +3,10 @@ import FWCore.ParameterSet.Config as cms
 # This is standard pixel-pair seeding, but making use of TEC disks
 # in forward region to boost acceptance.
 
-mixedlayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('MixedLayerPairs'),
-    layerList = cms.vstring('BPix1+BPix2', 
+from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
+
+MixedLayerPairs = seedingLayersEDProducer.clone()
+MixedLayerPairs.layerList = cms.vstring('BPix1+BPix2', 
         'BPix1+BPix3', 
         'BPix2+BPix3', 
         'BPix1+FPix1_pos', 
@@ -25,28 +26,24 @@ mixedlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         'FPix2_neg+TEC1_neg', 
         'FPix2_neg+TEC2_neg', 
         'TEC1_neg+TEC2_neg', 
-        'TEC2_neg+TEC3_neg'),
-    TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(1)
-    ),
-    BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.006)
-    ),
-    FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.0036)
-    )
+        'TEC2_neg+TEC3_neg'
 )
+MixedLayerPairs.TEC = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    useRingSlector = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    minRing = cms.int32(1),
+    maxRing = cms.int32(1)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+)
+MixedLayerPairs.BPix = cms.PSet(
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    HitProducer = cms.string('siPixelRecHits'),
+)
+MixedLayerPairs.FPix = cms.PSet(
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    HitProducer = cms.string('siPixelRecHits'),
+)
+
 
 

@@ -30,7 +30,7 @@ std::vector<HepMC::GenParticle>
 
       double eta0 = (*part)->momentum().eta();
       double phi0 = (*part)->momentum().phi();
-      double pti, dist, etai, phii;
+      double pti, dist, etai, phii, dphi;
       bool isol = true;
       for(part1 = pEv->particles_begin();
           part1 != part && part1 != pEv->particles_end();
@@ -39,7 +39,10 @@ std::vector<HepMC::GenParticle>
           pti = (*part1)->momentum().perp();
           etai = (*part1)->momentum().eta();
           phii = (*part1)->momentum().phi();
-          dist = sqrt( (eta0-etai)*(eta0-etai) + (phi0-phii)*(phi0-phii) );
+          dphi = phi0-phii;
+          if(fabs(phi0-phii-6.2832) < fabs(dphi)) dphi = phi0-phii-6.2832;
+          if(fabs(phi0-phii+6.2832) < fabs(dphi)) dphi = phi0-phii+6.2832;
+          dist = sqrt( (eta0-etai)*(eta0-etai) + dphi*dphi );
           if(dist < RConeIsol && pti > MaxPtIsol ) { isol = false; break;}
         }
       }

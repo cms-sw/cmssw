@@ -8,17 +8,8 @@
 #define __EcalTPGStripStatusXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
-static const char CVSId__EcalTPGStripStatusXMLTranslator[] = 
-"$Id: EcalTPGStripStatusXMLTranslator.h,v 1.1 2011/04/04 fay Exp $";
-
-
-//class EcalTPGStripStatus;
 
 class EcalTPGStripStatusXMLTranslator {
 
@@ -31,7 +22,8 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalTPGStripStatus& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalTPGStripStatus& record);
 

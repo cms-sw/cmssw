@@ -23,6 +23,8 @@
 // terminal nodes, which are stored simply as a vector of regression responses
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -36,7 +38,7 @@
     public:
 
        GBRTree();
-       explicit GBRTree(const TMVA::DecisionTree *tree);
+       explicit GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
@@ -63,7 +65,7 @@
         unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
         unsigned int CountTerminalNodes(const TMVA::DecisionTreeNode *node);
       
-        void AddNode(const TMVA::DecisionTreeNode *node);
+        void AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
         
 	std::vector<unsigned char> fCutIndices;
 	std::vector<float> fCutVals;
@@ -71,65 +73,24 @@
 	std::vector<int> fRightIndices;
 	std::vector<float> fResponses;  
         
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 //_______________________________________________________________________
 inline double GBRTree::GetResponse(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-     
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return fResponses[-index];
-    }
-    
-  }
-  
-
+  return fResponses[TerminalIndex(vector)];
 }
 
 //_______________________________________________________________________
 inline int GBRTree::TerminalIndex(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return (-index);
-    }
-    
-  }
-  
-
+   int index = 0;
+  do {
+     auto r = fRightIndices[index];
+     auto l = fLeftIndices[index];  
+    index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+  } while (index>0);
+  return -index;
 }
-  
+
 #endif

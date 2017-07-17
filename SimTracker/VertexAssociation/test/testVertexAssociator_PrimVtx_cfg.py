@@ -5,8 +5,9 @@ process = cms.Process("ana")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("SimGeneral.TrackingAnalysis.Playback_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
 
@@ -60,17 +61,28 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string("testVertexAssociator_PrimVtx_2210_2210.root")
 )
 
-
-process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
-      cms.PSet(
-
-              vertexCollection = cms.untracked.InputTag('offlinePrimaryVertices')
-         )
-         
-
+process.trackingParticleRecoTrackAsssociationByHits = process.trackingParticleRecoTrackAsssociation.clone(
+    associator = 'trackAssociatorByHits'
+)
+process.trackingParticleRecoTrackAsssociationByChi2 = process.trackingParticleRecoTrackAsssociation.clone(
+    associator = 'trackAssociatorByChi2'
 )
 
-process.p = cms.Path( process.mix * process.trackingParticles * process.testanalyzer )
+process.vertexAssociatorByTracksByHits = process.VertexAssociatorByTracks.clone(
+    trackAssociation = "trackingParticleRecoTrackAsssociationByHits"
+)
+
+process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
+    vertexCollection = cms.untracked.InputTag('offlinePrimaryVertices'),
+    vertexAssociator = cms.untracked.InputTag('vertexAssociatorByTracksByHits'),
+)
+
+
+process.p = cms.Path( process.mix * process.trackingParticles *
+                      process.trackAssociatorByChi2  * process.trackAssociatorByHits *
+                      process.trackingParticleRecoTrackAsssociationByChi2 * process.trackingParticleRecoTrackAsssociationByHits *
+                      process.vertexAssociatorByTracksByHits *
+                      process.testanalyzer )
 
 
 

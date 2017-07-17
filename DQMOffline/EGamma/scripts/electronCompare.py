@@ -79,19 +79,23 @@ if __name__ == "__main__":
     
   red_file = args.pop(0)
   web_dir = args.pop()
-  web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
+#  print 'WEB DIR 1 =',web_dir
+  if not '/afs/cern.ch/cms/' in web_dir:
+    print "local : ", web_dir
+    web_url = web_dir
+  else:
+    web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
   if len(args)>0 :
     blue_file = args.pop(0)
   else :
     blue_file = ''
-      
-      
+
   #===================================================
   # prepare output directories and check input files
   #===================================================
 
   # destination dir
-  print 'WEB DIR =',web_dir
+#  print 'WEB DIR =',web_dir
   if os.path.exists(web_dir+'/gifs')==False:
     os.makedirs(web_dir+'/gifs')
     
@@ -133,7 +137,9 @@ if __name__ == "__main__":
   if options.title=='' :
     options.title = red_long_name+' vs '+blue_long_name
          
-         
+  (red_hd, red_release) = os.path.split(red_head)
+  (blue_hd, blue_release) = os.path.split(blue_head)
+
   #============================================
   # final commands
   #============================================
@@ -150,6 +156,8 @@ if __name__ == "__main__":
   os.environ['CMP_RED_COMMENT'] = red_file+'.comment'
   os.environ['CMP_BLUE_COMMENT'] = blue_file+'.comment'
   os.environ['CMP_CONFIG'] = options.config
+  os.environ['CMP_RED_RELEASE'] = red_release
+  os.environ['CMP_BLUE_RELEASE'] = blue_release
   
   mysystem('root -b -l -q electronCompare.C')
   

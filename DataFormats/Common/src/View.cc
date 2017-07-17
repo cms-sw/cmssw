@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/View.h"
+#include <typeinfo>
 
 namespace edm
 {
@@ -9,11 +10,11 @@ namespace edm
 
   ViewBase::~ViewBase() { }
 
-  ViewBase*
+  std::unique_ptr<ViewBase>
   ViewBase::clone() const
   {
-    ViewBase* p = doClone();
-    assert(typeid(*p)==typeid(*this) && "doClone() incorrectly overriden");
+    auto p = doClone();
+    assert(typeid(*(p.get()))==typeid(*this) && "doClone() incorrectly overriden");
     return p;
   }
 

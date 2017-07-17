@@ -1,6 +1,8 @@
 #ifndef L1TObjects_L1MuCSCPtLut_h
 #define L1TObjects_L1MuCSCPtLut_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <string.h>
 
@@ -28,6 +30,8 @@ public:
 	L1MuCSCPtLut(const L1MuCSCPtLut& lut){ memcpy(pt_lut,lut.pt_lut,sizeof(pt_lut)); }
 	~L1MuCSCPtLut(void){}
 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

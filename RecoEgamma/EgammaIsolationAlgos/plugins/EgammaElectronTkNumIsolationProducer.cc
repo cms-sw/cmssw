@@ -62,7 +62,7 @@ void EgammaElectronTkNumIsolationProducer::produce(edm::Event& iEvent, const edm
   const reco::TrackCollection* trackCollection = tracks.product();
 
   //prepare product
-  std::auto_ptr<edm::ValueMap<int> > isoMap(new edm::ValueMap<int>());
+  auto isoMap = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler(*isoMap);
   std::vector<int> retV(electronHandle->size(),0);
 
@@ -81,5 +81,5 @@ void EgammaElectronTkNumIsolationProducer::produce(edm::Event& iEvent, const edm
   //fill and insert valuemap
   filler.insert(electronHandle,retV.begin(),retV.end());
   filler.fill();
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 }

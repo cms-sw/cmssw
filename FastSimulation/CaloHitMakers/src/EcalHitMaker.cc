@@ -17,7 +17,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 //#include "Math/GenVector/Transform3D.h"
@@ -34,7 +34,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const XYZPoint& ecalentrance, 
 			   const DetId& cell, int onEcal,
 			   unsigned size, unsigned showertype,
-			   const RandomEngine* engine):
+			   const RandomEngineAndDistribution* engine):
   CaloHitMaker(theCalo,DetId::Ecal,((onEcal==1)?EcalBarrel:EcalEndcap),onEcal,showertype),
   EcalEntrance_(ecalentrance),
   onEcal_(onEcal),
@@ -1359,7 +1359,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
   //  std::cout << " Entering gapsLifting "  << std::endl;
   CrystalPad & myPad = padsatdepth_[iq];
   unsigned ngaps=gaps.size();
-  static bool debug=false;
+  constexpr bool debug=false;
   if(ngaps==1)
     {
       if(debug)

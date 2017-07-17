@@ -13,10 +13,14 @@
  *  \author G. Cerminara - INFN Torino
  */
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 
 #include <string>
@@ -27,7 +31,7 @@ class DQMStore;
 class MonitorElement;
 class DTGeometry;
 
-class DTResolutionAnalysisTask: public edm::EDAnalyzer{
+class DTResolutionAnalysisTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
@@ -35,26 +39,25 @@ public:
   /// Destructor
   virtual ~DTResolutionAnalysisTask();
 
+  /// BookHistograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   /// BeginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  
- 
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+
+
 protected:
 
 private:
-  DQMStore* theDbe;
 
   edm::ESHandle<DTGeometry> dtGeom;
-  
+
   int prescaleFactor;
   int resetCycle;
 
@@ -62,11 +65,11 @@ private:
   u_int32_t theZHitsCut;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
-  
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
+
   // Book a set of histograms for a give chamber
-  void bookHistos(DTSuperLayerId slId);
-  // Fill a set of histograms for a give chamber 
+  void bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId);
+  // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distExtr,
 		  float residual);
@@ -79,3 +82,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

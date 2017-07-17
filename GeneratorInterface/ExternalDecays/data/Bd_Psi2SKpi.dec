@@ -1,0 +1,19 @@
+###########################################################
+# Descriptor: [B0 -> Psi(2S) (mu+ mu-)K+ pi-)] + cc #
+###########################################################
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+ChargeConj MyB0 Myanti-B0
+Alias MyPsi psi(2S)
+ChargeConj MyPsi MyPsi
+#
+Decay MyB0
+1.000 MyPsi pi- K+ PHSP;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyPsi
+1.000 mu+ mu- PHOTOS VLL;
+Enddecay
+#
+End

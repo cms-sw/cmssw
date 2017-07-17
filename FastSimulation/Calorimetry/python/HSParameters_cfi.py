@@ -12,6 +12,6 @@ HSParameterBlock = cms.PSet(
         nDepthSteps = cms.int32(10),
         maxTRfactor = cms.double(4.0),
         criticalHDEnergy = cms.double(3.0)
+        )
     )
-)
 

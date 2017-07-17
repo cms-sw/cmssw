@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
   template<typename T> class RefToBase;
@@ -39,12 +39,12 @@ namespace edm {
         virtual bool equal_to(const_iterator_imp const*) const = 0;
         virtual bool less_than(const_iterator_imp const*) const = 0;
         virtual void assign(const_iterator_imp const*) = 0;
-        virtual boost::shared_ptr<RefHolderBase> deref() const = 0;
+        virtual std::shared_ptr<RefHolderBase> deref() const = 0;
         virtual difference_type difference(const_iterator_imp const*) const = 0;
       };
 
       struct const_iterator : public std::iterator <std::random_access_iterator_tag, void*>{
-        typedef boost::shared_ptr<RefHolderBase> value_type;
+        typedef std::shared_ptr<RefHolderBase> value_type;
         typedef std::ptrdiff_t difference_type;
         const_iterator() : i(0) { }
         const_iterator(const_iterator_imp* it) : i(it) { }
@@ -155,8 +155,6 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       template<typename T> RefToBase<T> getRef(size_t idx) const;
-      virtual void const* product() const = 0;
-      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*>&) = 0;
       virtual size_t keyForIndex(size_t idx) const = 0;
 
       /// Checks if product collection is in memory or available
@@ -164,12 +162,12 @@ namespace edm {
       virtual bool isAvailable() const = 0;
 
     private:
-      virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
+      virtual std::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
     };
 
     template<typename T>
     RefToBase<T> RefVectorHolderBase::getRef(size_t idx) const {
-      boost::shared_ptr<reftobase::RefHolderBase> rb = refBase(idx);
+      std::shared_ptr<reftobase::RefHolderBase> rb = refBase(idx);
       return RefToBase<T>(rb);
     }
 

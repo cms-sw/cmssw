@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYHARVESTING_H
 #define DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYHARVESTING_H
 
-/*
+/**
  * \file L1TEfficiencyHarvesting.h
  *
  * \author J. Pela, C. Battilana
@@ -26,6 +26,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <TString.h>
 
@@ -41,24 +42,23 @@ class L1TEfficiencyPlotHandler {
 
  public:
 
-  L1TEfficiencyPlotHandler(std::string dir, std::string plotName, DQMStore* dbe)  : 
-    m_dir(dir), m_plotName(plotName), m_dbe(dbe), m_effHisto(0) { };
+ L1TEfficiencyPlotHandler(std::string dir, std::string plotName)  : 
+  m_dir(dir), m_plotName(plotName), m_effHisto(0) { };
 
   L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 
   ~L1TEfficiencyPlotHandler() { };
 
   // book efficiency histo
-  void book(bool verbose);
+  void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
   // compute efficiency
-  void computeEfficiency(bool verbose);
+  void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
  private :
 
   std::string m_dir;
-  std::string m_plotName;
-  DQMStore * m_dbe;  
+  std::string m_plotName; 
 
   MonitorElement* m_effHisto;
 
@@ -68,7 +68,7 @@ class L1TEfficiencyPlotHandler {
 // DQM class declaration
 //
 
-class L1TEfficiency_Harvesting : public edm::EDAnalyzer {
+class L1TEfficiency_Harvesting : public DQMEDHarvester {
   
 public:
   
@@ -76,22 +76,11 @@ public:
   virtual ~L1TEfficiency_Harvesting();                     // Destructor
   
 protected:
-  
-  // Event
-  void analyze (const edm::Event& e, const edm::EventSetup& c); 
-  
-  // Job
-  void beginJob();  
-  void endJob  ();
-  
-  // Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
-  
-  // Luminosity Block
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  
+
+  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+  virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+  using DQMEDHarvester::dqmEndLuminosityBlock;
+
 private:
 
   // bool

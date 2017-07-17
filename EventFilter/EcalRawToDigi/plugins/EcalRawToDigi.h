@@ -27,29 +27,31 @@
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/ESWatcher.h>
+#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 #include <sys/time.h>
 
 class EcalElectronicsMapper;
 class EcalElectronicsMapping;
 class DCCDataUnpacker;
 
-class EcalRawToDigi : public edm::EDProducer{
+class EcalRawToDigi : public edm::stream::EDProducer<>{
 
  public:
   /**
    * Class constructor
    */
   explicit EcalRawToDigi(const edm::ParameterSet& ps);
-  
+
   /**
    * Functions that are called by framework at each event
    */
   virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   // function called at start of each run
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   
@@ -85,12 +87,12 @@ class EcalRawToDigi : public edm::EDProducer{
   bool put_;
 
   
-  //std::string dataLabel_ ; 
-  edm::InputTag dataLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
+  edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;  
 
   // -- For regional unacking :
   bool REGIONAL_ ;
-  edm::InputTag fedsLabel_ ;
+    
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;

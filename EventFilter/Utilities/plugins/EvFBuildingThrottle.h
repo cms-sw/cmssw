@@ -6,9 +6,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/statvfs.h>
+#include <atomic>
 
 #include "boost/thread/thread.hpp"
 
@@ -17,52 +19,45 @@ namespace evf{
   class EvFBuildingThrottle 
     {
     public:
-      enum Directory { mInvalid = 0, mBase, mBU, mSM, mMon, mWhat, 
-		       mCOUNT}; 
+      enum Directory { mInvalid = 0, mBase, mBU, mCOUNT};
       explicit EvFBuildingThrottle( const edm::ParameterSet &pset, 
 				    edm::ActivityRegistry& reg ) 
 	: highWaterMark_(pset.getUntrackedParameter<double>("highWaterMark",0.8))
 	, lowWaterMark_(pset.getUntrackedParameter<double>("lowWaterMark",0.5))
 	, m_stoprequest(false)
 	, whatToThrottleOn_(Directory(pset.getUntrackedParameter<int>("dirCode",mBase)))
-	, throttled_(false) 
+	, throttled_(false)
+	, sleep_( pset.getUntrackedParameter<unsigned int>("sleepmSecs",1000))
       {
-	reg.watchPreBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
-	reg.watchPostEndRun(this,&EvFBuildingThrottle::postEndRun);  
-	reg.watchPreBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
+	reg.watchPreGlobalBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
+	reg.watchPostGlobalEndRun(this,&EvFBuildingThrottle::postEndRun);  
+	reg.watchPreGlobalBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
       }
       ~EvFBuildingThrottle(){}
-      void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
+      void preBeginRun(edm::GlobalContext const& gc){
 	//obtain directory to stat on
 	switch(whatToThrottleOn_){
 	case mInvalid:
 	  //do nothing
 	  break;
 	case mBase:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->baseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->baseRunDir();
 	  break;
 	case mBU:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->buBaseDir();
-	  break;
-	case mSM:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->smBaseDir();
-	  break;
-	case mMon:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->monitorBaseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->buBaseRunDir();
 	  break;
 	default:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->baseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->baseRunDir();
 	}
 	start();
       }
-      void postBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
-
+      void postBeginRun(edm::GlobalContext const& gc){
       }
 
-      void postEndRun(edm::Run const& run, edm::EventSetup const& es){
+      void postEndRun(edm::GlobalContext const& gc){
 	stop();
       }
-      void preBeginLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime){
+      void preBeginLumi(edm::GlobalContext const& gc){
 	lock_.lock();
 	lock_.unlock();
       }
@@ -81,17 +76,23 @@ namespace evf{
 	  double fraction = 1.-float(buf.f_bfree*buf.f_bsize)/float(buf.f_blocks*buf.f_frsize);
 	  bool highwater_ = fraction>highWaterMark_;
 	  bool lowwater_ = fraction<lowWaterMark_;
-	  if(highwater_ && !throttled_){ lock_.lock(); throttled_ = true;}
+	  if(highwater_ && !throttled_){ lock_.lock(); throttled_ = true;std::cout << ">>>>throttling on " << std::endl;}
 	  if(lowwater_ && throttled_){ lock_.unlock(); throttled_ = false;}
-	  edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
-	  ::sleep(1);
+	  std::cout << " building throttle on " << baseDir_ << " is " << fraction*100 << " %full " << std::endl;
+	  //edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
+	  ::usleep(sleep_*1000);
+          if (edm::shutdown_flag) {
+	    std::cout << " Shutdown flag set: stop throttling" << std::endl;
+            break;
+          }
 	}
+        if (throttled_) lock_.unlock();
       }
       void start(){
 	assert(!m_thread);
 	token_ = edm::ServiceRegistry::instance().presentToken();
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&EvFBuildingThrottle::dowork,this)));
-	std::cout << "throttle thread started " << std::endl;
+	std::cout << "throttle thread started - throttle on " <<  whatToThrottleOn_ << std::endl;
       }
       void stop(){
 	assert(m_thread);
@@ -101,13 +102,14 @@ namespace evf{
       
       double highWaterMark_;
       double lowWaterMark_;
-      volatile bool m_stoprequest;
+      std::atomic<bool> m_stoprequest;
       boost::shared_ptr<boost::thread> m_thread;
       boost::mutex lock_;
       std::string baseDir_;
       Directory whatToThrottleOn_;
       edm::ServiceToken token_;
       bool throttled_;
+      unsigned int sleep_;
   };
 }
 

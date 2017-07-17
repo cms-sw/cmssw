@@ -1,5 +1,6 @@
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "CommonTools/UtilAlgos/interface/EventSelector.h"
 EDM_REGISTER_PLUGINFACTORY(EventSelectorFactory, "EventSelectorFactory");
+EDM_REGISTER_PLUGINFACTORY(EventSelectorFactoryFromHelper, "EventSelectorFactoryFromHelper");
 
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
 EDM_REGISTER_PLUGINFACTORY(NTuplerFactory, "NTuplerFactory");

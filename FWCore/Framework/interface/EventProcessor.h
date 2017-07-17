@@ -13,8 +13,9 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -26,7 +27,8 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
-#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+
 #include "boost/thread/condition.hpp"
 
 #include <map>
@@ -34,33 +36,45 @@ configured in the user's main() function, and is set running.
 #include <set>
 #include <string>
 #include <vector>
-
-namespace statemachine {
-  class Machine;
-  class Run;
-}
+#include <exception>
+#include <mutex>
 
 namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
   class SubProcess;
+  class WaitingTaskHolder;
+  class WaitingTask;
+  
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
   }
 
-  class EventProcessor : public IEventProcessor {
+  class EventProcessor {
   public:
+
+    // Status codes:
+    //   0     successful completion
+    //   1     exception of unknown type caught
+    //   2     everything else
+    //   3     signal received
+    //   4     input complete
+    //   5     call timed out
+    //   6     input count complete
+    enum StatusCode { epSuccess=0, epException=1, epOther=2, epSignal=3,
+      epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
     // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' override the 'config'.
+    // 'forcedServices' the 'config'.
     explicit EventProcessor(std::string const& config,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
@@ -73,7 +87,7 @@ namespace edm {
                    std::vector<std::string> const& defaultServices,
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
-    EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
+    EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
@@ -111,6 +125,8 @@ namespace edm {
 
     std::vector<ModuleDescription const*>
     getAllModuleDescriptions() const;
+
+    ProcessConfiguration const& processConfiguration() const { return *processConfiguration_; }
 
     /// Return the number of events this EventProcessor has tried to process
     /// (inclues both successes and failures, including failures due
@@ -162,82 +178,93 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    virtual StatusCode runToCompletion();
+    StatusCode runToCompletion();
 
-    // The following functions are used by the code implementing our
-    // boost statemachine
+    // The following functions are used by the code implementing
+    // transition handling.
 
-    virtual void readFile();
-    virtual void closeInputFile(bool cleaningUpAfterException);
-    virtual void openOutputFiles();
-    virtual void closeOutputFiles();
+    InputSource::ItemType nextTransitionType();
+    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
+    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
+    
+    void readFile();
+    void closeInputFile(bool cleaningUpAfterException);
+    void openOutputFiles();
+    void closeOutputFiles();
 
-    virtual void respondToOpenInputFile();
-    virtual void respondToCloseInputFile();
+    void respondToOpenInputFile();
+    void respondToCloseInputFile();
 
-    virtual void startingNewLoop();
-    virtual bool endOfLoop();
-    virtual void rewindInput();
-    virtual void prepareForNextLoop();
-    virtual bool shouldWeCloseOutput() const;
+    void startingNewLoop();
+    bool endOfLoop();
+    void rewindInput();
+    void prepareForNextLoop();
+    bool shouldWeCloseOutput() const;
 
-    virtual void doErrorStuff();
+    void doErrorStuff();
 
-    virtual void beginRun(statemachine::Run const& run);
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException);
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
+    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
 
-    virtual statemachine::Run readRun();
-    virtual statemachine::Run readAndMergeRun();
-    virtual int readLuminosityBlock();
-    virtual int readAndMergeLumi();
-    virtual void writeRun(statemachine::Run const& run);
-    virtual void deleteRunFromCache(statemachine::Run const& run);
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    std::pair<ProcessHistoryID,RunNumber_t> readRun();
+    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
+    int readLuminosityBlock();
+    int readAndMergeLumi();
+    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
+    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    virtual void readAndProcessEvent();
-    virtual bool shouldWeStop() const;
+    bool shouldWeStop() const;
 
-    virtual void setExceptionMessageFiles(std::string& message);
-    virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageLumis(std::string& message);
+    void setExceptionMessageFiles(std::string& message);
+    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageLumis(std::string& message);
 
-    virtual bool alreadyHandlingException() const;
+    bool setDeferredException(std::exception_ptr);
 
-    //returns 'true' if this was a child and we should continue processing
-    bool forkProcess(std::string const& jobReportFile);
+    InputSource::ItemType readAndProcessEvents();
 
   private:
     //------------------------------------------------------------------
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<ProcessDesc>& processDesc,
+    void init(std::shared_ptr<ProcessDesc>& processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
-    void terminateMachine(std::auto_ptr<statemachine::Machine>&);
-    std::auto_ptr<statemachine::Machine> createStateMachine();
+    bool readNextEventForStream(unsigned int iStreamIndex,
+                                     std::atomic<bool>* finishedProcessingEvents);
 
-    void setupSignal();
+    void handleNextEventForStreamAsync(WaitingTask* iTask,
+                                       unsigned int iStreamIndex,
+                                     std::atomic<bool>* finishedProcessingEvents);
 
-    bool hasSubProcess() const {
-      return subProcess_.get() != 0;
-    }
-
-    void possiblyContinueAfterForkChildFailure();
     
     //read the next event using Stream iStreamIndex
     void readEvent(unsigned int iStreamIndex);
 
     //process the already read event using Stream iStreamIndex
-    void processEvent(unsigned int iStreamIndex);
+    void processEventAsync(WaitingTaskHolder iHolder,
+                           unsigned int iStreamIndex);
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
+    
+    void processEventWithLooper(EventPrincipal&);
+
+    std::shared_ptr<ProductRegistry const> preg() const {return get_underlying_safe(preg_);}
+    std::shared_ptr<ProductRegistry>& preg() {return get_underlying_safe(preg_);}
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<EDLooperBase const> looper() const {return get_underlying_safe(looper_);}
+    std::shared_ptr<EDLooperBase>& looper() {return get_underlying_safe(looper_);}
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -245,51 +272,54 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    boost::shared_ptr<ActivityRegistry>           actReg_;
-    boost::shared_ptr<ProductRegistry const>      preg_;
-    boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
-    std::unique_ptr<InputSource>                  input_;
-    std::unique_ptr<eventsetup::EventSetupsController> espController_;
-    boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
+    edm::propagate_const<std::unique_ptr<InputSource>> input_;
+    edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
+    edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
-    boost::shared_ptr<ProcessConfiguration const>       processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
-    std::auto_ptr<Schedule>                       schedule_;
-    std::auto_ptr<SubProcess>                     subProcess_;
-    std::unique_ptr<HistoryAppender>            historyAppender_;
+    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
+    edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
+    std::vector<SubProcess> subProcesses_;
+    edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
-    std::unique_ptr<FileBlock>                    fb_;
-    boost::shared_ptr<EDLooperBase>               looper_;
+    edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
+    edm::propagate_const<std::shared_ptr<EDLooperBase>> looper_;
 
+    //The atomic protects concurrent access of deferredExceptionPtr_
+    std::atomic<bool>                             deferredExceptionPtrIsSet_;
+    std::exception_ptr                            deferredExceptionPtr_;
+    
+    SharedResourcesAcquirer                       sourceResourcesAcquirer_;
+    std::shared_ptr<std::recursive_mutex>         sourceMutex_;
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
-    bool                                          stateMachineWasInErrorState_;
-    std::string                                   fileMode_;
-    std::string                                   emptyRunLumiMode_;
+    bool                                          fileModeNoMerge_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
-    bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
-
-    int                                           numberOfForkedChildren_;
-    unsigned int                                  numberOfSequentialEventsPerChild_;
-    bool                                          setCpuAffinity_;
-    bool                                          continueAfterChildFailure_;
     
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
     InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
+    bool firstEventInBlock_=true;
     
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
+    
+    bool printDependencies_ = false;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------

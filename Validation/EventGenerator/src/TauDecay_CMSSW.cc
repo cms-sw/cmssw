@@ -14,7 +14,7 @@ TauDecay_CMSSW::~TauDecay_CMSSW(){
 
 } 
                             
-bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
+bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
   Reset();
   MotherIdx.clear();
   TauDecayProducts.clear();
@@ -26,7 +26,7 @@ bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,uns
 	  des!= Tau->end_vertex()->particles_end(HepMC::children);++des ) {
 	Analyze((*des),Tauidx,dores,dopi0);
       }
-      ClassifyDecayMode(JAK_ID,TauBitMask);
+      ClassifyDecayMode(MODE_ID,TauBitMask);
       return true;
     }
   }
@@ -46,9 +46,14 @@ void TauDecay_CMSSW::Analyze(HepMC::GenParticle *Particle,unsigned int midx, boo
     return;
   }
   HepMC::GenVertex::particle_iterator des;
-  for(des = Particle->end_vertex()->particles_begin(HepMC::children);
-      des!= Particle->end_vertex()->particles_end(HepMC::children) && Particle->end_vertex()-> particles_out_size()>0;++des ) {
-    Analyze((*des),midx,dores,dopi0);
+  if(Particle->end_vertex()){
+    for(des = Particle->end_vertex()->particles_begin(HepMC::children);
+	des!= Particle->end_vertex()->particles_end(HepMC::children) && Particle->end_vertex()-> particles_out_size()>0;++des ) {
+      Analyze((*des),midx,dores,dopi0);
+    }
+  }
+  else {
+    std::cout << "Unstable particle that is undecayed in Tau decay tree. PDG ID: " << pdgid << std::endl;
   }
 }
 

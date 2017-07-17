@@ -124,7 +124,7 @@ if __name__ == '__main__':
         sys.exit()
     if len (args) != 1:
         parser.print_usage()
-        raise RuntimeError, "Please specify an output file as your last argument"
+        raise RuntimeError("Please specify an output file as your last argument")
     output = args[0]
 
     ## Let's start the fun
@@ -151,8 +151,7 @@ if __name__ == '__main__':
             runLumiDict = {}    
             csvDict = {}
             pieces = sepRE.split (line.strip())
-            
-            if len (pieces) < 10: # means we are missing data; keep track of LS, lumi
+            if len (pieces) < 9: # means we are missing data; keep track of LS, lumi
                 InGap = 1
                 try:
                     run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
@@ -175,7 +174,7 @@ if __name__ == '__main__':
                                                             pieces[11::2] ) ]
             except:
                 print " Bad Parsing: Check if the input format has changed"
-                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9]
+                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6]
                 continue
 
             csvDict.setdefault (run, {})[lumi] = \
@@ -252,8 +251,7 @@ if __name__ == '__main__':
 
         outputfile = open(output,'w')
         if not outputfile:
-            raise RuntimeError, \
-               "Could not open '%s' as an output JSON file" % output
+            raise RuntimeError("Could not open '%s' as an output JSON file" % output)
                     
         outputfile.write(OUTPUTLINE)
         outputfile.close()

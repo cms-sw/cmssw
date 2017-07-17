@@ -4,7 +4,7 @@
 
 /** \class DTEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
- *      - single cell efficiency 
+ *      - single cell efficiency
  *  All histos are produced per Layer
  *
  *
@@ -13,10 +13,19 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 #include <map>
@@ -24,9 +33,9 @@
 
 class DQMStore;
 class MonitorElement;
+class DTGeometry;
 
-
-class DTEfficiencyTask: public edm::EDAnalyzer{
+class DTEfficiencyTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTEfficiencyTask(const edm::ParameterSet& pset);
@@ -34,39 +43,36 @@ public:
   /// Destructor
   virtual ~DTEfficiencyTask();
 
-  /// BeginJob
-  void beginJob();
-
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 protected:
 
+  /// BeginRun
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+
+// Book the histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  DQMStore* theDbe;
+
+  edm::ESHandle<DTGeometry> muonGeom;
 
   // Switch for verbosity
   bool debug;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Lable of 1D rechits in the event
-  std::string theRecHitLabel;
-  
+  edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
+
   edm::ParameterSet parameters;
 
-  // Book a set of histograms for a give chamber
-  void bookHistos(DTLayerId lId, int fisrtWire, int lastWire);
-
-  // Fill a set of histograms for a given L 
+  // Fill a set of histograms for a given L
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int numWire);
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
@@ -75,3 +81,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

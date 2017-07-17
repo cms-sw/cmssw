@@ -6,8 +6,10 @@
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PxPyPzE4D.h" 
+#include "DataFormats/Candidate/interface/LeafRefCandidateT.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -39,7 +41,7 @@ namespace reco {
    typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<CandidateView,CandidateView,bool> > CandViewCandViewAssociation;
 }
 
-namespace {
+namespace DataFormats_Candidate {
   struct dictionary {
     std::vector<reco::Candidate *> v1;
     reco::CandidateCollection o1;
@@ -55,6 +57,7 @@ namespace {
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
+    edm::reftobase::RefHolder<reco::CandidatePtr> rhptr1;
     edm::reftobase::IndirectVectorHolder<reco::Candidate> rbih2;
     edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
@@ -102,6 +105,11 @@ namespace {
     edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
     edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
+    edm::Wrapper<reco::VertexCompositePtrCandidateCollection> wcc2p;
+    edm::reftobase::Holder<reco::Candidate, reco::VertexCompositePtrCandidateRef> hcc5p;
+    edm::reftobase::RefHolder<reco::VertexCompositePtrCandidateRef> hcc6p;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositePtrCandidateRefVector> hcc7p;
+    edm::reftobase::RefVectorHolder<reco::VertexCompositePtrCandidateRefVector> hcc8p;
     edm::Wrapper<reco::VertexCompositeCandidateCollection> wcc2;
     edm::reftobase::Holder<reco::Candidate, reco::VertexCompositeCandidateRef> hcc5;
     edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef> hcc6;

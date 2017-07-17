@@ -46,11 +46,11 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
     ev.getByToken( m_token, cscRecHits);
 
     // create empty collection of Segments
-    std::auto_ptr<CSCSegmentCollection> oc( new CSCSegmentCollection );
+    auto oc = std::make_unique<CSCSegmentCollection>();
 
   	// fill the collection
     segmentBuilder_->build(cscRecHits.product(), *oc); //@@ FILL oc
 
     // put collection in event
-    ev.put(oc);
+    ev.put(std::move(oc));
 }

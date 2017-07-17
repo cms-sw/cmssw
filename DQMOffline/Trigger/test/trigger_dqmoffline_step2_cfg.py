@@ -7,7 +7,7 @@ process = cms.Process("DQM")
 #
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #
 #  ME to EDM 
@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 #    critical = cms.untracked.PSet(
 #        threshold = cms.untracked.string('ERROR')
 #    ),
-#    debugModules = cms.untracked.vstring('hltResults','hltFourVectorClient'),
+#    debugModules = cms.untracked.vstring('hltResults'),
 ##debugModules = cms.untracked.vstring('*'),
 #    cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('WARNING'),

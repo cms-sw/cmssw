@@ -2,105 +2,123 @@
 #! /bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
-
-whichJets  = "ak5PF"
-useTrigger = False
-runOnMC    = True
-tag =  'START60_V1::All'
-
-###prints###
-print "jet collcetion asked : ", whichJets
-print "trigger will be used ? : ", useTrigger
-print "is it MC ? : ", runOnMC
-print "Global Tag : ", tag
-############
-
 process = cms.Process("validation")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-#keep the logging output to a nice level
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 # load the full reconstraction configuration, to make sure we're getting all needed dependencies
 process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff") #old one, to use for old releases
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = tag
 
+whichJets  = "ak4PFJetsCHS"
+applyJEC = True
+corrLabel = 'ak4PFCHS'
+from Configuration.AlCa.GlobalTag import GlobalTag
+tag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+useTrigger = False
+triggerPath = "HLT_PFJet80_v*"
+runOnMC    = True
+#Flavour plots for MC: "all" = plots for all jets ; "dusg" = plots for d, u, s, dus, g independently ; not mandatory and any combinations are possible                                     
+#b, c, light (dusg), non-identified (NI), PU jets plots are always produced
+flavPlots = "allbcldusg"
+
+###prints###
+print "jet collcetion asked : ", whichJets
+print "JEC applied?", applyJEC, ", correction:", corrLabel 
+print "trigger will be used ? : ", useTrigger, ", Trigger paths:", triggerPath
+print "is it MC ? : ", runOnMC, ", Flavours:", flavPlots
+print "Global Tag : ", tag.globaltag
+############
+
+process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("DQMOffline.RecoB.bTagSequences_cff")
-#bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
+process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
+process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
+process.load("RecoBTag.Configuration.RecoBTag_cff")
+process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
+process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
+process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
+process.JECseq = cms.Sequence(getattr(process,corrLabel+"L1FastL2L3CorrectorChain"))
 
-if whichJets=="ak5PFnoPU":
-    process.out = cms.OutputModule("PoolOutputModule",
-                                   outputCommands = cms.untracked.vstring('drop *'),
-                                   fileName = cms.untracked.string('EmptyFile.root')
-                                   )
-    process.load("PhysicsTools.PatAlgos.patSequences_cff")
-    from PhysicsTools.PatAlgos.tools.pfTools import *
-    postfix="PF2PAT"
-    usePF2PAT(process,runPF2PAT=True, jetAlgo="AK5", runOnMC=runOnMC, postfix=postfix)
-    applyPostfix(process,"patJetCorrFactors",postfix).payload = cms.string('AK5PFchs')
-    process.pfPileUpPF2PAT.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
-    process.pfPileUpPF2PAT.checkClosestZVertex = cms.bool(False)
-    from DQMOffline.RecoB.bTagSequences_cff import JetCut
-    process.selectedPatJetsPF2PAT.cut = JetCut
-    process.JECAlgo = cms.Sequence( getattr(process,"patPF2PATSequence"+postfix) )
-    newjetID=cms.InputTag("selectedPatJetsPF2PAT")
-elif whichJets=="ak5PFJEC":
-    process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
-    newjetID=cms.InputTag("PFJetsFilter")
-    
-if not whichJets=="ak5PF":
-    process.myak5JetTracksAssociatorAtVertex.jets = newjetID
-    process.softMuonTagInfos.jets                 = newjetID
-    process.softElectronTagInfos.jets             = newjetID
-    process.AK5byRef.jets                         = newjetID
+newjetID=cms.InputTag(whichJets)
+process.ak4JetFlavourInfos.jets = newjetID
+process.ak4JetFlavourInfos.hadronFlavourHasPriority = cms.bool(True)
+if not "ak4PFJetsCHS" in whichJets:
+    process.ak4JetTracksAssociatorAtVertexPF.jets = newjetID
+    process.pfImpactParameterTagInfos.jets        = newjetID
+    process.softPFMuonsTagInfos.jets              = newjetID
+    process.softPFElectronsTagInfos.jets          = newjetID
+    process.patJetGenJetMatch.src                 = newjetID
+
+process.btagging = cms.Sequence(process.legacyBTagging + process.pfBTagging)
+process.btagSequence = cms.Sequence(
+    process.ak4JetTracksAssociatorAtVertexPF *
+    process.btagging
+    )
+process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
 
 ###
-print "inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets
+print "inputTag : ", process.ak4JetTracksAssociatorAtVertexPF.jets
 ###
 
 process.load("Validation.RecoB.bTagAnalysis_firststep_cfi")
 if runOnMC:
-    process.bTagValidationFirstStep.jetMCSrc = 'AK5byValAlgo'
-    process.bTagValidationFirstStep.allHistograms = True
+    process.flavourSeq = cms.Sequence(
+        process.selectedHadronsAndPartons *
+        process.ak4JetFlavourInfos
+        )
+    process.bTagValidationFirstStep.jetMCSrc = 'ak4JetFlavourInfos'
     process.bTagValidationFirstStep.applyPtHatWeight = False
-    process.bTagValidationFirstStep.flavPlots = "allbcl" #if contains "noall" plots for all jets not booked, if contains "dusg" all histograms booked, default : all, b, c, udsg, ni
-                                  
+    process.bTagValidationFirstStep.doJetID = True
+    process.bTagValidationFirstStep.doJEC = applyJEC
+    process.bTagValidation.JECsourceMC = cms.InputTag(corrLabel+"L1FastL2L3Corrector")
+    process.bTagValidationFirstStep.flavPlots = flavPlots
+    #process.bTagValidationFirstStep.ptRecJetMin = cms.double(20.)
+    process.bTagValidationFirstStep.genJetsMatched = cms.InputTag("patJetGenJetMatch")
+    process.bTagValidationFirstStep.doPUid = cms.bool(True)
+    process.ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
+                                             src = cms.InputTag("ak4GenJets"),
+                                             cut = cms.string('pt > 8.'),
+                                             filter = cms.bool(False)
+                                             )
+    process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi")
+    process.patJetGenJetMatch.matched = cms.InputTag("ak4GenJetsForPUid")
+    process.patJetGenJetMatch.maxDeltaR = cms.double(0.25)
+    process.patJetGenJetMatch.resolveAmbiguities = cms.bool(True)
+else:
+    process.bTagValidationFirstStepData.doJEC = applyJEC
+    process.bTagAnalysis.JECsourceData = cms.InputTag(corrLabel+"L1FastL2L3ResidualCorrector")
+    process.JECseq *= (getattr(process,corrLabel+"ResidualCorrector") * getattr(process,corrLabel+"L1FastL2L3ResidualCorrector"))
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-process.EDM = cms.OutputModule("PoolOutputModule",
+process.EDM = cms.OutputModule("DQMRootOutputModule",
                                outputCommands = cms.untracked.vstring('drop *',
                                                                       "keep *_MEtoEDMConverter_*_*"),
                                fileName = cms.untracked.string('MEtoEDMConverter.root')
                                )
-process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+if useTrigger: 
+    process.bTagHLT  = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_PFJet40_v*"])
+    process.bTagHLT.HLTPaths = [triggerPath]
 
-if whichJets=="ak5PF":
-    process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
-else:
-    process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.JECAlgo * process.btagSequence)
-    
 if runOnMC:
-    process.dqmSeq = cms.Sequence(process.flavourSeq * process.bTagValidationFirstStep * process.MEtoEDMConverter)
+    process.dqmSeq = cms.Sequence(process.ak4GenJetsForPUid * process.patJetGenJetMatch * process.flavourSeq * process.bTagValidationFirstStep)
 else:
-    process.dqmSeq = cms.Sequence(bTagValidationFirstStepData * process.MEtoEDMConverter)
-    
+    process.dqmSeq = cms.Sequence(process.bTagValidationFirstStepData)
+
 if useTrigger:
-    process.plots = cms.Path(process.bTagHLT * process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.bTagHLT * process.JECseq * process.jetSequences * process.dqmSeq)
 else:
-    process.plots = cms.Path(process.jetSequences * process.dqmSeq)
-                                              
+    process.plots = cms.Path(process.JECseq * process.jetSequences * process.dqmSeq)
+    
 process.outpath = cms.EndPath(process.EDM)
 
 process.dqmEnv.subSystemFolder = 'BTAG'
@@ -113,4 +131,10 @@ process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
 
 ]
+
+#keep the logging output to a nice level
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
+process.GlobalTag = tag
 

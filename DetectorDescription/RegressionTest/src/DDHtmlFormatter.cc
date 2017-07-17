@@ -1,22 +1,36 @@
 namespace std { } using namespace std;
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <fstream>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 //***** to get the typedef below to work properly...
 //**** to get rid of compile errors about ambiguous delete of Stores
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Core/src/Solid.h"
-//***** Explicit template instantiation of Singleton
-#include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 //*****
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)

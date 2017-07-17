@@ -17,8 +17,9 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <vector>
 
@@ -28,18 +29,18 @@ namespace edm {
   class ModuleCallingContext;
   class ProcessHistoryRegistry;
   class RunPrincipal;
-  class UnscheduledHandler;
 
   class LuminosityBlockPrincipal : public Principal {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
     LuminosityBlockPrincipal(
-        boost::shared_ptr<LuminosityBlockAuxiliary> aux,
-        boost::shared_ptr<ProductRegistry const> reg,
+        std::shared_ptr<LuminosityBlockAuxiliary> aux,
+        std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int index);
+        unsigned int index,
+        bool isForPrimaryProcess=true);
 
     ~LuminosityBlockPrincipal() {}
 
@@ -53,7 +54,7 @@ namespace edm {
       return *runPrincipal_;
     }
 
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {
       runPrincipal_ = rp;
     }
 
@@ -93,13 +94,10 @@ namespace edm {
       return aux_->mergeAuxiliary(aux);
     }
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
-
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp);
+        std::unique_ptr<WrapperBase> edp) const;
 
-    void readImmediate() const;
 
     void setComplete() {
       complete_ = true;
@@ -109,16 +107,11 @@ namespace edm {
 
     virtual bool isComplete_() const override {return complete_;}
 
-    virtual bool unscheduledFill(std::string const&,
-                                 ModuleCallingContext const* mcc) const override {return false;}
-
     virtual unsigned int transitionIndex_() const override;
 
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
+    edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
 
-    boost::shared_ptr<RunPrincipal> runPrincipal_;
-
-    boost::shared_ptr<LuminosityBlockAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<LuminosityBlockAuxiliary>> aux_;
 
     LuminosityBlockIndex index_;
     

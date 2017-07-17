@@ -100,8 +100,8 @@ namespace fwlite
          edm::TriggerNames const&  triggerNames(edm::TriggerResults const& triggerResults) const
          { return m_eventBasePtr->triggerNames(triggerResults); }
 
-         edm::TriggerResultsByName triggerResultsByName(std::string const& process) const
-         { return m_eventBasePtr->triggerResultsByName(process); }
+         edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const
+         { return m_eventBasePtr->triggerResultsByName(triggerResults); }
 
          Long64_t fileIndex()          const 
          { return m_eventBasePtr->fileIndex(); }

@@ -1,99 +1,92 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
-## to run in un-scheduled mode uncomment the following lines
+#process.Tracer = cms.Service("Tracer")
+
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+patAlgosToolsTask.add(process.patCandidatesTask)
 
-addMETCollection(process, labelName='patMETTC', metSource='tcMet')
-addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
+from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+#addMETCollection(process, labelName='patMETCalo', metSource='met')
+addMETCollection(process, labelName='patMETPF', metSource='pfMetT1')
+#addMETCollection(process, labelName='patMETTC', metSource='tcMet') # FIXME: removed from RECO/AOD; needs functionality to add to processing
 
 ## uncomment the following line to add different jet collections
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
-
-## uncomment the following lines to add ak5JPTJets to your PAT output
-#addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
-                #'AK5', 'JPT',
-                #doJTA        = True,
-                #doBTagging   = True,
-                #jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L1JPTOffset', 'L2Relative', 'L3Absolute'])),
-                #doType1MET   = False,
-                #doL1Cleaning = False,
-                #doL1Counters = True,
-                #genJetCollection = cms.InputTag("ak5GenJets"),
-                #doJetID      = True,
-                #jetIdLabel   = "ak5"
-                #)
-
-## uncomment the following lines to add ak7CaloJets to your PAT output
-#addJetCollection(
-   #process,
-   #labelName = 'AK7Calo',
-   #jetSource = cms.InputTag('ak7CaloJets'),
-   #jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   #)
-#process.patJetsAK7Calo.addJetID=True
-#process.patJetsAK7Calo.jetIDMap="ak7JetID"
-
-## uncomment the following lines to add kt6CaloJets to your PAT output
-postfixAK5Calo = 'Copy'
+## uncomment the following lines to add ak4PFJetsCHS to your PAT output
+labelAK4PFCHS = 'AK4PFCHS'
+postfixAK4PFCHS = 'Copy'
 addJetCollection(
    process,
-   postfix   = postfixAK5Calo,
-   labelName = 'AK5Calo',
-   jetSource = cms.InputTag('ak5CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-     , 'jetProbabilityBJetTags'
-     , 'trackCountingHighPurBJetTags'
-     , 'trackCountingHighEffBJetTags'
-     , 'simpleSecondaryVertexHighEffBJetTags'
-     , 'simpleSecondaryVertexHighPurBJetTags'
-     , 'combinedSecondaryVertexBJetTags'
-     ],
+   postfix   = postfixAK4PFCHS,
+   labelName = labelAK4PFCHS,
+   jetSource = cms.InputTag('ak4PFJetsCHS'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).addJetID=True
-getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).jetIDMap="ak5JetID"
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5Calo%s_pfCandidates_*'%(postfixAK5Calo) )
-#process.patJetsAK5Calo.addJetID=True
-#process.patJetsAK5Calo.jetIDMap="ak5JetID"
+process.out.outputCommands.append( 'drop *_selectedPatJets%s%s_caloTowers_*'%( labelAK4PFCHS, postfixAK4PFCHS ) )
 
-## uncomment the following lines to add ak5PFJets to your PAT output
+# uncomment the following lines to add ak4PFJets to your PAT output
 switchJetCollection(
    process,
-   jetSource = cms.InputTag('ak5PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetSource = cms.InputTag('ak4PFJets'),
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-     , 'jetProbabilityBJetTags'
-     , 'trackCountingHighPurBJetTags'
-     , 'trackCountingHighEffBJetTags'
-     , 'simpleSecondaryVertexHighEffBJetTags'
-     , 'simpleSecondaryVertexHighPurBJetTags'
-     , 'combinedSecondaryVertexBJetTags'
-     ],
+       'pfJetBProbabilityBJetTags'
+     , 'pfJetProbabilityBJetTags'
+     , 'pfTrackCountingHighPurBJetTags'
+     , 'pfTrackCountingHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighPurBJetTags'
+     , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+     ]
    )
+process.out.outputCommands.append( 'drop *_selectedPatJets_caloTowers_*' )
 
-## let it run
-#process.p = cms.Path(
-#    process.patDefaultSequence
-#)
+# uncomment the following lines to add ak8PFJetsCHSSoftDrop to your PAT output
+labelAK8PFCHSSoftDrop = 'AK8PFCHSSoftDrop'
+addJetCollection(
+   process,
+   labelName = labelAK8PFCHSSoftDrop,
+   jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop',''),
+   algo = 'AK',
+   rParam = 0.8,
+   genJetCollection = cms.InputTag('ak8GenJets'),
+   jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = ['None'], # turn-off b tagging
+   getJetMCFlavour = False # jet flavor needs to be disabled for groomed fat jets
+   )
+process.out.outputCommands.append( 'keep *_selectedPatJets%s_pfCandidates_*'%( labelAK8PFCHSSoftDrop ) )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelAK8PFCHSSoftDrop ) )
 
-##process.Tracer = cms.Service("Tracer")
-#process.p = cms.Path(
-    #process.selectedPatCandidates
-    #*process.selectedPatJetsAK5Calo
-    #*process.selectedPatJetsAK7Calo
-    #)
-
-
+# uncomment the following lines to switch to ak4CaloJets in your PAT output
+labelAK4Calo = 'AK4Calo'
+addJetCollection(
+   process,
+   labelName = labelAK4Calo,
+   jetSource = cms.InputTag('ak4CaloJets'),
+   jetCorrections = ('AK7Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
+   btagDiscriminators = [
+       'pfJetBProbabilityBJetTags'
+     , 'pfJetProbabilityBJetTags'
+     , 'pfTrackCountingHighPurBJetTags'
+     , 'pfTrackCountingHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighPurBJetTags'
+     , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+     ]
+   )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_pfCandidates_*'%( labelAK4Calo ) )
+## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
+#process.patJets.addJetID=True
+#process.load("RecoJets.JetProducers.ak4JetID_cfi")
+#process.patJets.jetIDMap="ak4JetID"
+process.patJetsAK4Calo.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
 
 #print process.out.outputCommands
 
@@ -104,8 +97,10 @@ switchJetCollection(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+#process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

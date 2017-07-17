@@ -5,6 +5,13 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
+ *  Residual/pull plots are filled for the rechit with distance from wire
+ *  closer to that of the muon simhit.
+ *  
+ *  Efficiencies are defined as the fraction of muon simhits with a rechit
+ *  in the same cell, for the given reconstruction step. Hence, for S2 and S3 
+ *  the definition incorporate the segment reconstruction efficiency.
+ *
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,6 +23,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Histograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -53,8 +61,10 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
 
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+
   void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 					 edm::EventSetup const& c);
 
 protected:
@@ -68,6 +78,11 @@ private:
   bool debug;
   // Root file name
   std::string rootFileName;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
+  edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;;
+
   edm::InputTag simHitLabel;
   edm::InputTag recHitLabel;
   edm::InputTag segment2DLabel;
@@ -170,6 +185,9 @@ private:
   HRes1DHit *hRes_S2RPhi_W2;   // RecHits, 2. step, RPhi, wheel +-2
   HRes1DHit *hRes_S3RPhi_W2;   // RecHits, 3. step, RPhi, wheel +-2
 
+  HRes1DHit* hRes_S3RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HRes1DHit* hRes_S3RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+
   HEff1DHit *hEff_S1RPhi;     // RecHits, 1. step, RPhi
   HEff1DHit *hEff_S2RPhi;     // RecHits, 2. step, RPhi
   HEff1DHit *hEff_S3RPhi;     // RecHits, 3. step, RPhi
@@ -189,6 +207,12 @@ private:
   HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
+
+  HEff1DHit* hEff_S1RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S3RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S1RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S3RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+
   DQMStore* dbe_;
   bool doall;
 };

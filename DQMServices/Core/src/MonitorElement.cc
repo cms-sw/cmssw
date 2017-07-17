@@ -6,26 +6,31 @@
 #include "TClass.h"
 #include "TMath.h"
 #include "TList.h"
+#include "THashList.h"
 #include <iostream>
 #include <cassert>
 #include <cfloat>
 #include <inttypes.h>
+
+#if !WITHOUT_CMS_FRAMEWORK
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif
 
 static TH1 *
 checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
 {
   if (! tobj)
     raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
-		  " element '%s' because it is not a ROOT object.",
-		  func, name.c_str());
+                  " element '%s' because it is not a ROOT object.",
+                  func, name.c_str());
 
   TH1 *h = static_cast<TH1 *>(tobj);
   int ndim = h->GetDimension();
   if (reqdim < 0 || reqdim > ndim)
     raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
-		  " element '%s' because it requires %d dimensions; this"
-		  " object of type '%s' has %d dimensions",
-		  func, name.c_str(), reqdim, typeid(*h).name(), ndim);
+                  " element '%s' because it requires %d dimensions; this"
+                  " object of type '%s' has %d dimensions",
+                  func, name.c_str(), reqdim, typeid(*h).name(), ndim);
 
   return h;
 }
@@ -53,7 +58,7 @@ MonitorElement::initialise(Kind kind)
 
   default:
     raiseDQMError("MonitorElement", "cannot initialise monitor element"
-		  " to invalid type %d", (int) kind);
+                  " to invalid type %d", (int) kind);
   }
 
   return this;
@@ -121,7 +126,7 @@ MonitorElement::initialise(Kind kind, TH1 *rootobj)
 
   default:
     raiseDQMError("MonitorElement", "cannot initialise monitor element"
-		  " as a root object with type %d", (int) kind);
+                  " as a root object with type %d", (int) kind);
   }
 
   if (reference_)
@@ -138,7 +143,7 @@ MonitorElement::initialise(Kind kind, const std::string &value)
     scalar_.str = value;
   else
     raiseDQMError("MonitorElement", "cannot initialise monitor element"
-		  " as a string with type %d", (int) kind);
+                  " as a string with type %d", (int) kind);
 
   return this;
 }
@@ -148,72 +153,102 @@ MonitorElement::MonitorElement(void)
     reference_(0),
     refvalue_(0)
 {
-  data_.version = 0;
-  data_.dirname = 0;
+  data_.version  = 0;
+  data_.dirname  = 0;
+  data_.run      = 0;
+  data_.lumi     = 0;
+  data_.streamId = 0;
+  data_.moduleId = 0;
   data_.tag = 0;
   data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
   scalar_.num = 0;
   scalar_.real = 0;
 }
 
-MonitorElement::MonitorElement(const std::string *path, const std::string &name)
+MonitorElement::MonitorElement(const std::string *path,
+                               const std::string &name,
+                               uint32_t run /* = 0 */,
+                               uint32_t streamId /* = 0 */,
+                               uint32_t moduleId /* = 0 */)
   : object_(0),
     reference_(0),
     refvalue_(0)
 {
-  data_.version = 0;
-  data_.dirname = path;
-  data_.objname = name;
+  data_.version  = 0;
+  data_.run      = run;
+  data_.lumi     = 0;
+  data_.streamId = streamId;
+  data_.moduleId = moduleId;
+  data_.dirname  = path;
+  data_.objname  = name;
   data_.tag = 0;
   data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
   scalar_.num = 0;
   scalar_.real = 0;
 }
 
-MonitorElement::MonitorElement(const MonitorElement &x)
+MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag)
   : data_(x.data_),
     scalar_(x.scalar_),
-    object_(x.object_),
+    object_(nullptr),
     reference_(x.reference_),
-    refvalue_(x.refvalue_),
+    refvalue_(nullptr),
     qreports_(x.qreports_)
 {
-  if (object_)
-    object_ = static_cast<TH1 *>(object_->Clone());
-
-  if (refvalue_)
-    refvalue_ = static_cast<TH1 *>(refvalue_->Clone());
 }
 
-MonitorElement &
-MonitorElement::operator=(const MonitorElement &x)
+MonitorElement::MonitorElement(const MonitorElement &x)
+  : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  if (this != &x)
-  {
-    delete object_;
-    delete refvalue_;
+  if (x.object_)
+    object_ = static_cast<TH1 *>(x.object_->Clone());
 
-    data_ = x.data_;
-    scalar_ = x.scalar_;
-    object_ = x.object_;
-    reference_ = x.reference_;
-    refvalue_ = x.refvalue_;
-    qreports_ = x.qreports_;
+  if (x.refvalue_)
+    refvalue_ = static_cast<TH1 *>(x.refvalue_->Clone());
+}
 
-    if (object_)
-      object_ = static_cast<TH1 *>(object_->Clone());
+MonitorElement::MonitorElement(MonitorElement &&o)
+  : MonitorElement::MonitorElement(o, MonitorElementNoCloneTag())
+{
+  object_ = o.object_;
+  refvalue_ = o.refvalue_;
 
-    if (refvalue_)
-      refvalue_ = static_cast<TH1 *>(refvalue_->Clone());
-  }
-
-  return *this;
+  o.object_ = nullptr;
+  o.refvalue_ = nullptr;
 }
 
 MonitorElement::~MonitorElement(void)
 {
   delete object_;
   delete refvalue_;
+}
+
+//utility function to check the consistency of the axis labels
+//taken from TH1::CheckBinLabels which is not public
+bool
+MonitorElement::CheckBinLabels(const TAxis* a1, const TAxis * a2)
+{
+  // check that axis have same labels
+  THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
+  THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
+  
+  if (!l1 && !l2 )
+    return true;
+  if (!l1 ||  !l2 ) {
+    return false;
+  }
+  // check now labels sizes  are the same
+  if (l1->GetSize() != l2->GetSize() ) {
+    return false;
+  }
+  for (int i = 1; i <= a1->GetNbins(); ++i) {
+    TString label1 = a1->GetBinLabel(i);
+    TString label2 = a2->GetBinLabel(i);
+    if (label1 != label2) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /// "Fill" ME methods for string
@@ -308,9 +343,9 @@ void
 MonitorElement::ShiftFillLast(double y, double ye, int xscale)
 {
   update();
-  if (kind() == DQM_KIND_TH1F 
-      || kind() == DQM_KIND_TH1S 
-      || kind() == DQM_KIND_TH1D) 
+  if (kind() == DQM_KIND_TH1F
+      || kind() == DQM_KIND_TH1S
+      || kind() == DQM_KIND_TH1D)
   {
     int nbins = getNbinsX();
     int entries = (int)getEntries();
@@ -318,7 +353,7 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
     int index = entries + 1 ;
     int xlow = 2 ; int xup = nbins ;
     // if more entries than bins then start shifting
-    if ( entries >= nbins ) 
+    if ( entries >= nbins )
     {
       index = nbins;
       xlow = entries - nbins + 3 ; xup = entries+1 ;
@@ -328,32 +363,32 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
       double y1err = getBinError(1);
       double y2err = getBinError(2);
       double N = entries - nbins + 1.;
-      if ( ye == 0. || y1err == 0. || y2err == 0.) 
+      if ( ye == 0. || y1err == 0. || y2err == 0.)
       {
         // for errors zero calculate unweighted mean and its error
-	double sum = N*y1 + y2;
+        double sum = N*y1 + y2;
         y1 = sum/(N+1.) ;
-	// FIXME check if correct
-	double s=(N+1.)*(N*y1*y1 + y2*y2) - sum*sum;
-        if (s>=0.) 
-	  y1err = sqrt(s)/(N+1.);  
-	else
-	  y1err = 0.;
+        // FIXME check if correct
+        double s=(N+1.)*(N*y1*y1 + y2*y2) - sum*sum;
+        if (s>=0.)
+          y1err = sqrt(s)/(N+1.);
+        else
+          y1err = 0.;
       }
-      else 
+      else
       {
         // for errors non-zero calculate weighted mean and its error
         double denom = (1./y1err + 1./y2err);
         double mean = (y1/y1err + y2/y2err)/denom;
-	// FIXME check if correct
-	y1err = sqrt(((y1-mean)*(y1-mean)/y1err +
+        // FIXME check if correct
+        y1err = sqrt(((y1-mean)*(y1-mean)/y1err +
                       (y2-mean)*(y2-mean)/y2err)/denom/2.);
-	y1 = mean; // set y1 to mean for filling below
+        y1 = mean; // set y1 to mean for filling below
       }
       setBinContent(1,y1);
       setBinError(1,y1err);
       // shift remaining bins to the left
-      for ( int i = 3; i <= nbins ; i++) 
+      for ( int i = 3; i <= nbins ; i++)
       {
         setBinContent(i-1,getBinContent(i));
         setBinError(i-1,getBinError(i));
@@ -361,14 +396,14 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
     }
     // fill last bin with new values
     setBinContent(index,y);
-    setBinError(index,ye); 
+    setBinError(index,ye);
     // set entries
     setEntries(entries+1);
     // set axis labels and reset drawing option
     char buffer [10];
-    sprintf (buffer, "%d", xlow*xscale); 
+    sprintf (buffer, "%d", xlow*xscale);
     std::string a(buffer); setBinLabel(2,a);
-    sprintf (buffer, "%d", xup*xscale); 
+    sprintf (buffer, "%d", xup*xscale);
     std::string b(buffer); setBinLabel(nbins,b);
     setBinLabel(1,"av.");
   }
@@ -483,7 +518,7 @@ MonitorElement::valueString(void) const
   return result;
 }
 
-/// return tagged value of ME in string format 
+/// return tagged value of ME in string format
 /// (eg. <name>f=3.14151926</name> for double numbers);
 /// relevant only for sending scalar or string MEs over TSocket
 std::string
@@ -573,7 +608,7 @@ MonitorElement::getQWarnings(void) const
     if (data_.qreports[i].code == dqm::qstatus::WARNING)
     {
       const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
-	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
     }
   return result;
@@ -588,7 +623,7 @@ MonitorElement::getQErrors(void) const
     if (data_.qreports[i].code == dqm::qstatus::ERROR)
     {
       const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
-	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
     }
   return result;
@@ -601,11 +636,11 @@ MonitorElement::getQOthers(void) const
   result.reserve(qreports_.size());
   for (size_t i = 0, e = qreports_.size(); i != e; ++i)
     if (data_.qreports[i].code != dqm::qstatus::STATUS_OK
-	&& data_.qreports[i].code != dqm::qstatus::WARNING
-	&& data_.qreports[i].code != dqm::qstatus::ERROR)
+        && data_.qreports[i].code != dqm::qstatus::WARNING
+        && data_.qreports[i].code != dqm::qstatus::ERROR)
     {
       const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
-	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
+        = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
     }
   return result;
@@ -636,7 +671,7 @@ MonitorElement::runQTests(void)
       qc->runTest(this, qr, qv);
 
       if (oldStatus != qv.code || oldMessage != qv.message)
-	update();
+        update();
     }
   }
 
@@ -648,7 +683,7 @@ void
 MonitorElement::incompatible(const char *func) const
 {
   raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
-		" element '%s'", func, data_.objname.c_str());
+                " element '%s'", func, data_.objname.c_str());
 }
 
 TH1 *
@@ -656,21 +691,21 @@ MonitorElement::accessRootObject(const char *func, int reqdim) const
 {
   if (kind() < DQM_KIND_TH1F)
     raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
-		  " element '%s' because it is not a root object",
-		  func, data_.objname.c_str());
+                  " element '%s' because it is not a root object",
+                  func, data_.objname.c_str());
 
   return checkRootObject(data_.objname, object_, func, reqdim);
 }
 
 /*** getter methods (wrapper around ROOT methods) ****/
-// 
+//
 /// get mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
 double
 MonitorElement::getMean(int axis /* = 1 */) const
 { return accessRootObject(__PRETTY_FUNCTION__, axis-1)
     ->GetMean(axis); }
 
-/// get mean value uncertainty of histogram along x, y or z axis 
+/// get mean value uncertainty of histogram along x, y or z axis
 /// (axis=1, 2, 3 respectively)
 double
 MonitorElement::getMeanError(int axis /* = 1 */) const
@@ -807,7 +842,7 @@ MonitorElement::getTitle(void) const
     ->GetTitle(); }
 
 /*** setter methods (wrapper around ROOT methods) ****/
-// 
+//
 /// set content of bin (1-D)
 void
 MonitorElement::setBinContent(int binx, double content)
@@ -889,16 +924,20 @@ void
 MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 */)
 {
   update();
-  if ( getAxis(__PRETTY_FUNCTION__, axis)->GetNbins() >= bin ) 
+  if ( getAxis(__PRETTY_FUNCTION__, axis)->GetNbins() >= bin )
   {
     getAxis(__PRETTY_FUNCTION__, axis)
       ->SetBinLabel(bin, label.c_str());
   }
   else
   {
-    //  edm::LogWarning ("MonitorElement") 
-    std::cout << "*** MonitorElement: WARNING:"
-	      <<"setBinLabel: attempting to set label of non-existent bin number \n";
+#if WITHOUT_CMS_FRAMEWORK
+    std::cout
+#else
+    edm::LogWarning("MonitorElement")
+#endif
+      << "*** MonitorElement: WARNING:"
+      <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
   }
 }
 
@@ -970,8 +1009,8 @@ MonitorElement::getAxis(const char *func, int axis) const
 
   if (! a)
     raiseDQMError("MonitorElement", "No such axis %d in monitor element"
-		  " '%s' of type '%s'", axis, data_.objname.c_str(),
-		  typeid(*h).name());
+                  " '%s' of type '%s'", axis, data_.objname.c_str(),
+                  typeid(*h).name());
 
   return a;
 }
@@ -995,11 +1034,7 @@ MonitorElement::softReset(void)
     TH1F *r = static_cast<TH1F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1F((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1013,11 +1048,7 @@ MonitorElement::softReset(void)
     TH1S *r = static_cast<TH1S *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1S((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1031,11 +1062,7 @@ MonitorElement::softReset(void)
     TH1D *r = static_cast<TH1D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1D((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1049,14 +1076,7 @@ MonitorElement::softReset(void)
     TH2F *r = static_cast<TH2F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2F((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax(),
-			       orig->GetNbinsY(),
-			       orig->GetYaxis()->GetXmin(),
-			       orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1070,14 +1090,7 @@ MonitorElement::softReset(void)
     TH2S *r = static_cast<TH2S *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2S((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax(),
-			       orig->GetNbinsY(),
-			       orig->GetYaxis()->GetXmin(),
-			       orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1091,14 +1104,7 @@ MonitorElement::softReset(void)
     TH2D *r = static_cast<TH2D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2D((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax(),
-			       orig->GetNbinsY(),
-			       orig->GetYaxis()->GetXmin(),
-			       orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1112,17 +1118,7 @@ MonitorElement::softReset(void)
     TH3F *r = static_cast<TH3F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH3F((std::string(orig->GetName()) + "_ref").c_str(),
-			       orig->GetTitle(),
-			       orig->GetNbinsX(),
-			       orig->GetXaxis()->GetXmin(),
-			       orig->GetXaxis()->GetXmax(),
-			       orig->GetNbinsY(),
-			       orig->GetYaxis()->GetXmin(),
-			       orig->GetYaxis()->GetXmax(),
-			       orig->GetNbinsZ(),
-			       orig->GetZaxis()->GetXmin(),
-			       orig->GetZaxis()->GetXmax());
+      refvalue_ = r = (TH3F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1136,14 +1132,7 @@ MonitorElement::softReset(void)
     TProfile *r = static_cast<TProfile *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TProfile((std::string(orig->GetName()) + "_ref").c_str(),
-				   orig->GetTitle(),
-				   orig->GetNbinsX(),
-				   orig->GetXaxis()->GetXmin(),
-				   orig->GetXaxis()->GetXmax(),
-				   orig->GetYaxis()->GetXmin(),
-				   orig->GetYaxis()->GetXmax(),
-				   orig->GetErrorOption());
+      refvalue_ = r = (TProfile*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1157,17 +1146,7 @@ MonitorElement::softReset(void)
     TProfile2D *r = static_cast<TProfile2D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TProfile2D((std::string(orig->GetName()) + "_ref").c_str(),
-				     orig->GetTitle(),
-				     orig->GetNbinsX(),
-				     orig->GetXaxis()->GetXmin(),
-				     orig->GetXaxis()->GetXmax(),
-				     orig->GetNbinsY(),
-				     orig->GetYaxis()->GetXmin(),
-				     orig->GetYaxis()->GetXmax(),
-				     orig->GetZaxis()->GetXmin(),
-				     orig->GetZaxis()->GetXmax(),
-				     orig->GetErrorOption());
+      refvalue_ = r = (TProfile2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1186,12 +1165,12 @@ MonitorElement::disableSoftReset(void)
   if (refvalue_)
   {
     if (kind() == DQM_KIND_TH1F
-	|| kind() == DQM_KIND_TH1S
-	|| kind() == DQM_KIND_TH1D
-	|| kind() == DQM_KIND_TH2F
-	|| kind() == DQM_KIND_TH2S
-	|| kind() == DQM_KIND_TH2D
-	|| kind() == DQM_KIND_TH3F)
+        || kind() == DQM_KIND_TH1S
+        || kind() == DQM_KIND_TH1D
+        || kind() == DQM_KIND_TH2F
+        || kind() == DQM_KIND_TH2S
+        || kind() == DQM_KIND_TH2D
+        || kind() == DQM_KIND_TH3F)
     {
       TH1 *orig = static_cast<TH1 *>(object_);
       orig->Add(refvalue_);
@@ -1215,7 +1194,7 @@ MonitorElement::disableSoftReset(void)
     refvalue_ = 0;
   }
 }
-  
+
 // implementation: Giuseppe.Della-Ricca@ts.infn.it
 // Can be called with sum = h1 or sum = h2
 void
@@ -1230,8 +1209,8 @@ MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1,
   Double_t stats2[NUM_STAT];
   Double_t stats3[NUM_STAT];
 
-  bool isRebinOn = sum->TestBit(TH1::kCanRebin);
-  sum->ResetBit(TH1::kCanRebin);
+  bool isRebinOn = sum->CanExtendAllAxes();
+  sum->SetCanExtend(TH1::kNoAxis);
 
   for (Int_t i = 0; i < NUM_STAT; ++i)
     stats1[i] = stats2[i] = stats3[i] = 0;
@@ -1243,27 +1222,27 @@ MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1,
     stats3[i] = c1*stats1[i] + c2*stats2[i];
 
   stats3[1] = c1*TMath::Abs(c1)*stats1[1]
-	      + c2*TMath::Abs(c2)*stats2[1];
+              + c2*TMath::Abs(c2)*stats2[1];
 
   Double_t entries = c1*h1->GetEntries() + c2* h2->GetEntries();
   TArrayD* h1sumw2 = h1->GetSumw2();
   TArrayD* h2sumw2 = h2->GetSumw2();
-  for (Int_t bin = 0, nbin = sum->GetNbinsX()+1; bin <= nbin; ++bin) 
+  for (Int_t bin = 0, nbin = sum->GetNbinsX()+1; bin <= nbin; ++bin)
   {
     Double_t entries = c1*h1->GetBinEntries(bin)
-		       + c2*h2->GetBinEntries(bin);
+                       + c2*h2->GetBinEntries(bin);
     Double_t content = c1*h1->GetBinEntries(bin)*h1->GetBinContent(bin)
-		       + c2*h2->GetBinEntries(bin)*h2->GetBinContent(bin);
+                       + c2*h2->GetBinEntries(bin)*h2->GetBinContent(bin);
     Double_t error = TMath::Sqrt(c1*TMath::Abs(c1)*h1sumw2->fArray[bin]
-				 + c2*TMath::Abs(c2)*h2sumw2->fArray[bin]);
+                                 + c2*TMath::Abs(c2)*h2sumw2->fArray[bin]);
     sum->SetBinContent(bin, content);
     sum->SetBinError(bin, error);
     sum->SetBinEntries(bin, entries);
   }
-  
+
   sum->SetEntries(entries);
   sum->PutStats(stats3);
-  if (isRebinOn) sum->SetBit(TH1::kCanRebin);
+  if (isRebinOn) sum->SetCanExtend(TH1::kAllAxes);
 }
 
 // implementation: Giuseppe.Della-Ricca@ts.infn.it
@@ -1280,8 +1259,8 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
   Double_t stats2[NUM_STAT];
   Double_t stats3[NUM_STAT];
 
-  bool isRebinOn = sum->TestBit(TH1::kCanRebin);
-  sum->ResetBit(TH1::kCanRebin);
+  bool isRebinOn = sum->CanExtendAllAxes();
+  sum->SetCanExtend(TH1::kNoAxis);
 
   for (Int_t i = 0; i < NUM_STAT; ++i)
     stats1[i] = stats2[i] = stats3[i] = 0;
@@ -1293,7 +1272,7 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
     stats3[i] = c1*stats1[i] + c2*stats2[i];
 
   stats3[1] = c1*TMath::Abs(c1)*stats1[1]
-	      + c2*TMath::Abs(c2)*stats2[1];
+              + c2*TMath::Abs(c2)*stats2[1];
 
   Double_t entries = c1*h1->GetEntries() + c2*h2->GetEntries();
   TArrayD *h1sumw2 = h1->GetSumw2();
@@ -1303,11 +1282,11 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
     {
       Int_t bin = sum->GetBin(xbin, ybin);
       Double_t entries = c1*h1->GetBinEntries(bin)
-			 + c2*h2->GetBinEntries(bin);
+                         + c2*h2->GetBinEntries(bin);
       Double_t content = c1*h1->GetBinEntries(bin)*h1->GetBinContent(bin)
-			 + c2*h2->GetBinEntries(bin)*h2->GetBinContent(bin);
+                         + c2*h2->GetBinEntries(bin)*h2->GetBinContent(bin);
       Double_t error = TMath::Sqrt(c1*TMath::Abs(c1)*h1sumw2->fArray[bin]
-				   + c2*TMath::Abs(c2)*h2sumw2->fArray[bin]);
+                                   + c2*TMath::Abs(c2)*h2sumw2->fArray[bin]);
 
       sum->SetBinContent(bin, content);
       sum->SetBinError(bin, error);
@@ -1315,7 +1294,7 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
     }
   sum->SetEntries(entries);
   sum->PutStats(stats3);
-  if (isRebinOn) sum->SetBit(TH1::kCanRebin);
+  if (isRebinOn) sum->SetCanExtend(TH1::kAllAxes);
 }
 
 void
@@ -1342,8 +1321,8 @@ MonitorElement::copyFunctions(TH1 *from, TH1 *to)
     //  ; // FIXME? tof->Add(new TPaveStats(*stats));
     else
       raiseDQMError("MonitorElement", "Cannot extract function '%s' of type"
-		    " '%s' from monitor element '%s' for a copy",
-		    obj->GetName(), obj->IsA()->GetName(), data_.objname.c_str());
+                    " '%s' from monitor element '%s' for a copy",
+                    obj->GetName(), obj->IsA()->GetName(), data_.objname.c_str());
   }
 }
 
@@ -1360,26 +1339,26 @@ MonitorElement::copyFrom(TH1 *from)
   if (isSoftResetEnabled())
   {
     if (kind() == DQM_KIND_TH1F
-	|| kind() == DQM_KIND_TH1S
-	|| kind() == DQM_KIND_TH1D
-	|| kind() == DQM_KIND_TH2F
-	|| kind() == DQM_KIND_TH2S
-	|| kind() == DQM_KIND_TH2D
-	|| kind() == DQM_KIND_TH3F)
+        || kind() == DQM_KIND_TH1S
+        || kind() == DQM_KIND_TH1D
+        || kind() == DQM_KIND_TH2F
+        || kind() == DQM_KIND_TH2S
+        || kind() == DQM_KIND_TH2D
+        || kind() == DQM_KIND_TH3F)
       // subtract "reference"
       orig->Add(from, refvalue_, 1, -1);
     else if (kind() == DQM_KIND_TPROFILE)
       // subtract "reference"
       addProfiles(static_cast<TProfile *>(from),
-		  static_cast<TProfile *>(refvalue_),
-		  static_cast<TProfile *>(orig),
-		  1, -1);
+                  static_cast<TProfile *>(refvalue_),
+                  static_cast<TProfile *>(orig),
+                  1, -1);
     else if (kind() == DQM_KIND_TPROFILE2D)
       // subtract "reference"
       addProfiles(static_cast<TProfile2D *>(from),
-		  static_cast<TProfile2D *>(refvalue_),
-		  static_cast<TProfile2D *>(orig),
-		  1, -1);
+                  static_cast<TProfile2D *>(refvalue_),
+                  static_cast<TProfile2D *>(orig),
+                  1, -1);
     else
       incompatible(__PRETTY_FUNCTION__);
   }
@@ -1420,7 +1399,7 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
   qr = &qreports_[pos];
   qv = &data_.qreports[pos];
 }
-  
+
 /// Add quality report, from DQMStore.
 void
 MonitorElement::addQReport(const DQMNet::QValue &desc, QCriterion *qc)

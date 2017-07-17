@@ -14,11 +14,11 @@ TrackerOfflineValidation.TH1NormXprimeResStripModules.xmax = 3.0
 #TrackerOfflineValidation.TH1NormXResStripModules.xmin = -3.0
 #TrackerOfflineValidation.TH1NormXResStripModules.xmax = 3.0
 
-TrackerOfflineValidation.TH1XprimeResStripModules.Nbinx = 2000
-TrackerOfflineValidation.TH1XprimeResStripModules.xmin = -0.1 #-0.5
-TrackerOfflineValidation.TH1XprimeResStripModules.xmax = 0.1 #0.5
+TrackerOfflineValidation.TH1XprimeResStripModules.Nbinx = 5000
+TrackerOfflineValidation.TH1XprimeResStripModules.xmin = -0.05 #-0.5
+TrackerOfflineValidation.TH1XprimeResStripModules.xmax = 0.05 #0.5
 
-#TrackerOfflineValidation.TH1XResStripModules.Nbinx = 2000
+#TrackerOfflineValidation.TH1XResStripModules.Nbinx = 5000
 #TrackerOfflineValidation.TH1XResStripModules.xmin = -0.5
 #TrackerOfflineValidation.TH1XResStripModules.xmax = 0.5
 
@@ -26,7 +26,7 @@ TrackerOfflineValidation.TH1NormYResStripModules.Nbinx = 120
 TrackerOfflineValidation.TH1NormYResStripModules.xmin = -3.0
 TrackerOfflineValidation.TH1NormYResStripModules.xmax = 3.0
 
-TrackerOfflineValidation.TH1YResStripModules.Nbinx = 2000
+TrackerOfflineValidation.TH1YResStripModules.Nbinx = 5000
 TrackerOfflineValidation.TH1YResStripModules.xmin = -11.0
 TrackerOfflineValidation.TH1YResStripModules.xmax = 11.0
 
@@ -38,11 +38,11 @@ TrackerOfflineValidation.TH1NormXprimeResPixelModules.xmax = 3.0
 #TrackerOfflineValidation.TH1NormXResPixelModules.xmin = -3.0
 #TrackerOfflineValidation.TH1NormXResPixelModules.xmax = 3.0
 
-TrackerOfflineValidation.TH1XprimeResPixelModules.Nbinx = 2000
-TrackerOfflineValidation.TH1XprimeResPixelModules.xmin = -0.1 #-0.5
-TrackerOfflineValidation.TH1XprimeResPixelModules.xmax = 0.1 #0.5
+TrackerOfflineValidation.TH1XprimeResPixelModules.Nbinx = 5000
+TrackerOfflineValidation.TH1XprimeResPixelModules.xmin = -0.05 #-0.5
+TrackerOfflineValidation.TH1XprimeResPixelModules.xmax = 0.05 #0.5
 
-#TrackerOfflineValidation.TH1XResPixelModules.Nbinx = 2000
+#TrackerOfflineValidation.TH1XResPixelModules.Nbinx = 5000
 #TrackerOfflineValidation.TH1XResPixelModules.xmin = -0.5
 #TrackerOfflineValidation.TH1XResPixelModules.xmax = 0.5
 
@@ -50,9 +50,9 @@ TrackerOfflineValidation.TH1NormYResPixelModules.Nbinx = 120
 TrackerOfflineValidation.TH1NormYResPixelModules.xmin = -3.0
 TrackerOfflineValidation.TH1NormYResPixelModules.xmax = 3.0
 
-TrackerOfflineValidation.TH1YResPixelModules.Nbinx = 2000
-TrackerOfflineValidation.TH1YResPixelModules.xmin = -0.1 #-0.5
-TrackerOfflineValidation.TH1YResPixelModules.xmax = 0.1 #0.5
+TrackerOfflineValidation.TH1YResPixelModules.Nbinx = 5000
+TrackerOfflineValidation.TH1YResPixelModules.xmin = -0.05 #-0.5
+TrackerOfflineValidation.TH1YResPixelModules.xmax = 0.05 #0.5
 
 TrackerOfflineValidation.TProfileXResStripModules.Nbinx = 34
 TrackerOfflineValidation.TProfileXResStripModules.xmin = -1.02

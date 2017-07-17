@@ -12,11 +12,6 @@ using namespace edm;
 using namespace cms;
 
 namespace {
-  const bool debug = false;
-
-}
-
-namespace {
    bool checkHydro(const reco::GenParticle * p){
       const Candidate* m1 = p->mother();
       while(m1){
@@ -43,6 +38,9 @@ SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf):
    ignoreHydro_ = conf.getUntrackedParameter<bool>("ignoreHydro", true);
    produces<reco::BasicJetCollection>();
   // the subjet collections are set through the config file in the "jetCollInstanceName" field.
+
+   input_cand_token_ = consumes<reco::CandidateView>(src_);
+
 }
 
 
@@ -93,7 +91,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
 
    // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
    edm::Handle<reco::CandidateView> inputsHandle;
-   iEvent.getByLabel(src_,inputsHandle);
+   iEvent.getByToken(input_cand_token_, inputsHandle);
    for (size_t i = 0; i < inputsHandle->size(); ++i) {
      inputs_.push_back(inputsHandle->ptrAt(i));
    }
@@ -106,7 +104,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
 
    ////////////////
 
-   std::auto_ptr<std::vector<GenJet> > jets(new std::vector<GenJet>() );
+   auto jets = std::make_unique<std::vector<GenJet>>();
    subJets_ = jets.get();
 
    LogDebug("VirtualJetProducer") << "Inputted towers\n";
@@ -124,7 +122,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    //Finalize
    LogDebug("SubEventJetProducer") << "Wrote jets\n";
 
-   iEvent.put(jets);  
+   iEvent.put(std::move(jets));  
    return;
 }
 

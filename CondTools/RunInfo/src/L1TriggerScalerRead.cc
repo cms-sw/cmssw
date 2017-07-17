@@ -15,7 +15,7 @@
 #include "CoralBase/AttributeSpecification.h"
 //#include "SealBase/TimeInfo.h"
 
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 
 #include "CoralBase/TimeStamp.h"
 
@@ -351,7 +351,6 @@ std::cout<< "table handling " << std::endl;
 	       Itemp.m_date =  boost::posix_time::to_iso_extended_string(pt);
 	       std::cout<< " date extracted == " << Itemp.m_date << std::endl; 
 	     } else {
-	     Itemp.m_date=="NULL";
 	       std::cout<< "date  extracted == " << Itemp.m_date<<std::endl;
              }
 	     delete queryIII;

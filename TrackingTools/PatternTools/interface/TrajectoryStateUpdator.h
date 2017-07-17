@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class TransientTrackingRecHit;
+class TrackingRecHit;
   
 /** The TrajectoryState updator is a basic track fititng component 
  *  that combines the information from a measurement
@@ -18,7 +18,7 @@ class TrajectoryStateUpdator {
   virtual ~TrajectoryStateUpdator() {}
   
   virtual TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-					  const TransientTrackingRecHit&) const = 0;
+					  const TrackingRecHit&) const = 0;
   
   virtual TrajectoryStateUpdator * clone() const = 0;
   

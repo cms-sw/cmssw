@@ -8,18 +8,22 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 
 namespace edm {
-  class EDProducer;
+  class ConsumesCollector;
+  namespace stream {
+    class EDProducerBase;
+  }
   class Event;
   class EventSetup;
   class ParameterSet;
 }
+class PEcalTBInfo;
 class PileUpEventPrincipal;
 
 class EcalTBDigiProducer : public EcalDigiProducer
 {
    public:
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) ;
+      EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
       virtual ~EcalTBDigiProducer() ;
 
 
@@ -52,9 +56,9 @@ class EcalTBDigiProducer : public EcalDigiProducer
       
       double m_tunePhaseShift ;
 
-      mutable std::auto_ptr<EBDigiCollection> m_ebDigis ;
-      mutable std::auto_ptr<EEDigiCollection> m_eeDigis ;
-      mutable std::auto_ptr<EcalTBTDCRawInfo> m_TDCproduct ;
+      mutable std::unique_ptr<EBDigiCollection> m_ebDigis ;
+      mutable std::unique_ptr<EEDigiCollection> m_eeDigis ;
+      mutable std::unique_ptr<EcalTBTDCRawInfo> m_TDCproduct ;
 };
 
 #endif 

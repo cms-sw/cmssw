@@ -3,21 +3,21 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include <string>
 
-class  SiPixelDigiValid: public edm::EDAnalyzer {
+namespace edm {
+  template< class T > class DetSetVector;
+}
+class PixelDigi;
+class DQMStore;
+class MonitorElement;
+
+class  SiPixelDigiValid: public DQMEDAnalyzer {
 
  public:
     
@@ -27,11 +27,13 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
+     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
      void endJob(void);
 
  private:
 
   std::string outputFile_;
+  bool runStandalone;
 
   //////Barrel Pixel
   /* 1st Layer */
@@ -266,7 +268,8 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
    
  
   DQMStore* dbe_;
-  edm::InputTag src_;  
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
+  edm::ESHandle<GeometricSearchTracker> tracker;
 
  
 };

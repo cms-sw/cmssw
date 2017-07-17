@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <string>
 
@@ -473,14 +472,13 @@ L1GtBoardMapsTrivialProducer::~L1GtBoardMapsTrivialProducer()
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
+std::shared_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
     const L1GtBoardMapsRcd& iRecord)
 {
 
     using namespace edm::es;
 
-    boost::shared_ptr<L1GtBoardMaps> pL1GtBoardMaps =
-        boost::shared_ptr<L1GtBoardMaps>( new L1GtBoardMaps() );
+    auto pL1GtBoardMaps = std::make_shared<L1GtBoardMaps>();
 
     pL1GtBoardMaps->setGtBoardMaps(m_gtBoardMaps);
 

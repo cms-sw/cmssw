@@ -101,10 +101,11 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class PGlobalDigi;
 
-class GlobalDigisAnalyzer : public edm::EDAnalyzer
+class GlobalDigisAnalyzer : public DQMEDAnalyzer
 {
 
  public:
@@ -115,9 +116,10 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalDigisAnalyzer();
-  virtual void beginJob( void );
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
@@ -143,8 +145,6 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
   std::string hitsProducer;
-
-  DQMStore *dbe;
 
   // Electromagnetic info
   // ECal info
@@ -223,6 +223,25 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehRPCRes[5];
 
   edm::InputTag MuRPCSrc_;
+
+  // fix for consumes
+  edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EEDigiCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESDigiCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > HBHEDigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > HODigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > HFDigi_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripSrc_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > SiPxlSrc_Token_;
+  edm::EDGetTokenT<DTDigiCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<CSCStripDigiCollection> MuCSCStripSrc_Token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> MuCSCWireSrc_Token_;
+  edm::EDGetTokenT<RPCDigiCollection> MuRPCSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> RPCSimHit_Token_;
 
   // private statistics information
   unsigned int count;

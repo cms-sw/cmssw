@@ -32,7 +32,7 @@ RunCommentDat::~RunCommentDat()
 
 
 void RunCommentDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -50,7 +50,7 @@ void RunCommentDat::prepareWrite()
 
 
 void RunCommentDat::writeDB(const EcalLogicID* ecid, const RunCommentDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void RunCommentDat::writeDB(const EcalLogicID* ecid, const RunCommentDat* item, 
 
 
 void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

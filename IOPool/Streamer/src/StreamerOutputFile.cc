@@ -1,5 +1,4 @@
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
-#include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
   StreamerOutputFile::~StreamerOutputFile() {
@@ -22,9 +21,6 @@
     /** Offset where current event starts */
     uint64 offset_to_return = streamerfile_->current_offset();
 
-    /** Offset of last written event */
-    streamerfile_->set_last_event_offset(streamerfile_->current_offset());
-
     writeEventHeader(ineview);
     bool ret = streamerfile_->write((const char*) ineview.eventData(),
                                     ineview.size() - ineview.headerSize());
@@ -34,9 +30,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    streamerfile_->inc_events();
-
     return offset_to_return;
   }
 
@@ -47,11 +40,6 @@
     /** Offset where current event starts */
     uint64 offset_to_return = streamerfile_->current_offset();
 
-    if (fragIndex == 0) {
-      /** Offset of last written event */
-      streamerfile_->set_last_event_offset(streamerfile_->current_offset());
-    }
-
     bool ret = streamerfile_->write(dataPtr, dataSize);
     if (ret) {
       throw cms::Exception("OutputFile", "writeEventFragment()")
@@ -59,9 +47,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    if (fragIndex == fragCount-1) {streamerfile_->inc_events();}
-
     return offset_to_return;
   }
 
@@ -95,9 +80,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    /** Offset of first event to be written */
-    streamerfile_->set_first_event_offset(streamerfile_->current_offset());
   }
 
   void StreamerOutputFile::
@@ -110,11 +92,6 @@
         << "Error writing streamer header data to "
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
-    }
-
-    if (fragIndex == fragCount-1) {
-      /** Offset of first event to be written */
-      streamerfile_->set_first_event_offset(streamerfile_->current_offset());
     }
   }
 
@@ -129,27 +106,5 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-    streamerfile_->set_run(inview.run()); 
   }
- 
-  uint32 StreamerOutputFile::writeEOF(uint32 statusCode, 
-                                      const std::vector<uint32>& hltStats) 
-  {
-    EOFRecordBuilder eof(streamerfile_->run(), 
-                         streamerfile_->events(),
-                         statusCode,
-                         hltStats,
-                         streamerfile_->first_event_offset(),
-                         streamerfile_->last_event_offset());
 
-    bool ret = streamerfile_->write((const char*) 
-                                    eof.recAddress(), 
-                                    eof.size());  
-    if (ret) {
-      throw cms::Exception("OutputFile", "writeEOF")
-        << "Error writing streamer end-of-file to "
-        << streamerfile_->fileName() << ".  Possibly the output disk "
-        << "is full?" << std::endl;
-    }
-    return eof.size();  
-  }

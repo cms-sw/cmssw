@@ -2,10 +2,10 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "TROOT.h"
-#include <ostream>
-#include <cassert>
-#include <iostream>
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "TBuffer.h"
+#include "TClass.h"
 
 namespace edm {
 
@@ -63,18 +63,26 @@ namespace edm {
     }
   }
 
-  
+  TClassStreamer*
+  RefCoreStreamer::Generate() const {
+    return new RefCoreStreamer(*this);
+  }
+
+  TClassStreamer*
+  RefCoreWithIndexStreamer::Generate() const {
+    return new RefCoreWithIndexStreamer(*this);
+  }
 
 
   void setRefCoreStreamer(bool resetAll) {
     {
-      TClass *cl = gROOT->GetClass("edm::RefCore");
+      TClass *cl = TClass::GetClass("edm::RefCore");
       TClassStreamer *st = cl->GetStreamer();
       if (st == 0) {
         cl->AdoptStreamer(new RefCoreStreamer());
       }
       {
-        TClass *cl = gROOT->GetClass("edm::RefCoreWithIndex");
+        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
         TClassStreamer *st = cl->GetStreamer();
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreWithIndexStreamer());
@@ -88,14 +96,14 @@ namespace edm {
     EDProductGetter const* returnValue=0;
     if (ep != 0) {
       {
-        TClass *cl = gROOT->GetClass("edm::RefCore");
+        TClass *cl = TClass::GetClass("edm::RefCore");
         TClassStreamer *st = cl->GetStreamer();
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreStreamer());
         }
       }
       {
-        TClass *cl = gROOT->GetClass("edm::RefCoreWithIndex");
+        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
         TClassStreamer *st = cl->GetStreamer();
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreWithIndexStreamer());

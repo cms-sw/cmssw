@@ -29,7 +29,13 @@ namespace evf{
       }
       return (*(const unsigned int*)(p + sizeof(fedh_t) + EVM_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> EVM_BOARDID_SHIFT) == EVM_BOARDID_VALUE;
     }
+    bool evm_tcs_board_sense(const unsigned char *p){
+      return (*(const unsigned int*)(p + sizeof(fedh_t) + 
+				     (EVM_GTFE_BLOCK*2 + EVM_TCS_BOARDID_OFFSET) 
+				     * SLINK_WORD_SIZE / 2) 
+	      >> EVM_TCS_BOARDID_SHIFT) == EVM_TCS_BOARDID_VALUE;
 
+    }
 
     void evm_board_setformat(size_t size)
     {
@@ -66,7 +72,10 @@ namespace evf{
     }
     unsigned int get(const unsigned char *p, bool evm)
     {
-      return *(const unsigned int*)( p+offset(evm) );
+      if(evm && evm_tcs_board_sense(p))
+	return *(const unsigned int*)( p+offset(true));
+      else
+	return *(const unsigned int*)( p+offset(false)); // cover case of evm but invalid tcs info
     }
     unsigned int gtpe_get(const unsigned char *p)
     {

@@ -5,12 +5,13 @@
  *  Refit GSF Tracks. Based on the TrackRefitter.
  */
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 
-class GsfTrackRefitter : public GsfTrackProducerBase, public edm::EDProducer {
+class GsfTrackRefitter : public GsfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
 
   /// Constructor

@@ -14,10 +14,10 @@ void BoundSpan::compute(Surface const & plane) {
   if (trapezoidalBounds) {
     std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
     
-    float hbotedge = parameters[0];
-    float htopedge = parameters[1];
-    float hapothem = parameters[3];   
-    float thickness =  (*trapezoidalBounds).thickness();
+    auto hbotedge = parameters[0];
+    auto htopedge = parameters[1];
+    auto hapothem = parameters[3];   
+    auto thickness =  (*trapezoidalBounds).thickness();
     
     corners[0] = plane.toGlobal( LocalPoint( -htopedge, hapothem,  thickness/2));
     corners[1] = plane.toGlobal( LocalPoint(  htopedge, hapothem,  thickness/2));
@@ -29,9 +29,9 @@ void BoundSpan::compute(Surface const & plane) {
     corners[7] = plane.toGlobal( LocalPoint( -hbotedge, -hapothem, -thickness/2));
     
   }else if(rectangularBounds) {
-    float length = rectangularBounds->length();
-    float width  = rectangularBounds->width();   
-    float thickness =  (*rectangularBounds).thickness();
+    auto length = rectangularBounds->length();
+    auto width  = rectangularBounds->width();   
+    auto thickness =  (*rectangularBounds).thickness();
       
     corners[0] = plane.toGlobal( LocalPoint( -width/2, -length/2, thickness/2));
     corners[1] = plane.toGlobal( LocalPoint( -width/2, +length/2, thickness/2));
@@ -47,16 +47,23 @@ void BoundSpan::compute(Surface const & plane) {
   
   float phimin = corners[0].barePhi(); float phimax = phimin;
   float zmin   = corners[0].z();    float zmax   = zmin;
+  float rmin   = corners[0].perp2();    float rmax   = rmin;
   for ( int i = 1; i < 8; i++ ) {
-    float cPhi = corners[i].barePhi();
+    auto cPhi = corners[i].barePhi();
     if ( Geom::phiLess( cPhi, phimin)) { phimin = cPhi; }
     if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
-    float z = corners[i].z();
+    auto z = corners[i].z();
     if ( z < zmin) zmin = z;
-    if ( z > zmax) zmax = z;  
+    if ( z > zmax) zmax = z;
+    auto r = corners[i].perp2();
+    if ( r < rmin) rmin = r;
+    if ( r > rmax) rmax = r;  
+  
   }
   m_zSpan.first    = zmin;
   m_zSpan.second   = zmax;
+  m_rSpan.first    = std::sqrt(rmin);
+  m_rSpan.second   = std::sqrt(rmax);
   m_phiSpan.first  = phimin;
   m_phiSpan.second = phimax;
 }

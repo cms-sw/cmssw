@@ -333,6 +333,7 @@ void  popcon::EcalTPGWeightGroupHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGWeightGroupHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

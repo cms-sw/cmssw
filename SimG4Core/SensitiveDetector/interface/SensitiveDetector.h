@@ -3,8 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -25,7 +23,7 @@ class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
   explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
-			     SensitiveDetectorCatalog & , 
+			     const SensitiveDetectorCatalog & ,
 			     edm::ParameterSet const & p);
   virtual ~SensitiveDetector();
   virtual void Initialize(G4HCofThisEvent * eventHC);
@@ -33,7 +31,7 @@ public:
   virtual G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) = 0;
   virtual uint32_t setDetUnitId(G4Step * step) = 0;
   void Register();
-  virtual void AssignSD(std::string & vname); 
+  virtual void AssignSD(const std::string & vname);
   virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(G4Step * s, coordinates);

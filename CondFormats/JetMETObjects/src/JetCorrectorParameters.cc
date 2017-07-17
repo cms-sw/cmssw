@@ -5,7 +5,7 @@
 // Generic parameters for Jet corrections
 //
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/src/Utilities.cc"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParametersHelper.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -15,7 +15,7 @@
 #include <cmath>
 #include <iterator>
 
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- JetCorrectorParameters::Definitions constructor --------------------
 //--- takes specific arguments for the member variables ------------------
 //------------------------------------------------------------------------
@@ -35,10 +35,10 @@ JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
 //------------------------------------------------------------------------
 JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
 {
-  std::vector<std::string> tokens = getTokens(fLine); 
+  std::vector<std::string> tokens = getTokens(fLine);
   if (!tokens.empty())
-    { 
-      if (tokens.size() < 6) 
+    {
+      if (tokens.size() < 6)
         {
           std::stringstream sserr;
           sserr<<"(line "<<fLine<<"): less than 6 expected tokens:"<<tokens.size();
@@ -51,22 +51,22 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
       for(unsigned i=0;i<npar;i++)
         mParVar.push_back(tokens[nvar+2+i]);
       mFormula = tokens[npar+nvar+2];
-      std::string ss = tokens[npar+nvar+3]; 
+      std::string ss = tokens[npar+nvar+3];
       if (ss == "Response")
         mIsResponse = true;
       else if (ss == "Correction")
         mIsResponse = false;
       else if (ss == "Resolution")
-	mIsResponse = false;
+        mIsResponse = false;
       else if (ss.find("PAR")==0)
-	mIsResponse = false;
+        mIsResponse = false;
       else
         {
           std::stringstream sserr;
-          sserr<<"unknown option ("<<ss<<")"; 
+          sserr<<"unknown option ("<<ss<<")";
           handleError("JetCorrectorParameters::Definitions",sserr.str());
         }
-      mLevel = tokens[npar+nvar+4]; 
+      mLevel = tokens[npar+nvar+4];
     }
 }
 //------------------------------------------------------------------------
@@ -79,54 +79,64 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   // quckly parse the line
   std::vector<std::string> tokens = getTokens(fLine);
   if (!tokens.empty())
-    { 
-      if (tokens.size() < 3) 
+    {
+      if (tokens.size() < 3)
         {
           std::stringstream sserr;
-	  sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
+          sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
           handleError("JetCorrectorParameters::Record",sserr.str());
         }
       for(unsigned i=0;i<mNvar;i++)
         {
-          mMin.push_back(getFloat(tokens[i*mNvar]));
-          mMax.push_back(getFloat(tokens[i*mNvar+1])); 
+          mMin.push_back(getFloat(tokens[i*2]));
+          mMax.push_back(getFloat(tokens[i*2+1]));
         }
       unsigned nParam = getUnsigned(tokens[2*mNvar]);
-      if (nParam != tokens.size()-(2*mNvar+1)) 
+      if (nParam != tokens.size()-(2*mNvar+1))
         {
           std::stringstream sserr;
-	  sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
+          sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
           handleError("JetCorrectorParameters::Record",sserr.str());
         }
       for (unsigned i = (2*mNvar+1); i < tokens.size(); ++i)
         mParameters.push_back(getFloat(tokens[i]));
-    } 
+    }
+}
+std::ostream& operator<<(std::ostream& out, const JetCorrectorParameters::Record& fBin)
+{
+  for(unsigned j=0;j<fBin.nVar();j++)
+    out<<fBin.xMin(j)<<" "<<fBin.xMax(j)<<" ";
+  out<<fBin.nParameters()<<" ";
+  for(unsigned j=0;j<fBin.nParameters();j++)
+    out<<fBin.parameter(j)<<" ";
+  out<<std::endl;
+  return out;
 }
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
 //------------------------------------------------------------------------
-JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const std::string& fSection) 
+JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const std::string& fSection)
 {
   std::ifstream input(fFile.c_str());
   std::string currentSection = "";
   std::string line;
   std::string currentDefinitions = "";
-  while (std::getline(input,line)) 
+  while (std::getline(input,line))
     {
       std::string section = getSection(line);
       std::string tmp = getDefinitions(line);
-      if (!section.empty() && tmp.empty()) 
+      if (!section.empty() && tmp.empty())
         {
           currentSection = section;
           continue;
         }
-      if (currentSection == fSection) 
+      if (currentSection == fSection)
         {
-          if (!tmp.empty()) 
+          if (!tmp.empty())
             {
               currentDefinitions = tmp;
-              continue; 
+              continue;
             }
           Definitions definitions(currentDefinitions);
           if (!(definitions.nBinVar()==0 && definitions.formula()==""))
@@ -137,66 +147,101 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
             if (record.xMin(i)==0 && record.xMax(i)==0)
               check = false;
           if (record.nParameters() == 0)
-            check = false;  
+            check = false;
           if (check)
             mRecords.push_back(record);
-        } 
+        }
     }
   if (currentDefinitions=="")
     handleError("JetCorrectorParameters","No definitions found!!!");
   if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
-  if (mRecords.empty() && currentSection != "") 
+  if (mRecords.empty() && currentSection != "")
     {
-      std::stringstream sserr; 
+      std::stringstream sserr;
       sserr<<"the requested section "<<fSection<<" doesn't exist!";
-      handleError("JetCorrectorParameters",sserr.str()); 
+      handleError("JetCorrectorParameters",sserr.str());
     }
   std::sort(mRecords.begin(), mRecords.end());
   valid_ = true;
+
+  if(mDefinitions.nBinVar()<=MAX_SIZE_DIMENSIONALITY)
+    {
+      init();
+    }
+  else
+    {
+      std::stringstream sserr;
+      sserr<<"since the binned dimensionality is greater than "<<MAX_SIZE_DIMENSIONALITY
+           <<" the SimpleJetCorrector will default to using the legacy binIndex function!";
+      handleError("JetCorrectorParameters",sserr.str());
+    }
 }
+//------------------------------------------------------------------------
+//--- initializes the correct JetCorrectorParametersHelper ---------------
+//------------------------------------------------------------------------
+void JetCorrectorParameters::init()
+{
+  std::sort(mRecords.begin(), mRecords.end());
+  helper = std::make_shared<JetCorrectorParametersHelper>();
+  helper->init(mDefinitions,mRecords);
+} 
 //------------------------------------------------------------------------
 //--- returns the index of the record defined by fX ----------------------
 //------------------------------------------------------------------------
-int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const 
+int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const
 {
   int result = -1;
   unsigned N = mDefinitions.nBinVar();
-  if (N != fX.size()) 
+  if (N != fX.size())
     {
-      std::stringstream sserr; 
+      std::stringstream sserr;
       sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
       handleError("JetCorrectorParameters",sserr.str());
     }
   unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
+  for (unsigned i = 0; i < size(); ++i)
     {
       tmp = 0;
       for (unsigned j=0;j<N;j++)
         if (fX[j] >= record(i).xMin(j) && fX[j] < record(i).xMax(j))
           tmp+=1;
       if (tmp==N)
-        { 
+        {
           result = i;
           break;
         }
-    } 
+    }
   return result;
+}
+//------------------------------------------------------------------------
+//--- returns the index of the record defined by fX (non-linear search) --
+//------------------------------------------------------------------------
+int JetCorrectorParameters::binIndexN(const std::vector<float>& fX) const
+{
+  if(helper->size()>0)
+    {
+      return helper->binIndexN(fX,mRecords);
+    }
+  else
+    { 
+      return -1;
+    }
 }
 //------------------------------------------------------------------------
 //--- returns the neighbouring bins of fIndex in the direction of fVar ---
 //------------------------------------------------------------------------
-int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const 
+int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const
 {
   int result = -1;
   unsigned N = mDefinitions.nBinVar();
-  if (fVar >= N) 
+  if (fVar >= N)
     {
-      std::stringstream sserr; 
+      std::stringstream sserr;
       sserr<<"# of bin variables "<<N<<" doesn't correspond to requested #: "<<fVar;
-      handleError("JetCorrectorParameters",sserr.str()); 
+      handleError("JetCorrectorParameters",sserr.str());
     }
   unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
+  for (unsigned i = 0; i < size(); ++i)
     {
       tmp = 0;
       for (unsigned j=0;j<fVar;j++)
@@ -206,7 +251,7 @@ int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fN
         if (fabs(record(i).xMin(j)-record(fIndex).xMin(j))<0.0001)
           tmp+=1;
       if (tmp<N-1)
-        continue; 
+        continue;
       if (tmp==N-1)
         {
           if (fNext)
@@ -215,13 +260,13 @@ int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fN
           if (!fNext)
             if (fabs(record(i).xMax(fVar)-record(fIndex).xMin(fVar))<0.0001)
               tmp+=1;
-        } 
+        }
       if (tmp==N)
-        { 
+        {
           result = i;
           break;
         }
-    } 
+    }
   return result;
 }
 //------------------------------------------------------------------------
@@ -229,27 +274,27 @@ int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fN
 //------------------------------------------------------------------------
 unsigned JetCorrectorParameters::size(unsigned fVar) const
 {
-  if (fVar >= mDefinitions.nBinVar()) 
-    { 
-      std::stringstream sserr; 
+  if (fVar >= mDefinitions.nBinVar())
+    {
+      std::stringstream sserr;
       sserr<<"requested bin variable index "<<fVar<<" is greater than number of variables "<<mDefinitions.nBinVar();
-      handleError("JetCorrectorParameters",sserr.str()); 
-    }    
+      handleError("JetCorrectorParameters",sserr.str());
+    }
   unsigned result = 0;
   float tmpMin(-9999),tmpMax(-9999);
   for (unsigned i = 0; i < size(); ++i)
     if (record(i).xMin(fVar) > tmpMin && record(i).xMax(fVar) > tmpMax)
-      { 
+      {
         result++;
         tmpMin = record(i).xMin(fVar);
         tmpMax = record(i).xMax(fVar);
       }
-  return result; 
+  return result;
 }
 //------------------------------------------------------------------------
 //--- returns the vector of bin centers of fVar --------------------------
 //------------------------------------------------------------------------
-std::vector<float> JetCorrectorParameters::binCenters(unsigned fVar) const 
+std::vector<float> JetCorrectorParameters::binCenters(unsigned fVar) const
 {
   std::vector<float> result;
   for (unsigned i = 0; i < size(); ++i)
@@ -292,7 +337,7 @@ void JetCorrectorParameters::printScreen() const
       for(unsigned j=0;j<record(i).nParameters();j++)
         std::cout<<record(i).parameter(j)<<" ";
       std::cout<<std::endl;
-    }  
+    }
 }
 //------------------------------------------------------------------------
 //--- prints parameters on file ----------------------------------------
@@ -326,120 +371,120 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
   txtFile.close();
 }
 
+namespace {
+const std::vector<std::string> labels_ = {
+  "L1Offset",
+  "L2Relative",
+  "L3Absolute",
+  "L4EMF",
+  "L5Flavor",
+  "L6UE",
+  "L7Parton",
+  "L1JPTOffset",
+  "L2L3Residual",
+  "Uncertainty",
+  "L1FastJet",
+  "UncertaintyAbsolute",
+  "UncertaintyHighPtExtra",
+  "UncertaintySinglePionECAL",
+  "UncertaintyFlavor",
+  "UncertaintyTime",
+  "UncertaintyRelativeJEREC1",
+  "UncertaintyRelativeJEREC2",
+  "UncertaintyRelativeJERHF",
+  "UncertaintyRelativeStatEC2",
+  "UncertaintyRelativeStatHF",
+  "UncertaintyRelativeFSR",
+  "UncertaintyPileUpDataMC",
+  "UncertaintyPileUpOOT",
+  "UncertaintyPileUpPtBB",
+  "UncertaintyPileUpBias",
+  "UncertaintyPileUpJetRate",
+  "UncertaintySinglePionHCAL",
+  "UncertaintyRelativePtEC1",
+  "UncertaintyRelativePtEC2",
+  "UncertaintyRelativePtHF",
+  "UncertaintyRelativeSample",
+  "UncertaintyPileUpPtEC",
+  "UncertaintyPileUpPtHF",
+  "L1RC",
+  "L1Residual",
+  "UncertaintyAux3",
+  "UncertaintyAux4",
+};
 
+const std::vector<std::string> l5Flavors_ = {
+  "L5Flavor_bJ",
+  "L5Flavor_cJ",
+  "L5Flavor_qJ",
+  "L5Flavor_gJ",
+  "L5Flavor_bT",
+  "L5Flavor_cT",
+  "L5Flavor_qT",
+  "L5Flavor_gT"
+};
 
-const char * 
-JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection::N_LEVELS] = 
-  {
-    "L1Offset",
-    "L2Relative",
-    "L3Absolute",
-    "L4EMF",
-    "L5Flavor",
-    "L6UE",
-    "L7Parton",
-    "L1JPTOffset",
-    "L2L3Residual",
-    "Uncertainty",
-    "L1FastJet",
-    "UncertaintyAbsolute", 
-    "UncertaintyHighPtExtra", 
-    "UncertaintySinglePionECAL", 
-    "UncertaintyFlavor", 
-    "UncertaintyTime",
-    "UncertaintyRelativeJEREC1", 
-    "UncertaintyRelativeJEREC2", 
-    "UncertaintyRelativeJERHF",
-    "UncertaintyRelativeStatEC2", 
-    "UncertaintyRelativeStatHF", 
-    "UncertaintyRelativeFSR",
-    "UncertaintyPileUpDataMC", 
-    "UncertaintyPileUpOOT", 
-    "UncertaintyPileUpPtBB", 
-    "UncertaintyPileUpBias", 
-    "UncertaintyPileUpJetRate",
-    "UncertaintySinglePionHCAL",
-    "UncertaintyRelativePtEC1",
-    "UncertaintyRelativePtEC2",
-    "UncertaintyRelativePtHF",
-    "UncertaintyRelativeSample",
-    "UncertaintyPileUpPtEC", 
-    "UncertaintyPileUpPtHF",
-    "UncertaintyAux1", 
-    "UncertaintyAux2", 
-    "UncertaintyAux3", 
-    "UncertaintyAux4", 
-  }; 
+const std::vector<std::string> l7Partons_ = {
+  "L7Parton_gJ",
+  "L7Parton_qJ",
+  "L7Parton_cJ",
+  "L7Parton_bJ",
+  "L7Parton_jJ",
+  "L7Parton_qT",
+  "L7Parton_cT",
+  "L7Parton_bT",
+  "L7Parton_tT"
+};
+}
+std::string
+JetCorrectorParametersCollection::findLabel( key_type k ){
+  if      ( isL5(k) ) return findL5Flavor(k);
+  else if ( isL7(k) ) return findL7Parton(k);
+  else                return labels_[k];
+}
 
-const char *
-JetCorrectorParametersCollection::l5FlavorArray_[JetCorrectorParametersCollection::N_L5_SPECIES] = 
-  {
-    "L5Flavor_bJ",
-    "L5Flavor_cJ",
-    "L5Flavor_qJ",
-    "L5Flavor_gJ",
-    "L5Flavor_bT",
-    "L5Flavor_cT",
-    "L5Flavor_qT",
-    "L5Flavor_gT"
-  };
+std::string
+JetCorrectorParametersCollection::findL5Flavor( key_type k ){
+  if ( k == L5Flavor ) return labels_[L5Flavor];
+  else
+    return l5Flavors_[k / 100 - 1];
+}
 
-const char *
-JetCorrectorParametersCollection::l7PartonArray_[JetCorrectorParametersCollection::N_L7_SPECIES] = 
-  {
-    "L7Parton_gJ",
-    "L7Parton_qJ",
-    "L7Parton_cJ",
-    "L7Parton_bJ",
-    "L7Parton_jJ",
-    "L7Parton_qT",
-    "L7Parton_cT",
-    "L7Parton_bT",
-    "L7Parton_tT"
-  };
+std::string
+JetCorrectorParametersCollection::findL7Parton( key_type k ){
+  if ( k == L7Parton ) return labels_[L7Parton];
+  else
+    return l7Partons_[k / 1000 - 1];
+}
 
-
-std::vector<std::string>
-JetCorrectorParametersCollection::labels_(labelsArray_, 
-					  labelsArray_ + sizeof(labelsArray_)/sizeof(*labelsArray_) );
-
-std::vector<std::string>
-JetCorrectorParametersCollection::l5Flavors_(l5FlavorArray_, 
-					     l5FlavorArray_ + sizeof(l5FlavorArray_)/sizeof(*l5FlavorArray_) );
-
-std::vector<std::string>
-JetCorrectorParametersCollection::l7Partons_(l7PartonArray_, 
-					     l7PartonArray_ + sizeof(l7PartonArray_)/sizeof(*l7PartonArray_) );
-
-
-void JetCorrectorParametersCollection::getSections( std::string inputFile,
-						    std::vector<std::string> & outputs )
+void JetCorrectorParametersCollection::getSections(std::string inputFile,
+                                                   std::vector<std::string> & outputs )
 {
   outputs.clear();
   std::ifstream input( inputFile.c_str() );
   while( !input.eof() ) {
     char buff[10000];
     input.getline(buff,10000);
-    std::string in(buff); 
+    std::string in(buff);
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);
       if ( tok != "" ) {
-	outputs.push_back( tok );
+        outputs.push_back( tok );
       }
     }
   }
   std::cout << "Found these sections for file: " << std::endl;
   copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
-} 
+}
 
 
-// Add a JetCorrectorParameter object, possibly with flavor. 
-void JetCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const & flav) { 
-  std::cout << "i    = " << i << std::endl;  
+// Add a JetCorrectorParameter object, possibly with flavor.
+void JetCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const & flav) {
+  std::cout << "i    = " << i << std::endl;
   std::cout << "flav = " << flav << std::endl;
   if ( isL5(i) ) {
     std::cout << "This is L5, getL5Bin = " << getL5Bin(flav) << std::endl;
-    correctionsL5_.push_back( pair_type(getL5Bin(flav),j) ); 
+    correctionsL5_.push_back( pair_type(getL5Bin(flav),j) );
   }
   else if ( isL7(i) ) {
     std::cout << "This is L7, getL7Bin = " << getL7Bin(flav) << std::endl;
@@ -464,8 +509,8 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
   } else if ( isL7(k) ) {
     ibegin = correctionsL7_.begin();
     iend = correctionsL7_.end();
-    i = ibegin;      
-  } else { 
+    i = ibegin;
+  } else {
     ibegin = corrections_.begin();
     iend = corrections_.end();
     i = ibegin;
@@ -473,24 +518,24 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
   for ( ; i != iend; ++i ) {
     if ( k == i->first ) return i->second;
   }
-  throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k) 
-				       << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
+  throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k)
+                                       << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
 }
 
 // Get a list of valid keys. These will contain hashed keys
-// that are aware of all three collections. 
+// that are aware of all three collections.
 void JetCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) const {
   keys.clear();
   for ( collection_type::const_iterator ibegin = corrections_.begin(),
-	  iend = corrections_.end(), i = ibegin; i != iend; ++i ) {
+        iend = corrections_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
   for ( collection_type::const_iterator ibegin = correctionsL5_.begin(),
-	  iend = correctionsL5_.end(), i = ibegin; i != iend; ++i ) {
+        iend = correctionsL5_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
   for ( collection_type::const_iterator ibegin = correctionsL7_.begin(),
-	  iend = correctionsL7_.end(), i = ibegin; i != iend; ++i ) {
+        iend = correctionsL7_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
 }
@@ -499,7 +544,7 @@ void JetCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) 
 // Find the L5 bin for hashing
 JetCorrectorParametersCollection::key_type
 JetCorrectorParametersCollection::getL5Bin( std::string const & flav ){
-  std::vector<std::string>::const_iterator found = 
+  std::vector<std::string>::const_iterator found =
     find( l5Flavors_.begin(), l5Flavors_.end(), flav );
   if ( found != l5Flavors_.end() ) {
     return (found - l5Flavors_.begin() + 1) * 100;
@@ -509,7 +554,7 @@ JetCorrectorParametersCollection::getL5Bin( std::string const & flav ){
 // Find the L7 bin for hashing
 JetCorrectorParametersCollection::key_type
 JetCorrectorParametersCollection::getL7Bin( std::string const & flav ){
-  std::vector<std::string>::const_iterator found = 
+  std::vector<std::string>::const_iterator found =
     find( l7Partons_.begin(), l7Partons_.end(), flav );
   if ( found != l7Partons_.end() ) {
     return (found - l7Partons_.begin() + 1) * 1000;
@@ -530,7 +575,7 @@ bool JetCorrectorParametersCollection::isL7( key_type k ) {
 
 
 // Find the key corresponding to each label
-JetCorrectorParametersCollection::key_type 
+JetCorrectorParametersCollection::key_type
 JetCorrectorParametersCollection::findKey( std::string const & label ) const {
 
   // First check L5 corrections
@@ -538,21 +583,21 @@ JetCorrectorParametersCollection::findKey( std::string const & label ) const {
     find( l5Flavors_.begin(), l5Flavors_.end(), label );
   if ( found1 != l5Flavors_.end() ) {
     return getL5Bin(label);
-  } 
+  }
 
   // Next check L7 corrections
   std::vector<std::string>::const_iterator found2 =
     find( l7Partons_.begin(), l7Partons_.end(), label );
   if ( found2 != l7Partons_.end() ) {
     return getL7Bin(label);
-  } 
+  }
 
   // Finally check the default corrections
   std::vector<std::string>::const_iterator found3 =
     find( labels_.begin(), labels_.end(), label );
   if ( found3 != labels_.end() ) {
     return static_cast<key_type>(found3 - labels_.begin());
-  } 
+  }
 
   // Didn't find default corrections, throw exception
   throw cms::Exception("InvalidInput") << " Cannot find label " << label << std::endl;
@@ -564,6 +609,6 @@ JetCorrectorParametersCollection::findKey( std::string const & label ) const {
 //#include "FWCore/Framework/interface/ESHandle.h"
 //#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/typelookup.h"
- 
+
 TYPELOOKUP_DATA_REG(JetCorrectorParameters);
 TYPELOOKUP_DATA_REG(JetCorrectorParametersCollection);

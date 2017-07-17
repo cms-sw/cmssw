@@ -83,14 +83,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & fac
   apvgainAutoPtr_.reset(newApvGain);
 }
 
-float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) const
-{
-  if( apvgain_ == 0 ) {
-    edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
-    return 1.;
-  }
-  return( apvgain_->getStripGain(strip, range) );
-}
+
 
 float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const uint32_t index) const
 {
@@ -101,14 +94,7 @@ float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Ran
   return 1.;
 }
 
-float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) const
-{
-  if( apvgain_ == 0 ) {
-    edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
-    return 1.;
-  }
-  return( apvgain_->getApvGain(apv, range) );
-}
+
 
 float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const uint32_t index) const
 {
@@ -125,10 +111,6 @@ void SiStripGain::getDetIds(std::vector<uint32_t>& DetIds_) const
   return apvgain_->getDetIds(DetIds_);
 }
 
-const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const
-{
-  return apvgain_->getRange(DetId);
-}
 
 const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const uint32_t index) const
 {

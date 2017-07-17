@@ -38,7 +38,7 @@ private:
   bool testFindVolume(const GlobalPoint & gp);
 
   const MagGeometry * theGeometry;
-  std::vector<MagVolume6Faces*> volumes;
+  std::vector<MagVolume6Faces const*> volumes;
 };
 #endif
 

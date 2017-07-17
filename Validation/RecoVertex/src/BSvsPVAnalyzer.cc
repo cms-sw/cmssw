@@ -2,7 +2,7 @@
 //
 // Package:    Validation/RecoVertex
 // Class:      BSvsPVAnalyzer
-// 
+//
 /**\class BSvsPVAnalyzer BSvsPVAnalyzer.cc Validation/RecoVertex/plugins/BSvsPVAnalyzer.cc
 
  Description: <one line class summary>
@@ -63,8 +63,8 @@ private:
       // ----------member data ---------------------------
 
   BSvsPVHistogramMaker _bspvhm;
-  edm::InputTag _pvcollection;
-  edm::InputTag _bscollection;
+  edm::EDGetTokenT<reco::VertexCollection> _recoVertexCollectionToken;
+  edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
   bool _firstOnly;
 
 };
@@ -80,11 +80,11 @@ private:
 //
 // constructors and destructor
 //
-BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig):
-  _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet")),
-  _pvcollection(iConfig.getParameter<edm::InputTag>("pvCollection")),
-  _bscollection(iConfig.getParameter<edm::InputTag>("bsCollection")),
-  _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
+BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
+  : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"), consumesCollector())
+  , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
+  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
+  , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
 {
    //now do what ever initialization is needed
 
@@ -97,7 +97,7 @@ BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig):
 
 BSvsPVAnalyzer::~BSvsPVAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -112,17 +112,16 @@ BSvsPVAnalyzer::~BSvsPVAnalyzer()
 void
 BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  
+
   // get BS
 
-  Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(_bscollection,bs);
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByToken(_recoBeamSpotToken,bs);
 
   // get PV
 
-  Handle<reco::VertexCollection> pvcoll;
-  iEvent.getByLabel(_pvcollection,pvcoll);
+  edm::Handle<reco::VertexCollection> pvcoll;
+  iEvent.getByToken(_recoVertexCollectionToken,pvcoll);
 
   if(_firstOnly) {
     reco::VertexCollection firstpv;
@@ -136,7 +135,7 @@ BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 BSvsPVAnalyzer::beginJob()
 { }
 
@@ -152,7 +151,7 @@ BSvsPVAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 BSvsPVAnalyzer::endJob() {
 }
 

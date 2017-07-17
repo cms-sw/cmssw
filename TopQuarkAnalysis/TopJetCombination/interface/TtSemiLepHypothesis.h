@@ -21,9 +21,9 @@
 
    \brief   Interface class for the creation of semi-leptonic ttbar event hypotheses
 
-   The class provides an interface for the creation of semi-leptonic ttbar event hypotheses. Input information is read 
-   from the event content and the proper candidate creation is taken care of. Hypotheses are characterized by the 
-   CompositeCandidate made of a ttbar pair (including all its decay products in a parton level interpretation) and an 
+   The class provides an interface for the creation of semi-leptonic ttbar event hypotheses. Input information is read
+   from the event content and the proper candidate creation is taken care of. Hypotheses are characterized by the
+   CompositeCandidate made of a ttbar pair (including all its decay products in a parton level interpretation) and an
    enumerator type key to specify the algorithm that was used to determine the candidate (the "hypothesis class").
    The buildKey and the buildHypo methods have to implemented by derived classes.
 **/
@@ -54,15 +54,15 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   /// return key
   /// minimalistic build function for simple hypotheses
   void buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
-		 const edm::Handle<std::vector<pat::MET> >& mets, 
-		 const edm::Handle<std::vector<pat::Jet> >& jets, 
+		 const edm::Handle<std::vector<pat::MET> >& mets,
+		 const edm::Handle<std::vector<pat::Jet> >& jets,
 		 std::vector<int>& jetPartonAssociation);
   int key() const { return key_; };
   /// return event hypothesis
   reco::CompositeCandidate hypo();
   /// check if index is in valid range of selected jets
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
-  /// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron 
+  /// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron
   WDecay::LeptonType leptonType(const reco::RecoCandidate* cand);
 
   // -----------------------------------------
@@ -72,25 +72,25 @@ class TtSemiLepHypothesis : public edm::EDProducer {
 
   /// build the event hypothesis key
   virtual void buildKey() = 0;
-  /// build event hypothesis from the reco objects of a semi-leptonic event 
+  /// build event hypothesis from the reco objects of a semi-leptonic event
   virtual void buildHypo(edm::Event& event,
-			 const edm::Handle<edm::View<reco::RecoCandidate> >& lepton, 
-			 const edm::Handle<std::vector<pat::MET> >& neutrino, 
-			 const edm::Handle<std::vector<pat::Jet> >& jets, 
+			 const edm::Handle<edm::View<reco::RecoCandidate> >& lepton,
+			 const edm::Handle<std::vector<pat::MET> >& neutrino,
+			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& jetPartonAssociation,
 			 const unsigned int iComb) = 0;
 
  protected:
-  /// internal check whether the match information exists or not, 
+  /// internal check whether the match information exists or not,
   /// if false a blind dummy match vector will be used internally
   bool getMatch_;
   /// input label for all necessary collections
-  edm::InputTag jets_;
-  edm::InputTag leps_;
-  edm::InputTag mets_;
-  edm::InputTag match_;
-  edm::InputTag nJetsConsidered_;
-  /// specify the desired jet correction level (the default should 
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT<std::vector<std::vector<int> > > matchToken_;
+  edm::EDGetTokenT<int> nJetsConsideredToken_;
+  /// specify the desired jet correction level (the default should
   /// be L3Absolute-'abs')
   std::string jetCorrectionLevel_;
   /// hypothesis key (to be set by the buildKey function)
@@ -100,7 +100,7 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   /// number of real neutrino solutions:
   /// -1 if not determined, 0 if only complex, 2 if two real solutions
   int numberOfRealNeutrinoSolutions_;
-  /// candidates for internal use for the creation of the hypothesis 
+  /// candidates for internal use for the creation of the hypothesis
   /// candidate
   reco::ShallowClonePtrCandidate *lightQ_;
   reco::ShallowClonePtrCandidate *lightQBar_;

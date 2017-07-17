@@ -10,6 +10,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/JetReco/interface/PFClusterJetCollection.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
@@ -36,8 +37,10 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace {
-  struct dictionary {
+
+
+namespace DataFormats_JetReco {
+  struct dictionary4 {
     // jet id stuff
     reco::JetID jid;
     edm::Ref<std::vector<reco::JetID> > rjid;
@@ -63,10 +66,12 @@ namespace {
 
     // Ptr stuff
     edm::Ptr<reco::Jet> ptrj;
+    edm::reftobase::RefHolder<edm::Ptr<reco::Jet> > refHolderPtrRecoJet;
     edm::PtrVector<reco::Jet> ptrvj;
 
     edm::Ptr<reco::CaloJet> ptrcj;
     edm::PtrVector<reco::CaloJet> ptrvcj;
+    edm::reftobase::RefHolder<edm::Ptr<reco::CaloJet> > refHolderPtrCaloJet;
 
     edm::Ptr<reco::JPTJet> ptrjptj;
     edm::PtrVector<reco::JPTJet> ptrvjptj;

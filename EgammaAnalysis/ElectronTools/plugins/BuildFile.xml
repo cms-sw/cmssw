@@ -1,0 +1,18 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
+<use   name="EgammaAnalysis/ElectronTools"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="PhysicsTools/SelectorUtils"/>
+<library name="EgammaAnalysisElectronToolsPlugins" file="*.cc">
+   <flags   EDM_PLUGIN="1"/>
+</library>
+<export>
+</export>

@@ -1,12 +1,16 @@
 <lcgdict>
-  <class name="reco::Jet" ClassVersion="10">
+  <class name="reco::Jet" ClassVersion="12">
+   <version ClassVersion="12" checksum="1247035343"/>
+   <version ClassVersion="11" checksum="1537319703"/>
    <version ClassVersion="10" checksum="1996172778"/>
   </class>
   <class name="reco::Jet::EtaPhiMoments" ClassVersion="10">
    <version ClassVersion="10" checksum="1092387980"/>
   </class>
 
-  <class name="reco::CaloJet" ClassVersion="10">
+  <class name="reco::CaloJet" ClassVersion="12">
+   <version ClassVersion="12" checksum="3191984313"/>
+   <version ClassVersion="11" checksum="3081844369"/>
    <version ClassVersion="10" checksum="715843310"/>
   </class>
   <class name="reco::CaloJet::Specific" ClassVersion="10">
@@ -35,7 +39,9 @@
   <class name="std::vector<reco::CaloJetRefVector>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
 
-  <class name="reco::JPTJet" ClassVersion="10">
+  <class name="reco::JPTJet" ClassVersion="12">
+   <version ClassVersion="12" checksum="3435263220"/>
+   <version ClassVersion="11" checksum="2945806860"/>
    <version ClassVersion="10" checksum="456342263"/>
   </class>
   <class name="reco::JPTJet::Specific" ClassVersion="10">
@@ -54,10 +60,13 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
 
-  <class name="reco::PFJet" ClassVersion="10">
+  <class name="reco::PFJet" ClassVersion="12">
+   <version ClassVersion="12" checksum="2496789869"/>
+   <version ClassVersion="11" checksum="2007333509"/>
    <version ClassVersion="10" checksum="3657319332"/>
   </class>
-  <class name="reco::PFJet::Specific" ClassVersion="10">
+  <class name="reco::PFJet::Specific" ClassVersion="11">
+   <version ClassVersion="11" checksum="3865393003"/>
    <version ClassVersion="10" checksum="3345092571"/>
   </class>
   <class name="std::vector<reco::PFJet>"/>
@@ -79,7 +88,9 @@
   <class name="edm::Wrapper<std::vector<reco::PFJetRefVector> >"/>
   <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>"/>
 
-  <class name="reco::GenJet" ClassVersion="10">
+  <class name="reco::GenJet" ClassVersion="12">
+   <version ClassVersion="12" checksum="3628057227"/>
+   <version ClassVersion="11" checksum="2159688147"/>
    <version ClassVersion="10" checksum="1136403928"/>
   </class>
   <class name="reco::GenJet::Specific" ClassVersion="10">
@@ -100,7 +111,9 @@
   <class name="reco::GenJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::GenJetFwdPtrVector>"/>
 
-  <class name="reco::BasicJet" ClassVersion="10">
+  <class name="reco::BasicJet" ClassVersion="12">
+   <version ClassVersion="12" checksum="3099754843"/>
+   <version ClassVersion="11" checksum="3390039203"/>
    <version ClassVersion="10" checksum="2049228932"/>
   </class>
   <class name="std::vector<reco::BasicJet>"/>

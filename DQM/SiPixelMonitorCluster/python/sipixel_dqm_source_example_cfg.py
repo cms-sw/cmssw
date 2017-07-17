@@ -41,10 +41,6 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8D_900GeV-v1/0002/FC5F59F1-05D7-DE11-8AA4-002618943874.root')
 )
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
 #process.p1 = cms.Path(process.siPixelClusters*process.SiPixelClusterSource)
 process.p1 = cms.Path(process.SiPixelClusterSource)
 process.SiPixelClusterSource.saveFile = True

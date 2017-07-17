@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
@@ -43,10 +44,12 @@ public:
     double                    time;
   };
 
-  void                initRun(G4ParticleTable * theParticleTable);
+  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
-
+  std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,
+                               int parCode, double parEnergy, bool & ok,
+                               double weight, double time, bool onlyLong=false);
 protected:
 
   bool                rInside(double r);
@@ -64,7 +67,7 @@ private:
   TFile *             hf;
   TBranch             *emBranch, *hadBranch;
 
-  bool                verbose, applyFidCut;
+  bool                verbose, applyFidCut, newForm, v3version;
   int                 nMomBin, totEvents, evtPerBin;
   float               libVers, listVersion; 
   std::vector<double> pmom;
@@ -78,8 +81,9 @@ private:
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
-  std::vector<HFShowerPhoton> pe;
-  std::vector<HFShowerPhoton> photon;
+  HFShowerPhotonCollection pe;
+  HFShowerPhotonCollection* photo;
+  HFShowerPhotonCollection photon;
 
 };
 #endif

@@ -21,6 +21,9 @@
 // Muon stuff
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <vector>
 
 using namespace l1extra;
@@ -84,6 +87,39 @@ ESListOfFEDSProducer::~ESListOfFEDSProducer() {
  delete TheMapping;
 }
 
+void ESListOfFEDSProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;  
+  desc.add<bool>("debug", false);
+  desc.add<bool>("EGamma", true);
+  desc.add<bool>("Muon", false);
+  desc.add<bool>("Jets", false);
+  desc.add<edm::InputTag>("EM_l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("EM_l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<bool>("EM_doIsolated", true);
+  desc.add<bool>("EM_doNonIsolated", true);
+  desc.add<double>("EM_regionEtaMargin", 0.25);
+  desc.add<double>("EM_regionPhiMargin", 0.40);
+  desc.add<double>("Ptmin_iso", 5.0);
+  desc.add<double>("Ptmin_noniso", 5.0);
+  desc.add<double>("MU_regionEtaMargin", 1.0);
+  desc.add<double>("MU_regionPhiMargin", 1.0);
+  desc.add<double>("Ptmin_muon", 0.);
+  desc.add<edm::InputTag>("MuonSource", edm::InputTag("l1extraParticles"));
+  desc.add<double>("JETS_regionEtaMargin", 1.0);
+  desc.add<double>("JETS_regionPhiMargin", 1.0);
+  desc.add<double>("Ptmin_jets", 50.);
+  desc.add<edm::InputTag>("CentralSource", edm::InputTag("l1extraParticles","Central"));
+  desc.add<edm::InputTag>("ForwardSource", edm::InputTag("l1extraParticles","Forward"));
+  desc.add<edm::InputTag>("TauSource", edm::InputTag("l1extraParticles","Tau"));
+  desc.add<bool>("JETS_doCentral", true);
+  desc.add<bool>("JETS_doForward", true);
+  desc.add<bool>("JETS_doTau", true);
+  desc.add<std::string>("OutputLabel", "");
+  descriptions.add(("hltESListOfFEDSProducer"), desc);  
+}
+
+
 void ESListOfFEDSProducer::beginJob()
 {}
 
@@ -100,7 +136,7 @@ void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup
     first_ = false;
   }                                                                                              
   
-  std::auto_ptr<ESListOfFEDS> productAddress(new ESListOfFEDS);
+  auto productAddress = std::make_unique<ESListOfFEDS>();
   std::vector<int> feds;		// the list of Ecal FEDS produced 
   
   ///
@@ -174,7 +210,7 @@ void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup
   
   ///now push list of ES FEDs into event.
   productAddress.get() -> SetList(es_feds);
-  e.put(productAddress,OutputLabel_);
+  e.put(std::move(productAddress),OutputLabel_);
   
 }
 
@@ -448,4 +484,3 @@ std::vector<int> ESListOfFEDSProducer::ListOfFEDS(double etaLow, double etaHigh,
   
   return FEDs;
 }
-

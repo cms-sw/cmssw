@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 struct Base
@@ -22,7 +23,7 @@ struct Derived : Base
   void swap(Derived& other);
   virtual Derived* clone() const;
 
-  int*  pointer;
+  edm::propagate_const<int*> pointer;
 };
 
 Derived::Derived(int n) : pointer(new int(n)) { }
@@ -48,7 +49,7 @@ void swap(Derived& a, Derived& b)
 
 Derived::~Derived()
 {
-  delete pointer;
+  delete pointer.get();
 }
 
 Derived*
@@ -154,16 +155,54 @@ void take_an_lvalue()
   Base* p = new Derived(100);
   v1.push_back(p);
 
-  assert(p == 0);
+  assert(p == nullptr);
 }
 
 void take_an_auto_ptr()
 {
   edm::OwnVector<Base> v1;
-  std::auto_ptr<Base> p(new Derived(100));
-  v1.push_back(p);
-  assert(p.get() == 0);
+  std::unique_ptr<Base> p = std::make_unique<Derived>(100);
+  v1.push_back(std::move(p));
+  assert(p.get() == nullptr);
 }
+
+void set_at_index()
+{
+  edm::OwnVector<Base> v1;
+  Base* p = new Derived(100);
+  Base* backup = p;
+  v1.push_back(p);
+  assert(p == nullptr);
+  assert(&v1[0] == backup);
+  Base* p2 = new Derived(101);
+  Base* backup2 = p2;
+  assert(backup2 != backup);
+  v1.set(0, p2);
+  assert(p2 == nullptr);
+  assert(&v1[0] == backup2);
+}
+
+void insert_with_iter()
+{
+  edm::OwnVector<Base> v1;
+  Base *p[3], *backup[3];
+  for (int i = 0; i < 3; ++i) {
+      backup[i] = p[i] = new Derived(100+i);
+  }
+  v1.push_back(p[0]);
+  v1.push_back(p[2]);
+  v1.insert(v1.begin()+1, p[1]);
+  assert(p[0] == nullptr);
+  assert(p[1] == nullptr);
+  assert(p[2] == nullptr);
+  assert(&v1[0] == backup[0]);
+  assert(&v1[1] == backup[1]);
+  assert(&v1[2] == backup[2]);
+}
+
+
+
+
 
 int main()
 {
@@ -184,4 +223,7 @@ int main()
   take_an_rvalue();
   take_an_lvalue();
   take_an_auto_ptr();
+
+  set_at_index();
+  insert_with_iter();
 }

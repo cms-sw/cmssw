@@ -22,10 +22,8 @@
 #include <TMath.h>
 
 #include <iostream>
-#include <string>
-#include <vector>
 #include <algorithm>
-using namespace std;
+
 
 //TF1 * GL = new TF1 ("GL", 
 //	    "0.5/TMath::PI*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(2*TMath::PI))", 
@@ -62,7 +60,7 @@ void Probs (int nbins) {
     sprintf (name, "GL%d", i);
     I[i] = new TH2D (name, "Gaussian x Lorentz", nbins+1, Xmin[i], Xmax[i], nbins+1, Ymin[i], Ymax[i]);
 
-    cout << "Processing resonance " << i << endl;
+    std::cout << "Processing resonance " << i << std::endl;
     for (int ix=0; ix<=nbins/2; ix++) {
       double mass = Xmin[i]+(Xmax[i]-Xmin[i])*((double)ix)/(double)nbins;
       double sigma;
@@ -76,16 +74,16 @@ void Probs (int nbins) {
 	  GL->SetParameters (Gamma[i], Mass[i], mass, sigma);
 	  GL->CalcGaussLegendreSamplingPoints (np, x, w, 0.1e-18);
 	  P = GL->IntegralFast (np, x, w, Mass[i]-10*Gamma[i], Mass[i]+10*Gamma[i]);
-	  cout << "For Resonance #" << i << ": mass = " << mass << ", sigma = " << sigma 
-	       << ", P = " << P << endl;
+	  std::cout << "For Resonance #" << i << ": mass = " << mass << ", sigma = " << sigma 
+	       << ", P = " << P << std::endl;
 	} else if (iy<10) {
 	  np = 2000;
 	  GL->SetParameters (Gamma[i], Mass[i], mass, sigma);
 	  GL->CalcGaussLegendreSamplingPoints (np, x, w, 0.1e-16);
 	  P = GL->IntegralFast (np, x, w, Mass[i]-10*Gamma[i], Mass[i]+10*Gamma[i]);
 	  // P = GL->Integral(Mass[i]-10*Gamma[i], Mass[i]+10*Gamma[i]);
-	  cout << "For Resonance #" << i << ": mass = " << mass << ", sigma = " << sigma 
-	       << ", P = " << P << endl;
+	  std::cout << "For Resonance #" << i << ": mass = " << mass << ", sigma = " << sigma 
+	       << ", P = " << P << std::endl;
 	} else {
 	  GL->SetParameters (Gamma[i], Mass[i], mass, sigma);
 	  P = GL->Integral(Mass[i]-10*Gamma[i], Mass[i]+10*Gamma[i]);

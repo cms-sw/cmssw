@@ -1,95 +1,57 @@
-// have to do this evil in order to access constructors.
-// This is acceptable only for white box tests like this.
-#define private public
+#include <functional>
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#undef private
+
+namespace edm {
+  class TestEDGetToken {
+  public:
+    template <typename... Args>
+    static edm::EDGetToken makeToken( Args&&... iArgs) {
+      return edm::EDGetToken(std::forward<Args>(iArgs)...);
+    }
+  
+    template <typename T, typename... Args>
+    static edm::EDGetTokenT<T> makeTokenT( Args&&... iArgs) {
+      return edm::EDGetTokenT<T>(std::forward<Args>(iArgs)...);
+    }
+  };
+}
 
 #include <iostream>
 
 int main() {
 
-  edm::EDGetTokenT<int> token1;
-  if(!token1.isUnitialized() ||
-     !(token1.index() == 0x7FFFFFFF) ||
-     !token1.willSkipCurrentProcess()) {
-    std::cout << "EDToken no argument constructor failed 1" << std::endl;
+  edm::EDGetTokenT<int> token1 = edm::TestEDGetToken::makeTokenT<int>();
+  if(!token1.isUninitialized() ||
+     !(token1.index() == 0xFFFFFFFF)) {
+    std::cout << "EDGetTokenT no argument constructor failed 1" << std::endl;
     abort();
   }
-  edm::EDGetTokenT<int> token2(0x7FFFFFFF, true);
-  if(!token2.isUnitialized() ||
-     !(token2.index() == 0x7FFFFFFF) ||
-     !token2.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 2" << std::endl;
+
+  edm::EDGetTokenT<int> token2 = edm::TestEDGetToken::makeTokenT<int>(11);
+  if(token2.isUninitialized() ||
+     !(token2.index() == 11)) {
+    std::cout << "EDGetTokenT 1 argument constructor failed 2" << std::endl;
     abort();
   }
-  edm::EDGetTokenT<int> token3(0x7FFFFFFF, false);
-  if(token3.isUnitialized() ||
-     !(token3.index() == 0x7FFFFFFF) ||
-     token3.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 3" << std::endl;
+
+  edm::EDGetToken token10 = edm::TestEDGetToken::makeToken();
+  if(!token10.isUninitialized() ||
+     !(token10.index() == 0xFFFFFFFF)) {
+    std::cout << "EDGetToken no argument constructor failed 10" << std::endl;
     abort();
   }
-  edm::EDGetTokenT<int> token4(1, true);
-  if(token4.isUnitialized() ||
-     !(token4.index() == 1) ||
-     !token4.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 4" << std::endl;
+
+  edm::EDGetToken token11 = edm::TestEDGetToken::makeToken(100);
+  if(token11.isUninitialized() ||
+     !(token11.index() == 100)) {
+    std::cout << "EDGetToken 1 argument constructor failed 11" << std::endl;
     abort();
   }
-  edm::EDGetTokenT<int> token5(1, false);
-  if(token5.isUnitialized() ||
-     !(token5.index() == 1) ||
-     token5.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 5" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token10;
-  if(!token10.isUnitialized() ||
-     !(token10.index() == 0x7FFFFFFF) ||
-     !token10.willSkipCurrentProcess()) {
-    std::cout << "EDToken no argument constructor failed 10" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token20(0x7FFFFFFF, true);
-  if(!token20.isUnitialized() ||
-     !(token20.index() == 0x7FFFFFFF) ||
-     !token20.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 20" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token30(0x7FFFFFFF, false);
-  if(token30.isUnitialized() ||
-     !(token30.index() == 0x7FFFFFFF) ||
-     token30.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 30" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token40(1, true);
-  if(token40.isUnitialized() ||
-     !(token40.index() == 1) ||
-     !token40.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 40" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token50(1, false);
-  if(token50.isUnitialized() ||
-     !(token50.index() == 1) ||
-     token50.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 50" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token60(token4);
-  if(token60.isUnitialized() ||
-     !(token60.index() == 1) ||
-     !token60.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 60" << std::endl;
-    abort();
-  }
-  edm::EDGetToken token70(token5);
-  if(token70.isUnitialized() ||
-     !(token70.index() == 1) ||
-     token70.willSkipCurrentProcess()) {
-    std::cout << "EDToken constructor failed 70" << std::endl;
+
+  edm::EDGetToken token12(token2);
+  if(token12.isUninitialized() ||
+     !(token12.index() == 11)) {
+    std::cout << "EDGetToken 1 argument constructor failed 12" << std::endl;
     abort();
   }
 }

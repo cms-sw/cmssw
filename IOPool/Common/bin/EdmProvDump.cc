@@ -17,8 +17,8 @@
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "Cintex/Cintex.h"
 #include "TError.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -374,8 +374,8 @@ namespace {
   std::unique_ptr<TFile>
   makeTFileWithLookup(std::string const& filename) {
     // See if it is a logical file name.
-    std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-    boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> > slc(new edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig>(slcptr));
+    std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
     std::string override;
@@ -480,7 +480,8 @@ public:
                    bool showAllModules,
                    bool showTopLevelPSets,
                    std::vector<std::string> const& findMatch,
-                   bool dontPrintProducts);
+                   bool dontPrintProducts,
+                   std::string const& dumpPSetID);
 
   ProvenanceDumper(ProvenanceDumper const&) = delete; // Disallow copying and moving
   ProvenanceDumper& operator=(ProvenanceDumper const&) = delete; // Disallow copying and moving
@@ -502,7 +503,7 @@ private:
                       std::map<edm::BranchID, std::set<edm::BranchID> >& parentToChildren) const;
 
   std::string              filename_;
-  std::unique_ptr<TFile>   inputFile_;
+  edm::propagate_const<std::unique_ptr<TFile>>   inputFile_;
   int                      exitCode_;
   std::stringstream        errorLog_;
   int                      errorCount_;
@@ -519,6 +520,7 @@ private:
   bool                     showTopLevelPSets_;
   std::vector<std::string> findMatch_;
   bool                     dontPrintProducts_;
+  std::string              dumpPSetID_;
 
   void work_();
   void dumpProcessHistory_();
@@ -535,7 +537,8 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
                                    bool showOtherModules,
                                    bool showTopLevelPSets,
                                    std::vector<std::string> const& findMatch,
-                                   bool dontPrintProducts) :
+                                   bool dontPrintProducts,
+                                   std::string const& dumpPSetID) :
   filename_(filename),
   inputFile_(makeTFile(filename)),
   exitCode_(0),
@@ -548,7 +551,8 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
   showOtherModules_(showOtherModules),
   showTopLevelPSets_(showTopLevelPSets),
   findMatch_(findMatch),
-  dontPrintProducts_(dontPrintProducts) {
+  dontPrintProducts_(dontPrintProducts),
+  dumpPSetID_(dumpPSetID) {
 }
 
 void
@@ -622,6 +626,7 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
     if(i == psm_.end()) {
       std::cout << "We are unable to find the corresponding ParameterSet\n";
       edm::ParameterSet empty;
+      empty.registerIt();
       if(id == empty.id()) {
         std::cout << "But it would have been empty anyway\n";
       }
@@ -755,6 +760,17 @@ ProvenanceDumper::work_() {
     phc_.erase(std::unique(phc_.begin(), phc_.end()), phc_.end());
   }
 
+  if(!dumpPSetID_.empty()) {
+    edm::ParameterSetID psetID;
+    try {
+      psetID = edm::ParameterSetID(dumpPSetID_);
+    } catch (cms::Exception const& x) {
+      throw cms::Exception("Command Line Argument") << "Illegal ParameterSetID string. It should contain 32 hexadecimal characters";
+    }
+    dumpParameterSetForID_(psetID);
+    return;
+  }
+
   //Prepare the parentage information if requested
   std::map<edm::BranchID, std::set<edm::ParentageID> > perProductParentage;
 
@@ -801,7 +817,7 @@ ProvenanceDumper::work_() {
             storedProvBranch->GetEntry(i);
             for(auto const& item : info) {
               edm::BranchID bid(item.branchID_);
-              perProductParentage[bid].insert(orderedParentageIDs[item.parentageIDIndex_]);
+              perProductParentage[bid].insert(orderedParentageIDs.at(item.parentageIDIndex_));
             }
           }
         } else {
@@ -1068,7 +1084,8 @@ static char const* const kShowTopLevelPSetsCommandOpt ="showTopLevelPSets,t";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
-static char const* const kFileNameCommandOpt = "input-file";
+static char const* const kDumpPSetIDOpt = "dumpPSetID";
+static char const* const kDumpPSetIDCommandOpt = "dumpPSetID,i";
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;
@@ -1096,6 +1113,8 @@ int main(int argc, char* argv[]) {
     "show only modules whose information contains the matching string (or all the matching strings, this option can be repeated with different strings)")
   (kDontPrintProductsCommandOpt
    , "do not print products produced by module")
+  (kDumpPSetIDCommandOpt, value<std::string>()
+   , "print the parameter set associated with the parameter set ID string (and print nothing else)")
   ;
   //we don't want users to see these in the help messages since this
   // name only exists since the parser needs it
@@ -1171,6 +1190,16 @@ int main(int argc, char* argv[]) {
     return 2;
   }
 
+  std::string dumpPSetID;
+  if(vm.count(kDumpPSetIDOpt)) {
+    try {
+      dumpPSetID = vm[kDumpPSetIDOpt].as<std::string>();
+    } catch(boost::bad_any_cast const& e) {
+      std::cout << e.what() << std::endl;
+      return 2;
+    }
+  }
+
   std::vector<std::string> findMatch;
   if(vm.count(kFindMatchOpt)) {
     try {
@@ -1189,11 +1218,8 @@ int main(int argc, char* argv[]) {
   //silence ROOT warnings about missing dictionaries
   gErrorIgnoreLevel = kError;
 
-  //make sure dictionaries can be used for reading
-  ROOT::Cintex::Cintex::Enable();
-
   ProvenanceDumper dumper(fileName, showDependencies, extendedAncestors, extendedDescendants,
-                          excludeESModules, showAllModules, showTopLevelPSets, findMatch, dontPrintProducts);
+                          excludeESModules, showAllModules, showTopLevelPSets, findMatch, dontPrintProducts, dumpPSetID);
   int exitCode(0);
   try {
     dumper.dump();

@@ -59,6 +59,18 @@ process = cms.Process("ALIGN")
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+process.MuonNumberingInitialization = cms.ESProducer("MuonNumberingInitialization")
+process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
+    recordName = cms.string( "MuonNumberingRecord" ),
+    iovIsRunNotTime = cms.bool( True ),
+    firstValid = cms.vuint32( 1 )
+)
+
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
 process.looper.algoConfig.readTemporaryFiles = cms.vstring(*alignmenttmp)
 process.looper.algoConfig.reportFileName = cms.string("MuonAlignmentFromReference_report.py")
@@ -105,7 +117,7 @@ if trackerAPEconnect != "":
     process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
                                                    CondDBSetup,
                                                    connect = cms.string(trackerAPEconnect),
-                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE)))))
+                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string(trackerAPE)))))
     process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
 
 if trackerBowsconnect != "":

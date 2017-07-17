@@ -17,9 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 
 #include <iostream>
 
@@ -32,6 +29,10 @@ DTTFFEDSim::DTTFFEDSim(const edm::ParameterSet& pset) : eventNum(0) {
   DTDigiInputTag = pset.getParameter<edm::InputTag>("DTDigi_Source");
   DTPHTFInputTag = pset.getParameter<edm::InputTag>("DTTracks_Source");
 
+  ChPh_tok = consumes<L1MuDTChambPhContainer>(DTDigiInputTag);
+  ChTh_tok = consumes<L1MuDTChambThContainer>(DTDigiInputTag);
+  Trk_tok = consumes<L1MuDTTrackContainer>(DTPHTFInputTag);
+
 }
 
 DTTFFEDSim::~DTTFFEDSim(){}
@@ -42,9 +43,9 @@ void DTTFFEDSim::produce(edm::Event& e, const edm::EventSetup& c) {
 
   if (!fillRawData(e, data)) return;
 
-  auto_ptr<FEDRawDataCollection> fed_product(new FEDRawDataCollection(data));
+  unique_ptr<FEDRawDataCollection> fed_product(new FEDRawDataCollection(data));
 
-  e.put(fed_product);
+  e.put(std::move(fed_product));
 
 }
 
@@ -56,15 +57,15 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   int lines = 2;
 
   edm::Handle<L1MuDTChambPhContainer> phtrig;
-  e.getByLabel(getDTDigiInputTag(),phtrig);
+  e.getByToken(ChPh_tok,phtrig);
   lines += phtrig->bxSize(-1, 1);
 
   edm::Handle<L1MuDTChambThContainer> thtrig;
-  e.getByLabel(getDTDigiInputTag(),thtrig);
+  e.getByToken(ChTh_tok,thtrig);
   lines += thtrig->bxSize(-1, 1);
 
   edm::Handle<L1MuDTTrackContainer>   trtrig;
-  e.getByLabel(getDTPHTFInputTag(),trtrig);
+  e.getByToken(Trk_tok,trtrig);
   lines += trtrig->bxSize(-1, 1)*3;
 
   FEDRawData& dttfdata = data.FEDData(0x30C);

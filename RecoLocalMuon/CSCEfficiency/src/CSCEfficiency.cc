@@ -14,6 +14,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace std;
 
 bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup){
@@ -25,11 +28,11 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
   nEventsAnalyzed++;
   // printalot debug output
   printalot = (nEventsAnalyzed < int(printout_NEvents)); // 
-  int iRun   = event.id().run();
-  int iEvent = event.id().event();
+  edm::RunNumber_t const iRun = event.id().run();
+  edm::EventNumber_t const iEvent = event.id().event();
   if(0==fmod(double (nEventsAnalyzed) ,double(1000) )){
     if(printalot){
-      printf("\n==enter==CSCEfficiency===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
+      printf("\n==enter==CSCEfficiency===== run %u\tevent %llu\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
     }
   }
   theService->update(eventSetup);  
@@ -527,7 +530,7 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
     }
   }
   //---- End
-  if (printalot) printf("==exit===CSCEfficiency===== run %i\tevent %i\n\n",iRun,iEvent);
+  if (printalot) printf("==exit===CSCEfficiency===== run %u\tevent %llu\n\n",iRun,iEvent);
   return passTheEvent;
 }
 
@@ -940,7 +943,6 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
       for(size_t jRH = 0; 
 	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
 	  ++jRH){
-	allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
 	float xDiff = iRH->localPosition().x() - 
 	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first.x();
 	float yDiff = iRH->localPosition().y() - 
@@ -1934,7 +1936,7 @@ CSCEfficiency::~CSCEfficiency(){
   // Write the histos to a file
   theFile->cd();
   //
-  char SpecName[20];
+  char SpecName[60];
   std::vector<float> bins, Efficiency, EffError;
   std::vector<float> eff(2);
 
@@ -1953,7 +1955,7 @@ CSCEfficiency::~CSCEfficiency(){
   std::cout<<" Writing proper histogram structure (patience)..."<<std::endl;
   for(int ec = 0;ec<2;++ec){
     for(int st = 0;st<4;++st){
-      sprintf(SpecName,"Stations__E%d_S%d",ec+1, st+1);
+      snprintf(SpecName, sizeof(SpecName), "Stations__E%d_S%d",ec+1, st+1);
       theFile->cd(SpecName);
       StHist[ec][st].segmentChi2_ndf->Write();
       StHist[ec][st].hitsInSegment->Write();
@@ -1977,7 +1979,7 @@ CSCEfficiency::~CSCEfficiency(){
 	  if(0!=st && 0==rg && iChamber >18){
 	    continue;
 	  }
-	  sprintf(SpecName,"Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
+	  snprintf(SpecName, sizeof(SpecName), "Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
 	  theFile->cd(SpecName);
 	  
 	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_inSegment->Write();
@@ -2014,7 +2016,7 @@ CSCEfficiency::~CSCEfficiency(){
     }
   }
   //
-  sprintf(SpecName,"AllChambers");
+  snprintf(SpecName, sizeof(SpecName), "AllChambers");
   theFile->mkdir(SpecName);
   theFile->cd(SpecName);
   DataFlow->Write(); 

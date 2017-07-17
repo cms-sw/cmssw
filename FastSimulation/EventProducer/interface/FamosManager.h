@@ -4,6 +4,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <string>
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 namespace HepMC {
   class GenEvent;
@@ -21,7 +22,7 @@ class TrajectoryManager;
 class PileUpSimulator;
 class MagneticField;
 class CalorimetryManager;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class TrackerTopology;
 
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
@@ -40,22 +41,14 @@ class FamosManager
   /// Get information from the Event Setup
   void setupGeometryAndField(edm::Run const& run, const edm::EventSetup & es);
 
-  /// The generated event
-  //  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
-  //  const reco::CandidateCollection*
-
   /// The simulated event 
   FSimEvent* simEvent() const { return mySimEvent; }
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const reco::GenParticleCollection* particles,
-		   const HepMC::GenEvent* pu,
-		   const TrackerTopology *tTopo);
+		   const TrackerTopology *tTopo,
+                   RandomEngineAndDistribution const*);
   
-  void reconstruct(const reco::GenParticleCollection* particles,
-		   const TrackerTopology *tTopo);
-
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
 
@@ -69,7 +62,6 @@ class FamosManager
   //  const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
-  PileUpSimulator* myPileUpSimulator;
   CalorimetryManager * myCalorimetry;
 
  private:
@@ -81,11 +73,5 @@ class FamosManager
   double weight_;    
   int m_pRunNumber;
   int m_pVerbose;
-
- private:
-
-  const RandomEngine* random;
-
 };
-                       
 #endif

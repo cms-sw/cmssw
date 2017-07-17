@@ -26,7 +26,6 @@ using namespace reco;
 reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, const CommonMETData& umet, bool noHF, double globalThreshold)
 { 
   SpecificCaloMETData specific;
-  initializeSpecificCaloMETData(specific);
   CommonMETData met = umet;
   double totalEt = 0.0; 
   double totalEm = 0.0;
@@ -66,29 +65,6 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::initializeSpecificCaloMETData(SpecificCaloMETData &specific)
-{
-  specific.MaxEtInEmTowers = 0.0;    // Maximum energy in EM towers
-  specific.MaxEtInHadTowers = 0.0;   // Maximum energy in HCAL towers
-  specific.HadEtInHO = 0.0;          // Hadronic energy fraction in HO
-  specific.HadEtInHB = 0.0;          // Hadronic energy in HB
-  specific.HadEtInHF = 0.0;          // Hadronic energy in HF
-  specific.HadEtInHE = 0.0;          // Hadronic energy in HE
-  specific.EmEtInEB = 0.0;           // Em energy in EB
-  specific.EmEtInEE = 0.0;           // Em energy in EE
-  specific.EmEtInHF = 0.0;           // Em energy in HF
-  specific.EtFractionHadronic = 0.0; // Hadronic energy fraction
-  specific.EtFractionEm = 0.0;       // Em energy fraction
-  specific.METSignificance = 0.0;
-  specific.CaloMETInpHF = 0.0;        // CaloMET in HF+ 
-  specific.CaloMETInmHF = 0.0;        // CaloMET in HF- 
-  specific.CaloSETInpHF = 0.0;        // CaloSET in HF+ 
-  specific.CaloSETInmHF = 0.0;        // CaloSET in HF- 
-  specific.CaloMETPhiInpHF = 0.0;     // CaloMET-phi in HF+ 
-  specific.CaloMETPhiInmHF = 0.0;     // CaloMET-phi in HF- 
-}
-
-//____________________________________________________________________________||
 void CaloSpecificAlgo::update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF)
 {
   if( noHF )
@@ -106,7 +82,7 @@ void CaloSpecificAlgo::update_totalEt_totalEm(double &totalEt, double& totalEm, 
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double &MaxTowerHad, const CaloTower* calotower, bool noHF)
+void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(float &MaxTowerEm, float &MaxTowerHad, const CaloTower* calotower, bool noHF)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
   DetId detIdEcal = find_DetId_of_ECAL_cell_in_constituent_of(calotower);
@@ -129,7 +105,7 @@ void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double 
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtInEE, const CaloTower* calotower)
+void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(float &EmEtInEB, float &EmEtInEE, const CaloTower* calotower)
 {
   DetId detIdEcal = find_DetId_of_ECAL_cell_in_constituent_of(calotower);
   if(detIdEcal.null()) return;
@@ -146,7 +122,7 @@ void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtIn
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(double &HadEtInHB, double &HadEtInHE, double &HadEtInHO, double &HadEtInHF, double &EmEtInHF, const CaloTower* calotower, bool noHF)
+void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(float &HadEtInHB, float &HadEtInHE, float &HadEtInHO, float &HadEtInHF, float &EmEtInHF, const CaloTower* calotower, bool noHF)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
   if(detIdHcal.null()) return;

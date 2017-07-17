@@ -417,10 +417,11 @@ def GetXLocator(ax):
 
 ######################################################################
 
-def TweakPlot(fig, ax, (time_begin, time_end),
+def TweakPlot(fig, ax, time_range,
               add_extra_head_room=False):
 
     # Fiddle with axes ranges etc.
+    (time_begin, time_end) = time_range
     ax.relim()
     ax.autoscale_view(False, True, True)
     for label in ax.get_xticklabels():
@@ -709,7 +710,7 @@ if __name__ == "__main__":
             print "Cache file path does not exist: creating it"
         try:
             os.makedirs(path_name)
-        except Exception, err:
+        except Exception as err:
             print >> sys.stderr, \
                   "ERROR Could not create cache dir: %s" % path_name
             sys.exit(1)
@@ -877,7 +878,7 @@ if __name__ == "__main__":
                 for line in lines[1:]:
                     lumi_data_day.add(LumiDataPoint(line, json_file_name))
             in_file.close()
-        except IOError, err:
+        except IOError as err:
             print >> sys.stderr, \
                   "ERROR Could not read lumiCalc results from file '%s': %s" % \
                   (cache_file_path, str(err))

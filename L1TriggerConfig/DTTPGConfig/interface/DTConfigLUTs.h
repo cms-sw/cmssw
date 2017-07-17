@@ -75,10 +75,10 @@ class DTConfigLUTs : public DTConfig {
   void print() const ;
   
   //!  DSP to IEEE32 conversion
-  void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f);
+  void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f) const;
 
   //!  IEEE32 to DSP conversion
-  void IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp);
+  void IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) const;
 
  /*  //! Return pointer to parameter set */
 /*   const edm::ParameterSet* getParameterSet() { return m_ps; } */

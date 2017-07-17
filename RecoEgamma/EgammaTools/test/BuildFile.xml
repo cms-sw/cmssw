@@ -1,0 +1,12 @@
+<library name="RecoEGammaGBRWrapperMaker" file="GBRWrapperMaker.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="PhysicsTools/MVAComputer"/>
+  <use   name="PhysicsTools/MVATrainer"/>
+  <use   name="CondCore/PluginSystem"/>
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="RecoEgamma/EgammaTools"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

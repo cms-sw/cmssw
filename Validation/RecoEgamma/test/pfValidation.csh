@@ -19,13 +19,19 @@
 
 setenv ANALYZERNAME1 PhotonValidator
 setenv ANALYZERNAME2 pfPhotonValidator
-setenv TYPE pfPhotons
+#setenv TYPE GEDPhotons
+setenv TYPE GEDPhotons
 setenv COMPAREWITH Photons
-setenv CMSSWver1 6_2_0
-setenv RELEASE   6_2_0
-setenv PRERELEASE pre6_patch1
-setenv FULLGLOBALTAG PRE_ST62_V6-v1
+setenv CMSSWver1 7_0_0
+setenv RELEASE   7_0_0
+setenv PRERELEASE pre11
+setenv LHCENERGY   13
+setenv UPGRADE True
+setenv PU True
+setenv PUlevel 25ns
 
+#setenv FULLGLOBALTAG POSTLS162_V4_OldEG-v1
+setenv FULLGLOBALTAG PU${PUlevel}_POSTLS162_V4-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -33,6 +39,7 @@ setenv RELEASE ${RELEASE}_${PRERELEASE}
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -47,7 +54,7 @@ setenv HISTOPATHNAME2_Photons      DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZE
 setenv HISTOPATHNAME2_Conversions  DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME2}/ConversionInfo
 
 
-setenv PU False
+
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 setenv SAMPLE H130GGgluonfusion
@@ -64,18 +71,20 @@ setenv SAMPLE H130GGgluonfusion
 
 if ($SAMPLE == SingleGammaPt10) then
 
-setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__SingleGammaPt10__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10_UP15__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 
 
 else if ($SAMPLE == SingleGammaPt35) then 
 
-setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__SingleGammaPt35__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 
 
 else if ($SAMPLE == H130GGgluonfusion) then 
 
+setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 #setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
-setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_2K.root
+#setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_2K.root
+
 
 
 else if ($SAMPLE == PhotonJets_Pt_10) then
@@ -96,6 +105,10 @@ endif
 setenv CURRENTDIR $PWD
 setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
 cd $OUTPATH
+
+#setenv RELEASE {$RELEASE}_OldEG
+#setenv RELEASE {$RELEASE}_OldTrk
+
 if (! -d $RELEASE) then
   mkdir $RELEASE
 endif
@@ -113,7 +126,15 @@ if (! -d vs${COMPAREWITH} ) then
 endif
 setenv OUTPATH $OUTPATH/vs${COMPAREWITH}
 
+
+if ( $UPGRADE == True && $PU == False ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $UPGRADE == True && $PU == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV_PU${PUlevel}
+else 
 setenv OUTDIR $OUTPATH/${SAMPLE}
+endif
+
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR
@@ -126,7 +147,7 @@ cd $OUTDIR
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == oldpfPhotons || $TYPE == pfPhotons ) then
+if ( $TYPE == oldpfPhotons || $TYPE == GEDPhotons  || $TYPE == fullGEDPhotons  ) then
 
 
 cat > efficiencyForPhotons <<EOF
@@ -151,7 +172,7 @@ EOF
 
 
 cat > scaledhistosForPhotons <<EOF
-
+  nOfflineVtx
   scEta
   scPhi
   scEAll
@@ -197,6 +218,7 @@ cat > scaledhistosForPhotons <<EOF
   hcalTowerBcSumEtConeDR04Endcap
   ecalRecHitSumEtConeDR04Barrel
   ecalRecHitSumEtConeDR04Endcap
+
 EOF
 
 cat > scaledhistosForPhotonsLogScale <<EOF
@@ -227,10 +249,8 @@ EOF
 
 
 cat > unscaledhistosForPhotons <<EOF
-pEResVsR9All
 pEResVsR9Barrel
 pEResVsR9Endcap
-scpEResVsR9All
 scpEResVsR9Barrel
 scpEResVsR9Endcap
 pEResVsEtAll
@@ -258,24 +278,7 @@ EOF
 
 
 
-cat > 2dhistosForPhotons <<EOF
-  R9VsEtaAll
-  R1VsEtaAll
-  R2VsEtaAll
-  R9VsEtAll
-  R1VsEtAll
-  R2VsEtAll
-  sigmaIetaIetaVsEtaAll
-  isoTrkSolidConeDR04VsEtaAll
-  nTrkSolidConeDR04VsEtaAll
-  eResVsR9All
-  eResVsR9Barrel
-  eResVsR9Endcap
-  sceResVsR9All
-  sceResVsR9Barrel
-  sceResVsR9Endcap
 
-EOF
 
 
 cat > efficiencyForConvertedPhotons <<EOF
@@ -380,11 +383,6 @@ hTkPtPullBarrel
 hTkPtPullEndcap
 hDPhiTracksAtVtxAll
 hDCotTracksAll
-hDEtaTracksAtEcalAll
-hDPhiTracksAtEcalAll
-eBcOverTkPoutAll
-eBcOverTkPoutBarrel
-eBcOverTkPoutEndcap
 zPVFromTracksAll
 zPVFromTracksBarrel
 zPVFromTracksEndcap
@@ -401,8 +399,6 @@ pChi2VsEtaAll
 pChi2VsRAll
 pDCotTracksVsEtaAll
 pDCotTracksVsRAll
-pDPhiTracksAtEcalVsEtaAll
-pDPhiTracksAtEcalVsRAll
 pdzPVVsR
 
 
@@ -676,31 +672,6 @@ EOF
 end
 
 
-
-
-
-foreach i (`cat 2dhistosForPhotons`)
-  cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-file->cd("$HISTOPATHNAME1_Photons");
-$i->SetStats(0);
-$i->SetMinimum(0.);
-$i->SetMarkerColor(kPink+8);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw();
-file->cd("$HISTOPATHNAME2_Photons");
-$i->SetStats(0);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
-
-EOF
-  setenv N `expr $N + 1`
-end
 
 
 foreach i (`cat efficiencyForConvertedPhotons`)
@@ -1064,13 +1035,13 @@ cat end.C >>& validation.C
 rm end.C
 
 
-if ( $TYPE == PixelMatchGsfElectron ) then
-  setenv ANALYZER PixelMatchGsfElectronAnalyzer
-  setenv CFG read_gsfElectrons
-else if ( $TYPE == oldpfPhotons ||  $TYPE == pfPhotons ) then
-  setenv ANALYZER PhotonValidator
-  setenv CFG PhotonValidator_cfg
-endif
+#if ( $TYPE == PixelMatchGsfElectron ) then
+#  setenv ANALYZER PixelMatchGsfElectronAnalyzer
+#  setenv CFG read_gsfElectrons
+#else if ( $TYPE == oldpfPhotons ||  $TYPE == pfPhotons ) then
+#  setenv ANALYZER PhotonValidator
+#  setenv CFG PhotonValidator_cfg
+#endif
 
 if (-e validation.html) rm validation.html
 if (-e validationPlotsTemplate.html) rm validationPlotsTemplate.html
@@ -1090,10 +1061,6 @@ cat > begin.html <<EOF
 <br>
  $SAMPLE 
 </h1>
-
-<p>The following plots were made using <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoEgamma/src/$ANALYZER.cc">Validation/RecoEgamma/src/$ANALYZER</a>
-<p>The script used to make the plots is <a href="validation.C">here</a>.
-<br>
 In all plots below, ${COMPAREWITH}  is in purple, ${TYPE} in black.<br>
 <br>
 Click on the plots to see them enlarged.
@@ -1113,7 +1080,6 @@ rm  validationPlotsTemplate.html
 
 rm scaledhistosForPhotons
 rm unscaledhistosForPhotons
-rm 2dhistosForPhotons
 rm efficiencyForPhotons
 rm scaledhistosForPhotonsLogScale
 rm efficiencyForConvertedPhotons
@@ -1123,7 +1089,9 @@ rm projectionsForConvertedPhotons
 rm scaledhistosForTracks
 rm unscaledhistosForTracks
 rm scaledhistosForPhotonsLogScale
-
+rm scaledhistosForConvertedPhotons
+rm scaledhistosForConvertedPhotonsLogScale
+rm unscaledhistosForConvertedPhotons
 
 
 #echo "Now paste the following into your terminal window:"

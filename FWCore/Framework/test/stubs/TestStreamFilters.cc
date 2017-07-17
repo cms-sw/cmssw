@@ -27,8 +27,9 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
-namespace {
-struct Cache { 
+// anonymous namespace here causes build warnings
+namespace cache {
+struct Cache {
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
    mutable std::atomic<unsigned int> value;
@@ -36,19 +37,19 @@ struct Cache {
    mutable std::atomic<unsigned int> lumi;
 };
 
-} //end anonymous namespace
+} //end cache namespace
 
-
+  using Cache = cache::Cache;
 
   class GlobalIntFilter : public edm::stream::EDFilter<edm::GlobalCache<Cache>> {
   public:
     static std::atomic<unsigned int> m_count; 
     unsigned int trans_;
-    static unsigned int cvalue_;
+    static std::atomic<unsigned int> cvalue_;
     
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
       ++m_count;
-      return std::unique_ptr<Cache>{ new Cache };
+      return std::make_unique<Cache>();
     }
 
     GlobalIntFilter(edm::ParameterSet const& p, const Cache* iGlobal) {
@@ -86,9 +87,9 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
     bool br;
     bool er;
 
@@ -110,7 +111,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -144,11 +145,11 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiIntFilter(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -168,7 +169,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -214,15 +215,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
-    static bool gbrs;
-    static bool gers;
-    static bool brs;
-    static bool ers;
-    static bool br;
-    static bool er;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
+    static std::atomic<bool> gbrs;
+    static std::atomic<bool> gers;
+    static std::atomic<bool> brs;
+    static std::atomic<bool> ers;
+    static std::atomic<bool> br;
+    static std::atomic<bool> er;
 
     RunSummaryIntFilter(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -247,7 +248,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache {new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -262,7 +263,7 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
    }
     
     void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -320,15 +321,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool gbls;
-    static bool gels;
-    static bool bls;
-    static bool els;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> gbls;
+    static std::atomic<bool> gels;
+    static std::atomic<bool> bls;
+    static std::atomic<bool> els;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiSummaryIntFilter(edm::ParameterSet const&p) {
       trans_= p.getParameter<int>("transitions");
@@ -353,7 +354,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -369,7 +370,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
     }
     
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -431,9 +432,9 @@ struct Cache {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
 
     TestBeginRunFilter(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -446,7 +447,7 @@ struct Cache {
      ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -487,15 +488,15 @@ struct Cache {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
 
   static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
      ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -546,9 +547,9 @@ struct Cache {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
  
     TestBeginLumiBlockFilter(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -575,7 +576,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -604,9 +605,9 @@ struct Cache {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
  
     TestEndLumiBlockFilter(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -625,7 +626,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -669,45 +670,45 @@ std::atomic<unsigned int> edmtest::stream::TestBeginRunFilter::m_count{0};
 std::atomic<unsigned int> edmtest::stream::TestEndRunFilter::m_count{0};
 std::atomic<unsigned int> edmtest::stream::TestBeginLumiBlockFilter::m_count{0};
 std::atomic<unsigned int> edmtest::stream::TestEndLumiBlockFilter::m_count{0};
-unsigned int edmtest::stream::GlobalIntFilter::cvalue_ = 0;
-unsigned int edmtest::stream::RunIntFilter::cvalue_ = 0;
-unsigned int edmtest::stream::LumiIntFilter::cvalue_ = 0;
-unsigned int edmtest::stream::RunSummaryIntFilter::cvalue_ = 0;
-unsigned int edmtest::stream::LumiSummaryIntFilter::cvalue_ = 0;
-unsigned int edmtest::stream::TestBeginRunFilter::cvalue_ = 0;
-unsigned int edmtest::stream::TestEndRunFilter::cvalue_ = 0;
-unsigned int edmtest::stream::TestBeginLumiBlockFilter::cvalue_ = 0;
-unsigned int edmtest::stream::TestEndLumiBlockFilter::cvalue_ = 0;
-bool edmtest::stream::RunIntFilter::gbr=false;
-bool edmtest::stream::RunIntFilter::ger=false;
-bool edmtest::stream::LumiIntFilter::gbl=false;
-bool edmtest::stream::LumiIntFilter::gel=false;
-bool edmtest::stream::LumiIntFilter::bl=false;
-bool edmtest::stream::LumiIntFilter::el=false;
-bool edmtest::stream::RunSummaryIntFilter::gbr=false;
-bool edmtest::stream::RunSummaryIntFilter::ger=false;
-bool edmtest::stream::RunSummaryIntFilter::gbrs=false;
-bool edmtest::stream::RunSummaryIntFilter::gers=false;
-bool edmtest::stream::RunSummaryIntFilter::brs=false;
-bool edmtest::stream::RunSummaryIntFilter::ers=false;
-bool edmtest::stream::RunSummaryIntFilter::br=false;
-bool edmtest::stream::RunSummaryIntFilter::er=false;
-bool edmtest::stream::LumiSummaryIntFilter::gbl=false;
-bool edmtest::stream::LumiSummaryIntFilter::gel=false;
-bool edmtest::stream::LumiSummaryIntFilter::gbls=false;
-bool edmtest::stream::LumiSummaryIntFilter::gels=false;
-bool edmtest::stream::LumiSummaryIntFilter::bls=false;
-bool edmtest::stream::LumiSummaryIntFilter::els=false;
-bool edmtest::stream::LumiSummaryIntFilter::bl=false;
-bool edmtest::stream::LumiSummaryIntFilter::el=false;
-bool edmtest::stream::TestBeginRunFilter::gbr=false;
-bool edmtest::stream::TestBeginRunFilter::ger=false;
-bool edmtest::stream::TestEndRunFilter::gbr=false;
-bool edmtest::stream::TestEndRunFilter::ger=false;
-bool edmtest::stream::TestBeginLumiBlockFilter::gbl=false;
-bool edmtest::stream::TestBeginLumiBlockFilter::gel=false;
-bool edmtest::stream::TestEndLumiBlockFilter::gbl=false;
-bool edmtest::stream::TestEndLumiBlockFilter::gel=false;
+std::atomic<unsigned int> edmtest::stream::GlobalIntFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunIntFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiIntFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunSummaryIntFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::TestBeginRunFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::TestEndRunFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::TestBeginLumiBlockFilter::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::TestEndLumiBlockFilter::cvalue_{0};
+std::atomic<bool> edmtest::stream::RunIntFilter::gbr{false};
+std::atomic<bool> edmtest::stream::RunIntFilter::ger{false};
+std::atomic<bool> edmtest::stream::LumiIntFilter::gbl{false};
+std::atomic<bool> edmtest::stream::LumiIntFilter::gel{false};
+std::atomic<bool> edmtest::stream::LumiIntFilter::bl{false};
+std::atomic<bool> edmtest::stream::LumiIntFilter::el{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::gbr{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::ger{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::gbrs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::gers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::brs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::ers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::br{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntFilter::er{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gbl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gel{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gbls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gels{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::bls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::els{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::bl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::el{false};
+std::atomic<bool> edmtest::stream::TestBeginRunFilter::gbr{false};
+std::atomic<bool> edmtest::stream::TestBeginRunFilter::ger{false};
+std::atomic<bool> edmtest::stream::TestEndRunFilter::gbr{false};
+std::atomic<bool> edmtest::stream::TestEndRunFilter::ger{false};
+std::atomic<bool> edmtest::stream::TestBeginLumiBlockFilter::gbl{false};
+std::atomic<bool> edmtest::stream::TestBeginLumiBlockFilter::gel{false};
+std::atomic<bool> edmtest::stream::TestEndLumiBlockFilter::gbl{false};
+std::atomic<bool> edmtest::stream::TestEndLumiBlockFilter::gel{false};
 DEFINE_FWK_MODULE(edmtest::stream::GlobalIntFilter);
 DEFINE_FWK_MODULE(edmtest::stream::RunIntFilter);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntFilter);

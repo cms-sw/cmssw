@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -49,7 +50,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
+class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
 {
 
  public:
@@ -61,10 +62,9 @@ class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
 
   explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsHistogrammer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
 
  private:
 
@@ -76,11 +76,11 @@ class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DQMStore *dbe;
   std::string outputfile;
   bool doOutput;
 
   edm::InputTag GlobalRecHitSrc_;
+  edm::EDGetTokenT<PGlobalRecHit> GlobalRecHitSrc_Token_;
   //edm::InputTag srcGlobalRecHits;
 
   // Electromagnetic info
@@ -126,10 +126,5 @@ class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
   unsigned int count;
 
 }; // end class declaration
-
-
-
-
-
 
 #endif //PGlobalRecHitsProducer_h

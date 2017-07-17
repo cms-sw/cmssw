@@ -5,11 +5,16 @@
  *  No description available.
  *
  *  \author G. Cerminara - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <map>
 
@@ -17,7 +22,7 @@ class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
 
-class DTDAQInfo : public edm::EDAnalyzer {
+class DTDAQInfo : public DQMEDHarvester {
 public:
   /// Constructor
   DTDAQInfo(const edm::ParameterSet& pset);
@@ -28,16 +33,13 @@ public:
   // Operations
 
 protected:
-  
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, 
+                                                      edm::EventSetup const &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+
 private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void endJob() ;
-  
-  DQMStore *theDbe;  
+
+  bool bookingdone;
   
   MonitorElement*  totalDAQFraction;
   MonitorElement*  daqMap;

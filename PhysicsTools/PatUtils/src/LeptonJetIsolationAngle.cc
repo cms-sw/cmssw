@@ -1,6 +1,3 @@
-//
-//
-
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +11,10 @@ using namespace pat;
 
 
 // constructor
-LeptonJetIsolationAngle::LeptonJetIsolationAngle() {
+LeptonJetIsolationAngle::LeptonJetIsolationAngle(edm::ConsumesCollector && iC)
+: jetToken_( iC.consumes< reco::CaloJetCollection >( edm::InputTag( "iterativeCone5CaloJets" ) ) )
+, electronsToken_( iC.consumes< std::vector<reco::GsfElectron > >( edm::InputTag( "pixelMatchGsfElectrons" ) ) )
+{
 }
 
 
@@ -39,11 +39,11 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector & aLepton
   // FIXME: this is an ugly temporary workaround, JetMET+egamma should come up with a better tool
   // retrieve the jets
   edm::Handle<reco::CaloJetCollection> jetHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets", jetHandle);
+  iEvent.getByToken(jetToken_, jetHandle);
   reco::CaloJetCollection jetColl = *(jetHandle.product());
   // retrieve the electrons which might be in the jet list
   edm::Handle<std::vector<reco::GsfElectron> > electronsHandle;
-  iEvent.getByLabel("pixelMatchGsfElectrons", electronsHandle);
+  iEvent.getByToken(electronsToken_, electronsHandle);
   std::vector<reco::GsfElectron> electrons = *electronsHandle;
   // determine the set of isolated electrons
   std::vector<Electron> isoElectrons;

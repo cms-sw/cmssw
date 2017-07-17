@@ -1,0 +1,7 @@
+<use name="root"/>
+<use name="rootcore"/>
+
+<use name="rootpy"/>
+<export>
+<lib name="1"/>
+</export>

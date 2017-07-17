@@ -17,7 +17,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")

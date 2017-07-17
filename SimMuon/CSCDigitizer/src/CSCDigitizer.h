@@ -34,6 +34,10 @@ class CSCLayer;
 class CSCNeutronReader;
 class CSCStripConditions;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class CSCDigitizer : public boost::noncopyable
 {
 public:
@@ -51,7 +55,8 @@ public:
                 CSCStripDigiCollection & stripDigis,
                 CSCComparatorDigiCollection & comparators,
                 DigiSimLinks & wireDigiSimLinks,
-                DigiSimLinks & stripDigiSimLinks);
+                DigiSimLinks & stripDigiSimLinks,
+                CLHEP::HepRandomEngine*);
 
   /// sets geometry
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
@@ -62,8 +67,6 @@ public:
   void setStripConditions(CSCStripConditions * cond);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
-
-  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
 private:
   /// finds the layer in the geometry associated with this det ID

@@ -1,6 +1,9 @@
 #ifndef TrackReco_Vector_h
 #define TrackReco_Vector_h
 #include "Rtypes.h"
+
+
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SVector.h"
 
 namespace math {

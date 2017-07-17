@@ -91,7 +91,7 @@ namespace edm {
     void
     fillListsAndIndexes(ProductRegistry& productRegistry,
 			ProcessHistoryMap const& pHistMap,
-			boost::shared_ptr<BranchIDLists const>& branchIDLists,
+			std::shared_ptr<BranchIDLists const>& branchIDLists,
 			std::vector<BranchListIndex>& branchListIndexes) {
       OrderedProducts orderedProducts;
       std::set<std::string> processNamesThatProduced;
@@ -123,8 +123,8 @@ namespace edm {
       }
       stable_sort_all(orderedProducts, Sorter(processHistories));
 
-      std::unique_ptr<BranchIDLists> pv(new BranchIDLists);
-      std::unique_ptr<BranchIDList> p(new BranchIDList);
+      auto pv = std::make_unique<BranchIDLists>();
+      auto p = std::make_unique<BranchIDList>();
       std::string processName;
       BranchListIndex blix = 0;
       for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd; ++it) {
@@ -183,7 +183,7 @@ namespace edm {
     return it->second; 
   }
 
-  boost::shared_ptr<BranchIDLists const>
+  std::shared_ptr<BranchIDLists const>
   ProvenanceAdaptor::branchIDLists() const {
     return branchIDLists_;
   }

@@ -36,6 +36,24 @@ AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore"
                             << "Created with " << theAlignables.size() << " alignables.";
+
+  // set hierarchy vs averaging constraints
+  theTypeOfConstraints = NONE;
+  const std::string cfgStrTypeOfConstraints(config.getParameter<std::string>("TypeOfConstraints"));
+  if( cfgStrTypeOfConstraints == "hierarchy" ) {
+    theTypeOfConstraints = HIERARCHY_CONSTRAINTS;
+  } else if( cfgStrTypeOfConstraints == "approximate_averaging" ) {
+    theTypeOfConstraints = APPROX_AVERAGING_CONSTRAINTS;
+    edm::LogWarning("Alignment") << "@SUB=AlignmentParameterStore"
+				 << "\n\n\n******* WARNING ******************************************\n"
+				 << "Using approximate implementation of averaging constraints."
+				 << "This is not recommended."
+				 << "Consider to use 'hierarchy' constraints:"
+				 << "  AlignmentProducer.ParameterStore.TypeOfConstraints = cms.string('hierarchy')\n\n\n";
+  } else {
+    edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore"
+				 << "Unknown type of hierarchy constraints '" << cfgStrTypeOfConstraints << "'"; 
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -334,12 +352,27 @@ void AlignmentParameterStore::cacheTransformations(void)
 
 
 //__________________________________________________________________________________________________
+void AlignmentParameterStore::cacheTransformations(const align::RunNumber& run)
+{
+  for (const auto& iali: theAlignables) iali->cacheTransformation(run);
+}
+
+
+//__________________________________________________________________________________________________
 void AlignmentParameterStore::restoreCachedTransformations(void)
 {
   align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
     (*iali)->restoreCachedTransformation();
 }
+
+
+//__________________________________________________________________________________________________
+void AlignmentParameterStore::restoreCachedTransformations(const align::RunNumber& run)
+{
+  for (const auto& iali: theAlignables) iali->restoreCachedTransformation(run);
+}
+
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::acquireRelativeParameters(void)
@@ -668,6 +701,8 @@ bool AlignmentParameterStore
 
     const ParametersToParametersDerivatives p2pDerivs(**iComp, *ali);
     if (!p2pDerivs.isOK()) {
+      // std::cerr << (*iComp)->alignmentParameters()->type() << " "
+      // 		<< ali->alignmentParameters()->type() << std::endl;
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
 	<< " Bad match of types of AlignmentParameters classes.\n";
@@ -682,7 +717,15 @@ bool AlignmentParameterStore
       }
       for (unsigned int iParComp = 0; iParComp < aliCompSel.size(); ++iParComp) {
 	if (aliCompSel[iParComp]) {
-	  const double factor = p2pDerivs(iParMast, iParComp);
+	  double factor = 0.;
+	  if( theTypeOfConstraints == HIERARCHY_CONSTRAINTS ) {
+	    // hierachy constraints
+	    factor = p2pDerivs(iParMast, iParComp);
+	  } else if( theTypeOfConstraints == APPROX_AVERAGING_CONSTRAINTS ) {
+	    // CHK poor mans averaging constraints
+	    factor = p2pDerivs(iParMast, iParComp);
+	    if (iParMast < 3 && (iParComp % 9) >= 3) factor = 0.;
+	  }
 	  if (fabs(factor) > epsilon) {
 	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
 	    factorsVecOut[iParMastUsed].push_back(factor);

@@ -1,0 +1,54 @@
+#!/bin/tcsh
+
+cmsenv
+
+set PWDv    = `pwd`
+set SOURCE  = $CMSSW_BASE/src
+set SCRIPTS = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/python
+set DATA    = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/data
+set DOC     = $CMSSW_BASE/doc
+set HTML    = $DOC/html
+
+if (-e $DOC) then
+    rm -Rf $DOC
+endif
+
+mkdir $DOC
+
+sed -e 's|@CMSSW_IN@|'$SOURCE'|g' -e 's|@CMSSW_OUT@|'$DOC'|g' -e 's|@DOXY_PATH@|'$DATA'|g' $DATA/Doxygen.conf > $DATA/Doxygen.conf.tmp
+
+doxygen $DATA/Doxygen.conf.tmp
+
+rm $DATA/Doxygen.conf.tmp
+
+cp -r $DATA/iframes $HTML/
+
+cp $HTML/index.html $HTML/index.original.html
+python $SCRIPTS/MainPageGenerator.py $HTML/index.html $DATA $CMSSW_VERSION
+
+# backup original pages
+cp $HTML/annotated.html $HTML/annotated.original.html
+cp $HTML/namespaces.html $HTML/namespaces.original.html
+cp $HTML/pages.html $HTML/pages.original.html
+
+cp $HTML/annotated.original.html $HTML/annotatedList.html
+python $SCRIPTS/TableParser.py $HTML/annotatedList.html
+cp $HTML/annotatedList_A.html $HTML/annotated.html
+
+cp $HTML/namespaces.original.html $HTML/namespaceList.html
+python $SCRIPTS/TableParser.py $HTML/namespaceList.html
+cp $HTML/namespaceList_A.html $HTML/namespaces.html
+
+cp $HTML/pages.original.html $HTML/packageDocumentation.html
+python $SCRIPTS/TableParser.py $HTML/packageDocumentation.html
+cp $HTML/packageDocumentation_All.html $HTML/pages.html
+
+cp $HTML/namespaces.original.html $HTML/configfilesList.html
+python $SCRIPTS/TableParser.py $HTML/configfilesList.html
+cp $HTML/configfilesList_All.html $HTML/configfiles.html
+
+cd $CMSSW_BASE/..
+find $CMSSW_VERSION/doc -type f -name "*.html" > $CMSSW_BASE/$CMSSW_VERSION.index
+cd $PWDv
+
+echo "## In case of a problem, please email cmsdoxy[at]cern.ch ##"

@@ -1,6 +1,6 @@
 /*
  * \file DTScalerInfoTask.cc
- * 
+ *
  * \author C. Battilana - CIEMAT
  *
 */
@@ -13,9 +13,6 @@
 // DT DQM
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -23,42 +20,30 @@
 using namespace edm;
 using namespace std;
 
-DTScalerInfoTask::DTScalerInfoTask(const edm::ParameterSet& ps) : 
+DTScalerInfoTask::DTScalerInfoTask(const edm::ParameterSet& ps) :
   nEvents(0) {
-  
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
+
+  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: Constructor"<<endl;
 
-  theScalerTag = ps.getUntrackedParameter<InputTag>("inputTagScaler");
-  theParams = ps; 
-  theDQMStore = edm::Service<DQMStore>().operator->();
-
+  scalerToken_ = consumes<LumiScalersCollection>(
+      ps.getUntrackedParameter<InputTag>("inputTagScaler"));
+  theParams = ps;
 }
 
 
 DTScalerInfoTask::~DTScalerInfoTask() {
 
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
+  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: analyzed " << nEvents << " events" << endl;
 
 }
 
 
-void DTScalerInfoTask::beginJob() {
- 
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
-    << "[DTScalerInfoTask]: BeginJob" << endl;
+void DTScalerInfoTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
-}
-
-
-void DTScalerInfoTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
-    << "[DTScalerInfoTask]: BeginRun" << endl;   
-
-  bookHistos();
-
+  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
+    << "[DTScalerInfoTask]: BeginRun" << endl;
 }
 
 
@@ -66,17 +51,17 @@ void DTScalerInfoTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, cons
 
   nEventsInLS=0;
 
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
+  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: Begin of LS transition" << endl;
-  
+
   }
 
 void DTScalerInfoTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
 
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask") 
+  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: End of LS transition" << endl;
 
-  
+
   int block = lumiSeg.luminosityBlock();
 
   map<string,DTTimeEvolutionHisto* >::const_iterator histoIt  = trendHistos.begin();
@@ -84,42 +69,48 @@ void DTScalerInfoTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const 
   for(;histoIt!=histoEnd;++histoIt) {
     histoIt->second->updateTimeSlot(block, nEventsInLS);
   }
-  
-}
-
-
-void DTScalerInfoTask::endJob() {
-
-  LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask") 
-    << "[DTScalerInfoTask]: analyzed " << nEvents << " events" << endl;
 
 }
-
 
 void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-  
+
   nEvents++;
   nEventsInLS++;
   nEventMonitor->Fill(nEvents);
 
   //retrieve the luminosity
   edm::Handle<LumiScalersCollection> lumiScalers;
-  e.getByLabel(theScalerTag, lumiScalers);
-  LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
-  trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
+  if (e.getByToken(scalerToken_, lumiScalers)) {
+    if (lumiScalers->begin() != lumiScalers->end()) {
+      LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
+      trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
+    }
+    else {
+      LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")
+	<< "[DTScalerInfoTask]: LumiScalersCollection size == 0" << endl;
+    }
+  }
+  else {
+    LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")
+      << "[DTScalerInfoTask]: LumiScalersCollection getByToken call failed" << endl;
+  }
 
 }
 
+void DTScalerInfoTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-void DTScalerInfoTask::bookHistos() {
+  ibooker.setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = ibooker.bookFloat("nProcessedEventsScalerInfo");
 
-  theDQMStore->setCurrentFolder("DT/EventInfo/Counters");
-  nEventMonitor = theDQMStore->bookFloat("nProcessedEventsScalerInfo");
-
-  theDQMStore->setCurrentFolder("DT/00-DataIntegrity/ScalerInfo");
+  ibooker.setCurrentFolder("DT/00-DataIntegrity/ScalerInfo");
 
   string histoName = "AvgLumivsLumiSec";
   string histoTitle = "Average Lumi vs LumiSec";
-  trendHistos[histoName] = new DTTimeEvolutionHisto(theDQMStore,histoName,histoTitle,200,10,true,0);
+  trendHistos[histoName] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

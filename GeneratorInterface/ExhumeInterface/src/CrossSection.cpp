@@ -10,6 +10,7 @@
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
 #include <cstdio>
+#include <memory>
 
 // External Fortran routines to link to:
 double dsimps_(double*, double*, double*, int*);
@@ -508,7 +509,8 @@ void Exhume::CrossSection::Hadronise(){
   //int one = 1;
   int njoin = Partons.size();
 
-  int *ijoin = (int*) calloc(njoin, sizeof(int) );
+  //NOTE: all values initialized in for loop below
+  std::unique_ptr<int[]> ijoin( new int[njoin] );
 
   double e_, theta_, phi_;
   int id, nn, nnc;
@@ -564,7 +566,7 @@ void Exhume::CrossSection::Hadronise(){
   }
 
   if((njoin > 1)&&(Name != "di-photon")){
-    pyjoin(njoin, ijoin);
+    pyjoin(njoin, ijoin.get());
     int ip1 =3; 
     int ip2 =4;
     CLHEP::HepLorentzVector b_COM = Partons[0].p.boost(CentralVector.findBoostToCM());

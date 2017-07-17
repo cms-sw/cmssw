@@ -6,6 +6,25 @@
 
 namespace edm {
 
+  class MultipleException : public cms::Exception {
+  public:
+    MultipleException(int iReturnValue,
+                      std::string const& iMessage):
+    cms::Exception("MultipleExceptions", iMessage),
+    returnValue_(iReturnValue) {}
+    
+    virtual Exception* clone() const override {
+      return new MultipleException(*this);
+    }
+
+  private:
+    int returnCode_() const override {
+      return returnValue_;
+    }
+
+    int returnValue_;
+  };
+  
   ExceptionCollector::ExceptionCollector(std::string const& initialMessage) :
     initialMessage_(initialMessage),
     firstException_(),
@@ -32,23 +51,17 @@ namespace edm {
   }
 
   void
-  ExceptionCollector::call(boost::function<void(void)> f) {
+  ExceptionCollector::call(std::function<void(void)> f) {
     try {
-      try {
+      convertException::wrap([&f]() {
         f();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
-    }      
+      });
+    }
     catch (cms::Exception const& ex) {
       ++nExceptions_;
       if (nExceptions_ == 1) {
         firstException_.reset(ex.clone());
-        accumulatedExceptions_.reset(new cms::Exception("MultipleExceptions", initialMessage_));
+        accumulatedExceptions_.reset(new MultipleException(ex.returnCode(), initialMessage_));
       }
       *accumulatedExceptions_ << nExceptions_ << "\n"
                               << ex.explainSelf();
@@ -60,7 +73,7 @@ namespace edm {
     ++nExceptions_;
     if (nExceptions_ == 1) {
       firstException_.reset(exception.clone());
-      accumulatedExceptions_.reset(new cms::Exception("MultipleExceptions", initialMessage_));
+      accumulatedExceptions_.reset(new MultipleException(exception.returnCode(), initialMessage_));
     }
     *accumulatedExceptions_ << "----- Exception " << nExceptions_ << " -----"
                             << "\n"

@@ -39,8 +39,8 @@ class printJetFlavour : public edm::EDAnalyzer {
 
   private:
     edm::InputTag sourcePartons_;
-    edm::InputTag sourceByRefer_;
-    edm::InputTag sourceByValue_;
+    edm::EDGetTokenT<reco::JetMatchedPartonsCollection> sourceByReferToken_;
+    edm::EDGetTokenT<reco::JetFlavourMatchingCollection> sourceByValueToken_;
     edm::Handle<reco::JetMatchedPartonsCollection> theTagByRef;
     edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue;
 };
@@ -52,16 +52,16 @@ using namespace ROOT::Math::VectorUtil;
 
 printJetFlavour::printJetFlavour(const edm::ParameterSet& iConfig)
 {
-  sourceByRefer_ = iConfig.getParameter<InputTag> ("srcByReference");
-  sourceByValue_ = iConfig.getParameter<InputTag> ("srcByValue");
+  sourceByReferToken_ = consumes<reco::JetMatchedPartonsCollection>(iConfig.getParameter<InputTag> ("srcByReference"));
+  sourceByValueToken_ = consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("srcByValue"));
 }
 
 void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printJetFlavour] analysing event " << iEvent.id() << endl;
   try {
-    iEvent.getByLabel (sourceByRefer_ , theTagByRef   );
-    iEvent.getByLabel (sourceByValue_ , theTagByValue );
+    iEvent.getByToken (sourceByReferToken_ , theTagByRef   );
+    iEvent.getByToken (sourceByValueToken_ , theTagByValue );
   } catch(std::exception& ce) {
     cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
@@ -81,20 +81,20 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     const GenParticleRef theHeaviest = aMatch.heaviest() ;
     if(theHeaviest.isNonnull()) {
       float dist = DeltaR( aJet->p4(), theHeaviest.get()->p4() );
-      cout << setprecision(2) << setw(6) << fixed << 
-              "                           theHeaviest flav (pt,eta,phi)=" << theHeaviest.get()->pdgId() 
-                                                                  << " (" << theHeaviest.get()->et() 
-                                                                  << ","  << theHeaviest.get()->eta() 
-                                                                  << ","  << theHeaviest.get()->phi() 
-                                                                  << ") Dr=" << dist << endl;  
+      cout << setprecision(2) << setw(6) << fixed <<
+              "                           theHeaviest flav (pt,eta,phi)=" << theHeaviest.get()->pdgId()
+                                                                  << " (" << theHeaviest.get()->et()
+                                                                  << ","  << theHeaviest.get()->eta()
+                                                                  << ","  << theHeaviest.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
     }
     const GenParticleRef theNearest2 = aMatch.nearest_status2() ;
     if(theNearest2.isNonnull()) {
       float dist = DeltaR( aJet->p4(), theNearest2.get()->p4() );
       cout << "                      theNearest Stat2 flav (pt,eta,phi)=" << theNearest2.get()->pdgId()
-                                                                  << " (" << theNearest2.get()->et()   
-                                                                  << ","  << theNearest2.get()->eta()  
-                                                                  << ","  << theNearest2.get()->phi() 
+                                                                  << " (" << theNearest2.get()->et()
+                                                                  << ","  << theNearest2.get()->eta()
+                                                                  << ","  << theNearest2.get()->phi()
                                                                   << ") Dr=" << dist << endl;
     }
     const GenParticleRef theNearest3 = aMatch.nearest_status3() ;
@@ -103,7 +103,7 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       cout << "                      theNearest Stat3 flav (pt,eta,phi)=" << theNearest3.get()->pdgId()
                                                                   << " (" << theNearest3.get()->et()
                                                                   << ","  << theNearest3.get()->eta()
-                                                                  << ","  << theNearest3.get()->phi() 
+                                                                  << ","  << theNearest3.get()->phi()
                                                                   << ") Dr=" << dist << endl;
     }
     const GenParticleRef thePhyDef = aMatch.physicsDefinitionParton() ;
@@ -112,7 +112,7 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       cout << "                     thePhysDefinition flav (pt,eta,phi)=" << thePhyDef.get()->pdgId()
                                                                   << " (" << thePhyDef.get()->et()
                                                                   << ","  << thePhyDef.get()->eta()
-                                                                  << ","  << thePhyDef.get()->phi() 
+                                                                  << ","  << thePhyDef.get()->phi()
                                                                   << ") Dr=" << dist << endl;
     }
     const GenParticleRef theAlgDef = aMatch.algoDefinitionParton() ;
@@ -121,8 +121,8 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       cout << "                     theAlgoDefinition flav (pt,eta,phi)=" << theAlgDef.get()->pdgId()
                                                                   << " (" << theAlgDef.get()->et()
                                                                   << ","  << theAlgDef.get()->eta()
-                                                                  << ","  << theAlgDef.get()->phi() 
-                                                                  << ") Dr=" << dist << endl;   
+                                                                  << ","  << theAlgDef.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
     }
   }
 
@@ -131,16 +131,16 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for ( JetFlavourMatchingCollection::const_iterator j  = theTagByValue->begin();
                                                      j != theTagByValue->end();
                                                      j ++ ) {
-    RefToBase<Jet> aJet  = (*j).first;   
+    RefToBase<Jet> aJet  = (*j).first;
     const JetFlavour aFlav = (*j).second;
 
     printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f | parton = %7.2f %6.3f %6.3f | %4d\n",
              aJet.get()->et(),
              aJet.get()->eta(),
-             aJet.get()->phi(), 
-             aFlav.getLorentzVector().pt(), 
+             aJet.get()->phi(),
+             aFlav.getLorentzVector().pt(),
              aFlav.getLorentzVector().eta(),
-             aFlav.getLorentzVector().phi(), 
+             aFlav.getLorentzVector().phi(),
              aFlav.getFlavour()
           );
   }

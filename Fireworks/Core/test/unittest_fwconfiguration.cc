@@ -15,6 +15,8 @@
 #include <boost/test/test_tools.hpp>
 #include <stdexcept>
 #include <iostream>
+#include <ios>
+#include <fstream>
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE( fwconfiguration )
    BOOST_CHECK(found->value()==kValue);
    BOOST_CHECK_THROW(config.valueForKey("blah"), std::runtime_error);
    
-   streamTo(std::cout, topConfig, "top");
+   FWConfiguration::streamTo(std::cout, topConfig, "top");
 
    //Test manager
    std::auto_ptr<Conf> pConf(new Conf() );
@@ -130,6 +132,11 @@ BOOST_AUTO_TEST_CASE( fwconfiguration )
    BOOST_CHECK( 0 == pConf->m_config.keyValues() );
    BOOST_CHECK( kValue == pConf->m_config.value() );
    
-   BOOST_CHECK_THROW(confMgr.readFromFile("doesNotExist"), std::runtime_error);
-
+   std::ofstream log("testConfig", std::ios_base::app | std::ios_base::out);
+   log << "line\n"; log.close();
+   try 
+   {
+      confMgr.readFromFile("testConfig");
+   }
+   catch (...) { std::cerr << "OK, checked parser exception \n"; }
 }

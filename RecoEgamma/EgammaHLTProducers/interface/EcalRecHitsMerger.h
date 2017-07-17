@@ -14,14 +14,19 @@
 #include <string>
 #include <vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EcalRecHitsMerger : public edm::EDProducer {
 
 public:
 	EcalRecHitsMerger(const edm::ParameterSet& pset);
 	virtual ~EcalRecHitsMerger();
-	void produce(edm::Event & e, const edm::EventSetup& c);
-	void beginJob(void);
-	void endJob(void);
+	void produce(edm::Event & e, const edm::EventSetup& c) override;
+	void beginJob(void) override;
+	void endJob(void) override;
+	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 	edm::InputTag EgammaSourceEB_;

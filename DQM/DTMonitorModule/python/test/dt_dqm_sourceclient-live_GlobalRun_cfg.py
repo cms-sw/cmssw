@@ -41,7 +41,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 
 # DT reco and DQM sequences
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # ideal geometry for LUT task
 process.load("Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")

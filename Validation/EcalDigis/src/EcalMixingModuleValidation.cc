@@ -12,19 +12,30 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-//using namespace cms;
-//using namespace edm;
-//using namespace std;
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& ps):
-  HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
-  hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
-  EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
-  EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection")),
-  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection")){
+  HepMCToken_( consumes<edm::HepMCProduct>( edm::InputTag( ps.getParameter<std::string>( "moduleLabelMC" ) ) ) ),
+  EBdigiCollectionToken_( consumes<EBDigiCollection>( ps.getParameter<edm::InputTag>( "EBdigiCollection" ) ) ),
+  EEdigiCollectionToken_( consumes<EEDigiCollection>( ps.getParameter<edm::InputTag>( "EEdigiCollection" ) ) ),
+  ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) ),
+  crossingFramePCaloHitEBToken_( consumes< CrossingFrame<PCaloHit> >( edm::InputTag( std::string( "mix" )
+										   , ps.getParameter<std::string>( "hitsProducer" ) + std::string( "EcalHitsEB" )
+										   )
+								    )
+			       ),
+  crossingFramePCaloHitEEToken_( consumes< CrossingFrame<PCaloHit> >( edm::InputTag( std::string( "mix" )
+										   , ps.getParameter<std::string>( "hitsProducer" ) + std::string( "EcalHitsEE" )
+										   )
+								    )
+			       ),
+  crossingFramePCaloHitESToken_( consumes< CrossingFrame<PCaloHit> >( edm::InputTag( std::string( "mix" )
+										   , ps.getParameter<std::string>( "hitsProducer" ) + std::string( "EcalHitsES" )
+										   )
+								    )
+			       ) {
 
 
   // needed for MixingModule checks
@@ -87,23 +98,6 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
                                                                                                                                            
-  dbe_ = 0;
-                                                                                                                                          
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
   gainConv_[3] = 12.;
@@ -134,79 +128,75 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   meEBShapeRatio_ = 0;
   meEEShapeRatio_ = 0;
   meESShapeRatio_ = 0;
-    
-
-  Char_t histo[200];
- 
-  
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
-  
-    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEBDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
-      
-    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEEDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
-      
-    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun" ) ;
-    meEBDigiMixRatioOriggt50pc_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
-      
-    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun" ) ;
-    meEEDigiMixRatioOriggt40pc_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
-      
-    sprintf (histo, "EcalDigiTask Barrel bunch crossing" ) ;
-    meEBbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
-      
-    sprintf (histo, "EcalDigiTask Endcap bunch crossing" ) ;
-    meEEbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
-      
-    sprintf (histo, "EcalDigiTask Preshower bunch crossing" ) ;
-    meESbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
-
-    for ( int i = 0 ; i < nBunch ; i++ ) {
-
-      sprintf (histo, "EcalDigiTask Barrel shape bunch crossing %02d", i-10 );
-      meEBBunchShape_[i] = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
-
-      sprintf (histo, "EcalDigiTask Endcap shape bunch crossing %02d", i-10 );
-      meEEBunchShape_[i] = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
-
-      sprintf (histo, "EcalDigiTask Preshower shape bunch crossing %02d", i-10 );
-      meESBunchShape_[i] = dbe_->bookProfile(histo, histo, 3, 0, 3, 4000, 0., 400.);
-
-    }
-
-    sprintf (histo, "EcalDigiTask Barrel shape digi");
-    meEBShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
-
-    sprintf (histo, "EcalDigiTask Endcap shape digi");
-    meEEShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
-
-    sprintf (histo, "EcalDigiTask Preshower shape digi");
-    meESShape_ = dbe_->bookProfile(histo, histo, 3, 0, 3, 4000, 0., 2000.);
-
-    sprintf (histo, "EcalDigiTask Barrel shape digi ratio");
-    meEBShapeRatio_ = dbe_->book1D(histo, histo, 10, 0, 10.);
-
-    sprintf (histo, "EcalDigiTask Endcap shape digi ratio");
-    meEEShapeRatio_ = dbe_->book1D(histo, histo, 10, 0, 10.);
-
-    sprintf (histo, "EcalDigiTask Preshower shape digi ratio");
-    meESShapeRatio_ = dbe_->book1D(histo, histo, 3, 0, 3.);
-     
-  }
  
 }
 
 EcalMixingModuleValidation::~EcalMixingModuleValidation(){}
 
-void EcalMixingModuleValidation::beginRun(edm::Run const &, edm::EventSetup const & c){
+void EcalMixingModuleValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c) {
 
   checkCalibrations(c);
 
 }
 
-void EcalMixingModuleValidation::endJob(){
+void EcalMixingModuleValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+
+    Char_t histo[200];
+
+    ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
+  
+    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC" ) ;
+    meEBDigiMixRatiogt100ADC_ = ibooker.book1D(histo, histo, 200, 0., 100.) ;
+      
+    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC" ) ;
+    meEEDigiMixRatiogt100ADC_ = ibooker.book1D(histo, histo, 200, 0., 100.) ;
+      
+    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun" ) ;
+    meEBDigiMixRatioOriggt50pc_ = ibooker.book1D(histo, histo, 200, 0., 100.) ;
+      
+    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun" ) ;
+    meEEDigiMixRatioOriggt40pc_ = ibooker.book1D(histo, histo, 200, 0., 100.) ;
+      
+    sprintf (histo, "EcalDigiTask Barrel bunch crossing" ) ;
+    meEBbunchCrossing_ = ibooker.book1D(histo, histo, 20, -10., 10.) ;
+      
+    sprintf (histo, "EcalDigiTask Endcap bunch crossing" ) ;
+    meEEbunchCrossing_ = ibooker.book1D(histo, histo, 20, -10., 10.) ;
+      
+    sprintf (histo, "EcalDigiTask Preshower bunch crossing" ) ;
+    meESbunchCrossing_ = ibooker.book1D(histo, histo, 20, -10., 10.) ;
+
+    for ( int i = 0 ; i < nBunch ; i++ ) {
+
+      sprintf (histo, "EcalDigiTask Barrel shape bunch crossing %02d", i-10 );
+      meEBBunchShape_[i] = ibooker.bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
+
+      sprintf (histo, "EcalDigiTask Endcap shape bunch crossing %02d", i-10 );
+      meEEBunchShape_[i] = ibooker.bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
+
+      sprintf (histo, "EcalDigiTask Preshower shape bunch crossing %02d", i-10 );
+      meESBunchShape_[i] = ibooker.bookProfile(histo, histo, 3, 0, 3, 4000, 0., 400.);
+
+    }
+
+    sprintf (histo, "EcalDigiTask Barrel shape digi");
+    meEBShape_ = ibooker.bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
+
+    sprintf (histo, "EcalDigiTask Endcap shape digi");
+    meEEShape_ = ibooker.bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
+
+    sprintf (histo, "EcalDigiTask Preshower shape digi");
+    meESShape_ = ibooker.bookProfile(histo, histo, 3, 0, 3, 4000, 0., 2000.);
+
+    sprintf (histo, "EcalDigiTask Barrel shape digi ratio");
+    meEBShapeRatio_ = ibooker.book1D(histo, histo, 10, 0, 10.);
+
+    sprintf (histo, "EcalDigiTask Endcap shape digi ratio");
+    meEEShapeRatio_ = ibooker.book1D(histo, histo, 10, 0, 10.);
+
+    sprintf (histo, "EcalDigiTask Preshower shape digi ratio");
+    meESShapeRatio_ = ibooker.book1D(histo, histo, 3, 0, 3.);
+     
 }
 
 void EcalMixingModuleValidation::endRun(const edm::Run& run, const edm::EventSetup& c){
@@ -310,7 +300,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
 
   
   bool skipMC = false;
-  e.getByLabel(HepMCLabel, MCEvt);
+  e.getByToken( HepMCToken_, MCEvt );
   if (!MCEvt.isValid()) { skipMC = true; }
 
   const EBDigiCollection* EBdigis =0;
@@ -318,7 +308,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   const ESDigiCollection* ESdigis =0;
 
   bool isBarrel = true;
-  e.getByLabel( EBdigiCollection_, EcalDigiEB );
+  e.getByToken( EBdigiCollectionToken_, EcalDigiEB );
   if (EcalDigiEB.isValid()) { 
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
@@ -328,7 +318,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   }
 
   bool isEndcap = true;
-  e.getByLabel( EEdigiCollection_, EcalDigiEE );
+  e.getByToken( EEdigiCollectionToken_, EcalDigiEE );
   if (EcalDigiEE.isValid()) {
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
@@ -338,7 +328,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   }
 
   bool isPreshower = true;
-  e.getByLabel( ESdigiCollection_, EcalDigiES );
+  e.getByToken( ESdigiCollectionToken_, EcalDigiES );
   if (EcalDigiES.isValid()) {
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
@@ -367,33 +357,29 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
 
   if ( isBarrel ) {
 
-    const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-    e.getByLabel("mix",barrelHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    e.getByToken( crossingFramePCaloHitEBToken_, crossingFrame );
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     
     MapType ebSignalSimMap;
 
     double ebSimThreshold = 0.5*theGunEnergy;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
-         hitItr != barrelHits->end () ;
-         ++hitItr) {
+    for ( auto const &iHit : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id()) ;
+      EBDetId ebid = EBDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
 
       uint32_t crystid = ebid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) ebSignalSimMap[crystid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) ebSignalSimMap[crystid] += iHit.energy();
       
-      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
       
     }
     
@@ -459,7 +445,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     } 
     
     EcalSubdetector thisDet = EcalBarrel;
-    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold);
+    computeSDBunchDigi(c, barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
   }
   
   
@@ -469,33 +455,28 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
 
   if ( isEndcap ) {
 
-    const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-    e.getByLabel("mix",endcapHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    e.getByToken( crossingFramePCaloHitEEToken_, crossingFrame );
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     MapType eeSignalSimMap;
 
     double eeSimThreshold = 0.4*theGunEnergy;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
-         hitItr != endcapHits->end () ;
-         ++hitItr) {
+    for ( auto const & iHit : endcapHits ) {
       
-      EEDetId eeid = EEDetId(hitItr->id()) ;
+      EEDetId eeid = EEDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
       
       uint32_t crystid = eeid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) eeSignalSimMap[crystid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) eeSignalSimMap[crystid] += iHit.energy();
       
-      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
 
     }
     
@@ -560,36 +541,32 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalEndcap;
-    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold);
+    computeSDBunchDigi(c, endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
   }
 
   if ( isPreshower) {
 
-    const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
-    e.getByLabel("mix",preshowerHitsName,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    e.getByToken(crossingFramePCaloHitESToken_, crossingFrame );
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
+
     MapType esSignalSimMap;
-    
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
-         hitItr != preshowerHits->end () ;
-         ++hitItr) {
+
+    for ( auto const & iHit : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id()) ;
+      ESDetId esid = ESDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
 
       uint32_t stripid = esid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) esSignalSimMap[stripid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) esSignalSimMap[stripid] += iHit.energy();
       
-      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
   
       // loop over Digis
 
@@ -638,7 +615,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalPreshower;
-    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_);
+    computeSDBunchDigi(c, preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
     
   }
   
@@ -737,7 +714,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
   }
 }
 
-void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold)
+void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, const MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
 {
 
   if ( thisDet != EcalBarrel && thisDet != EcalEndcap && thisDet != EcalPreshower ) {
@@ -785,17 +762,17 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
      if( thisDet == EcalBarrel ) {
        theEBResponse->setBunchRange(iBunch, iBunch);
        theEBResponse->clear();
-       theEBResponse->run(theHits);
+       theEBResponse->run(theHits, engine);
      }
      else if( thisDet == EcalEndcap ) {
        theEEResponse->setBunchRange(iBunch, iBunch);
        theEEResponse->clear();
-       theEEResponse->run(theHits);
+       theEEResponse->run(theHits, engine);
      }
      else {
        theESResponse->setBunchRange(iBunch, iBunch);
        theESResponse->clear();
-       theESResponse->run(theHits);
+       theESResponse->run(theHits, engine);
      }
 
      int iHisto = iBunch - theMinBunch;
@@ -830,3 +807,17 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
    }
 
  }
+
+CLHEP::HepRandomEngine* EcalMixingModuleValidation::randomEngine(edm::StreamID const& streamID) {
+  unsigned int index = streamID.value();
+  if(index >= randomEngines_.size()) {
+    randomEngines_.resize(index + 1, nullptr);
+  }
+  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+  if(!ptr) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    ptr = &rng->getEngine(streamID);
+    randomEngines_[index] = ptr;
+  }
+  return ptr;
+}

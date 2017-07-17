@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace {
+namespace SimDataFormats_HcalTestBeam {
   struct dictionary {
     PHcalTB04Info                    theInfo4;
     edm::Wrapper<PHcalTB04Info>      theTB04Info;

@@ -4,9 +4,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-class GeomDetUnit;
 
-class TRecHit2DPosConstraint GCC11_FINAL : public TransientTrackingRecHit {
+
+class TRecHit2DPosConstraint final : public TransientTrackingRecHit {
 public:
 
   virtual ~TRecHit2DPosConstraint() {}
@@ -49,10 +49,9 @@ public:
 
   virtual bool canImproveWithTrack() const {return false;}
 
-  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
   virtual const GeomDetUnit* detUnit() const {return 0;}
-  virtual const GeomDet* det() const {return 0;}
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const Surface* surface) {

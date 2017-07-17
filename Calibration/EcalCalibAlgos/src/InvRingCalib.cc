@@ -315,7 +315,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
       pTk=eleIt->trackMomentumAtVtx().R();
       std::map<int , double> xtlMap;
       DetId Max=0; 
-      if (fabs(eleIt->eta()<1.49))
+      if (std::abs(eleIt->eta())<1.49)
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
       else 
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;

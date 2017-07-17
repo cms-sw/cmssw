@@ -7,7 +7,6 @@
 
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -15,6 +14,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <sstream>
 
@@ -42,13 +42,13 @@ const DetId xuti::readCellId(xercesc::DOMElement* node){
   stringstream zside_str ;
 
  
-  ieta_str << toNative(node->getAttribute(fromNative(iEta_tag).c_str()));
-  iphi_str << toNative(node->getAttribute(fromNative(iPhi_tag).c_str()));
-  ix_str   << toNative(node->getAttribute(fromNative(ix_tag).c_str()));
-  iy_str   << toNative(node->getAttribute(fromNative(iy_tag).c_str()));
-  ixSC_str << toNative(node->getAttribute(fromNative(ixSC_tag).c_str()));
-  iySC_str << toNative(node->getAttribute(fromNative(iySC_tag).c_str()));
-  zside_str<< toNative(node->getAttribute(fromNative(zside_tag).c_str()));
+  ieta_str << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(iEta_tag.c_str()).ptr()));
+  iphi_str << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(iPhi_tag.c_str()).ptr()));
+  ix_str   << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(ix_tag.c_str()).ptr()));
+  iy_str   << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(iy_tag.c_str()).ptr()));
+  ixSC_str << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(ixSC_tag.c_str()).ptr()));
+  iySC_str << cms::xerces::toString(node->getAttribute(cms::xerces::uStr(iySC_tag.c_str()).ptr()));
+  zside_str<< cms::xerces::toString(node->getAttribute(cms::xerces::uStr(zside_tag.c_str()).ptr()));
   
   ieta_str>> ieta;
   iphi_str>> iphi;
@@ -73,7 +73,7 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
 		  const DetId& detid){
   
   DOMElement* cell_node = 
-      node->getOwnerDocument()->createElement( fromNative(Cell_tag).c_str());
+      node->getOwnerDocument()->createElement( cms::xerces::uStr(Cell_tag.c_str()).ptr());
 
   node->appendChild(cell_node);
   
@@ -82,13 +82,13 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
     stringstream value_s;
     value_s <<EBDetId(detid).ieta() ;
 
-    cell_node->setAttribute(fromNative(iEta_tag).c_str(),
-			    fromNative(value_s.str()).c_str());
+    cell_node->setAttribute(cms::xerces::uStr(iEta_tag.c_str()).ptr(),
+			    cms::xerces::uStr(value_s.str().c_str()).ptr());
     value_s.str("");
     value_s <<EBDetId(detid).iphi() ;
 
-    cell_node->setAttribute(fromNative(iPhi_tag).c_str(),
-			    fromNative(value_s.str()).c_str());
+    cell_node->setAttribute(cms::xerces::uStr(iPhi_tag.c_str()).ptr(),
+			    cms::xerces::uStr(value_s.str().c_str()).ptr());
 
   } else if (detid.subdetId() == EcalEndcap){
     
@@ -98,48 +98,48 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
       stringstream value_s;
       value_s <<EEDetId(detid).ix() ;
   
-      cell_node->setAttribute(fromNative(ix_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(ix_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s <<EEDetId(detid).iy() ;
 
-      cell_node->setAttribute(fromNative(iy_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(iy_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s <<EEDetId(detid).zside() ;
 
-      cell_node->setAttribute(fromNative(zside_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(zside_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
     }
     else {
       stringstream value_s;
       value_s << EcalScDetId(detid).ix() ;
   
-      cell_node->setAttribute(fromNative(ixSC_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(ixSC_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s << EcalScDetId(detid).iy() ;
 
-      cell_node->setAttribute(fromNative(iySC_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(iySC_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s << EcalScDetId(detid).zside() ;
 
-      cell_node->setAttribute(fromNative(zside_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(zside_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
     }
 
   } else if (detid.subdetId() == EcalTriggerTower ){ 
     stringstream value_s;
     value_s <<EcalTrigTowerDetId(detid).ieta() ;
   
-    cell_node->setAttribute(fromNative(iEta_tag).c_str(),
-			    fromNative(value_s.str()).c_str());
+    cell_node->setAttribute(cms::xerces::uStr(iEta_tag.c_str()).ptr(),
+			    cms::xerces::uStr(value_s.str().c_str()).ptr());
     value_s.str("");
     value_s <<EcalTrigTowerDetId(detid).iphi() ;
 
-    cell_node->setAttribute(fromNative(iPhi_tag).c_str(),
-			    fromNative(value_s.str()).c_str());
+    cell_node->setAttribute(cms::xerces::uStr(iPhi_tag.c_str()).ptr(),
+			    cms::xerces::uStr(value_s.str().c_str()).ptr());
   }
   return cell_node;
 }
@@ -154,7 +154,7 @@ DOMNode * xuti::getChildNode(DOMNode * node,  const std::string& nodename ){
     
     if (childNode->getNodeType() == DOMNode::ELEMENT_NODE) {
       
-      const string foundName = toNative(childNode->getNodeName());
+      const string foundName = cms::xerces::toString(childNode->getNodeName());
       
       if (foundName == nodename) return childNode;
     }// if element 
@@ -172,7 +172,7 @@ void xuti::writeHeader (xercesc::DOMNode* parentNode,
 
   
   DOMElement* headernode =
-    parentNode->getOwnerDocument()->createElement( fromNative(Header_tag).c_str());
+    parentNode->getOwnerDocument()->createElement( cms::xerces::uStr(Header_tag.c_str()).ptr());
   parentNode->appendChild(headernode);
 
   // write the actual header
@@ -242,7 +242,7 @@ int xuti::readHeader(const std::string& filename,EcalCondHeader& header ){
 }
 
 void xuti:: GetNodeStringData(xercesc::DOMNode* node, std::string& value){
-  value=  toNative(node->getTextContent());       
+  value=  cms::xerces::toString(node->getTextContent());       
 }
   
 

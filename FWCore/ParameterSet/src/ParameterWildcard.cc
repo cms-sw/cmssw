@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include "boost/bind.hpp"
-
 #include <cassert>
 #include <iomanip>
 #include <ostream>
@@ -63,10 +61,10 @@ namespace edm {
 
     if(psetDesc_) {
       for_all(parameterNames,
-              boost::bind(&ParameterWildcard<ParameterSetDescription>::validateDescription,
-                          boost::cref(this),
-                          _1,
-                          boost::ref(pset)));
+              std::bind(&ParameterWildcard<ParameterSetDescription>::validateDescription,
+                          this,
+                          std::placeholders::_1,
+                          std::ref(pset)));
     }
   }
 
@@ -80,7 +78,7 @@ namespace edm {
 
   bool
   ParameterWildcard<ParameterSetDescription>::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     if(psetDesc_) return true;
     return false;
   }
@@ -89,7 +87,7 @@ namespace edm {
   ParameterWildcard<ParameterSetDescription>::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
 
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {
@@ -180,10 +178,10 @@ namespace edm {
 
     if(psetDesc_) {
       for_all(parameterNames,
-              boost::bind(&ParameterWildcard<std::vector<ParameterSet> >::validatePSetVector,
-                          boost::cref(this),
-                          _1,
-                          boost::ref(pset)));
+              std::bind(&ParameterWildcard<std::vector<ParameterSet> >::validatePSetVector,
+                          this,
+                          std::placeholders::_1,
+                          std::ref(pset)));
     }
   }
 
@@ -199,7 +197,7 @@ namespace edm {
 
   bool
   ParameterWildcard<std::vector<ParameterSet> >::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     if(psetDesc_) return true;
     return false;
   }
@@ -208,7 +206,7 @@ namespace edm {
   ParameterWildcard<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
 
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {

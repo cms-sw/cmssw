@@ -2,10 +2,11 @@
 #define FWCore_Utilities_ObjectWithDict_h
 
 /*----------------------------------------------------------------------
-  
+
 ObjectWithDict:  A holder for an object and its type information.
 
 ----------------------------------------------------------------------*/
+
 #include <string>
 #include <typeinfo>
 
@@ -13,40 +14,32 @@ ObjectWithDict:  A holder for an object and its type information.
 
 namespace edm {
 
-  class ObjectWithDict {
-  public:
-    ObjectWithDict();
+class ObjectWithDict {
+private:
+  TypeWithDict type_;
+  void* address_;
+public:
+  static ObjectWithDict byType(TypeWithDict const&);
+public:
+  ObjectWithDict();
+  explicit ObjectWithDict(TypeWithDict const&, void* address);
+  explicit ObjectWithDict(std::type_info const&, void* address);
+  explicit operator bool() const;
+  void* address() const;
+  TypeWithDict typeOf() const;
+  TypeWithDict dynamicType() const;
+  ObjectWithDict castObject(TypeWithDict const&) const;
+  ObjectWithDict get(std::string const& memberName) const;
+  //ObjectWithDict construct() const;
+  void destruct(bool dealloc) const;
+  template<typename T>
+  T
+  objectCast() {
+    return *reinterpret_cast<T*>(address_);
+  }
+};
 
-    ObjectWithDict(TypeWithDict const& type, void* address);
+} // namespace edm
 
-    ObjectWithDict(std::type_info const& typeID, void* address);
 
-    static ObjectWithDict byType(TypeWithDict const& type);
-
-    void* address() const;
-
-    TypeWithDict const& typeOf() const;
-
-    TypeWithDict dynamicType() const;
-
-    ObjectWithDict get(std::string const& memberName) const;
-
-#ifndef __GCCXML__
-    explicit operator bool() const;
-#endif
-
-    template <typename T> T objectCast() {
-      return *reinterpret_cast<T*>(address_);
-    }
-
-  private:
-    friend class FunctionWithDict;
-    friend class MemberWithDict;
-    friend class TypeWithDict;
-
-    TypeWithDict type_;
-    void* address_;
-  };
-
-}
-#endif
+#endif // FWCore_Utilities_ObjectWithDict_h

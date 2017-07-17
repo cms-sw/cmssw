@@ -89,12 +89,12 @@ public:
 
  private:
   // The fixed t_trig to be subtracted to digi time (ns)
-  static double theTTrig;
+  const double theTTrig;
   // Velocity of signal propagation along the wire (cm/ns)
   // For the value
   // cfr. CMS-IN 2000-021:   (2.56+-0.17)x1e8 m/s
   //      CMS NOTE 2003-17:  (0.244)  m/ns = 24.4 cm/ns
-  static double theVPropWire;
+  const double theVPropWire;
   
   // Select the mode for TOF correction:
   //     0: tofCorr = TOF from IP to 3D Hit position (globPos)
@@ -102,10 +102,10 @@ public:
   //                  between 3D center of the chamber and hit position
   //     2: tofCorr = TOF correction for distance difference
   //                  between 3D center of the wire and hit position
-  static int theTOFCorrType;
+  const int theTOFCorrType;
 
   // Set the verbosity level
-  static bool debug;
+  const bool debug;
   // spacing of BX in ns
   double theBXspace;
 };

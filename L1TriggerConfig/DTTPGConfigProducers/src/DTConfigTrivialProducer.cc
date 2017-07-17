@@ -7,7 +7,7 @@
 using std::cout;
 using std::endl;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 //
 // constructors and destructor
@@ -55,7 +55,7 @@ DTConfigTrivialProducer::~DTConfigTrivialProducer()
 // member functions
 //
 
-std::auto_ptr<DTConfigManager> DTConfigTrivialProducer::produce (const DTConfigManagerRcd& iRecord)
+std::unique_ptr<DTConfigManager> DTConfigTrivialProducer::produce (const DTConfigManagerRcd& iRecord)
 {
 
   if (m_debug) 
@@ -66,7 +66,7 @@ std::auto_ptr<DTConfigManager> DTConfigTrivialProducer::produce (const DTConfigM
 
    //m_manager->getDTConfigPedestals()->print();
 
-   std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( m_manager );
+   std::unique_ptr<DTConfigManager> dtConfig = std::unique_ptr<DTConfigManager>( m_manager );
 
    return dtConfig ;
 

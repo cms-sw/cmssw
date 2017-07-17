@@ -1,5 +1,9 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
 #define BOOK1D(name,title,nbinsx,lowx,highx) \
@@ -34,8 +38,6 @@
 
 using namespace reco;
 using namespace std;
-
-class MonitorElement;
 
 PFJetBenchmark::PFJetBenchmark() : file_(0), entry_(0) {}
 
@@ -129,7 +131,6 @@ void PFJetBenchmark::setup(
   BOOK2D(NCH4vsEta,"N_{Charged} vs #eta, iter 4",200, -5., 5., 200,0.,200.);
   BOOK2D(NCH5vsEta,"N_{Charged} vs #eta, iter 5",200, -5., 5., 200,0.,200.);
   BOOK2D(NCH6vsEta,"N_{Charged} vs #eta, iter 6",200, -5., 5., 200,0.,200.);
-  BOOK2D(NCH7vsEta,"N_{Charged} vs #eta, iter 7",200, -5., 5., 200,0.,200.);
   // delta Pt or E quantities for Barrel
   DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-1,1);
   DBOOK1D(RCHE,#DeltaE/E (charged had),80,-2,2);
@@ -150,7 +151,7 @@ void PFJetBenchmark::setup(
   DBOOK2D(NCH4vsPt, N_{charged} vs P_{T} iter 4,250,0,500,200,0.,200.);
   DBOOK2D(NCH5vsPt, N_{charged} vs P_{T} iter 5,250,0,500,200,0.,200.);
   DBOOK2D(NCH6vsPt, N_{charged} vs P_{T} iter 6,250,0,500,200,0.,200.);
-  DBOOK2D(NCH7vsPt, N_{charged} vs P_{T} iter 7,250,0,500,200,0.,200.);
+
   
 
   DBOOK2D(RNEUTvsP,#DeltaE/E (ECAL+HCAL) vs P,250, 0, 1000, 150,-1.5,1.5);
@@ -313,41 +314,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	  //	    << " has no track ref.." << std::endl;
 	  continue;
 	}
-	unsigned int iter = 0; 
-	switch (trackRef->algo()) {
-	case TrackBase::ctf:
-	case TrackBase::iter0:
-	  iter = 0;
-	  break;
-	case TrackBase::iter1:
-	  iter = 1;
-	  break;
-	case TrackBase::iter2:
-	  iter = 2;
-	  break;
-	case TrackBase::iter3:
-	  iter = 3;
-	  break;
-	case TrackBase::iter4:
-	  iter = 4;
-	  break;
-	case TrackBase::iter5:
-	  iter = 5;
-	  break;
-	case TrackBase::iter6:
-	  iter = 6;
-	  break;
-	case TrackBase::iter8:
-	  iter = 7;
-	  //std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
-	  //std::cout << ic << " " << *(constituents[ic]) << std::endl;
-	  break;
-	default:
-	  iter = 8;
-	  std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
-	  std::cout << ic << " " << *(constituents[ic]) << std::endl;
-	  break;
-	}
+	unsigned int iter = trackRef->algo()>6 ? 6: trackRef->algo();
 	++(chMult[iter]);
       }
 

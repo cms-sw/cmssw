@@ -11,10 +11,10 @@ namespace edm {
 
   static void cleanup(const Factory::MakerMap::value_type& v)
   {
-    delete v.second;
+    delete v.second.get();
   }
 
-  Factory Factory::singleInstance_;
+  Factory const Factory::singleInstance_;
   
   Factory::~Factory()
   {
@@ -26,7 +26,7 @@ namespace edm {
   {
   }
 
-  Factory* Factory::get()
+  Factory const* Factory::get()
   {
     return &singleInstance_;
   }

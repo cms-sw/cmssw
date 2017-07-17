@@ -9,7 +9,7 @@
 
 
 
-class CosmicSeedCreator : public SeedCreator {
+class CosmicSeedCreator final : public SeedCreator {
 
  public:
   CosmicSeedCreator( const edm::ParameterSet & extra )

@@ -35,7 +35,7 @@ class CaloG4Hit : public G4VHit {
 public:
   
   CaloG4Hit();
-  ~CaloG4Hit();
+  virtual ~CaloG4Hit();
   CaloG4Hit(const CaloG4Hit &right);
   const CaloG4Hit& operator=(const CaloG4Hit &right);
   bool operator==(const CaloG4Hit &){return false;}
@@ -118,16 +118,16 @@ public:
   }
 };
 
-extern G4Allocator<CaloG4Hit> CaloG4HitAllocator;
+extern G4ThreadLocal G4Allocator<CaloG4Hit> *fpCaloG4HitAllocator;
 
 inline void * CaloG4Hit::operator new(size_t) {
-  void * aHit;
-  aHit = (void *) CaloG4HitAllocator.MallocSingle();
-  return aHit;
+  if (!fpCaloG4HitAllocator) fpCaloG4HitAllocator = 
+    new G4Allocator<CaloG4Hit>;
+  return (void*)fpCaloG4HitAllocator->MallocSingle();
 }
 
 inline void CaloG4Hit::operator delete(void * aHit) {  
-  CaloG4HitAllocator.FreeSingle((CaloG4Hit*) aHit); 
+  fpCaloG4HitAllocator->FreeSingle((CaloG4Hit*) aHit); 
 }
 
 std::ostream& operator<<(std::ostream&, const CaloG4Hit&);

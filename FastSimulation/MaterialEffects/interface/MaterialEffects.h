@@ -38,10 +38,11 @@ class ParticlePropagator;
 class PairProductionSimulator;
 class BremsstrahlungSimulator;
 class EnergyLossSimulator;
-class NuclearInteractionSimulator;
-class RandomEngine;
+//class NuclearInteractionSimulator;
+class MaterialEffectsSimulator;
 class MultipleScatteringSimulator;
 class MuonBremsstrahlungSimulator;
+class RandomEngineAndDistribution;
 
 namespace edm {
   class ParameterSet;
@@ -53,8 +54,7 @@ class MaterialEffects
  public:
 
   /// Constructor
-  MaterialEffects(const edm::ParameterSet& matEff,
-		  const RandomEngine* engine);
+  MaterialEffects(const edm::ParameterSet& matEff);
 
   /// Default destructor
   ~MaterialEffects();
@@ -64,7 +64,8 @@ class MaterialEffects
   void interact(FSimEvent& simEvent,
 		const TrackerLayer& layer,
 		ParticlePropagator& PP,
-		unsigned i);
+		unsigned i,
+                RandomEngineAndDistribution const*);
 
   /// Save nuclear interaction information
   void save();
@@ -85,7 +86,7 @@ class MaterialEffects
     return EnergyLoss;
   }
 
-/// Return the Muon Bremsstrahlung engine
+  /// Return the Muon Bremsstrahlung engine
   inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const {
     return MuonBremsstrahlung;
   }
@@ -104,11 +105,11 @@ class MaterialEffects
 
   PairProductionSimulator* PairProduction;
   BremsstrahlungSimulator* Bremsstrahlung;
-////// Muon Brem
+  ////// Muon Brem
   MuonBremsstrahlungSimulator* MuonBremsstrahlung;
   MultipleScatteringSimulator* MultipleScattering;
   EnergyLossSimulator* EnergyLoss;
-  NuclearInteractionSimulator* NuclearInteraction;
+  MaterialEffectsSimulator* NuclearInteraction;
 
   // Cuts for material effects
   double pTmin;
@@ -119,9 +120,6 @@ class MaterialEffects
 
   // debugging
   //  double myEta;
-
-  // The random engine
-  const RandomEngine* random;
 
   bool use_hardcoded;
 

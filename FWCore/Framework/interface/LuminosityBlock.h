@@ -19,19 +19,15 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
-
-
-#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
-#include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -39,6 +35,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 namespace edm {
   class ModuleCallingContext;
   class ProducerBase;
+  class SharedResourcesAcquirer;
+
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -46,7 +44,7 @@ namespace edm {
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+    LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                     ModuleCallingContext const*);
     ~LuminosityBlock();
 
@@ -56,9 +54,22 @@ namespace edm {
     /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
      */
     LuminosityBlockIndex index() const;
-    
+
+    /**If you are caching data from the LuminosityBlock, you should also keep
+     this number.  If this number changes then you know that
+     the data you have cached is invalid.
+     The value of '0' will never be returned so you can use that to
+     denote that you have not yet checked the value.
+     */
+    typedef unsigned long CacheIdentifier_t;
+    CacheIdentifier_t
+    cacheIdentifier() const;
+
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
+
+    void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
+
     template <typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
@@ -73,11 +84,11 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetToken token, Handle<PROD>& result) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
@@ -95,18 +106,18 @@ namespace edm {
     ///Put a new product.
     template <typename PROD>
     void
-    put(std::auto_ptr<PROD> product) {put<PROD>(product, std::string());}
+    put(std::unique_ptr<PROD> product) {put<PROD>(std::move(product), std::string());}
 
     ///Put a new product with a 'product instance name'
     template <typename PROD>
     void
-    put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+    put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
     Provenance
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     ProcessHistoryID const& processHistoryID() const;
 
@@ -115,17 +126,16 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
+    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const { provRecorder_.labelsForToken(iToken, oLabels); }
+
   private:
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
 
-    LuminosityBlockPrincipal&
-    luminosityBlockPrincipal();
-
     // Override version from LuminosityBlockBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
-    typedef std::vector<std::pair<WrapperOwningHolder, BranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -139,15 +149,12 @@ namespace edm {
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
 
-    void commit_();
-    void addToGotBranchIDs(Provenance const& prov) const;
+    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut);
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
-    boost::shared_ptr<Run const> const run_;
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
+    std::shared_ptr<Run const> const run_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
@@ -155,24 +162,24 @@ namespace edm {
 
   template <typename PROD>
   void
-  LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
-    if(product.get() == 0) {                // null pointer is illegal
+  LuminosityBlock::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
+    if(product.get() == nullptr) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+                       DoPostInsert<PROD>,
+                       DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
 
     BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    WrapperOwningHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface());
-    putProducts().emplace_back(edp, &desc);
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
+    putProducts().emplace_back(std::move(wp), &desc);
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
@@ -194,8 +201,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
@@ -210,13 +217,13 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
   }
-  
+
   template<typename PROD>
   bool
   LuminosityBlock::getByToken(EDGetToken token, Handle<PROD>& result) const {
@@ -225,13 +232,13 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
   }
-  
+
   template<typename PROD>
   bool
   LuminosityBlock::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
@@ -240,8 +247,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;

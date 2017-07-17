@@ -21,6 +21,7 @@
 
 #include "TPRegexp.h"
 
+typedef TGLClip::EType EClipType;
 
 //==============================================================================
 // Creation, initialization

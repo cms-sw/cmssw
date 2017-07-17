@@ -7,7 +7,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 ###
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -118,9 +118,6 @@ process.maxEvents = cms.untracked.PSet(
 process.DQMStore = cms.Service("DQMStore",
   referenceFileName = cms.untracked.string(''),
   verbose = cms.untracked.int32(0)
-)
-process.LockService = cms.Service("LockService", 
-  labels = cms.untracked.vstring('source') 
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 

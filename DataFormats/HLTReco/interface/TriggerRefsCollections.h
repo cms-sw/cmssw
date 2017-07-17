@@ -29,16 +29,26 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
-#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" // deprecate
+
+#include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include <cassert>
 #include <vector>
@@ -57,14 +67,21 @@ namespace trigger
   typedef std::vector<reco::CaloMETRef>                     VRcalomet;
   typedef std::vector<reco::IsolatedPixelTrackCandidateRef> VRpixtrack;
 
-  typedef std::vector<l1extra::L1EmParticleRef>             VRl1em;
-  typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon;
-  typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet;
-  typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss;
-  typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings;
+  typedef std::vector<l1extra::L1EmParticleRef>             VRl1em; //deprecate
+  typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon; //deprecate
+  typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet; //deprecate
+  typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss; //deprecate
+  typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings; //deprecate
+
+  typedef l1t::MuonVectorRef                                VRl1tmuon;
+  typedef l1t::EGammaVectorRef                              VRl1tegamma;
+  typedef l1t::JetVectorRef                                 VRl1tjet;
+  typedef l1t::TauVectorRef                                 VRl1ttau;
+  typedef l1t::EtSumVectorRef                               VRl1tetsum;
 
   typedef std::vector<reco::PFJetRef>                       VRpfjet;
   typedef std::vector<reco::PFTauRef>                       VRpftau;
+  typedef std::vector<reco::PFMETRef>                       VRpfmet;
 
   class TriggerRefsCollections {
 
@@ -99,10 +116,23 @@ namespace trigger
     Vids        l1hfringsIds_;
     VRl1hfrings l1hfringsRefs_;
 
+    Vids        l1tmuonIds_;
+    VRl1tmuon   l1tmuonRefs_;
+    Vids        l1tegammaIds_;
+    VRl1tegamma l1tegammaRefs_;
+    Vids        l1tjetIds_;
+    VRl1tjet    l1tjetRefs_;
+    Vids        l1ttauIds_;
+    VRl1ttau    l1ttauRefs_;
+    Vids        l1tetsumIds_;
+    VRl1tetsum  l1tetsumRefs_;
+
     Vids        pfjetIds_;
     VRpfjet     pfjetRefs_;
     Vids        pftauIds_;
     VRpftau     pftauRefs_;
+    Vids        pfmetIds_;
+    VRpfmet     pfmetRefs_;
     
   /// methods
   public:
@@ -123,8 +153,15 @@ namespace trigger
       l1etmissIds_(), l1etmissRefs_(),
       l1hfringsIds_(), l1hfringsRefs_(),
 
+      l1tmuonIds_(), l1tmuonRefs_(),
+      l1tegammaIds_(), l1tegammaRefs_(),
+      l1tjetIds_(), l1tjetRefs_(),
+      l1ttauIds_(), l1ttauRefs_(),
+      l1tetsumIds_(), l1tetsumRefs_(),
+
       pfjetIds_(), pfjetRefs_(),
-      pftauIds_(), pftauRefs_()
+      pftauIds_(), pftauRefs_(),
+      pfmetIds_(), pfmetRefs_()
       { }
 
     /// utility
@@ -157,10 +194,23 @@ namespace trigger
       std::swap(l1hfringsIds_,  other.l1hfringsIds_);
       std::swap(l1hfringsRefs_, other.l1hfringsRefs_);
 
+      std::swap(l1tmuonIds_,    other.l1tmuonIds_);
+      std::swap(l1tmuonRefs_,   other.l1tmuonRefs_);
+      std::swap(l1tegammaIds_,  other.l1tegammaIds_);
+      std::swap(l1tegammaRefs_, other.l1tegammaRefs_);
+      std::swap(l1tjetIds_,     other.l1tjetIds_);
+      std::swap(l1tjetRefs_,    other.l1tjetRefs_);
+      std::swap(l1ttauIds_,     other.l1ttauIds_);
+      std::swap(l1ttauRefs_,    other.l1ttauRefs_);
+      std::swap(l1tetsumIds_,   other.l1tetsumIds_);
+      std::swap(l1tetsumRefs_,  other.l1tetsumRefs_);
+
       std::swap(pfjetIds_,      other.pfjetIds_);
       std::swap(pfjetRefs_,     other.pfjetRefs_);
       std::swap(pftauIds_,      other.pftauIds_);
       std::swap(pftauRefs_,     other.pftauRefs_);
+      std::swap(pfmetIds_,      other.pfmetIds_);
+      std::swap(pfmetRefs_,     other.pfmetRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -217,7 +267,26 @@ namespace trigger
       l1hfringsIds_.push_back(id);
       l1hfringsRefs_.push_back(ref);
     }
-
+    void addObject(int id, const l1t::MuonRef& ref) {
+      l1tmuonIds_.push_back(id);
+      l1tmuonRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::EGammaRef& ref) {
+      l1tegammaIds_.push_back(id);
+      l1tegammaRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::JetRef& ref) {
+      l1tjetIds_.push_back(id);
+      l1tjetRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::TauRef& ref) {
+      l1ttauIds_.push_back(id);
+      l1ttauRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::EtSumRef& ref) {
+      l1tetsumIds_.push_back(id);
+      l1tetsumRefs_.push_back(ref);
+    }
     void addObject(int id, const reco::PFJetRef& ref) {
       pfjetIds_.push_back(id);
       pfjetRefs_.push_back(ref);
@@ -225,6 +294,10 @@ namespace trigger
     void addObject(int id, const reco::PFTauRef& ref) {
       pftauIds_.push_back(id);
       pftauRefs_.push_back(ref);
+    }
+    void addObject(int id, const reco::PFMETRef& ref) {
+      pfmetIds_.push_back(id);
+      pfmetRefs_.push_back(ref);
     }
 
     /// 
@@ -301,6 +374,36 @@ namespace trigger
       l1etmissRefs_.insert(l1etmissRefs_.end(),refs.begin(),refs.end());
       return l1etmissIds_.size();
     }
+    size_type addObjects (const Vids& ids, const VRl1tmuon& refs) {
+      assert(ids.size()==refs.size());
+      l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
+      l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
+      return l1tmuonIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1tegamma& refs) {
+      assert(ids.size()==refs.size());
+      l1tegammaIds_.insert(l1tegammaIds_.end(),ids.begin(),ids.end());
+      l1tegammaRefs_.insert(l1tegammaRefs_.end(),refs.begin(),refs.end());
+      return l1tegammaIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1tjet& refs) {
+      assert(ids.size()==refs.size());
+      l1tjetIds_.insert(l1tjetIds_.end(),ids.begin(),ids.end());
+      l1tjetRefs_.insert(l1tjetRefs_.end(),refs.begin(),refs.end());
+      return l1tjetIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1ttau& refs) {
+      assert(ids.size()==refs.size());
+      l1ttauIds_.insert(l1ttauIds_.end(),ids.begin(),ids.end());
+      l1ttauRefs_.insert(l1ttauRefs_.end(),refs.begin(),refs.end());
+      return l1ttauIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1tetsum& refs) {
+      assert(ids.size()==refs.size());
+      l1tetsumIds_.insert(l1tetsumIds_.end(),ids.begin(),ids.end());
+      l1tetsumRefs_.insert(l1tetsumRefs_.end(),refs.begin(),refs.end());
+      return l1tetsumIds_.size();
+    }
     size_type addObjects (const Vids& ids, const VRl1hfrings& refs) {
       assert(ids.size()==refs.size());
       l1hfringsIds_.insert(l1hfringsIds_.end(),ids.begin(),ids.end());
@@ -319,6 +422,12 @@ namespace trigger
       pftauIds_.insert(pftauIds_.end(),ids.begin(),ids.end());
       pftauRefs_.insert(pftauRefs_.end(),refs.begin(),refs.end());
       return pftauIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRpfmet& refs) {
+      assert(ids.size()==refs.size());
+      pfmetIds_.insert(pfmetIds_.end(),ids.begin(),ids.end());
+      pfmetRefs_.insert(pfmetRefs_.end(),refs.begin(),refs.end());
+      return pfmetIds_.size();
     }
 
     /// various physics-level getters:
@@ -738,6 +847,166 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRl1tmuon& refs) const {
+      getObjects(ids,refs,0,l1tmuonIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tmuonIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tmuonIds_[i];
+	refs[j]=l1tmuonRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1tmuon& refs) const {
+      getObjects(id,refs,0,l1tmuonIds_.size());
+    } 
+    void getObjects(int id, VRl1tmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tmuonIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1tmuonIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1tmuonIds_[i]) {refs[j]=l1tmuonRefs_[i]; ++j;}
+      }
+      return;
+    }
+
+    void getObjects(Vids& ids, VRl1tegamma& refs) const {
+      getObjects(ids,refs,0,l1tegammaIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tegamma& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tegammaIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tegammaIds_[i];
+	refs[j]=l1tegammaRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1tegamma& refs) const {
+      getObjects(id,refs,0,l1tegammaIds_.size());
+    } 
+    void getObjects(int id, VRl1tegamma& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tegammaIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1tegammaIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1tegammaIds_[i]) {refs[j]=l1tegammaRefs_[i]; ++j;}
+      }
+      return;
+    }
+
+    void getObjects(Vids& ids, VRl1tjet& refs) const {
+      getObjects(ids,refs,0,l1tjetIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tjetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tjetIds_[i];
+	refs[j]=l1tjetRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1tjet& refs) const {
+      getObjects(id,refs,0,l1tjetIds_.size());
+    } 
+    void getObjects(int id, VRl1tjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tjetIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1tjetIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1tjetIds_[i]) {refs[j]=l1tjetRefs_[i]; ++j;}
+      }
+      return;
+    }
+
+    void getObjects(Vids& ids, VRl1ttau& refs) const {
+      getObjects(ids,refs,0,l1ttauIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1ttau& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1ttauIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1ttauIds_[i];
+	refs[j]=l1ttauRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1ttau& refs) const {
+      getObjects(id,refs,0,l1ttauIds_.size());
+    } 
+    void getObjects(int id, VRl1ttau& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1ttauIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1ttauIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1ttauIds_[i]) {refs[j]=l1ttauRefs_[i]; ++j;}
+      }
+      return;
+    }
+
+    void getObjects(Vids& ids, VRl1tetsum& refs) const {
+      getObjects(ids,refs,0,l1tetsumIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tetsum& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tetsumIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tetsumIds_[i];
+	refs[j]=l1tetsumRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1tetsum& refs) const {
+      getObjects(id,refs,0,l1tetsumIds_.size());
+    } 
+    void getObjects(int id, VRl1tetsum& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tetsumIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1tetsumIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1tetsumIds_[i]) {refs[j]=l1tetsumRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     void getObjects(Vids& ids, VRpfjet& refs) const {
       getObjects(ids,refs,0,pfjetIds_.size());
     }
@@ -802,6 +1071,38 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRpfmet& refs) const {
+      getObjects(ids,refs,0,pfmetIds_.size());
+    }
+    void getObjects(Vids& ids, VRpfmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfmetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=pfmetIds_[i];
+	refs[j]=pfmetRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRpfmet& refs) const {
+      getObjects(id,refs,0,pfmetIds_.size());
+    } 
+    void getObjects(int id, VRpfmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfmetIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==pfmetIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==pfmetIds_[i]) {refs[j]=pfmetRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -862,6 +1163,30 @@ namespace trigger
     size_type          pftauSize()     const {return pftauIds_.size();}
     const Vids&        pftauIds()      const {return pftauIds_;}
     const VRpftau&     pftauRefs()     const {return pftauRefs_;}
+
+    size_type          pfmetSize()     const {return pfmetIds_.size();}
+    const Vids&        pfmetIds()      const {return pfmetIds_;}
+    const VRpfmet&     pfmetRefs()     const {return pfmetRefs_;}
+
+    size_type          l1tmuonSize()   const {return l1tmuonIds_.size();}
+    const Vids&        l1tmuonIds()    const {return l1tmuonIds_;}
+    const VRl1tmuon&   l1tmuonRefs()   const {return l1tmuonRefs_;}
+
+    size_type          l1tegammaSize() const {return l1tegammaIds_.size();}
+    const Vids&        l1tegammaIds()  const {return l1tegammaIds_;}
+    const VRl1tegamma& l1tegammaRefs() const {return l1tegammaRefs_;}
+
+    size_type          l1tjetSize()    const {return l1tjetIds_.size();}
+    const Vids&        l1tjetIds()     const {return l1tjetIds_;}
+    const VRl1tjet&    l1tjetRefs()    const {return l1tjetRefs_;}
+
+    size_type          l1ttauSize()     const {return l1ttauIds_.size();}
+    const Vids&        l1ttauIds()      const {return l1ttauIds_;}
+    const VRl1ttau&    l1ttauRefs()     const {return l1ttauRefs_;}
+
+    size_type          l1tetsumSize()  const {return l1tetsumIds_.size();}
+    const Vids&        l1tetsumIds()   const {return l1tetsumIds_;}
+    const VRl1tetsum&  l1tetsumRefs()  const {return l1tetsumRefs_;}
 
   };
 

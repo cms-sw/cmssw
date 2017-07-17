@@ -13,51 +13,62 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
 #include "TrajectoryToResiduals.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   const Propagator* prop,
 				   const MeasurementTracker* measTk,
-				   std::auto_ptr<TrackingRecHitCollection>& selHits,
-				   std::auto_ptr<reco::TrackCollection>& selTracks,
-				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults)
+				   std::unique_ptr<TrackingRecHitCollection>& selHits,
+				   std::unique_ptr<reco::TrackCollection>& selTracks,
+				   std::unique_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				   std::unique_ptr<std::vector<Trajectory> >&   selTrajectories,
+				   std::unique_ptr<std::vector<int> >& indecesInput,
+				   AlgoProductCollection& algoResults,
+				   TransientTrackingRecHitBuilder const * hitBuilder,
+                                   const TrackerTopology *ttopo,
+                                   int BeforeOrAfter)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
 
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
-  edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
 
+  selTracks->reserve(algoResults.size());
+  selTrackExtras->reserve(algoResults.size());
+  if(trajectoryInEvent_) selTrajectories->reserve(algoResults.size());
+
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
+    auto theTraj = (*i).trajectory;
+    (*indecesInput).push_back((*i).indexInput);
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
 
-    // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
-    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
 
-    reco::Track * theTrack = (*i).second.first;
+    auto theTrack = (*i).track;
     
     // Hits are going to be re-sorted along momentum few lines later. 
     // Therefore the direction stored in the TrackExtra 
     // has to be "alongMomentum" as well. Anyway, this direction can be differnt from the one of the orignal
     // seed! The name seedDirection() for the Track's method (and the corresponding data member) is
     // misleading and should be changed into something like "hitsDirection()". TO BE FIXED!
+
     PropagationDirection seedDir = alongMomentum;
 
     LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
 
-    reco::Track t = * theTrack;
-    selTracks->push_back( t );
+
+    selTracks->push_back(std::move(*theTrack));
+    delete theTrack;
     iTkRef++;
 
     // Store indices in local map (starts at 0)
@@ -95,12 +106,13 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
-    
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
-	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,prop,measTk);
+        edm::Handle<MeasurementTrackerEvent> mte;
+        evt.getByToken(mteSrc_, mte);
+	// NavigationSetter setter( *theSchool );
+	setSecondHitPattern(theTraj,track,prop,&*mte, ttopo);
       }
     //==============================================================
     
@@ -109,37 +121,29 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 						 innertsos.curvilinearError(), innerId,
     						 seedDir, theTraj->seedRef()));
 
+    // FIXME will remove this obsolete config-param in a future PR 
+    assert(!useSplitting);
 
     reco::TrackExtra & tx = selTrackExtras->back();
-    
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    size_t ih = 0;
-    if (theTraj->direction() == alongMomentum) {
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-	   j != transHits.end(); j ++ ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
-    }else{
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
-	   j != transHits.begin()-1; --j ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s; 
+    Traj2TrackHits t2t;
+    auto ih = selHits->size();
+    t2t(*theTraj,*selHits,trajParams,chi2s);
+    auto ie = selHits->size();
+    tx.setHits(rHits,ih,ie-ih);
+    tx.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(tx.trajParams().size()==tx.recHitsSize());
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*selHits)[ih];
+      track.appendHitPattern(hit, *ttopo);
     }
+    
     // ----
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 
-    delete theTrack;
     delete theTraj;
   }
 
@@ -163,16 +167,32 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
   
-  
-  rTracks_ = evt.put( selTracks );
-  evt.put( selTrackExtras );
-  evt.put( selHits );
+  selTracks->shrink_to_fit();
+  selTrackExtras->shrink_to_fit();
+  selHits->shrink_to_fit();
+  indecesInput->shrink_to_fit();
+  if(BeforeOrAfter == 1){
+    rTracks_ = evt.put(std::move(selTracks), "beforeDAF" );
+    evt.put(std::move(selTrackExtras), "beforeDAF");
+    evt.put(std::move(indecesInput), "beforeDAF");
+  } else if (BeforeOrAfter == 2){
+    rTracks_ = evt.put(std::move(selTracks), "afterDAF" );
+    evt.put( std::move(selTrackExtras), "afterDAF" );
+    evt.put(std::move(indecesInput), "afterDAF");
+  } else {
+    rTracks_ = evt.put(std::move(selTracks) );
+    evt.put(std::move(selTrackExtras) );
+    evt.put(std::move(selHits) );
+    evt.put(std::move(indecesInput));
+  }
 
-  if(trajectoryInEvent_) {
-    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+
+  if(trajectoryInEvent_ && BeforeOrAfter == 0) {
+    selTrajectories->shrink_to_fit();
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
 
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+    std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, rTracks_) );
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
           i != tjTkMap.end(); i++ ) {
       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
@@ -180,7 +200,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
                             edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
     }
-    evt.put( trajTrackMap );
+    evt.put( std::move(trajTrackMap) );
   }
 }
 

@@ -24,7 +24,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         tag = cms.string('Tracker10pbScenario210_mc')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('Tracker10pbScenarioErrors210_mc')
         )),
     connect = cms.string('sqlite_file:Alignments.db')

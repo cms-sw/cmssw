@@ -19,13 +19,14 @@
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-#include "FWCore/Utilities/interface/md5.h"
+#include "md5.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalEmap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
 using namespace std;
-
+XERCES_CPP_NAMESPACE_USE
 //
 //_____ following removed as a xalan-c component_____________________
 //
@@ -134,7 +135,7 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
   }
   */
    if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
-   std::cerr << "LUT not found, null pointer is returned" << std::endl;
+   edm::LogError("LutXml") << "LUT not found, null pointer is returned";
    return 0;
 }
 
@@ -238,7 +239,7 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
     addData( "1024", "hex", _config.lut );
   }
   else{
-    std::cout << "Unknown LUT type...produced XML will be incorrect" << std::endl;
+    edm::LogError("LutXml") << "Unknown LUT type...produced XML will be incorrect";
   }
 
   // if the pointer to the checksums XML was given,
@@ -257,7 +258,7 @@ DOMElement * LutXml::addData( std::string _elements, std::string _encoding, cons
 
   std::stringstream buf;
 
-  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();iter++){
+  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();++iter){
     char buf2[8];
     sprintf(buf2,"%x",(*iter));
     buf << buf2 << " ";
@@ -358,7 +359,7 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
     }
   }
   else{
-    std::cout << "ERROR: irregular LUT size, do not know how to compute checksum, exiting..." << std::endl;
+    edm::LogError("LutXml") << "Irregular LUT size, do not know how to compute checksum, exiting...";
     exit(-1);
   }
   md5_finish(&md5er,digest);
@@ -374,8 +375,7 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
 
 int LutXml::test_access( std::string filename ){
   //create_lut_map();
-  //std::cout << "Created map size: " << lut_map->size() << std::endl;
-  std::cout << "Created map size: " << lut_map.size() << std::endl;
+  edm::LogInfo("LutXml") << "Created map size: " << lut_map.size();
 
   struct timeval _t;
   gettimeofday( &_t, NULL );
@@ -383,10 +383,10 @@ int LutXml::test_access( std::string filename ){
 
   HcalEmap _emap("./backup/official_emap_v6.04_080905.txt");
   std::vector<HcalEmap::HcalEmapRow> & _map = _emap.get_map();
-  std::cout << "HcalEmap contains " << _map . size() << " entries" << std::endl;
+  edm::LogInfo("LutXml") << "HcalEmap contains " << _map . size() << " entries";
 
   int _counter=0;
-  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++){
+  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); ++row){
     if (row->subdet=="HB"){
       HcalDetId det_id(HcalBarrel,row->ieta,row->iphi,row->idepth);
       uint32_t raw_id = det_id.rawId();
@@ -413,7 +413,7 @@ int LutXml::test_access( std::string filename ){
     }
   }
   gettimeofday( &_t, NULL );
-  std::cout << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << std::endl;
+  edm::LogInfo("LutXml") << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec";
 
   //std::cout << std::endl;
   //for (std::vector<unsigned int>::const_iterator i=l->begin();i!=l->end();i++){
@@ -455,11 +455,12 @@ int LutXml::test_xpath( std::string filename ){
 }
 */
 
-HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
+HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth){
   HcalSubdetector result;
   // HBHE: 0,1,4,5,10,11,14,15,17
   // HF: 2,9,12
   // HO: 3,6,7,13
+  int crate=crate_<20? crate_ : crate_-20;
 
   if (crate==2 || crate==9 || crate==12) result=HcalForward;
   else if (crate==3 || crate==6 || crate==7 || crate==13) result=HcalOuter;
@@ -469,12 +470,12 @@ HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
     else if (eta==16 && depth!=3) result=HcalBarrel;
     else if (eta==16 && depth==3) result=HcalEndcap;
     else{
-      std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
+      edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
       exit(-1);
     }
   }
   else{
-    std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
+    edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
     exit(-1);
   }
 
@@ -534,7 +535,7 @@ int LutXml::create_lut_map( void ){
       unsigned int _base = 16;
       unsigned int _item=0;
       for (int i=0; i!=_string_length; i++){
-	bool _range;
+	bool _range = false;
 	char ch_cur = _str[i];
 	if (_base==16) _range = (ch_cur>='0' and ch_cur<='9') || (ch_cur>='a' and ch_cur<='f') || (ch_cur>='A' and ch_cur<='F');
 	else if (_base==10) _range = (ch_cur>='0' and ch_cur<='9');
@@ -548,7 +549,7 @@ int LutXml::create_lut_map( void ){
 	  if ( (i+1)==_string_length ) last_digit=true;
 	  else{
 	    char ch_next = _str[i+1];
-	    bool _range_next;
+	    bool _range_next = false;
 	    if (_base==16) _range_next = (ch_next>='0' and ch_next<='9') || (ch_next>='a' and ch_next<='f') || (ch_next>='A' and ch_next<='F');
 	    else if (_base==10) _range_next = (ch_next>='0' and ch_next<='9');
 	    if ( !_range_next ) last_digit=true;
@@ -559,8 +560,6 @@ int LutXml::create_lut_map( void ){
 	  }
 	}
       }
-      ////
-      //std::cout << _lut[127] << std::endl;
       // filling the map
       uint32_t _key = 0;
       if (lut_type==1){
@@ -571,12 +570,11 @@ int LutXml::create_lut_map( void ){
 	HcalTrigTowerDetId _id(ieta,iphi);
 	_key = _id.rawId();
       }
-      //lut_map->insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
       lut_map.insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
     }
   }
   else{
-    std::cerr << "XML file with LUTs is not loaded, cannot create map!" << std::endl;
+    edm::LogError("LutXml") << "XML file with LUTs is not loaded, cannot create map!";
   }
 
 

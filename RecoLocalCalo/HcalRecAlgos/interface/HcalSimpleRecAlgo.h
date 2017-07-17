@@ -1,7 +1,10 @@
 #ifndef HCALSIMPLERECALGO_H
 #define HCALSIMPLERECALGO_H 1
 
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
+#include <memory>
+#include "boost/shared_ptr.hpp"
+
+#include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -15,7 +18,12 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
-#include <memory>
+#include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
+
+#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
+
+#include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
 /** \class HcalSimpleRecAlgo
 
@@ -28,13 +36,13 @@
     
    \author J. Mans - Minnesota
 */
+
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalSimpleRecAlgo(bool correctForTimeslew, 
 		    bool correctForContainment, float fixedPhaseNs);
-  /** Simple constructor for PMT-based detectors */
-  HcalSimpleRecAlgo();
+
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
@@ -44,29 +52,68 @@ public:
   void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
   // ugly hack related to HB- e-dependent corrections
-  void setForData();
+  void setForData (int runnum);
+
   // usage of leak correction 
   void setLeakCorrection();
 
+  // set OOT pileup corrections
+  void setHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+
+  // Set bunch crossing information.
+  // This object will not manage the pointer.
+  void setBXInfo(const BunchXParameter* info, unsigned lenInfo);
+
+
   HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HBHERecHit reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstructHFUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstructQIE10(const QIE10DataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
+  void setpuCorrMethod(int method){ 
+    puCorrMethod_ = method;
+    if( puCorrMethod_ == 2 )
+        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>();
+  }
 
-
+  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
+		       double iTS4Min, const std::vector<double> & iTS4Max, double iPulseJitter,
+		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
+		       double iPedMean,double iPedSig, double iPedSigSiPM,
+		       double iNoise,double iNoiseSiPM,
+		       double iTMin, double iTMax,
+		       const std::vector<double> & its4Chi2, int iFitTimes);
+  void setMeth3Params(bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
+               
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
-  std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
-  bool setForData_;
+  std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
+  int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
+  const BunchXParameter* bunchCrossingInfo_;
+  unsigned lenBunchCrossingInfo_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
+
+  HcalPulseShapes theHcalPulseShapes_;
+
+  int puCorrMethod_;
+
+  std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
+  
+  std::unique_ptr<PedestalSub> pedSubFxn_;
+
+  // S.Brandt Feb19 : Add a pointer to the HLT algo
+  std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 };
 
 #endif

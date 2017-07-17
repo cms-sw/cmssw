@@ -42,8 +42,31 @@ GsfElectron::GsfElectron
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.correctedEcalEnergy = superCluster()->energy() ;
-  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
-  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
+  //  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
+  //  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
+ }
+
+GsfElectron::GsfElectron
+ ( int charge, const ChargeInfo & chargeInfo,
+   const GsfElectronCoreRef & core,
+   const TrackClusterMatching & tcm, const TrackExtrapolations & te,
+   const ClosestCtfTrack & ctfInfo,
+   const FiducialFlags & ff, const ShowerShape & ss,
+   const ShowerShape& full5x5_ss,
+   const ConversionRejection & crv, 
+   const SaturationInfo& si
+ )
+ : chargeInfo_(chargeInfo),
+   core_(core),
+   trackClusterMatching_(tcm), trackExtrapolations_(te),
+   fiducialFlags_(ff), showerShape_(ss), full5x5_showerShape_(full5x5_ss), saturationInfo_(si),
+   conversionRejection_(crv)
+ {
+  init() ;
+  setCharge(charge) ;
+  setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
+  setPdgId(-11*charge) ;
+  corrections_.correctedEcalEnergy = superCluster()->energy() ;
  }
 
 GsfElectron::GsfElectron
@@ -57,9 +80,10 @@ GsfElectron::GsfElectron
    //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
+   full5x5_showerShape_(electron.full5x5_showerShape_),
+   saturationInfo_(electron.saturationInfo_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -70,10 +94,11 @@ GsfElectron::GsfElectron
    ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
-  assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
-  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
+   //assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
+   //assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
  }
 
 GsfElectron::GsfElectron
@@ -91,9 +116,10 @@ GsfElectron::GsfElectron
    //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
+   full5x5_showerShape_(electron.full5x5_showerShape_),
+   saturationInfo_(electron.saturationInfo_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -105,13 +131,14 @@ GsfElectron::GsfElectron
    //mva_(electron.mva_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
   trackClusterMatching_.electronCluster = electronCluster ;
   //closestCtfTrack_.ctfTrack = closestCtfTrack ;
   conversionRejection_.partner = conversionPartner ;
-  assert(closestCtfTrack==core->ctfTrack()) ;
-  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
+  //assert(closestCtfTrack==core->ctfTrack()) ;
+  //assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
   // TO BE DONE
   // Check that the new edm references are really
   // the clones of the former references, and therefore other attributes
@@ -146,12 +173,6 @@ GsfElectron * GsfElectron::clone
 
 bool GsfElectron::ecalDriven() const
  {
-  if (!passingCutBasedPreselection()&&!passingMvaPreselection())
-   {
-    edm::LogWarning("GsfElectronAlgo|UndefinedPreselectionInfo")
-      <<"All preselection flags are false,"
-      <<" either the data is too old or electrons were not preselected." ;
-   }
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 

@@ -136,7 +136,7 @@ void SiStripCommissioningSource::beginRun( edm::Run const & run, const edm::Even
   fedCabling_ = const_cast<SiStripFedCabling*>( fed_cabling.product() ); 
   LogDebug(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
-    << "Initialized FED cabling. Number of FEDs is " << fedCabling_->feds().size();
+    << "Initialized FED cabling. Number of FEDs is " << fedCabling_->fedIds().size();
   fecCabling_ = new SiStripFecCabling( *fed_cabling );
   if ( fecCabling_->crates().empty() ) {
     std::stringstream ss;
@@ -183,11 +183,10 @@ void SiStripCommissioningSource::endJob() {
     // All tasks except cabling 
     uint16_t fed_id = 0;
     uint16_t fed_ch = 0;
-    std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin(); 
-    for ( ; ifed != fedCabling_->feds().end(); ifed++ ) { 
-      const std::vector<FedChannelConnection>& conns = fedCabling_->connections(*ifed);
-      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-      for ( ; iconn != conns.end(); iconn++ ) {
+    auto ifed = fedCabling_->fedIds().begin();
+    for ( ; ifed != fedCabling_->fedIds().end(); ifed++ ) { 
+      auto conns = fedCabling_->fedConnections(*ifed);
+      for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
   	if ( !iconn->isConnected() ) { continue; }
   	fed_id = iconn->fedId();
   	fed_ch = iconn->fedCh();
@@ -409,8 +408,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   }
   
   // Iterate through FED ids
-  std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin(); 
-  for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
+  for (auto ifed = fedCabling_->fedIds().begin() ; ifed != fedCabling_->fedIds().end(); ifed++ ) {
 
     // Check if FedId is non-zero
     if ( *ifed == sistrip::invalid_ ) { continue; }
@@ -606,13 +604,12 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 					     const edm::DetSetVector<SiStripRawDigi>& raw ) {
 
     // Iterate through FED ids and channels
-    std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin();
-    for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
+    auto ifed = fedCabling_->fedIds().begin();
+    for ( ; ifed != fedCabling_->fedIds().end(); ifed++ ) {
 
       // Iterate through connected FED channels
-      const std::vector<FedChannelConnection>& conns = fedCabling_->connections(*ifed);
-      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-      for ( ; iconn != conns.end(); iconn++ ) {
+      auto conns = fedCabling_->fedConnections(*ifed);
+      for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
 
         if ( !(iconn->fedId()) || iconn->fedId() > sistrip::valid_ ) { continue; }
      
@@ -963,15 +960,13 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
   } else { // now do any other task
 
     // Iterate through FED ids and channels 
-    std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin();
-    for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
+    for (auto ifed = fedCabling_->fedIds().begin() ; ifed != fedCabling_->fedIds().end(); ++ifed ) {
 
       // Iterate through connected FED channels
       // S.L.: currently copy the vector, because it changes later when
       // reading in peds for calibration run -> not understood memory corruption!
-      std::vector<FedChannelConnection> conns = fedCabling_->connections(*ifed);
-      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-      for ( ; iconn != conns.end(); iconn++ ) {
+      auto conns = fedCabling_->fedConnections(*ifed);
+      for (auto iconn = conns.begin() ; iconn != conns.end(); ++iconn ) {
 
         // Create FEC key
         SiStripFecKey fec_key( iconn->fecCrate(), 

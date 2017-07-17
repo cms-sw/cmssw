@@ -46,9 +46,7 @@ void BasicMultiTrajectoryState::rescaleError(double factor) {
     return;
   }
   
-  for (std::vector<TSOS>::iterator it = theStates.begin(); it != theStates.end(); it++) {
-    it->rescaleError(factor);
-  }
+  for (auto & is : theStates) is.rescaleError(factor);
   combine();
 }
 
@@ -73,12 +71,12 @@ BasicMultiTrajectoryState::combine()  {
   }
   
   if unlikely(tsos.size() == 1) {
-    BasicTrajectoryState::update(tsos.front().localParameters(), 
+    BasicTrajectoryState::update(tsos.front().weight(),
+                                 tsos.front().localParameters(), 
 				 tsos.front().localError(), 
 				 tsos.front().surface(), 
 				 tsos.front().magneticField(),
-				 tsos.front().surfaceSide(), 
-				 tsos.front().weight()
+				 tsos.front().surfaceSide()
 				 );
     return;
   }
@@ -88,8 +86,8 @@ BasicMultiTrajectoryState::combine()  {
   AlgebraicVector5 mean;
   AlgebraicSymMatrix55 covarPart1, covarPart2, covtmp;
   for (auto it1 = tsos.begin(); it1 != tsos.end(); it1++) {
-    double weight = it1->weight();
-    AlgebraicVector5 param = it1->localParameters().vector();
+    auto weight = it1->weight();
+    auto const & param = it1->localParameters().vector();
     sumw += weight;
     mean += weight * param;
     covarPart1 += weight * it1->localError().matrix();
@@ -104,12 +102,13 @@ BasicMultiTrajectoryState::combine()  {
   covarPart1 *= sumwI; covarPart2 *= (sumwI*sumwI);
   AlgebraicSymMatrix55 covar = covarPart1 + covarPart2;
 
-  BasicTrajectoryState::update(LocalTrajectoryParameters(mean, pzSign), 
+  BasicTrajectoryState::update(sumw,
+                               LocalTrajectoryParameters(mean, pzSign), 
 			       LocalTrajectoryError(covar), 
 			       tsos.front().surface(), 
 			       tsos.front().magneticField(),
-			       tsos.front().surfaceSide(), 
-			       sumw);
+			       tsos.front().surfaceSide()
+                              );
 }
 
 void
@@ -125,12 +124,12 @@ update( const LocalTrajectoryParameters& p,
 
 void
 BasicMultiTrajectoryState::
-update( const LocalTrajectoryParameters& p,
+update( double weight,
+        const LocalTrajectoryParameters& p,
         const LocalTrajectoryError& err,
         const Surface& aSurface,
         const MagneticField* field,
-        const SurfaceSide side,
-        double weight) 
+        const SurfaceSide side)
 {
   throw cms::Exception("LogicError", 
                        "BasicMultiTrajectoryState::update(LocalTrajectoryParameters, LocalTrajectoryError, ...) called even if canUpdateLocalParameters() is false");

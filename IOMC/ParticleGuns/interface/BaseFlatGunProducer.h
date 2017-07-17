@@ -19,9 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
-
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
@@ -68,9 +65,6 @@ namespace edm
             	    	
     int              fVerbosity ;
 
-    CLHEP::HepRandomEngine& fRandomEngine ;
-    CLHEP::RandFlat*        fRandomGenerator; 
-    
     bool             fAddAntiParticle;
     
   };

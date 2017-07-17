@@ -59,6 +59,7 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
         typedef std::set<edm::ErrorSummaryEntry,ErrorSort>    ErrorSet;
 
         edm::InputTag src_;
+        edm::EDGetTokenT<ErrorList> srcT_;
         bool readSummaryMode_;
         size_t npassLumi_, nfailLumi_;
         size_t npassRun_, nfailRun_;
@@ -78,14 +79,14 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
         template<typename Collection> static void increment(ErrorSet &scoreboard, Collection &list);
         template<typename Collection> static void print(const Collection &errors) ;
 
-        static std::auto_ptr<ErrorList > serialize(const ErrorSet &set) {
-            std::auto_ptr<ErrorList> ret(new ErrorList(set.begin(), set.end()));
-            return ret;
+        static std::unique_ptr<ErrorList > serialize(const ErrorSet &set) {
+            return std::make_unique<ErrorList>(set.begin(), set.end());
         }
 };
 
 LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
+    srcT_(consumes<ErrorList>(iConfig.getParameter<edm::InputTag>("src"))),
     readSummaryMode_(iConfig.existsAs<bool>("readSummaryMode") ? iConfig.getParameter<bool>("readSummaryMode") : false),
     thresholdPerLumi_(iConfig.getParameter<double>("maxErrorFractionInLumi")),
     thresholdPerRun_(iConfig.getParameter<double>("maxErrorFractionInRun")),
@@ -95,9 +96,9 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     taggedMode_(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
     forcedValue_(iConfig.getUntrackedParameter<bool>("forcedValue", true))
 {
-    produces<ErrorList, edm::InLumi>();
-    produces<int, edm::InLumi>("pass");
-    produces<int, edm::InLumi>("fail");
+    produces<ErrorList, edm::Transition::EndLuminosityBlock>();
+    produces<int, edm::Transition::EndLuminosityBlock>("pass");
+    produces<int, edm::Transition::EndLuminosityBlock>("fail");
     //produces<ErrorList, edm::InRun>();
     produces<bool>();
 
@@ -125,12 +126,12 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
             categoriesToIgnore_.insert(categories.begin(), categories.end());
         }
     }
-    std::ostream_iterator<std::string> dump(std::cout, ", ");
-    std::cout << "\nWatch modules:     " ; std::copy(modulesToWatch_.begin(),     modulesToWatch_.end(),     dump);
-    std::cout << "\nIgnore modules:    " ; std::copy(modulesToIgnore_.begin(),    modulesToIgnore_.end(),    dump);
-    std::cout << "\nIgnore categories: " ; std::copy(categoriesToIgnore_.begin(), categoriesToIgnore_.end(), dump);
-    std::cout << "\nWatch categories:  " ; std::copy(categoriesToWatch_.begin(),  categoriesToWatch_.end(),  dump);
-    std::cout << std::endl;
+    //std::ostream_iterator<std::string> dump(std::cout, ", ");
+    //std::cout << "\nWatch modules:     " ; std::copy(modulesToWatch_.begin(),     modulesToWatch_.end(),     dump);
+    //std::cout << "\nIgnore modules:    " ; std::copy(modulesToIgnore_.begin(),    modulesToIgnore_.end(),    dump);
+    //std::cout << "\nIgnore categories: " ; std::copy(categoriesToIgnore_.begin(), categoriesToIgnore_.end(), dump);
+    //std::cout << "\nWatch categories:  " ; std::copy(categoriesToWatch_.begin(),  categoriesToWatch_.end(),  dump);
+    //std::cout << std::endl;
 
 }
 
@@ -168,8 +169,8 @@ LogErrorEventFilter::endLuminosityBlock(edm::LuminosityBlock const &lumi, const 
 void
 LogErrorEventFilter::endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
     lumi.put(serialize(errorCollectionThisLumi_));
-    std::auto_ptr<int> outpass(new int(npassLumi_)); lumi.put(outpass, "pass");
-    std::auto_ptr<int> outfail(new int(nfailLumi_)); lumi.put(outfail, "fail");
+    lumi.put(std::make_unique<int>(npassLumi_), "pass");
+    lumi.put(std::make_unique<int>(nfailLumi_), "fail");
 }
 
 
@@ -225,12 +226,12 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     bool fail = false, save = false;
 
     edm::Handle<ErrorList> errors;
-    iEvent.getByLabel(src_, errors);
+    iEvent.getByToken(srcT_, errors);
 
    
     if (errors->empty()) { 
         npassRun_++; npassLumi_++;
-	iEvent.put( std::auto_ptr<bool>(new bool(false)) );
+	iEvent.put(std::make_unique<bool>(false));
 
 	if(taggedMode_) return forcedValue_;
         return false;
@@ -260,7 +261,7 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
 
     if (fail) { nfailLumi_++; nfailRun_++; } else { npassRun_++; npassLumi_++; }
-    iEvent.put( std::auto_ptr<bool>(new bool(fail)) );  // fail is the unbiased boolean 
+    iEvent.put(std::make_unique<bool>(fail));  // fail is the unbiased boolean 
 
     if(taggedMode_) return forcedValue_;
     return save;

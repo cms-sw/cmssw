@@ -1,6 +1,6 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
@@ -20,7 +20,7 @@ using namespace edm;
 
 using namespace std;
 
-HDRShower::HDRShower(const RandomEngine* engine,
+HDRShower::HDRShower(const RandomEngineAndDistribution* engine,
 		     HDShowerParametrization* myParam, 
 		     EcalHitMaker* myGrid,
 		     HcalHitMaker* myHcalHitMaker,

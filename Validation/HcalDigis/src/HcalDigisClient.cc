@@ -21,106 +21,102 @@
 // system include files
 
 HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
-    dbe_ = edm::Service<DQMStore > ().operator->();
     outputFile_ = iConfig.getUntrackedParameter<std::string > ("outputFile", "HcalDigisClient.root");
     dirName_ = iConfig.getParameter<std::string > ("DQMDirName");
-    if (!dbe_) edm::LogError("HcalDigisClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
     msm_ = new std::map<std::string, MonitorElement*>();
-    //if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) if (dbe_) dbe_->setVerbose(0);
-
-    //    std::cout << "dirName: " <<  dirName_ << std::endl;
-    //dbe_->setCurrentFolder(dirName_);
-    dbe_->setCurrentFolder("HcalDigisV/HcalDigiTask");
-
-    booking("HB");
-    booking("HE");
-    booking("HO");
-    booking("HF");
-}
-
-void HcalDigisClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    using namespace edm;
 
 
 }
 
-void HcalDigisClient::booking(std::string subdetopt) {
 
-    std::string strtmp;
-    HistLim ietaLim(82, -41., 41.);
-
-    for (int depth = 1; depth <= 4; depth++) {
-        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdetopt;
-        book1D(strtmp, ietaLim);
-    }
-
+HcalDigisClient::~HcalDigisClient() {
+    delete msm_;
 }
 
-void HcalDigisClient::runClient() {
-    if (!dbe_) return; //we dont have the DQMStore so we cant do anything
-    dbe_->setCurrentFolder(dirName_);
+
+void HcalDigisClient::runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
+    ig.setCurrentFolder(dirName_);
     std::vector<MonitorElement*> hcalMEs;
     // Since out folders are fixed to three, we can just go over these three folders
     // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-    std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
+    std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
     for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
-        dbe_->setCurrentFolder(fullPathHLTFolders[i]);
-        std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
+        ig.setCurrentFolder(fullPathHLTFolders[i]);
+        std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
         for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
             if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalDigisV/HcalDigiTask") == 0) {
-                hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
-                if (!HcalDigisEndjob(hcalMEs, "HB")) 
+                hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
+                ig.setCurrentFolder("HcalDigisV/HcalDigiTask");
+                if (!HcalDigisEndjob(hcalMEs, "HB", ib)) 
 		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB"; 
-                if (!HcalDigisEndjob(hcalMEs, "HE")) 
+                if (!HcalDigisEndjob(hcalMEs, "HE", ib)) 
 		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HE"; 
-                if (!HcalDigisEndjob(hcalMEs, "HO")) 
+                if (!HcalDigisEndjob(hcalMEs, "HO", ib)) 
 		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HO"; 
-                if (!HcalDigisEndjob(hcalMEs, "HF")) 
+                if (!HcalDigisEndjob(hcalMEs, "HF", ib)) 
 		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HF";             }
         }
     }
 }
 
-int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs, std::string subdet_) {
+int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs, std::string subdet_, DQMStore::IBooker &ib) {
 
     using namespace std;
     string strtmp;
 
 
     MonitorElement * nevtot(0);
-    MonitorElement * ieta_iphi_occupancy_map1(0);
-    MonitorElement * ieta_iphi_occupancy_map2(0);
-    MonitorElement * ieta_iphi_occupancy_map3(0);
-    MonitorElement * ieta_iphi_occupancy_map4(0);
 
+    std::vector<MonitorElement*> ieta_iphi_occupancy_maps;
+    std::vector<std::string> depthID;
 
-    std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
+    // std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
 
     for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-         if (hcalMEs[ih]->getName() == "nevtot") nevtot = hcalMEs[ih];
+      
+         if (hcalMEs[ih]->getName() == "nevtot"){
+              nevtot = hcalMEs[ih];
+              continue;
+         }
 
-         strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth1_" + subdet_;
-         if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map1 = hcalMEs[ih];
-         strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth2_" + subdet_;
-         if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map2 = hcalMEs[ih];
-         strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth3_" + subdet_;
-         if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map3 = hcalMEs[ih];
-         strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth4_" + subdet_;
-         if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map4 = hcalMEs[ih];
+         //We search the occupancy maps corresponding to this subdetector
+         if ( (hcalMEs[ih]->getName().find("HcalDigiTask_ieta_iphi_occupancy_map_depth") != std::string::npos)
+            &&(hcalMEs[ih]->getName().find(subdet_) != std::string::npos) ){
 
-    }//
+                    ieta_iphi_occupancy_maps.push_back(hcalMEs[ih]);
+	
+                    std::string start = "depth";
+                    std::string end = "_H";
 
-    if (nevtot                   == 0 ||
-	ieta_iphi_occupancy_map1 == 0 ||
-	ieta_iphi_occupancy_map2 == 0 ||
-	ieta_iphi_occupancy_map3 == 0 ||
-	ieta_iphi_occupancy_map4 == 0   
-	) {
+                    int position = hcalMEs[ih]->getName().find(start) + start.length();
+                    int length = hcalMEs[ih]->getName().find(end) - position;
+
+                    depthID.push_back(hcalMEs[ih]->getName().substr(position, length));
+
+                    continue;
+         }
+
+
+    }
+
+
+    if ( hcalMEs.size() == 0){
       edm::LogError("HcalDigisClient") << "No nevtot or maps histo found..."; 
       return 0;
     }
+    if( !nevtot){
+      edm::LogError("HcalDigisClient") << "No nevtot histoo found...";
+      return 0;
+    }
+    if( ieta_iphi_occupancy_maps.size() < 1){
+      edm::LogError("HcalDigisClient") << "No maps histos found...";
+      return 0;
+    }
+
 
     int ev = nevtot->getEntries();
+
+
     if(ev <= 0) {
       edm::LogError("HcalDigisClient") << "normalization factor <= 0!"; 
       return 0;
@@ -128,43 +124,42 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
     float fev = (float) nevtot->getEntries();
 
-    int nx = ieta_iphi_occupancy_map1->getNbinsX();
-    int ny = ieta_iphi_occupancy_map1->getNbinsY();
-    float sumphi_1, sumphi_2, sumphi_3, sumphi_4;
+    int depths = ieta_iphi_occupancy_maps.size();
+
+    HistLim ietaLim(85, -42.5, 42.5);
+
+    for (int depth = 1; depth <= depths; depth++) {
+        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdet_;
+        book1D(ib,strtmp, ietaLim);
+    }
+
+    std::vector<float> sumphi;
+    for(int depth = 1; depth <= depths; depth++) sumphi.push_back(0.);
+
     float phi_factor;
     float cnorm;
+    float enorm;
+
+
+    for(int depth = 1; depth <= depths; depth++){
+       int nx = ieta_iphi_occupancy_maps[depth-1]->getNbinsX();
+       int ny = ieta_iphi_occupancy_maps[depth-1]->getNbinsY();
+
     
-    for (int i = 1; i <= nx; i++) {
-        sumphi_1 = 0.;
-        sumphi_2 = 0.;
-        sumphi_3 = 0.;
-        sumphi_4 = 0.;
+       for (int i = 1; i <= nx; i++) {
+           for (int j = 1; j <= ny; j++) {
 
-        for (int j = 1; j <= ny; j++) {
+               // occupancies
+               cnorm = ieta_iphi_occupancy_maps[depth-1]->getBinContent(i, j) / fev;
+               enorm = ieta_iphi_occupancy_maps[depth-1]->getBinError(i, j) / fev;
+               ieta_iphi_occupancy_maps[depth-1]->setBinContent(i, j, cnorm);
+               ieta_iphi_occupancy_maps[depth-1]->setBinError(i, j, enorm);
 
-            // occupancies
+           } //for loop over NbinsYU
+       } //for loop over NbinsX	    
+    } //for loop over the occupancy maps
 
-             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth1_" + subdet_;
-             cnorm = ieta_iphi_occupancy_map1->getBinContent(i, j) / fev;
-             ieta_iphi_occupancy_map1->setBinContent(i, j, cnorm);
-             sumphi_1 += ieta_iphi_occupancy_map1->getBinContent(i, j);
-
-             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth2_" + subdet_;
-             cnorm = ieta_iphi_occupancy_map2->getBinContent(i, j) / fev;
-             ieta_iphi_occupancy_map2->setBinContent(i, j, cnorm);
-             sumphi_2 += ieta_iphi_occupancy_map2->getBinContent(i, j);
-
-             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth3_" + subdet_;
-             cnorm = ieta_iphi_occupancy_map3->getBinContent(i, j) / fev; 
-             ieta_iphi_occupancy_map3->setBinContent(i, j, cnorm);
-             sumphi_3 += ieta_iphi_occupancy_map3->getBinContent(i, j);
-
-             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth4_" + subdet_;
-             cnorm = ieta_iphi_occupancy_map4->getBinContent(i, j) / fev; 
-             ieta_iphi_occupancy_map4->setBinContent(i, j, cnorm);
-             sumphi_4 += ieta_iphi_occupancy_map4->getBinContent(i, j);
-
-        }    
+    for (int i = 1; i <= 82; i++) {
 
         int ieta = i - 42; // -41 -1, 0 40
         if (ieta >= 0) ieta += 1; // -41 -1, 1 41  - to make it detector-like
@@ -176,28 +171,31 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
               phi_factor = 18.; 
            else 
               phi_factor = 36.; 
-        }    
-	
-        if (ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to strtmp num !!!
+        }
+    
+        //zero the sumphi vector at the start of each ieta ring
+	for(int depth = 1; depth <= depths; depth++) sumphi[depth-1] = 0;
+
+        for (int iphi = 1; iphi <= 72; iphi++) {
+            for(int depth = 1; depth <= depths; depth++){
+                int binIeta = ieta_iphi_occupancy_maps[depth-1]->getTH2F()->GetXaxis()->FindBin(ieta);
+                int binIphi = ieta_iphi_occupancy_maps[depth-1]->getTH2F()->GetYaxis()->FindBin(iphi);
+                
+                float content = ieta_iphi_occupancy_maps[depth-1]->getBinContent(binIeta,binIphi);
+
+                sumphi[depth-1] += content;
+
+            }//for loop over depths
+        }//for loop over phi
+ 
         double deta = double(ieta);
 
         // occupancies vs ieta
-        cnorm = sumphi_1 / phi_factor;
-        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth1_" + subdet_;
-        fill1D(strtmp, deta, cnorm);
-
-        cnorm = sumphi_2 / phi_factor;
-        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth2_" + subdet_;
-        fill1D(strtmp, deta, cnorm);
-
-        cnorm = sumphi_3 / phi_factor;
-        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth3_" + subdet_;
-        fill1D(strtmp, deta, cnorm);
-
-        cnorm = sumphi_4 / phi_factor;
-        strtmp = "HcalDigiTask_occupancy_vs_ieta_depth4_" + subdet_;
-        fill1D(strtmp, deta, cnorm);
-
+        for(int depth = 1; depth <= depths; depth++){
+           cnorm = sumphi[depth-1] / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + depthID[depth-1] + "_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+        }
     } // end of i-loop
 
   return 1;
@@ -230,11 +228,15 @@ void HcalDigisClient::scaleMETH2D(MonitorElement* ME, double s) {
     int ny = ME->getNbinsY();
 
     double content(0);
+    double error(0);
     for (int i = 1; i <= nx; i++) {
         for (int j = 1; j <= ny; j++) {
             content = ME->getBinContent(i, j);
+            error = ME->getBinError(i, j);
             content *= s;
+	    error *= s;
             ME->setBinContent(i, j, content);
+            ME->setBinError(i, j, error);
         }
     }
 }

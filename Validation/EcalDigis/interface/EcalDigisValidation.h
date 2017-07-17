@@ -37,14 +37,15 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalDigisValidation: public edm::EDAnalyzer{
+class EcalDigisValidation: public DQMEDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -56,33 +57,31 @@ EcalDigisValidation(const edm::ParameterSet& ps);
 /// Destructor
 ~EcalDigisValidation();
 
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
-
-// BeginRun
-void beginRun(edm::Run const &, edm::EventSetup const & c);
-
-// EndJob
-void endJob(void);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
+void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override; 
 
 private:
 
  void checkCalibrations(edm::EventSetup const & c);
- 
- std::string HepMCLabel;
- std::string g4InfoLabel;
- 
+  
  bool verbose_;
- 
- DQMStore* dbe_;
  
  std::string outputFile_;
 
- edm::InputTag EBdigiCollection_;
- edm::InputTag EEdigiCollection_;
- edm::InputTag ESdigiCollection_;
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
+ edm::EDGetTokenT<edm::SimTrackContainer> g4TkInfoToken_;
+ edm::EDGetTokenT<edm::SimVertexContainer> g4VtxInfoToken_;
+
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+ edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+ 
+ edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
  
  std::map<int, double, std::less<int> > gainConv_;
 

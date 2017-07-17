@@ -2,20 +2,10 @@
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/Logger.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
-#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/CondDB/interface/Session.h"
 #include <string>
 #include <map>
-
-// many many clients do not include explicitely!
-#ifndef COND_EXCEPTION_H
-#include "CondCore/DBCommon/interface/Exception.h"
-// #warning please include  "CondCore/DBCommon/interface/Exception.h" explicitely
-// #define COND_EXP_WARNING
-#endif
+#include <mutex>
 
 //
 // Package:     DBOutputService
@@ -28,6 +18,7 @@
 // Author:      Zhen Xie
 // Fixes and other changes: Giacomo Govi
 //
+
 namespace edm{
   class Event;
   class EventSetup;
@@ -42,49 +33,6 @@ namespace cond{
   
   namespace service {
 
-    /** transaction and data consistency
-	for create new tag, 
-	start write metadata transaction only if the first pool commit 
-	successful;
-	for append,start readonly metadata transaction. start pool transaction only if metadata transaction successful.
-    */
-    
-    struct GetToken {
-      virtual std::string operator()(cond::DbSession&) const =0;
-    };
-    
-    struct GetTrivialToken : public GetToken {
-      
-      GetTrivialToken(std::string token) :
-	m_token(token){}
-      virtual ~GetTrivialToken(){}
-      virtual std::string operator()(cond::DbSession&) const {
-	return m_token;
-      }
-      std::string m_token;
-    };
-    
-    template<typename T>
-    struct GetTokenFromPointer : public GetToken {
-      
-      static
-      std::string classNameForPointer( T* pointer ){
-        if(!pointer) return classNameForTypeId( typeid(T) );
-        return classNameForTypeId( typeid(*pointer) );
-      }
-
-      explicit GetTokenFromPointer(T * p) :
-	m_p(p){}
-      
-      virtual std::string operator()(cond::DbSession& pooldb) const {
-	std::string className = classNameForPointer( m_p );
-	boost::shared_ptr<T> sptr( m_p );
-	return pooldb.storeObject(m_p,className);
-      }
-      T* m_p;
-    };
-
-    
     class PoolDBOutputService{
     public:
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -92,31 +40,27 @@ namespace cond{
       //use these to control connections
       //void  postBeginJob();
       void  postEndJob();
+
       //
-      //use these to control transaction interval
+      // return the database session in use ( GG: not sure this is still useful... )
       //
-      void preEventProcessing( const edm::EventID & evtID, 
-      			       const edm::Timestamp & iTime );
-      void preModule(const edm::ModuleDescription& desc);
-      void postModule(const edm::ModuleDescription& desc);
-      void preBeginLumi(const edm::LuminosityBlockID&, 
-			const edm::Timestamp& );
-      //
-      // return the database session in use
-      //
-      cond::DbSession session() const;
+      cond::persistency::Session session() const;
       //
       std::string tag( const std::string& recordName );
       bool isNewTagRequest( const std::string& recordName );
-      const cond::Logger& queryLog() const;
       
       // 
       template<typename T>
       void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
+        if( !payload ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::writeOne");
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+	if (!m_dbstarted) this->initDB();
+	Hash payloadId = m_session.storePayload( *payload );
+	std::string payloadType = cond::demangledName(typeid(T));
 	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T>(payload, time, endOfTime(), recordName, withlogging);
-        }else{
-	  appendSinceTime<T>(payload, time, recordName, withlogging);
+	  createNewIOV(payloadId, payloadType, time, endOfTime(), recordName, withlogging);
+        } else {
+	  appendSinceTime(payloadId, time, recordName, withlogging);
         }	
       }
 
@@ -131,58 +75,52 @@ namespace cond{
 			 cond::Time_t firstTillTime,
 			 const std::string& recordName,
                          bool withlogging=false){
-        createNewIOV( GetTokenFromPointer<T>(firstPayloadObj),
+        if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+	if (!m_dbstarted) this->initDB();
+        createNewIOV( m_session.storePayload( *firstPayloadObj ),
+		      cond::demangledName(typeid(T)),
                       firstSinceTime,
                       firstTillTime,
                       recordName,
                       withlogging);	
       }
             
-      void createNewIOV( const std::string& firstPayloadToken,
+      void createNewIOV( const std::string& firstPayloadId,
+			 const std::string payloadType, 
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
                          const std::string& recordName,
-                         bool withlogging=false) {
-        createNewIOV( GetTrivialToken(firstPayloadToken),
-                      firstSinceTime,
-                      firstTillTime,
-                      recordName,
-                      withlogging);
-      }
-
+                         bool withlogging=false);
       
+      // this one we need to avoid to adapt client code around... to be removed in the long term!
+      void createNewIOV( const std::string& firstPayloadId,
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& recordName,
+                         bool withlogging=false);
+
       // 
       template<typename T> void appendSinceTime( T* payloadObj,
                                                  cond::Time_t sinceTime,
                                                  const std::string& recordName,
                                                  bool withlogging=false){
-        add( GetTokenFromPointer<T>(payloadObj),
-	     sinceTime,
-	     recordName,
-	     withlogging);
+        if( !payloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::appendSinceTime");
+        appendSinceTime( m_session.storePayload( *payloadObj ),
+			 sinceTime,
+			 recordName,
+			 withlogging);
       }
       
       // Append the payload and its valid sinceTime into the database
-      // Note: user looses the ownership of the pointer to the payloadObj
       // Note: the iov index appended to MUST pre-existing and the existing 
       // conditions data are retrieved from the DB
       // 
-      void appendSinceTime( const std::string& payloadToken,
+      void appendSinceTime( const std::string& payloadId,
                             cond::Time_t sinceTime,
                             const std::string& recordName,
-                            bool withlogging=false) {
-        add(GetTrivialToken(payloadToken),
-            sinceTime,
-            recordName,
-            withlogging);
-      }
+                            bool withlogging=false);
      
-      // set last till so that the iov sequence is "closed"
-      // void closeSequence(cond::Time_t tillTime,
-      //                 const std::string& recordName,
-      //                 bool withlogging=false);
-
-
       //
       // Service time utility method 
       // return the infinity value according to the given timetype
@@ -204,84 +142,67 @@ namespace cond{
       void setLogHeaderForRecord(const std::string& recordName,
 				 const std::string& provenance,
 				 const std::string& usertext);
+
       // 
       // Retrieve tag information of the data
       // 
       void tagInfo(const std::string& recordName,
-		   cond::TagInfo& result );
+      		   cond::TagInfo_t& result );
       
       virtual ~PoolDBOutputService();  
+
+      void forceInit();
       
     private:
+
+      //
+      //use these to control transaction interval
+      //
+      void preEventProcessing(edm::StreamContext const&);
+      void preGlobalBeginLumi(edm::GlobalContext const&);
+      void preGlobalBeginRun(edm::GlobalContext const&);
+      void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+      void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
       struct Record{
 	Record(): m_tag(),
 		  m_isNewTag(false),
 		  m_idName(),
-		  m_iovtoken(),
 		  m_timetype(cond::runnumber),
-                  m_closeIOV(false),
-		  m_freeInsert(false)
+                  m_closeIOV(false)
 	{}
 
 	std::string timetypestr() const { return cond::timeTypeSpecs[m_timetype].name;}
 	std::string m_tag;
 	bool m_isNewTag;
 	std::string m_idName;
-	std::string m_iovtoken;
 	cond::TimeType m_timetype;
         bool m_closeIOV;
-	bool m_freeInsert;
     };      
 
 
 
       void fillRecord( edm::ParameterSet & pset);
       
-      void createNewIOV( GetToken const & token, 
-			 cond::Time_t firstSinceTime, 
-			 cond::Time_t firstTillTime,
-			 const std::string& recordName,
-			 bool withlogging=false);
-      
-      void add( GetToken const & token,  
-		cond::Time_t time,
-		const std::string& recordName,
-		bool withlogging=false);      
-      
       void connect();    
       void disconnect();
-      void initDB( bool forReading=true );
-      unsigned int appendIOV(cond::DbSession&,
-                             Record& record,
-                             const std::string& payloadToken,
-                             cond::Time_t sinceTime);
-      
-      /// Returns payload location index 
-      unsigned int 
-      insertIOV(cond::DbSession& pooldb,
-		Record& record,
-		const std::string& payloadToken,
-		cond::Time_t tillTime);
+      void initDB( bool dummy=false );
 
       Record & lookUpRecord(const std::string& recordName);
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
       
     private:
+      std::recursive_mutex m_mutex;
       cond::TimeType m_timetype; 
       std::string m_timetypestr;
-      cond::Time_t m_currentTime;
+      std::vector<cond::Time_t> m_currentTimes;
 
-      std::string m_connectionString;
-      cond::DbSession m_session;
-      std::string m_logConnectionString;
-      std::auto_ptr<cond::Logger> m_logdb;
+      cond::persistency::Session m_session;
       bool m_dbstarted;
 
       std::map<std::string, Record> m_callbacks;
       std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_closeIOV;
-      bool m_freeInsert;
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };//PoolDBOutputService

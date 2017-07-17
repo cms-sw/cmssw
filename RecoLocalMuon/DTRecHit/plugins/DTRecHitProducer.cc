@@ -30,17 +30,17 @@ using namespace std;
 
 
 
-DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
+DTRecHitProducer::DTRecHitProducer(const ParameterSet& config) :
   // Set verbose output
-  debug = config.getUntrackedParameter<bool>("debug", false); 
-
+  debug(config.getUntrackedParameter<bool>("debug", false))
+{
   if(debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
   
   produces<DTRecHitCollection>();
 
-  theDTDigiLabel = config.getParameter<InputTag>("dtDigiLabel");
-  
+  DTDigiToken_ = consumes<DTDigiCollection>(config.getParameter<InputTag>("dtDigiLabel"));
+
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName,
@@ -62,13 +62,13 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the digis from the event
   Handle<DTDigiCollection> digis; 
-  event.getByLabel(theDTDigiLabel, digis);
+  event.getByToken(DTDigiToken_, digis);
 
   // Pass the EventSetup to the algo
   theAlgo->setES(setup);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecHitCollection> recHitCollection(new DTRecHitCollection());
+  auto recHitCollection = std::make_unique<DTRecHitCollection>();
 
 
   // Iterate through all digi collections ordered by LayerId   
@@ -93,10 +93,5 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 }
-
-
-
-bool
-DTRecHitProducer::debug;

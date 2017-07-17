@@ -4,7 +4,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -17,9 +16,13 @@ LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig):
 {
   produces<reco::PFRecTrackCollection>();
 
-  tracksContainers_ = 
+
+  
+  std::vector<InputTag>  tags = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
 
+  for (unsigned int i=0;i<tags.size();++i)
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
 
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
   trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
@@ -36,14 +39,13 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
   //create the empty collections 
-  auto_ptr< reco::PFRecTrackCollection > 
-    PfTrColl (new reco::PFRecTrackCollection);
+  auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
   
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
-    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
     for(unsigned int i=0;i<Tk.size();i++){
       if (useQuality_ &&
@@ -60,7 +62,7 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     }
   }
-  iEvent.put(PfTrColl);
+  iEvent.put(std::move(PfTrColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

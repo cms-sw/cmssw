@@ -1,6 +1,8 @@
 #ifndef OpticalAlignments_H
 #define OpticalAlignments_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
 #include <vector>
@@ -26,6 +28,8 @@ public:
 
  public:
   std::vector<OpticalAlignInfo> opticalAlignments_;
+
+ COND_SERIALIZABLE;
 };
 
 /* typedef std::vector<int>  OptAlignIDs; */

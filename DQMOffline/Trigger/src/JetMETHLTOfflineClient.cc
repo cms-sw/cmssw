@@ -1,3 +1,5 @@
+// Migrated to use DQMEDHarvester by: Jyothsna Rani Komaragiri, Oct 2014
+
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineClient.h"
 
 #include "FWCore/Framework/interface/Run.h"
@@ -10,14 +12,6 @@
 
 JetMETHLTOfflineClient::JetMETHLTOfflineClient(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    edm::LogError("JetMETHLTOfflineClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
-  }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if(dbe_) dbe_->setVerbose(0);
-  }
- 
   debug_ = false;
   verbose_ = false;
 
@@ -27,83 +21,45 @@ JetMETHLTOfflineClient::JetMETHLTOfflineClient(const edm::ParameterSet& iConfig)
   if (debug_) std::cout << hltTag_ << std::endl;
   
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
  
 }
-
 
 JetMETHLTOfflineClient::~JetMETHLTOfflineClient()
 { 
   
 }
 
-void JetMETHLTOfflineClient::beginJob()
+void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
- 
+  ibooker.setCurrentFolder(dirName_);
 
-}
-
-void JetMETHLTOfflineClient::endJob() 
-{
-
-}
-
-void JetMETHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void JetMETHLTOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  runClient_();
-}
-
-//dummy analysis function
-void JetMETHLTOfflineClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-  
-}
-
-void JetMETHLTOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-  runClient_();
-}
-
-void JetMETHLTOfflineClient::runClient_()
-{
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
-  dbe_->setCurrentFolder(dirName_);
-
-  LogDebug("JetMETHLTOfflineClient") << "runClient" << std::endl;
-  if (debug_) std::cout << "runClient" << std::endl; 
+  LogDebug("JetMETHLTOfflineClient") << "dqmEndJob" << std::endl;
+  if (debug_) std::cout << "dqmEndJob" << std::endl; 
 
   std::vector<MonitorElement*> hltMEs;
 
   // Look at all folders, go to the subfolder which includes the string "Eff"
-  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
+  std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
     
     // Move on only if the folder name contains "Eff" Or "Trigger Summary"
     if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
     if ((fullPathHLTFolders[i].find("Eff")!=std::string::npos)) {
-      dbe_->setCurrentFolder(fullPathHLTFolders[i]);
+      ibooker.setCurrentFolder(fullPathHLTFolders[i]);
     } 
     else {
       continue;
     }
 
     // Look at all subfolders, go to the subfolder which includes the string "Eff"
-    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
+    std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (debug_) std::cout << fullSubPathHLTFolders[j] << std::endl;      
-      dbe_->setCurrentFolder(fullSubPathHLTFolders[j]);
+      ibooker.setCurrentFolder(fullSubPathHLTFolders[j]);
       
-      //std::cout << "PhatDEBUG: " << fullSubPathHLTFolders[j] << std::endl; 
-    
       // Look at all MonitorElements in this folder
-      hltMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
+      hltMEs = igetter.getContents(fullSubPathHLTFolders[j]);
       LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << std::endl;
       
       for(unsigned int k=0;k<hltMEs.size();k++) {
@@ -115,11 +71,7 @@ void JetMETHLTOfflineClient::runClient_()
 	  std::string name = hltMEs[k]->getName();
 	  name.erase(0,12); // Removed "ME_Numerator"
           if (debug_) std::cout <<"==name=="<< name << std::endl;
-//	  if( name.find("EtaPhi") !=std::string::npos ) continue; // do not consider EtaPhi 2D plots
-
-//	  MonitorElement* eff ;
-
-	  //std::cout << "PhatDEBUG: name = " << name << std::endl;
+	  //	  if( name.find("EtaPhi") !=std::string::npos ) continue; // do not consider EtaPhi 2D plots
 
 	  for(unsigned int l=0;l<hltMEs.size();l++) {
 	    if (hltMEs[l]->getName() == "ME_Denominator"+name){
@@ -132,9 +84,8 @@ void JetMETHLTOfflineClient::runClient_()
                 
 		TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
 		teff->Divide(tNumerator,tDenominator,1,1);
-		dbe_->book2D("ME_Eff_"+name,teff);
+		ibooker.book2D("ME_Eff_"+name,teff);
 		delete teff;
-		//std::cout << "PhatDEBUG: EtaPhiEff" <<std::endl;
               }
 	      else{
 		TH1F* tNumerator   = hltMEs[k]->getTH1F();
@@ -144,9 +95,8 @@ void JetMETHLTOfflineClient::runClient_()
 		
 		TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
 		teff->Divide(tNumerator,tDenominator,1,1);
-		dbe_->book1D("ME_Eff_"+name,teff);
+		ibooker.book1D("ME_Eff_"+name,teff);
 		delete teff;
-		//std::cout << "PhatDEBUG: MMMM" <<std::endl;
 	      }
 	    } // Denominator
 	  }   // Loop-l

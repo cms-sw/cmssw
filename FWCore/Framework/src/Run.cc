@@ -2,12 +2,13 @@
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
   std::string const Run::emptyString_;
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md,
+  Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
            ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(rp, md),
         aux_(rp.aux()),
@@ -15,18 +16,13 @@ namespace edm {
   }
 
   Run::~Run() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
+
+  Run::CacheIdentifier_t
+  Run::cacheIdentifier() const {return runPrincipal().cacheIdentifier();}
 
   RunIndex Run::index() const { return runPrincipal().index();}
   
-  RunPrincipal&
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal&>(provRecorder_.principal());
-  }
-
   RunPrincipal const&
   Run::runPrincipal() const {
     return dynamic_cast<RunPrincipal const&>(provRecorder_.principal());
@@ -38,8 +34,8 @@ namespace edm {
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    runPrincipal().getAllProvenance(provenances);
+  Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    runPrincipal().getAllStableProvenance(provenances);
   }
 
 /* Not yet fully implemented
@@ -80,16 +76,26 @@ namespace edm {
 */
 
   void
-  Run::commit_() {
-    RunPrincipal& rp = runPrincipal();
+  Run::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
+    RunPrincipal const& rp = runPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-        rp.put(*pit->second, pit->first);
-        // Ownership has passed, so clear the pointer.
-        pit->first.reset();
+        rp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
         ++pit;
+    }
+
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != putProducts().size()) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
     }
 
     // the cleanup is all or none
@@ -106,17 +112,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-  void
-  Run::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   BasicHandle
   Run::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
-    if(h.isValid()) {
-      addToGotBranchIDs(*(h.provenance()));
-    }
     return h;
   }
 }

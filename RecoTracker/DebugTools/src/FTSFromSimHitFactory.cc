@@ -1,6 +1,6 @@
 #include "RecoTracker/DebugTools/interface/FTSFromSimHitFactory.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include <algorithm>
 

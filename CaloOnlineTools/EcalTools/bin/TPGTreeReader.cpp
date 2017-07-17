@@ -107,7 +107,7 @@ std::vector<std::string> split(std::string msg, std::string separator)
 double getEta(int ietaTower) 
 {
   // Paga: to be confirmed, specially in EE:
-  return 0.0174*fabs(ietaTower) ;
+  return 0.0174*std::abs(ietaTower) ;
 }
 
 

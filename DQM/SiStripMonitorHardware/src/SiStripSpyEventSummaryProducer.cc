@@ -68,7 +68,6 @@ namespace sistrip {
     
     //get the event number and Bx counter from the first valud FED buffer
     edm::Handle<FEDRawDataCollection> rawDataHandle;
-    //    event.getByLabel(rawDataTag_,rawDataHandle);
     event.getByToken(rawDataToken_,rawDataHandle);
     const FEDRawDataCollection& rawData = *rawDataHandle;
     bool fedFound = false;
@@ -77,7 +76,7 @@ namespace sistrip {
     for (uint16_t fedId = sistrip::FED_ID_MIN; fedId <= sistrip::FED_ID_MAX; ++fedId) {
       const FEDRawData& fedData = rawData.FEDData(fedId);
       if (fedData.size() && fedData.data()) {
-        std::auto_ptr<sistrip::FEDBufferBase> pBuffer;
+        std::unique_ptr<sistrip::FEDBufferBase> pBuffer;
         try {
           pBuffer.reset(new sistrip::FEDBufferBase(fedData.data(),fedData.size()));
         } catch (const cms::Exception& e) {
@@ -96,7 +95,7 @@ namespace sistrip {
     }
     
     //create summary object
-    std::auto_ptr<SiStripEventSummary> pSummary(new SiStripEventSummary);
+    std::unique_ptr<SiStripEventSummary> pSummary(new SiStripEventSummary);
     //set the trigger FED number to zero to indicate that it doesn't exist
     pSummary->triggerFed(0);
     //set the event number and Bx from the FED packets
@@ -120,7 +119,7 @@ namespace sistrip {
     pSummary->commissioningInfo(fakeTriggerFedData.get(),fedEventNumber);
     
     //store in event
-    event.put(pSummary);
+    event.put(std::move(pSummary));
   }
   
   void SpyEventSummaryProducer::warnAboutUnsupportedRunType()

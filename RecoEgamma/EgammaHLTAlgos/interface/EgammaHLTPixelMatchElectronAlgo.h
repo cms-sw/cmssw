@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -32,7 +33,7 @@ class EgammaHLTPixelMatchElectronAlgo {
 
 public:
 
-  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf);
+  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
@@ -52,10 +53,10 @@ public:
   void process(edm::Handle<reco::TrackCollection> tracksH, edm::Handle<reco::GsfTrackCollection> gsfTracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
   bool isInnerMostWithLostHits(const reco::GsfTrackRef&, const reco::GsfTrackRef&, bool&);
 
-  edm::InputTag trackProducer_; 
-  edm::InputTag gsfTrackProducer_; 
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_; 
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackProducer_; 
   bool useGsfTracks_;
-  edm::InputTag bsProducer_; 
+  edm::EDGetTokenT<reco::BeamSpot> bsProducer_; 
 
   MultiTrajectoryStateMode* mtsMode_; //its not clear to me why this is a pointer but its not the only one so changing things wouldnt make this class safer
   MultiTrajectoryStateTransform* mtsTransform_;

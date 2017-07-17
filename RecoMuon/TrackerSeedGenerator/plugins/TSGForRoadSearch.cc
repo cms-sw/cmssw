@@ -15,7 +15,7 @@
 
 #include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
 
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -25,7 +25,7 @@
 #include <TrackingTools/KalmanUpdators/interface/KFUpdator.h>
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
-TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
+TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCollector& iC){
 
   theOption = par.getParameter<unsigned int>("option");
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");
@@ -49,7 +49,13 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   else {
     theAdjustAtIp =false;
     theErrorMatrixAdjuster=0;}
+
+  theMeasurementTrackerEventTag = par.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+  theMeasurementTrackerEvent = 0;
+
+  theMeasurementTrackerEventToken=iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag);
 }
+
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
   if (theUpdator)  delete theUpdator;
@@ -68,6 +74,10 @@ void TSGForRoadSearch::setEvent(const edm::Event &event){
     if (!theMeasurementTracker.isValid())/*abort*/{edm::LogError(theCategory)<<"measurement tracker geometry not found ";}
   }
   theProxyService->eventSetup().get<TrackerRecoGeometryRecord>().get(theGeometricSearchTracker);
+
+  edm::Handle<MeasurementTrackerEvent> data;
+  event.getByToken(theMeasurementTrackerEventToken, data);
+  theMeasurementTrackerEvent = &*data;
 }
 
 
@@ -120,7 +130,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   if (!IPfts(muon, cIPFTS)) return;
 
   //take state at inner surface and check the first part reached
-  const std::vector<BarrelDetLayer*> & blc = theGeometricSearchTracker->tibLayers();
+  const std::vector<const BarrelDetLayer*> & blc = theGeometricSearchTracker->tibLayers();
   TrajectoryStateOnSurface inner = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.front()->surface());
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid. no seed."; return;}
 
@@ -129,10 +139,10 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
 
   double z = inner.globalPosition().z();
 
-  const std::vector<ForwardDetLayer*> &ptidc = theGeometricSearchTracker->posTidLayers();
-  const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
-  const std::vector<ForwardDetLayer*> &ntidc = theGeometricSearchTracker->negTidLayers();
-  const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
+  const std::vector<const ForwardDetLayer*> &ptidc = theGeometricSearchTracker->posTidLayers();
+  const std::vector<const ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
+  const std::vector<const ForwardDetLayer*> &ntidc = theGeometricSearchTracker->negTidLayers();
+  const std::vector<const ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
 
   const DetLayer *inLayer = 0;
   if( fabs(z) < ptidc.front()->surface().position().z()  ) {
@@ -150,7 +160,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TOB:
@@ -195,7 +205,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   if (!IPfts(muon, cIPFTS)) return;
 
   //take state at outer surface and check the first part reached
-  const std::vector<BarrelDetLayer*> &blc = theGeometricSearchTracker->tobLayers();
+  const std::vector<const BarrelDetLayer*> &blc = theGeometricSearchTracker->tobLayers();
 
   //  TrajectoryStateOnSurface outer = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.back()->surface());
   StateOnTrackerBound onBounds(theProxyService->propagator(thePropagatorName).product());
@@ -208,8 +218,8 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   double z = outer.globalPosition().z();
 
-  const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
-  const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
+  const std::vector<const ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
+  const std::vector<const ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
 
   LogDebug(theCategory)<<"starting looking for a compatible layer from: "<<outer<<"\nz: "<<z<<"TEC1 z: "<<ptecc.front()->surface().position().z();
 
@@ -241,7 +251,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TIB:
@@ -286,7 +296,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   if (!IPfts(muon, cIPFTS)) return;
 
   //take state at inner surface and check the first part reached
-  const std::vector<BarrelDetLayer*> & blc = theGeometricSearchTracker->pixelBarrelLayers();
+  const std::vector<const BarrelDetLayer*> & blc = theGeometricSearchTracker->pixelBarrelLayers();
   if (blc.empty()){edm::LogError(theCategory)<<"want to start from pixel layer, but no barrel exists. trying without pixel."; 
     makeSeeds_0(muon, result);
     return;}
@@ -299,12 +309,12 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
     
   double z = inner.globalPosition().z();
 
-  const std::vector<ForwardDetLayer*> &ppxlc = theGeometricSearchTracker->posPixelForwardLayers();
-  const std::vector<ForwardDetLayer*> &npxlc = theGeometricSearchTracker->negPixelForwardLayers();
-  const std::vector<ForwardDetLayer*> &ptidc = theGeometricSearchTracker->posTidLayers();
-  const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
-  const std::vector<ForwardDetLayer*> &ntidc = theGeometricSearchTracker->negTidLayers();
-  const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
+  const std::vector<const ForwardDetLayer*> &ppxlc = theGeometricSearchTracker->posPixelForwardLayers();
+  const std::vector<const ForwardDetLayer*> &npxlc = theGeometricSearchTracker->negPixelForwardLayers();
+  const std::vector<const ForwardDetLayer*> &ptidc = theGeometricSearchTracker->posTidLayers();
+  const std::vector<const ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
+  const std::vector<const ForwardDetLayer*> &ntidc = theGeometricSearchTracker->negTidLayers();
+  const std::vector<const ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
 
   if ((ppxlc.empty() || npxlc.empty()) && (ptidc.empty() || ptecc.empty()) )
     { edm::LogError(theCategory)<<"want to start from pixel layer, but no forward layer exists. trying without pixel.";
@@ -312,7 +322,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
       return;}
 
   const DetLayer *inLayer = 0;
-  std::vector<ForwardDetLayer*>::const_iterator layerIt ;
+  std::vector<const ForwardDetLayer*>::const_iterator layerIt ;
 
   double fz=fabs(z);
   
@@ -343,18 +353,18 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   
   //if none were found. you should do something more.
   if (compatible.size()==0){
-    std::vector<ForwardDetLayer*>::const_iterator pxlEnd = (z>0)? ppxlc.end() : npxlc.end();
-    std::vector<ForwardDetLayer*>::const_iterator tidEnd = (z>0)? ptidc.end() : ntidc.end();
-    std::vector<ForwardDetLayer*>::const_iterator tecEnd = (z>0)? ptecc.end() : ntecc.end();
-    std::vector<ForwardDetLayer*>::const_iterator pxlBegin = (z>0)? ppxlc.begin() : npxlc.begin();
-    std::vector<ForwardDetLayer*>::const_iterator tidBegin = (z>0)? ptidc.begin() : ntidc.begin();
-    std::vector<ForwardDetLayer*>::const_iterator tecBegin = (z>0)? ptecc.begin() : ntecc.begin();
+    std::vector<const ForwardDetLayer*>::const_iterator pxlEnd = (z>0)? ppxlc.end() : npxlc.end();
+    std::vector<const ForwardDetLayer*>::const_iterator tidEnd = (z>0)? ptidc.end() : ntidc.end();
+    std::vector<const ForwardDetLayer*>::const_iterator tecEnd = (z>0)? ptecc.end() : ntecc.end();
+    std::vector<const ForwardDetLayer*>::const_iterator pxlBegin = (z>0)? ppxlc.begin() : npxlc.begin();
+    std::vector<const ForwardDetLayer*>::const_iterator tidBegin = (z>0)? ptidc.begin() : ntidc.begin();
+    std::vector<const ForwardDetLayer*>::const_iterator tecBegin = (z>0)? ptecc.begin() : ntecc.begin();
 
     //go to first disk if not already in a disk situation
     if (!dynamic_cast<const ForwardDetLayer*>(inLayer)) layerIt =pxlBegin--;
     
     while (compatible.size()==0) {
-      switch ( (*layerIt)->subDetector() ) {
+      switch ( GeomDetEnumerators::subDetGeom[(*layerIt)->subDetector()] ) {
       case GeomDetEnumerators::PixelEndcap:
 	{
 	  layerIt++;
@@ -409,8 +419,8 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       bool aBareTS=false;
       const GeomDet * gd = DWSit->first;
       if (!gd){edm::LogError(theCategory)<<"GeomDet is not valid."; continue;}
-      const MeasurementDet * md= theMeasurementTracker->idToDet(gd->geographicalId());
-      std::vector<TrajectoryMeasurement> tmp = md->fastMeasurements(DWSit->second,DWSit->second,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
+      MeasurementDetWithData md = theMeasurementTrackerEvent->idToDet(gd->geographicalId());
+      std::vector<TrajectoryMeasurement> tmp = md.fastMeasurements(DWSit->second,DWSit->second,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
       //make a trajectory seed for each of them
 
       for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit!=tmp.end();++Mit){
@@ -421,7 +431,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	  LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
 	  //copy the muon rechit into the seed
 	  for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	    rhContainer.push_back( (*trit).get()->clone() );  }}
+	    rhContainer.push_back( (*trit)->clone() );  }}
 	
 	if ( hit->isValid()) {
 	  TrajectoryStateOnSurface upState(theUpdator->update(predState,*hit));
@@ -467,7 +477,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
       //copy the muon rechit into the seed
       for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	rhContainer.push_back( (*trit).get()->clone() );  }}
+	rhContainer.push_back( (*trit)->clone() );  }}
     
     //add this seed to the list and return it
     result.push_back(TrajectorySeed(PTSOD,rhContainer,direction));

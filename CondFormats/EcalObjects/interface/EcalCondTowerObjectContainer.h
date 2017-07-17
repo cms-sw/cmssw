@@ -1,6 +1,8 @@
 #ifndef ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 #define ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -97,36 +99,32 @@ class EcalCondTowerObjectContainer {
                 // add coherent operator++, not needed now -- FIXME
 
                 inline
-                Item & operator[]( uint32_t rawId ) {
+                Item & operator[]( uint32_t rawId ) 
+                {
                         DetId id(rawId);
-                        static Item dummy;
-
-                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
-			  return eb_[rawId];
-			} else if(  id.subdetId() == EcalEndcap  ) { 
-			  return ee_[rawId];
-			} else {
-			  return dummy;
-                        }
+                         return ( (id.subdetId() == EcalBarrel) | (id.subdetId() == EcalTriggerTower) ) ?  
+			  eb_[rawId] :
+			  ee_[rawId];
                 }
-                
+
                 inline
-                Item const & operator[]( uint32_t rawId ) const {
+                Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
-                        static Item dummy;
 
                         if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
 			  return eb_[rawId];
 			} else if(  id.subdetId() == EcalEndcap  ) { 
 			  return ee_[rawId];
 			} else {
-			  return dummy;
+			  return Item();
                         }
                 }
                 
         private:
                 EcalContainer< EcalTrigTowerDetId , Item > eb_;
                 EcalContainer< EcalScDetId , Item > ee_;
+
+    COND_SERIALIZABLE;
 };
 
 typedef EcalCondTowerObjectContainer<float> EcalTowerFloatCondObjectContainer;

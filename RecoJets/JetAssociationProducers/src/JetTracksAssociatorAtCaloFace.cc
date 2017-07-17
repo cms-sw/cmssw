@@ -10,22 +10,21 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 
 
 #include "JetTracksAssociatorAtCaloFace.h"
 
 JetTracksAssociatorAtCaloFace::JetTracksAssociatorAtCaloFace(const edm::ParameterSet& fConfig)
-  : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
-    mExtrapolations (fConfig.getParameter<edm::InputTag> ("extrapolations")),
-    firstRun(true),
+  : firstRun(true),
     dR_(fConfig.getParameter<double>("coneSize"))
 {
+  mJets = consumes<edm::View <reco::Jet> >(fConfig.getParameter<edm::InputTag> ("jets"));
+  mExtrapolations  = consumes<std::vector<reco::TrackExtrapolation> >(fConfig.getParameter<edm::InputTag> ("extrapolations")),
+
   produces<reco::JetTracksAssociation::Container> ();
 }
 
@@ -44,12 +43,18 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
 
   // get stuff from Event
   edm::Handle <edm::View <reco::Jet> > jets_h;
-  fEvent.getByLabel (mJets, jets_h);
+  fEvent.getByToken (mJets, jets_h);
   edm::Handle <std::vector<reco::TrackExtrapolation> > extrapolations_h;
-  fEvent.getByLabel (mExtrapolations, extrapolations_h);
+  fEvent.getByToken (mExtrapolations, extrapolations_h);
+
+  auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
   // Check to make sure we have inputs
-  if ( jets_h->size() == 0 ) return;
+  if ( jets_h->size() == 0 ){
+    // store output regardless the size of the inputs
+    fEvent.put(std::move(jetTracks));
+    return;
+  }
   // Check to make sure the inputs are calo jets
   reco::CaloJet const * caloJet0 = dynamic_cast<reco::CaloJet const *>( & (jets_h->at(0)) );
   // Disallowed non-CaloJet inputs
@@ -57,8 +62,6 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
     throw cms::Exception("InvalidInput") << " Jet-track association is only defined for CaloJets.";
   }
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
-
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;
@@ -68,7 +71,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
 
 
   // store output
-  fEvent.put (jetTracks);
+  fEvent.put(std::move(jetTracks));
 }
 
 

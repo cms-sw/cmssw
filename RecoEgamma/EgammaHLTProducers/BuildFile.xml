@@ -24,6 +24,6 @@
 <use   name="DataFormats/EcalRawData"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
-<use name="PhysicsTools/UtilAlgos"/>
-<use name="FWCore/ServiceRegistry"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
 <flags   EDM_PLUGIN="1"/>

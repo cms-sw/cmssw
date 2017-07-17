@@ -2,12 +2,14 @@
 #define MuonSeedGenerator_MuonSeedOrcaPatternRecognition_h
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 
 class MuonSeedOrcaPatternRecognition : public MuonSeedVPatternRecognition
 {
 public:
-  explicit MuonSeedOrcaPatternRecognition(const edm::ParameterSet & pset); 
+  explicit MuonSeedOrcaPatternRecognition(const edm::ParameterSet & pset,edm::ConsumesCollector& iC); 
 
   void produce(const edm::Event& event, const edm::EventSetup& eSetup,
                std::vector<MuonRecHitContainer> & result);
@@ -20,8 +22,8 @@ private:
   void endcapPatterns(
     const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
     const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-    const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
-    const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+    const MuonRecHitContainer & me4,  const MuonRecHitContainer & me0,
+    const MuonRecHitContainer & mb1,  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
     bool * MB1, bool * MB2, bool * MB3,
     std::vector<MuonRecHitContainer> & result);
 
@@ -50,6 +52,11 @@ private:
   void markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const;
   std::vector<double> theCrackEtas;
   double theCrackWindow;
+  MuonDetLayerMeasurements *muonMeasurements;
+  double theDeltaPhiWindow;
+  double theDeltaEtaWindow;
+  double theDeltaCrackWindow;
+
 };
 
 #endif

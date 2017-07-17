@@ -1,7 +1,7 @@
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "CLHEP/Geometry/Plane3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include <math.h>
+#include <cmath>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -27,11 +27,10 @@ IdealCastorTrapezoid::operator=( const IdealCastorTrapezoid& idct )
 }
 
 IdealCastorTrapezoid::IdealCastorTrapezoid( const GlobalPoint& faceCenter,
-					    const CornersMgr*  mgr       ,
+					          CornersMgr*  mgr       ,
 					    const CCGFloat*    parm       )
   : CaloCellGeometry ( faceCenter, mgr, parm )  
-{
-}
+{initSpan();}
 	 
 IdealCastorTrapezoid::~IdealCastorTrapezoid() 
 {
@@ -144,13 +143,11 @@ IdealCastorTrapezoid::localCorners( Pt3DVec&        lc  ,
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 }
 
-const CaloCellGeometry::CornersVec& 
-IdealCastorTrapezoid::getCorners() const 
+void
+IdealCastorTrapezoid::initCorners(CaloCellGeometry::CornersVec& corners)
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-   if( co.uninitialized() ) 
+   if( corners.uninitialized() ) 
    {
-      CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
       const GlobalPoint& p ( getPosition() ) ;
       const CCGFloat zsign ( 0 < p.z() ? 1. : -1. ) ;
       const Pt3D  gf ( p.x(), p.y(), p.z() ) ;
@@ -180,7 +177,6 @@ IdealCastorTrapezoid::getCorners() const
 	 corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
       }
    }
-   return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const IdealCastorTrapezoid& cell ) 

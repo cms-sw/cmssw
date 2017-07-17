@@ -79,7 +79,6 @@ class DTRecSegment2D : public RecSegment{
    * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
    * by parameters() */
   virtual AlgebraicMatrix projectionMatrix() const {
-    if ( !isInitialized) initialize();
     return theProjectionMatrix;
   }
     
@@ -151,15 +150,7 @@ class DTRecSegment2D : public RecSegment{
 
  private:
 
-  static bool isInitialized;
-  static AlgebraicMatrix theProjectionMatrix;
-  
-  void initialize() const {
-    isInitialized=true;
-    theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
-    theProjectionMatrix[0][1]=1;
-    theProjectionMatrix[1][3]=1;
-  }
+  static const AlgebraicMatrix theProjectionMatrix;
   
   AlgebraicVector param( const LocalPoint& lp, const LocalVector& lv) const {
     AlgebraicVector result(2);

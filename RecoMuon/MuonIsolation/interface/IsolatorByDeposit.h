@@ -19,6 +19,7 @@ public:
   typedef MuIsoBaseIsolator::DepositContainer DepositContainer;
 
   struct ConeSizeFunction {
+   virtual ~ConeSizeFunction() = default;
    virtual float  coneSize( float eta, float pt) const = 0;
   };
 

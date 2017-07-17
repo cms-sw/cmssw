@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-Ofast"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="FWCore/Framework"/>
@@ -9,7 +10,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -1,6 +1,8 @@
 #ifndef EcalTPGPhysicsConst_h
 #define EcalTPGPhysicsConst_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -19,7 +21,9 @@ class EcalTPGPhysicsConst
     double FG_highThreshold ; 
     double FG_lowRatio ; 
     double FG_highRatio ; 
-  } ;
+  
+  COND_SERIALIZABLE;
+} ;
 
   // first index is for barrel or endcap
   const std::map<uint32_t, Item> & getMap() const { return map_; }
@@ -28,6 +32,8 @@ class EcalTPGPhysicsConst
  private:
   std::map<uint32_t, Item> map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 typedef std::map<uint32_t, EcalTPGPhysicsConst::Item>                 EcalTPGPhysicsConstMap;

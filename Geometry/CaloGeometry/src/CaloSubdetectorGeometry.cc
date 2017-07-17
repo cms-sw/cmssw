@@ -22,8 +22,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 { 
    delete m_cmgr ;
    delete m_parMgr ; 
-   if (m_deltaPhi) delete m_deltaPhi ;
-   if (m_deltaEta) delete m_deltaEta ;
+   if (m_deltaPhi) delete m_deltaPhi.load() ;
+   if (m_deltaEta) delete m_deltaEta.load() ;
 }
 
 void
@@ -154,12 +154,11 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
 
-   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
+   for(const auto & pv : parVecVec())
    {
-      const ParVec& pv ( *ivv ) ;
-      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
+      for(float iv : pv)
       {
-	 dVec.push_back( *iv ) ;
+	 dVec.push_back( iv ) ;
       }
    }
 

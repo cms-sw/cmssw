@@ -11,6 +11,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Math/VectorUtil.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 
 class PatMCMatchingExtended : public edm::EDAnalyzer {
 
@@ -19,20 +21,20 @@ public:
   explicit PatMCMatchingExtended(const edm::ParameterSet&);
   /// default destructor
   ~PatMCMatchingExtended();
-  
+
 private:
 
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
-  // simple map to contain all histograms; 
-  // histograms are booked in the beginJob() 
-  // method
-  std::map<std::string,TH1F*> histContainer_; 
 
-  // input tags  
-  edm::InputTag muonSrc_;
+  // simple map to contain all histograms;
+  // histograms are booked in the beginJob()
+  // method
+  std::map<std::string,TH1F*> histContainer_;
+
+  // input tags
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonSrcToken_;
 
   //counts how often a genParticle with different charge gives a match
   unsigned int diffCharge;
@@ -49,12 +51,10 @@ private:
 };
 
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
 
 PatMCMatchingExtended::PatMCMatchingExtended(const edm::ParameterSet& iConfig):
   histContainer_(),
-  muonSrc_(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc"))
+  muonSrcToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc")))
 {
 }
 
@@ -68,11 +68,11 @@ PatMCMatchingExtended::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // get muon collection
   edm::Handle<edm::View<pat::Muon> > muons;
-  iEvent.getByLabel(muonSrc_,muons);
+  iEvent.getByToken(muonSrcToken_,muons);
 
   for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
     if(muon->genParticleById(0,1).isNonnull() ){
-      histContainer_["DR_status1Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , (muon->genParticleById(0,1) )->p4() ) ); 
+      histContainer_["DR_status1Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , (muon->genParticleById(0,1) )->p4() ) );
       histContainer_["DPt_status1Match"]->Fill(muon->pt() - (muon->genParticleById(0,1) )->pt() );
     }
     if(muon->genParticleById(0,3).isNonnull() ){
@@ -85,24 +85,24 @@ PatMCMatchingExtended::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     if(muon->genParticleById(0,1).isNull() && muon->genParticleById(0,3).isNull() && muon->genParticleById(0,-1).isNull()) noMatch++;
     if(muon->genParticleById(0,1).isNull() && muon->genParticleById(0,3).isNull() && muon->genParticleById(0,-1).isNonnull())decayInFlight++;
-    
-    
-    
+
+
+
     if( muon->genParticleById(-13,0, 1).isNonnull() ){
       diffCharge++;
       std::cout<<" DIFF CHARGE!!! charge gen: "<< muon->genParticleById(-13,0, true)->charge()<< " charge reco: "<< muon->charge()<<std::endl;
     }
-    numberMuons++;  
+    numberMuons++;
   }
-  
+
 }
 
-void 
+void
 PatMCMatchingExtended::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;
-  
+
   // book histograms:
   //DR
   histContainer_["DR_defaultMatch"  ]=fs->make<TH1F>("DR_defaultMatch",   "DR_defaultMatch",     100, 0,  0.02);
@@ -120,8 +120,8 @@ PatMCMatchingExtended::beginJob()
 
 }
 
-void 
-PatMCMatchingExtended::endJob() 
+void
+PatMCMatchingExtended::endJob()
 {
     std::cout<<"diffcharge: "<< diffCharge <<std::endl;
     std::cout<<"noMatch: "<<  noMatch <<std::endl;

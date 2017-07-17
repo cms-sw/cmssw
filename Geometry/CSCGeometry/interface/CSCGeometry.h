@@ -16,7 +16,7 @@
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
+
 class CSCChamber;
 class CSCChamberSpecs;
 class CSCWireGroupPackage;
@@ -26,10 +26,11 @@ class CSCGeometry : public TrackingGeometry {
   typedef std::map<DetId, GeomDet*> CSCDetMap;
   // The buffer for specs need not really be a map. Could do it with a vector!
   typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
-  typedef std::vector<CSCChamber*> ChamberContainer;
-  typedef std::vector<CSCLayer*> LayerContainer;
 
  public:
+
+  typedef std::vector<const CSCChamber*> ChamberContainer;
+  typedef std::vector<const CSCLayer*> LayerContainer;
 
   friend class CSCGeometryBuilder; //FromDDD;
   friend class GeometryAligner;
@@ -41,30 +42,30 @@ class CSCGeometry : public TrackingGeometry {
   CSCGeometry( bool debugV, bool gangedstripsME1a_, bool onlywiresME1a_, bool realWireGeometry_, bool useCentreTIOffsets_ );
 
   /// Destructor
-  virtual ~CSCGeometry();
+  ~CSCGeometry() override;
 
   //---- Base class' interface
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet (including all GeomDetUnits)
-  virtual const DetContainer& dets() const;
+  const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer&    detUnitIds() const;
+  const DetIdContainer&    detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds (including those of GeomDetUnits)
-  virtual const DetIdContainer& detIds() const;
+  const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  const GeomDet* idToDet(DetId) const override;
 
   //---- Extension of the interface
 

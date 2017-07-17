@@ -3,15 +3,14 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class MaxConsecLostHitsTrajectoryFilter : public TrajectoryFilter {
+class MaxConsecLostHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit MaxConsecLostHitsTrajectoryFilter( int maxHits=-1): theMaxConsecLostHits( maxHits) {}
+  explicit MaxConsecLostHitsTrajectoryFilter( int maxHits=0): theMaxConsecLostHits( maxHits) {}
 
-  explicit MaxConsecLostHitsTrajectoryFilter( const edm::ParameterSet & pset):
+  explicit MaxConsecLostHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxConsecLostHits( pset.getParameter<int>("maxConsecLostHits")) {}
 
-    
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
@@ -22,7 +21,7 @@ public:
 
 protected:
 
-  template <class T> bool TBC(const T& traj) const{
+  template <class T> bool TBC(T& traj) const{
     int consecLostHit = 0;
     const  typename T::DataContainer & tms = traj.measurements();
     typename T::DataContainer::size_type itm;
@@ -32,11 +31,12 @@ protected:
 	       Trajectory::lost(*tms[itm-1].recHit())) consecLostHit++;
     }
   
-    if (consecLostHit > theMaxConsecLostHits) return false; 
-    else return true;
+    bool ret = consecLostHit <= theMaxConsecLostHits;
+    if (!ret) traj.setStopReason(StopReason::MAX_CONSECUTIVE_LOST_HITS);
+    return ret;
     }
 
-  float theMaxConsecLostHits;
+  int theMaxConsecLostHits;
 
 };
 

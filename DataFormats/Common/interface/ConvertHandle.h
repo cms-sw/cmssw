@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <typeinfo>
+#include <algorithm>
 
 namespace edm {
 
@@ -16,19 +17,19 @@ namespace edm {
 
   // Convert from handle-to-void to handle-to-T
   template<typename T>
-  void convert_handle(BasicHandle const& bh,
+  void convert_handle(BasicHandle && bh,
 		      Handle<T>& result) {
     if(bh.failedToGet()) {
-      Handle<T> h(bh.whyFailed());
-      h.swap(result);
+      Handle<T> h(std::move(bh.whyFailedFactory()));
+      result = std::move(h);
       return;
     }
     void const* basicWrapper = bh.wrapper();
     if(basicWrapper == 0) {
       handleimpl::throwInvalidReference();
     }
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(T))) {
-      handleimpl::throwConvertTypeError(typeid(T), bh.interface()->dynamicTypeInfo());
+    if(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
+      handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
     }
     Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 

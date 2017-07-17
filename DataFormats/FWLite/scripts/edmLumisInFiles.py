@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # grab command line arguments even when it shouldn't.
     from DataFormats.FWLite import Lumis, Handle
     if not args:
-        raise RuntimeError, "Must provide at least one input file"
+        raise RuntimeError("Must provide at least one input file")
 
     # do we want to get the luminosity summary?
     if options.intLumi:

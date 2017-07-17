@@ -35,7 +35,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 
 #include "TTree.h"
@@ -45,7 +44,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -213,7 +212,7 @@ TrackerOfflineValidationSummary::endJob()
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker aliTracker(&(*tkGeom_), tTopo);
@@ -347,17 +346,17 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     double dR(999.), dPhi(999.), dZ(999.);
     if(treeMem.subDetId==PixelSubdetector::PixelBarrel || treeMem.subDetId==StripSubdetector::TIB || treeMem.subDetId==StripSubdetector::TOB){
       dR = gWDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gVDirection.z() - gPModule.z();
       if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
       dR = gUDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gVDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gVDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
       dR = gVDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }

@@ -19,7 +19,7 @@
 
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -386,30 +386,25 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
 	  continue ;
 	}
         std::string theDet = "null";
-        int theLayer = -999;
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
-          theLayer = tTopo->tibLayer(id); 
           if(tTopo->tibStereo(id)==1) { isStereoDet = true ; }
         } else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
-          theLayer = tTopo->tobLayer(id); 
           if(tTopo->tobStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
-          theLayer = tTopo->tidWheel(id);  // or ring  ?
           if(tTopo->tidStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
-          theLayer = tTopo->tecWheel(id);  // or ring or petal ?
           if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
-          LogDebug("") << " Det "<< theDet << " Lay " << theLayer ;
+          LogDebug("") << " Det "<< theDet ;
           assert(1!=1) ;
         }
 
@@ -1149,9 +1144,14 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   double reducedChi2 = (totalNumberOfHits > 2 ? chi2 / (totalNumberOfHits - 2) : 1e10);
 
   // Select this candidate if it passes minHits_ and maxReducedChi2_ cuts
-  if (totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
+  if (innerhit != nullptr && totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
     // GlobalTrajectoryParameters evaluated at the position of the innerhit
-    GlobalPoint position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    GlobalPoint position;
+    if( nullptr != tracker_p_ ) {
+      position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    } else {
+      throw cms::Exception("projectPhiBand") << "Pointer to tracker product is null!";
+    }
 
     // Use our phi(r) linear fit to correct pT (pT is inversely proportional to slope)
     // (By applying a correction instead of going back to first

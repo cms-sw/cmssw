@@ -23,7 +23,8 @@
 // Framework include files
 
 #include "FWCore/Utilities/interface/EDMException.h"	// change log 4
-
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 
@@ -100,20 +101,21 @@ public:
   void clear();
 
   std::string runEvent;
+  unsigned int streamID;
   bool debugEnabled;                             // change log 8
   bool infoEnabled;                              // change log 8
   bool warningEnabled;                           // change log 8
   bool errorEnabled;                             // change log 8, 12
 
-  static std::string jobMode;					// change log 6
-  static unsigned char messageLoggerScribeIsRunning;	// change log 7
-  static bool debugAlwaysSuppressed;			// change log 9
-  static bool infoAlwaysSuppressed;			// change log 9
-  static bool warningAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static std::string jobMode;					// change log 6
+  CMS_THREAD_SAFE static unsigned char messageLoggerScribeIsRunning;	// change log 7
+  CMS_THREAD_SAFE static bool debugAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static bool infoAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static bool warningAlwaysSuppressed;			// change log 9
 private:
-  messagedrop::StringProducerWithPhase * spWithPhase;
-  messagedrop::StringProducerPath      * spPath;
-  messagedrop::StringProducerSinglet   * spSinglet;
+  edm::propagate_const<messagedrop::StringProducerWithPhase*> spWithPhase;
+  edm::propagate_const<messagedrop::StringProducerPath*> spPath;
+  edm::propagate_const<messagedrop::StringProducerSinglet*> spSinglet;
   messagedrop::StringProducer const    * moduleNameProducer;
 };
 

@@ -15,8 +15,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 class RPCGeometry;
@@ -24,8 +24,6 @@ class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-  class RandPoisson;
 }
 
 class RPCSimAverageNoiseEffCls : public RPCSim
@@ -35,18 +33,19 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   ~RPCSimAverageNoiseEffCls();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits);
+		const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
 
-  void simulateNoise(const RPCRoll*);
+  void simulateNoise(const RPCRoll*,
+                     CLHEP::HepRandomEngine*) override;
 
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+  int getClSize(float posX, CLHEP::HepRandomEngine*);
+  int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
 
-  int getClSize(float posX);
-  int getClSize(uint32_t id,float posX);
-
- private:
-  void init(){};
- private:
+// private:
+ protected:
+  void init() override{};
+  
   double aveEff;
   double aveCls;
   double resRPC;
@@ -56,7 +55,8 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
-  
+  bool eledig;
+
   int N_hits;
   int nbxing;
   double rate;
@@ -67,16 +67,7 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   std::vector<double> sum_clsize;
   std::vector<double> clsForDetId;
   std::ifstream *infile;
- 
+
   RPCSynchronizer* _rpcSync;
-
-  //Defining the engines in the constructor and the method
-  //CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-  //Adding a second flatDistribution, since it was redefined 
-  //in a method with different interval
-  CLHEP::RandFlat* flatDistribution2;
-  CLHEP::RandPoissonQ *poissonDistribution_;
-
 };
 #endif

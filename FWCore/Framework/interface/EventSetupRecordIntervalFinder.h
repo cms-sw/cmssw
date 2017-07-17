@@ -35,7 +35,7 @@ class EventSetupRecordIntervalFinder
 
    public:
       EventSetupRecordIntervalFinder() : intervals_() {}
-      virtual ~EventSetupRecordIntervalFinder();
+      virtual ~EventSetupRecordIntervalFinder() noexcept(false);
 
       // ---------- const member functions ---------------------
       std::set<eventsetup::EventSetupRecordKey> findingForRecords() const ;

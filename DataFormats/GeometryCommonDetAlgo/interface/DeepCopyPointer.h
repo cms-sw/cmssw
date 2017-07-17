@@ -34,18 +34,14 @@ public:
     return *this;
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   // straight from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html
-
   DeepCopyPointer( DeepCopyPointer&& other) : theData(other.theData) {
     other.theData=0;
   }
-
   DeepCopyPointer& operator=( DeepCopyPointer&& other) {
     std::swap(theData,other.theData);
     return *this;
   }
-#endif
 
 
   /// Assing a new bare pointer to this DeepCopyPointer, taking ownership of it.

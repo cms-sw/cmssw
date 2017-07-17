@@ -22,7 +22,7 @@ cutsCKF = cms.EDProducer("TrackMultiSelector",
 
     #untracked bool copyTrajectories = true // when doing retracking before
     copyTrajectories = cms.untracked.bool(False),
-    vertices = cms.InputTag("pixelVertices"),
+    vertices = cms.InputTag("firstStepPrimaryVertices"),
     vtxNumber = cms.int32(-1),
     copyExtras = cms.untracked.bool(True), ## set to false on AOD
 

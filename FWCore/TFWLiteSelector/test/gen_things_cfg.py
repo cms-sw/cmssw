@@ -17,7 +17,7 @@ process.Thing = cms.EDProducer("ThingProducer")
 process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('test.root')
+    fileName = cms.untracked.string('testTFWLiteSelector.root')
 )
 
 process.p = cms.Path(process.Thing*process.OtherThing)

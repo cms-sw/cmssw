@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 def checkPrefix(mainList, inputGTParams):
     """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
@@ -57,7 +58,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # if no GlobalTag ESSource module is given, load a "default" configuration
     if essource is None:
-        from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import GlobalTag as essource
+        from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
 
     # if a Global Tag is given, check for an "auto" tag, and look it up in autoCond.py
     # if a match is found, load the actual Global Tag and optional conditions
@@ -67,7 +68,8 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             globaltag = globaltag[5:]
             if globaltag not in autoCond:
                 raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
-
+            if 'phase1_2017_design' == globaltag:
+                sys.stderr.write('Warning: %s now points to %s. This has reco- Beamspot centered to (0,0,0)'%(globaltag,autoCond[globaltag]))
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
@@ -79,18 +81,19 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                   label      = len(entry) > 3 and entry[3] or None
                   tag        = entry[0]
                   connection = len(entry) > 2 and entry[2] or None
-                  map[ (record, label) ] = (tag, connection)
+                  snapshotTime = len(entry) > 4 and entry[4] or None
+                  map[ (record, label) ] = (tag, connection, snapshotTime)
                 custom_conditions.update( map )
             else:
                 globaltag = autoKey
 
+        
         # if a GlobalTag globaltag is given or loaded from autoCond.py, check for optional connection string and pfn prefix
         globaltag = globaltag.split(',')
         if len(globaltag) > 0 :
             # Perform any alias expansion and consistency check.
             # We are assuming the same connection and pfnPrefix/Postfix will be used for all GTs.
             globaltag[0] = combineGTs(globaltag[0])
-            print "globaltag =", globaltag[0]
             essource.globaltag = cms.string( str(globaltag[0]) )
         if len(globaltag) > 1:
             essource.connect   = cms.string( str(globaltag[1]) )
@@ -110,23 +113,26 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 label      = len(entry) > 3 and entry[3] or None
                 tag        = entry[0]
                 connection = len(entry) > 2 and entry[2] or None
-                map[ (record, label) ] = (tag, connection)
+                snapshotTime = len(entry) > 4 and entry[4] or None
+                map[ (record, label) ] = (tag, connection, snapshotTime)
             custom_conditions.update( map )
         elif isinstance(conditions, dict):
           custom_conditions.update( conditions )
         else:
-          raise TypeError, "the 'conditions' argument should be either a string or a dictionary"
+          raise TypeError("the 'conditions' argument should be either a string or a dictionary")
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection) ) in custom_conditions.iteritems():
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.iteritems()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:
                 payload.label = cms.untracked.string( label )
             payload.tag = cms.string( tag )
             if connection:
-                payload.connect = cms.untracked.string( connection )
+                payload.connect = cms.string( connection )
+            if snapshotTime:
+                payload.snapshotTime = cms.string( snapshotTime )
             essource.toGet.append( payload )
 
     return essource

@@ -35,13 +35,13 @@ void SiStripModuleTimer::endJob() {
 void SiStripModuleTimer::analyze( const Event& iEvent, const EventSetup& iSetup ) {
 
   times_.assign(moduleLabels_.size(),0.);
-  auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
-  HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
-  for (;imodule != hltinfo->endModules(); imodule++) {
-    for (unsigned short i=0; i<moduleLabels_.size(); i++) {
-      if (imodule->name() == moduleLabels_[i]) times_[i]=imodule->time();
-    }
-  }
+  //auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
+  //HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
+  //for (;imodule != hltinfo->endModules(); imodule++) {
+  //  for (unsigned short i=0; i<moduleLabels_.size(); i++) {
+  //    if (imodule->name() == moduleLabels_[i]) times_[i]=imodule->time();
+  //  }
+  //}
   tree_->Fill();
 }
 

@@ -21,7 +21,7 @@ idealForDigiCSCGeometry.alignmentsLabel = 'fakeForIdeal'
 #    bool iovIsRunNotTime = true
 #}
 #es_source fakeCSCAlignmentErrorSource = EmptyESSource {
-#    string recordName = "CSCAlignmentErrorRcd"
+#    string recordName = "CSCAlignmentErrorExtendedRcd"
 #    vuint32 firstValid = {1}
 #    bool iovIsRunNotTime = true
 #}

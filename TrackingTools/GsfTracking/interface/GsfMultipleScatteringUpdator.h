@@ -11,7 +11,7 @@
  *  velocity and Xs=X0*h(Z).
  */
 
-class GsfMultipleScatteringUpdator GCC11_FINAL : public GsfMaterialEffectsUpdator {
+class GsfMultipleScatteringUpdator final : public GsfMaterialEffectsUpdator {
 
 public:
 

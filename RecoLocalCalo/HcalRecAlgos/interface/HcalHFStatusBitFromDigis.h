@@ -3,7 +3,7 @@
 
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"

@@ -23,7 +23,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,9 +43,8 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 // forward declarations
 
@@ -56,9 +54,9 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       L1ConfigOnlineProdBase(const edm::ParameterSet&);
       ~L1ConfigOnlineProdBase();
 
-      boost::shared_ptr< TData > produce(const TRcd& iRecord);
+      virtual std::shared_ptr< TData > produce(const TRcd& iRecord);
 
-      virtual boost::shared_ptr< TData > newObject(
+      virtual std::shared_ptr< TData > newObject(
 	const std::string& objectKey ) = 0 ;
 
    private:
@@ -73,12 +71,11 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       // If bool is false, produce method should throw
       // DataAlreadyPresentException.
       bool getObjectKey( const TRcd& record,
-                         boost::shared_ptr< TData > data,
+                         std::shared_ptr< TData > data,
                          std::string& objectKey ) ;
 
       // For reading object directly from a CondDB w/o PoolDBOutputService
-      cond::DbConnection m_dbConnection ;
-      cond::DbSession m_dbSession ;
+      cond::persistency::Session m_dbSession ;
       bool m_copyFromCondDB ;
 };
 
@@ -87,7 +84,6 @@ template< class TRcd, class TData >
 L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::ParameterSet& iConfig)
    : m_omdsReader(),
      m_forceGeneration( iConfig.getParameter< bool >( "forceGeneration" ) ),
-     m_dbConnection(),
      m_dbSession(),
      m_copyFromCondDB( false )
 {
@@ -103,14 +99,12 @@ L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::Parameter
 
       if( m_copyFromCondDB )
 	{
-	  // Connect DbSession
-	  m_dbConnection.configuration().setAuthenticationPath(
+	  cond::persistency::ConnectionPool connectionPool;
+	  // Connect DB Session
+	  connectionPool.setAuthenticationPath(
 	     iConfig.getParameter< std::string >( "onlineAuthentication" ) ) ;
-	  m_dbConnection.configure() ;
-	  m_dbSession = m_dbConnection.createSession() ;
-	  m_dbSession.open(
-			   iConfig.getParameter< std::string >( "onlineDB" ),
-			   true ); // read-only
+	  connectionPool.configure() ;
+	  m_dbSession = connectionPool.createSession( iConfig.getParameter< std::string >( "onlineDB" ) ) ;
 	}
     }
   else
@@ -131,11 +125,11 @@ L1ConfigOnlineProdBase<TRcd, TData>::~L1ConfigOnlineProdBase()
 }
 
 template< class TRcd, class TData >
-boost::shared_ptr< TData >
+std::shared_ptr< TData >
 L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 {
    using namespace edm::es;
-   boost::shared_ptr< TData > pData ;
+   std::shared_ptr< TData > pData ;
 
    // Get object key and check if already in ORCON
    std::string key ;
@@ -166,10 +160,9 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 	 // Copied from l1t::DataWriter::readObject()
 	 if( !payloadToken.empty() )
 	   {
-	     cond::DbScopedTransaction tr( m_dbSession ) ;
-	     tr.start( true ) ; 
-	     pData = m_dbSession.getTypedObject<TData>( payloadToken ) ;
-	     tr.commit ();
+	     m_dbSession.transaction().start() ; 
+	     pData = m_dbSession.fetchPayload<TData>( payloadToken ) ;
+	     m_dbSession.transaction().commit ();
 	   }
        }
      else
@@ -178,7 +171,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
        }
 
      //     if( pData.get() == 0 )
-     if( pData == boost::shared_ptr< TData >() )
+     if( pData == std::shared_ptr< TData >() )
        {
 	 std::string dataType = edm::typelookup::className<TData>();
 
@@ -203,7 +196,7 @@ template< class TRcd, class TData >
 bool 
 L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
   const TRcd& record,
-  boost::shared_ptr< TData > data,
+  std::shared_ptr< TData > data,
   std::string& objectKey )
 {
    // Get L1TriggerKey

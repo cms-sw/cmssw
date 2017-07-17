@@ -5,9 +5,9 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
-class GeomDetUnit;
 
-class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit {
+
+class TRecHit5DParamConstraint final : public TransientTrackingRecHit {
 
 private:
 
@@ -61,7 +61,7 @@ public:
 
   virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
     //return new TRecHit5DParamConstraint( this->trajectoryState() );
-    return new TRecHit5DParamConstraint( tsos );
+    return RecHitPointer(new TRecHit5DParamConstraint( tsos ));
   }
 
   static TransientTrackingRecHit::RecHitPointer build( const TrajectoryStateOnSurface& tsos ) {

@@ -33,6 +33,8 @@ unreliable if such duplicate entries are made.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 #include <algorithm>
 #include <typeinfo>
 #include <vector>
@@ -99,6 +101,13 @@ namespace edm {
     //SortedCollection(InputIterator b, InputIterator e);
 
     void push_back(T const& t);
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    void push_back(T && t) { obj.push_back(t);}
+
+    template<typename... Args >
+    void emplace_back( Args&&... args ) { obj.emplace_back(args...);}
+#endif
+    void pop_back() { obj.pop_back(); }
 
     void swap(SortedCollection& other);
 
@@ -146,7 +155,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -365,7 +374,7 @@ namespace edm {
   void
   SortedCollection<T, SORT>::fillView(ProductID const& id,
                                      std::vector<void const*>& pointers,
-                                     helper_vector& helpers) const {
+                                     FillViewHelperVector& helpers) const {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
 
@@ -443,7 +452,7 @@ namespace edm {
   fillView(SortedCollection<T, SORT> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

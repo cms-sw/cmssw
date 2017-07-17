@@ -11,19 +11,19 @@
 
 using namespace reco;
 
-class CaloRecoTauDiscriminationByLeadingTrackPtCut : public CaloTauDiscriminationProducerBase {
+class CaloRecoTauDiscriminationByLeadingTrackPtCut final : public CaloTauDiscriminationProducerBase {
    public:
       explicit CaloRecoTauDiscriminationByLeadingTrackPtCut(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
          minPtLeadTrack_ = iConfig.getParameter<double>("MinPtLeadingTrack");
       }
       ~CaloRecoTauDiscriminationByLeadingTrackPtCut(){} 
-      double discriminate(const CaloTauRef& theCaloTauRef) override;
+      double discriminate(const CaloTauRef& theCaloTauRef) const override;
 
    private:
       double minPtLeadTrack_;
 };
 
-double CaloRecoTauDiscriminationByLeadingTrackPtCut::discriminate(const CaloTauRef& theCaloTauRef)
+double CaloRecoTauDiscriminationByLeadingTrackPtCut::discriminate(const CaloTauRef& theCaloTauRef) const
 {
    double leadTrackPt_ = -1;
 
@@ -42,7 +42,7 @@ DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
    iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
    double theleadTrackPtCutDiscriminator = 0.;
-   auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorByLeadingTrackPtCut(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
+   auto theCaloTauDiscriminatorByLeadingTrackPtCut = std::make_unique<CaloTauDiscriminator>(CaloTauRefProd(theCaloTauCollection));
 
    //loop over the CaloTau candidates
    for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
@@ -57,7 +57,7 @@ DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
       theCaloTauDiscriminatorByLeadingTrackPtCut->setValue(iCaloTau,theleadTrackPtCutDiscriminator);
    }
 
-   iEvent.put(theCaloTauDiscriminatorByLeadingTrackPtCut);
+   iEvent.put(std::move(theCaloTauDiscriminatorByLeadingTrackPtCut));
 
 }
    

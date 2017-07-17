@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,10 +13,10 @@
 #include "MaterialAccountingGroup.h"
 #include "TrackingMaterialPlotter.h"
 
-class TrackingMaterialAnalyser : public edm::EDAnalyzer
+class TrackingMaterialAnalyser : public edm::one::EDAnalyzer<>
 {
 public:
-  TrackingMaterialAnalyser(const edm::ParameterSet &);
+  explicit TrackingMaterialAnalyser(const edm::ParameterSet &);
   virtual ~TrackingMaterialAnalyser();
   
 private:
@@ -38,7 +38,7 @@ private:
   void saveXml(const char* name);
   void saveLayerPlots();
   
-  edm::InputTag                             m_material;
+  edm::EDGetTokenT<std::vector<MaterialAccountingTrack> > m_materialToken;
   SplitMode                                 m_splitMode;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;

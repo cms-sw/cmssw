@@ -33,7 +33,7 @@ MonPedestalsDat::~MonPedestalsDat()
 
 
 void MonPedestalsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -53,7 +53,7 @@ void MonPedestalsDat::prepareWrite()
 
 
 void MonPedestalsDat::writeDB(const EcalLogicID* ecid, const MonPedestalsDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -84,7 +84,7 @@ void MonPedestalsDat::writeDB(const EcalLogicID* ecid, const MonPedestalsDat* it
 
 
 void MonPedestalsDat::fetchData(map< EcalLogicID, MonPedestalsDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -134,7 +134,7 @@ void MonPedestalsDat::fetchData(map< EcalLogicID, MonPedestalsDat >* fillMap, Mo
 }
 
 void MonPedestalsDat::writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

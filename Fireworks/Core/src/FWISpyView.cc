@@ -11,11 +11,16 @@
 //
 
 // system include files
+#include <boost/bind.hpp>
 
 // user include files
 #include "TGLViewer.h"
-
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWISpyView.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "TEveBoxSet.h"
+#include "TEveScene.h"
+#include "TEveManager.h"
 
 
 //
@@ -29,11 +34,11 @@
 //
 // constructors and destructor
 //
-FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId):
-   FW3DViewBase(slot, typeId)
+FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId, unsigned int version):
+    FW3DViewBase(slot, typeId, version)
 {
-   viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
 }
+
 
 // FWISpyView::FWISpyView(const FWISpyView& rhs)
 // {
@@ -44,26 +49,16 @@ FWISpyView::~FWISpyView()
 {
 }
 
-//
-// assignment operators
-//
-// const FWISpyView& FWISpyView::operator=(const FWISpyView& rhs)
-// {
-//   //An exception safe implementation is
-//   FWISpyView temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
-//
-// member functions
-//
+void FWISpyView::setContext(const fireworks::Context& x)
+{
+    FW3DViewBase::setContext(x);
+}
 
-//
-// const member functions
-//
 
-//
-// static member functions
-//
+
+void 
+FWISpyView::populateController(ViewerParameterGUI& gui) const
+{
+   FW3DViewBase::populateController(gui);
+}

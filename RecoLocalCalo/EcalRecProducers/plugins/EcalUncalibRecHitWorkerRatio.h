@@ -8,7 +8,7 @@
   *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
   */
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface//EcalUncalibRecHitRatioMethodAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
@@ -19,16 +19,20 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+	class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
         public:
                 EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&, edm::ConsumesCollector& c);
+		EcalUncalibRecHitWorkerRatio() {};
                 virtual ~EcalUncalibRecHitWorkerRatio() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+		
+		edm::ParameterSetDescription getAlgoDescription();
 
         protected:
 

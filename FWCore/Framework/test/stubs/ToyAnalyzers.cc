@@ -10,6 +10,9 @@ Toy EDAnalyzers for testing purposes only.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,6 +64,95 @@ namespace edmtest {
         throw cms::Exception("ValueMissMatch")
           << "The value for \"" << moduleLabel_ << "\" is "
           << handle->value << " but it was supposed to be " << value_;
+      }
+    }
+  private:
+    int value_;
+    edm::InputTag moduleLabel_;
+  };
+
+  //--------------------------------------------------------------------
+  //
+  class IntConsumingAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    IntConsumingAnalyzer(edm::ParameterSet const& iPSet)
+     {
+      consumes<IntProduct>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
+    }
+    
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("getFromModule");
+      descriptions.add("consumeInt", desc);
+
+    }
+
+    
+  };
+  //--------------------------------------------------------------------
+  //
+  class IntFromRunConsumingAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    IntFromRunConsumingAnalyzer(edm::ParameterSet const& iPSet)
+    {
+      consumes<IntProduct, edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
+    }
+    
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("getFromModule");
+      descriptions.add("consumeInt", desc);
+      
+    }
+    
+    
+  };
+  //--------------------------------------------------------------------
+  //
+  class ConsumingStreamAnalyzer : public edm::stream::EDAnalyzer<> {
+  public:
+    ConsumingStreamAnalyzer(edm::ParameterSet const& iPSet) :
+      value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
+      mayConsume<IntProduct>(moduleLabel_);
+    }
+
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+      edm::Handle<IntProduct> handle;
+      iEvent.getByLabel(moduleLabel_, handle);
+      if(handle->value != value_) {
+        throw cms::Exception("ValueMissMatch")
+          << "The value for \"" << moduleLabel_ << "\" is "
+          << handle->value << " but it was supposed to be " << value_;
+      }
+    }
+  private:
+    int value_;
+    edm::InputTag moduleLabel_;
+  };
+
+  //--------------------------------------------------------------------
+  //
+  class ConsumingOneSharedResourceAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+  public:
+    ConsumingOneSharedResourceAnalyzer(edm::ParameterSet const& iPSet) :
+    value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+    moduleLabel_(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel")) {
+      mayConsume<IntProduct>(moduleLabel_);
+      usesResource(iPSet.getUntrackedParameter<std::string>("resourceName"));
+    }
+    
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+      edm::Handle<IntProduct> handle;
+      iEvent.getByLabel(moduleLabel_, handle);
+      if(handle->value != value_) {
+        throw cms::Exception("ValueMissMatch")
+        << "The value for \"" << moduleLabel_ << "\" is "
+        << handle->value << " but it was supposed to be " << value_;
       }
     }
   private:
@@ -173,10 +265,17 @@ namespace edmtest {
 
 using edmtest::NonAnalyzer;
 using edmtest::IntTestAnalyzer;
+using edmtest::IntConsumingAnalyzer;
+using edmtest::ConsumingStreamAnalyzer;
+using edmtest::ConsumingOneSharedResourceAnalyzer;
 using edmtest::SCSimpleAnalyzer;
 using edmtest::DSVAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
+DEFINE_FWK_MODULE(IntConsumingAnalyzer);
+DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
+DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
+DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
 

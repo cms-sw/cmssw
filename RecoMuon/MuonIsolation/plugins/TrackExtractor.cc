@@ -4,11 +4,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -16,15 +12,15 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-TrackExtractor::TrackExtractor( const ParameterSet& par ) :
-  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
+TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theTrackCollectionToken(iC.consumes<TrackCollection>(par.getParameter<edm::InputTag>("inputTrackCollection"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+  theBeamSpotToken(iC.consumes<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
@@ -49,15 +45,15 @@ reco::IsoDeposit::Veto TrackExtractor::veto(const reco::IsoDeposit::Direction & 
 
 IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
 {
-  static std::string metname = "MuonIsolation|TrackExtractor";
+  static const std::string metname = "MuonIsolation|TrackExtractor";
 
   reco::isodeposit::Direction muonDir(muon.eta(), muon.phi());
   IsoDeposit deposit(muonDir );
   deposit.setVeto( veto(muonDir) );
   deposit.addCandEnergy(muon.pt());
 
-  Handle<View<Track> > tracksH;
-  event.getByLabel(theTrackCollectionTag, tracksH);
+  Handle<TrackCollection> tracksH;
+  event.getByToken(theTrackCollectionToken, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
@@ -65,12 +61,12 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
   reco::TrackBase::Point beamPoint(0,0, 0);
 
-  if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
+  if (theBeamlineOption == "BeamSpotFromEvent"){
     //pick beamSpot
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;
 
-    event.getByLabel(theBeamSpotLabel,beamSpotH);
+    event.getByToken(theBeamSpotToken,beamSpotH);
 
     if (beamSpotH.isValid()){
       beamPoint = beamSpotH->position();
@@ -92,11 +88,11 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   TrackSelector::result_type sel_tracks = selection(*tracksH);
   LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
 
-  
+
   TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
   for (; tkI != sel_tracks.end(); ++tkI) {
     const reco::Track* tk = *tkI;
-    LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
+    LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= "
         << tk->eta() <<", phi= "<<tk->phi();
     reco::isodeposit::Direction dirTrk(tk->eta(), tk->phi());
     deposit.addDeposit(dirTrk, tk->pt());

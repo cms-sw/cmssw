@@ -19,11 +19,13 @@
 //
 
 // system include files
-
+#include <memory>
 // user include files
 
 // forward declarations
 namespace edm {
+  class ParameterSet;
+
   template<typename Base>
   class MakeModuleHelper
   {
@@ -36,7 +38,7 @@ namespace edm {
 
     template<typename T>
     static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
-      std::unique_ptr<T> module{new T(pset)};
+      auto module = std::make_unique<T>(pset);
       return std::unique_ptr<Base>(module.release());
     }
   };

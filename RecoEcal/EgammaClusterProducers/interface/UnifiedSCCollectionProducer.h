@@ -3,8 +3,11 @@
 
 #include <memory>
 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -12,7 +15,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class UnifiedSCCollectionProducer : public edm::EDProducer 
+class UnifiedSCCollectionProducer : public edm::stream::EDProducer<> 
 {
   
   public:

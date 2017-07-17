@@ -3,13 +3,16 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
@@ -18,7 +21,7 @@
 #include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-class PreshowerClusterProducer : public edm::EDProducer {
+class PreshowerClusterProducer : public edm::stream::EDProducer<> {
 
  public:
 

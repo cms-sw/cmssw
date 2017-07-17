@@ -18,8 +18,8 @@ class HLTCSCRing2or3Filter : public HLTFilter {
  public:
   explicit HLTCSCRing2or3Filter(const edm::ParameterSet&);
   ~HLTCSCRing2or3Filter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
@@ -28,4 +28,4 @@ class HLTCSCRing2or3Filter : public HLTFilter {
   double m_xWindow, m_yWindow;
 };
 
-#endif 
+#endif

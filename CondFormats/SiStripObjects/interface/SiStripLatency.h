@@ -1,6 +1,8 @@
 #ifndef SiStripLatency_h
 #define SiStripLatency_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
@@ -75,7 +77,9 @@ class SiStripLatency
     uint32_t detIdAndApv;
     unsigned char latency;
     unsigned char mode;
-  };
+  
+  COND_SERIALIZABLE;
+};
   typedef std::vector<Latency>::iterator latIt;
   typedef std::vector<Latency>::const_iterator latConstIt;
 
@@ -114,8 +118,6 @@ class SiStripLatency
   /// Prints the full list of all ranges and corresponding values of latency and mode
   void printDebug(std::stringstream & ss) const;
 
- private:
-
   struct OrderByDetIdAndApv
   {
     bool operator()(const Latency & lat1, const uint32_t detIdAndApv) const {
@@ -140,6 +142,8 @@ class SiStripLatency
     }
   };
 
+ private:
+
   /// Used to compute the position with the lower_bound binary search
   // If put in the cc file it will not know about the typedefs and the Latency class
   const latConstIt position(const uint32_t detId, const uint16_t apv) const
@@ -153,6 +157,8 @@ class SiStripLatency
     return pos;
   }
   std::vector<Latency> latencies_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -8,6 +8,7 @@ RootTree.h // used by ROOT input sources
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
@@ -28,26 +29,36 @@ class TTreeCache;
 
 namespace edm {
   class BranchKey;
-  class DelayedReader;
+  class RootDelayedReader;
   class InputFile;
   class RootTree;
+
+  class StreamContext;
+  class ModuleCallingContext;
+  
+  namespace signalslot {
+    template <typename T> class Signal;
+  }
+
 
   namespace roottree {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
     unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
     unsigned int const defaultLearningEntries = 20U;
     unsigned int const defaultNonEventLearningEntries = 1U;
-    typedef Long64_t EntryNumber;
+    typedef IndexIntoFile::EntryNumber_t EntryNumber;
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod) :
         branchDescription_(prod),
-        productBranch_(0),
-        provenanceBranch_(0),
-        classCache_(0) {}
+        productBranch_(nullptr),
+        provenanceBranch_(nullptr),
+        classCache_(nullptr),
+        offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
       mutable TClass* classCache_;
+      mutable Int_t offsetToWrapperBase_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
@@ -59,7 +70,7 @@ namespace edm {
   public:
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<InputFile> filePtr,
+    RootTree(std::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              unsigned int nIndexes,
              unsigned int maxVirtualSize,
@@ -84,8 +95,10 @@ namespace edm {
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
     bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
+    bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}
     void rewind() {entryNumber_ = 0;}
     void close();
+    bool skipEntries(unsigned int& offset);
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
     EntryNumber const& entries() const {return entries_;}
@@ -93,6 +106,7 @@ namespace edm {
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     DelayedReader* rootDelayedReader() const;
+    DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
@@ -100,7 +114,7 @@ namespace edm {
     }
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber_);
@@ -117,7 +131,7 @@ namespace edm {
 
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber);
@@ -147,13 +161,17 @@ namespace edm {
     void resetTraining() {trainNow_ = true;}
 
     BranchType branchType() const {return branchType_;}
+    
+    void setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
+
   private:
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
     void stopTraining();
 
-    boost::shared_ptr<InputFile> filePtr_;
+    std::shared_ptr<InputFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
@@ -164,17 +182,17 @@ namespace edm {
 // We use a smart pointer to own the TTreeCache.
 // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
 // So, we make sure to it is detached before closing the TFile so there is no double delete.
-    boost::shared_ptr<TTreeCache> treeCache_;
-    boost::shared_ptr<TTreeCache> rawTreeCache_;
-    mutable boost::shared_ptr<TTreeCache> triggerTreeCache_;
-    mutable boost::shared_ptr<TTreeCache> rawTriggerTreeCache_;
+    std::shared_ptr<TTreeCache> treeCache_;
+    std::shared_ptr<TTreeCache> rawTreeCache_;
+    mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
+    mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
     mutable std::unordered_set<TBranch*> trainedSet_;
     mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
-    boost::shared_ptr<BranchMap> branches_;
+    std::shared_ptr<BranchMap> branches_;
     bool trainNow_;
     EntryNumber switchOverEntry_;
     mutable EntryNumber rawTriggerSwitchOverEntry_;
@@ -186,7 +204,7 @@ namespace edm {
 // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
     bool enableTriggerCache_;
-    std::unique_ptr<DelayedReader> rootDelayedReader_;
+    std::unique_ptr<RootDelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility

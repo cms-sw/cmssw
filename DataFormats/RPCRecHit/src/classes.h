@@ -2,7 +2,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace { 
+namespace DataFormats_RPCRecHit {
   struct dictionary {
     std::pair<unsigned int, unsigned int> dummyrpc1;
     std::pair<unsigned long, unsigned long> dummyrpc2;

@@ -20,12 +20,14 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -35,12 +37,12 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 
-class HiEgammaSCCorrectionMaker : public edm::EDProducer {
+class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 	
    public:
      explicit HiEgammaSCCorrectionMaker(const edm::ParameterSet&);
      ~HiEgammaSCCorrectionMaker();
-     virtual void produce(edm::Event&, const edm::EventSetup&);
+     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 
@@ -59,8 +61,10 @@ class HiEgammaSCCorrectionMaker : public edm::EDProducer {
      double etThresh_;
      
      // vars to get products
-     edm::InputTag rHInputProducer_;
-     edm::InputTag sCInputProducer_;
+     edm::InputTag rHInputProducerTag_;
+     edm::InputTag sCInputProducerTag_;
+     edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
+     edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
 
      reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;

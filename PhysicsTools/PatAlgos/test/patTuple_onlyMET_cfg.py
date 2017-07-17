@@ -1,16 +1,14 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+#process.Tracer = cms.Service("Tracer")
+
 ## load met sequences up to patMETs
 process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
+patAlgosToolsTask.add(process.makePatMETsTask)
 
 ## make sure to keep the created objects
-process.out.outputCommands = ['keep *_patMETs*_*_*',]
-
-## let it run
-process.p = cms.Path(
-     process.makePatMETs
-)
+process.out.outputCommands = ['keep *_patMETs*_*_*']
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

@@ -7,13 +7,26 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 
 /**\class PFBlockProducer 
@@ -31,71 +44,27 @@ class FSimEvent;
 
 
 
-class PFBlockProducer : public edm::EDProducer {
+class PFBlockProducer : public edm::stream::EDProducer<> {
  public:
 
   explicit PFBlockProducer(const edm::ParameterSet&);
 
   ~PFBlockProducer();
   
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, 
+				    edm::EventSetup const&) override;
+
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-
-  
-
-  edm::InputTag   inputTagRecTracks_;
-  edm::InputTag   inputTagGsfRecTracks_;
-  edm::InputTag   inputTagConvBremGsfRecTracks_;
-  edm::InputTag   inputTagRecMuons_;
-  edm::InputTag   inputTagPFNuclear_;
-  edm::InputTag   inputTagPFClustersECAL_;
-  edm::InputTag   inputTagPFClustersHCAL_;
-  edm::InputTag   inputTagPFClustersHO_;
-  edm::InputTag   inputTagPFClustersHFEM_;
-  edm::InputTag   inputTagPFClustersHFHAD_;
-  edm::InputTag   inputTagPFClustersPS_;
-  edm::InputTag   inputTagPFConversions_;
-  edm::InputTag   inputTagPFV0_;
-  edm::InputTag   inputTagEGPhotons_;
-  edm::InputTag   inputTagSCBarrel_;
-  edm::InputTag   inputTagSCEndcap_;  
-  
-  // Link track and HCAL clusters to HO clusters ?
-  bool useHO_;
-
   /// verbose ?
   bool   verbose_;
-
-  /// use NuclearInteractions ?
-  bool   useNuclear_;
-
-  /// use EG photons ? 
-  bool useEGPhotons_;
   
-  /// use SuperClusters ? 
-  bool useSuperClusters_;  
-  
-  /// switch on/off Conversions
-  bool  useConversions_;  
-  
-  /// switch on/off Conversions Brem Recovery
-  bool   useConvBremGsfTracks_;
-
-  /// switch on/off V0
-  bool useV0_;
-
-  /// Particle Flow at HLT ?
-  bool usePFatHLT_;
-
-  // Glowinski & Gouzevitch
-  // Use the optimized KDTree Track/Ecal linker?
-  bool useKDTreeTrackEcalLinker_;
-  // !Glowinski & Gouzevitch
-
   /// Particle flow block algorithm 
   PFBlockAlgo            pfBlockAlgo_;
 
 };
+
+DEFINE_FWK_MODULE(PFBlockProducer);
 
 #endif

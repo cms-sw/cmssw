@@ -9,17 +9,8 @@
 #define __EcalDAQTowerStatusXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
-static const char CVSId__EcalDAQTowerStatusXMLTranslator[] = 
-"$Id: EcalDAQTowerStatusXMLTranslator.h,v 0 2010/05/31 fay Exp $";
-
-
-//class EcalDAQTowerStatus;
 
 class EcalDAQTowerStatusXMLTranslator {
 
@@ -32,7 +23,8 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalDAQTowerStatus& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalDAQTowerStatus& record);
 

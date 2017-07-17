@@ -23,7 +23,7 @@
 // system include files
 #include <sstream>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "Alignment/Geners/interface/CompressedIO.hh"
 
@@ -50,7 +50,7 @@
 // record types.
 //
 template<class CorrectorSequence>
-static boost::shared_ptr<CorrectorSequence>
+static std::shared_ptr<CorrectorSequence>
 buildCorrectorSequence(
     const FFTJetCorrectorParameters& tablePars,
     const std::vector<edm::ParameterSet>& sequence,
@@ -70,7 +70,7 @@ buildCorrectorSequence(
     }
 
     // Create an empty corrector sequence
-    boost::shared_ptr<CorrectorSequence> ptr(new CorrectorSequence());
+    auto ptr = std::make_shared<CorrectorSequence>();
 
     // Go over the parameter sets in the VPSet and
     // configure all correction levels. Add each new
@@ -113,7 +113,7 @@ public:
         FFTJetCorrectorTransientFromJet,
         FFTJetCorrectorResultFromTransient
     > CorrectorSequence;
-    typedef boost::shared_ptr<CorrectorSequence> ReturnType;
+    typedef std::shared_ptr<CorrectorSequence> ReturnType;
     typedef FFTJetCorrectorSequenceRcd<CT> MyRecord;
     typedef FFTJetCorrectorParametersRcd<CT> ParentRecord;
 

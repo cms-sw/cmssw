@@ -6,20 +6,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
+
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
- #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
 #include "G4ParticleTable.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
-	     SensitiveDetectorCatalog & clg, 
+	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");

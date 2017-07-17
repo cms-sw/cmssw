@@ -22,8 +22,7 @@ class PTStatistics: public std::vector<long long> {
     long double eff(int ptCut);
     std::string toString();
     
-    static bool rateInitilized;
-    static std::vector<long double> m_rates; // used for pur calculation
+    static const std::vector<long double> m_rates; // used for pur calculation
     
 };
 

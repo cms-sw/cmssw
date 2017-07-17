@@ -15,15 +15,15 @@
 
 namespace edm {
   
-  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg) :
     modRegistry_(new ModuleRegistry),
     m_workerMap(),
     actReg_(areg)
   {
   }
   
-  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ModuleRegistry> modReg):
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ModuleRegistry> modReg):
   modRegistry_(modReg),
   m_workerMap(),
   actReg_(areg)
@@ -52,7 +52,7 @@ namespace edm {
       workerPtr->setActivityRegistry(actReg_);
 
       // Transfer ownership of worker to the registry
-      m_workerMap[moduleLabel].reset(workerPtr.release());
+      m_workerMap[moduleLabel] = std::shared_ptr<Worker>(workerPtr.release()); // propagate_const<T> has no reset() function
       return m_workerMap[moduleLabel].get(); 
     } 
     return (workerIt->second.get());

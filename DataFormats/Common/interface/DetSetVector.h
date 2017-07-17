@@ -39,10 +39,8 @@ behavior (usually a core dump).
 #include <iterator>
 #include <vector>
 
+#include <type_traits>
 #include "boost/concept_check.hpp"
-#include "boost/mpl/if.hpp"
-#include "boost/bind.hpp"
-
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -85,10 +83,10 @@ namespace edm {
   // T is defined to inherit from DoNotSortUponInsertion).
 
   template <class T>
-  class DetSetVector : 
-    public boost::mpl::if_c<boost::is_base_of<edm::DoNotSortUponInsertion, T>::value,
+  class DetSetVector :
+    public std::conditional_t<std::is_base_of<edm::DoNotSortUponInsertion, T>::value,
 			    edm::DoNotSortUponInsertion,
-			    Other>::type
+			    Other>
   {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.
@@ -148,6 +146,9 @@ namespace edm {
     /// Return the number of contained DetSets
     size_type size() const;
 
+   // reserve...
+   void reserve(size_t s) { _sets.reserve(s);}
+
     // Do we need a short-hand method to return the number of T
     // instances? If so, do we optimize for size (calculate on the
     // fly) or speed (keep a current cache)?
@@ -181,7 +182,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+		  FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
@@ -262,7 +263,11 @@ namespace edm {
 
     // Insert the right thing, in the right place, and return a
     // reference to the newly inserted thing.
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    return *(_sets.emplace(p.first, id));
+#else
     return *(_sets.insert(p.first, detset(id)));
+#endif
   }
 
   template <class T>
@@ -373,18 +378,20 @@ namespace edm {
   {
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
-		   boost::bind(&DetSet<T>::id,_1));
+		   std::bind(&DetSet<T>::id,std::placeholders::_1));
   }
 
   template <class T>
   inline
   void
   DetSetVector<T>::post_insert() {
+    _sets.shrink_to_fit();
     if (_alreadySorted) return; 
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
     for (; i != e; ++i) {
+      i->data.shrink_to_fit();
       // sort the Detset pointed to by
       std::sort(i->data.begin(), i->data.end());
     }
@@ -400,7 +407,7 @@ namespace edm {
   template<class T>
   void DetSetVector<T>::fillView(ProductID const& id,
 				 std::vector<void const*>& pointers,
-				 helper_vector& helpers) const
+				 FillViewHelperVector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
@@ -415,7 +422,7 @@ namespace edm {
   fillView(DetSetVector<T> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   helper_vector& helpers)
+	   FillViewHelperVector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }
@@ -461,6 +468,7 @@ namespace edm {
    //helper function to make it easier to create a edm::Ref
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              det_id_type iDetID,
@@ -483,6 +491,7 @@ namespace edm {
   }
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefToDetSetVector(const HandleT& iHandle,
              det_id_type iDetID,

@@ -17,6 +17,9 @@ class MagneticField ;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
  {
   public:
@@ -24,7 +27,8 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
     explicit ElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
     virtual ~ElectronTagProbeAnalyzer();
 
-    virtual void book() ;
+//    virtual void book() ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
     virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
 
   private:
@@ -35,12 +39,12 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 
     // general, collections
     int Selection_;
-    edm::InputTag electronCollection_;
-    edm::InputTag matchingObjectCollection_;
-    edm::InputTag gsftrackCollection_;
-    edm::InputTag trackCollection_;
-    edm::InputTag vertexCollection_;
-    edm::InputTag beamSpotTag_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> matchingObjectCollection_;
+    edm::EDGetTokenT<reco::GsfTrackCollection> gsftrackCollection_;
+    edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
     bool readAOD_; //NEW
 
 //    // matching
@@ -48,6 +52,11 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    double maxPtMatchingObject_; // SURE ?
 //    double maxAbsEtaMatchingObject_; // SURE ?
 //    double deltaR_;
+
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
 
     // tag and probe NEW
     double massLow_;

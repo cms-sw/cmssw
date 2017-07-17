@@ -3,33 +3,34 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
+#include <iostream>
+#include <memory>
 #include <string>
+#include <sys/time.h>
 #include <unistd.h>
+#include <vector>
 #include "zlib.h"
-
-static SerializeDataBuffer serialize_databuffer;
 
 namespace {
   //A utility function that packs bits from source into bytes, with
   // packInOneByte as the numeber of bytes that are packed from source to dest.
-  void printBits(unsigned char c) {
+/*  inline void printBits(unsigned char c) {
     for (int i = 7; i >= 0; --i) {
       int bit = ((c >> i) & 1);
       std::cout << " " << bit;
     }
-  }
+  } */
 
   void packIntoString(std::vector<unsigned char> const& source,
                       std::vector<unsigned char>& package) {
@@ -54,19 +55,22 @@ namespace {
 
 namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
-    OutputModule(ps),
+    one::OutputModuleBase::OutputModuleBase(ps),
+    one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
     selections_(&keptProducts()[InEvent]),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
     lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")),
     serializer_(selections_),
+    serializeDataBuffer_(),
     hltsize_(0),
     lumi_(0),
     l1bit_(0),
     hltbits_(0),
     origSize_(0),
     host_name_(),
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
     hltTriggerSelections_(),
     outputModuleId_(0) {
     // no compression as default value - we need this!
@@ -89,12 +93,10 @@ namespace edm {
         compressionLevel_ = 9;
       }
     }
-    serialize_databuffer.bufs_.resize(maxEventSize_);
+    serializeDataBuffer_.bufs_.resize(maxEventSize_);
     int got_host = gethostname(host_name_, 255);
     if(got_host != 0) strncpy(host_name_, "noHostNameFoundOrTooLong", sizeof(host_name_));
     //loadExtraClasses();
-    // do the line below instead of loadExtraClasses() to avoid Root errors
-    RootAutoLibraryLoader::enable();
 
     // 25-Jan-2008, KAB - pull out the trigger selection request
     // which we need for the INIT message
@@ -104,14 +106,16 @@ namespace edm {
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 
   void
-  StreamerOutputModuleBase::beginRun(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::beginRun(RunForOutput const&) {
     start();
-    std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
+    std::unique_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
+    serializeDataBuffer_.header_buf_.clear();
+    serializeDataBuffer_.header_buf_.shrink_to_fit();
   }
 
   void
-  StreamerOutputModuleBase::endRun(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::endRun(RunForOutput const&) {
     stop();
   }
 
@@ -124,27 +128,27 @@ namespace edm {
   }
 
   void
-  StreamerOutputModuleBase::writeRun(RunPrincipal const&, ModuleCallingContext const*) {}
+  StreamerOutputModuleBase::writeRun(RunForOutput const&) {}
 
   void
-  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) {}
+  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockForOutput const&) {}
 
   void
-  StreamerOutputModuleBase::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
-    std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e, mcc);
+  StreamerOutputModuleBase::write(EventForOutput const& e) {
+    std::unique_ptr<EventMsgBuilder> msg = serializeEvent(e);
     doOutputEvent(*msg); // You can't use msg in StreamerOutputModuleBase after this point
   }
 
-  std::auto_ptr<InitMsgBuilder>
+  std::unique_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
 
-    serializer_.serializeRegistry(serialize_databuffer, *branchIDLists());
+    serializer_.serializeRegistry(serializeDataBuffer_, *branchIDLists(), *thinnedAssociationsHelper());
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serialize_databuffer.currentSpaceUsed();
+    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
     unsigned int new_size = src_size + 50000;
-    if(serialize_databuffer.header_buf_.size() < new_size) serialize_databuffer.header_buf_.resize(new_size);
+    if(serializeDataBuffer_.header_buf_.size() < new_size) serializeDataBuffer_.header_buf_.resize(new_size);
 
     //Build the INIT Message
     //Following values are strictly DUMMY and will be replaced
@@ -152,8 +156,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    pset::Registry const& reg = *pset::Registry::instance();
-    ParameterSetID toplevel = pset::getProcessParameterSetID(reg);
+    ParameterSetID toplevel = moduleDescription().mainParameterSetID();
 
     //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
@@ -179,27 +182,34 @@ namespace edm {
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
-    std::auto_ptr<InitMsgBuilder> init_message(
-        new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
+    auto init_message = std::make_unique<InitMsgBuilder>(
+                           &serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
                            run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serialize_databuffer.adler32_chksum(), host_name_));
+                           (uint32)serializeDataBuffer_.adler32_chksum());
 
     // copy data into the destination message
-    unsigned char* src = serialize_databuffer.bufferPointer();
+    unsigned char* src = serializeDataBuffer_.bufferPointer();
     std::copy(src, src + src_size, init_message->dataAddress());
     init_message->setDataLength(src_size);
     return init_message;
   }
 
+  Trig
+  StreamerOutputModuleBase::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const {
+    Trig result;
+    e.getByToken<TriggerResults>(token, result);
+    return result;
+  }
+
   void
-  StreamerOutputModuleBase::setHltMask(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  StreamerOutputModuleBase::setHltMask(EventForOutput const& e) {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_, e);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 
@@ -235,8 +245,8 @@ namespace edm {
     if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
   }
 
-  std::auto_ptr<EventMsgBuilder>
-  StreamerOutputModuleBase::serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  std::unique_ptr<EventMsgBuilder>
+  StreamerOutputModuleBase::serializeEvent(EventForOutput const& e) {
     //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
@@ -246,7 +256,7 @@ namespace edm {
     l1bit_.push_back(false);
     //End of dummy data
 
-    setHltMask(e, mcc);
+    setHltMask(e);
 
     if (lumiSectionInterval_ == 0) {
       lumi_ = e.luminosityBlock();
@@ -254,19 +264,19 @@ namespace edm {
       setLumiSection();
     }
 
-    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serialize_databuffer, mcc);
+    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serializeDataBuffer_);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serialize_databuffer.currentSpaceUsed();
+    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
     unsigned int new_size = src_size + 50000;
-    if(serialize_databuffer.bufs_.size() < new_size) serialize_databuffer.bufs_.resize(new_size);
+    if(serializeDataBuffer_.bufs_.size() < new_size) serializeDataBuffer_.bufs_.resize(new_size);
 
-    std::auto_ptr<EventMsgBuilder>
-      msg(new EventMsgBuilder(&serialize_databuffer.bufs_[0], serialize_databuffer.bufs_.size(), e.id().run(),
+    auto msg = std::make_unique<EventMsgBuilder>(
+                              &serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_, 0,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
-                              (uint32)serialize_databuffer.adler32_chksum(), host_name_) );
+                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_);
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message
@@ -278,10 +288,10 @@ namespace edm {
     // size + overhead for header because we will not know the actual
     // compressed size.
 
-    unsigned char* src = serialize_databuffer.bufferPointer();
+    unsigned char* src = serializeDataBuffer_.bufferPointer();
     std::copy(src,src + src_size, msg->eventAddr());
     msg->setEventLength(src_size);
-    if(useCompression_) msg->setOrigDataSize(serialize_databuffer.currentEventSize());
+    if(useCompression_) msg->setOrigDataSize(serializeDataBuffer_.currentEventSize());
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;

@@ -9,7 +9,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <map>
 #include <set>
@@ -17,12 +17,15 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 class RPCRoll;
 class RPCGeometry;
 class RPCSimSetUp;
 class PSimHit;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class RPCSim
 {
@@ -34,11 +37,11 @@ class RPCSim
   virtual ~RPCSim(){};
 
   virtual void simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits)=0;
+			const edm::PSimHitContainer& rpcHits,
+                        CLHEP::HepRandomEngine*)=0;
 
-  virtual void simulateNoise(const RPCRoll* roll)=0;
-
-  virtual void setRandomEngine(CLHEP::HepRandomEngine& eng)=0;
+  virtual void simulateNoise(const RPCRoll* roll,
+                             CLHEP::HepRandomEngine*)=0;
 
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
 
@@ -55,6 +58,7 @@ class RPCSim
 
  protected:
   std::set< std::pair<int,int> > strips;
+  std::set<RPCDigi> irpc_digis;
 
   //--------NEW---------------------
 

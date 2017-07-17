@@ -22,7 +22,9 @@ Usage:
 
 namespace cond {
   class DataProxyWrapperBase;
-  class DbSession;
+  namespace persistency {
+    class Session;
+  }
 
   typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ()  > ProxyFactory;
 

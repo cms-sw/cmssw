@@ -7,7 +7,7 @@
 #include <fstream>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -26,14 +26,16 @@
 
 using namespace std;
 
-class RPCGeometryAnalyzer : public edm::EDAnalyzer {
+class RPCGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 
  public: 
   RPCGeometryAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCGeometryAnalyzer();
+  ~RPCGeometryAnalyzer() override;
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
  
   const std::string& myName() { return myName_;}
 
@@ -103,13 +105,13 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
    vlp.push_back(LocalPoint( 0, 0, 1));
 
 
-   for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+   for(auto it : pDD->dets()){
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
        ++iRPCCHcount;
-       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
 
        
        RPCDetId detId=ch->id();
@@ -119,12 +121,11 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	 //       "  "<<"Roll 1 = "<<(rollRaf->id()).rawId()<<std::endl;
 
        std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	   r != rollsRaf.end(); ++r){
+       for(auto & r : rollsRaf){
 
-	 if((*r)->id().region() == 0){
-	 std::cout<<"RPCDetId = "<<(*r)->id().rawId()<<std::endl;
-	 std::cout<<"Region = "<<(*r)->id().region()<<"  Ring = "<<(*r)->id().ring()<<"  Station = "<<(*r)->id().station()<<"  Sector = "<<(*r)->id().sector()<<"  Layer = "<<(*r)->id().layer()<<"  Subsector = "<<(*r)->id().subsector()<<"  Roll = "<<(*r)->id().roll()<<std::endl;
+	 if(r->id().region() == 0){
+	 std::cout<<"RPCDetId = "<<r->id().rawId()<<std::endl;
+	 std::cout<<"Region = "<<r->id().region()<<"  Ring = "<<r->id().ring()<<"  Station = "<<r->id().station()<<"  Sector = "<<r->id().sector()<<"  Layer = "<<r->id().layer()<<"  Subsector = "<<r->id().subsector()<<"  Roll = "<<r->id().roll()<<std::endl;
 	 }
        }
      }

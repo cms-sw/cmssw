@@ -5,4 +5,5 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/Candidate"/>
 </library>

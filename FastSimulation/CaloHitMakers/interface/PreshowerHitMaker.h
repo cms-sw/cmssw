@@ -6,6 +6,7 @@
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;
+class RandomEngineAndDistribution;
 
 class PreshowerHitMaker : public CaloHitMaker
 {
@@ -20,12 +21,13 @@ class PreshowerHitMaker : public CaloHitMaker
 		    const XYZVector& , 
 		    const XYZPoint& ,
 		    const XYZVector&,
-		    const LandauFluctuationGenerator* aGenerator);
+		    const LandauFluctuationGenerator* aGenerator,
+	            const RandomEngineAndDistribution* engine);
 
   ~PreshowerHitMaker() {;} 
   
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
-  bool addHit(double r,double phi,unsigned layer=0);
+  bool addHit(double r, double phi, unsigned layer=0);
 
   const std::map<CaloHitID,float>& getHits() { return hitMap_ ;} ;
  // for tuning
@@ -54,7 +56,7 @@ class PreshowerHitMaker : public CaloHitMaker
   float totalLayer2_;
   /// The Landau Fluctuation generator
   const LandauFluctuationGenerator*  theGenerator;
-
+  const RandomEngineAndDistribution* random;
 };
 
 #endif

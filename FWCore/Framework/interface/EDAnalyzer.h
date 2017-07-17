@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 #include <string>
 
@@ -14,6 +15,10 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -25,7 +30,7 @@ namespace edm {
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
 
-    EDAnalyzer() : moduleDescription_() {}
+    EDAnalyzer();
     virtual ~EDAnalyzer();
     
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
@@ -41,7 +46,11 @@ namespace edm {
 
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                 ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
+    //Needed by Worker but not something supported
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
@@ -55,9 +64,14 @@ namespace edm {
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doRegisterThinnedAssociations(ProductRegistry const&,
+                                       ThinnedAssociationsHelper&) { }
+
     void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
     virtual void beginJob(){}
@@ -68,13 +82,12 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
+    SharedResourcesAcquirer resourceAcquirer_;
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };

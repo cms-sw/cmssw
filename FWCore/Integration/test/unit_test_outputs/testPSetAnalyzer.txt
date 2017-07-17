@@ -1,13 +1,29 @@
 Lumi PSet test run: 1 luminosityBlock: 2
 LRange PSet test '1:2-4:4294967295'
-ERange PSet test '1:2-4:4294967295'
+ERange PSet test '1:2-4:18446744073709551615'
 VLumi PSet test run: 1 luminosityBlock: 2
 VLumi PSet test run: 2 luminosityBlock: 2
 VLumi PSet test run: 3 luminosityBlock: 3
 VLRange PSet test '1:2-4:4294967295'
 VLRange PSet test '99:99-99:99'
 VLRange PSet test '3:4-5:9'
-VERange PSet test '1:2-4:4294967295'
+VERange PSet test '1:2-4:18446744073709551615'
 VERange PSet test '99:99-99:99'
 VERange PSet test '3:4-5:9'
 VERange PSet test '9:9-11:1'
+EventID1 PSet test run: 1 lumi: 1 event: 1000123456789
+EventID2 PSet test run: 2 lumi: 0 event: 1000123456790
+EventID3 PSet test run: 3 lumi: 3 event: 1000123456791
+EventID4 PSet test run: 4 lumi: 0 event: 1000123456792
+ERange1 PSet test '1:2:1000123456789-2:3:1000123456790'
+ERange2 PSet test '3:1000123456791-4:1000123456792'
+ERange3 PSet test '5:6:1000123456793-5:6:1000123456793'
+ERange4 PSet test '7:8:1000123456794-9:10:1000123456795'
+ERange5 PSet test '11:1000123456796-12:1000123456797'
+VEventID PSet test run: 1 lumi: 1 event: 1000123456789
+VEventID PSet test run: 2 lumi: 0 event: 1000123456790
+VEventID PSet test run: 3 lumi: 3 event: 1000123456791
+VERange2 PSet test '1:2:1000123456789-2:3:1000123456790'
+VERange2 PSet test '1:2-4:1000123456789'
+VERange2 PSet test '3:1000123456791-4:1000123456792'
+VERange2 PSet test '11:1000123456796-12:1000123456797'

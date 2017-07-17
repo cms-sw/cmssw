@@ -110,9 +110,7 @@ hold the information giving the event numbers and
 event entry numbers.
 
 eventNumbers_ is a std::vector containing EventNumber_t's.
-Each element is a 4 byte int.  eventEntries_ is a
-std::vector containing EventEntry's.  Each EventEntry
-contains a 4 byte event number and an 8 byte entry number.
+eventEntries_ is a std::vector containing EventEntry's.
 If filled, both vectors contain the same number of
 entries with identical event numbers sorted in the
 same order.  The only difference is that one includes
@@ -168,15 +166,23 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <cassert>
 #include <iosfwd>
 #include <map>
 #include <set>
 #include <vector>
+
+class TestIndexIntoFile;
+class TestIndexIntoFile1;
+class TestIndexIntoFile2;
+class TestIndexIntoFile3;
+class TestIndexIntoFile4;
+class TestIndexIntoFile5;
 
 namespace edm {
 
@@ -338,6 +344,7 @@ namespace edm {
         }
 
       private:
+
         // All Runs, Lumis, and Events associated with the same
         // ProcessHistory and Run in the same input file are processed
         // contiguously.  This parameter establishes the default order
@@ -679,8 +686,8 @@ namespace edm {
         /// Returns the TTree entry of the first event which would be processed in the
         /// current run/lumi if all the events in the run/lumi were processed in the
         /// current processing order. If there are none it returns -1 (invalid).
-        EntryNumber_t firstEventEntryThisRun() const { return impl_->firstEventEntryThisRun(); }
-        EntryNumber_t firstEventEntryThisLumi() const { return impl_->firstEventEntryThisLumi(); }
+        EntryNumber_t firstEventEntryThisRun() { return impl_->firstEventEntryThisRun(); }
+        EntryNumber_t firstEventEntryThisLumi() { return impl_->firstEventEntryThisLumi(); }
 
         // This is intentionally not implemented.
         // It would be difficult to implement for the no sort mode,
@@ -759,7 +766,12 @@ namespace edm {
         void copyPosition(IndexIntoFileItr const& position);
 
       private:
-
+        //for testing
+        friend class ::TestIndexIntoFile;
+        friend class ::TestIndexIntoFile3;
+        friend class ::TestIndexIntoFile4;
+        friend class ::TestIndexIntoFile5;
+        
         // The rest of these are intended to be used only by code which tests
         // this class.
         IndexIntoFile const* indexIntoFile() const { return impl_->indexIntoFile(); }
@@ -920,9 +932,9 @@ namespace edm {
       /// This implies the client needs to define a class that inherits from
       /// EventFinder and then create one.  This function is used to pass in a
       /// pointer to its base class.
-      void setEventFinder(boost::shared_ptr<EventFinder> ptr) const {transient_.eventFinder_ = ptr;}
+      void setEventFinder(std::shared_ptr<EventFinder> ptr) const {transient_.eventFinder_ = ptr;}
 
-      /// Fills a vector of 4 byte event numbers.
+      /// Fills a vector of event numbers.
       /// Not filling it reduces the memory used by IndexIntoFile.
       /// As long as the event finder is still pointing at an open file
       /// this will automatically be called on demand (when the event
@@ -937,8 +949,8 @@ namespace edm {
       /// in the current file without reading them.
       void fillEventNumbers() const;
 
-      /// Fills a vector of objects that contain a 4 byte event number and
-      /// the corresponding TTree entry number (8 bytes) for the event.
+      /// Fills a vector of objects that contain an event number and
+      /// the corresponding TTree entry number for the event.
       /// Not filling it reduces the memory used by IndexIntoFile.
       /// As long as the event finder is still pointing at an open file
       /// this will automatically be called on demand (when the event
@@ -1009,7 +1021,7 @@ namespace edm {
         RunNumber_t currentRun_;
         LuminosityBlockNumber_t currentLumi_;
         EntryNumber_t numberOfEvents_;
-        boost::shared_ptr<EventFinder> eventFinder_;
+        edm::propagate_const<std::shared_ptr<EventFinder>> eventFinder_;
         std::vector<RunOrLumiIndexes> runOrLumiIndexes_;
         std::vector<EventNumber_t> eventNumbers_;
         std::vector<EventEntry> eventEntries_;
@@ -1018,12 +1030,20 @@ namespace edm {
 
     private:
 
+      //for testing
+      friend class ::TestIndexIntoFile;
+      friend class ::TestIndexIntoFile1;
+      friend class ::TestIndexIntoFile2;
+      friend class ::TestIndexIntoFile3;
+      friend class ::TestIndexIntoFile4;
+      friend class ::TestIndexIntoFile5;
+
       /// This function will automatically get called when needed.
       /// It depends only on the fact that the persistent data has been filled already.
       void fillRunOrLumiIndexes() const;
 
       void fillUnsortedEventNumbers() const;
-      void resetEventFinder() const {transient_.eventFinder_.reset();}
+      void resetEventFinder() const {transient_.eventFinder_ = nullptr;} // propagate_const<T> has no reset() function
       std::vector<EventEntry>& eventEntries() const {return transient_.eventEntries_;}
       std::vector<EventNumber_t>& eventNumbers() const {return transient_.eventNumbers_;}
       void sortEvents() const;

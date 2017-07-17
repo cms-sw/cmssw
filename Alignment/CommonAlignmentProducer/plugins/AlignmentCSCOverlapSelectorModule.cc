@@ -1,6 +1,7 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCOverlapSelector.h"
 
 // the following include is necessary to clone all track branches
@@ -13,9 +14,9 @@ struct CSCOverlapConfigSelector {
 
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
-  typedef reco::TrackCollection collection; 
+  typedef reco::TrackCollection collection;
 
-  CSCOverlapConfigSelector( const edm::ParameterSet & cfg ) :
+  CSCOverlapConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
     theSelector(cfg) {}
 
   const_iterator begin() const { return selected_.begin(); }
@@ -39,6 +40,6 @@ private:
   AlignmentCSCOverlapSelector theSelector;
 };
 
-typedef ObjectSelector<CSCOverlapConfigSelector>  AlignmentCSCOverlapSelectorModule;
+typedef ObjectSelectorStream<CSCOverlapConfigSelector>  AlignmentCSCOverlapSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentCSCOverlapSelectorModule );

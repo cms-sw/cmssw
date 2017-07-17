@@ -1,20 +1,20 @@
 /* \class ZMuMuAnalyzer_cynematics
  *
- * Z->mu+m- standard analysis for cross section 
+ * Z->mu+m- standard analysis for cross section
  * measurements. Take as input the output of the
  * standard EWK skim: zToMuMu
- * 
+ *
  * Produces mass spectra and other histograms for
  * the samples in input:
  *
  *  + Z -> mu+mu-, both muons are "global" muons
  *  + Z -> mu+mu-, one muons is "global" muons, one unmatched tracks
  *  + Z -> mu+mu-, one muons is "global" muons, one unmatched stand-alone muon
- * 
  *
- * \author Michele de Gruttola, 
+ *
+ * \author Michele de Gruttola,
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
- * 
+ *
  *
  *
  */
@@ -53,53 +53,57 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool isContained(const Candidate &, const Candidate &);
   virtual void endJob() override;
-  
+
   OverlapChecker overlap_;
-  InputTag zMuMu_;
-  InputTag zMuTrack_;
-  InputTag zMuStandAlone_;
-  InputTag  muIso_, trackIso_, standAloneIso_;
-  InputTag  zMuMuMap_ ,zMuTrackMap_, zMuStandAloneMap_;
+  EDGetTokenT<CandidateCollection> zMuMuToken_;
+  EDGetTokenT<CandidateCollection> zMuTrackToken_;
+  EDGetTokenT<CandidateCollection> zMuStandAloneToken_;
+  EDGetTokenT<IsolationCollection> muIsoToken_;
+  EDGetTokenT<IsolationCollection> trackIsoToken_;
+  EDGetTokenT<IsolationCollection> standAloneIsoToken_;
+  EDGetTokenT<CandMatchMap> zMuMuMapToken_;
+  EDGetTokenT<CandMatchMap> zMuTrackMapToken_;
+  EDGetTokenT<CandMatchMap> zMuStandAloneMapToken_;
   double isocut_, etacut_, ptcut_,ptSTAcut_,  minZmass_, maxZmass_;
   TH1D * h_zMuMu_numberOfCand, * h_zMuMu_numberOfCand_passed, * h_zMuMu_numberOfCand_ptpassed,* h_zMuMu_numberOfCand_etapassed,
-    * h_zMuMu_numberOfCand_masspassed, * h_zMuMu_numberOfCand_isopassed, * h_zMuMu_numberOfCand_ptetapassed, 
+    * h_zMuMu_numberOfCand_masspassed, * h_zMuMu_numberOfCand_isopassed, * h_zMuMu_numberOfCand_ptetapassed,
     * h_zMuMu_numberOfCand_ptetamasspassed, * h_zMuMu_mass_, * h_zMuSingleTrack_mass_, * h_zMuSingleStandAlone_mass_,
     * h_zMuSingleStandAloneOverlap_mass_, * h_zMuMuMatched_mass_, * h_zMuSingleTrackMatched_mass_,
-    * h_zMuSingleStandAloneMatched_mass_, 
+    * h_zMuSingleStandAloneMatched_mass_,
     * h_zMuSingleStandAloneOverlapMatched_mass_;
 
-  TH1D * h_zMuSta_numberOfCand,* h_zMuSta_numberOfCand_passed,* h_zMuSta_MCmatched_numberOfCand_passed, 
-    * h_zMuSta_numberOfCand_notcontained, 
+  TH1D * h_zMuSta_numberOfCand,* h_zMuSta_numberOfCand_passed,* h_zMuSta_MCmatched_numberOfCand_passed,
+    * h_zMuSta_numberOfCand_notcontained,
     * h_zMuTrack_numberOfCand, * h_zMuTrack_numberOfCand_notcontained, * h_zMuTrack_numberOfCand_passed,
-    * h_zMuTrack_MCmatched_numberOfCand_passed; 
+    * h_zMuTrack_MCmatched_numberOfCand_passed;
   TH2D * h_OneSta_mass;
 
   double etamin, etamax, phimin, phimax, ptmin, ptmax;
   int numberOfIntervals;        // number of intervals in which to divide cynematic variables
-  double binEta,binPhi, binPt; 
+  double binEta,binPhi, binPt;
   vector<TH1D *>  hmumu_eta, hmusta_eta, hmutrack_eta;
   vector<TH1D *>  hmumu_phi, hmusta_phi, hmutrack_phi;
   vector<TH1D *>  hmumu_pt, hmusta_pt, hmutrack_pt;
 
 };
 
-ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset) : 
-  zMuMu_( pset.getParameter<InputTag>( "zMuMu" ) ),
-  zMuTrack_( pset.getParameter<InputTag>( "zMuTrack" ) ),
-  zMuStandAlone_( pset.getParameter<InputTag>( "zMuStandAlone" ) ),
-  muIso_( pset.getParameter<InputTag>( "muIso" ) ),
-  trackIso_( pset.getParameter<InputTag>( "trackIso" ) ),
-  standAloneIso_( pset.getParameter<InputTag>( "standAloneIso" ) ),
-  zMuMuMap_( pset.getParameter<InputTag>( "zMuMuMap" ) ),
-  zMuTrackMap_( pset.getParameter<InputTag>( "zMuTrackMap" ) ),
-  zMuStandAloneMap_( pset.getParameter<InputTag>( "zMuStandAloneMap" ) ),
+ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset) :
+  zMuMuToken_( consumes< CandidateCollection >( pset.getParameter<InputTag>( "zMuMu" ) ) ),
+  zMuTrackToken_( consumes< CandidateCollection >( pset.getParameter<InputTag>( "zMuTrack" ) ) ),
+  zMuStandAloneToken_( consumes< CandidateCollection >( pset.getParameter<InputTag>( "zMuStandAlone" ) ) ),
+  muIsoToken_( consumes< IsolationCollection >( pset.getParameter<InputTag>( "muIso" ) ) ),
+  trackIsoToken_( consumes< IsolationCollection >( pset.getParameter<InputTag>( "trackIso" ) ) ),
+  standAloneIsoToken_( consumes< IsolationCollection >( pset.getParameter<InputTag>( "standAloneIso" ) ) ),
+  zMuMuMapToken_( mayConsume< CandMatchMap >( pset.getParameter<InputTag>( "zMuMuMap" ) ) ),
+  zMuTrackMapToken_( mayConsume< CandMatchMap >( pset.getParameter<InputTag>( "zMuTrackMap" ) ) ),
+  zMuStandAloneMapToken_( mayConsume< CandMatchMap >( pset.getParameter<InputTag>( "zMuStandAloneMap" ) ) ),
   isocut_( pset.getParameter<double>( "isocut" ) ),
   etacut_( pset.getParameter<double>( "etacut" ) ),
   ptcut_( pset.getParameter<double>( "ptcut" ) ),
-  ptSTAcut_( pset.getParameter<double>( "ptSTAcut" ) ),  
+  ptSTAcut_( pset.getParameter<double>( "ptSTAcut" ) ),
   minZmass_( pset.getParameter<double>( "minZmass" )),
   maxZmass_( pset.getParameter<double>( "maxZmass" )) {
-  
+
   Service<TFileService> fs;
   h_zMuMu_numberOfCand = fs->make<TH1D>("ZMuMunumberOfCand","number of ZMuMu cand",10, -.5, 9.5);
   h_zMuMu_numberOfCand_passed = fs->make<TH1D>("ZMuMunumberOfCandpassed","number of ZMuMu cand selected",10, -.5, 9.5);
@@ -115,13 +119,13 @@ ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset
   h_zMuSingleTrack_mass_ = fs->make<TH1D>( "ZMuSingleTrackmass", "ZMuSingleTrack mass(GeV)", 100,  0., 200. );
   h_zMuSingleStandAlone_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemass", "ZMuSingleStandAlone mass(GeV)", 50,  0., 200. );
   h_zMuSingleStandAloneOverlap_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmass", "ZMuSingleStandAloneOverlap  mass(GeV)", 50,  0., 200. );
-  
-  
+
+
   h_zMuMuMatched_mass_ = fs->make<TH1D>( "ZMuMuMatchedmass", "ZMuMu Matched  mass(GeV)", 200,  0., 200. );
   h_zMuSingleTrackMatched_mass_ = fs->make<TH1D>( "ZMuSingleTrackmassMatched", "ZMuSingleTrackMatched mass(GeV)", 100,  0., 200. );
   h_zMuSingleStandAloneMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemassMatched", "ZMuSingleStandAloneMatched mass(GeV)", 50,  0., 200. );
   h_zMuSingleStandAloneOverlapMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmassMatched", "ZMuSingleStandAloneMatched Overlap  mass(GeV)", 50,  0., 200. );
-  
+
   h_zMuSta_numberOfCand = fs->make<TH1D>("ZMuStanumberOfCand","number of ZMuSta cand (if ZMuMu not selected)",10, -.5, 9.5);
   h_OneSta_mass = fs->make<TH2D>("ZOneMuStaMass","inv. mass of ZMuSta1 vs ZMuSta2 when one ZMuSta has been found (if ZMuMu not selected)",100, 0., 400, 100, 0., 400.);
   h_zMuSta_numberOfCand_notcontained = fs->make<TH1D>("ZMuStanumberOfCandnotcontained","number of independent ZMuSta cand (if ZMuMu not selected)",10, -.5, 9.5);
@@ -142,9 +146,9 @@ ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset
   ptmin = ptcut_;
   ptmax = 100;
   numberOfIntervals = 8;        // number of intervals in which to divide cynematic variables
-  binEta = (etamax - etamin)/numberOfIntervals; 
-  binPhi = (phimax - phimin)/numberOfIntervals; 
-  binPt = (ptmax - ptmin)/numberOfIntervals; 
+  binEta = (etamax - etamin)/numberOfIntervals;
+  binPhi = (phimax - phimin)/numberOfIntervals;
+  binPt = (ptmax - ptmin)/numberOfIntervals;
   TFileDirectory etaDirectory = fs->mkdir("etaIntervals");   // in this directory will be saved all the histos of different eta intervals
   TFileDirectory phiDirectory = fs->mkdir("phiIntervals");   // in this directory will be saved all the histos of different phi intervals
   TFileDirectory ptDirectory = fs->mkdir("ptIntervals");   // in this directory will be saved all the histos of different pt intervals
@@ -166,7 +170,7 @@ ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset
     sprintf(atk,"zmutrack_etaRange%d",i);
     sprintf(btk,"zmutrack mass eta Range %f to %f",range0,range1);
     hmutrack_eta.push_back(etaDirectory.make<TH1D>(atk,btk,100,0.,200.));
-  } 
+  }
 
   // phi histograms creation
 
@@ -185,7 +189,7 @@ ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset
     sprintf(atk,"zmutrack_phiRange%d",i);
     sprintf(btk,"zmutrack mass phi Range %f to %f",range0,range1);
     hmutrack_phi.push_back(phiDirectory.make<TH1D>(atk,btk,100,0.,200.));
-  } 
+  }
 
   // pt histograms creation
 
@@ -204,16 +208,16 @@ ZMuMuAnalyzer_cynematics::ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset
     sprintf(atk,"zmutrack_ptRange%d",i);
     sprintf(btk,"zmutrack mass pt Range %f to %f",range0,range1);
     hmutrack_pt.push_back(ptDirectory.make<TH1D>(atk,btk,100,0.,200.));
-  } 
+  }
  }
 
 void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<CandidateCollection> zMuMu;
-  event.getByLabel(zMuMu_, zMuMu);
+  event.getByToken(zMuMuToken_, zMuMu);
   Handle<CandidateCollection> zMuTrack;
-  event.getByLabel( zMuTrack_, zMuTrack );
+  event.getByToken( zMuTrackToken_, zMuTrack );
   Handle<CandidateCollection> zMuStandAlone;
-  event.getByLabel( zMuStandAlone_, zMuStandAlone );  
+  event.getByToken( zMuStandAloneToken_, zMuStandAlone );
 
   unsigned int nZMuMu = zMuMu->size();
   unsigned int nZTrackMu = zMuTrack->size();
@@ -250,28 +254,28 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 
   Handle<CandMatchMap> zMuMuMap;
   if( nZMuMu > 0 ) {
-    event.getByLabel(zMuMuMap_, zMuMuMap);
+    event.getByToken(zMuMuMapToken_, zMuMuMap);
   }
 
   Handle<CandMatchMap> zMuTrackMap;
   if( nZTrackMu > 0 ) {
-    event.getByLabel( zMuTrackMap_, zMuTrackMap );
+    event.getByToken( zMuTrackMapToken_, zMuTrackMap );
   }
 
   Handle<CandMatchMap> zMuStandAloneMap;
   if( nZStandAloneMu > 0 ) {
-    event.getByLabel( zMuStandAloneMap_, zMuStandAloneMap );  
-  }    
+    event.getByToken( zMuStandAloneMapToken_, zMuStandAloneMap );
+  }
 
   Handle<IsolationCollection> muIso;
-  event.getByLabel(muIso_, muIso);
+  event.getByToken(muIsoToken_, muIso);
   ProductID muIsoId = muIso->keyProduct().id();
   Handle<IsolationCollection> trackIso;
-  event.getByLabel(trackIso_, trackIso);
+  event.getByToken(trackIsoToken_, trackIso);
   ProductID trackIsoId = trackIso->keyProduct().id();
-  
+
   Handle<IsolationCollection> standAloneIso;
-  event.getByLabel(standAloneIso_, standAloneIso);
+  event.getByToken(standAloneIsoToken_, standAloneIso);
   ProductID standAloneIsoId = standAloneIso->keyProduct().id();
 
   if (nZMuMu > 0) {
@@ -285,10 +289,10 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
       CandidateRef CandRef(zMuMu,i);
       CandidateRef lep1 = zmmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
       CandidateRef lep2 = zmmCand.daughter( 1 )->masterClone().castTo<CandidateRef>();
-      
-      const  double iso1 = muIso->value( lep1.key() );	
-      const  double iso2 = muIso->value( lep2.key() );	
-      
+
+      const  double iso1 = muIso->value( lep1.key() );
+      const  double iso2 = muIso->value( lep2.key() );
+
       double m = zmmCand.mass();
       // check single cuts
 
@@ -316,7 +320,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 
       if (ptcutAccept && etacutAccept && masscutAccept && isocutAccept)  {
 	ZMuMu_allcut_counter++;
-	h_zMuMu_mass_->Fill( m );	  
+	h_zMuMu_mass_->Fill( m );
 
 	// check the cynematics to fill correct histograms
 	for (int j=0;j<numberOfIntervals;j++) {
@@ -357,7 +361,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 	    hmumu_pt[j]->Fill(m);                               // If pt1 is in the same bin of pt2 fill just once
 	  }
 	}
-	
+
 	CandMatchMap::const_iterator m0 = zMuMuMap->find(CandRef);
 	if( m0 != zMuMuMap->end()) {                                            // the Z is matched to MC thruth
 	    h_zMuMuMatched_mass_->Fill( m );
@@ -375,7 +379,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   h_zMuMu_numberOfCand_ptetapassed->Fill(ZMuMu_ptetacut_counter);                 // number of Z cand afer pt&eta cut found per event
   h_zMuMu_numberOfCand_ptetamasspassed->Fill(ZMuMu_ptetamasscut_counter);         // number of Z cand afer pt&eta&mass cut found per event
 
-  
+
   //ZmuSingleStandAlone (check MuStandalone if MuMu has not been selected by cuts)
   //  cout << "ZMuMuanalyzer : n of zMuMu " << nZMuMu << " passed " << ZMuMu_passed << "     n. of zStaMu " << nZStandAloneMu << endl;
 
@@ -384,7 +388,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
     for( unsigned int j = 0; j < nZStandAloneMu; j++ ) {
       const Candidate & zsmCand = (*zMuStandAlone)[ j ];
       bool skipZ = false;
-      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuSTandalone is contained in a ZMuMu 
+      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuSTandalone is contained in a ZMuMu
 	const Candidate & zmmCand = (*zMuMu)[ i ];        // if yes .. the event has to be skipped
 	if (isContained(zmmCand,zsmCand)) skipZ=true;
       }
@@ -393,24 +397,24 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   	CandidateRef CandRef(zMuStandAlone,j);
 	CandidateRef lep1 = zsmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
 	CandidateRef lep2 = zsmCand.daughter( 1 )->masterClone().castTo<CandidateRef>();
-	
+
 	ProductID id1 = lep1.id();
 	ProductID id2 = lep2.id();
 	double iso1 = -1;
 	double iso2 = -1;
-	
-	if( id1 == muIsoId ) 
-	  iso1 = muIso->value( lep1.key() );	
+
+	if( id1 == muIsoId )
+	  iso1 = muIso->value( lep1.key() );
 	else if ( id1 == standAloneIsoId )
-	  iso1 = standAloneIso->value( lep1.key() );	
-	
-	if( id2 == muIsoId ) 
-	  iso2 = muIso->value( lep2.key() );	
+	  iso1 = standAloneIso->value( lep1.key() );
+
+	if( id2 == muIsoId )
+	  iso2 = muIso->value( lep2.key() );
 	else if ( id2 == standAloneIsoId )
-	  iso2 = standAloneIso->value( lep2.key() );	
-	
+	  iso2 = standAloneIso->value( lep2.key() );
+
 	double ms = zsmCand.mass();
-	if (lep1->pt()>ptSTAcut_ && lep2->pt()>ptSTAcut_ &&    
+	if (lep1->pt()>ptSTAcut_ && lep2->pt()>ptSTAcut_ &&
 	    fabs(lep1->eta())<etacut_ && fabs(lep2->eta())<etacut_ &&
 	    ms>minZmass_ && ms<maxZmass_ && iso1<isocut_ && iso2 <isocut_) {
 	  h_zMuSingleStandAlone_mass_->Fill( ms );
@@ -425,13 +429,13 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 	    double range1pt = range0pt + binPt;
 
 	    // check which muon is a standalone (standalone means that there is a reference missing.)
-	    if ((lep1->get<TrackRef,reco::StandAloneMuonTag>()).isNull()) 
+	    if ((lep1->get<TrackRef,reco::StandAloneMuonTag>()).isNull())
 	      {
 		if (lep1->eta()>=range0 && lep1->eta()<range1)  	hmusta_eta[j]->Fill(ms);
 		if (lep1->phi()>=range0phi && lep1->phi()<range1phi)	hmusta_phi[j]->Fill(ms);
 		if (lep1->pt()>=range0pt && lep1->pt()<range1pt)	hmusta_pt[j]->Fill(ms);
 	      }
-	    if ((lep2->get<TrackRef,reco::StandAloneMuonTag>()).isNull()) 
+	    if ((lep2->get<TrackRef,reco::StandAloneMuonTag>()).isNull())
 	      {
 		if (lep2->eta()>=range0 && lep2->eta()<range1)  	hmusta_eta[j]->Fill(ms);
 		if (lep2->phi()>=range0phi && lep2->phi()<range1phi)	hmusta_phi[j]->Fill(ms);
@@ -459,7 +463,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
     for( unsigned int j = 0; j < nZTrackMu; j++ ) {
       const Candidate & ztmCand = (*zMuTrack)[ j ];
       bool skipZ = false;
-      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuTrack is contained in a ZMuMu 
+      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuTrack is contained in a ZMuMu
 	const Candidate & zmmCand = (*zMuMu)[ i ];        // if yes .. the event has to be skipped
 	if (isContained(zmmCand,ztmCand)) skipZ=true;
       }
@@ -468,28 +472,28 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 	CandidateRef CandRef(zMuTrack,j);
 	CandidateRef lep1 = ztmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
 	CandidateRef lep2 = ztmCand.daughter( 1 )->masterClone().castTo<CandidateRef>();
-	
+
 	ProductID id1 = lep1.id();
 	ProductID id2 = lep2.id();
 	double iso1 = -1;
 	double iso2 = -1;
-	
-	if( id1 == muIsoId ) 
-	  iso1 = muIso->value( lep1.key() );	
+
+	if( id1 == muIsoId )
+	  iso1 = muIso->value( lep1.key() );
 	else if ( id1 == trackIsoId )
-	  iso1 = trackIso->value( lep1.key() );	
-	
-	if( id2 == muIsoId ) 
-	  iso2 = muIso->value( lep2.key() );	
+	  iso1 = trackIso->value( lep1.key() );
+
+	if( id2 == muIsoId )
+	  iso2 = muIso->value( lep2.key() );
 	else if ( id2 == trackIsoId )
-	  iso2 = trackIso->value( lep2.key() );	
-	
+	  iso2 = trackIso->value( lep2.key() );
+
 	double mt = ztmCand.mass();
-	if (lep1->pt()>ptcut_ && lep2->pt()>ptcut_ &&    
+	if (lep1->pt()>ptcut_ && lep2->pt()>ptcut_ &&
 	    fabs(lep1->eta())<etacut_ && fabs(lep2->eta())<etacut_ &&
 	    mt>minZmass_ && mt<maxZmass_ && iso1<isocut_ && iso2 <isocut_) {
 	  h_zMuSingleTrack_mass_->Fill( mt );
-	  ZMuTrack_passed++;            
+	  ZMuTrack_passed++;
 
 	  // check the cynematics to fill correct histograms
 	  for (int j=0;j<numberOfIntervals;j++) {
@@ -501,13 +505,13 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 	    double range1pt = range0pt + binPt;
 
 	    // check which muon is a track only (track only means that there is a reference missing.)
-	    if ((lep1->get<TrackRef,reco::StandAloneMuonTag>()).isNull()) 
+	    if ((lep1->get<TrackRef,reco::StandAloneMuonTag>()).isNull())
 	      {
 		if (lep1->eta()>=range0 && lep1->eta()<range1)  	hmutrack_eta[j]->Fill(mt);
 		if (lep1->phi()>=range0phi && lep1->phi()<range1phi)	hmutrack_phi[j]->Fill(mt);
 		if (lep1->pt()>=range0pt && lep1->pt()<range1pt)	hmutrack_pt[j]->Fill(mt);
 	      }
-	    if ((lep2->get<TrackRef,reco::StandAloneMuonTag>()).isNull()) 
+	    if ((lep2->get<TrackRef,reco::StandAloneMuonTag>()).isNull())
 	      {
 		if (lep2->eta()>=range0 && lep2->eta()<range1)  	hmutrack_eta[j]->Fill(mt);
 		if (lep2->phi()>=range0phi && lep2->phi()<range1phi)	hmutrack_phi[j]->Fill(mt);
@@ -528,12 +532,12 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
     h_zMuTrack_numberOfCand_passed->Fill(ZMuTrack_passed);        // number of ZMuTrack cand after all cuts found per event (no higher priority Z selected)
 
     h_zMuTrack_MCmatched_numberOfCand_passed->Fill(ZMuTrack_MCmatched_passed);
- 
-  }   
+
+  }
 }
 
 bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candidate & obj2)
-{  
+{
   // check if a candidate obj2 is different from obj1  (assume that obj1 is a ZMuMu and obj2 is any other type)
   // (for example a Z can be done with two global muons, or with a global muon plus a standalone muon.
   // if the standalone muon is part of the second global muon in fact this is the same Z)
@@ -559,24 +563,24 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
     globalTrack1[i]  = daughters1[i]->get<TrackRef,reco::CombinedMuonTag>();
 
     /*********************************************** just used for debug ********************
-    if (trackerTrack1[i].isNull()) 
+    if (trackerTrack1[i].isNull())
       cout << "in ZMuMu daughter " << i << " tracker ref non found " << endl;
     else
-      cout << "in ZMuMu daughter " << i << " tracker ref FOUND" 
-	   << " id: " << trackerTrack1[i].id() << ", index: " << trackerTrack1[i].key() 
+      cout << "in ZMuMu daughter " << i << " tracker ref FOUND"
+	   << " id: " << trackerTrack1[i].id() << ", index: " << trackerTrack1[i].key()
 	   << endl;
-    if (stAloneTrack1[i].isNull()) 
+    if (stAloneTrack1[i].isNull())
       cout << "in ZMuMu daughter " << i << " stalone ref non found " << endl;
     else
-      cout << "in ZMuMu daughter " << i << " stalone ref FOUND" 
-	   << " id: " << stAloneTrack1[i].id() << ", index: " << stAloneTrack1[i].key() 
+      cout << "in ZMuMu daughter " << i << " stalone ref FOUND"
+	   << " id: " << stAloneTrack1[i].id() << ", index: " << stAloneTrack1[i].key()
 	   << endl;
-    
-    if (globalTrack1[i].isNull()) 
+
+    if (globalTrack1[i].isNull())
       cout << "in ZMuMu daughter " << i << " global ref non found " << endl;
     else
-      cout << "in ZMuMu daughter " << i << " global ref FOUND"  
-	   << " id: " << globalTrack1[i].id() << ", index: " << globalTrack1[i].key() 
+      cout << "in ZMuMu daughter " << i << " global ref FOUND"
+	   << " id: " << globalTrack1[i].id() << ", index: " << globalTrack1[i].key()
 	   << endl;
     */
   }
@@ -587,29 +591,29 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
     globalTrack2[i]  = daughters2[i]->get<TrackRef,reco::CombinedMuonTag>();
 
     /******************************************** just used for debug ************
-    if (trackerTrack2[i].isNull()) 
+    if (trackerTrack2[i].isNull())
       cout << "in ZMuSta daughter " << i << " tracker ref non found " << endl;
     else
-      cout << "in ZMuSta daughter " << i << " tracker ref FOUND"  
-	   << " id: " << trackerTrack2[i].id() << ", index: " << trackerTrack2[i].key() 
+      cout << "in ZMuSta daughter " << i << " tracker ref FOUND"
+	   << " id: " << trackerTrack2[i].id() << ", index: " << trackerTrack2[i].key()
 	   << endl;
-    if (stAloneTrack2[i].isNull()) 
+    if (stAloneTrack2[i].isNull())
       cout << "in ZMuSta daughter " << i << " standalone ref non found " << endl;
     else
-      cout << "in ZMuSta daughter " << i << " standalone ref FOUND" 
-	   << " id: " << stAloneTrack2[i].id() << ", index: " << stAloneTrack2[i].key() 
+      cout << "in ZMuSta daughter " << i << " standalone ref FOUND"
+	   << " id: " << stAloneTrack2[i].id() << ", index: " << stAloneTrack2[i].key()
 	   << endl;
-    
-    if (globalTrack2[i].isNull()) 
+
+    if (globalTrack2[i].isNull())
       cout << "in ZMuSta daughter " << i << " global ref non found " << endl;
     else
-      cout << "in ZMuSta daughter " << i << " global ref FOUND" 
-	   << " id: " << globalTrack2[i].id() << ", index: " << globalTrack2[i].key() 
+      cout << "in ZMuSta daughter " << i << " global ref FOUND"
+	   << " id: " << globalTrack2[i].id() << ", index: " << globalTrack2[i].key()
 	   << endl;
-	   
-   */  
+
+   */
   }
-  if (nd1 != nd2) 
+  if (nd1 != nd2)
     {
       cout << "ZMuMuAnalyzer::isContained WARNING n.of daughters different " << nd1 << "  " << nd2 << endl;
     }
@@ -628,10 +632,10 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
     }
   if (matched==nd1) // return true if all the childrens of the ZMuMu have a children matched in ZMuXX
     return true;
-  else 
+  else
     return false;
 }
-   
+
 void ZMuMuAnalyzer_cynematics::endJob() {
 
   // candidate analysis
@@ -640,8 +644,8 @@ void ZMuMuAnalyzer_cynematics::endJob() {
   double Nzmmc_0Z = h_zMuMu_numberOfCand->GetBinContent(1);
   double Nzmmc_1Z = h_zMuMu_numberOfCand->GetBinContent(2);
   double Nzmmc_moreZ = Nzmmc-Nzmmc_0Z-Nzmmc_1Z;
-  double Nzmmc_passed_0Z = h_zMuMu_numberOfCand_passed->GetBinContent(1);  
-  double Nzmmc_passed_1Z = h_zMuMu_numberOfCand_passed->GetBinContent(2);  
+  double Nzmmc_passed_0Z = h_zMuMu_numberOfCand_passed->GetBinContent(1);
+  double Nzmmc_passed_1Z = h_zMuMu_numberOfCand_passed->GetBinContent(2);
   double Nzmmc_passed_moreZ = Nzmmc-Nzmmc_passed_0Z-Nzmmc_passed_1Z;
   double Nzmmc_ptpassed_0Z = h_zMuMu_numberOfCand_ptpassed->GetBinContent(1);
   double Nzmmc_ptpassed_1Z = h_zMuMu_numberOfCand_ptpassed->GetBinContent(2);
@@ -764,7 +768,7 @@ void ZMuMuAnalyzer_cynematics::endJob() {
   double Nzsm = h_zMuSingleStandAlone_mass_->GetEntries()  ;
   double Nzsnom = h_zMuSingleStandAloneOverlap_mass_->GetEntries()  ;
   double Nztm = h_zMuSingleTrack_mass_->GetEntries();
-  
+
   double NzmmMatch = h_zMuMuMatched_mass_->GetEntries() ;
   double NzsmMatch = h_zMuSingleStandAloneMatched_mass_->GetEntries()  ;
   double NzsnomMatch = h_zMuSingleStandAloneOverlapMatched_mass_->GetEntries()  ;
@@ -774,14 +778,14 @@ void ZMuMuAnalyzer_cynematics::endJob() {
   cout<<"-----N SinglStandAloneMu = "<<Nzsm<<endl;
   cout<<"-----N SingleStandAloneOverlapMu = "<<Nzsnom<<endl;
   cout<<"------- N MuMu = "<<Nzmm<<endl;
-  
+
   cout<<"-- N SingleTrackMuMatched = "<<NztmMatch<<endl;
   cout<<"-----N SinglStandAloneMuMatched = "<<NzsmMatch<<endl;
   cout<<"-----N SingleStandAloneOverlapMuMatched  = "<<NzsnomMatch<<endl;
   cout<<"------- N MuMu Matched  = "<<NzmmMatch<<endl;
 }
-  
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMuAnalyzer_cynematics);
-  
+

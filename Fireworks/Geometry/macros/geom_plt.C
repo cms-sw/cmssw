@@ -1,6 +1,7 @@
 // Shows CMS tracker and PLT
 // Depth can be set for each part independently.
 
+#include "common_foos.C"
 
 void geom_plt()
 {

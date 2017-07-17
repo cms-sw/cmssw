@@ -34,6 +34,9 @@
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 //
 //
@@ -57,7 +60,10 @@ FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    m_pixelBarrelElements(0),
    m_pixelEndcapElements(0),
    m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0)
+   m_trackerEndcapElements(0),
+   m_rpcEndcapElements(0),
+   m_GEMElements(0),
+   m_ME0Elements(0)
 {
    SetElementName("RPZGeomShared");
 }
@@ -169,7 +175,11 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
    }
    return container;
 }
+namespace {
 
+//void addLibe
+
+}
 //______________________________________________________________________________
 
 TEveElement*
@@ -191,8 +201,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             {
                DTChamberId id( iWheel, iStation, iSector );
                unsigned int rawid = id.rawId();
-	       FWGeometry::IdToInfoItr det = m_geom->find( rawid );
-	       estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
+               FWGeometry::IdToInfoItr det = m_geom->find( rawid );
+               if (det == m_geom->mapEnd()) return container;
+               estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
             TEveElement* se =  makeShape( min_rho, max_rho, min_z, max_z );
@@ -207,56 +218,41 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
       container->AddElement( dtContainer );
    }
    {
+      // addcsc
       TEveCompound* cscContainer = new TEveCompound( "CSC" );
-   
-      Int_t maxChambers = 36;
-      Int_t step = 9;
-      Int_t iLayer = 0; // chamber
-      for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
+      std::vector<CSCDetId> ids;
+      for (int endcap = CSCDetId::minEndcapId(); endcap <=  CSCDetId::maxEndcapId(); ++endcap)
       {
-         // Actual CSC geometry:
-         // Station 1 has 4 rings with 36 chambers in each
-         // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
-         // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
-         // Station 4: ring 1 has 18 chambers
-         for( Int_t iStation = 1; iStation <= 4; ++iStation )
+         for (int station = 1; station <= 4; ++station)
          {
-            for( Int_t iRing = 1; iRing <= 4; ++iRing )
-            {
-               if( iStation > 1 && iRing > 2 ) continue;
-               if( iStation > 3 && iRing > 1 ) continue;
-               float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
-               ( iRing == 1 && iStation > 1 ) ? ( maxChambers = 18 ) : ( maxChambers = 36 );
-               ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
-	    
-               // Skip most of the chambers since they will project
-               // the same way as the two top ones and the two bottom ones
-               for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
-               {
-                  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
-		  FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
-		  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
+            ids.push_back(CSCDetId(endcap, station, 2, 10, 0 ));//outer ring up
+            ids.push_back(CSCDetId(endcap, station, 2, 11, 0 ));//outer ring up
 
-		  // and a chamber next to it
-		  ++iChamber;
-		  CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
-		  det = m_geom->find( nextid.rawId() );
-		  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
-               }
-               if ( min_rho > max_rho || min_z > max_z ) continue;
+            ids.push_back(CSCDetId(endcap, station, 2, 28, 0 ));//outer ring down
+            ids.push_back(CSCDetId(endcap, station, 2, 29, 0 ));//outer ring down
 
-               TEveElement* se = makeShape( min_rho, max_rho, min_z, max_z);
-               addToCompound(se, kFWMuonEndcapLineColorIndex);
-               cscContainer->AddElement(se);
+            ids.push_back(CSCDetId(endcap, station, 1, 5, 0 ));//inner ring up
+            ids.push_back(CSCDetId(endcap, station, 1, 6, 0 )); //inner ring up
 
-               se = makeShape( -max_rho, -min_rho, min_z, max_z );
-               addToCompound(se, kFWMuonEndcapLineColorIndex);
-               cscContainer->AddElement(se);
-            }
+            int off =  (station == 1) ? 10:0;
+            ids.push_back(CSCDetId(endcap, station, 1, 15+off, 0 ));//inner ring down
+            ids.push_back(CSCDetId(endcap, station, 1, 16+off, 0 )); //inner ring down
          }
+         ids.push_back(CSCDetId(endcap, 1, 3, 10, 0 )); // ring 3 down
+         ids.push_back(CSCDetId(endcap, 1, 3, 28, 0 )); // ring 3 down
+      }   
+      for (std::vector<CSCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
+      {
+         unsigned int rawid = i->rawId();
+         TEveGeoShape* shape = m_geom->getEveShape(rawid);
+         if (!shape) return cscContainer;
+         addToCompound(shape, kFWMuonEndcapLineColorIndex);
+         shape->SetName(Form(" e:%d r:%d s:%d chamber %d",i->endcap(), i->ring(), i->station(), i->chamber() ));
+         cscContainer->AddElement(shape);
       }
       container->AddElement( cscContainer );
    }
+
    return container;
 }
 
@@ -336,33 +332,6 @@ FWRPZViewGeometry::estimateProjectionSizeDT( const FWGeometry::GeomDetInfo& info
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
-void
-FWRPZViewGeometry::estimateProjectionSizeCSC( const FWGeometry::GeomDetInfo& info,
-					      float& min_rho, float& max_rho, float& min_z, float& max_z )
-{
-   float local[3], global[3];
-
-   float dX = info.shape[2] - info.shape[1];
-   float dY = info.shape[4];
-   float ddY = sqrt( 4 * dY * dY + dX * dX ) * 0.5;
-   float dZ = info.shape[3];
-   
-   local[0] = info.shape[2]; local[1] = ddY; local[2] = -dZ;
-   m_geom->localToGlobal( info, local, global );
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-
-   local[0] = info.shape[1]; local[1] = -ddY; local[2] = -dZ;
-   m_geom->localToGlobal( info, local, global );
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-
-   local[0] = info.shape[1]; local[1] = -ddY; local[2] = dZ;
-   m_geom->localToGlobal( info, local, global );
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-
-   local[0] = info.shape[2]; local[1] = ddY; local[2] = dZ;
-   m_geom->localToGlobal( info, local, global );
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-}
 
 void
 FWRPZViewGeometry::estimateProjectionSize( const float* global,
@@ -403,6 +372,7 @@ FWRPZViewGeometry::showPixelBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          shape->SetTitle(Form("PixelBarrel %d",*id));
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
@@ -429,7 +399,7 @@ FWRPZViewGeometry::showPixelEndcap( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("PixelEndCap %d",*id));
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
@@ -458,7 +428,8 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
            id != ids.end(); ++id )
       {
-         TEveGeoShape* shape = m_geom->getEveShape( *id ); 
+         TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
@@ -467,7 +438,7 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("TrackerBarrel %d",*id));
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
@@ -497,6 +468,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          addToCompound(shape, kFWTrackerEndcapColorIndex);
+
+         if (!shape) return;
          m_trackerEndcapElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
@@ -504,8 +477,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-
          shape->SetTitle(Form("TrackerEndcap %d",*id));
+         if (!shape) return;
          addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
@@ -521,6 +494,142 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
    }
 }
 
+//---------------------------------------------------------
+void
+FWRPZViewGeometry::showRpcEndcap( bool show )
+{
+   if( !m_rpcEndcapElements && show )
+   {
+       m_rpcEndcapElements = new TEveElementList("RpcEndcap");
+
+
+       std::vector<RPCDetId> ids;
+       int mxSt = m_geom->versionInfo().haveExtraDet("RE4") ? 4:3; 
+       for (int region = -1; region <=1; ++ region )
+       {
+           if (region == 0 ) continue;
+           for (int ring = 2; ring <= 3; ++ring) {
+             for (int station = 1; station <= mxSt; ++station ) {
+                   int sector = 1;
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+                   if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 up 
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+                   }
+                   sector = 5;
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+
+                   if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 down
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+                   }
+               }
+           }
+       }
+
+      for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
+      {
+         TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+         if (!shape) return;
+         addToCompound(shape, kFWMuonEndcapLineColorIndex);
+         m_rpcEndcapElements->AddElement(shape);
+         gEve->AddToListTree(shape, true);
+      }
+   
+      AddElement(m_rpcEndcapElements);
+      importNew(m_rpcEndcapElements);
+   }
+
+   if (m_rpcEndcapElements)
+   {
+      m_rpcEndcapElements->SetRnrState(show);
+      gEve->Redraw3D();
+   }
+}
+
+//______________________________________________________________________________
+
+void
+FWRPZViewGeometry::showGEM( bool show )
+{
+  // hardcoded gem and me0; need to find better way for different gem geometries
+  if( !m_GEMElements && show ){
+    m_GEMElements = new TEveElementList("GEM");
+
+    for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2){
+      int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? 3:1; 
+
+      for( Int_t iStation = GEMDetId::minStationId; iStation <= mxSt; ++iStation ){	      
+	Int_t iRing = 1;
+	for( Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId ; ++iLayer ){
+	  int maxChamber = 36;
+	  if (iStation >= 2) maxChamber = 18;
+
+	  for( Int_t iChamber = 1; iChamber <= maxChamber; ++iChamber ){
+	    int maxRoll = iChamber%2 ? 9:10;
+	    if (iStation == 2) maxRoll = 8;
+	    if (iStation == 3) maxRoll = 12;
+
+	    for (Int_t iRoll = GEMDetId::minRollId; iRoll <= maxRoll ; ++iRoll ){
+	      GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
+	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	      if (shape){
+		addToCompound(shape, kFWMuonEndcapLineColorIndex);
+		m_GEMElements->AddElement( shape );
+		gEve->AddToListTree(shape, true);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+      
+    AddElement(m_GEMElements);
+    importNew(m_GEMElements);
+  }
+  if (m_GEMElements){
+    m_GEMElements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
+}
+
+void
+FWRPZViewGeometry::showME0( bool show )
+{
+  if( !m_ME0Elements && show ){
+    m_ME0Elements = new TEveElementList("ME0");
+
+    for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
+      for( Int_t iLayer = 1; iLayer <= 6 ; ++iLayer ){
+	for( Int_t iChamber = 1; iChamber <= 18; ++iChamber ){
+	  Int_t iRoll = 1;
+	  ME0DetId id( iRegion, iLayer, iChamber, iRoll );
+	  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	  if (shape){
+	    addToCompound(shape, kFWMuonEndcapLineColorIndex);
+	    m_ME0Elements->AddElement( shape );
+	    gEve->AddToListTree(shape, true);
+	  }
+	}
+      }
+    }
+      
+    AddElement(m_ME0Elements);
+    importNew(m_ME0Elements);
+  }
+  if (m_ME0Elements){
+    m_ME0Elements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
+}
+
+//-------------------------------------
 
 void FWRPZViewGeometry::importNew(TEveElementList* x)
 {

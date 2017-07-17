@@ -1,0 +1,520 @@
+{
+   TBB_threadstart
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13arena_in_needERNS0_14intrusive_listINS0_5arenaEEERPS3_
+   fun:_ZN3tbb8internal6market13arena_in_needEPNS0_5arenaE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBB_Internals
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   TBB_Internals2
+   Helgrind:Race
+   ...
+   fun:get_task
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   TBB_Internals3
+   Helgrind:Race
+   ...
+   fun:parent
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   TBB_Internals4
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler9free_taskILNS0_14free_task_hintE0EEEvRNS_4taskE
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   TBB_Internals5
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler24free_nonlocal_small_taskERNS_4taskE
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   TBB_WorkerRun
+   Helgrind:Race
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBB_ServerWakeSome
+   Helgrind:Race
+   fun:_ZN3tbb8internal3rml14private_server9wake_someEi
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBB_EnqueueTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal5arena12enqueue_taskERNS_4taskElRNS0_10FastRandomE
+   fun:_ZN3edm14EventProcessor19readAndProcessEventEv
+   ...
+}
+{
+   TBB_malloc
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internalL18internalPoolMallocEPNS0_10MemoryPoolEm
+   fun:scalable_aligned_malloc
+   ...
+}
+{
+   TBB_scalable_malloc
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internalL14internalMallocEm
+   fun:scalable_malloc
+   ...
+}
+{
+   TBB_scalable_malloc2
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internalL18internalPoolMallocEPNS0_10MemoryPoolEm
+   fun:scalable_malloc
+   ...
+}
+{
+   TBB_internalPoolFree
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internalL16internalPoolFreeEPNS0_10MemoryPoolEPvm.constprop.48
+   ...
+}
+{
+   TBB_MarketAreaInNeed
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13arena_in_needEv
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_MarketAreaInNeed2
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13arena_in_needERNS0_14intrusive_listINS0_5arenaEEERNS0_19intrusive_list_baseIS4_S3_E8iteratorE
+   fun:_ZN3tbb8internal6market13arena_in_needEv
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_ReceiveOrStealTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   ...
+}
+{
+   TBB_ReceiveOrStealTask2
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_ReceiveOrStealTask3
+   Helgrind:Race
+   fun:store
+   fun:__TBB_store_relaxed
+   fun:_ZN3tbb8internal17generic_scheduler10steal_taskERNS0_10arena_slotE
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_ReceiveOrStealTask4
+   Helgrind:Race
+   fun:load
+   fun:__TBB_load_relaxed<long unsigned int>
+   fun:_ZN3tbb8internal17generic_scheduler10steal_taskERNS0_10arena_slotE
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_ReceiveOrStealTask5
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler10steal_taskERNS0_10arena_slotE
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_ReceiveOrStealTask6
+   Helgrind:Race
+   fun:pop
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_ReceiveOrStealTask7
+   Helgrind:Race
+   ...
+   fun:_ZN3tbb8internal5arena14is_out_of_workEv
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERl
+   ...
+}
+{
+   TBB_GenericSchedulerLocalSpawn
+   Helgrind:Race
+   ...
+   fun:_ZN3tbb8internal17generic_scheduler11local_spawnERNS_4taskERPS2_
+   ...
+}
+{
+   TBB_LocalWaitForAll
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   ...
+}
+{
+   TBB_AllocateRootProxy
+   Helgrind:Race
+   fun:_ZN3tbb8internal19allocate_root_proxy8allocateEm
+   ...
+}
+{
+   TBB_task_base_destroy
+   Helgrind:Race
+   ...
+   fun:_ZN3tbb10interface58internal9task_base7destroyERNS_4taskE
+   ...
+}
+{
+   TBB_StreamProcessingTaskExecute
+   Helgrind:Race
+   fun:_ZN3edm20StreamProcessingTask7executeEv
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_GenericSchedulerConst1
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_schedulerC1EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerConst2
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_schedulerC2EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask1
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   fun:_ZN3tbb8internal17generic_schedulerC1EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask2
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   fun:_ZN3tbb8internal17generic_schedulerC2EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerCreateWorker
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   fun:_ZN3tbb8internal6market14create_one_jobEv
+   ...
+}
+{
+   TBB_ArenaProcess
+   Helgrind:Race
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_MarketAdjustDemand
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13adjust_demandERNS0_5arenaEi
+   fun:_ZN3tbb8internal5arena14is_out_of_workEv
+   ...
+}
+{
+   TBB_ReceiveOrStealTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   EventSetupDataProxyGet
+   Helgrind:Race
+   fun:_ZNK3edm10eventsetup9DataProxy3getERKNS0_16EventSetupRecordERKNS0_7DataKeyEb
+   fun:_ZNK3edm10eventsetup16EventSetupRecord12getFromProxyERKNS0_7DataKeyERPKNS0_20ComponentDescriptionEb
+   ...
+}
+{
+   EndLumiReset
+   Helgrind:Race
+   fun:_ZN3edm6Worker5resetEv
+   fun:_ZN3edm13WorkerManager8resetAllEv
+   fun:_ZN3edm13WorkerManager20processOneOccurrenceINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEENS_13StreamContextEEEvRNT_11MyPrincipalERKNS_10EventSetupENS_8StreamIDEPKNS7_7ContextEPKT0_b
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   ...
+}
+{
+   EventProcessor_endLumi
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor7endLumiERKNS_4HashILi2EEEjjb
+   ...
+}
+{
+   EndLumiModuleCallingContext
+   Helgrind:Race
+   fun:_ZN3edm20ModuleCallingContext10setContextENS0_5StateERKNS_13ParentContextEPKS0_
+   fun:_ZN3edm6Worker6doWorkINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEbRNT_11MyPrincipalERKNS_10EventSetupEPNS_8CPUTimerENS_8StreamIDERKNS_13ParentContextEPKNS6_7ContextE
+   fun:_ZN3edm4Path20processOneOccurrenceINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupERKNS_8StreamIDEPKNS6_7ContextE
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   fun:_ZN3edm14EventProcessor7endLumiERKNS_4HashILi2EEEjjb
+   ...
+}
+{
+   EndLumiCounterReset
+   Helgrind:Race
+   fun:_ZN3edm4Path14updateCountersEbb
+   fun:_ZN3edm4Path20processOneOccurrenceINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupERKNS_8StreamIDEPKNS6_7ContextE
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_24LuminosityBlockPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   fun:_ZN3edm14EventProcessor7endLumiERKNS_4HashILi2EEEjjb
+   ...
+}
+{
+   WriteLumi
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor9writeLumiERKNS_4HashILi2EEEjj
+   ...
+}
+{
+   EndRun
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor6endRunERKN12statemachine3RunEb
+   ...
+}
+{
+   EndRunReset
+   Helgrind:Race
+   fun:_ZN3edm6Worker5resetEv
+   fun:_ZN3edm13WorkerManager8resetAllEv
+   fun:_ZN3edm13WorkerManager20processOneOccurrenceINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEENS_13StreamContextEEEvRNT_11MyPrincipalERKNS_10EventSetupENS_8StreamIDEPKNS7_7ContextEPKT0_b
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   fun:_ZN3edm14EventProcessor6endRunERKN12statemachine3RunEb
+   ...
+}
+{
+   EndRunProcessOne
+   Helgrind:Race
+   fun:_ZN3edm4Path20processOneOccurrenceINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupERKNS_8StreamIDEPKNS6_7ContextE
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   fun:_ZN3edm14EventProcessor6endRunERKN12statemachine3RunEb
+   ...
+}
+{
+   EndRunModuleCallingContext
+   Helgrind:Race
+   fun:_ZN3edm20ModuleCallingContext10setContextENS0_5StateERKNS_13ParentContextEPKS0_
+   fun:_ZN3edm6Worker6doWorkINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEbRNT_11MyPrincipalERKNS_10EventSetupEPNS_8CPUTimerENS_8StreamIDERKNS_13ParentContextEPKNS6_7ContextE
+   fun:_ZN3edm4Path20processOneOccurrenceINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupERKNS_8StreamIDEPKNS6_7ContextE
+   fun:_ZN3edm14StreamSchedule16processOneStreamINS_16OccurrenceTraitsINS_12RunPrincipalELNS_16BranchActionTypeE2EEEEEvRNT_11MyPrincipalERKNS_10EventSetupEb
+   fun:_ZN3edm14EventProcessor6endRunERKN12statemachine3RunEb
+   ...
+}
+{
+   WriteRun
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor8writeRunERKN12statemachine3RunE
+   ...
+}
+{
+   EventProcessor_closeOutputFiles
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor16closeOutputFilesEv
+   ...
+}
+{
+   EventProcessor_resondToCloseInputFile
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor23respondToCloseInputFileEv
+   ...
+}
+{
+   TBBArena
+   Helgrind:Race
+   fun:_ZN3tbb8internal5arena14is_out_of_workEv
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   EndStreamModuleCallingContext
+   Helgrind:Race
+   fun:_ZN3edm20ModuleCallingContext10setContextENS0_5StateERKNS_13ParentContextEPKS0_
+   fun:_ZN3edm6Worker9endStreamENS_8StreamIDERNS_13StreamContextE
+   ...
+}
+{
+   EndJob
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor6endJobEv
+   ...
+}
+{
+   EventProcessorDestructor
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessorD1Ev
+   ...
+}
+{
+   EventPrincipalDestructor
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventPrincipalD0Ev
+   ...
+}
+{
+   TBBSchedulerCleanup
+   Helgrind:Race
+   ...
+   fun:_ZN3tbb8internal17generic_scheduler14cleanup_masterEv
+   ...
+}
+{
+   WrapperInterfaceDestructor
+   Helgrind:Race
+   fun:_ZN3edm16WrapperInterface*
+   ...
+}
+{
+   MessageLoggerScribeLog
+   Helgrind:Race
+   ...
+   fun:_ZN3edm7service32ThreadSafeLogMessageLoggerScribe3logEPNS_8ErrorObjE
+   ...
+}
+{
+   ParentageRegistryInsertMapped
+   Helgrind:Race
+   ...
+   fun:_ZN3edm17ParentageRegistry12insertMappedERKNS_9ParentageE
+   ...
+}
+{
+   ParentageRegistryGetMapped
+   Helgrind:Race
+   fun:_ZNK3edm17ParentageRegistry9getMappedERKNS_4HashILi5EEERNS_9ParentageE
+   ...
+}
+{
+   ParentageRegistryGetMapped2
+   Helgrind:Race
+   fun:_ZNK3edm17ParentageRegistry9getMappedERKNS_4HashILi5EEE
+   ...
+}
+{
+   TBB_ProcessThreadShutdown
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internal10MemoryPool21processThreadShutdownEPNS0_7TLSDataE
+   ...
+}
+{
+   MagGeometryFindVolumeCache
+   Helgrind:Race
+   fun:_ZNK11MagGeometry10findVolumeERK11Point3DBaseIf9GlobalTagEd
+   ...
+}
+{
+   TBBInternalCmpSwp1
+   Helgrind:Race
+   fun:__TBB_machine_cmpswp1
+   ...
+}
+{
+   TBBInternalStoreWithRelease
+   Helgrind:Race
+   fun:store_with_release
+   ...
+}
+{
+   TBBInternalLoadWithAcquire
+   Helgrind:Race
+   fun:load_with_acquire
+   ...
+}
+{
+   TBBInternalPopSchedule
+   Helgrind:Race
+   fun:pop
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBBInternalPriorityScheduler
+   Helgrind:Race
+   fun:priority
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   ROOTWriteVersionAtomicClassVersion
+   Helgrind:Race
+   fun:_ZN11TBufferFile12WriteVersionEPK6TClassb
+   ...
+}
+{
+   ROOTReadVersionAtomicClassVersion
+   Helgrind:Race
+   fun:_ZN11TBufferFile11ReadVersionEPjS0_PK6TClass
+   ...
+}

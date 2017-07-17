@@ -18,7 +18,6 @@
 namespace reco {
   class SuperCluster : public CaloCluster {
   public:
-    typedef std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > EEtoPSAssociation;
     typedef math::XYZPoint Point;
 
     /// default constructor
@@ -96,6 +95,18 @@ namespace reco {
     /// set reference to seed BasicCluster
     void setSeed( const CaloClusterPtr & r ) { seed_ = r; }
 
+    //(re)-set clusters
+    void setClusters(const CaloClusterPtrVector &clusters) { 
+      clusters_ = clusters;
+      computeRawEnergy();
+    }
+    
+    //(re)-set preshower clusters
+    void setPreshowerClusters(const CaloClusterPtrVector &clusters) { preshowerClusters_ = clusters; }
+    
+    //clear hits and fractions vector (for slimming)
+    void clearHitsAndFractions() { hitsAndFractions_.clear(); }
+    
     /// add reference to constituent BasicCluster
     void addCluster( const CaloClusterPtr & r ) { 
       clusters_.push_back( r ); 

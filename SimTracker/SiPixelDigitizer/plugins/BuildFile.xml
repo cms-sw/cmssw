@@ -5,6 +5,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="CondFormats/SiPixelObjects"/>

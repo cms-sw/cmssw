@@ -38,7 +38,7 @@ class VertexMonitor
        virtual ~VertexMonitor();
        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-       virtual void beginJob(DQMStore * dqmStore_);
+       virtual void initHisto(DQMStore::IBooker & ibooker);
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        
        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);

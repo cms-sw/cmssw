@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("Demo")
 
@@ -59,7 +60,7 @@ process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
 # JetMET Certification Module 
 #-----------------------------
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
-process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+process.dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
 #
 #--- Always define reference root file by process.DQMStore.referenceFileName
                               refFileName    = cms.untracked.string(""),
@@ -89,18 +90,9 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
 #-----------------------------
 #
 #-----------------------------
-process.load("DQMOffline.JetMET.jetMETDQMOfflineClient_cfi")
-from DQMOffline.JetMET.jetMETDQMOfflineClient_cfi import *
-
-#-----------------------------
-# 
-#-----------------------------
-#process.p = cms.Path(process.dqmInfoJetMET*process.dataCertificationJetMET)
 
 process.p = cms.Path(process.EDMtoME
                      * process.dqmInfoJetMET
-#                    * process.jetMETHLTOfflineClient
-                     * process.jetMETDQMOfflineClient
                      * process.dataCertificationJetMETSequence
                      * process.dqmSaver)
 

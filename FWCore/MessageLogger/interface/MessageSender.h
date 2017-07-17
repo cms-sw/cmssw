@@ -4,9 +4,8 @@
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <map>
 
@@ -24,10 +23,6 @@
 
 namespace edm
 {
-
-typedef ErrorSummaryEntry ErrorSummaryMapKey;
-typedef std::map<ErrorSummaryMapKey, unsigned int>::iterator 
-						ErrorSummaryMapIterator;
 
 class MessageSender
 {
@@ -53,17 +48,13 @@ public:
     return *this;
   }
 
-  // static data:						// change log 1
-  static bool errorSummaryIsBeingKept;
-  static bool freshError;
-  static std::map<ErrorSummaryMapKey, unsigned int> errorSummaryMap;
   bool valid() {
     return errorobj_p != 0;
   }
   
 private:
   // data:
-  boost::shared_ptr<ErrorObj> errorobj_p;
+  std::shared_ptr<ErrorObj> errorobj_p;
 
 };  // MessageSender
 

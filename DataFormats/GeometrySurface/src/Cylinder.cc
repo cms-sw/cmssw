@@ -13,13 +13,13 @@ Surface::Side Cylinder::side( const LocalPoint& p, Scalar toler) const
 	  (lz>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide));
 }
 
-ReferenceCountingPointer<TangentPlane> 
+ConstReferenceCountingPointer<TangentPlane> 
 Cylinder::tangentPlane (const LocalPoint& aPoint) const
 {
   return tangentPlane(toGlobal(aPoint));
 }
 
-ReferenceCountingPointer<TangentPlane> 
+ConstReferenceCountingPointer<TangentPlane> 
 Cylinder::tangentPlane (const GlobalPoint& aPoint) const
 {
   //
@@ -38,7 +38,7 @@ Cylinder::tangentPlane (const GlobalPoint& aPoint) const
 //   // local z defined by x and y (should point outwards from axis)
 //   GlobalVector zPlane(xPlane.cross(yPlane));
   // rotation constructor will normalize...
-  return ReferenceCountingPointer<TangentPlane>(new TangentPlane(aPoint,
+  return ConstReferenceCountingPointer<TangentPlane>(new TangentPlane(aPoint,
 								 RotationType(xPlane,
 									      yPlane)
 								 ));

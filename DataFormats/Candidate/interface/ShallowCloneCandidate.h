@@ -10,7 +10,6 @@
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
   class ShallowCloneCandidate : public LeafCandidate {
@@ -38,14 +37,6 @@ namespace reco {
     virtual ~ShallowCloneCandidate();
     /// returns a clone of the Candidate object
     virtual ShallowCloneCandidate * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// number of daughters
@@ -72,10 +63,6 @@ namespace reco {
     virtual bool isConvertedPhoton() const;
     virtual bool isJet() const;
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidateBaseReference to master clone

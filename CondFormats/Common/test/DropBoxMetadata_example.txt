@@ -1,0 +1,12 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_42X_RUN_INFO", 
+    "destinationTags": {
+        "DropBoxMetadata_v1_express": {
+            "dependencies": {}, 
+            "synchronizeTo": "express"
+        }
+    }, 
+    "inputTag": "DropBoxMetadata", 
+    "since": 1, 
+    "userText": "Update drop-box metadata for PCL"
+}

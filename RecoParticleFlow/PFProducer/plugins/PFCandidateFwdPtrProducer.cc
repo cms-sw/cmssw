@@ -8,7 +8,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
-
 typedef edm::FwdPtrProducer<reco::PFCandidate, reco::PFCandidateFwdPtrFactory> PFCandidateFwdPtrProducer;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFCandidateFwdPtrProducer);
 
 

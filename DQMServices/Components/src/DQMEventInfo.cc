@@ -7,12 +7,14 @@
 #include "DQMEventInfo.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include <TSystem.h>
 
+#include <algorithm>
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+
+#include <boost/algorithm/string/join.hpp>
 
 
 static inline double stampToReal(edm::Timestamp time)
@@ -23,7 +25,7 @@ static inline double stampToReal(const timeval &time)
 
 
 DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
-  
+
   struct timeval now;
   gettimeofday(&now, 0);
 
@@ -32,93 +34,108 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
   evtRateCount_ = 0;
   lastAvgTime_ = currentTime_ = stampToReal(now);
 
-  // read config parms  
+  // read config parms
   std::string folder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
-  std::string subsystemname = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
-  
-  eventInfoFolder_ = subsystemname + "/" +  folder ;
+  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
+
+  eventInfoFolder_ = subsystemname_ + "/" +  folder ;
   evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
   if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
-
-  // 
-  dbe_ = edm::Service<DQMStore>().operator->();
-
-  dbe_->setCurrentFolder(eventInfoFolder_) ;
-
-  //Event specific contents
-  runId_     = dbe_->bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_ = dbe_->bookInt("iLumiSection");
-  lumisecId_->Fill(-1);
-  eventId_   = dbe_->bookInt("iEvent");
-  eventId_->Fill(-1);
-  eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-  
-  dbe_->setCurrentFolder(eventInfoFolder_) ;
-  //Process specific contents
-  processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
-  processTimeStamp_->Fill(currentTime_);
-  processLatency_ = dbe_->bookFloat("processLatency");
-  processTimeStamp_->Fill(-1);
-  processEvents_ = dbe_->bookInt("processedEvents");
-  processEvents_->Fill(pEvent_);
-  processEventRate_ = dbe_->bookFloat("processEventRate");
-  processEventRate_->Fill(-1); 
-  nUpdates_= dbe_->bookInt("processUpdates");
-  nUpdates_->Fill(-1);
-
-  //Static Contents
-  processId_= dbe_->bookInt("processID"); 
-  processId_->Fill(gSystem->GetPid());
-  processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
-  processStartTimeStamp_->Fill(currentTime_);
-  runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
-  hostName_= dbe_->bookString("hostName",gSystem->HostName());
-  processName_= dbe_->bookString("processName",subsystemname);
-  workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
-  cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
- 
-  // Folder to be populated by sub-systems' code
-  std::string subfolder = eventInfoFolder_ + "/reportSummaryContents" ;
-  dbe_->setCurrentFolder(subfolder);
 
 }
 
 DQMEventInfo::~DQMEventInfo(){
 }
 
-void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) 
+void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & /* iSetup */)
 {
-    
-  runId_->Fill(r.id().run());
-  runStartTimeStamp_->Fill(stampToReal(r.beginTime()));
-  
+  ibooker.setCurrentFolder(eventInfoFolder_) ;
+
+  //Event specific contents
+  runId_     = ibooker.bookInt("iRun");
+  runId_->Fill(iRun.id().run());
+  lumisecId_ = ibooker.bookInt("iLumiSection");
+  lumisecId_->Fill(-1);
+  eventId_   = ibooker.bookInt("iEvent");
+  eventId_->Fill(-1);
+  eventTimeStamp_ = ibooker.bookFloat("eventTimeStamp");
+
+  ibooker.setCurrentFolder(eventInfoFolder_) ;
+  //Process specific contents
+  processTimeStamp_ = ibooker.bookFloat("processTimeStamp");
+  processTimeStamp_->Fill(currentTime_);
+  processLatency_ = ibooker.bookFloat("processLatency");
+  processTimeStamp_->Fill(-1);
+  processEvents_ = ibooker.bookInt("processedEvents");
+  processEvents_->Fill(pEvent_);
+  processEventRate_ = ibooker.bookFloat("processEventRate");
+  processEventRate_->Fill(-1);
+  nUpdates_= ibooker.bookInt("processUpdates");
+  nUpdates_->Fill(-1);
+
+  //Static Contents
+  processId_= ibooker.bookInt("processID");
+  processId_->Fill(getpid());
+  processStartTimeStamp_ = ibooker.bookFloat("processStartTimeStamp");
+  processStartTimeStamp_->Fill(currentTime_);
+  runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
+  runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
+  char hostname[65];
+  gethostname(hostname,64);
+  hostname[64] = 0;
+  hostName_= ibooker.bookString("hostName",hostname);
+  processName_= ibooker.bookString("processName",subsystemname_);
+  char* pwd = getcwd(NULL, 0);
+  workingDir_= ibooker.bookString("workingDir",pwd);
+  free(pwd);
+  cmsswVer_= ibooker.bookString("CMSSW_Version",edm::getReleaseVersion());
+
+  // Folder to be populated by sub-systems' code
+  std::string subfolder = eventInfoFolder_ + "/reportSummaryContents" ;
+  ibooker.setCurrentFolder(subfolder);
+
   //Online static histograms
-  const edm::ParameterSet &sourcePSet = edm::getProcessParameterSet().getParameterSet("@main_input");
-  if (sourcePSet.getParameter<std::string>("@module_type") == "EventStreamHttpReader" ){
+  const edm::ParameterSet &sourcePSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("@main_input");
+
+  if (sourcePSet.getParameter<std::string>("@module_type") == "DQMStreamerReader" ){
     std::string evSelection;
-    std::vector<std::string> evSelectionList; 
-    const edm::ParameterSet &evSelectionPSet = sourcePSet.getUntrackedParameterSet("SelectEvents");
-    evSelectionList = evSelectionPSet.getParameter<std::vector<std::string> >("SelectEvents");
-    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); it++ )
-      evSelection += "'"+ *it + "', ";
-      
-    evSelection.resize(evSelection.length()-2);
-    dbe_->setCurrentFolder(eventInfoFolder_);
-    dbe_->bookString("eventSelection",evSelection);
+    std::vector<std::string> evSelectionList;
+    std::string delimiter( ", " );
+    evSelectionList = sourcePSet.getUntrackedParameter<std::vector<std::string> >("SelectEvents");
+    // add single quotes inline in the vector of HLT paths:
+    // we do copy assignment, and getUntrackedParameter returns
+    // a by-value copy of the vector of strings 
+    std::for_each( evSelectionList.begin(), evSelectionList.end(),
+                   []( std::string & s ){ std::string squote( "'" );
+                                          s = squote + s + squote;
+                                          }
+                   );
+    evSelection = boost::algorithm::join( evSelectionList, delimiter );
+    // if no HLT paths are specified, no selections are performed:
+    // we mark this with an asterisk.
+    if( evSelection.empty() ) {
+      evSelection = std::string( "'*'" );
+    }
+    ibooker.setCurrentFolder(eventInfoFolder_);
+    ibooker.bookString("eventSelection",evSelection);
   }
-  
-} 
 
-void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
-
-  lumisecId_->Fill(l.id().luminosityBlock());
 
 }
 
+
+void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
+{
+  lumisecId_->Fill(l.id().luminosityBlock());
+}
+
 void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
- 
-  eventId_->Fill(int64_t(e.id().event()));
+
+  eventId_->Fill(e.id().event()); // Handing edm::EventNumber_t to Fill method which will handle further casting
   eventTimeStamp_->Fill(stampToReal(e.time()));
 
   pEvent_++;
@@ -138,8 +155,8 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
   {
     processEventRate_->Fill(evtRateCount_/delta);
     evtRateCount_ = 0;
-    lastAvgTime_ = currentTime_;    
+    lastAvgTime_ = currentTime_;
   }
-  
+
   return;
 }

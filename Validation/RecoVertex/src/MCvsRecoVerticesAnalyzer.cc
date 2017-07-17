@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -56,29 +56,25 @@
 //
 
 
-class MCvsRecoVerticesAnalyzer : public edm::EDAnalyzer {
+class MCvsRecoVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCvsRecoVerticesAnalyzer(const edm::ParameterSet&);
   ~MCvsRecoVerticesAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
   
 
-  edm::InputTag m_pileupcollection;
-  edm::InputTag m_mctruthcollection;
-  edm::InputTag m_pvcollection;
   const bool m_useweight;
-  edm::InputTag m_weight;
   const bool m_useVisibleVertices;
   const edm::ParameterSet m_histoParameters;
+  edm::EDGetTokenT< double > m_doubleToken;
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > m_vecPileupSummaryInfoToken;
+  edm::EDGetTokenT< reco::VertexCollection > m_recoVertexCollectionToken;
+  edm::EDGetTokenT< edm::HepMCProduct > m_hepMCProductToken;
 
   TH2F* m_hrecovsmcnvtx2d;
   TProfile* m_hrecovsmcnvtxprof;
@@ -108,19 +104,20 @@ private:
 //
 // constructors and destructor
 //
-MCvsRecoVerticesAnalyzer::MCvsRecoVerticesAnalyzer(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
-  m_mctruthcollection(iConfig.getParameter<edm::InputTag>("mcTruthCollection")),
-  m_pvcollection(iConfig.getParameter<edm::InputTag>("pvCollection")),
-  m_useweight(iConfig.getParameter<bool>("useWeight")),
-  m_weight(iConfig.getParameter<edm::InputTag>("weightProduct")),
-  m_useVisibleVertices(iConfig.getParameter<bool>("useVisibleVertices")),
-  m_histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet()))
+MCvsRecoVerticesAnalyzer::MCvsRecoVerticesAnalyzer(const edm::ParameterSet& iConfig)
+  : m_useweight( iConfig.getParameter< bool >( "useWeight" ) )
+  , m_useVisibleVertices( iConfig.getParameter< bool >( "useVisibleVertices" ) )
+  , m_histoParameters( iConfig.getUntrackedParameter< edm::ParameterSet >( "histoParameters", edm::ParameterSet() ) )
+  , m_doubleToken( consumes< double >( iConfig.getParameter< edm::InputTag >( "weightProduct" ) ) )
+  , m_vecPileupSummaryInfoToken( consumes< std::vector<PileupSummaryInfo> >( iConfig.getParameter< edm::InputTag >( "pileupSummaryCollection" ) ) )
+  , m_recoVertexCollectionToken( consumes< reco::VertexCollection >( iConfig.getParameter< edm::InputTag >( "pvCollection" ) ) )
+  , m_hepMCProductToken( consumes< edm::HepMCProduct >( iConfig.getParameter< edm::InputTag >( "mcTruthCollection" ) ) )
 {
    //now do what ever initialization is needed
 
   if(m_useVisibleVertices) edm::LogInfo("UseVisibleVertices") << "Only visible vertices will be used to compute Npileup";
 
+  usesResource("TFileService");
   edm::Service<TFileService> tfserv;
 
   m_hrecovsmcnvtx2d = tfserv->make<TH2F>("recovsmcnvtx2d","Number of reco vertices vs pileup interactions",60,-0.5,59.5,60,-0.5,59.5);
@@ -193,20 +190,19 @@ MCvsRecoVerticesAnalyzer::~MCvsRecoVerticesAnalyzer()
 void
 MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   
   double weight = 1.;
   
   if(m_useweight) {
-    Handle<double> weightprod;
-    iEvent.getByLabel(m_weight,weightprod);
+    edm::Handle< double > weightprod;
+    iEvent.getByToken( m_doubleToken, weightprod );
     
     weight = *weightprod;
     
   }
   
-  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
-  iEvent.getByLabel(m_pileupcollection,pileupinfos);
+  edm::Handle< std::vector<PileupSummaryInfo> > pileupinfos;
+  iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
   // look for the intime PileupSummaryInfo
 
@@ -220,8 +216,8 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   
   //
   
-  Handle<reco::VertexCollection> pvcoll;
-  iEvent.getByLabel(m_pvcollection,pvcoll);
+  edm::Handle< reco::VertexCollection > pvcoll;
+  iEvent.getByToken( m_recoVertexCollectionToken, pvcoll );
   
 
    //
@@ -249,8 +245,8 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
     //
     
-    Handle< HepMCProduct > EvtHandle ;
-    iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+    edm::Handle< edm::HepMCProduct > EvtHandle ;
+    iEvent.getByToken( m_hepMCProductToken, EvtHandle );
     
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
     
@@ -291,29 +287,5 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 }
   
-  void 
-MCvsRecoVerticesAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-void 
-MCvsRecoVerticesAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCvsRecoVerticesAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCvsRecoVerticesAnalyzer::endJob() 
-{
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(MCvsRecoVerticesAnalyzer);

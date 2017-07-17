@@ -89,17 +89,17 @@ class LMFSeqDat : public LMFUnique {
   std::string writeDBSql(Statement *stmt);
   void getParameters(ResultSet *rset);
 
-  void fetchParentIDs() throw(std::runtime_error);
+  void fetchParentIDs() noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(const std::vector<std::string>& par, 
 					 std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(int par, std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
 
 };
 

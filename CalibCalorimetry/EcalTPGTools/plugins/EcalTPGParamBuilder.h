@@ -4,9 +4,6 @@
 //Author: Pascal Paganini - LLR
 //Date: 2006/07/10 15:58:06 $
 
-#define CMSSW_VERSION 340
-
-
 // system include files
 #include <memory>
 
@@ -27,12 +24,10 @@
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 
-#if (CMSSW_VERSION>=340)
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
-#else
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
-#endif
+//modif-alex-27-july-2015
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
 
 #include <TH1F.h>
 
@@ -68,23 +63,22 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   ~EcalTPGParamBuilder() ;
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
   virtual void beginJob() ;
-  bool checkIfOK (const EcalPedestals::Item& item) ;
+  bool checkIfOK (EcalPedestals::Item item) ;
 
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;
   void create_header() ;
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
-#if (CMSSW_VERSION>=340)
   std::vector<unsigned int> computeWeights(EcalShapeBase & shape, TH1F * histo) ;
-#else
-  std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
-#endif
   void computeLUT(int * lut, std::string det="EB")  ;
-  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;
+  //void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ; //modif-alex-27-july-2015 uncomment to go back
   void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
   void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId) ;
   void getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId) ;
+
+  //modif-alex-27-july-2015
+  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, const EcalLaserAlphaMap& laserAlphaMap,  uint rawId, std::string & ss) ;
 
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
@@ -126,6 +120,10 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int SFGVB_SpikeKillingThreshold_; //modif-alex 01/21/11
   bool useInterCalibration_, H2_ ;
 
+  //modif-alex-30/01/2012
+  std::string Transparency_Corr_;  
+  bool useTransparencyCorr_;
+
   //modif-alex-02/02/11
   std::string TimingDelays_EB_;
   std::string TimingDelays_EE_;
@@ -135,6 +133,9 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::map<int, std::vector<int> > phases_EB_ ; 
   std::map<int, std::vector<int> > delays_EE_ ; 
   std::map<int, std::vector<int> > phases_EE_ ; 
+
+  //modif-alex 30/01/2012
+  std::map<int, double > Transparency_Correction_;
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;

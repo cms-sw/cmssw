@@ -6,7 +6,7 @@
 #include "CylindricalState.h"
 
 template <typename T, int N>
-class dso_internal RKCylindricalDistance GCC11_FINAL : public RKDistance<T,N> {
+class dso_internal RKCylindricalDistance final : public RKDistance<T,N> {
 public:
  
   typedef T                                   Scalar;

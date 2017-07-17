@@ -1,3 +1,4 @@
+
 /*
  * =====================================================================================
  *
@@ -28,6 +29,7 @@
 #include "CSCDQM_Configuration.h"
 #include "CSCDQM_EventProcessor.h"
 #include "CSCDQM_Collection.h"
+#include "CSCDQM_HistoDef.h"
 #include "CSCDQM_Cache.h"
 #include "CSCDQM_Logger.h"
 #include "CSCDQM_Lock.h"
@@ -123,6 +125,11 @@ namespace cscdqm {
 
       Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider);
 
+#ifdef DQMGLOBAL
+      Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider,
+		 const edm::InputTag& itag, edm::ConsumesCollector&& coco);
+#endif
+
       /**
        * @brief  Destructor. Joins and waits to complete all threads.
        */
@@ -133,12 +140,16 @@ namespace cscdqm {
       }
 
       void init();
+      void book();
       void updateFractionAndEfficiencyHistos();
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
       unsigned int maskHWElements(std::vector<std::string>& tokens);
       void processStandby(HWStandbyType& standby);
 
     private:
+
+      // Old content of ctor into separate function so it can be called by both ctors
+      void commonConstruct(Configuration* const p_config, MonitorObjectProvider* const p_provider);
 
       void updateFractionAndEfficiencyHistosAuto();
 

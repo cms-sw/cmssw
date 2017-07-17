@@ -3,8 +3,8 @@
 
 /** \class HLTJetTag
  *
- *  This class is an HLTFilter (a spcialized EDFilter) implementing 
- *  tagged multi-jet trigger for b and tau. 
+ *  This class is an HLTFilter (a spcialized EDFilter) implementing
+ *  tagged multi-jet trigger for b and tau.
  *  It should be run after the normal multi-jet trigger.
  *
  *
@@ -35,7 +35,7 @@ class HLTJetTag : public HLTFilter {
     explicit HLTJetTag(const edm::ParameterSet & config);
     ~HLTJetTag();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
 private:
   edm::InputTag                     m_Jets;      // module label of input JetCollection

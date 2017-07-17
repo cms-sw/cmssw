@@ -9,46 +9,71 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
   class BranchDescription;
-  class WrapperOwningHolder;
-  struct ProductData {
+  class WrapperBase;
+  class ProductData {
+  public:
     ProductData();
 
-    explicit ProductData(boost::shared_ptr<BranchDescription const> bd);
+    explicit ProductData(std::shared_ptr<BranchDescription const> bd);
 
     // For use by FWLite
-    ProductData(void const* product, Provenance const& prov);
+    ProductData(WrapperBase* product, Provenance const& prov);
 
-    WrapperInterfaceBase const* getInterface() const {
-      return prov_.product().getInterface();
-    }
-
-    boost::shared_ptr<BranchDescription const> const& branchDescription() const {
+    std::shared_ptr<BranchDescription const> const& branchDescription() const {
       return prov_.constBranchDescriptionPtr();
     }
-
+    
+    Provenance const& provenance() const { return prov_;}
+    
+    WrapperBase const* wrapper() const { return wrapper_.get();}
+    WrapperBase* wrapper() { return wrapper_.get(); }
+    WrapperBase* unsafe_wrapper() const { return wrapper_.get(); }
+    std::shared_ptr<WrapperBase const> sharedConstWrapper() const {
+      return wrapper_;
+    }
+    
     void swap(ProductData& other) {
        std::swap(wrapper_, other.wrapper_);
        prov_.swap(other.prov_);
     }
 
-    void resetBranchDescription(boost::shared_ptr<BranchDescription const> bd);
+    void setWrapper(std::unique_ptr<WrapperBase> iValue);
+    
+    //Not const thread-safe update
+    void unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const;
+    
+    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd);
 
     void resetProductData() {
       wrapper_.reset();
-      prov_.resetProductProvenance();
+    }
+
+    void unsafe_resetProductData() const {
+      wrapper_.reset();
+    }
+
+    void setProcessHistory(ProcessHistory const& ph) {
+      prov_.setProcessHistory(ph);
+    }
+    
+    void setProvenance(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+      prov_.setProductID(pid);
+      prov_.setStore(provRetriever);
+      prov_.setProcessHistory(ph);
     }
 
     // NOTE: We should probably think hard about whether these
     // variables should be declared "mutable" as part of
     // the effort to make the Framework multithread capable ...
 
+  private:
     // "non-const data" (updated every event)
-    mutable boost::shared_ptr<void const> wrapper_;
-    mutable Provenance prov_;
+    mutable std::shared_ptr<WrapperBase> wrapper_;
+    Provenance prov_;
   };
 
   // Free swap function

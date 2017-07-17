@@ -40,6 +40,8 @@
 // functions which manipulate storable trees
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace fftjetcms;
 
 //
@@ -58,6 +60,7 @@ private:
     typedef fftjet::OpenDXPeakTree<long,fftjet::AbsClusteringTree> DXFormatter;
     typedef fftjet::OpenDXPeakTree<long,fftjet::SparseClusteringTree> SparseFormatter;
     typedef fftjet::Functor1<double,fftjet::Peak> PeakProperty;
+    typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
     FFTJetTreeDump();
     FFTJetTreeDump(const FFTJetTreeDump&);
@@ -82,6 +85,8 @@ private:
     ClusteringTree* clusteringTree;
 
     const edm::InputTag treeLabel;
+    edm::EDGetTokenT<StoredTree> treeToken;
+
     const std::string outputPrefix;
     const double etaMax;
     const bool storeInSinglePrecision;
@@ -157,6 +162,8 @@ FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
 
     // Build the clustering tree
     clusteringTree = new ClusteringTree(distanceCalc.get());
+
+    treeToken = consumes<StoredTree>(treeLabel);
 }
 
 
@@ -173,15 +180,13 @@ template<class Real>
 void FFTJetTreeDump::processTreeData(const edm::Event& iEvent,
                                      std::ofstream& file)
 {
-    typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
-
     // Get the event number
-    const unsigned long runNum = iEvent.id().run();
-    const unsigned long evNum = iEvent.id().event();
+    edm::RunNumber_t const  runNum = iEvent.id().run();
+    edm::EventNumber_t const evNum = iEvent.id().event();
 
     // Get the input
     edm::Handle<StoredTree> input;
-    iEvent.getByLabel(treeLabel, input);
+    iEvent.getByToken(treeToken, input);
 
     const double eventScale = insertCompleteEvent ? completeEventScale : 0.0;
     if (input->isSparse())

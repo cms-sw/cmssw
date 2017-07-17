@@ -1,0 +1,4 @@
+<library file="*.cc" name="ApeEstimatorApeEstimatorPlugins">
+  <use name="Alignment/APEEstimation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

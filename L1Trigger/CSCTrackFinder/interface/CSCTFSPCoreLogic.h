@@ -16,6 +16,8 @@
 #include <L1Trigger/CSCTrackFinder/src/core_2012_01_31/vpp_generated.h> 
 #include <L1Trigger/CSCTrackFinder/src/core_2012_03_13/vpp_generated.h> 
 #include <L1Trigger/CSCTrackFinder/src/core_2012_07_30/vpp_generated.h> 
+#include <L1Trigger/CSCTrackFinder/src/core_2014_04_24/vpp_generated.h>
+#include <L1Trigger/CSCTrackFinder/src/core_2014_05_15/vpp_generated.h>
 
 class vpp_generated_2010_01_22;
 class vpp_generated_2010_07_28;
@@ -26,6 +28,8 @@ class vpp_generated_2011_01_18;
 class vpp_generated_2012_01_31;
 class vpp_generated_2012_03_13;
 class vpp_generated_2012_07_30;
+class vpp_generated_2014_04_24;
+class vpp_generated_2014_05_15;
 
 class CSCTFSPCoreLogic
 {
@@ -78,7 +82,7 @@ class CSCTFSPCoreLogic
 
   void loadData(const CSCTriggerContainer<csctf::TrackStub>&,
 		const unsigned& endcap, const unsigned& sector,
-		const int& minBX, const int& maxBX);
+		const int& minBX, const int& maxBX, const bool gangedME1a);
 
   bool run(const unsigned& endcap, const unsigned& sector, const unsigned& latency,
 	   const unsigned& etamin1, const unsigned& etamin2, const unsigned& etamin3, const unsigned& etamin4,
@@ -126,7 +130,9 @@ class CSCTFSPCoreLogic
   static vpp_generated_2012_01_31 sp_2012_01_31_;
   static vpp_generated_2012_03_13 sp_2012_03_13_;
   static vpp_generated_2012_07_30 sp_2012_07_30_;
-   
+  static vpp_generated_2014_04_24 sp_2014_04_24_;
+  static vpp_generated_2014_05_15 sp_2014_05_15_;
+
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;

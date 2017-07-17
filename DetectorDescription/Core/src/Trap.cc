@@ -1,7 +1,12 @@
 #include "DetectorDescription/Core/src/Trap.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include <cmath>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
 

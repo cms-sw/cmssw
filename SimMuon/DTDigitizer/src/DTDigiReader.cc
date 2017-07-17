@@ -7,7 +7,9 @@
  *  \authors: R. Bellan
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -25,7 +27,7 @@
 using namespace edm;
 using namespace std;
 
-class DTDigiReader: public EDAnalyzer{
+class DTDigiReader: public edm::one::EDAnalyzer<> {
   
 public:
   explicit DTDigiReader(const ParameterSet& pset){
@@ -38,6 +40,8 @@ public:
     if(file->IsOpen()) cout<<"file open!"<<endl;
     else cout<<"*** Error in opening file ***"<<endl;
     label = pset.getUntrackedParameter<string>("label");
+    psim_token = consumes<PSimHitContainer>( edm::InputTag("g4SimHits","MuonDTHits") );
+    DTd_token = consumes<DTDigiCollection>( edm::InputTag(label) );
   }
   
   virtual ~DTDigiReader(){
@@ -56,10 +60,10 @@ public:
 	 << " Event: " << event.id().event() << endl;
     
     Handle<DTDigiCollection> dtDigis;
-    event.getByLabel(label, dtDigis);
+    event.getByToken(DTd_token, dtDigis);
      // event.getByLabel("MuonDTDigis", dtDigis);
     Handle<PSimHitContainer> simHits; 
-    event.getByLabel("g4SimHits","MuonDTHits",simHits);    
+    event.getByToken(psim_token,simHits);    
 
 
     DTDigiCollection::DigiRangeIterator detUnitIt;
@@ -115,6 +119,9 @@ private:
   TH1F *DigiTimeBoxW1;
   TH1F *DigiTimeBoxW2;
   TFile *file;
+
+  edm::EDGetTokenT< PSimHitContainer > psim_token;
+  edm::EDGetTokenT< DTDigiCollection > DTd_token;
   
 };
 

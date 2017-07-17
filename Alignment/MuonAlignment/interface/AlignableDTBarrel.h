@@ -65,7 +65,7 @@ class AlignableDTBarrel : public AlignableComposite
   Alignments* alignments() const;
 
   // Get alignment errors sorted by DetId
-  AlignmentErrors* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
 
 

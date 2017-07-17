@@ -7,6 +7,12 @@
   <use   name="Geometry/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="TrackerParametersAnalyzer.cc" name="TrackerParametersAnalyzer">
+  <use   name="CondFormats/Alignment"/>
+  <use   name="CondFormats/GeometryObjects"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="TrackerMapTool.cc" name="TrackerMapTool">
   <use   name="CondFormats/Alignment"/>
   <use   name="Geometry/Records"/>

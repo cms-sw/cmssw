@@ -2,62 +2,54 @@
 #define SiStripRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+#include "TkCloner.h"
 
 
-class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
+class SiStripRecHit2D final : public TrackerSingleRecHit {
 public:
 
-  SiStripRecHit2D(): sigmaPitch_(-1.){}
+  SiStripRecHit2D() {}
 
   ~SiStripRecHit2D() {} 
 
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
   // no position (as in persistent)
   SiStripRecHit2D(const DetId& id,
 		  OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(id, clus),
-    sigmaPitch_(-1.) {}
+    TrackerSingleRecHit(id, clus){}
 
-
+  template<typename CluRef>
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
+		   GeomDet const & idet,
+		   CluRef const& clus) : 
+    TrackerSingleRecHit(pos,err, idet, clus) {}
  
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   ClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
-
-
-  SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
-		  const DetId& id,
-		  ClusterRegionalRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
 
-  virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
+  virtual SiStripRecHit2D * clone() const override {return new SiStripRecHit2D( * this); }
+#ifndef __GCCXML__
+  virtual RecHitPointer cloneSH() const override { return std::make_shared<SiStripRecHit2D>(*this);}
+#endif
   
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  virtual int dimension() const override {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
 
- 
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
+  virtual bool canImproveWithTrack() const override {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit2D* clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
+  }
+#ifndef __GCCXML__
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif 
   
 private:
-
-  /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient....
-
  
 };
 

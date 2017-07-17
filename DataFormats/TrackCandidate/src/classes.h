@@ -6,7 +6,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateSeedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_TrackCandidate {
   struct dictionary {
     TrackCandidate tc;
     TrackCandidateCollection coll;

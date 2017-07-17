@@ -1,5 +1,5 @@
-#ifndef MuonSlaveSD_h
-#define MuonSlaveSD_h
+#ifndef SimG4CMS_Muon_MuonSlaveSD_h
+#define SimG4CMS_Muon_MuonSlaveSD_h
 
 /** \class MuonSlaveSD
  *
@@ -60,6 +60,18 @@ class FormatEndcapHits {
 };
 
 class FormatRpcHits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
+class FormatGemHits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
+class FormatMe0Hits {
  public:
   bool operator() (const PSimHit & a, const PSimHit & b);
   int sortId (const PSimHit & a)  const;

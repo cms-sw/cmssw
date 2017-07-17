@@ -11,11 +11,12 @@ from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import *
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import *
 # Final Track Selector for CosmicTF
 from RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff import *
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
 #chi2 set to 40!!
 # CTF
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cff import *
-from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi import *
+from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cff import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
 combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
 combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
@@ -46,7 +47,8 @@ from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
 ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
 
-ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
+ctftracksP5 = cms.Sequence(combinatorialcosmicseedinglayersP5+combinatorialcosmicseedfinderP5*
+                           simpleCosmicBONSeedingLayers*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
                            ckfTrackCandidatesP5*ctfWithMaterialTracksCosmics*ctfWithMaterialTracksP5+
                            ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
 
@@ -66,7 +68,7 @@ trackerCosmics_TopBot = cms.Sequence((trackerlocalrecoTop*tracksP5Top)+(trackerl
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
 # (SK) keep rstracks commented out in case of resurrection
-tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*trackerCosmics_TopBot*doAllCosmicdEdXEstimators)
+tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*doAllCosmicdEdXEstimators*siPixelClusterShapeCache)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 
@@ -74,5 +76,8 @@ tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 ckfTrackCandidatesP5.useHitsSplitting = True
 
 # REGIONAL RECONSTRUCTION
-from RecoTracker.Configuration.RecoTrackerNotStandard_cff import regionalCosmicTrackerSeeds,regionalCosmicCkfTrackCandidates,regionalCosmicTracks,regionalCosmicTracksSeq
+from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 regionalCosmicTrackerSeeds.RegionInJetsCheckPSet = cms.PSet( doJetsExclusionCheck   = cms.bool( False ) )
+
+# CDC Reconstruction
+from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *

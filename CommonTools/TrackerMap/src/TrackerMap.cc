@@ -5,6 +5,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
@@ -28,7 +29,7 @@ The filling of the values for each module is done later
 when the user starts to fill it.
 **********************************************************/
 
-TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed) {
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed,const TrackerTopology* const topology) {
 
  psetAvailable=true;
   xsize=340;ysize=200;
@@ -66,14 +67,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  init();
 // Now load fed cabling information
  if(enableFedProcessing){
- const std::vector<unsigned short> feds = tkFed->feds();
+  auto feds = tkFed->fedIds();
   std::cout<<"SiStripFedCabling has "<< feds.size()<<" active FEDS"<<std::endl;
   //    int num_board=0;
     //    int num_crate=0;
   for(std::vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
-    const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
+    auto theconn = tkFed->fedConnections( *ifed );
     int num_conn=0;
-    for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
+    for(auto iconn = theconn.begin();iconn<theconn.end();iconn++){
 
       if( iconn->fedId()== sistrip::invalid_    ||  
 	  iconn->detId() == sistrip::invalid_   ||  
@@ -222,7 +223,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  if(enableLVProcessing || enableHVProcessing){
 
    SiStripDetCabling* detCabling = 0;
-   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed );
+   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed,topology );
 
 
    int npsu=0; int nmod,nmodHV2,nmodHV3;
@@ -445,6 +446,7 @@ void TrackerMap::init() {
   palette = 1;
   printflag=true;
   addPixelFlag=false;
+  onlyPixelFlag=false;
   temporary_file=false;
   gminvalue=0.; gmaxvalue=0.;//default global range for online rendering
 
@@ -549,7 +551,6 @@ void TrackerMap::drawModule(TmModule * mod, int key,int mlay, bool print_total, 
   int numod=0;
   phi = phival(mod->posx,mod->posy);
   r = sqrt(mod->posx*mod->posx+mod->posy*mod->posy);
-  vhbot = mod->width;
   vhtop=mod->width;
   vhapo=mod->length;
   if(mlay < 31){ //endcap
@@ -745,7 +746,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
   if(!temporary_file){
     *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
     *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -774,7 +775,10 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<std::endl;
   }
   
-  if(printflag)drawPalette(savefile);
+  if(printflag) {
+    if(onlyPixelFlag) {drawPalette(savefile,-30);}
+    else {drawPalette(savefile);}
+  }
   if(!temporary_file){
     *savefile << "</svg:svg>"<<std::endl;
     *savefile << "</svg>"<<std::endl;
@@ -798,7 +802,9 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(addPixelFlag)gPad->Range(0,0,3800,1600);else gPad->Range(800,0,3800,1600);
+    if(addPixelFlag) {gPad->Range(0,0,3800,1600);}
+    else if(onlyPixelFlag) {gPad->Range(-100,0,800,1600);}
+    else {gPad->Range(800,0,3800,1600);}
     
     //First  build palette
     ncolor=0;
@@ -846,7 +852,8 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     if (printflag) {
       float lminvalue=minvalue; float lmaxvalue=maxvalue;
       if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
+      if(onlyPixelFlag) {axis = new TGaxis(-30,36,-30,1530,lminvalue,lmaxvalue,510,"+L");}
+      else {axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");}
       axis->SetLabelSize(0.02);
       axis->Draw();
     }
@@ -861,9 +868,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     l.SetTextSize(0.04);
     std::string fulltitle = title;
     if(tkMapLog && (fulltitle.find("Log10 scale") == std::string::npos)) fulltitle += ": Log10 scale";
-    l.DrawLatex(850,1500,fulltitle.c_str());
-    l.DrawLatex(1730,40,"-z");
-    l.DrawLatex(1730,1360,"+z");
+    if(onlyPixelFlag) {l.DrawLatex(30,1500,fulltitle.c_str());} 
+    else {l.DrawLatex(850,1500,fulltitle.c_str());}
+    if(onlyPixelFlag) {l.DrawLatex(380,40,"-z");}
+    else {l.DrawLatex(1730,40,"-z");}
+    if(onlyPixelFlag) {l.DrawLatex(380,1330,"+z");}
+    else {l.DrawLatex(1730,1360,"+z");}
     l.DrawLatex(1085,330,"TIB L1");
     l.DrawLatex(1085,1000,"TIB L2");
     l.DrawLatex(1585,330,"TIB L3");
@@ -886,6 +896,16 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     ary.SetLineWidth(3);
     arz.SetLineWidth(3);
     arphi.SetLineWidth(3);
+    if(onlyPixelFlag) {
+      arx.SetX1(570);arx.SetX2(570);arx.SetY1(1190);arx.SetY2(1350);
+      l.DrawLatex(570+12,1190+160,"x");
+      ary.SetX1(570);ary.SetX2(570-160);ary.SetY1(1190);ary.SetY2(1190);
+      l.DrawLatex(570-160,1190+30,"y");
+      arz.SetX1(380);arz.SetX2(380);arz.SetY1(683-100);arz.SetY2(683+100);
+      l.DrawLatex(380+15,683+100-9,"z");
+      arphi.SetX1(380);arphi.SetX2(380-390);arphi.SetY1(683);arphi.SetY2(683);
+      l.DrawLatex(380-390-14,683+9,"#Phi");
+    }
     arx.Draw();
     ary.Draw();
     arz.Draw();
@@ -1325,7 +1345,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           }
   
  
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
       for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
           TmCcu *  ccu= i_ccu->second;
           if(ccu!=0) {
@@ -1461,9 +1481,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         col =gROOT->GetColor(ncolor+100);
         if(col)
           col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
-        else
+        else {
           c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
           vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1592,7 +1613,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	 }
        }
    
-   if(title==" Tracker Map from  QTestAlarm"){
+   if(title.find("QTestAlarm")!=std::string::npos){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
           if(psu!=0) {
@@ -1742,9 +1763,10 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	col =gROOT->GetColor(ncolor+100);
 	if(col) 
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
-	else 
+	else {
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
 	  vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1876,7 +1898,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     }
   }
   
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
       if(psu!=0) {
@@ -2170,7 +2192,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
 
      if(filetype=="svg"){
       saveAsSingleLayer=false;

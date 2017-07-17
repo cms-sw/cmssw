@@ -9,10 +9,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
-// This is very ugly, but I am told OK for white box  unit tests 
-#define private public
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#undef private
 
 #include <string>
 #include <iostream>
@@ -52,18 +49,18 @@ public:
     nullPHID = ProcessHistoryID();
 
     ProcessConfiguration pc;
-    std::unique_ptr<ProcessHistory> processHistory1(new ProcessHistory);
+    auto processHistory1 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph1 = *processHistory1;
     processHistory1->push_back(pc);
     fakePHID1 = ph1.id();
 
-    std::unique_ptr<ProcessHistory> processHistory2(new ProcessHistory);
+    auto processHistory2 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph2 = *processHistory2;
     processHistory2->push_back(pc);
     processHistory2->push_back(pc);
     fakePHID2 = ph2.id();
 
-    std::unique_ptr<ProcessHistory> processHistory3(new ProcessHistory);
+    auto processHistory3 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph3 = *processHistory3;
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);
@@ -260,7 +257,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
     ptr11->push_back(1);
     ptr11->push_back(2);
 
-    boost::shared_ptr<IndexIntoFile::EventFinder> shptr11(ptr11);
+    std::shared_ptr<IndexIntoFile::EventFinder> shptr11(ptr11);
     indexIntoFile11.setEventFinder(shptr11);
 
     TestEventFinder* ptr12(new TestEventFinder);
@@ -273,7 +270,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
     ptr12->push_back(1);
     ptr12->push_back(4);
 
-    boost::shared_ptr<IndexIntoFile::EventFinder> shptr12(ptr12);
+    std::shared_ptr<IndexIntoFile::EventFinder> shptr12(ptr12);
     indexIntoFile12.setEventFinder(shptr12);
 
     TestEventFinder* ptr22(new TestEventFinder);
@@ -286,7 +283,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
     ptr22->push_back(1);
     ptr22->push_back(4);
 
-    boost::shared_ptr<IndexIntoFile::EventFinder> shptr22(ptr22);
+    std::shared_ptr<IndexIntoFile::EventFinder> shptr22(ptr22);
     indexIntoFile22.setEventFinder(shptr22);
 
     if (j == 0) {

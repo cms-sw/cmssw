@@ -1,15 +1,26 @@
-#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-
-#include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDMaterial.h>
-
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
+#include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
+#include <DetectorDescription/Core/interface/DDSpecifics.h>
+#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
+#include <stddef.h>
+#include <iomanip>
+#include <vector>
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <sstream>
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 void 
 DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos ) 
@@ -268,6 +279,48 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
+      case ddcuttubs: 
+      {
+         //      <Tubs name="TrackerSupportTubeNomex"         rMin="[SupportTubeR1]+[Tol]" 
+         //            rMax="[SupportTubeR2]-[Tol]"           dz="[SupportTubeL]" 
+         //            startPhi="0*deg"                       deltaPhi="360*deg"/>
+         DDCutTubs rs(solid);
+	 const std::array<double, 3> &pLowNorm(rs.lowNorm());
+	 const std::array<double, 3> &pHighNorm(rs.highNorm());
+
+         xos << "<CutTubs name=\""  << rs.toString() << "\""
+	     << " dz=\"" << rs.zhalf() << "*mm\""
+	     << " rMin=\"" << rs.rIn() << "*mm\""
+	     << " rMax=\"" << rs.rOut() << "*mm\""
+	     << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	     << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\""
+	     << " lx=\"" << pLowNorm[0] << "\""
+	     << " ly=\"" << pLowNorm[1] << "\""
+	     << " lz=\"" << pLowNorm[2] << "\""
+	     << " tx=\"" << pHighNorm[0] << "\""
+	     << " ty=\"" << pHighNorm[1] << "\""
+	     << " tz=\"" << pHighNorm[2] << "\"/>"
+	     << std::endl;
+         break;
+      }
+      case ddextrudedpolygon:
+      {
+	 DDExtrudedPolygon rs(solid);
+	 std::vector<double> x = rs.xVec();
+	 std::vector<double> y = rs.yVec();
+	 std::vector<double> z = rs.zVec();
+	 std::vector<double> zx = rs.zxVec();
+	 std::vector<double> zy = rs.zyVec();
+	 std::vector<double> zs = rs.zscaleVec();
+	 
+         xos << "<ExtrudedPolygon name=\""  << rs.toString() << "\"";
+	 for( unsigned int i : x )
+	   xos << " <XYPoint x=\"" << x[i] << "*mm\" y=\"" << y[i] << "*mm\"/>\n";
+	 for( unsigned int k : z )
+	   xos << " <ZXYSection z=\"" << z[k] << "*mm\" x=\"" << zx[k] << "*mm\" y=\"" << zy[k] << "*mm scale=" <<  zs[k] << "*mm\"/>\n";
+	 xos << "</ExtrudedPolygon>\n";
+         break;
+      }
          //       return new PSolid( pstrs(solid.toString()), solid.parameters()
          // 			 , solid.shape(), pstrs(""), pstrs(""), pstrs("") );
       case dd_not_init:
@@ -311,7 +364,6 @@ void DDCoreToDDXMLOutput::material( const DDMaterial& material, std::ostream& xo
       }
       xos << "</CompositeMaterial>" << std::endl;
    }
-   //   return temp;
 }
 
 void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, const std::string& rotn ) 
@@ -345,7 +397,6 @@ void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, con
    {
       xos << "<ReflectionRotation ";
    }
-   //  xos << std::fixed << std::setprecision(4);
    xos << "name=\"" << rotName << "\""
    << " phiX=\"" << x.phi()/deg << "*deg\""
    << " thetaX=\"" << x.theta()/deg << "*deg\""
@@ -354,7 +405,6 @@ void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, con
    << " phiZ=\"" << z.phi()/deg << "*deg\""
    << " thetaZ=\"" << z.theta()/deg << "*deg\"/>"
    << std::endl;
-   //  xos << std::fixed << std::setprecision(6);
 }
 
 void DDCoreToDDXMLOutput::logicalPart( const DDLogicalPart& lp, std::ostream& xos ) 
@@ -368,7 +418,6 @@ void DDCoreToDDXMLOutput::logicalPart( const DDLogicalPart& lp, std::ostream& xo
 void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
                                    const DDLogicalPart& child,
                                    DDPosData* edgeToChild, 
-                                   // PIdealGeometry& geom
                                    int& rotNameSeed,
                                    std::ostream& xos ) 
 {
@@ -389,11 +438,9 @@ void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
          xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
       }
    } // else let default Rotation matrix be created?
-     //  xos  << std::fixed << std::setprecision(4);
    xos << "<Translation x=\"" << edgeToChild->translation().x() <<"*mm\""
    << " y=\"" << edgeToChild->translation().y() <<"*mm\""
    << " z=\"" << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
-   //  xos  << std::fixed << std::setprecision(6);
    xos << "</PosPart>" << std::endl;
 }
 
@@ -403,19 +450,15 @@ DDCoreToDDXMLOutput::specpar( const DDSpecifics& sp, std::ostream& xos )
    xos << "<SpecPar name=\"" << sp.toString() << "\" eval=\"false\">" << std::endl;
    
    // ========...  all the selection strings out as strings by using the DDPartSelection's std::ostream function...
-   const std::vector<DDPartSelection> sels = sp.selection();
-   std::vector<DDPartSelection>::const_iterator psit = sels.begin();
-   std::vector<DDPartSelection>::const_iterator psendit = sels.end();
-   for(; psit != psendit ; ++psit) 
+   for( const auto& psit : sp.selection()) 
    {
-      xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
+      xos << "<PartSelector path=\"" << psit << "\"/>" << std::endl;
    }
    
    // =========  ... and iterate over all DDValues...
-   DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
-   for(; vit != ved; ++vit) 
+   for( const auto& vit : sp.specifics()) 
    {
-      const DDValue & v = vit->second;
+      const DDValue & v = vit.second;
       size_t s=v.size();
       size_t i=0;
       // ============  ... all actual values with the same name
@@ -443,26 +486,22 @@ DDCoreToDDXMLOutput::specpar( const DDSpecifics& sp, std::ostream& xos )
    xos << "</SpecPar>" << std::endl;
 }
 
-void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<DDPartSelection*> >& pssv, std::ostream& xos ) 
+void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos ) 
 {
-   static std::string madeName("specparname");
+   static const std::string madeName("specparname");
    static int numspecpars(0);
    std::ostringstream ostr;
    ostr << numspecpars++;
    std::string spname = madeName + ostr.str(); 
    xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
-   std::set<DDPartSelection*>::const_iterator psit = pssv.second.begin();
-   std::set<DDPartSelection*>::const_iterator psendit = pssv.second.end();
-   for (; psit != psendit; ++psit) {
-      xos << "<PartSelector path=\"" << *(*psit) << "\"/>" << std::endl;
+   for( const auto& psit : pssv.second ) {
+      xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
    }
    
    // =========  ... and iterate over all DDValues...
-   
-   DDsvalues_type::const_iterator vit(pssv.first.begin()), ved(pssv.first.end());
-   for(; vit != ved; ++vit) 
+   for( const auto& vit : pssv.first ) 
    {
-      const DDValue & v = vit->second;
+      const DDValue & v = vit.second;
       size_t s=v.size();
       size_t i=0;
       // ============  ... all actual values with the same name

@@ -27,48 +27,43 @@ public:
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  etcut1_  = iConfig.getParameter<double> ("etcut1");
-  etcut2_  = iConfig.getParameter<double> ("etcut2");
+  candTag_   = iConfig.getParameter< edm::InputTag > ("candTag");
+  etcut1_    = iConfig.getParameter<double> ("etcut1");
+  etcut2_    = iConfig.getParameter<double> ("etcut2");
   npaircut_  = iConfig.getParameter<int> ("npaircut");
-  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  l1EGTag_   = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
 }
 
-HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter(){}
+HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter()= default;
 
-void 
+void
 HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
-   desc.add<edm::InputTag>("candTag",edm::InputTag("hltTrackIsolFilter"));
-   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.addUntracked<bool>("relaxed",true);
+   desc.add<edm::InputTag>("candTag", edm::InputTag("hltTrackIsolFilter"));
+   desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
    desc.add<double>("etcut1", 30.0);
    desc.add<double>("etcut2", 20.0);
    desc.add<int>("npaircut", 1);
-   descriptions.add("hltEgammaDoubleEtFilter",desc);
+   descriptions.add("hltEgammaDoubleEtFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
   // The filter object
   if (saveTags()) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
   // Ref to Candidate object to be recorded in filter object
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken (candToken_,PrevFilterOutput);
+  iEvent.getByToken (candToken_, PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerPhoton,  mysortedrecoecalcands);
@@ -76,7 +71,7 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
-  
+
   // Sort the list
   std::sort(mysortedrecoecalcands.begin(), mysortedrecoecalcands.end(), EgammaHLTEtSortCriterium());
   edm::Ref<reco::RecoEcalCandidateCollection> ref1, ref2;
@@ -93,13 +88,13 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
-  
+
 
   // filter decision
   bool accept(n>=npaircut_);
-  
+
   return accept;
 }
 
 
-  
+

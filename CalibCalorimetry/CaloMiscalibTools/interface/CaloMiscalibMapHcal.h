@@ -6,6 +6,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <iostream>
@@ -20,16 +21,14 @@ public:
 
 void prefillMap(const HcalTopology & topology){
 
-  for (int det = 1; det < 5; det++) {
-    for (int eta = -63; eta < 64; eta++) {
-      for (int phi = 0; phi < 128; phi++) {
-	for (int depth = 1; depth < 5; depth++) {
+  for (int det = 1; det <= HcalForward; det++) {
+    for (int eta = -HcalDetId::kHcalEtaMask2; eta <= HcalDetId::kHcalEtaMask2; eta++) {
+      for (int phi = 1; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+	for (int depth = 1; depth <= HcalDetId::kHcalDepthMask2; depth++) {
 
 	  try {
 	    HcalDetId hcaldetid ((HcalSubdetector) det, eta, phi, depth);
-	    if (topology.valid(hcaldetid))
-	    //	    mapHcal_.setValue(hcaldetid.rawId(),1.0);
-	    {
+	    if (topology.valid(hcaldetid)) {
 	      mapHcal_[hcaldetid.rawId()]=1.0; 
 	      //	      std::cout << "Valid cell found: " << det << " " << eta << " " << phi << " " << depth << std::endl;
 	    }

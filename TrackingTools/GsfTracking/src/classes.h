@@ -7,7 +7,7 @@
 #include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 #include <vector>
 
-namespace {
+namespace TrackingTools_GsfTracking {
   struct dictionary {
 
     TrajGsfTrackAssociationCollection ttam;

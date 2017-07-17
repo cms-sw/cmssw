@@ -34,8 +34,8 @@ class MonRunIOV : public IIOV {
   Tm getSubRunEnd() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   // Operators
   inline bool operator==(const MonRunIOV &m) const
@@ -57,10 +57,10 @@ class MonRunIOV : public IIOV {
   Tm m_subRunStart;
   Tm m_subRunEnd;
 
-  int writeDB() throw(std::runtime_error);
-  void fetchParentIDs(int* monRunTagID, int* runIOVID) throw(std::runtime_error);
+  int writeDB() noexcept(false);
+  void fetchParentIDs(int* monRunTagID, int* runIOVID) noexcept(false);
 
-  void setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun) throw(std::runtime_error);
+  void setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun) noexcept(false);
 };
 
 #endif

@@ -3,7 +3,7 @@ from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlo
 
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
@@ -22,18 +22,19 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
-    IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
     # Merge Pileup Info?
     MergePileupInfo = cms.bool(True),                         
-    # Use digis?               
+    # Use digis?
+    TrackerMergeType = cms.string("Digis"),
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
-    HcalDigiMerge = cms.string('NotProd'), #use sim hits for signal
+    HcalDigiMerge = cms.string('NotProd'), #use sim hits for signal                         
     #
     # Input Specifications:
     #
 
     PileupInfoInputTag = cms.InputTag("addPileupInfo"),
+    BunchSpacingInputTag = cms.InputTag("addPileupInfo","bunchSpacing"),
     CFPlaybackInputTag = cms.InputTag("mix"),
     #
     SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
@@ -76,6 +77,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("simHcalUnsuppressedDigis"),
     HOdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE10digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE11digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
     #
@@ -85,6 +88,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("simHcalDigis"),
     HOPileInputTag   = cms.InputTag("simHcalDigis"),
     HFPileInputTag   = cms.InputTag("simHcalDigis"),
+    QIE10PileInputTag   = cms.InputTag("simHcalDigis"),
+    QIE11PileInputTag   = cms.InputTag("simHcalDigis"),
     ZDCPileInputTag  = cms.InputTag(""),
 
     #  Signal
@@ -130,7 +135,11 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),
     HFDigiCollectionDM   = cms.string(''),
+    QIE10DigiCollectionDM   = cms.string(''),
+    QIE11DigiCollectionDM   = cms.string(''),
     ZDCDigiCollectionDM  = cms.string('')
 )
 
-
+mixData.doEB = cms.bool(True)
+mixData.doEE = cms.bool(True)
+mixData.doES = cms.bool(True)

@@ -24,7 +24,7 @@ ODSRPCycle::~ODSRPCycle()
 
 
 void ODSRPCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODSRPCycle::prepareWrite()
 }
 
 
-void ODSRPCycle::writeDB()  throw(std::runtime_error)
+void ODSRPCycle::writeDB()  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODSRPCycle::clear(){
 
 
 int ODSRPCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODSRPCycle::fetchID()
 
 
 void ODSRPCycle::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODSRPCycle::setByID(int id)
 
 
 void ODSRPCycle::fetchData(ODSRPCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODSRPCycle::fetchData(ODSRPCycle * result)
 }
 
 void ODSRPCycle::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

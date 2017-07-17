@@ -1,5 +1,5 @@
-#ifndef MuonSensitiveDetector_h
-#define MuonSensitiveDetector_h
+#ifndef SimG4CMS_Muon_MuonSensitiveDetector_h
+#define SimG4CMS_Muon_MuonSensitiveDetector_h
 
 /** \class MuonSensitiveDetector
  *
@@ -15,6 +15,7 @@
  * Add SimTracks selection
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -49,7 +50,7 @@ public Observer<const EndOfEvent*>
 
  public:    
   MuonSensitiveDetector(std::string, const DDCompactView &,
-			SensitiveDetectorCatalog &, edm::ParameterSet const &,
+			const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 			const SimTrackManager*);
   virtual ~MuonSensitiveDetector();
   virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);

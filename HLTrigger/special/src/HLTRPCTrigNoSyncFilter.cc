@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Class:      HLTRPCTrigNoSyncFilter
-// 
+//
 /**\class RPCPathChambFilter HLTRPCTrigNoSyncFilter.cc HLTrigger/special/src/HLTRPCTrigNoSyncFilter.cc
 
  Description: <one line class summary>
@@ -43,14 +43,14 @@ bool bigmag(const RPC4DHit &Point1,const RPC4DHit &Point2){
   else return false;
 }
 
-HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   //now do what ever initialization is needed
   m_GMTInputTag =iConfig.getParameter< edm::InputTag >("GMTInputTag");
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
   m_GMTInputToken = consumes<L1MuGMTReadoutCollection>(m_GMTInputTag);
   rpcRecHitsToken = consumes<RPCRecHitCollection>(rpcRecHitsLabel);
-    
+
 }
 
 
@@ -74,17 +74,17 @@ HLTRPCTrigNoSyncFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
+bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   std::vector<RPC4DHit> GlobalRPC4DHits;
   std::vector<RPC4DHit> GlobalRPC4DHitsNoBx0;
 
   edm::Handle<RPCRecHitCollection> rpcRecHits;
-  
+
   //std::cout <<"\t Getting the RPC RecHits"<<std::endl;
 
   iEvent.getByToken(rpcRecHitsToken,rpcRecHits);
-  
+
   if(!rpcRecHits.isValid()){
     //std::cout<<"no valid RPC Collection"<<std::endl;
     //std::cout<<"event skipped"<<std::endl;
@@ -95,7 +95,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     //std::cout<<"event skipped"<<std::endl;
     return false;
   }
-  
+
   RPCRecHitCollection::const_iterator recHit;
 
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -105,14 +105,14 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
   for (recHit = rpcRecHits->begin(); recHit != rpcRecHits->end(); recHit++){
     RPCDetId rollId = (RPCDetId)(*recHit).rpcId();
-    LocalPoint recHitPos=recHit->localPosition();    
+    LocalPoint recHitPos=recHit->localPosition();
     const RPCRoll* rollasociated = rpcGeo->roll(rollId);
-    const BoundPlane & RPCSurface = rollasociated->surface(); 
+    const BoundPlane & RPCSurface = rollasociated->surface();
     GlobalPoint RecHitInGlobal = RPCSurface.toGlobal(recHitPos);
-    
+
     int BX = recHit->BunchX();
     //std::cout<<"\t \t We have an RPC Rec Hit! bx="<<BX<<" Roll="<<rollId<<" Global Position="<<RecHitInGlobal<<std::endl;
-    
+
     RPC4DHit ThisHit;
     ThisHit.bx =  BX;
     ThisHit.gp = RecHitInGlobal;
@@ -133,12 +133,12 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     //std::cout<<"event skipped"<<std::endl;
     return false;
   }
-   
+
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
   iEvent.getByToken(m_GMTInputToken,gmtrc_handle);
-  
+
   std::vector<L1MuGMTExtendedCand> gmt_candidates = (*gmtrc_handle).getRecord().getGMTCands();
-  
+
   std::vector<L1MuGMTExtendedCand>::const_iterator candidate;
   //std::cout<<"The number of GMT Candidates in this event is "<<gmt_candidates.size()<<std::endl;
 
@@ -146,39 +146,39 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     //std::cout<<"event skipped no gmt candidates"<<std::endl;
     return false;
   }
-  
+
   for(candidate=gmt_candidates.begin(); candidate!=gmt_candidates.end(); candidate++) {
     int qual = candidate->quality();
     //std::cout<<"quality of this GMT Candidate (should be >5)= "<<qual<<std::endl;
     if(qual < 5) continue;
     float eta=candidate->etaValue();
-    float phi=candidate->phiValue();      
-    
+    float phi=candidate->phiValue();
+
     //std::cout<<" phi="<<phi<<" eta="<<eta<<std::endl;
-    
+
     //Creating container in this etaphi direction;
-    
+
     std::vector<RPC4DHit> PointsForGMT;
-    
-    for(std::vector<RPC4DHit>::iterator Point = GlobalRPC4DHitsNoBx0.begin(); Point!=GlobalRPC4DHitsNoBx0.end(); ++Point){ 
-      float phiP = Point->gp.phi();
-      float etaP = Point->gp.eta();
+
+    for(auto & Point : GlobalRPC4DHitsNoBx0){
+      float phiP = Point.gp.phi();
+      float etaP = Point.gp.eta();
       //std::cout<<"\t \t GMT   phi="<<phi<<" eta="<<eta<<std::endl;
       //std::cout<<"\t \t Point phi="<<phiP<<" eta="<< etaP<<std::endl;
       //std::cout<<"\t \t "<<fabs(phi-phiP)<<" < 0,1? "<<fabs(eta-etaP)<<" < 0.20 ?"<<std::endl;
       if(fabs(phi-phiP) <=0.1 && fabs(eta-etaP)<=0.20){
-	PointsForGMT.push_back(*Point);
+	PointsForGMT.push_back(Point);
 	//std::cout<<"\t \t match!"<<std::endl;
       }
     }
-    
+
     //std::cout<<"\t Points matching this GMT="<<PointsForGMT.size()<<std::endl;
 
     if(PointsForGMT.size()<1){
       //std::cout<<"\t Not enough RPCRecHits not syncrhonized for this GMT!!!"<<std::endl;
       continue;
     }
-      
+
     std::sort(PointsForGMT.begin(), PointsForGMT.end(), bigmag);
 
     //std::cout<<"GMT candidate phi="<<phi<<std::endl;
@@ -187,45 +187,40 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     int lastbx=-7;
     bool outOfTime = false;
     bool incr = true;
-    bool anydifferentzero = true;
-    bool anydifferentone = true;
-    
+
     //std::cout<<"\t \t loop on the RPCHit4D!!!"<<std::endl;
-    for(std::vector<RPC4DHit>::iterator point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
+    for(auto point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
       //float r=point->gp.mag();
       outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
       incr &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.
-      anydifferentzero &= (!point->bx==0); //to check one knee withoutzeros
-      anydifferentone &= (!point->bx==1); //to check one knee withoutones
       lastbx = point->bx;
-      //std::cout<<"\t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" outOfTime"<<outOfTime<<" incr"<<incr<<" anydifferentzero"<<anydifferentzero<<std::endl;
     }
     //std::cout<<"\t \t";
-    
+
     //for(std::vector<RPC4DHit>::iterator point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
       //std::cout<<point->bx;
     //}
     //std::cout<<std::endl;
-    
+
     bool Candidate = (outOfTime&&incr);
-    
-    if(Candidate){ 
+
+    if(Candidate){
       //std::cout<<" Event Passed We found an strange trigger Candidate phi="<<phi<<" eta="<<eta<<std::endl;
       return true;
     }
   }
-  
+
   //std::cout<<"event skipped rechits out of time but not related with a GMT "<<std::endl;
   return false;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HLTRPCTrigNoSyncFilter::beginJob(){
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 HLTRPCTrigNoSyncFilter::endJob(){
 }
 

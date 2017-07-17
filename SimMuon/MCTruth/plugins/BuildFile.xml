@@ -11,6 +11,7 @@
   <use   name="SimDataFormats/Track"/>
   <use   name="SimDataFormats/TrackingHit"/>
   <use   name="SimDataFormats/TrackerDigiSimLink"/>
+  <use   name="SimDataFormats/Associations"/>
   <use   name="SimTracker/Records"/>
   <use   name="SimTracker/TrackAssociation"/>
   <use   name="SimMuon/MCTruth"/>

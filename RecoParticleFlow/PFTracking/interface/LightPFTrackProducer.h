@@ -1,14 +1,16 @@
 #ifndef LightPFTrackProducer_H
 #define LightPFTrackProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 class PFTrackTransformer;
-class LightPFTrackProducer : public edm::EDProducer {
+class LightPFTrackProducer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor
@@ -26,7 +28,7 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  std::vector<edm::InputTag> tracksContainers_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
   ///TRACK QUALITY
     bool useQuality_;
     reco::TrackBase::TrackQuality trackQuality_;

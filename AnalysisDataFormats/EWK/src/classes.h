@@ -20,7 +20,7 @@
 #include <map>
 
 
-namespace {
+namespace AnalysisDataFormats_EWK {
   struct dictionary {
      std::vector<reco::WMuNuCandidate> v1;
      edm::Wrapper<std::vector<reco::WMuNuCandidate> > c1;

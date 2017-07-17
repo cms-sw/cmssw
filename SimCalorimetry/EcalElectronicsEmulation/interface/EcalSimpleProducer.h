@@ -1,7 +1,7 @@
 #ifndef SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 #define SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include <memory>
 #include <TFormula.h>
 #include <string>
@@ -35,7 +35,7 @@
  * TFormula</A>
  *
  */
-class EcalSimpleProducer: public edm::EDProducer {
+class EcalSimpleProducer: public edm::one::EDProducer<> {
 
   //constructor(s) and destructor(s)
 public:
@@ -112,15 +112,15 @@ protected:
 private:
   /** Formula defining the data frame samples
    */
-  std::auto_ptr<TFormula> formula_;
+  std::unique_ptr<TFormula> formula_;
 
   /** Formula defining the trigger primitives
    */
-  std::auto_ptr<TFormula> tpFormula_;
+  std::unique_ptr<TFormula> tpFormula_;
 
   /** Formula defining the sim hits
    */
-  std::auto_ptr<TFormula> simHitFormula_;
+  std::unique_ptr<TFormula> simHitFormula_;
   
   /** Verbosity switch
    */

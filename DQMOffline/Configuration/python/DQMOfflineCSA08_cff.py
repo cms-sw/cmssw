@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
-from DQMOffline.Muon.muonAnalyzer_cfi import *
+from DQMOffline.Muon.muonAnalyzer_cff import *
 import DQM.TrackingMonitor.MonitorTrackSTACosmicMuons_cfi
 staMonitor = DQM.TrackingMonitor.MonitorTrackSTACosmicMuons_cfi.MonitorTrackSTACosmicMuons.clone()
 import DQM.TrackingMonitor.MonitorTrackGLBCosmicMuons_cfi

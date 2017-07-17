@@ -109,15 +109,12 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
   //cout << "NEW EVENT"<<endl;
 
-  std::auto_ptr<reco::BasicClusterCollection> 
-    basicClusters_p(new reco::BasicClusterCollection);
+  auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
 
-  std::auto_ptr<reco::PreshowerClusterCollection>
-    psClusters_p(new reco::PreshowerClusterCollection);
+  auto psClusters_p = std::make_unique<reco::PreshowerClusterCollection>();
 
   /*
-  std::auto_ptr<reco::ConversionCollection>
-    SingleLeg_p(new reco::ConversionCollection);
+  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>();
   */
 
   reco::SuperClusterCollection outputSuperClusterCollection;
@@ -308,11 +305,11 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
    //Save the basic clusters and get an handle as to be able to create valid Refs (thanks to Claude)
   //  std::cout << " Number of basic clusters " << basicClusters_p->size() << std::endl;
   const edm::OrphanHandle<reco::BasicClusterCollection> bcRefProd = 
-    iEvent.put(basicClusters_p,PFBasicClusterCollection_);
+    iEvent.put(std::move(basicClusters_p),PFBasicClusterCollection_);
 
   //preshower clusters
   const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd = 
-    iEvent.put(psClusters_p,PFPreshowerClusterCollection_);
+    iEvent.put(std::move(psClusters_p),PFPreshowerClusterCollection_);
   
   // now that the Basic clusters are in the event, the Ref can be created
   createBasicClusterPtrs(bcRefProd);
@@ -326,8 +323,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   //std::cout << "nb superclusters in collection : "<<outputSuperClusterCollection.size()<<std::endl;
 
   // Let's put the super clusters in the event
-  std::auto_ptr<reco::SuperClusterCollection> superClusters_p(new reco::SuperClusterCollection(outputSuperClusterCollection));  
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
+  auto superClusters_p = std::make_unique<reco::SuperClusterCollection>(outputSuperClusterCollection);  
+  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(std::move(superClusters_p),PFSuperClusterCollection_); 
 
 
   /*
@@ -345,8 +342,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   if (status) createOneLegConversions(scRefProd, outputOneLegConversionCollection);
 
 
-  std::auto_ptr<reco::ConversionCollection> SingleLeg_p(new reco::ConversionCollection(outputOneLegConversionCollection));  
-  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(SingleLeg_p,PFConversionCollection_);
+  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>(outputOneLegConversionCollection);  
+  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(std::move(SingleLeg_p),PFConversionCollection_);
   /*
   int iconv = 0;
   for (reco::ConversionCollection::const_iterator convIter = ConvRefProd->begin(); convIter != ConvRefProd->end(); ++convIter){
@@ -368,15 +365,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   //std::cout << "nb photoncores in collection : "<<outputPhotonCoreCollection.size()<<std::endl;
 
   // Put the photon cores in the event
-  std::auto_ptr<reco::PhotonCoreCollection> photonCores_p(new reco::PhotonCoreCollection(outputPhotonCoreCollection));  
-  //std::cout << "photon core collection put in auto_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(photonCores_p,PFPhotonCoreCollection_); 
+  auto photonCores_p = std::make_unique<reco::PhotonCoreCollection>(outputPhotonCoreCollection);  
+  //std::cout << "photon core collection put in unique_ptr"<<std::endl;
+  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(std::move(photonCores_p),PFPhotonCoreCollection_); 
   
   //std::cout << "photon core have been put in the event"<<std::endl;
   /*
   int ipho=0;
   for (reco::PhotonCoreCollection::const_iterator gamIter = pcRefProd->begin(); gamIter != pcRefProd->end(); ++gamIter){
-    std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     //for (unsigned int i=0; i<)
 
     std::cout << "PhotonCore i="<<ipho<<" nconv2leg="<<gamIter->conversions().size()<<" nconv1leg="<<gamIter->conversionsOneLeg().size()<<std::endl;
@@ -449,15 +446,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   if(status) createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
 
   // Put the photons in the event
-  std::auto_ptr<reco::PhotonCollection> photons_p(new reco::PhotonCollection(outputPhotonCollection));  
-  //std::cout << "photon collection put in auto_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(photons_p,PFPhotonCollection_); 
+  auto photons_p = std::make_unique<reco::PhotonCollection>(outputPhotonCollection);  
+  //std::cout << "photon collection put in unique_ptr"<<std::endl;
+  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(std::move(photons_p),PFPhotonCollection_); 
   //std::cout << "photons have been put in the event"<<std::endl;
   
   /*
   ipho=0;
   for (reco::PhotonCollection::const_iterator gamIter = photonRefProd->begin(); gamIter != photonRefProd->end(); ++gamIter){
-    std::cout << "Photon i="<<ipho<<" pfEnergy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    std::cout << "Photon i="<<ipho<<" pfEnergy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     
     const reco::ConversionRefVector & conv = gamIter->conversions();
     cout << "conversions obtained : conv.size()="<< conv.size()<<endl;
@@ -811,7 +808,7 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
       
       myPhotonCore.setPFlowPhoton(true);
       myPhotonCore.setStandardPhoton(false);
-      myPhotonCore.setPflowSuperCluster(SCref);
+      myPhotonCore.setParentSuperCluster(SCref);
       myPhotonCore.setSuperCluster(egSCRef_[iphot]);
 
       reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
@@ -902,18 +899,19 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
       //std::cout << "vtx made" << std::endl;
 
-      math::XYZVector direction =  PCref->pfSuperCluster()->position() - vtx;
+      math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;
 
       //It could be that pfSC energy gives not the best resolution : use smaller agregates for some cases ?
-      math::XYZVector P3 = direction.unit() * PCref->pfSuperCluster()->energy();
-      LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->pfSuperCluster()->energy());
+      math::XYZVector P3 = direction.unit() * PCref->parentSuperCluster()->energy();
+      LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->parentSuperCluster()->energy());
 
-      reco::Photon myPhoton(P4, PCref->pfSuperCluster()->position(), PCref, vtx);
+      reco::Photon myPhoton(P4, PCref->parentSuperCluster()->position(), PCref, vtx);
       //cout << "photon created"<<endl;
 
 
 
       reco::Photon::ShowerShape  showerShape;
+      reco::Photon::SaturationInfo saturationInfo;
       reco::Photon::FiducialFlags fiducialFlags;
       reco::Photon::IsolationVariables isolationVariables03;
       reco::Photon::IsolationVariables isolationVariables04;
@@ -928,7 +926,12 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
       showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
       myPhoton.setShowerShapeVariables ( showerShape ); 
-	  
+
+      
+      saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
+      saturationInfo.isSeedSaturated = egPhotonRef_[iphot]->isSeedSaturated();
+      myPhoton.setSaturationInfo(saturationInfo);
+
       fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
       fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
       fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();
@@ -968,7 +971,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       reco::Photon::PflowIDVariables myPFVariables;
 
       reco::Mustache myMustache;
-      myMustache.MustacheID(*(myPhoton.pfSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
+      myMustache.MustacheID(*(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
       myPFVariables.mva = pfPhotonMva_[iphot];
       myPhoton.setPflowIDVariables(myPFVariables);
 
@@ -984,36 +987,36 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       //Algorithms from EcalClusterTools could be adapted to PF photons ? (not based on 5x5 BC)
       //It happens that energy computed in eg e5x5 is greater than pfSC energy (EcalClusterTools gathering energies from adjacent crystals even if not belonging to the SC)
       const EcalRecHitCollection* hits = 0 ;
-      int subdet = PCref->pfSuperCluster()->seed()->hitsAndFractions()[0].first.subdetId();
+      int subdet = PCref->parentSuperCluster()->seed()->hitsAndFractions()[0].first.subdetId();
       if (subdet==EcalBarrel) hits = barrelRecHits;
       else if  (subdet==EcalEndcap) hits = endcapRecHits;
       const CaloGeometry* geometry = theCaloGeom_.product();
 
-      float maxXtal =   EcalClusterTools::eMax( *(PCref->pfSuperCluster()->seed()), &(*hits) );
+      float maxXtal =   EcalClusterTools::eMax( *(PCref->parentSuperCluster()->seed()), &(*hits) );
       //cout << "maxXtal="<<maxXtal<<endl;
-      float e1x5    =   EcalClusterTools::e1x5(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e1x5    =   EcalClusterTools::e1x5(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e1x5="<<e1x5<<endl;
-      float e2x5    =   EcalClusterTools::e2x5Max(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e2x5    =   EcalClusterTools::e2x5Max(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e2x5="<<e2x5<<endl;
-      float e3x3    =   EcalClusterTools::e3x3(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e3x3    =   EcalClusterTools::e3x3(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e3x3="<<e3x3<<endl;
-      float e5x5    =   EcalClusterTools::e5x5( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e5x5    =   EcalClusterTools::e5x5( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e5x5="<<e5x5<<endl;
-      std::vector<float> cov =  EcalClusterTools::covariances( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology), geometry); 
+      std::vector<float> cov =  EcalClusterTools::covariances( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology), geometry); 
       float sigmaEtaEta = sqrt(cov[0]);
       //cout << "sigmaEtaEta="<<sigmaEtaEta<<endl;
-      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       float sigmaIetaIeta = sqrt(locCov[0]);
       //cout << "sigmaIetaIeta="<<sigmaIetaIeta<<endl;
-      //float r9 =e3x3/(PCref->pfSuperCluster()->rawEnergy());
+      //float r9 =e3x3/(PCref->parentSuperCluster()->rawEnergy());
 
 
       // calculate HoE
       const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
       EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
       EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
-      double HoE1=towerIso1.getTowerESum(&(*PCref->pfSuperCluster()))/PCref->pfSuperCluster()->energy();
-      double HoE2=towerIso2.getTowerESum(&(*PCref->pfSuperCluster()))/PCref->pfSuperCluster()->energy(); 
+      double HoE1=towerIso1.getTowerESum(&(*PCref->parentSuperCluster()))/PCref->pfSuperCluster()->energy();
+      double HoE2=towerIso2.getTowerESum(&(*PCref->parentSuperCluster()))/PCref->pfSuperCluster()->energy(); 
       //cout << "HoE1="<<HoE1<<endl;
       //cout << "HoE2="<<HoE2<<endl;  
 

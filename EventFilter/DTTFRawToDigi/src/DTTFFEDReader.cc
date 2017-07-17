@@ -17,9 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-
 #include <iostream>
 
 using namespace std;
@@ -35,15 +32,17 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
 
   verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
 
+  Raw_token = consumes<FEDRawDataCollection>(DTTFInputTag);
+
 }
 
 DTTFFEDReader::~DTTFFEDReader(){}
 
 void DTTFFEDReader::produce(edm::Event& e, const edm::EventSetup& c) {
 
-  auto_ptr<L1MuDTChambPhContainer> phi_product(new L1MuDTChambPhContainer);
-  auto_ptr<L1MuDTChambThContainer> the_product(new L1MuDTChambThContainer);
-  auto_ptr<L1MuDTTrackContainer>   tra_product(new L1MuDTTrackContainer);
+  unique_ptr<L1MuDTChambPhContainer> phi_product(new L1MuDTChambPhContainer);
+  unique_ptr<L1MuDTChambThContainer> the_product(new L1MuDTChambThContainer);
+  unique_ptr<L1MuDTTrackContainer>   tra_product(new L1MuDTTrackContainer);
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;
@@ -55,9 +54,9 @@ void DTTFFEDReader::produce(edm::Event& e, const edm::EventSetup& c) {
   the_product->setContainer(the_data);
   tra_product->setContainer(tra_data);
 
-  e.put(phi_product);
-  e.put(the_product);
-  e.put(tra_product,"DATA");
+  e.put(std::move(phi_product));
+  e.put(std::move(the_product));
+  e.put(std::move(tra_product),"DATA");
 
 }
 
@@ -109,7 +108,7 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
-  e.getByLabel(getDTTFInputTag(),data);
+  e.getByToken(Raw_token,data);
   FEDRawData dttfdata = data->FEDData(0x030C);
   if ( dttfdata.size() == 0 ) return;
 

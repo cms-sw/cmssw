@@ -36,7 +36,7 @@ class DCCTBSRPBlock : public DCCTBBlockPrototype {
 	protected :
 		
 		void dataCheck();
-		
+		using DCCTBBlockPrototype::increment;
 		void  increment(uint32_t numb);
 		
 		enum srpFields{ 

@@ -27,9 +27,9 @@ class OpticalAlignments;
 class OpticalAlignInfo;
 class OpticalAlignMeasurements;
 class Alignments;
-class AlignmentErrors;
+class AlignmentErrorsExtended;
 class AlignTransform;
-class AlignTransformError;
+class AlignTransformErrorExtended;
 
 class OpticalObject;
 
@@ -54,9 +54,9 @@ private:
 
   OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
 
-  std::pair< Alignments*,AlignmentErrors*> BuildAlignments(bool bDT);
+  std::pair< Alignments*,AlignmentErrorsExtended*> BuildAlignments(bool bDT);
   AlignTransform* GetAlignInfoFromOptO( OpticalObject* opto);
-  AlignTransformError* GetAlignInfoErrorFromOptO( OpticalObject* opto);
+  AlignTransformErrorExtended* GetAlignInfoErrorFromOptO( OpticalObject* opto);
 
  private:
   static CocoaDBMgr* instance;

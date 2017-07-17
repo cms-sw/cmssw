@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
@@ -23,27 +23,28 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
-class RecoTauPiZeroUnembedder : public edm::EDProducer {
+class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
   public:
     RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
     virtual ~RecoTauPiZeroUnembedder(){}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;
+    edm::EDGetTokenT<reco::CandidateView> token; 
 };
 
 RecoTauPiZeroUnembedder::RecoTauPiZeroUnembedder(const edm::ParameterSet& pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
+  token = consumes<reco::CandidateView>(src_);
   produces<reco::RecoTauPiZeroCollection>("pizeros");
   produces<reco::PFTauCollection>();
 }
 void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::auto_ptr<reco::RecoTauPiZeroCollection> piZerosOut(
-      new reco::RecoTauPiZeroCollection);
-  std::auto_ptr<reco::PFTauCollection> tausOut(new reco::PFTauCollection);
+  auto piZerosOut = std::make_unique<reco::RecoTauPiZeroCollection>();
+  auto tausOut = std::make_unique<reco::PFTauCollection>();
 
   edm::Handle<reco::CandidateView> tauView;
-  evt.getByLabel(src_, tauView);
+  evt.getByToken(token, tauView);
 
   reco::PFTauRefVector taus =
       reco::tau::castView<reco::PFTauRefVector>(tauView);
@@ -86,8 +87,8 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
     tausOut->push_back(myTau);
   }
 
-  evt.put(piZerosOut, "pizeros");
-  evt.put(tausOut);
+  evt.put(std::move(piZerosOut), "pizeros");
+  evt.put(std::move(tausOut));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

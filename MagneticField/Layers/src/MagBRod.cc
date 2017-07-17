@@ -46,8 +46,8 @@ MagBRod::~MagBRod() {
   }
 }
 
-MagVolume * MagBRod::findVolume(const GlobalPoint & gp, double tolerance) const {
-  MagVolume * result = 0;
+const MagVolume * MagBRod::findVolume(const GlobalPoint & gp, double tolerance) const {
+  const MagVolume * result = 0;
   float Z = gp.z();
 
   int bin = 0;

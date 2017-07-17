@@ -22,16 +22,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -44,7 +41,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
@@ -60,18 +56,26 @@
 class PropagatorWithMaterial;
 class KFUpdator;
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class NavigationSchool;
+class SiStripRecHitMatcher;
 
 class SiStripElectronSeedGenerator
 {
 public:
+  
+  struct Tokens {
+    edm::EDGetTokenT<reco::BeamSpot> token_bs;
+    edm::EDGetTokenT<MeasurementTrackerEvent> token_mte;
+  };
 
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer  ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
 
-  SiStripElectronSeedGenerator(const edm::ParameterSet&);
+  SiStripElectronSeedGenerator(const edm::ParameterSet&,
+			       const Tokens&);
 
   ~SiStripElectronSeedGenerator();
 
@@ -101,6 +105,7 @@ private:
   }
 
   void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>, edm::Handle<reco::BeamSpot>,
+                            const MeasurementTrackerEvent &trackerData,
 			    reco::ElectronSeedCollection&);
 
   int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
@@ -125,7 +130,7 @@ private:
   edm::ESHandle<MagneticField> theMagField;
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   KFUpdator* theUpdator;
   PropagatorWithMaterial* thePropagator;
@@ -133,6 +138,7 @@ private:
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
   const edm::EventSetup *theSetup;
   
   PRecHitContainer recHits_;

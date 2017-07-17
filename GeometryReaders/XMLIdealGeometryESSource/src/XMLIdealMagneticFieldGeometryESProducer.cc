@@ -1,5 +1,3 @@
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -10,26 +8,27 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "CondFormats/Common/interface/FileBlob.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Specific.h"
 
+#include <memory>
+
 class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer
 {
 public:
   XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& );
-  ~XMLIdealMagneticFieldGeometryESProducer();
+  ~XMLIdealMagneticFieldGeometryESProducer() override;
   
-  typedef std::auto_ptr<DDCompactView> ReturnType;
+  typedef std::unique_ptr<DDCompactView> ReturnType;
   
   ReturnType produce( const IdealMagneticFieldRecord& );
 
@@ -61,7 +60,7 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
   using namespace edm::es;
 
   edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
+  iRecord.getRecord<MFGeometryFileRcd>().get( label_, gdd );
 
   DDName ddName(rootDDName_);
   DDLogicalPart rootNode(ddName);
@@ -70,13 +69,11 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
   DDLParser parser(*returnValue);
   parser.getDDLSAX2FileHandler()->setUserNS(true);
   parser.clearFiles();
-   
-  std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
-   
-  parser.parse(*tb, tb->size()); 
-   
-  delete tb;
-   
+
+  std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+
+  parser.parse(*tb, tb->size());
+
   returnValue->lockdown();
 
   return returnValue ;

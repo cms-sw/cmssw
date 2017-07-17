@@ -8,8 +8,6 @@
 
 CMHistograms::CMHistograms()
 {
-  dqm_ = 0;
-
   for (unsigned int i(0); i<500; i++){
     doFed_[i] = false;
   }
@@ -51,11 +49,6 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
 
 void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime, unsigned int aFedId)
 {
-
-  if (doFed_[aFedId]){
-    bookFEDHistograms(aFedId);
-  }
-
   float lMean = 0;
   float lPrevMean = 0;
 
@@ -96,59 +89,53 @@ void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime
 }
 
 
-void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
+void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
 {
-  //get the pointer to the dqm object
-  dqm_ = dqm;
-
-
   //book FED level histograms
   //get FED IDs
   //const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   histosBooked_.resize(siStripFedIdMax+1,false);
 
-  std::string lDir = dqm_->pwd()+"/";
+  std::string lDir = ibooker.pwd()+"/";
 
-  dqm_->cd(lDir);
+  ibooker.cd(lDir);
 
-  //std::cout << "Folder: " << lDir+categories_[i] << std::endl;
-    
-  dqm_->setCurrentFolder(lDir);
+  ibooker.setCurrentFolder(lDir);
 
-  book2DHistogram(medianAPV1vsAPV0_,
+  book2DHistogram(ibooker , medianAPV1vsAPV0_,
 		  "MedianAPV1vsAPV0",
 		  "median APV1 vs APV0",
 		  250,0,1024,250,0,1024,
 		  "median APV0","median APV1");
 
-  bookHistogram(medianAPV0minusAPV1_,
+  bookHistogram(ibooker, medianAPV0minusAPV1_,
 		"MedianAPV0minusAPV1",
 		"median APV0 - median APV1",
 		500,-500,500,
 		"median APV0 - median APV1");
   
 
-  bookProfile(meanCMPerFedvsFedId_,
+  bookProfile(ibooker , meanCMPerFedvsFedId_,
 	      "MeanCMPerFedvsFedId",
 	      "<CM> vs fedID",
 	      440,50,490,-1000,1000,
 	      "fedID","<CM>^{FED}");
   
-  bookProfile(meanCMPerFedvsTime_,
+  bookProfile(ibooker , meanCMPerFedvsTime_,
 	      "MeanCMPerFedvsTime",
 	      "<CM> vs time",
 	      0,1000,
 	      "Time","<CM>^{FED}");
   
   
-  bookProfile(variationsPerFedvsFedId_,
+  bookProfile(ibooker , variationsPerFedvsFedId_,
 	      "VariationsPerFedvsFedId",
 	      "<CM> vs fedID",
 	      440,50,490,-1000,1000,
 	      "fedID","<CM>^{FED}_{t}-<CM>^{FED}_{t-1}");
   
-  bookProfile(variationsPerFedvsTime_,
+  bookProfile(ibooker , variationsPerFedvsTime_,
 	      "VariationsPerFedvsTime",
 	      "<CM> vs time",
 	      0,1000,
@@ -156,11 +143,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
   
 
   
-  dqm_->cd(lDir);
+  ibooker.cd(lDir);
     
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    //const std::string dqmPath = dqm_->pwd();
     tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,500);
     tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,500);
     tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,500);
@@ -173,11 +159,13 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
     tkmapCM_[3] = 0;
   }
 
-
+  for ( unsigned int i = sistrip::FED_ID_MIN; i <= sistrip::FED_ID_MAX; i++ )
+    if (doFed_[i])
+      bookFEDHistograms(ibooker , i);
 }
 
 
-void CMHistograms::bookFEDHistograms(unsigned int fedId)
+void CMHistograms::bookFEDHistograms(DQMStore::IBooker & ibooker, unsigned int fedId)
 {
   if (!histosBooked_[fedId]) {
     //will do that only once
@@ -186,16 +174,16 @@ void CMHistograms::bookFEDHistograms(unsigned int fedId)
     std::stringstream fedIdStream;
     fedIdStream << fedId;
 
-    dqm_->setCurrentFolder(fedKey.path());
+    ibooker.setCurrentFolder(fedKey.path());
     
-    book2DHistogram(medianAPV1vsAPV0perFED_,
+    book2DHistogram(ibooker , medianAPV1vsAPV0perFED_,
 		    medianAPV1vsAPV0perFEDMap_[fedId],
 		    "MedianAPV1vsAPV0forFED"+fedIdStream.str(),
 		    "median APV1 vs APV0 for FED "+fedIdStream.str(),
 		    250,0,500,250,0,500,
 		    "APV0","APV1");
     
-    bookHistogram(medianAPV0minusAPV1perFED_,
+    bookHistogram(ibooker , medianAPV0minusAPV1perFED_,
 		  medianAPV0minusAPV1perFEDMap_[fedId],
 		  "MedianAPV0minusAPV1forFED"+fedIdStream.str(),
 		  "median APV0 - median APV1 for FED "+fedIdStream.str(),
@@ -203,19 +191,19 @@ void CMHistograms::bookFEDHistograms(unsigned int fedId)
 		  "#Delta(medians)");
 
 
-    bookChannelsHistograms(fedId);
+    bookChannelsHistograms(ibooker , fedId);
 
     histosBooked_[fedId] = true;
   }
 }
 
-void CMHistograms::bookChannelsHistograms(unsigned int fedId)
+void CMHistograms::bookChannelsHistograms(DQMStore::IBooker & ibooker , unsigned int fedId)
 {
   SiStripFedKey fedKey(fedId,0,0,0);
   std::stringstream fedIdStream;
   fedIdStream << fedId;
 
-  dqm_->setCurrentFolder(fedKey.path());
+  ibooker.setCurrentFolder(fedKey.path());
   medianperChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,0);
   medianAPV0minusAPV1perChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,0);
 
@@ -227,7 +215,7 @@ void CMHistograms::bookChannelsHistograms(unsigned int fedId)
     lName2 << "MedianAPV0minusAPV1ForFed" << fedId << "Channel" << iCh;
     lTitle2 << "Median APV0-APV1 for FED/Ch " << fedId << "/" << iCh ;
 
-    bookHistogram(medianperChannel_,
+    bookHistogram(ibooker , medianperChannel_,
 		  medianperChannelMap_[fedId][iCh],
 		  lName0.str(),
 		  lTitle0.str(),
@@ -235,7 +223,7 @@ void CMHistograms::bookChannelsHistograms(unsigned int fedId)
 		  "median APVs");
     
 
-    bookHistogram(medianAPV0minusAPV1perChannel_,
+    bookHistogram(ibooker , medianAPV0minusAPV1perChannel_,
 		  medianAPV0minusAPV1perChannelMap_[fedId][iCh],
 		  lName2.str(),
 		  lTitle2.str(),
@@ -246,14 +234,14 @@ void CMHistograms::bookChannelsHistograms(unsigned int fedId)
 
 }
 
-void CMHistograms::bookAllFEDHistograms()
+void CMHistograms::bookAllFEDHistograms(DQMStore::IBooker & ibooker)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book them
   for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) {
-    bookFEDHistograms(iFed);
+    bookFEDHistograms(ibooker , iFed);
   }
 }
 

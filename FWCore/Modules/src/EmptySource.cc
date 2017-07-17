@@ -11,7 +11,7 @@ namespace edm {
     ~EmptySource();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) override;
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
     virtual void produce(Event &) override;
   };
 
@@ -24,7 +24,7 @@ namespace edm {
   }
 
   bool
-  EmptySource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+  EmptySource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     return true;
   }
 

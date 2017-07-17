@@ -35,6 +35,12 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
+namespace HepMC {
+   class FourVector;
+}
 
 class MCParticlePairFilter : public edm::EDFilter {
    public:
@@ -46,10 +52,11 @@ class MCParticlePairFilter : public edm::EDFilter {
    private:
       // ----------memeber function----------------------
        int charge(const int& Id);
+       HepMC::FourVector zboost(const HepMC::FourVector&);
 
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID1;
        std::vector<int> particleID2;
        std::vector<double> ptMin;
@@ -64,6 +71,7 @@ class MCParticlePairFilter : public edm::EDFilter {
        double maxDeltaPhi;
        double minDeltaR;
        double maxDeltaR;
+       double betaBoost;
        
 };
 #endif

@@ -3,7 +3,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 DEFINE_SIMWATCHER (SimG4HcalValidation);
 
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"

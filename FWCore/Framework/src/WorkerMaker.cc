@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -41,12 +42,10 @@ namespace edm {
   
   void
   Maker::throwConfigurationException(ModuleDescription const& md,
-                                     signalslot::Signal<void(ModuleDescription const&)>& post,
                                      cms::Exception & iException) const {
     std::ostringstream ost;
     ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
     iException.addContext(ost.str());
-    post(md);
     throw;
   }
   
@@ -69,43 +68,48 @@ namespace edm {
     ConfigurationDescriptions descriptions(baseType());
     fillDescriptions(descriptions);
     try {
-      try {
+      convertException::wrap([&]() {
         descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
         validateEDMType(baseType(), p);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch (cms::Exception & iException) {
       throwValidationException(p, iException);
     }
     p.pset_->registerIt();
+    //Need to be certain top level untracked parameters are stored in
+    // the registry even if another PSet already exists in the
+    // registry from a previous process
+    //NOTE: a better implementation would be to change ParameterSet::registerIt
+    // but that would require rebuilding much more code so will be done at
+    // a later date.
+    edm::pset::Registry::instance()->insertMapped(*(p.pset_),true);
     
     ModuleDescription md = createModuleDescription(p);
     std::shared_ptr<maker::ModuleHolder> module;
+    bool postCalled = false;
     try {
-      try {
+      convertException::wrap([&]() {
         pre(md);
-        //even if we have an exception, do post
-        std::shared_ptr<int> sentry{nullptr, [&md, &post](void*) { post(md); } };
         module = makeModule(*(p.pset_));
         module->setModuleDescription(md);
         module->preallocate(*(p.preallocate_));
         module->registerProductsAndCallbacks(p.reg_);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+        // if exception then post will be called in the catch block
+        postCalled = true;
+        post(md);
+      });
     }
     catch(cms::Exception & iException){
-      throwConfigurationException(md, post, iException);
+      if(!postCalled) {
+        try {
+          post(md);
+        }
+        catch (...) {
+          // If post throws an exception ignore it because we are already handling another exception
+        }
+      }
+      throwConfigurationException(md, iException);
     }
     return module;
   }

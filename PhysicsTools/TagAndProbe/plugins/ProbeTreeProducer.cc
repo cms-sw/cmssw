@@ -2,8 +2,8 @@
 //
 // Package:    ProbeTreeProducer
 // Class:      ProbeTreeProducer
-// 
-/**\class ProbeTreeProducer ProbeTreeProducer.cc 
+//
+/**\class ProbeTreeProducer ProbeTreeProducer.cc
 
  Description: TTree producer based on input probe parameters
 
@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <ctype.h>
+#include "boost/bind.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,7 +24,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/TagAndProbe/interface/BaseTreeFiller.h"
 #include <set>
-#include "FWCore/ParameterSet/interface/Registry.h"
 
 class ProbeTreeProducer : public edm::EDFilter {
   public:
@@ -35,7 +35,7 @@ class ProbeTreeProducer : public edm::EDFilter {
     virtual void endJob() override;
 
     /// InputTag to the collection of all probes
-    edm::InputTag probesTag_;
+    edm::EDGetTokenT<reco::CandidateView> probesToken_;
 
     /// The selector object
     StringCutObjectSelector<reco::Candidate, true> cut_;
@@ -53,17 +53,17 @@ class ProbeTreeProducer : public edm::EDFilter {
     int32_t maxProbes_;
 
     /// The object that actually computes variables and fills the tree for the probe
-    std::auto_ptr<tnp::BaseTreeFiller> probeFiller_;
+    std::unique_ptr<tnp::BaseTreeFiller> probeFiller_;
 };
 
 ProbeTreeProducer::ProbeTreeProducer(const edm::ParameterSet& iConfig) :
-  probesTag_(iConfig.getParameter<edm::InputTag>("src")),
+  probesToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"))),
   cut_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : ""),
   filter_(iConfig.existsAs<bool>("filter") ? iConfig.getParameter<bool>("filter") : false),
   sortDescendingBy_(iConfig.existsAs<std::string>("sortDescendingBy") ? iConfig.getParameter<std::string>("sortDescendingBy") : ""),
   sortFunction_(sortDescendingBy_.size()>0 ? sortDescendingBy_ : "pt"), //need to pass a valid default
   maxProbes_(iConfig.existsAs<int32_t>("maxProbes") ? iConfig.getParameter<int32_t>("maxProbes") : -1),
-  probeFiller_(new tnp::BaseTreeFiller("probe_tree", iConfig))
+  probeFiller_(new tnp::BaseTreeFiller("probe_tree", iConfig, consumesCollector()))
 {
 }
 
@@ -73,7 +73,7 @@ ProbeTreeProducer::~ProbeTreeProducer(){
 bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
   bool result = !filter_;
   edm::Handle<reco::CandidateView> probes;
-  iEvent.getByLabel(probesTag_, probes);
+  iEvent.getByToken(probesToken_, probes);
   if(!probes.isValid()) return result;
   probeFiller_->init(iEvent);
   // select probes and calculate the sorting value
@@ -97,7 +97,7 @@ bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 void ProbeTreeProducer::endJob(){
     // ask to write the current PSet info into the TTree header
-    probeFiller_->writeProvenance(edm::getProcessParameterSet());
+    probeFiller_->writeProvenance(edm::getProcessParameterSetContainingModule(moduleDescription()));
 }
 
 //define this as a plug-in

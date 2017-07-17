@@ -10,6 +10,7 @@
 
 #include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <map>
 
@@ -27,6 +28,8 @@ public:
 
   // Inputs from Configuration File
   std::string outputFile_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myTruth_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myReco_;
   edm::InputTag inputTruthLabel_;
   edm::InputTag inputRecoLabel_;
   std::string benchmarkLabel_;

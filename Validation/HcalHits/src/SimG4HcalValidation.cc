@@ -18,11 +18,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -98,20 +98,20 @@ SimG4HcalValidation::~SimG4HcalValidation() {
 
 void SimG4HcalValidation::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHcalValidInfoLayer> productLayer(new PHcalValidInfoLayer);
+  std::unique_ptr<PHcalValidInfoLayer> productLayer(new PHcalValidInfoLayer);
   layerAnalysis(*productLayer);
-  e.put(productLayer,labelLayer);
+  e.put(std::move(productLayer),labelLayer);
 
   if (infolevel > 0) {
-    std::auto_ptr<PHcalValidInfoNxN> productNxN(new PHcalValidInfoNxN);
+    std::unique_ptr<PHcalValidInfoNxN> productNxN(new PHcalValidInfoNxN);
     nxNAnalysis(*productNxN);
-    e.put(productNxN,labelNxN);
+    e.put(std::move(productNxN),labelNxN);
   }
 
   if (infolevel > 1) {
-    std::auto_ptr<PHcalValidInfoJets> productJets(new PHcalValidInfoJets);
+    std::unique_ptr<PHcalValidInfoJets> productJets(new PHcalValidInfoJets);
     jetAnalysis(*productJets);
-    e.put(productJets,labelJets);
+    e.put(std::move(productJets),labelJets);
   }
 }
 
@@ -153,11 +153,12 @@ void SimG4HcalValidation::init() {
 void SimG4HcalValidation::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
+  HcalDDDSimConstants *hcons = (HcalDDDSimConstants*)(&(*hdc));
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
-			    << "HcalNumberingFromDDD for " << names[0];
-  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
+			    << "HcalNumberingFromDDD";
+  numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Numbering scheme
   org              = new HcalTestNumberingScheme(false);
@@ -297,7 +298,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " 
 			<< names[0] << " of ID " << HCHCid <<" is obtained at "
 			<< theHCHC;
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theHCHC)[j]; 
@@ -373,7 +374,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for "
 			    << names[idty] << " of ID " << ECHCid 
 			    << " is obtained at " << theECHC;
-      if (ECHCid >= 0 && theECHC > 0) {
+      if (ECHCid >= 0 && theECHC != nullptr) {
 	for (j = 0; j < theECHC->entries(); j++) {
 
 	  CaloG4Hit* aHit = (*theECHC)[j]; 

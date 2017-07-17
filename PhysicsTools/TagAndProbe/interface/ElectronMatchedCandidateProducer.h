@@ -10,24 +10,26 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
 
 // forward declarations
 
-class ElectronMatchedCandidateProducer : public edm::EDProducer 
+class ElectronMatchedCandidateProducer : public edm::EDProducer
 {
  public:
   explicit ElectronMatchedCandidateProducer(const edm::ParameterSet&);
   ~ElectronMatchedCandidateProducer();
 
  private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
-      
+  virtual void endJob()  override;
+
   // ----------member data ---------------------------
 
-  edm::InputTag electronCollection_;
-  edm::InputTag scCollection_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronCollectionToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > scCollectionToken_;
   double delRMatchingCut_;
 };
 

@@ -126,7 +126,7 @@ StripCPEfromTemplate::localParameters( const SiStripCluster& cluster,
       //else 
       //cout << "Do not use templates for strip modules other than IB1, IB2, OB1 and OB2" << endl;
       
-      StripGeomDetUnit* stripdet = (StripGeomDetUnit*)(&det);
+      const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)(&det);
  
       if ( (id  > -9999999) && !(stripdet == 0) )
 	{
@@ -170,6 +170,7 @@ StripCPEfromTemplate::localParameters( const SiStripCluster& cluster,
 	    = p.topology->localPosition( measurement_position_first_strip_center, ltp.vector() );
 	  
 
+          SiStripTemplate templ(theStripTemp_);
 	  ierr = SiStripTemplateReco::StripTempReco1D( id, 
 						       cotalpha, 
 						       cotbeta, 

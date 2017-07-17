@@ -4,22 +4,24 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 // Database
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyInputTrackerFromDB.h"
 
 SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
-  : textFileName( cfg.getParameter<std::string>("textFileName") ),
-    theParameterSet( cfg )
+  : textFileName( cfg.getParameter<std::string>("textFileName") )
 {}
 
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
@@ -31,7 +33,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	//Get map from textreader
@@ -41,14 +43,16 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom); 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
+	edm::ESHandle<PTrackerParameters> ptp;
+	setup.get<PTrackerParametersRcd>().get( ptp );
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo );
 	
 	addComponent( new AlignableTracker( tracker, tTopo ) );
 	addSurveyInfo( detector() );
 	
 	//write out to a DB ...
 	Alignments* myAlignments = detector()->alignments();
-	AlignmentErrors* myAlignmentErrors = detector()->alignmentErrors();
+	AlignmentErrorsExtended* myAlignmentErrorsExtended = detector()->alignmentErrors();
 	
 	// 2. Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -58,7 +62,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>( myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd" );
-	poolDbService->writeOne<AlignmentErrors>( myAlignmentErrors, poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd" );
+	poolDbService->writeOne<AlignmentErrorsExtended>( myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd" );
 	
 	theFirstEvent = false;
   }

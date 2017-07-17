@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <iostream>
+#include <atomic>
 
 #pragma GCC diagnostic ignored "-Wformat" // shut warning on '%z'
 
@@ -28,11 +29,13 @@ struct LocalFileSystem::FSInfo
   char		*fsname;	//< file system name
   char		*type;		//< file system type
   char		*dir;		//< mount point directory
+  char		*origin = nullptr; //< mount origin
   dev_t		dev;		//< device id
   long		fstype;		//< file system id
   double	freespc;	//< free space in megabytes
   unsigned 	local : 1;	//< flag for local device
-  unsigned	checked : 1;	//< flag for valid dev, fstype
+  unsigned	bind : 1;	//< flag for bind mounts
+  std::atomic<bool>	checked ;	//< flag for valid dev, fstype
 };
 
 /** Read /proc/filesystems to determine which filesystems are local,
@@ -154,6 +157,8 @@ LocalFileSystem::initFSInfo(void *arg)
   i->dev = m->f_fsid.val[0];
   i->fstype = m->f_type;
   i->freespc = 0;
+  i->bind = 0;
+  i->origin = nullptr;
   if (m->f_bsize > 0)
   {
     i->freespc = m->f_bavail;
@@ -176,17 +181,20 @@ LocalFileSystem::initFSInfo(void *arg)
   size_t fslen = strlen(m->mnt_fsname) + 1;
   size_t dirlen = strlen(m->mnt_dir) + 1;
   size_t typelen = strlen(m->mnt_type) + 1;
-  size_t totlen = infolen + fslen + dirlen + typelen;
+  size_t originlen = strlen(m->mnt_fsname) + 1;
+  size_t totlen = infolen + fslen + dirlen + typelen + originlen;
   FSInfo *i = (FSInfo *) malloc(totlen);
   char *p = (char *) i;
   i->fsname = strncpy(p += infolen, m->mnt_fsname, fslen);
   i->type = strncpy(p += fslen, m->mnt_type, typelen);
   i->dir = strncpy(p += typelen, m->mnt_dir, dirlen);
+  i->origin = strncpy(p += dirlen, m->mnt_fsname, originlen);
   i->dev = -1;
   i->fstype = -1;
   i->freespc = 0;
   i->local = 0;
   i->checked = 0;
+  i->bind = strstr(m->mnt_opts, "bind") != nullptr;
 
   for (size_t j = 0; j < fstypes_.size() && ! i->local; ++j)
     if (fstypes_[j] == i->type)
@@ -223,13 +231,14 @@ LocalFileSystem::initFSList(void)
 
   free(mtab);
 #else
+  const char * const _PATH_MOUNTED_LINUX = "/proc/self/mounts";
   struct mntent *m;
-  FILE *mtab = setmntent(_PATH_MOUNTED, "r");
+  FILE *mtab = setmntent(_PATH_MOUNTED_LINUX, "r");
   if (! mtab)
   {
     int nerr = errno;
     edm::LogWarning("LocalFileSystem::initFSList()")
-      << "Cannot read '" << _PATH_MOUNTED << "': "
+      << "Cannot read '" << _PATH_MOUNTED_LINUX << "': "
       << strerror(nerr) << " (error " << nerr << ")";
     return -1;
   }
@@ -253,7 +262,7 @@ LocalFileSystem::initFSList(void)
     This function can be called any number of times.  It only does the
     file system check the first time the function is called. */
 int
-LocalFileSystem::statFSInfo(FSInfo *i)
+LocalFileSystem::statFSInfo(FSInfo *i) const
 {
   int ret = 0;
   struct stat s;
@@ -261,9 +270,10 @@ LocalFileSystem::statFSInfo(FSInfo *i)
 
   if (! i->checked)
   {
-    i->checked = 1;
     if (lstat(i->dir, &s) < 0)
     {
+      i->checked = 1;
+
       int nerr = errno;
       if (nerr != ENOENT && nerr != EACCES)
         edm::LogWarning("LocalFileSystem::statFSInfo()")
@@ -274,6 +284,7 @@ LocalFileSystem::statFSInfo(FSInfo *i)
 
     if (statfs(i->dir, &sfs) < 0)
     {
+      i->checked = 1;
       int nerr = errno;
       edm::LogWarning("LocalFileSystem::statFSInfo()")
 	<< "Cannot statfs('" << i->dir << "'): "
@@ -289,6 +300,7 @@ LocalFileSystem::statFSInfo(FSInfo *i)
       i->freespc *= sfs.f_bsize;
       i->freespc /= 1024. * 1024. * 1024.;
     }
+    i->checked = 1;
   }
   else if (i->fstype == -1)
   {
@@ -313,8 +325,18 @@ LocalFileSystem::statFSInfo(FSInfo *i)
     system is unavailable or some other way dysfunctional, such as
     dead nfs mount or filesystem does not implement statfs().  */
 LocalFileSystem::FSInfo *
-LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s)
+LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &prev_paths) const
 {
+  for (const auto & old_path : prev_paths)
+  {
+    if (!strcmp(old_path.c_str(), path))
+    {
+      edm::LogWarning("LocalFileSystem::findMount()")
+        << "Found a loop in bind mounts; stopping evaluation.";
+      return nullptr;
+    }
+  }
+
   FSInfo *best = 0;
   size_t bestlen = 0;
   size_t len = strlen(path);
@@ -322,11 +344,17 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s)
   {
     // First match simply against the file system path.  We don't
     // touch the file system until the path prefix matches.
+    // When we have a path prefix match, check the file system if
+    //   we don't have a best match candidate yet, OR
+    //   this match is longer (more specific) than the previous best OR
+    //   this match is the same length and the previous best isn't local
+    // The final condition handles cases such as '/' that can appear twice
+    // in the file system list, once as 'rootfs' and once as local fs.
     size_t fslen = strlen(fs_[i]->dir);
     if (! strncmp(fs_[i]->dir, path, fslen)
 	&& ((fslen == 1 && fs_[i]->dir[0] == '/')
 	    || len == fslen || path[fslen] == '/')
-	&& (! best || fslen > bestlen))
+	&& (! best || fslen > bestlen || (fslen == bestlen && !best->local)))
     {
       // Get the file system device and file system ids.
       if (statFSInfo(fs_[i]) < 0)
@@ -348,6 +376,42 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s)
       bestlen = fslen;
     }
   }
+  // In the case of a bind mount, try looking again at the source directory.
+  if (best && best->bind && best->origin)
+  {
+    struct stat s2;
+    struct statfs sfs2;
+    char *fullpath = realpath(best->origin, 0);
+
+    if (! fullpath)
+      fullpath = strdup(best->origin);
+
+    if (lstat(fullpath, &s2) < 0)
+    {
+      int nerr = errno;
+      edm::LogWarning("LocalFileSystem::findMount()")
+        << "Cannot lstat('" << fullpath << "' alias '"
+        << path << "'): " << strerror(nerr) << " (error "
+        << nerr << ")";
+      free(fullpath);
+      return best;
+    }
+
+    if (statfs(fullpath, &sfs2) < 0)
+    {
+      int nerr = errno;
+      edm::LogWarning("LocalFileSystem::findMount()")
+        << "Cannot statfs('" << fullpath << "' alias '"
+        << path << "'): " << strerror(nerr) << " (error "
+        << nerr << ")";
+      free(fullpath);
+      return best;
+    }
+
+    prev_paths.push_back(path);
+    LocalFileSystem::FSInfo *new_best = findMount(fullpath, &sfs2, &s2, prev_paths);
+    return new_best ? new_best : best;
+  }
 
   return best;
 }
@@ -362,7 +426,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s)
     reported as message logger warnings but the actual error is
     swallowed and the function simply returns @c false. */
 bool
-LocalFileSystem::isLocalPath(const std::string &path)
+LocalFileSystem::isLocalPath(const std::string &path) const
 {
   struct stat s;
   struct statfs sfs;
@@ -393,7 +457,8 @@ LocalFileSystem::isLocalPath(const std::string &path)
     return false;
   }
 
-  FSInfo *m = findMount(fullpath, &sfs, &s);
+  std::vector<std::string> prev_paths;
+  FSInfo *m = findMount(fullpath, &sfs, &s, prev_paths);
   free(fullpath);
 
   return m ? m->local : false;
@@ -417,12 +482,15 @@ LocalFileSystem::isLocalPath(const std::string &path)
     are reported as message logger warnings but the actual error is
     swallowed and the directory concerned is skipped.  Non-existent
     and inaccessible directories are silently ignored without warning. */
-std::string
+std::pair<std::string, std::string>
 LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
-			       double minFreeSpace)
+			       double minFreeSpace) const
 {
   struct stat s;
   struct statfs sfs;
+  std::ostringstream warningst;
+  warningst << "Cannot use lazy-download because:\n";
+
   for (size_t i = 0, e = paths.size(); i < e; ++i)
   {
     char *fullpath;
@@ -471,7 +539,8 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
       continue;
     }
 
-    FSInfo *m = findMount(fullpath, &sfs, &s);
+    std::vector<std::string> prev_paths;
+    FSInfo *m = findMount(fullpath, &sfs, &s, prev_paths);
 #if 0
     std::cerr /* edm::LogInfo("LocalFileSystem") */
       << "Candidate '" << fullpath << "': "
@@ -489,13 +558,34 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
     {
       std::string result(fullpath);
       free(fullpath);
-      return result;
+      return std::make_pair(result,std::string());
+    }
+    else if (m)
+    {
+      if (!m->local)
+      {
+        warningst << "- The mount " << fullpath << " is not local.\n";
+      }
+      else if (m->freespc < minFreeSpace)
+      {
+        warningst << " - The mount at " << fullpath << " has only " << m->freespc << " GB free; a minumum of " << minFreeSpace << " GB is required.\n";
+      }
+      else if (access(fullpath, W_OK))
+      {
+        warningst << " - The process has no permission to write into " << fullpath << "\n";
+      }
     }
 
     free(fullpath);
   }
 
-  return std::string();
+  std::string warning_str = warningst.str();
+  if (warning_str.size())
+  {
+    warning_str = warning_str.substr(0, warning_str.size()-2);
+  }
+  
+  return std::make_pair(std::string(), std::move(warning_str));
 }
 
 /** Initialise local file system status.  */

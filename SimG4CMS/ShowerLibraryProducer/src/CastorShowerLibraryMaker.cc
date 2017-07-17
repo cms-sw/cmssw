@@ -24,6 +24,9 @@
 
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include "TFile.h"
 #include <cmath>
 #include <iostream>
@@ -33,11 +36,11 @@
 
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) : 
                              NPGParticle(0),DoHadSL(false),DoEmSL(false),DeActivatePhysicsProcess(false),
-                             emShower(NULL) , hadShower(NULL) {
+                             emShower(nullptr) , hadShower(nullptr) {
 
   MapOfSecondaries.clear();
-  hadInfo = NULL;
-  emInfo  = NULL;
+  hadInfo = nullptr;
+  emInfo  = nullptr;
   edm::ParameterSet p_SLM   = p.getParameter<edm::ParameterSet>("CastorShowerLibraryMaker");
   verbosity                 = p_SLM.getParameter<int>("Verbosity");
   eventNtFileName           = p_SLM.getParameter<std::string>("EventNtupleFileName");
@@ -56,7 +59,7 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
 //
   NPGParticle               = PGParticleIDs.size(); 
   for(unsigned int i=0;i<PGParticleIDs.size();i++) {
-     switch (int(fabs(PGParticleIDs.at(i)))) {
+     switch (std::abs(PGParticleIDs.at(i))) {
         case 11:
         case 22:
                DoEmSL = true;
@@ -230,13 +233,13 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
   PrimaryPosition.clear();
   int NAccepted =0;
 // reset the pointers to the shower objects
-  SLShowerptr = NULL;
+  SLShowerptr = nullptr;
   MapOfSecondaries.clear();
   thePrims.clear();
   G4EventManager *e_mgr = G4EventManager::GetEventManager();
   if (IsSLReady()) {
       printSLstatus(-1,-1,-1);
-      update((EndOfRun*)NULL);
+      update((EndOfRun*)nullptr);
       return;
   }
 
@@ -302,14 +305,14 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
      const_cast<G4Event*>((*evt)())->KeepTheEvent((G4bool)false);
      e_mgr->AbortCurrentEvent();
   }
-  SLShowerptr=NULL;
+  SLShowerptr=nullptr;
 //
   std::cout << "CastorShowerLibraryMaker: Processing Event Number: " << eventIndex << std::endl;
 }
 
 //=================================================================== per STEP
 void CastorShowerLibraryMaker::update(const G4Step * aStep) {
-   static int CurrentPrimary = 0;
+   static thread_local int CurrentPrimary = 0;
    G4Track *trk = aStep->GetTrack();
    if (trk->GetCurrentStepNumber()==1) {
       if (trk->GetParentID()==0) {
@@ -333,7 +336,7 @@ void CastorShowerLibraryMaker::update(const G4Step * aStep) {
 // move track to z of CASTOR
          G4ThreeVector pos;
          pos.setZ(-14390);
-         double t = abs((pos.z()-trk->GetPosition().z()))/trk->GetVelocity();
+         double t = std::abs((pos.z()-trk->GetPosition().z()))/trk->GetVelocity();
          double r = (pos.z()-trk->GetPosition().z())/trk->GetMomentum().cosTheta();
          pos.setX(r*sin(trk->GetMomentum().theta())*cos(trk->GetMomentum().phi())+trk->GetPosition().x());
          pos.setY(r*sin(trk->GetMomentum().theta())*sin(trk->GetMomentum().phi())+trk->GetPosition().y());
@@ -452,7 +455,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
   for(unsigned int i=0;i<thePrims.size();i++) {
      G4PrimaryParticle* thePrim = thePrims.at(i);
      if (!thePrim) {
-        edm::LogInfo("CastorShowerLibraryMaker") << "NULL Pointer to the primary" << std::endl;
+        edm::LogInfo("CastorShowerLibraryMaker") << "nullptr Pointer to the primary" << std::endl;
         continue;
      }
 // Check primary particle type
@@ -504,7 +507,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
         std::cout << "Name of collection " << ii << " : " << allHC->GetHC(ii)->GetName() << std::endl;
 */
 
-     CastorShowerEvent* shower=NULL;
+     CastorShowerEvent* shower=nullptr;
      int cur_evt_idx = SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin);
      shower = &(SLShowerptr->SLCollection.at(ebin).at(etabin).at(phibin).at(cur_evt_idx));
 
@@ -610,8 +613,8 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
        theTree->SetBranchStatus("hadShowerLibInfo.",0);
     }
   }
-// check if run is NULL and exit
-  if (run==NULL) throw SimG4Exception("\n\nNumber of needed trigger events reached in CastorShowerLibraryMaker\n\n");
+// check if run is nullptr and exit
+  if (run==nullptr) throw SimG4Exception("\n\nNumber of needed trigger events reached in CastorShowerLibraryMaker\n\n");
 }
 
 //============================================================
@@ -638,7 +641,7 @@ int CastorShowerLibraryMaker::FindEnergyBin(double energy) {
   //
   if (!SLShowerptr) {
      edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindEnergyBin can be called only after BeginOfEvent\n\n";
-     throw SimG4Exception("\n\nNULL Pointer to the shower library.\n\n");
+     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLenergies = SLShowerptr->SLEnergyBins;
   if (energy >= SLenergies.back()) return SLenergies.size()-1;
@@ -659,7 +662,7 @@ int CastorShowerLibraryMaker::FindEtaBin(double eta) {
   //
   if (!SLShowerptr) {
      edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindEtaBin can be called only after BeginOfEvent\n\n";
-     throw SimG4Exception("\n\nNULL Pointer to the shower library.\n\n");
+     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLetas = SLShowerptr->SLEtaBins;
   if (eta>=SLetas.back()) return SLetas.size()-1;
@@ -680,7 +683,7 @@ int CastorShowerLibraryMaker::FindPhiBin(double phi) {
   //
   if (!SLShowerptr) {
      edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindPhiBin can be called only after BeginOfEvent\n\n";
-     throw SimG4Exception("\n\nNULL Pointer to the shower library.\n\n");
+     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLphis = SLShowerptr->SLPhiBins;
   if (phi>=SLphis.back()) return SLphis.size()-1;
@@ -694,17 +697,17 @@ int CastorShowerLibraryMaker::FindPhiBin(double phi) {
 }
 bool CastorShowerLibraryMaker::IsSLReady()
 {
-// at this point, the pointer to the shower library should be NULL
+// at this point, the pointer to the shower library should be nullptr
   if (SLShowerptr) {
      edm::LogInfo("CastorShowerLibraryMaker") << "\n\nIsSLReady must be called when a new event starts.\n\n";
-     throw SimG4Exception("\n\nNOT NULL Pointer to the shower library.\n\n");
+     throw SimG4Exception("\n\nNOT nullptr Pointer to the shower library.\n\n");
   }
 // it is enough to check if all the energy bin is filled
   if (DoEmSL) {
      SLShowerptr = &emSLHolder;
      for(unsigned int i=0;i<SLShowerptr->SLEnergyBins.size();i++) {
         if (!SLisEBinFilled(i)) {
-           SLShowerptr=NULL;
+           SLShowerptr=nullptr;
            return false;
         }
      }
@@ -713,12 +716,12 @@ bool CastorShowerLibraryMaker::IsSLReady()
      SLShowerptr = &hadSLHolder;
      for(unsigned int i=0;i<SLShowerptr->SLEnergyBins.size();i++) {
         if (!SLisEBinFilled(i)) {
-           SLShowerptr=NULL;
+           SLShowerptr=nullptr;
            return false;
         }
      }
   }
-  SLShowerptr=NULL;
+  SLShowerptr=nullptr;
   return true;
 }
 void CastorShowerLibraryMaker::GetKinematics(int thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
@@ -790,14 +793,14 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
 void CastorShowerLibraryMaker::printSLstatus(int ebin,int etabin,int phibin)
 {
   if (!SLShowerptr) {
-     edm::LogInfo("CastorShowerLibraryInfo") << "NULL shower pointer. Printing both";
+     edm::LogInfo("CastorShowerLibraryInfo") << "nullptr shower pointer. Printing both";
      std::cout << "Electromagnetic" << std::endl;
      SLShowerptr = &emSLHolder;
      this->printSLstatus(ebin,etabin,phibin);
      std::cout << "Hadronic" << std::endl;
      SLShowerptr = &hadSLHolder;
      this->printSLstatus(ebin,etabin,phibin);
-     SLShowerptr = NULL;
+     SLShowerptr = nullptr;
      return;
   }
   int nBinsE  =SLShowerptr->SLEnergyBins.size();
@@ -831,8 +834,8 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin,int etabin,int phibin)
 }
 bool CastorShowerLibraryMaker::SLacceptEvent(int ebin, int etabin, int phibin)
 {
-     if (SLShowerptr==NULL) {
-        edm::LogInfo("CastorShowerLibraryMaker::SLacceptEvent:") << "Error. NULL pointer to CastorShowerEvent";
+     if (SLShowerptr==nullptr) {
+        edm::LogInfo("CastorShowerLibraryMaker::SLacceptEvent:") << "Error. nullptr pointer to CastorShowerEvent";
         return false;
      }
      if (ebin<0||ebin>=int(SLShowerptr->SLEnergyBins.size())) return false;
@@ -861,7 +864,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
      }
 */
      if (!shower) {
-        edm::LogInfo("CastorShowerLibraryMaker") << "Error. NULL pointer to CastorShowerEvent";
+        edm::LogInfo("CastorShowerLibraryMaker") << "Error. nullptr pointer to CastorShowerEvent";
         return false;
      }
 
@@ -933,7 +936,7 @@ int& CastorShowerLibraryMaker::SLnEvtInBinE(int ebin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinE can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    return SLShowerptr->nEvtInBinE.at(ebin);
 }
@@ -942,7 +945,7 @@ int& CastorShowerLibraryMaker::SLnEvtInBinEta(int ebin, int etabin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinEta can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    return SLShowerptr->nEvtInBinEta.at(ebin).at(etabin);
 }
@@ -951,7 +954,7 @@ int& CastorShowerLibraryMaker::SLnEvtInBinPhi(int ebin, int etabin, int phibin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinPhi can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    return SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin);
 }
@@ -959,7 +962,7 @@ bool CastorShowerLibraryMaker::SLisEBinFilled(int ebin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisEBinFilled can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    if (SLShowerptr->nEvtInBinE.at(ebin)<(int)SLShowerptr->nEvtPerBinE) return false;
    return true;
@@ -968,7 +971,7 @@ bool CastorShowerLibraryMaker::SLisEtaBinFilled(int ebin,int etabin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisEtaBinFilled can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    if (SLShowerptr->nEvtInBinEta.at(ebin).at(etabin)<(int)SLShowerptr->nEvtPerBinEta) return false;
    return true;
@@ -977,13 +980,13 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin,int etabin,int phibin)
 {
    if (!SLShowerptr) {
       edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisPhiBinFilled can be called only after BeginOfEvent\n\n";
-      throw SimG4Exception("\n\nNULL Pointer to the shower library.");
+      throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
    }
    if (SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin)<(int)SLShowerptr->nEvtPerBinPhi) return false;
    return true;
 }
 void CastorShowerLibraryMaker::KillSecondaries(const G4Step * aStep) {
-   G4TrackVector *p_sec = const_cast<G4TrackVector*>(aStep->GetSecondary());
+   const G4TrackVector *p_sec = aStep->GetSecondary();
    for(int i=0;i<int(p_sec->size());i++) {
       /*if (verbosity)*/ std::cout << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries"
           << " Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName()

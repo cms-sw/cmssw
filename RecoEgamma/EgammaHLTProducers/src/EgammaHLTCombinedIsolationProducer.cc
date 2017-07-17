@@ -12,6 +12,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTCombinedIsolationProducer::EgammaHLTCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config)
 {
@@ -35,6 +37,16 @@ EgammaHLTCombinedIsolationProducer::EgammaHLTCombinedIsolationProducer(const edm
 EgammaHLTCombinedIsolationProducer::~EgammaHLTCombinedIsolationProducer()
 {}
 
+void EgammaHLTCombinedIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<std::vector<edm::InputTag>>("IsolationMapTags",  std::vector<edm::InputTag>());
+  desc.add<std::vector<double>>("IsolationWeight", std::vector<double>());
+  descriptions.add("hltEgammaHLTCombinedIsolationProducer", desc);  
+}
+
+  
 // ------------ method called to produce the data  ------------
 void
 EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -66,8 +78,7 @@ EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::Event
     
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> Map(new reco::RecoEcalCandidateIsolationMap(TotalIsolMap));
-  iEvent.put(Map);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(TotalIsolMap));
 
 }
 

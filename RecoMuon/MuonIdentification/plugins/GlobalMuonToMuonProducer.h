@@ -7,7 +7,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -15,9 +15,12 @@
 namespace reco {class Track;}
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
-class GlobalMuonToMuonProducer : public edm::EDProducer {
+class GlobalMuonToMuonProducer : public edm::global::EDProducer<> {
 public:
 
   /// Constructor
@@ -27,7 +30,7 @@ public:
   virtual ~GlobalMuonToMuonProducer();
 
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 protected:
 
@@ -48,6 +51,7 @@ private:
 private:
 
   edm::InputTag theLinksCollectionLabel;
+  edm::EDGetTokenT<reco::MuonTrackLinksCollection> trackLinkToken_;
 };
 #endif
 

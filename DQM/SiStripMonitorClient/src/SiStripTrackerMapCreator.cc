@@ -1,6 +1,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -14,7 +15,7 @@
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 
 #include <iostream>
@@ -38,6 +39,8 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
 SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup)
 						  //, psumap_() 
 {
+  cached_detid=0;
+  cached_layer=0;
   trackerMap_ = 0;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
@@ -68,8 +71,12 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 
   if(!fedcabling) return;
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (trackerMap_) delete trackerMap_;
-  trackerMap_ = new TrackerMap(tkmapPset, fedcabling);
+  trackerMap_ = new TrackerMap(tkmapPset, fedcabling,tTopo);
   std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
  
@@ -103,7 +110,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
     */
   } else {
     trackerMap_->fill_all_blank();
-    setTkMapFromHistogram(dqm_store, map_type);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
     setTkMapRange(map_type);
   }
   trackerMap_->printonline();
@@ -136,8 +143,12 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
 
   if(!fedcabling) return;
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (trackerMap_) delete trackerMap_;
-  trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
+  trackerMap_ = new TrackerMap(tkmapPset,fedcabling,tTopo);
 
   meanToMaxFactor_ = tkmapPset.getUntrackedParameter<double>("meanToMaxFact",2.5);
   useSSQuality_ = tkmapPset.getUntrackedParameter<bool>("useSSQuality",false);
@@ -146,14 +157,37 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   bool tkMapFED = tkmapPset.getUntrackedParameter<bool>("fedMap",false);
   std::string namesuffix = tkmapPset.getUntrackedParameter<std::string>("mapSuffix",""); 
  
-  std::string tmap_title = " Tracker Map from  " + map_type;
+  //  std::string tmap_title = " Tracker Map from  " + map_type;
+  unsigned int runNumber_ = tkmapPset.getUntrackedParameter<unsigned int>("RunNumber",1); //LG                                                             
+  std::stringstream ss; //LG
+  ss << runNumber_; //LG
+  sRunNumber = ss.str(); //LG 
+  std::cout << sRunNumber << "\n\n\n\n\n\n";
+  std::string tmap_title; //LG
+  if      (runNumber_>0)  { tmap_title = " Run: " + sRunNumber + ", Tracker Map from " + map_type; } //LG
+  else                    { tmap_title = " Tracker Map from " + map_type; } //LG
   trackerMap_->setTitle(tmap_title);
+
+  if(tkmapPset.exists("TopModules"))
+    topModules=tkmapPset.getUntrackedParameter<bool>("TopModules");
+  else
+    topModules=false;
+
+  if(tkmapPset.exists("numberTopModules"))
+      numTopModules=tkmapPset.getUntrackedParameter<uint32_t>("numberTopModules");
+  else
+      numTopModules = 20;
+  
+  if (tkmapPset.exists("topModLabel"))
+        topModLabel=tkmapPset.getUntrackedParameter<int32_t>("topModLabel");
+  else
+        topModLabel = " top Modules " + map_type;
 
   if (map_type == "QTestAlarm") {
     setTkMapFromAlarm(dqm_store, eSetup);
   }
   else {
-    setTkMapFromHistogram(dqm_store, map_type);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
   }
   // if not overwitten by manual configuration min=0 and max= mean value * meanToMaxFactor_
   setTkMapRangeOffline();
@@ -162,11 +196,27 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   
   if(tkmapPset.exists("mapMax")) tkMapMax_ = tkmapPset.getUntrackedParameter<double>("mapMax");
   if(tkmapPset.exists("mapMin")) tkMapMin_ = tkmapPset.getUntrackedParameter<double>("mapMin");
-  
-  edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
-  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+
+  if (map_type == "ResidualsMean"){
+    ResidualsRMS_ = false;
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+    ResidualsRMS_ = true;
+    map_type = "ResidualsRMS";
+    if      (runNumber_>0)  { tmap_title = " Run: " + sRunNumber + ", Tracker Map from " + map_type; } //LG
+    else                    { tmap_title = " Tracker Map from " + map_type; } //LG
+    trackerMap_->setTitle(tmap_title);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to 0.0 - 1.0";
+    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".png",4500,2400);
+  } else {
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+  }
 
   if(tkMapPSU) {
 
@@ -193,7 +243,7 @@ void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store, const edm:
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   nDet     = 0;
@@ -233,7 +283,7 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   bool tibDone=false,tidSide1Done=false,tidSide2Done=false,tobDone=false,tecSide1Done=false,tecSide2Done=false;
@@ -260,7 +310,8 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
     }
   }
 
-  edm::LogVerbatim("BadModuleList") << "Number of bad modules in total:";
+  //  edm::LogVerbatim("BadModuleList") << "Number of bad modules in total:";
+  edm::LogVerbatim("BadModuleList") << "Run: " << sRunNumber << ", Number of bad modules in total:"; //LG
   edm::LogVerbatim("BadModuleList") << "--------------------------------------------------------------";
   edm::LogVerbatim("BadModuleList") << "TIB: " << ntib;
   edm::LogVerbatim("BadModuleList") << "TID/MINUS: " << ntids1;
@@ -328,12 +379,19 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, const Tracke
   if(isBad) { rval=255; gval=255; bval = 0; comment << " PCLBadModule ";}
   trackerMap_->setText(det_id, comment.str());
   trackerMap_->fillc(det_id, rval, gval, bval);
-  if(badmodmap && (flag!=0 || isBad)) (*badmodmap)[det_id] = comment.str();
+
+  if(badmodmap && (flag!=0 || isBad)){ 
+    uint  lay= tTopo->layer(SiStripDetId(det_id));
+    std::string layer =" Layer "+ std::to_string(lay); 
+    (*badmodmap)[det_id] = comment.str() + layer;
+  }
+
+  detflag_[det_id] = flag;
 }
 
 //
 // --  Paint Tracker Map from TkHistoMap Histograms
-void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype) {
+void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup) {
   dqm_store->cd();
 
   std::string mdir = "MechanicalView";
@@ -350,7 +408,8 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 
   nDet     = 0;
   tkMapMax_ = 0.0; 
-  tkMapMin_ = 0.0; 
+  tkMapMin_ = 0.0;
+  std::vector<std::pair<float,uint32_t> >* topNmodVec = new std::vector<std::pair<float,uint32_t> >; 
 
   for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
     std::string dname = mechanicalview_dir + "/" + (*it);
@@ -375,14 +434,61 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 	} 
       }
       if (tkhmap_me != 0) {
-        paintTkMapFromHistogram(dqm_store,tkhmap_me, htype);
+	if (topModules){
+        	paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, topNmodVec);
+	}
+	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, 0);
       } 
     }
     dqm_store->cd(mechanicalview_dir);
   }
   dqm_store->cd();
+  if (topModules) printTopModules(topNmodVec, eSetup);
+  delete topNmodVec;
 }
-void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype) {
+
+void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup){
+
+   //////////////Retrieve tracker topology from geometry
+   //edm::ESHandle<TrackerTopology> tTopoHandle;
+   //eSetup.get<TrackerTopologyRecord>().get(tTopoHandle);
+   //const TrackerTopology* const tTopo = tTopoHandle.product();  
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+   if (topNmodVec->empty()) return;
+
+   std::sort(topNmodVec->rbegin(), topNmodVec->rend());
+   if (topNmodVec->size() > numTopModules) topNmodVec->resize(numTopModules);
+   
+   edm::LogVerbatim("TopModules") << topModLabel;
+   edm::LogVerbatim("TopModules") << "------------------------------------------------------";
+   
+   for (std::vector<std::pair<float, uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
+       std::pair<float, uint32_t> aPair=(*itNmod);
+       uint32_t det_id = aPair.second;
+       std::ostringstream comment;
+       std::string subdetector;
+       SiStripDetId ssdetid(aPair.second);
+       if(ssdetid.subDetector()==SiStripDetId::TIB) subdetector = "TIB       ";
+       if(ssdetid.subDetector()==SiStripDetId::TID){
+	  if(tTopo->tidSide(ssdetid)==1) subdetector = "TID/MINUS ";
+          if(tTopo->tidSide(ssdetid)==2) subdetector = "TID/PLUS  ";
+       }
+       if(ssdetid.subDetector()==SiStripDetId::TOB) subdetector = "TOB       ";
+       if(ssdetid.subDetector()==SiStripDetId::TEC){
+	  if(tTopo->tecSide(ssdetid)==1) subdetector = "TEC/MINUS ";
+	  if(tTopo->tecSide(ssdetid)==2) subdetector = "TEC/PLUS  ";
+       }
+       uint16_t flag = getDetectorFlagAndComment(0, det_id, tTopo, comment);
+       if (flag == 0) edm::LogVerbatim("TopModules") << subdetector << comment.str() << " value: "<< aPair.first;
+   }
+   edm::LogVerbatim("TopModules") << "------------------------------------------------------";
+}
+
+
+void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype, std::vector<std::pair<float, uint32_t> >* topNmodVec) {
 
   //  edm::ESHandle<SiStripQuality> ssq;
 
@@ -397,15 +503,26 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;
-    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id);
+    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id , cached_detid , cached_layer , cached_XYbin);
     float fval = 0.0;
-    if ( (name.find("NumberOfOfffTrackCluster") != std::string::npos) || 
+    if ( (name.find("NumberOfOff") != std::string::npos) || //temporary fix 
          (name.find("NumberOfOnTrackCluster") != std::string::npos) ) {
       if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {   
 	TProfile2D* tp = me->getTProfile2D() ;
 	fval =  tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)) * tp->GetBinContent(xyval.ix, xyval.iy);
       }
-    } else  fval = me->getBinContent(xyval.ix, xyval.iy);
+    } else if(name.find("Residuals") != std::string::npos){
+      if(ResidualsRMS_==true){
+	if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {  
+	  TProfile2D* tp = me->getTProfile2D() ;
+	  float fval_prov = tp->GetBinError(xyval.ix, xyval.iy) * sqrt(tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)));
+	  fval =  fval_prov;
+	}
+      } else {
+	float fval_prov = me->getBinContent(xyval.ix, xyval.iy);
+	fval =  fval_prov;
+      }
+    } else fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
       edm::LogError("ItShouldNotBeHere") << "QTestAlarm map: you should not be here!";
       /*
@@ -422,6 +539,10 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       if (fval == 0.0) trackerMap_->fillc(det_id,255, 255, 255);  
       else {
  	trackerMap_->fill_current_val(det_id, fval);
+        if(topNmodVec){
+         auto detPair = std::make_pair(fval,det_id);
+	 topNmodVec->push_back(detPair);
+	}
       }
       tkMapMax_ += fval;
     }
@@ -480,7 +601,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   if(conns.size()==1) {	comment << "              ";      }
   if(conns.size()==2) {	comment << "       ";      }
     //  }
-
+  if(!dqm_store) return flag;
   // get PSU channel corresponding to the det_id
   /*
   comment << " PSU: ";
@@ -523,4 +644,81 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
     comment << message.c_str();
   }
   return flag;
+}
+//
+// -- create branches for root file with tracker map values by detId and fill it
+//
+void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names, TTree* tkinfo_tree, DQMStore* dqm_store, std::vector<uint32_t> detidList) {
+
+  std::map<std::string, float> tkhmap_value;
+  int qtalarm_flag = 0;
+  uint32_t det_id = 0;
+
+  if(!tkinfo_tree) {
+    edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "Tree not found!";
+  }
+  else {
+    tkinfo_tree->Branch("DetId",&det_id,"DetId/i");
+    for(std::vector<std::string>::const_iterator in = map_names.begin(); in != map_names.end(); ++in) {
+      std::string mapname = (*in);
+      if(mapname == "QTestAlarm") {
+        qtalarm_flag = 0;
+        tkinfo_tree->Branch(mapname.c_str(),&qtalarm_flag,std::string(mapname+"/I").c_str());
+      } else {
+        tkhmap_value[mapname] = -1.0;
+        tkinfo_tree->Branch(mapname.c_str(),&tkhmap_value[mapname],std::string(mapname+"/F").c_str());
+      }
+    }
+
+    std::string dirname = "";
+
+    std::string mdir = "MechanicalView";
+    dqm_store->cd();
+    if (!SiStripUtility::goToDir(dqm_store, mdir)) {
+      edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "I cannot find the SiStrip top level directory in the DQM file";
+    }
+    else {
+      std::string mechanicalview_dir = dqm_store->pwd();
+      dirname=mechanicalview_dir.substr(0,mechanicalview_dir.find_last_of("/"));    
+      edm::LogInfo("SiStripTrackerMapCreator::createInfoFile") << "SiStrip top level directory is " << dirname;
+    }
+    dqm_store->cd();
+
+    std::vector<TkHistoMap*> tkHMaps;
+
+    uint32_t nHists = map_names.size();
+
+    for(uint32_t ih = 0; ih < nHists; ++ih) {
+      tkHMaps.push_back(new TkHistoMap());
+      if(map_names.at(ih) != "QTestAlarm") {
+        std::string tkhmap_name = "TkHMap_" + map_names.at(ih);
+        tkHMaps.at(ih)->loadTkHistoMap(dirname, tkhmap_name, true);
+      }
+    } 
+
+    for(std::vector<uint32_t>::const_iterator idet = detidList.begin(); idet != detidList.end(); ++idet) {
+      det_id = (*idet);
+      for(uint32_t ih = 0; ih < nHists; ++ih) {
+        if(map_names.at(ih) == "QTestAlarm") {
+          std::ostringstream comment;
+          qtalarm_flag = getDetectorFlag(det_id);
+        } else {
+          tkhmap_value[map_names.at(ih)] = tkHMaps.at(ih)->getValue(det_id);
+        }
+      }
+      if(!tkinfo_tree) {
+        edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "Tree not found!";
+      }
+      else {
+        tkinfo_tree->Fill();
+      }
+    }
+
+    // delete pointers
+    for(uint32_t ih = 0; ih < nHists; ++ih) {
+      delete tkHMaps.at(ih);
+    }
+
+  }
+
 }

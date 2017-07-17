@@ -5,9 +5,9 @@
 // Package:     DataFormats/Provenance
 // Class  :     RunID
 // 
-/**\class RunID RunID.h DataFormats/Provenance/interface/RunID.h
+/**\class edm::RunID
 
- Description: Holds run and luminosityBlock number.
+ Description: Holds run number
 
  Usage:
     <usage>
@@ -20,20 +20,16 @@
 #include <iosfwd>
 
 // user include files
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 // forward declarations
 namespace edm {
 
-   typedef unsigned int RunNumber_t;
-
-   
 class RunID
 {
-
    public:
-   
-   
-      RunID() : run_(0) {}
+
+      RunID() : run_(invalidRunNumber) {}
       explicit RunID(RunNumber_t iRun) :
 	run_(iRun) {}
       

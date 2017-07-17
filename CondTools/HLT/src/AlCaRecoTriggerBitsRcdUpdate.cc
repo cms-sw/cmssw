@@ -40,6 +40,8 @@ private:
   typedef std::map<std::string, std::string> TriggerMap;
   AlCaRecoTriggerBits* createStartTriggerBits(bool startEmpty, const edm::EventSetup& evtSetup) const;
   bool removeKeysFromMap(const std::vector<std::string> &keys, TriggerMap &triggerMap) const;
+  bool replaceKeysFromMap(const std::vector<edm::ParameterSet> &alcarecoReplace,
+			  TriggerMap &triggerMap) const;
   bool addTriggerLists(const std::vector<edm::ParameterSet> &triggerListsAdd,
 		       AlCaRecoTriggerBits &bits) const;
   /// Takes over memory uresponsibility for 'bitsToWrite'. 
@@ -51,6 +53,7 @@ private:
   const bool startEmpty_; 
   const std::vector<std::string> listNamesRemove_;
   const std::vector<edm::ParameterSet> triggerListsAdd_;
+  const std::vector<edm::ParameterSet> alcarecoReplace_; 
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -63,7 +66,8 @@ AlCaRecoTriggerBitsRcdUpdate::AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterS
     lastRunIOV_(cfg.getParameter<int>("lastRunIOV")),
     startEmpty_(cfg.getParameter<bool>("startEmpty")),
     listNamesRemove_(cfg.getParameter<std::vector<std::string> >("listNamesRemove")),
-    triggerListsAdd_(cfg.getParameter<std::vector<edm::ParameterSet> >("triggerListsAdd"))
+    triggerListsAdd_(cfg.getParameter<std::vector<edm::ParameterSet> >("triggerListsAdd")),
+    alcarecoReplace_(cfg.getParameter<std::vector<edm::ParameterSet> >("alcarecoToReplace"))
 {
 }
   
@@ -86,6 +90,9 @@ void AlCaRecoTriggerBitsRcdUpdate::analyze(const edm::Event& evt, const edm::Eve
 
   // now add new entries
   this->addTriggerLists(triggerListsAdd_, *bitsToWrite);
+
+  // now replace keys 
+  this->replaceKeysFromMap(alcarecoReplace_,bitsToWrite->m_alcarecoToTrig);
 
   // finally write to DB
   this->writeBitsToDB(bitsToWrite);
@@ -122,6 +129,35 @@ bool AlCaRecoTriggerBitsRcdUpdate::removeKeysFromMap(const std::vector<std::stri
       throw cms::Exception("BadConfig") << "[AlCaRecoTriggerBitsRcdUpdate::removeKeysFromMap] "
 					<< "Cannot remove key '" << *iKey << "' since not in "
 					<< "list - typo in configuration?\n";
+      return false;
+    }
+  }
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+bool AlCaRecoTriggerBitsRcdUpdate::replaceKeysFromMap(const std::vector<edm::ParameterSet> &alcarecoReplace,
+						      TriggerMap &triggerMap) const
+{
+  
+  std::vector<std::pair<std::string,std::string> > keyPairs;
+  keyPairs.reserve(alcarecoReplace.size());
+
+  for(auto &iSet : alcarecoReplace ){
+    const std::string oldKey(iSet.getParameter<std::string>("oldKey"));
+    const std::string newKey(iSet.getParameter<std::string>("newKey"));
+    keyPairs.push_back(std::make_pair(oldKey,newKey));
+  }
+
+  for(auto& iKey : keyPairs){
+    if(triggerMap.find(iKey.first) != triggerMap.end() ){
+      std::string bitsToReplace = triggerMap[iKey.first];
+      triggerMap.erase(iKey.first);
+      triggerMap[iKey.second] = bitsToReplace;
+    } else { // not in list ==> misconfiguration!
+      edm::LogWarning("AlCaRecoTriggerBitsRcdUpdate") << "[AlCaRecoTriggerBitsRcdUpdate::replaceKeysFromMap] "
+						      << "Cannot replace key '" << iKey.first << "with " << iKey.second << " since not in "
+						      << "list - typo in configuration?\n";
       return false;
     }
   }

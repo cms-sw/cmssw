@@ -16,8 +16,9 @@
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm
 {
@@ -30,7 +31,7 @@ namespace edm
   {
   public:
 
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
     explicit TriggerResultInserter(edm::ParameterSet const& ps);
@@ -43,7 +44,7 @@ namespace edm
     void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
 
   private:
-    std::vector<TrigResPtr> resultsPerStream_;
+    std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
     ParameterSetID pset_id_;
   };

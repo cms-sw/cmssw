@@ -1,9 +1,25 @@
 #include "DetectorDescription/RegressionTest/src/ddstats.h"
+
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+
+struct DDPosData;
+
 void ddstats(std::ostream & os)
 {
 

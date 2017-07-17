@@ -23,7 +23,7 @@
 // user include files
 #include "DataFormats/Common/interface/FillView.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/OffsetToBase.h"
 
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 
@@ -43,7 +43,6 @@ namespace edm {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
-      typedef typename product_type::size_type      size_type;
 
       oPtr.reserve(iIndicies.size());
       if(iToType == typeid(element_type)) {
@@ -57,8 +56,6 @@ namespace edm {
           oPtr.push_back(address);
         }
       } else {
-        static TypeWithDict const s_type(typeid(element_type));
-
         for(std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(),
             itEnd = iIndicies.end();
             itIndex != itEnd;
@@ -66,8 +63,8 @@ namespace edm {
           iter it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
-          void const* ptr = TypeWithDict(iToType).pointerToBaseType(address, s_type);
-          if(0 != ptr) {
+          void const* ptr = pointerToBase(iToType,address);
+          if(nullptr != ptr) {
             oPtr.push_back(ptr);
           } else {
             Exception::throwThis(errors::LogicError,

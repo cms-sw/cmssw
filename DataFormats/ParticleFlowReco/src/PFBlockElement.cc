@@ -5,6 +5,14 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
+const reco::TrackRef reco::PFBlockElement::nullTrack_ = reco::TrackRef();
+const reco::PFRecTrackRef reco::PFBlockElement::nullPFRecTrack_ = reco::PFRecTrackRef();
+const reco::PFClusterRef reco::PFBlockElement::nullPFCluster_ = reco::PFClusterRef();
+const reco::PFDisplacedTrackerVertexRef reco::PFBlockElement::nullPFDispVertex_ = 
+  reco::PFDisplacedTrackerVertexRef();
+const reco::ConversionRefVector reco::PFBlockElement::nullConv_ = reco::ConversionRefVector();
+const reco::MuonRef  reco::PFBlockElement::nullMuon_ = reco::MuonRef();
+const reco::VertexCompositeCandidateRef reco::PFBlockElement::nullVertex_ = reco::VertexCompositeCandidateRef();
 
 using namespace reco;
 
@@ -25,10 +33,10 @@ std::ostream& reco::operator<<( std::ostream& out,
   
   if(! out) return out;
   
-  out<<"element "<<element.index()<<"- type "<<element.type_<<" ";
+  out<<"element "<<element.index()<<"- type "<<element.type()<<" ";
   
   try {
-    switch(element.type_) {
+    switch(element.type()) {
     case PFBlockElement::TRACK:
       {
         const reco::PFBlockElementTrack& et =
@@ -42,6 +50,7 @@ std::ostream& reco::operator<<( std::ostream& out,
       }
     case PFBlockElement::ECAL:
     case PFBlockElement::HCAL:
+    case PFBlockElement::HGCAL:
     case PFBlockElement::HO: 
     case PFBlockElement::HFEM:
     case PFBlockElement::HFHAD:

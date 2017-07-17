@@ -13,6 +13,6 @@ class TtGenEventReco : public edm::EDProducer {
 
  private:
 
-  edm::InputTag src_;
-  edm::InputTag init_;
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> initToken_;
 };

@@ -22,23 +22,17 @@
 
 // user include files
 
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
-class CaloTower;
-// forward declarations
-class TH2F;
+#include "Fireworks/Calo/interface/FWHistSliceSelector.h"
 
-class FWCaloTowerSliceSelector : public FWFromSliceSelector
+
+class FWCaloTowerSliceSelector : public FWHistSliceSelector
 {
 public:
   FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i);
   virtual ~FWCaloTowerSliceSelector();
-  
-  virtual void doSelect(const TEveCaloData::CellId_t&);
-  virtual void doUnselect(const TEveCaloData::CellId_t&);
-  
-private:
-  TH2F* m_hist;
-    bool matchCell(const TEveCaloData::CellId_t& iCell, const CaloTower& tower) const;
+ 
+protected:
+   virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const; 
 };
 
 #endif

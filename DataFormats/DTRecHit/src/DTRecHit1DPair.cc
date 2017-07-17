@@ -69,8 +69,8 @@ vector<const TrackingRecHit*> DTRecHit1DPair::recHits() const {
 // Non-const access to component RecHits.
 vector<TrackingRecHit*> DTRecHit1DPair::recHits() {
   vector<TrackingRecHit*> result;
-  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Left)));
-  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Right)));
+  result.push_back(componentRecHit(Left));
+  result.push_back(componentRecHit(Right));
   return result;
 }
 

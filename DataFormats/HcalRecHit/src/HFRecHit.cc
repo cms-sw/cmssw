@@ -1,12 +1,17 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 
 
-HFRecHit::HFRecHit() : CaloRecHit() {
+HFRecHit::HFRecHit() : 
+  CaloRecHit(),
+  timeFalling_(0.f),
+  auxHF_(0)
+{
 }
 
 HFRecHit::HFRecHit(const HcalDetId& id, float energy, float timeRising, float timeFalling) :
   CaloRecHit(id,energy,timeRising),
-  timeFalling_(timeFalling)
+  timeFalling_(timeFalling),
+  auxHF_(0)
 {
 }
 

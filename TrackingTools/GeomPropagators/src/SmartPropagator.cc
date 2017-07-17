@@ -31,19 +31,15 @@
 /* ====================================================================== */
 
 /* static member */
-ReferenceCountingPointer<BoundCylinder> & SmartPropagator::theTkVolume() {
-  static ReferenceCountingPointer<BoundCylinder> local=0;
-  return local;
-}
 
 
 
 /* Constructor */ 
-SmartPropagator::SmartPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field,
+SmartPropagator::SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
                                  PropagationDirection dir, float epsilon) :
   Propagator(dir), theTkProp(aTkProp->clone()), theGenProp(aGenProp->clone()), theField(field) { 
 
-  if (theTkVolume()==0) initTkVolume(epsilon);
+  initTkVolume(epsilon);
 
 }
 
@@ -52,7 +48,7 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
                                  PropagationDirection dir, float epsilon) :
   Propagator(dir), theTkProp(aTkProp.clone()), theGenProp(aGenProp.clone()), theField(field) {
 
-  if (theTkVolume()==0) initTkVolume(epsilon);
+  initTkVolume(epsilon);
 
 }
 
@@ -66,7 +62,7 @@ SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
 
     //SL since it's a copy constructor, then the TkVolume has been already
     //initialized
-    //if (theTkVolume==0) initTkVolume(epsilon);
+    // initTkVolume(epsilon);
 
   }
 
@@ -94,38 +90,11 @@ void SmartPropagator::initTkVolume(float epsilon) {
   Surface::PositionType pos(0,0,0); // centered at the global origin
   Surface::RotationType rot; // unit matrix - barrel cylinder orientation
 
-  theTkVolume() = Cylinder::build(radius, pos, rot, new SimpleCylinderBounds(r_in, r_out, z_min, z_max));
+  theTkVolume = Cylinder::build(radius, pos, rot, new SimpleCylinderBounds(r_in, r_out, z_min, z_max));
 
 }
 
 
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Surface& surface) const {
-  return Propagator::propagate( fts, surface);
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Plane& plane) const {
-
-  if (insideTkVol(fts) && insideTkVol(plane)) {
-    return getTkPropagator()->propagate(fts, plane);
-  } else {
-    return getGenPropagator()->propagate(fts, plane);
-  }
-
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Cylinder& cylinder) const {
-  if (insideTkVol(fts) && insideTkVol(cylinder)) {
-    return getTkPropagator()->propagate(fts, cylinder);
-  } else {
-    return getGenPropagator()->propagate(fts, cylinder);
-  }
-
-}
 
 std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
@@ -143,6 +112,29 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
                                    const Cylinder& cylinder) const
 {
   if (insideTkVol(fts) && insideTkVol(cylinder)) {
+    return getTkPropagator()->propagateWithPath(fts, cylinder);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, cylinder);
+  }
+}
+
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Plane& plane) const 
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(plane)) {
+    return getTkPropagator()->propagateWithPath(fts, plane);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, plane);
+  }
+}
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Cylinder& cylinder) const
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(cylinder)) {
     return getTkPropagator()->propagateWithPath(fts, cylinder);
   } else {
     return getGenPropagator()->propagateWithPath(fts, cylinder);
@@ -193,14 +185,14 @@ bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 }
 
 
-Propagator* SmartPropagator::getTkPropagator() const {
+const Propagator* SmartPropagator::getTkPropagator() const {
 
   return theTkProp;
 
 }
 
 
-Propagator* SmartPropagator::getGenPropagator() const {
+const Propagator* SmartPropagator::getGenPropagator() const {
 
   return theGenProp;
 

@@ -6,6 +6,9 @@
  *
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
+ *
+ *           Modified by C. Calabria & A. Sharma
+ *  Modified by D. Nash
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -14,6 +17,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class Propagator;
 class DetLayer;
@@ -29,7 +33,7 @@ class StandAloneMuonFilter {
 
  public:
     /// Constructor
-  StandAloneMuonFilter(const edm::ParameterSet& par, const MuonServiceProxy* service);
+  StandAloneMuonFilter(const edm::ParameterSet& par, const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~StandAloneMuonFilter();
@@ -63,18 +67,23 @@ class StandAloneMuonFilter {
   int getDTChamberUsed() const {return dtChambers;}
   int getCSCChamberUsed() const {return cscChambers;}
   int getRPCChamberUsed() const {return rpcChambers;}
+  int getGEMChamberUsed() const {return gemChambers;}
+  int getME0ChamberUsed() const {return me0Chambers;}
 
   int getTotalCompatibleChambers() const {return totalCompatibleChambers;}
   int getDTCompatibleChambers() const {return dtCompatibleChambers;}
   int getCSCCompatibleChambers() const {return cscCompatibleChambers;}
   int getRPCCompatibleChambers() const {return rpcCompatibleChambers;}
+  int getGEMCompatibleChambers() const {return gemCompatibleChambers;}
+  int getME0CompatibleChambers() const {return me0CompatibleChambers;}
+
 
   inline bool goodState() const {return totalChambers >= 2 && 
-				   ((dtChambers + cscChambers) >0 ||
+				   ((dtChambers + cscChambers + gemChambers + me0Chambers) >0 ||
 				    onlyRPC());}
   
   inline bool isCompatibilitySatisfied() const {return totalCompatibleChambers >= 2 && 
-						  ((dtCompatibleChambers + cscCompatibleChambers) >0 ||
+						  ((dtCompatibleChambers + cscCompatibleChambers + gemCompatibleChambers + me0CompatibleChambers) >0 ||
 						   onlyRPC());}
   
   /// return the layer used for the refit
@@ -123,7 +132,7 @@ private:
  
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
-						FreeTrajectoryState& fts,
+						const FreeTrajectoryState& fts,
 						PropagationDirection propDir);
 
   bool update(const DetLayer * layer, 
@@ -182,11 +191,15 @@ private:
   int dtChambers;
   int cscChambers;
   int rpcChambers;
+  int gemChambers;
+  int me0Chambers;
 
   int totalCompatibleChambers;
   int dtCompatibleChambers;
   int cscCompatibleChambers;
   int rpcCompatibleChambers;
+  int gemCompatibleChambers;
+  int me0CompatibleChambers;
 
   const MuonServiceProxy *theService;
   bool theOverlappingChambersFlag;

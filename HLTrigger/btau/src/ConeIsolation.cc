@@ -26,7 +26,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -99,10 +99,10 @@ ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
    iEvent.getByToken(jetTrackToken,jetTracksAssociation);
 
-   std::auto_ptr<reco::JetTagCollection>             tagCollection;
-   std::auto_ptr<reco::IsolatedTauTagInfoCollection> extCollection( new reco::IsolatedTauTagInfoCollection() );
-if (not jetTracksAssociation->empty()) {
-     RefToBaseProd<reco::Jet> prod( jetTracksAssociation->begin()->first );
+   std::unique_ptr<reco::JetTagCollection>             tagCollection;
+   std::unique_ptr<reco::IsolatedTauTagInfoCollection> extCollection( new reco::IsolatedTauTagInfoCollection() );
+   if (not jetTracksAssociation->empty()) {
+     RefToBaseProd<reco::Jet> prod( edm::makeRefToBaseProdFrom(jetTracksAssociation->begin()->first, iEvent) );
      tagCollection.reset( new reco::JetTagCollection(prod) );
    } else {
      tagCollection.reset( new reco::JetTagCollection() );
@@ -147,8 +147,8 @@ if (not jetTracksAssociation->empty()) {
        extCollection->push_back(myPair.second);
      }
 
-   iEvent.put(extCollection);
-   iEvent.put(tagCollection);
+   iEvent.put(std::move(extCollection));
+   iEvent.put(std::move(tagCollection));
 
 }
 

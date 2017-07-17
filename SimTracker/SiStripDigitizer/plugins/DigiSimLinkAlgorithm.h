@@ -21,11 +21,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SiTrivialDigitalConverter.h"
-#include "SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
 #include "DigiSimLinkPileUpSignals.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -48,7 +48,7 @@ class DigiSimLinkAlgorithm {
   typedef float Amplitude;
   
   // Constructor
-  DigiSimLinkAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  DigiSimLinkAlgorithm(const edm::ParameterSet& conf);
 
   // Destructor
   ~DigiSimLinkAlgorithm();
@@ -56,10 +56,11 @@ class DigiSimLinkAlgorithm {
   // Runs the algorithm
   void  run(edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripRawDigi>&,
             const std::vector<std::pair<const PSimHit*, int > >  &, 
-            StripGeomDetUnit *, GlobalVector, float, 
+            StripGeomDetUnit const *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
             edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
-	    const TrackerTopology *tTopo);
+	    const TrackerTopology *tTopo,
+            CLHEP::HepRandomEngine*);
 
   // digisimlink
   std::vector<StripDigiSimLink> make_link() { return link_coll; }
@@ -99,6 +100,8 @@ class DigiSimLinkAlgorithm {
   double cosmicShift;
   double inefficiency;
   double pedOffset;
+  bool PreMixing_;
+
 
   size_t firstChannelWithSignal;
   size_t lastChannelWithSignal;
@@ -118,12 +121,10 @@ class DigiSimLinkAlgorithm {
   SiGaussianTailNoiseAdder* theSiNoiseAdder;
   SiTrivialDigitalConverter* theSiDigitalConverter;
   SiStripFedZeroSuppression* theSiZeroSuppress;
-  CLHEP::HepRandomEngine& rndEngine;
 
   DigitalVecType digis;
   DigitalRawVecType rawdigis;
   std::vector<StripDigiSimLink> link_coll;
-  CLHEP::RandFlat *theFlatDistribution;
 
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,

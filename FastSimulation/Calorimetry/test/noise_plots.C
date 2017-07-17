@@ -207,7 +207,7 @@ void NormalizeHistograms(TH1F* h1, TH1F* h2)
     h1->Scale(scale1);
     h2->Scale(scale2);
  
- }
+  }
 }
 
 double max(TH1F* h1, TH1F* h2)
