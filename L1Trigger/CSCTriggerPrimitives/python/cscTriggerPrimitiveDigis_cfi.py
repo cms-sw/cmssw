@@ -371,8 +371,7 @@ me11tmbSLHCGEM = cms.PSet(
 
     ## run in debug mode
     debugLUTs = cms.bool(False),
-    debugMatching = cms.bool(True),
-    debugGEMDphi = cms.bool(False),
+    debugMatching = cms.bool(False),
 
     ## use old dataformat
     useOldLCTDataFormat = cms.bool(True),
@@ -430,8 +429,7 @@ me21tmbSLHCGEM = cms.PSet(
 
     ## run in debug mode
     debugLUTs = cms.bool(False),
-    debugMatching = cms.bool(True),
-    debugGEMDphi = cms.bool(False),
+    debugMatching = cms.bool(False),
 
     ## use old dataformat
     useOldLCTDataFormat = cms.bool(True),
@@ -440,7 +438,6 @@ me21tmbSLHCGEM = cms.PSet(
     maxDeltaBXPad = cms.int32(1),
     maxDeltaPadPadEven = cms.int32(6),
     maxDeltaPadPadOdd = cms.int32(12),
-    maxDeltaWg = cms.int32(2),
 
     ## matching to pads in case absent CLCT
     maxDeltaBXCoPad = cms.int32(1),
@@ -528,7 +525,8 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                       ## on rpc digis -> no integrated CSC-RCP stubs
                       RPCDigiProducer = cms.InputTag(""),
                       commonParam = dict(runME21ILT = cms.bool(True),
-                                         runME3141ILT = cms.bool(True)),
+                                         ## to use the upgraded ALCT, CLCT processor
+                                         runME3141ILT = cms.bool(True)), 
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       ## use the upgrade processors!
