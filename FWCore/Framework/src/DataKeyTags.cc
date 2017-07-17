@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     DataKeyTags
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,12 +16,11 @@
 // user include files
 #include "FWCore/Framework/interface/DataKeyTags.h"
 
-
 //
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 //
 // static data member definitions
 //
@@ -48,20 +47,16 @@ namespace edm {
 //
 // const member functions
 //
-bool
-SimpleStringTag::operator==(const SimpleStringTag& iRHS) const
-{
-   return (0 == std::strcmp(tag_, iRHS.tag_));
+bool SimpleStringTag::operator==(const SimpleStringTag& iRHS) const {
+  return (0 == std::strcmp(tag_, iRHS.tag_));
 }
 
-bool
-SimpleStringTag::operator<(const SimpleStringTag& iRHS) const
-{
-   return (0 > std::strcmp(tag_, iRHS.tag_));
+bool SimpleStringTag::operator<(const SimpleStringTag& iRHS) const {
+  return (0 > std::strcmp(tag_, iRHS.tag_));
 }
 
 //
 // static member functions
 //
-   }
+}
 }

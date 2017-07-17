@@ -14,54 +14,47 @@ reporting on the timing of the trigger.
 
 namespace edm {
 
-  struct EventTimingSummary
-  {
-    int totalEvents = 0;
-    double cpuTime = 0.;
-    double realTime =0.;
-    double sumStreamRealTime = 0.;
-  };
+struct EventTimingSummary {
+  int totalEvents = 0;
+  double cpuTime = 0.;
+  double realTime = 0.;
+  double sumStreamRealTime = 0.;
+};
 
-  struct ModuleInPathTimingSummary
-  {
-    int timesVisited = 0;
-    double realTime =0.;
+struct ModuleInPathTimingSummary {
+  int timesVisited = 0;
+  double realTime = 0.;
 
-    std::string moduleLabel;
-  };
+  std::string moduleLabel;
+};
 
+struct PathTimingSummary {
+  int bitPosition = 0;
+  int timesRun = 0;
+  double realTime = 0.;
 
-  struct PathTimingSummary
-  {
-    int bitPosition = 0;
-    int timesRun = 0;
-    double realTime =0.;
+  std::string name;
+  std::vector<ModuleInPathTimingSummary> moduleInPathSummaries;
+};
 
-    std::string name;
-    std::vector<ModuleInPathTimingSummary> moduleInPathSummaries;
-  };
+struct WorkerTimingSummary {
+  int timesVisited = 0;
+  int timesRun = 0;
+  double realTime = 0.;
 
-  struct WorkerTimingSummary
-  {
-    int timesVisited = 0;
-    int timesRun = 0;
-    double realTime =0.;
+  std::string moduleLabel;
+};
 
-    std::string moduleLabel;
-  };
+inline bool operator<(WorkerTimingSummary const& a,
+                      WorkerTimingSummary const& b) {
+  return a.moduleLabel < b.moduleLabel;
+}
 
-  inline
-  bool operator<(WorkerTimingSummary const& a, WorkerTimingSummary const& b) {
-    return a.moduleLabel < b.moduleLabel;
-  }
-
-  struct TriggerTimingReport
-  {
-    EventTimingSummary               eventSummary;
-    std::vector<PathTimingSummary>   trigPathSummaries;
-    std::vector<PathTimingSummary>   endPathSummaries;
-    std::vector<WorkerTimingSummary> workerSummaries;
-  };
-
+struct TriggerTimingReport {
+  EventTimingSummary eventSummary;
+  std::vector<PathTimingSummary> trigPathSummaries;
+  std::vector<PathTimingSummary> endPathSummaries;
+  std::vector<WorkerTimingSummary> workerSummaries;
+};
 }
 #endif

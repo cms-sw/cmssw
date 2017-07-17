@@ -15,16 +15,16 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -42,7 +42,7 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
-class test_ep: public CppUnit::TestFixture {
+class test_ep : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_ep);
   CPPUNIT_TEST(failgetbyIdTest);
   CPPUNIT_TEST(failgetbyLabelTest);
@@ -50,7 +50,8 @@ class test_ep: public CppUnit::TestFixture {
   CPPUNIT_TEST(failgetbyInvalidIdTest);
   CPPUNIT_TEST(failgetProvenanceTest);
   CPPUNIT_TEST_SUITE_END();
-public:
+
+ public:
   void setUp();
   void tearDown();
   void failgetbyIdTest();
@@ -59,26 +60,25 @@ public:
   void failgetbyInvalidIdTest();
   void failgetProvenanceTest();
 
-private:
+ private:
+  std::shared_ptr<edm::ProcessConfiguration> fake_single_module_process(
+      std::string const& tag, std::string const& processName,
+      edm::ParameterSet const& moduleParams,
+      std::string const& release = edm::getReleaseVersion(),
+      std::string const& pass = edm::getPassID());
+  std::shared_ptr<edm::BranchDescription> fake_single_process_branch(
+      std::string const& tag, std::string const& processName,
+      std::string const& productInstanceName = std::string());
 
-  std::shared_ptr<edm::ProcessConfiguration>
-  fake_single_module_process(std::string const& tag,
-                             std::string const& processName,
-                             edm::ParameterSet const& moduleParams,
-                             std::string const& release = edm::getReleaseVersion(),
-                             std::string const& pass = edm::getPassID());
-  std::shared_ptr<edm::BranchDescription>
-  fake_single_process_branch(std::string const& tag,
-                             std::string const& processName,
-                             std::string const& productInstanceName = std::string());
+  std::map<std::string, std::shared_ptr<edm::BranchDescription> >
+      branchDescriptions_;
+  std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> >
+      processConfigurations_;
 
-  std::map<std::string, std::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
-  std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
+  std::shared_ptr<edm::ProductRegistry> pProductRegistry_;
+  std::shared_ptr<edm::EventPrincipal> pEvent_;
 
-  std::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
-  std::shared_ptr<edm::EventPrincipal>    pEvent_;
-
-  edm::EventID               eventID_;
+  edm::EventID eventID_;
 
   edm::HistoryAppender historyAppender_;
 };
@@ -90,27 +90,24 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 
 //----------------------------------------------------------------------
 
-std::shared_ptr<edm::ProcessConfiguration>
-test_ep::fake_single_module_process(std::string const& tag,
-                                    std::string const& processName,
-                                    edm::ParameterSet const& moduleParams,
-                                    std::string const& release,
-                                    std::string const& pass) {
+std::shared_ptr<edm::ProcessConfiguration> test_ep::fake_single_module_process(
+    std::string const& tag, std::string const& processName,
+    edm::ParameterSet const& moduleParams, std::string const& release,
+    std::string const& pass) {
   edm::ParameterSet processParams;
   processParams.addParameter(processName, moduleParams);
-  processParams.addParameter<std::string>("@process_name",
-                                          processName);
+  processParams.addParameter<std::string>("@process_name", processName);
 
   processParams.registerIt();
-  auto result = std::make_shared<edm::ProcessConfiguration>(processName, processParams.id(), release, pass);
+  auto result = std::make_shared<edm::ProcessConfiguration>(
+      processName, processParams.id(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
 
-std::shared_ptr<edm::BranchDescription>
-test_ep::fake_single_process_branch(std::string const& tag,
-                                    std::string const& processName,
-                                    std::string const& productInstanceName) {
+std::shared_ptr<edm::BranchDescription> test_ep::fake_single_process_branch(
+    std::string const& tag, std::string const& processName,
+    std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeWithDict dummyType(typeid(edmtest::DummyProduct));
@@ -120,47 +117,43 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
-  std::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
+  std::shared_ptr<edm::ProcessConfiguration> process(
+      fake_single_module_process(tag, processName, modParams));
 
   auto result = std::make_shared<edm::BranchDescription>(
-                               edm::InEvent,
-                               moduleLabel,
-                               processName,
-                               productClassName,
-                               friendlyProductClassName,
-                               productInstanceName,
-                               moduleClass,
-                               modParams.id(),
-                               dummyType);
+      edm::InEvent, moduleLabel, processName, productClassName,
+      friendlyProductClassName, productInstanceName, moduleClass,
+      modParams.id(), dummyType);
   branchDescriptions_[tag] = result;
   return result;
 }
 
 void test_ep::setUp() {
-
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
   eventID_ = edm::EventID(101, 1, 20);
 
   // We can only insert products registered in the ProductRegistry.
   pProductRegistry_.reset(new edm::ProductRegistry);
-  pProductRegistry_->addProduct(*fake_single_process_branch("hlt",  "HLT"));
+  pProductRegistry_->addProduct(*fake_single_process_branch("hlt", "HLT"));
   pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
-  pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
+  pProductRegistry_->addProduct(
+      *fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*pProductRegistry_);
-  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
+  auto thinnedAssociationsHelper =
+      std::make_shared<edm::ThinnedAssociationsHelper>();
 
   // Put products we'll look for into the EventPrincipal.
   {
-
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    std::unique_ptr<edm::WrapperBase> product = std::make_unique<WDP>(std::make_unique<PRODUCT_TYPE>());
+    std::unique_ptr<edm::WrapperBase> product =
+        std::make_unique<WDP>(std::make_unique<PRODUCT_TYPE>());
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
@@ -168,7 +161,8 @@ void test_ep::setUp() {
 
     branch.init();
 
-    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+    edm::ProductRegistry::ProductList const& pl =
+        pProductRegistry_->productList();
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
@@ -177,17 +171,23 @@ void test_ep::setUp() {
     std::vector<edm::BranchID> const ids;
     edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
 
-    std::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
+    std::shared_ptr<edm::ProcessConfiguration> process(
+        processConfigurations_[tag]);
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
     auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
-    auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_,0);
-    auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
-    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pProductRegistry_, *process, &historyAppender_,0);
+    auto rp = std::make_shared<edm::RunPrincipal>(
+        runAux, pProductRegistry_, *process, &historyAppender_, 0);
+    auto lumiAux =
+        std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
+    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(
+        lumiAux, pProductRegistry_, *process, &historyAppender_, 0);
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
-    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, thinnedAssociationsHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));
+    pEvent_.reset(new edm::EventPrincipal(
+        pProductRegistry_, branchIDListHelper, thinnedAssociationsHelper,
+        *process, &historyAppender_, edm::StreamID::invalidStreamID()));
     edm::ProcessHistoryRegistry phr;
     pEvent_->fillEventPrincipal(eventAux, phr);
     pEvent_->setLuminosityBlockPrincipal(lbp);
@@ -203,14 +203,12 @@ void clear_map(MAP& m) {
 }
 
 void test_ep::tearDown() {
-
   clear_map(branchDescriptions_);
   clear_map(processConfigurations_);
 
   pEvent_.reset();
 
   pProductRegistry_.reset();
-
 }
 
 //----------------------------------------------------------------------
@@ -232,22 +230,24 @@ void test_ep::failgetbyLabelTest() {
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(), nullptr, nullptr, nullptr));
+  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label,
+                                         std::string(), std::string(), nullptr,
+                                         nullptr, nullptr));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetManybyTypeTest() {
   edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
-  std::vector<edm::BasicHandle > handles;
+  std::vector<edm::BasicHandle> handles;
 
   pEvent_->getManyByType(tid, handles, nullptr, nullptr, nullptr);
   CPPUNIT_ASSERT(handles.empty());
 }
 
 void test_ep::failgetbyInvalidIdTest() {
-  //put_a_dummy_product("HLT");
-  //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  // put_a_dummy_product("HLT");
+  // put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
 
   edm::ProductID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), edm::Exception);

@@ -4,8 +4,9 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceLegacy
-// 
-/**\class ServiceLegacy ServiceLegacy.h FWCore/ServiceRegistry/interface/ServiceLegacy.h
+//
+/**\class ServiceLegacy ServiceLegacy.h
+ FWCore/ServiceRegistry/interface/ServiceLegacy.h
 
  Description: Enumeration of how Services inherit from other Service sets
 
@@ -25,13 +26,13 @@
 // forward declarations
 
 namespace edm {
-   namespace serviceregistry {
-      enum ServiceLegacy {
-         kOverlapIsError,
-         kTokenOverrides,
-         kConfigurationOverrides
-      };
-   }
+namespace serviceregistry {
+enum ServiceLegacy {
+  kOverlapIsError,
+  kTokenOverrides,
+  kConfigurationOverrides
+};
+}
 }
 
 #endif

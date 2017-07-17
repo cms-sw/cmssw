@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 //
 // constants, enums and typedefs
 //
@@ -28,23 +28,24 @@ namespace edm {
 //
 // constructors and destructor
 //
-//EventSetupRecordProviderFactory::EventSetupRecordProviderFactory()
+// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory()
 //{
 //}
 
-// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory(const EventSetupRecordProviderFactory& rhs)
+// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory(const
+// EventSetupRecordProviderFactory& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory()
-{
-}
+EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory() {}
 
 //
 // assignment operators
 //
-// const EventSetupRecordProviderFactory& EventSetupRecordProviderFactory::operator=(const EventSetupRecordProviderFactory& rhs)
+// const EventSetupRecordProviderFactory&
+// EventSetupRecordProviderFactory::operator=(const
+// EventSetupRecordProviderFactory& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordProviderFactory temp(rhs);
@@ -64,5 +65,5 @@ EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory()
 //
 // static member functions
 //
-   }
+}
 }

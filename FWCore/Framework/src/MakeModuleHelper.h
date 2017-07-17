@@ -4,10 +4,11 @@
 //
 // Package:     FWCore/Framework
 // Class  :     MakeModuleHelper
-// 
+//
 /**\class edm::MakeModuleHelper MakeModuleHelper.h "MakeModuleHelper.h"
 
- Description: A template class which can be specialized to create a module from a user type
+ Description: A template class which can be specialized to create a module from
+ a user type
 
  Usage:
     <usage>
@@ -24,25 +25,23 @@
 
 // forward declarations
 namespace edm {
-  class ParameterSet;
+class ParameterSet;
 
-  template<typename Base>
-  class MakeModuleHelper
-  {
-    
-  public:
-    MakeModuleHelper() = delete;
-    MakeModuleHelper(const MakeModuleHelper&) = delete; // stop default
-    
-    const MakeModuleHelper& operator=(const MakeModuleHelper&) = delete; // stop default
+template <typename Base>
+class MakeModuleHelper {
+ public:
+  MakeModuleHelper() = delete;
+  MakeModuleHelper(const MakeModuleHelper&) = delete;  // stop default
 
-    template<typename T>
-    static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
-      auto module = std::make_unique<T>(pset);
-      return std::unique_ptr<Base>(module.release());
-    }
-  };
+  const MakeModuleHelper& operator=(const MakeModuleHelper&) =
+      delete;  // stop default
+
+  template <typename T>
+  static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
+    auto module = std::make_unique<T>(pset);
+    return std::unique_ptr<Base>(module.release());
+  }
+};
 }
-
 
 #endif

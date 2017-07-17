@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordIntervalFinder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -28,23 +28,25 @@ namespace edm {
 //
 // constructors and destructor
 //
-//EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder()
+// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder()
 //{
 //}
 
-// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder& rhs)
+// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder(const
+// EventSetupRecordIntervalFinder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder() noexcept(false)
-{
-}
+EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder() noexcept(
+    false) {}
 
 //
 // assignment operators
 //
-// const EventSetupRecordIntervalFinder& EventSetupRecordIntervalFinder::operator=(const EventSetupRecordIntervalFinder& rhs)
+// const EventSetupRecordIntervalFinder&
+// EventSetupRecordIntervalFinder::operator=(const
+// EventSetupRecordIntervalFinder& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordIntervalFinder temp(rhs);
@@ -56,47 +58,41 @@ EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder() noexcept(false
 //
 // member functions
 //
-const ValidityInterval& 
-EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
-                                              const IOVSyncValue& iInstance)
-{
-   Intervals::iterator itFound = intervals_.find(iKey);
-   assert(itFound != intervals_.end()) ;
-   if(! itFound->second.validFor(iInstance)) {
-      setIntervalFor(iKey, iInstance, itFound->second);
-   }
-   return itFound->second;
+const ValidityInterval& EventSetupRecordIntervalFinder::findIntervalFor(
+    const EventSetupRecordKey& iKey, const IOVSyncValue& iInstance) {
+  Intervals::iterator itFound = intervals_.find(iKey);
+  assert(itFound != intervals_.end());
+  if (!itFound->second.validFor(iInstance)) {
+    setIntervalFor(iKey, iInstance, itFound->second);
+  }
+  return itFound->second;
 }
 
-void 
-EventSetupRecordIntervalFinder::findingRecordWithKey(const EventSetupRecordKey& iKey) {
-   intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
+void EventSetupRecordIntervalFinder::findingRecordWithKey(
+    const EventSetupRecordKey& iKey) {
+  intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
 }
 
-void 
-EventSetupRecordIntervalFinder::delaySettingRecords()
-{
-}
+void EventSetupRecordIntervalFinder::delaySettingRecords() {}
 
 //
 // const member functions
 //
-std::set<EventSetupRecordKey> 
-EventSetupRecordIntervalFinder::findingForRecords() const
-{
-   if(intervals_.empty()) {
-      //we are delaying our reading
-      const_cast<EventSetupRecordIntervalFinder*>(this)->delaySettingRecords();
-   }
-   
-   std::set<EventSetupRecordKey> returnValue;
-   
-   for(Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end();
-       itEntry != itEntryEnd;
-       ++itEntry) {
-      returnValue.insert(returnValue.end(), itEntry->first);
-   }
-   return returnValue;
+std::set<EventSetupRecordKey>
+EventSetupRecordIntervalFinder::findingForRecords() const {
+  if (intervals_.empty()) {
+    // we are delaying our reading
+    const_cast<EventSetupRecordIntervalFinder*>(this)->delaySettingRecords();
+  }
+
+  std::set<EventSetupRecordKey> returnValue;
+
+  for (Intervals::const_iterator itEntry = intervals_.begin(),
+                                 itEntryEnd = intervals_.end();
+       itEntry != itEntryEnd; ++itEntry) {
+    returnValue.insert(returnValue.end(), itEntry->first);
+  }
+  return returnValue;
 }
 
 //

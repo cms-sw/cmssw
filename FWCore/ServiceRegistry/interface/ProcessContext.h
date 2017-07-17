@@ -24,30 +24,34 @@ to Services as an argument to their callback functions.
 
 namespace edm {
 
-  class ProcessContext {
+class ProcessContext {
+ public:
+  ProcessContext();
 
-  public:
+  std::string const& processName() const {
+    return processConfiguration_->processName();
+  }
+  ParameterSetID const& parameterSetID() const {
+    return processConfiguration_->parameterSetID();
+  }
+  ProcessConfiguration const* processConfiguration() const {
+    return processConfiguration_;
+  }
+  bool isSubProcess() const { return parentProcessContext_ != nullptr; }
+  ProcessContext const& parentProcessContext() const;
 
-    ProcessContext();
+  void setProcessConfiguration(
+      ProcessConfiguration const* processConfiguration);
+  void setParentProcessContext(ProcessContext const* parentProcessContext);
 
-    std::string const& processName() const { return processConfiguration_->processName(); }
-    ParameterSetID const& parameterSetID() const { return processConfiguration_->parameterSetID(); }
-    ProcessConfiguration const* processConfiguration() const { return processConfiguration_; }
-    bool isSubProcess() const { return parentProcessContext_ != nullptr; }
-    ProcessContext const& parentProcessContext() const;
+ private:
+  ProcessConfiguration const* processConfiguration_;
 
-    void setProcessConfiguration(ProcessConfiguration const* processConfiguration);
-    void setParentProcessContext(ProcessContext const* parentProcessContext);
+  // If this is a SubProcess this points to the parent process,
+  // otherwise it is null.
+  ProcessContext const* parentProcessContext_;
+};
 
-  private:
-
-    ProcessConfiguration const* processConfiguration_;
-
-    // If this is a SubProcess this points to the parent process,
-    // otherwise it is null.
-    ProcessContext const* parentProcessContext_;
-  };
-
-  std::ostream& operator<<(std::ostream&, ProcessContext const&);
+std::ostream& operator<<(std::ostream&, ProcessContext const&);
 }
 #endif

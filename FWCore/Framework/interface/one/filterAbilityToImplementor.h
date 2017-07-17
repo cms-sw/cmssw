@@ -4,8 +4,9 @@
 //
 // Package:     Package
 // Class  :     filter::AbilityToImplementor
-// 
-/**\class filter::AbilityToImplementor filterAbilityToImplementor.h "FWCore/Framework/interface/one/filterAbilityToImplementor.h"
+//
+/**\class filter::AbilityToImplementor filterAbilityToImplementor.h
+ "FWCore/Framework/interface/one/filterAbilityToImplementor.h"
 
  Description: [one line class summary]
 
@@ -22,54 +23,56 @@
 
 // user include files
 #include "FWCore/Framework/interface/moduleAbilities.h"
-#include "FWCore/Framework/interface/one/moduleAbilities.h"
-#include "FWCore/Framework/interface/one/implementors.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
+#include "FWCore/Framework/interface/one/implementors.h"
+#include "FWCore/Framework/interface/one/moduleAbilities.h"
 
 // forward declarations
 
 namespace edm {
-  namespace one {
-    namespace filter {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
-      struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser<edm::one::EDFilterBase> Type;
-      };
-      
-      template<>
-      struct AbilityToImplementor<edm::one::WatchRuns> {
-        typedef edm::one::impl::RunWatcher<edm::one::EDFilterBase> Type;
-      };
+namespace one {
+namespace filter {
+template <typename T>
+struct AbilityToImplementor;
 
-      template<>
-      struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
-        typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDFilterBase> Type;
-      };
-      
-      template<>
-      struct AbilityToImplementor<edm::BeginRunProducer> {
-        typedef edm::one::impl::BeginRunProducer<edm::one::EDFilterBase> Type;
-      };
+template <>
+struct AbilityToImplementor<edm::one::SharedResources> {
+  typedef edm::one::impl::SharedResourcesUser<edm::one::EDFilterBase> Type;
+};
 
-      template<>
-      struct AbilityToImplementor<edm::EndRunProducer> {
-        typedef edm::one::impl::EndRunProducer<edm::one::EDFilterBase> Type;
-      };
+template <>
+struct AbilityToImplementor<edm::one::WatchRuns> {
+  typedef edm::one::impl::RunWatcher<edm::one::EDFilterBase> Type;
+};
 
-      template<>
-      struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-        typedef edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDFilterBase> Type;
-      };
-      
-      template<>
-      struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-        typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDFilterBase> Type;
-      };
-    }
-  }
+template <>
+struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
+  typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDFilterBase> Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::BeginRunProducer> {
+  typedef edm::one::impl::BeginRunProducer<edm::one::EDFilterBase> Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::EndRunProducer> {
+  typedef edm::one::impl::EndRunProducer<edm::one::EDFilterBase> Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
+  typedef edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDFilterBase>
+      Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
+  typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDFilterBase>
+      Type;
+};
 }
-
+}
+}
 
 #endif

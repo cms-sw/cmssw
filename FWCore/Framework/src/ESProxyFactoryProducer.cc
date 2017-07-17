@@ -18,16 +18,16 @@
 
 #include "FWCore/Framework/interface/DataProxy.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 #include <cassert>
+#include "FWCore/Utilities/interface/Exception.h"
 //
 // constants, enums and typedefs
 //
 using namespace edm::eventsetup;
 namespace edm {
 
-      typedef std::multimap< EventSetupRecordKey, FactoryInfo > Record2Factories;
+typedef std::multimap<EventSetupRecordKey, FactoryInfo> Record2Factories;
 
 //
 // static data member definitions
@@ -36,23 +36,21 @@ namespace edm {
 //
 // constructors and destructor
 //
-ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_()
-{
-}
+ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_() {}
 
-// ESProxyFactoryProducer::ESProxyFactoryProducer(const ESProxyFactoryProducer& rhs)
+// ESProxyFactoryProducer::ESProxyFactoryProducer(const ESProxyFactoryProducer&
+// rhs)
 // {
 //    // do actual copying here;
 // }
 
-ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false)
-{
-}
+ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false) {}
 
 //
 // assignment operators
 //
-// const ESProxyFactoryProducer& ESProxyFactoryProducer::operator=(const ESProxyFactoryProducer& rhs)
+// const ESProxyFactoryProducer& ESProxyFactoryProducer::operator=(const
+// ESProxyFactoryProducer& rhs)
 // {
 //   //An exception safe implementation is
 //   ESProxyFactoryProducer temp(rhs);
@@ -64,61 +62,58 @@ ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false)
 //
 // member functions
 //
-void
-ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
-                                       KeyedProxies& iProxies)
-{
-   typedef Record2Factories::iterator Iterator;
-   std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
-   for(Iterator it = range.first; it != range.second; ++it) {
-
-      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
-      if(nullptr != proxy.get()) {
-         iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
-                                         proxy));
-      }
-   }
+void ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
+                                             KeyedProxies& iProxies) {
+  typedef Record2Factories::iterator Iterator;
+  std::pair<Iterator, Iterator> range = record2Factories_.equal_range(iRecord);
+  for (Iterator it = range.first; it != range.second; ++it) {
+    std::shared_ptr<DataProxy> proxy(
+        it->second.factory_->makeProxy().release());
+    if (nullptr != proxy.get()) {
+      iProxies.push_back(KeyedProxies::value_type((*it).second.key_, proxy));
+    }
+  }
 }
 
-void
-ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
-                                             std::unique_ptr<ProxyFactoryBase> iFactory,
-                                             const std::string& iLabel )
-{
-   if(nullptr == iFactory.get()) {
-      assert(false && "Factor pointer was null");
-      ::exit(1);
-   }
+void ESProxyFactoryProducer::registerFactoryWithKey(
+    const EventSetupRecordKey& iRecord,
+    std::unique_ptr<ProxyFactoryBase> iFactory, const std::string& iLabel) {
+  if (nullptr == iFactory.get()) {
+    assert(false && "Factor pointer was null");
+    ::exit(1);
+  }
 
-   usingRecordWithKey(iRecord);
+  usingRecordWithKey(iRecord);
 
-   std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
-   FactoryInfo info(temp->makeKey(iLabel),
-                    temp);
+  std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
+  FactoryInfo info(temp->makeKey(iLabel), temp);
 
-   //has this already been registered?
-   std::pair<Record2Factories::const_iterator,Record2Factories::const_iterator> range =
-      record2Factories_.equal_range(iRecord);
-   if(range.second != std::find_if(range.first,range.second,
-                                   boost::bind(std::equal_to<DataKey>(),
-                                               boost::bind(&FactoryInfo::key_,
-                                                           boost::bind(&Record2Factories::value_type::second,
-                                                                       _1)),
-                                               info.key_)
-                                   ) ) {
-      throw cms::Exception("IdenticalProducts")<<"Producer has been asked to produce "<<info.key_.type().name()
-      <<" \""<<info.key_.name().value()<<"\" multiple times.\n Please modify the code.";
-   }
+  // has this already been registered?
+  std::pair<Record2Factories::const_iterator, Record2Factories::const_iterator>
+      range = record2Factories_.equal_range(iRecord);
+  if (range.second !=
+      std::find_if(
+          range.first, range.second,
+          boost::bind(
+              std::equal_to<DataKey>(),
+              boost::bind(
+                  &FactoryInfo::key_,
+                  boost::bind(&Record2Factories::value_type::second, _1)),
+              info.key_))) {
+    throw cms::Exception("IdenticalProducts")
+        << "Producer has been asked to produce " << info.key_.type().name()
+        << " \"" << info.key_.name().value()
+        << "\" multiple times.\n Please modify the code.";
+  }
 
-   record2Factories_.insert(Record2Factories::value_type(iRecord,
-                                                         std::move(info)));
+  record2Factories_.insert(
+      Record2Factories::value_type(iRecord, std::move(info)));
 }
 
-void
-ESProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
-                                   const ValidityInterval& /*iInterval*/)
-{
-   invalidateProxies(iRecordType);
+void ESProxyFactoryProducer::newInterval(
+    const EventSetupRecordKey& iRecordType,
+    const ValidityInterval& /*iInterval*/) {
+  invalidateProxies(iRecordType);
 }
 
 //

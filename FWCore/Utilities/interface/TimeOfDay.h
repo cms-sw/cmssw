@@ -5,17 +5,17 @@
 #include <iosfwd>
 
 namespace edm {
-  struct TimeOfDay {
-    TimeOfDay();
-    explicit TimeOfDay(struct timeval const& tv);
+struct TimeOfDay {
+  TimeOfDay();
+  explicit TimeOfDay(struct timeval const& tv);
 
-    struct timeval tv_;
-  private:
-    static struct timeval setTime_();
-  };
+  struct timeval tv_;
 
-  std::ostream&
-  operator<<(std::ostream& os, TimeOfDay const& tod);
+ private:
+  static struct timeval setTime_();
+};
+
+std::ostream& operator<<(std::ostream& os, TimeOfDay const& tod);
 }
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     standard
-// 
+//
 /**\class standard standard.h FWCore/PluginManager/interface/standard.h
 
  Description: namespace which holds the standard configuration information
@@ -19,8 +19,8 @@
 //
 
 // system include files
-#include <string>
 #include <boost/filesystem/path.hpp>
+#include <string>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -28,14 +28,14 @@
 // forward declarations
 
 namespace edmplugin {
-  namespace standard {
+namespace standard {
 
-    PluginManager::Config config();
-    
-    const boost::filesystem::path& cachefileName();
-    const boost::filesystem::path& poisonedCachefileName();
-    
-    const std::string& pluginPrefix();
-  }
+PluginManager::Config config();
+
+const boost::filesystem::path& cachefileName();
+const boost::filesystem::path& poisonedCachefileName();
+
+const std::string& pluginPrefix();
+}
 }
 #endif

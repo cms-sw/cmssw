@@ -11,8 +11,8 @@
 //
 
 // system include files
-#include <vector>
 #include <map>
+#include <vector>
 
 // user include files
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
@@ -24,19 +24,14 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "FWCore/ParameterSet/interface/Registry.h"
 
-namespace edm
-{
+namespace edm {
 //    typedef std::map<edm::ParameterSetID, edm::TriggerNames> TriggerNamesMap;
 //    static TriggerNamesMap triggerNamesMap;
 //    static TriggerNamesMap::const_iterator previousTriggerName;
 
-   LuminosityBlockBase::LuminosityBlockBase()
-   {
-   }
+LuminosityBlockBase::LuminosityBlockBase() {}
 
-   LuminosityBlockBase::~LuminosityBlockBase()
-   {
-   }
+LuminosityBlockBase::~LuminosityBlockBase() {}
 
 /*   TriggerNames const*
    EventBase::triggerNames_(edm::TriggerResults const& triggerResults) {
@@ -57,8 +52,10 @@ namespace edm
          return &iter->second;
       }
 
-      // Look for the parameter set containing the trigger names in the parameter
-      // set registry using the ID from TriggerResults as the key used to find it.
+      // Look for the parameter set containing the trigger names in the
+   parameter
+      // set registry using the ID from TriggerResults as the key used to find
+   it.
       edm::ParameterSet pset;
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
       if (psetRegistry->getMapped(triggerResults.parameterSetID(),
@@ -78,7 +75,8 @@ namespace edm
             }
 
             std::pair<TriggerNamesMap::iterator, bool> ret =
-               triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(triggerResults.parameterSetID(), triggerNames));
+               triggerNamesMap.insert(std::pair<edm::ParameterSetID,
+   edm::TriggerNames>(triggerResults.parameterSetID(), triggerNames));
             previousTriggerName = ret.first;
             return &(ret.first->second);
          }
@@ -86,7 +84,8 @@ namespace edm
       // For backward compatibility to very old data
       if (triggerResults.getTriggerNames().size() > 0U) {
          edm::ParameterSet fakePset;
-         fakePset.addParameter<std::vector<std::string> >("@trigger_paths", triggerResults.getTriggerNames());
+         fakePset.addParameter<std::vector<std::string> >("@trigger_paths",
+   triggerResults.getTriggerNames());
          fakePset.registerIt();
          TriggerNames triggerNames(fakePset);
 
@@ -101,7 +100,8 @@ namespace edm
          }
 
          std::pair<TriggerNamesMap::iterator, bool> ret =
-            triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(fakePset.id(), triggerNames));
+            triggerNamesMap.insert(std::pair<edm::ParameterSetID,
+   edm::TriggerNames>(fakePset.id(), triggerNames));
          previousTriggerName = ret.first;
          return &(ret.first->second);
       }

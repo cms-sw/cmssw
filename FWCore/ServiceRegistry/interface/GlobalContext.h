@@ -24,47 +24,49 @@ information about the current state of global processing.
 
 namespace edm {
 
-  class ProcessContext;
+class ProcessContext;
 
-  class GlobalContext {
-
-  public:
-
-    enum class Transition {
-      kBeginJob,
-      kBeginRun,
-      kBeginLuminosityBlock,
-      kEndLuminosityBlock,
-      kEndRun,
-      kEndJob,
-      kWriteRun,
-      kWriteLuminosityBlock
-    };
-    
-    GlobalContext(Transition transition,
-                  LuminosityBlockID const& luminosityBlockID,
-                  RunIndex const& runIndex,
-                  LuminosityBlockIndex const& luminosityBlockIndex, 
-                  Timestamp const & timestamp,
-                  ProcessContext const* processContext);
-
-    Transition transition() const { return transition_; }
-    LuminosityBlockID const& luminosityBlockID() const { return luminosityBlockID_; }
-    RunIndex const& runIndex() const { return runIndex_; }
-    LuminosityBlockIndex const& luminosityBlockIndex() const { return luminosityBlockIndex_; }
-    Timestamp const& timestamp() const { return timestamp_; }
-    ProcessContext const* processContext() const { return processContext_; }
-
-  private:
-    Transition transition_;
-    LuminosityBlockID luminosityBlockID_;
-    RunIndex runIndex_;
-    LuminosityBlockIndex luminosityBlockIndex_; 
-    Timestamp timestamp_;
-    ProcessContext const* processContext_;
+class GlobalContext {
+ public:
+  enum class Transition {
+    kBeginJob,
+    kBeginRun,
+    kBeginLuminosityBlock,
+    kEndLuminosityBlock,
+    kEndRun,
+    kEndJob,
+    kWriteRun,
+    kWriteLuminosityBlock
   };
 
-  void exceptionContext(std::ostream&, GlobalContext const&);
-  std::ostream& operator<<(std::ostream&, GlobalContext const&);
+  GlobalContext(Transition transition,
+                LuminosityBlockID const& luminosityBlockID,
+                RunIndex const& runIndex,
+                LuminosityBlockIndex const& luminosityBlockIndex,
+                Timestamp const& timestamp,
+                ProcessContext const* processContext);
+
+  Transition transition() const { return transition_; }
+  LuminosityBlockID const& luminosityBlockID() const {
+    return luminosityBlockID_;
+  }
+  RunIndex const& runIndex() const { return runIndex_; }
+  LuminosityBlockIndex const& luminosityBlockIndex() const {
+    return luminosityBlockIndex_;
+  }
+  Timestamp const& timestamp() const { return timestamp_; }
+  ProcessContext const* processContext() const { return processContext_; }
+
+ private:
+  Transition transition_;
+  LuminosityBlockID luminosityBlockID_;
+  RunIndex runIndex_;
+  LuminosityBlockIndex luminosityBlockIndex_;
+  Timestamp timestamp_;
+  ProcessContext const* processContext_;
+};
+
+void exceptionContext(std::ostream&, GlobalContext const&);
+std::ostream& operator<<(std::ostream&, GlobalContext const&);
 }
 #endif

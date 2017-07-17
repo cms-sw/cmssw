@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     ModuleRegistry
-// 
-/**\class edm::ModuleRegistry ModuleRegistry.h "FWCore/Framework/src/ModuleRegistry.h"
+//
+/**\class edm::ModuleRegistry ModuleRegistry.h
+ "FWCore/Framework/src/ModuleRegistry.h"
 
  Description: Constructs and owns framework modules
 
@@ -29,37 +30,38 @@
 
 // forward declarations
 namespace edm {
-  class ParameterSet;
-  struct MakeModuleParams;
-  class ModuleDescription;
-  class PreallocationConfiguration;
-  namespace maker {
-    class ModuleHolder;
-  }
-  
-  class ModuleRegistry
-  {
-  public:
-    std::shared_ptr<maker::ModuleHolder> getModule(MakeModuleParams const& p,
-                                                   std::string const& moduleLabel,
-                                                   signalslot::Signal<void(ModuleDescription const&)>& iPre,
-                                                   signalslot::Signal<void(ModuleDescription const&)>& iPost);
-    
-    maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
-                                       edm::ParameterSet const& iPSet,
-                                       edm::PreallocationConfiguration const&);
-    
-    template <typename F>
-    void forAllModuleHolders(F iFunc) {
-      for(auto& labelMod: labelToModule_) {
-        maker::ModuleHolder* t = labelMod.second.get();
-        iFunc(t);
-      }
-    }
-  private:
-    std::map<std::string, edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>> labelToModule_;
-  };
+class ParameterSet;
+struct MakeModuleParams;
+class ModuleDescription;
+class PreallocationConfiguration;
+namespace maker {
+class ModuleHolder;
 }
 
+class ModuleRegistry {
+ public:
+  std::shared_ptr<maker::ModuleHolder> getModule(
+      MakeModuleParams const& p, std::string const& moduleLabel,
+      signalslot::Signal<void(ModuleDescription const&)>& iPre,
+      signalslot::Signal<void(ModuleDescription const&)>& iPost);
+
+  maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
+                                     edm::ParameterSet const& iPSet,
+                                     edm::PreallocationConfiguration const&);
+
+  template <typename F>
+  void forAllModuleHolders(F iFunc) {
+    for (auto& labelMod : labelToModule_) {
+      maker::ModuleHolder* t = labelMod.second.get();
+      iFunc(t);
+    }
+  }
+
+ private:
+  std::map<std::string,
+           edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>>
+      labelToModule_;
+};
+}
 
 #endif

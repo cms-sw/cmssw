@@ -5,18 +5,18 @@
 
 LuminosityBlockPrincipal: This is the class responsible for management of
 per luminosity block EDProducts. It is not seen by reconstruction code;
-such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPrincipal.
+such code sees the LuminosityBlock class, which is a proxy for
+LuminosityBlockPrincipal.
 
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -25,98 +25,71 @@ is the DataBlock.
 
 namespace edm {
 
-  class HistoryAppender;
-  class ModuleCallingContext;
-  class ProcessHistoryRegistry;
-  class RunPrincipal;
+class HistoryAppender;
+class ModuleCallingContext;
+class ProcessHistoryRegistry;
+class RunPrincipal;
 
-  class LuminosityBlockPrincipal : public Principal {
-  public:
-    typedef LuminosityBlockAuxiliary Auxiliary;
-    typedef Principal Base;
-    LuminosityBlockPrincipal(
-        std::shared_ptr<LuminosityBlockAuxiliary> aux,
-        std::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender,
-        unsigned int index,
-        bool isForPrimaryProcess=true);
+class LuminosityBlockPrincipal : public Principal {
+ public:
+  typedef LuminosityBlockAuxiliary Auxiliary;
+  typedef Principal Base;
+  LuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockAuxiliary> aux,
+                           std::shared_ptr<ProductRegistry const> reg,
+                           ProcessConfiguration const& pc,
+                           HistoryAppender* historyAppender, unsigned int index,
+                           bool isForPrimaryProcess = true);
 
-    ~LuminosityBlockPrincipal() {}
+  ~LuminosityBlockPrincipal() {}
 
-    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
+  void fillLuminosityBlockPrincipal(
+      ProcessHistoryRegistry const& processHistoryRegistry,
+      DelayedReader* reader = 0);
 
-    RunPrincipal const& runPrincipal() const {
-      return *runPrincipal_;
-    }
+  RunPrincipal const& runPrincipal() const { return *runPrincipal_; }
 
-    RunPrincipal& runPrincipal() {
-      return *runPrincipal_;
-    }
+  RunPrincipal& runPrincipal() { return *runPrincipal_; }
 
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {
-      runPrincipal_ = rp;
-    }
+  void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
-    LuminosityBlockIndex index() const {
-      return index_;
-    }
-    
-    LuminosityBlockID id() const {
-      return aux().id();
-    }
+  LuminosityBlockIndex index() const { return index_; }
 
-    Timestamp const& beginTime() const {
-      return aux().beginTime();
-    }
+  LuminosityBlockID id() const { return aux().id(); }
 
-    Timestamp const& endTime() const {
-      return aux().endTime();
-    }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    void setEndTime(Timestamp const& time) {
-      aux_->setEndTime(time);
-    }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-    LuminosityBlockNumber_t luminosityBlock() const {
-      return aux().luminosityBlock();
-    }
+  void setEndTime(Timestamp const& time) { aux_->setEndTime(time); }
 
-    LuminosityBlockAuxiliary const& aux() const {
-      return *aux_;
-    }
+  LuminosityBlockNumber_t luminosityBlock() const {
+    return aux().luminosityBlock();
+  }
 
-    RunNumber_t run() const {
-      return aux().run();
-    }
+  LuminosityBlockAuxiliary const& aux() const { return *aux_; }
 
-    void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
-      return aux_->mergeAuxiliary(aux);
-    }
+  RunNumber_t run() const { return aux().run(); }
 
-    void put(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp) const;
+  void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
+    return aux_->mergeAuxiliary(aux);
+  }
 
+  void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
-    void setComplete() {
-      complete_ = true;
-    }
+  void setComplete() { complete_ = true; }
 
-  private:
+ private:
+  virtual bool isComplete_() const override { return complete_; }
 
-    virtual bool isComplete_() const override {return complete_;}
+  virtual unsigned int transitionIndex_() const override;
 
-    virtual unsigned int transitionIndex_() const override;
+  edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
 
-    edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
+  edm::propagate_const<std::shared_ptr<LuminosityBlockAuxiliary>> aux_;
 
-    edm::propagate_const<std::shared_ptr<LuminosityBlockAuxiliary>> aux_;
+  LuminosityBlockIndex index_;
 
-    LuminosityBlockIndex index_;
-    
-    bool complete_;
-  };
+  bool complete_;
+};
 }
 #endif
-

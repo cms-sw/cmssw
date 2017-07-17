@@ -10,16 +10,17 @@ class DummyClassToStopCompilerWarning;
 
 class FWLiteEnabler {
   friend class DummyClassToStopCompilerWarning;
-public:
-  FWLiteEnabler(const FWLiteEnabler&) = delete; // stop default
-  FWLiteEnabler const& operator=(FWLiteEnabler const&) = delete; // stop default
-  /// enable automatic library loading  
+
+ public:
+  FWLiteEnabler(const FWLiteEnabler&) = delete;  // stop default
+  FWLiteEnabler const& operator=(FWLiteEnabler const&) =
+      delete;  // stop default
+  /// enable automatic library loading
   static void enable();
 
-private:
+ private:
   static bool enabled_;
   FWLiteEnabler();
 };
-
 
 #endif

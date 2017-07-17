@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageService_ELlimitsTable_h
 #define FWCore_MessageService_ELlimitsTable_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELlimitsTable is a class holding two maps:  One listing various
@@ -35,15 +34,13 @@
 //
 // ----------------------------------------------------------------------
 
-
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/MessageLogger/interface/ELstring.h"
 
-namespace edm {       
-namespace service {       
-
+namespace edm {
+namespace service {
 
 // ----------------------------------------------------------------------
 // Prerequisite class:
@@ -52,48 +49,43 @@ namespace service {
 class ELdestination;
 class ELoutput;
 
-
 // ----------------------------------------------------------------------
 // ELlimitsTable:
 // ----------------------------------------------------------------------
 
-class ELlimitsTable  {
-
+class ELlimitsTable {
   friend class ELdestination;
   friend class ELoutput;
 
-public:
-
+ public:
   ELlimitsTable();
   ~ELlimitsTable();
 
-// -----  Methods invoked by the destination under impetus from the logger:
-//
-public:
-  bool add( const ELextendedID & xid );
-  void setTableLimit( int n );
+  // -----  Methods invoked by the destination under impetus from the logger:
+  //
+ public:
+  bool add(const ELextendedID& xid);
+  void setTableLimit(int n);
 
-// -----  Control methods invoked by the framework:
-//
-public:
-
+  // -----  Control methods invoked by the framework:
+  //
+ public:
   void wipe();  // Clears everything -- counts and limits established.
   void zero();  // Clears only counts.
 
-  void setLimit   ( const ELstring        & id,  int n        );
-  void setLimit   ( const ELseverityLevel & sev, int n        );
-  void setInterval( const ELstring        & id,  int interval );
-  void setInterval( const ELseverityLevel & sev, int interval );
-  void setTimespan( const ELstring        & id,  int n        );
-  void setTimespan( const ELseverityLevel & sev, int n        );
+  void setLimit(const ELstring& id, int n);
+  void setLimit(const ELseverityLevel& sev, int n);
+  void setInterval(const ELstring& id, int interval);
+  void setInterval(const ELseverityLevel& sev, int interval);
+  void setTimespan(const ELstring& id, int n);
+  void setTimespan(const ELseverityLevel& sev, int n);
 
-  ELlimitsTable & operator= (const ELlimitsTable & t);
+  ELlimitsTable& operator=(const ELlimitsTable& t);
 
-// -----  Tables and auxilliary private data:
-//
-protected:
-
-  int severityLimits   [ELseverityLevel::nLevels];
+  // -----  Tables and auxilliary private data:
+  //
+ protected:
+  int severityLimits[ELseverityLevel::nLevels];
   int severityTimespans[ELseverityLevel::nLevels];
   int severityIntervals[ELseverityLevel::nLevels];
   int wildcardLimit;
@@ -106,12 +98,9 @@ protected:
 
 };  // ELlimitsTable
 
-
 // ----------------------------------------------------------------------
 
+}  // end of namespace service
+}  // end of namespace edm
 
-}        // end of namespace service
-}        // end of namespace edm
-
-
-#endif // FWCore_MessageService_ELlimitsTable_h
+#endif  // FWCore_MessageService_ELlimitsTable_h

@@ -64,336 +64,337 @@ to have dictionaries.
 
 namespace edm {
 
-  bool
-  checkDictionary(std::vector<std::string>& missingDictionaries,
-                  TypeID const& typeID) {
+bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                     TypeID const& typeID) {
+  TClass::GetClass(typeID.typeInfo());
+  if (!hasDictionary(typeID.typeInfo())) {
+    // a second attempt to load
+    TypeWithDict::byName(typeID.className());
+  }
+  if (!hasDictionary(typeID.typeInfo())) {
+    missingDictionaries.emplace_back(typeID.className());
+    return false;
+  }
+  return true;
+}
 
-    TClass::GetClass(typeID.typeInfo());
-    if (!hasDictionary(typeID.typeInfo())) {
-      // a second attempt to load
-      TypeWithDict::byName(typeID.className());
-    }
-    if (!hasDictionary(typeID.typeInfo())) {
-      missingDictionaries.emplace_back(typeID.className());
-      return false;
-    }
+bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                  TypeID const& unwrappedTypeID) {
+  std::string wrappedName = wrappedClassName(unwrappedTypeID.className());
+  TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
+  return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+}
+
+bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                  std::string const& unwrappedName) {
+  std::string wrappedName = wrappedClassName(unwrappedName);
+  TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
+  return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+}
+
+bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                     std::string const& name,
+                     TypeWithDict const& typeWithDict) {
+  if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
+    missingDictionaries.emplace_back(name);
+    return false;
+  }
+  return true;
+}
+
+bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                            TypeID const& typeID) {
+  // For a class type with a dictionary the TClass* will be
+  // non-null and hasDictionary will return true.
+  // For a type like "int", the TClass* pointer will be a
+  // nullptr and hasDictionary will return true.
+  // For a class type without a dictionary it is possible for
+  // TClass* to be non-null and hasDictionary to return false.
+
+  TClass* tClass = TClass::GetClass(typeID.typeInfo());
+  if (!hasDictionary(typeID.typeInfo())) {
+    // a second attempt to load
+    TypeWithDict::byName(typeID.className());
+    tClass = TClass::GetClass(typeID.typeInfo());
+  }
+  if (!hasDictionary(typeID.typeInfo())) {
+    missingDictionaries.emplace_back(typeID.className());
+    return false;
+  }
+
+  if (tClass == nullptr) {
     return true;
   }
 
-  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
-                                    TypeID const& unwrappedTypeID) {
-    std::string wrappedName = wrappedClassName(unwrappedTypeID.className());
-    TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
-    return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+  bool result = true;
+
+  THashTable hashTable;
+  bool recursive = true;
+  tClass->GetMissingDictionaries(hashTable, recursive);
+
+  for (auto const& item : hashTable) {
+    TClass const* cl = static_cast<TClass const*>(item);
+    missingDictionaries.emplace_back(cl->GetName());
+    result = false;
+  }
+  return result;
+}
+
+bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                            std::string const& name,
+                            TypeWithDict const& typeWithDict) {
+  if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
+    missingDictionaries.emplace_back(name);
+    return false;
   }
 
-  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
-                                    std::string const& unwrappedName) {
-    std::string wrappedName = wrappedClassName(unwrappedName);
-    TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
-    return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+  TClass* tClass = typeWithDict.getClass();
+  if (tClass == nullptr) {
+    missingDictionaries.emplace_back(name);
+    return false;
   }
 
-  bool
-  checkDictionary(std::vector<std::string>& missingDictionaries,
-                  std::string const& name,
-                  TypeWithDict const& typeWithDict) {
-    if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
-      missingDictionaries.emplace_back(name);
-      return false;
-    }
-    return true;
+  THashTable hashTable;
+  bool recursive = true;
+  tClass->GetMissingDictionaries(hashTable, recursive);
+
+  bool result = true;
+
+  for (auto const& item : hashTable) {
+    TClass const* cl = static_cast<TClass const*>(item);
+    missingDictionaries.emplace_back(cl->GetName());
+    result = false;
   }
+  return result;
+}
 
-  bool
-  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
-                         TypeID const& typeID) {
+void addToMissingDictionariesException(
+    edm::Exception& exception, std::vector<std::string>& missingDictionaries,
+    std::string const& context) {
+  std::sort(missingDictionaries.begin(), missingDictionaries.end());
+  missingDictionaries.erase(
+      std::unique(missingDictionaries.begin(), missingDictionaries.end()),
+      missingDictionaries.end());
 
-    // For a class type with a dictionary the TClass* will be
-    // non-null and hasDictionary will return true.
-    // For a type like "int", the TClass* pointer will be a
-    // nullptr and hasDictionary will return true.
-    // For a class type without a dictionary it is possible for
-    // TClass* to be non-null and hasDictionary to return false.
-
-    TClass* tClass = TClass::GetClass(typeID.typeInfo());
-    if (!hasDictionary(typeID.typeInfo())) {
-      // a second attempt to load
-      TypeWithDict::byName(typeID.className());
-      tClass = TClass::GetClass(typeID.typeInfo());
-    }
-    if (!hasDictionary(typeID.typeInfo())) {
-      missingDictionaries.emplace_back(typeID.className());
-      return false;
-    }
-
-    if (tClass == nullptr) {
-      return true;
-    }
-
-    bool result = true;
-
-    THashTable hashTable;
-    bool recursive = true;
-    tClass->GetMissingDictionaries(hashTable, recursive);
-
-    for(auto const& item : hashTable) {
-      TClass const* cl = static_cast<TClass const*>(item);
-      missingDictionaries.emplace_back(cl->GetName());
-      result = false;
-    }
-    return result;
+  std::ostringstream ostr;
+  for (auto const& item : missingDictionaries) {
+    ostr << "  " << item << "\n";
   }
+  exception
+      << "No data dictionary found for the following classes:\n\n"
+      << ostr.str() << "\n"
+      << "Most likely each dictionary was never generated, but it may\n"
+      << "be that it was generated in the wrong package. Please add\n"
+      << "(or move) the specification \'<class name=\"whatever\"/>\' to\n"
+      << "the appropriate classes_def.xml file along with any other\n"
+      << "information needed there. For example, if this class has any\n"
+      << "transient members, you need to specify them in classes_def.xml.\n"
+      << "Also include the class header in classes.h\n";
 
-  bool
-  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
-                         std::string const& name,
-                         TypeWithDict const& typeWithDict) {
-    if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
-      missingDictionaries.emplace_back(name);
-      return false;
-    }
-
-    TClass *tClass = typeWithDict.getClass();
-    if (tClass == nullptr) {
-      missingDictionaries.emplace_back(name);
-      return false;
-    }
-
-    THashTable hashTable;
-    bool recursive = true;
-    tClass->GetMissingDictionaries(hashTable, recursive);
-
-    bool result = true;
-
-    for(auto const& item : hashTable) {
-      TClass const* cl = static_cast<TClass const*>(item);
-      missingDictionaries.emplace_back(cl->GetName());
-      result = false;
-    }
-    return result;
+  if (!context.empty()) {
+    exception.addContext(context);
   }
+}
 
-  void addToMissingDictionariesException(edm::Exception& exception,
-                                         std::vector<std::string>& missingDictionaries,
-                                         std::string const& context) {
+void throwMissingDictionariesException(
+    std::vector<std::string>& missingDictionaries, std::string const& context) {
+  std::vector<std::string> empty;
+  throwMissingDictionariesException(missingDictionaries, context, empty);
+}
 
-    std::sort(missingDictionaries.begin(), missingDictionaries.end());
-    missingDictionaries.erase(std::unique(missingDictionaries.begin(), missingDictionaries.end()), missingDictionaries.end());
+void throwMissingDictionariesException(
+    std::vector<std::string>& missingDictionaries, std::string const& context,
+    std::vector<std::string>& producedTypes) {
+  edm::Exception exception(errors::DictionaryNotFound);
+  addToMissingDictionariesException(exception, missingDictionaries, context);
+
+  if (!producedTypes.empty()) {
+    std::sort(producedTypes.begin(), producedTypes.end());
+    producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()),
+                        producedTypes.end());
 
     std::ostringstream ostr;
-    for(auto const& item : missingDictionaries) {
+    for (auto const& item : producedTypes) {
       ostr << "  " << item << "\n";
     }
-    exception << "No data dictionary found for the following classes:\n\n"
-              << ostr.str() << "\n"
-              << "Most likely each dictionary was never generated, but it may\n"
-              << "be that it was generated in the wrong package. Please add\n"
-              << "(or move) the specification \'<class name=\"whatever\"/>\' to\n"
-              << "the appropriate classes_def.xml file along with any other\n"
-              << "information needed there. For example, if this class has any\n"
-              << "transient members, you need to specify them in classes_def.xml.\n"
-              << "Also include the class header in classes.h\n";
+    exception
+        << "\nA type listed above might or might not be the same as a\n"
+        << "type declared by a producer module with the function "
+           "\'produces\'.\n"
+        << "Instead it might be the type of a data member, base class,\n"
+        << "wrapped type, or other object needed by a produced type. Below\n"
+        << "is some additional information which lists the types declared\n"
+        << "to be produced by a producer module that are associated with\n"
+        << "the types whose dictionaries were not found:\n\n"
+        << ostr.str() << "\n";
+  }
+  throw exception;
+}
 
-    if (!context.empty()) {
-      exception.addContext(context);
+void throwMissingDictionariesException(
+    std::vector<std::string>& missingDictionaries, std::string const& context,
+    std::vector<std::string>& producedTypes,
+    std::vector<std::string>& branchNames, bool fromStreamerSource) {
+  edm::Exception exception(errors::DictionaryNotFound);
+  addToMissingDictionariesException(exception, missingDictionaries, context);
+
+  if (!producedTypes.empty()) {
+    std::sort(producedTypes.begin(), producedTypes.end());
+    producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()),
+                        producedTypes.end());
+
+    std::ostringstream ostr;
+    for (auto const& item : producedTypes) {
+      ostr << "  " << item << "\n";
+    }
+    if (fromStreamerSource) {
+      exception
+          << "\nA type listed above might or might not be the same as a\n"
+          << "type stored in the Event. Instead it might be the type of\n"
+          << "a data member, base class, wrapped type, or other object\n"
+          << "needed by a stored type. Below is some additional information\n"
+          << "which lists the stored types associated with the types whose\n"
+          << "dictionaries were not found:\n\n"
+          << ostr.str() << "\n";
+    } else {
+      exception
+          << "\nA type listed above might or might not be the same as a\n"
+          << "type stored in the Event (or Lumi or Run). Instead it might\n"
+          << "be the type of a data member, base class, wrapped type, or\n"
+          << "other object needed by a stored type. Below is some additional\n"
+          << "information which lists the stored types associated with the\n"
+          << "types whose dictionaries were not found:\n\n"
+          << ostr.str() << "\n";
     }
   }
 
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context) {
-    std::vector<std::string> empty;
-    throwMissingDictionariesException(missingDictionaries, context, empty);
+  if (!branchNames.empty()) {
+    std::sort(branchNames.begin(), branchNames.end());
+    branchNames.erase(std::unique(branchNames.begin(), branchNames.end()),
+                      branchNames.end());
+
+    std::ostringstream ostr;
+    for (auto const& item : branchNames) {
+      ostr << "  " << item << "\n";
+    }
+    if (fromStreamerSource) {
+      exception
+          << "Missing dictionaries are associated with these branch names:\n\n"
+          << ostr.str() << "\n";
+    } else {
+      exception
+          << "Missing dictionaries are associated with these branch names:\n\n"
+          << ostr.str() << "\n"
+          << "If you do not need these branches and they are not produced\n"
+          << "in the current process, an alternate solution to adding\n"
+          << "dictionaries is to drop these branches on input using the\n"
+          << "inputCommands parameter of the PoolSource.";
+    }
+  }
+  throw exception;
+}
+
+void throwMissingDictionariesException(
+    std::vector<std::string>& missingDictionaries, std::string const& context,
+    std::set<std::string>& producedTypes, bool consumedWithView) {
+  edm::Exception exception(errors::DictionaryNotFound);
+  addToMissingDictionariesException(exception, missingDictionaries, context);
+
+  if (!producedTypes.empty()) {
+    std::ostringstream ostr;
+    for (auto const& item : producedTypes) {
+      ostr << "  " << item << "\n";
+    }
+    if (consumedWithView) {
+      exception
+          << "\nThe list of types above was generated while checking for\n"
+          << "dictionaries related to products declared to be consumed\n"
+          << "using a View. They will be either the type or a base class\n"
+          << "of the type declared in a consumes declaration as the template\n"
+          << "parameter of a View. Below is some additional information\n"
+          << "which lists the type of the template parameter of the View.\n"
+          << "(It will be the same type unless the missing dictionary is\n"
+          << "for a base type):\n\n"
+          << ostr.str() << "\n";
+    } else {
+      exception
+          << "\nThe list of types above was generated while checking for\n"
+          << "dictionaries related to products declared to be consumed.\n"
+          << "A type listed above might or might not be a type declared\n"
+          << "to be consumed. Instead it might be the type of a data member,\n"
+          << "base class, wrapped type or other object needed by a consumed\n"
+          << "type.  Below is some additional information which lists\n"
+          << "the types declared to be consumed by a module and which\n"
+          << "are associated with the types whose dictionaries were not\n"
+          << "found:\n\n"
+          << ostr.str() << "\n";
+    }
+  }
+  throw exception;
+}
+
+bool public_base_classes(std::vector<std::string>& missingDictionaries,
+                         TypeID const& typeID,
+                         std::vector<TypeWithDict>& baseTypes) {
+  if (!checkDictionary(missingDictionaries, typeID)) {
+    return false;
+  }
+  TypeWithDict typeWithDict(typeID.typeInfo());
+
+  if (!typeWithDict.isClass()) {
+    return true;
   }
 
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
-                                         std::vector<std::string>& producedTypes) {
-
-    edm::Exception exception(errors::DictionaryNotFound);
-    addToMissingDictionariesException(exception, missingDictionaries, context);
-
-    if (!producedTypes.empty()) {
-      std::sort(producedTypes.begin(), producedTypes.end());
-      producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
-
-      std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
-        ostr << "  " << item << "\n";
-      }
-      exception << "\nA type listed above might or might not be the same as a\n"
-                << "type declared by a producer module with the function \'produces\'.\n"
-                << "Instead it might be the type of a data member, base class,\n"
-                << "wrapped type, or other object needed by a produced type. Below\n"
-                << "is some additional information which lists the types declared\n"
-                << "to be produced by a producer module that are associated with\n"
-                << "the types whose dictionaries were not found:\n\n"
-                << ostr.str() << "\n";
+  TypeBases bases(typeWithDict);
+  bool returnValue = true;
+  for (auto const& basex : bases) {
+    BaseWithDict base(basex);
+    if (!base.isPublic()) {
+      continue;
     }
-    throw exception;
-  }
-
-
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
-                                         std::vector<std::string>& producedTypes,
-                                         std::vector<std::string>& branchNames,
-                                         bool fromStreamerSource) {
-
-
-    edm::Exception exception(errors::DictionaryNotFound);
-    addToMissingDictionariesException(exception, missingDictionaries, context);
-
-    if (!producedTypes.empty()) {
-      std::sort(producedTypes.begin(), producedTypes.end());
-      producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
-
-      std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
-        ostr << "  " << item << "\n";
-      }
-      if (fromStreamerSource) {
-        exception << "\nA type listed above might or might not be the same as a\n"
-                  << "type stored in the Event. Instead it might be the type of\n"
-                  << "a data member, base class, wrapped type, or other object\n"
-                  << "needed by a stored type. Below is some additional information\n"
-                  << "which lists the stored types associated with the types whose\n"
-                  << "dictionaries were not found:\n\n"
-                  << ostr.str() << "\n";
-      } else {
-        exception << "\nA type listed above might or might not be the same as a\n"
-                  << "type stored in the Event (or Lumi or Run). Instead it might\n"
-                  << "be the type of a data member, base class, wrapped type, or\n"
-                  << "other object needed by a stored type. Below is some additional\n"
-                  << "information which lists the stored types associated with the\n"
-                  << "types whose dictionaries were not found:\n\n"
-                  << ostr.str() << "\n";
-      }
+    TypeWithDict baseRflxType = base.typeOf();
+    if (!checkDictionary(missingDictionaries, baseRflxType.name(),
+                         baseRflxType)) {
+      returnValue = false;
+      continue;
     }
-
-    if (!branchNames.empty()) {
-
-      std::sort(branchNames.begin(), branchNames.end());
-      branchNames.erase(std::unique(branchNames.begin(), branchNames.end()), branchNames.end());
-
-      std::ostringstream ostr;
-      for(auto const& item : branchNames) {
-        ostr << "  " << item << "\n";
-      }
-      if (fromStreamerSource) {
-        exception  << "Missing dictionaries are associated with these branch names:\n\n"
-                   << ostr.str() << "\n";
-      } else {
-        exception  << "Missing dictionaries are associated with these branch names:\n\n"
-                   << ostr.str() << "\n"
-                   << "If you do not need these branches and they are not produced\n"
-                   << "in the current process, an alternate solution to adding\n"
-                   << "dictionaries is to drop these branches on input using the\n"
-                   << "inputCommands parameter of the PoolSource.";
-      }
-    }
-    throw exception;
-  }
-
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
-                                         std::set<std::string>& producedTypes,
-                                         bool consumedWithView) {
-
-    edm::Exception exception(errors::DictionaryNotFound);
-    addToMissingDictionariesException(exception, missingDictionaries, context);
-
-    if (!producedTypes.empty()) {
-
-      std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
-        ostr << "  " << item << "\n";
-      }
-      if (consumedWithView) {
-        exception << "\nThe list of types above was generated while checking for\n"
-                  << "dictionaries related to products declared to be consumed\n"
-                  << "using a View. They will be either the type or a base class\n"
-                  << "of the type declared in a consumes declaration as the template\n"
-                  << "parameter of a View. Below is some additional information\n"
-                  << "which lists the type of the template parameter of the View.\n"
-                  << "(It will be the same type unless the missing dictionary is\n"
-                  << "for a base type):\n\n"
-                  << ostr.str() << "\n";
-      } else {
-        exception << "\nThe list of types above was generated while checking for\n"
-                  << "dictionaries related to products declared to be consumed.\n"
-                  << "A type listed above might or might not be a type declared\n"
-                  << "to be consumed. Instead it might be the type of a data member,\n"
-                  << "base class, wrapped type or other object needed by a consumed\n"
-                  << "type.  Below is some additional information which lists\n"
-                  << "the types declared to be consumed by a module and which\n"
-                  << "are associated with the types whose dictionaries were not\n"
-                  << "found:\n\n"
-                  << ostr.str() << "\n";
-      }
-    }
-    throw exception;
-  }
-
-
-  bool
-  public_base_classes(std::vector<std::string>& missingDictionaries,
-                      TypeID const& typeID,
-                      std::vector<TypeWithDict>& baseTypes) {
-
-    if (!checkDictionary(missingDictionaries, typeID)) {
-      return false;
-    }
-    TypeWithDict typeWithDict(typeID.typeInfo());
-
-    if (!typeWithDict.isClass()) {
-      return true;
-    }
-
-    TypeBases bases(typeWithDict);
-    bool returnValue = true;
-    for (auto const& basex : bases) {
-      BaseWithDict base(basex);
-      if (!base.isPublic()) {
-        continue;
-      }
-      TypeWithDict baseRflxType = base.typeOf();
-      if (!checkDictionary(missingDictionaries, baseRflxType.name(), baseRflxType)) {
+    TypeWithDict baseType(baseRflxType.typeInfo());
+    // Check to make sure this base appears only once in the
+    // inheritance hierarchy.
+    if (!search_all(baseTypes, baseType)) {
+      // Save the type and recursive look for its base types
+      baseTypes.push_back(baseType);
+      if (!public_base_classes(missingDictionaries, TypeID(baseType.typeInfo()),
+                               baseTypes)) {
         returnValue = false;
         continue;
       }
-      TypeWithDict baseType(baseRflxType.typeInfo());
-      // Check to make sure this base appears only once in the
-      // inheritance hierarchy.
-      if (!search_all(baseTypes, baseType)) {
-        // Save the type and recursive look for its base types
-        baseTypes.push_back(baseType);
-        if (!public_base_classes(missingDictionaries, TypeID(baseType.typeInfo()), baseTypes)) {
-          returnValue = false;
-          continue;
-        }
-      }
-      // For now just ignore it if the class appears twice,
-      // After some more testing we may decide to uncomment the following
-      // exception.
-      //
-      //else {
-      //  throw Exception(errors::UnimplementedFeature)
-      //    << "DataFormats/Common/src/DictionaryTools.cc in function public_base_classes.\n"
-      //    << "Encountered class that has a public base class that appears\n"
-      //    << "multiple times in its inheritance heirarchy.\n"
-      //    << "Please contact the EDM Framework group with details about\n"
-      //    << "this exception. It was our hope that this complicated situation\n"
-      //    << "would not occur. There are three possible solutions. 1. Change\n"
-      //    << "the class design so the public base class does not appear multiple\n"
-      //    << "times in the inheritance heirarchy. In many cases, this is a\n"
-      //    << "sign of bad design. 2. Modify the code that supports Views to\n"
-      //    << "ignore these base classes, but not supply support for creating a\n"
-      //    << "View of this base class. 3. Improve the View infrastructure to\n"
-      //    << "deal with this case. Class name of base class: " << baseType.Name() << "\n\n";
-      //}
     }
-    return returnValue;
+    // For now just ignore it if the class appears twice,
+    // After some more testing we may decide to uncomment the following
+    // exception.
+    //
+    // else {
+    //  throw Exception(errors::UnimplementedFeature)
+    //    << "DataFormats/Common/src/DictionaryTools.cc in function
+    //    public_base_classes.\n"
+    //    << "Encountered class that has a public base class that appears\n"
+    //    << "multiple times in its inheritance heirarchy.\n"
+    //    << "Please contact the EDM Framework group with details about\n"
+    //    << "this exception. It was our hope that this complicated situation\n"
+    //    << "would not occur. There are three possible solutions. 1. Change\n"
+    //    << "the class design so the public base class does not appear
+    //    multiple\n"
+    //    << "times in the inheritance heirarchy. In many cases, this is a\n"
+    //    << "sign of bad design. 2. Modify the code that supports Views to\n"
+    //    << "ignore these base classes, but not supply support for creating
+    //    a\n"
+    //    << "View of this base class. 3. Improve the View infrastructure to\n"
+    //    << "deal with this case. Class name of base class: " <<
+    //    baseType.Name() << "\n\n";
+    //}
   }
+  return returnValue;
+}
 
-} // namespace edm
+}  // namespace edm

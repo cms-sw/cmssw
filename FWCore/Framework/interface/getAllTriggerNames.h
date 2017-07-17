@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     getAllTriggerNames
-// 
-/**\function getAllTriggerNames getAllTriggerNames.h "FWCore/Framework/interface/getAllTriggerNames.h"
+//
+/**\function getAllTriggerNames getAllTriggerNames.h
+ "FWCore/Framework/interface/getAllTriggerNames.h"
 
  Description: Returns a list of all the trigger names in the current process
  Usage:
@@ -18,13 +19,13 @@
 //
 
 // system include files
-#include <vector>
 #include <string>
+#include <vector>
 
 // user include files
 
 // forward declarations
 namespace edm {
-  std::vector<std::string> const& getAllTriggerNames();
+std::vector<std::string> const& getAllTriggerNames();
 }
 #endif

@@ -15,12 +15,14 @@ ObjectWithDict:  A holder for an object and its type information.
 namespace edm {
 
 class ObjectWithDict {
-private:
+ private:
   TypeWithDict type_;
   void* address_;
-public:
+
+ public:
   static ObjectWithDict byType(TypeWithDict const&);
-public:
+
+ public:
   ObjectWithDict();
   explicit ObjectWithDict(TypeWithDict const&, void* address);
   explicit ObjectWithDict(std::type_info const&, void* address);
@@ -30,16 +32,14 @@ public:
   TypeWithDict dynamicType() const;
   ObjectWithDict castObject(TypeWithDict const&) const;
   ObjectWithDict get(std::string const& memberName) const;
-  //ObjectWithDict construct() const;
+  // ObjectWithDict construct() const;
   void destruct(bool dealloc) const;
-  template<typename T>
-  T
-  objectCast() {
+  template <typename T>
+  T objectCast() {
     return *reinterpret_cast<T*>(address_);
   }
 };
 
-} // namespace edm
+}  // namespace edm
 
-
-#endif // FWCore_Utilities_ObjectWithDict_h
+#endif  // FWCore_Utilities_ObjectWithDict_h

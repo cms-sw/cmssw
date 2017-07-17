@@ -8,21 +8,25 @@
 
 namespace edm {
 
-  class ModuleContextSentry {
-  public:
-    ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
-                        ParentContext const& parentContext) :
-      moduleCallingContext_(moduleCallingContext) {
-      moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext,
-                                        CurrentModuleOnThread::getCurrentModuleOnThread());
-      CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_);
-    }
-    ~ModuleContextSentry() {
-      CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_->previousModuleOnThread());
-      moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
-    }
-  private:
-    edm::propagate_const<ModuleCallingContext*> moduleCallingContext_;
-  };
+class ModuleContextSentry {
+ public:
+  ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
+                      ParentContext const& parentContext)
+      : moduleCallingContext_(moduleCallingContext) {
+    moduleCallingContext_->setContext(
+        ModuleCallingContext::State::kRunning, parentContext,
+        CurrentModuleOnThread::getCurrentModuleOnThread());
+    CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_);
+  }
+  ~ModuleContextSentry() {
+    CurrentModuleOnThread::setCurrentModuleOnThread(
+        moduleCallingContext_->previousModuleOnThread());
+    moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid,
+                                      ParentContext(), nullptr);
+  }
+
+ private:
+  edm::propagate_const<ModuleCallingContext*> moduleCallingContext_;
+};
 }
 #endif

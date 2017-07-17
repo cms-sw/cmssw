@@ -4,14 +4,18 @@
 //
 // Package:     Framework
 // Class  :     ESPreFunctorDecorator
-// 
-/**\class ESPreFunctorDecorator ESPreFunctorDecorator.h FWCore/Framework/interface/ESPreFunctorDecorator.h
+//
+/**\class ESPreFunctorDecorator ESPreFunctorDecorator.h
+FWCore/Framework/interface/ESPreFunctorDecorator.h
 
- Description: A Decorator that works as a adapter to call a Functor before each call to the decorated method
+ Description: A Decorator that works as a adapter to call a Functor before each
+call to the decorated method
 
  Usage:
-    This Decorator can be used to create a decorator used in the ESProducer::setWhatProduced method.  This Decorator
-will adapt a Functor (a class that implements 'operator()') st that it is called before every call made to
+    This Decorator can be used to create a decorator used in the
+ESProducer::setWhatProduced method.  This Decorator
+will adapt a Functor (a class that implements 'operator()') st that it is called
+before every call made to
 the ESProducer's 'produce' method.
 
 */
@@ -27,39 +31,33 @@ the ESProducer's 'produce' method.
 // forward declarations
 
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 
-template<class TRecord, class TFunctor >
-class ESPreFunctorDecorator
-{
+template <class TRecord, class TFunctor>
+class ESPreFunctorDecorator {
+ public:
+  ESPreFunctorDecorator(const TFunctor& iCaller) : caller_(iCaller) {}
+  // virtual ~ESPreFunctorDecorator();
 
-   public:
-      ESPreFunctorDecorator(const TFunctor& iCaller) :
-         caller_(iCaller) {}
-      //virtual ~ESPreFunctorDecorator();
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  void pre(const TRecord& iRecord) { caller_(iRecord); }
 
-      // ---------- member functions ---------------------------
-      void pre(const TRecord& iRecord) {
-         caller_(iRecord);
-      }
-   
-      void post(const TRecord&) {
-      }
-   
-   private:
-      //ESPreFunctorDecorator(const ESPreFunctorDecorator&); // stop default
+  void post(const TRecord&) {}
 
-      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&); // stop default
+ private:
+  // ESPreFunctorDecorator(const ESPreFunctorDecorator&); // stop default
 
-      // ---------- member data --------------------------------
-      TFunctor caller_;
+  const ESPreFunctorDecorator& operator=(
+      const ESPreFunctorDecorator&);  // stop default
+
+  // ---------- member data --------------------------------
+  TFunctor caller_;
 };
-
-   }
+}
 }
 
 #endif

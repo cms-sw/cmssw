@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ESProducer
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@ namespace edm {
 //
 // constructors and destructor
 //
-ESProducer::ESProducer()
-{
-}
+ESProducer::ESProducer() {}
 
 // ESProducer::ESProducer(const ESProducer& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ESProducer::~ESProducer() noexcept(false)
-{
-}
+ESProducer::~ESProducer() noexcept(false) {}
 
 //
 // assignment operators

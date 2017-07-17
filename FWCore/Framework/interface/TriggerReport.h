@@ -15,59 +15,51 @@ creation.
 
 namespace edm {
 
-  struct EventSummary
-  {
-    int totalEvents = 0;
-    int totalEventsPassed = 0;
-    int totalEventsFailed = 0;
-  };
+struct EventSummary {
+  int totalEvents = 0;
+  int totalEventsPassed = 0;
+  int totalEventsFailed = 0;
+};
 
-  struct ModuleInPathSummary
-  {
-    int timesVisited = 0;
-    int timesPassed = 0;
-    int timesFailed = 0;
-    int timesExcept = 0;
+struct ModuleInPathSummary {
+  int timesVisited = 0;
+  int timesPassed = 0;
+  int timesFailed = 0;
+  int timesExcept = 0;
 
-    std::string moduleLabel;
-  };
+  std::string moduleLabel;
+};
 
+struct PathSummary {
+  int bitPosition = 0;
+  int timesRun = 0;
+  int timesPassed = 0;
+  int timesFailed = 0;
+  int timesExcept = 0;
 
-  struct PathSummary
-  {
-    int bitPosition = 0;
-    int timesRun = 0;
-    int timesPassed = 0;
-    int timesFailed = 0;
-    int timesExcept = 0;
+  std::string name;
+  std::vector<ModuleInPathSummary> moduleInPathSummaries;
+};
 
-    std::string name;
-    std::vector<ModuleInPathSummary> moduleInPathSummaries;
-  };
+struct WorkerSummary {
+  int timesVisited = 0;
+  int timesRun = 0;
+  int timesPassed = 0;
+  int timesFailed = 0;
+  int timesExcept = 0;
 
-  struct WorkerSummary
-  {
-    int timesVisited = 0;
-    int timesRun = 0;
-    int timesPassed = 0;
-    int timesFailed = 0;
-    int timesExcept = 0;
+  std::string moduleLabel;
+};
 
-    std::string moduleLabel;
-  };
+inline bool operator<(WorkerSummary const& a, WorkerSummary const& b) {
+  return a.moduleLabel < b.moduleLabel;
+}
 
-  inline
-  bool operator<(WorkerSummary const& a, WorkerSummary const& b) {
-    return a.moduleLabel < b.moduleLabel;
-  }
-
-  struct TriggerReport
-  {
-    EventSummary               eventSummary;
-    std::vector<PathSummary>   trigPathSummaries;
-    std::vector<PathSummary>   endPathSummaries;
-    std::vector<WorkerSummary> workerSummaries;
-  };
-
+struct TriggerReport {
+  EventSummary eventSummary;
+  std::vector<PathSummary> trigPathSummaries;
+  std::vector<PathSummary> endPathSummaries;
+  std::vector<WorkerSummary> workerSummaries;
+};
 }
 #endif

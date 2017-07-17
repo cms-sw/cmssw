@@ -4,7 +4,7 @@
 //
 // Package:     HeteroContainer
 // Module:      HCTypeTag
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -17,7 +17,8 @@
 //
 // $Log: HCTypeTag.cc,v $
 // Revision 1.2  2010/01/23 02:03:42  chrjones
-// moved type lookup used by EventSetup to FWCore/Utilities to avoid unneeded external dependencies from FWCore/Framework
+// moved type lookup used by EventSetup to FWCore/Utilities to avoid unneeded
+// external dependencies from FWCore/Framework
 //
 // Revision 1.1  2010/01/15 20:35:49  chrjones
 // Changed type identifier for the EventSetup to no longer be a template
@@ -54,8 +55,8 @@
 //
 
 // system include files
-#include <map>
 #include <cstring>
+#include <map>
 
 // user include files
 //#include "Logger/interface/report.h"
@@ -67,73 +68,72 @@
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
-      namespace heterocontainer {
-         
-         //
-         // static data member definitions
-         //
-                  
-         //
-         // constructors and destructor
-         //
-         //HCTypeTag::HCTypeTag()
-         //{
-         //}
-         
-         // HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
-         // {
-         //    // do actual copying here; if you implemented
-         //    // operator= correctly, you may be able to use just say      
-         //    *this = rhs;
-         // }
-         
-         //HCTypeTag::~HCTypeTag()
-         //{
-         //}
-         
-         //
-         // assignment operators
-         //
-         // const HCTypeTag& HCTypeTag::operator=(const HCTypeTag& rhs)
-         // {
-         //   if(this != &rhs) {
-         //      // do actual copying here, plus:
-         //      // "SuperClass"::operator=(rhs);
-         //   }
-         //
-         //   return *this;
-         // }
-         
-         //
-         // member functions
-         //
-         
-         //
-         // const member functions
-         //
-         
-         //
-         // static member functions
-         //
-         HCTypeTag
-         HCTypeTag::findType(const std::string& iTypeName) {
-            return HCTypeTag::findType(iTypeName.c_str());
-         }
-         
-         HCTypeTag
-         HCTypeTag::findType(const char* iTypeName)
-         {
-            std::pair<const char*,const std::type_info*> p = typelookup::findType(iTypeName);
-            
-            if(0 == p.second) {
-               return HCTypeTag();
-            }
-            //need to take name from the 'findType' since that address is guaranteed to be long lived
-            return HCTypeTag(*p.second, p.first);
-         }         
-      }
-   }
+namespace eventsetup {
+namespace heterocontainer {
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+// HCTypeTag::HCTypeTag()
+//{
+//}
+
+// HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
+// {
+//    // do actual copying here; if you implemented
+//    // operator= correctly, you may be able to use just say
+//    *this = rhs;
+// }
+
+// HCTypeTag::~HCTypeTag()
+//{
+//}
+
+//
+// assignment operators
+//
+// const HCTypeTag& HCTypeTag::operator=(const HCTypeTag& rhs)
+// {
+//   if(this != &rhs) {
+//      // do actual copying here, plus:
+//      // "SuperClass"::operator=(rhs);
+//   }
+//
+//   return *this;
+// }
+
+//
+// member functions
+//
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//
+HCTypeTag HCTypeTag::findType(const std::string& iTypeName) {
+  return HCTypeTag::findType(iTypeName.c_str());
+}
+
+HCTypeTag HCTypeTag::findType(const char* iTypeName) {
+  std::pair<const char*, const std::type_info*> p =
+      typelookup::findType(iTypeName);
+
+  if (0 == p.second) {
+    return HCTypeTag();
+  }
+  // need to take name from the 'findType' since that address is guaranteed to
+  // be long lived
+  return HCTypeTag(*p.second, p.first);
+}
+}
+}
 }
 
 #endif

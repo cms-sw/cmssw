@@ -4,8 +4,8 @@
 #define STRINGIFY(x_) STRINGIFY_(x_)
 
 namespace edm {
-  std::string getReleaseVersion() {
-    static std::string const releaseVersion(STRINGIFY(PROJECT_VERSION));
-    return releaseVersion; 
-  }
+std::string getReleaseVersion() {
+  static std::string const releaseVersion(STRINGIFY(PROJECT_VERSION));
+  return releaseVersion;
+}
 }

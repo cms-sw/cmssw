@@ -6,7 +6,8 @@
 // Package:     Framework
 // Class  :     EventForOutput
 //
-/**\class EventForOutput EventForOutputForOutput.h FWCore/Framework/interface/EventForOutputForOutput.h
+/**\class EventForOutput EventForOutputForOutput.h
+   FWCore/Framework/interface/EventForOutputForOutput.h
 
 */
 /*----------------------------------------------------------------------
@@ -24,9 +25,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -37,61 +38,56 @@
 class testEventGetRefBeforePut;
 
 namespace edmtest {
-  class TestOutputModule;
+class TestOutputModule;
 }
 
 namespace edm {
 
-  class BranchDescription;
-  class ModuleCallingContext;
-  class ProductProvenanceRetriever;
-  class EDConsumerBase;
+class BranchDescription;
+class ModuleCallingContext;
+class ProductProvenanceRetriever;
+class EDConsumerBase;
 
-  class EventForOutput : public OccurrenceForOutput {
-  public:
-    EventForOutput(EventPrincipal const& ep, ModuleDescription const& md,
-          ModuleCallingContext const*);
-    virtual ~EventForOutput();
-    
-    EventAuxiliary const& eventAuxiliary() const {return aux_;}
-    EventID const& id() const {return aux_.id();}
-    EventNumber_t event() const {return aux_.event();}
-    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
-    Timestamp const& time() const {return aux_.time();}
-    
-    ///\return The id for the particular Stream processing the Event
-    StreamID streamID() const {
-      return streamID_;
-    }
+class EventForOutput : public OccurrenceForOutput {
+ public:
+  EventForOutput(EventPrincipal const& ep, ModuleDescription const& md,
+                 ModuleCallingContext const*);
+  virtual ~EventForOutput();
 
-    LuminosityBlockForOutput const&
-    getLuminosityBlock() const {
-      return *luminosityBlock_;
-    }
+  EventAuxiliary const& eventAuxiliary() const { return aux_; }
+  EventID const& id() const { return aux_.id(); }
+  EventNumber_t event() const { return aux_.event(); }
+  LuminosityBlockNumber_t luminosityBlock() const {
+    return aux_.luminosityBlock();
+  }
+  Timestamp const& time() const { return aux_.time(); }
 
-    RunForOutput const&
-    getRun() const;
+  ///\return The id for the particular Stream processing the Event
+  StreamID streamID() const { return streamID_; }
 
-    RunNumber_t
-    run() const {return id().run();}
-    
-    BranchListIndexes const& branchListIndexes() const;
+  LuminosityBlockForOutput const& getLuminosityBlock() const {
+    return *luminosityBlock_;
+  }
 
-    EventSelectionIDVector const& eventSelectionIDs() const;
+  RunForOutput const& getRun() const;
 
-    ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const;
+  RunNumber_t run() const { return id().run(); }
 
-  private:
-    friend class edmtest::TestOutputModule; // For testing
+  BranchListIndexes const& branchListIndexes() const;
 
-    EventPrincipal const&
-    eventPrincipal() const;
+  EventSelectionIDVector const& eventSelectionIDs() const;
 
-    EventAuxiliary const& aux_;
-    std::shared_ptr<LuminosityBlockForOutput const> const luminosityBlock_;
+  ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const;
 
-    StreamID streamID_;
-  };
+ private:
+  friend class edmtest::TestOutputModule;  // For testing
+
+  EventPrincipal const& eventPrincipal() const;
+
+  EventAuxiliary const& aux_;
+  std::shared_ptr<LuminosityBlockForOutput const> const luminosityBlock_;
+
+  StreamID streamID_;
+};
 }
 #endif
-

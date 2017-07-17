@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::one::EDProducer
-// 
-/**\class edm::one::EDProducer EDProducer.h "FWCore/Framework/interface/one/EDProducer.h"
+//
+/**\class edm::one::EDProducer EDProducer.h
+ "FWCore/Framework/interface/one/EDProducer.h"
 
  Description: [one line class summary]
 
@@ -25,33 +26,30 @@
 
 // forward declarations
 namespace edm {
-  namespace one {
-    template< typename... T>
-    class EDProducer : public virtual EDProducerBase,
-                       public producer::AbilityToImplementor<T>::Type... { 
-    public:
-      EDProducer() = default;
+namespace one {
+template <typename... T>
+class EDProducer : public virtual EDProducerBase,
+                   public producer::AbilityToImplementor<T>::Type... {
+ public:
+  EDProducer() = default;
 #ifdef __INTEL_COMPILER
-      virtual ~EDProducer() = default;
+  virtual ~EDProducer() = default;
 #endif
-      //
-      
-      // ---------- const member functions ---------------------
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-    private:
-      EDProducer(const EDProducer&) = delete;
-      const EDProducer& operator=(const EDProducer&) = delete;
-      
-      // ---------- member data --------------------------------
-      
-    };
-    
-  }
-}
+  //
 
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+ private:
+  EDProducer(const EDProducer&) = delete;
+  const EDProducer& operator=(const EDProducer&) = delete;
+
+  // ---------- member data --------------------------------
+};
+}
+}
 
 #endif

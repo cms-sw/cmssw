@@ -1,7 +1,6 @@
 #ifndef MessageService_ELadministrator_h
 #define MessageService_ELadministrator_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELadminstrator.h  provides the singleton class that the framework uses to
@@ -41,26 +40,25 @@
 // 6/14/00 web	Declare classes before granting friendship.
 // 6/4/01  mf	Grant friedship to ELtsErrorLog
 // 3/6/02  mf   Items for recovering handles to attached destinations:
-//		the attachedDestinations map, 
-//		an additional signature for attach(), 
+//		the attachedDestinations map,
+//		an additional signature for attach(),
 //		and getELdestControl() method
 // 3/17/04 mf	exitThreshold and setExitThreshold
 // 1/10/06 mf	finish
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
-namespace edm {       
-namespace service {       
-
+namespace edm {
+namespace service {
 
 // ----------------------------------------------------------------------
 // Prerequisite classes:
@@ -70,85 +68,80 @@ class ELdestination;
 class ELcout;
 class MessageLoggerScribe;
 
-
 // ----------------------------------------------------------------------
 // ELadministrator:
 // ----------------------------------------------------------------------
 
-class ELadministrator  {	// *** Destructable Singleton Pattern ***
+class ELadministrator {  // *** Destructable Singleton Pattern ***
 
-  friend class MessageLoggerScribe;	// proper ELadministrator cleanup
-  friend class ThreadSafeLogMessageLoggerScribe;	// proper ELadministrator cleanup
-  friend class ELcout;			// ELcout behavior
+  friend class MessageLoggerScribe;  // proper ELadministrator cleanup
+  friend class ThreadSafeLogMessageLoggerScribe;  // proper ELadministrator
+                                                  // cleanup
+  friend class ELcout;                            // ELcout behavior
 
-// *** Error Logger Functionality ***
+  // *** Error Logger Functionality ***
 
-public:
-  
+ public:
   ~ELadministrator();
 
+  // Replaces ErrorLog which is no longer needed
+  void log(edm::ErrorObj& msg);
 
-  //Replaces ErrorLog which is no longer needed
-  void log(edm::ErrorObj & msg);
-  
   // ---  furnish/recall destinations:
   //
-  std::shared_ptr<ELdestination> attach( std::shared_ptr<ELdestination> sink );
+  std::shared_ptr<ELdestination> attach(std::shared_ptr<ELdestination> sink);
 
   // ---  handle severity information:
   //
-  ELseverityLevel  checkSeverity();
-  int severityCount( const ELseverityLevel & sev ) const;
-  int severityCount( const ELseverityLevel & from,
-	 	     const ELseverityLevel & to ) const;
-  void resetSeverityCount( const ELseverityLevel & sev );
-  void resetSeverityCount( const ELseverityLevel & from,
-	 	           const ELseverityLevel & to );
-  void resetSeverityCount();			// reset all
+  ELseverityLevel checkSeverity();
+  int severityCount(const ELseverityLevel& sev) const;
+  int severityCount(const ELseverityLevel& from,
+                    const ELseverityLevel& to) const;
+  void resetSeverityCount(const ELseverityLevel& sev);
+  void resetSeverityCount(const ELseverityLevel& from,
+                          const ELseverityLevel& to);
+  void resetSeverityCount();  // reset all
 
   // ---  apply the following actions to all attached destinations:
   //
-  void setThresholds( const ELseverityLevel & sev );
-  void setLimits    ( const ELstring        & id,  int limit    );
-  void setLimits    ( const ELseverityLevel & sev, int limit    );
-  void setIntervals ( const ELstring        & id,  int interval );
-  void setIntervals ( const ELseverityLevel & sev, int interval );
-  void setTimespans ( const ELstring        & id,  int seconds  );
-  void setTimespans ( const ELseverityLevel & sev, int seconds  );
+  void setThresholds(const ELseverityLevel& sev);
+  void setLimits(const ELstring& id, int limit);
+  void setLimits(const ELseverityLevel& sev, int limit);
+  void setIntervals(const ELstring& id, int interval);
+  void setIntervals(const ELseverityLevel& sev, int interval);
+  void setTimespans(const ELstring& id, int seconds);
+  void setTimespans(const ELseverityLevel& sev, int seconds);
   void wipe();
   void finish();
-  
-protected:
+
+ protected:
   // ---  member data accessors:
   //
-  const ELseverityLevel       & abortThreshold() const;
-  const ELseverityLevel       &  exitThreshold() const;
-  const ELseverityLevel       & highSeverity() const;
-  int                           severityCounts( int lev ) const;
+  const ELseverityLevel& abortThreshold() const;
+  const ELseverityLevel& exitThreshold() const;
+  const ELseverityLevel& highSeverity() const;
+  int severityCounts(int lev) const;
 
-protected:
+ protected:
   // ---  traditional birth/death, but disallowed to users:
   //
   ELadministrator();
 
-private:
-
+ private:
   // ---  traditional member data:
   //
-  std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;		
-  ELseverityLevel            highSeverity_;
-  int                        severityCounts_[ ELseverityLevel::nLevels ];
+  std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;
+  ELseverityLevel highSeverity_;
+  int severityCounts_[ELseverityLevel::nLevels];
 
-  std::map<ELstring, edm::propagate_const<std::shared_ptr<ELdestination>>> attachedDestinations_;
+  std::map<ELstring, edm::propagate_const<std::shared_ptr<ELdestination>>>
+      attachedDestinations_;
 
 };  // ELadministrator
 
-
 // ----------------------------------------------------------------------
 
-
-}        // end of namespace service
-}        // end of namespace edm
-
+}  // end of namespace service
+}  // end of namespace edm
 
 #endif  // MessageService_ELadministrator_h

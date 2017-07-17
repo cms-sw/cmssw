@@ -5,40 +5,38 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
-  class EmptySource : public ProducerSourceBase {
-  public:
-    explicit EmptySource(ParameterSet const&, InputSourceDescription const&);
-    ~EmptySource();
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
-  private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
-    virtual void produce(Event &) override;
-  };
+class EmptySource : public ProducerSourceBase {
+ public:
+  explicit EmptySource(ParameterSet const&, InputSourceDescription const&);
+  ~EmptySource();
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  EmptySource::EmptySource(ParameterSet const& pset,
-				       InputSourceDescription const& desc) :
-    ProducerSourceBase(pset, desc, false)
-  { }
+ private:
+  virtual bool setRunAndEventInfo(
+      EventID& id, TimeValue_t& time,
+      edm::EventAuxiliary::ExperimentType&) override;
+  virtual void produce(Event&) override;
+};
 
-  EmptySource::~EmptySource() {
-  }
+EmptySource::EmptySource(ParameterSet const& pset,
+                         InputSourceDescription const& desc)
+    : ProducerSourceBase(pset, desc, false) {}
 
-  bool
-  EmptySource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
-    return true;
-  }
+EmptySource::~EmptySource() {}
 
-  void
-  EmptySource::produce(edm::Event&) {
-  }
+bool EmptySource::setRunAndEventInfo(EventID&, TimeValue_t&,
+                                     edm::EventAuxiliary::ExperimentType&) {
+  return true;
+}
 
-  void
-  EmptySource::fillDescriptions(ConfigurationDescriptions& descriptions) {
-    ParameterSetDescription desc;
-    desc.setComment("Creates runs, lumis and events containing no products.");
-    ProducerSourceBase::fillDescription(desc);
-    descriptions.add("source", desc);
-  }
+void EmptySource::produce(edm::Event&) {}
+
+void EmptySource::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  ParameterSetDescription desc;
+  desc.setComment("Creates runs, lumis and events containing no products.");
+  ProducerSourceBase::fillDescription(desc);
+  descriptions.add("source", desc);
+}
 }
 
 using edm::EmptySource;

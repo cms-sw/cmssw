@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordKey
-// 
-/**\class EventSetupRecordKey EventSetupRecordKey.h FWCore/Framework/interface/EventSetupRecordKey.h
+//
+/**\class EventSetupRecordKey EventSetupRecordKey.h
+ FWCore/Framework/interface/EventSetupRecordKey.h
 
  Description: Key used to lookup a EventSetupRecord within the EventSetup
 
@@ -21,53 +22,50 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-class EventSetupRecordKey
-{
+namespace eventsetup {
+class EventSetupRecordKey {
+ public:
+  typedef heterocontainer::HCTypeTag TypeTag;
 
-   public:
-   typedef heterocontainer::HCTypeTag TypeTag;
-      
-      EventSetupRecordKey();
-      EventSetupRecordKey(const TypeTag& iType) :
-         type_(iType) {}
+  EventSetupRecordKey();
+  EventSetupRecordKey(const TypeTag& iType) : type_(iType) {}
 
-      //virtual ~EventSetupRecordKey();
+  // virtual ~EventSetupRecordKey();
 
-      // ---------- const member functions ---------------------
-      const TypeTag& type() const { return type_;}
-      
-      bool operator<(const EventSetupRecordKey& iRHS) const {
-         return type_ < iRHS.type_;
-      }
-      bool operator==(const EventSetupRecordKey& iRHS) const {
-         return type_ == iRHS.type_;
-      }
-      
-      const char* name() const { return type().name(); }
-      // ---------- static member functions --------------------
-      template<class T>
-         static EventSetupRecordKey makeKey() {
-            return eventsetup::heterocontainer::makeKey<T,EventSetupRecordKey>();
-         }
-      
-      // ---------- member functions ---------------------------
+  // ---------- const member functions ---------------------
+  const TypeTag& type() const { return type_; }
 
-   private:
-      //EventSetupRecordKey(const EventSetupRecordKey&); // allow default
+  bool operator<(const EventSetupRecordKey& iRHS) const {
+    return type_ < iRHS.type_;
+  }
+  bool operator==(const EventSetupRecordKey& iRHS) const {
+    return type_ == iRHS.type_;
+  }
 
-      //const EventSetupRecordKey& operator=(const EventSetupRecordKey&); // allow default
+  const char* name() const { return type().name(); }
+  // ---------- static member functions --------------------
+  template <class T>
+  static EventSetupRecordKey makeKey() {
+    return eventsetup::heterocontainer::makeKey<T, EventSetupRecordKey>();
+  }
 
-      // ---------- member data --------------------------------
-      TypeTag type_;
-         
+  // ---------- member functions ---------------------------
+
+ private:
+  // EventSetupRecordKey(const EventSetupRecordKey&); // allow default
+
+  // const EventSetupRecordKey& operator=(const EventSetupRecordKey&); // allow
+  // default
+
+  // ---------- member data --------------------------------
+  TypeTag type_;
 };
-   }
+}
 }
 
 #endif

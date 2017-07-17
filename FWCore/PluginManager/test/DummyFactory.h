@@ -4,8 +4,9 @@
 //
 // Package:     PluginManager
 // Class  :     DummyFactory
-// 
-/**\class DummyFactory DummyFactory.h FWCore/PluginManager/interface/DummyFactory.h
+//
+/**\class DummyFactory DummyFactory.h
+ FWCore/PluginManager/interface/DummyFactory.h
 
  Description: <one line class summary>
 
@@ -25,13 +26,12 @@
 
 // forward declarations
 namespace testedmplugin {
-  struct DummyBase {
-    virtual ~DummyBase();
-    virtual int value() const = 0;
-  };
+struct DummyBase {
+  virtual ~DummyBase();
+  virtual int value() const = 0;
+};
 
-
-  typedef edmplugin::PluginFactory<DummyBase*(void)> DummyFactory;
+typedef edmplugin::PluginFactory<DummyBase*(void)> DummyFactory;
 }
 
 #endif

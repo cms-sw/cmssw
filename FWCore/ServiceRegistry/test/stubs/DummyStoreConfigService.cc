@@ -2,8 +2,9 @@
 //
 // Package:     test
 // Class  :     DummyStoreConfigService
-// 
-/**\class DummyStoreConfigService DummyStoreConfigService.h ServiceRegistry/test/interface/DummyStoreConfigService.h
+//
+/**\class DummyStoreConfigService DummyStoreConfigService.h
+ ServiceRegistry/test/interface/DummyStoreConfigService.h
 
  Description: [one line class summary]
 
@@ -24,11 +25,11 @@
 
 // forward declarations
 
-class DummyStoreConfigService : public edm::serviceregistry::SaveConfiguration
-{
-
-   public:
-   DummyStoreConfigService() {}
+class DummyStoreConfigService : public edm::serviceregistry::SaveConfiguration {
+ public:
+  DummyStoreConfigService() {}
 };
 
-DEFINE_FWK_SERVICE_MAKER(DummyStoreConfigService,edm::serviceregistry::NoArgsMaker<DummyStoreConfigService>);
+DEFINE_FWK_SERVICE_MAKER(
+    DummyStoreConfigService,
+    edm::serviceregistry::NoArgsMaker<DummyStoreConfigService>);

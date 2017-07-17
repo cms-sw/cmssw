@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     DummyFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,7 @@
 #include "FWCore/PluginManager/test/DummyFactory.h"
 
 namespace testedmplugin {
-  DummyBase::~DummyBase() {}
+DummyBase::~DummyBase() {}
 }
 
-EDM_REGISTER_PLUGINFACTORY(testedmplugin::DummyFactory,"Test Dummy");
+EDM_REGISTER_PLUGINFACTORY(testedmplugin::DummyFactory, "Test Dummy");

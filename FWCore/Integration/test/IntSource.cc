@@ -1,49 +1,49 @@
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include <memory>
 
 namespace edm {
 
-  class IntSource : public ProducerSourceBase {
-  public:
-    explicit IntSource(ParameterSet const&, InputSourceDescription const&);
-    ~IntSource();
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
-  private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
-    virtual void produce(Event &);
-  };
+class IntSource : public ProducerSourceBase {
+ public:
+  explicit IntSource(ParameterSet const&, InputSourceDescription const&);
+  ~IntSource();
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  IntSource::IntSource(ParameterSet const& pset,
-                                       InputSourceDescription const& desc) :
-    ProducerSourceBase(pset, desc, false)
-  { produces<edmtest::IntProduct>(); }
+ private:
+  virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time,
+                                  edm::EventAuxiliary::ExperimentType& eType);
+  virtual void produce(Event&);
+};
 
-  IntSource::~IntSource() {
-  }
+IntSource::IntSource(ParameterSet const& pset,
+                     InputSourceDescription const& desc)
+    : ProducerSourceBase(pset, desc, false) {
+  produces<edmtest::IntProduct>();
+}
 
-  bool
-  IntSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
-    return true;
-  }
+IntSource::~IntSource() {}
 
-  void
-  IntSource::produce(edm::Event& e) {
-    e.put(std::make_unique<edmtest::IntProduct>(4));
-  }
+bool IntSource::setRunAndEventInfo(EventID&, TimeValue_t&,
+                                   edm::EventAuxiliary::ExperimentType&) {
+  return true;
+}
 
-  void
-  IntSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
-    ParameterSetDescription desc;
-    ProducerSourceBase::fillDescription(desc);
-    descriptions.add("source", desc);
-  }
+void IntSource::produce(edm::Event& e) {
+  e.put(std::make_unique<edmtest::IntProduct>(4));
+}
+
+void IntSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  ParameterSetDescription desc;
+  ProducerSourceBase::fillDescription(desc);
+  descriptions.add("source", desc);
+}
 }
 using edm::IntSource;
 DEFINE_FWK_INPUT_SOURCE(IntSource);

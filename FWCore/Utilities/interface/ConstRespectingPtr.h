@@ -23,69 +23,68 @@ the classes_def.xml file if it is a member of a persistent class!
 
 namespace edm {
 
-  template <typename T>
-  class ConstRespectingPtr {
+template <typename T>
+class ConstRespectingPtr {
+ public:
+  ConstRespectingPtr();
+  explicit ConstRespectingPtr(T*);
+  ~ConstRespectingPtr();
 
-  public:
+  T const* operator->() const { return m_data; }
+  T const& operator*() const { return *m_data; }
+  T const* get() const { return m_data; }
 
-    ConstRespectingPtr();
-    explicit ConstRespectingPtr(T*);
-    ~ConstRespectingPtr();
+  T* operator->() { return m_data; }
+  T& operator*() { return *m_data; }
+  T* get() { return m_data; }
 
-    T const* operator->() const { return m_data; }
-    T const& operator*() const { return *m_data; }
-    T const* get() const { return m_data; }
+  bool isSet() const;
 
-    T* operator->() { return m_data; }
-    T& operator*() { return *m_data; }
-    T* get() { return m_data; }
+  void set(std::unique_ptr<T> iNewValue);
 
-    bool isSet() const;
+  T* release();
+  void reset();
 
-    void set(std::unique_ptr<T> iNewValue);
+ private:
+  ConstRespectingPtr(ConstRespectingPtr<T> const&);
+  ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&);
 
-    T* release();
-    void reset();
+  edm::propagate_const<T*> m_data;
+};
 
-  private:
+template <typename T>
+ConstRespectingPtr<T>::ConstRespectingPtr() : m_data(nullptr) {}
 
-    ConstRespectingPtr(ConstRespectingPtr<T> const&);
-    ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&);
+template <typename T>
+ConstRespectingPtr<T>::ConstRespectingPtr(T* v) : m_data(v) {}
 
-    edm::propagate_const<T*> m_data;
-  };
+template <typename T>
+ConstRespectingPtr<T>::~ConstRespectingPtr() {
+  delete m_data.get();
+}
 
-  template<typename T>
-  ConstRespectingPtr<T>::ConstRespectingPtr() : m_data(nullptr) {}
+template <typename T>
+bool ConstRespectingPtr<T>::isSet() const {
+  return nullptr != m_data;
+}
 
-  template<typename T>
-  ConstRespectingPtr<T>::ConstRespectingPtr(T* v) : m_data(v) {}
+template <typename T>
+void ConstRespectingPtr<T>::set(std::unique_ptr<T> iNewValue) {
+  delete m_data;
+  m_data = iNewValue.release();
+}
 
-  template<typename T>
-  ConstRespectingPtr<T>::~ConstRespectingPtr() {
-    delete m_data.get();
-  }
+template <typename T>
+T* ConstRespectingPtr<T>::release() {
+  T* tmp = m_data;
+  m_data = nullptr;
+  return tmp;
+}
 
-  template<typename T>
-  bool ConstRespectingPtr<T>::isSet() const { return nullptr != m_data; }
-
-  template<typename T>
-  void ConstRespectingPtr<T>::set(std::unique_ptr<T> iNewValue) {
-    delete m_data;
-    m_data = iNewValue.release();
-  }
-
-  template<typename T>
-  T* ConstRespectingPtr<T>::release() {
-    T* tmp = m_data;
-    m_data = nullptr;
-    return tmp;
-  }
-
-  template<typename T>
-  void ConstRespectingPtr<T>::reset() {
-    delete m_data;
-    m_data = nullptr;
-  }
+template <typename T>
+void ConstRespectingPtr<T>::reset() {
+  delete m_data;
+  m_data = nullptr;
+}
 }
 #endif

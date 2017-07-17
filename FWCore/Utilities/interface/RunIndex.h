@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     edm::RunIndex
-// 
+//
 /**\class edm::RunIndex RunIndex.h "FWCore/Utilities/interface/RunIndex.h"
 
  Description: Identifies a 'slot' being used to hold an active Run
@@ -27,43 +27,39 @@
 
 // forward declarations
 namespace edm {
-  class RunPrincipal;
-  
-  class RunIndex
-  {
-    
-  public:
-    ~RunIndex() = default;
-    RunIndex(const RunIndex&) = default;
-    RunIndex& operator=(const RunIndex&) = default;
-    
-    // ---------- const member functions ---------------------
-    bool operator==(const RunIndex& iIndex) const {
-      return value() == iIndex.value();
-    }
-    operator unsigned int() const {
-      return value_;
-    }
-    
-    /** \return value ranging from 0 to one less than max number of simultaneous runs.
-     */
-    unsigned int value() const { return value_;}
+class RunPrincipal;
 
-    static RunIndex invalidRunIndex();
+class RunIndex {
+ public:
+  ~RunIndex() = default;
+  RunIndex(const RunIndex&) = default;
+  RunIndex& operator=(const RunIndex&) = default;
 
-  private:
-    ///Only the RunPrincipal is allowed to make one of these
-    friend class RunPrincipal;
-    explicit RunIndex(unsigned int iIndex) : value_(iIndex) {}
+  // ---------- const member functions ---------------------
+  bool operator==(const RunIndex& iIndex) const {
+    return value() == iIndex.value();
+  }
+  operator unsigned int() const { return value_; }
 
-    RunIndex() = delete;
-    
-    // ---------- member data --------------------------------
-    unsigned int value_;
+  /** \return value ranging from 0 to one less than max number of simultaneous
+   * runs.
+   */
+  unsigned int value() const { return value_; }
 
-    static const unsigned int invalidValue_;    
-  };
+  static RunIndex invalidRunIndex();
+
+ private:
+  /// Only the RunPrincipal is allowed to make one of these
+  friend class RunPrincipal;
+  explicit RunIndex(unsigned int iIndex) : value_(iIndex) {}
+
+  RunIndex() = delete;
+
+  // ---------- member data --------------------------------
+  unsigned int value_;
+
+  static const unsigned int invalidValue_;
+};
 }
-
 
 #endif

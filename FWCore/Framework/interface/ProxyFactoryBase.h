@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     ProxyFactoryBase
-// 
-/**\class ProxyFactoryBase ProxyFactoryBase.h FWCore/Framework/interface/ProxyFactoryBase.h
+//
+/**\class ProxyFactoryBase ProxyFactoryBase.h
+ FWCore/Framework/interface/ProxyFactoryBase.h
 
  Description: <one line class summary>
 
@@ -27,33 +28,29 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      class DataProxy;
-class ProxyFactoryBase
-{
+namespace eventsetup {
+class DataProxy;
+class ProxyFactoryBase {
+ public:
+  ProxyFactoryBase() {}
+  virtual ~ProxyFactoryBase() {}
 
-   public:
-      ProxyFactoryBase() {}
-      virtual ~ProxyFactoryBase() {}
+  // ---------- const member functions ---------------------
+  virtual std::unique_ptr<DataProxy> makeProxy() const = 0;
 
-      // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const = 0;
-      
-      virtual DataKey makeKey(const std::string& iName) const = 0;
-      // ---------- static member functions --------------------
+  virtual DataKey makeKey(const std::string& iName) const = 0;
+  // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   private:
-      ProxyFactoryBase(const ProxyFactoryBase&); // stop default
+ private:
+  ProxyFactoryBase(const ProxyFactoryBase&);  // stop default
 
-      const ProxyFactoryBase& operator=(const ProxyFactoryBase&); // stop default
+  const ProxyFactoryBase& operator=(const ProxyFactoryBase&);  // stop default
 
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
-   }
+}
 }
 
 #endif

@@ -2,8 +2,9 @@
 //
 // Package:    Integration
 // Class:      UseValueExampleAnalyzer
-// 
-/**\class UseValueExampleAnalyzer UseValueExampleAnalyzer.cc FWCore/Integration/test/UseValueExampleAnalyzer.cc
+//
+/**\class UseValueExampleAnalyzer UseValueExampleAnalyzer.cc
+FWCore/Integration/test/UseValueExampleAnalyzer.cc
 
 Description: <one line class summary>
 
@@ -16,16 +17,14 @@ Implementation:
 //
 //
 
-
 // system include files
-#include <memory>
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "FWCore/Integration/test/ValueExample.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,14 +34,14 @@ Implementation:
 //
 
 class UseValueExampleAnalyzer : public edm::EDAnalyzer {
-public:
-   explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
-   ~UseValueExampleAnalyzer();
-   
-   
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-private:
-      // ----------member data ---------------------------
+ public:
+  explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
+  ~UseValueExampleAnalyzer();
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+ private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -56,33 +55,26 @@ private:
 //
 // constructors and destructor
 //
-UseValueExampleAnalyzer::UseValueExampleAnalyzer(const edm::ParameterSet& /* iConfig */)
-{
-   //now do what ever initialization is needed
-   
+UseValueExampleAnalyzer::UseValueExampleAnalyzer(
+    const edm::ParameterSet& /* iConfig */) {
+  // now do what ever initialization is needed
 }
 
-
-UseValueExampleAnalyzer::~UseValueExampleAnalyzer()
-{
-   
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-   
+UseValueExampleAnalyzer::~UseValueExampleAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup*/)
-{   
-   std::cout<<" value from service "<< edm::Service<ValueExample>()->value()<<std::endl; 
+void UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */,
+                                      const edm::EventSetup& /* iSetup*/) {
+  std::cout << " value from service " << edm::Service<ValueExample>()->value()
+            << std::endl;
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(UseValueExampleAnalyzer);
-

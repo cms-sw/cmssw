@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     Contexts
-// 
+//
 /**\class Contexts Contexts.h "Contexts.h"
 
  Description: [one line class summary]
@@ -25,35 +25,37 @@
 // forward declarations
 
 namespace edm {
-  namespace stream {
-    
-    template<typename R, typename G>
-    class RunContextT {
-    public:
-      RunContextT(R const* iRun, G const* iGlobal): m_run(iRun), m_global(iGlobal) {}
-      R const* run() const { return m_run;}
-      G const* global() const { return m_global;}
-  
-    private:
-      R const* m_run;
-      G const* m_global;
-    };
-    
-    template<typename L, typename R, typename G>
-    class LuminosityBlockContextT {
-    public:
-      LuminosityBlockContextT(L const* iLumi, R const* iRun, G const* iGlobal):
-      m_lumi(iLumi),m_run(iRun),m_global(iGlobal) {}
-      
-      L const* luminosityBlock() const { return m_lumi;}
-      R const* run() const {return m_run;}
-      G const* global() const { return m_global;}
-    private:
-      L const* m_lumi;
-      R const* m_run;
-      G const* m_global;
-    };
-  }
+namespace stream {
+
+template <typename R, typename G>
+class RunContextT {
+ public:
+  RunContextT(R const* iRun, G const* iGlobal)
+      : m_run(iRun), m_global(iGlobal) {}
+  R const* run() const { return m_run; }
+  G const* global() const { return m_global; }
+
+ private:
+  R const* m_run;
+  G const* m_global;
+};
+
+template <typename L, typename R, typename G>
+class LuminosityBlockContextT {
+ public:
+  LuminosityBlockContextT(L const* iLumi, R const* iRun, G const* iGlobal)
+      : m_lumi(iLumi), m_run(iRun), m_global(iGlobal) {}
+
+  L const* luminosityBlock() const { return m_lumi; }
+  R const* run() const { return m_run; }
+  G const* global() const { return m_global; }
+
+ private:
+  L const* m_lumi;
+  R const* m_run;
+  G const* m_global;
+};
+}
 }
 
 #endif

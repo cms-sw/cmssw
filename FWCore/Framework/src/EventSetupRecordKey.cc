@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordKey
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,13 +15,12 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-
 //
 // constants, enums and typedefs
 //
 
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 //
 // static data member definitions
 //
@@ -29,23 +28,22 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecordKey::EventSetupRecordKey() : type_()
-{
-}
+EventSetupRecordKey::EventSetupRecordKey() : type_() {}
 
 // EventSetupRecordKey::EventSetupRecordKey(const EventSetupRecordKey& rhs)
 // {
 //    // do actual copying here;
 // }
 
-//EventSetupRecordKey::~EventSetupRecordKey()
+// EventSetupRecordKey::~EventSetupRecordKey()
 //{
 //}
 
 //
 // assignment operators
 //
-// const EventSetupRecordKey& EventSetupRecordKey::operator=(const EventSetupRecordKey& rhs)
+// const EventSetupRecordKey& EventSetupRecordKey::operator=(const
+// EventSetupRecordKey& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordKey temp(rhs);
@@ -65,5 +63,5 @@ EventSetupRecordKey::EventSetupRecordKey() : type_()
 //
 // static member functions
 //
-   }
+}
 }

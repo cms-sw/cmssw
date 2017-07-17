@@ -14,24 +14,22 @@
 
 namespace edm {
 
-  class PathContext;
+class PathContext;
 
-  class PlaceInPathContext {
+class PlaceInPathContext {
+ public:
+  PlaceInPathContext(unsigned int);
 
-  public:
+  unsigned int placeInPath() const { return placeInPath_; }
+  PathContext const* pathContext() const { return pathContext_; }
 
-    PlaceInPathContext(unsigned int);
+  void setPathContext(PathContext const* v) { pathContext_ = v; }
 
-    unsigned int placeInPath() const { return placeInPath_; }
-    PathContext const* pathContext() const { return pathContext_; }
+ private:
+  unsigned int placeInPath_;
+  PathContext const* pathContext_;
+};
 
-    void setPathContext(PathContext const* v) { pathContext_ = v; }
-
-  private:
-    unsigned int placeInPath_;
-    PathContext const* pathContext_;
-  };
-
-  std::ostream& operator<<(std::ostream&, PlaceInPathContext const&);
+std::ostream& operator<<(std::ostream&, PlaceInPathContext const&);
 }
 #endif

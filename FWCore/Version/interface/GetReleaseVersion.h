@@ -4,6 +4,6 @@
 #include <string>
 
 namespace edm {
-  std::string getReleaseVersion();
+std::string getReleaseVersion();
 }
 #endif

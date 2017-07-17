@@ -4,8 +4,9 @@
 //
 // Package:     Services
 // Class  :     JobReport
-// 
-/**\class JobReportService JobReportService.h FWCore/Services/src/JobReportService.h
+//
+/**\class JobReportService JobReportService.h
+FWCore/Services/src/JobReportService.h
 
 Description: A service that collections job handling information.
 
@@ -28,25 +29,22 @@ through the MessageLogger.
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
-  class ConfigurationDescriptions;
+class ConfigurationDescriptions;
 
-  namespace service {
-    class JobReportService : public JobReport {
-    public:
-      JobReportService(ParameterSet const& ps, ActivityRegistry& reg);
-      ~JobReportService();
+namespace service {
+class JobReportService : public JobReport {
+ public:
+  JobReportService(ParameterSet const& ps, ActivityRegistry& reg);
+  ~JobReportService();
 
-      void postEndJob();
+  void postEndJob();
 
-      void frameworkShutdownOnFailure();
+  void frameworkShutdownOnFailure();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    };
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+};
 
-    inline
-    bool isProcessWideService(JobReportService const*) {
-      return true;
-    }
-  }
+inline bool isProcessWideService(JobReportService const*) { return true; }
+}
 }
 #endif

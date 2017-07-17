@@ -18,51 +18,50 @@ of ModuleCallingContext.
 
 namespace edm {
 
-  class GlobalContext;
-  class InternalContext;
-  class ModuleCallingContext;
-  class PlaceInPathContext;
-  class StreamContext;
+class GlobalContext;
+class InternalContext;
+class ModuleCallingContext;
+class PlaceInPathContext;
+class StreamContext;
 
-  class ParentContext {
-  public:
-
-    enum class Type {
-      kGlobal,
-      kInternal,
-      kModule,
-      kPlaceInPath,
-      kStream,
-      kInvalid
-    };
-
-    ParentContext();
-    ParentContext(GlobalContext const*);
-    ParentContext(InternalContext const*);
-    ParentContext(ModuleCallingContext const*);
-    ParentContext(PlaceInPathContext const*);
-    ParentContext(StreamContext const*);
-
-    Type type() const { return type_; }
-
-    GlobalContext const* globalContext() const;
-    InternalContext const* internalContext() const;
-    ModuleCallingContext const* moduleCallingContext() const;
-    PlaceInPathContext const* placeInPathContext() const;
-    StreamContext const* streamContext() const;
-
-  private:
-    Type type_;
-
-    union Parent {
-      GlobalContext const* global;
-      InternalContext const* internal;
-      ModuleCallingContext const* module;
-      PlaceInPathContext const* placeInPath;
-      StreamContext const* stream;
-    } parent_;
+class ParentContext {
+ public:
+  enum class Type {
+    kGlobal,
+    kInternal,
+    kModule,
+    kPlaceInPath,
+    kStream,
+    kInvalid
   };
 
-  std::ostream& operator<<(std::ostream&, ParentContext const&);
+  ParentContext();
+  ParentContext(GlobalContext const*);
+  ParentContext(InternalContext const*);
+  ParentContext(ModuleCallingContext const*);
+  ParentContext(PlaceInPathContext const*);
+  ParentContext(StreamContext const*);
+
+  Type type() const { return type_; }
+
+  GlobalContext const* globalContext() const;
+  InternalContext const* internalContext() const;
+  ModuleCallingContext const* moduleCallingContext() const;
+  PlaceInPathContext const* placeInPathContext() const;
+  StreamContext const* streamContext() const;
+
+ private:
+  Type type_;
+
+  union Parent {
+    GlobalContext const* global;
+    InternalContext const* internal;
+    ModuleCallingContext const* module;
+    PlaceInPathContext const* placeInPath;
+    StreamContext const* stream;
+  } parent_;
+};
+
+std::ostream& operator<<(std::ostream&, ParentContext const&);
 }
 #endif

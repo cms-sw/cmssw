@@ -6,9 +6,11 @@
 // Package:     FWCore/Common
 // Class  :     LuminosityBlockBase
 //
-/**\class LuminosityBlockBase LuminosityBlockBase.h FWCore/Common/interface/LuminosityBlockBase.h
+/**\class LuminosityBlockBase LuminosityBlockBase.h
+ FWCore/Common/interface/LuminosityBlockBase.h
 
- Description: Base class for LuminosityBlocks in both the full and light framework
+ Description: Base class for LuminosityBlocks in both the full and light
+ framework
 
  Usage:
     One can use this class for code which needs to work in both the full and the
@@ -31,54 +33,50 @@
 
 namespace edm {
 
-  class LuminosityBlockBase {
-  public:
-    LuminosityBlockBase();
-    virtual ~LuminosityBlockBase();
+class LuminosityBlockBase {
+ public:
+  LuminosityBlockBase();
+  virtual ~LuminosityBlockBase();
 
-    // AUX functions.
-    LuminosityBlockNumber_t luminosityBlock() const {
-      return luminosityBlockAuxiliary().luminosityBlock();
-    }
+  // AUX functions.
+  LuminosityBlockNumber_t luminosityBlock() const {
+    return luminosityBlockAuxiliary().luminosityBlock();
+  }
 
-    RunNumber_t run() const {
-      return luminosityBlockAuxiliary().run();
-    }
+  RunNumber_t run() const { return luminosityBlockAuxiliary().run(); }
 
-    LuminosityBlockID id() const {
-      return luminosityBlockAuxiliary().id();
-    }
+  LuminosityBlockID id() const { return luminosityBlockAuxiliary().id(); }
 
-    Timestamp const& beginTime() const {
-      return luminosityBlockAuxiliary().beginTime();
-    }
-    Timestamp const& endTime() const {
-      return luminosityBlockAuxiliary().endTime();
-    }
+  Timestamp const& beginTime() const {
+    return luminosityBlockAuxiliary().beginTime();
+  }
+  Timestamp const& endTime() const {
+    return luminosityBlockAuxiliary().endTime();
+  }
 
-    virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const = 0;
+  virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary()
+      const = 0;
 
-    /// same as above, but using the InputTag class
-    template<typename PROD>
-    bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+  /// same as above, but using the InputTag class
+  template <typename PROD>
+  bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
-  private:
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const = 0;
+ private:
+  virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
+                                     std::type_info const& iProductType,
+                                     const InputTag& iTag) const = 0;
+};
 
-  };
-
-   template<class T>
-   bool
-   LuminosityBlockBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
-      result.clear();
-      BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      convert_handle(std::move(bh), result);  // throws on conversion error
-      if (result.failedToGet()) {
-         return false;
-      }
-      return true;
-   }
-
+template <class T>
+bool LuminosityBlockBase::getByLabel(const InputTag& tag,
+                                     Handle<T>& result) const {
+  result.clear();
+  BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
+  convert_handle(std::move(bh), result);  // throws on conversion error
+  if (result.failedToGet()) {
+    return false;
+  }
+  return true;
+}
 }
 #endif

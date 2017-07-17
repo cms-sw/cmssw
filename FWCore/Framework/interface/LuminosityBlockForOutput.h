@@ -6,9 +6,11 @@
 // Package:     Framework
 // Class  :     LuminosityBlockForOutput
 //
-/**\class LuminosityBlockForOutput LuminosityBlockForOutput.h FWCore/Framework/interface/LuminosityBlockForOutput.h
+/**\class LuminosityBlockForOutput LuminosityBlockForOutput.h
+FWCore/Framework/interface/LuminosityBlockForOutput.h
 
-Description: This is the primary interface for accessing per luminosity block EDProducts
+Description: This is the primary interface for accessing per luminosity block
+EDProducts
 and inserting new derived per luminosity block EDProducts.
 
 For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
@@ -30,39 +32,39 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 namespace edmtest {
-  class TestOutputModule;
+class TestOutputModule;
 }
 
 namespace edm {
-  class ModuleCallingContext;
-  
-  class LuminosityBlockForOutput : public OccurrenceForOutput {
-  public:
-    LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                    ModuleCallingContext const*);
-    ~LuminosityBlockForOutput();
+class ModuleCallingContext;
 
-    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
-    LuminosityBlockID const& id() const {return aux_.id();}
-    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
-    RunNumber_t run() const {return aux_.run();}
-    Timestamp const& beginTime() const {return aux_.beginTime();}
-    Timestamp const& endTime() const {return aux_.endTime();}
+class LuminosityBlockForOutput : public OccurrenceForOutput {
+ public:
+  LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp,
+                           ModuleDescription const& md,
+                           ModuleCallingContext const*);
+  ~LuminosityBlockForOutput();
 
-    RunForOutput const&
-    getRun() const {
-      return *run_;
-    }
+  LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {
+    return aux_;
+  }
+  LuminosityBlockID const& id() const { return aux_.id(); }
+  LuminosityBlockNumber_t luminosityBlock() const {
+    return aux_.luminosityBlock();
+  }
+  RunNumber_t run() const { return aux_.run(); }
+  Timestamp const& beginTime() const { return aux_.beginTime(); }
+  Timestamp const& endTime() const { return aux_.endTime(); }
 
-  private:
-    friend class edmtest::TestOutputModule; // For testing
+  RunForOutput const& getRun() const { return *run_; }
 
-    LuminosityBlockPrincipal const&
-    luminosityBlockPrincipal() const;
+ private:
+  friend class edmtest::TestOutputModule;  // For testing
 
-    LuminosityBlockAuxiliary const& aux_;
-    std::shared_ptr<RunForOutput const> const run_;
-  };
+  LuminosityBlockPrincipal const& luminosityBlockPrincipal() const;
 
+  LuminosityBlockAuxiliary const& aux_;
+  std::shared_ptr<RunForOutput const> const run_;
+};
 }
 #endif

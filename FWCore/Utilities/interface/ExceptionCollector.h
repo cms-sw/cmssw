@@ -3,7 +3,7 @@
 
 /**
 ExceptionCollector is a utility class that can be used to make sure that
-each function or functor in a sequence of calls is invoked even if 
+each function or functor in a sequence of calls is invoked even if
 a previous function throws.  Each function/functor must take no arguments
 and return a void.  std::bind can be used to convert a function
 taking arguments into a function taking no arguments.
@@ -18,7 +18,8 @@ c.call(std::bind(&MyClass::myOtherFunction, myClassPtr, myArgPtr));
 c.call(std::bind(&myFreeFunction, myArgPtr));
 if (c.hasThrown()) c.rethrow();
 
-This insures that all three functions will be called before any exception is thrown.
+This insures that all three functions will be called before any exception is
+thrown.
 **/
 
 #include <functional>
@@ -26,25 +27,25 @@ This insures that all three functions will be called before any exception is thr
 #include <string>
 
 namespace cms {
-  class Exception;
+class Exception;
 }
 
 namespace edm {
-  class ExceptionCollector {
-  public:
-    ExceptionCollector(std::string const& initialMessage);
-    ~ExceptionCollector();
-    bool hasThrown() const;
-    void rethrow() const;
-    void call(std::function<void(void)>);
-    void addException(cms::Exception const& exception);
+class ExceptionCollector {
+ public:
+  ExceptionCollector(std::string const& initialMessage);
+  ~ExceptionCollector();
+  bool hasThrown() const;
+  void rethrow() const;
+  void call(std::function<void(void)>);
+  void addException(cms::Exception const& exception);
 
-  private:
-    std::string initialMessage_;
-    std::unique_ptr<cms::Exception> firstException_;
-    std::unique_ptr<cms::Exception> accumulatedExceptions_;
-    int nExceptions_;
-  };
+ private:
+  std::string initialMessage_;
+  std::unique_ptr<cms::Exception> firstException_;
+  std::unique_ptr<cms::Exception> accumulatedExceptions_;
+  int nExceptions_;
+};
 }
 
 #endif

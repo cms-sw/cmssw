@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     producerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDProducerBase
 //
@@ -13,16 +13,16 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/global/implementorsMethods.h"
 #include "FWCore/Framework/interface/global/EDProducerBase.h"
+#include "FWCore/Framework/src/global/implementorsMethods.h"
 
 namespace edm {
-  namespace global {
-    namespace impl {
-      template class BeginRunProducer<edm::global::EDProducerBase>;
-      template class EndRunProducer<edm::global::EDProducerBase>;
-      template class BeginLuminosityBlockProducer<edm::global::EDProducerBase>;
-      template class EndLuminosityBlockProducer<edm::global::EDProducerBase>;
-    }
-  }
+namespace global {
+namespace impl {
+template class BeginRunProducer<edm::global::EDProducerBase>;
+template class EndRunProducer<edm::global::EDProducerBase>;
+template class BeginLuminosityBlockProducer<edm::global::EDProducerBase>;
+template class EndLuminosityBlockProducer<edm::global::EDProducerBase>;
+}
+}
 }

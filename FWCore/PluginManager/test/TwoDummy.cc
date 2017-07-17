@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     TwoDummy
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,11 +16,10 @@
 #include "FWCore/PluginManager/test/DummyFactory.h"
 
 namespace testedmplugin {
-  struct DummyTwo : public DummyBase {
-    int value() const {
-      return 2;
-    }
-  };
+struct DummyTwo : public DummyBase {
+  int value() const { return 2; }
+};
 }
 
-DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory,testedmplugin::DummyTwo,"DummyTwo");
+DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory, testedmplugin::DummyTwo,
+                  "DummyTwo");

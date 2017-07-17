@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     TimingServiceBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -23,10 +23,6 @@ using namespace edm;
 //
 // constructors and destructor
 //
-TimingServiceBase::TimingServiceBase()
-{
-}
+TimingServiceBase::TimingServiceBase() {}
 
-TimingServiceBase::~TimingServiceBase()
-{
-}
+TimingServiceBase::~TimingServiceBase() {}

@@ -11,48 +11,38 @@
 
 namespace edm {
 
-  ProductResolverBase::ProductResolverBase() {}
+ProductResolverBase::ProductResolverBase() {}
 
-  ProductResolverBase::~ProductResolverBase() {}
+ProductResolverBase::~ProductResolverBase() {}
 
-  bool
-  ProductResolverBase::provenanceAvailable() const {
-    // If this product is from a the current process,
-    // the provenance is available if and only if a product has been put.
-    if(branchDescription().produced()) {
-      return productResolved();
-    }
-    // If this product is from a prior process, the provenance is available,
-    // although the per event part may have been dropped.
-    return true;
+bool ProductResolverBase::provenanceAvailable() const {
+  // If this product is from a the current process,
+  // the provenance is available if and only if a product has been put.
+  if (branchDescription().produced()) {
+    return productResolved();
   }
+  // If this product is from a prior process, the provenance is available,
+  // although the per event part may have been dropped.
+  return true;
+}
 
-  TypeID
-  ProductResolverBase::productType() const {
-    return TypeID(branchDescription().wrappedTypeID());
-  }
+TypeID ProductResolverBase::productType() const {
+  return TypeID(branchDescription().wrappedTypeID());
+}
 
-  Provenance const*
-  ProductResolverBase::provenance() const {
-    return provenance_();
-  }
+Provenance const* ProductResolverBase::provenance() const {
+  return provenance_();
+}
 
-  void
-  ProductResolverBase::retrieveAndMerge_(Principal const& principal) const {
-  }
+void ProductResolverBase::retrieveAndMerge_(Principal const& principal) const {}
 
-  
-  void
-  ProductResolverBase::write(std::ostream& os) const {
-    // This is grossly inadequate. It is also not critical for the
-    // first pass.
-    os << std::string("ProductResolver for product with ID: ")
-       << productID();
-  }
-  
-  void
-  ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
-  
-  void ProductResolverBase::resetFailedFromThisProcess() {}
+void ProductResolverBase::write(std::ostream& os) const {
+  // This is grossly inadequate. It is also not critical for the
+  // first pass.
+  os << std::string("ProductResolver for product with ID: ") << productID();
+}
 
+void ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
+
+void ProductResolverBase::resetFailedFromThisProcess() {}
 }

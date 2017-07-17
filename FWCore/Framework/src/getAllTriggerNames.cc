@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     getAllTriggerNames
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -14,14 +14,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace edm {
-  
-  std::vector<std::string> const& getAllTriggerNames() {
-    Service<service::TriggerNamesService> tns;
-    return tns->getTrigPaths();
-  }
+
+std::vector<std::string> const& getAllTriggerNames() {
+  Service<service::TriggerNamesService> tns;
+  return tns->getTrigPaths();
+}
 }

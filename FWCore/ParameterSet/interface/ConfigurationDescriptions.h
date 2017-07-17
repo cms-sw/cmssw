@@ -4,8 +4,9 @@
 //
 // Package:     ParameterSet
 // Class  :     ConfigurationDescriptions
-// 
-/**\class ConfigurationDescriptions ConfigurationDescriptions.h FWCore/ParameterSet/interface/ConfigurationDescriptions.h
+//
+/**\class ConfigurationDescriptions ConfigurationDescriptions.h
+ FWCore/ParameterSet/interface/ConfigurationDescriptions.h
 
  Used to hold ParameterSetDescriptions corresponding to labels
 
@@ -17,104 +18,94 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include <vector>
+#include <iosfwd>
 #include <string>
 #include <utility>
-#include <iosfwd>
+#include <vector>
 
 namespace edm {
 
-  class ConfigurationDescriptions {
-  public:
-    
-    typedef std::vector<std::pair<std::string, ParameterSetDescription> >::iterator iterator;
-    
-    //NOTE: This does not take ownership of the PreValidatorBase instance so
-    // this instance must remain valid for as long as the ConfigurationDescriptions
-    // is being modified
-    ConfigurationDescriptions(std::string const& baseType);
+class ConfigurationDescriptions {
+ public:
+  typedef std::vector<
+      std::pair<std::string, ParameterSetDescription> >::iterator iterator;
 
-    ~ConfigurationDescriptions();
+  // NOTE: This does not take ownership of the PreValidatorBase instance so
+  // this instance must remain valid for as long as the
+  // ConfigurationDescriptions
+  // is being modified
+  ConfigurationDescriptions(std::string const& baseType);
 
-    // ---------------------------------------------------------
-    // These functions are used by module developers to create
-    // a description for a module.
-    // ---------------------------------------------------------
+  ~ConfigurationDescriptions();
 
-    std::string const& comment() const { return comment_; }
-    void setComment(std::string const & value);
-    void setComment(char const* value);
+  // ---------------------------------------------------------
+  // These functions are used by module developers to create
+  // a description for a module.
+  // ---------------------------------------------------------
 
-    void add(std::string const& label, ParameterSetDescription const& psetDescription);
-    void add(char const* label, ParameterSetDescription const& psetDescription);
+  std::string const& comment() const { return comment_; }
+  void setComment(std::string const& value);
+  void setComment(char const* value);
 
-    void addDefault(ParameterSetDescription const& psetDescription);
+  void add(std::string const& label,
+           ParameterSetDescription const& psetDescription);
+  void add(char const* label, ParameterSetDescription const& psetDescription);
 
-    ///Returns 0 if no default has been assigned
-    ParameterSetDescription* defaultDescription();
-    iterator begin();
-    iterator end();
-    
-    // ---------------------------------------------------------
-    // These functions use the information in the descriptions
-    // ---------------------------------------------------------
+  void addDefault(ParameterSetDescription const& psetDescription);
 
-    void validate(ParameterSet & pset, std::string const& moduleLabel) const;
+  /// Returns 0 if no default has been assigned
+  ParameterSetDescription* defaultDescription();
+  iterator begin();
+  iterator end();
 
-    void writeCfis(std::string const& baseType,
-                   std::string const& pluginName) const;
+  // ---------------------------------------------------------
+  // These functions use the information in the descriptions
+  // ---------------------------------------------------------
 
-    void print(std::ostream & os,
-               std::string const& moduleLabel,
-               bool brief,
-               bool printOnlyLabels,
-               size_t lineWidth,
-               int indentation,
-               int iPlugin) const;
+  void validate(ParameterSet& pset, std::string const& moduleLabel) const;
 
-    // ---------------------------------------------------------
+  void writeCfis(std::string const& baseType,
+                 std::string const& pluginName) const;
 
-  private:
+  void print(std::ostream& os, std::string const& moduleLabel, bool brief,
+             bool printOnlyLabels, size_t lineWidth, int indentation,
+             int iPlugin) const;
 
-    class DescriptionCounter {
-    public:
-      int iPlugin;
-      int iSelectedModule;
-      int iModule;
-    };
+  // ---------------------------------------------------------
 
-    static void writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
-                                 std::string const& baseType,
-                                 std::string const& pluginName);
-
-    void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
-                       std::ostream & os,
-                       std::string const& moduleLabel,
-                       bool brief,
-                       bool printOnlyLabels,
-                       size_t lineWidth,
-                       int indentationn,
-                       DescriptionCounter & counter) const;
-
-    void printForLabel(std::ostream & os,
-                       std::string const& label,
-                       ParameterSetDescription const& description,
-                       std::string const& moduleLabel,
-                       bool brief,
-                       bool printOnlyLabels,
-                       size_t lineWidth,
-                       int indentationn,
-                       DescriptionCounter & counter) const;
-
-    std::string baseType_;
-
-    std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
-
-    ParameterSetDescription defaultDesc_;
-
-    std::string comment_;
-    bool defaultDescDefined_;
+ private:
+  class DescriptionCounter {
+   public:
+    int iPlugin;
+    int iSelectedModule;
+    int iModule;
   };
+
+  static void writeCfiForLabel(
+      std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
+      std::string const& baseType, std::string const& pluginName);
+
+  void printForLabel(
+      std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
+      std::ostream& os, std::string const& moduleLabel, bool brief,
+      bool printOnlyLabels, size_t lineWidth, int indentationn,
+      DescriptionCounter& counter) const;
+
+  void printForLabel(std::ostream& os, std::string const& label,
+                     ParameterSetDescription const& description,
+                     std::string const& moduleLabel, bool brief,
+                     bool printOnlyLabels, size_t lineWidth, int indentationn,
+                     DescriptionCounter& counter) const;
+
+  std::string baseType_;
+
+  std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
+
+  ParameterSetDescription defaultDesc_;
+
+  std::string comment_;
+  bool defaultDescDefined_;
+};
 }
 
 #endif

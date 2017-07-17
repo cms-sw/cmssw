@@ -3,7 +3,8 @@
 // Package:    DoodadESProducer
 // Class:      DoodadESProducer
 //
-/**\class DoodadESProducer DoodadESProducer.h test/DoodadESProducer/interface/DoodadESProducer.h
+/**\class DoodadESProducer DoodadESProducer.h
+ test/DoodadESProducer/interface/DoodadESProducer.h
 
  Description: <one line class summary>
 
@@ -33,16 +34,17 @@
 namespace edmtest {
 
 class DoodadESProducer : public edm::ESProducer {
-   public:
-      DoodadESProducer(edm::ParameterSet const&);
-      ~DoodadESProducer();
+ public:
+  DoodadESProducer(edm::ParameterSet const&);
+  ~DoodadESProducer();
 
-      typedef std::unique_ptr<Doodad> ReturnType;
+  typedef std::unique_ptr<Doodad> ReturnType;
 
-      ReturnType produce(GadgetRcd const&);
-   private:
-      // ----------member data ---------------------------
-      bool exceptionInformation_;
+  ReturnType produce(GadgetRcd const&);
+
+ private:
+  // ----------member data ---------------------------
+  bool exceptionInformation_;
 };
 
 //
@@ -55,19 +57,19 @@ class DoodadESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-DoodadESProducer::DoodadESProducer(edm::ParameterSet const& iConfig) :
-   exceptionInformation_(iConfig.getUntrackedParameter<bool>("throwException", false)) {
+DoodadESProducer::DoodadESProducer(edm::ParameterSet const& iConfig)
+    : exceptionInformation_(
+          iConfig.getUntrackedParameter<bool>("throwException", false)) {
+  // the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
 
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
-
-   //now do what ever other initialization is needed
+  // now do what ever other initialization is needed
 }
 
 DoodadESProducer::~DoodadESProducer() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -75,22 +77,22 @@ DoodadESProducer::~DoodadESProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-DoodadESProducer::ReturnType
-DoodadESProducer::produce(GadgetRcd const& /*iRecord*/) {
-   if(exceptionInformation_) {
-      throw std::runtime_error("test exception catching");
-   }
+DoodadESProducer::ReturnType DoodadESProducer::produce(
+    GadgetRcd const& /*iRecord*/) {
+  if (exceptionInformation_) {
+    throw std::runtime_error("test exception catching");
+  }
 
-   using namespace edmtest;
+  using namespace edmtest;
 
-   auto pDoodad = std::make_unique<Doodad>();
+  auto pDoodad = std::make_unique<Doodad>();
 
-   pDoodad->a = 1;
+  pDoodad->a = 1;
 
-   return pDoodad ;
+  return pDoodad;
 }
 }
 
 using namespace edmtest;
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(DoodadESProducer);

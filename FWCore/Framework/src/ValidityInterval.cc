@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ValidityInterval
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -27,31 +27,28 @@ namespace edm {
 //
 // constructors and destructor
 //
-   ValidityInterval::ValidityInterval() :
-   first_(IOVSyncValue::invalidIOVSyncValue()),
-   last_(IOVSyncValue::invalidIOVSyncValue())
-{
-}
+ValidityInterval::ValidityInterval()
+    : first_(IOVSyncValue::invalidIOVSyncValue()),
+      last_(IOVSyncValue::invalidIOVSyncValue()) {}
 
 ValidityInterval::ValidityInterval(const IOVSyncValue& iFirst,
-                                   const IOVSyncValue& iLast) :
-first_(iFirst), last_(iLast)
-{
-}
+                                   const IOVSyncValue& iLast)
+    : first_(iFirst), last_(iLast) {}
 
 // ValidityInterval::ValidityInterval(const ValidityInterval& rhs)
 // {
 //    // do actual copying here;
 // }
 
-//ValidityInterval::~ValidityInterval()
+// ValidityInterval::~ValidityInterval()
 //{
 //}
 
 //
 // assignment operators
 //
-// const ValidityInterval& ValidityInterval::operator=(const ValidityInterval& rhs)
+// const ValidityInterval& ValidityInterval::operator=(const ValidityInterval&
+// rhs)
 // {
 //   //An exception safe implementation is
 //   ValidityInterval temp(rhs);
@@ -67,20 +64,15 @@ first_(iFirst), last_(iLast)
 //
 // const member functions
 //
-bool
-ValidityInterval::validFor(const IOVSyncValue& iInstance) const
-{
-   return first_ <= iInstance && iInstance <= last_;
+bool ValidityInterval::validFor(const IOVSyncValue& iInstance) const {
+  return first_ <= iInstance && iInstance <= last_;
 }
-   
+
 //
 // static member functions
 //
-const ValidityInterval& 
-ValidityInterval::invalidInterval()
-{
-   static const ValidityInterval s_invalid;
-   return s_invalid;
+const ValidityInterval& ValidityInterval::invalidInterval() {
+  static const ValidityInterval s_invalid;
+  return s_invalid;
 }
-
 }

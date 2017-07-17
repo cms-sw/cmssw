@@ -13,155 +13,156 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <memory>
 
 namespace edm {
 
-  class EventSetup;
+class EventSetup;
 
-  template <typename Collection, typename Selector>
-  class ThinningProducer : public stream::EDProducer<> {
-  public:
-    explicit ThinningProducer(ParameterSet const& pset);
-    virtual ~ThinningProducer();
+template <typename Collection, typename Selector>
+class ThinningProducer : public stream::EDProducer<> {
+ public:
+  explicit ThinningProducer(ParameterSet const& pset);
+  virtual ~ThinningProducer();
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-    virtual void produce(Event& event, EventSetup const& eventSetup) override;
+  virtual void produce(Event& event, EventSetup const& eventSetup) override;
 
-    virtual void registerThinnedAssociations(ProductRegistry const& productRegistry,
-                                             ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
-  private:
-    edm::propagate_const<std::unique_ptr<Selector>> selector_;
-    edm::EDGetTokenT<Collection> inputToken_;
-    edm::InputTag inputTag_;
-  };
+  virtual void registerThinnedAssociations(
+      ProductRegistry const& productRegistry,
+      ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
 
-  template <typename Collection, typename Selector>
-  ThinningProducer<Collection, Selector>::
-  ThinningProducer(ParameterSet const& pset) :
-    selector_(new Selector(pset, consumesCollector())) {
+ private:
+  edm::propagate_const<std::unique_ptr<Selector>> selector_;
+  edm::EDGetTokenT<Collection> inputToken_;
+  edm::InputTag inputTag_;
+};
 
-    inputTag_ = pset.getParameter<InputTag>("inputTag");
-    inputToken_ = consumes<Collection>(inputTag_);
+template <typename Collection, typename Selector>
+ThinningProducer<Collection, Selector>::ThinningProducer(
+    ParameterSet const& pset)
+    : selector_(new Selector(pset, consumesCollector())) {
+  inputTag_ = pset.getParameter<InputTag>("inputTag");
+  inputToken_ = consumes<Collection>(inputTag_);
 
-    produces<Collection>();
-    produces<ThinnedAssociation>();
-  }
+  produces<Collection>();
+  produces<ThinnedAssociation>();
+}
 
-  template <typename Collection, typename Selector>
-  ThinningProducer<Collection, Selector>::
-  ~ThinningProducer() {}
+template <typename Collection, typename Selector>
+ThinningProducer<Collection, Selector>::~ThinningProducer() {}
 
-  template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  fillDescriptions(ConfigurationDescriptions & descriptions) {
-    ParameterSetDescription desc;
-    desc.setComment("Produces thinned collections and associations to them");
-    desc.add<edm::InputTag>("inputTag");
-    Selector::fillDescription(desc);
-    descriptions.addDefault(desc);
-  }
+template <typename Collection, typename Selector>
+void ThinningProducer<Collection, Selector>::fillDescriptions(
+    ConfigurationDescriptions& descriptions) {
+  ParameterSetDescription desc;
+  desc.setComment("Produces thinned collections and associations to them");
+  desc.add<edm::InputTag>("inputTag");
+  Selector::fillDescription(desc);
+  descriptions.addDefault(desc);
+}
 
-  template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  produce(Event& event, EventSetup const& eventSetup) {
+template <typename Collection, typename Selector>
+void ThinningProducer<Collection, Selector>::produce(
+    Event& event, EventSetup const& eventSetup) {
+  edm::Handle<Collection> inputCollection;
+  event.getByToken(inputToken_, inputCollection);
 
-    edm::Handle<Collection> inputCollection;
-    event.getByToken(inputToken_, inputCollection);
+  edm::Event const& constEvent = event;
+  selector_->preChoose(inputCollection, constEvent, eventSetup);
 
-    edm::Event const& constEvent = event;
-    selector_->preChoose(inputCollection, constEvent, eventSetup);
+  auto thinnedCollection = std::make_unique<Collection>();
+  auto thinnedAssociation = std::make_unique<ThinnedAssociation>();
 
-    auto thinnedCollection = std::make_unique<Collection>();
-    auto thinnedAssociation = std::make_unique<ThinnedAssociation>();
-
-    unsigned int iIndex = 0;
-    for(auto iter = inputCollection->begin(), iterEnd = inputCollection->end();
-        iter != iterEnd; ++iter, ++iIndex) {
-      if(selector_->choose(iIndex, *iter)) {
-        thinnedCollection->push_back(*iter);
-        thinnedAssociation->push_back(iIndex);
-      }
+  unsigned int iIndex = 0;
+  for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end();
+       iter != iterEnd; ++iter, ++iIndex) {
+    if (selector_->choose(iIndex, *iter)) {
+      thinnedCollection->push_back(*iter);
+      thinnedAssociation->push_back(iIndex);
     }
-    OrphanHandle<Collection> orphanHandle = event.put(std::move(thinnedCollection));
-
-    thinnedAssociation->setParentCollectionID(inputCollection.id());
-    thinnedAssociation->setThinnedCollectionID(orphanHandle.id());
-    event.put(std::move(thinnedAssociation));
   }
+  OrphanHandle<Collection> orphanHandle =
+      event.put(std::move(thinnedCollection));
 
-  template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  registerThinnedAssociations(ProductRegistry const& productRegistry,
-                              ThinnedAssociationsHelper& thinnedAssociationsHelper) {
+  thinnedAssociation->setParentCollectionID(inputCollection.id());
+  thinnedAssociation->setThinnedCollectionID(orphanHandle.id());
+  event.put(std::move(thinnedAssociation));
+}
 
-    BranchID associationID;
-    BranchID thinnedCollectionID;
+template <typename Collection, typename Selector>
+void ThinningProducer<Collection, Selector>::registerThinnedAssociations(
+    ProductRegistry const& productRegistry,
+    ThinnedAssociationsHelper& thinnedAssociationsHelper) {
+  BranchID associationID;
+  BranchID thinnedCollectionID;
 
-    // If the InputTag does not specify the process name, it is
-    // possible that there will be more than one match found below.
-    // For a particular event only one match is correct and the
-    // others will be false. It even possible for some events one
-    // match is correct and for others another is correct. This is
-    // a side effect of the lookup mechanisms when the process name
-    // is not specified.
-    // When using the registry this generates one would have to
-    // check the ProductIDs in ThinnedAssociation product to get
-    // the correct association. This ambiguity will probably be
-    // rare and possibly never occur in practice.
-    std::vector<BranchID> parentCollectionIDs;
+  // If the InputTag does not specify the process name, it is
+  // possible that there will be more than one match found below.
+  // For a particular event only one match is correct and the
+  // others will be false. It even possible for some events one
+  // match is correct and for others another is correct. This is
+  // a side effect of the lookup mechanisms when the process name
+  // is not specified.
+  // When using the registry this generates one would have to
+  // check the ProductIDs in ThinnedAssociation product to get
+  // the correct association. This ambiguity will probably be
+  // rare and possibly never occur in practice.
+  std::vector<BranchID> parentCollectionIDs;
 
-    ProductRegistry::ProductList const& productList = productRegistry.productList();
-    for(auto const& product : productList) {
-      BranchDescription const& desc = product.second;
-      if(desc.unwrappedType().typeInfo() == typeid(Collection) ) {
-        if(desc.produced() &&
-           desc.moduleLabel() == moduleDescription().moduleLabel() &&
-           desc.productInstanceName().empty()) {
-
-          thinnedCollectionID = desc.branchID();
-        }
-        if(desc.moduleLabel() == inputTag_.label() &&
-           desc.productInstanceName() == inputTag_.instance()) {
-          if(inputTag_.willSkipCurrentProcess()) {
-            if(!desc.produced()) {
-              parentCollectionIDs.push_back(desc.branchID());
-            }
-          } else if (inputTag_.process().empty() || inputTag_.process() == desc.processName()) {
-            if(desc.produced()) {
-              parentCollectionIDs.push_back(desc.originalBranchID());
-            } else {
-              parentCollectionIDs.push_back(desc.branchID());
-            }
+  ProductRegistry::ProductList const& productList =
+      productRegistry.productList();
+  for (auto const& product : productList) {
+    BranchDescription const& desc = product.second;
+    if (desc.unwrappedType().typeInfo() == typeid(Collection)) {
+      if (desc.produced() &&
+          desc.moduleLabel() == moduleDescription().moduleLabel() &&
+          desc.productInstanceName().empty()) {
+        thinnedCollectionID = desc.branchID();
+      }
+      if (desc.moduleLabel() == inputTag_.label() &&
+          desc.productInstanceName() == inputTag_.instance()) {
+        if (inputTag_.willSkipCurrentProcess()) {
+          if (!desc.produced()) {
+            parentCollectionIDs.push_back(desc.branchID());
+          }
+        } else if (inputTag_.process().empty() ||
+                   inputTag_.process() == desc.processName()) {
+          if (desc.produced()) {
+            parentCollectionIDs.push_back(desc.originalBranchID());
+          } else {
+            parentCollectionIDs.push_back(desc.branchID());
           }
         }
       }
-      if(desc.produced() &&
-         desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation) &&
-         desc.moduleLabel() == moduleDescription().moduleLabel() &&
-         desc.productInstanceName().empty()) {
-
-        associationID = desc.branchID();
-      }
     }
-    if(parentCollectionIDs.empty()) {
-      // This could happen if the input collection was dropped. Go ahead and add
-      // an entry and let the exception be thrown only if the module is run (when
-      // it cannot find the product).
-      thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID);
-    } else {
-      for(auto const& parentCollectionID : parentCollectionIDs) {
-        thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID);
-      }
+    if (desc.produced() &&
+        desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation) &&
+        desc.moduleLabel() == moduleDescription().moduleLabel() &&
+        desc.productInstanceName().empty()) {
+      associationID = desc.branchID();
     }
   }
+  if (parentCollectionIDs.empty()) {
+    // This could happen if the input collection was dropped. Go ahead and add
+    // an entry and let the exception be thrown only if the module is run (when
+    // it cannot find the product).
+    thinnedAssociationsHelper.addAssociation(BranchID(), associationID,
+                                             thinnedCollectionID);
+  } else {
+    for (auto const& parentCollectionID : parentCollectionIDs) {
+      thinnedAssociationsHelper.addAssociation(
+          parentCollectionID, associationID, thinnedCollectionID);
+    }
+  }
+}
 }
 #endif

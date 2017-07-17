@@ -1,138 +1,141 @@
 #ifndef FWCore_ParameterSet_ParameterWildcard_h
 #define FWCore_ParameterSet_ParameterWildcard_h
 
-#include "FWCore/ParameterSet/interface/ParameterWildcardBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterWildcardBase.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
-#include <string>
-#include <set>
 #include <iosfwd>
+#include <set>
+#include <string>
 #include <vector>
 
 namespace edm {
 
-  class ParameterSet;
-  class VParameterSetEntry;
-  class ParameterSetDescription;
-  class DocFormatHelper;
+class ParameterSet;
+class VParameterSetEntry;
+class ParameterSetDescription;
+class DocFormatHelper;
 
-  template<class T>
-  class ParameterWildcard : public ParameterWildcardBase {
+template <class T>
+class ParameterWildcard : public ParameterWildcardBase {
+ public:
+  ParameterWildcard(std::string const& pattern,
+                    WildcardValidationCriteria criteria, bool isTracked)
+      : ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked,
+                              criteria) {
+    throwIfInvalidPattern(pattern);
+  }
 
-  public:
+  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria,
+                    bool isTracked)
+      : ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked,
+                              criteria) {
+    throwIfInvalidPattern(pattern);
+  }
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked) :
-      ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
-      throwIfInvalidPattern(pattern);
-    }
+  virtual ~ParameterWildcard() {}
 
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked) :
-      ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
-      throwIfInvalidPattern(pattern);
-    }
+  virtual ParameterDescriptionNode* clone() const {
+    return new ParameterWildcard(*this);
+  }
 
-    virtual ~ParameterWildcard() { }
+ private:
+  virtual void validate_(ParameterSet& pset,
+                         std::set<std::string>& validatedLabels,
+                         bool optional) const {
+    std::vector<std::string> parameterNames =
+        pset.getParameterNamesForType<T>(isTracked());
+    validateMatchingNames(parameterNames, validatedLabels, optional);
+  }
 
-    virtual ParameterDescriptionNode* clone() const {
-      return new ParameterWildcard(*this);
-    }
+  virtual bool exists_(ParameterSet const& pset) const {
+    if (criteria() == RequireZeroOrMore) return true;
 
-  private:
-   
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const {
+    std::vector<std::string> parameterNames =
+        pset.getParameterNamesForType<T>(isTracked());
 
-      std::vector<std::string> parameterNames  = pset.getParameterNamesForType<T>(isTracked());
-      validateMatchingNames(parameterNames, validatedLabels, optional);
+    if (criteria() == RequireAtLeastOne) return parameterNames.size() >= 1U;
+    return parameterNames.size() == 1U;
+  }
 
-    }
+  // In the future may need to add a data member of type T to hold a default
+  // value
+};
 
-    virtual bool exists_(ParameterSet const& pset) const {
+template <>
+class ParameterWildcard<ParameterSetDescription>
+    : public ParameterWildcardBase {
+ public:
+  ParameterWildcard(std::string const& pattern,
+                    WildcardValidationCriteria criteria, bool isTracked);
+  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria,
+                    bool isTracked);
 
-      if (criteria() == RequireZeroOrMore) return true;
+  ParameterWildcard(std::string const& pattern,
+                    WildcardValidationCriteria criteria, bool isTracked,
+                    ParameterSetDescription const& desc);
+  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria,
+                    bool isTracked, ParameterSetDescription const& desc);
 
-      std::vector<std::string> parameterNames  = pset.getParameterNamesForType<T>(isTracked());
+  virtual ~ParameterWildcard();
 
-      if (criteria() == RequireAtLeastOne) return parameterNames.size() >= 1U;
-      return parameterNames.size() == 1U;
-    }
+  virtual ParameterDescriptionNode* clone() const;
 
-    // In the future may need to add a data member of type T to hold a default value
-  };
+ private:
+  virtual void validate_(ParameterSet& pset,
+                         std::set<std::string>& validatedLabels,
+                         bool optional) const;
 
-  template<>
-  class ParameterWildcard<ParameterSetDescription> : public ParameterWildcardBase {
+  virtual bool hasNestedContent_() const;
 
-  public:
+  virtual void printNestedContent_(std::ostream& os, bool optional,
+                                   DocFormatHelper& helper) const;
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
+  virtual bool exists_(ParameterSet const& pset) const;
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      ParameterSetDescription const& desc);
+  void validateDescription(std::string const& parameterName,
+                           ParameterSet& pset) const;
 
-    virtual ~ParameterWildcard();
+  value_ptr<ParameterSetDescription> psetDesc_;
+};
 
-    virtual ParameterDescriptionNode* clone() const;
+template <>
+class ParameterWildcard<std::vector<ParameterSet> >
+    : public ParameterWildcardBase {
+ public:
+  ParameterWildcard(std::string const& pattern,
+                    WildcardValidationCriteria criteria, bool isTracked);
+  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria,
+                    bool isTracked);
 
-  private:
-   
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
+  ParameterWildcard(std::string const& pattern,
+                    WildcardValidationCriteria criteria, bool isTracked,
+                    ParameterSetDescription const& desc);
+  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria,
+                    bool isTracked, ParameterSetDescription const& desc);
 
-    virtual bool hasNestedContent_() const;
+  virtual ~ParameterWildcard();
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & helper) const;
+  virtual ParameterDescriptionNode* clone() const;
 
-    virtual bool exists_(ParameterSet const& pset) const;
+ private:
+  virtual void validate_(ParameterSet& pset,
+                         std::set<std::string>& validatedLabels,
+                         bool optional) const;
 
-    void validateDescription(std::string const& parameterName, ParameterSet & pset) const;
+  virtual bool hasNestedContent_() const;
 
-    value_ptr<ParameterSetDescription> psetDesc_;
-  };
+  virtual void printNestedContent_(std::ostream& os, bool optional,
+                                   DocFormatHelper& dfh) const;
 
-  template<>
-  class ParameterWildcard<std::vector<ParameterSet> > : public ParameterWildcardBase {
+  virtual bool exists_(ParameterSet const& pset) const;
 
-  public:
+  void validatePSetVector(std::string const& parameterName,
+                          ParameterSet& pset) const;
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
-
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      ParameterSetDescription const& desc);
-
-    virtual ~ParameterWildcard();
-
-    virtual ParameterDescriptionNode* clone() const;
-
-  private:
-   
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
-
-    virtual bool hasNestedContent_() const;
-
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh) const;
-
-    virtual bool exists_(ParameterSet const& pset) const;
-
-    void validatePSetVector(std::string const& parameterName, ParameterSet & pset) const;
-
-    value_ptr<ParameterSetDescription> psetDesc_;
-  };
+  value_ptr<ParameterSetDescription> psetDesc_;
+};
 }
 #endif

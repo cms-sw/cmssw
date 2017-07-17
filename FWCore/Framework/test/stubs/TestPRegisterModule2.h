@@ -4,8 +4,9 @@
 //
 // Package:     test
 // Class  :     TestPRegisterModule2
-// 
-/**\class TestPRegisterModule2 TestPRegisterModule2.h Framework/test/interface/TestPRegisterModule2.h
+//
+/**\class TestPRegisterModule2 TestPRegisterModule2.h
+ Framework/test/interface/TestPRegisterModule2.h
 
  Description: <one line class summary>
 
@@ -26,19 +27,18 @@
 // forward declarations
 
 namespace edm {
-  class Event;
-  class EventSetup;
-  class ParameterSet;
+class Event;
+class EventSetup;
+class ParameterSet;
 }
 
-class TestPRegisterModule2 : public edm::EDProducer
-{
-public:
-   explicit TestPRegisterModule2(edm::ParameterSet const& p);
-   
-   void produce(edm::Event& e, edm::EventSetup const&);
-   
-private:
+class TestPRegisterModule2 : public edm::EDProducer {
+ public:
+  explicit TestPRegisterModule2(edm::ParameterSet const& p);
+
+  void produce(edm::Event& e, edm::EventSetup const&);
+
+ private:
 };
 
 #endif

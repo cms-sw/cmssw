@@ -2,19 +2,19 @@
 #define Utilities_DebugMacros_h
 
 namespace edm {
-  struct debugvalue {
+struct debugvalue {
+  debugvalue();
 
-    debugvalue();
+  int operator()() { return value_; }
 
-    int operator()() { return value_; }
-    
-    const char* cvalue_;
-    int value_;
-  };
+  const char* cvalue_;
+  int value_;
+};
 
 [[cms::thread_safe]] extern debugvalue debugit;
 }
 
-#define FDEBUG(lev) if(lev <= debugit()) std::cerr
+#define FDEBUG(lev) \
+  if (lev <= debugit()) std::cerr
 
 #endif

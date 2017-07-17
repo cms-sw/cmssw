@@ -12,32 +12,32 @@ IterWithDict:  An iterator for a TList so a range for loop can be used
 namespace edm {
 
 class IterWithDictBase {
-private:
+ private:
   TIter iter_;
   bool atEnd_;
-protected:
+
+ protected:
   void advance();
   TIter const& iter() const;
-public:
+
+ public:
   IterWithDictBase();
   explicit IterWithDictBase(TList*);
   bool operator!=(IterWithDictBase const&) const;
 };
 
-template<typename T>
+template <typename T>
 class IterWithDict : public IterWithDictBase {
-public:
+ public:
   IterWithDict() : IterWithDictBase() {}
   explicit IterWithDict(TList* list) : IterWithDictBase(list) {}
   IterWithDict<T>& operator++() {
     advance();
     return *this;
   }
-  T* operator*() const {
-    return static_cast<T*>(*iter());
-  }
+  T* operator*() const { return static_cast<T*>(*iter()); }
 };
 
-} // namespace edm
+}  // namespace edm
 
-#endif // FWCore_Utilities_IterWithDict_h
+#endif  // FWCore_Utilities_IterWithDict_h

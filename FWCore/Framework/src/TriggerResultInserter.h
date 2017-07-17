@@ -14,39 +14,37 @@
 
 #include <vector>
 
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
-namespace edm
-{
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-  class HLTGlobalStatus;
+namespace edm {
+class ParameterSet;
+class Event;
+class EventSetup;
+class HLTGlobalStatus;
 
-  class TriggerResultInserter : public edm::global::EDProducer<>
-  {
-  public:
+class TriggerResultInserter : public edm::global::EDProducer<> {
+ public:
+  typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
-    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+  // standard constructor not supported for this module
+  explicit TriggerResultInserter(edm::ParameterSet const& ps);
 
-    // standard constructor not supported for this module
-    explicit TriggerResultInserter(edm::ParameterSet const& ps);
+  // the pset needed here is the one that defines the trigger path names
+  TriggerResultInserter(edm::ParameterSet const& ps, unsigned int iNStreams);
 
-    // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(edm::ParameterSet const& ps, unsigned int iNStreams);
+  void setTrigResultForStream(unsigned int iStreamIndex,
+                              const TrigResPtr& trptr);
+  void produce(StreamID id, edm::Event& e,
+               edm::EventSetup const& c) const override final;
 
-    void setTrigResultForStream(unsigned int iStreamIndex,
-                                const TrigResPtr& trptr);
-    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
+ private:
+  std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
-  private:
-    std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
-
-    ParameterSetID pset_id_;
-  };
+  ParameterSetID pset_id_;
+};
 }
 #endif

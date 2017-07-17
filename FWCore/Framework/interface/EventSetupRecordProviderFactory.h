@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactory
-// 
-/**\class EventSetupRecordProviderFactory EventSetupRecordProviderFactory.h FWCore/Framework/interface/EventSetupRecordProviderFactory.h
+//
+/**\class EventSetupRecordProviderFactory EventSetupRecordProviderFactory.h
+ FWCore/Framework/interface/EventSetupRecordProviderFactory.h
 
  Description: <one line class summary>
 
@@ -25,30 +26,31 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-class EventSetupRecordProviderFactory
-{
+namespace eventsetup {
+class EventSetupRecordProviderFactory {
+ public:
+  virtual ~EventSetupRecordProviderFactory();
 
-   public:
-      virtual ~EventSetupRecordProviderFactory();
+  // ---------- const member functions ---------------------
+  virtual std::unique_ptr<EventSetupRecordProvider> makeRecordProvider()
+      const = 0;
 
-      // ---------- const member functions ---------------------
-      virtual std::unique_ptr<EventSetupRecordProvider> makeRecordProvider() const = 0;
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+ protected:
+  EventSetupRecordProviderFactory() {}
 
-      // ---------- member functions ---------------------------
-   protected:
-      EventSetupRecordProviderFactory() {}
-   private:
-      EventSetupRecordProviderFactory(const EventSetupRecordProviderFactory&); // stop default
+ private:
+  EventSetupRecordProviderFactory(
+      const EventSetupRecordProviderFactory&);  // stop default
 
-      const EventSetupRecordProviderFactory& operator=(const EventSetupRecordProviderFactory&); // stop default
+  const EventSetupRecordProviderFactory& operator=(
+      const EventSetupRecordProviderFactory&);  // stop default
 
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-   }
+}
 }
 
 #endif

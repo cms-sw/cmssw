@@ -4,6 +4,6 @@
 #include <string>
 
 namespace edm {
-  std::string wrappedClassName(std::string const& iFullName);
+std::string wrappedClassName(std::string const& iFullName);
 }
 #endif

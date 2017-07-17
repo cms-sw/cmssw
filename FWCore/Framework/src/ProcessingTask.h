@@ -3,9 +3,8 @@
 
 #include <string>
 
-namespace edm
-{
-  typedef std::string ProcessingTask;
+namespace edm {
+typedef std::string ProcessingTask;
 }
 
 #endif

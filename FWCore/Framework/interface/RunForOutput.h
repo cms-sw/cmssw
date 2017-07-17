@@ -19,9 +19,9 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include <memory>
 #include <string>
@@ -29,33 +29,32 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 namespace edmtest {
-  class TestOutputModule;
+class TestOutputModule;
 }
 
 namespace edm {
-  class ModuleCallingContext;
-  
-  class RunForOutput : public OccurrenceForOutput {
-  public:
-    RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*);
-    ~RunForOutput();
+class ModuleCallingContext;
 
-    RunAuxiliary const& runAuxiliary() const {return aux_;}
-    RunID const& id() const {return aux_.id();}
-    RunNumber_t run() const {return aux_.run();}
-    Timestamp const& beginTime() const {return aux_.beginTime();}
-    Timestamp const& endTime() const {return aux_.endTime();}
+class RunForOutput : public OccurrenceForOutput {
+ public:
+  RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
+               ModuleCallingContext const*);
+  ~RunForOutput();
 
-  private:
-    friend class edmtest::TestOutputModule; // For testing
+  RunAuxiliary const& runAuxiliary() const { return aux_; }
+  RunID const& id() const { return aux_.id(); }
+  RunNumber_t run() const { return aux_.run(); }
+  Timestamp const& beginTime() const { return aux_.beginTime(); }
+  Timestamp const& endTime() const { return aux_.endTime(); }
 
-    RunPrincipal const&
-    runPrincipal() const;
+ private:
+  friend class edmtest::TestOutputModule;  // For testing
 
-    RunAuxiliary const& aux_;
+  RunPrincipal const& runPrincipal() const;
 
-    static const std::string emptyString_;
-  };
+  RunAuxiliary const& aux_;
+
+  static const std::string emptyString_;
+};
 }
 #endif

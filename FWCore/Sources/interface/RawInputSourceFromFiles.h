@@ -11,25 +11,26 @@
 #include "FWCore/Sources/interface/RawInputSource.h"
 
 namespace edm {
-  class ParameterSet;
-  class ParameterSetDescription;
+class ParameterSet;
+class ParameterSetDescription;
 
-  class RawInputSourceFromFiles : public RawInputSource, private FromFiles {
-  public:
-    RawInputSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~RawInputSourceFromFiles();
+class RawInputSourceFromFiles : public RawInputSource, private FromFiles {
+ public:
+  RawInputSourceFromFiles(ParameterSet const& pset,
+                          InputSourceDescription const& desc);
+  virtual ~RawInputSourceFromFiles();
 
-    using FromFiles::logicalFileNames;
-    using FromFiles::fileNames;
-    using FromFiles::catalog;
-    
-    static void fillDescription(ParameterSetDescription& desc);
+  using FromFiles::logicalFileNames;
+  using FromFiles::fileNames;
+  using FromFiles::catalog;
 
-  protected:
-    using FromFiles::incrementFileIndex;
+  static void fillDescription(ParameterSetDescription& desc);
 
-  private:
-    using FromFiles::fileIndex;
-  };
+ protected:
+  using FromFiles::incrementFileIndex;
+
+ private:
+  using FromFiles::fileIndex;
+};
 }
 #endif

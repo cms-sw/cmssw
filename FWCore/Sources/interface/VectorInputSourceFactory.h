@@ -8,25 +8,25 @@
 #include <string>
 
 namespace edm {
-  struct VectorInputSourceDescription;
-  class ParameterSet;
+struct VectorInputSourceDescription;
+class ParameterSet;
 
-  typedef VectorInputSource* (ISVecFunc)(ParameterSet const&, VectorInputSourceDescription const&);
-  typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
+typedef VectorInputSource*(ISVecFunc)(ParameterSet const&,
+                                      VectorInputSourceDescription const&);
+typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
-  class VectorInputSourceFactory {
-  public:
-    ~VectorInputSourceFactory();
+class VectorInputSourceFactory {
+ public:
+  ~VectorInputSourceFactory();
 
-    static VectorInputSourceFactory const* get();
+  static VectorInputSourceFactory const* get();
 
-    std::unique_ptr<VectorInputSource>
-      makeVectorInputSource(ParameterSet const&,
-                            VectorInputSourceDescription const&) const;
+  std::unique_ptr<VectorInputSource> makeVectorInputSource(
+      ParameterSet const&, VectorInputSourceDescription const&) const;
 
-  private:
-    VectorInputSourceFactory();
-    static VectorInputSourceFactory const singleInstance_;
-  };
+ private:
+  VectorInputSourceFactory();
+  static VectorInputSourceFactory const singleInstance_;
+};
 }
 #endif

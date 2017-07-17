@@ -10,12 +10,12 @@
 #include <vector>
 
 namespace edm {
-  class ParameterSet;
-  class ProcessDesc;
+class ParameterSet;
+class ProcessDesc;
 }
 
 class PythonProcessDesc {
-public:
+ public:
   PythonProcessDesc();
   /** This constructor will parse the given file or string
       and create two objects in python-land:
@@ -26,12 +26,12 @@ public:
   */
   PythonProcessDesc(std::string const& config);
 
-  PythonProcessDesc(std::string const& config, int argc, char * argv[]);
+  PythonProcessDesc(std::string const& config, int argc, char* argv[]);
 
-  PythonParameterSet newPSet() const {return PythonParameterSet();}
+  PythonParameterSet newPSet() const { return PythonParameterSet(); }
 
-  PythonParameterSet& pset() { return theProcessPSet;}
-  
+  PythonParameterSet& pset() { return theProcessPSet; }
+
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet
@@ -41,7 +41,7 @@ public:
   // For backward compatibility only.  Remove when no longer needed.
   std::shared_ptr<edm::ProcessDesc> processDesc() const;
 
-private:
+ private:
   void prepareToRead();
   void read(std::string const& config);
   void readFile(std::string const& fileName);

@@ -4,7 +4,7 @@
 //
 // Package:     Integration
 // Class  :     GadgetRcd
-// 
+//
 /**\class GadgetRcd GadgetRcd.h FWCore/Integration/interface/GadgetRcd.h
 
  Description: <one line class summary>
@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class GadgetRcd : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
+class GadgetRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 
 #endif
-

@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageService_ELstatistics_h
 #define FWCore_MessageService_ELstatistics_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELstatistics	is a subclass of ELdestination representing the
@@ -20,9 +19,9 @@
 //  4/4/01 mf   Removed moduleOfInterest and moduleToExclude, in favor
 //              of using base class method.
 // 1/17/06 mf	summary() for use in MessageLogger
-// 8/16/07 mf	noteGroupedCategory(cat) to support grouping of modules in 
+// 8/16/07 mf	noteGroupedCategory(cat) to support grouping of modules in
 //		specified categories.  Also, a static vector of such categories.
-// 6/19/08 mf	summaryForJobReport() for use in CMS framework 
+// 6/19/08 mf	summaryForJobReport() for use in CMS framework
 //
 // ----------------------------------------------------------------------
 
@@ -34,98 +33,90 @@
 
 #include <set>
 
-namespace edm {       
-
+namespace edm {
 
 // ----------------------------------------------------------------------
 // prerequisite classes:
 // ----------------------------------------------------------------------
 
 class ErrorObj;
-namespace service {       
+namespace service {
 class ELadministrator;
-
 
 // ----------------------------------------------------------------------
 // ELstatistics:
 // ----------------------------------------------------------------------
 
-class ELstatistics : public ELdestination  {
-
+class ELstatistics : public ELdestination {
   friend class ELadministrator;
 
-public:
+ public:
   // -----  constructor/destructor:
   ELstatistics();
-  ELstatistics( std::ostream & osp );
-  ELstatistics( int spaceLimit );
-  ELstatistics( int spaceLimit, std::ostream & osp );
-  ELstatistics( const ELstatistics & orig );
+  ELstatistics(std::ostream& osp);
+  ELstatistics(int spaceLimit);
+  ELstatistics(int spaceLimit, std::ostream& osp);
+  ELstatistics(const ELstatistics& orig);
   virtual ~ELstatistics();
 
   // -----  Methods invoked by the ELadministrator:
   //
-public:
-    // Used by attach() to put the destination on the ELadministrators list
-		//-| There is a note in Design Notes about semantics
-		//-| of copying a destination onto the list:  ofstream
-		//-| ownership is passed to the new copy.
+ public:
+  // Used by attach() to put the destination on the ELadministrators list
+  //-| There is a note in Design Notes about semantics
+  //-| of copying a destination onto the list:  ofstream
+  //-| ownership is passed to the new copy.
 
-  virtual bool log( const edm::ErrorObj & msg ) override;
+  virtual bool log(const edm::ErrorObj& msg) override;
 
   // output( const ELstring & item, const ELseverityLevel & sev )
   // from base class
 
   // ----- Methods invoked by the MessageLoggerScribe, bypassing destControl
   //
-public:
-  static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
+ public:
+  static void noteGroupedCategory(std::string const& cat);  // 8/16/07 mf
 
-
-  void summary( unsigned long overfullWaitCount );
+  void summary(unsigned long overfullWaitCount);
   void noTerminationSummary();
-  void summaryForJobReport (std::map<std::string, double> & sm);
+  void summaryForJobReport(std::map<std::string, double>& sm);
   virtual void wipe() override;
 
-protected:
+ protected:
   void clearSummary();
 
   virtual void zero() override;
 
+  std::map<ELextendedID, StatsCount> statisticsMap() const;
 
-  std::map<ELextendedID,StatsCount> statisticsMap() const;
-
-  
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
 
-protected:
-  int            tableLimit;
-  ELmap_stats    stats;
-  bool           updatedStats;
-  std::ostream & termStream;
+ protected:
+  int tableLimit;
+  ELmap_stats stats;
+  bool updatedStats;
+  std::ostream& termStream;
 
-  bool           printAtTermination;
+  bool printAtTermination;
 
-  [[cms::thread_safe]] static std::set<std::string> groupedCategories;		// 8/16/07 mf 
-  static ELstring formSummary(ELmap_stats & stats);		// 8/16/07 mf 
+  [[cms::thread_safe]] static std::set<std::string>
+      groupedCategories;                            // 8/16/07 mf
+  static ELstring formSummary(ELmap_stats& stats);  // 8/16/07 mf
 
   // ----  Helper methods specific to MessageLogger applicaton
   //
-private:
-  std::string dualLogName(std::string const & s);
-  ELstatistics & operator=( const ELstatistics & orig ) = delete;  // verboten
+ private:
+  std::string dualLogName(std::string const& s);
+  ELstatistics& operator=(const ELstatistics& orig) = delete;  // verboten
 
-  void summary( std::ostream & os, const ELstring & title );
-  
+  void summary(std::ostream& os, const ELstring& title);
+
 };  // ELstatistics
-
 
 // ----------------------------------------------------------------------
 
+}  // end of namespace service
+}  // end of namespace edm
 
-}        // end of namespace service
-}        // end of namespace edm
-
-
-#endif // FWCore_MessageService_ELstatistics_h
+#endif  // FWCore_MessageService_ELstatistics_h

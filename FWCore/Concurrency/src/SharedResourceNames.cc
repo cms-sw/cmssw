@@ -1,10 +1,11 @@
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
-#include <sstream>
 #include <atomic>
+#include <sstream>
 
 const std::string edm::SharedResourceNames::kGEANT = "GEANT";
-const std::string edm::SharedResourceNames::kCLHEPRandomEngine = "CLHEPRandomEngine";
+const std::string edm::SharedResourceNames::kCLHEPRandomEngine =
+    "CLHEPRandomEngine";
 const std::string edm::SharedResourceNames::kPythia6 = "Pythia6";
 const std::string edm::SharedResourceNames::kPythia8 = "Pythia8";
 const std::string edm::SharedResourceNames::kPhotos = "Photos";

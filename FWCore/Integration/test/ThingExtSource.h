@@ -3,40 +3,41 @@
 
 /** \class ThingExtSource
  *
- * \version   1st Version Dec. 27, 2005  
+ * \version   1st Version Dec. 27, 2005
 
  *
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 namespace edmtest {
-  class ThingExtSource : public edm::ProducerSourceFromFiles {
-  public:
+class ThingExtSource : public edm::ProducerSourceFromFiles {
+ public:
+  // The following is not yet used, but will be the primary
+  // constructor when the parameter set system is available.
+  //
+  explicit ThingExtSource(edm::ParameterSet const& pset,
+                          edm::InputSourceDescription const& desc);
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
-    explicit ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
+  virtual ~ThingExtSource();
 
-    virtual ~ThingExtSource();
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&,
+                                  edm::EventAuxiliary::ExperimentType&);
 
-    virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&);
+  virtual void produce(edm::Event& e);
 
-    virtual void produce(edm::Event& e);
+  virtual void beginRun(edm::Run& r);
 
-    virtual void beginRun(edm::Run& r);
+  virtual void endRun(edm::Run& r);
 
-    virtual void endRun(edm::Run& r);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock& lb);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb);
+  virtual void endLuminosityBlock(edm::LuminosityBlock& lb);
 
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lb);
-
-  private:
-    ThingAlgorithm alg_;
-  };
+ private:
+  ThingAlgorithm alg_;
+};
 }
 #endif

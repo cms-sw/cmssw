@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     edm::StreamID
-// 
+//
 /**\class edm::StreamID StreamID.h "FWCore/Utilities/interface/StreamID.h"
 
  Description: Identifies an edm stream
@@ -24,43 +24,36 @@
 
 // forward declarations
 namespace edm {
-  class Schedule;
-  class EventPrincipal;
-  
-  class StreamID
-  {
-    
-  public:
-    ~StreamID() = default;
-    StreamID(const StreamID&) = default;
-    StreamID& operator=(const StreamID&) = default;
-    
-    bool operator==(const StreamID& iID) const {
-      return iID.value_ == value_;
-    }
+class Schedule;
+class EventPrincipal;
 
-    operator unsigned int() const {return value_;}
-    
-    /** \return value ranging from 0 to one less than max number of streams.
-     */
-    unsigned int value() const { return value_; }
-    
-    static StreamID invalidStreamID() {
-      return StreamID(0xFFFFFFFFU);
-    }
-    
-  private:
-    ///Only a Schedule is allowed to create one of these
-    friend class Schedule;
-    friend class EventPrincipal;
-    explicit StreamID(unsigned int iValue) : value_(iValue) {}
-    
-    StreamID() = delete;
-    
-    // ---------- member data --------------------------------
-    unsigned int value_;
-  };
+class StreamID {
+ public:
+  ~StreamID() = default;
+  StreamID(const StreamID&) = default;
+  StreamID& operator=(const StreamID&) = default;
+
+  bool operator==(const StreamID& iID) const { return iID.value_ == value_; }
+
+  operator unsigned int() const { return value_; }
+
+  /** \return value ranging from 0 to one less than max number of streams.
+   */
+  unsigned int value() const { return value_; }
+
+  static StreamID invalidStreamID() { return StreamID(0xFFFFFFFFU); }
+
+ private:
+  /// Only a Schedule is allowed to create one of these
+  friend class Schedule;
+  friend class EventPrincipal;
+  explicit StreamID(unsigned int iValue) : value_(iValue) {}
+
+  StreamID() = delete;
+
+  // ---------- member data --------------------------------
+  unsigned int value_;
+};
 }
-
 
 #endif

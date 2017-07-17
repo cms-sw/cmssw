@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     ConstProductRegistry
-// 
-/**\class ConstProductRegistry ConstProductRegistry.h FWCore/Framework/interface/ConstProductRegistry.h
+//
+/**\class ConstProductRegistry ConstProductRegistry.h
+FWCore/Framework/interface/ConstProductRegistry.h
 
 Description: Provides a 'service' interface to the ProductRegistry
 
@@ -19,8 +20,8 @@ Usage:
 //
 
 // system include files
-#include <vector>
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -29,54 +30,54 @@ Usage:
 
 // forward declarations
 namespace edm {
-  class ConstProductRegistry
-  {
+class ConstProductRegistry {
+ public:
+  typedef ProductRegistry::ProductList ProductList;
 
-  public:
-    typedef ProductRegistry::ProductList ProductList;
-     
-    ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) { }
+  ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) {}
 
-    ConstProductRegistry(ConstProductRegistry const&) = delete; // Disallow copying and moving
-    ConstProductRegistry& operator=(ConstProductRegistry const&) = delete; // Disallow copying and moving
-     
-    // ---------- const member functions ---------------------
-    ProductRegistry const& productRegistry() const {return *reg_;}
+  ConstProductRegistry(ConstProductRegistry const&) =
+      delete;  // Disallow copying and moving
+  ConstProductRegistry& operator=(ConstProductRegistry const&) =
+      delete;  // Disallow copying and moving
 
-    ProductList const& productList() const {return reg_->productList();}
+  // ---------- const member functions ---------------------
+  ProductRegistry const& productRegistry() const { return *reg_; }
 
-    // Return all the branch names currently known to *this.  This
-    // does a return-by-value of the vector so that it may be used in
-    // a colon-initialization list.
-    std::vector<std::string> allBranchNames() const {return reg_->allBranchNames();}
+  ProductList const& productList() const { return reg_->productList(); }
 
-    // Return pointers to (const) BranchDescriptions for all the
-    // BranchDescriptions known to *this.  This does a
-    // return-by-value of the vector so that it may be used in a
-    // colon-initialization list.
-    std::vector<BranchDescription const*> allBranchDescriptions() const {return reg_->allBranchDescriptions();}
+  // Return all the branch names currently known to *this.  This
+  // does a return-by-value of the vector so that it may be used in
+  // a colon-initialization list.
+  std::vector<std::string> allBranchNames() const {
+    return reg_->allBranchNames();
+  }
 
-    bool anyProductProduced() const {return reg_->anyProductProduced();}
-     
-    template< class T>
-    void watchProductAdditions(const T& iFunc)
-    {
-      serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
-					      iFunc);
-    }
-    template< class T, class TMethod>
-    void watchProductAdditions(T const& iObj, TMethod iMethod)
-    {
-      using std::placeholders::_1;
-      serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
-					      std::bind(iMethod, iObj,_1));
-    }
-     
-  private:
+  // Return pointers to (const) BranchDescriptions for all the
+  // BranchDescriptions known to *this.  This does a
+  // return-by-value of the vector so that it may be used in a
+  // colon-initialization list.
+  std::vector<BranchDescription const*> allBranchDescriptions() const {
+    return reg_->allBranchDescriptions();
+  }
 
-    // ---------- member data --------------------------------
-    edm::propagate_const<SignallingProductRegistry*> reg_;
-  };
+  bool anyProductProduced() const { return reg_->anyProductProduced(); }
+
+  template <class T>
+  void watchProductAdditions(const T& iFunc) {
+    serviceregistry::connect_but_block_self(reg_->productAddedSignal_, iFunc);
+  }
+  template <class T, class TMethod>
+  void watchProductAdditions(T const& iObj, TMethod iMethod) {
+    using std::placeholders::_1;
+    serviceregistry::connect_but_block_self(reg_->productAddedSignal_,
+                                            std::bind(iMethod, iObj, _1));
+  }
+
+ private:
+  // ---------- member data --------------------------------
+  edm::propagate_const<SignallingProductRegistry*> reg_;
+};
 }
 
 #endif

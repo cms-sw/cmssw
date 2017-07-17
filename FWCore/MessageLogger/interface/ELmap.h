@@ -1,7 +1,6 @@
 #ifndef MessageLogger_ELmap_h
 #define MessageLogger_ELmap_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELmap.h      Provides a map class with the semantics of std::map.
@@ -32,82 +31,66 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include <map>
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
+#include "FWCore/MessageLogger/interface/ELstring.h"
 
-
-namespace edm {       
-
+namespace edm {
 
 // ----------------------------------------------------------------------
 
-
-class LimitAndTimespan  {
-
-public:
-
+class LimitAndTimespan {
+ public:
   int limit;
   int timespan;
   int interval;
 
-  LimitAndTimespan( int lim = -1, int ts = -1, int ivl = -1 );
+  LimitAndTimespan(int lim = -1, int ts = -1, int ivl = -1);
 
 };  // LimitAndTimespan
 
-
-class CountAndLimit  {
-
-public:
-
-  int    n;
-  int    aggregateN;
+class CountAndLimit {
+ public:
+  int n;
+  int aggregateN;
   time_t lastTime;
-  int    limit;
-  int    timespan;
-  int    interval;
-  int    skipped;
+  int limit;
+  int timespan;
+  int interval;
+  int skipped;
 
-  CountAndLimit( int lim = -1, int ts = -1, int ivl = -1 );
+  CountAndLimit(int lim = -1, int ts = -1, int ivl = -1);
   bool add();
 
 };  // CountAndLimit
 
-
-class StatsCount  {
-
-public:
-
-  int      n;
-  int      aggregateN;
-  bool     ignoredFlag;
+class StatsCount {
+ public:
+  int n;
+  int aggregateN;
+  bool ignoredFlag;
   ELstring context1;
   ELstring context2;
   ELstring contextLast;
 
   StatsCount();
-  void add( const ELstring & context, bool reactedTo );
+  void add(const ELstring& context, bool reactedTo);
 
 };  // StatsCount
 
-
 // ----------------------------------------------------------------------
 
+typedef std::map<ELstring, LimitAndTimespan> ELmap_limits;
 
-typedef std::map< ELstring     , LimitAndTimespan > ELmap_limits;
+typedef std::map<ELextendedID, CountAndLimit> ELmap_counts;
 
-typedef std::map< ELextendedID , CountAndLimit    > ELmap_counts;
-
-typedef std::map< ELextendedID , StatsCount       > ELmap_stats;
+typedef std::map<ELextendedID, StatsCount> ELmap_stats;
 
 // See ELseverityLevel.cc for another map:  ELmap_sevTran
 
 // ----------------------------------------------------------------------
 
+}  // end of namespace edm
 
-}        // end of namespace edm
-
-
-#endif // MessageLogger_ELmap_h
+#endif  // MessageLogger_ELmap_h

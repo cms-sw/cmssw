@@ -26,22 +26,23 @@
 
 namespace edm {
 
-  template<typename T>
-  class FunctorESHandleExceptionFactory : public ESHandleExceptionFactory {
+template <typename T>
+class FunctorESHandleExceptionFactory : public ESHandleExceptionFactory {
+ public:
+  FunctorESHandleExceptionFactory(T&& iFunctor)
+      : m_functor(std::move(iFunctor)) {}
 
-  public:
-    FunctorESHandleExceptionFactory(T&& iFunctor) : m_functor(std::move(iFunctor)) {}
+  std::exception_ptr make() const { return m_functor(); }
 
-    std::exception_ptr make() const {
-      return m_functor();
-    }
-  private:
-    T m_functor;
-  };
+ private:
+  T m_functor;
+};
 
-  template<typename T>
-  std::shared_ptr<ESHandleExceptionFactory> makeESHandleExceptionFactory(T&& iFunctor) {
-    return std::make_shared<FunctorESHandleExceptionFactory<T>>(std::move(iFunctor));
-  }
+template <typename T>
+std::shared_ptr<ESHandleExceptionFactory> makeESHandleExceptionFactory(
+    T&& iFunctor) {
+  return std::make_shared<FunctorESHandleExceptionFactory<T>>(
+      std::move(iFunctor));
+}
 }
 #endif

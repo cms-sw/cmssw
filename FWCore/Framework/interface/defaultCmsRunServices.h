@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     defaultCmsRunServices
-// 
-/**\class defaultCmsRunServices defaultCmsRunServices.h FWCore/Framework/interface/defaultCmsRunServices.h
+//
+/**\class defaultCmsRunServices defaultCmsRunServices.h
+ FWCore/Framework/interface/defaultCmsRunServices.h
 
  Description: Returns the names of the standard cmsRun default services
 
@@ -22,13 +23,13 @@
 
 // system include files
 
-#include <vector>
 #include <string>
+#include <vector>
 
 // forward declarations
 
 namespace edm {
-   std::vector<std::string> defaultCmsRunServices();
+std::vector<std::string> defaultCmsRunServices();
 }
 
 #endif

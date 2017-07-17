@@ -4,10 +4,12 @@
 //
 // Package:     FWCore/Framework
 // File  :     AbilityToImplementor
-// 
-/**\class  edm::stream::AbilityToImplementor producerAbilityToImplementor.h "FWCore/Framework/interface/stream/AbilityToImplementor.h"
+//
+/**\class  edm::stream::AbilityToImplementor producerAbilityToImplementor.h
+ "FWCore/Framework/interface/stream/AbilityToImplementor.h"
 
- Description: Class used to pair a module Ability to the actual base class used to implement that ability
+ Description: Class used to pair a module Ability to the actual base class used
+ to implement that ability
 
  Usage:
     <usage>
@@ -26,54 +28,55 @@
 
 // forward declarations
 namespace edm {
-  namespace stream {
-    template<typename T> struct AbilityToImplementor;
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::GlobalCache<C>> {
-      typedef edm::stream::impl::GlobalCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::RunCache<C>> {
-      typedef edm::stream::impl::RunCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-      typedef edm::stream::impl::RunSummaryCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-      typedef edm::stream::impl::LuminosityBlockCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-      typedef edm::stream::impl::LuminosityBlockSummaryCacheHolder<C> Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::BeginRunProducer> {
-      typedef edm::stream::impl::BeginRunProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::EndRunProducer> {
-      typedef edm::stream::impl::EndRunProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-      typedef edm::stream::impl::BeginLuminosityBlockProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-      typedef edm::stream::impl::EndLuminosityBlockProducer Type;
-    };
-  }
+namespace stream {
+template <typename T>
+struct AbilityToImplementor;
+
+template <typename C>
+struct AbilityToImplementor<edm::GlobalCache<C>> {
+  typedef edm::stream::impl::GlobalCacheHolder<C> Type;
+};
+
+template <typename C>
+struct AbilityToImplementor<edm::RunCache<C>> {
+  typedef edm::stream::impl::RunCacheHolder<C> Type;
+};
+
+template <typename C>
+struct AbilityToImplementor<edm::RunSummaryCache<C>> {
+  typedef edm::stream::impl::RunSummaryCacheHolder<C> Type;
+};
+
+template <typename C>
+struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+  typedef edm::stream::impl::LuminosityBlockCacheHolder<C> Type;
+};
+
+template <typename C>
+struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
+  typedef edm::stream::impl::LuminosityBlockSummaryCacheHolder<C> Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::BeginRunProducer> {
+  typedef edm::stream::impl::BeginRunProducer Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::EndRunProducer> {
+  typedef edm::stream::impl::EndRunProducer Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
+  typedef edm::stream::impl::BeginLuminosityBlockProducer Type;
+};
+
+template <>
+struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
+  typedef edm::stream::impl::EndLuminosityBlockProducer Type;
+};
+}
 }
 
 #endif

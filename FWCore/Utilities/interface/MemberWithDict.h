@@ -7,7 +7,6 @@ MemberWithDict:  A holder for a class member
 
 ----------------------------------------------------------------------*/
 
-
 #include <string>
 
 class TDataMember;
@@ -18,9 +17,10 @@ class ObjectWithDict;
 class TypeWithDict;
 
 class MemberWithDict {
-private:
+ private:
   TDataMember* dataMember_;
-public:
+
+ public:
   MemberWithDict();
   explicit MemberWithDict(TDataMember*);
   explicit operator bool() const;
@@ -37,9 +37,9 @@ public:
   ObjectWithDict get(ObjectWithDict const&) const;
 };
 
-} // namespace edm
+}  // namespace edm
 
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#endif // FWCore_Utilities_MemberWithDict_h
+#endif  // FWCore_Utilities_MemberWithDict_h

@@ -4,9 +4,9 @@
 // ----------------------------------------------------------------------
 //
 // LoggedErrorsSummary.h - Methods to obtain summary of warning and error
-//		    messages issued in an event.  
+//		    messages issued in an event.
 //
-//   Usage:  
+//   Usage:
 //	EnableLoggedErrorsSummary();
 //	then per event:
 //	some_code_that_might_issue_messages();
@@ -24,13 +24,14 @@
 
 //
 //  void
-//  package_as_product_in_the_event(std::vector<edm::ErrorSummaryEntry> const& es)
+//  package_as_product_in_the_event(std::vector<edm::ErrorSummaryEntry> const&
+//  es)
 //  {
 //    // This example shows how to save just errors and not warnings
 //    std::vector<edm::ErrorSummaryEntry> errs;
 //    std::vector<edm::ErrorSummaryEntry>::const_iterator end = es.end();
 //    for (std::vector<edm::ErrorSummaryEntry>::const_iterator i = es.begin();
-//                                                        i != end; ++i) { 
+//                                                        i != end; ++i) {
 //      if ( i->severity >= edm:ELerror ) errs.push_back(*i);
 //    }
 //    place_into_event(errs);
@@ -46,16 +47,16 @@
 
 #include <vector>
 
-namespace edm {       
+namespace edm {
 
 bool EnableLoggedErrorsSummary();
 bool DisableLoggedErrorsSummary();
 bool FreshErrorsExist(unsigned int iStreamID);
-std::vector<ErrorSummaryEntry> LoggedErrorsSummary( unsigned int iStreamID);     // Errors and Warnings
-std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(unsigned int iStreamID); // Errors only
+std::vector<ErrorSummaryEntry> LoggedErrorsSummary(
+    unsigned int iStreamID);  // Errors and Warnings
+std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(
+    unsigned int iStreamID);  // Errors only
 
-}        // end of namespace edm
-
+}  // end of namespace edm
 
 #endif  // MessageLogger_LoggedErrorsSummary_h
-

@@ -4,10 +4,11 @@
 //
 // Package:     FWCore/Framework
 // Class  :     UnscheduledAuxiliary
-// 
+//
 /**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "UnscheduledAuxiliary.h"
 
- Description: Holds auxiliary information needed for unscheduled calls to EDProducers
+ Description: Holds auxiliary information needed for unscheduled calls to
+ EDProducers
 
  Usage:
     Used internally by the framework
@@ -26,35 +27,31 @@
 // forward declarations
 
 namespace edm {
-  class EventSetup;
-  class ModuleCallingContext;
-  class StreamContext;
-  
-  class UnscheduledAuxiliary
-  {
+class EventSetup;
+class ModuleCallingContext;
+class StreamContext;
 
-  public:
-    UnscheduledAuxiliary(): m_eventSetup(nullptr) {}
+class UnscheduledAuxiliary {
+ public:
+  UnscheduledAuxiliary() : m_eventSetup(nullptr) {}
 
-    // ---------- const member functions ---------------------
-    EventSetup const* eventSetup() const { return m_eventSetup;}
-    
-    // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  EventSetup const* eventSetup() const { return m_eventSetup; }
 
-    // ---------- member functions ---------------------------
-    void setEventSetup( EventSetup const* iSetup) {
-      m_eventSetup = iSetup;
-    }
+  // ---------- static member functions --------------------
 
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preModuleDelayedGetSignal_;
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postModuleDelayedGetSignal_;
-  private:
+  // ---------- member functions ---------------------------
+  void setEventSetup(EventSetup const* iSetup) { m_eventSetup = iSetup; }
 
-    // ---------- member data --------------------------------
-    EventSetup const * m_eventSetup;
+  signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)>
+      preModuleDelayedGetSignal_;
+  signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)>
+      postModuleDelayedGetSignal_;
 
-  };
+ private:
+  // ---------- member data --------------------------------
+  EventSetup const* m_eventSetup;
+};
 }
-
 
 #endif

@@ -5,23 +5,22 @@
 
 namespace edm {
 
-  GlobalContext::GlobalContext(Transition transition,
-                               LuminosityBlockID const& luminosityBlockID,
-                               RunIndex const& runIndex,
-                               LuminosityBlockIndex const& luminosityBlockIndex, 
-                               Timestamp const & timestamp,
-                               ProcessContext const* processContext) :
-    transition_(transition),
-    luminosityBlockID_(luminosityBlockID),
-    runIndex_(runIndex),
-    luminosityBlockIndex_(luminosityBlockIndex),
-    timestamp_(timestamp),
-    processContext_(processContext) {
-  }
+GlobalContext::GlobalContext(Transition transition,
+                             LuminosityBlockID const& luminosityBlockID,
+                             RunIndex const& runIndex,
+                             LuminosityBlockIndex const& luminosityBlockIndex,
+                             Timestamp const& timestamp,
+                             ProcessContext const* processContext)
+    : transition_(transition),
+      luminosityBlockID_(luminosityBlockID),
+      runIndex_(runIndex),
+      luminosityBlockIndex_(luminosityBlockIndex),
+      timestamp_(timestamp),
+      processContext_(processContext) {}
 
-  std::ostream& operator<<(std::ostream& os, GlobalContext const& gc) {
-    os << "GlobalContext: transition = ";
-    switch (gc.transition()) {
+std::ostream& operator<<(std::ostream& os, GlobalContext const& gc) {
+  os << "GlobalContext: transition = ";
+  switch (gc.transition()) {
     case GlobalContext::Transition::kBeginJob:
       os << "BeginJob";
       break;
@@ -46,46 +45,45 @@ namespace edm {
     case GlobalContext::Transition::kWriteLuminosityBlock:
       os << "WriteLuminosityBlock";
       break;
-    }
-    os << "\n    " << gc.luminosityBlockID()
-       << "\n    runIndex = " << gc.runIndex().value()
-       << "  luminosityBlockIndex = " << gc.luminosityBlockIndex().value()
-       << "  unixTime = " << gc.timestamp().unixTime()
-       << " microsecondOffset = " << gc.timestamp().microsecondOffset() <<"\n";
-    if(gc.processContext()) {
-      os << "    " << *gc.processContext(); 
-    }
-    return os;
   }
-  
-  void exceptionContext(std::ostream& os, GlobalContext const& gc) {
-    os << "Processing ";
-    switch (gc.transition()) {
-      case GlobalContext::Transition::kBeginJob:
-        os << "begin Job";
-        break;
-      case GlobalContext::Transition::kBeginRun:
-        os << "global begin Run " <<RunID(gc.luminosityBlockID().run());
-        break;
-      case GlobalContext::Transition::kBeginLuminosityBlock:
-        os << "global begin LuminosityBlock "<<gc.luminosityBlockID();
-        break;
-      case GlobalContext::Transition::kEndLuminosityBlock:
-        os << "global end LuminosityBlock "<<gc.luminosityBlockID();
-        break;
-      case GlobalContext::Transition::kEndRun:
-        os << "global end Run "<<RunID(gc.luminosityBlockID().run());
-        break;
-      case GlobalContext::Transition::kEndJob:
-        os << "endJob";
-        break;
-      case GlobalContext::Transition::kWriteRun:
-        os << "write Run "<<RunID(gc.luminosityBlockID().run());
-        break;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        os << "write LuminosityBlock "<<gc.luminosityBlockID();
-        break;
-    }
+  os << "\n    " << gc.luminosityBlockID()
+     << "\n    runIndex = " << gc.runIndex().value()
+     << "  luminosityBlockIndex = " << gc.luminosityBlockIndex().value()
+     << "  unixTime = " << gc.timestamp().unixTime()
+     << " microsecondOffset = " << gc.timestamp().microsecondOffset() << "\n";
+  if (gc.processContext()) {
+    os << "    " << *gc.processContext();
   }
+  return os;
+}
 
+void exceptionContext(std::ostream& os, GlobalContext const& gc) {
+  os << "Processing ";
+  switch (gc.transition()) {
+    case GlobalContext::Transition::kBeginJob:
+      os << "begin Job";
+      break;
+    case GlobalContext::Transition::kBeginRun:
+      os << "global begin Run " << RunID(gc.luminosityBlockID().run());
+      break;
+    case GlobalContext::Transition::kBeginLuminosityBlock:
+      os << "global begin LuminosityBlock " << gc.luminosityBlockID();
+      break;
+    case GlobalContext::Transition::kEndLuminosityBlock:
+      os << "global end LuminosityBlock " << gc.luminosityBlockID();
+      break;
+    case GlobalContext::Transition::kEndRun:
+      os << "global end Run " << RunID(gc.luminosityBlockID().run());
+      break;
+    case GlobalContext::Transition::kEndJob:
+      os << "endJob";
+      break;
+    case GlobalContext::Transition::kWriteRun:
+      os << "write Run " << RunID(gc.luminosityBlockID().run());
+      break;
+    case GlobalContext::Transition::kWriteLuminosityBlock:
+      os << "write LuminosityBlock " << gc.luminosityBlockID();
+      break;
+  }
+}
 }

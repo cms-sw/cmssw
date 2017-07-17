@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     DataProxyProvider
-// 
-/**\class DataProxyProvider DataProxyProvider.h FWCore/Framework/interface/DataProxyProvider.h
+//
+/**\class DataProxyProvider DataProxyProvider.h
+ FWCore/Framework/interface/DataProxyProvider.h
 
  Description: <one line class summary>
 
@@ -26,100 +27,96 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
-   class ValidityInterval;
-   class ParameterSet;
-   class ConfigurationDescriptions;
-   namespace eventsetup {
-      class DataProxy;
-      
-      
-class DataProxyProvider
-{
+class ValidityInterval;
+class ParameterSet;
+class ConfigurationDescriptions;
+namespace eventsetup {
+class DataProxy;
 
-   public:   
-      typedef std::vector< EventSetupRecordKey> Keys;
-      typedef std::vector<std::pair<DataKey, edm::propagate_const<std::shared_ptr<DataProxy>>>> KeyedProxies;
-      typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
-      
-      DataProxyProvider();
-      virtual ~DataProxyProvider() noexcept(false);
+class DataProxyProvider {
+ public:
+  typedef std::vector<EventSetupRecordKey> Keys;
+  typedef std::vector<
+      std::pair<DataKey, edm::propagate_const<std::shared_ptr<DataProxy>>>>
+      KeyedProxies;
+  typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
 
-      // ---------- const member functions ---------------------
-      bool isUsingRecord(const EventSetupRecordKey&) const;
-      
-      std::set<EventSetupRecordKey> usingRecords() const;
-      
-      const KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey) const ;
-      
-      const ComponentDescription& description() const { return description_;}
-      // ---------- static member functions --------------------
-      /**Used to add parameters available to all inheriting classes
-      */
-      static void prevalidate(ConfigurationDescriptions&);
+  DataProxyProvider();
+  virtual ~DataProxyProvider() noexcept(false);
 
-      // ---------- member functions ---------------------------
-      
-      ///called when a new interval of validity occurs for iRecordType
-      virtual void newInterval(const EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval) = 0;
-      
-      void setDescription(const ComponentDescription& iDescription) {
-         description_ = iDescription;
-      }
-      
-      /**This method is only to be called by the framework, it sets the string
-        which will be appended to the labels of all data products being produced
-      **/
-      void setAppendToDataLabel(const edm::ParameterSet&);
-      
-      void resetProxies(const EventSetupRecordKey& iRecordType);
-      void resetProxiesIfTransient(const EventSetupRecordKey& iRecordType);
+  // ---------- const member functions ---------------------
+  bool isUsingRecord(const EventSetupRecordKey&) const;
 
-   protected:
-      template< class T>
-      void usingRecord() {
-         usingRecordWithKey(EventSetupRecordKey::makeKey<T>());
-      }
-      
-      void usingRecordWithKey(const EventSetupRecordKey&);
+  std::set<EventSetupRecordKey> usingRecords() const;
 
-      void invalidateProxies(const EventSetupRecordKey& iRecordKey) ;
+  const KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey) const;
 
-      virtual void registerProxies(const EventSetupRecordKey& iRecordKey ,
-                                    KeyedProxies& aProxyList) = 0 ;
-      
-      ///deletes all the Proxies in aStream
-      void eraseAll(const EventSetupRecordKey& iRecordKey) ;
+  const ComponentDescription& description() const { return description_; }
+  // ---------- static member functions --------------------
+  /**Used to add parameters available to all inheriting classes
+  */
+  static void prevalidate(ConfigurationDescriptions&);
 
-   private:
-      DataProxyProvider(const DataProxyProvider&); // stop default
+  // ---------- member functions ---------------------------
 
-      const DataProxyProvider& operator=(const DataProxyProvider&); // stop default
+  /// called when a new interval of validity occurs for iRecordType
+  virtual void newInterval(const EventSetupRecordKey& iRecordType,
+                           const ValidityInterval& iInterval) = 0;
 
-      // ---------- member data --------------------------------
-      RecordProxies recordProxies_;
-      ComponentDescription description_;
-      std::string appendToDataLabel_;
+  void setDescription(const ComponentDescription& iDescription) {
+    description_ = iDescription;
+  }
+
+  /**This method is only to be called by the framework, it sets the string
+    which will be appended to the labels of all data products being produced
+  **/
+  void setAppendToDataLabel(const edm::ParameterSet&);
+
+  void resetProxies(const EventSetupRecordKey& iRecordType);
+  void resetProxiesIfTransient(const EventSetupRecordKey& iRecordType);
+
+ protected:
+  template <class T>
+  void usingRecord() {
+    usingRecordWithKey(EventSetupRecordKey::makeKey<T>());
+  }
+
+  void usingRecordWithKey(const EventSetupRecordKey&);
+
+  void invalidateProxies(const EventSetupRecordKey& iRecordKey);
+
+  virtual void registerProxies(const EventSetupRecordKey& iRecordKey,
+                               KeyedProxies& aProxyList) = 0;
+
+  /// deletes all the Proxies in aStream
+  void eraseAll(const EventSetupRecordKey& iRecordKey);
+
+ private:
+  DataProxyProvider(const DataProxyProvider&);  // stop default
+
+  const DataProxyProvider& operator=(const DataProxyProvider&);  // stop default
+
+  // ---------- member data --------------------------------
+  RecordProxies recordProxies_;
+  ComponentDescription description_;
+  std::string appendToDataLabel_;
 };
 
-template<class ProxyT>
+template <class ProxyT>
 inline void insertProxy(DataProxyProvider::KeyedProxies& iList,
                         std::shared_ptr<ProxyT> iProxy,
-                        const char* iName="") {
-   iList.push_back(DataProxyProvider::KeyedProxies::value_type(
-                                             DataKey(DataKey::makeTypeTag<typename ProxyT::value_type>(),
-                                                     iName),
-                                             iProxy));
-   
+                        const char* iName = "") {
+  iList.push_back(DataProxyProvider::KeyedProxies::value_type(
+      DataKey(DataKey::makeTypeTag<typename ProxyT::value_type>(), iName),
+      iProxy));
 }
-
-   }
+}
 }
 #endif

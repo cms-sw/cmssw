@@ -7,112 +7,98 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
-#include <string>
-#include <set>
-#include <vector>
 #include <iosfwd>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace edm {
 
-  class VParameterSetEntry;
-  class ParameterSetDescription;
-  class DocFormatHelper;
+class VParameterSetEntry;
+class ParameterSetDescription;
+class DocFormatHelper;
 
-  template<class T>
-  class AllowedLabelsDescription : public AllowedLabelsDescriptionBase {
+template <class T>
+class AllowedLabelsDescription : public AllowedLabelsDescriptionBase {
+ public:
+  AllowedLabelsDescription(std::string const& label, bool isTracked)
+      : AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(),
+                                     isTracked) {}
 
-  public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked) :
-      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
-    {              
+  AllowedLabelsDescription(char const* label, bool isTracked)
+      : AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(),
+                                     isTracked) {}
+
+  virtual ParameterDescriptionNode* clone() const {
+    return new AllowedLabelsDescription(*this);
+  }
+
+ private:
+  virtual void validateAllowedLabel_(
+      std::string const& allowedLabel, ParameterSet& pset,
+      std::set<std::string>& validatedLabels) const {
+    if (pset.existsAs<T>(allowedLabel, isTracked())) {
+      validatedLabels.insert(allowedLabel);
     }
+  }
+};
 
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked) :
-      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
-    {
-    }
+template <>
+class AllowedLabelsDescription<ParameterSetDescription>
+    : public AllowedLabelsDescriptionBase {
+ public:
+  AllowedLabelsDescription(std::string const& label, bool isTracked);
 
-    virtual ParameterDescriptionNode* clone() const {
-      return new AllowedLabelsDescription(*this);
-    }
+  AllowedLabelsDescription(char const* label, bool isTracked);
 
-  private:
+  AllowedLabelsDescription(std::string const& label,
+                           ParameterSetDescription const& value,
+                           bool isTracked);
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const {
-      if (pset.existsAs<T>(allowedLabel, isTracked())) {
-        validatedLabels.insert(allowedLabel);
-      }
-    }
-  };
+  AllowedLabelsDescription(char const* label,
+                           ParameterSetDescription const& value,
+                           bool isTracked);
 
-  template<>
-  class AllowedLabelsDescription<ParameterSetDescription> : public AllowedLabelsDescriptionBase {
+  virtual ParameterDescriptionNode* clone() const;
 
-  public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked);
+ private:
+  virtual void printNestedContent_(std::ostream& os, bool optional,
+                                   DocFormatHelper& helper) const;
 
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked);
+  virtual void validateAllowedLabel_(
+      std::string const& allowedLabel, ParameterSet& pset,
+      std::set<std::string>& validatedLabels) const;
 
-    AllowedLabelsDescription(std::string const& label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+  value_ptr<ParameterSetDescription> psetDesc_;
+};
 
-    AllowedLabelsDescription(char const* label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
+template <>
+class AllowedLabelsDescription<std::vector<ParameterSet> >
+    : public AllowedLabelsDescriptionBase {
+ public:
+  AllowedLabelsDescription(std::string const& label, bool isTracked);
 
-    virtual ParameterDescriptionNode* clone() const;
+  AllowedLabelsDescription(char const* label, bool isTracked);
 
-  private:
+  AllowedLabelsDescription(std::string const& label,
+                           ParameterSetDescription const& value,
+                           bool isTracked);
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & helper) const;
+  AllowedLabelsDescription(char const* label,
+                           ParameterSetDescription const& value,
+                           bool isTracked);
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const;
+  virtual ParameterDescriptionNode* clone() const;
 
-    value_ptr<ParameterSetDescription> psetDesc_;
-  };
+ private:
+  virtual void printNestedContent_(std::ostream& os, bool optional,
+                                   DocFormatHelper& helper) const;
 
-  template<>
-  class AllowedLabelsDescription<std::vector<ParameterSet> > : public AllowedLabelsDescriptionBase {
+  virtual void validateAllowedLabel_(
+      std::string const& allowedLabel, ParameterSet& pset,
+      std::set<std::string>& validatedLabels) const;
 
-  public:
-    AllowedLabelsDescription(std::string const& label,
-                             bool isTracked);
-
-    AllowedLabelsDescription(char const* label,
-                             bool isTracked);
-
-    AllowedLabelsDescription(std::string const& label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
-
-    AllowedLabelsDescription(char const* label,
-                             ParameterSetDescription const& value,
-                             bool isTracked);
-
-    virtual ParameterDescriptionNode* clone() const;
-
-  private:
-
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & helper) const;
-
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const;
-
-    value_ptr<ParameterSetDescription> psetDesc_;
-  };
+  value_ptr<ParameterSetDescription> psetDesc_;
+};
 }
 #endif

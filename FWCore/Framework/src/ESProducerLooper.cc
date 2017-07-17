@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ESProducerLooper
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -28,9 +28,7 @@ using namespace edm::eventsetup;
 //
 // constructors and destructor
 //
-ESProducerLooper::ESProducerLooper()
-{
-}
+ESProducerLooper::ESProducerLooper() {}
 
 // ESProducerLooper::ESProducerLooper(const ESProducerLooper& rhs)
 // {
@@ -44,7 +42,8 @@ ESProducerLooper::~ESProducerLooper()
 //
 // assignment operators
 //
-// const ESProducerLooper& ESProducerLooper::operator=(const ESProducerLooper& rhs)
+// const ESProducerLooper& ESProducerLooper::operator=(const ESProducerLooper&
+// rhs)
 // {
 //   //An exception safe implementation is
 //   ESProducerLooper temp(rhs);
@@ -56,38 +55,37 @@ ESProducerLooper::~ESProducerLooper()
 //
 // member functions
 //
-void 
-ESProducerLooper::setIntervalFor(const EventSetupRecordKey&,
-                                 const IOVSyncValue&, 
-                                 ValidityInterval& oInterval)
-{
-  //since non of the dependent records are valid, I will create one that is valid
+void ESProducerLooper::setIntervalFor(const EventSetupRecordKey&,
+                                      const IOVSyncValue&,
+                                      ValidityInterval& oInterval) {
+  // since non of the dependent records are valid, I will create one that is
+  // valid
   // at the beginning of time BUT must also be checked every request
-  //oInterval = ValidityInterval(IOVSyncValue::beginOfTime(),
+  // oInterval = ValidityInterval(IOVSyncValue::beginOfTime(),
   //                             IOVSyncValue::invalidIOVSyncValue());
- //   }
+  //   }
   //} else {
-    //Give one valid for all time
-    oInterval = ValidityInterval(IOVSyncValue::beginOfTime(),
-                                 IOVSyncValue::endOfTime());
+  // Give one valid for all time
+  oInterval =
+      ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
   //}
 }
 
-//use this to 'snoop' on what records are being used by the Producer
-void 
-ESProducerLooper::registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                         std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                         const std::string& iLabel )
-{
+// use this to 'snoop' on what records are being used by the Producer
+void ESProducerLooper::registerFactoryWithKey(
+    const eventsetup::EventSetupRecordKey& iRecord,
+    std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
+    const std::string& iLabel) {
   findingRecordWithKey(iRecord);
-  ESProxyFactoryProducer::registerFactoryWithKey(iRecord, std::move(iFactory), iLabel);
+  ESProxyFactoryProducer::registerFactoryWithKey(iRecord, std::move(iFactory),
+                                                 iLabel);
 }
 
 //
 // const member functions
 //
-std::set<eventsetup::EventSetupRecordKey>
-ESProducerLooper::modifyingRecords() const {
+std::set<eventsetup::EventSetupRecordKey> ESProducerLooper::modifyingRecords()
+    const {
   return findingForRecords();
 }
 //

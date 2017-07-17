@@ -4,10 +4,12 @@
 //
 // Package:     PythonParameterSet
 // Class  :     initializeModule
-// 
-/**\class initializeModule initializeModule.h FWCore/PythonParameterSet/interface/initializeModule.h
+//
+/**\class initializeModule initializeModule.h
+ FWCore/PythonParameterSet/interface/initializeModule.h
 
- Description: Function used to initialize access to the PythonParameterSet module
+ Description: Function used to initialize access to the PythonParameterSet
+ module
 
  Usage:
     <usage>
@@ -24,10 +26,9 @@
 
 // forward declarations
 namespace edm {
-   namespace python {
-      void initializeModule();
-   }
+namespace python {
+void initializeModule();
 }
-
+}
 
 #endif

@@ -5,16 +5,14 @@
 
 namespace edm {
 
-  PlaceInPathContext::PlaceInPathContext(unsigned int placeInPath) :
-    placeInPath_(placeInPath),
-    pathContext_(nullptr) {
-  }
+PlaceInPathContext::PlaceInPathContext(unsigned int placeInPath)
+    : placeInPath_(placeInPath), pathContext_(nullptr) {}
 
-  std::ostream& operator<<(std::ostream& os, PlaceInPathContext const& ppc) {
-    os << "PlaceInPathContext " << ppc.placeInPath() << "\n";
-    if(ppc.pathContext()) {
-      os << "    " << *ppc.pathContext(); 
-    }
-    return os;
+std::ostream& operator<<(std::ostream& os, PlaceInPathContext const& ppc) {
+  os << "PlaceInPathContext " << ppc.placeInPath() << "\n";
+  if (ppc.pathContext()) {
+    os << "    " << *ppc.pathContext();
   }
+  return os;
+}
 }

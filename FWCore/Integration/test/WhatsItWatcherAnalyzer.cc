@@ -2,8 +2,9 @@
 //
 // Package:    WhatsItWatcherAnalyzer
 // Class:      WhatsItWatcherAnalyzer
-// 
-/**\class WhatsItWatcherAnalyzer WhatsItWatcherAnalyzer.cc test/WhatsItWatcherAnalyzer/src/WhatsItWatcherAnalyzer.cc
+//
+/**\class WhatsItWatcherAnalyzer WhatsItWatcherAnalyzer.cc
+ test/WhatsItWatcherAnalyzer/src/WhatsItWatcherAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -16,19 +17,17 @@
 //
 //
 
-
 // system include files
-#include <memory>
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-#include "FWCore/Integration/test/WhatsIt.h"
 #include "FWCore/Integration/test/GadgetRcd.h"
+#include "FWCore/Integration/test/WhatsIt.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -41,21 +40,20 @@
 namespace edmtest {
 
 class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
-      ~WhatsItWatcherAnalyzer();
+ public:
+  explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
+  ~WhatsItWatcherAnalyzer();
 
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-        void watch1(const GadgetRcd& );
-        void watch2(const GadgetRcd& );
-        
-        edm::ESWatcher<GadgetRcd> watch1_;
-        edm::ESWatcher<GadgetRcd> watch2_;
-        edm::ESWatcher<GadgetRcd> watchBool_;
+ private:
+  // ----------member data ---------------------------
+  void watch1(const GadgetRcd&);
+  void watch2(const GadgetRcd&);
 
+  edm::ESWatcher<GadgetRcd> watch1_;
+  edm::ESWatcher<GadgetRcd> watch2_;
+  edm::ESWatcher<GadgetRcd> watchBool_;
 };
 
 //
@@ -69,59 +67,48 @@ class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const edm::ParameterSet& /*iConfig*/):
-  watch1_(this,&WhatsItWatcherAnalyzer::watch1),
-  watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2,this,std::placeholders::_1)),
-  watchBool_()
-{
-   //now do what ever initialization is needed
-
+WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(
+    const edm::ParameterSet& /*iConfig*/)
+    : watch1_(this, &WhatsItWatcherAnalyzer::watch1),
+      watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2, this,
+                        std::placeholders::_1)),
+      watchBool_() {
+  // now do what ever initialization is needed
 }
 
-
-WhatsItWatcherAnalyzer::~WhatsItWatcherAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+WhatsItWatcherAnalyzer::~WhatsItWatcherAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-WhatsItWatcherAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
-{
-   bool w1 = watch1_.check(iSetup);
-   bool w2 = watch2_.check(iSetup);
-   bool w3 = watchBool_.check(iSetup);
-   assert(w1 == w2);
-   assert(w2 == w3 );
+void WhatsItWatcherAnalyzer::analyze(const edm::Event& /*iEvent*/,
+                                     const edm::EventSetup& iSetup) {
+  bool w1 = watch1_.check(iSetup);
+  bool w2 = watch2_.check(iSetup);
+  bool w3 = watchBool_.check(iSetup);
+  assert(w1 == w2);
+  assert(w2 == w3);
 }
 
-void
-WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd)
-{
+void WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd) {
   edm::ESHandle<edmtest::WhatsIt> pSetup;
   iRcd.get(pSetup);
-  
-  std::cout <<"watch1: WhatsIt "<<pSetup->a<<" changed"<<std::endl;
+
+  std::cout << "watch1: WhatsIt " << pSetup->a << " changed" << std::endl;
 }
 
-void
-WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd)
-{
+void WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd) {
   edm::ESHandle<WhatsIt> pSetup;
   iRcd.get(pSetup);
-  
-  std::cout <<"watch2: WhatsIt "<<pSetup->a<<" changed"<<std::endl;
-}
 
+  std::cout << "watch2: WhatsIt " << pSetup->a << " changed" << std::endl;
+}
 }
 using namespace edmtest;
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer);

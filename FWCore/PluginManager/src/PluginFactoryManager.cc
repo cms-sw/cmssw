@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     PluginFactoryManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 
-namespace edmplugin{
+namespace edmplugin {
 //
 // constants, enums and typedefs
 //
@@ -27,23 +27,20 @@ namespace edmplugin{
 //
 // constructors and destructor
 //
-PluginFactoryManager::PluginFactoryManager()
-{
-}
+PluginFactoryManager::PluginFactoryManager() {}
 
 // PluginFactoryManager::PluginFactoryManager(const PluginFactoryManager& rhs)
 // {
 //    // do actual copying here;
 // }
 
-PluginFactoryManager::~PluginFactoryManager()
-{
-}
+PluginFactoryManager::~PluginFactoryManager() {}
 
 //
 // assignment operators
 //
-// const PluginFactoryManager& PluginFactoryManager::operator=(const PluginFactoryManager& rhs)
+// const PluginFactoryManager& PluginFactoryManager::operator=(const
+// PluginFactoryManager& rhs)
 // {
 //   //An exception safe implementation is
 //   PluginFactoryManager temp(rhs);
@@ -55,35 +52,27 @@ PluginFactoryManager::~PluginFactoryManager()
 //
 // member functions
 //
-void
-PluginFactoryManager::addFactory(const PluginFactoryBase* iFactory)
-{
-   factories_.push_back(iFactory);
-   newFactory_(iFactory);
+void PluginFactoryManager::addFactory(const PluginFactoryBase* iFactory) {
+  factories_.push_back(iFactory);
+  newFactory_(iFactory);
 }
 
 //
 // const member functions
 //
-PluginFactoryManager::const_iterator
-PluginFactoryManager::begin() const
-{
-   return factories_.begin();
+PluginFactoryManager::const_iterator PluginFactoryManager::begin() const {
+  return factories_.begin();
 }
 
-PluginFactoryManager::const_iterator
-PluginFactoryManager::end() const
-{
-   return factories_.end();
+PluginFactoryManager::const_iterator PluginFactoryManager::end() const {
+  return factories_.end();
 }
 
 //
 // static member functions
 //
-PluginFactoryManager*
-PluginFactoryManager::get()
-{
-   [[cms::thread_safe]] static PluginFactoryManager s_instance;
-   return &s_instance;
+PluginFactoryManager* PluginFactoryManager::get() {
+  [[cms::thread_safe]] static PluginFactoryManager s_instance;
+  return &s_instance;
 }
 }

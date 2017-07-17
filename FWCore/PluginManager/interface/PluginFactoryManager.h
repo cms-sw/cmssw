@@ -4,8 +4,9 @@
 //
 // Package:     PluginManager
 // Class  :     PluginFactoryManager
-// 
-/**\class PluginFactoryManager PluginFactoryManager.h FWCore/PluginManager/interface/PluginFactoryManager.h
+//
+/**\class PluginFactoryManager PluginFactoryManager.h
+ FWCore/PluginManager/interface/PluginFactoryManager.h
 
  Description: <one line class summary>
 
@@ -27,38 +28,35 @@
 
 // forward declarations
 namespace edmplugin {
-  class PluginFactoryBase;
-  class DummyFriend;
-class PluginFactoryManager
-{
+class PluginFactoryBase;
+class DummyFriend;
+class PluginFactoryManager {
+ public:
+  friend class DummyFriend;
 
-   public:
-      friend class DummyFriend;
-  
-      ~PluginFactoryManager();
+  ~PluginFactoryManager();
 
-      typedef std::vector<const PluginFactoryBase*>::const_iterator const_iterator;
-      // ---------- const member functions ---------------------
-      const_iterator begin() const;
-      const_iterator end() const;
+  typedef std::vector<const PluginFactoryBase*>::const_iterator const_iterator;
+  // ---------- const member functions ---------------------
+  const_iterator begin() const;
+  const_iterator end() const;
 
-      // ---------- static member functions --------------------
-      static PluginFactoryManager* get();
+  // ---------- static member functions --------------------
+  static PluginFactoryManager* get();
 
-      // ---------- member functions ---------------------------
-      void addFactory(const PluginFactoryBase*);
-      edm::signalslot::Signal<void(const PluginFactoryBase*)> newFactory_;
-      
-   private:
-      PluginFactoryManager();
-      PluginFactoryManager(const PluginFactoryManager&); // stop default
+  // ---------- member functions ---------------------------
+  void addFactory(const PluginFactoryBase*);
+  edm::signalslot::Signal<void(const PluginFactoryBase*)> newFactory_;
 
-      const PluginFactoryManager& operator=(const PluginFactoryManager&); // stop default
+ private:
+  PluginFactoryManager();
+  PluginFactoryManager(const PluginFactoryManager&);  // stop default
 
-      // ---------- member data --------------------------------
-      std::vector<const PluginFactoryBase*> factories_;
+  const PluginFactoryManager& operator=(
+      const PluginFactoryManager&);  // stop default
 
+  // ---------- member data --------------------------------
+  std::vector<const PluginFactoryBase*> factories_;
 };
-
 }
 #endif

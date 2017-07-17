@@ -3,11 +3,11 @@
 
 #include <string>
 namespace edm {
-  // Resolves symlinks anywhere in fullPath recursively.
-  // If there are no symlinks, or if fullPath does not begin with '/',
-  // fullPath will not be modified.
+// Resolves symlinks anywhere in fullPath recursively.
+// If there are no symlinks, or if fullPath does not begin with '/',
+// fullPath will not be modified.
 
-  void resolveSymbolicLinks(std::string& fullPath);
+void resolveSymbolicLinks(std::string& fullPath);
 }
 
 #endif

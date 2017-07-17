@@ -23,7 +23,8 @@
  *       if(baseTypeInfo == typeid(BaseClass1)) {
  *          BaseClass1 const* base = object;
  *          void const* basePtr = base;
- *          return static_cast<char const*>(basePtr) - static_cast<char const*>(objectPtr);
+ *          return static_cast<char const*>(basePtr) - static_cast<char
+ * const*>(objectPtr);
  *       }
  *       if(baseTypeInfo == typeid(BaseClass2)) {
  *          ...
@@ -35,23 +36,21 @@
  *
 */
 
-
 namespace edm {
-  template<typename T>
-  class OffsetToBase {
-  public:
-    OffsetToBase() {} 
-    size_t offsetToBase(std::type_info const& baseTypeInfo) const {
-      return 0;
-    }
-  };
+template <typename T>
+class OffsetToBase {
+ public:
+  OffsetToBase() {}
+  size_t offsetToBase(std::type_info const& baseTypeInfo) const { return 0; }
+};
 
-  template<typename T>
-  void const* pointerToBase(std::type_info const& baseTypeInfo, T const* address) {
-    OffsetToBase<T> offsetToBase;
-    int offset = offsetToBase.offsetToBase(baseTypeInfo);
-    void const* ptr = address;
-    return static_cast<char const*>(ptr) + offset;
-  }
+template <typename T>
+void const* pointerToBase(std::type_info const& baseTypeInfo,
+                          T const* address) {
+  OffsetToBase<T> offsetToBase;
+  int offset = offsetToBase.offsetToBase(baseTypeInfo);
+  void const* ptr = address;
+  return static_cast<char const*>(ptr) + offset;
+}
 }
 #endif

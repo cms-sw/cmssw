@@ -10,39 +10,41 @@ See comments in the file GetterOfProducts.h for a description.
 
 */
 
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
 namespace edm {
 
-   class InputTagMatch {
-   public:
+class InputTagMatch {
+ public:
+  InputTagMatch(edm::InputTag const& inputTag) : inputTag_(inputTag) {}
 
-      InputTagMatch(edm::InputTag const& inputTag) : inputTag_(inputTag) { }
+  bool operator()(edm::BranchDescription const& branchDescription) {
+    bool result(true);
+    bool match(false);
+    if (!inputTag_.label().empty()) {
+      match = true;
+      result = (result && branchDescription.moduleLabel() == inputTag_.label());
+    }
+    if (!inputTag_.instance().empty()) {
+      match = true;
+      result =
+          (result &&
+           branchDescription.productInstanceName() == inputTag_.instance());
+    }
+    if (!inputTag_.process().empty()) {
+      match = true;
+      result =
+          (result && branchDescription.processName() == inputTag_.process());
+    }
+    if (match) return result;
+    return false;
+  }
 
-      bool operator()(edm::BranchDescription const& branchDescription) {
-         bool result(true);
-         bool match(false);
-         if (!inputTag_.label().empty()) {
-           match = true;
-           result = (result && branchDescription.moduleLabel() == inputTag_.label());
-         }
-         if (!inputTag_.instance().empty()) {
-           match = true;
-           result = (result && branchDescription.productInstanceName() == inputTag_.instance());
-         }
-         if (!inputTag_.process().empty()) {
-           match = true;
-           result = (result && branchDescription.processName() == inputTag_.process());
-         }
-         if (match) return result;
-         return false;
-      }
-
-   private:
-      edm::InputTag inputTag_;
-   };
+ private:
+  edm::InputTag inputTag_;
+};
 }
 #endif

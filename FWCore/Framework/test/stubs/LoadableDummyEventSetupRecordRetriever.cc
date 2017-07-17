@@ -14,17 +14,17 @@
 
 // system include files
 
-#include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 
 namespace edm {
-   class ParameterSet;
+class ParameterSet;
 }
 
-class LoadableDummyEventSetupRecordRetriever : public edm::DummyEventSetupRecordRetriever {
-public:
-  LoadableDummyEventSetupRecordRetriever(edm::ParameterSet const&) {
-   }
+class LoadableDummyEventSetupRecordRetriever
+    : public edm::DummyEventSetupRecordRetriever {
+ public:
+  LoadableDummyEventSetupRecordRetriever(edm::ParameterSet const&) {}
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyEventSetupRecordRetriever);

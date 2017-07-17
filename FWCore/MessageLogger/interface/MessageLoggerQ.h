@@ -5,12 +5,11 @@
 
 #include <memory>
 
-#include <string>
 #include <map>
 #include <set>
+#include <string>
 
-namespace edm
-{
+namespace edm {
 
 // --- forward declarations:
 class ErrorObj;
@@ -20,75 +19,80 @@ namespace service {
 class AbstractMLscribe;
 }
 
-
-class MessageLoggerQ
-{
-public:
+class MessageLoggerQ {
+ public:
   // --- enumerate types of messages that can be enqueued:
-  enum OpCode      // abbrev's used hereinafter
-  { END_THREAD     // END
-  , LOG_A_MESSAGE  // LOG
-  , CONFIGURE      // CFG -- handshaked
-  , EXTERN_DEST    // EXT
-  , SUMMARIZE      // SUM
-  , JOBMODE        // MOD
-  , SHUT_UP        // SHT
-  , FLUSH_LOG_Q    // FLS -- handshaked
-  , GROUP_STATS    // GRP
-  , FJR_SUMMARY    // JRS -- handshaked
-  };  // OpCode
+  enum OpCode   // abbrev's used hereinafter
+  { END_THREAD  // END
+    ,
+    LOG_A_MESSAGE  // LOG
+    ,
+    CONFIGURE  // CFG -- handshaked
+    ,
+    EXTERN_DEST  // EXT
+    ,
+    SUMMARIZE  // SUM
+    ,
+    JOBMODE  // MOD
+    ,
+    SHUT_UP  // SHT
+    ,
+    FLUSH_LOG_Q  // FLS -- handshaked
+    ,
+    GROUP_STATS  // GRP
+    ,
+    FJR_SUMMARY  // JRS -- handshaked
+  };             // OpCode
 
   // ---  birth via a surrogate:
-  static  MessageLoggerQ *  instance();
+  static MessageLoggerQ* instance();
 
   // ---  post a message to the queue:
-  static  void  MLqEND();
-  static  void  MLqLOG( ErrorObj * p );
-  static  void  MLqCFG( ParameterSet * p );
-  static  void  MLqSUM();
-  static  void  MLqMOD( std::string * jm );
-  static  void  MLqSHT();
-  static  void  MLqFLS();
-  static  void  MLqGRP(std::string * cat_p);
-  static  void  MLqJRS(std::map<std::string, double> * sum_p);
+  static void MLqEND();
+  static void MLqLOG(ErrorObj* p);
+  static void MLqCFG(ParameterSet* p);
+  static void MLqSUM();
+  static void MLqMOD(std::string* jm);
+  static void MLqSHT();
+  static void MLqFLS();
+  static void MLqGRP(std::string* cat_p);
+  static void MLqJRS(std::map<std::string, double>* sum_p);
 
   // ---  bookkeeping for single-thread mode
-  static  void  setMLscribe_ptr
-     (std::shared_ptr<edm::service::AbstractMLscribe>  m);
+  static void setMLscribe_ptr(
+      std::shared_ptr<edm::service::AbstractMLscribe> m);
 
   // ---  helper for scribes
-  static bool handshaked ( const OpCode & op );
+  static bool handshaked(const OpCode& op);
 
   // --- special control of standAlone logging behavior
-  static  void standAloneThreshold(edm::ELseverityLevel const& severity);
-  static  void squelch(std::string const & category);
-  static  bool ignore ( edm::ELseverityLevel const & severity, 
-  			std::string const & category );
-			
-private:
+  static void standAloneThreshold(edm::ELseverityLevel const& severity);
+  static void squelch(std::string const& category);
+  static bool ignore(edm::ELseverityLevel const& severity,
+                     std::string const& category);
+
+ private:
   // ---  traditional birth/death, but disallowed to users:
   MessageLoggerQ();
   ~MessageLoggerQ();
 
   // ---  place an item onto the queue, or execute the command directly
-  static  void  simpleCommand( OpCode opcode, void * operand );
-  static  void  handshakedCommand( OpCode opcode, 
-  				   void * operand, 
-				   std::string const & commandMnemonic);
+  static void simpleCommand(OpCode opcode, void* operand);
+  static void handshakedCommand(OpCode opcode, void* operand,
+                                std::string const& commandMnemonic);
 
   // --- no copying:
-  MessageLoggerQ( MessageLoggerQ const & );
-  void  operator = ( MessageLoggerQ const & );
+  MessageLoggerQ(MessageLoggerQ const&);
+  void operator=(MessageLoggerQ const&);
 
   // --- data:
-  [[cms::thread_safe]] static  std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-  [[cms::thread_safe]] static  edm::ELseverityLevel threshold;
-  [[cms::thread_safe]] static  std::set<std::string> squelchSet;
-  
+  [[cms::thread_safe]] static std::shared_ptr<edm::service::AbstractMLscribe>
+      mlscribe_ptr;
+  [[cms::thread_safe]] static edm::ELseverityLevel threshold;
+  [[cms::thread_safe]] static std::set<std::string> squelchSet;
+
 };  // MessageLoggerQ
 
-
 }  // namespace edm
-
 
 #endif  // FWCore_MessageLogger_MessageLoggerQ_h

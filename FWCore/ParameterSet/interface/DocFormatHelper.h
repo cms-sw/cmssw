@@ -5,104 +5,98 @@
 // print function. This function is used to produce
 // human readable documentation.
 
-#include <string>
 #include <iosfwd>
+#include <string>
 
 namespace edm {
 
-  class ParameterDescriptionNode;
+class ParameterDescriptionNode;
 
-  class DocFormatHelper {
+class DocFormatHelper {
+ public:
+  enum DescriptionParent { TOP, OR, XOR, AND, OTHER };
 
-  public:
+  DocFormatHelper()
+      : brief_(false),
+        lineWidth_(80),
+        indentation_(4),
+        startColumn2_(24U),
+        section_(),
+        pass_(0),
+        column1_(0),
+        column2_(0),
+        column3_(0),
+        counter_(0),
+        parent_(OTHER) {}
 
-    enum DescriptionParent {
-      TOP,
-      OR,
-      XOR,
-      AND,
-      OTHER      
-    };
+  void init();
 
-    DocFormatHelper() :
-      brief_(false),
-      lineWidth_(80),
-      indentation_(4),
-      startColumn2_(24U),
-      section_(),
-      pass_(0),
-      column1_(0),
-      column2_(0),
-      column3_(0),
-      counter_(0),
-      parent_(OTHER)
-    { }
+  bool brief() const { return brief_; }
+  size_t lineWidth() const { return lineWidth_; }
+  int indentation() const { return indentation_; }
+  int startColumn2() const { return startColumn2_; }
 
-    void init();
+  void setBrief(bool value) { brief_ = value; }
+  void setLineWidth(size_t value) { lineWidth_ = value; }
+  void setIndentation(int value) { indentation_ = value; }
 
-    bool brief() const { return brief_; }
-    size_t lineWidth() const { return lineWidth_; }
-    int indentation() const { return indentation_; }
-    int startColumn2() const { return startColumn2_; }
+  std::string const& section() const { return section_; }
+  void setSection(std::string const& value) { section_ = value; }
 
-    void setBrief(bool value) { brief_ = value; }
-    void setLineWidth(size_t value) { lineWidth_ = value; }
-    void setIndentation(int value) { indentation_ = value; }
+  int pass() const { return pass_; }
+  void setPass(int value) { pass_ = value; }
 
-    std::string const& section() const { return section_; }
-    void setSection(std::string const& value) { section_ = value; }
+  size_t column1() const { return column1_; }
+  size_t column2() const { return column2_; }
+  size_t column3() const { return column3_; }
 
-    int pass() const { return pass_; }
-    void setPass(int value) { pass_ = value; }
+  void setAtLeast1(size_t width) {
+    if (width > column1_) column1_ = width;
+  }
+  void setAtLeast2(size_t width) {
+    if (width > column2_) column2_ = width;
+  }
+  void setAtLeast3(size_t width) {
+    if (width > column3_) column3_ = width;
+  }
 
-    size_t column1() const { return column1_; }
-    size_t column2() const { return column2_; }
-    size_t column3() const { return column3_; }
+  int counter() const { return counter_; }
+  void setCounter(int value) { counter_ = value; }
+  void incrementCounter() { ++counter_; }
+  void decrementCounter() { --counter_; }
 
-    void setAtLeast1(size_t width) { if (width > column1_) column1_ = width; }
-    void setAtLeast2(size_t width) { if (width > column2_) column2_ = width; }
-    void setAtLeast3(size_t width) { if (width > column3_) column3_ = width; }
+  DescriptionParent parent() const { return parent_; }
+  void setParent(DescriptionParent value) { parent_ = value; }
 
-    int counter() const { return counter_; }
-    void setCounter(int value) { counter_ = value; }
-    void incrementCounter() { ++counter_; }
-    void decrementCounter() { --counter_; }
+  size_t commentWidth() const;
 
-    DescriptionParent parent() const { return parent_; }
-    void setParent(DescriptionParent value) { parent_ = value; }
+  static void wrapAndPrintText(std::ostream& os, std::string const& text,
+                               size_t indent, size_t suggestedWidth);
 
-    size_t commentWidth() const;
+  void indent(std::ostream& os) const;
+  void indent2(std::ostream& os) const;
 
-    static void wrapAndPrintText(std::ostream & os,
-                                 std::string const& text,
-                                 size_t indent,
-                                 size_t suggestedWidth);
+  static int offsetModuleLabel() { return 2; }
+  static int offsetTopLevelPSet() { return 2; }
+  static int offsetSectionContent() { return 4; }
 
-    void indent(std::ostream & os) const;
-    void indent2(std::ostream & os) const;
+ private:
+  bool brief_;
+  size_t lineWidth_;
+  int indentation_;
+  size_t startColumn2_;
 
-    static int offsetModuleLabel() { return 2; }
-    static int offsetTopLevelPSet() { return 2; }
-    static int offsetSectionContent() { return 4; }
+  std::string section_;
 
-  private:
+  int pass_;
 
-    bool brief_;
-    size_t lineWidth_;
-    int indentation_;
-    size_t startColumn2_;
+  size_t column1_;
+  size_t column2_;
+  size_t column3_;
 
-    std::string section_;
+  int counter_;
 
-    int pass_;
-
-    size_t column1_;
-    size_t column2_;
-    size_t column3_;
-
-    int counter_;
-
-    DescriptionParent parent_;
-  };
+  DescriptionParent parent_;
+};
 }
 #endif

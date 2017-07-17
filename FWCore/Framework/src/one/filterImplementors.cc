@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     producerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDFilterBase
 //
@@ -13,19 +13,19 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/one/implementorsMethods.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
+#include "FWCore/Framework/src/one/implementorsMethods.h"
 
 namespace edm {
-  namespace one {
-    namespace impl {
-      template class SharedResourcesUser<edm::one::EDFilterBase>;
-      template class RunWatcher<edm::one::EDFilterBase>;
-      template class LuminosityBlockWatcher<edm::one::EDFilterBase>;
-      template class BeginRunProducer<edm::one::EDFilterBase>;
-      template class EndRunProducer<edm::one::EDFilterBase>;
-      template class BeginLuminosityBlockProducer<edm::one::EDFilterBase>;
-      template class EndLuminosityBlockProducer<edm::one::EDFilterBase>;
-    }
-  }
+namespace one {
+namespace impl {
+template class SharedResourcesUser<edm::one::EDFilterBase>;
+template class RunWatcher<edm::one::EDFilterBase>;
+template class LuminosityBlockWatcher<edm::one::EDFilterBase>;
+template class BeginRunProducer<edm::one::EDFilterBase>;
+template class EndRunProducer<edm::one::EDFilterBase>;
+template class BeginLuminosityBlockProducer<edm::one::EDFilterBase>;
+template class EndLuminosityBlockProducer<edm::one::EDFilterBase>;
+}
+}
 }

@@ -5,66 +5,63 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/SaveConfiguration.h"
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-
 
 namespace edm {
-  class ActivityRegistry;
-  class ConfigurationDescriptions;
-  class PathsAndConsumesOfModulesBase;
-  class ProcessContext;
+class ActivityRegistry;
+class ConfigurationDescriptions;
+class PathsAndConsumesOfModulesBase;
+class ProcessContext;
 
-  namespace service {
+namespace service {
 
-    class PrescaleService : public edm::serviceregistry::SaveConfiguration
-    {
-    public:
+class PrescaleService : public edm::serviceregistry::SaveConfiguration {
+ public:
+  //
+  // construction/destruction
+  //
 
-      //
-      // construction/destruction
-      //
+  PrescaleService(ParameterSet const&, ActivityRegistry&);
+  ~PrescaleService();
 
-      PrescaleService(ParameterSet const&, ActivityRegistry&);
-      ~PrescaleService();
+  //
+  // member functions
+  //
 
-      //
-      // member functions
-      //
+  unsigned int getPrescale(std::string const& prescaledPath) const;
+  unsigned int getPrescale(unsigned int lvl1Index,
+                           std::string const& prescaledPath) const;
 
-      unsigned int getPrescale(std::string const& prescaledPath) const;
-      unsigned int getPrescale(unsigned int lvl1Index,
-                               std::string const& prescaledPath) const;
+  typedef std::vector<std::string> VString_t;
+  typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
+  unsigned int getLvl1IndexDefault() const { return lvl1Default_; }
+  const VString_t& getLvl1Labels() const { return lvl1Labels_; }
+  const PrescaleTable_t& getPrescaleTable() const { return prescaleTable_; }
 
-      typedef std::vector<std::string>                          VString_t;
-      typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
-      unsigned int getLvl1IndexDefault() const {return lvl1Default_;}
-      const VString_t& getLvl1Labels()   const {return lvl1Labels_;}
-      const PrescaleTable_t& getPrescaleTable() const {return prescaleTable_;}
+  static unsigned int findDefaultIndex(std::string const& label,
+                                       std::vector<std::string> const& labels);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      static unsigned int findDefaultIndex(std::string const & label, std::vector<std::string> const & labels);
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+ private:
+  //
+  // private member functions
+  //
+  void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+  void postBeginJob();
 
-    private:
-      //
-      // private member functions
-      //
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
-      void postBeginJob();
-      
-      //
-      // member data
-      //
-      const bool            forceDefault_;
-      const VString_t       lvl1Labels_; 
-      const unsigned int    lvl1Default_;
-      const std::vector<ParameterSet> vpsetPrescales_;
-      PrescaleTable_t prescaleTable_;
-      ParameterSetID processParameterSetID_;
-    };
-  }
+  //
+  // member data
+  //
+  const bool forceDefault_;
+  const VString_t lvl1Labels_;
+  const unsigned int lvl1Default_;
+  const std::vector<ParameterSet> vpsetPrescales_;
+  PrescaleTable_t prescaleTable_;
+  ParameterSetID processParameterSetID_;
+};
+}
 }
 
 #endif
-

@@ -10,6 +10,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
+class DummyRecord
+    : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
 #endif

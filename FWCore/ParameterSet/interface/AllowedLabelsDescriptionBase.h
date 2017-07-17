@@ -1,77 +1,70 @@
 #ifndef FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
 #define FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
 
-#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 
-#include <vector>
-#include <string>
-#include <set>
 #include <iosfwd>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace edm {
 
-  class ParameterSet;
+class ParameterSet;
 
-  class AllowedLabelsDescriptionBase : public ParameterDescriptionNode {
-  public:
+class AllowedLabelsDescriptionBase : public ParameterDescriptionNode {
+ public:
+  virtual ~AllowedLabelsDescriptionBase();
 
-    virtual ~AllowedLabelsDescriptionBase();
+  ParameterTypes type() const { return type_; }
+  bool isTracked() const { return isTracked_; }
 
-    ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
+ protected:
+  AllowedLabelsDescriptionBase(std::string const& label, ParameterTypes iType,
+                               bool isTracked);
 
-  protected:
+  AllowedLabelsDescriptionBase(char const* label, ParameterTypes iType,
+                               bool isTracked);
 
-    AllowedLabelsDescriptionBase(std::string const& label, ParameterTypes iType, bool isTracked);
+  void printNestedContentBase_(std::ostream& os, bool optional,
+                               DocFormatHelper& dfh) const;
 
-    AllowedLabelsDescriptionBase(char const* label, ParameterTypes iType, bool isTracked);
+ private:
+  virtual void checkAndGetLabelsAndTypes_(
+      std::set<std::string>& usedLabels,
+      std::set<ParameterTypes>& parameterTypes,
+      std::set<ParameterTypes>& wildcardTypes) const;
 
-    void printNestedContentBase_(std::ostream & os,
-                                 bool optional,
-                                 DocFormatHelper & dfh) const;
+  virtual void validate_(ParameterSet& pset,
+                         std::set<std::string>& validatedLabels,
+                         bool optional) const;
 
-  private:
+  virtual void writeCfi_(std::ostream& os, bool& startWithComma,
+                         int indentation, bool& wroteSomething) const;
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const;
+  virtual void print_(std::ostream& os, bool optional, bool writeToCfi,
+                      DocFormatHelper& dfh) const;
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
+  virtual bool hasNestedContent_() const;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
-                           int indentation,
-                           bool & wroteSomething) const;
+  virtual void printNestedContent_(std::ostream& os, bool optional,
+                                   DocFormatHelper& dfh) const;
 
+  virtual bool exists_(ParameterSet const& pset) const;
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh) const;
+  virtual bool partiallyExists_(ParameterSet const& pset) const;
 
-    virtual bool hasNestedContent_() const;
+  virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh) const;
+  virtual void validateAllowedLabel_(
+      std::string const& allowedLabel, ParameterSet& pset,
+      std::set<std::string>& validatedLabels) const = 0;
 
-    virtual bool exists_(ParameterSet const& pset) const;
-
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
-
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
-
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const = 0;
-
-    ParameterDescription<std::vector<std::string> > parameterHoldingLabels_;
-    ParameterTypes type_;
-    bool isTracked_;
-  };
+  ParameterDescription<std::vector<std::string> > parameterHoldingLabels_;
+  ParameterTypes type_;
+  bool isTracked_;
+};
 }
 
 #endif

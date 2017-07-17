@@ -3,17 +3,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
-  RawInputSourceFromFiles::RawInputSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc) :
-    RawInputSource(pset, desc),
-    FromFiles(pset) {
-  }
+RawInputSourceFromFiles::RawInputSourceFromFiles(
+    ParameterSet const& pset, InputSourceDescription const& desc)
+    : RawInputSource(pset, desc), FromFiles(pset) {}
 
-  RawInputSourceFromFiles::~RawInputSourceFromFiles() {}
+RawInputSourceFromFiles::~RawInputSourceFromFiles() {}
 
-  void
-  RawInputSourceFromFiles::fillDescription(ParameterSetDescription & desc) {
-    RawInputSource::fillDescription(desc);
-    FromFiles::fillDescription(desc);
-  }
+void RawInputSourceFromFiles::fillDescription(ParameterSetDescription& desc) {
+  RawInputSource::fillDescription(desc);
+  FromFiles::fillDescription(desc);
 }
-
+}

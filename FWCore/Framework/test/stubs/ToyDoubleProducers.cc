@@ -18,38 +18,37 @@ Toy EDProducers of doubles for testing purposes only.
 
 namespace edmtest {
 
-  //--------------------------------------------------------------------
-  //
-  // Toy double producers
-  //
-  //--------------------------------------------------------------------
+//--------------------------------------------------------------------
+//
+// Toy double producers
+//
+//--------------------------------------------------------------------
 
-  //--------------------------------------------------------------------
-  //
-  // Produces an DoubleProduct instance.
-  //
+//--------------------------------------------------------------------
+//
+// Produces an DoubleProduct instance.
+//
 
-  class ToyDoubleProducer : public edm::EDProducer {
-  public:
-    explicit ToyDoubleProducer(edm::ParameterSet const& p) :
-      value_(p.getParameter<double>("dvalue")) {
-      produces<DoubleProduct>();
-    }
-    explicit ToyDoubleProducer(double d) : value_(d) {
-      produces<DoubleProduct>();
-    }
-    virtual ~ToyDoubleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
-  private:
-    double value_;
-  };
-
-  void
-  ToyDoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
-
-    // Make output
-    e.put(std::make_unique<DoubleProduct>(value_));
+class ToyDoubleProducer : public edm::EDProducer {
+ public:
+  explicit ToyDoubleProducer(edm::ParameterSet const& p)
+      : value_(p.getParameter<double>("dvalue")) {
+    produces<DoubleProduct>();
   }
+  explicit ToyDoubleProducer(double d) : value_(d) {
+    produces<DoubleProduct>();
+  }
+  virtual ~ToyDoubleProducer() {}
+  virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+ private:
+  double value_;
+};
+
+void ToyDoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  // Make output
+  e.put(std::make_unique<DoubleProduct>(value_));
+}
 }
 
 using edmtest::ToyDoubleProducer;

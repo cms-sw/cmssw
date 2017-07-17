@@ -9,13 +9,13 @@ FunctionWithDict:  A holder for a class member function
 
 #include "FWCore/Utilities/interface/IterWithDict.h"
 
+#include "TInterpreter.h"
 #include "TMethod.h"
 #include "TMethodArg.h"
-#include "TInterpreter.h"
 
 #include <cassert>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -25,11 +25,11 @@ class ObjectWithDict;
 class TypeWithDict;
 
 class FunctionWithDict {
-private:
+ private:
   TMethod* function_;
   TInterpreter::CallFuncIFacePtr_t funcptr_;
 
-public:
+ public:
   FunctionWithDict();
   explicit FunctionWithDict(TMethod*);
   explicit operator bool() const;
@@ -45,12 +45,14 @@ public:
   TypeWithDict declaringType() const;
   size_t functionParameterSize(bool required = false) const;
   size_t size() const;
-  void invoke(ObjectWithDict const& obj, ObjectWithDict* ret = nullptr, std::vector<void*> const& values = std::vector<void*>()) const;
-  void invoke(ObjectWithDict* ret = nullptr, std::vector<void*> const& values = std::vector<void*>()) const;
+  void invoke(ObjectWithDict const& obj, ObjectWithDict* ret = nullptr,
+              std::vector<void*> const& values = std::vector<void*>()) const;
+  void invoke(ObjectWithDict* ret = nullptr,
+              std::vector<void*> const& values = std::vector<void*>()) const;
   IterWithDict<TMethodArg> begin() const;
   IterWithDict<TMethodArg> end() const;
 };
 
-} // namespace edm
+}  // namespace edm
 
-#endif // FWCore_Utilities_FunctionWithDict_h
+#endif  // FWCore_Utilities_FunctionWithDict_h

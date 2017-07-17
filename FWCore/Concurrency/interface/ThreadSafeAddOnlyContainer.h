@@ -27,70 +27,62 @@
 
 namespace edm {
 
-  template <typename T>
-  class ThreadSafeAddOnlyContainer {
-  public:
+template <typename T>
+class ThreadSafeAddOnlyContainer {
+ public:
+  ThreadSafeAddOnlyContainer();
 
-    ThreadSafeAddOnlyContainer();
+  ~ThreadSafeAddOnlyContainer();
 
-    ~ThreadSafeAddOnlyContainer();
+  template <typename... Args>
+  T* makeAndHold(Args&&... args);
 
+ private:
+  class Node {
+   public:
     template <typename... Args>
-    T* makeAndHold(Args&&... args);
+    Node(Node* iNext, Args&&... args);
+    Node const* next() const { return next_; }
+    void setNext(Node* v) { next_ = v; }
+    T* address() { return &data_; }
 
-  private:
-
-    class Node {
-    public:
-
-      template <typename... Args>
-      Node(Node* iNext, Args&&... args);
-      Node const* next() const { return next_; }
-      void setNext(Node* v) { next_ = v; }
-      T* address() { return &data_; }
-
-    private:
-
-      Node* next_;
-      T data_;
-    };
-
-    std::atomic<Node*> front_;
+   private:
+    Node* next_;
+    T data_;
   };
 
-  template <typename T>
-  ThreadSafeAddOnlyContainer<T>::ThreadSafeAddOnlyContainer() :
-      front_(nullptr) {
-  }
+  std::atomic<Node*> front_;
+};
 
-  template <typename T>
-  ThreadSafeAddOnlyContainer<T>::~ThreadSafeAddOnlyContainer() {
-    Node const* node = front_.load();
-    while (node) {
-      Node const* next = node->next();
-      delete node;
-      node = next;
-    }
-  }
+template <typename T>
+ThreadSafeAddOnlyContainer<T>::ThreadSafeAddOnlyContainer() : front_(nullptr) {}
 
-  template <typename T>
-  template <typename... Args>
-  T* ThreadSafeAddOnlyContainer<T>::makeAndHold(Args&&... args) {
-    Node* expected = front_.load();
-    Node* newNode = new Node(expected, std::forward<Args>(args)...);
-    while (!front_.compare_exchange_strong(expected, newNode)) {
-      // another thread changed front_ before us so try again
-      newNode->setNext(expected);
-    }
-    return newNode->address();
+template <typename T>
+ThreadSafeAddOnlyContainer<T>::~ThreadSafeAddOnlyContainer() {
+  Node const* node = front_.load();
+  while (node) {
+    Node const* next = node->next();
+    delete node;
+    node = next;
   }
+}
 
-  template <typename T>
-  template <typename... Args>
-  ThreadSafeAddOnlyContainer<T>::Node::Node(Node* iNext, Args&&... args) :
-    next_(iNext),
-    data_(std::forward<Args>(args)...) {
+template <typename T>
+template <typename... Args>
+T* ThreadSafeAddOnlyContainer<T>::makeAndHold(Args&&... args) {
+  Node* expected = front_.load();
+  Node* newNode = new Node(expected, std::forward<Args>(args)...);
+  while (!front_.compare_exchange_strong(expected, newNode)) {
+    // another thread changed front_ before us so try again
+    newNode->setNext(expected);
   }
+  return newNode->address();
+}
+
+template <typename T>
+template <typename... Args>
+ThreadSafeAddOnlyContainer<T>::Node::Node(Node* iNext, Args&&... args)
+    : next_(iNext), data_(std::forward<Args>(args)...) {}
 }
 
 #endif

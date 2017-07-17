@@ -32,120 +32,111 @@
 //
 // ----------------------------------------------------------------------
 
-#include <algorithm> // for std::swap()
+#include <algorithm>  // for std::swap()
 #include <memory>
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
-  // --------------------------------------------------------------------
-  //
-  //  Auxiliary traits class template providing default clone()
-  //  Users should specialize this template for types that have their
-  //  own self-copy operations; failure to do so may lead to slicing!
-  //
-  // --------------------------------------------------------------------
+// --------------------------------------------------------------------
+//
+//  Auxiliary traits class template providing default clone()
+//  Users should specialize this template for types that have their
+//  own self-copy operations; failure to do so may lead to slicing!
+//
+// --------------------------------------------------------------------
 
+template <typename T>
+struct value_ptr_traits {
+  static T* clone(T const* p) { return new T(*p); }
+};
 
-  template <typename T>
-  struct value_ptr_traits {
-    static T* clone(T const* p) { return new T(*p); }
-  };
+// --------------------------------------------------------------------
+//
+// Copyable smart pointer class template
+//
+// --------------------------------------------------------------------
 
-  // --------------------------------------------------------------------
-  //
-  // Copyable smart pointer class template
-  //
-  // --------------------------------------------------------------------
+template <typename T>
+class value_ptr {
+ public:
+  // --------------------------------------------------
+  // Default constructor/destructor:
+  // --------------------------------------------------
 
+  value_ptr() : myP(nullptr) {}
+  explicit value_ptr(T* p) : myP(p) {}
+  ~value_ptr() { delete myP.get(); }
 
-  template <typename T>
-  class value_ptr {
+  // --------------------------------------------------
+  // Copy constructor/copy assignment:
+  // --------------------------------------------------
 
-  public:
+  value_ptr(value_ptr const& orig)
+      : myP(createFrom(get_underlying_safe(orig.myP))) {}
 
-    // --------------------------------------------------
-    // Default constructor/destructor:
-    // --------------------------------------------------
+  value_ptr& operator=(value_ptr const& orig) {
+    value_ptr<T> temp(orig);
+    swap(temp);
+    return *this;
+  }
 
-    value_ptr() : myP(nullptr) { }
-    explicit value_ptr(T* p) : myP(p) { }
-    ~value_ptr() { delete myP.get(); }
+  // --------------------------------------------------
+  // Move constructor/move assignment:
+  // --------------------------------------------------
 
-    // --------------------------------------------------
-    // Copy constructor/copy assignment:
-    // --------------------------------------------------
+  value_ptr(value_ptr&& orig) : myP(orig.myP) { orig.myP = nullptr; }
 
-    value_ptr(value_ptr const& orig) :
-      myP(createFrom(get_underlying_safe(orig.myP))) {
+  value_ptr& operator=(value_ptr&& orig) {
+    if (myP != orig.myP) {
+      delete myP.get();
+      myP = orig.myP;
+      orig.myP = nullptr;
     }
+    return *this;
+  }
 
-    value_ptr& operator=(value_ptr const& orig) {
-      value_ptr<T> temp(orig);
-      swap(temp);
-      return *this;
-    }
+  // --------------------------------------------------
+  // Access mechanisms:
+  // --------------------------------------------------
 
-    // --------------------------------------------------
-    // Move constructor/move assignment:
-    // --------------------------------------------------
+  T const& operator*() const { return *myP; }
+  T& operator*() { return *myP; }
+  T const* operator->() const { return get_underlying_safe(myP); }
+  T* operator->() { return get_underlying_safe(myP); }
 
-    value_ptr(value_ptr&& orig) :
-      myP(orig.myP) { orig.myP=nullptr; }
+  // --------------------------------------------------
+  // Manipulation:
+  // --------------------------------------------------
 
-    value_ptr& operator=(value_ptr&& orig) {
-      if (myP!=orig.myP) {
-        delete myP.get();
-        myP=orig.myP;
-        orig.myP=nullptr;
-      } 
-      return *this;
-    }
+  void swap(value_ptr& orig) { std::swap(myP, orig.myP); }
 
-    // --------------------------------------------------
-    // Access mechanisms:
-    // --------------------------------------------------
+  // --------------------------------------------------
+  // Copy-like construct/assign from compatible value_ptr<>:
+  // --------------------------------------------------
 
-    T const& operator*() const { return *myP; }
-    T& operator*() { return *myP; }
-    T const* operator->() const { return get_underlying_safe(myP); }
-    T* operator->() { return get_underlying_safe(myP); }
+  template <typename U>
+  value_ptr(value_ptr<U> const& orig) : myP(createFrom(orig.operator->())) {}
 
-    // --------------------------------------------------
-    // Manipulation:
-    // --------------------------------------------------
+  template <typename U>
+  value_ptr& operator=(value_ptr<U> const& orig) {
+    value_ptr<T> temp(orig);
+    swap(temp);
+    return *this;
+  }
 
-    void swap(value_ptr& orig) { std::swap(myP, orig.myP); }
+  // --------------------------------------------------
+  // Move-like construct/assign from unique_ptr<>:
+  // --------------------------------------------------
 
-    // --------------------------------------------------
-    // Copy-like construct/assign from compatible value_ptr<>:
-    // --------------------------------------------------
+  value_ptr(std::unique_ptr<T> orig) : myP(orig.release()) { orig = nullptr; }
 
-    template <typename U>
-    value_ptr(value_ptr<U> const& orig) :
-      myP(createFrom(orig.operator->())) {
-    }
-
-    template <typename U>
-    value_ptr& operator=(value_ptr<U> const& orig) {
-      value_ptr<T> temp(orig);
-      swap(temp);
-      return *this;
-    }
-
-    // --------------------------------------------------
-    // Move-like construct/assign from unique_ptr<>:
-    // --------------------------------------------------
-
-    value_ptr(std::unique_ptr<T> orig) :
-      myP(orig.release()) { orig=nullptr; }
-
-    value_ptr& operator=(std::unique_ptr<T> orig) {
-      value_ptr<T> temp(std::move(orig));
-      swap(temp);
-      return *this;
-    }
+  value_ptr& operator=(std::unique_ptr<T> orig) {
+    value_ptr<T> temp(std::move(orig));
+    swap(temp);
+    return *this;
+  }
 
   // The following typedef, function, and operator definition
   // support the following syntax:
@@ -153,79 +144,74 @@ namespace edm {
   //   if (ptr) { ...
   // Where the conditional will evaluate as true if and only if the
   // pointer value_ptr contains is not null.
-  private:
-    typedef void (value_ptr::*bool_type)() const;
-    void this_type_does_not_support_comparisons() const {}
+ private:
+  typedef void (value_ptr::*bool_type)() const;
+  void this_type_does_not_support_comparisons() const {}
 
-  public:
-    operator bool_type() const {
-      return myP != nullptr ?
-        &value_ptr<T>::this_type_does_not_support_comparisons : nullptr;
-    }
-
-  private:
-
-    // --------------------------------------------------
-    // Implementation aid:
-    // --------------------------------------------------
-
-    template <typename U>
-    static T*
-    createFrom(U const* p) {
-      return p
-	? value_ptr_traits<U>::clone(p)
-	: nullptr;
-    }
-
-    // --------------------------------------------------
-    // Member data:
-    // --------------------------------------------------
-
-    edm::propagate_const<T*> myP;
-
-  }; // value_ptr
-
-
-  // --------------------------------------------------------------------
-  //
-  // Free-standing swap()
-  //
-  // --------------------------------------------------------------------
-
-  template <typename T>
-  inline
-  void
-  swap(value_ptr<T>& vp1, value_ptr<T>& vp2) { vp1.swap(vp2); }
-
-  // Do not allow nonsensical comparisons that the bool_type
-  // conversion operator definition above would otherwise allow.
-  // The function call inside the next 4 operator definitions is
-  // private, so compilation will fail if there is an attempt to
-  // instantiate these 4 operators.
-  template <typename T, typename U>
-  inline bool operator==(value_ptr<T> const& lhs, U const& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+ public:
+  operator bool_type() const {
+    return myP != nullptr
+               ? &value_ptr<T>::this_type_does_not_support_comparisons
+               : nullptr;
   }
 
-  template <typename T, typename U>
-  inline bool operator!=(value_ptr<T> const& lhs, U const& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+ private:
+  // --------------------------------------------------
+  // Implementation aid:
+  // --------------------------------------------------
+
+  template <typename U>
+  static T* createFrom(U const* p) {
+    return p ? value_ptr_traits<U>::clone(p) : nullptr;
   }
 
-  template <typename T, typename U>
-  inline bool operator==(U const& lhs, value_ptr<T> const& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
-  }
+  // --------------------------------------------------
+  // Member data:
+  // --------------------------------------------------
 
-  template <typename T, typename U>
-  inline bool operator!=(U const& lhs, value_ptr<T> const& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
-  }
+  edm::propagate_const<T*> myP;
+
+};  // value_ptr
+
+// --------------------------------------------------------------------
+//
+// Free-standing swap()
+//
+// --------------------------------------------------------------------
+
+template <typename T>
+inline void swap(value_ptr<T>& vp1, value_ptr<T>& vp2) {
+  vp1.swap(vp2);
 }
 
+// Do not allow nonsensical comparisons that the bool_type
+// conversion operator definition above would otherwise allow.
+// The function call inside the next 4 operator definitions is
+// private, so compilation will fail if there is an attempt to
+// instantiate these 4 operators.
+template <typename T, typename U>
+inline bool operator==(value_ptr<T> const& lhs, U const& rhs) {
+  lhs.this_type_does_not_support_comparisons();
+  return false;
+}
 
-#endif // FWCoreUtilities_value_ptr_h
+template <typename T, typename U>
+inline bool operator!=(value_ptr<T> const& lhs, U const& rhs) {
+  lhs.this_type_does_not_support_comparisons();
+  return false;
+}
+
+template <typename T, typename U>
+inline bool operator==(U const& lhs, value_ptr<T> const& rhs) {
+  rhs.this_type_does_not_support_comparisons();
+  return false;
+}
+
+template <typename T, typename U>
+inline bool operator!=(U const& lhs, value_ptr<T> const& rhs) {
+  rhs.this_type_does_not_support_comparisons();
+  return false;
+}
+}
+
+#endif  // FWCoreUtilities_value_ptr_h

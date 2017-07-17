@@ -4,10 +4,12 @@
 //
 // Package:     FWLite
 // Class  :     setRefStreamer
-// 
-/**\class setRefStreamer setRefStreamer.h FWCore/FWLite/interface/setRefStreamer.h
+//
+/**\class setRefStreamer setRefStreamer.h
+ FWCore/FWLite/interface/setRefStreamer.h
 
- Description: Allows one to set the EDProductGetter used by the Ref's and returns the old getter
+ Description: Allows one to set the EDProductGetter used by the Ref's and
+ returns the old getter
 
  Usage:
     <usage>
@@ -24,24 +26,22 @@
 
 // forward declarations
 namespace edm {
-  class EDProductGetter;
+class EDProductGetter;
 }
 
 namespace fwlite {
-  edm::EDProductGetter const* setRefStreamer(edm::EDProductGetter const* ep);
-  
-  class GetterOperate {
-public:
-    GetterOperate(edm::EDProductGetter const* iEP): old_(nullptr) {
-      old_ = setRefStreamer(iEP);
-    }
-    ~GetterOperate() {
-      setRefStreamer(old_);
-    }
-private:
-    edm::EDProductGetter const* old_;
-  };
-}
+edm::EDProductGetter const* setRefStreamer(edm::EDProductGetter const* ep);
 
+class GetterOperate {
+ public:
+  GetterOperate(edm::EDProductGetter const* iEP) : old_(nullptr) {
+    old_ = setRefStreamer(iEP);
+  }
+  ~GetterOperate() { setRefStreamer(old_); }
+
+ private:
+  edm::EDProductGetter const* old_;
+};
+}
 
 #endif

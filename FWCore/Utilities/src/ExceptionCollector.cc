@@ -1,82 +1,68 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <exception>
 
 namespace edm {
 
-  class MultipleException : public cms::Exception {
-  public:
-    MultipleException(int iReturnValue,
-                      std::string const& iMessage):
-    cms::Exception("MultipleExceptions", iMessage),
-    returnValue_(iReturnValue) {}
-    
-    virtual Exception* clone() const override {
-      return new MultipleException(*this);
-    }
+class MultipleException : public cms::Exception {
+ public:
+  MultipleException(int iReturnValue, std::string const& iMessage)
+      : cms::Exception("MultipleExceptions", iMessage),
+        returnValue_(iReturnValue) {}
 
-  private:
-    int returnCode_() const override {
-      return returnValue_;
-    }
-
-    int returnValue_;
-  };
-  
-  ExceptionCollector::ExceptionCollector(std::string const& initialMessage) :
-    initialMessage_(initialMessage),
-    firstException_(),
-    accumulatedExceptions_(),
-    nExceptions_(0) {
+  virtual Exception* clone() const override {
+    return new MultipleException(*this);
   }
 
-  ExceptionCollector::~ExceptionCollector() {
-  }
+ private:
+  int returnCode_() const override { return returnValue_; }
 
-  bool
-  ExceptionCollector::hasThrown() const {
-    return nExceptions_ > 0;
-  }
+  int returnValue_;
+};
 
-  void
-  ExceptionCollector::rethrow() const {
-    if (nExceptions_ == 1) {
-      firstException_->raise();
-    }
-    else if (nExceptions_ > 1) {
-      accumulatedExceptions_->raise();
-    }
-  }
+ExceptionCollector::ExceptionCollector(std::string const& initialMessage)
+    : initialMessage_(initialMessage),
+      firstException_(),
+      accumulatedExceptions_(),
+      nExceptions_(0) {}
 
-  void
-  ExceptionCollector::call(std::function<void(void)> f) {
-    try {
-      convertException::wrap([&f]() {
-        f();
-      });
-    }
-    catch (cms::Exception const& ex) {
-      ++nExceptions_;
-      if (nExceptions_ == 1) {
-        firstException_.reset(ex.clone());
-        accumulatedExceptions_.reset(new MultipleException(ex.returnCode(), initialMessage_));
-      }
-      *accumulatedExceptions_ << nExceptions_ << "\n"
-                              << ex.explainSelf();
-    }
-  }
+ExceptionCollector::~ExceptionCollector() {}
 
-  void
-  ExceptionCollector::addException(cms::Exception const& exception) {
+bool ExceptionCollector::hasThrown() const { return nExceptions_ > 0; }
+
+void ExceptionCollector::rethrow() const {
+  if (nExceptions_ == 1) {
+    firstException_->raise();
+  } else if (nExceptions_ > 1) {
+    accumulatedExceptions_->raise();
+  }
+}
+
+void ExceptionCollector::call(std::function<void(void)> f) {
+  try {
+    convertException::wrap([&f]() { f(); });
+  } catch (cms::Exception const& ex) {
     ++nExceptions_;
     if (nExceptions_ == 1) {
-      firstException_.reset(exception.clone());
-      accumulatedExceptions_.reset(new MultipleException(exception.returnCode(), initialMessage_));
+      firstException_.reset(ex.clone());
+      accumulatedExceptions_.reset(
+          new MultipleException(ex.returnCode(), initialMessage_));
     }
-    *accumulatedExceptions_ << "----- Exception " << nExceptions_ << " -----"
-                            << "\n"
-                            << exception.explainSelf();
+    *accumulatedExceptions_ << nExceptions_ << "\n" << ex.explainSelf();
   }
+}
+
+void ExceptionCollector::addException(cms::Exception const& exception) {
+  ++nExceptions_;
+  if (nExceptions_ == 1) {
+    firstException_.reset(exception.clone());
+    accumulatedExceptions_.reset(
+        new MultipleException(exception.returnCode(), initialMessage_));
+  }
+  *accumulatedExceptions_ << "----- Exception " << nExceptions_ << " -----"
+                          << "\n"
+                          << exception.explainSelf();
+}
 }

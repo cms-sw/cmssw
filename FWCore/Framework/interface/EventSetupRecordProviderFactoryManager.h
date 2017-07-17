@@ -4,8 +4,10 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryManager
-// 
-/**\class EventSetupRecordProviderFactoryManager EventSetupRecordProviderFactoryManager.h FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h
+//
+/**\class EventSetupRecordProviderFactoryManager
+ EventSetupRecordProviderFactoryManager.h
+ FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h
 
  Description: <one line class summary>
 
@@ -26,37 +28,39 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      class EventSetupRecordProviderFactory;
-      class EventSetupRecordProvider;
-      
-class EventSetupRecordProviderFactoryManager
-{
-   friend class NonExistentClassToSuppressStupidCompilerWarning;
+namespace eventsetup {
+class EventSetupRecordProviderFactory;
+class EventSetupRecordProvider;
 
-   public:
-      virtual ~EventSetupRecordProviderFactoryManager();
+class EventSetupRecordProviderFactoryManager {
+  friend class NonExistentClassToSuppressStupidCompilerWarning;
 
-      // ---------- const member functions ---------------------
-      std::unique_ptr<EventSetupRecordProvider> makeRecordProvider(const EventSetupRecordKey&) const;
+ public:
+  virtual ~EventSetupRecordProviderFactoryManager();
 
-      // ---------- static member functions --------------------
-      static EventSetupRecordProviderFactoryManager& instance();
-   
-      // ---------- member functions ---------------------------
-      void addFactory(const EventSetupRecordProviderFactory&, 
-                       const EventSetupRecordKey&);
+  // ---------- const member functions ---------------------
+  std::unique_ptr<EventSetupRecordProvider> makeRecordProvider(
+      const EventSetupRecordKey&) const;
 
-   private:
-      EventSetupRecordProviderFactoryManager();
-      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&); // stop default
+  // ---------- static member functions --------------------
+  static EventSetupRecordProviderFactoryManager& instance();
 
-      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&); // stop default
+  // ---------- member functions ---------------------------
+  void addFactory(const EventSetupRecordProviderFactory&,
+                  const EventSetupRecordKey&);
 
-      // ---------- member data --------------------------------
-      std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*> factories_;
+ private:
+  EventSetupRecordProviderFactoryManager();
+  EventSetupRecordProviderFactoryManager(
+      const EventSetupRecordProviderFactoryManager&);  // stop default
+
+  const EventSetupRecordProviderFactoryManager& operator=(
+      const EventSetupRecordProviderFactoryManager&);  // stop default
+
+  // ---------- member data --------------------------------
+  std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*>
+      factories_;
 };
-
-   }
+}
 }
 #endif

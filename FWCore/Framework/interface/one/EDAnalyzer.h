@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::one::EDAnalyzer
-// 
-/**\class edm::one::EDAnalyzer EDAnalyzer.h "FWCore/Framework/interface/one/EDAnalyzer.h"
+//
+/**\class edm::one::EDAnalyzer EDAnalyzer.h
+ "FWCore/Framework/interface/one/EDAnalyzer.h"
 
  Description: [one line class summary]
 
@@ -25,32 +26,29 @@
 
 // forward declarations
 namespace edm {
-  namespace one {
-    template< typename... T>
-    class EDAnalyzer : public virtual EDAnalyzerBase,
-                       public analyzer::AbilityToImplementor<T>::Type... { 
-    public:
-      EDAnalyzer() = default;
+namespace one {
+template <typename... T>
+class EDAnalyzer : public virtual EDAnalyzerBase,
+                   public analyzer::AbilityToImplementor<T>::Type... {
+ public:
+  EDAnalyzer() = default;
 #ifdef __INTEL_COMPILER
-      virtual ~EDAnalyzer() = default;
+  virtual ~EDAnalyzer() = default;
 #endif
-      
-      // ---------- const member functions ---------------------
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-    private:
-      EDAnalyzer(const EDAnalyzer&) = delete;
-      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
-      
-      // ---------- member data --------------------------------
-      
-    };
-    
-  }
-}
 
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+ private:
+  EDAnalyzer(const EDAnalyzer&) = delete;
+  const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
+
+  // ---------- member data --------------------------------
+};
+}
+}
 
 #endif

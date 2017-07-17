@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDProducerAdaptorBase
-// 
-/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+//
+/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h
+ "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 
  Description: [one line class summary]
 
@@ -21,61 +22,64 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/ProducingModuleAdaptorBase.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/ProducingModuleAdaptorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
-
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 // forward declarations
 
 namespace edm {
 
-  class ModuleCallingContext;
-  class ActivityRegistry;
-  class WaitingTask;
-  
-  namespace maker {
-    template<typename T> class ModuleHolderT;
-  }
+class ModuleCallingContext;
+class ActivityRegistry;
+class WaitingTask;
 
-  namespace stream {
-    class EDProducerBase;
-    class EDProducerAdaptorBase : public ProducingModuleAdaptorBase<EDProducerBase>
-    {
-      
-    public:
-      template <typename T> friend class edm::maker::ModuleHolderT;
-      template <typename T> friend class edm::WorkerT;
+namespace maker {
+template <typename T>
+class ModuleHolderT;
+}
 
-      EDProducerAdaptorBase();
-      
-      // ---------- const member functions ---------------------
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>";}
-    protected:
-      using ProducingModuleAdaptorBase<EDProducerBase>::commit;
+namespace stream {
+class EDProducerBase;
+class EDProducerAdaptorBase
+    : public ProducingModuleAdaptorBase<EDProducerBase> {
+ public:
+  template <typename T>
+  friend class edm::maker::ModuleHolderT;
+  template <typename T>
+  friend class edm::WorkerT;
 
-    private:
-      EDProducerAdaptorBase(const EDProducerAdaptorBase&) =delete; // stop default
-      
-      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =delete; // stop default
-      
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                   ActivityRegistry*,
-                   ModuleCallingContext const*) ;
-      //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+  EDProducerAdaptorBase();
 
-    };
-  }
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+  std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>"; }
+
+ protected:
+  using ProducingModuleAdaptorBase<EDProducerBase>::commit;
+
+ private:
+  EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;  // stop default
+
+  const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =
+      delete;  // stop default
+
+  bool doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry*,
+               ModuleCallingContext const*);
+  // For now this is a placeholder
+  /*virtual*/ void preActionBeforeRunEventAsync(
+      WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext,
+      Principal const& iPrincipal) const {}
+};
+}
 }
 
 #endif

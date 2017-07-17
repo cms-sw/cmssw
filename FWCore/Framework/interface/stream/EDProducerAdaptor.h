@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDProducerAdaptor
-// 
-/**\class edm::stream::EDProducerAdaptor EDProducerAdaptor.h "EDProducerAdaptor.h"
+//
+/**\class edm::stream::EDProducerAdaptor EDProducerAdaptor.h
+ "EDProducerAdaptor.h"
 
  Description: Adapts an edm::stream::EDProducer<> to work with an edm::Worker
 
@@ -27,28 +28,32 @@
 // forward declarations
 
 namespace edm {
-  namespace stream {
-    template<typename ABase, typename ModType> struct BaseToAdaptor;
+namespace stream {
+template <typename ABase, typename ModType>
+struct BaseToAdaptor;
 
-    template<typename T> using EDProducerAdaptor = ProducingModuleAdaptor<T,EDProducerBase, EDProducerAdaptorBase>;
+template <typename T>
+using EDProducerAdaptor =
+    ProducingModuleAdaptor<T, EDProducerBase, EDProducerAdaptorBase>;
 
-    template<typename ModType> struct BaseToAdaptor<EDProducerAdaptorBase,ModType> {
-      typedef EDProducerAdaptor<ModType> Type;
-    };
+template <typename ModType>
+struct BaseToAdaptor<EDProducerAdaptorBase, ModType> {
+  typedef EDProducerAdaptor<ModType> Type;
+};
+}
+
+template <>
+class MakeModuleHelper<edm::stream::EDProducerAdaptorBase> {
+  typedef edm::stream::EDProducerAdaptorBase Base;
+
+ public:
+  template <typename ModType>
+  static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
+    typedef typename stream::BaseToAdaptor<Base, ModType>::Type Adaptor;
+    auto module = std::make_unique<Adaptor>(pset);
+    return std::unique_ptr<Base>(module.release());
   }
-  
-  template<>
-  class MakeModuleHelper<edm::stream::EDProducerAdaptorBase>
-  {
-    typedef edm::stream::EDProducerAdaptorBase Base;
-  public:
-    template<typename ModType>
-    static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
-      typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
-      auto module = std::make_unique<Adaptor>(pset);
-      return std::unique_ptr<Base>(module.release());
-    }
-  };
+};
 }
 
 #endif

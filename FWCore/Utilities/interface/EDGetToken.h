@@ -4,17 +4,21 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     EDGetToken
-// 
+//
 /**\class EDGetToken EDGetToken.h "FWCore/Utilities/interface/EDGetToken.h"
 
  Description: A Token used to get data from the EDM
 
  Usage:
-    A EDGetToken is created by calls to 'consumes' or 'mayConsume' from an EDM module.
- The EDGetToken can then be used to quickly retrieve data from the edm::Event, edm::LuminosityBlock or edm::Run.
- 
-The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used to get data the framework
- will skip checking that the type being requested matches the type specified during the 'consumes' or 'mayConsume' call.
+    A EDGetToken is created by calls to 'consumes' or 'mayConsume' from an EDM
+module.
+ The EDGetToken can then be used to quickly retrieve data from the edm::Event,
+edm::LuminosityBlock or edm::Run.
+
+The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used
+to get data the framework
+ will skip checking that the type being requested matches the type specified
+during the 'consumes' or 'mayConsume' call.
 
 */
 //
@@ -28,61 +32,58 @@ The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used t
 
 // forward declarations
 namespace edm {
-  class EDConsumerBase;
-  template <typename T> class EDGetTokenT;
-  
-  class EDGetToken
-  {
-    friend class EDConsumerBase;
-    
-  public:
-    
-    EDGetToken() : m_value{s_uninitializedValue} {}
+class EDConsumerBase;
+template <typename T>
+class EDGetTokenT;
 
-    template<typename T>
-    EDGetToken(EDGetTokenT<T> iOther): m_value{iOther.m_value} {}
+class EDGetToken {
+  friend class EDConsumerBase;
 
-    // ---------- const member functions ---------------------
-    unsigned int index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+ public:
+  EDGetToken() : m_value{s_uninitializedValue} {}
 
-  private:
-    //for testing
-    friend class TestEDGetToken;
-    
-    static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
+  template <typename T>
+  EDGetToken(EDGetTokenT<T> iOther) : m_value{iOther.m_value} {}
 
-    explicit EDGetToken(unsigned int iValue) : m_value(iValue) { }
+  // ---------- const member functions ---------------------
+  unsigned int index() const { return m_value; }
+  bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
-    // ---------- member data --------------------------------
-    unsigned int m_value;
-  };
+ private:
+  // for testing
+  friend class TestEDGetToken;
 
-  template<typename T>
-  class EDGetTokenT
-  {
-    friend class EDConsumerBase;
-    friend class EDGetToken;
+  static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
-  public:
+  explicit EDGetToken(unsigned int iValue) : m_value(iValue) {}
 
-    EDGetTokenT() : m_value{s_uninitializedValue} {}
-  
-    // ---------- const member functions ---------------------
-    unsigned int index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+  // ---------- member data --------------------------------
+  unsigned int m_value;
+};
 
-  private:
-    //for testing
-    friend class TestEDGetToken;
+template <typename T>
+class EDGetTokenT {
+  friend class EDConsumerBase;
+  friend class EDGetToken;
 
-    static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
+ public:
+  EDGetTokenT() : m_value{s_uninitializedValue} {}
 
-    explicit EDGetTokenT(unsigned int iValue) : m_value(iValue) { }
+  // ---------- const member functions ---------------------
+  unsigned int index() const { return m_value; }
+  bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
-    // ---------- member data --------------------------------
-    unsigned int m_value;
-  };
+ private:
+  // for testing
+  friend class TestEDGetToken;
+
+  static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
+
+  explicit EDGetTokenT(unsigned int iValue) : m_value(iValue) {}
+
+  // ---------- member data --------------------------------
+  unsigned int m_value;
+};
 }
 
 #endif

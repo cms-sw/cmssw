@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -14,15 +14,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 #include <cassert>
-
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 
 //
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 //
 // static data member definitions
 //
@@ -30,23 +29,24 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager() : factories_()
-{
-}
+EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager()
+    : factories_() {}
 
-// EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager& rhs)
+// EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager(const
+// EventSetupRecordProviderFactoryManager& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EventSetupRecordProviderFactoryManager::~EventSetupRecordProviderFactoryManager()
-{
-}
+EventSetupRecordProviderFactoryManager::
+    ~EventSetupRecordProviderFactoryManager() {}
 
 //
 // assignment operators
 //
-// const EventSetupRecordProviderFactoryManager& EventSetupRecordProviderFactoryManager::operator=(const EventSetupRecordProviderFactoryManager& rhs)
+// const EventSetupRecordProviderFactoryManager&
+// EventSetupRecordProviderFactoryManager::operator=(const
+// EventSetupRecordProviderFactoryManager& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordProviderFactoryManager temp(rhs);
@@ -58,26 +58,28 @@ EventSetupRecordProviderFactoryManager::~EventSetupRecordProviderFactoryManager(
 //
 // member functions
 //
-void 
-EventSetupRecordProviderFactoryManager::addFactory(const EventSetupRecordProviderFactory& iFactory, 
-                                                 const EventSetupRecordKey& iKey) {
-   factories_[iKey] = &iFactory;
+void EventSetupRecordProviderFactoryManager::addFactory(
+    const EventSetupRecordProviderFactory& iFactory,
+    const EventSetupRecordKey& iKey) {
+  factories_[iKey] = &iFactory;
 }
-
 
 //
 // const member functions
 //
-std::unique_ptr<EventSetupRecordProvider> 
-EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecordKey& iKey) const
-{
-   std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*>::const_iterator itFound= factories_.find(iKey);
-   //should be impossible to have a key without a factory being available
-   assert(itFound != factories_.end());
-   
-   const EventSetupRecordProviderFactory* factory = itFound->second;
-   assert(0 != factory);
-   return std::unique_ptr<EventSetupRecordProvider>(factory->makeRecordProvider());
+std::unique_ptr<EventSetupRecordProvider>
+EventSetupRecordProviderFactoryManager::makeRecordProvider(
+    const EventSetupRecordKey& iKey) const {
+  std::map<EventSetupRecordKey,
+           const EventSetupRecordProviderFactory*>::const_iterator itFound =
+      factories_.find(iKey);
+  // should be impossible to have a key without a factory being available
+  assert(itFound != factories_.end());
+
+  const EventSetupRecordProviderFactory* factory = itFound->second;
+  assert(0 != factory);
+  return std::unique_ptr<EventSetupRecordProvider>(
+      factory->makeRecordProvider());
 }
 
 //
@@ -85,8 +87,8 @@ EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecor
 //
 EventSetupRecordProviderFactoryManager&
 EventSetupRecordProviderFactoryManager::instance() {
-   static EventSetupRecordProviderFactoryManager s_instance;
-   return s_instance;
+  static EventSetupRecordProviderFactoryManager s_instance;
+  return s_instance;
 }
-   }
+}
 }

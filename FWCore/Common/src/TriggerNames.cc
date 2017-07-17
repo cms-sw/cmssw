@@ -4,40 +4,37 @@
 
 namespace edm {
 
-  TriggerNames::TriggerNames() { }
+TriggerNames::TriggerNames() {}
 
-  TriggerNames::TriggerNames(edm::ParameterSet const& pset) {
+TriggerNames::TriggerNames(edm::ParameterSet const& pset) {
+  triggerNames_ = pset.getParameter<Strings>("@trigger_paths");
 
-    triggerNames_ = pset.getParameter<Strings>("@trigger_paths");
-
-    unsigned int index = 0;
-    for (Strings::const_iterator iName = triggerNames_.begin(),
-         iEnd = triggerNames_.end();
-         iName != iEnd;
-         ++iName, ++index) {
-      indexMap_[*iName] = index;
-    }
-    psetID_ = pset.id();
+  unsigned int index = 0;
+  for (Strings::const_iterator iName = triggerNames_.begin(),
+                               iEnd = triggerNames_.end();
+       iName != iEnd; ++iName, ++index) {
+    indexMap_[*iName] = index;
   }
+  psetID_ = pset.id();
+}
 
-  TriggerNames::Strings const&
-  TriggerNames::triggerNames() const { return triggerNames_; }
+TriggerNames::Strings const& TriggerNames::triggerNames() const {
+  return triggerNames_;
+}
 
-  std::string const&
-  TriggerNames::triggerName(unsigned int index) const {
-    return triggerNames_.at(index);
-  }
+std::string const& TriggerNames::triggerName(unsigned int index) const {
+  return triggerNames_.at(index);
+}
 
-  unsigned int
-  TriggerNames::triggerIndex(const std::string& name) const {
-    IndexMap::const_iterator const pos = indexMap_.find(name);
-    if (pos == indexMap_.end()) return indexMap_.size();
-    return pos->second;
-  }
+unsigned int TriggerNames::triggerIndex(const std::string& name) const {
+  IndexMap::const_iterator const pos = indexMap_.find(name);
+  if (pos == indexMap_.end()) return indexMap_.size();
+  return pos->second;
+}
 
-  TriggerNames::Strings::size_type
-  TriggerNames::size() const { return triggerNames_.size(); }
+TriggerNames::Strings::size_type TriggerNames::size() const {
+  return triggerNames_.size();
+}
 
-  ParameterSetID const&
-  TriggerNames::parameterSetID() const { return psetID_; }
+ParameterSetID const& TriggerNames::parameterSetID() const { return psetID_; }
 }

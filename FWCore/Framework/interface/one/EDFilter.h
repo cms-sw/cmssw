@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::one::EDFilter
-// 
-/**\class edm::one::EDFilter EDFilter.h "FWCore/Framework/interface/one/EDFilter.h"
+//
+/**\class edm::one::EDFilter EDFilter.h
+ "FWCore/Framework/interface/one/EDFilter.h"
 
  Description: [one line class summary]
 
@@ -25,31 +26,27 @@
 
 // forward declarations
 namespace edm {
-  namespace one {
-    template< typename... T>
-    class EDFilter : public filter::AbilityToImplementor<T>::Type...,
-                       public virtual EDFilterBase {
-      
-    public:
-      EDFilter() = default;
-      //virtual ~EDFilter();
-      
-      // ---------- const member functions ---------------------
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-    private:
-      EDFilter(const EDFilter&) = delete;
-      const EDFilter& operator=(const EDFilter&) = delete;
-      
-      // ---------- member data --------------------------------
-      
-    };
-    
-  }
-}
+namespace one {
+template <typename... T>
+class EDFilter : public filter::AbilityToImplementor<T>::Type...,
+                 public virtual EDFilterBase {
+ public:
+  EDFilter() = default;
+  // virtual ~EDFilter();
 
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+ private:
+  EDFilter(const EDFilter&) = delete;
+  const EDFilter& operator=(const EDFilter&) = delete;
+
+  // ---------- member data --------------------------------
+};
+}
+}
 
 #endif

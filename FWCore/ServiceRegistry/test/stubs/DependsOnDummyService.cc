@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     DependsOnDummyService
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -11,24 +11,20 @@
 //
 
 #include "FWCore/ServiceRegistry/test/stubs/DependsOnDummyService.h"
-#include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 
 using namespace testserviceregistry;
 
-DependsOnDummyService::DependsOnDummyService():
-value_(edm::Service<DummyService>()->value())
-{
-}
+DependsOnDummyService::DependsOnDummyService()
+    : value_(edm::Service<DummyService>()->value()) {}
 
-DependsOnDummyService::~DependsOnDummyService()
-{
-}
+DependsOnDummyService::~DependsOnDummyService() {}
 
-void DependsOnDummyService::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DependsOnDummyService::fillDescriptions(
+    edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }

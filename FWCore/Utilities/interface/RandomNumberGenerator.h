@@ -132,67 +132,75 @@ of the SWGuide.
 class RandomEngineState;
 
 namespace CLHEP {
-  class HepRandomEngine;
+class HepRandomEngine;
 }
 
 namespace edm {
 
-  class ConsumesCollector;
-  class Event;
-  class LuminosityBlock;
-  class LuminosityBlockIndex;
-  class StreamID;
+class ConsumesCollector;
+class Event;
+class LuminosityBlock;
+class LuminosityBlockIndex;
+class StreamID;
 
-  class RandomNumberGenerator
-  {
-  public:
+class RandomNumberGenerator {
+ public:
+  RandomNumberGenerator() {}
+  virtual ~RandomNumberGenerator();
 
-    RandomNumberGenerator() {}
-    virtual ~RandomNumberGenerator();
+  /// Use the next 2 functions to get the random number engine.
+  /// These are the only functions most modules should call.
 
-    /// Use the next 2 functions to get the random number engine.
-    /// These are the only functions most modules should call.
+  /// Use this engine in event methods
+  virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) = 0;
 
-    /// Use this engine in event methods
-    virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) = 0;
+  /// Use this engine in the global begin luminosity block method
+  virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) = 0;
 
-    /// Use this engine in the global begin luminosity block method
-    virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) = 0;
+  /// This returns the seed from the configuration. In the unusual case where an
+  /// an engine type takes multiple seeds to initialize a sequence, this
+  /// function
+  /// only returns the first. As a general rule, this function should not be
+  /// used,
+  /// but is available for backward compatibility and debugging. It might be
+  /// useful
+  /// for some types of tests. Using this to seed engines constructed in modules
+  /// is
+  /// not recommended because (unless done very carefully) it will create
+  /// duplicate
+  /// sequences in different threads and/or data races. Also, if engines are
+  /// created
+  /// by modules the replay mechanism will be broken.
+  /// Because it is dangerous and could be misused, this function might be
+  /// deleted
+  /// someday if we ever find time to delete all uses of it in CMSSW. There are
+  /// of
+  /// order 10 last time I checked ...
+  virtual std::uint32_t mySeed() const = 0;
 
-    /// This returns the seed from the configuration. In the unusual case where an
-    /// an engine type takes multiple seeds to initialize a sequence, this function
-    /// only returns the first. As a general rule, this function should not be used,
-    /// but is available for backward compatibility and debugging. It might be useful
-    /// for some types of tests. Using this to seed engines constructed in modules is
-    /// not recommended because (unless done very carefully) it will create duplicate
-    /// sequences in different threads and/or data races. Also, if engines are created
-    /// by modules the replay mechanism will be broken.
-    /// Because it is dangerous and could be misused, this function might be deleted
-    /// someday if we ever find time to delete all uses of it in CMSSW. There are of
-    /// order 10 last time I checked ...
-    virtual std::uint32_t mySeed() const = 0;
+  // The following functions should not be used by general users.  They
+  // should only be called by Framework code designed to work with the
+  // service while it is saving the engine states or restoring them.
+  // The first two are called by the EventProcessor at special times.
+  // The next two are called by a dedicated producer module
+  // (RandomEngineStateProducer).
 
-    // The following functions should not be used by general users.  They
-    // should only be called by Framework code designed to work with the
-    // service while it is saving the engine states or restoring them.
-    // The first two are called by the EventProcessor at special times.
-    // The next two are called by a dedicated producer module (RandomEngineStateProducer).
+  virtual void preBeginLumi(LuminosityBlock const& lumi) = 0;
+  virtual void postEventRead(Event const& event) = 0;
 
-    virtual void preBeginLumi(LuminosityBlock const& lumi) = 0;
-    virtual void postEventRead(Event const& event) = 0;
+  virtual std::vector<RandomEngineState> const& getEventCache(
+      StreamID const&) const = 0;
+  virtual std::vector<RandomEngineState> const& getLumiCache(
+      LuminosityBlockIndex const&) const = 0;
 
-    virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const = 0;
-    virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const = 0;
+  virtual void consumes(ConsumesCollector&& iC) const = 0;
 
-    virtual void consumes(ConsumesCollector&& iC) const = 0;
+  /// For debugging purposes only.
+  virtual void print(std::ostream& os) const = 0;
 
-    /// For debugging purposes only.
-    virtual void print(std::ostream& os) const = 0;
-
-  private:
-
-    RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-    RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
-  };
+ private:
+  RandomNumberGenerator(RandomNumberGenerator const&) = delete;
+  RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
+};
 }
 #endif

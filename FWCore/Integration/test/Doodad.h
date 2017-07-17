@@ -4,7 +4,7 @@
 //
 // Package:     Integration
 // Class  :     Doodad
-// 
+//
 /**\class Doodad Doodad.h FWCore/Integration/interface/Doodad.h
 
  Description: Dummy class used to test the EventSetup in the integration test
@@ -24,10 +24,9 @@
 
 // forward declarations
 namespace edmtest {
-struct Doodad
-{
-   Doodad() : a() {}
-   int a;
+struct Doodad {
+  Doodad() : a() {}
+  int a;
 };
 }
 

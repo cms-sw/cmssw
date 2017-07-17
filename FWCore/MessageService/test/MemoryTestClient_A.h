@@ -1,8 +1,8 @@
 #ifndef FWCore_MessageService_test_MemoryTestClient_A_h
 #define FWCore_MessageService_test_MemoryTestClient_A_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
@@ -11,30 +11,20 @@
 // the MemoryService
 
 namespace edm {
-  class ParameterSet;
+class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+class MemoryTestClient_A : public edm::EDAnalyzer {
+ public:
+  explicit MemoryTestClient_A(edm::ParameterSet const&);
 
-class MemoryTestClient_A
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    MemoryTestClient_A( edm::ParameterSet const & );
+  virtual ~MemoryTestClient_A() {}
 
-  virtual
-    ~MemoryTestClient_A()
-  { }
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
+ private:
   static int nevent;
   std::vector<double> memoryPattern;
   void initializeMemoryPattern(int pattern);
@@ -42,8 +32,6 @@ private:
   edm::propagate_const<char*> last_allocation;
 };
 
-
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_MemoryTestClient_A_h

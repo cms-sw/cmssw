@@ -2,7 +2,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceWrapperBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -27,23 +27,20 @@ using namespace edm::serviceregistry;
 //
 // constructors and destructor
 //
-ServiceWrapperBase::ServiceWrapperBase()
-{
-}
+ServiceWrapperBase::ServiceWrapperBase() {}
 
 // ServiceWrapperBase::ServiceWrapperBase(const ServiceWrapperBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ServiceWrapperBase::~ServiceWrapperBase()
-{
-}
+ServiceWrapperBase::~ServiceWrapperBase() {}
 
 //
 // assignment operators
 //
-// const ServiceWrapperBase& ServiceWrapperBase::operator=(const ServiceWrapperBase& rhs)
+// const ServiceWrapperBase& ServiceWrapperBase::operator=(const
+// ServiceWrapperBase& rhs)
 // {
 //   //An exception safe implementation is
 //   ServiceWrapperBase temp(rhs);

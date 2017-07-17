@@ -17,95 +17,73 @@ is the DataBlock.
 
 #include <memory>
 
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/Utilities/interface/RunIndex.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 namespace edm {
 
-  class HistoryAppender;
-  class ModuleCallingContext;
+class HistoryAppender;
+class ModuleCallingContext;
 
-  class RunPrincipal : public Principal {
-  public:
-    typedef RunAuxiliary Auxiliary;
-    typedef Principal Base;
+class RunPrincipal : public Principal {
+ public:
+  typedef RunAuxiliary Auxiliary;
+  typedef Principal Base;
 
-    RunPrincipal(
-        std::shared_ptr<RunAuxiliary> aux,
-        std::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender,
-        unsigned int iRunIndex,
-        bool isForPrimaryProcess=true);
-    ~RunPrincipal() {}
+  RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
+               std::shared_ptr<ProductRegistry const> reg,
+               ProcessConfiguration const& pc, HistoryAppender* historyAppender,
+               unsigned int iRunIndex, bool isForPrimaryProcess = true);
+  ~RunPrincipal() {}
 
-    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
+  void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
+                        DelayedReader* reader = 0);
 
-    /** Multiple Runs may be processed simultaneously. The
-     return value can be used to identify a particular Run.
-     The value will range from 0 to one less than
-     the maximum number of allowed simultaneous Runs. A particular
-     value will be reused once the processing of the previous Run 
-     using that index has been completed.
-     */
-    RunIndex index() const {
-      return index_;
-    }
-    
-    RunAuxiliary const& aux() const {
-      return *aux_;
-    }
+  /** Multiple Runs may be processed simultaneously. The
+   return value can be used to identify a particular Run.
+   The value will range from 0 to one less than
+   the maximum number of allowed simultaneous Runs. A particular
+   value will be reused once the processing of the previous Run
+   using that index has been completed.
+   */
+  RunIndex index() const { return index_; }
 
-    RunNumber_t run() const {
-      return aux().run();
-    }
-    
-    ProcessHistoryID const& reducedProcessHistoryID() const {
-      return m_reducedHistoryID;
-    }
+  RunAuxiliary const& aux() const { return *aux_; }
 
-    RunID const& id() const {
-      return aux().id();
-    }
+  RunNumber_t run() const { return aux().run(); }
 
-    Timestamp const& beginTime() const {
-      return aux().beginTime();
-    }
+  ProcessHistoryID const& reducedProcessHistoryID() const {
+    return m_reducedHistoryID;
+  }
 
-    Timestamp const& endTime() const {
-      return aux().endTime();
-    }
+  RunID const& id() const { return aux().id(); }
 
-    void setEndTime(Timestamp const& time) {
-      aux_->setEndTime(time);
-    }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    void mergeAuxiliary(RunAuxiliary const& aux) {
-      return aux_->mergeAuxiliary(aux);
-    }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-    void put(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp) const;
+  void setEndTime(Timestamp const& time) { aux_->setEndTime(time); }
 
-    void setComplete() {
-      complete_ = true;
-    }
+  void mergeAuxiliary(RunAuxiliary const& aux) {
+    return aux_->mergeAuxiliary(aux);
+  }
 
-  private:
+  void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
-    virtual bool isComplete_() const override {return complete_;}
+  void setComplete() { complete_ = true; }
 
-    virtual unsigned int transitionIndex_() const override;
+ private:
+  virtual bool isComplete_() const override { return complete_; }
 
-    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
-    ProcessHistoryID m_reducedHistoryID;
-    RunIndex index_;
+  virtual unsigned int transitionIndex_() const override;
 
-    bool complete_;
-  };
+  edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
+  ProcessHistoryID m_reducedHistoryID;
+  RunIndex index_;
+
+  bool complete_;
+};
 }
 #endif
-

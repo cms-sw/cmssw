@@ -29,67 +29,73 @@
 
 namespace edm {
 
-  class ModuleDescription;
+class ModuleDescription;
 
-  class PathsAndConsumesOfModulesBase {
-  public:
+class PathsAndConsumesOfModulesBase {
+ public:
+  virtual ~PathsAndConsumesOfModulesBase();
 
-    virtual ~PathsAndConsumesOfModulesBase();
+  std::vector<std::string> const& paths() const { return doPaths(); }
+  std::vector<std::string> const& endPaths() const { return doEndPaths(); }
 
-    std::vector<std::string> const& paths() const { return doPaths(); }
-    std::vector<std::string> const& endPaths() const { return doEndPaths(); }
+  std::vector<ModuleDescription const*> const& allModules() const {
+    return doAllModules();
+  }
 
-    std::vector<ModuleDescription const*> const& allModules() const {
-      return doAllModules();
-    }
+  ModuleDescription const* moduleDescription(unsigned int moduleID) const {
+    return doModuleDescription(moduleID);
+  }
 
-    ModuleDescription const* moduleDescription(unsigned int moduleID) const {
-      return doModuleDescription(moduleID);
-    }
+  std::vector<ModuleDescription const*> const& modulesOnPath(
+      unsigned int pathIndex) const {
+    return doModulesOnPath(pathIndex);
+  }
 
-    std::vector<ModuleDescription const*> const& modulesOnPath(unsigned int pathIndex) const {
-      return doModulesOnPath(pathIndex);
-    }
+  std::vector<ModuleDescription const*> const& modulesOnEndPath(
+      unsigned int endPathIndex) const {
+    return doModulesOnEndPath(endPathIndex);
+  }
 
-    std::vector<ModuleDescription const*> const& modulesOnEndPath(unsigned int endPathIndex) const {
-      return doModulesOnEndPath(endPathIndex);
-    }
+  // The modules in the returned vector will be from the current process
+  // (not the prior process, and it will never include the source even
+  // though the source can make products) and these modules will declare
+  // they produce (they might or might not really produce) at least one
+  // product in the event (not run, not lumi) that the module corresponding
+  // to the moduleID argument declares it consumes (includes declarations using
+  // consumes, maybeConsumes, or consumesMany). Note that if a module declares
+  // it consumes a module label that is an EDAlias, the corresponding module
+  // description will be included in the returned vector (but the label in the
+  // module description is not the EDAlias label).
+  std::vector<ModuleDescription const*> const&
+  modulesWhoseProductsAreConsumedBy(unsigned int moduleID) const {
+    return doModulesWhoseProductsAreConsumedBy(moduleID);
+  }
 
-    // The modules in the returned vector will be from the current process
-    // (not the prior process, and it will never include the source even
-    // though the source can make products) and these modules will declare
-    // they produce (they might or might not really produce) at least one
-    // product in the event (not run, not lumi) that the module corresponding
-    // to the moduleID argument declares it consumes (includes declarations using
-    // consumes, maybeConsumes, or consumesMany). Note that if a module declares
-    // it consumes a module label that is an EDAlias, the corresponding module
-    // description will be included in the returned vector (but the label in the
-    // module description is not the EDAlias label).
-    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy(unsigned int moduleID) const {
-      return doModulesWhoseProductsAreConsumedBy(moduleID);
-    }
+  // This returns the declared consumes information for a module.
+  // Note the other functions above return a reference to an object
+  // that is held in memory throughout the job, while the following
+  // function returns a newly created object each time.  We do not
+  // expect this to be called during a normal production job where
+  // performance and memory are important. These objects are bigger
+  // than just a pointer.
+  std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const {
+    return doConsumesInfo(moduleID);
+  }
 
-    // This returns the declared consumes information for a module.
-    // Note the other functions above return a reference to an object
-    // that is held in memory throughout the job, while the following
-    // function returns a newly created object each time.  We do not
-    // expect this to be called during a normal production job where
-    // performance and memory are important. These objects are bigger
-    // than just a pointer.
-    std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const {
-      return doConsumesInfo(moduleID);
-    }
-
-  private:
-
-    virtual std::vector<std::string> const& doPaths() const = 0;
-    virtual std::vector<std::string> const& doEndPaths() const = 0;
-    virtual std::vector<ModuleDescription const*> const& doAllModules() const = 0;
-    virtual ModuleDescription const* doModuleDescription(unsigned int moduleID) const = 0;
-    virtual std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const = 0;
-    virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const = 0;
-    virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(unsigned int moduleID) const = 0;
-    virtual std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const = 0;
-  };
+ private:
+  virtual std::vector<std::string> const& doPaths() const = 0;
+  virtual std::vector<std::string> const& doEndPaths() const = 0;
+  virtual std::vector<ModuleDescription const*> const& doAllModules() const = 0;
+  virtual ModuleDescription const* doModuleDescription(
+      unsigned int moduleID) const = 0;
+  virtual std::vector<ModuleDescription const*> const& doModulesOnPath(
+      unsigned int pathIndex) const = 0;
+  virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(
+      unsigned int endPathIndex) const = 0;
+  virtual std::vector<ModuleDescription const*> const&
+  doModulesWhoseProductsAreConsumedBy(unsigned int moduleID) const = 0;
+  virtual std::vector<ConsumesInfo> doConsumesInfo(
+      unsigned int moduleID) const = 0;
+};
 }
 #endif

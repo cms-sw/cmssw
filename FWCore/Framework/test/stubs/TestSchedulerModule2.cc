@@ -6,41 +6,34 @@
    \date 19 May 2005
 */
 
-
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include <memory>
 #include <string>
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace edm{
+namespace edm {
 
-  class TestSchedulerModule2 : public EDProducer
-  {
-  public:
-    explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){
-       produces<edmtest::StringProduct>();
-    }
-
-    void produce(Event& e, EventSetup const&);
-
-  private:
-    ParameterSet pset_;
-  };
-
-
-  void TestSchedulerModule2::produce(Event& e, EventSetup const&)
-  {
-
-    std::string myname = pset_.getParameter<std::string>("module_name");
-    e.put(std::make_unique<edmtest::StringProduct>(myname));
-    
+class TestSchedulerModule2 : public EDProducer {
+ public:
+  explicit TestSchedulerModule2(ParameterSet const& p) : pset_(p) {
+    produces<edmtest::StringProduct>();
   }
-}//namespace  
+
+  void produce(Event& e, EventSetup const&);
+
+ private:
+  ParameterSet pset_;
+};
+
+void TestSchedulerModule2::produce(Event& e, EventSetup const&) {
+  std::string myname = pset_.getParameter<std::string>("module_name");
+  e.put(std::make_unique<edmtest::StringProduct>(myname));
+}
+}  // namespace
 using edm::TestSchedulerModule2;
 DEFINE_FWK_MODULE(TestSchedulerModule2);
 

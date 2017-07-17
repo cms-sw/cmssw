@@ -28,14 +28,12 @@
 
 namespace edm {
 
-  class ESHandleExceptionFactory
-  {
+class ESHandleExceptionFactory {
+ public:
+  ESHandleExceptionFactory();
+  virtual ~ESHandleExceptionFactory();
 
-  public:
-    ESHandleExceptionFactory();
-    virtual ~ESHandleExceptionFactory();
-
-    virtual std::exception_ptr make() const = 0;
-  };
+  virtual std::exception_ptr make() const = 0;
+};
 }
 #endif

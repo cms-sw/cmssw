@@ -3,34 +3,30 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 
-namespace edmtest
-{
+namespace edmtest {
 
-PSetTestClient_A::PSetTestClient_A( edm::ParameterSet const & p)
-{
-//  std::cerr << "PSetTestClient_A ctor called\n";
+PSetTestClient_A::PSetTestClient_A(edm::ParameterSet const& p) {
+  //  std::cerr << "PSetTestClient_A ctor called\n";
   edm::ParameterSet emptyPSet;
-  a = p.getUntrackedParameterSet("a",emptyPSet);
-  b = a.getUntrackedParameterSet("b",emptyPSet);
-  xa = a.getUntrackedParameter<int>("x",99);
-  xb = b.getUntrackedParameter<int>("x",88);
-//  std::cerr << "...xa = " << xa << "xb = " << xb << "\n";
+  a = p.getUntrackedParameterSet("a", emptyPSet);
+  b = a.getUntrackedParameterSet("b", emptyPSet);
+  xa = a.getUntrackedParameter<int>("x", 99);
+  xb = b.getUntrackedParameter<int>("x", 88);
+  //  std::cerr << "...xa = " << xa << "xb = " << xb << "\n";
 }
 
-void
-  PSetTestClient_A::analyze( edm::Event      const & /*unused*/
-                            , edm::EventSetup const & /*unused*/
-                              )
-{
-//  std::cerr << "PSetTestClient_A::analyze called\n";
-  edm::LogError ("x") << "xa = " << xa << " xb = " << xb;
-}  
+void PSetTestClient_A::analyze(edm::Event const& /*unused*/
+                               ,
+                               edm::EventSetup const& /*unused*/
+                               ) {
+  //  std::cerr << "PSetTestClient_A::analyze called\n";
+  edm::LogError("x") << "xa = " << xa << " xb = " << xb;
+}
 
-
-} // end namespace edmtest
+}  // end namespace edmtest
 
 using edmtest::PSetTestClient_A;
 DEFINE_FWK_MODULE(PSetTestClient_A);

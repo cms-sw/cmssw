@@ -11,21 +11,15 @@
 //
 
 // system include files
-#include <vector>
 #include <map>
+#include <vector>
 
 // user include files
 #include "FWCore/Common/interface/RunBase.h"
 
-namespace edm
-{
+namespace edm {
 
-   RunBase::RunBase()
-   {
-   }
+RunBase::RunBase() {}
 
-   RunBase::~RunBase()
-   {
-   }
-
+RunBase::~RunBase() {}
 }

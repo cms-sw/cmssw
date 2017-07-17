@@ -4,11 +4,13 @@
 //
 // Package:     Framework
 // Module:      NoProxyException
-// 
-/**\class NoProxyException NoProxyException.h FWCore/Framework/interface/NoProxyException.h
+//
+/**\class NoProxyException NoProxyException.h
+ FWCore/Framework/interface/NoProxyException.h
 
  Description: An exception that is thrown whenever proxy was not available
-              in the EventSetup, it is subset of NoDataException, see more details
+              in the EventSetup, it is subset of NoDataException, see more
+ details
               in that class
 
 */
@@ -21,42 +23,40 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/NoDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/NoDataException.h"
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 template <class T>
-class NoProxyException : public NoDataException<T>
-{
-      // ---------- friend classes and functions ---------------
+class NoProxyException : public NoDataException<T> {
+  // ---------- friend classes and functions ---------------
 
-   public:
-      // ---------- constants, enums and typedefs --------------
+ public:
+  // ---------- constants, enums and typedefs --------------
 
-      // ---------- Constructors and destructor ----------------
-      NoProxyException(const EventSetupRecordKey& iKey,
-			  const DataKey& iDataKey) :
-       NoDataException<T>(iKey, iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
-       {
-       }
+  // ---------- Constructors and destructor ----------------
+  NoProxyException(const EventSetupRecordKey& iKey, const DataKey& iDataKey)
+      : NoDataException<T>(iKey, iDataKey, "NoProxyException",
+                           NoDataExceptionBase::noProxyMessage()) {}
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   private:
-      // ---------- const member functions ---------------------
+ private:
+  // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-      // ---------- Constructors and destructor ----------------
-      //NoProxyException(const NoProxyException&) ; //allow default
+  // ---------- Constructors and destructor ----------------
+  // NoProxyException(const NoProxyException&) ; //allow default
 
-      //const NoProxyException& operator=(const NoProxyException&); // allow default
+  // const NoProxyException& operator=(const NoProxyException&); // allow
+  // default
 
-      // ---------- data members -------------------------------      
+  // ---------- data members -------------------------------
 };
-   }
+}
 }
 // inline function definitions
 

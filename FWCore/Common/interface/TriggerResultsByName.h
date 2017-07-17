@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Common
 // Class  :     TriggerResultsByName
-// 
-/**\class TriggerResultsByName TriggerResultsByName.h FWCore/Common/interface/TriggerResultsByName.h
+//
+/**\class TriggerResultsByName TriggerResultsByName.h
+ FWCore/Common/interface/TriggerResultsByName.h
 
  Description: Class which provides methods to access trigger results
 
@@ -33,85 +34,82 @@
 //         Created:  11 December 2009
 //
 
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/HLTenums.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
 #include <vector>
 
 namespace edm {
 
-  class TriggerResults;
-  class TriggerNames;
-  class HLTPathStatus;
+class TriggerResults;
+class TriggerNames;
+class HLTPathStatus;
 
-  class TriggerResultsByName {
+class TriggerResultsByName {
+ public:
+  TriggerResultsByName(TriggerResults const* triggerResults,
+                       TriggerNames const* triggerNames);
 
-  public:
+  bool isValid() const;
 
-    TriggerResultsByName(TriggerResults const* triggerResults,
-                         TriggerNames const* triggerNames);
+  ParameterSetID const& parameterSetID() const;
 
-    bool isValid() const;
+  // Was at least one path run?
+  bool wasrun() const;
 
-    ParameterSetID const& parameterSetID() const;
+  // Has at least one path accepted the event?
+  bool accept() const;
 
-    // Was at least one path run?
-    bool wasrun() const;
+  // Has any path encountered an error (exception)
+  bool error() const;
 
-    // Has at least one path accepted the event?
-    bool accept() const;
+  HLTPathStatus const& at(std::string const& pathName) const;
+  HLTPathStatus const& at(unsigned i) const;
 
-    // Has any path encountered an error (exception)
-    bool  error() const;
+  HLTPathStatus const& operator[](std::string const& pathName) const;
+  HLTPathStatus const& operator[](unsigned i) const;
 
-    HLTPathStatus const& at(std::string const& pathName) const;
-    HLTPathStatus const& at(unsigned i) const;
+  // Was ith path run?
+  bool wasrun(std::string const& pathName) const;
+  bool wasrun(unsigned i) const;
 
-    HLTPathStatus const& operator[](std::string const& pathName) const;
-    HLTPathStatus const& operator[](unsigned i) const;
+  // Has ith path accepted the event
+  bool accept(std::string const& pathName) const;
+  bool accept(unsigned i) const;
 
-    // Was ith path run?
-    bool wasrun(std::string const& pathName) const;
-    bool wasrun(unsigned i) const;
+  // Has ith path encountered an error (exception)?
+  bool error(std::string const& pathName) const;
+  bool error(unsigned i) const;
 
-    // Has ith path accepted the event
-    bool accept(std::string const& pathName) const;
-    bool accept(unsigned i) const;
+  // Get status of ith path
+  hlt::HLTState state(std::string const& pathName) const;
+  hlt::HLTState state(unsigned i) const;
 
-    // Has ith path encountered an error (exception)?
-    bool error(std::string const& pathName) const;
-    bool error(unsigned i) const;
+  // Get index (slot position) of module giving the decision of the ith path
+  unsigned index(std::string const& pathName) const;
+  unsigned index(unsigned i) const;
 
-    // Get status of ith path
-    hlt::HLTState state(std::string const& pathName) const;
-    hlt::HLTState state(unsigned i) const;
+  std::vector<std::string> const& triggerNames() const;
 
-    // Get index (slot position) of module giving the decision of the ith path
-    unsigned index(std::string const& pathName) const;
-    unsigned index(unsigned i) const;
+  // Throws if the number is out of range.
+  std::string const& triggerName(unsigned i) const;
 
-    std::vector<std::string> const& triggerNames() const;
+  // If the input name is not known, this returns a value
+  // equal to the size.
+  unsigned triggerIndex(std::string const& pathName) const;
 
-    // Throws if the number is out of range.
-    std::string const& triggerName(unsigned i) const;
+  // The number of trigger names.
+  std::vector<std::string>::size_type size() const;
 
-    // If the input name is not known, this returns a value
-    // equal to the size.
-    unsigned triggerIndex(std::string const& pathName) const;
+ private:
+  unsigned getAndCheckIndex(std::string const& pathName) const;
 
-    // The number of trigger names.
-    std::vector<std::string>::size_type size() const;
+  void throwTriggerResultsMissing() const;
+  void throwTriggerNamesMissing() const;
 
-  private:
-
-    unsigned getAndCheckIndex(std::string const& pathName) const;
-
-    void throwTriggerResultsMissing() const;
-    void throwTriggerNamesMissing() const;
-
-    TriggerResults const* triggerResults_;
-    TriggerNames const* triggerNames_;
-  };
+  TriggerResults const* triggerResults_;
+  TriggerNames const* triggerNames_;
+};
 }
 #endif

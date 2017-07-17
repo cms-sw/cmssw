@@ -5,16 +5,21 @@
 // Package:     Framework
 // Class  :     EventSetupRecordImplementation
 //
-/**\class EventSetupRecordImplementation EventSetupRecordImplementation.h FWCore/Framework/interface/EventSetupRecordImplementation.h
+/**\class EventSetupRecordImplementation EventSetupRecordImplementation.h
+ FWCore/Framework/interface/EventSetupRecordImplementation.h
 
- Description: Help class which implements the necessary virtual methods for a new Record class
+ Description: Help class which implements the necessary virtual methods for a
+ new Record class
 
  Usage:
-    This class handles implementing the necessary 'meta data' methods for a Record. To use the class, a new Record type should
- inherit from EventSetupRecordImplementation and pass itself as the argument to the template parameter. For example, for a
+    This class handles implementing the necessary 'meta data' methods for a
+ Record. To use the class, a new Record type should
+ inherit from EventSetupRecordImplementation and pass itself as the argument to
+ the template parameter. For example, for a
  Record named FooRcd, you would declare it like
 
-      class FooRcd : public edm::eventsetup::EventSetupRecordImplementation< FooRcd > {};
+      class FooRcd : public edm::eventsetup::EventSetupRecordImplementation<
+ FooRcd > {};
 */
 //
 // Author:      Chris Jones
@@ -30,38 +35,39 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      struct ComponentDescription;
+namespace eventsetup {
+struct ComponentDescription;
 
-      template<typename T>
-      class EventSetupRecordImplementation : public EventSetupRecord {
+template <typename T>
+class EventSetupRecordImplementation : public EventSetupRecord {
+ public:
+  // virtual ~EventSetupRecordImplementation();
 
-      public:
-         //virtual ~EventSetupRecordImplementation();
+  // ---------- const member functions ---------------------
+  virtual EventSetupRecordKey key() const {
+    return EventSetupRecordKey::makeKey<T>();
+  }
 
-         // ---------- const member functions ---------------------
-         virtual EventSetupRecordKey key() const {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+  // ---------- static member functions --------------------
+  static EventSetupRecordKey keyForClass() {
+    return EventSetupRecordKey::makeKey<T>();
+  }
 
-         // ---------- static member functions --------------------
-         static EventSetupRecordKey keyForClass()  {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+  // ---------- member functions ---------------------------
 
-         // ---------- member functions ---------------------------
+ protected:
+  EventSetupRecordImplementation() {}
 
-      protected:
-         EventSetupRecordImplementation() {}
+ private:
+  EventSetupRecordImplementation(
+      EventSetupRecordImplementation const&);  // stop default
 
-      private:
-         EventSetupRecordImplementation(EventSetupRecordImplementation const&); // stop default
+  EventSetupRecordImplementation const& operator=(
+      EventSetupRecordImplementation const&);  // stop default
 
-         EventSetupRecordImplementation const& operator=(EventSetupRecordImplementation const&); // stop default
-
-         // ---------- member data --------------------------------
-      };
-   }
+  // ---------- member data --------------------------------
+};
+}
 }
 
 #endif

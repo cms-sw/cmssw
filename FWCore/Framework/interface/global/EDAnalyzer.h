@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::global::EDAnalyzer
-// 
-/**\class edm::global::EDAnalyzer EDAnalyzer.h "FWCore/Framework/interface/global/EDAnalyzer.h"
+//
+/**\class edm::global::EDAnalyzer EDAnalyzer.h
+ "FWCore/Framework/interface/global/EDAnalyzer.h"
 
  Description: [one line class summary]
 
@@ -27,36 +28,32 @@
 // forward declarations
 
 namespace edm {
-  namespace global {
-    template< typename... T>
-    class EDAnalyzer : public analyzer::AbilityToImplementor<T>::Type...,
-                       public virtual EDAnalyzerBase
-    {
-      
-    public:
-      EDAnalyzer() = default;
+namespace global {
+template <typename... T>
+class EDAnalyzer : public analyzer::AbilityToImplementor<T>::Type...,
+                   public virtual EDAnalyzerBase {
+ public:
+  EDAnalyzer() = default;
 // We do this only in the case of the intel compiler as this might
-// end up creating a lot of code bloat due to inline symbols being generated 
+// end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
 #ifdef __INTEL_COMPILER
-      virtual ~EDAnalyzer() {}
+  virtual ~EDAnalyzer() {}
 #endif
-      // ---------- const member functions ---------------------
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-    private:
-      EDAnalyzer(const EDAnalyzer&) = delete;
-      
-      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
-      
-      // ---------- member data --------------------------------
-      
-    };
+  // ---------- const member functions ---------------------
 
-  }
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+ private:
+  EDAnalyzer(const EDAnalyzer&) = delete;
+
+  const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
+
+  // ---------- member data --------------------------------
+};
+}
 }
 
 #endif

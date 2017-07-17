@@ -1,40 +1,26 @@
 #ifndef FWCore_MessageService_test_UnitTestClient_K_h
 #define FWCore_MessageService_test_UnitTestClient_K_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
-  class ParameterSet;
+class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+class UnitTestClient_K : public edm::EDAnalyzer {
+ public:
+  explicit UnitTestClient_K(edm::ParameterSet const&) {}
 
-class UnitTestClient_K
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    UnitTestClient_K( edm::ParameterSet const & )
-  { }
+  virtual ~UnitTestClient_K() {}
 
-  virtual
-    ~UnitTestClient_K()
-  { }
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
+ private:
 };
 
-
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_UnitTestClient_K_h

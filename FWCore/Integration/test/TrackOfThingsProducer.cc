@@ -2,96 +2,96 @@
 \author W. David Dagenhart, created 11 June 2014
 */
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edm {
-  class EventSetup;
+class EventSetup;
 }
 
 namespace edmtest {
 
-  class TrackOfThingsProducer : public edm::one::EDProducer<> {
-  public:
+class TrackOfThingsProducer : public edm::one::EDProducer<> {
+ public:
+  explicit TrackOfThingsProducer(edm::ParameterSet const&);
+  virtual ~TrackOfThingsProducer();
 
-    explicit TrackOfThingsProducer(edm::ParameterSet const&);
-    virtual ~TrackOfThingsProducer();
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
-    void produce(edm::Event&, edm::EventSetup const&) override;
+ private:
+  void incrementKey(std::vector<unsigned int>::const_iterator& key) const;
 
-  private:
+  edm::EDGetTokenT<ThingCollection> inputToken_;
+  std::vector<unsigned int> keysToReference_;
+};
 
-    void incrementKey(std::vector<unsigned int>::const_iterator& key) const;
+TrackOfThingsProducer::TrackOfThingsProducer(edm::ParameterSet const& pset) {
+  inputToken_ =
+      consumes<ThingCollection>(pset.getParameter<edm::InputTag>("inputTag"));
 
-    edm::EDGetTokenT<ThingCollection> inputToken_;
-    std::vector<unsigned int> keysToReference_;
-  };
+  keysToReference_ =
+      pset.getParameter<std::vector<unsigned int> >("keysToReference");
 
-  TrackOfThingsProducer::TrackOfThingsProducer(edm::ParameterSet const& pset) {
+  produces<TrackOfThingsCollection>();
+}
 
-    inputToken_ = consumes<ThingCollection>(pset.getParameter<edm::InputTag>("inputTag"));
+TrackOfThingsProducer::~TrackOfThingsProducer() {}
 
-    keysToReference_ = pset.getParameter<std::vector<unsigned int> >("keysToReference");
+void TrackOfThingsProducer::incrementKey(
+    std::vector<unsigned int>::const_iterator& key) const {
+  ++key;
+  if (key == keysToReference_.end()) key = keysToReference_.begin();
+}
 
-    produces<TrackOfThingsCollection>();
-  }
+void TrackOfThingsProducer::produce(edm::Event& event, edm::EventSetup const&) {
+  edm::Handle<ThingCollection> inputCollection;
+  event.getByToken(inputToken_, inputCollection);
 
-  TrackOfThingsProducer::~TrackOfThingsProducer() { }
+  auto result = std::make_unique<TrackOfThingsCollection>();
 
-  void TrackOfThingsProducer::incrementKey(std::vector<unsigned int>::const_iterator& key) const {
-    ++key;
-    if(key == keysToReference_.end()) key = keysToReference_.begin();
-  }
+  // Arbitrarily fabricate some fake data with TrackOfThings pointing to
+  // Thing objects in products written to the event by a different module.
+  // The numbers in the keys here are made up, passed in via the configuration
+  // and have no meaning other than that we will later check that we can
+  // read out what we put in here.
+  std::vector<unsigned int>::const_iterator key = keysToReference_.begin();
+  for (unsigned int i = 0; i < 5; ++i) {
+    edmtest::TrackOfThings trackOfThings;
 
-  void TrackOfThingsProducer::produce(edm::Event& event, edm::EventSetup const&) {
+    trackOfThings.ref1 = edm::Ref<ThingCollection>(inputCollection, *key);
+    incrementKey(key);
 
-    edm::Handle<ThingCollection> inputCollection;
-    event.getByToken(inputToken_, inputCollection);
+    trackOfThings.ref2 = edm::Ref<ThingCollection>(inputCollection, *key);
+    incrementKey(key);
 
-    auto result = std::make_unique<TrackOfThingsCollection>();
+    trackOfThings.ptr1 = edm::Ptr<Thing>(inputCollection, *key);
+    incrementKey(key);
 
-    // Arbitrarily fabricate some fake data with TrackOfThings pointing to
-    // Thing objects in products written to the event by a different module.
-    // The numbers in the keys here are made up, passed in via the configuration
-    // and have no meaning other than that we will later check that we can
-    // read out what we put in here.
-    std::vector<unsigned int>::const_iterator key = keysToReference_.begin();
-    for(unsigned int i = 0; i < 5; ++i) {
+    trackOfThings.ptr2 = edm::Ptr<Thing>(inputCollection, *key);
+    incrementKey(key);
 
+    trackOfThings.refToBase1 = edm::RefToBase<Thing>(trackOfThings.ref1);
 
-      edmtest::TrackOfThings trackOfThings;
-
-      trackOfThings.ref1 = edm::Ref<ThingCollection>(inputCollection, *key);
-      incrementKey(key);
-
-      trackOfThings.ref2 = edm::Ref<ThingCollection>(inputCollection, *key);
-      incrementKey(key);
-
-      trackOfThings.ptr1 = edm::Ptr<Thing>(inputCollection, *key);
-      incrementKey(key);
-
-      trackOfThings.ptr2 = edm::Ptr<Thing>(inputCollection, *key);
-      incrementKey(key);
-
-      trackOfThings.refToBase1 = edm::RefToBase<Thing>(trackOfThings.ref1);
-
-      for(auto iKey : keysToReference_) {
-        trackOfThings.refVector1.push_back(edm::Ref<ThingCollection>(inputCollection, iKey));
-        trackOfThings.ptrVector1.push_back(edm::Ptr<Thing>(inputCollection, iKey));
-        trackOfThings.refToBaseVector1.push_back(edm::RefToBase<Thing>(edm::Ref<ThingCollection>(inputCollection, iKey)));
-      }
-
-      result->push_back(trackOfThings);
+    for (auto iKey : keysToReference_) {
+      trackOfThings.refVector1.push_back(
+          edm::Ref<ThingCollection>(inputCollection, iKey));
+      trackOfThings.ptrVector1.push_back(
+          edm::Ptr<Thing>(inputCollection, iKey));
+      trackOfThings.refToBaseVector1.push_back(edm::RefToBase<Thing>(
+          edm::Ref<ThingCollection>(inputCollection, iKey)));
     }
 
-    event.put(std::move(result));
+    result->push_back(trackOfThings);
   }
+
+  event.put(std::move(result));
+}
 }
 using edmtest::TrackOfThingsProducer;
 DEFINE_FWK_MODULE(TrackOfThingsProducer);

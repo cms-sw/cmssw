@@ -7,7 +7,6 @@ BaseWithDict:  A holder for a base class
 
 ----------------------------------------------------------------------*/
 
-
 #include <string>
 
 class TBaseClass;
@@ -17,9 +16,10 @@ namespace edm {
 class TypeWithDict;
 
 class BaseWithDict {
-private:
+ private:
   TBaseClass* baseClass_;
-public:
+
+ public:
   BaseWithDict();
   explicit BaseWithDict(TBaseClass*);
   bool isPublic() const;
@@ -28,8 +28,8 @@ public:
   size_t offset() const;
 };
 
-} // namespace edm
+}  // namespace edm
 
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#endif // FWCore_Utilities_BaseWithDict_h
+#endif  // FWCore_Utilities_BaseWithDict_h

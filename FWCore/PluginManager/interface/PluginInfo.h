@@ -4,13 +4,13 @@
 //
 // Package:     PluginManager
 // Class  :     PluginInfo
-// 
+//
 /**\class PluginInfo PluginInfo.h FWCore/PluginManager/interface/PluginInfo.h
 
  Description: Holds information about a particular plugin
 
  Usage:
-    
+
 
 */
 //

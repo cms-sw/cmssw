@@ -4,13 +4,16 @@
 //
 // Package:     ServiceRegistry
 // Class  :     SaveConfiguration
-// 
-/**\class SaveConfiguration SaveConfiguration.h FWCore/ServiceRegistry/interface/SaveConfiguration.h
+//
+/**\class SaveConfiguration SaveConfiguration.h
+ FWCore/ServiceRegistry/interface/SaveConfiguration.h
 
- Description: 'Concept' class used to decide if a Service's parameters should be saved
+ Description: 'Concept' class used to decide if a Service's parameters should be
+ saved
 
  Usage:
-    Inherit from this class if and only if you wish your Service's parameters to be stored to the
+    Inherit from this class if and only if you wish your Service's parameters to
+ be stored to the
  EDM ROOT files provenance.
 
 */
@@ -26,11 +29,9 @@
 // forward declarations
 
 namespace edm {
-   namespace serviceregistry {
-      class SaveConfiguration
-      {
-      };
-   }
+namespace serviceregistry {
+class SaveConfiguration {};
+}
 }
 
 #endif

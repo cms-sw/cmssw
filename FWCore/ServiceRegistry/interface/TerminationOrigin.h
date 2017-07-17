@@ -4,13 +4,14 @@
 //
 // Package:     FWCore/ServiceRegistry
 // Class  :     edm::TerminationOrigin
-// 
+//
 /**\class edm::TerminationOrigin TerminationOrigin.h "TerminationOrigin.h"
 
  Description: Enum for different possible origins of a job termination 'signal'
 
  Usage:
-    These values are used to denote exactly why a job is terminating prematurely.
+    These values are used to denote exactly why a job is terminating
+ prematurely.
 
 */
 //
@@ -25,11 +26,11 @@
 // forward declarations
 
 namespace edm {
-  enum class TerminationOrigin {
-    ExceptionFromThisContext,
-    ExceptionFromAnotherContext,
-    ExternalSignal
-  };
+enum class TerminationOrigin {
+  ExceptionFromThisContext,
+  ExceptionFromAnotherContext,
+  ExternalSignal
+};
 }
 
 #endif

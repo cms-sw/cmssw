@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     DummyFinder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -13,15 +13,15 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/test/DummyFinder.h"
 
 namespace edm {
-   class ParameterSet;
+class ParameterSet;
 }
 class LoadableDummyFinder : public DummyFinder {
-public:
-   LoadableDummyFinder(const edm::ParameterSet&) {}
+ public:
+  LoadableDummyFinder(const edm::ParameterSet&) {}
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyFinder);

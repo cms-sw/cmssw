@@ -6,102 +6,102 @@
 // Package:     FWCore/Framework
 // Class  :     UnscheduledCallProducer
 //
-/**\class UnscheduledCallProducer UnscheduledCallProducer.h "UnscheduledCallProducer.h"
- 
+/**\class UnscheduledCallProducer UnscheduledCallProducer.h
+ "UnscheduledCallProducer.h"
+
  Description: Handles calling of EDProducers which are unscheduled
- 
+
  Usage:
  <usage>
- 
+
  */
 
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/UnscheduledAuxiliary.h"
-#include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/Framework/src/Worker.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 
-#include <vector>
-#include <unordered_map>
-#include <string>
 #include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace edm {
 
-  class ModuleCallingContext;
+class ModuleCallingContext;
 
-  class UnscheduledCallProducer {
-  public:
-    
-    using worker_container = std::vector<Worker*>;
-    using const_iterator = worker_container::const_iterator;
-    
-    UnscheduledCallProducer(ActivityRegistry& iReg) : unscheduledWorkers_() {
-      aux_.preModuleDelayedGetSignal_.connect(std::cref(iReg.preModuleEventDelayedGetSignal_));
-      aux_.postModuleDelayedGetSignal_.connect(std::cref(iReg.postModuleEventDelayedGetSignal_));
-    }
-    void addWorker(Worker* aWorker) {
-      assert(0 != aWorker);
-      unscheduledWorkers_.push_back(aWorker);
-    }
-    
-    void setEventSetup(EventSetup const& iSetup) {
-      aux_.setEventSetup(&iSetup);
-    }
+class UnscheduledCallProducer {
+ public:
+  using worker_container = std::vector<Worker*>;
+  using const_iterator = worker_container::const_iterator;
 
-    UnscheduledAuxiliary const& auxiliary() const { return aux_; }
+  UnscheduledCallProducer(ActivityRegistry& iReg) : unscheduledWorkers_() {
+    aux_.preModuleDelayedGetSignal_.connect(
+        std::cref(iReg.preModuleEventDelayedGetSignal_));
+    aux_.postModuleDelayedGetSignal_.connect(
+        std::cref(iReg.postModuleEventDelayedGetSignal_));
+  }
+  void addWorker(Worker* aWorker) {
+    assert(0 != aWorker);
+    unscheduledWorkers_.push_back(aWorker);
+  }
 
-    const_iterator begin() const { return unscheduledWorkers_.begin(); }
-    const_iterator end() const { return unscheduledWorkers_.end(); }
-    
-    template <typename T, typename U>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
-                typename T::Context const* topContext, U const* context) const {
-      //do nothing for event since we will run when requested
-      if(!T::isEvent_) {
-        for(auto worker: unscheduledWorkers_) {
-          try {
-            ParentContext parentContext(context);
-            worker->doWork<T>(p, es, streamID, parentContext, topContext);
-          }
-          catch (cms::Exception & ex) {
-            if(ex.context().empty()) {
-              addContextToException<T>(ex,worker,p.id());
-            }
-            throw;
-          }
-        }
-      }
-    }
+  void setEventSetup(EventSetup const& iSetup) { aux_.setEventSetup(&iSetup); }
 
-    template <typename T, typename U>
-    void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
-                     typename T::Context const* topContext, U const* context) const {
-      //do nothing for event since we will run when requested
-      if(!T::isEvent_) {
-        for(auto worker: unscheduledWorkers_) {
+  UnscheduledAuxiliary const& auxiliary() const { return aux_; }
+
+  const_iterator begin() const { return unscheduledWorkers_.begin(); }
+  const_iterator end() const { return unscheduledWorkers_.end(); }
+
+  template <typename T, typename U>
+  void runNow(typename T::MyPrincipal& p, EventSetup const& es,
+              StreamID streamID, typename T::Context const* topContext,
+              U const* context) const {
+    // do nothing for event since we will run when requested
+    if (!T::isEvent_) {
+      for (auto worker : unscheduledWorkers_) {
+        try {
           ParentContext parentContext(context);
-          worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID, parentContext, topContext);
+          worker->doWork<T>(p, es, streamID, parentContext, topContext);
+        } catch (cms::Exception& ex) {
+          if (ex.context().empty()) {
+            addContextToException<T>(ex, worker, p.id());
+          }
+          throw;
         }
       }
     }
+  }
 
-    
-  private:
-    template <typename T, typename ID>
-    void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
-      std::ostringstream ost;
-      ost << "Processing " << T::transitionName()<<" "<< id;
-      ex.addContext(ost.str());
+  template <typename T, typename U>
+  void runNowAsync(WaitingTask* task, typename T::MyPrincipal& p,
+                   EventSetup const& es, StreamID streamID,
+                   typename T::Context const* topContext,
+                   U const* context) const {
+    // do nothing for event since we will run when requested
+    if (!T::isEvent_) {
+      for (auto worker : unscheduledWorkers_) {
+        ParentContext parentContext(context);
+        worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID,
+                                            parentContext, topContext);
+      }
     }
-    worker_container unscheduledWorkers_;
-    UnscheduledAuxiliary aux_;
-  };
+  }
 
+ private:
+  template <typename T, typename ID>
+  void addContextToException(cms::Exception& ex, Worker const* worker,
+                             ID const& id) const {
+    std::ostringstream ost;
+    ost << "Processing " << T::transitionName() << " " << id;
+    ex.addContext(ost.str());
+  }
+  worker_container unscheduledWorkers_;
+  UnscheduledAuxiliary aux_;
+};
 }
 
 #endif
-

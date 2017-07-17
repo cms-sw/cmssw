@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     filterImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDFilterBase
 //
@@ -13,16 +13,16 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/global/implementorsMethods.h"
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
+#include "FWCore/Framework/src/global/implementorsMethods.h"
 
 namespace edm {
-  namespace global {
-    namespace impl {
-      template class BeginRunProducer<edm::global::EDFilterBase>;
-      template class EndRunProducer<edm::global::EDFilterBase>;
-      template class BeginLuminosityBlockProducer<edm::global::EDFilterBase>;
-      template class EndLuminosityBlockProducer<edm::global::EDFilterBase>;
-    }
-  }
+namespace global {
+namespace impl {
+template class BeginRunProducer<edm::global::EDFilterBase>;
+template class EndRunProducer<edm::global::EDFilterBase>;
+template class BeginLuminosityBlockProducer<edm::global::EDFilterBase>;
+template class EndLuminosityBlockProducer<edm::global::EDFilterBase>;
+}
+}
 }

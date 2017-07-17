@@ -11,6 +11,6 @@
 #include <string>
 
 namespace edm {
-  std::string pythonFileToConfigure(const std::string& iPythonFileName);
+std::string pythonFileToConfigure(const std::string& iPythonFileName);
 }
 #endif

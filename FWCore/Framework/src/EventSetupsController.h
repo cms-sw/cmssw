@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupsController
-// 
+//
 /** \class edm::eventsetup::EventSetupsController
 
  Description: Manages a group of EventSetups which can share components
@@ -26,128 +26,146 @@
 
 namespace edm {
 
-   class EventSetupRecordIntervalFinder;
-   class ParameterSet;
-   class IOVSyncValue;
-   
-   namespace eventsetup {
+class EventSetupRecordIntervalFinder;
+class ParameterSet;
+class IOVSyncValue;
 
-      class DataProxyProvider;
-      class EventSetupProvider;
+namespace eventsetup {
 
-      class ESProducerInfo {
-      public:
-         ESProducerInfo(ParameterSet const* ps,
-                        std::shared_ptr<DataProxyProvider> const& pr) : 
-            pset_(ps), provider_(pr), subProcessIndexes_() { }
+class DataProxyProvider;
+class EventSetupProvider;
 
-         ParameterSet const* pset() const { return pset_; }
-         std::shared_ptr<DataProxyProvider> const& provider() const { return provider_; }
-         std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
-         std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
+class ESProducerInfo {
+ public:
+  ESProducerInfo(ParameterSet const* ps,
+                 std::shared_ptr<DataProxyProvider> const& pr)
+      : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
-      private:
-         ParameterSet const* pset_;
-         std::shared_ptr<DataProxyProvider> provider_;
-         std::vector<unsigned> subProcessIndexes_;
-      };
+  ParameterSet const* pset() const { return pset_; }
+  std::shared_ptr<DataProxyProvider> const& provider() const {
+    return provider_;
+  }
+  std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
+  std::vector<unsigned> const& subProcessIndexes() const {
+    return subProcessIndexes_;
+  }
 
-      class ESSourceInfo {
-      public:
-         ESSourceInfo(ParameterSet const* ps,
-                      std::shared_ptr<EventSetupRecordIntervalFinder> const& fi) :
-            pset_(ps), finder_(fi), subProcessIndexes_() { }
+ private:
+  ParameterSet const* pset_;
+  std::shared_ptr<DataProxyProvider> provider_;
+  std::vector<unsigned> subProcessIndexes_;
+};
 
-         ParameterSet const* pset() const { return pset_; }
-         std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() const { return finder_; }
-         std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
-         std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
+class ESSourceInfo {
+ public:
+  ESSourceInfo(ParameterSet const* ps,
+               std::shared_ptr<EventSetupRecordIntervalFinder> const& fi)
+      : pset_(ps), finder_(fi), subProcessIndexes_() {}
 
-      private:
-         ParameterSet const* pset_;
-         std::shared_ptr<EventSetupRecordIntervalFinder> finder_;
-         std::vector<unsigned> subProcessIndexes_;
-      };
+  ParameterSet const* pset() const { return pset_; }
+  std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() const {
+    return finder_;
+  }
+  std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
+  std::vector<unsigned> const& subProcessIndexes() const {
+    return subProcessIndexes_;
+  }
 
-      class EventSetupsController {
-         
-      public:
-         EventSetupsController();
+ private:
+  ParameterSet const* pset_;
+  std::shared_ptr<EventSetupRecordIntervalFinder> finder_;
+  std::vector<unsigned> subProcessIndexes_;
+};
 
-         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
+class EventSetupsController {
+ public:
+  EventSetupsController();
 
-         void eventSetupForInstance(IOVSyncValue const& syncValue);
+  std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
 
-         void forceCacheClear() const;
+  void eventSetupForInstance(IOVSyncValue const& syncValue);
 
-         std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
-         void putESProducer(ParameterSet const& pset, std::shared_ptr<DataProxyProvider> const& component, unsigned subProcessIndex);
+  void forceCacheClear() const;
 
-         std::shared_ptr<EventSetupRecordIntervalFinder> getESSourceAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
-         void putESSource(ParameterSet const& pset, std::shared_ptr<EventSetupRecordIntervalFinder> const& component, unsigned subProcessIndex);
+  std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(
+      ParameterSet const& pset, unsigned subProcessIndex);
+  void putESProducer(ParameterSet const& pset,
+                     std::shared_ptr<DataProxyProvider> const& component,
+                     unsigned subProcessIndex);
 
-         void clearComponents();
+  std::shared_ptr<EventSetupRecordIntervalFinder> getESSourceAndRegisterProcess(
+      ParameterSet const& pset, unsigned subProcessIndex);
+  void putESSource(
+      ParameterSet const& pset,
+      std::shared_ptr<EventSetupRecordIntervalFinder> const& component,
+      unsigned subProcessIndex);
 
-         unsigned indexOfNextProcess() const { return providers_.size(); }
+  void clearComponents();
 
-         void lookForMatches(ParameterSetID const& psetID,
-                             unsigned subProcessIndex,
-                             unsigned precedingProcessIndex,
-                             bool& firstProcessWithThisPSet,
-                             bool& precedingHasMatchingPSet) const;
+  unsigned indexOfNextProcess() const { return providers_.size(); }
 
-         bool isFirstMatch(ParameterSetID const& psetID,
-                           unsigned subProcessIndex,
-                           unsigned precedingProcessIndex) const;
+  void lookForMatches(ParameterSetID const& psetID, unsigned subProcessIndex,
+                      unsigned precedingProcessIndex,
+                      bool& firstProcessWithThisPSet,
+                      bool& precedingHasMatchingPSet) const;
 
-         bool isLastMatch(ParameterSetID const& psetID,
+  bool isFirstMatch(ParameterSetID const& psetID, unsigned subProcessIndex,
+                    unsigned precedingProcessIndex) const;
+
+  bool isLastMatch(ParameterSetID const& psetID, unsigned subProcessIndex,
+                   unsigned precedingProcessIndex) const;
+
+  bool isMatchingESSource(ParameterSetID const& psetID,
                           unsigned subProcessIndex,
                           unsigned precedingProcessIndex) const;
 
-         bool isMatchingESSource(ParameterSetID const& psetID,
-                                 unsigned subProcessIndex,
-                                 unsigned precedingProcessIndex) const;
+  bool isMatchingESProducer(ParameterSetID const& psetID,
+                            unsigned subProcessIndex,
+                            unsigned precedingProcessIndex) const;
 
-         bool isMatchingESProducer(ParameterSetID const& psetID,
-                                   unsigned subProcessIndex,
-                                   unsigned precedingProcessIndex) const;
+  ParameterSet const* getESProducerPSet(ParameterSetID const& psetID,
+                                        unsigned subProcessIndex) const;
 
-         ParameterSet const* getESProducerPSet(ParameterSetID const& psetID,
-                                               unsigned subProcessIndex) const;
+  std::vector<std::shared_ptr<EventSetupProvider> > const& providers() const {
+    return providers_;
+  }
 
-         std::vector<std::shared_ptr<EventSetupProvider> > const& providers() const { return providers_; }
+  std::multimap<ParameterSetID, ESProducerInfo> const& esproducers() const {
+    return esproducers_;
+  }
 
-         std::multimap<ParameterSetID, ESProducerInfo> const& esproducers() const { return esproducers_; }
+  std::multimap<ParameterSetID, ESSourceInfo> const& essources() const {
+    return essources_;
+  }
 
-         std::multimap<ParameterSetID, ESSourceInfo> const& essources() const { return essources_; }
+  bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
-         bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
+ private:
+  EventSetupsController(EventSetupsController const&);  // stop default
 
-      private:
-         EventSetupsController(EventSetupsController const&); // stop default
-         
-         EventSetupsController const& operator=(EventSetupsController const&); // stop default
+  EventSetupsController const& operator=(
+      EventSetupsController const&);  // stop default
 
-         void checkESProducerSharing();
-         
-         // ---------- member data --------------------------------
-         std::vector<std::shared_ptr<EventSetupProvider> > providers_;
+  void checkESProducerSharing();
 
-         // The following two multimaps have one entry for each unique
-         // ParameterSet. The ESProducerInfo or ESSourceInfo object
-         // contains a list of the processes that use that ParameterSet
-         // (0 for the top level process, then the SubProcesses are
-         // identified by counting their execution order starting at 1).
-         // There can be multiple entries for a single ParameterSetID because
-         // of a difference in untracked parameters. These are only
-         // used during initialization.  The Info objects also contain
-         // a pointer to the full validated ParameterSet and a shared_ptr
-         // to the component.
-         std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
-         std::multimap<ParameterSetID, ESSourceInfo> essources_;
+  // ---------- member data --------------------------------
+  std::vector<std::shared_ptr<EventSetupProvider> > providers_;
 
-         bool mustFinishConfiguration_;
-      };
-   }
+  // The following two multimaps have one entry for each unique
+  // ParameterSet. The ESProducerInfo or ESSourceInfo object
+  // contains a list of the processes that use that ParameterSet
+  // (0 for the top level process, then the SubProcesses are
+  // identified by counting their execution order starting at 1).
+  // There can be multiple entries for a single ParameterSetID because
+  // of a difference in untracked parameters. These are only
+  // used during initialization.  The Info objects also contain
+  // a pointer to the full validated ParameterSet and a shared_ptr
+  // to the component.
+  std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
+  std::multimap<ParameterSetID, ESSourceInfo> essources_;
+
+  bool mustFinishConfiguration_;
+};
+}
 }
 #endif

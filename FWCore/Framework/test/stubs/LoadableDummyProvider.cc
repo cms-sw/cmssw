@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     LoadableDummyProvider
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,12 +18,13 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 namespace edm {
-   class ParameterSet;
+class ParameterSet;
 }
 class LoadableDummyProvider : public edm::eventsetup::test::DummyProxyProvider {
-public:
-   LoadableDummyProvider(const edm::ParameterSet& iPSet) 
-   :DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",1))) {}
+ public:
+  LoadableDummyProvider(const edm::ParameterSet& iPSet)
+      : DummyProxyProvider(edm::eventsetup::test::DummyData(
+            iPSet.getUntrackedParameter<int>("value", 1))) {}
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider);

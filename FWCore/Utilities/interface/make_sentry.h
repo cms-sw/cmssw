@@ -4,8 +4,9 @@
 //
 // Package:     Framework/Utilities
 // Class  :     make_sentry
-// 
-/**\function make_sentry make_sentry.h "FWCore/Utilities/interface/make_sentry.h"
+//
+/**\function make_sentry make_sentry.h
+ "FWCore/Utilities/interface/make_sentry.h"
 
  Description: Creates a std::unique_ptr from a lambda to be used as a sentry
 
@@ -25,10 +26,11 @@
 // forward declarations
 
 namespace edm {
-  ///NOTE: if iObject is null, then iFunc will not be called
-  template<typename T, typename F> std::unique_ptr<T, F> make_sentry(T* iObject, F iFunc) {
-    return std::unique_ptr<T, F>(iObject, iFunc);
-  }
+/// NOTE: if iObject is null, then iFunc will not be called
+template <typename T, typename F>
+std::unique_ptr<T, F> make_sentry(T* iObject, F iFunc) {
+  return std::unique_ptr<T, F>(iObject, iFunc);
+}
 }
 
 #endif

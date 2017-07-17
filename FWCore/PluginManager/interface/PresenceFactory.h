@@ -1,29 +1,29 @@
 #ifndef FWCore_PluginManager_PresenceFactory_h
 #define FWCore_PluginManager_PresenceFactory_h
 
-#include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Utilities/interface/Presence.h"
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace edm {
-  typedef edmplugin::PluginFactory<Presence* ()> PresencePluginFactory;
-  
-  typedef Presence* (PresenceFunc)();
+typedef edmplugin::PluginFactory<Presence*()> PresencePluginFactory;
 
-  class PresenceFactory {
-  public:
-    ~PresenceFactory();
+typedef Presence*(PresenceFunc)();
 
-    static PresenceFactory* get();
+class PresenceFactory {
+ public:
+  ~PresenceFactory();
 
-    std::unique_ptr<Presence>
-      makePresence(std::string const & presence_type) const;
+  static PresenceFactory* get();
 
-  private:
-    PresenceFactory();
-    //static PresenceFactory singleInstance_;
-  };
+  std::unique_ptr<Presence> makePresence(
+      std::string const& presence_type) const;
+
+ private:
+  PresenceFactory();
+  // static PresenceFactory singleInstance_;
+};
 }
-#endif // FWCore_PluginManager_PresenceFactory_h
+#endif  // FWCore_PluginManager_PresenceFactory_h

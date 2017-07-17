@@ -11,29 +11,28 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
-  class ParameterSet;
-  class ParameterSetDescription;
+class ParameterSet;
+class ParameterSetDescription;
 
-  class ProducerSourceFromFiles : public ProducerSourceBase, private FromFiles {
-  public:
-    ProducerSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
-    virtual ~ProducerSourceFromFiles();
+class ProducerSourceFromFiles : public ProducerSourceBase, private FromFiles {
+ public:
+  ProducerSourceFromFiles(ParameterSet const& pset,
+                          InputSourceDescription const& desc, bool realData);
+  virtual ~ProducerSourceFromFiles();
 
-    using FromFiles::logicalFileNames;
-    using FromFiles::fileNames;
-    using FromFiles::catalog;
+  using FromFiles::logicalFileNames;
+  using FromFiles::fileNames;
+  using FromFiles::catalog;
 
-    virtual bool noFiles() const override {
-      return fileNames().empty();
-    }
-    
-    static void fillDescription(ParameterSetDescription& desc);
+  virtual bool noFiles() const override { return fileNames().empty(); }
 
-  protected:
-    using FromFiles::incrementFileIndex;
+  static void fillDescription(ParameterSetDescription& desc);
 
-  private:
-    using FromFiles::fileIndex;
-  };
+ protected:
+  using FromFiles::incrementFileIndex;
+
+ private:
+  using FromFiles::fileIndex;
+};
 }
 #endif

@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     makeRefToBaseProdFrom
-// 
-/**\class makeRefToBaseProdFrom makeRefToBaseProdFrom.h "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
+//
+/**\class makeRefToBaseProdFrom makeRefToBaseProdFrom.h
+ "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 
  Description: [one line class summary]
 
@@ -21,21 +22,22 @@
 // system include files
 
 // user include files
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // forward declarations
 
 namespace edm {
-  template<typename T>
-    RefToBaseProd<T> makeRefToBaseProdFrom(RefToBase<T> const& iRef, Event const& iEvent) {
-    Handle<View<T>> view;
-    iEvent.get(iRef.id(),view);
+template <typename T>
+RefToBaseProd<T> makeRefToBaseProdFrom(RefToBase<T> const& iRef,
+                                       Event const& iEvent) {
+  Handle<View<T>> view;
+  iEvent.get(iRef.id(), view);
 
-    return RefToBaseProd<T>(view);
-  }
+  return RefToBaseProd<T>(view);
+}
 }
 #endif

@@ -10,11 +10,10 @@ NOTE: This is *very* incomplete.
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  class ParameterSet;
-  class FileInPath;
-  class ParameterSetDescription;
-  class ConfigurationDescriptions;
+class ParameterSet;
+class FileInPath;
+class ParameterSetDescription;
+class ConfigurationDescriptions;
 }
 
 #endif
-

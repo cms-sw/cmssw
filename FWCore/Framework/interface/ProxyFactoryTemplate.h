@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     ProxyFactoryTemplate
-// 
-/**\class ProxyFactoryTemplate ProxyFactoryTemplate.h FWCore/Framework/interface/ProxyFactoryTemplate.h
+//
+/**\class ProxyFactoryTemplate ProxyFactoryTemplate.h
+ FWCore/Framework/interface/ProxyFactoryTemplate.h
 
  Description: <one line class summary>
 
@@ -23,47 +24,44 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/ProxyFactoryBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/ProxyFactoryBase.h"
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 
 template <class T>
-class ProxyFactoryTemplate : public ProxyFactoryBase
-{
+class ProxyFactoryTemplate : public ProxyFactoryBase {
+ public:
+  typedef typename T::record_type record_type;
 
-   public:
-      typedef typename T::record_type record_type;
-   
-      ProxyFactoryTemplate() {}
-      //virtual ~ProxyFactoryTemplate();
+  ProxyFactoryTemplate() {}
+  // virtual ~ProxyFactoryTemplate();
 
-      // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const {
-         return std::make_unique<T>();
-      }
-      
-      
-      virtual DataKey makeKey(const std::string& iName) const {
-         return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
-      }
-      
-      // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  virtual std::unique_ptr<DataProxy> makeProxy() const {
+    return std::make_unique<T>();
+  }
 
-      // ---------- member functions ---------------------------
+  virtual DataKey makeKey(const std::string& iName) const {
+    return DataKey(DataKey::makeTypeTag<typename T::value_type>(),
+                   iName.c_str());
+  }
 
-   private:
-      ProxyFactoryTemplate(const ProxyFactoryTemplate&); // stop default
+  // ---------- static member functions --------------------
 
-      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&); // stop default
+  // ---------- member functions ---------------------------
 
-      // ---------- member data --------------------------------
+ private:
+  ProxyFactoryTemplate(const ProxyFactoryTemplate&);  // stop default
 
+  const ProxyFactoryTemplate& operator=(
+      const ProxyFactoryTemplate&);  // stop default
+
+  // ---------- member data --------------------------------
 };
-
-   }
+}
 }
 
 #endif

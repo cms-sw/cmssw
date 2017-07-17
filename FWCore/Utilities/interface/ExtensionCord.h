@@ -4,10 +4,12 @@
 //
 // Package:     Utilities
 // Class  :     ExtensionCord
-// 
-/**\class ExtensionCord ExtensionCord.h FWCore/Utilities/interface/ExtensionCord.h
+//
+/**\class ExtensionCord ExtensionCord.h
+ FWCore/Utilities/interface/ExtensionCord.h
 
- Description: Allows passing data from an edm::OutletBase to the holder of the ExtensionCord
+ Description: Allows passing data from an edm::OutletBase to the holder of the
+ ExtensionCord
 
  Usage:
     <usage>
@@ -28,61 +30,55 @@
 // forward declarations
 
 namespace edm {
-  template <class T> class OutletBase;
-  
-  template <class T>
-  class ExtensionCord
-  {
-    //only something that inherits from OutletBase<T> will
-    // be allowed to call 'setGetter'
-    friend class OutletBase<T>;
-    
-   public:
-      struct Holder {
-        extensioncord::ECGetterBase<T>* getter_;
-      };
+template <class T>
+class OutletBase;
 
-    
-      ExtensionCord(): holder_(new Holder()) {}
-      //virtual ~ExtensionCord();
+template <class T>
+class ExtensionCord {
+  // only something that inherits from OutletBase<T> will
+  // be allowed to call 'setGetter'
+  friend class OutletBase<T>;
 
-      // ---------- const member functions ---------------------
-      const T* operator->() const {
-        return this->get();
-      }
-      
-      const T* get() const {
-        if (!this->connected()) {
-          throw cms::Exception("InvalidExtensionCord")<<"an edm::ExtensionCord for type "<<typeid(T).name()
-          <<" was not connected to an outlet. This is a programming error.";
-        }
-        return holder_->getter_->get();
-      }
-        
-      const T& operator*() const {
-        return *(this->get());
-      }
-
-      ///Returns true if the ExtensionCord is connected to an outlet and can therefore deliver data
-      bool connected() const {
-        return 0 != holder_->getter_;
-      }
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-   private:
-      //ExtensionCord(const ExtensionCord&); // allow default
-
-      //const ExtensionCord& operator=(const ExtensionCord&); // allow default
-
-        void setGetter(extensioncord::ECGetterBase<T>* iGetter ) {
-        holder_->getter_ = iGetter;
-      }
-      // ---------- member data --------------------------------
-      std::shared_ptr< Holder > holder_;
-      
+ public:
+  struct Holder {
+    extensioncord::ECGetterBase<T>* getter_;
   };
+
+  ExtensionCord() : holder_(new Holder()) {}
+  // virtual ~ExtensionCord();
+
+  // ---------- const member functions ---------------------
+  const T* operator->() const { return this->get(); }
+
+  const T* get() const {
+    if (!this->connected()) {
+      throw cms::Exception("InvalidExtensionCord")
+          << "an edm::ExtensionCord for type " << typeid(T).name()
+          << " was not connected to an outlet. This is a programming error.";
+    }
+    return holder_->getter_->get();
+  }
+
+  const T& operator*() const { return *(this->get()); }
+
+  /// Returns true if the ExtensionCord is connected to an outlet and can
+  /// therefore deliver data
+  bool connected() const { return 0 != holder_->getter_; }
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+ private:
+  // ExtensionCord(const ExtensionCord&); // allow default
+
+  // const ExtensionCord& operator=(const ExtensionCord&); // allow default
+
+  void setGetter(extensioncord::ECGetterBase<T>* iGetter) {
+    holder_->getter_ = iGetter;
+  }
+  // ---------- member data --------------------------------
+  std::shared_ptr<Holder> holder_;
+};
 }
 
 #endif

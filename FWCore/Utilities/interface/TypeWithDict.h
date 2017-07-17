@@ -3,7 +3,8 @@
 
 /*----------------------------------------------------------------------
 
-TypeWithDict: A unique identifier for a C++ type, with the dictionary information
+TypeWithDict: A unique identifier for a C++ type, with the dictionary
+information
 
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
@@ -40,32 +41,38 @@ class TypeWithDict {
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
   friend bool operator==(TypeWithDict const&, std::type_info const&);
-  typedef enum{} dummyType; // Tag for valid type, but no type_info information
-  typedef dummyType** invalidType; // Tag for invalid type
-private:
+  typedef enum {
+  } dummyType;  // Tag for valid type, but no type_info information
+  typedef dummyType** invalidType;  // Tag for invalid type
+ private:
   std::type_info const* ti_;
   TClass* class_;
   TEnum* enum_;
   TDataType* dataType_;
   value_ptr<std::vector<size_t> > arrayDimensions_;
   long property_;
-public:
+
+ public:
   static TypeWithDict byName(std::string const& name);
-private:
+
+ private:
   static TypeWithDict byName(std::string const& name, long property);
-public:
+
+ public:
   TypeWithDict();
   TypeWithDict(TypeWithDict const&);
   explicit TypeWithDict(TClass* type);
   explicit TypeWithDict(TEnum* type);
   explicit TypeWithDict(std::type_info const&);
   explicit TypeWithDict(TMethodArg* arg);
-private:
+
+ private:
   explicit TypeWithDict(std::type_info const&, long property);
   explicit TypeWithDict(TClass* type, long property);
   explicit TypeWithDict(TEnum* type, long property);
   explicit TypeWithDict(TMethodArg* arg, long property);
-public:
+
+ public:
   TypeWithDict& operator=(TypeWithDict const&);
   TypeWithDict& stripConstRef();
   explicit operator bool() const;
@@ -102,9 +109,12 @@ public:
   // Note: Used only by FWCore/Modules/src/EventContentAnalyzer.cc
   FunctionWithDict functionMemberByName(std::string const&) const;
   // Note: Used only by Fireworks/Core/src/FWModelContextMenuHandler.cc:262
-  //FunctionWithDict functionMemberByName(std::string const& name, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+  // FunctionWithDict functionMemberByName(std::string const& name, TypeWithDict
+  // const& signature, int mods, TypeMemberQuery memberQuery) const;
   // Note: Used only by CondFormats/PhysicsToolsObjects/src/MVAComputer.cc
-  FunctionWithDict functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const;
+  FunctionWithDict functionMemberByName(std::string const& name,
+                                        std::string const& proto,
+                                        bool isConst) const;
   TypeWithDict nestedType(char const*) const;
   TypeWithDict nestedType(std::string const&) const;
   TypeWithDict finalType() const;
@@ -114,8 +124,10 @@ public:
   bool hasBase(TypeWithDict const& basety) const;
   int getBaseClassOffset(TypeWithDict const& baseClass) const;
   TypeWithDict templateArgumentAt(size_t index) const;
-  void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
-  void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
+  void const* pointerToBaseType(void const* ptr,
+                                TypeWithDict const& derivedType) const;
+  void const* pointerToContainedType(void const* ptr,
+                                     TypeWithDict const& derivedType) const;
   int stringToEnumValue(std::string const&) const;
   void* allocate() const;
   void deallocate(void* address) const;
@@ -153,9 +165,10 @@ inline bool operator!=(std::type_info const& a, TypeWithDict const& b) {
 std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
 
 class TypeBases {
-private:
+ private:
   TClass* class_;
-public:
+
+ public:
   explicit TypeBases(TypeWithDict const&);
   IterWithDict<TBaseClass> begin() const;
   IterWithDict<TBaseClass> end() const;
@@ -163,9 +176,10 @@ public:
 };
 
 class TypeDataMembers {
-private:
+ private:
   TClass* class_;
-public:
+
+ public:
   explicit TypeDataMembers(TypeWithDict const&);
   IterWithDict<TDataMember> begin() const;
   IterWithDict<TDataMember> end() const;
@@ -173,19 +187,20 @@ public:
 };
 
 class TypeFunctionMembers {
-private:
+ private:
   TClass* class_;
-public:
+
+ public:
   explicit TypeFunctionMembers(TypeWithDict const&);
   IterWithDict<TMethod> begin() const;
   IterWithDict<TMethod> end() const;
   size_t size() const;
 };
 
-} // namespace edm
+}  // namespace edm
 
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 
-#endif // FWCore_Utilities_TypeWithDict_h
+#endif  // FWCore_Utilities_TypeWithDict_h

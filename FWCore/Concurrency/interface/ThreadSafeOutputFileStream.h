@@ -8,19 +8,19 @@
 #include <string>
 
 namespace edm {
-  class ThreadSafeOutputFileStream {
-  public:
-    ThreadSafeOutputFileStream(std::string const& name);
-    ~ThreadSafeOutputFileStream();
+class ThreadSafeOutputFileStream {
+ public:
+  ThreadSafeOutputFileStream(std::string const& name);
+  ~ThreadSafeOutputFileStream();
 
-    void write(std::string&& msg);
-    explicit operator bool() const { return static_cast<bool>(file_); }
+  void write(std::string&& msg);
+  explicit operator bool() const { return static_cast<bool>(file_); }
 
-  private:
-    std::ofstream file_;
-    std::atomic<bool> msgBeingLogged_ {false};
-    tbb::concurrent_queue<std::string> waitingMessages_ {};
-  };
+ private:
+  std::ofstream file_;
+  std::atomic<bool> msgBeingLogged_{false};
+  tbb::concurrent_queue<std::string> waitingMessages_{};
+};
 }
 
 #endif

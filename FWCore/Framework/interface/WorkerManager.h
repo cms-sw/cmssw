@@ -21,119 +21,112 @@
 #include <vector>
 
 namespace edm {
-  class ExceptionCollector;
-  class StreamID;
-  class StreamContext;
-  class ModuleRegistry;
-  class PreallocationConfiguration;
-  
-  class WorkerManager {
-  public:
-    typedef std::vector<Worker*> AllWorkers;
+class ExceptionCollector;
+class StreamID;
+class StreamContext;
+class ModuleRegistry;
+class PreallocationConfiguration;
 
-    WorkerManager(std::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
+class WorkerManager {
+ public:
+  typedef std::vector<Worker*> AllWorkers;
 
-    WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                  std::shared_ptr<ActivityRegistry> actReg,
-                  ExceptionToActionTable const& actions);
-    void addToUnscheduledWorkers(ParameterSet& pset,
-                                 ProductRegistry& preg,
-                                 PreallocationConfiguration const* prealloc,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
-                                 std::string label,
-                                 std::set<std::string>& unscheduledLabels,
-                                 std::vector<std::string>& shouldBeUsedLabels);
+  WorkerManager(std::shared_ptr<ActivityRegistry> actReg,
+                ExceptionToActionTable const& actions);
 
-    void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
+  WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                std::shared_ptr<ActivityRegistry> actReg,
+                ExceptionToActionTable const& actions);
+  void addToUnscheduledWorkers(
+      ParameterSet& pset, ProductRegistry& preg,
+      PreallocationConfiguration const* prealloc,
+      std::shared_ptr<ProcessConfiguration> processConfiguration,
+      std::string label, std::set<std::string>& unscheduledLabels,
+      std::vector<std::string>& shouldBeUsedLabels);
 
-    template <typename T, typename U>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
-                              StreamID streamID,
-                              typename T::Context const* topContext,
-                              U const* context,
-                              bool cleaningUpAfterException = false);
-    template <typename T, typename U>
-    void processOneOccurrenceAsync(
-                              WaitingTask* task,
-                              typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
-                              StreamID streamID,
-                              typename T::Context const* topContext,
-                              U const* context);
-
-    
-    void setupOnDemandSystem(Principal& principal, EventSetup const& es);
-
-    void beginJob(ProductRegistry const& iRegistry);
-    void endJob();
-    void endJob(ExceptionCollector& collector);
-
-    void beginStream(StreamID iID, StreamContext& streamContext);
-    void endStream(StreamID iID, StreamContext& streamContext);
-    
-    AllWorkers const& allWorkers() const {return allWorkers_;}
-
-    void addToAllWorkers(Worker* w);
-
-    ExceptionToActionTable const&  actionTable() const {return *actionTable_;}
-
-    Worker* getWorker(ParameterSet& pset,
-                      ProductRegistry& preg,
-                      PreallocationConfiguration const* prealloc,
-                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label);
-
-    void resetAll();
-
-  private:
-
-    WorkerRegistry      workerReg_;
-    ExceptionToActionTable const*  actionTable_;
-    AllWorkers          allWorkers_;
-    UnscheduledCallProducer unscheduled_;
-    void const* lastSetupEventPrincipal_;
-  };
+  void setOnDemandProducts(
+      ProductRegistry& pregistry,
+      std::set<std::string> const& unscheduledLabels) const;
 
   template <typename T, typename U>
-  void
-  WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                 EventSetup const& es,
+  void processOneOccurrence(typename T::MyPrincipal& principal,
+                            EventSetup const& eventSetup, StreamID streamID,
+                            typename T::Context const* topContext,
+                            U const* context,
+                            bool cleaningUpAfterException = false);
+  template <typename T, typename U>
+  void processOneOccurrenceAsync(WaitingTask* task,
+                                 typename T::MyPrincipal& principal,
+                                 EventSetup const& eventSetup,
                                  StreamID streamID,
                                  typename T::Context const* topContext,
-                                 U const* context,
-                                 bool cleaningUpAfterException) {
-    this->resetAll();
+                                 U const* context);
 
-    try {
-      convertException::wrap([&]() {
-        //make sure the unscheduled items see this run or lumi transition
-        unscheduled_.runNow<T,U>(ep, es,streamID, topContext, context);
-        }
-      );
-    }
-    catch(cms::Exception& ex) {
-      if (ex.context().empty()) {
-        addContextAndPrintException("Calling function WorkerManager::processOneOccurrence", ex, cleaningUpAfterException);
-      } else {
-        addContextAndPrintException("", ex, cleaningUpAfterException);
-      }
-      throw;
-    }
-  }
-  
-  template <typename T, typename U>
-  void
-  WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
-                                           typename T::MyPrincipal& ep,
-                                           EventSetup const& es,
-                                           StreamID streamID,
-                                           typename T::Context const* topContext,
-                                           U const* context) {
-    //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T,U>(task,ep, es,streamID, topContext, context);
-  }
+  void setupOnDemandSystem(Principal& principal, EventSetup const& es);
 
+  void beginJob(ProductRegistry const& iRegistry);
+  void endJob();
+  void endJob(ExceptionCollector& collector);
+
+  void beginStream(StreamID iID, StreamContext& streamContext);
+  void endStream(StreamID iID, StreamContext& streamContext);
+
+  AllWorkers const& allWorkers() const { return allWorkers_; }
+
+  void addToAllWorkers(Worker* w);
+
+  ExceptionToActionTable const& actionTable() const { return *actionTable_; }
+
+  Worker* getWorker(
+      ParameterSet& pset, ProductRegistry& preg,
+      PreallocationConfiguration const* prealloc,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
+      std::string const& label);
+
+  void resetAll();
+
+ private:
+  WorkerRegistry workerReg_;
+  ExceptionToActionTable const* actionTable_;
+  AllWorkers allWorkers_;
+  UnscheduledCallProducer unscheduled_;
+  void const* lastSetupEventPrincipal_;
+};
+
+template <typename T, typename U>
+void WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
+                                         EventSetup const& es,
+                                         StreamID streamID,
+                                         typename T::Context const* topContext,
+                                         U const* context,
+                                         bool cleaningUpAfterException) {
+  this->resetAll();
+
+  try {
+    convertException::wrap([&]() {
+      // make sure the unscheduled items see this run or lumi transition
+      unscheduled_.runNow<T, U>(ep, es, streamID, topContext, context);
+    });
+  } catch (cms::Exception& ex) {
+    if (ex.context().empty()) {
+      addContextAndPrintException(
+          "Calling function WorkerManager::processOneOccurrence", ex,
+          cleaningUpAfterException);
+    } else {
+      addContextAndPrintException("", ex, cleaningUpAfterException);
+    }
+    throw;
+  }
+}
+
+template <typename T, typename U>
+void WorkerManager::processOneOccurrenceAsync(
+    WaitingTask* task, typename T::MyPrincipal& ep, EventSetup const& es,
+    StreamID streamID, typename T::Context const* topContext,
+    U const* context) {
+  // make sure the unscheduled items see this run or lumi transition
+  unscheduled_.runNowAsync<T, U>(task, ep, es, streamID, topContext, context);
+}
 }
 
 #endif

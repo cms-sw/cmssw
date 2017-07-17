@@ -4,8 +4,10 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryTemplate
-// 
-/**\class EventSetupRecordProviderFactoryTemplate EventSetupRecordProviderFactoryTemplate.h FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h
+//
+/**\class EventSetupRecordProviderFactoryTemplate
+ EventSetupRecordProviderFactoryTemplate.h
+ FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h
 
  Description: <one line class summary>
 
@@ -22,45 +24,44 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
+namespace eventsetup {
 
-template<class T>
-class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderFactory
-{
+template <class T>
+class EventSetupRecordProviderFactoryTemplate
+    : public EventSetupRecordProviderFactory {
+ public:
+  EventSetupRecordProviderFactoryTemplate() {
+    EventSetupRecordProviderFactoryManager::instance().addFactory(
+        *this, EventSetupRecordKey::makeKey<T>());
+  }
+  // virtual ~EventSetupRecordProviderFactoryTemplate();
 
-   public:
-      EventSetupRecordProviderFactoryTemplate() {
-         EventSetupRecordProviderFactoryManager::instance().addFactory(
-               *this,
-               EventSetupRecordKey::makeKey<T>());
-      }
-      //virtual ~EventSetupRecordProviderFactoryTemplate();
+  // ---------- const member functions ---------------------
+  virtual std::unique_ptr<EventSetupRecordProvider> makeRecordProvider() const {
+    return std::unique_ptr<EventSetupRecordProvider>(
+        new EventSetupRecordProviderTemplate<T>());
+  }
 
-      // ---------- const member functions ---------------------
-      virtual std::unique_ptr<EventSetupRecordProvider> makeRecordProvider() const {
-         return std::unique_ptr<EventSetupRecordProvider>(
-                     new EventSetupRecordProviderTemplate<T>());
-      }
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+ private:
+  EventSetupRecordProviderFactoryTemplate(
+      const EventSetupRecordProviderFactoryTemplate&);  // stop default
 
-   private:
-      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&); // stop default
+  const EventSetupRecordProviderFactoryTemplate& operator=(
+      const EventSetupRecordProviderFactoryTemplate&);  // stop default
 
-      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&); // stop default
-
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-   }
+}
 }
 #endif

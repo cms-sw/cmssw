@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     analyzerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDAnalyzerBase
 //
@@ -13,15 +13,15 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/one/implementorsMethods.h"
 #include "FWCore/Framework/interface/one/EDAnalyzerBase.h"
+#include "FWCore/Framework/src/one/implementorsMethods.h"
 
 namespace edm {
-  namespace one {
-    namespace impl {
-      template class SharedResourcesUser<edm::one::EDAnalyzerBase>;
-      template class RunWatcher<edm::one::EDAnalyzerBase>;
-      template class LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
-    }
-  }
+namespace one {
+namespace impl {
+template class SharedResourcesUser<edm::one::EDAnalyzerBase>;
+template class RunWatcher<edm::one::EDAnalyzerBase>;
+template class LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
+}
+}
 }

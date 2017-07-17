@@ -44,49 +44,46 @@ for names changing more often than by run even in real data.
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace edm {
 
-  class ParameterSet;
+class ParameterSet;
 
-  class TriggerNames {
+class TriggerNames {
+ public:
+  typedef std::vector<std::string> Strings;
+  typedef std::map<std::string, unsigned int> IndexMap;
 
-  public:
+  // Users should not construct these.  Instead they should
+  // get a reference to the current one from the Event. See
+  // comments above.
+  TriggerNames();
+  TriggerNames(edm::ParameterSet const& pset);
 
-    typedef std::vector<std::string> Strings;
-    typedef std::map<std::string, unsigned int> IndexMap;
+  Strings const& triggerNames() const;
 
-    // Users should not construct these.  Instead they should
-    // get a reference to the current one from the Event. See
-    // comments above.
-    TriggerNames();
-    TriggerNames(edm::ParameterSet const& pset);
+  // Throws if the index is out of range.
+  std::string const& triggerName(unsigned int index) const;
 
-    Strings const& triggerNames() const;
+  // If the input name is not known, this returns a value
+  // equal to the size.
+  unsigned int triggerIndex(std::string const& name) const;
 
-    // Throws if the index is out of range.
-    std::string const& triggerName(unsigned int index) const;
+  // The number of trigger names.
+  Strings::size_type size() const;
 
-    // If the input name is not known, this returns a value
-    // equal to the size.
-    unsigned int triggerIndex(std::string const& name) const;
+  // Can be used to quickly compare two TriggerNames objects
+  // to see whether or not they contain the same names.
+  ParameterSetID const& parameterSetID() const;
 
-    // The number of trigger names.
-    Strings::size_type size() const;
+ private:
+  ParameterSetID psetID_;
 
-    // Can be used to quickly compare two TriggerNames objects
-    // to see whether or not they contain the same names.
-    ParameterSetID const& parameterSetID() const;
-
-  private:
-
-    ParameterSetID psetID_;
-
-    Strings triggerNames_;
-    IndexMap indexMap_;
-  };
+  Strings triggerNames_;
+  IndexMap indexMap_;
+};
 }
 #endif
