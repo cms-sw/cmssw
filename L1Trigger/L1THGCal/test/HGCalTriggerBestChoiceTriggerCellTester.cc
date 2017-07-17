@@ -53,7 +53,7 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCDataFrame<DetId,HGCSample>>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -390,8 +390,8 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     for( const auto& module_hits : hit_modules_ee ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
         for(const auto& eedata : module_hits.second)
         {
@@ -431,8 +431,8 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     for( const auto& module_hits : hit_modules_fh ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
         for(const auto& fhdata : module_hits.second)
         {
@@ -473,7 +473,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
 }
 
 
-void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part
