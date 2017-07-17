@@ -87,6 +87,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
   MonitorElement    *hp2xyADC[RPotsTotalNumber][NplaneMAX];
   MonitorElement *h2xyROCHits[RPotsTotalNumber*NplaneMAX][NROCsMAX];
   MonitorElement  *h2xyROCadc[RPotsTotalNumber*NplaneMAX][NROCsMAX];
+  MonitorElement *hRPotActivBXall[RPotsTotalNumber];
   int		  HitsMultROC[RPotsTotalNumber*NplaneMAX][NROCsMAX];
   int           HitsMultPlane[RPotsTotalNumber][NplaneMAX];
 
@@ -263,6 +264,9 @@ edm::EventSetup const &)
 	 NplaneMAX, -0.5, NplaneMAX+0.5);
        hRPotActivBX[indexP] = 
         ibooker.book1D("5 fired planes per BX", rpTitle+";Event.BX", 4002, -1.5, 4000.+0.5);
+       hRPotActivBXall[indexP] =
+        ibooker.book1D("hits per BX", rpTitle+";Event.BX", 4002, -1.5, 4000.+0.5);
+
        hRPotActivBXroc[indexP] = 
         ibooker.book1D("4 fired ROCs per BX", rpTitle+";Event.BX", 4002, -1.5, 4000.+0.5);
 
@@ -337,22 +341,16 @@ void CTPPSPixelDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiS
 void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   ++nEvents;
-  int RPactivity[2][NRPotsMAX];
-  for(int arm = 0; arm <2; arm++) { 
-    for(int rp=0; rp<NRPotsMAX; rp++) {
-      RPactivity[arm][rp] = 0;
-    }
-  }
-  for(int ind=0; ind<2*3*NRPotsMAX; ind++) { 
-    for(int p=0; p<NplaneMAX; p++) {
-      HitsMultPlane[ind][p] = 0;
-    }
-  }
-  for(int ind=0; ind<2*3*NRPotsMAX*NplaneMAX; ind++)  {
-    for(int rp=0; rp<NROCsMAX; rp++) {
-      HitsMultROC[ind][rp] = 0;
-    }
-  }
+ int RPactivity[NArms][NRPotsMAX], digiSize[NArms][NRPotsMAX];
+ for(int arm = 0; arm <2; arm++) for(int rp=0; rp<NRPotsMAX; rp++)
+   RPactivity[arm][rp] = digiSize[arm][rp] = 0;
+ 
+ for(int ind=0; ind<2*3*NRPotsMAX; ind++) 
+   for(int p=0; p<NplaneMAX; p++) HitsMultPlane[ind][p] = 0;
+
+ for(int ind=0; ind<2*3*NRPotsMAX*NplaneMAX; ind++) 
+   for(int rp=0; rp<NROCsMAX; rp++) HitsMultROC[ind][rp] = 0;
+
   Handle< DetSetVector<CTPPSPixelDigi> > pixDigi;
   event.getByToken(tokenDigi, pixDigi);
 
@@ -363,88 +361,83 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
   valid |= pixDigi.isValid();
 //  valid |= Clus.isValid();
 
-  if(!valid && verbosity) LogPrint("CTPPSPixelDQMSource") <<"No valid data in Event "<<nEvents;
+ if(!valid && verbosity) LogPrint("CTPPSPixelDQMSource") <<"No valid data in Event "<<nEvents;
 
-  if(pixDigi.isValid()) {
-    for(const auto &ds_digi : *pixDigi) {
-      int idet = getDet(ds_digi.id);
-      if(idet != DetId::VeryForward) {
-        if(verbosity>1) LogPrint("CTPPSPixelDQMSource") <<"not CTPPS: ds_digi.id"<<ds_digi.id;
-        continue;
-      }
-      //   int subdet = getSubdet(ds_digi.id);
-      
-      int plane = getPixPlane(ds_digi.id);
-      
-      CTPPSDetId theId(ds_digi.id);
-      int arm = theId.arm()&0x1;
-      int station = theId.station()&0x3;
-      int rpot = theId.rp()&0x7;
-      RPactivity[arm][rpot] = 1;
-      
-      if(StationStatus[station] && RPstatus[station][rpot]) {
-        
-        hp2HitsOcc[arm][station]->Fill(plane,rpot,(int)ds_digi.data.size());
-        h2HitsMultipl[arm][station]->Fill(prIndex(rpot,plane),ds_digi.data.size());
-        h2PlaneActive[arm][station]->Fill(plane,rpot);
-        
-        int index = getRPindex(arm,station,rpot);
-        HitsMultPlane[index][plane] += ds_digi.data.size();
-        if(RPindexValid[index]) {
-          hHitsMult[index][plane]->Fill(ds_digi.data.size());
-        }
-        int rocHistIndex = getPlaneIndex(arm,station,rpot,plane);
-        
-        for(DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
-            dit != ds_digi.end(); ++dit) {
-          int row = dit->row();
-          int col = dit->column();
-          int adc = dit->adc();
-          
-          if(RPindexValid[index]) {
-            h2xyHits[index][plane]->Fill(col,row);
-            hp2xyADC[index][plane]->Fill(col,row,adc);
-            int colROC, rowROC;
-            int trocId;
-            if(!thePixIndices.transformToROC(col,row, trocId, colROC, rowROC)) {
-              if(trocId>=0 && trocId<NROCsMAX) {
-                h2xyROCHits[rocHistIndex][trocId]->Fill(rowROC,colROC);
-                h2xyROCadc[rocHistIndex][trocId]->Fill(rowROC,colROC,adc);
-                ++HitsMultROC[rocHistIndex][trocId];
-              }
-            }
-          } //end if(RPindexValid[index]) {
-        }
-      
-        if(int(ds_digi.data.size()) > multHits) multHits = ds_digi.data.size();
-      } // end  if(StationStatus[station]) {
-    } // end for(const auto &ds_digi : *pixDigi)
-  } //if(pixDigi.isValid()) {
+if(pixDigi.isValid())
+  for(const auto &ds_digi : *pixDigi)
+  {
+   int idet = getDet(ds_digi.id);
+   if(idet != DetId::VeryForward) {
+     if(verbosity>1) LogPrint("CTPPSPixelDQMSource") <<"not CTPPS: ds_digi.id"<<ds_digi.id;
+     continue;
+   }
+//   int subdet = getSubdet(ds_digi.id);
 
-  for(int arm=0; arm<2; arm++) {
-    for(int stn=0; stn<NStationMAX; stn++) {
-      for(int rp=0; rp<NRPotsMAX; rp++) {
-        int index = getRPindex(arm,stn,rp);
-        if(RPindexValid[index]==0) continue;
-        if(RPactivity[arm][rp]==0) continue;
-        
-        int np = 0; 
-        for(int p=0; p<NplaneMAX; p++) {
-          if(HitsMultPlane[index][p]>0) np++;
+   int plane = getPixPlane(ds_digi.id);
+   
+   CTPPSDetId theId(ds_digi.id);
+   int arm = theId.arm()&0x1;
+   int station = theId.station()&0x3;
+   int rpot = theId.rp()&0x7;
+   RPactivity[arm][rpot] = 1;
+   ++digiSize[arm][rpot];
+
+ if(StationStatus[station] && RPstatus[station][rpot]) {
+
+   hp2HitsOcc[arm][station]->Fill(plane,rpot,(int)ds_digi.data.size());
+   h2HitsMultipl[arm][station]->Fill(prIndex(rpot,plane),ds_digi.data.size());
+   h2PlaneActive[arm][station]->Fill(plane,rpot);
+
+    int index = getRPindex(arm,station,rpot);
+    HitsMultPlane[index][plane] += ds_digi.data.size();
+    if(RPindexValid[index])
+      hHitsMult[index][plane]->Fill(ds_digi.data.size());
+    int rocHistIndex = getPlaneIndex(arm,station,rpot,plane);
+
+    for(DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
+	 dit != ds_digi.end(); ++dit) {
+      int row = dit->row();
+      int col = dit->column();
+      int adc = dit->adc();
+
+      if(RPindexValid[index]) {
+        h2xyHits[index][plane]->Fill(col,row);
+        hp2xyADC[index][plane]->Fill(col,row,adc);
+        int colROC, rowROC;
+        int trocId;
+        if(!thePixIndices.transformToROC(col,row, trocId, colROC, rowROC)) {
+	 if(trocId>=0 && trocId<NROCsMAX) {
+	   h2xyROCHits[rocHistIndex][trocId]->Fill(rowROC,colROC);
+	   h2xyROCadc[rocHistIndex][trocId]->Fill(rowROC,colROC,adc);
+	   ++HitsMultROC[rocHistIndex][trocId];
+	 }
         }
-        hRPotActivPlanes[index]->Fill(np);
-        if(np>5) { hRPotActivBX[index]->Fill(event.bunchCrossing());}
-        
-        int rocf[NplaneMAX];
-        for(int r=0; r<NROCsMAX; r++) { rocf[r]=0; }
-        for(int p=0; p<NplaneMAX; p++) {
-          int indp = getPlaneIndex(arm,stn,rp,p);
-          for(int r=0; r<NROCsMAX; r++) {
-            if(HitsMultROC[indp][r] > 0) ++rocf[r];
-          }
-          for(int r=0; r<NROCsMAX; r++) { 
-            h2HitsMultROC[index]->Fill(p,r,HitsMultROC[indp][r]);
-          }
+      } //end if(RPindexValid[index]) {
+     }
+
+   if(int(ds_digi.data.size()) > multHits) multHits = ds_digi.data.size();
+  } // end  if(StationStatus[station]) {
+ } // end for(const auto &ds_digi : *pixDigi)
+
+ for(int arm=0; arm<2; arm++) for(int stn=0; stn<NStationMAX; stn++) 
+  for(int rp=0; rp<NRPotsMAX; rp++) {
+    int index = getRPindex(arm,stn,rp);
+    if(RPindexValid[index]==0) continue;
+    if(RPactivity[arm][rp]==0) continue;
+
+    int np = 0; 
+    for(int p=0; p<NplaneMAX; p++) if(HitsMultPlane[index][p]>0) np++;
+    hRPotActivPlanes[index]->Fill(np);
+    if(np>5) hRPotActivBX[index]->Fill(event.bunchCrossing());
+    hRPotActivBXall[index]->Fill(event.bunchCrossing(),float(digiSize[arm][rp]));
+
+    int rocf[NplaneMAX];
+    for(int r=0; r<NROCsMAX; r++) rocf[r]=0;
+    for(int p=0; p<NplaneMAX; p++) {
+      int indp = getPlaneIndex(arm,stn,rp,p);
+      for(int r=0; r<NROCsMAX; r++) if(HitsMultROC[indp][r] > 0) ++rocf[r];
+      for(int r=0; r<NROCsMAX; r++) h2HitsMultROC[index]->Fill(p,r,HitsMultROC[indp][r]);
+
         }
         int max = 0;
         for(int r=0; r<NROCsMAX; r++) {
@@ -458,8 +451,6 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
         }
         if(max > 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
       }
-    }
-  }
 
   if((nEvents % 100)) return;
   if(verbosity) LogPrint("CTPPSPixelDQMSource")<<"analyze event "<<nEvents;
