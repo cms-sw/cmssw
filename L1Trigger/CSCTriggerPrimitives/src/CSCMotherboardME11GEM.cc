@@ -238,7 +238,6 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
   // debug gem matching
   debug_gem_matching = me11tmbParams.getParameter<bool>("debugMatching");
   debug_luts = me11tmbParams.getParameter<bool>("debugLUTs");
-  debug_gem_dphi = me11tmbParams.getParameter<bool>("debugGEMDphi");
 
   //  deltas used to match to GEM pads
   maxDeltaBXPadEven_ = me11tmbParams.getParameter<int>("maxDeltaBXPadEven");

@@ -195,7 +195,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
-  bool debug_gem_dphi;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
