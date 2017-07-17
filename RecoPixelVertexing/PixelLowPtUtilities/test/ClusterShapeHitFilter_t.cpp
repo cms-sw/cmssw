@@ -7,12 +7,13 @@
 namespace test {
   namespace ClusterShapeHitFilterTest {    
     int test() {
-      const std::string use_PixelShapeFile("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
+      const std::string use_PixelShapeFile("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par");
     
-      ClusterShapeHitFilter filter;
-      filter.PixelShapeFile = &use_PixelShapeFile;
-      filter.loadPixelLimits();
-      filter.loadStripLimits();
+      ClusterShapeHitFilter filter(
+             "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par",
+             "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par"
+      );
+   
     
       const float out = 10e12;
       const float eps = 0.01;
