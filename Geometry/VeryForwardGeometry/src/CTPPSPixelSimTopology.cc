@@ -3,7 +3,7 @@
 
 CTPPSPixelSimTopology::CTPPSPixelSimTopology(const edm::ParameterSet &params)
 {
-  verbosity_ = params.getParameter<int>("RPixVerbosity");
+  verbosity_ = params.getUntrackedParameter<int>("RPixVerbosity");
 
   active_edge_sigma_ = params.getParameter<double>("RPixActiveEdgeSmearing");  //[mm]
   
