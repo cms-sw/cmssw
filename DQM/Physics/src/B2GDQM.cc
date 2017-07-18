@@ -118,18 +118,18 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
   semiMu_dphiHadCut_ = ps.getParameter<double>("semiMu_dphiHadCut");
   semiMu_dRMin_ = ps.getParameter<double>("semiMu_dRMin");
   semiMu_ptRel_ = ps.getParameter<double>("semiMu_ptRel");
-  muonSelect_ = std::shared_ptr<StringCutObjectSelector<reco::Muon> >(
-      new StringCutObjectSelector<reco::Muon>(
-          ps.getParameter<std::string>("muonSelect")));
+  muonSelect_ = std::make_shared<StringCutObjectSelector<reco::Muon> >(
+      
+          ps.getParameter<std::string>("muonSelect"));
 
   semiE_HadJetPtCut_ = ps.getParameter<double>("semiE_HadJetPtCut");
   semiE_LepJetPtCut_ = ps.getParameter<double>("semiE_LepJetPtCut");
   semiE_dphiHadCut_ = ps.getParameter<double>("semiE_dphiHadCut");
   semiE_dRMin_ = ps.getParameter<double>("semiE_dRMin");
   semiE_ptRel_ = ps.getParameter<double>("semiE_ptRel");
-  elecSelect_ = std::shared_ptr<StringCutObjectSelector<reco::GsfElectron> >(
-      new StringCutObjectSelector<reco::GsfElectron>(
-          ps.getParameter<std::string>("elecSelect")));
+  elecSelect_ = std::make_shared<StringCutObjectSelector<reco::GsfElectron> >(
+      
+          ps.getParameter<std::string>("elecSelect"));
 
   PFJetCorService_ = ps.getParameter<std::string>("PFJetCorService");
 
