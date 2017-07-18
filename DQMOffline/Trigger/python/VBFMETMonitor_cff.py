@@ -4,12 +4,6 @@ from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
 # HLT_
 DiJetVBFmonitoring = hltobjmonitoring.clone()
-
-DiJetVBFmonitoring.met       = cms.InputTag("pfMet")
-DiJetVBFmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")
-DiJetVBFmonitoring.electrons = cms.InputTag("gedGsfElectrons")
-DiJetVBFmonitoring.muons     = cms.InputTag("muons")
-
 DiJetVBFmonitoring.FolderName = cms.string('HLT/Higgs/VBFMET/DiJet/')
 DiJetVBFmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","HLT" )
 DiJetVBFmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiJet110_35_Mjj650_PFMET110_v*","HLT_DiJet110_35_Mjj650_PFMET120_v*","HLT_DiJet110_35_Mjj650_PFMET130_v*")
