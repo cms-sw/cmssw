@@ -1,8 +1,7 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software
+ * This is a part of CTPPS offline software.
  * Authors:
- *   Leszek Grzanka
  *   Jan Kašpar
  *   Laurent Forthomme
  *
@@ -11,11 +10,8 @@
 #ifndef RecoCTPPS_ProtonReconstruction_ProtonReconstructionAlgorithm_h
 #define RecoCTPPS_ProtonReconstruction_ProtonReconstructionAlgorithm_h
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
@@ -26,23 +22,29 @@
 #include "Fit/Fitter.h"
 
 #include <map>
-#include <unordered_map>
 #include <string>
-#include <cmath>
 
-enum LHCSector { unknownSector, sector45, sector56 };
+//----------------------------------------------------------------------------------------------------
 
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool );
+    ProtonReconstructionAlgorithm(const std::string &optics_file_beam1, const std::string &optics_file_beam2,
+      const edm::ParameterSet &beam_conditions);
+
     ~ProtonReconstructionAlgorithm();
 
-    void reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<reco::ProtonTrack>& reco ) const;
+    // TODO: describe
+    // TODO: input should contain only tracks from 1 arm only
+    void reconstruct(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output,
+      bool check_apertures=false) const;
+
+    // TODO: add methods: reconstructFromSingleRP, reconstructFromMultipleRP
 
   private:
     /// optics data associated with 1 RP
-    struct RPOpticsData {
+    struct RPOpticsData
+    {
       std::shared_ptr<LHCOpticsApproximator> optics;
       std::shared_ptr<TSpline3> s_xi_vs_x, s_y0_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
     };
@@ -50,38 +52,41 @@ class ProtonReconstructionAlgorithm
     edm::ParameterSet beamConditions_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
+
     /// map: RP id --> optics data
-    std::map<TotemRPDetId,RPOpticsData> m_rp_optics_;
+    std::map<unsigned int, RPOpticsData> m_rp_optics_;
 
     /// class for calculation of chi^2
-    class ChiSquareCalculator {
+    class ChiSquareCalculator
+    {
       public:
-        ChiSquareCalculator( const edm::ParameterSet& bc, bool aper ) :
+        ChiSquareCalculator( const edm::ParameterSet& bc) :
+          check_apertures(false),
           beamConditions_( bc ),
           halfCrossingAngleSector45_( bc.getParameter<double>( "halfCrossingAngleSector45" ) ),
           halfCrossingAngleSector56_( bc.getParameter<double>( "halfCrossingAngleSector56" ) ),
           yOffsetSector45_( bc.getParameter<double>( "yOffsetSector45" ) ),
-          yOffsetSector56_( bc.getParameter<double>( "yOffsetSector56" ) ),
-          check_apertures( aper ) {}
-        double operator() ( const double* ) const;
+          yOffsetSector56_( bc.getParameter<double>( "yOffsetSector56" ) )
+        {
+        }
 
-        const std::vector< edm::Ptr<CTPPSLocalTrackLite> >* tracks;
-        const std::map<TotemRPDetId,RPOpticsData>* m_rp_optics;
+        double operator() (const double *parameters) const;
+
+        const std::vector<const CTPPSLocalTrackLite*> *tracks;
+        const std::map<unsigned int, RPOpticsData> *m_rp_optics;
+        bool check_apertures;
 
       private:
         edm::ParameterSet beamConditions_;
         double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
         double yOffsetSector45_, yOffsetSector56_;
-        const bool check_apertures;
     };
 
-    // fitter object
+    /// fitter object
     std::unique_ptr<ROOT::Fit::Fitter> fitter_;
 
-    bool checkApertures_;
-
+    /// object to calculate chi^2
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
 };
 
 #endif
-

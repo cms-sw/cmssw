@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPackages_2016PreTS2
 from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
-ctppsOpticsReconstruction = cms.EDProducer('CTPPSOpticsReconstruction',
-    potsTracksTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
+ctppsProtonReconstruction = cms.EDProducer('CTPPSProtonReconstruction',
+    tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer'),
 
     beamConditions = lhcBeamConditions_2016PreTS2,
     detectorPackages = detectorPackages_2016PreTS2,
