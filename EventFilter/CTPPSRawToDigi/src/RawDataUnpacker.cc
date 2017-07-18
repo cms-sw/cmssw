@@ -385,24 +385,29 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   if (hFlag == vmDiamondCompact)
   {
     for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000; i++) {
-      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {     // If Event Couter word is found
+      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {
+        // Event Counter word is found
         fd[10] = buf[i];
         continue;
       }
       switch ( buf[i] & 0xF800 ) {
-        case VFAT_DIAMOND_HEADER_OF_WORD_2: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_2:
+          // word 2 of the diamond VFAT frame is found
           fd[2] = buf[i];
           fd[1] = buf[i + 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_3: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_3:
+          // word 3 of the diamond VFAT frame is found
           fd[3] = buf[i];
           fd[4] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_5: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_5:
+          // word 5 of the diamond VFAT frame is found
           fd[5] = buf[i];
           fd[6] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_7: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_7:
+          // word 7 of the diamond VFAT frame is found
           fd[7] = buf[i];
           fd[8] = buf[i - 1];
           break;
