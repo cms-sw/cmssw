@@ -93,10 +93,6 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcalRecAlgos,
     phase = cms.uint32(1),
     SeverityLevels = {
-        0 : dict( RecHitFlags = cms.vstring('TimingFromTDC', 
-                                            'HBHEPulseFitBit'
-                )
-            ),
         2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise') ),
         3 : dict( RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',  
                                             'HBHEFlatNoise', 
