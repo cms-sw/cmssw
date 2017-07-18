@@ -98,6 +98,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     deep::jet_features_converter(jet, features.jet_features);
 
     // fill features from ShallowTagInfo
+    const auto & tag_info_vars = tag_info.taggingVariables();
+    btag_features_converter(tag_info_vars, features.tag_info_features);
+
  
     // copy which will be sorted
     auto svs_sorted = *svs;     
