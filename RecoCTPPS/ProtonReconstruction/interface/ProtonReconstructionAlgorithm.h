@@ -34,12 +34,21 @@ class ProtonReconstructionAlgorithm
 
     ~ProtonReconstructionAlgorithm();
 
-    // TODO: describe
-    // TODO: input should contain only tracks from 1 arm only
+    /// runs proton reconstruction with an optimal strategy
+    /// input may only contain tracks from one arm
     void reconstruct(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output,
-      bool check_apertures=false) const;
+      bool check_apertures=false) const
+    {
+      // TODO: do something more useful
+      reconstructFromMultiRP(input, output, check_apertures);
+    }
 
-    // TODO: add methods: reconstructFromSingleRP, reconstructFromMultipleRP
+    /// runs proton reconstruction using single-RP strategy
+    void reconstructFromSingleRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output) const;
+
+    /// runs proton reconstruction using multiple-RP strategy
+    void reconstructFromMultiRP(const std::vector<const CTPPSLocalTrackLite*> &input, std::vector<reco::ProtonTrack> &output,
+      bool check_apertures=false) const;
 
   private:
     /// optics data associated with 1 RP

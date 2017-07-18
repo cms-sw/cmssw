@@ -200,7 +200,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstruct(const vector<const CTPPSLocalTrackLite*> &tracks,
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CTPPSLocalTrackLite*> &tracks,
   vector<reco::ProtonTrack> &out, bool check_apertures) const
 {
   // need at least two tracks
@@ -279,6 +279,7 @@ void ProtonReconstructionAlgorithm::reconstruct(const vector<const CTPPSLocalTra
   pt.setXi(params[0]);
   
   pt.fitChiSq = result.Chi2();
+  // TODO: add ndf
   pt.method = reco::ProtonTrack::rmMultipleRP;
   pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
 
@@ -286,4 +287,41 @@ void ProtonReconstructionAlgorithm::reconstruct(const vector<const CTPPSLocalTra
     pt.contributingRPIds.insert(track->getRPId());
 
   out.push_back(move(pt));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const CTPPSLocalTrackLite*> &tracks,
+  vector<reco::ProtonTrack> &out) const
+{
+  // need at least two tracks
+  if (tracks.size() < 2)
+    return;
+
+  // make sure optics is available for all tracks
+  for (const auto &it : tracks)
+  {
+    auto oit = m_rp_optics_.find(it->getRPId());
+    if (oit == m_rp_optics_.end())
+      throw cms::Exception("") << "Optics data not available for RP " << it->getRPId() << ".";
+  }
+
+  // rough estimate of xi from each track
+  for (const auto &track : tracks)
+  {
+    auto oit = m_rp_optics_.find(track->getRPId());
+    double xi = oit->second.s_xi_vs_x->Eval(track->getX());
+
+    reco::ProtonTrack pt;
+    pt.method = reco::ProtonTrack::rmSingleRP;
+    pt.setValid(true);
+    pt.setVertex(Local3DPoint(0., 0., 0.));
+    pt.setDirection(Local3DVector(0., 0., 1.));
+    pt.setXi(xi);
+    pt.fitChiSq = 0.;
+    pt.lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
+    pt.contributingRPIds.insert(track->getRPId());
+
+    out.push_back(move(pt));
+  }
 }
