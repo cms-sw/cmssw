@@ -25,11 +25,17 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
 
+process.ctppsProtonReconstructionValidation = cms.EDAnalyzer("CTPPSProtonReconstructionValidation",
+    tagRecoProtons = cms.InputTag("ctppsProtonReconstruction"),
+    outputFile = cms.string("validation.root")
+)
+
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(
     process.ctppsProtonReconstruction
     #* process.eca
+    * process.ctppsProtonReconstructionValidation
 )
 
 # output configuration
