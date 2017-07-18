@@ -145,8 +145,8 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
     // minimisation
     fitter_->Config().ParSettings( 0 ).Set( "xi", xi_0, 0.005 );
     fitter_->Config().ParSettings( 1 ).Set( "th_x", 0.0, 20.0e-6 );
-    fitter_->Config().ParSettings( 2 ).Set( "th_y", th_y_0, 1.e-6 );
-    fitter_->Config().ParSettings( 3 ).Set( "vtx_y", vtx_y_0, 1.e-6 );
+    fitter_->Config().ParSettings( 2 ).Set( "th_y", th_y_0, 1.0e-6 );
+    fitter_->Config().ParSettings( 3 ).Set( "vtx_y", vtx_y_0, 1.0e-6 );
 
     chiSquareCalculator_->tracks = &tracks;
     chiSquareCalculator_->m_rp_optics = &m_rp_optics_;

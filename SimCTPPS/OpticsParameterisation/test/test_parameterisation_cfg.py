@@ -5,6 +5,7 @@ process = cms.Process('HLT', eras.ctpps_2016)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealisticCrossingAngleCollision2016_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000),

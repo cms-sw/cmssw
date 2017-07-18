@@ -26,7 +26,8 @@
 
 namespace edm
 {
-  class FlatRandomXiGunProducer : public edm::stream::EDProducer<> {
+  class FlatRandomXiGunProducer : public edm::stream::EDProducer<>
+  {
     public:
       explicit FlatRandomXiGunProducer( const edm::ParameterSet& );
       ~FlatRandomXiGunProducer();
