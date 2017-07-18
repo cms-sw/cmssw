@@ -9,5 +9,5 @@ ctppsLocalTrackLiteProducer = cms.EDProducer("CTPPSLocalTrackLiteProducer",
 )
 
 # enable the module for CTPPS era(s)
-from Configuration.StandardSequences.Eras import eras
-eras.ctpps_2016.toModify(ctppsLocalTrackLiteProducer, doNothing=cms.bool(False))
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toModify(ctppsLocalTrackLiteProducer, doNothing=cms.bool(False))
