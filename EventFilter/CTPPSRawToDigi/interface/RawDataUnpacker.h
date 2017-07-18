@@ -28,7 +28,13 @@ class RawDataUnpacker
 
     /// VFAT transmission modes
     enum { vmCluster = 0x80, vmRaw = 0x90, vmDiamondCompact = 0xB0 };
-    enum { VFAT_DIAMOND_HEADER_OF_WORD_2=0x7800, VFAT_DIAMOND_HEADER_OF_WORD_3=0x7000, VFAT_DIAMOND_HEADER_OF_WORD_5=0x6800, VFAT_DIAMOND_HEADER_OF_WORD_7=0x6000, VFAT_HEADER_OF_EC=0xC000 };
+
+    // list of headers for all words encountered in diamond data frames
+    static constexpr unsigned int VFAT_DIAMOND_HEADER_OF_WORD_2 = 0x7800;
+    static constexpr unsigned int VFAT_DIAMOND_HEADER_OF_WORD_3 = 0x7000;
+    static constexpr unsigned int VFAT_DIAMOND_HEADER_OF_WORD_5 = 0x6800;
+    static constexpr unsigned int VFAT_DIAMOND_HEADER_OF_WORD_7 = 0x6000;
+    static constexpr unsigned int VFAT_HEADER_OF_EC = 0xC000;
 
     RawDataUnpacker() {}
     
