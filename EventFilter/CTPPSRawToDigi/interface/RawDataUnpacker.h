@@ -53,7 +53,7 @@ class RawDataUnpacker
     int ProcessOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
     /// Process data from one VFAT in parallel (new) format
-    int ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
+    int ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
 
   private:
     unsigned char verbosity;

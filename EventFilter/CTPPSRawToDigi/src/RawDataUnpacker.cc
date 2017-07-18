@@ -201,7 +201,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
   // process all VFAT data
   for (unsigned int offset = 0; offset < nWords;)
   {
-    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, OptoRxId, fc);
+    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, nWords, OptoRxId, fc);
     offset += wordsProcessed;
   }
 
@@ -210,7 +210,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -270,7 +270,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   switch (hFlag) {
     case vmCluster: {
       unsigned int nCl = 0;
-      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF ) nCl++;
+      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF && wordsProcessed+nCl<maxWords ) nCl++;
       wordsProcessed += nCl;
     } break;
     case vmRaw:
@@ -278,7 +278,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
       break;
     case vmDiamondCompact: {
       wordsProcessed--;
-      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 ) wordsProcessed++;
+      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 && wordsProcessed<maxWords ) wordsProcessed++;
     } break;
   }
 
