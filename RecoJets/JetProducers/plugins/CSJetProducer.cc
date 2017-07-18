@@ -82,14 +82,14 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     double rhom = 1e-6;
     for (unsigned int j=0;j<nGhosts; j++) {
       
-      if(ghosts[j].eta()<=etaRanges->at(0)) {
+      if(ghosts[j].eta()<=etaRanges->at(0) || bkgVecSize==1) {
         rho = rhoRanges->at(0);
         rhom = rhomRanges->at(0);
       } else if(ghosts[j].eta()>=etaRanges->at(bkgVecSize-1)) {
         rho = rhoRanges->at(bkgVecSize-2);
         rhom = rhomRanges->at(bkgVecSize-2);
       } else {
-        for(int ie = 0; ie<(int)(bkgVecSize-1); ie++) {
+        for(unsigned int ie = 0; ie<(bkgVecSize-1); ie++) {
           if(ghosts[j].eta()>=etaRanges->at(ie) && ghosts[j].eta()<etaRanges->at(ie+1)) {
             rho = rhoRanges->at(ie);
             rhom = rhomRanges->at(ie);
