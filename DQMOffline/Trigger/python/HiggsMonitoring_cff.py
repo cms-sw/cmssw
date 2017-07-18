@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.VBFMETMonitor_cff import *
-
+from DQMOffline.Trigger.VBFTauMonitor_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_cfi import hltHIGmonitoring
 
 #######for HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ####
