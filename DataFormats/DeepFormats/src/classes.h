@@ -1,6 +1,7 @@
 
 #include "DataFormats/DeepFormats/interface/JetFeatures.h"
 #include "DataFormats/DeepFormats/interface/SecondaryVertexFeatures.h"
+#include "DataFormats/DeepFormats/interface/ShallowTagInfoFeatures.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourFeatures.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
@@ -9,6 +10,7 @@ namespace DataFormats_DeepFormats {
   struct dictionary {
     deep::JetFeatures jet_features;
     deep::SecondaryVertexFeatures secondary_vertex_features;
+    deep::ShallowTagInfoFeatures shallow_tag_info_features;
     deep::DeepFlavourFeatures deep_flavour_features;
 
     reco::DeepFlavourTagInfo deep_flavour_tag_info;
