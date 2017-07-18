@@ -21,9 +21,10 @@ class SecondaryVertexFeatures {
     float ndf;
     float normchi2;
     float dxy;
+    float dxyerr;
     float dxysig;
     float d3d;
-    float d3err;
+    float d3derr;
     float d3dsig;
     
     float costhetasvpv;
