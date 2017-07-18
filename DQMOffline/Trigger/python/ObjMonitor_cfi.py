@@ -36,6 +36,12 @@ hltobjmonitoring.histoPSet.mindphijmetPSet = cms.PSet(
   xmin  = cms.double(   0),
   xmax  = cms.double(3.1416),
 )
+hltobjmonitoring.doHTHistos = cms.bool(True)
+hltobjmonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32 (  60  ),
+  xmin  = cms.double(   -0.5),
+  xmax  = cms.double(1499.5),
+)
 
 hltobjmonitoring.met       = cms.InputTag("pfMet")
 hltobjmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")

@@ -7,7 +7,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D13Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -16,16 +16,20 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('HGCalValidation')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D13-v2/10000/0E0708E1-582E-E711-8D30-0025905B8604.root',
-        #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU25ns_91X_upgrade2023_realistic_v1_D13PU200-v2/10000/04A22787-5E31-E711-A724-0025905A6090.root',
-        #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU25ns_91X_upgrade2023_realistic_v1_D13PU200-v2/10000/06E13ACA-5D31-E711-B32D-0025905A48F2.root',
-        #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU25ns_91X_upgrade2023_realistic_v1_D13PU200-v2/10000/0A4780A9-6031-E711-9762-0025905A60F8.root',
-        #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU25ns_91X_upgrade2023_realistic_v1_D13PU200-v2/10000/0A888C70-6531-E711-842E-0CC47A7C346E.root'
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10D95AC2-B14A-E711-BC4A-0CC47A7C3638.root',
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/1E2CEC16-B14A-E711-8B54-0025905A60CA.root',
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/30C4DC79-B34A-E711-A24C-0CC47A4D7670.root',
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/52FE14B9-B24A-E711-97DC-0CC47A7C34C8.root',
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/7EAB47FA-B04A-E711-986C-0CC47A4D7636.root',
+        'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/A696EE6A-B34A-E711-A377-0025905A6138.root',
         )
                             )
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )

@@ -216,9 +216,9 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
     printf("RPId |                center                |      U direction    |      V direction    |\n");
     printf("     |   x (mm)   |   y (mm)   |   z  (m)   |    dx    |    dy    |    dx    |    dy    |\n");
     
-    for (map<unsigned int, MeanRPData>::iterator it = data.begin(); it != data.end(); ++it)
+    for (auto & it : data)
     {
-      const MeanRPData &d = it->second;
+      const MeanRPData &d = it.second;
   
       double mx = (d.N > 0) ? d.Sx / d.N : 0.;
       double my = (d.N > 0) ? d.Sy / d.N : 0.;
@@ -231,7 +231,7 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
       double mdy_v = (d.N_v > 0) ? d.Sdy_v / d.N_v : 0.;
 
       
-      printf(" %3i |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f | %8.3f | %8.3f |\n", it->first, mx, my, mz, mdx_u, mdy_u, mdx_v, mdy_v);
+      printf(" %3i |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f | %8.3f | %8.3f |\n", it.first, mx, my, mz, mdx_u, mdy_u, mdx_v, mdy_v);
     }
   }
 }

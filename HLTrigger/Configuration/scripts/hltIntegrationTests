@@ -246,6 +246,7 @@ process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 )
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 
+process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 fi
 
@@ -296,6 +297,8 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
 process.Output = cms.EndPath( process.hltOutput )
 
 process.schedule = cms.Schedule( process.$TRIGGER, process.HLTriggerFinalPath, process.Output )
+
+process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 done
 
