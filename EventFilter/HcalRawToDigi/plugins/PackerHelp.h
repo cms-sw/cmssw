@@ -549,7 +549,11 @@ public:
     // loop over words in dataframe
     for( int iTS = 0 ; iTS < qiedf->size() ; iTS++ ){
       // push data into uhtr data container
-      uhtrs[uhtrIndex].push_back(qiedf->sample(iTS).raw());
+      auto raw = qiedf->sample(iTS).raw();
+      // Add SOI information
+      if (iTS == qiedf->presamples())
+         raw |= 0x4000;
+      uhtrs[uhtrIndex].push_back(raw);
     }// end loop over dataframe words
   };
 
