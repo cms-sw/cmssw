@@ -13,7 +13,7 @@ plots = {
     'jet': [
         "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
         "efficiencyJetEt_HB_HE"],
-    'met': ['efficiencyMET'],
+    'met': ['efficiencyMET', 'efficiencyETMHF'],
     'mht': ['efficiencyMHT'],
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
