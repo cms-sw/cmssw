@@ -906,17 +906,9 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       fastjet::SelectorIsPureGhost().sift(it->constituents(), ghosts, constituents); //filter out ghosts
 
     //loop over constituents of jet (can be subjets or normal constituents)
+    indices[jetIndex].reserve(constituents.size());
+    constituentsSub.reserve(constituentsSub.size()+constituents.size());
     for (fastjet::PseudoJet const& constit : constituents) {
-      if ( verbosity_ >= 1 ) {
-        std::cout << "jet #" << jetIndex <<
-          ": Pt = " << constit.pt() <<
-          ", eta = " << constit.eta() <<
-          ", phi = " << constit.phi() <<
-          ", mass = " << constit.m() <<
-          ", uid: " << constit.user_index() <<
-          ", pos: " << constituentsSub.size() <<
-          ")" << std::endl;
-      }
       indices[jetIndex].push_back( constituentsSub.size() );
       constituentsSub.push_back(constit);
     }
@@ -956,7 +948,7 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       reco::PFJet jet;
       reco::writeSpecific(jet,*ip4,point,i_jetConstituents,iSetup);
       jet.setJetArea( area_Jets[ip4 - ip4Begin] );
-      jetCollection->push_back( jet );
+      jetCollection->emplace_back( jet );
     }
   }
 
