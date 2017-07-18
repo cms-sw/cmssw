@@ -14,10 +14,6 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
-
-// TODO: needed?
-//#include <cmath>
-
 using namespace std;
 using namespace edm;
 

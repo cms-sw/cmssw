@@ -20,6 +20,9 @@
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
+#include "RecoCTPPS/ProtonReconstruction/interface/alignment.h"
+#include "RecoCTPPS/ProtonReconstruction/interface/fill_info.h"
+
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
@@ -42,6 +45,8 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
 
     ProtonReconstructionAlgorithm algorithm_;
+
+    AlignmentResultsCollection alignmentCollection_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -62,6 +67,12 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction( const edm::ParameterSet& i
   algorithm_(opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath(), beamConditions_)
 {
   produces<vector<reco::ProtonTrack>>();
+
+  //  load alignment collection
+  alignmentCollection_.Load("data/collect_alignments.out");
+
+  // load fill-alignment mapping
+  InitFillInfoCollection();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -81,17 +92,17 @@ CTPPSProtonReconstruction::~CTPPSProtonReconstruction()
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonReconstruction::produce(Event& iEvent, const EventSetup&)
+void CTPPSProtonReconstruction::produce(Event& event, const EventSetup&)
 {
   unique_ptr<vector<reco::ProtonTrack>> output( new vector<reco::ProtonTrack> );
 
   Handle< vector<CTPPSLocalTrackLite> > tracks;
-  iEvent.getByToken(tracksToken_, tracks);
+  event.getByToken(tracksToken_, tracks);
 
   // TODO: remove
   if (tracks->size() > 1)
   {
-    printf("===================== %u:%llu =====================\n", iEvent.id().run(), iEvent.id().event());
+    printf("===================== %u:%llu =====================\n", event.id().run(), event.id().event());
 
     for (const auto &tr : *tracks)
     {
@@ -101,9 +112,21 @@ void CTPPSProtonReconstruction::produce(Event& iEvent, const EventSetup&)
     }
   }
 
+  // get and apply alignment
+  FillInfo fillInfo;
+  unsigned int ret = fillInfoCollection.FindByRun(event.id().run(), fillInfo);
+  if (ret != 0)
+    return;
+
+  const auto alignment_it = alignmentCollection_.find(fillInfo.alignmentTag);
+  if (alignment_it == alignmentCollection_.end())
+    return;
+
+  auto tracksAligned = alignment_it->second.Apply(*tracks);
+
   // split input per sector
   vector<const CTPPSLocalTrackLite*> tracks_45, tracks_56;
-  for (const auto &tr : *tracks)
+  for (const auto &tr : tracksAligned)
   {
     CTPPSDetId rpId(tr.getRPId());
     if (rpId.arm() == 0)
@@ -117,7 +140,7 @@ void CTPPSProtonReconstruction::produce(Event& iEvent, const EventSetup&)
   algorithm_.reconstruct(tracks_56, *output);
 
   // save output to event
-  iEvent.put(move(output));
+  event.put(move(output));
 }
 
 //----------------------------------------------------------------------------------------------------
