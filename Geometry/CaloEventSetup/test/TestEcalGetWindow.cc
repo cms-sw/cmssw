@@ -1,29 +1,9 @@
-// -*- C++ -*-
-//
-// Package:    testEcalGetWindow
-// Class:      testEcalGetWindow
-// 
-/**\class testEcalGetWindow testEcalGetWindow.cc test/testEcalGetWindow/src/testEcalGetWindow.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
-
-
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -44,27 +24,23 @@
 
 #include <iostream>
 
-//
-// class decleration
-//
-
-class testEcalGetWindow : public edm::one::EDAnalyzer<> {
+class TestEcalGetWindow : public edm::one::EDAnalyzer<> {
 public:
-  explicit testEcalGetWindow( const edm::ParameterSet& );
-  ~testEcalGetWindow() override;
+  explicit TestEcalGetWindow( const edm::ParameterSet& );
+  ~TestEcalGetWindow() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  // ----------member data ---------------------------
+
   void build(const CaloGeometry& cg, const CaloTopology& etmap, DetId::Detector det, int subdetn, const char* name);
   int towerColor(const EcalTrigTowerDetId& theTower);
   int pass_;
 };
 
-testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
+TestEcalGetWindow::TestEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -73,11 +49,10 @@ testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
   gStyle->SetPaperSize(TStyle::kA4);
 }
 
-
-testEcalGetWindow::~testEcalGetWindow()
+TestEcalGetWindow::~TestEcalGetWindow()
 {}
 
-void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
+void TestEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
 {
   if (det == DetId::Ecal && subdetn == EcalEndcap) 
     {
@@ -114,8 +89,8 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
 
       std::vector<DetId> eeDetIds;
@@ -124,14 +99,14 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       eeDetIds.push_back(EEDetId(50,1,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(50,25,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(3,60,1,EEDetId::XYMODE));
-      for (auto eeDetId : eeDetIds)
+      for (const auto & eeDetId : eeDetIds)
 	{
 
 	  EEDetId myId(eeDetId);
 	  if (myId.zside()==-1)
 	    continue;
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (auto myNeighbour : myNeighbours)
+	  for (const auto & myNeighbour : myNeighbours)
 	    {
 	      EEDetId myEEId(myNeighbour);
 	      TBox *box = new TBox(myEEId.ix()-0.5,myEEId.iy()-0.5,myEEId.ix()+0.5,myEEId.iy()+0.5);
@@ -180,19 +155,19 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
       std::vector<DetId> ebDetIds;
       ebDetIds.push_back(EBDetId(1,1));
       ebDetIds.push_back(EBDetId(30,30));
       ebDetIds.push_back(EBDetId(-1,120));
       ebDetIds.push_back(EBDetId(85,1));
-      for (auto ebDetId : ebDetIds)
+      for (const auto & ebDetId : ebDetIds)
 	{
 	  EBDetId myId(ebDetId);
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (auto myNeighbour : myNeighbours)
+	  for (const auto & myNeighbour : myNeighbours)
 	    {
 	      EBDetId myEBId(myNeighbour);
 	      TBox *box = new TBox(myEBId.ieta()-0.5,myEBId.iphi()-0.5,myEBId.ieta()+0.5,myEBId.iphi()+0.5);
@@ -207,7 +182,7 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
 }
 // ------------ method called to produce the data  ------------
 void
-testEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
+TestEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    
    std::cout << "Here I am " << std::endl;
@@ -231,4 +206,4 @@ testEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
 
 //define this as a plug-in
 
-DEFINE_FWK_MODULE(testEcalGetWindow);
+DEFINE_FWK_MODULE(TestEcalGetWindow);
