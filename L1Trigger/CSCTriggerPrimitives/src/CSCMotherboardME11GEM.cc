@@ -1261,44 +1261,6 @@ bool CSCMotherboardME11GEM::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, in
   return false;
 }
 
-void CSCMotherboardME11GEM::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
-				   CSCCorrelatedLCTDigi& lct1,
-				   CSCCorrelatedLCTDigi& lct2)
-{
-  bool anodeBestValid     = bestALCT.isValid();
-  bool anodeSecondValid   = secondALCT.isValid();
-  bool cathodeBestValid   = bestCLCT.isValid();
-  bool cathodeSecondValid = secondCLCT.isValid();
-
-  if (anodeBestValid and !anodeSecondValid)     secondALCT = bestALCT;
-  if (!anodeBestValid and anodeSecondValid)     bestALCT   = secondALCT;
-  if (cathodeBestValid and !cathodeSecondValid) secondCLCT = bestCLCT;
-  if (!cathodeBestValid and cathodeSecondValid) bestCLCT   = secondCLCT;
-
-  // ALCT-CLCT matching conditions are defined by "trig_enable" configuration
-  // parameters.
-  if ((alct_trig_enable  and bestALCT.isValid()) or
-      (clct_trig_enable  and bestCLCT.isValid()) or
-      (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid()))
-  {
-    lct1 = constructLCTs(bestALCT, bestCLCT);
-    lct1.setTrknmb(1);
-  }
-
-  if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
-      ((alct_trig_enable  and secondALCT.isValid()) or
-       (clct_trig_enable  and secondCLCT.isValid()) or
-       (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid())))
-  {
-    lct2 = constructLCTs(secondALCT, secondCLCT);
-    lct2.setTrknmb(2);
-  }
-}
-
-
 void CSCMotherboardME11GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  GEMPadDigi gemPad,
