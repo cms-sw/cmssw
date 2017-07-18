@@ -2,6 +2,7 @@
 
   <class name="deep::JetFeatures"/>
   <class name="deep::SecondaryVertexFeatures"/>
+  <class name="deep::ShallowTagInfoFeatures"/>
   <class name="deep::DeepFlavourFeatures"/>
 
   <class name="reco::DeepFlavourTagInfo"/>
