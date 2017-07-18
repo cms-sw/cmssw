@@ -87,10 +87,6 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
-
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
   std::vector<CSCALCTDigi> alctV;
