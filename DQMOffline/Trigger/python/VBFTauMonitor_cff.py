@@ -16,6 +16,10 @@ VBFtaumonitoring.jetSelection = cms.string("pt>40 & abs(eta)<4.7")
 VBFtaumonitoring.jetId = cms.string("loose")
 VBFtaumonitoring.njets = cms.int32(2)
 
+VBFtaumonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring(
+  "HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v*"
+)
+
 higgstautauHLTVBFmonitoring = cms.Sequence(
   VBFtaumonitoring
 )
