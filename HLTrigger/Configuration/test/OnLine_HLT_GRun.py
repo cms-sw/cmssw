@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/GRun/V85 (CMSSW_9_2_5_patch1)
+# /dev/CMSSW_9_2_0/GRun/V86 (CMSSW_9_2_5_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V85')
+  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V86')
 )
 
 process.transferSystem = cms.PSet( 
