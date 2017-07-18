@@ -37,10 +37,10 @@ hltobjmonitoring.histoPSet.mindphijmetPSet = cms.PSet(
   xmax  = cms.double(3.1416),
 )
 
-hltobjmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltobjmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
-hltobjmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltobjmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+hltobjmonitoring.met       = cms.InputTag("pfMet")
+hltobjmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")
+hltobjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
+hltobjmonitoring.muons     = cms.InputTag("muons")
 
 hltobjmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltobjmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
