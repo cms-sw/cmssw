@@ -5,4 +5,5 @@ from DQMOffline.Trigger.VBFMETMonitor_cff import *
 higgsMonitorHLT = cms.Sequence(
     higgsinvHLTJetMETmonitoring
     +higgsHLTDiphotonMonitoring
+    +higgstautauHLTVBFmonitoring
     )

@@ -3,6 +3,8 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.VBFMETMonitor_Client_cff import *
 
+from DQMOffline.Trigger.VBFTauMonitor_Client_cff import *
+
 diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v","HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v"),
                                     #subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
@@ -23,7 +25,7 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
         "eff_photon_subr9      'efficiency vs sublead r9;          Photon subr9; efficiency'        subphoton_r9_numerator       subphoton_r9_denominator",
         "eff_photon_subhoE     'efficiency vs sublead hoE;         Photon subhoE; efficiency'       subphoton_hoE_numerator      subphoton_hoE_denominator",
         "eff_photon_subEtaPhi  'Photon sublead phi;                Photon sublead eta; efficiency'  subphoton_etaphi_numerator   subphoton_etaphi_denominator",
-        
+
     ),
     efficiencyProfile = cms.untracked.vstring(
         "eff_photon_vs_LS 'Photon pt efficiency vs LS; LS' photonVsLS_numerator photonVsLS_denominator"
@@ -32,4 +34,5 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
 higgsClient = cms.Sequence(
     diphotonEfficiency
     +vbfmetClient
+    +vbftauClient
     )
