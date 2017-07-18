@@ -5,5 +5,6 @@
   <use   name="DataFormats/Common"/>
   <use   name="RecoBTag/Combined"/>
   <use   name="DataFormats/PatCandidates"/>
+  <use name="TrackingTools/IPTools"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
