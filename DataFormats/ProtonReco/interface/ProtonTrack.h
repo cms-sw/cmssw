@@ -1,8 +1,7 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software
+ * This is a part of CTPPS offline software.
  * Authors:
- *   Leszek Grzanka
  *   Jan Kašpar
  *   Laurent Forthomme
  *
@@ -14,7 +13,9 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-/*
+#include <set>
+
+/**
  * FIXME make use of the general reco::Candidate object, with appropriate set'ters and get'ters
  */
 
@@ -43,13 +44,26 @@ namespace reco
       void setValid( bool valid=true ) { isValid_ = valid; }
       bool valid() const { return isValid_; }
 
+      // TODO: add proper getters, setters
+      enum { rmSingleRP, rmMultipleRP } method;
+
+      enum { sector45, sector56 } lhcSector;
+
+      double fitChiSq;
+
+      std::set<unsigned int> contributingRPIds;
+
     private:
+
+      // TODO: describe, mention CMS coordinate notation
       Local3DPoint vertex_;
       Local3DVector direction_;
 
+      // TODO: describe
       float xi_;
       float xi_unc_;
 
+      // TODO: rename to fit valid?
       bool isValid_;
   };
 }

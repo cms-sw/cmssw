@@ -88,6 +88,7 @@ void CTPPSProtonReconstruction::produce(Event& iEvent, const EventSetup&)
   Handle< vector<CTPPSLocalTrackLite> > tracks;
   iEvent.getByToken(tracksToken_, tracks);
 
+  // TODO: remove
   if (tracks->size() > 1)
   {
     printf("===================== %u:%llu =====================\n", iEvent.id().run(), iEvent.id().event());
@@ -112,13 +113,8 @@ void CTPPSProtonReconstruction::produce(Event& iEvent, const EventSetup&)
   }
 
   // run reconstruction per sector
-  // TODO: remove this condition
-  if (tracks_45.size() > 1)
-    algorithm_.reconstruct(tracks_45, *output);
-
-  // TODO: remove this condition
-  if (tracks_56.size() > 1)
-    algorithm_.reconstruct(tracks_56, *output);
+  algorithm_.reconstruct(tracks_45, *output);
+  algorithm_.reconstruct(tracks_56, *output);
 
   // save output to event
   iEvent.put(move(output));

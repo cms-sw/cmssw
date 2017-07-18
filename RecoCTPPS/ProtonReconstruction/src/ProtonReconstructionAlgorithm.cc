@@ -281,11 +281,13 @@ void ProtonReconstructionAlgorithm::reconstruct(const vector<const CTPPSLocalTra
   pt.setVertex(Local3DPoint(0., params[3], 0.));  // TODO: apply the CMS coordinate convention
   pt.setDirection(Local3DVector(params[1], params[2], 1.)); // TODO: make this correct, apply the CMS coordinate convention
   pt.setXi(params[0]);
+  
+  pt.fitChiSq = result.Chi2();
+  pt.method = reco::ProtonTrack::rmMultipleRP;
+  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
 
-  // TODO: method
-  // TODO: fill chi^2
-  // TODO: contributing RP list
-  // TODO: LHC sector
+  for (const auto &track : tracks)
+    pt.contributingRPIds.insert(track->getRPId());
 
   out.push_back(move(pt));
 }
