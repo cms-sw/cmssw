@@ -13,7 +13,7 @@ class DeepFlavourFeatures {
   public:
     JetFeatures jet_features;
     
-    std::vector<SecondaryVertexFeatures> secondary_vertex_features;
+    std::vector<SecondaryVertexFeatures> sv_features;
     
 };    
 
