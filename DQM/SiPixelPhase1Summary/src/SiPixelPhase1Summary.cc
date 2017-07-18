@@ -255,7 +255,6 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   // If we're running in online mode and the lumi section is not modulo 10, return. Offline running always uses lumiSec=0, so it will pass this test.
   if (lumiSec%10 != 0) return;
 
-  std::ostringstream histNameStream;
   std::string histName;
   
 
@@ -265,25 +264,19 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   std::vector<int> hiEffROCs(trendOrder.size(),0);
   std::vector<int> nRocsPerTrend = {1536,3584,5632,8192,4224,6528};
   std::vector<string> trendNames = {};
-  string name = "";
+
   for (auto it : {1,2,3,4}) {
-    histNameStream.str("");
-    histNameStream << "PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" << it;
-    histName = histNameStream.str();
+    histName = "PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" + std::to_string(it);
     trendNames.push_back(histName);
   }
   for (auto it : {1,2}) {
-    histNameStream.str("");
-    histNameStream << "PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" << it;;
-    histName = histNameStream.str();
+    histName = "PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" + std::to_string(it);
     trendNames.push_back(histName);
   }
   //Loop over layers. This will also do the rings, but we'll skip the ring calculation for 
   for (unsigned int trendIt = 0; trendIt < trendOrder.size(); trendIt++){
     iGetter.cd();
-    histNameStream.str("");
-    histNameStream << "PixelPhase1/Phase1_MechanicalView/" << trendNames[trendIt];
-    histName = histNameStream.str();
+    histName = "PixelPhase1/Phase1_MechanicalView/" + trendNames[trendIt];
     MonitorElement * tempLayerME = iGetter.get(histName);
     if (!tempLayerME) continue;
     float lowEffValue = 0.25 * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
@@ -314,18 +307,14 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   if (!runOnEndLumi_) return; // The following only occurs in the online
   //Reset some MEs every 10LS here
   for (auto it : {1,2,3,4}) { //PXBarrel
-    histNameStream.str("");
-    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" << it;
-    histName = histNameStream.str();
+    histName = "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" +std::to_string(it);
     MonitorElement * toReset = iGetter.get(histName);
     if (toReset) {
       toReset->Reset();
     }
   }
   for (auto it : {-3,-2,-1,1,2,3}){ //PXForward
-    histNameStream.str("");
-    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" << it;
-    histName = histNameStream.str();
+    histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::to_string(it);
     MonitorElement * toReset = iGetter.get(histName);
     if (toReset) {
       toReset->Reset();
