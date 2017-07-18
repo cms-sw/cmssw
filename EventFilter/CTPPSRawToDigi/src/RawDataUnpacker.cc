@@ -80,12 +80,13 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   #endif
 
   // parallel or serial transmission?
-  if (FOV == 1) {
-    return ProcessOptoRxFrameSerial(buf, frameSize, fc);
-  }
-
-  if (FOV == 2 || FOV == 3) {
-    return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+  switch (FOV) {
+    case 1:
+      return ProcessOptoRxFrameSerial(buf, frameSize, fc);
+    case 2:
+    case 3:
+      return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+    default: break;
   }
 
   if (verbosity)
@@ -266,24 +267,19 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   unsigned int dataOffset = wordsProcessed;
 
   // find trailer
-  if (hFlag == vmCluster)
-  {
-    unsigned int nCl = 0;
-    while ( (buf[wordsProcessed + nCl] >> 12) != 0xF )
-      nCl++;
-
-    wordsProcessed += nCl;
-  }
-
-  if (hFlag == vmRaw)
-    wordsProcessed += 9;
-  
-  if (hFlag == vmDiamondCompact)
-  {
-    wordsProcessed--;
-    while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 ) {
-      wordsProcessed++;
-    }
+  switch (hFlag) {
+    case vmCluster: {
+      unsigned int nCl = 0;
+      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF ) nCl++;
+      wordsProcessed += nCl;
+    } break;
+    case vmRaw:
+      wordsProcessed += 9;
+      break;
+    case vmDiamondCompact: {
+      wordsProcessed--;
+      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 ) wordsProcessed++;
+    } break;
   }
 
   // process trailer
