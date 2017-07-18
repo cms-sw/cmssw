@@ -4,8 +4,6 @@
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Seyed Mohsen Etesami (setesami@cern.ch)
-*   Nicola Minafra
-*
 ****************************************************************************/
 
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
@@ -282,15 +280,14 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     if (record.status.isOK())
     {
       const VFATFrame *fr = record.frame;
-      DiamondVFATFrame *diamondframeTmp = (DiamondVFATFrame*) fr;
-      DiamondVFATFrame diamondframe(*diamondframeTmp);
+      DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
 
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe.getLeadingEdgeTime(),diamondframe.getTrailingEdgeTime(),diamondframe.getThresholdVoltage(),diamondframe.getMultihit(),diamondframe.getHptdcErrorFlag()));
+      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),diamondframe->getTrailingEdgeTime(),diamondframe->getThresholdVoltage(),diamondframe->getMultihit(),diamondframe->getHptdcErrorFlag()));
     }
 
     // save status
