@@ -298,7 +298,7 @@ class FileListCreator(object):
         for d in self._datasets: print_msg("\t"+d)
         print_msg("This may take a while...")
 
-        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxint)
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxsize)
         self._events_in_dataset = sum(result)
 
         get_file_info = functools.partial(_get_properties,
@@ -306,7 +306,7 @@ class FileListCreator(object):
                                           filters = ["nevents > 0"],
                                           entity = "dataset",
                                           sub_entity = "file")
-        result = pool.map_async(get_file_info, self._datasets).get(sys.maxint)
+        result = pool.map_async(get_file_info, self._datasets).get(sys.maxsize)
         self._file_info = {}
         for item in result: self._file_info.update(dict(item))
         self._files = sorted(self._file_info.keys())

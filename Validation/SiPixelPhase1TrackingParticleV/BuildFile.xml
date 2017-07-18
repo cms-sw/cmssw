@@ -1,0 +1,6 @@
+<use   name="DQM/SiPixelPhase1Common"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
+<use   name="DataFormats/TrackReco"/>
+<flags   EDM_PLUGIN="1"/>
+

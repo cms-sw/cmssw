@@ -32,8 +32,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 // system include files
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/utility/enable_if.hpp"
 #include <cassert>
 
 // forward declarations

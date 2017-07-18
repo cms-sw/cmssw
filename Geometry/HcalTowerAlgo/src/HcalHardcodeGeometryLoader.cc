@@ -76,11 +76,11 @@ std::vector <HcalHardcodeGeometryLoader::HBHOCellParameters> HcalHardcodeGeometr
     std::vector<float> depths;
     if (topology.mode() != HcalTopologyMode::SLHC) {
       if (iring == 15) {
-	for (int i=0; i<3; ++i) depths.push_back(ring15Depths[i]);
+	for (float ring15Depth : ring15Depths) depths.push_back(ring15Depth);
       } else if (iring == 16) {
-	for (int i=0; i<3; ++i) depths.push_back(ring16Depths[i]);
+	for (float ring16Depth : ring16Depths) depths.push_back(ring16Depth);
       } else {
-	for (int i=0; i<2; ++i) depths.push_back(normalDepths[i]);
+	for (float normalDepth : normalDepths) depths.push_back(normalDepth);
       }
     } else {
       if (m_segmentation.size() >= (unsigned int)(iring)) {
@@ -167,8 +167,7 @@ std::vector <HcalHardcodeGeometryLoader::HBHOCellParameters> HcalHardcodeGeometr
 void HcalHardcodeGeometryLoader::fillHBHO (HcalGeometry* fGeometry, const std::vector <HcalHardcodeGeometryLoader::HBHOCellParameters>& fCells, bool fHB) {
 
   fGeometry->increaseReserve(fCells.size());
-  for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
-    const HcalHardcodeGeometryLoader::HBHOCellParameters& param = fCells[iCell];
+  for (const auto & param : fCells) {
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth);
@@ -231,17 +230,17 @@ std::vector<HcalHardcodeGeometryLoader::HECellParameters> HcalHardcodeGeometryLo
     unsigned int startingDepth = 1;
     if (topology.mode() != HcalTopologyMode::SLHC) {
       if (iring == 16)     
-	{for (int i=0; i<2; ++i) depths.push_back(ring16Depths[i]); startingDepth = 3;}
+	{for (float ring16Depth : ring16Depths) depths.push_back(ring16Depth); startingDepth = 3;}
       else if (iring == 17) 
-	for (int i=0; i<2; ++i) depths.push_back(ring17Depths[i]);
+	for (float ring17Depth : ring17Depths) depths.push_back(ring17Depth);
       else if (iring == 18) 
-	for (int i=0; i<3; ++i) depths.push_back(ring18Depths[i]);
+	for (float ring18Depth : ring18Depths) depths.push_back(ring18Depth);
       else if (iring == topology.lastHERing()) 
 	for (int i=0; i<3; ++i) depths.push_back(tripleDepths[i]);
       else if (iring >= topology.firstHETripleDepthRing())
-	for (int i=0; i<4; ++i) depths.push_back(tripleDepths[i]);
+	for (float tripleDepth : tripleDepths) depths.push_back(tripleDepth);
       else
-	for (int i=0; i<3; ++i) depths.push_back(normalDepths[i]);
+	for (float normalDepth : normalDepths) depths.push_back(normalDepth);
     } else {
       if (m_segmentation.size() >= (unsigned int)(iring)) {
 	int depth = m_segmentation[iring-1][0];
@@ -264,10 +263,10 @@ std::vector<HcalHardcodeGeometryLoader::HECellParameters> HcalHardcodeGeometryLo
 	if (layer <= 17) depths.push_back(HEZMAX);
 	if (iring == 16) startingDepth = 3;
       } else {
-	if (iring == 16)     {for (int i=0; i<3; ++i) depths.push_back(ring16slhcDepths[i]); startingDepth = 3;}
-	else if (iring == 17) for (int i=0; i<5; ++i) depths.push_back(ring17slhcDepths[i]);
-	else if (iring == 18) for (int i=0; i<5; ++i) depths.push_back(ring18slhcDepths[i]);
-	else                  for (int i=0; i<5; ++i) depths.push_back(slhcDepths[i]);
+	if (iring == 16)     {for (float ring16slhcDepth : ring16slhcDepths) depths.push_back(ring16slhcDepth); startingDepth = 3;}
+	else if (iring == 17) for (float ring17slhcDepth : ring17slhcDepths) depths.push_back(ring17slhcDepth);
+	else if (iring == 18) for (float ring18slhcDepth : ring18slhcDepths) depths.push_back(ring18slhcDepth);
+	else                  for (float slhcDepth : slhcDepths) depths.push_back(slhcDepth);
       }
     }
     float etamin = etaBounds[iringm16];
@@ -393,8 +392,7 @@ std::vector <HcalHardcodeGeometryLoader::HFCellParameters> HcalHardcodeGeometryL
 void HcalHardcodeGeometryLoader::fillHE (HcalGeometry* fGeometry, const std::vector <HcalHardcodeGeometryLoader::HECellParameters>& fCells) {
 
   fGeometry->increaseReserve(fCells.size());
-  for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
-    const HcalHardcodeGeometryLoader::HECellParameters& param = fCells[iCell];
+  for (const auto & param : fCells) {
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
@@ -430,8 +428,7 @@ void HcalHardcodeGeometryLoader::fillHE (HcalGeometry* fGeometry, const std::vec
 void HcalHardcodeGeometryLoader::fillHF (HcalGeometry* fGeometry, const std::vector <HcalHardcodeGeometryLoader::HFCellParameters>& fCells) {
 
   fGeometry->increaseReserve(fCells.size());
-  for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
-    const HcalHardcodeGeometryLoader::HFCellParameters& param = fCells[iCell];
+  for (const auto & param : fCells) {
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
