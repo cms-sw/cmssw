@@ -133,9 +133,10 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 
       auto plot_index = static_cast<PVValHelper::plotVariable>(i);
       auto res_index  = static_cast<PVValHelper::residualType>(j);
-
-      // std::cout<<"==> "<<std::get<0>(PVValHelper::getTypeString(res_index)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(plot_index))<<std::endl;
-
+      
+      if(debug_){
+	edm::LogInfo("PrimaryVertexValidation")<<"==> "<<std::get<0>(PVValHelper::getTypeString(res_index)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(plot_index))<<std::endl;
+      }
       if(res_index!=PVValHelper::d3D && res_index!=PVValHelper::norm_d3D)
 	theDetails_.setMap(res_index,plot_index,theDetails_.getLow(PVValHelper::dxy,plot_index),theDetails_.getHigh(PVValHelper::dxy,plot_index));
       else
@@ -144,7 +145,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   }
 
   for (const auto & it : theDetails_.range){
-    std::cout<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
+    edm::LogVerbatim("PrimaryVertexValidation")<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
   }
 
   theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-180.,360.);
@@ -2369,15 +2370,14 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
    
   for ( int i=0; i<nBins_; ++i ) {
     
-    char phipositionString[129];
-    float phiInterval = phiSect_*(180/TMath::Pi());
-    float phiposition = (-180+i*phiInterval)+(phiInterval/2);
-    sprintf(phipositionString,"%.f",phiposition);
+    char phibincenter[129];
+    auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+    sprintf(phibincenter,"%.f",(phiBins[i]+phiBins[i+1])/2.);
     
-    char etapositionString[129];
-    float etaposition = (-etaOfProbe_+i*etaSect_)+(etaSect_/2);
-    sprintf(etapositionString,"%.1f",etaposition);
-    
+    char etabincenter[129];
+    auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+    sprintf(etabincenter,"%.1f",(etaBins[i]+etaBins[i+1])/2.);   
+
     switch(fitPar_)
       {
       case PVValHelper::MEAN:
@@ -2418,9 +2418,9 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
       }
 
     if(var_.find("eta") != std::string::npos){
-      trendPlot->GetXaxis()->SetBinLabel(i+1,etapositionString); 
+      trendPlot->GetXaxis()->SetBinLabel(i+1,etabincenter); 
     } else if(var_.find("phi") != std::string::npos){
-      trendPlot->GetXaxis()->SetBinLabel(i+1,phipositionString); 
+      trendPlot->GetXaxis()->SetBinLabel(i+1,phibincenter); 
     } else {
       edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
     }
@@ -2483,9 +2483,10 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
       trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
     } else if(plotVar == PVValHelper::phi){
       auto phiBins = theDetails_.trendbins[PVValHelper::phi];
-      sprintf(bincenter,"%.1f",(phiBins[bin-1]+phiBins[bin])/2.);
+      sprintf(bincenter,"%.f",(phiBins[bin-1]+phiBins[bin])/2.);
       trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
     } else {
+      /// FIXME DO SOMETHING HERE
       //edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<< plotVar <<" unknown track parameter!"<<std::endl;
     }
     
@@ -2498,21 +2499,20 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 {
  
   for ( int i=0; i<nBins_; ++i ) {
-    
-    char phipositionString[129];
-    float phiInterval = phiSect_*(180/TMath::Pi());
-    float phiposition = (-180+i*phiInterval)+(phiInterval/2);
-    sprintf(phipositionString,"%.f",phiposition);
-    
-    trendMap->GetYaxis()->SetBinLabel(i+1,phipositionString); 
+   
+    char phibincenter[129];
+    auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+    sprintf(phibincenter,"%.f",(phiBins[i]+phiBins[i+1])/2.);
+
+    trendMap->GetYaxis()->SetBinLabel(i+1,phibincenter); 
 
     for ( int j=0; j<nBins_; ++j ) {
-
-      char etapositionString[129];
-      float etaposition = (-etaOfProbe_+j*etaSect_)+(etaSect_/2);
-      sprintf(etapositionString,"%.1f",etaposition);
-
-      if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etapositionString); }
+      
+      char etabincenter[129];
+      auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+      sprintf(etabincenter,"%.1f",(etaBins[j]+etaBins[j+1])/2.);   
+      
+      if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etabincenter); }
 
       switch (fitPar_)
 	{ 
