@@ -80,12 +80,13 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   #endif
 
   // parallel or serial transmission?
-  if (FOV == 1) {
-    return ProcessOptoRxFrameSerial(buf, frameSize, fc);
-  }
-
-  if (FOV == 2 || FOV == 3) {
-    return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+  switch (FOV) {
+    case 1:
+      return ProcessOptoRxFrameSerial(buf, frameSize, fc);
+    case 2:
+    case 3:
+      return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+    default: break;
   }
 
   if (verbosity)
@@ -200,7 +201,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
   // process all VFAT data
   for (unsigned int offset = 0; offset < nWords;)
   {
-    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, OptoRxId, fc);
+    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, nWords, OptoRxId, fc);
     offset += wordsProcessed;
   }
 
@@ -209,7 +210,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -266,24 +267,19 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   unsigned int dataOffset = wordsProcessed;
 
   // find trailer
-  if (hFlag == vmCluster)
-  {
-    unsigned int nCl = 0;
-    while ( (buf[wordsProcessed + nCl] >> 12) != 0xF )
-      nCl++;
-
-    wordsProcessed += nCl;
-  }
-
-  if (hFlag == vmRaw)
-    wordsProcessed += 9;
-  
-  if (hFlag == vmDiamondCompact)
-  {
-    wordsProcessed--;
-    while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 ) {
-      wordsProcessed++;
-    }
+  switch (hFlag) {
+    case vmCluster: {
+      unsigned int nCl = 0;
+      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF && wordsProcessed+nCl<maxWords ) nCl++;
+      wordsProcessed += nCl;
+    } break;
+    case vmRaw:
+      wordsProcessed += 9;
+      break;
+    case vmDiamondCompact: {
+      wordsProcessed--;
+      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 && wordsProcessed<maxWords ) wordsProcessed++;
+    } break;
   }
 
   // process trailer
@@ -389,24 +385,29 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   if (hFlag == vmDiamondCompact)
   {
     for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000; i++) {
-      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {     // If Event Couter word is found
+      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {
+        // Event Counter word is found
         fd[10] = buf[i];
         continue;
       }
       switch ( buf[i] & 0xF800 ) {
-        case VFAT_DIAMOND_HEADER_OF_WORD_2: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_2:
+          // word 2 of the diamond VFAT frame is found
           fd[2] = buf[i];
           fd[1] = buf[i + 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_3: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_3:
+          // word 3 of the diamond VFAT frame is found
           fd[3] = buf[i];
           fd[4] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_5: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_5:
+          // word 5 of the diamond VFAT frame is found
           fd[5] = buf[i];
           fd[6] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_7: // if Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_7:
+          // word 7 of the diamond VFAT frame is found
           fd[7] = buf[i];
           fd[8] = buf[i - 1];
           break;
