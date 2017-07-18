@@ -303,7 +303,7 @@ def createMergeScript( path, validations ):
             for f in validation.getRepMap()["outputFiles"]:
                 longName = os.path.join("/store/caf/user/$USER/",
                                          validation.getRepMap()["eosdir"], f)
-                repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
+                repMap["rmUnmerged"] += "    eos rm "+longName+"\n"
     repMap["rmUnmerged"] += ("else\n"
                              "    echo -e \\n\"WARNING: Merging failed, unmerged"
                              " files won't be deleted.\\n"
