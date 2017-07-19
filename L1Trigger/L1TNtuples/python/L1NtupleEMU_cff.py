@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
@@ -32,12 +31,14 @@ l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1uGTEmuTree = l1uGTTree.clone()
 l1uGTEmuTree.ugtToken = cms.InputTag("simGtStage2Digis")
 
-if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
-    l1UpgradeEMUTree.egToken = "simCaloStage1FinalDigis"
-    l1UpgradeEMUTree.tauTokens = cms.untracked.VInputTag("simCaloStage1FinalDigis:rlxTaus")
-    l1UpgradeEMUTree.jetToken = "simCaloStage1FinalDigis"
-    l1UpgradeEMUTree.muonToken = "simGtDigis"
-    l1UpgradeEMUTree.sumToken = "simCaloStage1FinalDigis"
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+stage1L1Trigger.toModify(l1UpgradeEMUTree,
+    egToken = "simCaloStage1FinalDigis",
+    tauTokens = cms.untracked.VInputTag("simCaloStage1FinalDigis:rlxTaus"),
+    jetToken = "simCaloStage1FinalDigis",
+    muonToken = "simGtDigis",
+    sumToken = "simCaloStage1FinalDigis",
+)
 
 L1NtupleEMU = cms.Sequence(
   l1EventTree

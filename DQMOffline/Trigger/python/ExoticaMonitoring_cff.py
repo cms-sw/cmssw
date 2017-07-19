@@ -7,7 +7,7 @@ from DQMOffline.Trigger.HTMonitor_cff import *
 
 exoticaMonitorHLT = cms.Sequence(
     exoHLTMETmonitoring
-    + exoHLTNoBPTXmonitoring
-    + exoHLTPhotonmonitoring
-    + exoHLTHTmonitoring
+  + exoHLTNoBPTXmonitoring
+  + exoHLTPhotonmonitoring
+  + exoHLTHTmonitoring
 )

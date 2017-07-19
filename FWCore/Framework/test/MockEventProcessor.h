@@ -14,11 +14,17 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <exception>
 
 namespace edm {
   class MockEventProcessor {
   public:
-
+    class TestException : public std::exception {
+    public:
+      TestException() noexcept
+      :std::exception() {}
+    };
+    
     MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
                        bool iDoNotMerge);
@@ -72,6 +78,7 @@ namespace edm {
 
   private:
     void readAndProcessEvent();
+    void throwIfNeeded();
 
     std::string mockData_;
     std::ostream & output_;
@@ -86,6 +93,7 @@ namespace edm {
     bool shouldWeStop_;
     bool eventProcessed_;
     bool reachedEndOfInput_;
+    bool shouldThrow_;
   };
 }
 

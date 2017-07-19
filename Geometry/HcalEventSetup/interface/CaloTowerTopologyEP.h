@@ -27,7 +27,7 @@ class CaloTowerTopologyEP : public edm::ESProducer {
 
 public:
   CaloTowerTopologyEP(const edm::ParameterSet&);
-  ~CaloTowerTopologyEP();
+  ~CaloTowerTopologyEP() override;
 
   typedef std::shared_ptr<CaloTowerTopology> ReturnType;
 

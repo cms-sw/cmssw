@@ -22,7 +22,7 @@
 class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet& );
-  ~HGCalGeometryTester();
+  ~HGCalGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -72,16 +72,13 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
   int cells[]  = {1, 51, 101};
   int wafers[] = {1, 101, 201, 301, 401};
   int ismax    = (squareCell) ? 3 : 5;
-  for (int iz = 0; iz < 2; ++iz) {
-    int zside = zsides[iz];
+  for (int zside : zsides) {
     for (int is = 0; is < ismax; ++is) {
       int sector = (squareCell) ? sectors[is] : wafers[is];
       int type   = (squareCell) ? 0 : geom.topology().dddConstants().waferTypeT(sector);
       if (type != 1) type = 0;
-      for (int il = 0; il < 3; ++il) {
-	int layer = layers[il];
-	for (int ic = 0; ic < 3; ++ic) {
-	  int cell = cells[ic];
+      for (int layer : layers) {
+		for (int cell : cells) {
 	  DetId id1;
 	  if (squareCell) {
 	    id1 = ((subdet == HGCEE) ? 
@@ -135,8 +132,8 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
   if (squareCell) {
     uint32_t probids[] = {1711603886, 1711603890, 1761408735, 1761411303,
 			  1801744385, 1805447194};
-    for (int k=0; k<6; ++k) {
-      DetId id(probids[k]);
+    for (unsigned int probid : probids) {
+      DetId id(probid);
       if (id.det() == DetId::Forward && id.subdetId() == (int)(subdet)) {
 	if (subdet == HGCEE) std::cout << "Test " << HGCEEDetId(id) << std::endl;
 	else                 std::cout << "Test " << HGCHEDetId(id) << std::endl;

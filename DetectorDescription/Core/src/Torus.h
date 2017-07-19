@@ -16,9 +16,9 @@ namespace DDI {
 	  double pDPhi
 	  );
     
-    double volume() const;
+    double volume() const override;
     
-    void stream(std::ostream &) const;
+    void stream(std::ostream &) const override;
   };
 
 }

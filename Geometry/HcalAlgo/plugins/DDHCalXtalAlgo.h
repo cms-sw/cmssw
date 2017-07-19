@@ -11,15 +11,15 @@ class DDHCalXtalAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalXtalAlgo(); 
-  virtual ~DDHCalXtalAlgo();
+  ~DDHCalXtalAlgo() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 

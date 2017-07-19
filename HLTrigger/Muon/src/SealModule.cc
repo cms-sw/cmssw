@@ -45,3 +45,6 @@ DEFINE_FWK_MODULE(HLTL1MuonSelector);
 DEFINE_FWK_MODULE(HLTL1TMuonSelector);
 DEFINE_FWK_MODULE(HLTScoutingMuonProducer);
 DEFINE_FWK_MODULE(HLTL1MuonNoL2Selector);
+
+#include "HLTrigger/Muon/interface/HLTTriMuonIsolation.h"
+DEFINE_FWK_MODULE(HLTTriMuonIsolation);

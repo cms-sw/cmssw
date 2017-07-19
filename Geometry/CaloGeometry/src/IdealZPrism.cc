@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
-#include <math.h>
+#include <cmath>
 
 typedef IdealZPrism::CCGFloat CCGFloat ;
 typedef IdealZPrism::Pt3D     Pt3D     ;

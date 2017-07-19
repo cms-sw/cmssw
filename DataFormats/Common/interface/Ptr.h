@@ -32,8 +32,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/utility/enable_if.hpp"
+#include <type_traits>
 
 // forward declarations
 namespace edm {
@@ -122,7 +121,7 @@ namespace edm {
     {}
 
     template<typename U>
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<T, U>::value> * = 0):
     core_(iOther.id(),
           (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
           iOther.productGetter(),
@@ -137,7 +136,7 @@ namespace edm {
 
     template<typename U>
     explicit
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<U, T>::value> * = 0):
     core_(iOther.id(),
           dynamic_cast<T const*>(iOther.get()),
           0,

@@ -43,7 +43,7 @@
 class PerfectGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit PerfectGeometryAnalyzer( const edm::ParameterSet& );
-  ~PerfectGeometryAnalyzer();
+  ~PerfectGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
