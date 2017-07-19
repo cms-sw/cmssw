@@ -66,8 +66,8 @@ process.Timing = cms.Service("Timing"
 
 process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
-    numberOfThreads = cms.untracked.uint32(16),
-    numberOfStreams = cms.untracked.uint32(16),
+    numberOfThreads = cms.untracked.uint32(8),
+    numberOfStreams = cms.untracked.uint32(8),
     wantSummary = cms.untracked.bool(True)
 )
 
@@ -116,6 +116,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction_trackingOnly)
 process.prevalidation_step = cms.Path(process.globalPrevalidationTrackingOnly)
 process.load('RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeExtractor_cfi')
+process.clusterShapeExtractor.noBPIX1=False
 process.clusterShapeExtractor_step = cms.Path(process.clusterShapeExtractor)
 
 # Schedule definition
