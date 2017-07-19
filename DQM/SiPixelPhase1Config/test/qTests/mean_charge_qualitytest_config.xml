@@ -2,134 +2,539 @@
   <!-- QTESTS for MEAN CHARGE: -->
 
   <!-- PXBARREL -->
-  <!-- PXLAYER 1 -->
-  <QTEST name="Yrange:PXLayer_1:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXLAYER 2 -->  <!-- warn -->
-  <QTEST name="Yrange:PXLayer_2:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXLAYER 3 --> <!-- error -->
-  <QTEST name="Yrange:PXLayer_3:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXLAYER 4 --> <!-- pass -->
-  <QTEST name="Yrange:PXLayer_4:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
+    <!-- PXLAYER 1 -->
+    <QTEST name="Yrange:PXLayer_1__Shell_mI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">90000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_1__Shell_mO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">65000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_1__Shell_pI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">90000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_1__Shell_pO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">9000.</PARAM>
+    </QTEST>
+
+    <!-- PXLAYER 2 -->
+    <QTEST name="Yrange:PXLayer_2__Shell_mI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">110000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_2__Shell_mO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">110000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_2__Shell_pI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">65000</PARAM>
+      <PARAM name="ymax">90000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_2__Shell_pO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">70000</PARAM>
+      <PARAM name="ymax">90000.</PARAM>
+    </QTEST>
+
+    <!-- PXLAYER 3 -->
+    <QTEST name="Yrange:PXLayer_3__Shell_mI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_3__Shell_mO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">65000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_3__Shell_pI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_3__Shell_pO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <!-- PXLAYER 4 -->
+    <QTEST name="Yrange:PXLayer_4__Shell_mI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">80000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_4__Shell_mO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">75000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_4__Shell_pI:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">75000.</PARAM>
+    </QTEST>
+
+    <QTEST name="Yrange:PXLayer_4__Shell_pO:mean_charge" activate="true">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="ymin">60000</PARAM>
+      <PARAM name="ymax">75000.</PARAM>
+    </QTEST>
 
   <!-- PXFORWARD -->
-  <!-- PXRING 1 -->
-  <!-- PXDISK ±1 --> <!-- error -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_±1:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXDISK ±2 --> <!-- pass -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_±2:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXDISK ±3 -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_±3:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXRING 2 -->
-  <!-- PXDISK ±1 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_±1:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXDISK ±2 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_±2:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
-  <!-- PXDISK ±3 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_±3:mean_charge" activate="true">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="useEmptyBins">1</PARAM>
-    <PARAM name="error">0.2</PARAM>
-    <PARAM name="warning">0.5</PARAM>
-    <PARAM name="ymin">20.</PARAM>
-    <PARAM name="ymax">100000.</PARAM>
-  </QTEST>
+    <!-- HCMI -->
+      <!-- PXRING 1 --> 
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <!-- PXRING 2 --> 
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
 
 
-  <!-- LINKS between Quality Tests and Monitoring Elements: -->
-  <!-- PXBARREL LINKS -->
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_*/mean_charge_PXLayer_1">
-    <TestName activate="true">Yrange:PXLayer_1:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_*/mean_charge_PXLayer_2">
-    <TestName activate="true">Yrange:PXLayer_2:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_*/mean_charge_PXLayer_3">
-    <TestName activate="true">Yrange:PXLayer_3:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_*/mean_charge_PXLayer_4">
-    <TestName activate="true">Yrange:PXLayer_4:mean_charge</TestName>
-  </LINK>
+    <!-- HCMO -->
+      <!-- PXRING 1 --> 
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <!-- PXRING 2 --> 
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">60000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">60000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+    
+    <!-- HCPI -->
+      <!-- PXRING 1 --> 
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <!-- PXRING 2 --> 
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+     
+    <!-- HCPO -->
+      <!-- PXRING 1 --> 
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <!-- PXRING 2 --> 
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+1:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">60000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+2:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">45000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+      <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+3:mean_charge" activate="true">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.85</PARAM>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="ymin">40000</PARAM>
+        <PARAM name="ymax">55000.</PARAM>
+      </QTEST>
+
+     
+  <!-- LINKS between Quality Tests and Monitoring Elements -->
+    <!-- PXBARREL LINKS -->
+      <!-- PXLAYER 1 -->
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mI/mean_charge_PXLayer_1">
+        <TestName activate="true">Yrange:PXLayer_1__Shell_mI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mO/mean_charge_PXLayer_1">
+        <TestName activate="true">Yrange:PXLayer_1__Shell_mO:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pI/mean_charge_PXLayer_1">
+        <TestName activate="true">Yrange:PXLayer_1__Shell_pI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pO/mean_charge_PXLayer_1">
+        <TestName activate="true">Yrange:PXLayer_1__Shell_pO:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXLAYER 2 -->
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mI/mean_charge_PXLayer_2">
+        <TestName activate="true">Yrange:PXLayer_2__Shell_mI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mO/mean_charge_PXLayer_2">
+        <TestName activate="true">Yrange:PXLayer_2__Shell_mO:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pI/mean_charge_PXLayer_2">
+        <TestName activate="true">Yrange:PXLayer_2__Shell_pI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pO/mean_charge_PXLayer_2">
+        <TestName activate="true">Yrange:PXLayer_2__Shell_pO:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXLAYER 3 -->
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mI/mean_charge_PXLayer_3">
+        <TestName activate="true">Yrange:PXLayer_3__Shell_mI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mO/mean_charge_PXLayer_3">
+        <TestName activate="true">Yrange:PXLayer_3__Shell_mO:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pI/mean_charge_PXLayer_3">
+        <TestName activate="true">Yrange:PXLayer_3__Shell_pI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pO/mean_charge_PXLayer_3">
+        <TestName activate="true">Yrange:PXLayer_3__Shell_pO:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXLAYER 4 -->
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mI/mean_charge_PXLayer_4">
+        <TestName activate="true">Yrange:PXLayer_4__Shell_mI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_mO/mean_charge_PXLayer_4">
+        <TestName activate="true">Yrange:PXLayer_4__Shell_mO:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pI/mean_charge_PXLayer_4">
+        <TestName activate="true">Yrange:PXLayer_4__Shell_pI:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXBarrel/Shell_pO/mean_charge_PXLayer_4">
+        <TestName activate="true">Yrange:PXLayer_4__Shell_pO:mean_charge</TestName>
+      </LINK>
 
   <!-- PXFORWARD LINKS -->
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_charge_PXDisk_*1">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_±1:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_charge_PXDisk_*2">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_±2:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_charge_PXDisk_*3">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_±3:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_charge_PXDisk_*1">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_±1:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_charge_PXDisk_*2">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_±2:mean_charge</TestName>
-  </LINK>
-  <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_charge_PXDisk_*3">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_±3:mean_charge</TestName>
-  </LINK>
+    <!-- HCMI -->
+      <!-- PXRING 1 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_1/mean_charge_PXDisk_-1">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_1/mean_charge_PXDisk_-2">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_1/mean_charge_PXDisk_-3">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-3:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXRING 2 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_2/mean_charge_PXDisk_-1">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_2/mean_charge_PXDisk_-2">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mI/PXRing_2/mean_charge_PXDisk_-3">
+        <TestName activate="true">Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-3:mean_charge</TestName>
+      </LINK>
+
+     
+    <!-- HCMO -->
+      <!-- PXRING 1 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_1/mean_charge_PXDisk_-1">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_1/mean_charge_PXDisk_-2">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_1/mean_charge_PXDisk_-3">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-3:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXRING 2 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_2/mean_charge_PXDisk_-1">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_2/mean_charge_PXDisk_-2">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_mO/PXRing_2/mean_charge_PXDisk_-3">
+        <TestName activate="true">Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-3:mean_charge</TestName>
+      </LINK>
+
+    
+    <!-- HCPI -->
+      <!-- PXRING 1 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_1/mean_charge_PXDisk_+1">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_1/mean_charge_PXDisk_+2">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_1/mean_charge_PXDisk_+3">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+3:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXRING 2 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_2/mean_charge_PXDisk_+1">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_2/mean_charge_PXDisk_+2">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pI/PXRing_2/mean_charge_PXDisk_+3">
+        <TestName activate="true">Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+3:mean_charge</TestName>
+      </LINK>
+
+     
+    <!-- HCPO -->
+      <!-- PXRING 1 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_1/mean_charge_PXDisk_+1">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_1/mean_charge_PXDisk_+2">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_1/mean_charge_PXDisk_+3">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+3:mean_charge</TestName>
+      </LINK>
+
+      <!-- PXRING 2 --> 
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_2/mean_charge_PXDisk_+1">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+1:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_2/mean_charge_PXDisk_+2">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+2:mean_charge</TestName>
+      </LINK>
+      <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_pO/PXRing_2/mean_charge_PXDisk_+3">
+        <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+3:mean_charge</TestName>
+      </LINK>
+
 </TESTCONFIGURATION>
