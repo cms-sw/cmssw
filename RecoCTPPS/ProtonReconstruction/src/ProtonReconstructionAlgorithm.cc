@@ -273,18 +273,18 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     << "vertex_y=" << params[3] << "\n";
 
   reco::ProtonTrack pt;
+  pt.method = reco::ProtonTrack::rmMultiRP;
   pt.setValid(result.IsValid());
   pt.setVertex(Local3DPoint(0., params[3], 0.));  // TODO: apply the CMS coordinate convention
   pt.setDirection(Local3DVector(params[1], params[2], 1.)); // TODO: make this correct, apply the CMS coordinate convention
   pt.setXi(params[0]);
-  
-  pt.fitChiSq = result.Chi2();
-  // TODO: add ndf
-  pt.method = reco::ProtonTrack::rmMultipleRP;
-  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
 
   for (const auto &track : tracks)
     pt.contributingRPIds.insert(track->getRPId());
+  
+  pt.fitChiSq = result.Chi2();
+  pt.fitNDF = tracks.size() - 4;
+  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
 
   out.push_back(move(pt));
 }
@@ -294,10 +294,6 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
 void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const CTPPSLocalTrackLite*> &tracks,
   vector<reco::ProtonTrack> &out) const
 {
-  // need at least two tracks
-  if (tracks.size() < 2)
-    return;
-
   // make sure optics is available for all tracks
   for (const auto &it : tracks)
   {
@@ -318,6 +314,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
     pt.setVertex(Local3DPoint(0., 0., 0.));
     pt.setDirection(Local3DVector(0., 0., 1.));
     pt.setXi(xi);
+    pt.fitNDF = 0;
     pt.fitChiSq = 0.;
     pt.lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
     pt.contributingRPIds.insert(track->getRPId());
