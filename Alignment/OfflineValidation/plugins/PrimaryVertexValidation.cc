@@ -93,9 +93,6 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   defaultRuns.push_back(0);
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
 
-  phiSect_ = (2*TMath::Pi())/nBins_;
-  etaSect_ = (2*etaOfProbe_)/nBins_;
-
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
   theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
 
@@ -252,14 +249,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     isPhase1_ = true;
     nLadders_ = 12;
                         
-    if(h_dxy_ladderOverlap_.size()!=12){
+    if(h_dxy_ladderOverlap_.size()!=nLadders_){
 
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_,12);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_,12);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_,12);	  
-      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_,12);	  
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_,12);  
-      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_,12);   
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_,nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_,nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_,nLadders_);	  
+      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_,nLadders_);	  
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_,nLadders_);  
+      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_,nLadders_);   
       
       if (debug_){
 	edm::LogInfo("PrimaryVertexValidation")<<"checking size:"<<h_dxy_ladder_.size()<<std::endl;
@@ -398,7 +395,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	double dxy_err = (**itrk).dxyError();
 	double dz_err  = (**itrk).dzError();
 	
-	float trackphi = ((**itrk).phi())*(180/TMath::Pi());
+	float trackphi = ((**itrk).phi())*(180/M_PI);
 	float tracketa = (**itrk).eta();
 	
 	for(int i=0; i<nBins_; i++){
@@ -781,7 +778,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	     	      
 	      // fill directly the histograms of residuals
 	      
-	      float trackphi = (theTrack.phi())*(180/TMath::Pi());
+	      float trackphi = (theTrack.phi())*(180./M_PI);
 	      float tracketa = theTrack.eta();
 	      float trackpt  = theTrack.pt();
 	      float trackp   = theTrack.p();
@@ -1001,8 +998,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		    for(int j=0; j<nBins_; j++){
 
-		      float etaJ=-etaOfProbe_+j*etaSect_;
-		      float etaK=-etaOfProbe_+(j+1)*etaSect_;
+		      float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
+		      float etaK = theDetails_.trendbins[PVValHelper::eta][j+1];
 
 		      if(tracketa >= etaJ && tracketa < etaK ){
 			a_dxyResidualsMap[i][j]->Fill(dxyFromMyVertex*cmToum); 
@@ -1529,16 +1526,16 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory BiasVsParameter = fs->mkdir("BiasVsParameter");
 
   a_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_dxy_vs_phi","d_{xy} vs track #phi;track #phi [rad];track d_{xy}(PV) [#mum]",
-					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dxymax_phi,dxymax_phi); 
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dxymax_phi,dxymax_phi); 
  
   a_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_dz_vs_phi","d_{z} vs track #phi;track #phi [rad];track d_{z}(PV) [#mum]",
-					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dzmax_phi,dzmax_phi);   
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dzmax_phi,dzmax_phi);   
                
   n_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_phi","d_{xy}/#sigma_{d_{xy}} vs track #phi;track #phi [rad];track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.); 
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.); 
   
   n_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_phi","d_{z}/#sigma_{d_{z}} vs track #phi;track #phi [rad];track d_{z}(PV)/#sigma_{d_{z}}",
-					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);   
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);   
                
   a_dxyVsEta = BiasVsParameter.make<TH2F>("h2_dxy_vs_eta","d_{xy} vs track #eta;track #eta;track d_{xy}(PV) [#mum]",
 					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dxymax_eta,dzmax_eta);
@@ -1628,7 +1625,6 @@ void PrimaryVertexValidation::beginJob()
 						 "width(d_{z}/#sigma_{d_{z}}) vs #eta sector;#eta (sector);width(d_{z}/#sigma_{d_{z}})",
 						 nBins_,lowedge,highedge);                        
   
-
   // means and widhts vs pT and pTCentral
   
   a_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pT",
@@ -1646,21 +1642,6 @@ void PrimaryVertexValidation::beginJob()
   a_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pT","#sigma_{d_{z}} vs pT;p_{T} [GeV];#sigma_{d_{z}} [#mum]",
 						48,mypT_bins_);
   
-  a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
-						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
-						       48,mypT_bins_);
-  
-  a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
-						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
-						       48,mypT_bins_);
-  
-  a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
-						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
-						       ,48,mypT_bins_); 
-  
-  a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
-						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
-						       48,mypT_bins_);
   
   n_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pT",
 						"#LT d_{xy}/#sigma_{d_{xy}} #GT vs pT;p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",
@@ -1677,6 +1658,23 @@ void PrimaryVertexValidation::beginJob()
   n_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pT",
 						"width(d_{z}/#sigma_{d_{z}}) vs pT;p_{T} [GeV];width(d_{z}/#sigma_{d_{z}})",
 						48,mypT_bins_);
+
+
+  a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
+						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
+						       48,mypT_bins_);
+  
+  a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
+						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
+						       48,mypT_bins_);
+  
+  a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
+						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
+						       ,48,mypT_bins_); 
+  
+  a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
+						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
+						       48,mypT_bins_);
   
   n_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pTCentral",
 						       "#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy}/#sigma_{d_{z}} #GT",
@@ -1832,15 +1830,15 @@ void PrimaryVertexValidation::beginJob()
     TFileDirectory NormDoubleDiffBiasRes  = fs->mkdir("Norm_DoubleDiffBiasResiduals");
     
     for ( int i=0; i<nBins_; ++i ) {
+         
+      float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+      float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
       
-      float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-      float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-      
-      float etaF=-etaOfProbe_+i*etaSect_;
-      float etaL=-etaOfProbe_+(i+1)*etaSect_;
-       
       for ( int j=0; j<nBins_; ++j ) {
-	
+
+	float etaF = theDetails_.trendbins[PVValHelper::eta][j];
+	float etaL = theDetails_.trendbins[PVValHelper::eta][j+1];
+
 	a_dxyBiasResidualsMap[i][j] = AbsDoubleDiffBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
 								      Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy} [#mum];tracks",etaF,etaL,phiF,phiL),
 								      theDetails_.histobins,-dzmax_eta,dzmax_eta);
@@ -2051,19 +2049,19 @@ void PrimaryVertexValidation::endJob()
   
   a_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_modZ",
 						  "#LT d_{xy} #GT vs modZ;module number (Z);#LT d_{xy} #GT [#mum]",
-						  8,0.,8.); 
+						  nModZ_,0.,nModZ_); 
   
   a_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_modZ",
 						  "#sigma_{d_{xy}} vs modZ;module number (Z);#sigma_{d_{xy}} [#mum]",
-						  8,0.,8.);
+						  nModZ_,0.,nModZ_);
   
   a_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_modZ",
 						  "#LT d_{z} #GT vs modZ;module number (Z);#LT d_{z} #GT [#mum]",
-						  8,0.,8.); 
+						  nModZ_,0.,nModZ_); 
   
   a_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_modZ",
 						  "#sigma_{d_{z}} vs modZ;module number (Z);#sigma_{d_{z}} [#mum]",
-						  8,0.,8.);
+						  nModZ_,0.,nModZ_);
  
   a_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_ladder",
 						    "#LT d_{xy} #GT vs ladder;ladder number (#phi);#LT d_{xy} #GT [#mum]",
@@ -2083,19 +2081,19 @@ void PrimaryVertexValidation::endJob()
   
   n_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_modZ",
 						  "#LT d_{xy}/#sigma_{d_{xy}} #GT vs modZ;module number (Z);#LT d_{xy}/#sigma_{d_{xy}} #GT",
-						  8,0.,8.);
+						  nModZ_,0.,nModZ_);
   
   n_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_modZ",
 						  "width(d_{xy}/#sigma_{d_{xy}}) vs modZ;module number (Z); width(d_{xy}/#sigma_{d_{xy}})",
-						  8,0.,8.);
+						  nModZ_,0.,nModZ_);
   
   n_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_modZ",
 						  "#LT d_{z}/#sigma_{d_{z}} #GT vs modZ;module number (Z);#LT d_{z}/#sigma_{d_{z}} #GT",
-						  8,0.,8.); 
+						  nModZ_,0.,nModZ_); 
   
   n_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_modZ",
 						  "width(d_{z}/#sigma_{d_{z}}) vs pT;module number (Z);width(d_{z}/#sigma_{d_{z}})",
-						  8,0.,8.);
+						  nModZ_,0.,nModZ_);
   
   n_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_ladder",
 						    "#LT d_{xy}/#sigma_{d_{xy}} #GT vs ladder;ladder number (#phi);#LT d_{xy}/#sigma_{d_{z}} #GT",
@@ -2606,7 +2604,7 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const 
   for(const auto & type : types){
     h["pseudorapidity_"+type] =dir.make <TH1F>(("rapidity_"+type).c_str(),"track pseudorapidity; track #eta; tracks",100,-3., 3.);
     h["z0_"+type] = dir.make<TH1F>(("z0_"+type).c_str(),"track z_{0};track z_{0} (cm);tracks",80,-40., 40.);
-    h["phi_"+type] = dir.make<TH1F>(("phi_"+type).c_str(),"track #phi; track #phi;tracks",80,-TMath::Pi(), TMath::Pi());
+    h["phi_"+type] = dir.make<TH1F>(("phi_"+type).c_str(),"track #phi; track #phi;tracks",80,-M_PI, M_PI);
     h["eta_"+type] = dir.make<TH1F>(("eta_"+type).c_str(),"track #eta; track #eta;tracks",80,-4., 4.);
     h["pt_"+type] = dir.make<TH1F>(("pt_"+type).c_str(),"track p_{T}; track p_{T} [GeV];tracks",100,0., 20.);
     h["p_"+type] = dir.make<TH1F>(("p_"+type).c_str(),"track p; track p [GeV];tracks",100,0., 20.);
@@ -2625,9 +2623,9 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const 
     h["lvseta_"+type] = dir.make<TH2F>(("lvseta_"+type).c_str(),"cluster length vs #eta;track #eta;cluster length",60,-3., 3., 20, 0., 20);
     h["lvstanlambda_"+type] = dir.make<TH2F>(("lvstanlambda_"+type).c_str(),"cluster length vs tan #lambda; tan#lambda;cluster length",60,-6., 6., 20, 0., 20);
     h["restrkz_"+type] = dir.make<TH1F>(("restrkz_"+type).c_str(),"z-residuals (track vs vertex);res_{z} (cm);tracks", 200, -5., 5.);
-    h["restrkzvsphi_"+type] = dir.make<TH2F>(("restrkzvsphi_"+type).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-TMath::Pi(),TMath::Pi(),100, -0.5,0.5);
+    h["restrkzvsphi_"+type] = dir.make<TH2F>(("restrkzvsphi_"+type).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-M_PI,M_PI,100, -0.5,0.5);
     h["restrkzvseta_"+type] = dir.make<TH2F>(("restrkzvseta_"+type).c_str(),"z-residuals (track - vertex) vs track #eta;track #eta;res_{z} (cm)", 12,-3.,3.,200, -0.5,0.5);
-    h["pulltrkzvsphi_"+type] = dir.make<TH2F>(("pulltrkzvsphi_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-TMath::Pi(),TMath::Pi(),100, -5., 5.);
+    h["pulltrkzvsphi_"+type] = dir.make<TH2F>(("pulltrkzvsphi_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-M_PI,M_PI,100, -5., 5.);
     h["pulltrkzvseta_"+type] = dir.make<TH2F>(("pulltrkzvseta_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #eta;track #eta;res_{z}/#sigma_{res_{z}}", 12,-3.,3.,100, -5., 5.);
     h["pulltrkz_"+type] = dir.make<TH1F>(("pulltrkz_"+type).c_str(),"normalized z-residuals (track vs vertex);res_{z}/#sigma_{res_{z}};tracks", 100, -5., 5.);
     h["sigmatrkz0_"+type] = dir.make<TH1F>(("sigmatrkz0_"+type).c_str(),"z-resolution (excluding beam);#sigma^{trk}_{z_{0}} (cm);tracks", 100, 0., 5.);
