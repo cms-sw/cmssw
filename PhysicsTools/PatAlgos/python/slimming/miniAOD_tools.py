@@ -325,13 +325,12 @@ def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
     #GenJetFlavourInfos
     process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
-    process.selectedHadronsAndPartons.particles = "prunedGenParticles"
+    process.selectedHadronsAndPartons.particles = "genParticles"
     task.add(process.selectedHadronsAndPartons)
 
     
     process.load("PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi")
     task.add(process.ak4GenJetFlavourInfos)
-
     task.add(process.slimmedGenJetsFlavourInfos)
 
     #slimmed pileup information

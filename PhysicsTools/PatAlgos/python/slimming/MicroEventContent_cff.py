@@ -80,8 +80,10 @@ MicroEventContentMC = cms.PSet(
 MicroEventContentMC.outputCommands += [
         #'keep *_slimmedGenJets*_*_*',
         'keep *_slimmedGenJets_*_*',
+        'drop *_slimmedGenJets_slimmedGenJetAssociation_*',
         'keep *_slimmedGenJetsFlavourInfos_*_*',
         'keep *_slimmedGenJetsAK8_*_*',
+        'drop *_slimmedGenJetsAK8_slimmedGenJetAssociation_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
