@@ -522,7 +522,10 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
             HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
             if(!triggerGeometry_->eeTopology().valid(id)) continue;
             // fill trigger cells
+            // Skip trigger cells in module 0
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -538,7 +541,10 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
             HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
             if(!triggerGeometry_->fhTopology().valid(id)) continue;
             // fill trigger cells
+            // Skip trigger cells in module 0
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -549,7 +555,10 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
     {
         if(id.rawId()==0 || id.subdetId()!=2) continue;
         // fill trigger cells
+        // Skip trigger cells in module 0
         uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+        uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+        if(HGCalDetId(module).wafer()==0) continue;
         auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
         itr_insert.first->second.emplace(id);
     }
@@ -632,6 +641,9 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             if(!no_trigger_)
             {
                 uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+                // Skip trigger cells in module 0
+                uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+                if(HGCalDetId(module).wafer()==0) continue;
                 auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -679,6 +691,9 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             if(!no_trigger_)
             {
                 uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+                // Skip trigger cells in module 0
+                uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+                if(HGCalDetId(module).wafer()==0) continue;
                 auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -720,6 +735,9 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
         if(!no_trigger_)
         {
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+            // Skip trigger cells in module 0
+            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
