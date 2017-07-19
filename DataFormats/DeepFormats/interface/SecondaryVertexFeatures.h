@@ -1,5 +1,5 @@
-#ifndef DataFormats_DeepFormats_SecondaryVertexFeaturesFeatures_h
-#define DataFormats_DeepFormats_SecondaryVertexFeaturesFeatures_h
+#ifndef DataFormats_DeepFormats_SecondaryVertexFeatures_h
+#define DataFormats_DeepFormats_SecondaryVertexFeatures_h
 
 namespace deep {
 
@@ -34,4 +34,4 @@ class SecondaryVertexFeatures {
 
 }
 
-#endif //DataFormats_DeepFormats_SecondaryVertexFeaturesFeatures_h
+#endif //DataFormats_DeepFormats_SecondaryVertexFeatures_h
