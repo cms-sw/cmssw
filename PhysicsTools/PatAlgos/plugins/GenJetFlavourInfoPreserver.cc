@@ -36,10 +36,9 @@ namespace pat {
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > genJetsToken_;
     const edm::EDGetTokenT<edm::View<reco::Jet> > slimmedGenJetsToken_;
-
-    const StringCutObjectSelector<reco::GenJet> cut_;
     
     const edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> genJetFlavourInfosToken_;
+    const edm::EDGetTokenT<std::vector < std::pair<  int, int > >> slimmedGenJetAssociationToken_;
   };
 
 } // namespace
@@ -47,8 +46,8 @@ namespace pat {
 pat::GenJetFlavourInfoPreserver::GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig) :
     genJetsToken_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("genJets"))),
     slimmedGenJetsToken_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("slimmedGenJets"))),
-    cut_(iConfig.getParameter<std::string>("cut")),
-    genJetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("genJetFlavourInfos")))
+    genJetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("genJetFlavourInfos"))),
+    slimmedGenJetAssociationToken_(consumes<std::vector < std::pair<  int, int > > >(iConfig.getParameter<edm::InputTag>("slimmedGenJetAssociation")))
 {
     produces<reco::JetFlavourInfoMatchingCollection>();
 }
@@ -67,28 +66,27 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
     Handle<reco::JetFlavourInfoMatchingCollection> genJetFlavourInfos;
     iEvent.getByToken(genJetFlavourInfosToken_, genJetFlavourInfos);
 
+    Handle<std::vector < std::pair<  int, int > > > slimmedGenJetAssociation;
+    iEvent.getByToken(slimmedGenJetAssociationToken_, slimmedGenJetAssociation);
+
     auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(slimmedGenJets));
-
-
-    uint slimmedId = 0;
-
-    auto jetIt = genJets->begin(), jetEnd = genJets->end();
-    auto jetInfoIt = genJetFlavourInfos->begin();
+    auto jetInfoIt = genJetFlavourInfos->begin(), jetInfoEnd = genJetFlavourInfos->end();
     assert(genJets->size() == genJetFlavourInfos->size());
 
-    for(; jetIt != jetEnd; ++jetIt, ++jetInfoIt){
-        if (!cut_(*jetIt)) continue;
+    auto assoIt = slimmedGenJetAssociation->begin(), assoEnd = slimmedGenJetAssociation->end();
 
-        (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(jetInfoIt->second.getbHadrons(),
+    for(; assoIt != assoEnd; ++assoIt){
+        for (; jetInfoIt != jetInfoEnd; ++jetInfoIt ){
+            if ((jetInfoIt-genJetFlavourInfos->begin()) == assoIt->first){
+                (*jetFlavourInfos)[slimmedGenJets->refAt(assoIt->second)] = reco::JetFlavourInfo(jetInfoIt->second.getbHadrons(),
                                                                                     jetInfoIt->second.getcHadrons(),
                                                                                     jetInfoIt->second.getPartons(), 
                                                                                     jetInfoIt->second.getLeptons(), 
                                                                                     jetInfoIt->second.getHadronFlavour(), 
                                                                                     jetInfoIt->second.getPartonFlavour());
-        slimmedId++;
-
+            }
+         }
     }
-
 
     iEvent.put(std::move(jetFlavourInfos));
 }
