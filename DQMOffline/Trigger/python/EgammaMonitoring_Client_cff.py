@@ -15,7 +15,7 @@ def makeEGEffHistDef(baseName,filterName):
             
 def makeAllEGEffHistDefs():
     baseNames=["eleWPTightTag","eleWPTightTag-HEP17","eleWPTightTag-HEM17"]
-    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32noerWPTightGsfTrackIsoFilter","hltEle35noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550","hltEle28HighEtaSC20TrackIsoFilter","hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle135CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle145CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle200CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle250CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle300CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle20WPLoose1GsfTrackIsoFilter","hltEle20erWPLoose1GsfTrackIsoFilter","hltEle20WPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightEcalIsoFilter","hltDiEle27L1DoubleEGWPTightEcalIsoFilter"
+    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32noerWPTightGsfTrackIsoFilter","hltEle35noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEG25L1EG18HEFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550","hltEle28HighEtaSC20TrackIsoFilter","hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle135CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle145CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle200CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle250CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle300CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle20WPLoose1GsfTrackIsoFilter","hltEle20erWPLoose1GsfTrackIsoFilter","hltEle20WPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightEcalIsoFilter","hltDiEle27L1DoubleEGWPTightEcalIsoFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle25CaloIdLMWPMS2Filter","hltDiEle25CaloIdLMWPMS2UnseededFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle37CaloIdLMWPMS2UnseededFilter","hltSingleEle35WPTightGsfL1EGMTTrackIsoFilter"
                  ]
     
     
@@ -25,8 +25,16 @@ def makeAllEGEffHistDefs():
         for filterName in filterNames:
             histDefs.extend(makeEGEffHistDef(baseName,filterName))
 
-    baseNames=["eleWPTightTagPhoProbe","eleWPTightTagPhoProbe-HEM17","eleWPTightTagPhoProbe-HEP17"]
+    baseNames=["eleWPTightTagPhoHighEtaProbe","eleWPTightTagPhoHighEtaProbe-HEM17","eleWPTightTagPhoHighEtaProbe-HEP17"]
     filterNames=["hltEle28HighEtaSC20Mass55Filter","hltEle28HighEtaSC20HcalIsoFilterUnseeded"]
+
+    for baseName in baseNames:
+        for filterName in filterNames:
+            histDefs.extend(makeEGEffHistDef(baseName,filterName))
+
+
+    baseNames=["eleWPTightTagPhoProbe","eleWPTightTagPhoProbe-HEM17","eleWPTightTagPhoProbe-HEP17"]
+    filterNames=["hltEG20CaloIdLV2ClusterShapeL1TripleEGFilter","hltTriEG20CaloIdLV2ClusterShapeUnseededFilter","hltEG20CaloIdLV2R9IdVLR9IdL1TripleEGFilter","hltTriEG20CaloIdLV2R9IdVLR9IdUnseededFilter","hltEG30CaloIdLV2ClusterShapeL1TripleEGFilter","hltEG10CaloIdLV2ClusterShapeUnseededFilter","hltDiEG30CaloIdLV2EtUnseededFilter","hltEG30CaloIdLV2R9IdVLR9IdL1TripleEGFilter","hltEG10CaloIdLV2R9IdVLR9IdUnseededFilter","hltDiEG30CaloIdLV2R9IdVLEtUnseededFilter","hltEG35CaloIdLV2R9IdVLR9IdL1TripleEGFilter","hltEG5CaloIdLV2R9IdVLR9IdUnseededFilter","hltDiEG35CaloIdLV2R9IdVLEtUnseededFilter"]
 
     for baseName in baseNames:
         for filterName in filterNames:
