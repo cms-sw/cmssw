@@ -271,7 +271,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   switch (hFlag) {
     case vmCluster: {
       unsigned int nCl = 0;
-      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF && wordsProcessed+nCl<maxWords ) nCl++;
+      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF && ( wordsProcessed + nCl < maxWords ) ) nCl++;
       wordsProcessed += nCl;
     } break;
     case vmRaw:
@@ -279,7 +279,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
       break;
     case vmDiamondCompact: {
       wordsProcessed--;
-      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 && wordsProcessed<maxWords ) wordsProcessed++;
+      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 && ( wordsProcessed < maxWords ) ) wordsProcessed++;
     } break;
   }
 
@@ -329,7 +329,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   // get channel data - cluster mode
   if (hFlag == vmCluster)
   {
-    for (unsigned int nCl = 0; (buf[dataOffset + nCl] >> 12) != 0xF; ++nCl)
+    for (unsigned int nCl = 0; (buf[dataOffset + nCl] >> 12) != 0xF && ( dataOffset + nCl < maxWords ); ++nCl)
     {
       const uint16_t &w = buf[dataOffset + nCl];
       unsigned int upperBlock = w >> 8;
@@ -394,8 +394,8 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
       switch ( buf[i] & 0xF800 ) {
         case VFAT_DIAMOND_HEADER_OF_WORD_2:
           // word 2 of the diamond VFAT frame is found
-          fd[2] = buf[i];
           fd[1] = buf[i + 1];
+          fd[2] = buf[i];
           break;
         case VFAT_DIAMOND_HEADER_OF_WORD_3:
           // word 3 of the diamond VFAT frame is found
