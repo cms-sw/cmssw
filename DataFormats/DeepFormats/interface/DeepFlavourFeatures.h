@@ -6,6 +6,8 @@
 #include "DataFormats/DeepFormats/interface/JetFeatures.h"
 #include "DataFormats/DeepFormats/interface/SecondaryVertexFeatures.h"
 #include "DataFormats/DeepFormats/interface/ShallowTagInfoFeatures.h"
+#include "DataFormats/DeepFormats/interface/NeutralCandidateFeatures.h"
+#include "DataFormats/DeepFormats/interface/ChargedCandidateFeatures.h"
 
 namespace deep {
 
@@ -16,6 +18,9 @@ class DeepFlavourFeatures {
     ShallowTagInfoFeatures tag_info_features;
     
     std::vector<SecondaryVertexFeatures> sv_features;
+
+    std::vector<NeutralCandidateFeatures> n_pf_features;
+    std::vector<ChargedCandidateFeatures> c_pf_features;
     
 };    
 
