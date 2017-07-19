@@ -22,10 +22,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              src  = cms.InputTag("HGCalRecHit:HGCEERecHits"),
              geometryInstance = cms.string("HGCalEESensitive"),
              qualityTests = cms.VPSet(
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-                    thresholdSNR = cms.double(5.0),
-                   ),
+#                 cms.PSet(
+#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+#                     thresholdSNR = cms.double(5.0),
+#                    ),
                 )              
            ),
            cms.PSet(
@@ -33,10 +33,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              src  = cms.InputTag("HGCalRecHit:HGCHEFRecHits"),
              geometryInstance = cms.string("HGCalHESiliconSensitive"),
              qualityTests = cms.VPSet(
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-                    thresholdSNR = cms.double(5.0),
-                   ),                 
+#                 cms.PSet(
+#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+#                     thresholdSNR = cms.double(5.0),
+#                    ),                 
                 )
            ),
            cms.PSet(
@@ -44,10 +44,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              src  = cms.InputTag("HGCalRecHit:HGCHEBRecHits"),
              geometryInstance = cms.string(""),
              qualityTests = cms.VPSet(
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-                    thresholdSNR = cms.double(5.0),
-                   ),                 
+#                 cms.PSet(
+#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+#                     thresholdSNR = cms.double(5.0),
+#                    ),                 
                 )
            )
     )          
