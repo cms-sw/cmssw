@@ -10,9 +10,9 @@ slimmedGenJets = cms.EDProducer("PATGenJetSlimmer",
 
 slimmedGenJetsFlavourInfos = cms.EDProducer("GenJetFlavourInfoPreserver",
     genJets = cms.InputTag("ak4GenJetsNoNu"),
-    slimmedGenJets = cms.InputTag("slimmedGenJets"),
-    cut = cms.string("pt > 8"), #VERY IMPORTANT: cut needs to be the same as in slimmedGenJets above.                                       
-    genJetFlavourInfos = cms.InputTag("ak4GenJetFlavourInfos")
+    slimmedGenJets = cms.InputTag("slimmedGenJets"),                                      
+    genJetFlavourInfos = cms.InputTag("ak4GenJetFlavourInfos"),
+    slimmedGenJetAssociation = cms.InputTag("slimmedGenJets", "slimmedGenJetAssociation")
 )
 
 slimmedGenJetsAK8 = cms.EDProducer("PATGenJetSlimmer",
