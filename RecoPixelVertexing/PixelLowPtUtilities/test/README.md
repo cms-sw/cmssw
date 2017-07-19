@@ -20,4 +20,6 @@
     ```code
     process.clusterShapeExtractor.noBPIX1=True
     ```
-6. to use the produced file(s) edit RecoPixelVertexing/PixelLowPtUtilities/python/ClusterShapeHitFilterESProducer_cfi.py
+
+6. Analysis the resulting file using/modifing the pcsfVerify.ipynb notebook
+7. to use the produced file(s) edit RecoPixelVertexing/PixelLowPtUtilities/python/ClusterShapeHitFilterESProducer_cfi.py
