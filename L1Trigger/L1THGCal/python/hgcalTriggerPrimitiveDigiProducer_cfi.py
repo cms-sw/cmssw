@@ -9,6 +9,8 @@ adcNbits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits
 tdcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC
 tdcNbits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits
 tdcOnset_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
+adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
+adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 # Reco calibration parameters
 fCPerMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 fCPerMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
@@ -35,12 +37,15 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
                      NData = cms.uint32(999),
                      TCThreshold_fC = cms.double(1.),
+                     TCThresholdBH_MIP = cms.double(1.),
                      #take the following parameters from the digitization config file
                      adcsaturation = adcSaturation_fC,
                      adcnBits = adcNbits,
                      tdcsaturation = tdcSaturation_fC,
                      tdcnBits = tdcNbits,
                      tdcOnsetfC = tdcOnset_fC,
+                     adcsaturationBH = adcSaturationBH_MIP,
+                     adcnBitsBH = adcNbitsBH,
                      ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
                      )
 

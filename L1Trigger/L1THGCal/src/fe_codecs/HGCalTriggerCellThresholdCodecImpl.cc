@@ -12,14 +12,19 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
+    adcsaturationBH_(conf.getParameter<double>("adcsaturationBH")),
+    adcnBitsBH_(conf.getParameter<uint32_t>("adcnBitsBH")),
     triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
     TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC")),
+    TCThresholdBH_MIP_(conf.getParameter<double>("TCThresholdBH_MIP")),
     thickness_corrections_(conf.getParameter<std::vector<double>>("ThicknessCorrections"))
 {
     adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
     tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+    adcLSBBH_ =  adcsaturationBH_/pow(2.,adcnBitsBH_);
     triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
     TCThreshold_ADC_ = (int) (TCThreshold_fC_ / linLSB_);
+    TCThresholdBH_ADC_ = (int) (TCThresholdBH_MIP_ / adcLSBBH_);
 }
 
 
@@ -215,7 +220,8 @@ HGCalTriggerCellThresholdCodecImpl::
 thresholdSelect(data_type& data)
 {
   for (size_t i = 0; i<data.payload.size();i++){
-    if (data.payload[i].hwPt() < TCThreshold_ADC_)  data.payload[i].setHwPt(0);
+    int threshold = (HGCalDetId(data.payload[i].detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
+    if (data.payload[i].hwPt() < threshold)  data.payload[i].setHwPt(0);
   }
   
 }
