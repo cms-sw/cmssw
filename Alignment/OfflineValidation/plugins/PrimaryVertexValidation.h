@@ -256,9 +256,10 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TFileDirectory Mean2DMapsDir;  
   TFileDirectory Width2DMapsDir; 
 
-  // histogram for max(eta)
+  // histogram for sanity check
   TH1F* h_etaMax;
   TH1F* h_nbins;
+  TH1F* h_nLadders;
 
   // ---- directly histograms // ===> unbiased residuals
   
