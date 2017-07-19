@@ -45,10 +45,11 @@ namespace reco
       bool valid() const { return isValid_; }
 
       // TODO: add proper getters, setters
-      enum { rmSingleRP, rmMultipleRP } method;
+      enum { rmSingleRP, rmMultiRP } method;
 
       enum { sector45, sector56 } lhcSector;
 
+      unsigned int fitNDF;
       double fitChiSq;
 
       std::set<unsigned int> contributingRPIds;
