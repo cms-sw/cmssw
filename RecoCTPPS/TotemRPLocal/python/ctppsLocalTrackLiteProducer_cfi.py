@@ -5,8 +5,8 @@ from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteDefaultProducer_cfi import ctppsL
 ctppsLocalTrackLiteProducer = ctppsLocalTrackLiteDefaultProducer.clone()
 
 # enable the module for CTPPS era(s)
-from Configuration.StandardSequences.Eras import eras
-eras.ctpps_2016.toModify(
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toModify(
     ctppsLocalTrackLiteProducer,
     doNothing = cms.bool(False)
 )
