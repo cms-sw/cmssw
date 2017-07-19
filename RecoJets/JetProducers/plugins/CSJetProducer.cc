@@ -73,7 +73,6 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     // sift ghosts and particles in the input jet
     std::vector<fastjet::PseudoJet> particles, ghosts;
     fastjet::SelectorIsPureGhost().sift(ijet.constituents(), ghosts, particles);
-    //unsigned long nGhosts=ghosts.size();
     unsigned long nParticles=particles.size();
     if(nParticles==0) continue; //don't subtract ghost jets
     
