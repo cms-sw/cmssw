@@ -244,7 +244,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		   << " items in Base but not in Overload"
 		   << std::endl ;
 
-	 for(auto iS : inBaseNotOver)
+	 for(const auto & iS : inBaseNotOver)
 	 {
 	    std::cout<<"getCells Test dR="
 		     <<dR
@@ -282,7 +282,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		   << " items in Overload but not in Base"
 		   << std::endl ;
 
-	 for(auto iS : inOverNotBase)
+	 for(const auto & iS : inOverNotBase)
 	 {
 	    std::cout<<"getCells Test dR="
 		     <<dR
@@ -619,7 +619,7 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
     }
     assert( ids == ids2 ) ;
 
-    for(auto i : ids) 
+    for(const auto & i : ids) 
     {
 	++n;
 	const CaloCellGeometry* cell ( geom->getGeometry(i) ) ;
@@ -770,7 +770,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    assert( ids == ids2 ) ;
 
-   for(auto i : ids) 
+   for(const auto & i : ids) 
    {
       ++n;
       const CaloCellGeometry* cell ( geom->getGeometry(i) ) ;
