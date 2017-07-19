@@ -24,6 +24,7 @@ process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
 
 process.lhcBeamProducer.MinXi = cms.double(0.05)
 process.lhcBeamProducer.MaxXi = cms.double(0.010)
+process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('lhcBeamProducer', 'unsmeared')
 
 # load the reconstruction part
 process.load('RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi')

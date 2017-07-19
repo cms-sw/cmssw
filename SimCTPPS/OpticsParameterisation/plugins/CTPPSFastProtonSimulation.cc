@@ -63,7 +63,7 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const HepMC::GenParticle*, edm::DetSetVector<TotemRPRecHit>& );
+    void transportProtonTrack( const HepMC::GenParticle*, edm::DetSetVector<TotemRPRecHit>&, HepMC::FourVector& ) const;
     bool produceHit( const CLHEP::Hep3Vector&, const CTPPSDetId&, TotemRPRecHit& ) const;
 
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
@@ -138,6 +138,7 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   rnd_( 0 )
 {
   produces< edm::DetSetVector<TotemRPRecHit> >();
+  produces<edm::HepMCProduct>( "smeared" );
 
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_-1)*RPTopology::pitch_ - RPTopology::y_width_/2.;
@@ -186,38 +187,44 @@ CTPPSFastProtonSimulation::beginRun( const edm::Run&, const edm::EventSetup& iSe
 void
 CTPPSFastProtonSimulation::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  // prepare output
+  edm::Handle<edm::HepMCProduct> hepmc_prod;
+  iEvent.getByToken( protonsToken_, hepmc_prod );
+
+  // prepare outputs
   std::unique_ptr< edm::DetSetVector<TotemRPRecHit> > pRecHits( new edm::DetSetVector<TotemRPRecHit>() );
+  auto evt = new HepMC::GenEvent( *hepmc_prod->GetEvent() );
+  std::unique_ptr<edm::HepMCProduct> pOutProd( new edm::HepMCProduct( evt ) );
 
   if ( simulateDetectorsResolution_ ) {
     edm::Service<edm::RandomNumberGenerator> rng;
     rnd_ = &( rng->getEngine( iEvent.streamID() ) );
   }
 
-  edm::Handle<edm::HepMCProduct> hepmc_prod;
-  iEvent.getByToken( protonsToken_, hepmc_prod );
-  const HepMC::GenEvent& evt = hepmc_prod->getHepMCData();
-  //const HepMC::GenEvent* evt = hepmc_prod->GetEvent();
-
   // loop over event vertices
-  for ( HepMC::GenEvent::vertex_const_iterator vtx=evt.vertices_begin(); vtx!=evt.vertices_end(); ++vtx ) {
+  for ( auto it_vtx=evt->vertices_begin(); it_vtx!=evt->vertices_end(); ++it_vtx ) {
+    auto vtx = *( it_vtx );
     //const HepMC::FourVector& vertex = (*vtx)->position(); // in mm
 
     // loop over outgoing particles
-    for ( HepMC::GenVertex::particles_out_const_iterator p=(*vtx)->particles_out_const_begin(); p!=(*vtx)->particles_out_const_end(); ++p ) {
+    for ( auto it_part=vtx->particles_out_const_begin(); it_part!=vtx->particles_out_const_end(); ++it_part ) {
+      auto part = *( it_part );
       // run simulation
-      if ( ( *p )->status()!=1 || ( *p )->pdg_id()!=2212 ) continue; // only transport stable protons
+      if ( part->pdg_id()!=2212 ) continue; // only transport stable protons
+      if ( part->status()!=1 && part->status()<83 ) continue;
 
-      transportProtonTrack( *p, *pRecHits );
+      HepMC::FourVector out_vtx;
+      transportProtonTrack( part, *pRecHits, out_vtx );
+      vtx->set_position( out_vtx );
       //FIXME add an association map proton track <-> sim hits
     }
   }
 
   iEvent.put( std::move( pRecHits ) );
+  iEvent.put( std::move( pOutProd ), "smeared" );
 }
 
 void
-CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_trk, edm::DetSetVector<TotemRPRecHit>& out_hits )
+CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_trk, edm::DetSetVector<TotemRPRecHit>& out_hits, HepMC::FourVector& smeared_vtx ) const
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
@@ -258,14 +265,17 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     half_cr_angle = halfCrossingAngleSector56_;
     vtx_y_offset = yOffsetSector56_;
   }
+  smeared_vtx = vtx->position();
+  smeared_vtx.setX( vtx_x );
+  smeared_vtx.setY( vtx_y+vtx_y_offset );
 
   th_x += half_cr_angle;
 
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
     // first check the side
-    if ( rp.detid.arm()==0 && mom.z()>0.0 ) continue; // sector 45
-    if ( rp.detid.arm()==1 && mom.z()<0.0 ) continue; // sector 56
+    if ( rp.detid.arm()==0 && mom.z()<0.0 ) continue; // sector 45
+    if ( rp.detid.arm()==1 && mom.z()>0.0 ) continue; // sector 56
 
     // so far only works for strips
     if ( rp.detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) continue;

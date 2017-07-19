@@ -49,7 +49,7 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
     virtual void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
-    edm::EDGetTokenT< edm::View<reco::ProtonTrack> > recoProtons45Token_, recoProtons56Token_;
+    edm::EDGetTokenT< edm::View<reco::ProtonTrack> > recoProtonsToken_;
     edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
 
     //edm::ParameterSet beamConditions_;
@@ -69,11 +69,9 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
 };
 
 ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
-  genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
-  recoProtons45Token_( consumes< edm::View<reco::ProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
-  recoProtons56Token_( consumes< edm::View<reco::ProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
-  tracksToken_       ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
-  //beamConditions_  ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  genProtonsToken_ ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
+  recoProtonsToken_( consumes< edm::View<reco::ProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtonsTag" ) ) ),
+  tracksToken_     ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
   sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
   detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
@@ -146,13 +144,13 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
   }*/
 
-  edm::Handle< edm::View<reco::ProtonTrack> > reco_protons[2];
-  iEvent.getByToken( recoProtons45Token_, reco_protons[0] );
-  iEvent.getByToken( recoProtons56Token_, reco_protons[1] );
+  edm::Handle< edm::View<reco::ProtonTrack> > reco_protons;
+  iEvent.getByToken( recoProtonsToken_, reco_protons );
 
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
     const HepMC::GenParticle* gen_pro = *p;
-    if ( gen_pro->status()!=1 || gen_pro->pdg_id()!=2212 ) continue;
+    if ( gen_pro->pdg_id()!=2212 ) continue; // only transport stable protons
+    if ( gen_pro->status()!=1 && gen_pro->status()<83 ) continue;
 
     const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
 
@@ -168,7 +166,8 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     h_gen_xi_->Fill( gen_xi );
 
     const unsigned short side_id = ( gen_pro->momentum().pz()>0 ) ? 0 : 1;
-    for ( const auto& rec_pro : *reco_protons[side_id] ) {
+    for ( const auto& rec_pro : *reco_protons ) {
+      if ( rec_pro.lhcSector!=side_id ) continue;
       const double rec_xi = rec_pro.xi();
 
       //std::cout << "(" << reco_protons[side_id]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;

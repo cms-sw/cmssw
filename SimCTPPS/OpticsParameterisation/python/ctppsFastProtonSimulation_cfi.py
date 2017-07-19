@@ -4,8 +4,14 @@ from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPa
 from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
-    beamParticlesTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
+    beamParticlesTag = cms.InputTag('generator', 'unsmeared'),
     beamConditions = lhcBeamConditions_2016PreTS2,
+
+    sqrtS = cms.double(13.0e3),
+
+    # crossing angle
+    halfCrossingAngleSector45 = cms.double(179.394e-6), # in rad
+    halfCrossingAngleSector56 = cms.double(191.541e-6), # in rad
 
     detectorPackages = detectorPackages_2016PreTS2,
     simulateDetectorsResolution = cms.bool(True),

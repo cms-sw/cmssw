@@ -4,9 +4,9 @@ from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPa
 from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 paramValidation = cms.EDAnalyzer('ParamValidation',
-    genProtonsTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
-    recoProtons45Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector45'),
-    recoProtons56Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector56'),
+    #genProtonsTag = cms.InputTag('generator', 'unsmeared'),
+    genProtonsTag = cms.InputTag('ctppsFastProtonSimulation', 'smeared'),
+    recoProtonsTag = cms.InputTag('ctppsProtonReconstruction'),
     potsTracksTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
     detectorPackages = detectorPackages_2016PreTS2,
     beamConditions = lhcBeamConditions_2016PreTS2,

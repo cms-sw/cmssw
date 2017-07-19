@@ -15,6 +15,8 @@ process.source = cms.Source('EmptySource')
 process.load('SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi')
 process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
 
+process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('lhcBeamProducer', 'unsmeared')
+
 # load the geometry
 process.load('SimCTPPS.OpticsParameterisation.simGeometryRP_cfi')
 
@@ -26,6 +28,7 @@ process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
 
 process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
+process.ctppsOpticsReconstruction.genProtonsTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
 
 process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsFastProtonSimulation")
 #process.totemRPUVPatternFinder.verbosity = cms.untracked.uint32(10)
