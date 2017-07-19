@@ -385,7 +385,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   // get channel data for diamond compact mode
   if (hFlag == vmDiamondCompact)
   {
-    for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000; i++) {
+    for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000 && ( i+1 < maxWords ); i++) {
       if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {
         // Event Counter word is found
         fd[10] = buf[i];
