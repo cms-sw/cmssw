@@ -82,10 +82,23 @@ namespace deep {
     size_t size=std::min(vals.size(),max);
     if(size > 0){
       for(size_t i=0;i<vals.size();i++){
-        to[i]=catchInfs(vals.at(i),-0.1);
+        to[i]=catch_infs(vals.at(i),-0.1);
       }
     }
     return size;
+  }
+
+  // adapted from DeepNtuples
+  float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> svs, 
+                      const pat::PackedCandidate* pfcand, float mindr=0.4) {
+
+    for (unsigned int i0=0; i0<svs.size(); ++i0) {
+
+        float tempdr = reco::deltaR(svs[i0],*pfcand);
+        if (tempdr<mindr) { mindr = tempdr; }
+
+    }
+    return mindr;
   }
 
 
