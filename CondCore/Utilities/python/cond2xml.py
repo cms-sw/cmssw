@@ -50,9 +50,10 @@ namespace { // Avoid cluttering the global namespace.
       // now we have the object in memory, convert it to xml in a string and return it
      
       std::ostringstream outBuffer;
-      boost::archive::xml_oarchive xmlResult( outBuffer );
-      xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
-
+      {
+        boost::archive::xml_oarchive xmlResult( outBuffer );
+        xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
+      } 
       return outBuffer.str();
   }
 

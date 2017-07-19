@@ -38,7 +38,7 @@ class IdealZDCTrapezoid: public CaloCellGeometry
 			       CornersMgr*  mgr       ,
 			 const CCGFloat*    parm        ) ;
 	 
-      virtual ~IdealZDCTrapezoid() ;
+      ~IdealZDCTrapezoid() override ;
 
       CCGFloat an() const ;
       CCGFloat dx() const ;
@@ -47,16 +47,16 @@ class IdealZDCTrapezoid: public CaloCellGeometry
       CCGFloat ta() const ;
       CCGFloat dt() const ;
 
-      virtual void vocalCorners( Pt3DVec&        vec ,
+      void vocalCorners( Pt3DVec&        vec ,
 				 const CCGFloat* pv  ,
-				 Pt3D&           ref  ) const ;
+				 Pt3D&           ref  ) const override ;
 
       static void localCorners( Pt3DVec&        vec ,
 				const CCGFloat* pv  , 
 				Pt3D&           ref  ) ;
     
    private:
-      void initCorners(CaloCellGeometry::CornersVec& );
+      void initCorners(CaloCellGeometry::CornersVec& ) override;
 
 
 };

@@ -71,8 +71,11 @@ int main(int argc, char* argv[]) try {
     edm::MockEventProcessor mockEventProcessor(mockData,
                                                output,
                                                mode);
-
-    mockEventProcessor.runToCompletion();
+    try {
+      mockEventProcessor.runToCompletion();
+    } catch(edm::MockEventProcessor::TestException const& e) {
+      output <<"caught test exception\n";
+    }
   }
   return 0;
 } catch(std::exception const& e) {

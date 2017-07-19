@@ -77,31 +77,31 @@ public:
 
   // Topology interface, go from Masurement to Local corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)
-  virtual LocalPoint localPosition( const MeasurementPoint& mp ) const;
+  LocalPoint localPosition( const MeasurementPoint& mp ) const override;
 
   // Transform LocalPoint to Measurement. Call pixel().
-  virtual MeasurementPoint measurementPosition( const LocalPoint& lp ) 
-      const {
+  MeasurementPoint measurementPosition( const LocalPoint& lp ) 
+      const override {
     std::pair<float,float> p = pixel( lp );
     return MeasurementPoint( p.first, p.second );
   }
 
   // PixelTopology interface. 
   // Transform LocalPoint in cm to measurement in pitch units.
-  virtual std::pair<float,float> pixel( const LocalPoint& p ) const;
+  std::pair<float,float> pixel( const LocalPoint& p ) const override;
 
   // Errors
   // Error in local (cm) from the masurement errors
-  virtual LocalError localError( const MeasurementPoint&,
-				 const MeasurementError& ) const;
+  LocalError localError( const MeasurementPoint&,
+				 const MeasurementError& ) const override;
   // Errors in pitch units from localpoint error (in cm)
-  virtual MeasurementError measurementError( const LocalPoint&, 
-					     const LocalError& ) const;
+  MeasurementError measurementError( const LocalPoint&, 
+					     const LocalError& ) const override;
   
   //-------------------------------------------------------------
   // Transform LocalPoint to channel. Call pixel()
   //
-  virtual int channel( const LocalPoint& lp ) const {
+  int channel( const LocalPoint& lp ) const override {
     std::pair<float,float> p = pixel( lp );
     return PixelChannelIdentifier::pixelToChannel( int( p.first ), 
 						   int( p.second ));
@@ -110,17 +110,17 @@ public:
   //-------------------------------------------------------------
   // Transform measurement to local coordinates individually in each dimension
   //
-  virtual float localX( const float mpX ) const;
-  virtual float localY( const float mpY ) const;
+  float localX( const float mpX ) const override;
+  float localY( const float mpY ) const override;
 
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
   //
-  virtual bool isItBigPixelInX( const int ixbin ) const {
+  bool isItBigPixelInX( const int ixbin ) const override {
     return (( m_upgradeGeometry )?(false):(( ixbin == 79 ) | ( ixbin == 80 )));
   } 
 
-  virtual bool isItBigPixelInY( const int iybin ) const {
+  bool isItBigPixelInY( const int iybin ) const override {
       if unlikely( m_upgradeGeometry ) return false;
       else {
 	int iybin0 = iybin%52;
@@ -133,10 +133,10 @@ public:
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   //
-  bool containsBigPixelInX(int ixmin, int ixmax ) const {
+  bool containsBigPixelInX(int ixmin, int ixmax ) const override {
     return m_upgradeGeometry ? false :( (ixmin<=80) & (ixmax>=79) );
   }
-  bool containsBigPixelInY(int iymin, int iymax ) const {
+  bool containsBigPixelInY(int iymin, int iymax ) const override {
     return  m_upgradeGeometry ? false :
       ( isItBigPixelInY( iymin ) || isItBigPixelInY( iymax ) ||  (iymin/52) != (iymax/52) )
       ;  
@@ -146,43 +146,43 @@ public:
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module
   //
-  bool isItEdgePixelInX (int ixbin) const {
+  bool isItEdgePixelInX (int ixbin) const override {
     return ( (ixbin == 0) | (ixbin == (m_nrows-1)) );
   } 
-  bool isItEdgePixelInY (int iybin) const {
+  bool isItEdgePixelInY (int iybin) const override {
     return ( (iybin == 0) | (iybin == (m_ncols-1)) );
   } 
-  bool isItEdgePixel (int ixbin, int iybin) const {
+  bool isItEdgePixel (int ixbin, int iybin) const override {
     return ( isItEdgePixelInX( ixbin ) | isItEdgePixelInY( iybin ) );
   } 
 
   //------------------------------------------------------------------
   // Return pitch
-  virtual std::pair<float,float> pitch() const {
+  std::pair<float,float> pitch() const override {
     return std::pair<float,float>( float(m_pitchx), float(m_pitchy));
   }
   // Return number of rows
-  virtual int nrows() const {
+  int nrows() const override {
     return ( m_nrows );
   }
   // Return number of cols
-  virtual int ncolumns() const {
+  int ncolumns() const override {
     return ( m_ncols );
   }
   // mlw Return number of ROCS Y 	 
-  virtual int rocsY() const { 	 
+  int rocsY() const override { 	 
     return m_ROCS_Y; 	 
   } 	 
   // mlw Return number of ROCS X 	 
-  virtual int rocsX() const { 	 
+  int rocsX() const override { 	 
     return m_ROCS_X; 	 
   } 	 
   // mlw Return number of rows per roc 	 
-  virtual int rowsperroc() const { 	 
+  int rowsperroc() const override { 	 
     return m_ROWS_PER_ROC; 	 
   } 	 
   // mlw Return number of cols per roc 	 
-  virtual int colsperroc() const { 	 
+  int colsperroc() const override { 	 
     return m_COLS_PER_ROC; 	 
   }
   float xoffset() const {

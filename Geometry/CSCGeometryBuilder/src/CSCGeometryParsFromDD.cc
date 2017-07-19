@@ -102,22 +102,22 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 	  LogDebug(myName) << "it->second.name()=" << it->second.name();  
 	  if (it->second.name() == "upar") {
 	    uparvals.push_back(it->second.doubles().size());
-	    for ( size_t i = 0; i < it->second.doubles().size(); ++i) {
-	      uparvals.push_back(it->second.doubles()[i]);
+	    for (double i : it->second.doubles()) {
+	      uparvals.push_back(i);
 	    }
 	    LogDebug(myName) << "found upars ";
 	  } else if (it->second.name() == "NoOfAnonParams") {
 	    noOfAnonParams = static_cast<int>( it->second.doubles()[0] );
 	  } else if (it->second.name() == "NumWiresPerGrp") {
 	    //numWiresInGroup = it->second.doubles();
-	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
-	      wg.wiresInEachGroup.push_back( int( it->second.doubles()[i] ) );
+	    for (double i : it->second.doubles()) {
+	      wg.wiresInEachGroup.push_back( int( i ) );
 	    }
 	    LogDebug(myName) << "found upars " << std::endl;
 	  } else if ( it->second.name() == "NumGroups" ) {
 	    //numGroups = it->second.doubles();
-	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
-	      wg.consecutiveGroups.push_back( int( it->second.doubles()[i] ) );
+	    for (double i : it->second.doubles()) {
+	      wg.consecutiveGroups.push_back( int( i ) );
 	    }
 	  } else if ( it->second.name() == "WireSpacing" ) {
 	    wg.wireSpacing = it->second.doubles()[0];

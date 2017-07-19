@@ -266,12 +266,16 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	     whiteList.find(ic)!=whiteList.end() || 
              (cand.trackRef().isNonnull() &&  whiteListTk.find(cand.trackRef())!=whiteListTk.end())
 	    ) {
-            if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);}
-            else { 
-                if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
-                  else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);} 
-             }
-            
+	      outPtrP->back().setFirstHit(ctrack->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
+              if(abs(outPtrP->back().pdgId())==22) {
+                  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);
+	      } else { 
+                  if( ctrack->hitPattern().numberOfValidPixelHits() >0) {
+		      outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_); //high quality 
+		  }  else { 
+		      outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);
+		  } 
+              }            
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
           } else {
             if(outPtrP->back().pt() > 0.5 ){ 

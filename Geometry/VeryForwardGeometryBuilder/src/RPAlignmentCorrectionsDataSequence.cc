@@ -192,14 +192,14 @@ void RPAlignmentCorrectionsDataSequence::WriteXMLFile(const string &fileName, bo
   fprintf(rf, "<xml DocumentType=\"AlignmentSequenceDescription\">\n");
 
   // write all time blocks
-  for (const_iterator it = this->begin(); it != this->end(); ++it)
+  for (const auto & it : *this)
   {
     fprintf(rf, "\t<TimeInterval first=\"%s\" last=\"%s\">",
-      TimeValidityInterval::ValueToUNIXString(it->first.first).c_str(),
-      TimeValidityInterval::ValueToUNIXString(it->first.last).c_str()
+      TimeValidityInterval::ValueToUNIXString(it.first.first).c_str(),
+      TimeValidityInterval::ValueToUNIXString(it.first.last).c_str()
     );
 
-    RPAlignmentCorrectionsMethods::WriteXMLBlock(it->second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
+    RPAlignmentCorrectionsMethods::WriteXMLBlock(it.second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
     fprintf(rf, "\t</TimeInterval>\n");
   }
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 btvObjects = cms.VPSet(
        cms.PSet(
-           pathNAME = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6"),
+           pathNAME = cms.string("HLT_DoublePFJets100MaxDeta1p6_DoubleCaloBTagCSV_p33"),
            moduleNAME = cms.string("hltBTagCalo80x6CSVp0p92DoubleWithMatching"),
            label  = cms.string("CALO b-jet (double)"),
            xTITLE = cms.string("CALO b-jet"),
@@ -41,7 +41,7 @@ btvObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(True),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_DoubleJets100_SingleBTagCSV_0p92_DoublePFJets200MaxDeta1p6"),
+           pathNAME = cms.string("HLT_DoublePFJets200_CaloBTagCSV_p33"),
            moduleNAME = cms.string("hltBTagCalo80x6CSVp0p92SingleWithMatching"),
            label  = cms.string("CALO b-jet (single)"),
            xTITLE = cms.string("CALO b-jet"),
@@ -80,7 +80,7 @@ btvObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(True),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6"),
+           pathNAME = cms.string("HLT_Mu12_DoublePFJets62MaxDeta1p6_DoubleCaloBTagCSV_p33"),
            moduleNAME = cms.string("hltBTagCalo30x8CSVp0p92DoubleWithMatching"),
            label  = cms.string("CALO b-jet (double w muon)"),
            xTITLE = cms.string("CALO b-jet"),
@@ -119,7 +119,7 @@ btvObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(True),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets200"),
+           pathNAME = cms.string("HLT_Mu12_DoublePFJets200_CaloBTagCSV_p33"),
            moduleNAME = cms.string("hltBTagCalo30x8CSVp0p92SingleWithMatching"),
 #           label  = cms.string("CALO b-jet (single w/ muon)"),
            label  = cms.string("CALO b-jet (single w muon)"),
@@ -159,7 +159,7 @@ btvObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(True),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFHT380_SixJet32_DoubleBTagCSV_p075"),
+           pathNAME = cms.string("HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2"),
            moduleNAME = cms.string("hltBTagPFCSVp075Double"),
            label  = cms.string("PF b-jet (double)"),
            xTITLE = cms.string("PF b-jet"),
@@ -198,7 +198,7 @@ btvObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(True),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFHT430_SixJet40_BTagCSV_p080"),
+           pathNAME = cms.string("HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5"),
            moduleNAME = cms.string("hltBTagPFCSVp080Single"),
            label  = cms.string("PF b-jet (single)"),
            xTITLE = cms.string("PF b-jet"),

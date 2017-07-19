@@ -64,10 +64,6 @@ class CTPPSPixelGainCalibration {
 
   void putData(uint32_t ipix, float ped, float gain);
 
-  /* float getPed   (const int& col, const int& row , bool& isDead, bool& isNoisy) const; */
-  /* float getGain  (const int& col, const int& row , bool& isDead, bool& isNoisy) const; */
-  /* float getPed   (const uint32_t ipix, bool& isDead, bool& isNoisy)const; */
-  /* float getGain  (const uint32_t ipix, bool& isDead, bool& isNoisy)const; */
   float getPed   (const int& col, const int& row ) const;
   float getGain  (const int& col, const int& row ) const;
   float getPed   (const uint32_t ipix )const{return v_pedestals[ipix];}

@@ -281,6 +281,7 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
 
     if (st == 2) {
+      Error("ReadBuffer","ReadBufferViaCache failed");
       return kTRUE;
     }
 
@@ -304,6 +305,9 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
+  if(n == 0) {
+    Error("ReadBuffer", "read from Storage::xread returned 0");
+  }
   return n ? kFALSE : kTRUE;
 }
 

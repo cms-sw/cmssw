@@ -43,7 +43,7 @@
 class HcalRecNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalRecNumberingTester( const edm::ParameterSet& );
-  ~HcalRecNumberingTester();
+  ~HcalRecNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -86,13 +86,13 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 		<< etar.first << ":" << etar.second << std::endl;
       for (int eta=etar.first; eta<=etar.second; ++eta) {
 	std::vector<std::pair<int,double> > phis = hdc.getPhis(type+1, eta);
-	for (unsigned int k=0; k < phis.size(); ++k) {
+	for (auto & phi : phis) {
 	  std::cout << "Type:Eta:phi " << type << ":" << eta << ":" 
-		    << phis[k].first << " Depth range (+z) "
-		    << hdc.getMinDepth(type,eta,phis[k].first,1) << ":" 
-		    << hdc.getMaxDepth(type,eta,phis[k].first,1) << " (-z) "
-		    << hdc.getMinDepth(type,eta,phis[k].first,-1) << ":" 
-		    << hdc.getMaxDepth(type,eta,phis[k].first,-1) << std::endl;
+		    << phi.first << " Depth range (+z) "
+		    << hdc.getMinDepth(type,eta,phi.first,1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phi.first,1) << " (-z) "
+		    << hdc.getMinDepth(type,eta,phi.first,-1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phi.first,-1) << std::endl;
 	}
       }
     }
@@ -195,9 +195,9 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       int type = (int)(subdet-1);
       std::pair<int,int> etas = hdc.getEtaRange(type);
       for (int eta=etas.first; eta<=etas.second; ++eta) {
-	for (unsigned int k=0; k<phiSp.size(); ++k) {
-	  int zside = (phiSp[k]>0) ? 1 : -1;
-	  int iphi  = (phiSp[k]>0) ? phiSp[k] : -phiSp[k];
+	for (int k : phiSp) {
+	  int zside = (k>0) ? 1 : -1;
+	  int iphi  = (k>0) ? k : -k;
 #ifdef EDM_ML_DEBUG
 	  std::cout << "Look for Subdet " << subdet << " Zside " << zside
 		    << " Eta " << eta << " Phi " << iphi << " depths "
@@ -212,8 +212,8 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 	    hdc.unmergeDepthDetId(hid,ids);
 	    std::cout << "Input ID " << id << " Merged ID " << hid
 		      << " containing " << ids.size() << " IDS:";
-	    for (unsigned int i=0; i<ids.size(); ++i) 
-	      std::cout << " " << ids[i];
+	    for (auto id : ids) 
+	      std::cout << " " << id;
 	    std::cout << std::endl;
 	  }
 	}

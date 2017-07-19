@@ -97,7 +97,7 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        //maskFileStream.getline(junk, 256);
        maskFileStream >> junk;
      }
-   while (junk.compare("ECAL:") != 0);
+   while (junk != "ECAL:");
 
    //   std::vector<std::vector<std::vector<unsigned short> > > temp(2,std::vector<std::vector<unsigned short> >(72,std::vector<unsigned short>(28,1)));
    std::vector<std::vector<std::vector<unsigned short> > > ecalMask(2,std::vector<std::vector<unsigned short> >(72,std::vector<unsigned short>(28,1)));
@@ -114,9 +114,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int j = 28; j >= 1; j--)
 	 {
 	   maskFileStream >> junk;
-	   if (junk.compare("-") == 0) 
+	   if (junk == "-") 
 	     {}
-	   else if ((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if ((junk == "X") || (junk == "x"))
 	     {
 	       ecalMask.at(0).at(phi_index-1).at(j-1) = 0;
 	     }
@@ -128,9 +128,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int j = 1; j <= 28; j++)
 	 {
 	   maskFileStream >> junk;
-	   if(junk.compare("-") == 0)
+	   if(junk == "-")
 	     {}
-	   else if((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if((junk == "X") || (junk == "x"))
 	     {
 	       ecalMask.at(1).at(phi_index-1).at(j-1) = 0;
 	     }
@@ -143,7 +143,7 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
    //std::cout << "done reading ECAL" << std::endl;
 
    maskFileStream >> junk;
-   if (junk.compare("HCAL:") != 0)
+   if (junk != "HCAL:")
      {
        throw cms::Exception("FileInPathError")
 	 << "RCT mask producer: error reading ECAL mask" << std::endl;;
@@ -161,9 +161,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int j = 28; j >= 1; j--)
 	 {
 	   maskFileStream >> junk;
-	   if (junk.compare("-") == 0) 
+	   if (junk == "-") 
 	     {}
-	   else if ((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if ((junk == "X") || (junk == "x"))
 	     {
 	       hcalMask.at(0).at(phi_index-1).at(j-1) = 0;
 	     }
@@ -175,9 +175,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int j = 1; j <= 28; j++)
 	 {
 	   maskFileStream >> junk;
-	   if(junk.compare("-") == 0)
+	   if(junk == "-")
 	     {}
-	   else if((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if((junk == "X") || (junk == "x"))
 	     {
 	       hcalMask.at(1).at(phi_index-1).at(j-1) = 0;
 	     }
@@ -189,7 +189,7 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      }
 
    maskFileStream >> junk;
-   if (junk.compare("HF:") != 0)
+   if (junk != "HF:")
      {
        throw cms::Exception("FileInPathError")
 	 << "RCT mask producer: error reading HCAL mask" << std::endl;;
@@ -203,9 +203,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	 {
 	   if (maskFileStream >> junk) {}
 	   else { std::cerr << "RCT mask producer: error reading HF mask" << std::endl; }
-	   if (junk.compare("-") == 0) 
+	   if (junk == "-") 
 	     {}
-	   else if ((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if ((junk == "X") || (junk == "x"))
 	     {
 	       hfMask.at(0).at(i).at(j-1) = 0;  // just save iphi as 0-17, transform later
 	     }
@@ -218,9 +218,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	 {
 	   if (maskFileStream >> junk) {}
 	   else { std::cerr << "RCT mask producer: error reading HF mask" << std::endl; }
-	   if (junk.compare("-") == 0) 
+	   if (junk == "-") 
 	     {}
-	   else if ((junk.compare("X") == 0) || (junk.compare("x") == 0))
+	   else if ((junk == "X") || (junk == "x"))
 	     {
 	       hfMask.at(1).at(i).at(j-1) = 0;
 	     }
