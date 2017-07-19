@@ -733,7 +733,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
 
       //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
-      //      edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+      //edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
       edmNew::DetSet<SiStripCluster> cluster_detset = (*isearch);
 
 
@@ -747,20 +747,20 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       int good_fcc_index = -999;
       for(unsigned int x=0;x<fedConnections.size();x++){
-        //if(fedConnections.at(x)!=NULL && good_fcc_index==-999){
-        if(fedConnections[x]!=NULL && good_fcc_index==-999){
+        if(fedConnections[x]!=NULL){
           good_fcc_index = x;
+          break;
         }
       }
-      if(good_fcc_index!=-999 && fedConnections.at(good_fcc_index)!=NULL){
+      if(fedConnections[good_fcc_index]!=NULL){
         int temp_fedid = fedConnections[good_fcc_index]->fedId();
         if(FEDID_v_clustersum.find(temp_fedid) != FEDID_v_clustersum.end()){
-          if(cluster_detset.size() < 1000 && cluster_detset.size()>0){
+          if(cluster_detset.size() < 1000 && !cluster_detset.empty()){
             FEDID_v_clustersum[temp_fedid] = FEDID_v_clustersum.find(temp_fedid)->second + cluster_detset.size();
           }
         }
         else{
-          if(cluster_detset.size() < 1000 && cluster_detset.size() >0){
+          if(cluster_detset.size() < 1000 && !cluster_detset.empty()){
             FEDID_v_clustersum[temp_fedid] = cluster_detset.size();
           }
         }
