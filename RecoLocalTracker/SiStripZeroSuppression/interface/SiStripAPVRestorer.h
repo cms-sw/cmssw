@@ -61,10 +61,12 @@ class SiStripAPVRestorer {
   template<typename T >int16_t AbnormalBaselineInspect(const uint16_t&, std::vector<T>&);
   template<typename T >int16_t BaselineFollowerInspect(const uint16_t&, std::vector<T>&);  
   template<typename T >int16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
+  template<typename T >int16_t ForceRestoreInspect(const uint16_t&, std::vector<T>&);
 
   void FlatRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
   bool CheckBaseline(const std::vector<int16_t> &) const;
   void BaselineFollowerRestore(const uint16_t&, const uint16_t&, const float&, std::vector<int16_t>& );
+  void DerivativeFollowerRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
   
   void BaselineFollower(DigiMap&, std::vector<int16_t>&, const float&);
   bool FlatRegionsFinder(const std::vector<int16_t>&, DigiMap&, const uint16_t&);
@@ -106,7 +108,7 @@ class SiStripAPVRestorer {
   
   
   bool ForceNoRestore_;
-  bool SelfSelectRestoreAlgo_;
+ // bool SelfSelectRestoreAlgo_;
   std::string InspectAlgo_;
   std::string RestoreAlgo_;
   bool useRealMeanCM_;
@@ -136,6 +138,13 @@ class SiStripAPVRestorer {
   int32_t MeanCM_;
   double  filteredBaselineMax_;
   double filteredBaselineDerivativeSumSquare_;
+  
+  
+  int discontinuity_threshold;
+  int last_gradient;
+  int size_window;
+  int width_cluster;      
+                    
                     
 };
 
