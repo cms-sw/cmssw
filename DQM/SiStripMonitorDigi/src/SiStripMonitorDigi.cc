@@ -662,12 +662,13 @@ std::vector<const FedChannelConnection*> fedConnections = SiStripDetCabling_->ge
 // Filling FED Id associated clusters map.
 
 int good_fcc_index = -999;
-for(uint x=0;x<fedConnections.size();x++){
-  if(fedConnections.at(x)!=NULL && good_fcc_index==-999){
+for(unsigned int x=0;x<fedConnections.size();x++){
+  if(fedConnections[x]!=NULL){
     good_fcc_index = x;
+    break;
   }
 }
-if(good_fcc_index!=-999 && fedConnections.at(good_fcc_index)!=NULL){
+if(fedConnections[good_fcc_index]!=NULL){
   int temp_fedid = fedConnections[good_fcc_index]->fedId();
   if(FEDID_v_digisum.find(temp_fedid) != FEDID_v_digisum.end()){
     if(ndigi_det <1000 && ndigi_det>0){
