@@ -165,6 +165,8 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const double* parameters) const
 {
   // TODO: make use of check_apertures
+  if (check_apertures == true)
+    throw cms::Exception("ProtonReconstructionAlgorithm") << "check_apertures = true not supported yet.";
 
   // extract proton parameters
   const double& xi = parameters[0];

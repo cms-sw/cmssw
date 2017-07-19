@@ -20,9 +20,9 @@ process.source = cms.Source("PoolSource",
   lumisToProcess = cms.untracked.VLuminosityBlockRange("275371:1-275371:999999")
 )
 
-process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(10000)
-)
+#process.maxEvents = cms.untracked.PSet(
+#  input = cms.untracked.int32(10000)
+#)
 
 process.load("RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi")
 

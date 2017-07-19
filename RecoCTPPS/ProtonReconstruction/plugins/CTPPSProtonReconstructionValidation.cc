@@ -111,6 +111,34 @@ class CTPPSProtonReconstructionValidation : public edm::one::EDAnalyzer<>
     };
 
     std::map<unsigned int, MultiRPPlots> multiRPPlots;
+
+    struct SingleMultiCorrelationPlots
+    {
+      TH2D *h_xi_mu_vs_xi_si = NULL;
+
+      void Init()
+      {
+        h_xi_mu_vs_xi_si = new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.2, 100, 0., 0.2);
+      }
+
+      void Fill(const reco::ProtonTrack &p_single, const reco::ProtonTrack &p_multi)
+      {
+        if (!h_xi_mu_vs_xi_si)
+          Init();
+
+        if (p_single.valid() && p_multi.valid())
+        {
+          h_xi_mu_vs_xi_si->Fill(p_single.xi(), p_multi.xi());
+        }
+      }
+
+      void Write() const
+      {
+        h_xi_mu_vs_xi_si->Write("h_xi_mu_vs_xi_si");
+      }
+    };
+
+    std::map<unsigned int, SingleMultiCorrelationPlots> singleMultiCorrelationPlots;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -155,6 +183,32 @@ void CTPPSProtonReconstructionValidation::analyze(const edm::Event &event, const
       multiRPPlots[armId].Fill(proton);
     }
   }
+
+  // make correlation plots
+  for (unsigned int i = 0; i < recoProtons->size(); ++i)
+  {
+    for (unsigned int j = 0; j < recoProtons->size(); ++j)
+    {
+      const reco::ProtonTrack &pi = (*recoProtons)[i];
+      const reco::ProtonTrack &pj = (*recoProtons)[j];
+
+      if (pi.method != reco::ProtonTrack::rmSingleRP || pj.method != reco::ProtonTrack::rmMultiRP)
+        continue;
+
+      // only compare object from the same arm
+      CTPPSDetId i_rpId(* pi.contributingRPIds.begin());
+      CTPPSDetId j_rpId(* pj.contributingRPIds.begin());
+
+      if (i_rpId.arm() != j_rpId.arm())
+        continue;
+
+      // build index
+      const unsigned int idx = i_rpId.arm()*1000 + i_rpId.station()*100 + i_rpId.rp()*10 + j_rpId.arm();
+
+      // fill plots
+      singleMultiCorrelationPlots[idx].Fill(pi, pj);
+    }
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -178,6 +232,18 @@ void CTPPSProtonReconstructionValidation::endJob()
     char buf[100];
     sprintf(buf, "arm%u", it.first);
     gDirectory = d_multiRPPlots->mkdir(buf); 
+    it.second.Write();
+  }
+
+  TDirectory *d_singleMultiCorrelationPlots = f_out->mkdir("singleMultiCorrelationPlots");
+  for (const auto it : singleMultiCorrelationPlots)
+  {
+    unsigned int si_rp = it.first / 10;
+    unsigned int mu_arm = it.first % 10;
+
+    char buf[100];
+    sprintf(buf, "si_rp%u_mu_arm%u", si_rp, mu_arm);
+    gDirectory = d_singleMultiCorrelationPlots->mkdir(buf); 
     it.second.Write();
   }
 
