@@ -1,0 +1,13 @@
+<use name="Geometry/RPCGeometry"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/DataRecord"/>
+
+
+<export>
+  <lib name="1"/>
+</export>
+<flags ADD_SUBDIR="1"/>
