@@ -42,6 +42,7 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         edm::FileInPath l1tCellsBHMapping_;
         edm::FileInPath l1tModulesMapping_;
         edm::FileInPath l1tCellNeighborsMapping_;
+        edm::FileInPath l1tCellNeighborsBHMapping_;
 
         // module related maps
         std::unordered_map<unsigned, unsigned> wafer_to_module_;
@@ -61,9 +62,10 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         // - The key includes the module and trigger cell id
         // - The value is a set of (module_id, trigger_cell_id)
         std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
+        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_bh_;
 
         void fillMaps();
-        void fillNeighborMaps();
+        void fillNeighborMaps(const edm::FileInPath&,  std::unordered_map<int, std::set<std::pair<short,short>>>&);
         void fillInvalidTriggerCells();
         unsigned packTriggerCell(unsigned, unsigned) const;
         bool validCellId(unsigned subdet, unsigned cell_id) const;
@@ -84,7 +86,8 @@ HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf):
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
     l1tCellsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellsBHMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
-    l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping"))
+    l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
+    l1tCellNeighborsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsBHMapping"))
 {
 }
 
@@ -100,6 +103,8 @@ reset()
     module_to_wafers_.clear();
     number_trigger_cells_in_wafers_.clear();
     number_trigger_cells_in_wafers_bh_.clear();
+    trigger_cell_neighbors_.clear();
+    trigger_cell_neighbors_bh_.clear();
 }
 
 void
@@ -108,7 +113,8 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 {
     setCaloGeometry(calo_geometry);
     fillMaps();
-    fillNeighborMaps();
+    fillNeighborMaps(l1tCellNeighborsMapping_, trigger_cell_neighbors_);
+    fillNeighborMaps(l1tCellNeighborsBHMapping_, trigger_cell_neighbors_bh_);
     fillInvalidTriggerCells();
 
 }
@@ -350,13 +356,15 @@ HGCalTriggerGeometryHexLayerBasedImp1::
 getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
+    // Choose scintillator or silicon map
+    const auto& neighbors_map = (trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCHEB ? trigger_cell_neighbors_bh_ : trigger_cell_neighbors_);
     unsigned module = trigger_cell_det_id.wafer();
     unsigned trigger_cell = trigger_cell_det_id.cell();
     // retrieve neighbors
     unsigned trigger_cell_key = packTriggerCell(module, trigger_cell);
     geom_set neighbor_detids;
-    auto neighbors_itr = trigger_cell_neighbors_.find(trigger_cell_key);
-    if(neighbors_itr==trigger_cell_neighbors_.end())
+    auto neighbors_itr = neighbors_map.find(trigger_cell_key);
+    if(neighbors_itr==neighbors_map.end())
     {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Neighbors are not defined for trigger cell " << trigger_cell << " in module "
@@ -502,10 +510,10 @@ fillMaps()
 
 void 
 HGCalTriggerGeometryHexLayerBasedImp1::
-fillNeighborMaps()
+fillNeighborMaps(const edm::FileInPath& file,  std::unordered_map<int, std::set<std::pair<short,short>>>& neighbors_map)
 {
     // Fill trigger neighbor map
-    std::ifstream l1tCellNeighborsMappingStream(l1tCellNeighborsMapping_.fullPath());
+    std::ifstream l1tCellNeighborsMappingStream(file.fullPath());
     if(!l1tCellNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborsMapping file\n";
     for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
     {
@@ -549,7 +557,7 @@ fillNeighborMaps()
                 << "  Cannot find any neighbor in line:\n"
                 << "  '"<<&buffer[0]<<"'\n";
         }
-        auto itr_insert = trigger_cell_neighbors_.emplace(map_key, std::set<std::pair<short,short>>());
+        auto itr_insert = neighbors_map.emplace(map_key, std::set<std::pair<short,short>>());
         // The first element is the key, so start at index 1
         for(unsigned i=1; i<neighbors_tokens.size(); i++)
         {
