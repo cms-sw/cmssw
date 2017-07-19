@@ -73,35 +73,35 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     // sift ghosts and particles in the input jet
     std::vector<fastjet::PseudoJet> particles, ghosts;
     fastjet::SelectorIsPureGhost().sift(ijet.constituents(), ghosts, particles);
-    unsigned long nGhosts=ghosts.size();
+    //unsigned long nGhosts=ghosts.size();
     unsigned long nParticles=particles.size();
     if(nParticles==0) continue; //don't subtract ghost jets
     
     //assign rho and rhom to ghosts according to local eta-dependent map
     double rho  = 1e-6;
     double rhom = 1e-6;
-    for (unsigned int j=0;j<nGhosts; j++) {
+    for(fastjet::PseudoJet& ighost : ghosts) {
       
-      if(ghosts[j].eta()<=etaRanges->at(0) || bkgVecSize==1) {
+      if(ighost.eta()<=etaRanges->at(0) || bkgVecSize==1) {
         rho = rhoRanges->at(0);
         rhom = rhomRanges->at(0);
-      } else if(ghosts[j].eta()>=etaRanges->at(bkgVecSize-1)) {
+      } else if(ighost.eta()>=etaRanges->at(bkgVecSize-1)) {
         rho = rhoRanges->at(bkgVecSize-2);
         rhom = rhomRanges->at(bkgVecSize-2);
       } else {
         for(unsigned int ie = 0; ie<(bkgVecSize-1); ie++) {
-          if(ghosts[j].eta()>=etaRanges->at(ie) && ghosts[j].eta()<etaRanges->at(ie+1)) {
+          if(ighost.eta()>=etaRanges->at(ie) && ighost.eta()<etaRanges->at(ie+1)) {
             rho = rhoRanges->at(ie);
             rhom = rhomRanges->at(ie);
             break;
           }
         }
       }
-      double pt = rho*ghosts[j].area();
-      double mass_squared=pow(rhom*ghosts[j].area()+pt,2)-pow(pt,2);
+      double pt = rho*ighost.area();
+      double mass_squared=std::pow(rhom*ighost.area()+pt,2)-std::pow(pt,2);
       double mass=0;
       if (mass_squared>0) mass=sqrt(mass_squared);
-      ghosts[j].reset_momentum_PtYPhiM(pt,ghosts[j].rap(),ghosts[j].phi(),mass);
+      ighost.reset_momentum_PtYPhiM(pt,ighost.rap(),ighost.phi(),mass);
     }
 
     //----------------------------------------------------------------------
@@ -121,10 +121,6 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
       fjJets_.push_back( subtracted_jet );
   }
   fjJets_ = fastjet::sorted_by_pt(fjJets_); 
-}
-
-bool  CSJetProducer::function_used_for_sorting(std::pair<double,int> i,std::pair<double, int> j){
-    return (i.first < j.first);
 }
 
 void CSJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

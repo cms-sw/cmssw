@@ -37,8 +37,6 @@ namespace cms
 
     virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
-    static bool function_used_for_sorting(std::pair<double,int> i,std::pair<double, int> j);
-    
     double csRParam_;           /// for constituent subtraction : R parameter
     double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)
 
