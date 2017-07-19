@@ -214,7 +214,8 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   std::ostringstream eventStream;
   eventStream << nEvents_;
-  args_.push_back(eventStream.str());
+  // args_.push_back(eventStream.str());
+  args_.insert(args_.begin() + 1, eventStream.str());
 
   // pass the random number generator seed as last argument
 
@@ -228,7 +229,8 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   }
   std::ostringstream randomStream;
   randomStream << rng->mySeed(); 
-  args_.push_back(randomStream.str());
+  // args_.push_back(randomStream.str());
+  args_.insert(args_.begin() + 2, randomStream.str());
 
   for ( unsigned int iArg = 0; iArg < args_.size() ; iArg++ ) {
     LogDebug("LHEInputArgs") << "arg [" << iArg << "] = " << args_[iArg];
