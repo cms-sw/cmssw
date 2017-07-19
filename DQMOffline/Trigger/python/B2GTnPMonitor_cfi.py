@@ -37,7 +37,7 @@ hcalPhi17Cut = cms.PSet(
 
 tagAndProbeConfigEle50CaloIdVTGsfTrkIdT = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    objColl = cms.InputTag("gedGsfElectrons"),
+
     tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     sampleTrigRequirements = cms.PSet(
