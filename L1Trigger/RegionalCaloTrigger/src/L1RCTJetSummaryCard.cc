@@ -195,16 +195,16 @@ void L1RCTJetSummaryCard::fillQuietBits(){
   // use one threshold for barrel regions (first 8 in list, cards 0-3)
   for(int i = 0; i<8; i++){
     if((barrelRegions.at(i))>quietThresholdBarrel)
-      quiet[i] = 0;  //switched 0 and 1
+      quiet[i] = false;  //switched 0 and 1
     else
-      quiet[i] = 1;
+      quiet[i] = true;
   }
   // use second for endcap regions (last 6 in list, cards 4-6)
   for(int i = 8; i<14; i++){
     if((barrelRegions.at(i))>quietThresholdEndcap)
-      quiet[i] = 0;  //switched 0 and 1
+      quiet[i] = false;  //switched 0 and 1
     else
-      quiet[i] = 1;
+      quiet[i] = true;
   }
 
   quietBits = quiet.to_ulong();

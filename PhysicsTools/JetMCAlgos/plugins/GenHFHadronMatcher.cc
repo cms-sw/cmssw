@@ -314,7 +314,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         if(!leptonMother) continue;
         // Taking next mother if direct mother is a tau
         if(std::abs(leptonMother->pdgId()) == 15) {
-            leptonViaTau = 1;
+            leptonViaTau = true;
             leptonMother = leptonMother->mother();
         }
         // Skipping this lepton if its mother is not a proper hadron

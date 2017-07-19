@@ -47,7 +47,7 @@ class queryField : public edm::EDAnalyzer {
 
    double x,y,z;
 
-   while (1) {
+   while (true) {
      
      cout << "Enter X Y Z (cm): ";
 

@@ -207,7 +207,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     //check data exists
     if (!fedData.size() || !fedData.data()) {
-      fillPresent(fedId,0);
+      fillPresent(fedId,false);
       continue;
     }
     if (verbose_) std::cout << "FED " << fedId;
@@ -217,7 +217,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (fedData.size() && fedData.data()) nFEDinWdata++;
 
     //fill buffer present histogram
-    fillPresent(fedId,1);
+    fillPresent(fedId,true);
 
     //check for fatal errors
     //no need for debug output
@@ -250,7 +250,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     if (hasFatalErrors) {
-      fillFatalError(fedId,1);
+      fillFatalError(fedId,true);
       if (printDebug_) {
 	if (!buffer.get()) buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
 	edm::LogInfo("SiStripFEDCheck") << "Fatal error with FED ID " << fedId << ". Check summary: " 
@@ -261,7 +261,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
     else {
-      fillFatalError(fedId,0);
+      fillFatalError(fedId,false);
       //fill non-fatal errors histogram if there were no fatal errors
       fillNonFatalError(fedId,rateNonFatal);
       if (printDebug_ && rateNonFatal > 0) {

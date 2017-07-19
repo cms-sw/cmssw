@@ -161,20 +161,20 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
 
       new TCanvas("occupancy","occupancy",1200,500);
       gPad->SetLogy(1);
-      haveoccu->SetStats(0);
+      haveoccu->SetStats(false);
       haveoccu->SetLineColor(kRed);
       haveoccu->SetMarkerColor(kRed);
       haveoccu->DrawCopy();
       
       new TCanvas("multiplicity","multiplicity",1200,500);
       gPad->SetLogy(1);
-      havemult->SetStats(0);
+      havemult->SetStats(false);
       havemult->SetLineColor(kRed);
       havemult->SetMarkerColor(kRed);
       havemult->DrawCopy();
       
       new TCanvas("width","width",1200,500);
-      havewidth->SetStats(0);
+      havewidth->SetStats(false);
       havewidth->SetLineColor(kRed);
       havewidth->SetMarkerColor(kRed);
       havewidth->DrawCopy();
@@ -389,7 +389,7 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
 
       new TCanvas("ontrkmult","ontrkmult",1200,500);
       gPad->SetLogy(1);
-      haveontrkmult->SetStats(0);
+      haveontrkmult->SetStats(false);
       haveontrkmult->SetLineColor(kRed);
       haveontrkmult->SetMarkerColor(kRed);
       haveontrkmult->SetMarkerSize(.5);

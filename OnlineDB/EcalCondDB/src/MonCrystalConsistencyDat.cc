@@ -19,7 +19,7 @@ MonCrystalConsistencyDat::MonCrystalConsistencyDat()
   m_problemsID = 0;
   m_problemsGainZero = 0;
   m_problemsGainSwitch = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

@@ -636,7 +636,7 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
     eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if(fileChange!=0) *fileChange = false;
-    return 0;
+    return false;
   }
 
    if(found){

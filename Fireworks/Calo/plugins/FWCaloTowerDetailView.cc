@@ -48,7 +48,7 @@ void FWCaloTowerDetailView::build(const FWModelId &id, const CaloTower* iTower)
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   overlay->SetShowScales(1); // temporary
+   overlay->SetShowScales(true); // temporary
    viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning

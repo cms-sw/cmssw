@@ -280,10 +280,10 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "ECAL track trajectory is empty; moving on\n";
-      info.isGoodEcal = 0;
+      info.isGoodEcal = false;
       return;
    }
-   info.isGoodEcal = 1;
+   info.isGoodEcal = true;
 
    // Find ECAL crystals
    edm::Handle<EBRecHitCollection> EBRecHits;
@@ -350,10 +350,10 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    
    if(trajectory.empty()) {
       LogTrace("TrackAssociator") << "HCAL trajectory is empty; moving on\n";
-      info.isGoodCalo = 0;
+      info.isGoodCalo = false;
       return;
    }
-   info.isGoodCalo = 1;
+   info.isGoodCalo = true;
    
    // find crossed CaloTowers
    edm::Handle<CaloTowerCollection> caloTowers;
@@ -441,10 +441,10 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HCAL trajectory is empty; moving on\n";
-      info.isGoodHcal = 0;
+      info.isGoodHcal = false;
       return;
    }
-   info.isGoodHcal = 1;
+   info.isGoodHcal = true;
    
    // find crossed Hcals
    edm::Handle<HBHERecHitCollection> collection;
@@ -506,10 +506,10 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
 
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HO trajectory is empty; moving on\n";
-      info.isGoodHO = 0;
+      info.isGoodHO = false;
       return;
    }
-   info.isGoodHO = 1;
+   info.isGoodHO = true;
    
    // find crossed HOs
    edm::Handle<HORecHitCollection> collection;

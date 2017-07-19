@@ -73,7 +73,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   nb = theTree->GetEntry(nev);  // read in entire event
  
   if ( ALIUtils::debug >= 3) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
-  if( nb == 0 ) return 0; //end of file reached??
+  if( nb == 0 ) return false; //end of file reached??
 
   // Every n events, dump one to screen
   int n = 1;
@@ -119,7 +119,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   
   BuildMeasurementsFromOptAlign( measList );
   
-  return 1;
+  return true;
   
 }
 

@@ -66,7 +66,7 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
       xmlstr += *it;
     }
 
-    qtHandler->configureTests(xmlstr,bei,1);
+    qtHandler->configureTests(xmlstr,bei,true);
 
   }
 }

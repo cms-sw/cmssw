@@ -721,9 +721,9 @@ ProvenanceDumper::work_() {
 
   if(meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
     if(meta->GetBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
-      meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
+      meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), false);
     } else {
-      meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), 0);
+      meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), false);
     }
   }
 

@@ -361,7 +361,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             minNumberOfMatches = 1;
       }
 
-      if(numSegs >= minNumberOfMatches) goodMuon = 1;
+      if(numSegs >= minNumberOfMatches) goodMuon = true;
 
       // Require that last required station have segment
       // If there are zero required stations keep track
@@ -396,11 +396,11 @@ bool muon::isGoodMuon( const reco::Muon& muon,
       detector = lastSegBit < 4 ? 1 : 2;
 
       // Check x information
-      if(fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+      if(fabs(muon.pullX(station,detector,arbitrationType,true)) > maxAbsPullX &&
             fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
          return false;
 
-      if(applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX)
+      if(applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,true)) > maxAbsPullX)
          return false;
 
       // Is this a tight algorithm, i.e. do we bother to check y information?
@@ -408,11 +408,11 @@ bool muon::isGoodMuon( const reco::Muon& muon,
 
          // Check y information
          if (detector == 2) { // CSC
-            if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+            if(fabs(muon.pullY(station,2,arbitrationType,true)) > maxAbsPullY &&
                   fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
                return false;
 
-            if(applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY)
+            if(applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,true)) > maxAbsPullY)
                return false;
          } else {
             //
@@ -437,12 +437,12 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                if(muon.dY(stationIdx,1,arbitrationType) > 999998) // no y-information
                   continue;
 
-               if(fabs(muon.pullY(stationIdx,1,arbitrationType,1)) > maxAbsPullY &&
+               if(fabs(muon.pullY(stationIdx,1,arbitrationType,true)) > maxAbsPullY &&
                      fabs(muon.dY(stationIdx,1,arbitrationType)) > maxAbsDy) {
                   return false;
                }
 
-               if(applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx,1,arbitrationType,1)) > maxAbsPullY)
+               if(applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx,1,arbitrationType,true)) > maxAbsPullY)
                   return false;
 
                // If we get this far then great this is a good muon
@@ -485,9 +485,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             station  = stationIdx < 4 ? stationIdx+1 : stationIdx-3;
             detector = stationIdx < 4 ? 1 : 2;
 
-            if((fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+            if((fabs(muon.pullX(station,detector,arbitrationType,true)) > maxAbsPullX &&
                   fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx) ||
-                  (applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX))
+                  (applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,true)) > maxAbsPullX))
                continue;
             else if (detector == 1)
                existsGoodDTSegX = true;
@@ -495,9 +495,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             // Is this a tight algorithm?  If yes, use y information
             if (maxAbsDy < 999999) {
                if (detector == 2) { // CSC
-                  if((fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+                  if((fabs(muon.pullY(station,2,arbitrationType,true)) > maxAbsPullY &&
                         fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy) ||
-                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY))
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,true)) > maxAbsPullY))
                      continue;
                } else {
 
@@ -506,9 +506,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                   else
                      existsDTSegY = true;
 
-                  if((fabs(muon.pullY(station,1,arbitrationType,1)) > maxAbsPullY &&
+                  if((fabs(muon.pullY(station,1,arbitrationType,true)) > maxAbsPullY &&
                         fabs(muon.dY(station,1,arbitrationType)) > maxAbsDy) ||
-                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,1,arbitrationType,1)) > maxAbsPullY)) {
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,1,arbitrationType,true)) > maxAbsPullY)) {
                      continue;
                   }
                }

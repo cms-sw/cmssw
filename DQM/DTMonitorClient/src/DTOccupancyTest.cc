@@ -51,7 +51,7 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   nMinEvtsPC  = ps.getUntrackedParameter<int>("nEventsMinPC", 2200);
   nZeroEvtsPC  = ps.getUntrackedParameter<int>("nEventsZeroPC", 30);
 
-  bookingdone = 0;
+  bookingdone = false;
 
   // Event counter
   nevents = 0;
@@ -110,7 +110,7 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
     }
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest")

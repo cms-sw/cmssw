@@ -578,7 +578,7 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
       } 
     }
     pT = fabs(momentum_estimate[0]);
-    if(1 || pT>40.){ //it is skipped; we have to look at least into number of hits in the chamber actually...
+    if(true || pT>40.){ //it is skipped; we have to look at least into number of hits in the chamber actually...
       // and then decide which segment to use
       // use the last measurement, otherwise use the second; this is to be investigated
       break;

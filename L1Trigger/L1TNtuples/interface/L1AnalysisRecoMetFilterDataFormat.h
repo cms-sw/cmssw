@@ -20,14 +20,14 @@ namespace L1Analysis
     void Reset()
     {
      
-      hbheNoiseFilter         = 0;
-      hbheNoiseIsoFilter      = 0;
-      cscTightHalo2015Filter  = 0;
-      ecalDeadCellTPFilter    = 0;
-      goodVerticesFilter      = 0;
-      eeBadScFilter           = 0;
-      chHadTrackResFilter     = 0;
-      muonBadTrackFilter      = 0;
+      hbheNoiseFilter         = false;
+      hbheNoiseIsoFilter      = false;
+      cscTightHalo2015Filter  = false;
+      ecalDeadCellTPFilter    = false;
+      goodVerticesFilter      = false;
+      eeBadScFilter           = false;
+      chHadTrackResFilter     = false;
+      muonBadTrackFilter      = false;
 
     }
     

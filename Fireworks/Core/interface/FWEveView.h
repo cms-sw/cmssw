@@ -91,7 +91,7 @@ public:
    virtual void setupEnergyScale();
    virtual void voteCaloMaxVal();
 
-   virtual bool requestGLHandlerPick() const { return 0;} 
+   virtual bool requestGLHandlerPick() const { return false;} 
    
 protected:
    virtual void resetCamera();

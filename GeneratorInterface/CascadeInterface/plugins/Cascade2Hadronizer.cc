@@ -633,7 +633,7 @@ namespace gen {
  
   bool Cascade2Hadronizer::cascadeReadParameters(const string& ParameterString) {
 
-    bool accepted = 1;
+    bool accepted = true;
 
     if(!strncmp(ParameterString.c_str(),"KE",2))
       caluco.ke = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
@@ -726,7 +726,7 @@ namespace gen {
     else if(!strncmp(ParameterString.c_str(),"SCALFA",6))
       scalf.scalfa = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
 
-    else accepted = 0;
+    else accepted = false;
 
     return accepted;
   }

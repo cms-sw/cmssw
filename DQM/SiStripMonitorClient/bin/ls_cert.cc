@@ -324,7 +324,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
   char plottitles[200];
   sprintf( plottitles , "Lumisection Certification: Run %s;Luminosity Section;" , runnum_str( filename ).c_str() );
   TH2D *cert_plot = new TH2D( "cert_plot" , plottitles , nLumiSections , 1 , nLumiSections + 1 , 5 , 1 , 6 );
-  cert_plot->SetStats(0);
+  cert_plot->SetStats(false);
   char label[100];
   for (int ityp = 0; ityp < 4; ityp++)
     {
@@ -382,7 +382,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
   //PIXEL plot
 
   TH2D *cert_plot_pixel = new TH2D( "cert_plot_pixel" , plottitles , nLumiSections , 1 , nLumiSections + 1 , 4 , 1 , 5 );
-  cert_plot_pixel->SetStats(0);
+  cert_plot_pixel->SetStats(false);
 
   for (int ityp = 0; ityp < 4; ityp++)
     {

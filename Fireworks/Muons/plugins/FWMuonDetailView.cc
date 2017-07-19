@@ -78,7 +78,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   overlay->SetShowScales(0); // temporary
+   overlay->SetShowScales(false); // temporary
    viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning

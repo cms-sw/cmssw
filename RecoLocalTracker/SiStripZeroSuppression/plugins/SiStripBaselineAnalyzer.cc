@@ -264,7 +264,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  
       edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
-      bool restAPV[6] = {0,0,0,0,0,0};
+      bool restAPV[6] = {false,false,false,false,false,false};
       int strip =0, totADC=0;
       int minAPVRes = 7, maxAPVRes = -1;
       for(;itRaw != itRawDigis->end(); ++itRaw, ++strip){

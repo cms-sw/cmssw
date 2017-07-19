@@ -141,7 +141,7 @@ class VFATFrame
     /// Returns positive number if it was active, 0 otherwise.
     virtual bool channelActive(unsigned char channel) const
     {
-      return ( data[1 + (channel / 16)] & (1 << (channel % 16)) ) ? 1 : 0;
+      return ( data[1 + (channel / 16)] & (1 << (channel % 16)) ) ? true : false;
     }
 
     /// Returns list  of active channels.

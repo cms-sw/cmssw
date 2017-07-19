@@ -61,7 +61,7 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
-      ObjectParameter() : countOverflow(0) {}
+      ObjectParameter() : countOverflow(false) {}
         unsigned int countIndex;
         unsigned int countThreshold;
 

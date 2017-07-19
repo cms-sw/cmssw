@@ -126,7 +126,7 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::Trigg
 	(station == 1 && ring == 1) ? 1301://ME1/1b
 	1024;//all other chambers
       
-      bool ph_reverse = (endcap == 1 && station >= 3) ? 1:
+      bool ph_reverse = (endcap == 1 && station >= 3) ? true:
 	(endcap == 2 && station < 3) ? 1: 0;
       
       int ph_coverage  = (station <= 1 && Id > 6 && Id < 10) ? 15 : //30 :

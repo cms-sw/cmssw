@@ -13,9 +13,9 @@ namespace EPOS {
     unsigned int EPOS_Wrapper::s_sizeof_real = sizeof(double);
     unsigned int EPOS_Wrapper::s_max_number_entries = 99900;
 
-    IO_EPOS::IO_EPOS() : m_trust_mothers_before_daughters(1),
-                             m_trust_both_mothers_and_daughters(0),
-                             m_print_inconsistency_errors(1),
+    IO_EPOS::IO_EPOS() : m_trust_mothers_before_daughters(true),
+                             m_trust_both_mothers_and_daughters(false),
+                             m_print_inconsistency_errors(true),
                              m_trust_beam_particles(true),
                              m_skip_nucl_frag(false)
     {}

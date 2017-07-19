@@ -62,14 +62,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     int iGainSwitch = 0;
     double maxsample(-1);
     int imax(-1);
-    bool isSaturated = 0;
+    bool isSaturated = false;
     uint32_t flag = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
       if ( dataFrame.isSaturated() ) 
 	{
 	  gainId = 3;
-	  isSaturated = 1;
+	  isSaturated = true;
 	}
 
       if (gainId != gainId0) ++iGainSwitch ;

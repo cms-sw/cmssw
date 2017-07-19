@@ -114,8 +114,8 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
 
       std::vector<DetId> eeDetIds;
@@ -180,8 +180,8 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
       std::vector<DetId> ebDetIds;
       ebDetIds.push_back(EBDetId(1,1));

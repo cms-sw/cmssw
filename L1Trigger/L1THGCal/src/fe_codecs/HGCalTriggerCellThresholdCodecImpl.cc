@@ -39,7 +39,7 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
         data_map.emplace(triggercell.detId(), triggercell.hwPt());
         if (triggercell.hwPt()>0) size++;
       }
-    std::vector<bool> result(nCellsInModule_ + dataLength_*size, 0);
+    std::vector<bool> result(nCellsInModule_ + dataLength_*size, false);
     // No data: return vector of 0
     if(data.payload.size()==0) return result;
     // All trigger cells are in the same module
@@ -70,7 +70,7 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
         if(value>0)
           {
             // Set map bit to 1
-            result[index] =  1;
+            result[index] =  true;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)

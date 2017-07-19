@@ -58,7 +58,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     _recPFJetSelector(0),
     _recTrackSelector(0),
     _NminOneCuts(0),
-    _useNminOneCuts(0)
+    _useNminOneCuts(false)
 {
     // Specific parameters for this analysis
     edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);

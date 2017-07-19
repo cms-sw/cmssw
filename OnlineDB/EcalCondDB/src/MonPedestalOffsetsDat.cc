@@ -19,7 +19,7 @@ MonPedestalOffsetsDat::MonPedestalOffsetsDat()
   m_dacG1 = 0;
   m_dacG6 = 0;
   m_dacG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

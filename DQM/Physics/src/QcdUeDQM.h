@@ -65,11 +65,11 @@ class QcdUeDQM : public DQMEDAnalyzer {
 
   void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
               const std::string &name, const std::string &title, int nx,
-              double x1, double x2, bool sumw2 = 1, bool sbox = 1);
+              double x1, double x2, bool sumw2 = true, bool sbox = true);
   void bookProfile(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
                    const std::string &name, const std::string &title, int nx,
-                   double x1, double x2, double y1, double y2, bool sumw2 = 1,
-                   bool sbox = 1);
+                   double x1, double x2, double y1, double y2, bool sumw2 = true,
+                   bool sbox = true);
   void fill1D(std::vector<TH1F *> &hs, double val, double w = 1.);
   void fill1D(std::vector<MonitorElement *> &mes, double val, double w = 1.);
   void fill2D(std::vector<TH2F *> &hs, double valx, double valy, double w = 1.);

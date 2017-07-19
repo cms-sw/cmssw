@@ -125,8 +125,8 @@ void OpticalObject::readData( ALIFileIn& filein )
   }
 
   //--------- set centre and angles not global (default behaviour)
-  centreIsGlobal = 0;
-  anglesIsGlobal = 0;
+  centreIsGlobal = false;
+  anglesIsGlobal = false;
 
   //--------- readCoordinates
   if ( type() == ALIstring("source") || type() == ALIstring("pinhole") ) {
@@ -230,9 +230,9 @@ void OpticalObject::readCoordinates( const ALIstring& coor_type_read, const ALIs
       if(coor_type_read[6] == 'G' ) {
         if(ALIUtils::debug >= 5) std::cout << " coordinate global " << coor_type_read << std::endl;
         if(coor_type_expected == "centre" ) {
-          centreIsGlobal = 1;
+          centreIsGlobal = true;
         } else if(coor_type_expected == "angles" ) {
-          anglesIsGlobal = 1;
+          anglesIsGlobal = true;
         }
       }
     }
@@ -378,8 +378,8 @@ void OpticalObject::setAnglesNull()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::copyData()
 {
-  centreIsGlobal = 0;
-  anglesIsGlobal = 0;
+  centreIsGlobal = false;
+  anglesIsGlobal = false;
   if(ALIUtils::debug >= 5) std::cout << "entering copyData()" << std::endl;
 
   //---------- Get copied OptO
@@ -470,7 +470,7 @@ void OpticalObject::buildWordList( const Entry* entry, std::vector<ALIstring>& w
 void OpticalObject::createComponentOptOs( ALIFileIn& filein )
 {
   //---------- flag to determine if components are copied or read (it is passed to the constructor of component OptOs)
-  ALIbool fcopyComponents = 0;
+  ALIbool fcopyComponents = false;
 
   //---------- Get list of components of current OptO (copy it to 'vopto_types')
   std::vector<ALIstring> vopto_types;
@@ -498,12 +498,12 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
     //--- Don't check it if OptO is going to be copied (fcopyData = 1)
     //--- If OptO is not copied, but components will be copied, check if only for the first component (for the second fcopyComponents=1)
     if( fcopyData || fcopyComponents ) {
-      fcopyComponents = 1;
+      fcopyComponents = true;
     //--- If OptO not copied, but components will be copied
     }else if( wordlist[0] == ALIstring("copy_components") ) {
       if(ALIUtils::debug>=3)std::cout << "createComponentOptOs: copy_components" << wordlist[0] << std::endl;
       Model::createCopyComponentList( type() );
-      fcopyComponents = 1;  //--- for the second and following components
+      fcopyComponents = true;  //--- for the second and following components
     //----- If no copying: check that type is the expected one
     } else if ( wordlist[0] != (*vsite) ) {
         filein.ErrorInLine();
@@ -2121,8 +2121,8 @@ void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
     }
 
     //--------- set centre and angles not global (default behaviour)
-    centreIsGlobal = 0;
-    anglesIsGlobal = 0;
+    centreIsGlobal = false;
+    anglesIsGlobal = false;
 
     setCmsswID( oaInfo.ID_);
     //--------- build Coordinates
@@ -2239,7 +2239,7 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
     //-  ALIstring optoName = name()+"/"+(*ite).name_;
     //---------- Get component name
     ALIstring optoName = (*ite).name_;
-    ALIbool fcopyComponents = 0;
+    ALIbool fcopyComponents = false;
 
     //---------- Create OpticalObject of the corresponding type
     OpticalObject* OptOcomponent = createNewOptO( this, optoType, optoName, fcopyComponents );

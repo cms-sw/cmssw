@@ -61,7 +61,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -85,7 +85,7 @@ void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, D
   // book the histos
 
   if (!bookingdone) bookHistos(ibooker);  
-  bookingdone = 1; 
+  bookingdone = true; 
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();

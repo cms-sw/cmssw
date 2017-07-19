@@ -60,7 +60,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   produces<HTTTopJetTagInfoCollection>();
 
   // Signal to the VirtualJetProducer that we have to add HTT information
-  fromHTTTopJetProducer_ = 1;
+  fromHTTTopJetProducer_ = true;
   
   fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTaggerV2>(new fastjet::HEPTopTaggerV2(
 										       optimalR_,

@@ -92,7 +92,7 @@ TString RunInputHYDJETstr;
 
 // definition of the static member fLastIndex
 int Particle::fLastIndex;
-bool ev=0;
+bool ev=false;
 namespace {
   int convertStatusForComponents(int sta, int typ){
 
@@ -227,7 +227,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
 
     if(fSqrtS < 2.24){
       LogError("Hydjet2Hadronizer|sqrtS") << "SqrtS<2.24 not allowed with fTMuType>0";
-      return 0;
+      return false;
     }
     
     //sqrt(s) = 2.24 ==> T_kin = 0.8 GeV
@@ -249,7 +249,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
     //if user choose fYlmax larger then allowed by kinematics at the specified beam energy sqrt(s)     
     if(fYlmax > TMath::Log(fSqrtS/0.94)){
       LogError("Hydjet2Hadronizer|Ylmax") << "fYlmax more then TMath::Log(fSqrtS vs 0.94)!!! ";
-      return 0;
+      return false;
     }
       
     if(fCorrS <= 0.) {

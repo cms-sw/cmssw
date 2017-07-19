@@ -35,7 +35,7 @@ ALIstring Measurement::theMeasurementsFileName = "";
 ALIstring Measurement::theCurrentDate = "99/99/99";
 ALIstring Measurement::theCurrentTime = "99:99";
 
-ALIbool Measurement::only1 = 0;
+ALIbool Measurement::only1 = false;
 ALIstring Measurement::only1Date = "";
 ALIstring Measurement::only1Time = "";
 
@@ -232,11 +232,11 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
   //----- Set value (translate it if a PARAMETER is used)
   ALIdouble val = 0.;
-  theValueIsSimulated[coor] = 0;
+  theValueIsSimulated[coor] = false;
   if( !ALIUtils::IsNumber(wordlist[1]) ) {
     if ( parmgr->getParameterValue( wordlist[1], val ) == 0 ) {
       if( wordlist[1] == ALIstring("simulated_value") ) {
-        theValueIsSimulated[coor] = 1;
+        theValueIsSimulated[coor] = true;
       } else {
         //      ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
         std::cerr << "!!! parameter for value not found: " << wordlist[1].c_str() << std::endl;
@@ -293,7 +293,7 @@ void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam)
   //---------- set data members
   //----- Set value (translate it if a PARAMETER is used)
   ALIdouble val = 0.;
-  theValueIsSimulated[coor] = 0;
+  theValueIsSimulated[coor] = false;
   val = oaParam->value();
   val *= valueDimensionFactor();
   theValue[coor] = val;
@@ -453,7 +453,7 @@ void Measurement::printStartCalculateSimulatedValue( const Measurement* meas)
 void Measurement::calculateOriginalSimulatedValue()
 {
   //----------  Calculate the simulated value of the Measurement
-  calculateSimulatedValue( 1 );
+  calculateSimulatedValue( true );
 
 #ifdef COCOA_VIS
   if( ALIUtils::getFirstTime() ) {
@@ -529,7 +529,7 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
     entry->displace( displacement );
 
     if ( ALIUtils::debug >= 5) std::cout << "Get simulated value for displacement " << displacement << std::endl;
-    calculateSimulatedValue( 0 );
+    calculateSimulatedValue( false );
 
     //---------- Get sum of derivatives
     sumderiv = 0;

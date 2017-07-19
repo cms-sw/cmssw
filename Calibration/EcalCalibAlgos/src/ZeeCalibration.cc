@@ -2088,7 +2088,7 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
 	  h1_elePhiResol_->Fill( myEle->phi() - mcEle[i]->momentum().phi() );
 
           const reco::SuperCluster* mySC=&(*(myEle->superCluster()));
-	  if (/*fabs(mySC->position().eta()) < 2.4*/1)
+	  if (/*fabs(mySC->position().eta()) < 2.4*/true)
 	    {
 	      //      if(myEle->classification()>=100)std::cout<<"mySC->preshowerEnergy()"<<mySC->preshowerEnergy()<<std::endl;
 

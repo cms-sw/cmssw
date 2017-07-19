@@ -291,7 +291,7 @@ int CMSCGEN::generate()
   double c_max;
   double z, z_max;
   
-  while (1)
+  while (true)
     {
       prob = RanGen2->flat();
       r1 = double(prob);
@@ -435,7 +435,7 @@ int CMSCGEN::generate()
   
   // now we throw dice:
   
-  while (1)
+  while (true)
     {
       prob = RanGen2->flat();
       r1 = double(prob);
@@ -600,7 +600,7 @@ int CMSCGEN::generateNuMu() {
     }
   
   double ctheta, Emu;
-  while (1) {
+  while (true) {
     ctheta = cmin + (cmax-cmin)*RanGen2->flat();
     Emu = pmin + (pmax-pmin)*RanGen2->flat();
     double Enu = enumin + (enumax-enumin)*RanGen2->flat();

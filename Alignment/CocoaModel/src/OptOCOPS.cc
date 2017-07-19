@@ -395,7 +395,7 @@ ALIdouble OptOCOPS::getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP:
 {
 
   if(ALIUtils::debug >= 5) std::cout << "***** OptOCOPS::getMeasFromInters" <<std::endl;
-  CLHEP::Hep3Vector inters = line_xhair.intersect( ccd, 0 ) - ccd.pt();
+  CLHEP::Hep3Vector inters = line_xhair.intersect( ccd, false ) - ccd.pt();
   ALIdouble sign = inters*ccd.vec();
   if( sign != 0 ){
     sign = std::abs(sign)/sign;

@@ -860,7 +860,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
       } 
       //else if ( trackOut->numberOfValidHits() > trackOld->numberOfValidHits() ) {
-      else if ( 0 ) {
+      else if ( false ) {
 	LogTrace("TestOutliers") << "outliers for track with #hits=" << trackOut->numberOfValidHits();
 	tracks->Fill(1);
 	LogTrace("TestOutliers") << "Out->pt=" << trackOut->pt() << " Old->pt=" << trackOld->pt() 

@@ -32,7 +32,7 @@ extern "C"
 {
   float gen::ranart_(int *idummy)
   {
-    if(0) idummy = idummy; 
+    if(false) idummy = idummy; 
     float rannum = amptRandomEngine->flat();
     return rannum;
   }
@@ -42,7 +42,7 @@ extern "C"
 {
   float gen::ran1_(int *idummy)
   {
-    if(0) idummy = idummy;
+    if(false) idummy = idummy;
     return amptRandomEngine->flat();
   }
 }

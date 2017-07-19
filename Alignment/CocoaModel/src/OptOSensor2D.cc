@@ -240,7 +240,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 {
   if (ALIUtils::debug >= 4) std::cout << "%%% LR: DETAILED TRAVERSES SENSOR2D  " << name() << std::endl;
   if( DeviationsFromFileSensor2D::apply() && fdevi_from_file) {
-   DeviationsFromFileSensor2D::setApply( 0 );
+   DeviationsFromFileSensor2D::setApply( false );
    //- std::cout << "fdeviFromFile" << fdevi_from_file << std::endl;
     if(ALIUtils::debug >= 0 )std::cerr << "!!WARNING: sensor " << name() << " has read deviation from file and it will not be taken into account. Please use FAST TRAVERSES" << deviFromFile << std::endl;
   }
@@ -263,7 +263,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
   //---------- Refract while entering object
   ALIdouble refra_ind1 = 1.;
   ALIdouble refra_ind2 = findExtraEntryValueMustExist("refra_ind");
@@ -271,7 +271,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
   //---------- Get backward plate
-  plate = getPlate(0, 1);
+  plate = getPlate(false, true);
   //---------- Refract while exiting splitter
   lightray.refract( plate, refra_ind2, refra_ind1 );
 
@@ -294,7 +294,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 
   if(ALIUtils::debug >= 5) std::cout << "OptOSensor2D fillExtraEntry wordlist[1] " << wordlist[1] << std::endl;
   //---------- check if it is deviation read from file 
-  fdevi_from_file = 0;
+  fdevi_from_file = false;
   //-  std::cout << "WL " << wordlist[1]<< "WL " << wordlist[2]<< "WL " << wordlist[3] << std::endl;
   if( wordlist[1] == ALIstring("devi") && wordlist[2] == ALIstring("from_file") ) {
     //---------- Open file
@@ -318,7 +318,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
       }*/
 
     deviFromFile = new DeviationsFromFileSensor2D();
-    fdevi_from_file = 1;
+    fdevi_from_file = true;
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
     //----- Read header
     ALIstring sensor1_name, sensor2_name;
@@ -353,7 +353,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
       deviFromFile->setOffset( offsetX, offsetY );
     }
     deviFromFile->readFile( ifdevi );
-    fdevi_from_file = 1;
+    fdevi_from_file = true;
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
 
  

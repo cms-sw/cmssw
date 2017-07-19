@@ -307,7 +307,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       // look for next different detId and rename it to the current_detId
       // at this point we skip all the conditions for the strips that are not in this roll
       // and we will go to the conditions for the first strip of the next roll
-      bool next_detId_found = 0;
+      bool next_detId_found = false;
       sslognoiseitem <<"look for next different detId"<<std::endl;
       while(next_detId_found==0 && it != vnoise.end()-1) {
         ++it;
@@ -324,7 +324,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
           // and update also the number of strips
           current_detId = this_detId;
           current_rpcId = RPCDetId(current_detId);
-          next_detId_found = 1;
+          next_detId_found = true;
           current_nStrips = (theGeometry->roll(current_rpcId))->nstrips();
           sslognoiseitem <<" with "<<current_nStrips<<" strips"<<std::endl;
           --it; // subtract one, because at the end of the loop the iterator will be increased with one

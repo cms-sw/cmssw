@@ -494,7 +494,7 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
    // disable swap on the first left TEveCompositeFrame
    // check info button
    TEveWindow* current  = getSwapCandidate();
-   bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : 0;
+   bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : false;
    TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : 0;
 
    for (ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); it++)

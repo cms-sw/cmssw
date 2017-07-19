@@ -314,7 +314,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       Handle<View<Muon> > muonCollection;
       if (!ev.getByToken(muonToken_, muonCollection)) {
             LogError("") << ">>> Muon collection does not exist !!!";
-            return 0;
+            return false;
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
@@ -352,7 +352,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       Handle<TriggerResults> triggerResults;
       if (!ev.getByToken(trigToken_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
-            return 0;
+            return false;
       }
       const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
     /*
@@ -387,7 +387,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       Handle<View<Jet> > jetCollection;
       if (!ev.getByToken(jetToken_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
-            return 0;
+            return false;
       }
       unsigned int jetCollectionSize = jetCollection->size();
       int njets = 0;

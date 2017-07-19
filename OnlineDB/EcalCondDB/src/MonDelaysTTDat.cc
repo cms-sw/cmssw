@@ -18,7 +18,7 @@ MonDelaysTTDat::MonDelaysTTDat()
 
   m_delayMean = 0;
   m_delayRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

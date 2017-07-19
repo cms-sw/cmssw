@@ -29,7 +29,7 @@ DTSummaryClients::DTSummaryClients(const ParameterSet& ps) : nevents(0) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients]: Constructor";
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -74,7 +74,7 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   }
 
 }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")

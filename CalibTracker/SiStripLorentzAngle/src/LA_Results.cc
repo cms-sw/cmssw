@@ -37,8 +37,8 @@ result(Method m, const std::string name, const Book& book) {
       p.ndof = (unsigned) (f->GetParameter(3));
       p.entries = 
 	(m&PROB1)         ? (unsigned) book[base+"_w1"]->GetEntries() : 
-	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,0)]->GetEntries() : 
-	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,0)]->GetEntries() : 0 ;
+	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,false)]->GetEntries() : 
+	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,false)]->GetEntries() : 0 ;
       break;
     }
     default: break;

@@ -90,20 +90,20 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_legend->SetEntrySeparation(0.05);
 
    // add Electron specific details
-   if( 0 &&  iElectron->superCluster().isAvailable() ) {
+   if( false &&  iElectron->superCluster().isAvailable() ) {
       addTrackPointsInCaloData( iElectron, lego );
       drawCrossHair( iElectron, lego, m_eveScene );
       addSceneInfo( iElectron, m_eveScene );
    }
    
    // draw axis at the window corners
-   if (1)
+   if (true)
    {
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane( kFALSE );
    overlay->SetShowPerspective( kFALSE );
    overlay->SetCaloLego( lego );
-   overlay->SetShowScales( 1 ); // temporary
+   overlay->SetShowScales( true ); // temporary
    viewerGL()->AddOverlayElement( overlay );
    }
    // set event handler and flip camera to top view at beginning

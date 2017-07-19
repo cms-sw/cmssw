@@ -20,8 +20,8 @@ using std::endl;
 
 gctTestElectrons::gctTestElectrons()
 {
-  m_theIsoEmCandSorter = new L1GctElectronSorter(18,0);
-  m_nonIsoEmCandSorter = new L1GctElectronSorter(18,1);
+  m_theIsoEmCandSorter = new L1GctElectronSorter(18,false);
+  m_nonIsoEmCandSorter = new L1GctElectronSorter(18,true);
 }
 
 gctTestElectrons::~gctTestElectrons()

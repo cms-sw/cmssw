@@ -1618,9 +1618,9 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	  std::stringstream examiner_out, examiner_err;
 	  goodEvent = true;
 	  examiner = new CSCDCCExaminer();
-	  if( examinerMask&0x40000 ) examiner->crcCFEB(1);
-	  if( examinerMask&0x8000  ) examiner->crcTMB (1);
-	  if( examinerMask&0x0400  ) examiner->crcALCT(1);
+	  if( examinerMask&0x40000 ) examiner->crcCFEB(true);
+	  if( examinerMask&0x8000  ) examiner->crcTMB (true);
+	  if( examinerMask&0x0400  ) examiner->crcALCT(true);
 	  examiner->setMask(examinerMask);
 	  const short unsigned int *data = (short unsigned int *)fedData.data();
 

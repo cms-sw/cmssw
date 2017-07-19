@@ -22,7 +22,7 @@ MonTestPulseDat::MonTestPulseDat()
   m_adcRMSG6 = 0;
   m_adcMeanG12 = 0;
   m_adcRMSG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

@@ -30,8 +30,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
   iEvent.getByToken(trig_token_, gtRecord);
 
-  std::vector<bool> TrigTech_(64,0);
-  std::vector<bool> TrigPh_(128,0);
+  std::vector<bool> TrigTech_(64,false);
+  std::vector<bool> TrigPh_(128,false);
 
   // Get dWord after masking disabled bits
   DecisionWord dWord = gtRecord->decisionWord();

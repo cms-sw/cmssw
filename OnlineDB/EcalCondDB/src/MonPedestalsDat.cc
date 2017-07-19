@@ -21,7 +21,7 @@ MonPedestalsDat::MonPedestalsDat()
   m_pedRMSG1 = 0;
   m_pedRMSG6 = 0;
   m_pedRMSG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

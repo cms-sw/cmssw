@@ -204,7 +204,7 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      HcalTriggerPrimitiveDigi
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));
 	      hfDigi.setSize(1);
-	      hfDigi.setSample(0, HcalTriggerPrimitiveSample(0,0,0,0));
+	      hfDigi.setSample(0, HcalTriggerPrimitiveSample(0,false,0,0));
 	      hcalTPs->push_back(hfDigi);
 	    }
 	}

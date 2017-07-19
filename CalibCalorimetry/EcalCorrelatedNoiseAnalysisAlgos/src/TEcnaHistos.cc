@@ -1882,7 +1882,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      if( (BetweenWhat == fLFBetweenStins) ||
 				  (BetweenWhat == fHFBetweenStins) ){gPad->SetGrid(1,1);}
 			      h_fbid0->DrawCopy(PlotOption);
-			      h_fbid0->SetStats((Bool_t)1);    
+			      h_fbid0->SetStats(true);    
 			      gPad->Update();
 			      h_fbid0->Delete();  h_fbid0 = 0;              fCdeleteRoot++;
 			  
@@ -2264,7 +2264,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  
 		      gPad->Update();
 		  
-		      h_geo_bid->SetStats((Bool_t)1);    
+		      h_geo_bid->SetStats(true);    
 
 		      //      delete MainCanvas;              fCdeleteRoot++;
 		    }
@@ -2411,8 +2411,8 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
       fPavComStin->Draw();
       fPavComLVRB->Draw();
   
-      Bool_t b_true = 1; 
-      Bool_t b_false = 0;
+      Bool_t b_true = true; 
+      Bool_t b_false = false;
       gPad->cd(1);
 
       gStyle->SetMarkerColor(couleur_rouge);
@@ -2605,8 +2605,8 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       fPavComStin->Draw();
       fPavComCxyz->Draw();
 
-      Bool_t b_true  = 1; 
-      Bool_t b_false = 0;
+      Bool_t b_true  = true; 
+      Bool_t b_false = false;
       gPad->cd(1);
 
       gStyle->SetMarkerColor(couleur_rouge);
@@ -3321,7 +3321,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  gPad->Update();
 
 	  //..................... retour aux options standard
-	  Bool_t b_true = 1;
+	  Bool_t b_true = true;
 	  h_geo_bid->SetStats(b_true);    
 	  h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
 
@@ -3564,7 +3564,7 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      gPad->Update();
 
 	      //..................... retour aux options standard
-	      Bool_t b_true = 1;
+	      Bool_t b_true = true;
 	      h_geo_bid->SetStats(b_true);    
 	      h_geo_bid->Delete();   h_geo_bid = 0;             fCdeleteRoot++;
 	      	      
@@ -3764,7 +3764,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       gPad->Update();
   
       //..................... retour aux options standard
-      Bool_t b_true = 1;
+      Bool_t b_true = true;
       h_empty_bid->SetStats(b_true);    
   
       h_empty_bid->Delete();  h_empty_bid = 0;            fCdeleteRoot++;      
@@ -4221,7 +4221,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       gPad->Update();   // prend beaucoup de temps...
 
       //..................... retour aux options standard
-      Bool_t b_true = 1;
+      Bool_t b_true = true;
       h_empty_bid->SetStats(b_true);    
   
       h_empty_bid->Delete(); h_empty_bid = 0;             fCdeleteRoot++;      
@@ -5183,7 +5183,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
     }
   //..................... retour aux options standard
 
-  Bool_t b_true = 1;
+  Bool_t b_true = true;
   h_geo_bid->SetStats(b_true);    
   h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
   

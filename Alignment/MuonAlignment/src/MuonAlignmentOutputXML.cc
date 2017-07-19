@@ -280,7 +280,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
 	    str_relativeto = std::string("ideal");
 
-            bool csc_debug=0;
+            bool csc_debug=false;
             if (csc_debug && !DT) {
               CSCDetId id(rawId);
               if(id.endcap()==1 && id.station()==1 && id.ring()==1 && id.chamber()==33 ){

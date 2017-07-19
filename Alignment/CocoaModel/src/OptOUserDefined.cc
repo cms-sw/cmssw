@@ -67,7 +67,7 @@ void OptOUserDefined::userDefinedBehaviour( LightRay& lightray, Measurement& mea
                     //-    << " deviX " << deviX << " deviY " << deviY << std::endl;
     }
 
-    ALIPlane plate = getPlate(0, 0);
+    ALIPlane plate = getPlate(false, false);
     lightray.intersect( plate );
 
 #ifdef COCOA_VIS

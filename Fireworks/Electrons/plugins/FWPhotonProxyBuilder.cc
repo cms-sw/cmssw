@@ -67,7 +67,7 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
       TEveBoxSet* boxset = new TEveBoxSet();
       boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
       boxset->UseSingleColor();
-      boxset->SetPickable(1);
+      boxset->SetPickable(true);
 
       for( std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end();
            id != ide; ++id )      

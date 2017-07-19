@@ -118,7 +118,7 @@ float val = plotEt ? m_et : m_energy;
       m_tower->SetVertex( i+4,  data[0], data[1], scale);
    }
    c *= 0.25;
-   if (0) c.Dump();
+   if (false) c.Dump();
    
    // Scale lineset 
    float s = log( 1 + val ) / maxLogVal;

@@ -17,7 +17,7 @@ TT6ApvMask::TT6ApvMask(int ctype, float ncut, float dcut, float tcut) {
 //  Destructor :
 //
 TT6ApvMask::~TT6ApvMask(){
-  if (0) cout << "Destructing TT6ApvMask " << endl;
+  if (false) cout << "Destructing TT6ApvMask " << endl;
 }
 //
 // Calculate the Mask 
@@ -41,7 +41,7 @@ void TT6ApvMask::calculateMask(const ApvAnalysis::PedestalType& in){
   avVal    = (effSize) ? sumVal/float(effSize):0.0;
   sqAvVal  = (effSize) ? sqSumVal/float(effSize):0.0;
   rmsVal   = (sqAvVal - avVal*avVal > 0.0) ? sqrt(sqAvVal - avVal*avVal):0.0; 
-  if (0) cout << " TT6ApvMask::calculateMask  Mean " << avVal <<
+  if (false) cout << " TT6ApvMask::calculateMask  Mean " << avVal <<
 	   " RMS " << rmsVal << " " <<  effSize << endl;       
   for (unsigned int i=0; i<in.size(); i++){
     if (defineNoisy( static_cast<float>(avVal),
@@ -65,7 +65,7 @@ bool TT6ApvMask::defineNoisy(float avrg,float rms,float noise){
   if (theCalculationFlag_ == 1){
    if ((noise-avrg) > theNoiseCut_*rms) {
      temp=true;
-     if (0) cout << " Mean " << avrg << " rms " << rms << " Noise " << noise << endl;
+     if (false) cout << " Mean " << avrg << " rms " << rms << " Noise " << noise << endl;
    }
   } else if (theCalculationFlag_ == 2){
     if ((noise-avrg) > avrg*theNoiseCut_) temp=true;

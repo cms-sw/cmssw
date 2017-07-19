@@ -94,8 +94,8 @@ TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
    m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
    FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
    m_boxSet->SetUserData(sel);
-   m_boxSet->SetPickable(1);
-   m_boxSet->SetAlwaysSecSelect(1);
+   m_boxSet->SetPickable(true);
+   m_boxSet->SetAlwaysSecSelect(true);
 
    product->AddElement(m_boxSet);
 

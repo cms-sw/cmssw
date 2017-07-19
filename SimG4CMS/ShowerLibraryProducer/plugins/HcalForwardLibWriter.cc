@@ -97,9 +97,9 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
 
 //        if(iev>0) LibTree->SetBranchStatus("HFShowerLibInfo",0);
 	if (particle == "electron") {
-	  LibTree->SetBranchStatus("hadParticles",0);
+	  LibTree->SetBranchStatus("hadParticles",false);
 	} else {
-	  LibTree->SetBranchStatus("emParticles",0);
+	  LibTree->SetBranchStatus("emParticles",false);
         }
         LibTree->Fill();
 	if (particle == "electron") {

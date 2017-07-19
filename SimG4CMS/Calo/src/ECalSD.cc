@@ -106,12 +106,12 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   else if (name == "EcalHitsEB") 
     {
       scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
-      isEB=1;
+      isEB=true;
     }
   else if (name == "EcalHitsEE")
     { 
       scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
-      isEE=1;
+      isEE=true;
     }
   else if (name == "EcalHitsES") 
     {

@@ -240,14 +240,14 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   
   // calculate plateau value from last 4 entries
   double plateauval=0;
-  bool noPlateau=0;
+  bool noPlateau=false;
   if(nallpoints>=4){
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii) plateauval+=yvalsall[ii];
     plateauval/=4;
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii){
       if(fabs(yvalsall[ii]-plateauval)>5){
         plateauval=255;
-	noPlateau=1;
+	noPlateau=true;
         continue;
       }
     }

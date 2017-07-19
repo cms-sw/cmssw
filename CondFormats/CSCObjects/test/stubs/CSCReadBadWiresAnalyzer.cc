@@ -187,7 +187,7 @@ namespace edmtest
 	std::cout << "count " << ++icount << " bad channel " << chan << " in layer " << lay << 
 	  " of chamber=" << id << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
 
-        badWireWords[indexl-1].set( chan-1, 1 ); // set bit in 112-bit bitset representing this layer
+        badWireWords[indexl-1].set( chan-1, true ); // set bit in 112-bit bitset representing this layer
       } // j
     } // i
 

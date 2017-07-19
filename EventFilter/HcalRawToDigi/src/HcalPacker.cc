@@ -146,7 +146,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
     for (int slb=1; slb<=6; slb++) {
       for (int slbchan=0; slbchan<=3; slbchan++) {
 	int linear=(slb-1)*4+slbchan;
-	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
+	HcalTriggerPrimitiveSample idCvt(0,false,slb,slbchan);
 	unsigned short chanid=idCvt.raw()&0xF800;
 	triglen[linear]=0;
 

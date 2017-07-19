@@ -719,7 +719,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	  float d_cl[2]; d_cl[0]=d_cl[1]=-9999.;
 	  if(dx_cl[0]!=-9999. && dy_cl[0]!=-9999.) d_cl[0]=sqrt(dx_cl[0]*dx_cl[0]+dy_cl[0]*dy_cl[0]);
 	  if(dx_cl[1]!=-9999. && dy_cl[1]!=-9999.) d_cl[1]=sqrt(dx_cl[1]*dx_cl[1]+dy_cl[1]*dy_cl[1]);
-	  if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=0; isHitValid=1; }	      
+	  if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=false; isHitValid=true; }	      
 	      
 	  if(debug_){
 	    std::cout << "Ready to add hit in histogram:\n";

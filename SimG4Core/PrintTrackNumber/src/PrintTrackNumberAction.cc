@@ -28,7 +28,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 
     if (bNoUserLimits) 
     {
-	bool countTrk = 1;
+	bool countTrk = true;
 	// tracks that have been killed before first step (by MinEkineCut). 
 	// In fact the track makes the first step, MinEkineCut process determines 
 	// that the energy is too low, set it to 0, and then at the next step 

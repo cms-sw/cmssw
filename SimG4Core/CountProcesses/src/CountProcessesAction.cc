@@ -42,7 +42,7 @@ void CountProcessesAction::update(const BeginOfRun * run)
 	    theProcessList[pss(particleName,processName)] = 0;
 	}
     }
-    DumpProcessList(0);
+    DumpProcessList(false);
 }
 
 void CountProcessesAction::update(const BeginOfTrack * trk)
@@ -78,8 +78,8 @@ void CountProcessesAction::update(const G4Step* aStep )
 
 void CountProcessesAction::update(const EndOfRun * run)
 {
-    DumpProcessList(1);
-    DumpCreatorProcessList(1);
+    DumpProcessList(true);
+    DumpCreatorProcessList(true);
     DumpParticleList();
 }
 

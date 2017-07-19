@@ -69,7 +69,7 @@ testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig ):
 
 void testTkHistoMap::create(){
   tkhisto      =new TkHistoMap("detId","detId",-1); 
-  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,true); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   tkhistoZ     =new TkHistoMap("Zmap","Zmap");
   tkhistoPhi   =new TkHistoMap("Phi","Phi");
   tkhistoR     =new TkHistoMap("Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
@@ -88,7 +88,7 @@ void testTkHistoMap::read(){
   tkhistoCheck =new TkHistoMap();
 
   tkhisto     ->loadTkHistoMap("detId","detId"); 	    
-  tkhistoBis  ->loadTkHistoMap("detIdBis","detIdBis",1);  
+  tkhistoBis  ->loadTkHistoMap("detIdBis","detIdBis",true);  
   tkhistoZ    ->loadTkHistoMap("Zmap","Zmap");		    
   tkhistoPhi  ->loadTkHistoMap("Phi","Phi");		    
   tkhistoR    ->loadTkHistoMap("Rmap","Rmap");

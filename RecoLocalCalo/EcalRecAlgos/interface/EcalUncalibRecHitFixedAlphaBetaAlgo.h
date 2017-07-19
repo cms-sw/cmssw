@@ -121,7 +121,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   double maxsample(-1);   // ADC value of maximal ped-subtracted sample
   int imax(-1);           // sample number of maximal ped-subtracted sample
   bool external_pede = false;
-  bool isSaturated = 0;   // flag reporting whether gain0 has been found
+  bool isSaturated = false;   // flag reporting whether gain0 has been found
 
   // Get time samples checking for Gain Switch and pedestals
   if(pedestals){
@@ -138,7 +138,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	if ( GainId == 0 )
 	  { 
 	    GainId = 3;
-	    isSaturated = 1;
+	    isSaturated = true;
 	  }
 
 	if (GainId != gainId0) iGainSwitch = 1;
@@ -163,7 +163,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
       if ( GainId == 0 ) 
 	{
 	  GainId = 3;
-	  isSaturated = 1;
+	  isSaturated = true;
 	}
 
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;

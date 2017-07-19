@@ -1012,7 +1012,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    int ilay = tTopo->pxbLayer(detId);
 	    int ilad = tTopo->pxbLadder(detId);
 	    int imod = tTopo->pxbModule(detId);
-	    bool halfmod = 0;
+	    bool halfmod = false;
 
 	    h100->Fill( ilay ); // 1,2,3
 
@@ -1032,10 +1032,10 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	      h106->Fill( gF*wt, gZ ); // phi-z of hit
 
-	      if(      ilad ==  5 ) halfmod = 1;
-	      else if( ilad ==  6 ) halfmod = 1;
-	      else if( ilad == 15 ) halfmod = 1;
-	      else if( ilad == 16 ) halfmod = 1;
+	      if(      ilad ==  5 ) halfmod = true;
+	      else if( ilad ==  6 ) halfmod = true;
+	      else if( ilad == 15 ) halfmod = true;
+	      else if( ilad == 16 ) halfmod = true;
 
 	      if( !halfmod ){
 		h107->Fill( xloc, yloc ); // hit within one module
@@ -1080,10 +1080,10 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	      h206->Fill( gF*wt, gZ ); // phi-z of hit
 	      
-	      if(      ilad ==  8 ) halfmod = 1;
-	      else if( ilad ==  9 ) halfmod = 1;
-	      else if( ilad == 24 ) halfmod = 1;
-	      else if( ilad == 25 ) halfmod = 1;
+	      if(      ilad ==  8 ) halfmod = true;
+	      else if( ilad ==  9 ) halfmod = true;
+	      else if( ilad == 24 ) halfmod = true;
+	      else if( ilad == 25 ) halfmod = true;
 
 	      if( !halfmod ){
 		h207->Fill( xloc, yloc ); // hit within one module
@@ -1107,10 +1107,10 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	      h306->Fill( gF*wt, gZ ); // phi-z of hit
 	      
-	      if( ilad == 11 ) halfmod = 1;
-	      if( ilad == 12 ) halfmod = 1;
-	      if( ilad == 33 ) halfmod = 1;
-	      if( ilad == 34 ) halfmod = 1;
+	      if( ilad == 11 ) halfmod = true;
+	      if( ilad == 12 ) halfmod = true;
+	      if( ilad == 33 ) halfmod = true;
+	      if( ilad == 34 ) halfmod = true;
 
 	      if( !halfmod ){
 		h307->Fill( xloc, yloc ); // hit within one module

@@ -29,7 +29,7 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
    TEveBoxSet* boxset = new TEveBoxSet();
    boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
    boxset->UseSingleColor();
-   boxset->SetPickable(1);
+   boxset->SetPickable(true);
 
    for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
         it != itEnd; ++it )

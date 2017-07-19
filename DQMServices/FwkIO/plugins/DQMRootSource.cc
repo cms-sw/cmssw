@@ -804,7 +804,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       ex <<"\nInput file " << m_catalog.fileNames()[iIndex] << " was not found, could not be opened, or is corrupted.\n";
       throw ex;
     }
-    return 0;
+    return false;
   }
   if(not newFile->IsZombie()) {  
     logFileAction("  Successfully opened file ", m_catalog.fileNames()[iIndex].c_str());
@@ -815,7 +815,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       ex.addContext("Opening DQM Root file");
       throw ex;
     }
-    return 0;
+    return false;
   }
   //Check file format version, which is encoded in the Title of the TFile
   if(0 != strcmp(newFile->GetTitle(),"1")) {
@@ -833,7 +833,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       ex.addContext("Opening DQM Root file");
       throw ex;    
     }
-    else {return 0;}
+    else {return false;}
   }
   m_file = newFile; //passed all tests so now we want to use this file
   TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
@@ -1022,7 +1022,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   //After a file open, the framework expects to see a new 'IsRun'
   m_justOpenedFileSoNeedToGenerateRunTransition=true;
 
-  return 1;
+  return true;
 }
 
 bool

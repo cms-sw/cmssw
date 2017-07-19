@@ -120,12 +120,12 @@ CheckPhase2Cabling::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    // look at one subset (based on cooling)
    Phase2TrackerCabling coolingLoop = cablingHandle->filterByCoolingLine(0);
    std::cout << "Subset in cooling line 0:" << std::endl;
-   std::cout << coolingLoop.description(1) << std::endl;
+   std::cout << coolingLoop.description(true) << std::endl;
   
    // look at one subset (based on power)
    Phase2TrackerCabling powerGroup = cablingHandle->filterByPowerGroup(1);
    std::cout << "Subset in power group 1:" << std::endl;
-   std::cout << powerGroup.description(1) << std::endl;
+   std::cout << powerGroup.description(true) << std::endl;
   
 }
 

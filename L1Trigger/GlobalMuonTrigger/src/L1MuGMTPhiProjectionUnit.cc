@@ -109,11 +109,11 @@ void L1MuGMTPhiProjectionUnit::run() {
     //  shift by 9 bits  //FIXME: fix when calo delivers the MIP bits correctly!
     for (unsigned int i=0; i<9; i++)
       if ( (phi_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	m_phi_select[i+9] = 1;
+	m_phi_select[i+9] = true;
     
     for (unsigned int i=9; i<18; i++)
       if ( (phi_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	m_phi_select[i-9] = 1;
+	m_phi_select[i-9] = true;
     
     m_MIAU.GMT().DebugBlockForFill()->SetPhiSelBits( m_id, m_phi_select.to_ulong()) ;
   }

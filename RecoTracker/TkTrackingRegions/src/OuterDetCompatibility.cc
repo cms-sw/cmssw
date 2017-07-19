@@ -13,7 +13,7 @@ bool OuterDetCompatibility::operator() (const BoundPlane& plane) const
     if (!checkPhi(plane.phiSpan())) return false;
     if (!checkR(plane.rSpan())) return false;
   }
-  return 1;
+  return true;
 }
 
 

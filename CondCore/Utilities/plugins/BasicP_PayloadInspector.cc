@@ -116,7 +116,7 @@ namespace {
 	    for( size_t j=0;j<100;j++ ) {
               h2D.Fill(i,j,payload->m_vec[i*100+j]);
 	    }
-          h2D.SetStats(0);
+          h2D.SetStats(false);
 	}
       }
          

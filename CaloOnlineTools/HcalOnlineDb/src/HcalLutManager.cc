@@ -1170,7 +1170,7 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
     //std::cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << std::endl;
 
     // select valid random emap channel
-    while(1){
+    while(true){
       int _key = (rand() % map_size);
       //_key = 3356;
       if( (_map[_key].subdet.find("HB")!=string::npos ||

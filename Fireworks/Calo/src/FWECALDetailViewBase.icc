@@ -61,13 +61,13 @@ void FWECALDetailViewBase<T>::build( const FWModelId &id, const T* element )
 
    
    // draw axis at the window corners
-   if (1)
+   if (true)
    {
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane( kFALSE );
    overlay->SetShowPerspective( kFALSE );
    overlay->SetCaloLego( lego );
-   overlay->SetShowScales( 1 ); // temporary
+   overlay->SetShowScales( true ); // temporary
 
    FWDetailViewGL<T>::viewerGL()->AddOverlayElement( overlay );
    }

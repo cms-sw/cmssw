@@ -42,7 +42,7 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -75,7 +75,7 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
   }
 
-  bookingdone = 1; 
+  bookingdone = true; 
   
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
 

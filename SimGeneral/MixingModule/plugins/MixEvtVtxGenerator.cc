@@ -71,7 +71,7 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
    vtxOffset.resize(3);
    if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
 
-   if(useRecVertex) useCF_ = 0;
+   if(useRecVertex) useCF_ = false;
    else{
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
      cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"));

@@ -7,14 +7,14 @@ TT6CommonModeCalculator::TT6CommonModeCalculator(TkNoiseCalculator* noise_calc, 
   theApvMask(mask_calc),
   alreadyUsedEvent(false)
 {
-  if (0) cout << "Constructing TT6CommonMode Calculator ..." << endl;
+  if (false) cout << "Constructing TT6CommonMode Calculator ..." << endl;
   cutToAvoidSignal = sig_cut;
 }
 //
 //  Destructor 
 //
 TT6CommonModeCalculator::~TT6CommonModeCalculator() {
-  if (0) cout << "Destructing TT6CommonModeCalculator " << endl;
+  if (false) cout << "Destructing TT6CommonModeCalculator " << endl;
 }
 //
 // Action :

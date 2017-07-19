@@ -173,7 +173,7 @@ namespace evf{
 	      throw qualifier_; 
 	      break;
 	    case 6:
-	      while(1){ind+=step; if(ind>1000000) step = -1; if(ind==0) step = 1;}
+	      while(true){ind+=step; if(ind>1000000) step = -1; if(ind==0) step = 1;}
 	      break;
 	    case 7:
 	      edm::LogError("TestErrorMessage") << qualifier_;

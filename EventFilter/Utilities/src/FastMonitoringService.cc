@@ -260,14 +260,14 @@ namespace evf{
        microstate_.emplace_back(&reservedMicroStateNames[mInvalid]);
 
        //for synchronization
-       streamCounterUpdating_.push_back(new std::atomic<bool>(0));
+       streamCounterUpdating_.push_back(new std::atomic<bool>(false));
 
        //path (mini) state
        encPath_.emplace_back(0);
        encPath_[i].update(static_cast<const void*>(&nopath_));
        eventCountForPathInit_.push_back(0);
        firstEventId_.push_back(0);
-       collectedPathList_.push_back(new std::atomic<bool>(0));
+       collectedPathList_.push_back(new std::atomic<bool>(false));
 
     }
     //for (unsigned int i=0;i<nThreads_;i++)
@@ -734,7 +734,7 @@ namespace evf{
     }
     else {
       throw cms::Exception("FastMonitoringService") << "output module wants already deleted (or never reported by SOURCE) lumisection status for LUMI -: "<<lumi;
-      return 0;
+      return false;
     }
   }
 

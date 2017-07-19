@@ -176,7 +176,7 @@ void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   double fval = -par[0];
   for (unsigned ij=0; ij<cro_ssg[ietafit][iphifit].size(); ij++) {
     double xval = (double)cro_ssg[ietafit][iphifit][ij];
-    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], true)));
     //    fval +=std::log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
   }
   f = -fval;
@@ -1718,8 +1718,8 @@ HOCalibAnalyzer::endJob() {
   gStyle->SetPadBottomMargin(0.11);
   gStyle->SetPadLeftMargin(0.12);
   gStyle->SetPadRightMargin(0.15);
-  gStyle->SetPadGridX(3);
-  gStyle->SetPadGridY(3);
+  gStyle->SetPadGridX(true);
+  gStyle->SetPadGridY(true);
   gStyle->SetGridStyle(2);
   gStyle->SetNdivisions(303,"XY");
 
@@ -1822,8 +1822,8 @@ HOCalibAnalyzer::endJob() {
     gStyle->SetTitleSize(0.065,"XYZ");
     gStyle->SetLabelSize(0.075,"XYZ");
     gStyle->SetLabelOffset(0.012,"XYZ");
-    gStyle->SetPadGridX(1);
-    gStyle->SetPadGridY(1);
+    gStyle->SetPadGridX(true);
+    gStyle->SetPadGridY(true);
     gStyle->SetGridStyle(3);
     gStyle->SetNdivisions(101,"XY");
     gStyle->SetOptLogy(0);
@@ -2095,8 +2095,8 @@ HOCalibAnalyzer::endJob() {
 		for (int lm=0; lm<nbgpr; lm++) {parall[lm] = gaupr[lm];}
 	      }
 	      
-	      set_mean(parall[1], 0);
-	      set_sigma(parall[2], 0);
+	      set_mean(parall[1], false);
+	      set_sigma(parall[2], false);
 
 	      parall[0] = 0.9*pedht; //GM for Z-mumu, there is almost no pedestal
 	      parall[3] = 0.14;
@@ -2141,8 +2141,8 @@ HOCalibAnalyzer::endJob() {
 		if (sig_reg[ietafit][iphifit][ij] >gaupr[1]-3*gaupr[2] && sig_reg[ietafit][iphifit][ij]<gaupr[1]+gaupr[2]) pedhtx++;
 	      }
 	      
-	      set_mean(gaupr[1], 0);
-	      set_sigma(gaupr[2], 0);
+	      set_mean(gaupr[1], false);
+	      set_sigma(gaupr[2], false);
 
 	      TString name[nsgpr] = {"const", "mean", "sigma","Width","MP","Area","GSigma"};
 	      double strt[nsgpr] = {0.9*pedhtx, gaupr[1], gaupr[2], fitprm[3][jk], fitprm[4][jk], signall[izone]->GetEntries(), fitprm[6][jk]};

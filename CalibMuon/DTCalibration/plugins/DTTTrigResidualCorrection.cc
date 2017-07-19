@@ -123,7 +123,7 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
        RooAddPdf myg("myg","myg",RooArgList(myg1,myg2),RooArgList(frac));
 
        RooDataHist hdata("hdata","Binned data",RooArgList(x),&residualHisto);
-       myg.fitTo(hdata,RooFit::Minos(0),RooFit::Range(-0.2,0.2));
+       myg.fitTo(hdata,RooFit::Minos(false),RooFit::Range(-0.2,0.2));
 
        fitMean = mean.getVal();
        fitSigma = sigma1.getVal();

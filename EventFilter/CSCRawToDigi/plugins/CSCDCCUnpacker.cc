@@ -258,9 +258,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
             {
               // CSCDCCExaminer examiner;
               examiner = new CSCDCCExaminer();
-              if ( examinerMask&0x40000 ) examiner->crcCFEB(1);
-              if ( examinerMask&0x8000  ) examiner->crcTMB (1);
-              if ( examinerMask&0x0400  ) examiner->crcALCT(1);
+              if ( examinerMask&0x40000 ) examiner->crcCFEB(true);
+              if ( examinerMask&0x8000  ) examiner->crcTMB (true);
+              if ( examinerMask&0x0400  ) examiner->crcALCT(true);
               examiner->setMask(examinerMask);
 
               /// If we have DCC or only DDU FED by checking FED ID set examiner to uswe DCC or DDU mode

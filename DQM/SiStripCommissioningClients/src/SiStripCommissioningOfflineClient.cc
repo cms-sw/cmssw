@@ -194,7 +194,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
     << " directories containing MonitorElements";
   
   // Some more debug
-  if (0) {
+  if (false) {
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
        << " Directories found: " << std::endl;

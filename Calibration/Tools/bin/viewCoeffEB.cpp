@@ -35,7 +35,7 @@ int main (int argc, char* argv[])
 
   TH1F coeffDistr ("coeffDistrEB","coeffDistrEB",500,0,2) ;
   TH2F coeffMap ("coeffMapEB","coeffMapEB",171,-85,86,360,1,361) ;
-  coeffMap.SetStats (0) ;
+  coeffMap.SetStats (false) ;
 
   // ECAL barrel
   for (int ieta =- 85 ; ieta <= 85 ; ++ieta)

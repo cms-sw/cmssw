@@ -264,8 +264,8 @@ FreeTrajectoryState HLTmumutktkVtxProducer::initialFreeState( const reco::Track&
 }
 
 bool HLTmumutktkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& trackref2){
-  if (deltaR(trackref1->eta(), trackref1->phi(), trackref2->eta(), trackref2->phi()) < overlapDR_) return 1;
-  return 0;
+  if (deltaR(trackref1->eta(), trackref1->phi(), trackref2->eta(), trackref2->phi()) < overlapDR_) return true;
+  return false;
 }
 
 bool HLTmumutktkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){

@@ -953,7 +953,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
   
 
-  if( 0 ) {
+  if( false ) {
     cout<<"run "<<run<<" event "<<event<<" bx "<<bx<<" lumi "<<lumiBlock<<" orbit "<<orbit<<" num "<<countEvents<<endl;   
     cout<<"Num of pix "<<numberOfPixels<<" num of clus "<<numberOfClusters<<" num of dets "<<numOf
 	<<" max clus per det "

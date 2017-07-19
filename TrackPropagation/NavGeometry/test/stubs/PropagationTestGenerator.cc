@@ -41,7 +41,7 @@ PropagationTestGenerator::PropagationTestGenerator() {
   sigVx = 0.0010;
   sigVy = 0.0010;
   sigVz = 10.;
-  useLogStep = 0;
+  useLogStep = false;
 }
 
 void PropagationTestGenerator::setRangePhi(const float min, const float max) {

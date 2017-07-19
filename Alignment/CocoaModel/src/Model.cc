@@ -348,10 +348,10 @@ void Model::readSystemDescription()
         std::vector< std::vector<ALIstring> >::const_iterator vvscite, vvscite2; 
 	//	ALIint dictsizen = 0;
         for( vvscite = theOptODictionary.begin(); vvscite != theOptODictionary.end(); ++vvscite) {
-          ALIbool ofound = 0;
+          ALIbool ofound = false;
 	  for( vvscite2 = OptODictionary2.begin(); vvscite2 != OptODictionary2.end(); ++vvscite2) {
 	    if( *( (*vvscite).begin() ) == *( (*vvscite2).begin() ) ) {
-              ofound = 1;
+              ofound = true;
 	      break;
 	    }
 	  }
@@ -384,7 +384,7 @@ void Model::readSystemDescription()
 	  exit(9);
 	}
 
-        OpticalObject* OptOsystem = new OpticalObject( 0, "system", wordlist[1], 0 );
+        OpticalObject* OptOsystem = new OpticalObject( 0, "system", wordlist[1], false );
         OptOsystem->construct();
 	    //-              Model::_OptOtree.insert( std::multimap< ALIstring, OpticalObject*, std::less<ALIstring> >::value_type(OptOsystem->type(), OptOsystem) );
 	    //              theOptOlist[OptOsystem->name()] = OptOsystem; 
@@ -445,7 +445,7 @@ void Model::readSystemDescription()
 	//m Measurement::setMeasurementsFileName( wordlist[1] );
 	//m if ( ALIUtils::debug >= 2) std::cout << " setting measurements_from_file " << measType << " == " << Measurement::measurementsFileName() << std::endl;
         if( wordlist.size() == 4) {
-	  Measurement::only1 = 1; 
+	  Measurement::only1 = true; 
 	  Measurement::only1Date = wordlist[2]; 
 	  Measurement::only1Time = wordlist[3]; 
 	  //-      std::cout << " setting Measurement::only1" <<  Measurement::only1 << std::endl;
@@ -709,9 +709,9 @@ ALIbool Model::getComponentOptOTypes( const ALIstring& opto_type, std::vector<AL
   }
   
   if ( ALIstring_found ) {
-    return 1;
+    return true;
   } else {
-    return 0;
+    return false;
   } 
 } 
 
@@ -735,12 +735,12 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
   std::vector<OpticalObject*>::const_iterator vocite;
 
   if ( ALIUtils::debug >= 99) std::cout << "optolist size " << OptOList().size() << std::endl;
-  ALIbool opto_found = 0; 
+  ALIbool opto_found = false; 
   for (vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
     if( (*vocite)->parent() != 0 ) {
       //        std::cout << "looping OptOlist" << (*vocite)->name() << " parent " <<(*vocite)->parent()->name() << std::endl; 
       if( (*vocite)->parent()->name() == opto_name ) {
-        opto_found = 1;
+        opto_found = true;
         vcomponents.push_back( (*vocite) );    
       }
     }
@@ -780,7 +780,7 @@ ALIbool Model::createCopyComponentList( const ALIstring& typ )
   //- if(ALIUtils::debug >= 9) std::cout << "createCopyComponentList " << typ << theOptOsToCopyList.size() << std::endl; 
   
   theOptOsToCopyListIterator = theOptOsToCopyList.begin();
-  return 1;
+  return true;
 }
 
 
@@ -1336,7 +1336,7 @@ ALIdouble Model::getParamFittedSigmaVectorItem( const ALIuint position )
 ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time )
 {
  if(ALIUtils::debug >= 5) std::cout << " readMeasurementsFromFile " << Measurement::measurementsFileName() << std::endl;
-  if( Measurement::measurementsFileName() == "") return 1;
+  if( Measurement::measurementsFileName() == "") return true;
 
   ALIFileIn& filein = ALIFileIn::getInstance( Measurement::measurementsFileName() );
   std::vector<ALIstring> wordlist;
@@ -1346,7 +1346,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
   //if( retfil == 0 ) {
   if( filein.getWordsInLine(wordlist) == 0 ) {
     if(ALIUtils::debug>=4 ) std::cout << "@@@@ No more measurements left" << std::endl;
-    return 0; 
+    return false; 
   }
 
   ////--- Transform to time_t format and save it 
@@ -1448,7 +1448,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
   }
   //-  std::cout << " returning readmeasff" << std::endl;
 
-  return 1;
+  return true;
 }
 
 
@@ -1583,7 +1583,7 @@ void Model::BuildSystemDescriptionFromOA( OpticalAlignments& optAlig )
 
   OpticalAlignInfo oai_system = FindOptAlignInfoByType( "system" );
 
-  OpticalObject* OptOsystem = new OpticalObject( 0, "system", oai_system.name_, 0 );
+  OpticalObject* OptOsystem = new OpticalObject( 0, "system", oai_system.name_, false );
  
   OptOsystem->constructFromOptAligInfo( oai_system );
 
@@ -1598,14 +1598,14 @@ OpticalAlignInfo Model::FindOptAlignInfoByType( const ALIstring& type )
 {
   OpticalAlignInfo oai;
 
-  ALIbool bFound = 0;
+  ALIbool bFound = false;
   std::vector<OpticalAlignInfo>::iterator ite;
   for( ite = theOpticalAlignments.begin(); ite != theOpticalAlignments.end(); ++ite ){
     //    std::cout << " Model::FindOptAlignInfoByType " <<  (*ite).type_ << " =? " << type << std::endl;
     if( (*ite).type_ == type ) {
       if( !bFound ){ 
 	oai = *ite;
-	bFound = 1;
+	bFound = true;
       } else {
 	std::cerr << "!! WARNING: Model::FindOptAlignInfoByType more than one objects of type " << type << std::endl;
 	std::cerr << " returning object " << oai.name_ << std::endl

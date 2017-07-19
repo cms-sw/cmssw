@@ -98,7 +98,7 @@ bool CocoaDBMgr::DumpCocoaResults()
   if( gomgr->GlobalOptions()["writeDBAlign"] > 0) {
 
     // Build DT alignments and errors
-    std::pair< Alignments*,AlignmentErrorsExtended*> dtali = BuildAlignments(1);
+    std::pair< Alignments*,AlignmentErrorsExtended*> dtali = BuildAlignments(true);
     Alignments*      dt_Alignments = dtali.first;
     AlignmentErrorsExtended* dt_AlignmentErrors = dtali.second;
     
@@ -131,7 +131,7 @@ bool CocoaDBMgr::DumpCocoaResults()
     if(ALIUtils::debug >= 2) std::cout << "DTAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl;
     
     // Build CSC alignments and errors
-    std::pair< Alignments*,AlignmentErrorsExtended*> cscali = BuildAlignments(0);
+    std::pair< Alignments*,AlignmentErrorsExtended*> cscali = BuildAlignments(false);
     Alignments*      csc_Alignments = cscali.first;
     AlignmentErrorsExtended* csc_AlignmentErrors = cscali.second;
     

@@ -105,7 +105,7 @@ bool HDRShower::setHit(float espot, float theta) {
 
   // Commented (F.B) to remove a warning. Not used anywhere ? 
   //  bool inHcal = !onEcal || d>depthECAL || !qstatus;
-  bool result = 0;
+  bool result = false;
   if( !onEcal || d>depthECAL || !qstatus) { // in HCAL (HF or HB, HE)
     d += depthGAP;
     bool setHDdepth = theHcalHitMaker->setDepth(d);

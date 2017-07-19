@@ -30,7 +30,7 @@ ITimingDat()
 
   m_timingMean = 0;
   m_timingRMS = 0;
-  m_taskStatus=0;
+  m_taskStatus=false;
 };
 
 

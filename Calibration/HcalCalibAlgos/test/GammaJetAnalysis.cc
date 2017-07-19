@@ -22,7 +22,7 @@
 #include <boost/regex.hpp>
 
 inline void HERE(const char *msg) {
-  if (0 && msg) edm::LogWarning("GammaJetAnalysis") << msg;
+  if (false && msg) edm::LogWarning("GammaJetAnalysis") << msg;
 }
 
 double getNeutralPVCorr(double eta, int intNPV, double area, bool isMC_) {
