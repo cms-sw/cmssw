@@ -345,19 +345,19 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     ///i.e 3rd bit is set.
     ///Even if it is forced, we should mark it is as ZS or FR. To take care of it, just check the LSB and second LSB(SLSB)
     ///////////////////////////////////////////////////////////////////////////////////
-    int lsb = clusFlag>>0&1;
-    int slsb = clusFlag>>1&1;
+    int ZS_bit = clusFlag>>0&1;
+    int FR_bit = clusFlag>>1&1;
     
     
 
-    if (lsb && !slsb) ///it is clusFlag==1, 5
+    if (ZS_bit && !FR_bit) ///it is clusFlag==1, 5
       coridx = 0 + regind;
     else{
       if (pt<2.5) coridx = 1 + regind;
       else if (pt>=2.5 && pt<6.) coridx = 2 + regind;
       else if (pt>=6.) coridx = 3 + regind;
     }
-    if (!lsb && !slsb) {
+    if (!ZS_bit && !FR_bit) {
       edm::LogWarning("PFClusterEMEnergyCorrector") << "We can only correct regions readout in ZS (flag 1,5) or FULL readout (flag 3,7). Flag " << clusFlag << " is not recognized."
 						    << "\n" << "Assuming FULL readout and continuing";
     }
