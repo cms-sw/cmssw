@@ -845,8 +845,7 @@ class PFRecHitQTestHGCalThresholdSNR: public PFRecHitQTestBase
 
         bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override
         {
-            std::cout << "found hit with energy " << rh.energy() << " SNR: " <<  rh.signalOverSigmaNoise() << std::endl;
-            return rh.signalOverSigmaNoise() > thresholdSNR_;
+            return rh.signalOverSigmaNoise() >= thresholdSNR_;
         }
 
     protected:
