@@ -123,7 +123,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "VtxSmeared"
-        HepMCProductLabel = cms.string('generator'),
+        HepMCProductLabel = cms.InputTag('generator'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
         MinPCut = cms.double(0.04), ## the cut is in GeV 
