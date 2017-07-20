@@ -28,5 +28,5 @@ digiTask = cms.EDAnalyzer(
 	qie10InConditions = cms.untracked.bool(False),
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HF_2017.toModify(digiTask, qie10InConditions=cms.untracked.bool(True))
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify(digiTask, qie10InConditions=cms.untracked.bool(True))

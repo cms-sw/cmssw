@@ -15,8 +15,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/bind.hpp"
-
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -284,16 +282,9 @@ namespace edm {
     counter.iSelectedModule = 0;
     counter.iModule = 0;
 
-    for_all(descriptions_, boost::bind(&ConfigurationDescriptions::printForLabel,
-                                       this,
-                                       _1,
-                                       std::ref(os),
-                                       std::cref(moduleLabel),
-                                       brief,
-                                       printOnlyLabels,
-                                       lineWidth,
-                                       indentation,
-                                       std::ref(counter)));
+    for(auto const& d: descriptions_) {
+      printForLabel(d,os, moduleLabel,brief, printOnlyLabels,lineWidth,indentation, counter);
+    }
 
     if (defaultDescDefined_) {
       printForLabel(os,
