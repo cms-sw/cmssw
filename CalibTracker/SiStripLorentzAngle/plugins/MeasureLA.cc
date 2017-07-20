@@ -7,10 +7,6 @@
 #include <TChain.h>
 #include <TFile.h>
 
-namespace {
-  uint32_t getTIBOrTOBLayer( DetId detId ) { return ((detId.rawId()>>14) & 0x7); };
-  bool getTIBorTOBStereo( DetId detId ) { return (detId.rawId() & 0x3) == 1; };
-}
 
 namespace sistrip {
 
