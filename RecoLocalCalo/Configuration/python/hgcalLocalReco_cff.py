@@ -11,7 +11,6 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cfi import hgcalLayerClu
 
 hgcalLocalRecoSequence = cms.Sequence( HGCalUncalibRecHit+
                                        HGCalRecHit+
-                                       HGCalRecHitIdeal+
                                        hgcalLayerClusters+
                                        particleFlowRecHitHGCSeq+
                                        particleFlowClusterHGCal )
