@@ -454,7 +454,7 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           // New position/rotation
           const align::PositionType& pnew = ipos->pos();
           const align::RotationType& rnew = ipos->rot();
-          const std::vector<double> dnew = ipos->deformationParameters();
+          const std::vector<double>& dnew = ipos->deformationParameters();
           // Current position / rotation
           const align::PositionType& pold = ali->globalPosition();
           const align::RotationType& rold = ali->globalRotation();
