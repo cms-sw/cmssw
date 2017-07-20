@@ -48,6 +48,7 @@ if __name__ == '__main__':
     #this can get out of here
     predefinedSet={
         'limited' : [5.1, #FastSim ttbar
+                     7.3, #CosmicsSPLoose_UP17
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
