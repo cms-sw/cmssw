@@ -482,30 +482,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
       // keep only the middle two or middle element
       std::set<int> temp2;
-      if (temp.size()==2){
+      if (temp.size()%2==0){
         // pick middle two
-        temp2.insert(temp[0]);
-        temp2.insert(temp[1]);
-      }
-      else if (temp.size()==4){
-        // pick middle two
-        temp2.insert(temp[1]);
-        temp2.insert(temp[2]);
-      }
-      else if (temp.size()==6){
-        // pick middle two
-        temp2.insert(temp[2]);
-        temp2.insert(temp[3]);
-      }
-      else if (temp.size()==8){
-        // pick middle two
-        temp2.insert(temp[3]);
-        temp2.insert(temp[4]);
-      }
-      else if (temp.size()==10){
-        // pick middle two
-        temp2.insert(temp[4]);
-        temp2.insert(temp[5]);
+        temp2.insert(temp[temp.size()/2]);
+        temp2.insert(temp[temp.size()/2-1]);
       }
       else if (temp.size()%2==1){
         // pick middle
@@ -541,30 +521,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
       // keep only the middle two or middle element
       std::set<int> temp2;
-      if (temp.size()==2){
+      if (temp.size()%2==0){
         // pick middle two
-        temp2.insert(temp[0]);
-        temp2.insert(temp[1]);
-      }
-      else if (temp.size()==4){
-        // pick middle two
-        temp2.insert(temp[1]);
-        temp2.insert(temp[2]);
-      }
-      else if (temp.size()==6){
-        // pick middle two
-        temp2.insert(temp[2]);
-        temp2.insert(temp[3]);
-      }
-      else if (temp.size()==8){
-        // pick middle two
-        temp2.insert(temp[3]);
-        temp2.insert(temp[4]);
-      }
-      else if (temp.size()==10){
-        // pick middle two
-        temp2.insert(temp[4]);
-        temp2.insert(temp[5]);
+        temp2.insert(temp[temp.size()/2]);
+        temp2.insert(temp[temp.size()/2-1]);
       }
       else if (temp.size()%2==1){
         // pick middle
@@ -575,6 +535,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         temp2.insert(-99);
       }
       cscHsToGemPadME1b_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
+      // special cases
       if (isEven){
         cscHsToGemPadME1b_[0] = std::make_pair(1,1);
         cscHsToGemPadME1b_[1] = std::make_pair(1,1);
@@ -1326,10 +1287,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByQuality(enum 
       const auto& LCTs1a = sortLCTsByQuality(bx, ME1A);      
       const auto& LCTs1b = sortLCTsByQuality(bx, ME1B);
 
-      // index of the highest quality LCTs
-      auto it1a = LCTs1a.begin();
-      auto it1b = LCTs1b.begin();
-
       // temporary collection with all LCTs in the whole chamber
       std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
       LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
@@ -1409,10 +1366,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByGEMDPhi(enum 
       // get sorted LCTs per subchamber
       const auto& LCTs1a = sortLCTsByGEMDPhi(bx, ME1A);      
       const auto& LCTs1b = sortLCTsByGEMDPhi(bx, ME1B);
-
-      // index of the highest quality LCTs
-      auto it1a = LCTs1a.begin();
-      auto it1b = LCTs1b.begin();
 
       // temporary collection with all LCTs in the whole chamber
       std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
