@@ -802,10 +802,20 @@ RAWMINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 
-RAWMINIAODEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
-RAWMINIAODSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
+RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
 
 #
 #
