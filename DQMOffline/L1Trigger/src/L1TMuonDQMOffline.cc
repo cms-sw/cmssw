@@ -1,5 +1,5 @@
 /**
- * \file L1TMuonOffline.cc
+ * \file L1TMuonDQMOffline.cc
  *
  * \author J. Pela, C. Battilana
  *
@@ -7,7 +7,7 @@
  *
  */
 
-#include "DQMOffline/L1Trigger/interface/L1TMuonOffline.h"
+#include "DQMOffline/L1Trigger/interface/L1TMuonDQMOffline.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -104,9 +104,9 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 }
 
 //__________DQM_base_class_______________________________________________
-L1TMuonOffline::L1TMuonOffline(const ParameterSet & ps){
+L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps){
     m_verbose = ps.getUntrackedParameter<bool>("verbose");
-    if (m_verbose) cout << "[L1TMuonOffline:] ____________ Storage initialization ____________ " << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
 
     // Initializing config params
     m_HistFolder  = ps.getUntrackedParameter<string>("histFolder");
@@ -129,16 +129,16 @@ L1TMuonOffline::L1TMuonOffline(const ParameterSet & ps){
 }
 
 //_____________________________________________________________________
-L1TMuonOffline::~L1TMuonOffline(){ }
+L1TMuonDQMOffline::~L1TMuonDQMOffline(){ }
 //----------------------------------------------------------------------
-void L1TMuonOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-    if (m_verbose) cout << "[L1TMuonOffline:] Called beginRun." << endl;
+void L1TMuonDQMOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Called beginRun." << endl;
     bool changed = true;
     m_hltConfig.init(run,iSetup,m_trigProcess,changed);
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
     //book histos
     bookControlHistos(ibooker);
     vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
@@ -163,22 +163,22 @@ void L1TMuonOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& 
                 m_trigIndices.push_back(tIndex);
             }
         }
-        if (tIndex < 0 && m_verbose) cout << "[L1TMuonOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;   
+        if (tIndex < 0 && m_verbose) cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;   
     }
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonOffline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
+void L1TMuonDQMOffline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonOffline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
+void L1TMuonDQMOffline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::analyze(const Event & iEvent, const EventSetup & eventSetup){
+void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     Handle<reco::MuonCollection> muons;
     iEvent.getByToken(m_MuonInputTag, muons);
@@ -220,7 +220,7 @@ void L1TMuonOffline::analyze(const Event & iEvent, const EventSetup & eventSetup
 //    vector<l1t::Muon>::const_iterator gmtIt = gmtContainer.begin();
 //    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
 
-    if (m_verbose) cout << "[L1TMuonOffline:] Computing efficiencies" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Computing efficiencies" << endl;
 
     vector<MuonGmtPair>::const_iterator muonGmtPairsIt  = m_MuonGmtPairs.begin();
     vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
@@ -293,12 +293,12 @@ void L1TMuonOffline::analyze(const Event & iEvent, const EventSetup & eventSetup
             }
         }
     }
-    if (m_verbose) cout << "[L1TMuonOffline:] Computation finished" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Computation finished" << endl;
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
-    if(m_verbose) cout << "[L1TMuonOffline:] Booking Control Plot Histos" << endl;
+void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Booking Control Plot Histos" << endl;
 
     ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
@@ -328,8 +328,8 @@ void L1TMuonOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) {
-    if(m_verbose) cout << "[L1TMuonOffline:] Booking Efficiency Plot Histos for pt cut = " << ptCut << endl;
+void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Booking Efficiency Plot Histos for pt cut = " << ptCut << endl;
 
     stringstream ptCutToTag; ptCutToTag << ptCut;
     string ptTag = ptCutToTag.str();
@@ -408,7 +408,7 @@ void L1TMuonOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut)
 }
 
 //_____________________________________________________________________
-const reco::Vertex L1TMuonOffline::getPrimaryVertex( Handle<VertexCollection> & vertex,
+const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex( Handle<VertexCollection> & vertex,
                                  Handle<BeamSpot> & beamSpot ) {
     Vertex::Point posVtx;
     Vertex::Error errVtx;
@@ -440,9 +440,9 @@ const reco::Vertex L1TMuonOffline::getPrimaryVertex( Handle<VertexCollection> & 
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  const Vertex & vertex) {
+void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  const Vertex & vertex) {
 
-    if (m_verbose) cout << "[L1TMuonOffline:] Getting tight muons" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Getting tight muons" << endl;
     m_TightMuons.clear();
     MuonCollection::const_iterator muonIt  = muons->begin();
     MuonCollection::const_iterator muonEnd = muons->end();
@@ -456,10 +456,10 @@ void L1TMuonOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  c
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
+void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                            edm::Handle<trigger::TriggerEvent> & trigEvent) {
 
-    if (m_verbose) cout << "[L1TMuonOffline:] getting probe muons" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
     m_ProbeMuons.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
@@ -494,10 +494,10 @@ void L1TMuonOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 }
 
 //_____________________________________________________________________
-void L1TMuonOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
+void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
 
     m_MuonGmtPairs.clear();
-    if (m_verbose) cout << "[L1TMuonOffline:] Getting muon GMT pairs" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Getting muon GMT pairs" << endl;
 
     vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
@@ -538,7 +538,7 @@ void L1TMuonOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCan
 }
 
 //_____________________________________________________________________
-bool L1TMuonOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
+bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
 
     double matchDeltaR = 9999;
 
@@ -567,4 +567,4 @@ bool L1TMuonOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const r
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TMuonOffline);
+DEFINE_FWK_MODULE(L1TMuonDQMOffline);
