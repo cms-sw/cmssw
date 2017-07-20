@@ -466,7 +466,7 @@ void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterato
     for (handles::const_iterator i = begin; 
 	 i != end; ++i){
       if (uniq) names.push_back((*i)->name);
-      else names.push_back((*i)->name+":"+boost::lexical_cast<string>((*i)->copyno));
+      else names.push_back((*i)->name+":"+std::to_string((*i)->copyno));
     }
      
     sort(names.begin(),names.end());
