@@ -9,8 +9,19 @@ L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::Paramete
       muonColl2Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection2Title")),
       summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle")),
       ignoreBadTrkAddr(ps.getUntrackedParameter<bool>("ignoreBadTrackAddress")),
+      ignoreBin(ps.getUntrackedParameter<std::vector<int>>("ignoreBin")),
       verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
+  // First include all bins
+  for (uint i = 1; i <= RTRACKADDR; i++) {
+    incBin[i] = true;
+  }
+  // Then check the list of bins to ignore
+  for (const auto& i : ignoreBin) {
+    if (i > 0 && i <= RTRACKADDR) {
+      incBin[i] = false;
+    }
+  }
 }
 
 L1TStage2RegionalMuonCandComp::~L1TStage2RegionalMuonCandComp() {}
@@ -24,6 +35,7 @@ void L1TStage2RegionalMuonCandComp::fillDescriptions(edm::ConfigurationDescripti
   desc.addUntracked<std::string>("regionalMuonCollection2Title", "Regional muon collection 2")->setComment("Histogram title for second collection.");
   desc.addUntracked<std::string>("summaryTitle", "Summary")->setComment("Title of summary histogram.");
   desc.addUntracked<bool>("ignoreBadTrackAddress", false)->setComment("Ignore muon track address mismatches.");
+  desc.addUntracked<std::vector<int>>("ignoreBin", std::vector<int>())->setComment("List of bins to ignore");
   desc.addUntracked<bool>("verbose", false);
   descriptions.add("l1tStage2RegionalMuonCandComp", desc);
 }
@@ -76,6 +88,13 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
   errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
   errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
+
+  // Change the label for those bins that will be ignored
+  for (uint i = 1; i <= RTRACKADDR; i++) {
+    if (incBin[i]==false) {
+      errorSummaryNum->setBinLabel(i, "Ignored", 1);
+    }
+  }
 
   errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 14, 1, 15); // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
@@ -178,7 +197,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
-    errorSummaryNum->Fill(RBXRANGE);
+    errorSummaryNum->Fill(RBXRANGE, incBin[RBXRANGE]);
     int bx;
     for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
         muColl1BxRange->Fill(bx);
@@ -201,7 +220,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
     // check number of muons
     if (muonBxColl1->size(iBx) != muonBxColl2->size(iBx)) {
       summary->Fill(NMUONBAD);
-      errorSummaryNum->Fill(RNMUON);
+      errorSummaryNum->Fill(RNMUON, incBin[RNMUON]);
       muColl1nMu->Fill(muonBxColl1->size(iBx));
       muColl2nMu->Fill(muonBxColl2->size(iBx));
 
@@ -265,51 +284,61 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         errorSummaryDen->Fill(i);
       }
 
-      bool muonMismatch = false;
+      bool muonMismatch = false;    // All muon mismatches
+      bool muonSelMismatch = false; // Muon mismatches excluding ignored bins
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RPT];
         summary->Fill(PTBAD);
-        errorSummaryNum->Fill(RPT);
+        errorSummaryNum->Fill(RPT, incBin[RPT]);
       }
       if (muonIt1->hwEta() != muonIt2->hwEta()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RETA];
         summary->Fill(ETABAD);
-        errorSummaryNum->Fill(RETA);
+        errorSummaryNum->Fill(RETA, incBin[RETA]);
       }
       if (muonIt1->hwPhi() != muonIt2->hwPhi()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RLOCALPHI];
         summary->Fill(LOCALPHIBAD);
-        errorSummaryNum->Fill(RLOCALPHI);
+        errorSummaryNum->Fill(RLOCALPHI, incBin[RLOCALPHI]);
       }
       if (muonIt1->hwSign() != muonIt2->hwSign()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RSIGN];
         summary->Fill(SIGNBAD);
-        errorSummaryNum->Fill(RSIGN);
+        errorSummaryNum->Fill(RSIGN, incBin[RSIGN]);
       }
       if (muonIt1->hwSignValid() != muonIt2->hwSignValid()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RSIGNVAL];
         summary->Fill(SIGNVALBAD);
-        errorSummaryNum->Fill(RSIGNVAL);
+        errorSummaryNum->Fill(RSIGNVAL, incBin[RSIGNVAL]);
       }
       if (muonIt1->hwQual() != muonIt2->hwQual()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RQUAL];
         summary->Fill(QUALBAD);
-        errorSummaryNum->Fill(RQUAL);
+        errorSummaryNum->Fill(RQUAL, incBin[RQUAL]);
       }
       if (muonIt1->link() != muonIt2->link()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RLINK];
         summary->Fill(LINKBAD);
-        errorSummaryNum->Fill(RLINK);
+        errorSummaryNum->Fill(RLINK, incBin[RLINK]);
       }
       if (muonIt1->processor() != muonIt2->processor()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RPROC];
         summary->Fill(PROCBAD);
-        errorSummaryNum->Fill(RPROC);
+        errorSummaryNum->Fill(RPROC, incBin[RPROC]);
       }
       if (muonIt1->trackFinderType() != muonIt2->trackFinderType()) {
         muonMismatch = true;
+        muonSelMismatch = muonSelMismatch || incBin[RTF];
         summary->Fill(TFBAD);
-        errorSummaryNum->Fill(RTF);
+        errorSummaryNum->Fill(RTF, incBin[RTF]);
       }
       // check track address
       const std::map<int, int> muon1TrackAddr = muonIt1->trackAddress();
@@ -331,13 +360,18 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       if (badTrackAddr) {
         if (!ignoreBadTrkAddr) {
           muonMismatch = true;
+          muonSelMismatch = muonSelMismatch || incBin[RTRACKADDR];
         }
         summary->Fill(TRACKADDRBAD);
-        errorSummaryNum->Fill(RTRACKADDR);
+        errorSummaryNum->Fill(RTRACKADDR, incBin[RTRACKADDR]);
+      }
+
+      if (muonSelMismatch) {
+        errorSummaryNum->Fill(RMUON, incBin[RMUON]);
       }
 
       if (muonMismatch) {
-        errorSummaryNum->Fill(RMUON);
+        errorSummaryNum->Fill(RMUON, incBin[RMUON]);
 
         muColl1hwPt->Fill(muonIt1->hwPt());
         muColl1hwEta->Fill(muonIt1->hwEta());
