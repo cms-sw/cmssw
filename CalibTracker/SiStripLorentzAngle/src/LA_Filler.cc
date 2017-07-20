@@ -4,9 +4,6 @@
 #include <cmath>
 #include <boost/lexical_cast.hpp>
 
-namespace {
-  uint32_t getTIBOrTOBLayer( DetId detId ) { return ((detId.rawId()>>14) & 0x7); };
-}
 
 void LA_Filler_Fitter::
 fill(TTree* tree, Book& book) const {
@@ -93,7 +90,10 @@ subdetLabel(const SiStripDetId detid) { return detid.subDetector()==SiStripDetId
 std::string LA_Filler_Fitter::
 moduleLabel(const SiStripDetId detid) { return subdetLabel(detid) + "_module"+std::to_string(detid());}
 std::string LA_Filler_Fitter::
-layerLabel(const SiStripDetId detid) {
-  unsigned layer = getTIBOrTOBLayer(detid);
-  return subdetLabel(detid)+"_layer"+std::to_string(layer)+(detid.stereo()?"s":"a");
+layerLabel(const SiStripDetId detid) const {
+  const bool isTIB = detid.subdetId() == StripSubdetector::TIB;
+  unsigned layer = isTIB ? tTopo_->tibLayer(detid) : tTopo_->tobLayer(detid);
+  bool stereo = isTIB ? tTopo_->tibStereo(detid) : tTopo_->tobStereo(detid);
+  
+  return subdetLabel(detid)+"_layer"+std::to_string(layer)+(stereo?"s":"a");
 }
