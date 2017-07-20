@@ -169,6 +169,8 @@ bool ECALpedestalPCLHarvester::isGood(const DetId& id){
     
     EcalChannelStatusMap::const_iterator dbstatusPtr;
     dbstatusPtr = channelStatus_->getMap().find(id.rawId());
+    if (dbstatusPtr == channelStatus_->getMap().end())
+        edm::LogError("Invalid DetId supplied");
     EcalChannelStatusCode::Code  dbstatus = dbstatusPtr->getStatusCode();
     if (dbstatus ==0 ) return true;
     return false;
