@@ -26,7 +26,7 @@ from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgo
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 
 # SEEDING LAYERS
-from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSeedLayers, initialStepHitDoublets, initialStepHitQuadruplets
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSeedLayers, initialStepHitDoublets, _initialStepCAHitQuadruplets
 
 # TrackingRegion
 pixelTracksTrackingRegions = _globalTrackingRegion.clone()
@@ -45,7 +45,7 @@ pixelTracksHitDoublets = initialStepHitDoublets.clone(
     trackingRegions = "pixelTracksTrackingRegions"
 )
 
-pixelTracksHitQuadruplets = initialStepHitQuadruplets.clone(
+pixelTracksHitQuadruplets = _initialStepCAHitQuadruplets.clone(
     doublets = "pixelTracksHitDoublets",
     SeedComparitorPSet = dict(clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting')
 )
