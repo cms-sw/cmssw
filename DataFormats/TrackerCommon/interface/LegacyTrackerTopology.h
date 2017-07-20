@@ -4,6 +4,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include <memory>
 
 // WARNING: this header has been introduced to call a TrackerTopology
 // object whenever it is not possible to access it through an EventSetup.
