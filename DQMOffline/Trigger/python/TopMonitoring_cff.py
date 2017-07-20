@@ -34,7 +34,16 @@ topEleJet_ele.histoPSet.elePtBinning2D = cms.vdouble(0,25,30,40,50,60,80,100,200
 topEleJet_ele.histoPSet.jetPtBinning = cms.vdouble(0,50,60,80,120,200,400)
 topEleJet_ele.histoPSet.jetPtBinning2D = cms.vdouble(0,50,60,80,100,200,400)
 topEleJet_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned_v*')
-topEleJet_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
+topEleJet_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*',
+                                                                'HLT_PFJet80_v*',
+                                                                'HLT_PFJet140_v*',
+                                                                'HLT_PFJet200_v*',
+                                                                'HLT_PFJet260_v*',
+                                                                'HLT_PFJet320_v*',
+                                                                'HLT_PFJet400_v*',
+                                                                'HLT_PFJet450_v*',
+                                                                'HLT_PFJet500_v*',
+                                                                'HLT_PFJet550_v*',)
 
 topEleJet_all = hltTOPmonitoring.clone()
 topEleJet_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/GlobalMonitor')
@@ -91,8 +100,14 @@ topEleHT_ele.histoPSet.jetPtBinning2D = cms.vdouble(0,30,40,60,80,100,200,400)
 topEleHT_ele.histoPSet.HTBinning  = cms.vdouble(0,200,250,300,350,400,500,700)
 topEleHT_ele.histoPSet.HTBinning2D  = cms.vdouble(0,200,250,300,400,500,700)
 topEleHT_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v*')
-topEleHT_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_HT200_v*',
-                                                               'HLT_HT275_v*',)
+topEleHT_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT250_v*',
+                                                               'HLT_PFHT370_v*',
+                                                               'HLT_PFHT430_v*',
+                                                               'HLT_PFHT510_v*',
+                                                               'HLT_PFHT590_v*',
+                                                               'HLT_PFHT680_v*',
+                                                               'HLT_PFHT780_v*',
+                                                               'HLT_PFHT890_v*',)
 
 topEleHT_all = hltTOPmonitoring.clone()
 topEleHT_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/GlobalMonitor')
