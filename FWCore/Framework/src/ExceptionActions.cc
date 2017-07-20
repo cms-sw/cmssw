@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "boost/lambda/lambda.hpp"
 
 #include <vector>
 #include <iostream>
@@ -37,8 +36,6 @@ namespace edm {
     inline void install(exception_actions::ActionCodes code,
 			ExceptionToActionTable::ActionMap& out,
 			ParameterSet const& pset) {
-      using boost::lambda::_1;
-      using boost::lambda::var;
       typedef std::vector<std::string> vstring;
 
       // we cannot have parameters in the main process section so look
@@ -54,8 +51,9 @@ namespace edm {
       ParameterSet defopts;
       ParameterSet const& opts = pset.getUntrackedParameterSet("options", defopts);
       //cerr << "looking for " << actionName(code) << std::endl;
-      vstring v = opts.getUntrackedParameter(actionName(code),vstring());
-      for_all(v, var(out)[_1] = code);      
+      for(auto const& v: opts.getUntrackedParameter(actionName(code),vstring())) {
+        out[v] = code;
+      }
 
     }  
   }
@@ -70,7 +68,6 @@ namespace edm {
   }
 
   void ExceptionToActionTable::addDefaults() {
-    using namespace boost::lambda;
     // populate defaults that are not 'Rethrow'
     // (There are none as of CMSSW_3_4_X.)
     // 'Rethrow' is the default default.
