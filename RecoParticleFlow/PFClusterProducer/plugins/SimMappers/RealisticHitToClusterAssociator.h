@@ -99,6 +99,8 @@ class RealisticHitToClusterAssociator
             for(unsigned int hitId = 0; hitId < numberOfHits; ++hitId)
             {
                 partialEnergies.clear();
+                std::vector<unsigned int> removeAssociation;
+
                 unsigned int numberOfClusters = mcAssociatedSimCluster_[hitId].size();
                 distanceFromMaxHit_[hitId].resize(numberOfClusters);
 
@@ -148,20 +150,38 @@ class RealisticHitToClusterAssociator
                             unsigned int simClusterIndex = mcAssociatedSimCluster_[hitId][clId];
                             hitToRealisticSimCluster_[hitId][clId] = simClusterIndex;
                             float assignedFraction = partialEnergies[clId]*invSumE;
-                            hitToRealisticEnergyFraction_[hitId][clId] = assignedFraction;
-                            float assignedEnergy = assignedFraction *totalEnergy_[hitId];
-                            realisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
-                            realisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
-                            // if the hits energy belongs for more than exclusiveFraction to a cluster, also the cluster's
-                            // exclusive energy is increased. The exclusive energy will be needed to evaluate if
-                            // a realistic cluster will be invisible, i.e. absorbed by other clusters
+                            if(assignedFraction > 1e-3)
+                            {
+                                hitToRealisticEnergyFraction_[hitId][clId] = assignedFraction;
+                                float assignedEnergy = assignedFraction *totalEnergy_[hitId];
+                                realisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
+                                realisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
+                                // if the hits energy belongs for more than exclusiveFraction to a cluster, also the cluster's
+                                // exclusive energy is increased. The exclusive energy will be needed to evaluate if
+                                // a realistic cluster will be invisible, i.e. absorbed by other clusters
 
-                            if( (useMCFractionsForExclEnergy and mcEnergyFraction_[hitId][clId] > exclusiveFraction) or
-                                    (!useMCFractionsForExclEnergy and assignedFraction > exclusiveFraction) ) {
-                              realisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+                                if( (useMCFractionsForExclEnergy and mcEnergyFraction_[hitId][clId] > exclusiveFraction) or
+                                        (!useMCFractionsForExclEnergy and assignedFraction > exclusiveFraction) )
+                                {
+                                    realisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+                                }
+                            }
+                            else
+                            {
+                                removeAssociation.push_back(simClusterIndex);
                             }
                         }
                     }
+                }
+
+                while(!removeAssociation.empty())
+                {
+                    auto clusterToRemove = removeAssociation.back();
+                    removeAssociation.pop_back();
+                    auto it = std::find(hitToRealisticSimCluster_[hitId].begin(), hitToRealisticSimCluster_[hitId].end(), clusterToRemove);
+                    auto pos = it - hitToRealisticSimCluster_[hitId].begin();
+                    hitToRealisticSimCluster_[hitId].erase(it);
+                    hitToRealisticEnergyFraction_[hitId].erase(hitToRealisticEnergyFraction_[hitId].begin()+pos);
                 }
             }
         }
@@ -179,21 +199,26 @@ class RealisticHitToClusterAssociator
                     auto& hAndF = realisticSimClusters_[clId].hitsIdsAndFractions();
                     std::unordered_map < unsigned int, float> energyInNeighbors;
                     float totalSharedEnergy=0.f;
+
                     for(auto& elt : hAndF)
                     {
                         unsigned int hitId = elt.first;
                         float fraction = elt.second;
-                        if(fraction<1.f)
+                        if(hitToRealisticSimCluster_[hitId].size() >1)
                         {
-                            float correction = 1.f/(1.f-fraction);
+                            float correction = 1.f - fraction;
                             unsigned int numberOfClusters = hitToRealisticSimCluster_[hitId].size();
-
+                            int clusterToRemove = -1;
                             for(unsigned int i = 0; i< numberOfClusters; ++i)
                             {
-                                if(hitToRealisticSimCluster_[hitId][i] != clId && realisticSimClusters_[hitToRealisticSimCluster_[hitId][i]].isVisible())
+                                if(hitToRealisticSimCluster_[hitId][i] == clId)
+                                {
+                                    clusterToRemove = i;
+                                }else
+                                if(realisticSimClusters_[hitToRealisticSimCluster_[hitId][i]].isVisible())
                                 {
                                     float oldFraction = hitToRealisticEnergyFraction_[hitId][i];
-                                    float newFraction = oldFraction*correction;
+                                    float newFraction = oldFraction/correction;
                                     float oldEnergy = oldFraction*totalEnergy_[hitId];
 
                                     float newEnergy= newFraction*totalEnergy_[hitId];
@@ -215,6 +240,8 @@ class RealisticHitToClusterAssociator
 
                                 }
                             }
+                            hitToRealisticEnergyFraction_[hitId][clusterToRemove] = 0.f;
+                            realisticSimClusters_[hitToRealisticSimCluster_[hitId][clusterToRemove]].modifyFractionForHitId(0.f, hitId);
                         }
                     }
 
@@ -231,6 +258,9 @@ class RealisticHitToClusterAssociator
                                 float assignedEnergy = totalEnergy_[hitId]*sharedFraction;
                                 realisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
                                 realisticSimClusters_[pair.first].addHitAndFraction(hitId, sharedFraction);
+                                hitToRealisticSimCluster_[hitId].push_back(pair.first);
+                                hitToRealisticEnergyFraction_[hitId].push_back(sharedFraction);
+                                hitToRealisticEnergyFraction_[hitId][0] = 0.f;
                                 if(sharedFraction > exclusiveFraction)
                                     realisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
                             }
