@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <utility>
 #include <vector>
 #include <string>
 #include <map>
@@ -387,7 +388,7 @@ class DQMRootSource : public edm::InputSource
       std::list<unsigned int>::iterator m_nextIndexItr;
       std::list<unsigned int>::iterator m_presentIndexItr;
       std::vector<RunLumiToRange> m_runlumiToRange;
-      std::auto_ptr<TFile> m_file;
+      std::unique_ptr<TFile> m_file;
       std::vector<TTree*> m_trees;
       std::vector<boost::shared_ptr<TreeReaderBase> > m_treeReaders;
       
@@ -794,9 +795,9 @@ DQMRootSource::setupFile(unsigned int iIndex)
   logFileAction("  Initiating request to open file ", m_catalog.fileNames()[iIndex].c_str());
   m_presentlyOpenFileIndex = iIndex;
   m_file.reset();
-  std::auto_ptr<TFile> newFile;
+  std::unique_ptr<TFile> newFile;
   try {
-    newFile = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+    newFile = std::unique_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
   } catch(cms::Exception const& e) {
     if(!m_skipBadFiles) {
       edm::Exception ex(edm::errors::FileOpenError,"",e);
@@ -835,7 +836,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     }
     else {return 0;}
   }
-  m_file = newFile; //passed all tests so now we want to use this file
+  m_file = std::move(newFile); //passed all tests so now we want to use this file
   TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
   assert(0!=parameterSetTree);
 

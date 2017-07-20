@@ -39,7 +39,7 @@ class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin
   typedef boost::ptr_vector<PFRecoTauChargedHadron> ChargedHadronVector;
   // Storing the result in an auto ptr on function return allows
   // allows us to safely release the ptr_vector in the virtual function
-  typedef std::auto_ptr<ChargedHadronVector> return_type;
+  typedef std::unique_ptr<ChargedHadronVector> return_type;
   explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
     : RecoTauEventHolderPlugin(pset) 
   {}

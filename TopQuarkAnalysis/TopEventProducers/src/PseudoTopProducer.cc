@@ -506,7 +506,7 @@ bool PseudoTopProducer::isBHadron(const unsigned int absPdgId) const
 }
 
 reco::GenParticleRef PseudoTopProducer::buildGenParticle(const reco::Candidate* p, reco::GenParticleRefProd& refHandle,
-                                                         std::auto_ptr<reco::GenParticleCollection>& outColl) const
+                                                         std::unique_ptr<reco::GenParticleCollection>& outColl) const
 {
   reco::GenParticle pOut(*dynamic_cast<const reco::GenParticle*>(p));
   pOut.clearMothers();

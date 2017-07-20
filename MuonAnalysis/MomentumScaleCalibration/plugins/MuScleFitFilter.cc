@@ -122,7 +122,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
 
   // Get the RecTrack and the RecMuon collection from the event
   // ----------------------------------------------------------
-  std::auto_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
+  std::unique_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
 
   if (debug) std::cout << "Looking for muons of the right kind" << std::endl;
 

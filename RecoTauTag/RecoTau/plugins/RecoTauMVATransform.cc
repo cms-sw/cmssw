@@ -11,6 +11,7 @@
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <memory>
+#include <utility>
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
@@ -26,18 +27,18 @@
 namespace {
 
 // Build the transformation function from the PSet format
-std::auto_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
+std::unique_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
   double min = pset.getParameter<double>("min");
   double max = pset.getParameter<double>("max");
   const std::vector<double> &values =
       pset.getParameter<std::vector<double> >("transform");
   double stepSize = (max - min)/(values.size()-1);
-  std::auto_ptr<TGraph> output(new TGraph(values.size()));
+  std::unique_ptr<TGraph> output(new TGraph(values.size()));
   for (size_t step = 0; step < values.size(); ++step) {
     double x = min + step*stepSize;
     output->SetPoint(step, x, values[step]);
   }
-  return output;
+  return std::move(output);
 }
 
 }

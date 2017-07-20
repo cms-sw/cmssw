@@ -170,7 +170,7 @@ class SiStripDetVOffBuilder
   void setPayloadStats(const uint32_t afterV, const uint32_t numAdded, const uint32_t numRemoved);
   std::pair<int, int> extractDetIdVector(const unsigned int i, SiStripDetVOff * modV, DetIdListTimeAndStatus & detIdStruct);
 
-  std::auto_ptr<SiStripCoralIface> coralInterface;
+  std::unique_ptr<SiStripCoralIface> coralInterface;
 
 };
 #endif

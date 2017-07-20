@@ -198,7 +198,7 @@ private:
   void finishEndFile();
   std::string m_fileName;
   std::string m_logicalFileName;
-  std::auto_ptr<TFile> m_file;
+  std::unique_ptr<TFile> m_file;
   std::vector<boost::shared_ptr<TreeHelperBase> > m_treeHelpers;
 
   unsigned int m_run;
@@ -325,7 +325,7 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
 {
   //NOTE: I need to also set the I/O performance settings
 
-  m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"RECREATE",
+  m_file = std::unique_ptr<TFile>(new TFile(m_fileName.c_str(),"RECREATE",
                                 "1" //This is the file format version number
                                 ));
 

@@ -68,7 +68,7 @@ class NjettinessAdder : public edm::stream::EDProducer<> {
 
 
 
-    std::auto_ptr<fastjet::contrib::Njettiness>   routine_; 
+    std::unique_ptr<fastjet::contrib::Njettiness>   routine_; 
 
 };
 

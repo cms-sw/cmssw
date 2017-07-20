@@ -20,6 +20,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include <boost/foreach.hpp>
+#include <utility>
 
 namespace reco { namespace tau {
 
@@ -44,11 +45,11 @@ RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
   output.reserve(pfGammaCands.size());
 
   BOOST_FOREACH(const PFCandidatePtr& gamma, pfGammaCands) {
-    std::auto_ptr<RecoTauPiZero> piZero(new RecoTauPiZero(
+    std::unique_ptr<RecoTauPiZero> piZero(new RecoTauPiZero(
             0, (*gamma).p4(), (*gamma).vertex(), 22, 1000, true,
             RecoTauPiZero::kTrivial));
     piZero->addDaughter(gamma);
-    output.push_back(piZero);
+    output.push_back(std::move(piZero));
   }
   return output.release();
 }

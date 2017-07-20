@@ -135,7 +135,7 @@ void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::Event
     gotHepMCProduct = iEvent.getByToken(crossingFrame_Hep_Token_, crossingFrame);
 
     if (gotHepMCProduct){
-      std::auto_ptr<MixCollection<HepMCProduct> >
+      std::unique_ptr<MixCollection<HepMCProduct> >
           hepMCProduct (new MixCollection<HepMCProduct>(crossingFrame.product ()));
       MixCollection<HepMCProduct>::MixItr hitItr;
 
@@ -149,7 +149,7 @@ void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::Event
     gotSimTrack = iEvent.getByToken(crossingFrame_SimTr_Token_,crossingFrame);
 
     if (gotSimTrack){
-      std::auto_ptr<MixCollection<SimTrack> >
+      std::unique_ptr<MixCollection<SimTrack> >
           simTracks (new MixCollection<SimTrack>(crossingFrame.product ()));
       MixCollection<SimTrack>::MixItr hitItr;
 
@@ -164,7 +164,7 @@ void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::Event
     gotSimVertex = iEvent.getByToken(crossingFrame_SimVtx_Token_, crossingFrame);
 
     if (gotSimVertex){
-      std::auto_ptr<MixCollection<SimVertex> >
+      std::unique_ptr<MixCollection<SimVertex> >
           simVerteces (new MixCollection<SimVertex>(crossingFrame.product ()));
       MixCollection<SimVertex>::MixItr hitItr;
 
@@ -181,7 +181,7 @@ void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::Event
       gotPSimHit = iEvent.getByToken(crossingFrame_PSimHit_Tokens_[i], crossingFrame);
 
       if (gotPSimHit){
-        std::auto_ptr<MixCollection<PSimHit> >
+        std::unique_ptr<MixCollection<PSimHit> >
             simHits (new MixCollection<PSimHit>(crossingFrame.product ()));
 
         MixCollection<PSimHit>::MixItr hitItr;
@@ -203,7 +203,7 @@ void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::Event
       gotPCaloHit = iEvent.getByToken(crossingFrame_PCaloHit_Tokens_[i], crossingFrame);
 
       if (gotPCaloHit){
-        std::auto_ptr<MixCollection<PCaloHit> >
+        std::unique_ptr<MixCollection<PCaloHit> >
             caloHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
 
         MixCollection<PCaloHit>::MixItr hitItr;

@@ -66,8 +66,8 @@ void NoiseTask::book()
   LogTrace( mlDqmSource_) << "[NoiseTask::" << __func__ << "]";
 
   // CACHING
-  static std::auto_ptr<SiStripPedestals> pDBPedestals;
-  static std::auto_ptr<SiStripNoises>    pDBNoises;
+  static std::unique_ptr<SiStripPedestals> pDBPedestals;
+  static std::unique_ptr<SiStripNoises>    pDBNoises;
   
   const uint16_t nBINS = 256;
   

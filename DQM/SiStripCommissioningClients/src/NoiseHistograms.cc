@@ -21,7 +21,7 @@ NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::NOISE )
 {
-  factory_ = auto_ptr<NoiseSummaryFactory>( new NoiseSummaryFactory );
+  factory_ = unique_ptr<NoiseSummaryFactory>( new NoiseSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[NoiseHistograms::" << __func__ << "]"
     << " Constructing object...";

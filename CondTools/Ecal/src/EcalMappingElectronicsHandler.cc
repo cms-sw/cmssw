@@ -29,7 +29,7 @@ void EcalMappingElectronicsHandler::getNewObjects()
 
   std::cout << "------- Ecal - > getNewObjects\n";
   EcalMappingElectronics *payload = new EcalMappingElectronics ;
-  std::auto_ptr<EcalMappingElectronics> mapping = std::auto_ptr<EcalMappingElectronics>( new EcalMappingElectronics() );
+  std::unique_ptr<EcalMappingElectronics> mapping = std::unique_ptr<EcalMappingElectronics>( new EcalMappingElectronics() );
   //Filling map reading from file 
   edm::LogInfo("EcalMappingElectronicsHandler") << "Reading mapping from file " << edm::FileInPath(txtFileSource_).fullPath().c_str() ;
   

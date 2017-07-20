@@ -2688,7 +2688,7 @@ DQMStore::save(const std::string &filename,
   f.cd();
 
   // Construct a regular expression from the pattern string.
-  std::auto_ptr<lat::Regexp> rxpat;
+  std::unique_ptr<lat::Regexp> rxpat;
   if (! pattern.empty())
     rxpat.reset(new lat::Regexp(pattern.c_str()));
 
@@ -2942,7 +2942,7 @@ DQMStore::readDirectory(TFile *file,
   std::list<TObject *> delayed;
   while ((key = (TKey *) next()))
   {
-    std::auto_ptr<TObject> obj(key->ReadObj());
+    std::unique_ptr<TObject> obj(key->ReadObj());
     if (dynamic_cast<TDirectory *>(obj.get()))
     {
       std::string subdir;
@@ -3057,7 +3057,7 @@ DQMStore::readFile(const std::string &filename,
   if (verbose_)
     std::cout << "DQMStore::readFile: reading from file '" << filename << "'\n";
 
-  std::auto_ptr<TFile> f;
+  std::unique_ptr<TFile> f;
 
   try
   {

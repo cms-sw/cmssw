@@ -39,6 +39,7 @@
 #include <TMath.h>
 
 #include <memory>
+#include <utility>
 #include <math.h>
 
 namespace reco { namespace tau {
@@ -182,7 +183,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     reco::Vertex::Point vtx(0.,0.,0.);
     if ( vertexAssociator_.associatedVertex(jet).isNonnull() ) vtx = vertexAssociator_.associatedVertex(jet)->position();
 
-    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
+    std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
     chargedHadron->track_ = edm::Ptr<reco::Track>(tracks, iTrack);
 
     // CV: Take code for propagating track to ECAL entrance 
@@ -251,7 +252,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
       edm::LogPrint("TauChHFromTrack") << *chargedHadron;
     }
 
-    output.push_back(chargedHadron);
+    output.push_back(std::move(chargedHadron));
   }
 
   return output.release();

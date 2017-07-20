@@ -31,6 +31,7 @@
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
 #include <memory>
+#include <utility>
 
 namespace reco 
 { 
@@ -186,7 +187,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm algo = PFRecoTauChargedHadron::kUndefined;
     if ( std::abs((*cand)->charge()) > 0.5 ) algo = PFRecoTauChargedHadron::kChargedPFCandidate;
     else algo = PFRecoTauChargedHadron::kPFNeutralHadron;
-    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
+    std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
     if ( (*cand)->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->trackRef());
     else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->innerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->innerTrack());
     else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->globalTrack());
@@ -246,7 +247,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     }
     // Update the vertex
     if ( chargedHadron->daughterPtr(0).isNonnull() ) chargedHadron->setVertex(chargedHadron->daughterPtr(0)->vertex());
-    output.push_back(chargedHadron);
+    output.push_back(std::move(chargedHadron));
   }
 
   return output.release();

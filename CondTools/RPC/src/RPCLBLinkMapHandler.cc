@@ -108,7 +108,7 @@ void RPCLBLinkMapHandler::getNewObjects()
     edm::LogInfo("RPCDCCLinkMapHandler") << "Started Input Transaction";
     input_session->transaction().start(true); // readOnly
 
-    std::auto_ptr<coral::IQuery> query(input_session->schema("CMS_RPC_CONF").newQuery());
+    std::unique_ptr<coral::IQuery> query(input_session->schema("CMS_RPC_CONF").newQuery());
     query->addToTableList("BOARD");
     query->addToTableList("CHAMBERSTRIP");
     query->addToTableList("CHAMBERLOCATION");

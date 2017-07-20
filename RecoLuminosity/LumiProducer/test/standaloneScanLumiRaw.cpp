@@ -92,7 +92,7 @@ int main(int argc, char** argv){
   TTree *diptree=(TTree*)myfile->Get("DIPCombined");
   
   if(diptree){
-    std::auto_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
+    std::unique_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
     diptree->SetBranchAddress("DIPCombined.",&dipdata);
     size_t ndipentries=diptree->GetEntries();
     unsigned int dipls=0;

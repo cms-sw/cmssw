@@ -30,7 +30,7 @@ class DaqScopeModeHistograms : public CommissioningHistograms {
   
   std::map<uint32_t,DaqScopeModeAnalysis> data_;
   
-  std::auto_ptr<Factory> factory_;
+  std::unique_ptr<Factory> factory_;
   
 };
 

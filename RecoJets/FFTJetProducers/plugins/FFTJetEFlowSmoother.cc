@@ -67,22 +67,22 @@ private:
     void buildKernelConvolver(const edm::ParameterSet&);
 
     // Storage for convolved energy flow
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > convolvedFlow;
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > convolvedFlow;
 
     // Filtering scales
-    std::auto_ptr<std::vector<double> > iniScales;
+    std::unique_ptr<std::vector<double> > iniScales;
 
     // The FFT engine(s)
-    std::auto_ptr<MyFFTEngine> engine;
-    std::auto_ptr<MyFFTEngine> anotherEngine;
+    std::unique_ptr<MyFFTEngine> engine;
+    std::unique_ptr<MyFFTEngine> anotherEngine;
 
     // The pattern recognition kernel(s)
-    std::auto_ptr<fftjet::AbsFrequencyKernel> kernel2d;
-    std::auto_ptr<fftjet::AbsFrequencyKernel1d> etaKernel;
-    std::auto_ptr<fftjet::AbsFrequencyKernel1d> phiKernel;
+    std::unique_ptr<fftjet::AbsFrequencyKernel> kernel2d;
+    std::unique_ptr<fftjet::AbsFrequencyKernel1d> etaKernel;
+    std::unique_ptr<fftjet::AbsFrequencyKernel1d> phiKernel;
 
     // The kernel convolver
-    std::auto_ptr<fftjet::AbsConvolverBase<Real> > convolver;
+    std::unique_ptr<fftjet::AbsConvolverBase<Real> > convolver;
 
     // The scale power to use for scaling Et
     double scalePower;
@@ -105,7 +105,7 @@ FFTJetEFlowSmoother::FFTJetEFlowSmoother(const edm::ParameterSet& ps)
     checkConfig(energyFlow, "invalid discretization grid");
 
     // Copy of the grid which will be used for convolutions
-    convolvedFlow = std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >(
+    convolvedFlow = std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >(
         new fftjet::Grid2d<fftjetcms::Real>(*energyFlow));
 
     // Build the initial set of pattern recognition scales
@@ -162,17 +162,17 @@ void FFTJetEFlowSmoother::buildKernelConvolver(const edm::ParameterSet& ps)
     if (use2dKernel)
     {
         // Build the FFT engine
-        engine = std::auto_ptr<MyFFTEngine>(
+        engine = std::unique_ptr<MyFFTEngine>(
             new MyFFTEngine(energyFlow->nEta(), energyFlow->nPhi()));
 
         // 2d kernel
-        kernel2d = std::auto_ptr<fftjet::AbsFrequencyKernel>(
+        kernel2d = std::unique_ptr<fftjet::AbsFrequencyKernel>(
             new fftjet::DiscreteGauss2d(
                 kernelEtaScale, kernelPhiScale,
                 energyFlow->nEta(), energyFlow->nPhi()));
 
         // 2d convolver
-        convolver = std::auto_ptr<fftjet::AbsConvolverBase<Real> >(
+        convolver = std::unique_ptr<fftjet::AbsConvolverBase<Real> >(
             new fftjet::FrequencyKernelConvolver<Real,Complex>(
                 engine.get(), kernel2d.get(),
                 convolverMinBin, convolverMaxBin));
@@ -180,20 +180,20 @@ void FFTJetEFlowSmoother::buildKernelConvolver(const edm::ParameterSet& ps)
     else
     {
         // Need separate FFT engines for eta and phi
-        engine = std::auto_ptr<MyFFTEngine>(
+        engine = std::unique_ptr<MyFFTEngine>(
             new MyFFTEngine(1, energyFlow->nEta()));
-        anotherEngine = std::auto_ptr<MyFFTEngine>(
+        anotherEngine = std::unique_ptr<MyFFTEngine>(
             new MyFFTEngine(1, energyFlow->nPhi()));
 
         // 1d kernels
-        etaKernel = std::auto_ptr<fftjet::AbsFrequencyKernel1d>(
+        etaKernel = std::unique_ptr<fftjet::AbsFrequencyKernel1d>(
             new fftjet::DiscreteGauss1d(kernelEtaScale, energyFlow->nEta()));
 
-        phiKernel = std::auto_ptr<fftjet::AbsFrequencyKernel1d>(
+        phiKernel = std::unique_ptr<fftjet::AbsFrequencyKernel1d>(
             new fftjet::DiscreteGauss1d(kernelPhiScale, energyFlow->nPhi()));
 
         // Sequential convolver
-        convolver = std::auto_ptr<fftjet::AbsConvolverBase<Real> >(
+        convolver = std::unique_ptr<fftjet::AbsConvolverBase<Real> >(
             new fftjet::FrequencySequentialConvolver<Real,Complex>(
                 engine.get(), anotherEngine.get(),
                 etaKernel.get(), phiKernel.get(),

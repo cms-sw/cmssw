@@ -80,8 +80,8 @@ class GhostTrackFitter {
 	               const std::vector<GhostTrackState> &states) const;
 
     private:
-	std::auto_ptr<FitterImpl>		fitter;
-	std::auto_ptr<PredictionUpdater>	updater;
+	std::unique_ptr<FitterImpl>		fitter;
+	std::unique_ptr<PredictionUpdater>	updater;
 };
 
 }

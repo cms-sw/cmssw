@@ -186,7 +186,7 @@ debug_config_state_machine(const char *where, const std::string &tag, int state)
 private:
    std::vector<std::pair<std::string, FWConfiguration *> > m_configs;
    enum STATES                                             m_state;
-   std::auto_ptr<FWConfiguration>                          m_first;
+   std::unique_ptr<FWConfiguration>                          m_first;
    //   unsigned int                                            m_currentConfigVersion;
    std::string                                             m_currentConfigName;
 };

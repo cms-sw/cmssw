@@ -2,6 +2,8 @@
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
+#include <utility>
+
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   lepsToken_    (consumes< edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
   jetsToken_    (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),

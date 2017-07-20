@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 
@@ -161,9 +162,9 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    HcalLutMetadata fullLut{ *lutMetadata };
    fullLut.setTopo(htopo.product());
 
-   std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
+   std::unique_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
    pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift);
-   return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
+   return std::unique_ptr<CaloTPGTranscoder>( std::move(pTCoder) );
 }
 
 //define this as a plug-in

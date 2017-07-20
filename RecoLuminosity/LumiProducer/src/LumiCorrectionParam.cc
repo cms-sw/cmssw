@@ -9,7 +9,7 @@ LumiCorrectionParam::LumiCorrectionParam(LumiCorrectionParam::LumiType lumitype)
 
 float 
 LumiCorrectionParam::getCorrection(float luminonorm)const{
-  std::auto_ptr<lumi::NormFunctor> ptr(lumi::NormFunctorPluginFactory::get()->create(m_corrfunc));
+  std::unique_ptr<lumi::NormFunctor> ptr(lumi::NormFunctorPluginFactory::get()->create(m_corrfunc));
   (*ptr).initialize(m_coeffmap,m_afterglows);
   float result=(*ptr).getCorrection(luminonorm,m_intglumi,m_ncollidingbx);
   return result;

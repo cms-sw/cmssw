@@ -99,7 +99,7 @@ namespace fftjetcms {
     std::vector<unsigned> candidateIndex;
 
     // The energy discretization grid
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > energyFlow;
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > energyFlow;
 
     // The input handle for the collection of candidates
     edm::Handle<reco::CandidateView> inputCollection;

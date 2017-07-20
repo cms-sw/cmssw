@@ -23,6 +23,7 @@
 
 #include <string>
 #include <sstream>
+#include <utility>
 
 HepMC::IO_HEPEVT conv;
 

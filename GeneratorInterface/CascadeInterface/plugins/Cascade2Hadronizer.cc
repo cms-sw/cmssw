@@ -1,5 +1,7 @@
 #include "GeneratorInterface/CascadeInterface/plugins/Cascade2Hadronizer.h"
 
+#include <utility>
+
 #include "HepMC/GenEvent.h" 
 #include "HepMC/PdfInfo.h"
 #include "HepMC/PythiaWrapper6_4.h"  

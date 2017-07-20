@@ -46,7 +46,7 @@ class LHERunInfoProduct;
 
 	void nextEvent();
 
-	std::auto_ptr<lhef::LHEReader>		reader;
+	std::unique_ptr<lhef::LHEReader>		reader;
 
 	boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
 	boost::shared_ptr<lhef::LHERunInfo>	runInfo;

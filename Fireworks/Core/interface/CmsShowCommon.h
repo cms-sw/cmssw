@@ -103,7 +103,7 @@ protected:
    TGLColorSet         m_lightColorSet;
    TGLColorSet         m_darkColorSet;
  
-   std::auto_ptr<FWViewEnergyScale>  m_energyScale;
+   std::unique_ptr<FWViewEnergyScale>  m_energyScale;
 
 
 private:

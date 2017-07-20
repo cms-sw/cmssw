@@ -83,8 +83,8 @@ namespace gen {
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
-    std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
-    std::auto_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
+    std::unique_ptr<HepMC::GenEvent>& event() { return genEvent_; }
+    std::unique_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
@@ -98,11 +98,11 @@ namespace gen {
     virtual std::vector<std::string> const& doSharedResources() const { return theSharedResources; }
 
     GenRunInfoProduct                   genRunInfo_;
-    std::auto_ptr<HepMC::GenEvent>      genEvent_;
-    std::auto_ptr<GenEventInfoProduct>  genEventInfo_;
+    std::unique_ptr<HepMC::GenEvent>      genEvent_;
+    std::unique_ptr<GenEventInfoProduct>  genEventInfo_;
 
     boost::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
-    std::auto_ptr<lhef::LHEEvent>       lheEvent_;
+    std::unique_ptr<lhef::LHEEvent>       lheEvent_;
 
     edm::Event                          *edmEvent_;
 

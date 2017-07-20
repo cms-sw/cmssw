@@ -117,7 +117,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
   const SurfaceSide surfaceSide = this->surfaceSide(propDir_);
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
-  std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
+  std::unique_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
     (this->createUpdator(materialEffects_, mass_));
   if (!aMaterialEffectsUpdator.get()) return false; // empty auto_ptr
 

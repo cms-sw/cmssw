@@ -208,7 +208,7 @@ public:
   }
 
 private:
-  std::auto_ptr<coral::ISessionProxy> m_proxy;
+  std::unique_ptr<coral::ISessionProxy> m_proxy;
 };
 
 

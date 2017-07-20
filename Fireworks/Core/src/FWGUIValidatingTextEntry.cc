@@ -195,7 +195,7 @@ FWGUIValidatingTextEntry::showOptions() {
                                       0, GetHeight(), ax, ay, wdummy);
 
       //Wait to change focus for when the popup has already openned
-      std::auto_ptr<TTimer> timer( new ChangeFocusTimer(m_list->GetContainer()) );
+      std::unique_ptr<TTimer> timer( new ChangeFocusTimer(m_list->GetContainer()) );
       timer->TurnOn();
       //NOTE: this call has its own internal GUI event loop and will not return
       // until the popup has been shut down

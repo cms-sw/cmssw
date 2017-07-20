@@ -21,7 +21,7 @@ FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pse
                              bei,
                              sistrip::FAST_CABLING )
 {
-  factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
+  factory_ = unique_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
     << " Constructing object...";

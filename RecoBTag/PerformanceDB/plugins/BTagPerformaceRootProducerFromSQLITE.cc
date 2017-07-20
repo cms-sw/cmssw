@@ -64,7 +64,7 @@ class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   std::vector<std::string>  names_;
   edm::ESWatcher<BTagPerformanceRecord> recWatcher_;
-  std::auto_ptr<fwlite::RecordWriter> writer_;
+  std::unique_ptr<fwlite::RecordWriter> writer_;
   edm::IOVSyncValue lastValue_;
 };
 
@@ -106,7 +106,7 @@ BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, const ed
     if(! writer_.get()) {
       edm::Service<TFileService> fs ;
       TFile * f = &(fs->file());
-      writer_ = std::auto_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f ));
+      writer_ = std::unique_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f ));
     }
     lastValue_ = r.validityInterval().last();
 

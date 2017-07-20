@@ -1,3 +1,4 @@
+#include <utility>
 #include <vector>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
@@ -483,7 +484,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             boost::make_filter_iterator(
               pfNeutralJunk, regionalJunk.end(), regionalJunk.end()));
 
-        std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
+        std::unique_ptr<reco::PFTau> tauPtr = tau.get(true);
 	
 	// Set event vertex position for tau
 	reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -512,7 +513,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	//edm::LogPrint("RecoTauBuilderCombinatoricPlugin") << "bendCorrMass2 = " << sqrt(bendCorrMass2) << std::endl;
 	tauPtr->setBendCorrMass(sqrt(bendCorrMass2));
 
-        output.push_back(tauPtr);
+        output.push_back(std::move(tauPtr));
       }
     }
   }

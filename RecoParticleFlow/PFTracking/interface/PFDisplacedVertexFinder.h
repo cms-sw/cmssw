@@ -107,9 +107,9 @@ class PFDisplacedVertexFinder {
   
   
   /// \return auto_ptr to collection of DisplacedVertices
-  std::auto_ptr< reco::PFDisplacedVertexCollection > transferDisplacedVertices() {return displacedVertices_;}
+  std::unique_ptr< reco::PFDisplacedVertexCollection > transferDisplacedVertices() {return std::move(displacedVertices_);}
 
-  const std::auto_ptr< reco::PFDisplacedVertexCollection >& displacedVertices() const {return displacedVertices_;}
+  const std::unique_ptr< reco::PFDisplacedVertexCollection >& displacedVertices() const {return displacedVertices_;}
 
 
 
@@ -154,7 +154,7 @@ class PFDisplacedVertexFinder {
   /// -------- Members -------- ///
 
   reco::PFDisplacedVertexCandidateCollection const*  displacedVertexCandidates_;
-  std::auto_ptr< reco::PFDisplacedVertexCollection >    displacedVertices_;
+  std::unique_ptr< reco::PFDisplacedVertexCollection >    displacedVertices_;
 
   /// -------- Parameters -------- ///
 

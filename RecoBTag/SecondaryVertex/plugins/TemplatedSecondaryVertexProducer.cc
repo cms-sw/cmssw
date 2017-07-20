@@ -640,8 +640,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	}
 	// ------------------------------------ SV clustering END ----------------------------------------------
 
-	std::auto_ptr<ConfigurableVertexReconstructor> vertexReco;
-	std::auto_ptr<GhostTrackVertexFinder> vertexRecoGT;
+	std::unique_ptr<ConfigurableVertexReconstructor> vertexReco;
+	std::unique_ptr<GhostTrackVertexFinder> vertexRecoGT;
 	if (useGhostTrack)
 		vertexRecoGT.reset(new GhostTrackVertexFinder(
 			vtxRecoPSet.getParameter<double>("maxFitChi2"),
@@ -706,7 +706,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 		std::vector<TransientTrack> fitTracks;
 		std::vector<GhostTrackState> gtStates;
-		std::auto_ptr<GhostTrackPrediction> gtPred;
+		std::unique_ptr<GhostTrackPrediction> gtPred;
 		if (useGhostTrack)
 			gtPred.reset(new GhostTrackPrediction(
 						*iterJets->ghostTrack()));
@@ -753,7 +753,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 			}
 		}
 
-		std::auto_ptr<GhostTrack> ghostTrack;
+		std::unique_ptr<GhostTrack> ghostTrack;
 		if (useGhostTrack)
 			ghostTrack.reset(new GhostTrack(
 				GhostTrackPrediction(

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <string>
 #include <memory>
+#include <utility>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"

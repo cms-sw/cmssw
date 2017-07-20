@@ -37,7 +37,7 @@ class SiStripCoralIface
   std::string m_authPath;
   std::map<std::string,unsigned int> m_id_map;
   cond::persistency::Session m_session;
-  std::auto_ptr<cond::persistency::TransactionScope> m_transaction;
+  std::unique_ptr<cond::persistency::TransactionScope> m_transaction;
   // cond::CoralTransaction* m_coraldb;
   // cond::Connection* con;
 

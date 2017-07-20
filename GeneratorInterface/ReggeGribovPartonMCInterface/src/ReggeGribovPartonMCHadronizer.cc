@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <utility>
 
 #include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/ReggeGribovPartonMCHadronizer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

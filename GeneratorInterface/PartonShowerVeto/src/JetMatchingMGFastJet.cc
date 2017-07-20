@@ -9,6 +9,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <utility>
 
 
 namespace gen

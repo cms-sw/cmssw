@@ -21,7 +21,7 @@ PedsFullNoiseHistograms::PedsFullNoiseHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::PEDS_FULL_NOISE )
 {
-  factory_ = auto_ptr<PedsFullNoiseSummaryFactory>( new PedsFullNoiseSummaryFactory );
+  factory_ = unique_ptr<PedsFullNoiseSummaryFactory>( new PedsFullNoiseSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[PedsFullNoiseHistograms::" << __func__ << "]"
     << " Constructing object...";

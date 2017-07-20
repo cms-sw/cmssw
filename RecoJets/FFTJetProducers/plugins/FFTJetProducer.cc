@@ -423,7 +423,7 @@ void FFTJetProducer::buildGridAlg()
         throw cms::Exception("FFTJetBadConfig")
             << "Invalid grid recombination algorithm \""
             << recombinationAlgorithm << "\"" << std::endl;
-    gridAlg = std::auto_ptr<GridAlg>(
+    gridAlg = std::unique_ptr<GridAlg>(
         factory[recombinationAlgorithm]->create(
             jetMembershipFunction.get(),
             bgMembershipFunction.get(),
@@ -434,7 +434,7 @@ void FFTJetProducer::buildGridAlg()
 
 bool FFTJetProducer::loadEnergyFlow(
     const edm::Event& iEvent, 
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow)
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow)
 {
     edm::Handle<reco::DiscretizedEnergyFlow> input;
     iEvent.getByToken(input_energyflow_token_, input);
@@ -451,7 +451,7 @@ bool FFTJetProducer::loadEnergyFlow(
     if (rebuildGrid)
     {
         // We should not get here very often...
-        flow = std::auto_ptr<fftjet::Grid2d<Real> >(
+        flow = std::unique_ptr<fftjet::Grid2d<Real> >(
             new fftjet::Grid2d<Real>(
                 input->nEtaBins(), input->etaMin(), input->etaMax(),
                 input->nPhiBins(), input->phiBin0Edge(), input->title()));
@@ -864,7 +864,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
 }
 
 
-std::auto_ptr<fftjet::Functor1<bool,fftjet::Peak> >
+std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> >
 FFTJetProducer::parse_peakSelector(const edm::ParameterSet& ps)
 {
     return fftjet_PeakSelector_parser(
@@ -873,7 +873,7 @@ FFTJetProducer::parse_peakSelector(const edm::ParameterSet& ps)
 
 
 // Parser for the jet membership function
-std::auto_ptr<fftjet::ScaleSpaceKernel>
+std::unique_ptr<fftjet::ScaleSpaceKernel>
 FFTJetProducer::parse_jetMembershipFunction(const edm::ParameterSet& ps)
 {
     return fftjet_MembershipFunction_parser(
@@ -882,7 +882,7 @@ FFTJetProducer::parse_jetMembershipFunction(const edm::ParameterSet& ps)
 
 
 // Parser for the background membership function
-std::auto_ptr<AbsBgFunctor>
+std::unique_ptr<AbsBgFunctor>
 FFTJetProducer::parse_bgMembershipFunction(const edm::ParameterSet& ps)
 {
     return fftjet_BgFunctor_parser(
@@ -891,7 +891,7 @@ FFTJetProducer::parse_bgMembershipFunction(const edm::ParameterSet& ps)
 
 
 // Calculator for the recombination scale
-std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
 FFTJetProducer::parse_recoScaleCalcPeak(const edm::ParameterSet& ps)
 {
     return fftjet_PeakFunctor_parser(
@@ -900,7 +900,7 @@ FFTJetProducer::parse_recoScaleCalcPeak(const edm::ParameterSet& ps)
 
 
 // Pile-up density calculator
-std::auto_ptr<fftjetcms::AbsPileupCalculator>
+std::unique_ptr<fftjetcms::AbsPileupCalculator>
 FFTJetProducer::parse_pileupDensityCalc(const edm::ParameterSet& ps)
 {
     return fftjet_PileupCalculator_parser(
@@ -909,7 +909,7 @@ FFTJetProducer::parse_pileupDensityCalc(const edm::ParameterSet& ps)
 
 
 // Calculator for the recombination scale ratio
-std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
 FFTJetProducer::parse_recoScaleRatioCalcPeak(const edm::ParameterSet& ps)
 {
     return fftjet_PeakFunctor_parser(
@@ -918,7 +918,7 @@ FFTJetProducer::parse_recoScaleRatioCalcPeak(const edm::ParameterSet& ps)
 
 
 // Calculator for the membership function factor
-std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
 FFTJetProducer::parse_memberFactorCalcPeak(const edm::ParameterSet& ps)
 {
     return fftjet_PeakFunctor_parser(
@@ -926,7 +926,7 @@ FFTJetProducer::parse_memberFactorCalcPeak(const edm::ParameterSet& ps)
 }
 
 
-std::auto_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
+std::unique_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
 FFTJetProducer::parse_recoScaleCalcJet(const edm::ParameterSet& ps)
 {
     return fftjet_JetFunctor_parser(
@@ -934,7 +934,7 @@ FFTJetProducer::parse_recoScaleCalcJet(const edm::ParameterSet& ps)
 }
 
 
-std::auto_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
+std::unique_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
 FFTJetProducer::parse_recoScaleRatioCalcJet(const edm::ParameterSet& ps)
 {
     return fftjet_JetFunctor_parser(
@@ -942,7 +942,7 @@ FFTJetProducer::parse_recoScaleRatioCalcJet(const edm::ParameterSet& ps)
 }
 
 
-std::auto_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
+std::unique_ptr<fftjet::Functor1<double,FFTJetProducer::RecoFFTJet> >
 FFTJetProducer::parse_memberFactorCalcJet(const edm::ParameterSet& ps)
 {
     return fftjet_JetFunctor_parser(
@@ -950,7 +950,7 @@ FFTJetProducer::parse_memberFactorCalcJet(const edm::ParameterSet& ps)
 }
 
 
-std::auto_ptr<fftjet::Functor2<
+std::unique_ptr<fftjet::Functor2<
     double,FFTJetProducer::RecoFFTJet,FFTJetProducer::RecoFFTJet> >
 FFTJetProducer::parse_jetDistanceCalc(const edm::ParameterSet& ps)
 {
@@ -988,7 +988,7 @@ void FFTJetProducer::beginJob()
             throw cms::Exception("FFTJetBadConfig")
                 << "Invalid vector recombination algorithm \""
                 << recombinationAlgorithm << "\"" << std::endl;
-        recoAlg = std::auto_ptr<RecoAlg>(
+        recoAlg = std::unique_ptr<RecoAlg>(
             factory[recombinationAlgorithm]->create(
                 jetMembershipFunction.get(),
                 &VectorLike::Et, &VectorLike::Eta, &VectorLike::Phi,
@@ -1094,7 +1094,7 @@ void FFTJetProducer::setJetStatusBit(RecoFFTJet* jet,
 
 void FFTJetProducer::determinePileupDensityFromConfig(
     const edm::Event& iEvent, 
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
 {
     edm::Handle<reco::FFTJetPileupSummary> summary;
     iEvent.getByToken(input_pusummary_token_, summary);
@@ -1131,7 +1131,7 @@ void FFTJetProducer::determinePileupDensityFromConfig(
 
 void FFTJetProducer::determinePileupDensityFromDB(
     const edm::Event& iEvent, const edm::EventSetup& iSetup,
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
 {
     edm::ESHandle<FFTJetLookupTableSequence> h;
     StaticFFTJetLookupTableSequenceLoader::instance().load(

@@ -257,7 +257,7 @@ template<typename T>
 
     public:
 
-    typedef std::auto_ptr<CombinatoricIterator<T> > CombIterPtr;
+    typedef std::unique_ptr<CombinatoricIterator<T> > CombIterPtr;
     typedef CombinatoricIterator<T> iterator;
     typedef typename iterator::value_type::ValueIter combo_iterator;
 

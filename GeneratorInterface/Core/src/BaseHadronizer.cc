@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <random>
+#include <utility>
 #include <sys/wait.h>
 
 namespace gen {

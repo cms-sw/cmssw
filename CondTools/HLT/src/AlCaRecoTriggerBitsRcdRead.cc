@@ -62,7 +62,7 @@ private:
   edm::RunNumber_t firstRun_; 
   edm::RunNumber_t lastRun_;
   AlCaRecoTriggerBits lastTriggerBits_;
-  std::auto_ptr<std::ofstream> output_;
+  std::unique_ptr<std::ofstream> output_;
 };
 
 ///////////////////////////////////////////////////////////////////////

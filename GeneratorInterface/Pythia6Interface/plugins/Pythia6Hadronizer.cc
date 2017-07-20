@@ -33,6 +33,7 @@ HepMC::IO_HEPEVT conv;
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
 #include <iomanip>
+#include <utility>
 
 namespace gen
 {

@@ -2,6 +2,7 @@
 #include <memory>
 
 #include <boost/shared_ptr.hpp>
+#include <utility>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,11 +45,11 @@ std::set<std::string> JetMatching::capabilities() const
 	return result;
 }
 
-std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
+std::unique_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 {
 	std::string scheme = params.getParameter<std::string>("scheme");
 
-	std::auto_ptr<JetMatching> matching;
+	std::unique_ptr<JetMatching> matching;
 
 	if (scheme == "Madgraph")
 	{
@@ -74,7 +75,7 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 			   " for parton-shower matching is still in progress."
 			<< std::endl;
 
-	return matching;
+	return std::move(matching);
 }
 
 } // namespace gen

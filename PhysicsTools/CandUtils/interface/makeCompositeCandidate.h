@@ -5,24 +5,24 @@
 #include <memory>
 
 namespace helpers {
-  struct CompositeCandidateMaker {
-    CompositeCandidateMaker( std::auto_ptr<reco::CompositeCandidate> cmp ) :
-      cmp_( cmp ) {
+  struct std::move(CompositeCandidateMaker) {
+    CompositeCandidateMaker( std::unique_ptr<reco::CompositeCandidate> cmp ) :
+      cmp_( std::move(cmp) ) {
     }
     void addDaughter( const reco::Candidate & dau ) {
       cmp_->addDaughter( dau );
     }
     template<typename S>
-    std::auto_ptr<reco::Candidate> operator[]( const S & setup ) {
+    std::unique_ptr<reco::Candidate> operator[]( const S & setup ) {
       setup.set( * cmp_ );
       return release();
     }
   private:
-    std::auto_ptr<reco::CompositeCandidate> cmp_;
-    std::auto_ptr<reco::Candidate> release() {
-      std::auto_ptr<reco::Candidate> ret( cmp_.get() );
+    std::unique_ptr<reco::CompositeCandidate> cmp_;
+    std::unique_ptr<reco::Candidate> release() {
+      std::unique_ptr<reco::Candidate> ret( cmp_.get() );
       cmp_.release();
-      return ret;
+      return std::move(ret);
     }
   };
 }
@@ -53,7 +53,7 @@ helpers::CompositeCandidateMaker
 makeCompositeCandidate( const typename C::const_iterator & begin, 
 			const typename C::const_iterator & end ) {
   helpers::CompositeCandidateMaker 
-    cmp( std::auto_ptr<reco::CompositeCandidate>( new reco::CompositeCandidate ) );
+    cmp( std::unique_ptr<reco::CompositeCandidate>( new reco::CompositeCandidate ) );
   for( typename C::const_iterator i = begin; i != end; ++ i ) 
     cmp.addDaughter( * i );
   return cmp;
@@ -79,7 +79,7 @@ helpers::CompositeCandidateMaker
 makeCompositeCandidateWithRefsToMaster( const typename C::const_iterator & begin, 
 					const typename C::const_iterator & end ) {
   helpers::CompositeCandidateMaker 
-    cmp( std::auto_ptr<reco::CompositeCandidate>( new reco::CompositeCandidate ) );
+    cmp( std::unique_ptr<reco::CompositeCandidate>( new reco::CompositeCandidate ) );
   for( typename C::const_iterator i = begin; i != end; ++ i ) 
     cmp.addDaughter( ShallowCloneCandidate( CandidateBaseRef( * i ) ) );
   return cmp;

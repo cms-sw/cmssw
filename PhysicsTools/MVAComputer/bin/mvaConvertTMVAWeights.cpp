@@ -4,6 +4,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <cstddef>
 #include <cstring>
@@ -35,7 +36,7 @@ static std::size_t getStreamSize(std::ifstream &in)
 static Calibration::VarProcessor*
 getCalibration(const std::string &file, const std::vector<std::string> &names)
 {
-	std::auto_ptr<Calibration::ProcExternal> calib(
+	std::unique_ptr<Calibration::ProcExternal> calib(
 					new Calibration::ProcExternal);
 
 	std::ifstream in(file.c_str(), std::ios::binary | std::ios::in);
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
 		names.push_back(argv[i]);
 
 	try {
-		std::auto_ptr<Calibration::VarProcessor> proc(
+		std::unique_ptr<Calibration::VarProcessor> proc(
 					getCalibration(argv[1], names));
 
 		BitSet inputVars(names.size());

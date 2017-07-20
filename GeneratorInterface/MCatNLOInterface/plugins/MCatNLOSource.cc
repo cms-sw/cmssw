@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

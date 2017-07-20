@@ -1,4 +1,6 @@
 
+#include <utility>
+
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -46,11 +48,11 @@ PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSet
 /* create the pf candidate to vertex association map                                 */
 /*************************************************************************************/
 
-std::auto_ptr<PFCandToVertexAssMap>
+std::unique_ptr<PFCandToVertexAssMap>
 PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-        auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
+        unique_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -104,7 +106,7 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 	  delete vtxColl_help;
        	}
 
-	return pfcand2vertex;
+	return std::move(pfcand2vertex);
 
 }
 
@@ -112,11 +114,11 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 /* create the vertex to pf candidate association map                                 */
 /*************************************************************************************/
 
-std::auto_ptr<VertexToPFCandAssMap>
+std::unique_ptr<VertexToPFCandAssMap>
 PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
+  	unique_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -170,7 +172,7 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 	  delete vtxColl_help;
        	}
 
-	return vertex2pfcand;
+	return std::move(vertex2pfcand);
 }
 
 /*************************************************************************************/
