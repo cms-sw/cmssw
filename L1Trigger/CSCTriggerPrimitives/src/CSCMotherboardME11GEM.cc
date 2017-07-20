@@ -279,9 +279,6 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
   promoteALCTGEMquality_ = me11tmbParams.getParameter<bool>("promoteALCTGEMquality");
   promoteCLCTGEMquality_ME1a_ = me11tmbParams.getParameter<bool>("promoteCLCTGEMquality_ME1a");
   promoteCLCTGEMquality_ME1b_ = me11tmbParams.getParameter<bool>("promoteCLCTGEMquality_ME1b");
-
-  // send first 2 LCTs
-  firstTwoLCTsInChamber_ = me11tmbParams.getParameter<bool>("firstTwoLCTsInChamber");
 }
 
 
@@ -1325,33 +1322,36 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByQuality(enum 
   LCTs_final.clear();
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
     {
-      std::vector<CSCCorrelatedLCTDigi> LCTs1a;
-      std::vector<CSCCorrelatedLCTDigi> LCTs1b;
+      // get sorted LCTs per subchamber
+      const auto& LCTs1a = sortLCTsByQuality(bx, ME1A);      
+      const auto& LCTs1b = sortLCTsByQuality(bx, ME1B);
+
+      // index of the highest quality LCTs
+      auto it1a = LCTs1a.begin();
+      auto it1b = LCTs1b.begin();
+
+      // temporary collection with all LCTs in the whole chamber
       std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
-      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp1;
-      LCTs1a = sortLCTsByQuality(bx, ME1A);
-      LCTs1b = sortLCTsByQuality(bx, ME1B);
-      std::vector<CSCCorrelatedLCTDigi>::iterator it1a = LCTs1a.begin();
-      std::vector<CSCCorrelatedLCTDigi>::iterator it1b = LCTs1b.begin();
       LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
       LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
-      LCTs_tmp1 = sortLCTsByQuality(LCTs_tmp);//LCTs reduction per BX
-      if (firstTwoLCTsInChamber_)
+
+      // sort the selected LCTs
+      LCTs_tmp = sortLCTsByQuality(LCTs_tmp);
+
+      //LCTs reduction per BX
+      if (max_me11_lcts==2)
         {
-          std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
-          for ( ; itp != LCTs_tmp1.end(); itp++)
-            {
-              if (me==ME1A and it1a != LCTs1a.end() and *itp==*it1a )
-                {
-                  LCTs_final.push_back(*it1a);
-                  it1a++;
-                }
-              if (me==ME1B and it1b != LCTs1b.end() and *itp==*it1b)
-                {
-                  LCTs_final.push_back(*it1b);
-                  it1b++;
-                }
-            }
+	  // loop on all the selected LCTs
+	  for (const auto& p: LCTs_tmp){
+	    // case when you only want to readout ME1A
+	    if (me==ME1A and std::find(LCTs1a.begin(), LCTs1a.end(), p) != LCTs1a.end()){
+	      LCTs_final.push_back(p);
+	    }
+	    // case when you only want to readout ME1B
+	    else if(me==ME1B and std::find(LCTs1b.begin(), LCTs1b.end(), p) != LCTs1b.end()){
+	      LCTs_final.push_back(p);
+	    }
+	  }
         }
       else {
         if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
@@ -1406,34 +1406,36 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByGEMDPhi(enum 
   LCTs_final.clear();
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
     {
-      std::vector<CSCCorrelatedLCTDigi> LCTs1a;
-      std::vector<CSCCorrelatedLCTDigi> LCTs1b;
+      // get sorted LCTs per subchamber
+      const auto& LCTs1a = sortLCTsByGEMDPhi(bx, ME1A);      
+      const auto& LCTs1b = sortLCTsByGEMDPhi(bx, ME1B);
+
+      // index of the highest quality LCTs
+      auto it1a = LCTs1a.begin();
+      auto it1b = LCTs1b.begin();
+
+      // temporary collection with all LCTs in the whole chamber
       std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
-      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp1;
-      LCTs1a = sortLCTsByGEMDPhi(bx, ME1A);
-      LCTs1b = sortLCTsByGEMDPhi(bx, ME1B);
-      std::vector<CSCCorrelatedLCTDigi>::iterator it1a = LCTs1a.begin();
-      std::vector<CSCCorrelatedLCTDigi>::iterator it1b = LCTs1b.begin();
       LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
       LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
-      LCTs_tmp1 = sortLCTsByGEMDPhi(LCTs_tmp);//LCTs reduction per BX
-      if (firstTwoLCTsInChamber_)
+
+      // sort the selected LCTs
+      LCTs_tmp = sortLCTsByGEMDPhi(LCTs_tmp);
+
+      //LCTs reduction per BX
+      if (max_me11_lcts==2)
         {
-          std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
-          while (itp != LCTs_tmp1.end())
-            {
-              if (me==ME1B and it1b != LCTs1b.end() and *itp==*it1b)
-                {
-                  LCTs_final.push_back(*it1b);
-                  it1b++;
-                }
-              if (me==ME1A and it1a != LCTs1a.end() and *itp==*it1a)
-                {
-                  LCTs_final.push_back(*it1a);
-                  it1a++;
-                }
-              itp++;
-            }
+	  // loop on all the selected LCTs
+	  for (const auto& p: LCTs_tmp){
+	    // case when you only want to readout ME1A
+	    if (me==ME1A and std::find(LCTs1a.begin(), LCTs1a.end(), p) != LCTs1a.end()){
+	      LCTs_final.push_back(p);
+	    }
+	    // case when you only want to readout ME1B
+	    else if(me==ME1B and std::find(LCTs1b.begin(), LCTs1b.end(), p) != LCTs1b.end()){
+	      LCTs_final.push_back(p);
+	    }
+	  }
         }
       else {
         if (LCTs1a.size() and LCTs1b.size() and me==ME1A)

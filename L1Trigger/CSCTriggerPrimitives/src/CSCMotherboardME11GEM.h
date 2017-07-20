@@ -233,9 +233,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   // send LCT old dataformat
   bool useOldLCTDataFormat_;
 
-  // send only first 2 lcts
-  bool firstTwoLCTsInChamber_;
-
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;
 

@@ -702,15 +702,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21GEM::sortLCTsByQuality(int b
       if (allLCTs[bx][mbx][i].isValid())
         LCTs.push_back(allLCTs[bx][mbx][i]);
 
-  //std::cout<<"LCT before sorting in Bx:"<<bx<<std::endl;
-  //for (const auto& p : LCTs)
-    //  std::cout<< p <<std::endl;
   // return sorted vector with 2 highest quality LCTs
   std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
   if (LCTs.size()> max_me21_lcts) LCTs.erase(LCTs.begin()+max_me21_lcts, LCTs.end());
-  //std::cout<<"LCT after sorting by quality in BX:"<<bx<<std::endl;
-  //for (const auto& p : LCTs)
-   //   std::cout<< p <<std::endl;
+
   return  LCTs;
 }
 

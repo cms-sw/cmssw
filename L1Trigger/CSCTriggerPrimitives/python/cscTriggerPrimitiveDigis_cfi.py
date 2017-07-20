@@ -403,9 +403,6 @@ me11tmbSLHCGEM = cms.PSet(
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality_ME1a = cms.bool(True),
     promoteCLCTGEMquality_ME1b = cms.bool(True),
-
-    ## cross BX algorithm
-    firstTwoLCTsInChamber = cms.bool(True),
 )
 
 # to be used by ME21 chambers with GEM-CSC ILT
@@ -454,8 +451,6 @@ me21tmbSLHCGEM = cms.PSet(
     promoteALCTGEMpattern = cms.bool(True),
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality = cms.bool(True),
-
-    firstTwoLCTsInChamber = cms.bool(True),
 )
 
 # to be used by ME31-ME41 chambers with RPC-CSC ILT
