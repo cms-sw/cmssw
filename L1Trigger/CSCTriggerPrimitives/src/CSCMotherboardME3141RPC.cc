@@ -399,7 +399,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
           // find the best matching copad - first one
           auto digis(matchingRPCDigis(alct->bestALCT[bx_alct], rpcDigis_[bx_rpc], true));
           if (debug_rpc_matching_) std::cout << "\t++Number of matching RPC Digis in BX " << bx_alct << " : "<< digis.size() << std::endl;
-          if (digis.size()==0) continue;
+          if (digis.empty()) continue;
 
           correlateLCTsRPC(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
                            digis.at(0).second, allLCTs[bx_alct][0][0], allLCTs[bx_alct][0][1]);

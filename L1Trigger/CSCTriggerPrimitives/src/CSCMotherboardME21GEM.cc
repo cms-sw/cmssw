@@ -175,7 +175,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   clctV = clct->run(compdc); // run cathodeLCT
 
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
-  if (alctV.size()==0 and clctV.size()==0) return;
+  if (alctV.empty() and clctV.empty()) return;
 
   gemCoPadV = coPadProcessor->run(gemPads); // run copad processor in GE2/1
 
@@ -216,7 +216,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     if (debug_luts){
       std::cout<<"csc id "<< csc_id <<" "<< csc_id.rawId() << (isEven ? " even" : " odd") << " chamber" << csc_id.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
-        for(auto p : gemRollToEtaLimits_) {
+        for(const auto& p : gemRollToEtaLimits_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
@@ -227,6 +227,10 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       auto eta(isEven ? lut_wg_eta_even[i][1] : lut_wg_eta_odd[i][1]);
       cscWgToGemRoll_[i] = assignGEMRoll(eta);
     }
+    // These numbers are manually inserted to make sure that the mapping is complete
+    // Not sure yet why the bottom of the CSC chamber wire groups are not mapped correctly
+    // to GEM pads
+    // This is only a a temporary solution. Will be fixed in the future
     cscWgToGemRoll_[107] = 1;
     cscWgToGemRoll_[108] = 1;
     cscWgToGemRoll_[109] = 1;
@@ -234,42 +238,35 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     cscWgToGemRoll_[111] = 1;
 
     if (debug_luts){
-      for(auto p : cscWgToGemRoll_) {
+      for(const auto& p : cscWgToGemRoll_) {
         std::cout << "WG "<< p.first << " GEM roll " << p.second << std::endl;
       }
     }
 
-    auto randRoll(gemChamberLong->chamber(1)->etaPartition(2));
+    const auto& randRoll(gemChamberLong->chamber(1)->etaPartition(2));
     // pick any roll
     const int nGEMPads(randRoll->npads());
     for (int i = 1; i<= nGEMPads; ++i){
-      const LocalPoint lpGEM(randRoll->centreOfPad(i));
-      const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-      const LocalPoint lpCSC(keyLayer->toLocal(gp));
+      const LocalPoint& lpGEM(randRoll->centreOfPad(i));
+      const GlobalPoint& gp(randRoll->toGlobal(lpGEM));
+      const LocalPoint& lpCSC(keyLayer->toLocal(gp));
       const float strip(keyLayerGeometry->strip(lpCSC));
       // HS are wrapped-around
       gemPadToCscHs_[i] = (int) (strip*2);
     }
     if (debug_luts){
       std::cout << "detId " << csc_id << std::endl;
-      for(auto p : gemPadToCscHs_) {
+      for(const auto& p : gemPadToCscHs_) {
         std::cout << "GEM Pad "<< p.first << " CSC HS : " << p.second << std::endl;
       }
     }
 
     auto nStrips(keyLayerGeometry->numberOfStrips());
-    /*
-    for (float i = 0; i< nStrips; i = i+0.5){
-      const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
-      const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
-      const LocalPoint lpGEM(randRoll->toLocal(gp));
-      const int HS(i/0.5);
-      const bool edge(HS < 5 or HS > 155);
-      const float pad(edge ? -99 : randRoll->pad(lpGEM));
-      // HS are wrapped-around
-      cscHsToGemPad_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
-    }
-    */
+
+    // The code below does the reverse mapping namely CSC strip to GEM pad
+    // The old code (mapping GEM onto CSC directly) was not functioning 
+    // as expected, so I temporarily modifie it. In addition I have to manually 
+    // insert some numbers. This code will be cleaned up in the future.
     for (int i=0; i<nStrips*2; ++i){
       std::vector<int> temp;
       // std::cout << "key " << i << std::endl;
@@ -279,7 +276,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           temp.push_back(p.first);
         }
       }
-      if (temp.size()==0) {
+      if (temp.empty()) {
         temp.push_back(-99);
       }
       cscHsToGemPad_[i] = std::make_pair(temp.front(), temp.back());
@@ -294,45 +291,11 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
         cscHsToGemPad_[158] = std::make_pair(1,1);
         cscHsToGemPad_[159] = std::make_pair(1,1);
       }
-      // // get unique values
-      // std::sort(temp.begin(),temp.end());
-      // temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
-      // // keep only the middle two or middle element
-      // std::set<int> temp2;
-      // if (temp.size()==2){
-      //   // pick middle two
-      //   temp2.insert(temp[0]);
-      //   temp2.insert(temp[1]);
-      // }
-      // if (temp.size()==4){
-      //   // pick middle two
-      //   temp2.insert(temp[1]);
-      //   temp2.insert(temp[2]);
-      // }
-      // if (temp.size()==6){
-      //   // pick middle two
-      //   temp2.insert(temp[2]);
-      //   temp2.insert(temp[3]);
-      // }
-      // if (temp.size()==8){
-      //   // pick middle two
-      //   temp2.insert(temp[3]);
-      //   temp2.insert(temp[4]);
-      // }
-      // if (temp.size()==10){
-      //   // pick middle two
-      //   temp2.insert(temp[4]);
-      //   temp2.insert(temp[5]);
-      // }
-      // if (temp.size()%2==1){
-      //   // pick middle
-      //   temp2.insert(temp[temp.size()/2]);
-      // }
     }
 
     if (debug_luts){
       std::cout << "detId " << csc_id << std::endl;
-      for(auto p : cscHsToGemPad_) {
+      for(const auto& p : cscHsToGemPad_) {
         std::cout << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
       }
     }
@@ -349,12 +312,6 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     retrieveGEMPads(gemPads, gem_id_long);
     retrieveGEMCoPads();
   }
-
-  std::cout << "Available copads " << std::endl;
-  for (auto& p: gemCoPadV){
-    std::cout << p << std::endl;
-  }
-
 
   int used_clct_mask[20];
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
@@ -522,7 +479,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           copads.insert(std::end(copads), std::begin(copads2), std::end(copads2));
 
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_gem << " : "<< copads.size() << std::endl;
-          if (copads.size()==0) {
+          if (copads.empty()) {
             std::cout << "Unsuccessful ALCT-GEM CoPad match in ME21: bx_alct = " << bx_alct << std::endl << std::endl;
             std::cout << "------------------------------------------------------------------------" << std::endl << std::endl;
             continue;
@@ -746,13 +703,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21GEM::sortLCTsByQuality(int b
         LCTs.push_back(allLCTs[bx][mbx][i]);
 
   //std::cout<<"LCT before sorting in Bx:"<<bx<<std::endl;
-  //for (auto p : LCTs)
+  //for (const auto& p : LCTs)
     //  std::cout<< p <<std::endl;
   // return sorted vector with 2 highest quality LCTs
   std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
   if (LCTs.size()> max_me21_lcts) LCTs.erase(LCTs.begin()+max_me21_lcts, LCTs.end());
   //std::cout<<"LCT after sorting by quality in BX:"<<bx<<std::endl;
-  //for (auto p : LCTs)
+  //for (const auto& p : LCTs)
    //   std::cout<< p <<std::endl;
   return  LCTs;
 }
@@ -1193,8 +1150,8 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   CSCMotherboardME21GEM::GEMPadsBX result;
 
   // Fetch all (!) pads matching to ALCTs and CLCTs
-  auto padsClct(matchingGEMPads(clct, pads, isCoPad, false));
-  auto padsAlct(matchingGEMPads(alct, pads, isCoPad, false));
+  const auto& padsClct(matchingGEMPads(clct, pads, isCoPad, false));
+  const auto& padsAlct(matchingGEMPads(alct, pads, isCoPad, false));
 
   const bool debug(true);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
