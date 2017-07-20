@@ -29,8 +29,6 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/thread/condition.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
