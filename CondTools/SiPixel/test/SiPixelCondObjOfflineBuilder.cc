@@ -241,12 +241,12 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
    } else { edm::LogInfo("SiPixelCondOfflineBuilder") << " DB service OK"; }
 
    try{
-     if( mydbservice->isNewTagRequest(recordName_.c_str()) ){
+     if( mydbservice->isNewTagRequest(recordName_) ){
          mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
-             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_.c_str());
+             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_);
      } else {
          mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            SiPixelGainCalibration_, mydbservice->currentTime(),recordName_.c_str());
+            SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
      }
      edm::LogInfo(" --- all OK");
    } 

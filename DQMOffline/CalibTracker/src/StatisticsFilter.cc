@@ -77,7 +77,7 @@ StatisticsFilter::StatisticsFilter(const edm::ParameterSet& iConfig) : filename(
    //now do what ever initialization is needed
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmStore_->open(filename.c_str(), false);
+  dqmStore_->open(filename, false);
 }
 
 

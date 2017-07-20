@@ -254,7 +254,7 @@ void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   std::string dirName="Matcher/";
   //  ibooker.setCurrentFolder("RecoMuonV/Matcher");
-  ibooker.setCurrentFolder(dirName.c_str()) ;
+  ibooker.setCurrentFolder(dirName) ;
 
   h_shouldMatch = ibooker.book2D("h_shouldMatch","SIM associated to Tk and Sta",50,-2.5,2.5,100,0.,500.);
   h_goodMatchSim = ibooker.book2D("h_goodMatchSim","SIM associated to Glb Sta Tk",50,-2.5,2.5,100,0.,500.);

@@ -568,7 +568,7 @@ CmsShowMain::openDataViaURL()
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
-      if(m_navigator->openFile(chosenFile.c_str())) {
+      if(m_navigator->openFile(chosenFile)) {
          setLoadedAnyInputFileAfterStartup();
          m_navigator->firstEvent();
          checkPosition();

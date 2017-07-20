@@ -254,7 +254,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   produces<reco::EvtPlaneCollection>();
   for(int i = 0; i<NumEPNames; i++ ) {
-    rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
+    rp[i] = new GenPlane(EPNames[i],EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();

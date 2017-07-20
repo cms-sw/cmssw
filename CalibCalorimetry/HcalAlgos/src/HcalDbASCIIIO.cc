@@ -1737,7 +1737,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
     }
     // expects (ieta, iphi, depth, subdet) as first four arguments
     DetId id = HcalDbASCIIIO::getId (items);
-    std::vector<double> coef= splitStringToDoubleByComma(items[8].c_str());
+    std::vector<double> coef= splitStringToDoubleByComma(items[8]);
 
     HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id, 
 								       atoi (items [4].c_str()), //firstSample

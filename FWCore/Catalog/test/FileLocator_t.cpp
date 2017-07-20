@@ -54,7 +54,7 @@ int main() {
       std::string file_name("/src/FWCore/Catalog/test/override_catalog.xml");
       std::string full_file_name = boost::filesystem::exists((CMSSW_BASE+file_name).c_str()) ? CMSSW_BASE+file_name : CMSSW_RELEASE_BASE+file_name;
       
-      edm::FileLocator fl(("trivialcatalog_file:"+full_file_name+"?protocol=override").c_str(), false);
+      edm::FileLocator fl("trivialcatalog_file:"+full_file_name+"?protocol=override", false);
       
       const char * lfn[] = {
       "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root",

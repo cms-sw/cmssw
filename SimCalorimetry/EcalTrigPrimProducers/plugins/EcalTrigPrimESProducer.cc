@@ -357,7 +357,7 @@ void EcalTrigPrimESProducer::parseTextFile()
     finalFileName = fileInPath.fullPath() ;
   }
   else {
-    finalFileName = dbFilename_.c_str() ;
+    finalFileName = dbFilename_ ;
     edm::LogWarning("EcalTPG") <<"Couldnt find database file via fileinpath, trying with pathname directly!!";
   }
 

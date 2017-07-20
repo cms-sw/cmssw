@@ -171,7 +171,7 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
     } else if ( mappingEntry->existsAs<std::string>("cut") ) {
       cut->cutName_ = mappingEntry->getParameter<std::string>("cut");
       std::string cutVariable_string = mappingEntry->getParameter<std::string>("variable");
-      cut->cutVariable_.reset( new StringObjectFunction<pat::Tau>(cutVariable_string.data()) );
+      cut->cutVariable_.reset( new StringObjectFunction<pat::Tau>(cutVariable_string) );
       cut->mode_ = DiscriminantCutEntry::kVariableCut;
     } else {
       throw cms::Exception("PATTauDiscriminantCutMultiplexer") 

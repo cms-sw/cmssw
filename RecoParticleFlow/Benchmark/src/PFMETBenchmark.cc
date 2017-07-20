@@ -37,7 +37,7 @@ void PFMETBenchmark::write() {
    // Store the DAQ Histograms 
   if (outputFile_.size() != 0) {
     if (dbe_)
-          dbe_->save(outputFile_.c_str());
+          dbe_->save(outputFile_);
     // use bare Root if no DQM (FWLite applications)
     else if (file_) {
        file_->Write(outputFile_.c_str());
@@ -74,7 +74,7 @@ void PFMETBenchmark::setup(
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
   if (plotAgainstReco) path += "Reco"; else path += "Gen";
   if (dbe_) {
-    dbe_->setCurrentFolder(path.c_str());
+    dbe_->setCurrentFolder(path);
   }
   else {
     file_ = new TFile(outputFile_.c_str(), "recreate");

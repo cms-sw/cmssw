@@ -80,7 +80,7 @@ class METCorrectionAlgorithm
 	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
 	}
       
-      std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula").data();
+      std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula");
     
       edm::ParameterSet binCorrParameter = cfg.getParameter<edm::ParameterSet>("binCorrParameter");
 
@@ -94,7 +94,7 @@ class METCorrectionAlgorithm
       int numParameter = parNames.size();
       binCorrParameter_.resize(numParameter);    
       for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
-        const std::string& parName = parNames[parIndex].data();
+        const std::string& parName = parNames[parIndex];
 
         double parValue = binCorrParameter.getParameter<double>(parName);
         binCorrParameter_[parIndex] = parValue;

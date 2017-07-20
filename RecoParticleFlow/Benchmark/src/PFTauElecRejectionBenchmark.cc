@@ -31,7 +31,7 @@ void PFTauElecRejectionBenchmark::write() {
    // Store the DAQ Histograms 
   if (outputFile_.size() != 0) {
     if (db_)
-          db_->save(outputFile_.c_str());
+          db_->save(outputFile_);
     // use bare Root if no DQM (FWLite applications)
     else if (file_) {
        file_->Write(outputFile_.c_str());
@@ -86,7 +86,7 @@ void PFTauElecRejectionBenchmark::setup(
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
   path += "Gen";
   if (db_) {
-    db_->setCurrentFolder(path.c_str());
+    db_->setCurrentFolder(path);
   }
   else {
     file_ = new TFile(outputFile_.c_str(), "recreate");

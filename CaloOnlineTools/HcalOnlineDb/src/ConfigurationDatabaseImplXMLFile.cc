@@ -161,7 +161,7 @@ void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, 
   
   std::map<std::string, std::string> params;
   std::string encoding;
-  m_parser.parse(data.c_str(),params,mcsLines,encoding);
+  m_parser.parse(data,params,mcsLines,encoding);
 
 }
 
@@ -187,7 +187,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	std::map<std::string, std::string> params;
 	std::vector<std::string> values;
 	std::string encoding;
-	m_parser.parse(data.c_str(),params,values,encoding);
+	m_parser.parse(data,params,values,encoding);
 	
 	hcal::ConfigurationDatabase::LUTId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,fiber,fiberChan,(hcal::ConfigurationDatabase::LUTType)lut_type);
 	hcal::ConfigurationDatabase::LUT& lut=LUTs[id];
@@ -217,7 +217,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	std::map<std::string, std::string> params;
 	std::vector<std::string> values;
 	std::string encoding;
-	m_parser.parse(data.c_str(),params,values,encoding);
+	m_parser.parse(data,params,values,encoding);
 	
 	hcal::ConfigurationDatabase::LUTId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,slb,slbChan,(hcal::ConfigurationDatabase::LUTType)lut_type);
 	hcal::ConfigurationDatabase::LUT& lut=LUTs[id];
@@ -247,7 +247,7 @@ void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, i
     std::map<std::string, std::string> params;
     std::vector<std::string> values;
     std::string encoding;
-    m_parser.parse(data.c_str(),params,values,encoding);
+    m_parser.parse(data,params,values,encoding);
     
     if (values.size()!=24) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Must have 24 items in ZS list.  Saw %d for %s",values.size(),key.c_str()));
@@ -279,7 +279,7 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int c
       std::map<std::string, std::string> params;
       std::vector<std::string> values;
       std::string encoding;
-      m_parser.parse(data.c_str(),params,values,encoding);
+      m_parser.parse(data,params,values,encoding);
       
       hcal::ConfigurationDatabase::PatternId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,fiber);
       hcal::ConfigurationDatabase::HTRPattern& lut=patterns[id];

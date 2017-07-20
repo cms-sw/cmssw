@@ -299,7 +299,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  ok = true;
 	} else {
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (newtriggerName.find(trigNames_[i].c_str())!=std::string::npos) {
+	    if (newtriggerName.find(trigNames_[i])!=std::string::npos) {
 	      if (verbosity_%10 > 0)  
 		edm::LogInfo("IsoTrack") << newtriggerName;
 	      if (hlt > 0) {
@@ -309,7 +309,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	    }
 	  }
 	  for (int i=0; i<5; ++i) {
-	    if (newtriggerName.find(newNames[i].c_str())!=std::string::npos) {
+	    if (newtriggerName.find(newNames[i])!=std::string::npos) {
 	      if (verbosity_%10 > 0)
 		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
 					 << " : " << newtriggerName;

@@ -156,7 +156,7 @@ void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMSt
 void 
 MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
  
   const char* l_suffix[6] = {"_l1","_l2","_l3","_l4","_l5","_l6"};
   const char* r_suffix[2] = {"-1","1"};

@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   edm::InputTag jets_  ( fwliteParameters.getParameter<edm::InputTag>("jets") );
 
   // book a set of histograms
-  fwlite::TFileService fs = fwlite::TFileService(output_.c_str());
+  fwlite::TFileService fs = fwlite::TFileService(output_);
   TFileDirectory theDir = fs.mkdir("analyzeBasicPat");
   TH1F* jetPt_  = theDir.make<TH1F>("jetPt", "pt",    100,  0.,300.);
   TH1F* jetEta_ = theDir.make<TH1F>("jetEta","eta",   100, -3.,  3.);

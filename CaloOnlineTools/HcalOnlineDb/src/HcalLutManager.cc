@@ -941,7 +941,7 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > 
     else{
       output_file_name << _tag << ".xml";
     }
-    cr->second->write( output_file_name.str().c_str() );
+    cr->second->write( output_file_name.str() );
   }
   return 0;
 }
@@ -960,7 +960,7 @@ int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_fil
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -985,7 +985,7 @@ int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_fil
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1003,7 +1003,7 @@ int HcalLutManager::createCompLutXmlFilesFromCoder( std::string _tag, bool split
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1023,7 +1023,7 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1051,7 +1051,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }
@@ -1077,7 +1077,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }
@@ -1099,7 +1099,7 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1356,7 +1356,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
     //SELECT
     edm::LogInfo("HcalLutManager") << "Executing the query...";
     Statement* stmt = _connection -> createStatement();
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    ResultSet *rs = stmt->executeQuery(query);
     edm::LogInfo("HcalLutManager") << "Executing the query... done";
     
     edm::LogInfo("HcalLutManager") << "Processing the query results...";
@@ -1557,7 +1557,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }

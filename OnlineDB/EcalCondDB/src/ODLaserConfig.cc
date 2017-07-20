@@ -151,9 +151,9 @@ void ODLaserConfig::setParameters(const std::map<string,string>& my_keys_map){
     if(ci->first==  "VINJ") setVinj(atoi(ci->second.c_str()) );
     if(ci->first==  "ORANGE_LED_MON_AMPL") setOrangeLedMonAmpl(atoi(ci->second.c_str()) );
     if(ci->first==  "BLUE_LED_MON_AMPL") setBlueLedMonAmpl(atoi(ci->second.c_str()) );
-    if(ci->first==  "TRIG_LOG_FILE") setTrigLogFile(ci->second.c_str() );
+    if(ci->first==  "TRIG_LOG_FILE") setTrigLogFile(ci->second );
     if(ci->first==  "LED_CONTROL_ON") setLedControlON(atoi(ci->second.c_str()) );
-    if(ci->first==  "LED_CONTROL_HOST") setLedControlHost( ci->second.c_str() );
+    if(ci->first==  "LED_CONTROL_HOST") setLedControlHost( ci->second );
     if(ci->first==  "LED_CONTROL_PORT") setLedControlPort(atoi(ci->second.c_str()) );
     if(ci->first==  "IR_LASER_POWER") setIRLaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "GREEN_LASER_POWER") setGreenLaserPower(atoi(ci->second.c_str()) );

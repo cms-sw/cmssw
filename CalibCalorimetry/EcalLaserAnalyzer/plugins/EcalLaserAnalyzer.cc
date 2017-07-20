@@ -158,7 +158,7 @@ pnID(-1), moduleID(-1), channelIteratorEE(0)
 
   // PN linearity corrector
 
-  pnCorrector = new TPNCor(pncorfile_.c_str());
+  pnCorrector = new TPNCor(pncorfile_);
 
 
   // Objects dealing with pulses

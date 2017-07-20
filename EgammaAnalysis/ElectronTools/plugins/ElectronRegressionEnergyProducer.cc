@@ -89,7 +89,7 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
   else if (energyRegressionType_ == 4) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV2;
 
   //load weights and initialize
-  regressionEvaluator->initialize(regressionInputFile_.c_str(),type);
+  regressionEvaluator->initialize(regressionInputFile_,type);
 
   geomInitialized_ = false;
 

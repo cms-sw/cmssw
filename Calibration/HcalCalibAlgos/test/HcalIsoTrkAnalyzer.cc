@@ -435,7 +435,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	  int hlt    = triggerResults->accept(iHLT);
 	  if (trigNames_.size() > 0) {
 	    for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	      if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 		t_trgbits->at(i) = (hlt>0);
 		if (hlt > 0) {ok = true; t_TrigPass = true;}
 #ifdef EDM_ML_DEBUG

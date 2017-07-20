@@ -143,7 +143,7 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   histname = "photon_pt"; histtitle = "photon PT";
   bookME(ibooker,photonME_,histname,histtitle,photon_binning_.nbins,photon_binning_.xmin, photon_binning_.xmax);

@@ -196,8 +196,8 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
   const unsigned int nProvenance = provenances.size();
   for (unsigned int ip = 0; ip < nProvenance; ip++) {
     const edm::StableProvenance& provenance = *( provenances[ip] );
-    if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
-    if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
+    if( provenance.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    if( provenance.moduleLabel() == ebReducedRecHitCollection_.label() || provenance.moduleLabel() == eeReducedRecHitCollection_.label() ){
        hasReducedRecHits_++;
     }
     if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }

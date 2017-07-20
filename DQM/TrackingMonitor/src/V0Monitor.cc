@@ -119,7 +119,7 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   MEbinning N_binning; N_binning.nbins = 15; N_binning.xmin = -0.5; N_binning.xmax = 14.5;
   v0_N_        = bookHisto1D(ibooker,"v0_N",        "# v0",     "# v0",                      "events",N_binning);

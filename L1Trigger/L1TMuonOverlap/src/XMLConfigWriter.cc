@@ -85,7 +85,7 @@ XMLConfigWriter::XMLConfigWriter(const OMTFConfiguration* aOMTFConfig){
 //////////////////////////////////////////////////
 void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
 
-  theDoc = domImpl->createDocument(0,_toDOMS(docName.c_str()), 0);
+  theDoc = domImpl->createDocument(0,_toDOMS(docName), 0);
   theTopElement = theDoc->getDocumentElement();
   
   unsigned int version = myOMTFConfig->patternsVersion();

@@ -273,7 +273,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      ibook.setCurrentFolder(dirName.c_str());
+      ibook.setCurrentFolder(dirName);
 
       const bool doResolutionPlots = doResolutionPlots_[www];
 

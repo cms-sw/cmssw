@@ -318,7 +318,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       for (unsigned int in=0; in<trigNames.size(); ++in) {
 	//	  if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos || triggerNames_[i]==" ") {
-	if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos) {
+	if (triggerNames_[i].find(trigNames[in])!=std::string::npos) {
 #ifdef DebugLog
 	  if (verbosity%10 > 0) std::cout << "trigger that i want " << triggerNames_[i] << " accept " << triggerResults->accept(i) << std::endl;
 #endif

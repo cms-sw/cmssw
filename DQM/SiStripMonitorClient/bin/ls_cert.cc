@@ -470,7 +470,7 @@ int nlumis( string filename )
 	      size_t pos2 = sflag.find_first_of(">");
 	      string detvalue = tempname.substr(0,pos1);
 	      string numlumisec = sflag.substr(1,pos2-1);
-	      if ( numlumisec.c_str() == (string)"iLumiSection" )
+	      if ( numlumisec == (string)"iLumiSection" )
 		{
 		  numlumis = atoi( detvalue.c_str() );
 		  break;

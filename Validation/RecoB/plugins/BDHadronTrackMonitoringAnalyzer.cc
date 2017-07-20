@@ -155,7 +155,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
     unsigned int flav = abs(jet->hadronFlavour());
 
     //std::cout << "patJet collection has pfImpactParameterTagInfo?: " << jet->hasTagInfo("pfImpactParameter") << std::endl;
-    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_.c_str());
+    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_);
     const std::vector<edm::Ptr<reco::Candidate> > & selectedTracks( trackIpTagInfo->selectedTracks() );
 
 

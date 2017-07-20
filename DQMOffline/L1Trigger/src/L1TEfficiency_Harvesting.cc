@@ -83,47 +83,47 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
     string etaS25 = "EffvsEta_SINGLE_25";
     string phiS25 = "EffvsPhi_SINGLE_25";
 
-    if (m_plotName == pt_sketo.c_str()) {
+    if (m_plotName == pt_sketo) {
         string title = "L1T Efficiency vs pt [-]";
         float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),32, xbins);
     }
-    if (m_plotName == ptS20.c_str()) {
+    if (m_plotName == ptS20) {
         string title = "";
         float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),32, xbins);
     }
-    else if (m_plotName == etaS20.c_str()) {
+    else if (m_plotName == etaS20) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
-    else if (m_plotName == phiS20.c_str()) {
+    else if (m_plotName == phiS20) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
-    else if (m_plotName == ptS16.c_str()) {
+    else if (m_plotName == ptS16) {
         string title = "";
         float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),32, xbins);
     }
-    else if (m_plotName == etaS16.c_str()) {
+    else if (m_plotName == etaS16) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
-    else if (m_plotName == phiS16.c_str()) {
+    else if (m_plotName == phiS16) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
-    else if (m_plotName == ptS25.c_str()) {
+    else if (m_plotName == ptS25) {
         string title = "";
         float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),32, xbins);
     }
-    else if (m_plotName == etaS25.c_str()) {
+    else if (m_plotName == etaS25) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
-    else if (m_plotName == phiS25.c_str()) {
+    else if (m_plotName == phiS25) {
         string title = "";
         m_effHisto = ibooker.book1D(m_plotName,title.c_str(),nBinsNum,min,max);
     }
@@ -165,39 +165,39 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
     string etaS25 = "EffvsEta_SINGLE_25";
     string phiS25 = "EffvsPhi_SINGLE_25";
 
-    if (m_plotName == ptS20.c_str()) {
+    if (m_plotName == ptS20) {
         effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
-    else if (m_plotName == etaS20.c_str()) {
+    else if (m_plotName == etaS20) {
         effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
-    else if (m_plotName == phiS20.c_str()) {
+    else if (m_plotName == phiS20) {
         effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
-    else if (m_plotName == ptS16.c_str()) {
+    else if (m_plotName == ptS16) {
         effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
-    else if (m_plotName == etaS16.c_str()) {
+    else if (m_plotName == etaS16) {
         effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
-    else if (m_plotName == phiS16.c_str()) {
+    else if (m_plotName == phiS16) {
         effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
-    else if (m_plotName == ptS25.c_str()) {
+    else if (m_plotName == ptS25) {
         effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }
-    else if (m_plotName == etaS25.c_str()) {
+    else if (m_plotName == etaS25) {
         effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }
-    else if (m_plotName == phiS25.c_str()) {
+    else if (m_plotName == phiS25) {
         effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
         effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }

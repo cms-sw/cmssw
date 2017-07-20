@@ -755,10 +755,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 	  MEyPFCand_.push_back(0.);
 	  
 	  profilePFCand_x_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str(),     std::string(v->getParameter<std::string>("name"))+"Px",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-	  profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str());
+	  profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_"));
 	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_x_name_[profilePFCand_x_name_.size()-1], profilePFCand_x_[profilePFCand_x_.size()-1]));
 	  profilePFCand_y_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str(),     std::string(v->getParameter<std::string>("name"))+"Py",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-	  profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str());
+	  profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_"));
 	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_y_name_[profilePFCand_y_name_.size()-1], profilePFCand_y_[profilePFCand_y_.size()-1]));
 	}
       }	

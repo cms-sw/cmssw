@@ -58,7 +58,7 @@ class AnalyzeTiming
 	    /* this for some reason creates duplicate entries in moduleTimes... */
 	    //	    moduleTimes[module_name] = tmp;
 
-	    moduleTimes[module_name.c_str()] = tmp;
+	    moduleTimes[module_name] = tmp;
 
 	  }
 

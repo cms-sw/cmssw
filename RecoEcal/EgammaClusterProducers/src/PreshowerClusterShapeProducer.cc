@@ -59,7 +59,7 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
   
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath.c_str()); 
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath); 
 
   LogTrace("EcalClusters") << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " ;
   

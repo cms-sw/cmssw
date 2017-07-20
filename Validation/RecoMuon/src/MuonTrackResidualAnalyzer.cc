@@ -105,7 +105,7 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     dirName.replace(dirName.find("Tracks"),6,"");
   }
   std::replace(dirName.begin(), dirName.end(), ':', '_');
-  ibooker.setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName);
   
   
   hDPtRef = ibooker.book1D("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);

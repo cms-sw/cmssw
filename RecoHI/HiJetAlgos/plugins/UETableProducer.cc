@@ -124,7 +124,7 @@ UETableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 UETableProducer::endJob() {
-  std::string qpDataName = calibrationFile_.c_str();
+  std::string qpDataName = calibrationFile_;
   std::ifstream textTable_(qpDataName.c_str());
 
   std::vector<float> ue_vec;

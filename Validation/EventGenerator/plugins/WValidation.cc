@@ -31,7 +31,7 @@ void WValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::Ev
     ///Setting the DQM top directories
     std::string folderName = "Generator/W";
     folderName+=_name;
-    DQMHelper dqm(&i); i.setCurrentFolder(folderName.c_str());
+    DQMHelper dqm(&i); i.setCurrentFolder(folderName);
     
     // Number of analyzed events
     nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");

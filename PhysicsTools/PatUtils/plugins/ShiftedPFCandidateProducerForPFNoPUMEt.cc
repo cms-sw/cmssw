@@ -22,7 +22,7 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
     edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")
       << "Reading JEC parameters = " << jetCorrUncertaintyTag_
       << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
+    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
     jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
   } else {
     edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")

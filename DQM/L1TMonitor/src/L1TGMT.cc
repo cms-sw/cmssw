@@ -512,7 +512,7 @@ void L1TGMT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
     hname = subs[i] + "_dbx"; htitle = "dBx " + subs[i] + " to previous event";
     subs_dbx[i] = ibooker.book2D(hname.data(),htitle.data(), 1000, 0., 1000., 4, 0., 4.);
     for(int j=0; j<4; j++) {
-      subs_dbx[i]->setBinLabel((j+1),subs[j].data(),2);
+      subs_dbx[i]->setBinLabel((j+1),subs[j],2);
     }
   }        
 }

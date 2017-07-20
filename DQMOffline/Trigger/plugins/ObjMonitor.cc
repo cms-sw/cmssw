@@ -58,7 +58,7 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {  
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if (do_met_) metDQM_.bookHistograms(ibooker);
   if (do_jet_) jetDQM_.bookHistograms(ibooker);

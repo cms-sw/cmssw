@@ -1532,7 +1532,7 @@ PathArgument::PathArgument( const char *key )
 
 
 PathArgument::PathArgument( const std::string &key )
-   : key_( key.c_str() )
+   : key_( key )
    , kind_( kindKey )
 {
 }

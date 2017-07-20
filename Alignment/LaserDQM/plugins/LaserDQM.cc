@@ -553,7 +553,7 @@ void LaserDQM::beginJob()
 
 void LaserDQM::endJob(void)
 {
-  theDaqMonitorBEI->save(theDQMFileName.c_str());
+  theDaqMonitorBEI->save(theDQMFileName);
 }
 
 void LaserDQM::fillAdcCounts(MonitorElement * theMonitor, 

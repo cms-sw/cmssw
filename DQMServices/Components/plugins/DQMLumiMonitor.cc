@@ -47,7 +47,7 @@ void DQMLumiMonitor::bookHistograms() {
   edm::ParameterSet LumiSecHistoPar =  parameters_.getParameter<edm::ParameterSet>("TH1LSPar");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   if (nClusME_ == 0) nClusME_ = dbe_->book1D("nPlxClus", " Number of Pixel Clusters ",
 					     ClusHistoPar.getParameter<int32_t>("Xbins"),

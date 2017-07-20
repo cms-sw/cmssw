@@ -81,7 +81,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // energy correction class
   if (applyEnergyCorrection_ )
-    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_.c_str(), ps);
+    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps);
     //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
   else
     energyCorrectionFunction_=0;

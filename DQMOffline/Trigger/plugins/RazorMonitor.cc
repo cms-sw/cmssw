@@ -105,7 +105,7 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   // 1D hist, MR
   histname = "MR"; histtitle = "PF MR";

@@ -68,7 +68,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
      
      //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-     dbe_->setCurrentFolder(sfolder.str().c_str());
+     dbe_->setCurrentFolder(sfolder.str());
      flag = true;
      } else if (isUpgrade) {
        //for endcap types there is nothing to do: 
@@ -101,7 +101,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
        
        //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       dbe_->setCurrentFolder(sfolder.str().c_str());
+       dbe_->setCurrentFolder(sfolder.str());
        flag = true;
      }//endif(isUpgrade)
    } 
@@ -143,7 +143,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
      
      //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-      dbe_->setCurrentFolder(sfolder.str().c_str());
+      dbe_->setCurrentFolder(sfolder.str());
       flag = true;
 
      } else if (isUpgrade) {
@@ -179,7 +179,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
        
        //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       dbe_->setCurrentFolder(sfolder.str().c_str());
+       dbe_->setCurrentFolder(sfolder.str());
        flag = true;
      }//endifendcap&&isUpgrade
    } else throw cms::Exception("LogicError")
@@ -234,7 +234,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
      
      //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-     iBooker.setCurrentFolder(sfolder.str().c_str());
+     iBooker.setCurrentFolder(sfolder.str());
      flag = true;
      } else if (isUpgrade) {
        //for endcap types there is nothing to do: 
@@ -267,7 +267,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
        
        //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       iBooker.setCurrentFolder(sfolder.str().c_str());
+       iBooker.setCurrentFolder(sfolder.str());
        flag = true;
      }//endif(isUpgrade)
    } 
@@ -309,7 +309,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
      
      //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-      iBooker.setCurrentFolder(sfolder.str().c_str());
+      iBooker.setCurrentFolder(sfolder.str());
       flag = true;
 
      } else if (isUpgrade) {
@@ -345,7 +345,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
        
        //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       iBooker.setCurrentFolder(sfolder.str().c_str());
+       iBooker.setCurrentFolder(sfolder.str());
        flag = true;
      }//endifendcap&&isUpgrade
    } else throw cms::Exception("LogicError")
@@ -363,7 +363,7 @@ bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
   std::ostringstream sfolder;
   
   sfolder << topFolderName << "/" << subDetectorFolder << "/" << sFed;
-  dbe_->setCurrentFolder(sfolder.str().c_str());
+  dbe_->setCurrentFolder(sfolder.str());
   
   return true;
 
@@ -377,7 +377,7 @@ bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker& iBooker, const uint
   std::ostringstream sfolder;
   
   sfolder << topFolderName << "/" << subDetectorFolder << "/" << sFed;
-  iBooker.setCurrentFolder(sfolder.str().c_str());
+  iBooker.setCurrentFolder(sfolder.str());
   
   return true;
 
@@ -407,7 +407,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     if ( PixelBarrelName(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
     else sfolder <<"F";
     sfolder << "/" <<smodule;
-    path = sfolder.str().c_str();
+    path = sfolder.str();
    
     //path = path + "/" + subDetectorFolder + "/" + sshell + "/" + slayer + "/" + sladder;
     //if(PixelBarrelName(DetId(rawdetid)).isHalfModule() )
@@ -432,7 +432,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     if ( PixelBarrelNameUpgrade(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
     else sfolder <<"F";
     sfolder << "/" <<smodule;
-    path = sfolder.str().c_str();
+    path = sfolder.str();
    
     //path = path + "/" + subDetectorFolder + "/" + sshell + "/" + slayer + "/" + sladder;
     //if(PixelBarrelNameUpgrade(DetId(rawdetid)).isHalfModule() )
@@ -456,7 +456,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
 
     std::ostringstream sfolder;
     sfolder <<topFolderName <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
-    path = sfolder.str().c_str();
+    path = sfolder.str();
     
     //path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
 
@@ -476,7 +476,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
 
     std::ostringstream sfolder;
     sfolder <<topFolderName <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
-    path = sfolder.str().c_str();
+    path = sfolder.str();
     
     //path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
 

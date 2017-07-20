@@ -57,7 +57,7 @@ private:
 	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
 	}
       
-      std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula").data();
+      std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula");
     
       edm::ParameterSet binCorrParameter = cfg.getParameter<edm::ParameterSet>("binCorrParameter");
 
@@ -71,7 +71,7 @@ private:
       int numParameter = parNames.size();
       binCorrParameter_.resize(numParameter);    
       for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
-        const std::string& parName = parNames[parIndex].data();
+        const std::string& parName = parNames[parIndex];
 
         double parValue = binCorrParameter.getParameter<double>(parName);
         binCorrParameter_[parIndex] = parValue;
@@ -126,7 +126,7 @@ Type2CorrectionProducer::Type2CorrectionProducer(const edm::ParameterSet& cfg)
     }
   else
     {
-      std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+      std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula");
       edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
       type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums, consumesCollector()));
     }

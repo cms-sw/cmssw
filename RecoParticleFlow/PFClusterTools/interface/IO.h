@@ -108,7 +108,7 @@ template <class T>
 bool pftools::IO::GetOpt(const char* tag, const char* key, std::vector< T >& values) const {
   std::string data = GetLineData(tag,key);
  
-  std::istringstream in(data.c_str());  
+  std::istringstream in(data);  
   while(1) {
     T tmp;
     in>>tmp;
@@ -123,7 +123,7 @@ template <class T>
 bool pftools::IO::GetOpt(const char* tag, const char* key, T& value) const {
   std::string data = GetLineData(tag,key);
   
-  std::istringstream in(data.c_str());  
+  std::istringstream in(data);  
   in>>value;
   if(in.good()) return true;
   else return false;
@@ -139,7 +139,7 @@ bool pftools::IO::GetAllOpt(const char* tag, const char* key, T& value) {
   std::string data = GetNextLineData(tag, key);
   if(data.empty()) return false;
   
-  std::istringstream in(data.c_str());  
+  std::istringstream in(data);  
   in>>value;
   if(in) {
     return true;

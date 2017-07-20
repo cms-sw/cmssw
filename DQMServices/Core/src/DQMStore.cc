@@ -2690,7 +2690,7 @@ DQMStore::save(const std::string &filename,
   // Construct a regular expression from the pattern string.
   std::auto_ptr<lat::Regexp> rxpat;
   if (! pattern.empty())
-    rxpat.reset(new lat::Regexp(pattern.c_str()));
+    rxpat.reset(new lat::Regexp(pattern));
 
   // Prepare a path for the reference object selection.
   std::string refpath;

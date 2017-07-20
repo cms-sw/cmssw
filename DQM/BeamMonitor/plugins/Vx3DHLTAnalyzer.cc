@@ -1103,7 +1103,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       reportSummary->Fill((numberFits != 0 ? ((double)numberGoodFits) / ((double)numberFits) : -1));
       reportSummaryMap->getTH1()->SetBinContent(1, 1, (numberFits != 0 ? ((double)numberGoodFits) / ((double)numberFits) : -1));
 
-      fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      fitResults->setAxisTitle(histTitle.str(), 1);
 
       fitResults->setBinContent(1, 9, vals[0]);
       fitResults->setBinContent(1, 8, vals[1]);
@@ -1278,7 +1278,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
   else if ((nLumiFit != 0) && (lumiCounter%nLumiFit != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
       histTitle << "Ongoing: accumulating evts (" << lumiCounter%nLumiFit << " - " << nLumiFit << " in " << lumiCounter << " - " << maxLumiIntegration << " lumis)";
-      fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      fitResults->setAxisTitle(histTitle.str(), 1);
       if ((debugMode == true) && (outputDebugFile.is_open() == true))
 	{
 	  outputDebugFile << "\n" << "Runnumber " << runNumber << endl;
@@ -1290,7 +1290,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
   else if ((nLumiFit == 0) || (beginTimeOfFit == 0) || (runNumber == 0))
     {
       histTitle << "Ongoing: no ongoing fits";
-      fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      fitResults->setAxisTitle(histTitle.str(), 1);
       if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << histTitle.str().c_str() << "\n" << endl;
 
       endLumiOfFit = lumiBlock.luminosityBlock();

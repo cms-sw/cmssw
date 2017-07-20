@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   edm::InputTag muons_( ana.getParameter<edm::InputTag>("muons") );
 
   // book a set of histograms
-  fwlite::TFileService fs = fwlite::TFileService(outputHandler_.file().c_str());
+  fwlite::TFileService fs = fwlite::TFileService(outputHandler_.file());
   TFileDirectory dir = fs.mkdir("analyzeBasicPat");
   TH1F* muonPt_  = dir.make<TH1F>("muonPt"  , "pt"  ,   100,   0.,  300.);
   TH1F* muonEta_ = dir.make<TH1F>("muonEta" , "eta" ,   100,  -3.,    3.);

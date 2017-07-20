@@ -238,11 +238,11 @@ std::unique_ptr<GoldenPattern> XMLConfigReader::buildGP(DOMElement* aGPElement,
   std::ostringstream stringStr;
   if (index>0) stringStr<<"iPt"<<index;
   else stringStr.str("iPt");
-  XMLCh *xmliPt=_toDOMS(stringStr.str().c_str());
+  XMLCh *xmliPt=_toDOMS(stringStr.str());
   stringStr.str("");
   if (index>0) stringStr<<"value"<<index;
   else stringStr.str("value");
-  XMLCh *xmlValue=_toDOMS(stringStr.str().c_str());
+  XMLCh *xmlValue=_toDOMS(stringStr.str());
   
   XMLCh *xmliCharge= _toDOMS("iCharge");
   XMLCh *xmlLayer= _toDOMS("Layer");

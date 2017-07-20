@@ -47,7 +47,7 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
         dirName+="_TkAsso";
       }
       std::replace(dirName.begin(), dirName.end(), ':', '_');
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
 
       h_tracks.push_back( ibooker.book1D("Ntracks","Number of reconstructed tracks",100,-0.5,99.5) );
       h_fakes.push_back( ibooker.book1D("Nfakes","Number of fake reco tracks",20,-0.5,19.5) );

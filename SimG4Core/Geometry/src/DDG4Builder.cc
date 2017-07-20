@@ -233,7 +233,7 @@ double DDG4Builder::getDouble(const std::string & s,
     }
     double v;
     std::string unit;
-    std::istringstream is(temp[0].c_str());
+    std::istringstream is(temp[0]);
     is >> v >> unit;
     v  = v*G4UnitDefinition::GetValueOf(unit.substr(1,unit.size()));
     return v;

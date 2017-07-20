@@ -110,8 +110,8 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
 
     theEnCorrector = new ElectronEnergyCalibrator
         (
-            edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(),
-            edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath().c_str(),
+            edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath(),
+            edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath(),
             dataset,
             correctionsType,
             applyLinearityCorrection,
@@ -131,7 +131,7 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     myEpCombinationTool = new EpCombinationTool();
     myEpCombinationTool->init
         (
-            edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),
+            edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath(),
             "CombinationWeight"
         );
 

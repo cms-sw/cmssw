@@ -20,7 +20,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
       std::ostringstream tauN_str;
       tauN_str << "tau" << *n;
 
-      produces<edm::ValueMap<float> >(tauN_str.str().c_str());
+      produces<edm::ValueMap<float> >(tauN_str.str());
     }
 
 
@@ -102,7 +102,7 @@ void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       fillerT.insert(jets, tauN.begin(), tauN.end());
       fillerT.fill();
 
-      iEvent.put(std::move(outT),tauN_str.str().c_str());
+      iEvent.put(std::move(outT),tauN_str.str());
     }
 }
 

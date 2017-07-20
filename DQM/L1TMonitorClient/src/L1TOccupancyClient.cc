@@ -108,7 +108,7 @@ void L1TOccupancyClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
       ibooker.setCurrentFolder("L1T/L1TOccupancy/Results");
       string          title = testName;
       MonitorElement* m     = ibooker.book2D(title.c_str(),hservice_->getDifferentialHistogram(testName));
-      m->setTitle(title.c_str()); 
+      m->setTitle(title); 
       m->Reset();
       meResults[title] = m; 
 
@@ -117,14 +117,14 @@ void L1TOccupancyClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
       title = testName;
       m = ibooker.book2D(title.c_str(),hservice_->getDifferentialHistogram(testName));
       m->Reset();
-      m->setTitle(title.c_str());
+      m->setTitle(title);
       meDifferential[title] = m;
       
       // * Fraction of bad cells
       ibooker.setCurrentFolder("L1T/L1TOccupancy/Certification");
       title = testName;
       m = ibooker.book1D(title.c_str(),title.c_str(),2500,-.5,2500.-.5);
-      m->setTitle(title.c_str());
+      m->setTitle(title);
       meCertification[title] = m;
    
         mValidTests.push_back(&(*it));

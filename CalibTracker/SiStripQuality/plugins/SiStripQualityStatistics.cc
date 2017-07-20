@@ -49,9 +49,9 @@ void SiStripQualityStatistics::endJob(){
 
   std::string filename=TkMapFileName_;
   if (filename!=""){
-    tkMapFullIOVs->save(false,0,0,filename.c_str());
+    tkMapFullIOVs->save(false,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
-    tkMapFullIOVs->print(false,0,0,filename.c_str());
+    tkMapFullIOVs->print(false,0,0,filename);
   
     if(saveTkHistoMap_){
       tkhisto->save(filename+".root");
@@ -269,9 +269,9 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     
   if (filename!=""){
     filename.insert(filename.find("."),sRun.str());
-    tkMap->save(true,0,0,filename.c_str());
+    tkMap->save(true,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
-    tkMap->print(true,0,0,filename.c_str());
+    tkMap->print(true,0,0,filename);
   }
 }
 

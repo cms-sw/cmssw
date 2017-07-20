@@ -75,7 +75,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
             } else {
                   pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
             }
-            produces<std::vector<double> >(pdfShortNames_[k].data());
+            produces<std::vector<double> >(pdfShortNames_[k]);
       }
 }
 

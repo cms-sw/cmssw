@@ -171,7 +171,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
 
   Handle< HepMCProduct > hepProd ;
-  evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
+  evt.getByLabel( mcProducer_,  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
 
 

@@ -202,7 +202,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c)
       float thickness=stripdet->specificSurface().bounds().thickness();
       
       folder_organizer.setDetectorFolder(Iditer->rawId(), tTopo);
-      hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
+      hid = hidmanager.createHistoId(TkTag.label(),"det",Iditer->rawId());
       MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
       detparameters *param=new detparameters;
       histos[Iditer->rawId()] = profile;
@@ -221,7 +221,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c)
       std::string name;
       unsigned int layerid;
       getlayer(subid,tTopo,name,layerid);
-      name+=TkTag.label().c_str();
+      name+=TkTag.label();
       if(summaryhisto.find(layerid)==(summaryhisto.end())){
 	folder_organizer.setSiStripFolder();
 	MonitorElement * summaryprofile=0;

@@ -75,7 +75,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
       sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
       filename.insert(filename.find("."),sRun);
       
-      saveTkMap(filename.c_str(), minValue, maxValue);
+      saveTkMap(filename, minValue, maxValue);
     }
   }
 }
@@ -1186,7 +1186,7 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(const std::vector
 
 //==========================
 void SiStripBaseCondObjDQM::bookTkMap(const std::string& TkMapname){
-  tkMap= new TrackerMap(TkMapname.c_str());
+  tkMap= new TrackerMap(TkMapname);
 }
 
 //==========================
@@ -1235,7 +1235,7 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
     }
   }
   
-  tkMap->save(false, minValue, maxValue, TkMapname.c_str(),4500,2400);
+  tkMap->save(false, minValue, maxValue, TkMapname,4500,2400);
   tkMap->setPalette(1); tkMap->showPalette(true);
   
 }

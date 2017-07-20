@@ -434,7 +434,7 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
          total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
          total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
          for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
-            total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+            total->setBinLabel(u+1,theHLTCollectionLabels[u].label());
          }
       }
     
@@ -444,7 +444,7 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
       totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
       for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
-         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label());
       }
     
       MonitorElement* tmphisto;

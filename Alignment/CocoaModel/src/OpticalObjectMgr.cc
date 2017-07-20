@@ -74,8 +74,8 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
   std::vector< OpticalObject* >::const_iterator vocite;
   for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     ALIstring name = (*vocite)->name();
-    ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str() );
-    if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str() ); //not for the 'system'
+    ALIUtils::dump3v( (*vocite)->centreGlobal(), name + " CENTRE GLOBAL: " );
+    if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  name + "  CENTRE LOCAL: " ); //not for the 'system'
   }
 
 }

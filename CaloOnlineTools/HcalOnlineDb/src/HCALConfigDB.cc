@@ -178,7 +178,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, uint32_t 
     query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
     
     //SELECT
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    ResultSet *rs = stmt->executeQuery(query);
 
     _condition_data_set_id = 0.0;
 
@@ -244,7 +244,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, ui
       query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
       
       //SELECT
-      ResultSet *rs = stmt->executeQuery(query.c_str());
+      ResultSet *rs = stmt->executeQuery(query);
       
       _condition_data_set_id = 0.0;
       

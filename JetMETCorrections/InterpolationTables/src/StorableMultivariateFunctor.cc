@@ -15,7 +15,7 @@ namespace npstat {
             mesage += "\" is different from the object description string \"";
             mesage += description_;
             mesage += "\"";
-            throw npstat::NpstatRuntimeError(mesage.c_str());
+            throw npstat::NpstatRuntimeError(mesage);
         }
     }
 

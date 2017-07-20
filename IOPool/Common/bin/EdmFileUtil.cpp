@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
     bool onlyDecodeLFN = decodeLFN && !(uuid || adler32 || allowRecovery || json || events || tree || ls || print || printBranchDetails);
-    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName().c_str();
+    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName();
 
     if (events||eventsInLumis) {
       try {
