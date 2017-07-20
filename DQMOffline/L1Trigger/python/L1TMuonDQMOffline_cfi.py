@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 muonEfficiencyThresholds = [16, 20, 25]
 
-l1tMuonOfflineDQM = cms.EDAnalyzer("L1TMuonOffline",
+l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
     histFolder = cms.untracked.string('L1T/L1TMuon'),
     gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.L1Trigger.L1TMuonOffline_cfi import muonEfficiencyThresholds
+from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import muonEfficiencyThresholds
 
 plots = ["EffvsPt", "EffvsEta", "EffvsPhi",
         "EffvsPt_OPEN", "EffvsEta_OPEN", "EffvsPhi_OPEN",
@@ -14,7 +14,7 @@ for plot in plots:
         allEfficiencyPlots.append(plotName)
 
 from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
-l1tMuonEfficiency = l1tEfficiencyHarvesting.clone(
+l1tMuonDQMEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs = cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir = cms.untracked.string("L1T/L1TMuon/numerators_and_denominators"),
