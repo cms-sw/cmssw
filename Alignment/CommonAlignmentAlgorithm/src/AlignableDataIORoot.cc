@@ -128,7 +128,7 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 
   align::StructureType typeId = ali->alignableObjectId();
   align::ID id = ali->id();
-  std::vector<double> deformPars = std::vector<double>();
+  std::vector<double> deformPars; deformPars.reserve(numDeformationValues_);
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
@@ -159,7 +159,7 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
 
   align::StructureType typeId = ali->alignableObjectId();
   align::ID id = ali->id();
-  std::vector<double> deformPars = std::vector<double>();
+  std::vector<double> deformPars; deformPars.reserve(numDeformationValues_);
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
