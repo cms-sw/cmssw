@@ -59,6 +59,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , nelectrons_ ( iConfig.getParameter<unsigned int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
   , leptJetDeltaRmin_     ( iConfig.getParameter<double>("leptJetDeltaRmin" )     )
+  , bJetMuDeltaRmax_     ( iConfig.getParameter<double>("bJetMuDeltaRmax" )     )
+  , bJetDeltaEtaMax_     ( iConfig.getParameter<double>("bJetDeltaEtaMax" )     )
   , HTcut_     ( iConfig.getParameter<double>("HTcut" )     )
   // Marina
   , nbjets_    ( iConfig.getParameter<unsigned int>("nbjets"))
@@ -639,6 +641,27 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   if (bjets.size() < nbjets_ ) return;  
 
+  if (nbjets_ > 1){
+      double deltaEta = std::abs(bjets.begin()->first->eta()-(++bjets.begin())->first->eta());
+      if (deltaEta > bJetDeltaEtaMax_) return;
+  }
+
+  if ( (nbjets_>0) && (nmuons_>0)){
+      bool foundMuonInsideJet = false;
+      for (const auto & bjet : bjets){
+          for (const auto & mu : muons){
+              double dR = deltaR(*bjet.first,mu);
+              if (dR < bJetMuDeltaRmax_){
+                  foundMuonInsideJet = true;
+                  break;
+              }
+          }
+          if(foundMuonInsideJet) break;
+      }
+
+      if (!foundMuonInsideJet) return;
+  }
+
   // filling histograms (denominator)  
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
@@ -881,6 +904,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<unsigned int>("nelectrons", 0);
   desc.add<unsigned int>("nmuons",     0);
   desc.add<double>("leptJetDeltaRmin", 0);
+  desc.add<double>("bJetMuDeltaRmax" , 9999.);
+  desc.add<double>("bJetDeltaEtaMax" , 9999.);
   desc.add<double>("HTcut", 0);
   // Marina                               
   desc.add<unsigned int>("nbjets",     0);

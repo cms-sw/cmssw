@@ -86,6 +86,8 @@ hltTOPmonitoring.workingpoint     = cms.double(0.8484) # Medium
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)
+hltTOPmonitoring.bJetMuDeltaRmax  = cms.double(9999.)
+hltTOPmonitoring.bJetDeltaEtaMax  = cms.double(9999.)
 
 hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

@@ -273,6 +273,19 @@ topElecMuonHLTMonitor_Mu23Ele12 = topElecMuonHLTMonitor.clone()
 topElecMuonHLTMonitor_Mu23Ele12.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12/')
 topElecMuonHLTMonitor_Mu23Ele12.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
+#reference paths
+topElecMuonHLTMonitor_Mu12Ele23_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu12Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu12Ele23_Ref/')
+topElecMuonHLTMonitor_Mu12Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
+
+topElecMuonHLTMonitor_Mu8Ele23_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu8Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu8Ele23_Ref/')
+topElecMuonHLTMonitor_Mu8Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
+
+topElecMuonHLTMonitor_Mu23Ele12_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu23Ele12_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12_Ref/')
+topElecMuonHLTMonitor_Mu23Ele12_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*')
+
 
 # Marina
 
@@ -530,6 +543,68 @@ fullyhadronic_TripleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500
 fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_HT300PT30_QuadJet_75_60_45_40_TripeCSV_p07_v*')
 fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_HT300PT30_QuadJet_75_60_45_40_v*')
 
+#DeepCSV
+
+fullyhadronic_DoubleBTag_DeepCSV_all = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_DeepCSV_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor_DeepCSV/')
+# Selections
+fullyhadronic_DoubleBTag_DeepCSV_all.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_DeepCSV_all.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_DeepCSV_all.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_all.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_DeepCSV_all.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_DeepCSV_all.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags")
+fullyhadronic_DoubleBTag_DeepCSV_all.workingpoint     = cms.double(0.6324) # DeepCSV Medium
+# Binning
+fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers 
+fullyhadronic_DoubleBTag_DeepCSV_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
+
+fullyhadronic_DoubleBTag_DeepCSV_jet = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_DeepCSV_jet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor_DeepCSV/')
+# Selections
+fullyhadronic_DoubleBTag_DeepCSV_jet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_DeepCSV_jet.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_DeepCSV_jet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_jet.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_DeepCSV_jet.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_DeepCSV_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags")
+fullyhadronic_DoubleBTag_DeepCSV_jet.workingpoint = cms.double(0.6324) # DeepCSV Medium
+# Binning 
+fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_DoubleBTag_DeepCSV_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v*')
+
+fullyhadronic_DoubleBTag_DeepCSV_bjet = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_DeepCSV_bjet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor_DeepCSV/')
+# Selections
+fullyhadronic_DoubleBTag_DeepCSV_bjet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_DeepCSV_bjet.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_DeepCSV_bjet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_DeepCSV_bjet.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_DeepCSV_bjet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags")
+fullyhadronic_DoubleBTag_DeepCSV_bjet.workingpoint     = cms.double(0.45)
+# Binning
+fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_DoubleBTag_DeepCSV_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_v*')
+
 
 topMonitorHLT = cms.Sequence(
     topEleJet_ele
@@ -568,10 +643,16 @@ topMonitorHLT = cms.Sequence(
     + topElecMuonHLTMonitor_Mu12Ele23
     + topElecMuonHLTMonitor_Mu8Ele23
     + topElecMuonHLTMonitor_Mu23Ele12
+    + topElecMuonHLTMonitor_Mu12Ele23_ref
+    + topElecMuonHLTMonitor_Mu8Ele23_ref
+    + topElecMuonHLTMonitor_Mu23Ele12_ref
     + topDiMuonHLTMonitor_Dz_Mu17_Mu8
     + topDiMuonHLTMonitor_Dz_Mu17_TkMu8
     + topDiMuonHLTMonitor_Dz_TkMu17_TkMu8
     + topDiMuonHLTMonitor_Mu17_Mu8
     + topDiMuonHLTMonitor_Mu17_TkMu8
     + topDiMuonHLTMonitor_TkMu17_TkMu8
+    + fullyhadronic_DoubleBTag_DeepCSV_all
+    + fullyhadronic_DoubleBTag_DeepCSV_jet
+    + fullyhadronic_DoubleBTag_DeepCSV_bjet
     )
