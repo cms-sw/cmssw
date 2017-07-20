@@ -752,7 +752,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
           break;
         }
       }
-      if(fedConnections[good_fcc_index]!=NULL){
+      if(good_fcc_index!=-999 && fedConnections[good_fcc_index]!=NULL){
         int temp_fedid = fedConnections[good_fcc_index]->fedId();
         if(FEDID_v_clustersum.find(temp_fedid) != FEDID_v_clustersum.end()){
           if(cluster_detset.size() < 1000 && !cluster_detset.empty()){
