@@ -121,6 +121,7 @@ btvObjects = cms.VPSet(
        cms.PSet(
            pathNAME = cms.string("HLT_Mu12_DoublePFJets200_CaloBTagCSV_p33"),
            moduleNAME = cms.string("hltBTagCalo30x8CSVp0p92SingleWithMatching"),
+#           label  = cms.string("CALO b-jet (single w/ muon)"),
            label  = cms.string("CALO b-jet (single w muon)"),
            xTITLE = cms.string("CALO b-jet"),
            etaBINNING    = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.,0.5,1.0,1.5,2.0,2.5),
