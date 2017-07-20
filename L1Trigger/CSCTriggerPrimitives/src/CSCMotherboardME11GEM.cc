@@ -54,20 +54,9 @@ const int CSCMotherboardME11GEM::lut_wg_vs_hs_me1b[48][2] = {
 {0, 93},{0, 78},{0, 63} };
 
 // LUT with bending angles of the GEM-CSC high efficiency patterns (98%)
-// 1st index: pt value = {5,10,15,20,30,40}
+// 1st index: pt value = {3,5,7,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
-/*
-const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
-  {5.,  0.02203511, 0.00930056},
-  {6 ,  0.0182579 , 0.00790009},
-  {10., 0.01066000, 0.00483286},
-  {15., 0.00722795, 0.00363230},
-  {20., 0.00562598, 0.00304878},
-  {30., 0.00416544, 0.00253782},
-  {40., 0.00342827, 0.00230833} };
-*/
-
 const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
   {3, 0.03971647, 0.01710244},
   {5, 0.02123785, 0.00928431},
