@@ -54,7 +54,7 @@ set NNPRRD = 20
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
-set EraRun2pp2017  = " --era=Run2_2017 "
+set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp      = " --era=Run2_2017 "
 set EraRun2HI      = " --era=Run2_2016,Run2_HI "
  
@@ -171,7 +171,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp2017
+      set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == 2e34_v2 ) then
@@ -183,7 +183,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp2017
+      set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
