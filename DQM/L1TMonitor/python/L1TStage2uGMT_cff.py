@@ -80,6 +80,9 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
 l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
 l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
 
+# List of bins to ignore
+ignoreBins = [1]
+
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
 # only muons that do not match are filled in the histograms
 l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
@@ -90,6 +93,7 @@ l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
     regionalMuonCollection1Title = cms.untracked.string("BMTF output data"),
     regionalMuonCollection2Title = cms.untracked.string("uGMT input data from BMTF"),
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF output muons and uGMT input muons from BMTF"),
+    ignoreBin = cms.untracked.vint32(ignoreBins),
     verbose = cms.untracked.bool(False),
 )
 
