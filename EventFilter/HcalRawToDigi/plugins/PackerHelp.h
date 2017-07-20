@@ -144,6 +144,8 @@ namespace TPHeaderSpec{
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
+  static const int OFFSET_SOI_BIT = 14;
+  static const int MASK_SOI_BIT = 0x1;
 }
 
 namespace QIE8SampleSpec{
@@ -552,7 +554,7 @@ public:
       auto raw = qiedf->sample(iTS).raw();
       // Add SOI information
       if (iTS == qiedf->presamples())
-         raw |= 0x4000;
+         raw |= TPHeaderSpec::MASK_SOI_BIT << TPHeaderSpec::OFFSET_SOI_BIT;
       uhtrs[uhtrIndex].push_back(raw);
     }// end loop over dataframe words
   };
