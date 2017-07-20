@@ -161,7 +161,7 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
     float z_tmp = 0.0;
 
     // ignore layers with no digis
-    if (p.second.size()==0) continue;
+    if (p.second.empty()) continue;
 
     // loop on all matching digis in this layer
     for (const auto& hit: p.second) {
