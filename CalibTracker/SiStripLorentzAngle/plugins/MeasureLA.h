@@ -32,7 +32,7 @@ class MeasureLA : public edm::ESProducer {
   void store_calibrations();
   void store_methods_and_granularity(const edm::VParameterSet&);
 
-  void summarize_module_muH_byLayer();
+  void summarize_module_muH_byLayer(const LA_Filler_Fitter&);
   void process_reports() const;
   template<class T>
   void write_report_text(const std::string, const LA_Filler_Fitter::Method&, const std::map<T,LA_Filler_Fitter::Result>&) const;
@@ -40,8 +40,8 @@ class MeasureLA : public edm::ESProducer {
   void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
   void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method);
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method);
+  std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method) const;
+  std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method) const ;
 
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;
@@ -54,6 +54,7 @@ class MeasureLA : public edm::ESProducer {
   const unsigned stripsperbin,maxEvents;
   Book book;
 
+  std::unique_ptr<TrackerTopology> tTopo_;
 };
 
 }
