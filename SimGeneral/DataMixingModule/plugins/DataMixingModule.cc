@@ -71,9 +71,9 @@ namespace edm
 
     // Check to see if we are working in Full or Fast Simulation
 
-    MergeTrackerDigis_ = (ps.getParameter<std::string>("TrackerMergeType")).compare("Digis") == 0;
-    MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")).compare("Digis") == 0;
-    MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")).compare("Digis") == 0;
+    MergeTrackerDigis_ = (ps.getParameter<std::string>("TrackerMergeType")) == "Digis";
+    MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")) == "Digis";
+    MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")) == "Digis";
     if(MergeHcalDigis_) MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
     addMCDigiNoise_ = false;

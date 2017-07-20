@@ -60,7 +60,7 @@ namespace edm {
     typename SizeType = unsigned int,//the type used here can not change when go from 32bit to 64bit or across platforms
     typename KeyReferenceHelper = typename helper::AssociationKeyReferenceTrait<KeyRef>::type>
   class AssociationVector {
-    BOOST_STATIC_ASSERT((boost::is_convertible<SizeType, typename CVal::size_type>::value));
+    static_assert(std::is_convertible<SizeType, typename CVal::size_type>::value, "Can not convert container size_type to unsigned int.");
     typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> self;
 
   public:

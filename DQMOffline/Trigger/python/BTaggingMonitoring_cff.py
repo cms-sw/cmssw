@@ -425,7 +425,6 @@ PFJetFwd500.histoPSet.jetEtaBinning = cms.vdouble(-5.0,-4.7,-4.4,-4.1,-3.8,-3.5,
 PFJetFwd500.histoPSet.jetEtaBinning2D = cms.vdouble(-5.0,-4.7,-4.4,-4.1,-3.8,-3.5,-3.2,-2.9,-2.7,-2.4,-2.1,0.0,2.1,2.4,2.7,2.9,3.2,3.5,3.8,4.1,4.4,4.7,5.0)
 PFJetFwd500.histoPSet.etaPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(-5.0), xmax=cms.double(5.0))
 
-
 #PFJetFwd AK8
 AK8PFJetFwd40 = hltBTVmonitoring.clone()
 AK8PFJetFwd40.FolderName = cms.string('HLT/BTV/PFJet/AK8PFJetFwd40')

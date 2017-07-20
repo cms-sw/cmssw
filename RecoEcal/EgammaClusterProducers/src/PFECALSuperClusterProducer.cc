@@ -141,7 +141,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   //Load the ECAL energy calibration
   thePFEnergyCalibration_ = 
-    std::shared_ptr<PFEnergyCalibration>(new PFEnergyCalibration());
+    std::make_shared<PFEnergyCalibration>();
   superClusterAlgo_.setPFClusterCalibration(thePFEnergyCalibration_);
   superClusterAlgo_.setUsePS(iConfig.getParameter<bool>("use_preshower"));
 

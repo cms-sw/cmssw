@@ -9,6 +9,7 @@
 #include <vector>
 #include <pwd.h>
 #include <ctime>
+#include <unistd.h>
 
 constexpr char ItemSeparator = ';';
 constexpr char LineSeparator = '!';
