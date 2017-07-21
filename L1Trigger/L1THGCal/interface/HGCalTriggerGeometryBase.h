@@ -22,12 +22,6 @@
 class HGCalTriggerGeometryBase 
 { 
     public:  
-        struct es_info 
-        {
-            edm::ESHandle<HGCalGeometry> geom_ee, geom_fh, geom_bh;
-            edm::ESHandle<HGCalTopology> topo_ee, topo_fh, topo_bh;
-        };
-
         typedef std::unordered_map<unsigned,unsigned> geom_map;
         typedef std::unordered_set<unsigned> geom_set;
         typedef std::set<unsigned> geom_ordered_set;
@@ -37,10 +31,6 @@ class HGCalTriggerGeometryBase
 
         const std::string& name() const { return name_; } 
 
-        const std::string& eeSDName() const { return ee_sd_name_; } 
-        const std::string& fhSDName() const { return fh_sd_name_; } 
-        const std::string& bhSDName() const { return bh_sd_name_; } 
-        const es_info& cellInfo() const {return es_info_;}
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
         const HGCalGeometry& eeGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE));}
         const HGCalGeometry& fhGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF));}
@@ -73,17 +63,12 @@ class HGCalTriggerGeometryBase
         virtual bool validTriggerCell( const unsigned trigger_cell_id) const = 0;
 
     protected:
-        void setCellInfo(const es_info& es) {es_info_=es;}
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}
 
 
     private:
         const std::string name_;
-        const std::string ee_sd_name_;
-        const std::string fh_sd_name_;
-        const std::string bh_sd_name_;  
 
-        es_info es_info_;
         edm::ESHandle<CaloGeometry> calo_geometry_;
 
 };

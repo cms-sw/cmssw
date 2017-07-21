@@ -63,7 +63,6 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalTriggerCellBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
-        HGCalTriggerGeometryBase::es_info info_;
 
         // histos
         TH1F* hgcCellData_;
@@ -163,17 +162,6 @@ void HGCalTriggerBestChoiceTriggerCellTester::beginRun(const edm::Run& /*run*/,
         const edm::EventSetup& es)
 {
     es.get<CaloGeometryRecord>().get(triggerGeometry_);
-
-    const std::string& ee_sd_name = triggerGeometry_->eeSDName();
-    const std::string& fh_sd_name = triggerGeometry_->fhSDName();
-    const std::string& bh_sd_name = triggerGeometry_->bhSDName();
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.geom_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.geom_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.geom_bh);
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.topo_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.topo_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.topo_bh);
-
 }
 
 void HGCalTriggerBestChoiceTriggerCellTester::analyze(const edm::Event& e, 
@@ -311,7 +299,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
             simid = (HGCalDetId)simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_ee->dddConstants().simToReco(cell,layer,sec,info_.topo_ee->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->eeTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->eeTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
@@ -348,7 +336,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
             simid = (HGCalDetId) simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_fh->dddConstants().simToReco(cell,layer,sec,info_.topo_fh->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->fhTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->fhTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
