@@ -3,18 +3,6 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-//#include <iostream>
-//#include <unordered_set>
-//#include <unordered_map>
-
-//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
-
-//#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-//#include "Geometry/CaloTopology/interface/HGCalTopology.h"
-
 /*******
  *
  * class: HGCalTriggerGeometryGenericMapping
@@ -131,22 +119,8 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   virtual ~HGCalTriggerGeometryGenericMapping() {}
 
   // non-const access to the geometry class
-  //virtual void initialize( const es_info& ) = 0;
   virtual void reset() override final;
   
-  // const access to the geometry class  
-  // all of the get*From* functions return nullptr if the thing you
-  // ask for doesn't exist
-  //const std::unique_ptr<const HGCalTriggerGeometry::TriggerCell>& getTriggerCellFromCell( const unsigned cell_det_id ) const;
-  //const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromCell( const unsigned cell_det_id ) const;
-  //const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const;
-
-  //const geom_map& cellsToTriggerCellsMap() const { return cells_to_trigger_cells_; }
-  //const geom_map& triggerCellsToModulesMap() const { return trigger_cells_to_modules_; }
-  
-  //const module_map& modules() const { return modules_; }
-  //const trigger_cell_map& triggerCells() const { return trigger_cells_; }
-
   virtual unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const override final;
   virtual unsigned getModuleFromCell( const unsigned cell_det_id ) const override final;
   virtual unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
