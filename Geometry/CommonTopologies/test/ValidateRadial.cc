@@ -127,10 +127,10 @@ test_topology(const TkRadialStripTopology* t, unsigned i) {
   std::cout << "\nCSC\n" << oldt << std::endl;
 
 
-  TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
+  TProfile prof(("se2limit1"+std::to_string(i)).c_str(),
 		"Precision Limit of recoverable strip error (1st order);strip;strip error",
 		t->nstrips()/8,0,t->nstrips());
-  TProfile prof2(("se2limit2"+boost::lexical_cast<std::string>(i)).c_str(),
+  TProfile prof2(("se2limit2"+std::to_string(i)).c_str(),
 		 "Precision Limit of recoverable strip error (2nd order);strip;strip error",
 		 t->nstrips()/8,0,t->nstrips());
   for(float strip = 0; strip<t->nstrips(); strip+=0.5) {

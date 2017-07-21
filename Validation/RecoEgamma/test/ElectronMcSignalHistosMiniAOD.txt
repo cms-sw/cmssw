@@ -28,7 +28,7 @@ Electron Cluster shapes
 ElectronMcSignalValidatorMiniAOD/h_ele_HoE_mAOD                         1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_HoE_mAOD_barrel                  1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_HoE_mAOD_endcaps                 1 1 1 0
-ElectronMcSignalValidatorMiniAOD/h_ele_sigmaIetaIetaVsPt_pfx            1 1 1 0
+ElectronMcSignalValidatorMiniAOD/h_ele_sigmaIetaIetaVsPt_pfx            0 1 1 0
 ElectronMcSignalValidatorMiniAOD/h_scl_SigIEtaIEta_mAOD                 1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_scl_SigIEtaIEta_mAOD_barrel          1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_scl_SigIEtaIEta_mAOD_endcaps         1 1 1 1

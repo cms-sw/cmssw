@@ -1,29 +1,10 @@
-// -*- C++ -*-
-//
-// Package:    dumpEcalTrigTowerMapping
-// Class:      dumpEcalTrigTowerMapping
-// 
-/**\class dumpEcalTrigTowerMapping dumpEcalTrigTowerMapping.cc test/dumpEcalTrigTowerMapping/src/dumpEcalTrigTowerMapping.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
-
-
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -42,48 +23,31 @@
 
 #include <iostream>
 
-//
-// class decleration
-//
-
-class dumpEcalTrigTowerMapping : public edm::one::EDAnalyzer<> {
+class DumpEcalTrigTowerMapping : public edm::one::EDAnalyzer<> {
 public:
-  explicit dumpEcalTrigTowerMapping( const edm::ParameterSet& );
-  ~dumpEcalTrigTowerMapping() override;
+  explicit DumpEcalTrigTowerMapping( const edm::ParameterSet& );
+  ~DumpEcalTrigTowerMapping() override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  // ----------member data ---------------------------
   void build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name);
   int towerColor(const EcalTrigTowerDetId& theTower);
   int pass_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-dumpEcalTrigTowerMapping::dumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ )
+DumpEcalTrigTowerMapping::DumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ )
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
   pass_=0;
   // some setup for root
   gROOT->SetStyle("Plain");          // white fill colors etc.
   gStyle->SetPaperSize(TStyle::kA4);
 }
 
-
-dumpEcalTrigTowerMapping::~dumpEcalTrigTowerMapping()
+DumpEcalTrigTowerMapping::~DumpEcalTrigTowerMapping()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -91,7 +55,7 @@ dumpEcalTrigTowerMapping::~dumpEcalTrigTowerMapping()
 
 }
 
-int dumpEcalTrigTowerMapping::towerColor(const EcalTrigTowerDetId& theTower)
+int DumpEcalTrigTowerMapping::towerColor(const EcalTrigTowerDetId& theTower)
 {
   int iEtaColorIndex=(theTower.ietaAbs()-1)%2;
   int iPhiColorIndex = 0;
@@ -102,10 +66,8 @@ int dumpEcalTrigTowerMapping::towerColor(const EcalTrigTowerDetId& theTower)
 
   return iEtaColorIndex*2+iPhiColorIndex+1;
 }
-//
-// member functions
-//
-void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name) 
+
+void DumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name) 
 {
   if (det == DetId::Ecal && subdetn == EcalEndcap) 
     {
@@ -142,12 +104,12 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
-      for (auto eeDetId : eeDetIds)
+      for (const auto & eeDetId : eeDetIds)
 	{
 	  EEDetId myId(eeDetId);
 	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetId);      
@@ -203,12 +165,12 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
-      for (auto ebDetId : ebDetIds)
+      for (const auto & ebDetId : ebDetIds)
 	{
 	  EBDetId myId(ebDetId);
 	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetId);      
@@ -224,9 +186,9 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       delete h;
     }
 }
-// ------------ method called to produce the data  ------------
+
 void
-dumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
+DumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    
    std::cout << "Here I am " << std::endl;
@@ -249,5 +211,4 @@ dumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::Even
 }
 
 //define this as a plug-in
-
-DEFINE_FWK_MODULE(dumpEcalTrigTowerMapping);
+DEFINE_FWK_MODULE(DumpEcalTrigTowerMapping);
