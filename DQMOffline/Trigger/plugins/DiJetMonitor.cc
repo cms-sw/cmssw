@@ -17,15 +17,7 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
 {
   folderName_            = iConfig.getParameter<std::string>("FolderName"); 
   dijetSrc_  = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
-  dijetpT_variable_binning_  = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
   dijetpT_binning           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
-  dijetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPtThrPSet")    );
-  ls_binning_            = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
-
-
-  ptcut_      = iConfig.getParameter<double>("ptcut" ); // for HLT DiJet 
-  isPFDiJetTrig    = iConfig.getParameter<bool>("ispfdijettrg" );
-  isCaloDiJetTrig  = iConfig.getParameter<bool>("iscalodijettrg" );
 
   jetpt1ME_.histo = nullptr;
   jetpt2ME_.histo = nullptr;
@@ -143,7 +135,7 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
   histname = "pt_Asym_VS_eta_prb"; histtitle = "Pt_Asym vs eta_ptb";
   bookME(ibooker,jetAsyEtaME_,histname,histtitle,asy_binning_.nbins, asy_binning_.xmin, asy_binning_.xmax, dijet_eta_binning_.nbins, dijet_eta_binning_.xmin,dijet_eta_binning_.xmax);
-  setMETitle(jetAsyEtaME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","Eta");
+  setMETitle(jetAsyEtaME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","Eta_probe");
 
   // Initialize the GenericTriggerEventFlag
   // Initialize the GenericTriggerEventFlag
@@ -160,18 +152,11 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-//  edm::Handle<reco::PFDiJetCollection> pfjetHandle;
-//  iEvent.getByToken( pfjetToken_, pfjetHandle );
 
-//  edm::Handle<reco::CaloDiJetCollection> calojetHandle;
-//  iEvent.getByToken( calojetToken_, calojetHandle );
-
-  int ls = iEvent.id().luminosityBlock();
   v_jetpt.clear();
   v_jeteta.clear();
   v_jetphi.clear();
 
-//  edm::Handle< edm::View<reco::Jet> > offjets;
   edm::Handle<reco::PFJetCollection > offjets;
   iEvent.getByToken( dijetSrc_, offjets );
   if (!offjets.isValid()){
@@ -180,7 +165,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   }
   for ( reco::PFJetCollection::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin; ijet != iend; ++ijet ) {
     if (ijet->pt()< 20) {continue;}
-//    if (ijet->pt()< ptcut_) {continue;}
     v_jetpt.push_back(ijet->pt()); 
     v_jeteta.push_back(ijet->eta()); 
     v_jetphi.push_back(ijet->phi()); 
@@ -188,7 +172,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   }
 
   if (v_jetpt.size() < 2) {return;}
-//      edm::LogWarning("DiJetMonitor") << " v_jetps.size<2 is exist'  \n";
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; 
 //      edm::LogWarning("DiJetMonitor") << " events 'num_genTriggerEventFlag_->on'  \n";
   double pt_1 = v_jetpt[0];
@@ -198,8 +181,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   double pt_2 = v_jetpt[1];
   double eta_2 = v_jeteta[1];
   double phi_2 = v_jetphi[1];
-//    cout << " TriggerPassed !! pt_1,2 (view ) :  pt_1 = " << pt_1 << ", pt_2  = "<<pt_2<< endl;
-//    cout << " !!  pt_1,2 (view ) :  pt_1 = " << pt_1 << ", pt_2  = "<<pt_2<< endl;
 
   jetpt1ME_.histo -> Fill(pt_1);
   jetpt2ME_.histo -> Fill(pt_2);
@@ -211,44 +192,24 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) == false ) return;
   
   if(tag_id == 0 && probe_id == 1) {
-//    double pt_tag = pt_1;
-//    double pt_prb = pt_2;
-//    double eta_prb = eta_2;
-//    double pt_asy = (pt_prb - pt_tag)/(pt_tag + pt_prb);
     double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
-//    double pt_avg = (pt_tag + pt_prb)*0.5;
     double pt_avg = (pt_1 + pt_2)*0.5;
    jetptAvgaME_.histo -> Fill(pt_avg);
-//   jetptTagME_.histo -> Fill(pt_tag);
-//   jetptPrbME_.histo -> Fill(pt_prb);
    jetptTagME_.histo -> Fill(pt_1);
    jetptPrbME_.histo -> Fill(pt_2);
-//   jetetaPrbME_.histo -> Fill(eta_prb);
    jetetaPrbME_.histo -> Fill(eta_2);
    jetptAsyME_.histo->Fill(pt_asy);
-//   jetetaPrbME_.histo -> Fill(eta_prb);
-//   jetAsyEtaME_.histo -> Fill(pt_asy,eta_prb);
    jetetaPrbME_.histo -> Fill(eta_2);
    jetAsyEtaME_.histo -> Fill(pt_asy,eta_2);
   }
   if(tag_id == 1 && probe_id == 0) {
-//    double pt_tag = pt_2;
-//    double pt_prb = pt_1;
-//    double eta_prb = eta_1;
-//    double pt_asy = (pt_prb - pt_tag)/(pt_tag + pt_prb);
-//    double pt_avg = (pt_tag + pt_prb)*0.5;
     double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
     double pt_avg = (pt_2 + pt_1)*0.5;
    jetptAvgaME_.histo -> Fill(pt_avg);
-//   jetptTagME_.histo -> Fill(pt_tag);
-//   jetptPrbME_.histo -> Fill(pt_prb);
    jetptTagME_.histo -> Fill(pt_2);
    jetptPrbME_.histo -> Fill(pt_1);
-//   jetetaPrbME_.histo -> Fill(eta_prb);
    jetetaPrbME_.histo -> Fill(eta_1);
    jetptAsyME_.histo->Fill(pt_asy);
-//   jetetaPrbME_.histo -> Fill(eta_prb);
-//   jetAsyEtaME_.histo -> Fill(pt_asy,eta_prb);
    jetetaPrbME_.histo -> Fill(eta_1);
    jetAsyEtaME_.histo -> Fill(pt_asy,eta_1);
   }
@@ -273,19 +234,9 @@ void DiJetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pse
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>  ( "FolderName", "HLT/Jet" );
+ desc.add<std::string>  ( "FolderName", "HLT/Jet" );
 
-  desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
-  desc.add<edm::InputTag>( "pfjets",     edm::InputTag("ak4PFDiJetsCHS") );
-  desc.add<edm::InputTag>( "calojets",     edm::InputTag("ak4CaloDiJets") );
   desc.add<edm::InputTag>( "dijetSrc",     edm::InputTag("ak4PFJetsCHS") );
-  desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
-  desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
-  desc.add<int>("njets",      0);
-  desc.add<int>("nelectrons", 0);
-  desc.add<double>("ptcut",   20);
-  desc.add<bool>("ispfdijettrg",    true);
-  desc.add<bool>("iscalodijettrg",  false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -297,7 +248,6 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   genericTriggerEventPSet.add<bool>("andOrHlt", true);
   genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
   genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths",{});
-//  genericTriggerEventPSet.add<std::string>("hltDBKey","");
   genericTriggerEventPSet.add<bool>("errorReplyHlt",false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel",1);
 
@@ -310,24 +260,15 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   fillHistoPSetDescription(dijetPSet);
   fillHistoPSetDescription(dijetPtThrPSet);
   histoPSet.add<edm::ParameterSetDescription>("dijetPSet", dijetPSet);  
-  histoPSet.add<edm::ParameterSetDescription>("dijetPtThrPSet", dijetPtThrPSet);  
-  std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.}; // DiJet pT Binning
-  histoPSet.add<std::vector<double> >("jetptBinning", bins);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
-
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
 
   descriptions.add("dijetMonitoring", desc);
 }
 
-bool DiJetMonitor::isBarrel(double eta){
-  bool output = false;
-  if (fabs(eta)<=1.3) output=true;
-  return output;
-}
 //---- Additional DiJet offline selection------
 bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
   bool passeta; //check that one of the jets in the barrel
