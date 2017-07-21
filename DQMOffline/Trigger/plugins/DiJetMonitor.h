@@ -56,8 +56,6 @@ public:
   };
 
   struct DiJetME {
-    MonitorElement* numerator = nullptr;
-    MonitorElement* denominator= nullptr;
     MonitorElement* histo= nullptr;
   };
 
@@ -80,13 +78,8 @@ protected:
   void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax,int nbinsY, double ymin, double ymax );
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  bool isBarrel(double eta);
   bool dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id);
 
-  //void FillME(std::vector<MonitorElement*> v_me,std::vector<double>v_pt, std::vector<double> v_phi); //Fill Histograms 
-  //void AutoNullPtr(DiJetME* a_me,const int len_); //Fill Histograms 
-  void bookMESub(DQMStore::IBooker &,DiJetME* a_me,const int len_,std::string h_Name ,std::string h_Title, std::string h_subOptName, std::string h_subOptTitle ); //Fill Histograms 
-  void FillME(DiJetME* a_me,double pt_, double phi_, double eta_, int ls_, std::string denu); //Fill Histograms 
 
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet pset);
@@ -95,23 +88,10 @@ private:
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       pfdijetToken_;// pfjet
-  edm::EDGetTokenT<reco::CaloJetCollection>     calodijetToken_;// calojet
-  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
-  edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
-  //edm::InputTag        jetSrc_; // test for Jet
   edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_; // test for Jet
 
-  std::vector<double> dijetpT_variable_binning_;
   MEbinning           dijetpT_binning;
-  MEbinning           dijetptThr_binning_;
-  MEbinning           ls_binning_;
 
-
-//  DiJetME a_ME[7];
-//  DiJetME a_ME_tag[7];
-//  DiJetME a_ME_prb[7];
    DiJetME jetpt1ME_;
    DiJetME jetpt2ME_;
    DiJetME jetptAvgaME_;
@@ -121,26 +101,14 @@ private:
    DiJetME jetptAsyME_;
    DiJetME jetetaPrbME_;
    DiJetME jetAsyEtaME_;
-// Add !!!!!!!!!!!!! more plot!!!!!!!!!!!
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
-
-  int nmuons_;
-  double ptcut_;
-  bool isPFDiJetTrig;
-  bool isCaloDiJetTrig;
 
   std::vector<double> v_jetpt;
   std::vector<double> v_jeteta;
   std::vector<double> v_jetphi;
 
-  // Define Phi Bin //
-  double DiJet_MAX_PHI = 3.2;
-  unsigned int DiJet_N_PHI = 64;
-  MEbinning dijet_phi_binning_{
-    DiJet_N_PHI, -DiJet_MAX_PHI, DiJet_MAX_PHI
-  };
   // Define Eta Bin //
   double DiJet_MAX_ETA = 5;
   unsigned int DiJet_N_ETA = 50;
