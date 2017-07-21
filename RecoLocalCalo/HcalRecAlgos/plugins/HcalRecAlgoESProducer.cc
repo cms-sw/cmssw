@@ -97,10 +97,17 @@ HcalRecAlgoESProducer::produce(const HcalSeverityLevelComputerRcd& iRecord)
 }
 
 void HcalRecAlgoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.setAllowAnything();
-  desc.add<uint32_t>("phase",0);
-  descriptions.add("hcalRecAlgos",desc);
+    edm::ParameterSetDescription desc;
+    desc.add<uint32_t>("phase",0);
+    desc.add<std::vector<std::string>>("RecoveredRecHitBits");
+    desc.add<std::vector<std::string>>("DropChannelStatusBits");
+    descriptions.add("hcalRecAlgos",desc);
+
+    edm::ParameterSetDescription desc_sevlvl;
+    desc_sevlvl.add<uint32_t>("Level");
+    desc_sevlvl.add<std::vector<std::string>>("RecHitFlags");
+    desc_sevlvl.add<std::vector<std::string>>("ChannelStatus");
+    desc_sevlvl.addVPSet("SeverityLevels",desc_sevlvl);
 }
 
 //define this as a plug-in
