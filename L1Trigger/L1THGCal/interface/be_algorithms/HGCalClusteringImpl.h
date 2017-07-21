@@ -18,7 +18,8 @@ private:
     // So cannot retrieve the following constants.
     static const unsigned kLayersEE_ = 28;
     static const unsigned kLayersFH_ = 12;
-    static const unsigned kLayers_ = kLayersEE_+kLayersFH_;
+    static const unsigned kLayersBH_ = 12;
+    static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
 
 public:
   
