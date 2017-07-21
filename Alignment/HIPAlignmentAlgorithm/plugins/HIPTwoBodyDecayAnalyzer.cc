@@ -4,7 +4,6 @@
 #include <utility>
 #include <cmath>
 #include <string>
-#include "TString.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -45,26 +44,33 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   TTree* tree;
-  std::vector<std::pair<TString, Float_t*>> floatBranches;
-  std::vector<std::pair<TString, Int_t*>> intBranches;
-  std::vector<std::pair<TString, Short_t*>> shortBranches;
+  std::vector<std::pair<std::string, float*>> floatBranches;
+  std::vector<std::pair<std::string, int*>> intBranches;
+  std::vector<std::pair<std::string, short*>> shortBranches;
 
 private:
+
+  enum BranchType{
+    BranchType_short_t,
+    BranchType_int_t,
+    BranchType_float_t,
+    BranchType_unknown_t
+  };
 
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
   void bookAllBranches();
-  bool bookBranch(TString bname, TString btype);
-  TString searchArray(TString branchname, int& position);
-  template<typename varType> void setVal(TString bname, varType value){
+  bool bookBranch(std::string bname, BranchType btype);
+  BranchType searchArray(std::string branchname, int& position);
+  template<typename varType> void setVal(std::string bname, varType value){
     int varposition=-1;
-    TString varbranchtype = searchArray(bname, varposition);
+    BranchType varbranchtype = searchArray(bname, varposition);
     if (varposition==-1) std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the branch called " << bname << "!" << std::endl;
-    else if (varbranchtype=="s") *(shortBranches.at(varposition).second)=value;
-    else if (varbranchtype=="i") *(intBranches.at(varposition).second)=value;
-    else if (varbranchtype=="f") *(floatBranches.at(varposition).second)=value;
+    else if (varbranchtype==BranchType_short_t) *(shortBranches.at(varposition).second)=value;
+    else if (varbranchtype==BranchType_int_t) *(intBranches.at(varposition).second)=value;
+    else if (varbranchtype==BranchType_float_t) *(floatBranches.at(varposition).second)=value;
     else std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the type " << varbranchtype << " for branch called " << bname << "!" << std::endl;
   }
   void cleanBranches();
@@ -72,7 +78,7 @@ private:
   bool actuateBranches();
 
   void analyzeTrackCollection(
-    TString strTrackType,
+    std::string strTrackType,
     edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
     edm::Handle<reco::TrackCollection>& hTrackColl,
     bool verbose=false
@@ -98,26 +104,26 @@ HIPTwoBodyDecayAnalyzer::HIPTwoBodyDecayAnalyzer(const edm::ParameterSet& iConfi
 }
 
 
-TString HIPTwoBodyDecayAnalyzer::searchArray(TString branchname, int& position){
+HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(std::string branchname, int& position){
   for (unsigned short el=0; el<shortBranches.size(); el++){
     if (branchname==shortBranches.at(el).first){
       position = el;
-      return "s";
+      return BranchType_short_t;
     }
   }
   for (unsigned int el=0; el<intBranches.size(); el++){
     if (branchname==intBranches.at(el).first){
       position = el;
-      return "i";
+      return BranchType_int_t;
     }
   }
   for (unsigned int el=0; el<floatBranches.size(); el++){
     if (branchname==floatBranches.at(el).first){
       position = el;
-      return "f";
+      return BranchType_float_t;
     }
   }
-  return "unknown";
+  return BranchType_unknown_t;
 }
 void HIPTwoBodyDecayAnalyzer::cleanBranches(){
   for (unsigned short el=0; el<shortBranches.size(); el++){
@@ -150,32 +156,31 @@ void HIPTwoBodyDecayAnalyzer::initializeBranches(){
 
 void HIPTwoBodyDecayAnalyzer::bookAllBranches(){
   const int nTrackTypes = 4;
-  TString strTrackTypes[nTrackTypes]={
-    "alcareco",
-    "refit1",
-    "refit2",
-    "final"
-  };
-  for (unsigned int it=0; it<4; it++){
-    TString strTrackType = strTrackTypes[it];
-    bookBranch(strTrackType + "_present", "s");
-    bookBranch(strTrackType + "_ZVtxFitOk", "s");
-    bookBranch(strTrackType + "_ZMass", "f"); bookBranch(strTrackType + "_ZPt", "f"); bookBranch(strTrackType + "_ZPz", "f"); bookBranch(strTrackType + "_ZPhi", "f");
-    bookBranch(strTrackType + "_ZVertex_x", "f"); bookBranch(strTrackType + "_ZVertex_y", "f"); bookBranch(strTrackType + "_ZVertex_z", "f"); bookBranch(strTrackType + "_ZVertex_NormChi2", "f");
-    bookBranch(strTrackType + "_MuPlusVertex_x", "f"); bookBranch(strTrackType + "_MuPlusVertex_y", "f"); bookBranch(strTrackType + "_MuPlusVertex_z", "f");
-    bookBranch(strTrackType + "_MuMinusPt_AfterZVtxFit", "f"); bookBranch(strTrackType + "_MuMinusPz_AfterZVtxFit", "f"); bookBranch(strTrackType + "_MuMinusPhi_AfterZVtxFit", "f");
-    bookBranch(strTrackType + "_MuPlusPt_AfterZVtxFit", "f"); bookBranch(strTrackType + "_MuPlusPz_AfterZVtxFit", "f"); bookBranch(strTrackType + "_MuPlusPhi_AfterZVtxFit", "f");
-    bookBranch(strTrackType + "_ZMass_AfterZVtxFit", "f"); bookBranch(strTrackType + "_ZPt_AfterZVtxFit", "f"); bookBranch(strTrackType + "_ZPz_AfterZVtxFit", "f"); bookBranch(strTrackType + "_ZPhi_AfterZVtxFit", "f");
-    bookBranch(strTrackType + "_MuMinusPt", "f"); bookBranch(strTrackType + "_MuMinusPz", "f"); bookBranch(strTrackType + "_MuMinusPhi", "f");
-    bookBranch(strTrackType + "_MuMinusVertex_x", "f"); bookBranch(strTrackType + "_MuMinusVertex_y", "f"); bookBranch(strTrackType + "_MuMinusVertex_z", "f");
-    bookBranch(strTrackType + "_MuPlusPt", "f"); bookBranch(strTrackType + "_MuPlusPz", "f"); bookBranch(strTrackType + "_MuPlusPhi", "f");
+  std::vector<std::string> strTrackTypes; strTrackTypes.reserve(nTrackTypes);
+  strTrackTypes.push_back("alcareco");
+  strTrackTypes.push_back("refit1");
+  strTrackTypes.push_back("refit2");
+  strTrackTypes.push_back("final");
+  for (unsigned int it=0; it<nTrackTypes; it++){
+    std::string& strTrackType = strTrackTypes[it];
+    bookBranch(strTrackType + "_present", BranchType_short_t);
+    bookBranch(strTrackType + "_ZVtxFitOk", BranchType_short_t);
+    bookBranch(strTrackType + "_ZMass", BranchType_float_t); bookBranch(strTrackType + "_ZPt", BranchType_float_t); bookBranch(strTrackType + "_ZPz", BranchType_float_t); bookBranch(strTrackType + "_ZPhi", BranchType_float_t);
+    bookBranch(strTrackType + "_ZVertex_x", BranchType_float_t); bookBranch(strTrackType + "_ZVertex_y", BranchType_float_t); bookBranch(strTrackType + "_ZVertex_z", BranchType_float_t); bookBranch(strTrackType + "_ZVertex_NormChi2", BranchType_float_t);
+    bookBranch(strTrackType + "_MuPlusVertex_x", BranchType_float_t); bookBranch(strTrackType + "_MuPlusVertex_y", BranchType_float_t); bookBranch(strTrackType + "_MuPlusVertex_z", BranchType_float_t);
+    bookBranch(strTrackType + "_MuMinusPt_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_MuMinusPz_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_MuMinusPhi_AfterZVtxFit", BranchType_float_t);
+    bookBranch(strTrackType + "_MuPlusPt_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_MuPlusPz_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_MuPlusPhi_AfterZVtxFit", BranchType_float_t);
+    bookBranch(strTrackType + "_ZMass_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_ZPt_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_ZPz_AfterZVtxFit", BranchType_float_t); bookBranch(strTrackType + "_ZPhi_AfterZVtxFit", BranchType_float_t);
+    bookBranch(strTrackType + "_MuMinusPt", BranchType_float_t); bookBranch(strTrackType + "_MuMinusPz", BranchType_float_t); bookBranch(strTrackType + "_MuMinusPhi", BranchType_float_t);
+    bookBranch(strTrackType + "_MuMinusVertex_x", BranchType_float_t); bookBranch(strTrackType + "_MuMinusVertex_y", BranchType_float_t); bookBranch(strTrackType + "_MuMinusVertex_z", BranchType_float_t);
+    bookBranch(strTrackType + "_MuPlusPt", BranchType_float_t); bookBranch(strTrackType + "_MuPlusPz", BranchType_float_t); bookBranch(strTrackType + "_MuPlusPhi", BranchType_float_t);
   }
   actuateBranches();
 }
-bool HIPTwoBodyDecayAnalyzer::bookBranch(TString bname, TString btype){
-  if (btype=="f") floatBranches.emplace_back(bname, new Float_t);
-  else if (btype=="i") intBranches.emplace_back(bname, new Int_t);
-  else if (btype=="s") shortBranches.emplace_back(bname, new Short_t);
+bool HIPTwoBodyDecayAnalyzer::bookBranch(std::string bname, BranchType btype){
+  if (btype==BranchType_float_t) floatBranches.emplace_back(bname, new float);
+  else if (btype==BranchType_int_t) intBranches.emplace_back(bname, new int);
+  else if (btype==BranchType_short_t) shortBranches.emplace_back(bname, new short);
   else{
     std::cerr << "HIPTwoBodyDecayAnalyzer::bookBranch: No support for type " << btype << " for the branch " << bname << " is available." << std::endl;
     return false;
@@ -191,20 +196,20 @@ bool HIPTwoBodyDecayAnalyzer::actuateBranches(){
   if (tree!=0){
     for (unsigned short el=0; el<shortBranches.size(); el++){
       std::cout << "Actuating branch " << shortBranches.at(el).first << " at address " << shortBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(shortBranches.at(el).first))
-        tree->Branch(shortBranches.at(el).first, shortBranches.at(el).second);
+      if (!tree->GetBranchStatus(shortBranches.at(el).first.c_str()))
+        tree->Branch(shortBranches.at(el).first.c_str(), shortBranches.at(el).second);
       else std::cout << "Failed!" << std::endl;
     }
     for (unsigned int el=0; el<intBranches.size(); el++){
-      std::cout << "Actuating branch " << intBranches.at(el).first << " at address " << intBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(intBranches.at(el).first))
-        tree->Branch(intBranches.at(el).first, intBranches.at(el).second);
+      std::cout << "Actuating branch " << intBranches.at(el).first.c_str() << " at address " << intBranches.at(el).second << std::endl;
+      if (!tree->GetBranchStatus(intBranches.at(el).first.c_str()))
+        tree->Branch(intBranches.at(el).first.c_str(), intBranches.at(el).second);
       else std::cout << "Failed!" << std::endl;
     }
     for (unsigned int el=0; el<floatBranches.size(); el++){
-      std::cout << "Actuating branch " << floatBranches.at(el).first << " at address " << floatBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(floatBranches.at(el).first))
-        tree->Branch(floatBranches.at(el).first, floatBranches.at(el).second);
+      std::cout << "Actuating branch " << floatBranches.at(el).first.c_str() << " at address " << floatBranches.at(el).second << std::endl;
+      if (!tree->GetBranchStatus(floatBranches.at(el).first.c_str()))
+        tree->Branch(floatBranches.at(el).first.c_str(), floatBranches.at(el).second);
       else std::cout << "Failed!" << std::endl;
     }
   }
@@ -252,7 +257,7 @@ void HIPTwoBodyDecayAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addDefault(desc);
 }
 
-void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(TString strTrackType, edm::ESHandle<TransientTrackBuilder>& theTTBuilder, edm::Handle<reco::TrackCollection>& hTrackColl, bool verbose){
+void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType, edm::ESHandle<TransientTrackBuilder>& theTTBuilder, edm::Handle<reco::TrackCollection>& hTrackColl, bool verbose){
   if (verbose) std::cout << "Starting to process the track collection for " << strTrackType << std::endl;
 
   using namespace edm;
@@ -296,20 +301,20 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(TString strTrackType, edm::
 
   isValidPair = (totalcharge==0 && trackMom[0].P()!=0. && trackMom[1].P()!=0.);
   if (verbose && !isValidPair) std::cout << "Track collection does not contain a valid std::pair." << std::endl;
-  setVal(strTrackType + "_present", (isValidPair ? (Short_t)1 : (Short_t)0));
+  setVal(strTrackType + "_present", (isValidPair ? (short)1 : (short)0));
   if (isValidPair){
     TLorentzVector ZMom = trackMom[0] + trackMom[1];
-    setVal(strTrackType + "_ZPt", (Float_t)ZMom.Pt());
-    setVal(strTrackType + "_ZPz", (Float_t)ZMom.Pz());
-    setVal(strTrackType + "_ZPhi", (Float_t)ZMom.Phi());
-    setVal(strTrackType + "_ZMass", (Float_t)ZMom.M());
+    setVal(strTrackType + "_ZPt", (float)ZMom.Pt());
+    setVal(strTrackType + "_ZPz", (float)ZMom.Pz());
+    setVal(strTrackType + "_ZPhi", (float)ZMom.Phi());
+    setVal(strTrackType + "_ZMass", (float)ZMom.M());
 
     reco::Vertex ZVtx = fitDimuonVertex(theTTBuilder, hTrackColl, ZVtxOk);
     if (ZVtxOk){
-      setVal(strTrackType + "_ZVertex_x", (Float_t)ZVtx.x());
-      setVal(strTrackType + "_ZVertex_y", (Float_t)ZVtx.y());
-      setVal(strTrackType + "_ZVertex_z", (Float_t)ZVtx.z());
-      setVal(strTrackType + "_ZVertex_NormChi2", (Float_t)ZVtx.normalizedChi2());
+      setVal(strTrackType + "_ZVertex_x", (float)ZVtx.x());
+      setVal(strTrackType + "_ZVertex_y", (float)ZVtx.y());
+      setVal(strTrackType + "_ZVertex_z", (float)ZVtx.z());
+      setVal(strTrackType + "_ZVertex_NormChi2", (float)ZVtx.normalizedChi2());
 
       // Recalculate track momenta with this vertex as reference
       j=0;
@@ -330,28 +335,28 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(TString strTrackType, edm::
       }
       if (totalcharge!=0) std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Something went wrong! The total charge is no longer 0!" << std::endl;
       for (unsigned int jtrk=0; jtrk<2; jtrk++){
-        TString strMuCore = (jtrk==0 ? "MuMinus" : "MuPlus");
-        setVal(strTrackType + "_" + strMuCore + "Pt_AfterZVtxFit", (Float_t)trackMomAfterZVtxFit[jtrk].Pt());
-        setVal(strTrackType + "_" + strMuCore + "Pz_AfterZVtxFit", (Float_t)trackMomAfterZVtxFit[jtrk].Pz());
-        setVal(strTrackType + "_" + strMuCore + "Phi_AfterZVtxFit", (Float_t)trackMomAfterZVtxFit[jtrk].Phi());
+        std::string strMuCore = (jtrk==0 ? "MuMinus" : "MuPlus");
+        setVal(strTrackType + "_" + strMuCore + "Pt_AfterZVtxFit", (float)trackMomAfterZVtxFit[jtrk].Pt());
+        setVal(strTrackType + "_" + strMuCore + "Pz_AfterZVtxFit", (float)trackMomAfterZVtxFit[jtrk].Pz());
+        setVal(strTrackType + "_" + strMuCore + "Phi_AfterZVtxFit", (float)trackMomAfterZVtxFit[jtrk].Phi());
       }
       TLorentzVector ZMom_AfterZVtxFit = trackMomAfterZVtxFit[0] + trackMomAfterZVtxFit[1];
-      setVal(strTrackType + "_ZPt_AfterZVtxFit", (Float_t)ZMom_AfterZVtxFit.Pt());
-      setVal(strTrackType + "_ZPz_AfterZVtxFit", (Float_t)ZMom_AfterZVtxFit.Pz());
-      setVal(strTrackType + "_ZPhi_AfterZVtxFit", (Float_t)ZMom_AfterZVtxFit.Phi());
-      setVal(strTrackType + "_ZMass_AfterZVtxFit", (Float_t)ZMom_AfterZVtxFit.M());
+      setVal(strTrackType + "_ZPt_AfterZVtxFit", (float)ZMom_AfterZVtxFit.Pt());
+      setVal(strTrackType + "_ZPz_AfterZVtxFit", (float)ZMom_AfterZVtxFit.Pz());
+      setVal(strTrackType + "_ZPhi_AfterZVtxFit", (float)ZMom_AfterZVtxFit.Phi());
+      setVal(strTrackType + "_ZMass_AfterZVtxFit", (float)ZMom_AfterZVtxFit.M());
     }
     else std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Z vertex fit failed for track collection " << strTrackType << std::endl;
   }
-  setVal(strTrackType + "_ZVtxFitOk", (ZVtxOk ? (Short_t)1 : (Short_t)0));
+  setVal(strTrackType + "_ZVtxFitOk", (ZVtxOk ? (short)1 : (short)0));
   for (unsigned int jtrk=0; jtrk<2; jtrk++){
-    TString strMuCore = (jtrk==0 ? "MuMinus" : "MuPlus");
-    setVal(strTrackType + "_" + strMuCore + "Pt", (Float_t)trackMom[jtrk].Pt());
-    setVal(strTrackType + "_" + strMuCore + "Pz", (Float_t)trackMom[jtrk].Pz());
-    setVal(strTrackType + "_" + strMuCore + "Phi", (Float_t)trackMom[jtrk].Phi());
-    setVal(strTrackType + "_" + strMuCore + "Vertex_x", (Float_t)trackVtx[jtrk].X());
-    setVal(strTrackType + "_" + strMuCore + "Vertex_y", (Float_t)trackVtx[jtrk].Y());
-    setVal(strTrackType + "_" + strMuCore + "Vertex_z", (Float_t)trackVtx[jtrk].Z());
+    std::string strMuCore = (jtrk==0 ? "MuMinus" : "MuPlus");
+    setVal(strTrackType + "_" + strMuCore + "Pt", (float)trackMom[jtrk].Pt());
+    setVal(strTrackType + "_" + strMuCore + "Pz", (float)trackMom[jtrk].Pz());
+    setVal(strTrackType + "_" + strMuCore + "Phi", (float)trackMom[jtrk].Phi());
+    setVal(strTrackType + "_" + strMuCore + "Vertex_x", (float)trackVtx[jtrk].X());
+    setVal(strTrackType + "_" + strMuCore + "Vertex_y", (float)trackVtx[jtrk].Y());
+    setVal(strTrackType + "_" + strMuCore + "Vertex_z", (float)trackVtx[jtrk].Z());
   }
 }
 
