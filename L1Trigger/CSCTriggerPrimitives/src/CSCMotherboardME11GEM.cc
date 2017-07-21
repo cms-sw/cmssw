@@ -471,7 +471,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
       // keep only the middle two or middle element
       std::set<int> temp2;
-      if (temp.size()%2==0){
+      if (temp.size()%2==0 and temp.size()){
         // pick middle two
         temp2.insert(temp[temp.size()/2]);
         temp2.insert(temp[temp.size()/2-1]);
@@ -510,7 +510,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
       // keep only the middle two or middle element
       std::set<int> temp2;
-      if (temp.size()%2==0){
+      if (temp.size()%2==0 and temp.size()){
         // pick middle two
         temp2.insert(temp[temp.size()/2]);
         temp2.insert(temp[temp.size()/2-1]);
