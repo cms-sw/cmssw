@@ -1,4 +1,5 @@
 #ifndef DataFormats_DeepFormats_DeepFlavourTagInfo_h
+#define DataFormats_DeepFormats_DeepFlavourTagInfo_h
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourFeatures.h"
