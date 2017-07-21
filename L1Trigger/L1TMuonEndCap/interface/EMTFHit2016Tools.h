@@ -1,6 +1,6 @@
 
-#ifndef EMTFHit2016Tools_h
-#define EMTFHit2016Tools_h
+#ifndef L1Trigger_L1TMuonEndCap_EMTFHit2016Tools_h
+#define L1Trigger_L1TMuonEndCap_EMTFHit2016Tools_h
 
 #include "DataFormats/L1TMuon/interface/EMTFHit2016Extra.h"
 
@@ -25,4 +25,4 @@ namespace l1t {
   
 } // End namespace l1t
 
-#endif /* define EMTFHit2016Tools_h */
+#endif /* define L1Trigger_L1TMuonEndCap_EMTFHit2016Tools_h */
