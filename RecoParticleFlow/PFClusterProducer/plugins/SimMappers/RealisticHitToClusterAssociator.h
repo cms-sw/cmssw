@@ -103,12 +103,8 @@ class RealisticHitToClusterAssociator
                 unsigned int numberOfClusters = mcAssociatedSimCluster_[hitId].size();
                 distanceFromMaxHit_[hitId].resize(numberOfClusters);
 
-                unsigned int layer = layerId_[hitId];
                 hitToRealisticSimCluster_[hitId].resize(numberOfClusters);
                 hitToRealisticEnergyFraction_[hitId].resize(numberOfClusters);
-                partialEnergies.resize(numberOfClusters,0.f);
-                float energyDecayLength = getDecayLength(layer, fhOffset, bhOffset);
-                float sumE = 0.f;
                 if(numberOfClusters == 1)
                 {
 
@@ -124,9 +120,12 @@ class RealisticHitToClusterAssociator
                 }
                 else
                 {
+                    partialEnergies.resize(numberOfClusters,0.f);
+                    unsigned int layer = layerId_[hitId];
+                    float sumE = 0.f;
                     for(unsigned int clId = 0; clId < numberOfClusters; ++clId )
                     {
-
+                        float energyDecayLength = getDecayLength(layer, fhOffset, bhOffset);
                         auto simClusterId = mcAssociatedSimCluster_[hitId][clId];
                         distanceFromMaxHit_[hitId][clId] = XYdistanceFromMaxHit(hitId,simClusterId);
                         // partial energy is computed based on the distance from the maximum energy hit and its energy
@@ -135,17 +134,13 @@ class RealisticHitToClusterAssociator
                         {
                             partialEnergies[clId] = maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
                         }
-
                         sumE += partialEnergies[clId];
-
                     }
-
                     if(sumE > 0.f)
                     {
                         float invSumE = 1.f/sumE;
                         for(unsigned int clId = 0; clId < numberOfClusters; ++clId )
                         {
-
                             unsigned int simClusterIndex = mcAssociatedSimCluster_[hitId][clId];
                             hitToRealisticSimCluster_[hitId][clId] = simClusterIndex;
                             float assignedFraction = partialEnergies[clId]*invSumE;
