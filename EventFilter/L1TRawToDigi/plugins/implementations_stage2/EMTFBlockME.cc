@@ -168,7 +168,7 @@ namespace l1t {
 	Hit_.set_stub_num(0);
 	// See if matching hit is already in event record (from neighboring sector)
 	bool duplicate_hit_exists = false;
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 
 	  if ( res_hit->at(iHit).Is_CSC() == 1                     && 
 	       Hit_.BX()         == res_hit->at(iHit).BX()         && 

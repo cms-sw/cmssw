@@ -1,5 +1,5 @@
-#ifndef __l1t_EMTFRoad_h__
-#define __l1t_EMTFRoad_h__
+#ifndef DataFormats_L1TMuon_EMTFRoad_h
+#define DataFormats_L1TMuon_EMTFRoad_h
 
 #include <cstdint>
 #include <vector>
@@ -63,4 +63,4 @@ namespace l1t {
 
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFRoad_h__ */
+#endif /* define DataFormats_L1TMuon_EMTFRoad_h */

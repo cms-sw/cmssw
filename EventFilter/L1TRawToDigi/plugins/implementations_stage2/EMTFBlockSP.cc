@@ -231,8 +231,8 @@ namespace l1t {
 	// else if (nDelay[2] + nDelay[1] + nDelay[0] >= 1) trk_delay = 0;
 	
 	int St_hits[4] = {0, 0, 0, 0}; // Number of matched hits in each station
-
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+        
+	for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	  
 	  if ( (res_hit->at(iHit)).Endcap() != Track_.Endcap() ) continue;
 	  
@@ -353,7 +353,7 @@ namespace l1t {
 	    St_hits[3] += 1;
 	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 4 
 	  
-	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+	} // End loop: for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++)
       
 	
 	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && Track_.BX() == 0) {
@@ -385,14 +385,14 @@ namespace l1t {
 	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << "\n" << std::endl;
 
 	  
-	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+	//   for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++)
 	//     std::cout << "Hit: Is CSC = " << (res_hit->at(iHit)).Is_CSC() << ", CSC ID = " << (res_hit->at(iHit)).CSC_ID() 
 	// 	      << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
 	// 	      << ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
 	// 	      << ", ring = " << (res_hit->at(iHit)).Ring() << ", chamber = " << (res_hit->at(iHit)).Chamber()
 	// 	      << ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
 	  
-	//   // for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	//   // for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	//   //   if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();
 	//   //   (res_hit->at(iHit)).PrintForSimulator();
 	//   // }
