@@ -85,9 +85,9 @@ namespace l1t {
 	res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
 	int iOut = res->size() - 1;
 
-	EMTFHitCollection* res_hit;
-	res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
-	EMTFHit Hit_;
+	EMTFHit2016Collection* res_hit;
+	res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHit2016s();
+	EMTFHit2016 Hit_;
 
 	CSCCorrelatedLCTDigiCollection* res_LCT;
 	res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
@@ -125,7 +125,7 @@ namespace l1t {
 	// ME_.set_dataword     ( uint64_t dataword);
 
 	
-	// Fill the EMTFHit
+	// Fill the EMTFHit2016
 	Hit_.ImportME( ME_ );
 	Hit_.set_endcap ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
 	// Hit_.set_layer();

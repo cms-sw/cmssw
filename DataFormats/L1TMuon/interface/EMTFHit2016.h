@@ -2,8 +2,8 @@
 // Based on L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h
 // In particular, see struct CSCData
 
-#ifndef __l1t_EMTFHit_h__
-#define __l1t_EMTFHit_h__
+#ifndef __l1t_EMTFHit2016_h__
+#define __l1t_EMTFHit2016_h__
 
 #include <vector>
 #include <boost/cstdint.hpp> 
@@ -18,10 +18,10 @@
 
 namespace l1t {
   
-  class EMTFHit {
+  class EMTFHit2016 {
   public:
     
-  EMTFHit() :
+  EMTFHit2016() :
     
     // Using -999 instead of -99 b/c this seems most common in the emulator.  Unfortunate. - AWB 17.03.16
     endcap(-999), station(-999), ring(-999), sector(-999), sector_index(-999), subsector(-999), 
@@ -31,7 +31,7 @@ namespace l1t {
       is_CSC_hit(-999), is_RPC_hit(-999)
       {};
     
-    virtual ~EMTFHit() {};
+    virtual ~EMTFHit2016() {};
 
     void ImportCSCDetId (const CSCDetId& _detId);
     CSCDetId CreateCSCDetId();
@@ -124,39 +124,39 @@ namespace l1t {
     CSCCorrelatedLCTDigi csc_LCTDigi;
     RPCDigi rpc_Digi;
     
-    int   endcap;       // -1 or 1.  Filled in EMTFHit.cc from CSCDetId, modified
-    int   station;      //  1 -  4.  Filled in EMTFHit.cc from CSCDetId
-    int   ring;         //  1 -  3.  Filled in EMTFHit.cc from CSCDetId
-    int   sector;       //  1 -  6.  Filled in EMTFHit.cc from CSCDetId
+    int   endcap;       // -1 or 1.  Filled in EMTFHit2016.cc from CSCDetId, modified
+    int   station;      //  1 -  4.  Filled in EMTFHit2016.cc from CSCDetId
+    int   ring;         //  1 -  3.  Filled in EMTFHit2016.cc from CSCDetId
+    int   sector;       //  1 -  6.  Filled in EMTFHit2016.cc from CSCDetId
     int   sector_index; //  0 - 11.  0 - 5 for positive endcap, 6 - 11 for negative.  If a neighbor hit, set by the sector that received it, not the actual sector of the hit.
-    int   subsector;    //  1 -  2.  Filled in EMTFHit.cc or emulator using calc_subsector above
-    int   chamber;      //  1 - 36.  Filled in EMTFHit.cc from CSCDetId
-    int   csc_ID;       //  1 -  9.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi or emulator from CSCData
+    int   subsector;    //  1 -  2.  Filled in EMTFHit2016.cc or emulator using calc_subsector above
+    int   chamber;      //  1 - 36.  Filled in EMTFHit2016.cc from CSCDetId
+    int   csc_ID;       //  1 -  9.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi or emulator from CSCData
     int   roll;         //  Sub-division of ring for RPC hits
     int   rpc_layer;    //  Forward-backward bit for RPC hits
     int   neighbor;     //  0 or 1.  Filled in EMTFBlockME.cc 
-    int   mpc_link;     //  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   wire;         //  1 -  ?.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   strip;        //  1 -  ?.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int   mpc_link;     //  1 -  3.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   wire;         //  1 -  ?.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   strip;        //  1 -  ?.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
     int   strip_hi;     //  Highest strip number in an RPC cluster
     int   strip_low;    //  Lowest strip number in an RPC cluster
     int   track_num;    //  ? -  ?.  Filled in emulator from CSCData 
-    int   quality;      //  0 - 15.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   pattern;      //  0 - 10.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   bend;         //  0 or 1.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   valid;        //  0 or 1.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int   sync_err;     //  0 or 1.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int   quality;      //  0 - 15.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   pattern;      //  0 - 10.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   bend;         //  0 or 1.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   valid;        //  0 or 1.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
+    int   sync_err;     //  0 or 1.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
     int   bc0;          //  0 or 1.
-    int   bx;           //  -3 - 3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int   bx;           //  -3 - 3.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
     int   stub_num;     //  0 or 1.
-    int   is_CSC_hit;   //  0 or 1.  Filled in EMTFHit.cc
-    int   is_RPC_hit;   //  0 or 1.  Filled in EMTFHit.cc
+    int   is_CSC_hit;   //  0 or 1.  Filled in EMTFHit2016.cc
+    int   is_RPC_hit;   //  0 or 1.  Filled in EMTFHit2016.cc
 
-  }; // End of class EMTFHit
+  }; // End of class EMTFHit2016
   
-  // Define a vector of EMTFHit
-  typedef std::vector<EMTFHit> EMTFHitCollection;
+  // Define a vector of EMTFHit2016
+  typedef std::vector<EMTFHit2016> EMTFHit2016Collection;
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFHit_h__ */
+#endif /* define __l1t_EMTFHit2016_h__ */

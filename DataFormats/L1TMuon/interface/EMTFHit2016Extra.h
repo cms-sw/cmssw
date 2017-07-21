@@ -2,8 +2,8 @@
 // Based on L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h
 // In particular, see struct CSCData
 
-#ifndef __l1t_EMTFHitExtra_h__
-#define __l1t_EMTFHitExtra_h__
+#ifndef __l1t_EMTFHit2016Extra_h__
+#define __l1t_EMTFHit2016Extra_h__
 
 #include <vector>
 #include <boost/cstdint.hpp> 
@@ -11,25 +11,25 @@
 #include <iostream>
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit2016.h"
 
 namespace l1t {
-  class EMTFHitExtra: public EMTFHit {
+  class EMTFHit2016Extra: public EMTFHit2016 {
   public:
     
-  EMTFHitExtra() :
+  EMTFHit2016Extra() :
     
       bx0(-999), layer(-999), zone(-999), phi_hit(-999), phi_zone(-999), phi_loc_int(-999), 
       phi_loc_deg(-999), phi_loc_rad(-999), phi_glob_deg(-999), phi_glob_rad(-999), phi_geom_rad(-999), 
       theta_int(-999), theta_loc(-999), theta_deg(-999), theta_rad(-999), eta(-999)
       {};
     
-    virtual ~EMTFHitExtra() {};
+    virtual ~EMTFHit2016Extra() {};
 
     void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
-    EMTFHit CreateEMTFHit();
-    EMTFHitExtra Clone() {
-      EMTFHitExtra ht;
+    EMTFHit2016 CreateEMTFHit2016();
+    EMTFHit2016Extra Clone() {
+      EMTFHit2016Extra ht;
       ht.set_endcap(Endcap()); ht.set_station(Station()); ht.set_ring(Ring()); ht.set_sector(Sector()); 
       ht.set_sector_index(Sector_index()); ht.set_subsector(Subsector()); ht.set_chamber(Chamber()); 
       ht.set_csc_ID(CSC_ID()); ht.set_roll(Roll()); ht.set_rpc_layer(RPC_layer()); ht.set_neighbor(Neighbor()); 
@@ -89,7 +89,7 @@ namespace l1t {
     
     std::vector<int> zone_contribution; // Filled in emulator from ConvertedHit.ZoneContribution()
     
-    int   bx0;          //  1-3600.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int   bx0;          //  1-3600.  Filled in EMTFHit2016.cc from CSCCorrelatedLCTDigi
     int   layer;
     int   zone;         //  4 - 118. Filled in emulator from ConvertedHit.Zhit()
     int   phi_hit;      //  1 - 42.  Filled in emulator from ConvertedHit.Ph_hit()
@@ -106,11 +106,11 @@ namespace l1t {
     float theta_rad;    // .2 - .8.  Filled in emulator from calc_theta_rad above
     float eta;          // +/- 2.5.  Filled in emulator from calc_eta above
 
-  }; // End of class EMTFHitExtra
+  }; // End of class EMTFHit2016Extra
   
-  // Define a vector of EMTFHitExtra
-  typedef std::vector<EMTFHitExtra> EMTFHitExtraCollection;
+  // Define a vector of EMTFHit2016Extra
+  typedef std::vector<EMTFHit2016Extra> EMTFHit2016ExtraCollection;
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFHitExtra_h__ */
+#endif /* define __l1t_EMTFHit2016Extra_h__ */
