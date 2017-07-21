@@ -19,6 +19,9 @@ template<class Features> class FeaturesTagInfo : public BaseTagInfo {
       jet_ref_(jet_ref) {}
 
     virtual edm::RefToBase<Jet> jet() const { return jet_ref_; }
+
+    const Features & features() const { return features_; } ; 
+
   private:
     Features features_;
     edm::RefToBase<Jet> jet_ref_;
