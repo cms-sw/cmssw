@@ -49,10 +49,11 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
                      )
 
-calib_parValues = cms.PSet( cellLSB =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
-                             fCperMIP = cms.double(fCPerMIP_200),
-                             dEdXweights = layerWeights,
-                             thickCorr = cms.double(thicknessCorrection_200)
+calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
+                            scintillatorCellLSB_MIP = cms.double(float(adcSaturationBH_MIP.value())/(2**float(adcNbitsBH.value()))),
+                            fCperMIP = cms.double(fCPerMIP_200),
+                            dEdXweights = layerWeights,
+                            thickCorr = cms.double(thicknessCorrection_200)
                             )
 C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
                           clustering_threshold = cms.double(2), # MipT
@@ -66,8 +67,6 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
                           )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
-                          HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                          HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                           calib_parameters = calib_parValues.clone(),
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
