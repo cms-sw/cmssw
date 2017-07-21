@@ -99,7 +99,7 @@ int HIPUserVariablesIORoot::findEntry(unsigned int detId, int comp){
 int HIPUserVariablesIORoot::writeOne(Alignable* ali){
   AlignmentParameters* ap=ali->alignmentParameters();
 
-  if ((ap->userVariables())==0){
+  if ((ap->userVariables())==nullptr){
     edm::LogError("Alignment") << "UserVariables not found!";
     return -1;
   }
