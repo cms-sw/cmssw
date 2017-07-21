@@ -322,8 +322,10 @@ class SiPixelDigitizerAlgorithm  {
     const double theThresholdSmearing_BPix;
     const double theThresholdSmearing_BPix_L1;
 
-    const double electronsPerVCAL;          // for electrons - VCAL conversion
-    const double electronsPerVCAL_Offset;   // in misscalibrate()
+    const float electronsPerVCAL;          // for electrons - VCAL conversion
+    const float electronsPerVCAL_Offset;   // in misscalibrate()
+    const float electronsPerVCAL_L1;       // same for Layer 1
+    const float electronsPerVCAL_L1_Offset;// same for Layer 1
 
     const float theTofLowerCut;             // Cut on the particle TOF
     const float theTofUpperCut;             // Cut on the particle TOF
@@ -415,7 +417,7 @@ class SiPixelDigitizerAlgorithm  {
     
     // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;    
-    float missCalibrate(uint32_t detID, const PixelGeomDetUnit* pixdet, int col, int row, float amp) const;  
+    float missCalibrate(uint32_t detID, const TrackerTopology *tTopo, const PixelGeomDetUnit* pixdet, int col, int row, float amp) const;  
     LocalVector DriftDirection(const PixelGeomDetUnit* pixdet,
                                const GlobalVector& bfield,
                                const DetId& detId) const;

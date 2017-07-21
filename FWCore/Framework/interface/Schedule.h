@@ -277,6 +277,9 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
+
   private:
 
     void limitOutput(ParameterSet const& proc_pset,

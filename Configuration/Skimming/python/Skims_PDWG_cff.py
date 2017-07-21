@@ -89,6 +89,19 @@ SKIMStreamBPHSkim = cms.FilteredStream(
 
 #####################
 
+from Configuration.Skimming.PDWG_EXONoBPTXSkim_cff import *
+EXONoBPTXSkimPath = cms.Path()
+SKIMStreamEXONoBPTXSkim = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXONoBPTXSkim',
+    paths = (EXONoBPTXSkimPath),
+    content = EXONoBPTXSkim_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
 diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
 SKIMStreamDiJet = cms.FilteredStream(

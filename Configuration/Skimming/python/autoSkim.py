@@ -15,7 +15,7 @@ autoSkim = {
  'DoubleMuonLowMass' : 'BPHSkim+LogError+LogErrorMonitor',
  'MuOnia' : 'BPHSkim+LogError+LogErrorMonitor',
  'Charmonium' : 'BPHSkim+LogError+LogErrorMonitor',
- 'NoBPTX' : 'LogError+LogErrorMonitor',
+ 'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
  'HcalHPDNoise' : 'LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
  'HLTPhysics' : 'LogError+LogErrorMonitor',

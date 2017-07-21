@@ -99,6 +99,8 @@ namespace edm {
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
 
+      void convertCurrentProcessAlias(std::string const& processName);
+
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
