@@ -20,7 +20,7 @@
 //
 
 // system include files
-#include "boost/type_traits/is_base_and_derived.hpp"
+#include <type_traits>
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/next.hpp"
@@ -69,7 +69,7 @@ namespace edm {
       template <typename T>
       std::set<EventSetupRecordKey>
       findDependentRecordsFor() {
-         typedef typename boost::mpl::if_< typename boost::is_base_and_derived<edm::eventsetup::DependentRecordTag, T>::type,
+         typedef typename boost::mpl::if_< typename std::is_base_of<edm::eventsetup::DependentRecordTag, T>::type,
                                            FindDependenciesFromDependentRecord<T>,
                                            NoDependenciesForRecord>::type DepFinder;
          std::set<EventSetupRecordKey> returnValue;

@@ -180,7 +180,7 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
     if( debug )std::cout <<" Searching tag "<<m_iov.tag()<<" for a valid payload for time="<<targetTime<<std::endl;
     m_session.transaction().start();
     auto iIov = m_iov.find( targetTime );
-    if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+boost::lexical_cast<std::string>(targetTime),"UntypedPayloadProxy::get");
+    if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+std::to_string(targetTime),"UntypedPayloadProxy::get");
     m_data->current = *iIov;
 
     std::string payloadType(""); 

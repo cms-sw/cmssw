@@ -42,11 +42,15 @@ HFSimpleTimeCheck::HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                                      const float i_timeShift,
                                      const float i_triseIfNoTDC,
                                      const float i_tfallIfNoTDC,
+                                     const float i_minChargeForUndershoot,
+                                     const float i_minChargeForOvershoot,
                                      const bool rejectAllFailures)
     : soiPhase_(i_soiPhase),
       timeShift_(i_timeShift),
       triseIfNoTDC_(i_triseIfNoTDC),
       tfallIfNoTDC_(i_tfallIfNoTDC),
+      minChargeForUndershoot_(i_minChargeForUndershoot),
+      minChargeForOvershoot_(i_minChargeForOvershoot),
       rejectAllFailures_(rejectAllFailures)
 {
     tlimits_[0] = tlimits[0];

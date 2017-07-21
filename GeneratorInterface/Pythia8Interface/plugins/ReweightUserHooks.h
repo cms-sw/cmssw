@@ -26,6 +26,34 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
     double pt, power;
 };
 
+class PtHatEmpReweightUserHook : public Pythia8::UserHooks
+{
+  public:
+    PtHatEmpReweightUserHook()
+    {
+      p = {5.3571961909810e+13,1.0907678218282e+01,-2.5898069229451e+00,-5.1575514014931e-01,5.5951279807561e-02,3.5e+02};
+      sigma = [this](double x) -> double { return (p[0]*pow(x,p[2]+p[3]*log(0.01*x)+p[4]*pow(log(0.01*x),2))*pow(1-2*x/(13000.+p[5]),p[1]))*x; };
+    }
+    virtual ~PtHatEmpReweightUserHook() {}
+
+    virtual bool canBiasSelection() { return true; }
+
+    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    {
+      //the variable selBias of the base class should be used;
+      if ((sigmaProcessPtr->nFinal() == 2)) {
+        selBias = 1.0/sigma(phaseSpacePtr->pTHat());
+        return selBias;
+      }
+      selBias = 1.;
+      return selBias;
+    }
+
+  private:
+    std::vector<double> p;
+    std::function<double(double)> sigma;
+};
 
 class RapReweightUserHook : public Pythia8::UserHooks
 {
