@@ -1,8 +1,8 @@
 // Class for muon tracks in EMTF - AWB 04.01.16
 // Mostly copied from L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h
 
-#ifndef __l1t_EMTFTrack_h__
-#define __l1t_EMTFTrack_h__
+#ifndef DataFormats_L1TMuon_EMTFTrack_h
+#define DataFormats_L1TMuon_EMTFTrack_h
 
 #include <cstdint>
 #include <vector>
@@ -48,8 +48,6 @@ namespace l1t {
     
     virtual ~EMTFTrack() {};
     
-    typedef unsigned int uint;
-    
     void ImportSP( const emtf::SP _SP, int _sector );
     // void ImportPtLUT( int _mode, unsigned long _address );
     
@@ -71,18 +69,18 @@ namespace l1t {
 	push_Hit( hit );
     }
 
-    void set_HitIdx(const std::vector<uint>& bits) { _HitIdx = bits;          }
-    void clear_HitIdx()                            { _HitIdx.clear();         }
-    void push_HitIdx(uint bits)                    { _HitIdx.push_back(bits); }
+    void set_HitIdx(const std::vector<unsigned int>& bits) { _HitIdx = bits;          }
+    void clear_HitIdx()                                    { _HitIdx.clear();         }
+    void push_HitIdx(unsigned int bits)                    { _HitIdx.push_back(bits); }
 
-    int NumHits              () const { return numHits; }
-    EMTFHitCollection Hits   () const { return _Hits;   }
-    std::vector<uint> HitIdx () const { return _HitIdx; }
+    int NumHits                      () const { return numHits; }
+    EMTFHitCollection Hits           () const { return _Hits;   }
+    std::vector<unsigned int> HitIdx () const { return _HitIdx; }
 
     void set_Road(const EMTFRoad& bits) { _Road    = bits; }
-    void set_RoadIdx(uint bits)         { _RoadIdx = bits; }
+    void set_RoadIdx(unsigned int bits) { _RoadIdx = bits; }
     EMTFRoad Road              () const { return _Road;    }
-    uint RoadIdx               () const { return _RoadIdx; }
+    unsigned int RoadIdx       () const { return _RoadIdx; }
 
     void set_PtLUT(EMTFPtLUT bits)     { _PtLUT = bits; }
     EMTFPtLUT PtLUT           () const { return _PtLUT; }
@@ -155,10 +153,10 @@ namespace l1t {
   private:
 
     EMTFHitCollection _Hits;
-    std::vector<uint> _HitIdx;
+    std::vector<unsigned int> _HitIdx;
 
-    EMTFRoad _Road;
-    uint     _RoadIdx;
+    EMTFRoad     _Road;
+    unsigned int _RoadIdx;
 
     EMTFPtLUT _PtLUT;
 
@@ -203,4 +201,4 @@ namespace l1t {
 
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFTrack_h__ */
+#endif /* define DataFormats_L1TMuon_EMTFTrack_h */

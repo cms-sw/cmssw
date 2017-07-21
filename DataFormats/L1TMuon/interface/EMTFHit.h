@@ -2,8 +2,8 @@
 // Based on L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h
 // In particular, see struct CSCData
 
-#ifndef __l1t_EMTFHit_h__
-#define __l1t_EMTFHit_h__
+#ifndef DataFormats_L1TMuon_EMTFHit_h
+#define DataFormats_L1TMuon_EMTFHit_h
 
 #include <cstdint>
 #include <vector>
@@ -242,4 +242,4 @@ namespace l1t {
 
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFHit_h__ */
+#endif /* define DataFormats_L1TMuon_EMTFHit_h */

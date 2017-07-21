@@ -1,7 +1,7 @@
 // Tools for unpacking and packing EMTF data
 
-#ifndef EMTFUnpackerTools_h
-#define EMTFUnpackerTools_h
+#ifndef EventFilter_L1TRawToDigi_EMTFUnpackerTools_h
+#define EventFilter_L1TRawToDigi_EMTFUnpackerTools_h
 
 // Generally useful includes
 #include <iostream>
@@ -57,4 +57,4 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-#endif /* define EMTFUnpackerTools_h */
+#endif /* define EventFilter_L1TRawToDigi_EMTFUnpackerTools_h */

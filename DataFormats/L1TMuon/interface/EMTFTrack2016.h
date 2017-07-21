@@ -1,8 +1,8 @@
 // Class for muon tracks in EMTF - AWB 04.01.16
 // Mostly copied from L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h
 
-#ifndef __l1t_EMTFTrack2016_h__
-#define __l1t_EMTFTrack2016_h__
+#ifndef DataFormats_L1TMuon_EMTFTrack2016_h
+#define DataFormats_L1TMuon_EMTFTrack2016_h
 
 #include <vector>
 #include <boost/cstdint.hpp>
@@ -36,14 +36,14 @@ namespace l1t {
 
     void set_Hits(EMTFHit2016Collection bits)       { _Hits = bits;                numHits = _Hits.size(); }
     void push_Hit(EMTFHit2016 bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
-    void set_HitIndices(std::vector<uint> bits) { _HitIndices = bits;          numHits = _HitIndices.size(); }
-    void push_HitIndex(uint bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
+    void set_HitIndices(std::vector<unsigned int> bits) { _HitIndices = bits;          numHits = _HitIndices.size(); }
+    void push_HitIndex(unsigned int bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
 
     int NumHits()            const { return numHits; }
     EMTFHit2016Collection Hits()       { return _Hits; }
-    std::vector<uint> HitIndices() { return _HitIndices; }
+    std::vector<unsigned int> HitIndices() { return _HitIndices; }
     const EMTFHit2016Collection * PtrHits()       const { return &_Hits; }
-    const std::vector<uint> * PtrHitIndices() const { return &_HitIndices; }
+    const std::vector<unsigned int> * PtrHitIndices() const { return &_HitIndices; }
     
     void set_endcap        (int  bits) { endcap       = bits; }
     void set_sector        (int  bits) { sector       = bits; }
@@ -144,7 +144,7 @@ namespace l1t {
   private:
     
     EMTFHit2016Collection _Hits;
-    std::vector<uint>  _HitIndices;
+    std::vector<unsigned int>  _HitIndices;
 
     int   endcap;       // -1 or 1.  Filled in emulator from hit. 
     int   sector;       //  1 -  6.  Filled in emulator from hit.
@@ -202,4 +202,4 @@ namespace l1t {
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFTrack2016_h__ */
+#endif /* define DataFormats_L1TMuon_EMTFTrack2016_h */

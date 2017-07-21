@@ -1,6 +1,6 @@
 
-#ifndef EMTFTokens_h
-#define EMTFTokens_h
+#ifndef EventFilter_L1TRawToDigi_EMTFTokens_h
+#define EventFilter_L1TRawToDigi_EMTFTokens_h
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
@@ -40,4 +40,4 @@ namespace l1t {
   }
 }
 
-#endif
+#endif /* define EventFilter_L1TRawToDigi_EMTFTokens_h */
