@@ -979,6 +979,7 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
+	self.PATGENDefaultSeq='miniAOD'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -1673,6 +1674,18 @@ class ConfigBuilder(object):
 
 #            self.renameHLTprocessInSequence(sequence)
 
+        return
+
+    def prepare_PATGEN(self, sequence = "miniAOD"):
+        ''' Enrich the schedule with PATGEN '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
+	if not self._options.runUnscheduled:	
+		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        if self._options.isData:
+            raise Exception("PATGEN step can only run on MC")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+        else:
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllGEN")
         return
 
     def prepare_EI(self, sequence = None):
