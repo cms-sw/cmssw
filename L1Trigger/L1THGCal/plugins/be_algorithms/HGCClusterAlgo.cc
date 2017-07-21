@@ -40,7 +40,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         clustering_( conf.getParameterSet("C2d_parameters") ),
         multiclustering_( conf.getParameterSet("C3d_parameters" ) )
         {
-            clustering_threshold_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold");
+            clustering_threshold_silicon_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_silicon");
+            clustering_threshold_scintillator_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_scintillator");
             std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(type=="dRC2d"){
                 clusteringAlgorithmType_ = dRC2d;
@@ -94,7 +95,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         /* algorithm type */
         ClusterType clusteringAlgorithmType_;
-        double clustering_threshold_;
+        double clustering_threshold_silicon_;
+        double clustering_threshold_scintillator_;
 };
 
 
@@ -120,7 +122,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             {
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell); 
-                if(calibratedtriggercell.mipPt()<clustering_threshold_) continue;
+                double clustering_threshold = (triggercell.subdetId()==HGCHEB ? clustering_threshold_scintillator_ : clustering_threshold_silicon_);
+                if(calibratedtriggercell.mipPt()<clustering_threshold) continue;
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }           
         
