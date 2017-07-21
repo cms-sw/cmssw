@@ -20,11 +20,10 @@ float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhO
 
     if (layer <= fhOffset)
         return eeDecayLengthInLayer;
-    if (layer > fhOffset && layer <= bhOffset)
+    else if (layer > fhOffset && layer <= bhOffset)
         return fhDecayLengthInLayer;
-    if (layer > bhOffset)
+    else
         return bhDecayLengthInLayer;
-    return 0.f;
 }
 }
 
