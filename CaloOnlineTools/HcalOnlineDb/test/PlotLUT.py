@@ -15,10 +15,6 @@ options.parseArguments()
 
 process = cms.Process("LutPlot")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = 'INFO'
-
-
 process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globaltag 
