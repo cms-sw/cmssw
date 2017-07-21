@@ -52,13 +52,13 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   doTrackHitMonitoring(theMonitorConfig.fillTrackMonitoring || theMonitorConfig.fillTrackHitMonitoring),
   defaultAlignableSpecs((Alignable*)0),
   surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")),
-  theTrackHitMonitorIORootFile(0),
-  theTrackMonitorTree(0),
-  theHitMonitorTree(0),
-  theAlignablesMonitorIORootFile(0),
-  theAlignablesMonitorTree(0),
-  theSurveyIORootFile(0),
-  theSurveyTree(0)
+  theTrackHitMonitorIORootFile(nullptr),
+  theTrackMonitorTree(nullptr),
+  theHitMonitorTree(nullptr),
+  theAlignablesMonitorIORootFile(nullptr),
+  theAlignablesMonitorTree(nullptr),
+  theSurveyIORootFile(nullptr),
+  theSurveyTree(nullptr)
 {
   // parse parameters
   outpath = cfg.getParameter<std::string>("outpath");
@@ -175,7 +175,7 @@ void HIPAlignmentAlgorithm::initialize(
 
   // accessor Det->AlignableDet
   theAlignableDetAccessor = std::make_unique<AlignableNavigator>(extras, tracker, muon);
-  if (extras!=0) edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "AlignableNavigator initialized with AlignableExtras";
+  if (extras!=nullptr) edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "AlignableNavigator initialized with AlignableExtras";
 
   // set alignmentParameterStore
   theAlignmentParameterStore=store;
@@ -381,7 +381,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
             uservar->jtvj += invCov;
             uservar->jtve += invCov * sensResid;
 
-            if (theSurveyTree!=0) theSurveyTree->Fill();
+            if (theSurveyTree!=nullptr) theSurveyTree->Fill();
           }
         }
       }
@@ -409,7 +409,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
 
     bool test = calcParameters(ali, SetScanDet.at(0), SetScanDet.at(1), SetScanDet.at(2));
     if (test){
-      if (dynamic_cast<AlignableDetUnit*>(ali)!=0){
+      if (dynamic_cast<AlignableDetUnit*>(ali)!=nullptr){
         std::vector<std::pair<int, SurfaceDeformation*>> pairs;
         ali->surfaceDeformationIdPairs(pairs);
         edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::terminate" << "The alignable contains " << pairs.size() << " surface deformations";
@@ -451,30 +451,30 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
 
   // write out trees and close root file
   // Survey tree
-  if (theSurveyIORootFile!=0){
+  if (theSurveyIORootFile!=nullptr){
     theSurveyIORootFile->cd();
-    if (theSurveyTree!=0) theSurveyTree->Write();
+    if (theSurveyTree!=nullptr) theSurveyTree->Write();
     delete theSurveyTree;
     theSurveyTree=0;
     theSurveyIORootFile->Close();
   }
   // Alignable-wise tree is only filled once at iteration 1
-  if (theAlignablesMonitorIORootFile!=0){
+  if (theAlignablesMonitorIORootFile!=nullptr){
     theAlignablesMonitorIORootFile->cd();
-    if (theAlignablesMonitorTree!=0) theAlignablesMonitorTree->Write();
+    if (theAlignablesMonitorTree!=nullptr) theAlignablesMonitorTree->Write();
     delete theAlignablesMonitorTree;
     theAlignablesMonitorTree=0;
     theAlignablesMonitorIORootFile->Close();
   }
   // Eventwise and hitwise monitoring trees
-  if (theTrackHitMonitorIORootFile!=0){
+  if (theTrackHitMonitorIORootFile!=nullptr){
     theTrackHitMonitorIORootFile->cd();
-    if (theTrackMonitorTree!=0){
+    if (theTrackMonitorTree!=nullptr){
       theTrackMonitorTree->Write();
       delete theTrackMonitorTree;
       theTrackMonitorTree=0;
     }
-    if (theHitMonitorTree!=0){
+    if (theHitMonitorTree!=nullptr){
       theHitMonitorTree->Write();
       delete theHitMonitorTree;
       theHitMonitorTree=0;
@@ -877,7 +877,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       // get relevant Alignable
       Alignable* ali = aap.alignableFromAlignableDet(alidet);
 
-      if (ali!=0){
+      if (ali!=nullptr){
         const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
         const TrajectoryStateOnSurface& tsos = *itsos;
 
@@ -903,9 +903,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         m_probXY=-1;
         m_probQ=-1;
         m_rawQualityWord=9999;
-        if ((*ihit)->hit()!=0){
+        if ((*ihit)->hit()!=nullptr){
           const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>((*ihit)->hit());
-          if (pixhit!=0){
+          if (pixhit!=nullptr){
             m_hasHitProb = pixhit->hasFilledProb();
             if (m_hasHitProb){
               // Prob X, Y are deprecated
@@ -941,7 +941,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
               << std::endl;
             break;
           }
-          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=0 && hitProcessed) theHitMonitorTree->Fill();
+          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=nullptr && hitProcessed) theHitMonitorTree->Fill();
         }
       }
 
@@ -951,7 +951,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=0) theTrackMonitorTree->Fill();
+  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=nullptr) theTrackMonitorTree->Fill();
 }
 
 // ----------------------------------------------------------------------------
@@ -1216,7 +1216,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
       }
 
       naligned++;
-      if (theAlignablesMonitorTree!=0) theAlignablesMonitorTree->Fill();
+      if (theAlignablesMonitorTree!=nullptr) theAlignablesMonitorTree->Fill();
     }
   }
 }
@@ -1341,7 +1341,7 @@ void HIPAlignmentAlgorithm::collector(void){
         // No need for the user variables already attached to the alignables
         // Just count from what you read.
         HIPUserVariables* uvar = dynamic_cast<HIPUserVariables*>(*iuvar);
-        if (uvar!=0){
+        if (uvar!=nullptr){
           int alijobdtype = uvar->datatype;
           pawt_t alijobnhits = uvar->nhit;
           if (ali_datatypecountpair_map.find(ali)==ali_datatypecountpair_map.end()){ // This is a new alignable
@@ -1394,7 +1394,7 @@ void HIPAlignmentAlgorithm::collector(void){
       HIPUserVariables* uvar = uvarold->clone();
       uvar->datatype=theDataGroup; // Set the data type of alignable to that specified for the collector job (-2 by default)
 
-      if (uvarnew!=0){
+      if (uvarnew!=nullptr){
         double peraliwgt=1;
         if (rewgtPerAli){
           int alijobdtype = uvarnew->datatype;
@@ -1466,23 +1466,23 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
   TList* hittrees = new TList;
   for (std::string const& filename : filenames){
     TFile* finput = TFile::Open(filename.c_str(), "read");
-    if (finput!=0){
+    if (finput!=nullptr){
       TTree* tmptree;
       if (theMonitorConfig.fillTrackMonitoring){
-        tmptree=0;
+        tmptree=nullptr;
         tmptree = (TTree*)finput->Get(theTrackMonitorTreeName);
-        if (tmptree!=0) eventtrees->Add(tmptree);
+        if (tmptree!=nullptr) eventtrees->Add(tmptree);
       }
       if (theMonitorConfig.fillTrackHitMonitoring){
-        tmptree=0;
+        tmptree=nullptr;
         tmptree = (TTree*)finput->Get(theHitMonitorTreeName);
-        if (tmptree!=0) hittrees->Add((TTree*)finput->Get(theHitMonitorTreeName));
+        if (tmptree!=nullptr) hittrees->Add((TTree*)finput->Get(theHitMonitorTreeName));
       }
       finputlist.push_back(finput);
     }
   }
 
-  if (theTrackHitMonitorIORootFile!=0){ // This should never happen
+  if (theTrackHitMonitorIORootFile!=nullptr){ // This should never happen
     edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collectMonitorTrees"
       << "Monitor file is already open while it is not supposed to be!";
     delete theTrackMonitorTree; theTrackMonitorTree=0;
@@ -1500,13 +1500,13 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
   for (TFile*& finput : finputlist) finput->Close();
 
   // Rename the trees to standard names
-  if (theTrackMonitorTree!=0) theTrackMonitorTree->SetName(theTrackMonitorTreeName);
-  if (theHitMonitorTree!=0) theHitMonitorTree->SetName(theHitMonitorTreeName);
+  if (theTrackMonitorTree!=nullptr) theTrackMonitorTree->SetName(theTrackMonitorTreeName);
+  if (theHitMonitorTree!=nullptr) theHitMonitorTree->SetName(theHitMonitorTreeName);
 }
 
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali){
-  if (ali!=0){
+  if (ali!=nullptr){
     for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
       if (it->matchAlignable(ali)) return &(*it);
     }
