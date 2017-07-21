@@ -340,6 +340,35 @@ def miniAOD_customizeMC(process):
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
 
+
+def miniAOD_customizeGEN(process):
+    #slimmed pileup information
+    # process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
+    
+    # process.muonMatch.matched = "prunedGenParticles"
+    # process.electronMatch.matched = "prunedGenParticles"
+    # process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    # process.photonMatch.matched = "prunedGenParticles"
+    # process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    # process.tauMatch.matched = "prunedGenParticles"
+    process.tauGenJets.GenParticles = "prunedGenParticles"
+    #Boosted taus 
+    # process.tauMatchBoosted.matched = "prunedGenParticles"
+    # process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
+    # process.patJetPartons.particles = "prunedGenParticles"
+    # process.patJetPartonMatch.matched = "prunedGenParticles"
+    # process.patJetPartonMatch.mcStatus = [ 3, 23 ]
+    # process.patJetGenJetMatch.matched = "slimmedGenJets"
+    # process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
+    # process.patMuons.embedGenMatch = False
+    # process.patElectrons.embedGenMatch = False
+    # process.patPhotons.embedGenMatch = False
+    # process.patTaus.embedGenMatch = False
+    # process.patTausBoosted.embedGenMatch = False
+    # process.patJets.embedGenPartonMatch = False
+    #also jet flavour must be switched
+    # process.patJetFlavourAssociation.rParam = 0.4
+
 def miniAOD_customizeOutput(out):
     out.dropMetaData = cms.untracked.string('ALL')
     out.fastCloning= cms.untracked.bool(False)
@@ -359,4 +388,8 @@ def miniAOD_customizeAllData(process):
 def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
+    return process
+
+def miniAOD_customizeAllGEN(process):
+    miniAOD_customizeGEN(process)
     return process
