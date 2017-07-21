@@ -47,11 +47,9 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
 
   clear();
   // Build coincidences
-  std::cout << "In copad processor: print all pads" << std::endl;
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const auto& pads_range1 = (*det_range).second;
     for (auto p = pads_range1.first; p != pads_range1.second; ++p) {
-      //std::cout << "++pad " << GEMDetId((*det_range).first) << " " << *p << std::endl;
     }
 
     const GEMDetId& id = (*det_range).first;
@@ -62,8 +60,6 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
 
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
-    std::cout << "In copad processor: " << id << std::endl;
-    std::cout << "OK layer" << std::endl;
 
     // find all corresponding ids with layer 2 and same roll number
     // or a roll number that differs at most +/-1
@@ -89,12 +85,6 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
           // check the match in BX
           if ((unsigned)std::abs(p->bx() - co_p->bx()) > maxDeltaBX_) continue;
 
-          std::cout << "co id " << co_id << std::endl;
-          std::cout << "...with copads" << std::endl;
-          std::cout << "...pad1" << *p << std::endl;
-          std::cout << "...pad2" << *co_p << std::endl;
-
-          std::cout << "...produce copad" << GEMCoPadDigi(id.roll(),*p,*co_p) << std::endl;
           // make a new coincidence pad digi
           gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
         }
