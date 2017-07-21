@@ -4,7 +4,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-
 #include "DQMOffline/Trigger/plugins/TagAndProbeBtagTriggerMonitor.h"
 
 #include "TLorentzVector.h"
@@ -111,10 +110,10 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
       {
          const reco::Jet * jet1 = jettags.key(0).get();
          const reco::Jet * jet2 = jettags.key(1).get();
-         TLorentzVector p4_jet1;
-         p4_jet1.SetPtEtaPhiM(jet1->pt(),jet1->eta(),jet1->phi(),0);
-         TLorentzVector p4_jet2;
-         p4_jet2.SetPtEtaPhiM(jet2->pt(),jet2->eta(),jet2->phi(),0);
+	 TLorentzVector p4_jet1;
+	 p4_jet1.SetPtEtaPhiM(jet1->pt(),jet1->eta(),jet1->phi(),0);
+	 TLorentzVector p4_jet2;
+	 p4_jet2.SetPtEtaPhiM(jet2->pt(),jet2->eta(),jet2->phi(),0);
          float btag1 = jettags.value(0);
          float btag2 = jettags.value(1);
             
@@ -146,18 +145,21 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
                   const trigger::TriggerObjectCollection & triggerObjects = triggerEventHandler->getObjects();
                   for ( auto & key : keys )
                   {
-                     onlinebtags.push_back(triggerObjects[key]);
+		    onlinebtags.reserve(onlinebtags.size()+keys.size());           
+		    onlinebtags.push_back(triggerObjects[key]);
                   }
                }
                for ( auto & to : onlinebtags )
                {
-                  TLorentzVector p4_to;
-                  p4_to.SetPtEtaPhiM(to.pt(),to.eta(),to.phi(),0);
+		  TLorentzVector p4_to;
+		  p4_to.SetPtEtaPhiM(to.pt(),to.eta(),to.phi(),0);
                   
                   if ( p4_jet1.DeltaR(p4_to) ) match1 = true;
                   if ( p4_jet2.DeltaR(p4_to) ) match2 = true;
-               }
-               if ( match1 ) // jet1 is the tag
+	       
+                }
+ 
+              if ( match1 ) // jet1 is the tag
                {
                   pt_probe_  -> Fill(jet2->pt());
                   eta_probe_ -> Fill(jet2->eta());
