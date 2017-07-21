@@ -52,8 +52,10 @@ public:
 
 private:
     
-    double seedThreshold_;
-    double triggerCellThreshold_;
+    double siliconSeedThreshold_;
+    double siliconTriggerCellThreshold_;
+    double scintillatorSeedThreshold_;
+    double scintillatorTriggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 

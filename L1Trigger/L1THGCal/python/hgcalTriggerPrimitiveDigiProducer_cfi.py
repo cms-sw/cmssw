@@ -55,8 +55,10 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
                             dEdXweights = layerWeights,
                             thickCorr = cms.double(thicknessCorrection_200)
                             )
-C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
-                          clustering_threshold = cms.double(2), # MipT
+C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
+                          seeding_threshold_scintillator = cms.double(5), # MipT
+                          clustering_threshold_silicon = cms.double(2), # MipT
+                          clustering_threshold_scintillator = cms.double(2), # MipT
                           dR_cluster = cms.double(3.), # in cm
                           clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
                           )

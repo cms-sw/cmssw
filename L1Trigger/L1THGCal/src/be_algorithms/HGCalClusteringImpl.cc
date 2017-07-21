@@ -6,14 +6,18 @@
 
 //class constructor
 HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
-    seedThreshold_(conf.getParameter<double>("seeding_threshold")),
-    triggerCellThreshold_(conf.getParameter<double>("clustering_threshold")),
+    siliconSeedThreshold_(conf.getParameter<double>("seeding_threshold_silicon")),
+    siliconTriggerCellThreshold_(conf.getParameter<double>("clustering_threshold_silicon")),
+    scintillatorSeedThreshold_(conf.getParameter<double>("seeding_threshold_scintillator")),
+    scintillatorTriggerCellThreshold_(conf.getParameter<double>("clustering_threshold_scintillator")),
     dr_(conf.getParameter<double>("dR_cluster")),
     clusteringAlgorithmType_(conf.getParameter<string>("clusterType"))
 {    
     edm::LogInfo("HGCalClusterParameters") << "C2d Clustering Algorithm selected : " << clusteringAlgorithmType_ ; 
-    edm::LogInfo("HGCalClusterParameters") << "C2d seeding Thr: " << seedThreshold_ ; 
-    edm::LogInfo("HGCalClusterParameters") << "C2d clustering Thr: " << triggerCellThreshold_ ; 
+    edm::LogInfo("HGCalClusterParameters") << "C2d silicon seeding Thr: " << siliconSeedThreshold_ ; 
+    edm::LogInfo("HGCalClusterParameters") << "C2d silicon clustering Thr: " << siliconTriggerCellThreshold_ ; 
+    edm::LogInfo("HGCalClusterParameters") << "C2d scintillator seeding Thr: " << scintillatorSeedThreshold_ ; 
+    edm::LogInfo("HGCalClusterParameters") << "C2d scintillator clustering Thr: " << scintillatorTriggerCellThreshold_ ; 
  
 }
 
@@ -48,7 +52,8 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
     /* search for cluster seeds */
     int itc(0);
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
-        isSeed[itc] = ( (*tc)->mipPt() > seedThreshold_) ? true : false;
+        double seedThreshold = ((*tc)->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
+        isSeed[itc] = ( (*tc)->mipPt() > seedThreshold) ? true : false;
     }
     
     /* clustering the TCs */
@@ -56,8 +61,8 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
 
     itc=0;
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
-            
-        if( (*tc)->mipPt() < triggerCellThreshold_ ){
+        double threshold = ((*tc)->subdetId()==HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
+        if( (*tc)->mipPt() < threshold ){
             continue;
         }
         
@@ -158,8 +163,8 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
 
     /* loop over the trigger-cells */
     for( const auto& tc_ptr : reshuffledTriggerCells ){
-                
-        if( tc_ptr->mipPt() < triggerCellThreshold_ ){
+        double threshold = (tc_ptr->subdetId()==HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
+        if( tc_ptr->mipPt() < threshold ){
             continue;
         }
         
@@ -236,7 +241,8 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
         bool saveInCollection(false);
         for( const auto& tc_ptr : cluster.constituents() ){
             /* threshold in transverse-mip */
-            if( tc_ptr->mipPt() > seedThreshold_ ){
+            double seedThreshold = (tc_ptr->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
+            if( tc_ptr->mipPt() > seedThreshold ){
                 saveInCollection = true;
                 break;
             }
