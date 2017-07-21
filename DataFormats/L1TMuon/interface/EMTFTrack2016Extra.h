@@ -1,8 +1,8 @@
 // Class for muon tracks in EMTF - AWB 04.01.16
 // Mostly copied from L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h
 
-#ifndef __l1t_EMTFTrack2016Extra_h__
-#define __l1t_EMTFTrack2016Extra_h__
+#ifndef DataFormats_L1TMuon_EMTFTrack2016Extra_h
+#define DataFormats_L1TMuon_EMTFTrack2016Extra_h
 
 #include <vector>
 #include <boost/cstdint.hpp> 
@@ -26,14 +26,14 @@ namespace l1t {
 
     void set_HitsExtra(EMTFHit2016ExtraCollection bits)  { _HitsExtra = bits;                numHitsExtra = _HitsExtra.size(); }
     void push_HitExtra(EMTFHit2016Extra bits)            { _HitsExtra.push_back(bits);       numHitsExtra = _HitsExtra.size(); }
-    void set_HitExtraIndices(std::vector<uint> bits) { _HitExtraIndices = bits;          numHitsExtra = _HitExtraIndices.size(); }
-    void push_HitExtraIndex(uint bits)               { _HitExtraIndices.push_back(bits); numHitsExtra = _HitExtraIndices.size(); }
+    void set_HitExtraIndices(std::vector<unsigned int> bits) { _HitExtraIndices = bits;          numHitsExtra = _HitExtraIndices.size(); }
+    void push_HitExtraIndex(unsigned int bits)               { _HitExtraIndices.push_back(bits); numHitsExtra = _HitExtraIndices.size(); }
 
     int NumHitsExtra()                             const { return numHitsExtra; }
     EMTFHit2016ExtraCollection HitsExtra()                   { return _HitsExtra; }
-    std::vector<uint> HitExtraIndices()                  { return _HitExtraIndices; }
+    std::vector<unsigned int> HitExtraIndices()                  { return _HitExtraIndices; }
     const EMTFHit2016ExtraCollection * PtrHitsExtra()  const { return &_HitsExtra; }
-    const std::vector<uint> * PtrHitExtraIndices() const { return &_HitExtraIndices; }
+    const std::vector<unsigned int> * PtrHitExtraIndices() const { return &_HitExtraIndices; }
     
     /* // Can't have a vector of vectors of vectors in ROOT files */
     /* void set_deltas (vector< vector<int> > _deltas) { deltas = _deltas; } */
@@ -69,7 +69,7 @@ namespace l1t {
   private:
     
     EMTFHit2016ExtraCollection _HitsExtra;
-    std::vector<uint>  _HitExtraIndices;
+    std::vector<unsigned int>  _HitExtraIndices;
 
     /* // Can't have a vector of vectors of vectors in ROOT files */
     /* std::vector< std::vector<int> > deltas; */
@@ -97,4 +97,4 @@ namespace l1t {
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFTrack2016Extra_h__ */
+#endif /* define DataFormats_L1TMuon_EMTFTrack2016Extra_h */

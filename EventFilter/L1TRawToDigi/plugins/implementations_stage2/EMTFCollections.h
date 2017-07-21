@@ -1,6 +1,6 @@
 
-#ifndef EMTFCollections_h
-#define EMTFCollections_h
+#ifndef EventFilter_L1TRawToDigi_EMTFCollections_h
+#define EventFilter_L1TRawToDigi_EMTFCollections_h
 
 #include <iostream> // For use in all EMTFBlock files
 #include <iomanip>  // For things like std::setw

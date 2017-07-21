@@ -211,8 +211,8 @@ namespace l1t {
 	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
 	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
 	  // 	    << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
-	for (uint iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (unsigned int iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
+	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
 	      // std::cout << "Hit:   ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
 	      // 		<< ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
@@ -232,8 +232,8 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
+	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
@@ -251,8 +251,8 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
+	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
@@ -270,8 +270,8 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
+	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
@@ -302,14 +302,14 @@ namespace l1t {
 	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME4_stub_num = " << SP_.ME4_stub_num() 
 	// 	    << ", ME4_delay = " <<  SP_.ME4_delay() << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
 
-	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+	//   for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++)
 	//     std::cout << "ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector()
 	// 	      << ", sub = " << (res_hit->at(iHit)).Subsector() << ", neighbor = " << (res_hit->at(iHit)).Neighbor()
 	// 	      << ", station = " << (res_hit->at(iHit)).Station() << ", stub = " << (res_hit->at(iHit)).Stub_num() 
 	// 	      << ", BX = " << (res_hit->at(iHit)).BX() << ", ring = " << (res_hit->at(iHit)).Ring() 
 	// 	      << ", chamber = " << (res_hit->at(iHit)).Chamber() << std::endl;
 
-	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	//   for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
 	//     if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();
 	//     (res_hit->at(iHit)).PrintForSimulator();
 	//   }

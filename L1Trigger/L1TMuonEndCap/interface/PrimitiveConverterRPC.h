@@ -3,8 +3,8 @@
 // Takes in raw information from the TriggerPrimitive class(part of L1TMuon software package);
 // and outputs vector of 'ConvertedHits'
 
-#ifndef ADD_PrimitiveConverterRPC
-#define ADD_PrimitiveConverterRPC
+#ifndef L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h
+#define L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h
 
 //
 
@@ -28,4 +28,4 @@ class PrimitiveConverterRPC {
 
 };
 
-#endif
+#endif /* #define L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h */
