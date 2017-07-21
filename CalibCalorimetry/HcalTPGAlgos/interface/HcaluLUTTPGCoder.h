@@ -10,7 +10,6 @@
 #include <vector>
 
 class HcalDbService;
-class HcalQIEType;
 
 /** \class HcaluLUTTPGCoder
   *  

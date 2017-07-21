@@ -53,35 +53,37 @@ if [[ "$cmd" == "dump" ]]
 then
     CheckParameter record 
     CheckParameter run
+    CheckParameter GT
+
+    dumpCmd="cmsRun $CMSSW_RELEASE_BASE/src/CondTools/Hcal/test/runDumpHcalCond_cfg.py geometry=DB prefix="""
 
     if [ -z $frontier ]
     then
 	frontier="frontier://FrontierProd/CMS_CONDITIONS"
     fi
 
-    if [ ! -z $GT ]
+    if [ ! -z $tag ]
     then
-	if ! cmsRun DumpCond.py record=$record run=$run GT=$GT
+	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
 	then
 	    exit 1
 	fi
     else 
-	if ! cmsRun DumpCond.py record=$record tag=$tag run=$run frontier=$frontier
+	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT 
 	then
 	    exit 1
 	fi
     fi
 
     mkdir -p $CondDir/$record
-    mv Dump${record}_Run$run.txt $CondDir/$record/.
-
+    mv ${record}_Run$run.txt $CondDir/$record/.
 
 
 
 elif [[ "$cmd" == "generate" ]]
 then
     CheckParameter tag 
-    CheckParameter globaltag 
+    CheckParameter GT
     CheckParameter run 
     CheckParameter HO_master_file 
     CheckParameter comment
@@ -95,7 +97,7 @@ then
     sed -e "s#__LUTtag__#$tag#g" \
     -e "s#__RUN__#$run#g" \
     -e "s#__CONDDIR__#$BaseDir/$CondDir#g" \
-    -e "s#__GlobalTag__#$globaltag#g" \
+    -e "s#__GlobalTag__#$GT#g" \
     -e "s#__HO_master_file__#$HO_master_file#g" \
     $templatefile > $tag.py
 
@@ -132,18 +134,17 @@ then
 
     mkdir -p $CondDir/$tag
     mkdir -p $CondDir/$tag/Deploy
-    mv $tag.zip $tag.py Dump_L1TriggerObjects_$tag.txt $CondDir/$tag/Deploy
+    mv $tag.zip $tag.py Gen_L1TriggerObjects_$tag.txt $CondDir/$tag/Deploy
 
     mkdir -p $CondDir/$tag/Debug
     hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$tag/${tag}.xml
     mv *$tag*.{xml,dat} $CondDir/$tag/Debug
 
 
-
-
-
 elif [[ "$cmd" == "validate" ]]
 then
+    CheckParameter GT
+    CheckParameter run 
     CheckParameter tags 
     CheckParameter pedestals
     CheckParameter gains 
@@ -151,12 +152,10 @@ then
     CheckParameter quality
 
     ptags=(${tags//,/ })
-    pdir=${ptags[0]}-${ptags[1]}
     mkdir -p $CondDir/${ptags[1]}/Figures
-    cmsRun PlotLUT.py inputDir=$BaseDir/$CondDir tags=$tags gains=$gains respcorrs=$respcorrs pedestals=$pedestals quality=$quality plotsDir=$CondDir/${ptags[1]}/Figures/
-
-
-
+    cmsRun PlotLUT.py globaltag=$GT run=$run \
+	inputDir=$BaseDir/$CondDir plotsDir=$CondDir/${ptags[1]}/Figures/ \
+	tags=$tags gains=$gains respcorrs=$respcorrs pedestals=$pedestals quality=$quality 
 
 elif [ "$cmd" == "upload" ]
 then
@@ -169,9 +168,6 @@ then
 
     cmd="scp $tag.zip $dropbox" 
     ssh -XY cmsusr $cmd
-
-
-
 
 elif [ "$cmd" == "diff" ]
 then
