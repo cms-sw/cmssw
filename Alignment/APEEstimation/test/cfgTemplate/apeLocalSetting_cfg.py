@@ -45,13 +45,13 @@ process = cms.Process("APE")
 #;;;;;;;;;;;;;;;new line;;;;;;;;;;;;;;;
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 #;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 # include "Configuration/StandardSequences/data/FakeConditions.cff"
@@ -119,12 +119,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
+CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber)+'.db'))
 process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",
-    CondDBSetup,
+    CondDBAlignmentError,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber)+'.db'),
     toPut = cms.VPSet(
         cms.PSet(
 	    record = cms.string('TrackerAlignmentErrorExtendedRcd'),

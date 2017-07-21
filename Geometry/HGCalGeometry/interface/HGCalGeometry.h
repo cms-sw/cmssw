@@ -46,23 +46,23 @@ public:
  
   HGCalGeometry(const HGCalTopology& topology) ;
   
-  virtual ~HGCalGeometry();
+  ~HGCalGeometry() override;
 
   void localCorners( Pt3DVec&        lc  ,
 		     const CCGFloat* pv  , 
 		     unsigned int    i   ,
 		     Pt3D&           ref   ) ;
   
-  virtual void newCell( const GlobalPoint& f1 ,
+  void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm ,
 			const DetId&       detId ) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const override;
+  const CaloCellGeometry* getGeometry( const DetId& id ) const override;
 
-  virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
+  void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 			   CaloSubdetectorGeometry::IVec&   iVector,
 			   CaloSubdetectorGeometry::DimVec& dimVector,
 			   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
@@ -73,11 +73,11 @@ public:
   CornersVec getCorners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
+  const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
   const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
 					       
   // Get closest cell, etc...
-  virtual DetId getClosestCell( const GlobalPoint& r ) const override;
+  DetId getClosestCell( const GlobalPoint& r ) const override;
   
   /** \brief Get a list of all cells within a dR of the given cell
       
@@ -85,10 +85,10 @@ public:
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
   */
-  virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const override;
+  DetIdSet getCells( const GlobalPoint& r, double dR ) const override;
   
   virtual void fillNamedParams (DDFilteredView fv);
-  virtual void initializeParms() override;
+  void initializeParms() override;
   
   static std::string producerTag() { return "HGCal" ; }
   std::string cellElement() const;
@@ -98,11 +98,11 @@ public:
      
 protected:
 
-  virtual unsigned int indexFor(const DetId& id) const override;
+  unsigned int indexFor(const DetId& id) const override;
   using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
+  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
   
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex ( const GlobalPoint& r ) const;

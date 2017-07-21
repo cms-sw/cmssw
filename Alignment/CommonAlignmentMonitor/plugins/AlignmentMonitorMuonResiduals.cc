@@ -38,7 +38,7 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 
       void book() override;
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
-      void afterAlignment(const edm::EventSetup &iSetup) override;
+      void afterAlignment() override;
 
    private:
       std::map<int, int> m_numx;
@@ -820,7 +820,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
    } // end loop over track-trajectories
 }
 
-void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup) {
+void AlignmentMonitorMuonResiduals::afterAlignment() {
    std::vector<Alignable*> chambers;
    std::vector<Alignable*> tmp1 = pMuon()->DTChambers();
    for (std::vector<Alignable*>::const_iterator iter = tmp1.begin();  iter != tmp1.end();  ++iter) chambers.push_back(*iter);

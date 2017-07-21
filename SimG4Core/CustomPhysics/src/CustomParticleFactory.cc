@@ -23,12 +23,7 @@
 using namespace CLHEP;
 
 bool CustomParticleFactory::loaded = false;
-std::set<G4ParticleDefinition *> CustomParticleFactory::m_particles;
-
-bool CustomParticleFactory::isCustomParticle(G4ParticleDefinition *particle)
-{
-  return (m_particles.find(particle)!=m_particles.end());
-}
+std::vector<G4ParticleDefinition *> CustomParticleFactory::m_particles;
 
 void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
   if(loaded) return;
@@ -212,7 +207,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     particle->SetCloud(0);
     particle->SetSpectator(0);
   } 
-  m_particles.insert(particle);
+  m_particles.push_back(particle);
 }
 
 void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
@@ -386,3 +381,7 @@ std::string CustomParticleFactory::ToLower(std::string str) {
   return str; 	
 }
 
+const std::vector<G4ParticleDefinition *>& CustomParticleFactory::GetCustomParticles()
+{
+  return m_particles;
+}

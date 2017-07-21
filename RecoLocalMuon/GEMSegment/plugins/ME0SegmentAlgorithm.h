@@ -51,7 +51,7 @@ private:
   bool isGoodToMerge(const ME0Chamber * chamber, const HitAndPositionPtrContainer& newChain, const HitAndPositionPtrContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  void buildSegments(const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs);
+  void buildSegments(const ME0Chamber * chamber, const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs);
 
   // Member variables
   const std::string myName; 

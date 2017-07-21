@@ -63,7 +63,7 @@ namespace edm {
                               U const* context);
 
     
-    void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
+    void setupOnDemandSystem(Principal& principal, EventSetup const& es);
 
     void beginJob(ProductRegistry const& iRegistry);
     void endJob();

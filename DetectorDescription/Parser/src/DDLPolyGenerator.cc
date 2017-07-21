@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
@@ -30,14 +30,14 @@ DDLPolyGenerator::preProcessElement( const std::string& name, const std::string&
 void
 DDLPolyGenerator::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
-  DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
+  auto myRZPoints = myRegistry_->getElement("RZPoint");
+  auto myZSection = myRegistry_->getElement("ZSection");
 
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts;
 
   // get z and r
-  std::vector<double> z, r;
+  std::vector<double> z, r, x, y;
   for (size_t i = 0; i < myRZPoints->size(); ++i)
   {
     atts = myRZPoints->getAttributeSet(i);
@@ -105,8 +105,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
 				, ev.eval(nmspace, atts.find("deltaPhi")->second)
 				, z
 				, r);
-  }
-  else
+  } else
   {
     std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
     throwError(msg);

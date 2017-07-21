@@ -1,67 +1,82 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData
+from genericValidation import GenericValidationData, ValidationWithPlots
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
-class ZMuMuValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config,
-                 configBaseName = "TkAlZMuMuValidation", scriptBaseName = "TkAlZMuMuValidation", crabCfgBaseName = "TkAlZMuMuValidation",
-                 resultBaseName = "ZMuMuValidation", outputBaseName = "ZMuMuValidation"):
-        defaults = {
-            "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
-            }
-        deprecateddefaults = {
-            "resonance": "",
-            "switchONfit": "",
-            "rebinphi": "",
-            "rebinetadiff": "",
-            "rebineta": "",
-            "rebinpt": "",
-            }
-        defaults.update(deprecateddefaults)
-        mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = False
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "zmumu", addDefaults=defaults,
-                                       addMandatories=mandatories,
-                                       addneedpackages=['MuonAnalysis/MomentumScaleCalibration'])
+class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
+    configBaseName = "TkAlZMuMuValidation"
+    scriptBaseName = "TkAlZMuMuValidation"
+    crabCfgBaseName = "TkAlZMuMuValidation"
+    resultBaseName = "ZMuMuValidation"
+    outputBaseName = "ZMuMuValidation"
+    defaults = {
+        "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
+        }
+    deprecateddefaults = {
+        "resonance": "",
+        "switchONfit": "",
+        "rebinphi": "",
+        "rebinetadiff": "",
+        "rebineta": "",
+        "rebinpt": "",
+        }
+    defaults.update(deprecateddefaults)
+    needpackages = {'MuonAnalysis/MomentumScaleCalibration'}
+    mandatories = {"etamaxneg", "etaminneg", "etamaxpos", "etaminpos"}
+    valType = "zmumu"
+    def __init__(self, valName, alignment, config):
+        super(ZMuMuValidation, self).__init__(valName, alignment, config)
         if self.general["zmumureference"].startswith("/store"):
             self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
                                 "Please set parallelJobs = 1.")
-        for option in deprecateddefaults:
+        for option in self.deprecateddefaults:
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:zmumu] section.  Please specify it there."%option)
             del self.general[option]
 
-    def createConfiguration(self, path):
-        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
-                                      self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", repMap)
-        cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
-        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+    @property
+    def filesToCompare(self):
+        return {self.defaultReferenceName: replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", self.getRepMap())}
+
+    @property
+    def ValidationTemplate(self):
+        return configTemplates.ZMuMuValidationTemplate
+
+    @property
+    def ProcessName(self):
+        return "ONLYHISTOS"
+
+    @property
+    def FileOutputTemplate(self):
+        return ""
+
+    @property
+    def LoadBasicModules(self):
+        return super(ZMuMuValidation, self).LoadBasicModules + configTemplates.LoadMuonModules
+
+    @property
+    def TrackSelectionRefitting(self):
+        return configTemplates.SingleTrackRefitter
+
+    @property
+    def DefinePath(self):
+        return configTemplates.ZMuMuPath
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path, template = configTemplates.zMuMuScriptTemplate)
+        return super(ZMuMuValidation, self).createScript(path, template = configTemplates.zMuMuScriptTemplate)
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(ZMuMuValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
-        repMap = GenericValidationData.getRepMap(self, alignment) 
+        repMap = super(ZMuMuValidation, self).getRepMap(alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
             "outputFile": ("0_zmumuHisto.root"
@@ -70,16 +85,39 @@ class ZMuMuValidation(GenericValidationData):
             "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
-                })
+            "TrackCollection": self.trackcollection,
+        })
         return repMap
 
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
+    @property
+    def trackcollection(self):
+        from plottingOptions import PlottingOptions
+        resonance = PlottingOptions(self.config, self.valType)["resonance"]
+        if resonance == "Z":
+            return 'ALCARECOTkAlZMuMu'
+        elif resonance == "JPsi":
+            return 'ALCARECOTkAlJpsiMuMu'
+        elif resonance in ("Y1S", "Y2S", "Y3S"):
+            return 'ALCARECOTkAlUpsilonMuMu'
+        else:
+            raise AllInOneError("Unknown resonance {}!".format(resonance))
+
+    def appendToPlots(self):
         """
         if no argument or "" is passed a string with an instantiation is
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        if validationsSoFar != "":
-            validationsSoFar += '    '
-        validationsSoFar += replaceByMap('filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
-        return validationsSoFar
+        return replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlMergeZmumuPlots.C"
+
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.mergeZmumuPlotsTemplate
+
+    @classmethod
+    def plotsdirname(cls):
+        return ".oO[resonance]Oo.MuMuPlots"

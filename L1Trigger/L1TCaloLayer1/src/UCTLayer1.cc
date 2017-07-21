@@ -44,8 +44,8 @@ const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiInde
   UCTGeometry g;
   UCTRegionIndex r = UCTRegionIndex(regionEtaIndex, regionPhiIndex);
   UCTTowerIndex t = g.getUCTTowerIndex(r);
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
     LOG_ERROR << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
@@ -74,8 +74,8 @@ const UCTTower* UCTLayer1::getTower(int caloEta, int caloPhi) const {
 }
 
 bool UCTLayer1::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
@@ -88,8 +88,8 @@ bool UCTLayer1::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
 }
 
 bool UCTLayer1::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {

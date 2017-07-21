@@ -25,6 +25,8 @@ class SiPixelPhase1TrackResiduals : public SiPixelPhase1Base {
   private:
   TrackerValidationVariables validator;
   edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+  bool applyVertexCut_;
 };
 
 #endif

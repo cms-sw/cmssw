@@ -1,7 +1,7 @@
 // HGCal Trigger 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-//#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 // HGCalClusters and detId
@@ -74,7 +74,7 @@ namespace HGCalTriggerBackend{
             void addToClusterShapes(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi, float r=0.0){
                 auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
                 auto iterator = pair.first;
-                iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
+                iterator -> second . second . shapes().Add( energy,eta,phi,r); // last is r, for 3d clusters
             }
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
@@ -95,7 +95,7 @@ namespace HGCalTriggerBackend{
                 pp4.SetM  (  0  ) ;
                 p4 += pp4;
                 iterator -> second . second . setP4(p4);
-                //iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
+                //iterator -> second . second . shapes().Add( energy,eta,phi,r); // last is r, for 3d clusters
                 return ;
             }
 
@@ -128,7 +128,7 @@ namespace HGCalTriggerBackend{
             }
 
             // setProduces
-            virtual void setProduces(edm::EDProducer& prod) const override final
+            virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
             {
                 prod.produces<l1t::HGCalClusterBxCollection>(name());
             }
@@ -147,8 +147,8 @@ namespace HGCalTriggerBackend{
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
-		            const edm::EventSetup& es,
-		            const edm::Event&evt
+                           const edm::EventSetup& es,
+                           edm::Event&evt
                     )
             {
                 //0.5. Get Digis, construct a map, detid -> energy
@@ -273,7 +273,7 @@ namespace HGCalTriggerBackend{
                             }
 
                             l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                            calibration_.calibrate(calibratedtriggercell, cellThickness); 
+                            calibration_.calibrateInGeV(calibratedtriggercell, cellThickness); 
                             //uint32_t digiEnergy = data.payload; 
                             //auto digiEnergy=triggercell.p4().E();  
                             // using calibrated energy instead
@@ -363,5 +363,8 @@ namespace HGCalTriggerBackend{
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
 //
 typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodec,HGCalTriggerCellBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
+typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellThresholdCodec,HGCalTriggerCellThresholdDataPayload> HGCalTriggerSimClusterThreshold;
+
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
+DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterThreshold,"HGCalTriggerSimClusterThreshold");
 

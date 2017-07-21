@@ -39,12 +39,12 @@ double getFillValueWithinLimits(double value, double min, double max)
   if (value < min)
     return min;
 
+  // histograms are [min, max), hence fill with a slightly smaller value
   if (value > max)
-    return max;
+    return max - 1e-6 * max;
 
   return value;
 }
 
 }
 }
-

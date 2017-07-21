@@ -73,6 +73,7 @@ private:
   MEP h_rollAreaEndcap_detId;
 
   std::map<int, int> detIdToIndexMapBarrel_, detIdToIndexMapEndcap_;
+
 };
 
 #endif // Validation_RPCRecHits_RPCRecHitValid_h

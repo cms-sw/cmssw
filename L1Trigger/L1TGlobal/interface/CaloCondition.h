@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete   - HEPHY Vienna 
+ *          Vladimir Rekovic - extend for indexing
  * 
  *
  */
@@ -108,7 +109,7 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const;
+    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, const unsigned int index) const;
 
 private:
 

@@ -42,13 +42,13 @@
 class HLTRechitsToDigis : public edm::stream::EDProducer<> {
 public:
   explicit HLTRechitsToDigis(const edm::ParameterSet&);
-  ~HLTRechitsToDigis();
+  ~HLTRechitsToDigis() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   enum ecalRegion {invalidRegion=0, barrel, endcap };  
   static const HLTRechitsToDigis::ecalRegion stringToRegion(const std::string& region);
 
 private:
-  virtual void produce( edm::Event&, edm::EventSetup const&) override;
+  void produce( edm::Event&, edm::EventSetup const&) override;
       
   // ----------member data ---------------------------  
   // tokens for the digi and rechits for matching

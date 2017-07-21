@@ -1,7 +1,7 @@
 #ifndef DDCompactViewImpl_h
 # define DDCompactViewImpl_h
 
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 # include "DetectorDescription/Core/interface/DDLogicalPart.h"
 # include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"

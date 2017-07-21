@@ -21,11 +21,11 @@ class HLTHcalTowerFilter : public HLTFilter
 {
 public:
   explicit HLTHcalTowerFilter(const edm::ParameterSet &);
-  ~HLTHcalTowerFilter();
+  ~HLTHcalTowerFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_;    // input tag identifying product
@@ -77,9 +77,7 @@ HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) : HLTFil
   inputToken_ = consumes<CaloTowerCollection>(inputTag_);
 }
 
-HLTHcalTowerFilter::~HLTHcalTowerFilter()
-{
-}
+HLTHcalTowerFilter::~HLTHcalTowerFilter() = default;
 
 void
 HLTHcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -126,13 +124,13 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
   int n_HFP = 0;
   double abseta = 0.0;
   double eta = 0.0;
-  for(CaloTowerCollection::const_iterator i = towers->begin(); i != towers->end(); ++i)
+  for(auto const & i : *towers)
     {
-      eta    = i->eta();
+      eta    = i.eta();
       abseta = std::abs(eta);
       if(abseta<1.305)
 	{
-	  if(i->hadEnergy() >= min_E_HB_)
+	  if(i.hadEnergy() >= min_E_HB_)
 	    {
 	      n_HB++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
@@ -141,7 +139,7 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 	}
       else if(abseta>=1.305 && abseta<3)
 	{
-	  if(i->hadEnergy() >= min_E_HE_)
+	  if(i.hadEnergy() >= min_E_HE_)
 	    {
 	      n_HE++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
@@ -150,7 +148,7 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 	}
       else
 	{
-	  if(i->hadEnergy() >= min_E_HF_)
+	  if(i.hadEnergy() >= min_E_HF_)
 	    {
 	      n_HF++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));

@@ -264,6 +264,9 @@ modifyHLTforEras(%(process)s)
     # if requested, run the L1 emulator
     self.runL1Emulator()
 
+    # add process.load("setup_cff")
+    self.loadSetupCff()
+
     if self.config.fragment:
       self.data += """
 # dummyfy hltGetConditions in cff's
@@ -278,9 +281,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
-
-      # add process.load("setup_cff")
-      self.loadSetupCff()
 
       # select specific Eras 
       self.addEras()
@@ -333,8 +333,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 )
 """ % self.config.events
 
-    if not self.config.profiling:
-      self.data += """
+    self.data += """
 # enable TrigReport, TimeReport and MultiThreading
 %(process)s.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
@@ -617,93 +616,44 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def instrumentTiming(self):
-    if self.config.profiling:
-      # instrument the menu for profiling: remove the HLTAnalyzerEndpath, add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
-      text = ''
 
-      if not 'hltGetRaw' in self.data:
-        # add hltGetRaw
-        text += """
-%(process)s.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataCollector" )
-)
-"""
-
-      if not 'hltGetConditions' in self.data:
-        # add hltGetConditions
-        text += """
-%(process)s.hltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
-    verbose = cms.untracked.bool( False ),
-    toGet = cms.VPSet( )
-)
-"""
-
-      if not 'hltBoolFalse' in self.data:
-        # add hltBoolFalse
-        text += """
-%(process)s.hltBoolFalse = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
-)
-"""
-
-      # add the definition of HLTriggerFirstPath
-      # FIXME in a cff, should also update the HLTSchedule
-      text += """
-%(process)s.HLTriggerFirstPath = cms.Path( %(process)s.hltGetRaw + %(process)s.hltGetConditions + %(process)s.hltBoolFalse )
-"""
-      self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
-
-
-    # instrument the menu with the Service, EDProducer and EndPath needed for timing studies
-    # FIXME in a cff, should also update the HLTSchedule
     if self.config.timing:
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 """
 
-      if not 'FastTimerService' in self.data:
-        self.data += '\n# configure the FastTimerService\n'
-        self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
-      else:
-        self.data += '\n# configure the FastTimerService\n'
+      self.data += '\n# configure the FastTimerService\n'
+      self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
 
-      self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
-%(process)s.FastTimerService.useRealTimeClock          = True
-# enable specific features
-%(process)s.FastTimerService.enableTimingPaths         = True
-%(process)s.FastTimerService.enableTimingModules       = True
-%(process)s.FastTimerService.enableTimingExclusive     = True
-# print a text summary at the end of the job
-%(process)s.FastTimerService.enableTimingSummary       = True
-# skip the first path (disregard the time spent loading event and conditions data)
-%(process)s.FastTimerService.skipFirstPath             = True
+      self.data += """# print a text summary at the end of the job
+%(process)s.FastTimerService.printEventSummary         = False
+%(process)s.FastTimerService.printRunSummary           = False
+%(process)s.FastTimerService.printJobSummary           = True
+
 # enable DQM plots
 %(process)s.FastTimerService.enableDQM                 = True
-# enable most per-path DQM plots
-%(process)s.FastTimerService.enableDQMbyPathActive     = True
-%(process)s.FastTimerService.enableDQMbyPathTotal      = True
-%(process)s.FastTimerService.enableDQMbyPathOverhead   = False
-%(process)s.FastTimerService.enableDQMbyPathDetails    = True
-%(process)s.FastTimerService.enableDQMbyPathCounters   = True
-%(process)s.FastTimerService.enableDQMbyPathExclusive  = True
-# disable per-module DQM plots
-%(process)s.FastTimerService.enableDQMbyModule         = False
-%(process)s.FastTimerService.enableDQMbyModuleType     = False
-# enable per-event DQM sumary plots
-%(process)s.FastTimerService.enableDQMSummary          = True
-# enable per-event DQM plots by lumisection
+
+# enable per-path DQM plots (starting with CMSSW 9.2.3-patch2)
+%(process)s.FastTimerService.enableDQMbyPath           = True
+
+# enable per-module DQM plots
+%(process)s.FastTimerService.enableDQMbyModule         = True
+
+# enable per-event DQM plots vs lumisection
 %(process)s.FastTimerService.enableDQMbyLumiSection    = True
 %(process)s.FastTimerService.dqmLumiSectionsRange      = 2500
+
 # set the time resolution of the DQM plots
-%(process)s.FastTimerService.dqmTimeRange              = 1000.
-%(process)s.FastTimerService.dqmTimeResolution         =    5.
-%(process)s.FastTimerService.dqmPathTimeRange          =  100.
-%(process)s.FastTimerService.dqmPathTimeResolution     =    0.5
-%(process)s.FastTimerService.dqmModuleTimeRange        =   40.
-%(process)s.FastTimerService.dqmModuleTimeResolution   =    0.2
+%(process)s.FastTimerService.dqmTimeRange              = 2000.
+%(process)s.FastTimerService.dqmTimeResolution         =   10.
+%(process)s.FastTimerService.dqmPathTimeRange          = 1000.
+%(process)s.FastTimerService.dqmPathTimeResolution     =    5.
+%(process)s.FastTimerService.dqmModuleTimeRange        =  200.
+%(process)s.FastTimerService.dqmModuleTimeResolution   =    1.
+
 # set the base DQM folder for the plots
 %(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
-%(process)s.FastTimerService.enableDQMbyProcesses      = True
+%(process)s.FastTimerService.enableDQMbyProcesses      = False
 """
 
 
@@ -784,7 +734,6 @@ if 'GlobalTag' in %%(dict)s:
 
     # drop unwanted paths for profiling (and timing studies)
     if self.config.profiling:
-      paths.append( "-HLTriggerFirstPath" )
       paths.append( "-HLTAnalyzerEndpath" )
 
     # this should never be in any dump (nor online menu)

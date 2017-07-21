@@ -423,7 +423,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
       if(l1found && !(triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(6.);
       if(!(triggerResults_->accept(index)) && l1found){ 
 	//cout<<v->getTriggerType()<<endl;
-	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && (calojetColl_.isValid()) && calojet.size()){
+	if((v->getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && calojet.size()){
 	  CaloJetCollection::const_iterator jet = calojet.begin();
 	  v->getMEhisto_JetPt()->Fill(jet->pt());
 	  v->getMEhisto_EtavsPt()->Fill(jet->eta(),jet->pt());
@@ -431,7 +431,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 	}
 	// single jet trigger is not fired
 
-	if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojetColl_.isValid()  && calojet.size()){
+	if((v->getTriggerType() == "DiJet_Trigger") && calojetColl_.isValid()  && calojet.size()){
 	  v->getMEhisto_JetSize()->Fill(calojet.size());
 	  if (calojet.size()>=2){
 	    CaloJetCollection::const_iterator jet = calojet.begin();
@@ -450,7 +450,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 	  }
 	}// di jet trigger is not fired 
 	
-	if(((v->getTriggerType().compare("MET_Trigger") == 0)|| (v->getTriggerType().compare("TET_Trigger") == 0)) && calometColl_.isValid() ){
+	if(((v->getTriggerType() == "MET_Trigger")|| (v->getTriggerType() == "TET_Trigger")) && calometColl_.isValid() ){
 	  const CaloMETCollection *calometcol = calometColl_.product();
 	  const CaloMET met = calometcol->front();
 	  v->getMEhisto_JetPt()->Fill(met.pt());
@@ -532,7 +532,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
       const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
       //
       if(v->getObjectType() == trigger::TriggerJet 
-	 && v->getTriggerType().compare("SingleJet_Trigger") == 0)
+	 && v->getTriggerType() == "SingleJet_Trigger")
 	v->getMEhisto_N_L1()->Fill(kl1.size());
       //
       trigger::Keys::const_iterator ki = kl1.begin();
@@ -543,7 +543,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	if(v->getObjectType() == trigger::TriggerJet){ 
 	  l1TrigEta = toc[*ki].eta();
 	  l1TrigPhi = toc[*ki].phi();
-	  if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+	  if(v->getTriggerType() == "SingleJet_Trigger"){
 	    v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
 	    if (isBarrel(toc[*ki].eta())) v->getMEhisto_PtBarrel_L1()->Fill(toc[*ki].pt());
 	    if (isEndCap(toc[*ki].eta())) v->getMEhisto_PtEndcap_L1()->Fill(toc[*ki].pt());
@@ -570,7 +570,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
 	  if(v->getObjectType() == trigger::TriggerJet 
 	     && ki == kl1.begin() 
-	     && v->getTriggerType().compare("SingleJet_Trigger") == 0)
+	     && v->getTriggerType() == "SingleJet_Trigger")
 	    v->getMEhisto_N_HLT()->Fill(khlt.size());
 	  //
 	  trigger::Keys::const_iterator kj = khlt.begin();
@@ -582,7 +582,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      hltTrigEta = toc[*kj].eta();
 	      hltTrigPhi = toc[*kj].phi();
 	      if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 
-		 && (v->getTriggerType().compare("DiJet_Trigger") == 0))
+		 && (v->getTriggerType() == "DiJet_Trigger"))
 		hltTrigBool = true;
 	    }  
 	  }
@@ -612,7 +612,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      hltTrigEta = toc[*kj].eta();
 	      hltTrigPhi = toc[*kj].phi();
 	      if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4){
-		if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+		if(v->getTriggerType() == "SingleJet_Trigger"){
 		  v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
 		  v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
 		  v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
@@ -622,8 +622,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		}
 	      }
 	      if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) 
-		  || ((v->getTriggerType().compare("DiJet_Trigger") == 0)  && hltTrigBool)) && !diJetFire){ 
-		if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+		  || ((v->getTriggerType() == "DiJet_Trigger")  && hltTrigBool)) && !diJetFire){ 
+		if(v->getTriggerType() == "SingleJet_Trigger"){
 		  v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
 		  if (isBarrel(toc[*kj].eta())) v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
 		  if (isEndCap(toc[*kj].eta())) v->getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());
@@ -636,13 +636,13 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		//Calojet
 		if(calojetColl_.isValid() 
 		   && (v->getObjectType() == trigger::TriggerJet)
-		   && (v->getPath().compare("PFJet") == 0)){
+		   && (v->getPath() == "PFJet")){
 		  //CaloJetCollection::const_iterator jet = calojet.begin();
 		  //for(; jet != calojet.end(); ++jet) {
 		  for(int iCalo=0; iCalo<2; iCalo++){
 		    if(deltaR(hltTrigEta, hltTrigPhi, CaloJetEta[iCalo], CaloJetPhi[iCalo]) < 0.4){
 		      jetsize++; 
-		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+		      if(v->getTriggerType() == "SingleJet_Trigger"){
 			v->getMEhisto_Pt()->Fill(CaloJetPt[iCalo]);
 			if (isBarrel(CaloJetEta[iCalo]))  v->getMEhisto_PtBarrel()->Fill(CaloJetPt[iCalo]);
 			if (isEndCap(CaloJetEta[iCalo]))  v->getMEhisto_PtEndcap()->Fill(CaloJetPt[iCalo]);
@@ -662,7 +662,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		      }
                       
 		      //-------------------------------------------------------    
-		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+		      if((v->getTriggerType() == "DiJet_Trigger")){
 			jetPhiVec.push_back(CaloJetPhi[iCalo]);
 			jetPtVec.push_back(CaloJetPt[iCalo]);
 			jetEtaVec.push_back(CaloJetEta[iCalo]);         
@@ -682,13 +682,13 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		//PFJet trigger
 		if(pfjetColl_.isValid() 
 		   && (v->getObjectType() == trigger::TriggerJet)
-		   && (v->getPath().compare("PFJet") != 0)){
+		   && (v->getPath() != "PFJet")){
 		  //PFJetCollection::const_iterator jet = pfjet.begin();
 		  //for(; jet != pfjet.end(); ++jet){ 
 		  for(int iPF=0; iPF<2; iPF++){
 		    if(deltaR(hltTrigEta, hltTrigPhi, PFJetEta[iPF], PFJetPhi[iPF]) < 0.4){
 		      jetsize++;
-		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+		      if(v->getTriggerType() == "SingleJet_Trigger"){
 			v->getMEhisto_Pt()->Fill(PFJetPt[iPF]);
 			if (isBarrel(PFJetEta[iPF]))  v->getMEhisto_PtBarrel()->Fill(PFJetPt[iPF]);
 			if (isEndCap(PFJetEta[iPF]))  v->getMEhisto_PtEndcap()->Fill(PFJetPt[iPF]);
@@ -708,7 +708,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
                       }
 		      
 		      //-------------------------------------------------------    
-		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+		      if((v->getTriggerType() == "DiJet_Trigger")){
 			jetPhiVec.push_back(PFJetPhi[iPF]);
 			jetPtVec.push_back(PFJetPt[iPF]);
 			jetEtaVec.push_back(PFJetEta[iPF]);         
@@ -760,14 +760,14 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-pfmet.phi()); 
 	    }
 	  }//Loop over HLT trigger candidates
-	  if((v->getTriggerType().compare("DiJet_Trigger") == 0)) diJetFire = true;
+	  if((v->getTriggerType() == "DiJet_Trigger")) diJetFire = true;
 	}// Valid hlt trigger object
       }// Loop over L1 objects
     }// Valid L1 trigger object
     v->getMEhisto_N()->Fill(jetsize);
     
     //--------------------------------------------------------
-    if((v->getTriggerType().compare("DiJet_Trigger") == 0) && jetPtVec.size() >1){
+    if((v->getTriggerType() == "DiJet_Trigger") && jetPtVec.size() >1){
       double AveJetPt  = (jetPtVec[0] + jetPtVec[1])/2;
       double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
       double JetDelPhi = deltaPhi(jetPhiVec[0],jetPhiVec[1]);
@@ -914,7 +914,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       //double ljemf    = CaloJetEMF[0];
       double ljfhpd   = CaloJetfHPD[0];
       double ljn90    = CaloJetn90[0];
-      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
+      if((v->getTriggerType() == "SingleJet_Trigger") && calojet.size()){ //this line stops the central jets
 	if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	  if(verbose_) cout<<"Passed CaloJet ID -------------------" << endl;
 	  jetIDbool = true;
@@ -1036,7 +1036,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	}//CalojetID filter
       }
       
-      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
+      if(jetIDbool == true && (v->getTriggerType() == "DiJet_Trigger") && calojet.size()>1){
 	if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
 	    CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
 	  v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
@@ -1074,7 +1074,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       double pfMHTx    = pfMHTx_All;
       double pfMHTy    = pfMHTy_All;
       //
-      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
+      if((v->getTriggerType() == "SingleJet_Trigger") && pfjet.size()){ //this line stops the central jets
 	
 	//======get pfmht
 	_pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
@@ -1201,7 +1201,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	  }
 	}
       }
-      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){
+      if(jetIDbool == true && (v->getTriggerType() == "DiJet_Trigger") && pfjet.size()>1){
 	if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
 	    && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
 	    && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
@@ -1623,7 +1623,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
       for(int ibin=1; ibin<nbins+1; ibin++){
 	const char * binLabel = rate_All->getTH1()->GetXaxis()->GetBinLabel(ibin);
 	std::string binLabel_str = string(binLabel);
-	if(binLabel_str.compare(labelnm)==0)break;
+	if(binLabel_str==labelnm)break;
 	if(binLabel[0]=='\0'){
 	  rate_All->setBinLabel(ibin,labelnm);  
 	  correlation_All->setBinLabel(ibin,labelnm,1);
@@ -1681,7 +1681,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	MonitorElement *dummy;
 	dummy =  iBooker.bookFloat("dummy");  
 	
-	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType().compare("SingleJet_Trigger") == 0){
+	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "SingleJet_Trigger"){
 	  
 	  histoname = labelname+"_recObjN";
 	  title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
@@ -1911,7 +1911,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 		       );
 	}// histos for SingleJet Triggers
 
-	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType().compare("DiJet_Trigger") == 0){
+	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "DiJet_Trigger"){
 	  
 	  histoname = labelname+"_RecObjAveragePt";
 	  title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
@@ -2144,7 +2144,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	MonitorElement *dummy;
 	dummy =  iBooker.bookFloat("dummy");   
     
-	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0)){   
+	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger")){   
 	  
 	  histoname = labelname+"_NumeratorPt";
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
@@ -2718,7 +2718,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  
 	}// Loop over Jet Trigger
 	
-	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0)){
+	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger")){
 	  
 	  histoname = labelname+"_NumeratorAvrgPt";
 	  title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c]";
@@ -2881,7 +2881,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	for(unsigned int i =0; i < trigger.size(); i++)
 	  TriggerSummary->setBinLabel(i+1, trigger[i]);
 	
-	if((v->getTriggerType().compare("SingleJet_Trigger") == 0)){
+	if((v->getTriggerType() == "SingleJet_Trigger")){
 	  histoname = labelname+"_JetPt"; 
 	  title     = labelname+"Leading jet pT;Pt[GeV/c]";
 	  MonitorElement * JetPt = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
@@ -2900,7 +2900,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  v->setDgnsHistos( TriggerSummary, dummy, JetPt, JetEtaVsPt, JetPhiVsPt, dummy, dummy, dummy, dummy, dummy, dummy); 
 	}// single Jet trigger  
 	
-	if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+	if((v->getTriggerType() == "DiJet_Trigger")){
 	  histoname = labelname+"_JetSize"; 
 	  title     = labelname+"Jet Size;multiplicity";
 	  MonitorElement * JetSize = iBooker.book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
@@ -2939,7 +2939,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  v->setDgnsHistos( TriggerSummary, JetSize, dummy, dummy, dummy, Pt12, Eta12, Phi12, Pt3, Pt12Pt3, Pt12Phi12);
 	}// Dijet Jet trigger
 	
-	if((v->getTriggerType().compare("MET_Trigger") == 0)){
+	if((v->getTriggerType() == "MET_Trigger")){
 	  histoname = labelname+"_MET";
 	  title     = labelname+"MET;Pt[GeV/c]";
 	  MonitorElement * MET = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
@@ -2948,7 +2948,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  v->setDgnsHistos(TriggerSummary, dummy, MET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
 	} // MET trigger  
 	
-	if((v->getTriggerType().compare("TET_Trigger") == 0)){
+	if((v->getTriggerType() == "TET_Trigger")){
 	  histoname = labelname+"_TET";
 	  title     = labelname+"TET;Pt[GeV/c]";
 	  MonitorElement * TET = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
@@ -3037,9 +3037,9 @@ double JetMETHLTOfflineSource::TriggerPosition(std::string trigName){
     if(binLabel[0]=='\0')continue;
     //       std::string binLabel_str = string(binLabel);
     //       if(binLabel_str.compare(trigName)!=0)continue;
-    if(trigName.compare(binLabel)!=0)continue;
+    if(trigName!=binLabel)continue;
 
-    if(trigName.compare(binLabel)==0){
+    if(trigName==binLabel){
       binVal = rate_All->getTH1()->GetBinCenter(ibin);
       break;
     }

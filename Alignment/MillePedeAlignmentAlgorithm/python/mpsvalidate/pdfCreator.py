@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates pdf out of the histograms, parsed data and a given template.
 ##
@@ -7,9 +5,7 @@
 import logging
 import os
 import string
-
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, PedeDumpData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 # create class to have delimiter %% which is not used in latex
@@ -23,7 +19,8 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     logger = logging.getLogger("mpsvalidate")
 
     # load template
-    with open(os.path.join(config.mpspath, "tex_template.tex"), "r") as template:
+    with open(os.path.join(config.mpspath, "templates",
+                           "mpsvalidate_tex_template.tex")) as template:
         data = template.read()
         template.close()
 
@@ -72,40 +69,47 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     try:
         out += "\subsection{Alignment Configuration}\n"
         out += "\\textbf{{PedeSteerer method:}} {{{0}}}\\\\\n".format(
-            additionalData.pedeSteererMethod)
+            additionalData.pede_steerer_method)
         out += "\\textbf{{PedeSteerer options:}}\\\\\n"
-        for line in additionalData.pedeSteererOptions:
+        for line in additionalData.pede_steerer_options:
             out += "{{{0}}}\\\\\n".format(line)
         out += "\\textbf{{PedeSteerer command:}} {0}\\\\\n".format(
-            additionalData.pedeSteererCommand)
+            additionalData.pede_steerer_command)
 
-        for selector in additionalData.pattern:
-            out += "\\textbf{{{0}:}}\\\\\n".format(additionalData.pattern[selector][3])
-            for line in additionalData.pattern[selector][0]:
-                for i in line:
-                    out += "{0}  ".format(i)
-                out += "\\\\\n"
-            for line in additionalData.pattern[selector][2]:
-                out += "{0}\\\\\n".format(line)
-            out += "\\\\\n"
+        for i in sorted(additionalData.selectors):
+            out += "\\textbf{{{0}:}}\n".format(additionalData.selectors[i]["name"])
+            out += "\\begin{verbatim}\n"
+            for line in additionalData.selectors[i]["selector"].dumpPython().split("\n"):
+                out += line + "\n"
+            out += "\\end{verbatim}\n"
+
+        if len(additionalData.iov_definition) > 0:
+            out += "\\textbf{{IOV defintion:}}\n"
+            out += "\\begin{verbatim}\n"
+            for line in additionalData.iov_definition.dumpPython().split("\n"):
+                out += line + "\n"
+            out += "\\end{verbatim}\n\n"
+        out += "\n"
+
     except Exception as e:
         logger.error("data not found - {0} {1}".format(type(e), e))
 
     # table of input files with number of tracks
-    if (config.showmonitor):
+    if config.showmonitor:
         out += "\subsection{Datasets with tracks}\n"
         out += """\\begin{table}[h]
             \centering
             \caption{Datasets with tracks}
-            \\begin{tabular}{cc}
+            \\begin{tabular}{ccc}
             \hline
-            Dataset & Number of used tracks \\\\
+            Dataset & Number of used tracks & Weight \\\\
             \hline \n"""
-        for monitor in MonitorData.monitors:
-            out += "{0} & {1}\\\\\n".format(monitor.name, monitor.ntracks)
+        for monitor in mpsv_classes.MonitorData.monitors:
+            out += "{0} & {1} & {2}\\\\\n".format(monitor.name, monitor.ntracks,
+                                                  monitor.weight if monitor.weight != None else "--")
         try:
             if (pedeDump.nrec):
-                out += "Number of records & {0}\\\\\n".format(pedeDump.nrec)
+                out += "\hline\nNumber of records & {0}\\\\\n".format(pedeDump.nrec)
         except Exception as e:
             logger.error("data not found - {0} {1}".format(type(e), e))
         out += """\hline
@@ -114,7 +118,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         out += "The information in this table is based on the monitor root files. Note that the number of tracks which where used in the pede step can differ from this table.\n"
     try:
         # pede.dump.gz
-        if (config.showdump == 1):
+        if config.showdump:
             out += "\subsection{{Pede monitoring information}}\n"
             if (pedeDump.sumValue != 0):
                 out += r"\begin{{align*}}Sum(Chi^2)/Sum(Ndf) &= {0}\\ &= {1}\end{{align*}}".format(
@@ -145,7 +149,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         logger.error("data not found - {0} {1}".format(type(e), e))
 
     # high level structures
-    if (config.showhighlevel == 1):
+    if config.showhighlevel:
         big = [x for x in config.outputList if (x.plottype == "big")]
 
         if big:
@@ -155,7 +159,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                     config.outputPath, i.filename)
 
     # time (IOV) dependent plots
-    if (config.showtime == 1):
+    if config.showtime:
         time = [x for x in config.outputList if (x.plottype == "time")]
 
         if time:
@@ -170,7 +174,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                             config.outputPath, filename)
 
     # hole modules
-    if (config.showmodule == 1):
+    if config.showmodule:
         # check if there are module plots
         if any(x for x in config.outputList if (x.plottype == "mod" and x.number == "")):
             out += "\subsection{{Module-level parameters}}\n"
@@ -195,14 +199,14 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                         if module:
                             out += "\includegraphics[width=\linewidth]{{{0}/plots/pdf/{1}.pdf}}\n".format(
                                 config.outputPath, module[0].filename)
-                            if (config.showsubmodule):
+                            if config.showsubmodule:
                                 # loop over submodules
                                 for plot in moduleSub:
                                     out += "\includegraphics[width=\linewidth]{{{0}/plots/pdf/{1}.pdf}}\n".format(
                                         config.outputPath, plot.filename)
 
     # plot taken from the millePedeMonitor_merge.root file
-    if (config.showmonitor):
+    if config.showmonitor:
         if any(x for x in config.outputList if x.plottype == "monitor"):
             out += "\section{{Monitor plots}}\n"
 

@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CATopJetProducer.h"
+#include "RecoJets/JetProducers/plugins/CATopJetProducer.h"
+#include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
 
 using namespace edm;
@@ -128,5 +129,49 @@ void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& 
 	}
   }
 } 
+
+void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription desc;
+	/// Cambridge-Aachen top jet producer parameters
+	desc.add<int>("tagAlgo",	0); 			// choice of top tagging algorithm
+    	desc.add<double>("centralEtaCut", 	2.5 );        	// eta for defining "central" jets                                     
+    	desc.add<bool >("verbose", 	false );        	
+	desc.add<string>("jetCollInstanceName",	"caTopSubJets"); 	// subjet collection
+	desc.add<int>("algorithm",	1); 			// 0 = KT, 1 = CA, 2 = anti-KT
+	desc.add<int>("useAdjacency", 	2); 			// veto adjacent subjets: 
+								// 0,	no adjacency
+								//  1,	deltar adjacency 
+								//  2,	modified adjacency
+								//  3,	calotower neirest neigbor based adjacency (untested)
+	vector<double>  sumEtBinsDefault={0.,1600.,2600.};
+	desc.add<vector<double>>("sumEtBins",  sumEtBinsDefault); 	// sumEt bins over which cuts vary. vector={bin 0 lower bound, bin 1 lower bound, ...} 
+	vector<double>  rBinsDefault(3,0.8);
+	desc.add<vector<double>>("rBins",      rBinsDefault); 		// Jet distance paramter R. R values depend on sumEt bins.
+	vector<double>  ptFracBinsDefault(3,0.05);
+	desc.add<vector<double>>("ptFracBins", ptFracBinsDefault); 	// minimum fraction of central jet pt for subjets (deltap)
+	vector<double>  deltarBinsDefault(3,0.019);
+	desc.add<vector<double>>("deltarBins", deltarBinsDefault); 	// Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
+	vector<double>  nCellBinsDefault(3,1.9);
+	desc.add<vector<double>>("nCellBins",  nCellBinsDefault); 	// Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
+	desc.add<bool>("useMaxTower", 	false); 			// use max tower in adjacency criterion, otherwise use centroid - NOT USED
+	desc.add<double>("sumEtEtaCut",    3.0); 			// eta for event SumEt - NOT USED                                                 
+	desc.add<double>("etFrac", 	   0.7); 			// fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
+	desc.add<double>("ptFrac", 	   0.05); 
+	desc.add<double>("rFrac",          0.); 
+	desc.add<double>("adjacencyParam", 0.); 
+	desc.add<double>("deltaRCut", 	   0.19); 
+	desc.add<double>("cosThetaWMax",   0.7); 
+	desc.add<double>("tau2Cut",        0.); 
+	desc.add<double>("cosThetaSCut",   0.); 
+	desc.add<bool>("useExclusive", 	false); 
+	////// From FastjetJetProducer
+	FastjetJetProducer::fillDescriptionsFromFastJetProducer(desc);
+	///// From VirtualJetProducer
+	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(desc);
+	/////////////////////
+	descriptions.add("CATopJetProducer",desc);
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(CATopJetProducer);

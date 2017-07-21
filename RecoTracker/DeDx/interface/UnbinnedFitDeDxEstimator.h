@@ -2,6 +2,7 @@
 #define RecoTrackerDeDx_UnbinnedFitDeDxEstimator_h
 
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "RecoTracker/DeDx/interface/UnbinnedLikelihoodFit.h"
 

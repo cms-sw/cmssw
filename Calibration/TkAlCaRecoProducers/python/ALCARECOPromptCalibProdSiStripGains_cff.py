@@ -83,20 +83,15 @@ ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTr
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
-
-from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
-ALCARECOSiStripCalib = SiStripCalib.clone()
-ALCARECOSiStripCalib.AlgoMode            = cms.untracked.string('PCL')
-#ALCARECOSiStripCalib.Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
-ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
-ALCARECOSiStripCalib.harvestingMode      = cms.untracked.bool(False)
-ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')
-ALCARECOSiStripCalib.doStoreOnDB         = cms.bool(False)
-ALCARECOSiStripCalib.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibration')
-ALCARECOSiStripCalib.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')
-ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallowTracks')
+from CalibTracker.SiStripChannelGain.SiStripGainsPCLWorker_cfi import SiStripGainsPCLWorker                         
+ALCARECOSiStripCalib = SiStripGainsPCLWorker.clone()                                                            
+ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)   
+ALCARECOSiStripCalib.DQMdir              = cms.untracked.string('AlCaReco/SiStripGains')
+ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')                                   
+ALCARECOSiStripCalib.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibration')      
+ALCARECOSiStripCalib.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')             
+ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallowTracks')               
 # ----------------------------------------------------------------------------
-
 
 # ****************************************************************************
 # ** Conversion for the SiStripGain DQM dir not used for split statistics   **
@@ -109,7 +104,7 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
                                             Frequency = cms.untracked.int32(50),
                                             MEPathToSave = cms.untracked.string('AlCaReco/SiStripGains'),
                                             deleteAfterCopy = cms.untracked.bool(True)
-)
+                                            )
 
 # The actual sequence
 seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
@@ -118,4 +113,4 @@ seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
    ALCARECOShallowSequence *
    ALCARECOSiStripCalib *
    MEtoEDMConvertSiStripGains
-)
+   )

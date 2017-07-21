@@ -3,6 +3,11 @@ import FWCore.ParameterSet.Config as cms
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
 
+# Next two lines are for backward compatibility, the imported functions and
+# classes used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag, MassSearchReplaceAnyInputTagVisitor
+from FWCore.ParameterSet.MassReplace import massSearchReplaceParam, MassSearchParamVisitor, MassSearchReplaceParamVisitor
+
 def applyPostfix(process, label, postfix):
     ''' If a module is in patHeavyIonDefaultSequence use the cloned module.
     Will crash if patHeavyIonDefaultSequence has not been cloned with 'postfix' beforehand'''
@@ -32,80 +37,6 @@ def __labelsInSequence(process, sequenceLabel, postfix=""):
         result.extend([ m.label() for m in listSequences( getattr(process,sequenceLabel+postfix))]  )
     return result
     
-class MassSearchReplaceParamVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and replaces its value"""
-    def __init__(self,paramName,paramSearch,paramValue,verbose=False):
-        self._paramName   = paramName
-        self._paramValue  = paramValue
-        self._paramSearch = paramSearch
-        self._verbose = verbose
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                if self._verbose:print "Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue)
-                setattr(visitee,self._paramName,self._paramValue)
-    def leave(self,visitee):
-        pass
-
-class MassSearchReplaceAnyInputTagVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
-       It will climb down within PSets, VPSets and VInputTags to find its target"""
-    def __init__(self,paramSearch,paramReplace,verbose=False,moduleLabelOnly=False):
-        self._paramSearch  = self.standardizeInputTagFmt(paramSearch)
-        self._paramReplace = self.standardizeInputTagFmt(paramReplace)
-        self._moduleName   = ''
-        self._verbose=verbose
-        self._moduleLabelOnly=moduleLabelOnly
-    def doIt(self,pset,base):
-        if isinstance(pset, cms._Parameterizable):
-            for name in pset.parameters_().keys():
-                # if I use pset.parameters_().items() I get copies of the parameter values
-                # so I can't modify the nested pset
-                value = getattr(pset,name) 
-                type = value.pythonTypeName()
-                if type == 'cms.PSet':  
-                    self.doIt(value,base+"."+name)
-                elif type == 'cms.VPSet':
-                    for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
-                elif type == 'cms.VInputTag':
-                    for (i,n) in enumerate(value): 
-                         # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
-                         n = self.standardizeInputTagFmt(n)
-                         if (n == self._paramSearch):
-                            if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
-                            value[i] = self._paramReplace
-                         elif self._moduleLabelOnly and n.moduleLabel == self._paramSearch.moduleLabel:
-                            nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
-                            if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep)
-                            value[i] = nrep
-                elif type == 'cms.InputTag':
-                    if value == self._paramSearch:
-                        if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
-                        from copy import deepcopy
-                        setattr(pset, name, deepcopy(self._paramReplace) )
-                    elif self._moduleLabelOnly and value.moduleLabel == self._paramSearch.moduleLabel:
-                        from copy import deepcopy
-                        repl = deepcopy(getattr(pset, name))
-                        repl.moduleLabel = self._paramReplace.moduleLabel
-                        setattr(pset, name, repl)
-                        if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, value, repl)
-                        
-
-    @staticmethod 
-    def standardizeInputTagFmt(inputTag):
-       ''' helper function to ensure that the InputTag is defined as cms.InputTag(str) and not as a plain str '''
-       if not isinstance(inputTag, cms.InputTag):
-          return cms.InputTag(inputTag)
-       return inputTag
-
-    def enter(self,visitee):
-        label = ''
-        try:    label = visitee.label()
-        except AttributeError: label = '<Module not in a Process>'
-        self.doIt(visitee, label)
-    def leave(self,visitee):
-        pass
-
 #FIXME name is not generic enough now
 class GatherAllModulesVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a list of objects of type gatheredInance(e.g. modules) that have it"""
@@ -181,25 +112,6 @@ class CloneSequenceVisitor(object):
         else:
             self._sequenceStack[-1] += visitee
         
-class MassSearchParamVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and returns a list of modules that have it"""
-    def __init__(self,paramName,paramSearch):
-        self._paramName   = paramName
-        self._paramSearch = paramSearch
-        self._modules = []
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                self._modules.append(visitee)
-    def leave(self,visitee):
-        pass
-    def modules(self):
-        return self._modules
-    
-    
-def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue):
-    sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue))
-
 def listModules(sequence):
     visitor = GatherAllModulesVisitor(gatheredInstance=cms._Module)
     sequence.visit(visitor)
@@ -210,10 +122,6 @@ def listSequences(sequence):
     sequence.visit(visitor)
     return visitor.modules()
 
-def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False) : 
-    """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
-    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly))
-    
 def jetCollectionString(prefix='', algo='', type=''):
     """
     ------------------------------------------------------------------
@@ -302,16 +210,5 @@ if __name__=="__main__":
            p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
            p.s = cms.Sequence(p.a*p.b*p.c)
            self.assertEqual([p.a,p.b,p.c], listModules(p.s))
-       def testMassSearchReplaceParam(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
-                                nested = cms.PSet(src = cms.InputTag("c"))
-                               )
-           p.s = cms.Sequence(p.a*p.b*p.c)
-           massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
-           self.assertEqual(cms.InputTag("a"),p.c.src)
-           self.assertNotEqual(cms.InputTag("a"),p.c.nested.src)
            
    unittest.main()

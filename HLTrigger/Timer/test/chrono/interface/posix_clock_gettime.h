@@ -34,6 +34,9 @@
 #define HAVE_POSIX_CLOCK_REALTIME_COARSE
 #define HAVE_POSIX_CLOCK_MONOTONIC_COARSE
 #endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
+#define HAVE_POSIX_CLOCK_BOOTTIME
+#endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
 #endif // __linux__
 
 #endif // _POSIX_TIMERS
@@ -156,6 +159,30 @@ struct clock_gettime_monotonic_raw
 
 };
 #endif // HAVE_POSIX_CLOCK_MONOTONIC_RAW
+
+
+#ifdef HAVE_POSIX_CLOCK_BOOTTIME
+// based on clock_gettime(CLOCK_BOOTTIME, ...)
+struct clock_gettime_boottime
+{
+  typedef std::chrono::nanoseconds                                          duration;
+  typedef duration::rep                                                     rep;
+  typedef duration::period                                                  period;
+  typedef std::chrono::time_point<clock_gettime_boottime, duration>         time_point;
+
+  static constexpr bool is_steady = true;
+  static const     bool is_available;
+
+  static inline time_point now() noexcept
+  {
+    timespec t;
+    clock_gettime(CLOCK_BOOTTIME, &t);
+
+    return time_point( std::chrono::seconds(t.tv_sec) + std::chrono::nanoseconds(t.tv_nsec) );
+  }
+
+};
+#endif // HAVE_POSIX_CLOCK_BOOTTIME
 
 
 #ifdef HAVE_POSIX_CLOCK_PROCESS_CPUTIME_ID

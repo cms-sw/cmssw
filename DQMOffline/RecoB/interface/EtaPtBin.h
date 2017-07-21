@@ -8,7 +8,7 @@
 
 /** \class EtaPtBin
  *
- *  Decide if jet/parton lie within desired rapidity/pt range.
+ *  Decide if jet/parton lie within desired abs(pseudo-rapidity)/pt range.
  *
  */
 

@@ -9,8 +9,8 @@
 #ifndef __OniaPhotonConversionProducer_h_
 #define __OniaPhotonConversionProducer_h_
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -33,7 +33,7 @@
 
  */
 
-class OniaPhotonConversionProducer : public edm::EDProducer {
+class OniaPhotonConversionProducer : public edm::stream::EDProducer<> {
 
  public:
   explicit OniaPhotonConversionProducer(const edm::ParameterSet& ps);
@@ -41,7 +41,7 @@ class OniaPhotonConversionProducer : public edm::EDProducer {
  private:
 
   virtual void produce(edm::Event& event, const edm::EventSetup& esetup);
-  virtual void endJob() ;
+  virtual void endStream();
   void removeDuplicates(reco::ConversionCollection&);
   bool checkTkVtxCompatibility(const reco::Conversion&, const reco::VertexCollection&);
   bool foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB); 
@@ -73,18 +73,6 @@ class OniaPhotonConversionProducer : public edm::EDProducer {
   int convAlgo_;
   std::vector<int>   convQuality_;
   
-  int total_conversions;
-  int selection_fail;
-  int algo_fail;
-  int flag_fail;
-  int pizero_fail;
-  int duplicates;
-  int TkVtxC;
-  int CInnerHits;
-  int highpurity_count;
-  int final_conversion;
-  int store_conversion;
-
   std::string convSelectionCuts_;
 
 };

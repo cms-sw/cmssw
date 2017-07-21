@@ -10,18 +10,19 @@ GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GE
 }
 
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
+    
   const GEMGeometry* GEMGeometry_  = initGeometry( iSetup) ;
   if ( GEMGeometry_ == nullptr) return ;
-  LogDebug("GEMStripDIGIValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
+  LogDebug("GEMStripDigiValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
   ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
-  LogDebug("GEMStripDIGIValidation")<<"ibooker set current folder\n";
+  LogDebug("GEMStripDigiValidation")<<"ibooker set current folder\n";
 
-  LogDebug("GEMStripDIGIValidation")<<"nregions set.\n";
-  LogDebug("GEMStripDIGIValidation")<<"nstations set.\n";
+  LogDebug("GEMStripDigiValidation")<<"nregions set.\n";
+  LogDebug("GEMStripDigiValidation")<<"nstations set.\n";
   int nstripsGE11 = 384;
   int nstripsGE21 = 768;
 
-  LogDebug("GEMStripDIGIValidation")<<"Successfully binning set.\n";
+  LogDebug("GEMStripDigiValidation")<<"Successfully binning set.\n";
 
 
   int nstrips = 0;
@@ -84,7 +85,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
       }
     }
   }
-  LogDebug("GEMStripDIGIValidation")<<"Booking End.\n";
+  LogDebug("GEMStripDigiValidation")<<"Booking End.\n";
 }
 
 
@@ -101,7 +102,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     GEMGeometry_ = &*hGeom;
   }
   catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    edm::LogError("GEMStripDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return;
   }
 

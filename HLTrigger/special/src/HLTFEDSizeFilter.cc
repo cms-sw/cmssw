@@ -40,11 +40,11 @@
 class HLTFEDSizeFilter : public HLTFilter {
 public:
     explicit HLTFEDSizeFilter(const edm::ParameterSet&);
-    ~HLTFEDSizeFilter();
+    ~HLTFEDSizeFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<FEDRawDataCollection> RawCollectionToken_;

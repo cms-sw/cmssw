@@ -5,7 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
 import plotting
 import validation
 from html import PlotPurpose
@@ -16,7 +16,7 @@ from html import PlotPurpose
 #
 ########################################
 
-_maxEff = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
+_maxEff = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025, 1.2, 1.5, 2]
 _maxFake = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
 #_minMaxResol = [1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 0.1, 0.2, 0.5, 1]
@@ -32,6 +32,8 @@ _min3DLayers = [0, 5, 10]
 _max3DLayers = [5, 10, 20]
 _minPU = [0, 10, 20, 50, 100, 150]
 _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
+_minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
+_minMaxMVA = [-1.025, -0.5, 0, 0.5, 1.025]
 
 _legendDy_1row = 0.46
 _legendDy_2rows = -0.025
@@ -124,22 +126,32 @@ def _makeMVAPlots(num, hp=False):
     argsroc2.update(argsroc)
     argsroc2["drawStyle"] = "pcolz"
 
+    argsprofile = dict(ymin=_minMaxMVA, ymax=_minMaxMVA)
+
     true_cuteff = CutEfficiency("trueeff_vs_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix))
     fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut%s"%(num,pfix), Subtract("num_fake_mva%dcut%s"%(num,pfix), "num_reco_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix)))
 
-    return PlotGroup("mva%d%s"%(num,pfix2), [
-        Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
-        Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
-        Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
-        #
-        Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
-        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
-        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
-        # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
-        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
-        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
-        Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
-    ], ncols=3, legendDy=_legendDy_1row)
+    return [
+        PlotGroup("mva%d%s"%(num,pfix2), [
+            Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
+            Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
+            Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
+            #
+            Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
+            Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
+            Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
+            # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
+            Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
+            Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
+            Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
+        ], ncols=3, legendDy=_legendDy_1row),
+        PlotGroup("mva%d%sPtEta"%(num,pfix2), [
+            Plot("mva_assoc(recoToSim)_mva%d%s_pT"%(num,pfix), xtitle="Track p_{T} (GeV)", ytitle=xtitle+" for true tracks", xlog=True, **argsprofile),
+            Plot("mva_fake_mva%d%s_pT"%(num,pfix), xtitle="Track p_{T} (GeV)", ytitle=xtitle+" for fake tracks", xlog=True, **argsprofile),
+            Plot("mva_assoc(recoToSim)_mva%d%s_eta"%(num,pfix), xtitle="Track #eta", ytitle=xtitle+" for true tracks", **argsprofile),
+            Plot("mva_fake_mva%d%s_eta"%(num,pfix), xtitle="Track #eta", ytitle=xtitle+" for fake tracks", **argsprofile),
+        ], legendDy=_legendDy_2rows)
+    ]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
@@ -168,12 +180,14 @@ _effandfake3 = PlotGroup("effandfake3",
 )
 _common = {"ymin": 0, "ymax": _maxEff}
 _effandfake4 = PlotGroup("effandfake4",
-                         _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r")) +
+                         _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r"), common=dict(xlog=True)) +
                          _makeEffFakeDupPlots("zpos"   , "vert z", "cm", fakeopts=dict(xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs. z")) +
                          _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
                          _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                          legendDy=_legendDy_4rows
 )
+_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xinlabeloption="d")
+_duplicateAlgo = PlotOnSideGroup("duplicateAlgo", Plot("duplicates_oriAlgo_vs_oriAlgo", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_algos_common))
 
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakeratePt", xtitle="track p_{T} (GeV)", ytitle="fakerate vs p_{T}", xlog=True, ymax=_maxFake),
@@ -200,7 +214,7 @@ _dupandfake3 = PlotGroup("dupandfake3",
                          ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake4 = PlotGroup("dupandfake4",
-                         _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)") +
+                         _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)", common=dict(xlog=True)) +
                          _makeFakeDupPileupPlots("zpos"   , "z", "cm", xquantity="ref. point z (cm)") +
                          _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
                          _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
@@ -212,7 +226,6 @@ _dupandfake5 = PlotGroup("dupandfake5",
                          _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common),
                          ncols=3, legendDy=_legendDy_2rows_3cols
 )
-
 
 _common = {
     "ytitle": "Fake+pileup rate",
@@ -361,7 +374,7 @@ _extDist3 = PlotGroup("dist3",
                       ncols=4, legendDy=_legendDy_4rows,
 )
 _extDist4 = PlotGroup("dist4",
-                      _makeDistPlots("vertpos", "ref. point xy (cm)") +
+                      _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                       _makeDistPlots("zpos"   , "ref. point z (cm)") +
                       _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                       ncols=4
@@ -371,6 +384,20 @@ _extDist5 = PlotGroup("dist5",
                       _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
                       ncols=4, legendDy=_legendDy_2rows_3cols
 )
+_common = dict(title="", ytitle="Selected tracks/TrackingParticles", ymax=_maxEff)
+_extNrecVsNsim = PlotGroup("nrecVsNsim", [
+    Plot("nrec_vs_nsim", title="", xtitle="TrackingParticles", ytitle="Tracks", profileX=True, xmin=_minMaxTracks, xmax=_minMaxTracks, ymin=_minMaxTracks, ymax=_minMaxTracks),
+    Plot("nrecPerNsim_vs_pu", xtitle="Pileup", xmin=_minPU, xmax=_maxPU, **_common),
+    Plot("nrecPerNsimPt", xtitle="p_{T} (GeV)", xlog=True, **_common),
+    Plot("nrecPerNsim", xtitle="#eta", **_common)
+], legendDy=_legendDy_2rows)
+_extHitsLayers = PlotGroup("hitsLayers", [
+    Plot("PXLhits_vs_eta", xtitle="#eta", ytitle="<pixel hits>"),
+    Plot("PXLlayersWithMeas_vs_eta", xtitle="#eta", ytitle="<pixel layers>"),
+    Plot("STRIPhits_vs_eta", xtitle="#eta", ytitle="<strip hits>"),
+    Plot("STRIPlayersWithMeas_vs_eta", xtitle="#eta", ytitle="<strip layers>"),
+], legendDy=_legendDy_2rows)
+
 
 ## Extended set of plots also for simulation
 _extDistSim1 = PlotGroup("distsim1",
@@ -392,8 +419,8 @@ _extDistSim3 = PlotGroup("distsim3",
                       ncols=2, legendDy=_legendDy_4rows,
 )
 _extDistSim4 = PlotGroup("distsim4",
-                      _makeDistSimPlots("vertpos", "ref. point xy (cm)") +
-                      _makeDistSimPlots("zpos"   , "ref. point z (cm)") +
+                      _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
+                      _makeDistSimPlots("zpos"   , "vert z (cm)") +
                       _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                       ncols=2
 )
@@ -416,6 +443,9 @@ _possibleTrackingColls = [
     'detachedTripletStep',
     'lowPtQuadStep', # phase1
     'lowPtTripletStep',
+    'pixelPairStepA', # seeds
+    'pixelPairStepB', # seeds
+    'pixelPairStepC', # seeds
     'pixelPairStep',
     'mixedTripletStepA', # seeds
     'mixedTripletStepB', # seeds
@@ -441,29 +471,6 @@ _possibleTrackingCollsOld = {
     "Ninth" : "iter9",
     "Tenth" : "iter10",
 }
-
-def _trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping(subfolder):
-    ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
-    for (old, new) in [("InitialStep",         "Zero"),
-                       ("LowPtTripletStep",    "First"),
-                       ("PixelPairStep",       "Second"),
-                       ("MixedTripletStep",    "Fourth"),
-                       ("MuonSeededStepInOut", "Ninth"),
-                       ("MuonSeededStepOutIn", "Tenth")]:
-
-        ret = ret.replace(old, new)
-    if ret == subfolder:
-        return None
-    return ret
-def _trackingRefFileFallbackSLHC_Phase1PU70_OldMapping(path):
-    for (old, new) in [("initialStep",         "iter0"),
-                       ("lowPtTripletStep",    "iter1"),
-                       ("pixelPairStep",       "iter2"),
-                       ("mixedTripletStep",    "iter4"),
-                       ("muonSeededStepInOut", "iter9"),
-                       ("muonSeededStepOutIn", "iter10")]:
-        path = path.replace(old, new)
-    return path
 
 def _trackingSubFoldersFallbackSLHC_Phase1PU140(subfolder):
     ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
@@ -503,7 +510,7 @@ def _mapCollectionToAlgoQuality(collName):
         quality = ""
     hasPtCut = "Pt09" in collName
     collNameNoQuality = collName.replace("Hp", "")
-    if hasPtCut:
+    if "Pt09" in collName:
         quality += "Pt09"
         collNameNoQuality = collNameNoQuality.replace("Pt09", "")
     if "ByOriginalAlgo" in collName:
@@ -576,15 +583,15 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, ptCut, s
     ret = None
 
     if byOriginalAlgo:
-        if algo != "generalTracks" and "ByOriginalAlgo" not in quality:
+        if algo != "generalTracks" and "ByOriginalAlgo" not in quality: # keep generalTracks bin as well
             return None
         quality = quality.replace("ByOriginalAlgo", "")
     if byAlgoMask:
-        if algo != "generalTracks" and "ByAlgoMask" not in quality:
+        if algo != "generalTracks" and "ByAlgoMask" not in quality: # keep generalTracks bin as well
             return None
         quality = quality.replace("ByAlgoMask", "")
     if ptCut:
-        if algo != "generalTracks" and "Pt09" not in quality:
+        if "Pt09" not in quality:
             return None
         quality = quality.replace("Pt09", "")
 
@@ -620,7 +627,6 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
     prefix = "summary"+midfix
 
     h_eff = "effic_vs_coll"
-    h_eff_allpt = "effic_vs_coll_allPt"
     h_fakerate = "fakerate_vs_coll"
     h_duplicaterate = "duplicatesRate_coll"
     h_pileuprate = "pileuprate_coll"
@@ -632,7 +638,6 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
     h_pileup = "num_pileup_coll"
     if mapping is not None:
         h_eff = AggregateBins("efficiency", h_eff, **_commonAB)
-        h_eff_allpt = AggregateBins("efficiencyAllPt", h_eff_allpt, **_commonAB)
         h_fakerate = AggregateBins("fakerate", h_fakerate, **_commonAB)
         h_duplicaterate = AggregateBins("duplicatesRate", h_duplicaterate, **_commonAB)
         h_pileuprate = AggregateBins("pileuprate", h_pileuprate, **_commonAB)
@@ -645,12 +650,13 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
 
     summary = PlotGroup(prefix, [
         Plot(h_eff, title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-        Plot(h_eff_allpt, title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-
         Plot(h_fakerate, title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+        #
         Plot(h_duplicaterate, title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
         Plot(h_pileuprate, title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-    ])
+        ],
+                        legendDy=_legendDy_2rows
+    )
     summaryN = PlotGroup(prefix+"_ntracks", [
         Plot(h_reco, ytitle="Tracks/event", title="Number of tracks/event vs collection", **_commonN),
         Plot(h_true, ytitle="True tracks/event", title="Number of true tracks/event vs collection", **_commonN),
@@ -929,6 +935,7 @@ _simBasedPlots = [
     _effandfake2,
     _effandfake3,
     _effandfake4,
+    _duplicateAlgo,
 ]
 _recoBasedPlots = [
     _dupandfake1,
@@ -954,18 +961,20 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake4,
     _dupandfake5,
     _hitsAndPt,
-    _makeMVAPlots(1),
-    _makeMVAPlots(2),
-    _makeMVAPlots(2, hp=True),
-    _makeMVAPlots(3), # add more if needed
-    _makeMVAPlots(3, hp=True), # add more if needed
-]
+] + _makeMVAPlots(1) \
+  + _makeMVAPlots(2) \
+  + _makeMVAPlots(2, hp=True) \
+  + _makeMVAPlots(3) \
+  + _makeMVAPlots(3, hp=True)
+# add more if needed
 _extendedPlots = [
     _extDist1,
     _extDist2,
     _extDist3,
     _extDist4,
     _extDist5,
+    _extNrecVsNsim,
+    _extHitsLayers,
     _extDistSim1,
     _extDistSim2,
     _extDistSim3,
@@ -1013,11 +1022,9 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
     # to keep backward compatibility, this set of plots has empty name
     limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
     commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[
-        #_trackingRefFileFallbackSLHC_Phase1PU70_OldMapping
         _trackingRefFileFallbackSLHC_Phase1PU140
     ], **limiters)
     common = dict(fallbackDqmSubFolders=[
-        #_trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping,
         _trackingSubFoldersFallbackSLHC_Phase1PU140,
         _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
@@ -1048,6 +1055,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="btvLike", collection=TrackingSummaryTable.BTVLike))
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
+_appendTrackingPlots("TrackTPPtLess09", "tpPtLess09", _simBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
@@ -1064,6 +1072,16 @@ plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
 plotter.append("packedCandidateLostTracks", _trackingFolders("PackedCandidate/lostTracks"),
                PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
                           purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate (lostTracks)"))
+
+# HLT
+_hltFolder = [
+    "DQMData/Run 1/HLT/Run summary/Tracking/ValidationWRTtp",
+]
+plotterHLT = Plotter()
+plotterHLTExt = Plotter()
+_common = dict(purpose=PlotPurpose.HLT, page="hlt")
+plotterHLT.append("hlt", _hltFolder, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+plotterHLTExt.append("hlt", _hltFolder, TrackingPlotFolder(*_extendedPlots, **_common))
 
 # Timing
 class Iteration:
@@ -1142,7 +1160,11 @@ _iterations = [
                          "initialStepClassifier2",
                          "initialStepClassifier3",
                          "initialStep"],
-              other=["firstStepPrimaryVertices"]),
+              other=["firstStepPrimaryVerticesUnsorted",
+                     "initialStepTrackRefsForJets",
+                     "caloTowerForTrk",
+                     "ak4CaloJetsForTrk",
+                     "firstStepPrimaryVertices"]),
     Iteration("highPtTripletStep",
               selection=["highPtTripletStepClassifier1",
                          "highPtTripletStepClassifier2",
@@ -1158,7 +1180,20 @@ _iterations = [
                          "detachedTripletStep"]),
     Iteration("lowPtQuadStep"),
     Iteration("lowPtTripletStep"),
-    Iteration("pixelPairStep"),
+    Iteration("pixelPairStep",
+              seeding=["pixelPairStepSeedLayers",
+                       "pixelPairStepSeedLayersB",
+                       "pixelPairStepSeedLayersC",
+                       "pixelPairStepTrackingRegions",
+                       "pixelPairStepTrackingRegionsB",
+                       "pixelPairStepTrackingRegionsC",
+                       "pixelPairStepHitDoublets",
+                       "pixelPairStepHitDoubletsB",
+                       "pixelPairStepHitDoubletsC",
+                       "pixelPairStepSeedsA",
+                       "pixelPairStepSeedsB",
+                       "pixelPairStepSeedsC",
+                       "pixelPairStepSeeds"]),
     Iteration("mixedTripletStep",
               seeding=["mixedTripletStepSeedLayersA",
                        "mixedTripletStepSeedLayersB",
@@ -1194,9 +1229,7 @@ _iterations = [
                          "tobTecStep"]),
     Iteration("jetCoreRegionalStep",
               clusterMasking=[],
-              other=["initialStepTrackRefsForJets",
-                     "caloJetsForTrk",
-                     "jetsForCoreTracking",
+              other=["jetsForCoreTracking",
                      "firstStepGoodPrimaryVertices",
                      ]),
     Iteration("muonSeededSteps",

@@ -8,6 +8,7 @@ ProductRegistryHelper:
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include <string>
 #include <list>
@@ -22,12 +23,12 @@ namespace edm {
     ~ProductRegistryHelper();
  
     struct TypeLabelItem {
-      TypeLabelItem (BranchType const& branchType, TypeID const& tid, std::string const& pin) :
-	branchType_(branchType),
+      TypeLabelItem (Transition const& transition, TypeID const& tid, std::string const& pin) :
+	      transition_(transition),
         typeID_(tid),
         productInstanceName_(pin),
         branchAlias_() {}
-      BranchType branchType_;
+      Transition transition_;
       TypeID typeID_;
       std::string productInstanceName_;
       mutable std::string branchAlias_;
@@ -75,16 +76,33 @@ namespace edm {
       return produces<B>(tid,instanceName);
     }
 
+    template <typename ProductType, Transition B>
+    TypeLabelItem const& produces() {
+      return produces<ProductType, B>(std::string());
+    }
+    
+    template <typename ProductType, Transition B>
+    TypeLabelItem const& produces(std::string const& instanceName) {
+      TypeID tid(typeid(ProductType));
+      return produces<B>(tid,instanceName);
+    }
+
    
     TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
-       return produces<InEvent>(id,instanceName);
+      return produces<Transition::Event>(id,instanceName);
     }
 
     template <BranchType B>
     TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
-       typeLabelList_.emplace_back(B, id, instanceName);
+       typeLabelList_.emplace_back(convertToTransition(B), id, instanceName);
        return *typeLabelList_.rbegin();
     }
+    template <Transition B>
+    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+      typeLabelList_.emplace_back(B, id, instanceName);
+      return *typeLabelList_.rbegin();
+    }
+
   private:
     TypeLabelList typeLabelList_;
   };

@@ -12,6 +12,7 @@
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 using namespace lat;
 
@@ -51,36 +52,36 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   // create persistent objects
 
   sName = fName + "Run";
-  produces<MEtoEDM<TH1F>, edm::InRun>(sName);
-  produces<MEtoEDM<TH1S>, edm::InRun>(sName);
-  produces<MEtoEDM<TH1D>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2F>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2S>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2D>, edm::InRun>(sName);
-  produces<MEtoEDM<TH3F>, edm::InRun>(sName);
-  produces<MEtoEDM<TProfile>, edm::InRun>(sName);
-  produces<MEtoEDM<TProfile2D>, edm::InRun>(sName);
-  produces<MEtoEDM<double>, edm::InRun>(sName);
-  produces<MEtoEDM<long long>, edm::InRun>(sName);
-  produces<MEtoEDM<TString>, edm::InRun>(sName);
+  produces<MEtoEDM<TH1F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1S>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2S>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH3F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TProfile>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<double>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<long long>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TString>, edm::Transition::EndRun>(sName);
 
   sName = fName + "Lumi";
-  produces<MEtoEDM<TH1F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH1S>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH1D>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2S>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2D>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH3F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TProfile>, edm::InLumi>(sName);
-  produces<MEtoEDM<TProfile2D>, edm::InLumi>(sName);
-  produces<MEtoEDM<double>, edm::InLumi>(sName);
-  produces<MEtoEDM<long long>, edm::InLumi>(sName);
-  produces<MEtoEDM<TString>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH1F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1S>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2S>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH3F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TProfile>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<double>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  iCount.clear();
+  consumesMany<DQMToken>();
 
-  assert(sizeof(int64_t) == sizeof(long long));
+  static_assert(sizeof(int64_t) == sizeof(long long),"type int64_t is not the same length as long long");
 
 }
 

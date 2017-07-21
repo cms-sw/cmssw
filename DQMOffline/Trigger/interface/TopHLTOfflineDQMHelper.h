@@ -175,6 +175,7 @@ class CalculateHLT {
 */
 class SelectionStepHLTBase {
   public:
+    virtual ~SelectionStepHLTBase() = default;
     virtual bool select(const edm::Event& event) {
       return false;
     };
@@ -191,7 +192,7 @@ public:
   /// default constructor
   SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  virtual ~SelectionStepHLT(){};
+  virtual ~SelectionStepHLT() = default;
 
   /// apply selection
   virtual bool select(const edm::Event& event);

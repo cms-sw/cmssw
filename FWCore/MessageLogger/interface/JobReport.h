@@ -250,7 +250,7 @@ namespace edm {
 
         std::vector<InputFile> inputFiles_;
         tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-        std::vector<OutputFile> outputFiles_;
+        tbb::concurrent_vector<OutputFile> outputFiles_;
         std::map<std::string, long long> readBranches_;
         std::map<std::string, long long> readBranchesSecFile_;
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
@@ -267,13 +267,6 @@ namespace edm {
       JobReport(JobReport const&) = delete;
 
       ~JobReport();
-
-      /// New output file for child
-      void childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren);
-
-      void parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren);
-
-      void parentAfterFork(std::string const& jobReportFile);
 
       /// Report that an input file has been opened.
       /// The returned Token should be used for later identification

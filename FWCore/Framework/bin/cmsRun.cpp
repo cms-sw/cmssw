@@ -115,7 +115,6 @@ namespace {
       iNThreads = tbb::task_scheduler_init::default_num_threads();
     }
     oPtr = std::make_unique<tbb::task_scheduler_init>(static_cast<int>(iNThreads),iStackSize);
-    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
 
     return iNThreads;
   }
@@ -353,12 +352,6 @@ int main(int argc, char* argv[]) {
       alwaysAddContext = false;
       context = "Calling beginJob";
       proc->beginJob();
-
-      alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
-      if (!proc->forkProcess(jobReportFile)) {
-        return 0;
-      }
 
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";

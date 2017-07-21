@@ -25,17 +25,17 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('pixelPairStepClusters')
     )
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(pixelPairStepSeedLayers,
-    layerList = [
-        'BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
-        'BPix2+BPix4', 'BPix3+BPix4',
-        'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
-        'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-        'FPix2_pos+FPix3_pos', 'FPix2_neg+FPix3_neg'
-    ]
-)
+# layers covering the region not covered by quadruplets (so it is
+# just acting as backup of triplets)
+_layerListForPhase1 = [
+    'BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
+    'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
+    'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
+]
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1.toModify(pixelPairStepSeedLayers, layerList = _layerListForPhase1)
+trackingPhase1QuadProp.toModify(pixelPairStepSeedLayers, layerList = _layerListForPhase1)
 
 # only layers covering the region not covered by quadruplets
 # (so it is just acting as backup of triplets)
@@ -44,19 +44,20 @@ _layerListForPhase2 = [
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg'
 ]
+# modifing these errors seems to make no difference
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(pixelPairStepSeedLayers, 
     layerList = _layerListForPhase2,
     BPix = dict(
         useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
-        hitErrorRZ = cms.double(0.006),
+        hitErrorRPhi = cms.double(0.0016),
+        hitErrorRZ = cms.double(0.0035),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
     ),
     FPix = dict(
         useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        hitErrorRZ = cms.double(0.0036),
+        hitErrorRPhi = cms.double(0.0030),
+        hitErrorRZ = cms.double(0.0020),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
     )
 )
@@ -71,7 +72,12 @@ pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSe
 ))
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(useMultipleScattering=False))
-trackingPhase1PU70.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 1.2, useMultipleScattering=False))
+_region_Phase1 = dict(
+    useMultipleScattering = False,
+    maxNVertices = 5,
+)
+trackingPhase1.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
+trackingPhase1QuadProp.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 0.6, useMultipleScattering=False))
 
 # SEEDS
@@ -94,6 +100,51 @@ pixelPairStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     )
 )
 
+# Clone for the phase1 recovery mode
+pixelPairStepSeedsA = pixelPairStepSeeds.clone()
+
+# Recovery for L2L3
+pixelPairStepSeedLayersB = pixelPairStepSeedLayers.clone(
+    layerList = [
+        'BPix1+BPix4',
+    ]
+)
+from RecoTracker.TkTrackingRegions.pointSeededTrackingRegion_cfi import pointSeededTrackingRegion as _pointSeededTrackingRegion
+pixelPairStepTrackingRegionsB = _pointSeededTrackingRegion.clone(
+    RegionPSet = dict(
+        ptMin = 0.6,
+        originRadius = 0.015,
+        mode = "VerticesFixed",
+        zErrorVetex = 0.03,
+        vertexCollection = "firstStepPrimaryVertices",
+        beamSpot = "offlineBeamSpot",
+        maxNVertices = 5,
+        maxNRegions = 5,
+        whereToUseMeasurementTracker = "Never",
+        deltaEta = 1.2,
+        deltaPhi = 0.5,
+        points = dict(
+            eta = [0.0],
+            phi = [3.0],
+        )
+    )
+)
+pixelPairStepHitDoubletsB = pixelPairStepHitDoublets.clone(
+    seedingLayers = "pixelPairStepSeedLayersB",
+    trackingRegions = "pixelPairStepTrackingRegionsB",
+)
+pixelPairStepSeedsB = pixelPairStepSeedsA.clone(seedingHitSets = "pixelPairStepHitDoubletsB")
+
+# Merge
+from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi import globalCombinedSeeds as _globalCombinedSeeds
+_pixelPairStepSeedsMerged = _globalCombinedSeeds.clone(
+    seedCollections = ["pixelPairStepSeedsA", "pixelPairStepSeedsB"],
+)
+trackingPhase1.toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
+trackingPhase1QuadProp.toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
+
+
+
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 _pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
@@ -108,10 +159,8 @@ pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(pixelPairStepTrajectoryFilterBase, maxCCCLostHits = 2)
 trackingLowPU.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase)
-trackingPhase1PU70.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
-    maxLostHitsFraction = 1./10.,
-    constantValueForLostHitsFractionFilter = 0.801,
-))
+trackingPhase1.toModify(pixelPairStepTrajectoryFilterBase, minimumNumberOfHits = 4)
+trackingPhase1QuadProp.toModify(pixelPairStepTrajectoryFilterBase, minimumNumberOfHits = 4)
 trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     maxLostHitsFraction = 1./10.,
@@ -126,6 +175,11 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
 )
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+trackingPhase2PU140.toModify(pixelPairStepTrajectoryFilter,
+    filters = pixelPairStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+)
+
 
 
 pixelPairStepTrajectoryFilterInOut = pixelPairStepTrajectoryFilterBase.clone(
@@ -151,10 +205,6 @@ _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
 trackingLowPU.toModify(pixelPairStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
-trackingPhase1PU70.toModify(pixelPairStepChi2Est,
-    MaxChi2 = 16.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
-)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -167,12 +217,13 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
 trackingLowPU.toModify(pixelPairStepTrajectoryBuilder, maxCand = 2)
-
-trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder,
+_seedExtension = dict(
     inOutTrajectoryFilter = dict(refToPSet_ = "pixelPairStepTrajectoryFilterInOut"),
     useSameTrajFilter = False,
-    maxCand = 3,
 )
+trackingPhase1.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
+trackingPhase1QuadProp.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
+trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 
 
 
@@ -200,7 +251,6 @@ pixelPairStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clon
     fractionShared = 0.095,
     allowSharedFirstHit = True
 )
-trackingPhase1PU70.toModify(pixelPairStepTrackCandidates, TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits')
 trackingPhase2PU140.toModify(pixelPairStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 # TRACK FITTING
@@ -218,7 +268,7 @@ pixelPairStep.src = 'pixelPairStepTracks'
 pixelPairStep.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
-# For LowPU and Phase1PU70
+# For LowPU and Phase2PU140
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
@@ -240,51 +290,6 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     ),
     vertices = cms.InputTag("pixelVertices")#end of vpset
 ) #end of clone
-trackingPhase1PU70.toModify(pixelPairStepSelector,
-    useAnyMVA = None,
-    GBRForestLabel = None,
-    trackSelectors = [
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'pixelPairStepLoose',
-            chi2n_par = 0.9,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 3,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.4, 4.0 ),
-            dz_par1 = ( 0.4, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
-        ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'pixelPairStepTight',
-            preFilterName = 'pixelPairStepLoose',
-            chi2n_par = 0.6,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.3, 4.0 ),
-            dz_par1 = ( 0.3, 4.0 ),
-            d0_par2 = ( 0.3, 4.0 ),
-            dz_par2 = ( 0.3, 4.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'pixelPairStep',
-            preFilterName = 'pixelPairStepTight',
-            chi2n_par = 0.4,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.2, 4.0 ),
-            dz_par1 = ( 0.25, 4.0 ),
-            d0_par2 = ( 0.25, 4.0 ),
-            dz_par2 = ( 0.25, 4.0 )
-        ),
-    ] #end of vpset
-) #end of clone
-
 trackingPhase2PU140.toModify(pixelPairStepSelector,
     useAnyMVA = None,
     GBRForestLabel = None,
@@ -328,7 +333,7 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
             dz_par2 = ( 0.35, 4.0 )
             ),
         ), #end of vpset
-    vertices = "pixelVertices"
+    vertices = "firstStepPrimaryVertices"
 ) #end of clone
 
 
@@ -341,8 +346,14 @@ PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepTrackCandidates*
                          pixelPairStepTracks*
                          pixelPairStep)
-_PixelPairStep_LowPU_Phase1PU70 = PixelPairStep.copy()
-_PixelPairStep_LowPU_Phase1PU70.replace(pixelPairStep, pixelPairStepSelector)
-trackingLowPU.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase1PU70)
-trackingPhase1PU70.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase1PU70)
+_PixelPairStep_LowPU_Phase2PU140 = PixelPairStep.copy()
+_PixelPairStep_LowPU_Phase2PU140.replace(pixelPairStep, pixelPairStepSelector)
+trackingLowPU.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase2PU140)
+_PixelPairStep_Phase1 = PixelPairStep.copy()
+_PixelPairStep_Phase1.replace(pixelPairStepSeeds,
+                              pixelPairStepSeedsA *
+                              pixelPairStepSeedLayersB*pixelPairStepTrackingRegionsB*pixelPairStepHitDoubletsB*pixelPairStepSeedsB*
+                              pixelPairStepSeeds)
+trackingPhase1.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)
+trackingPhase1QuadProp.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)

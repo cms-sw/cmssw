@@ -257,6 +257,10 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
 						    int phi, int zside, 
 						    int depth, int lay) {
 
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDEsimConstants:getEtaDepth: I/P " << det << ":" << etaR
+	    << ":" << phi << ":" << zside << ":" << depth << ":" << lay << "\n";
+#endif
   //Modify the depth index
   if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
     etaR = 18;
@@ -265,7 +269,7 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
     depth = 4;
   } else {
     if (lay >= 0) {
-      depth= layerGroup(det, etaR, phi, zside, lay-1);
+      depth = layerGroup(det, etaR, phi, zside, lay-1);
       if (etaR == hpar->noff[0] && lay > 1) {
 	int   kphi   = phi + int((hpar->phioff[3]+0.1)/hpar->phibin[etaR-1]);
 	kphi         = (kphi-1)%4 + 1;
@@ -288,6 +292,10 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDEsimConstants:getEtaDepth: O/P " << etaR << ":" << depth
+	    << std::endl;
+#endif
   return std::pair<int,int>(etaR,depth);
 }
 
@@ -315,6 +323,20 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
   } else {
     return etaR;
   }
+}
+
+int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
+
+  int lay=0;
+  if (det == 1) {
+    if      (eta == 16 || eta == -16) lay = layFHB[1];
+    else                              lay = layFHB[0];
+  } else {
+    if      (eta == 16 || eta == -16) lay = layFHE[1];
+    else if (eta == 18 || eta == -18) lay = layFHE[2];
+    else                              lay = layFHE[0];
+  }
+  return lay;
 }
 
 double HcalDDDSimConstants::getLayer0Wt(const int det, const int phi, 
@@ -590,16 +612,16 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 	    HcalCellType temp3(subdet, eta, zside+2, depth, temp1,
 			       shift, gain, hsize);
 	    std::vector<int> phiMiss3;
-	    for (unsigned int k=0; k<phis.size(); ++k) {
+	    for (auto & phi : phis) {
 	      bool ok(false);
-	      for (unsigned int l=0; l<idHF2QIE.size(); ++l) {
-		if ((eta*zside     == idHF2QIE[l].ieta()) && 
-		    (phis[k].first == idHF2QIE[l].iphi())) {
+	      for (auto l : idHF2QIE) {
+		if ((eta*zside     == l.ieta()) && 
+		    (phi.first == l.iphi())) {
 		  ok = true;
 		  break;
 		}
 	      }
-	      if (!ok) phiMiss3.push_back(phis[k].first);
+	      if (!ok) phiMiss3.push_back(phi.first);
 	    }
 	    dphi  = hpar->phitable[eta-hpar->etaMin[2]];
 	    unit  = unitPhi(dphi);
@@ -618,8 +640,8 @@ int HcalDDDSimConstants::maxHFDepth(const int eta, const int iphi) const {
   int mxdepth = maxDepth[2];
   if (idHF2QIE.size() > 0) {
     bool ok(false);
-    for (unsigned int k=0; k<idHF2QIE.size(); ++k) {
-      if ((eta == idHF2QIE[k].ieta()) && (iphi == idHF2QIE[k].iphi())) {
+    for (auto k : idHF2QIE) {
+      if ((eta == k.ieta()) && (iphi == k.iphi())) {
 	ok = true; break;
       }
     }
@@ -632,8 +654,8 @@ unsigned int HcalDDDSimConstants::numberOfCells(const HcalSubdetector subdet) co
 
   unsigned int num = 0;
   std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
-  for (unsigned int i=0; i<cellTypes.size(); i++) {
-    num += (unsigned int)(cellTypes[i].nPhiBins());
+  for (auto & cellType : cellTypes) {
+    num += (unsigned int)(cellType.nPhiBins());
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDSimConstants:numberOfCells " 
@@ -835,6 +857,8 @@ void HcalDDDSimConstants::initialize( void ) {
     std::cout << " [" << k << "] " << idHF2QIE[k] << std::endl;
 #endif
 
+  layFHB[0] = 0; layFHB[1] = 1;
+  layFHE[0] = 1; layFHE[1] = 9; layFHE[2] = 0;
   depthMaxSp_ = std::pair<int,int>(0,0);
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
@@ -846,8 +870,8 @@ void HcalDDDSimConstants::initialize( void ) {
       int ndp16 = hpar->noff[noffk+4];
       int ndp29 = hpar->noff[noffk+5];
       double wt = 0.1*(hpar->noff[noffk+6]);
-      if (dtype == 1 || dtype == 2) {
-	if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+      if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+	if (dtype == 1 || dtype == 2) {
 	  std::vector<int> ifi, iet, ily, idp;
 	  for (int i=0; i<nphi; ++i) ifi.push_back(hpar->noff[noffk+7+i]);
 	  for (int i=0; i<ndeps;++i) {
@@ -875,8 +899,21 @@ void HcalDDDSimConstants::initialize( void ) {
 	  depthMaxSp_ = std::pair<int,int>(dtype,ldmap_.getDepthMax(dtype,iphi,zside));
 	}
       }
+      int noffm = (noffk+7+nphi+3*ndeps);
+      if ((int)(hpar->noff.size()) > noffm) {
+	int ndnext = hpar->noff[noffm];
+	if (ndnext > 4 && (int)(hpar->noff.size()) >= noffm+ndnext) {
+	  for (int i=0; i<2; ++i) layFHB[i] = hpar->noff[noffm+i+1];
+	  for (int i=0; i<3; ++i) layFHE[i] = hpar->noff[noffm+i+3];
+	}
+      }
     }
   }
+#ifdef EDM_ML_DEBUG
+  std::cout << "Front Layer Definition for HB: " << layFHB[0] << ":" 
+	    << layFHB[1] << " and for HE: " << layFHE[0] << ":" << layFHE[1] 
+	    << ":" << layFHE[2] << std::endl;
+#endif
   if (depthMaxSp_.first == 0) {
     depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
   } else if (depthMaxSp_.first == 1) {

@@ -8,6 +8,8 @@ namespace edm {
 
 namespace l1t {
    class PackerTokens {
+     public:
+       virtual ~PackerTokens() = default;
    };
 }
 

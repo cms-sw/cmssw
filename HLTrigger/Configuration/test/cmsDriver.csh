@@ -31,7 +31,7 @@ set InputGenSimPRef3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = $InputLHCRawGRun2 # no phase-1 data yet, try with 2016 data...
+set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root
 set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
@@ -49,8 +49,8 @@ set BASE2RD  = auto:run2_data
 
 set NNPPMC = 100
 set NNPPRD = 100
-set NNHIMC = 25
-set NNHIRD = 25
+set NNPRMC = 20
+set NNPRRD = 20
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
@@ -87,7 +87,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
-    set NNHI   = $NNHIRD
+    set NNPR   = $NNPRRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
@@ -95,7 +95,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
-    set NNHI   = $NNHIMC
+    set NNPR   = $NNPRMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
@@ -103,9 +103,26 @@ foreach gtag ( MC DATA )
     # unsupported
     continue
   endif
-
-  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
-#  foreach table ( GRun2016 )
+  
+  if ( $1 == "" ) then
+    set tables = ( GRun )
+  else if ( ($1 == all) || ($1 == ALL) ) then
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+  else if ( ($1 == ib) || ($1 == IB) ) then
+    set tables = ( GRun HIon PIon PRef )
+  else if ( ($1 == dev) || ($1 == DEV) ) then
+    set tables = ( GRun HIon PIon PRef )
+  else if ( ($1 == full) || ($1 == FULL) ) then
+    set tables = ( FULL )
+  else if ( ($1 == fake) || ($1 == FAKE) ) then
+    set tables = ( Fake Fake1 Fake2 )
+  else if ( ($1 == frozen) || ($1 == FROZEN) ) then
+    set tables = ( Fake Fake1 Fake2 )
+  else
+    set tables = ( $1 )
+  endif
+  
+  foreach table ( $tables )
 
     set name = ${table}_${gtag}  
 
@@ -186,7 +203,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
       set RTAG = ${BASE2RD}_HIon
-      set NN   = $NNHI
+      set NN   = $NNPP
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon1
       set InputLHCRaw = $InputLHCRawHIon1
@@ -210,7 +227,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:PRef
       set GTAG = ${BASE2}_PRef
       set RTAG = ${BASE2RD}_PRef
-      set NN   = $NNPP
+      set NN   = $NNPR
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3

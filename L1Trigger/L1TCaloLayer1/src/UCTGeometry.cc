@@ -158,7 +158,7 @@ uint32_t UCTGeometry::getCard(int caloEta, int caloPhi) {
 }
 
 uint32_t UCTGeometry::getRegion(int caloEta, int caloPhi) {
-  uint32_t absCEta = abs(caloEta);
+  uint32_t absCEta = std::abs(caloEta);
   if((absCEta - 1) < (NRegionsInCard * NEtaInRegion))
     return (absCEta - 1) / NEtaInRegion;
   else
@@ -166,7 +166,7 @@ uint32_t UCTGeometry::getRegion(int caloEta, int caloPhi) {
 }
 
 uint32_t UCTGeometry::getiEta(int caloEta) {
-  uint32_t absCEta = abs(caloEta);
+  uint32_t absCEta = std::abs(caloEta);
   if((absCEta - 1) < (NRegionsInCard * NEtaInRegion))
     return (absCEta - 1) % NEtaInRegion;
   else
@@ -209,7 +209,7 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
     return UCTTowerIndex(0, 0); // Illegal values
   }
   int regionEta = region.first;
-  int absRegionEta = abs(regionEta);
+  int absRegionEta = std::abs(regionEta);
   int towerEta = (regionEta / absRegionEta) * (absRegionEta * NEtaInRegion + iEta);
   uint32_t regionPhi = region.second;
   int towerPhi = regionPhi * NPhiInRegion + iPhi + 1;
@@ -247,7 +247,7 @@ double UCTGeometry::getUCTTowerEta(int caloEta) {
     twrEtaValues[41] = (4.74+5.21*3)/4.;
     first = false;
   }
-  uint32_t absCaloEta = abs(caloEta);
+  uint32_t absCaloEta = std::abs(caloEta);
   if(absCaloEta <= 41) {
     if(caloEta < 0)
       return -twrEtaValues[absCaloEta];
@@ -260,7 +260,7 @@ double UCTGeometry::getUCTTowerEta(int caloEta) {
 double UCTGeometry::getUCTTowerPhi(int caloPhi) {
   if(caloPhi < 1) return -999.;
   else if(caloPhi > 72) return +999.;
-  uint32_t absCaloPhi = abs(caloPhi) - 1;
+  uint32_t absCaloPhi = std::abs(caloPhi) - 1;
   if(absCaloPhi < 36)
     return (((double) absCaloPhi + 0.5) * 0.0872);
   else

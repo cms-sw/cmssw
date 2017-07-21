@@ -7,6 +7,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
+ *          Vladimir Rekovic - extend for indexing
  *
  */
 
@@ -232,7 +233,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
         objectsInComb.clear();
 
 	totalLoops++;
-	bool passCondition = checkObjectParameter(0, *(candVec->at(useBx,i)));
+	bool passCondition = checkObjectParameter(0, *(candVec->at(useBx,i)), index[i]);
 	if( passCondition ){
 	  objectsInComb.push_back(i);
 	  condResult = true;
@@ -245,8 +246,8 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
       for( int i=0; i<numberObjects; i++ ){
 
-	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
-	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)),index[i]);
 
 	if( !( passCondition0i || passCondition1i ) ) continue;
 
@@ -254,8 +255,8 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	  if( i==j ) continue;
 	  totalLoops++;
 
-	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
-	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)),index[i]);
 
 	  bool pass = ( 
 		       (passCondition0i && passCondition1j) ||
@@ -317,18 +318,18 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
       for( int i=0; i<numberObjects; i++ ){
 
 
-	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
-	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
-	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)),index[i]);
 
 	if( !( passCondition0i || passCondition1i || passCondition2i ) ) continue;
 
 	for( int j=0; j<numberObjects; j++ ){
 	  if( i==j ) continue;
 
-	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
-	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
-	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)));
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)),index[i]);
 
 	  if( !( passCondition0j || passCondition1j || passCondition2j ) ) continue;
 
@@ -336,9 +337,9 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	    if( k==i || k==j ) continue;
 	    totalLoops++;
 
-	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)));
-	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)));
-	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)));
+	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)),index[i]);
+	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)),index[i]);
+	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)),index[i]);
 
 	    bool pass = ( 
 			 (passCondition0i && passCondition1j && passCondition2k) ||
@@ -366,30 +367,30 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
       for( int i=0; i<numberObjects; i++ ){
 
-	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
-	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
-	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
-	bool passCondition3i = checkObjectParameter(3, *(candVec->at(useBx,i)));
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)),index[i]);
+	bool passCondition3i = checkObjectParameter(3, *(candVec->at(useBx,i)),index[i]);
 
 	if( !( passCondition0i || passCondition1i || passCondition2i || passCondition3i ) ) continue;
 
 	for( int j=0; j<numberObjects; j++ ){
 	  if( j==i ) continue;
 
-	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
-	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
-	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)));
-	  bool passCondition3j = checkObjectParameter(3, *(candVec->at(useBx,j)));
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)),index[i]);
+	  bool passCondition3j = checkObjectParameter(3, *(candVec->at(useBx,j)),index[i]);
 
 	  if( !( passCondition0j || passCondition1j || passCondition2j || passCondition3j ) ) continue;
 
 	  for( int k=0; k<numberObjects; k++ ){
 	    if( k==i || k==j ) continue;
 
-	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)));
-	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)));
-	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)));
-	    bool passCondition3k = checkObjectParameter(3, *(candVec->at(useBx,k)));
+	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)),index[i]);
+	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)),index[i]);
+	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)),index[i]);
+	    bool passCondition3k = checkObjectParameter(3, *(candVec->at(useBx,k)),index[i]);
 
 	    if( !( passCondition0k || passCondition1k || passCondition2k || passCondition3k ) ) continue;
 	    
@@ -397,10 +398,10 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	      if( m==i || m==j || m==k ) continue;
 	      totalLoops++;
 
-	      bool passCondition0m = checkObjectParameter(0, *(candVec->at(useBx,m)));
-	      bool passCondition1m = checkObjectParameter(1, *(candVec->at(useBx,m)));
-	      bool passCondition2m = checkObjectParameter(2, *(candVec->at(useBx,m)));
-	      bool passCondition3m = checkObjectParameter(3, *(candVec->at(useBx,m)));
+	      bool passCondition0m = checkObjectParameter(0, *(candVec->at(useBx,m)),index[i]);
+	      bool passCondition1m = checkObjectParameter(1, *(candVec->at(useBx,m)),index[i]);
+	      bool passCondition2m = checkObjectParameter(2, *(candVec->at(useBx,m)),index[i]);
+	      bool passCondition3m = checkObjectParameter(3, *(candVec->at(useBx,m)),index[i]);
 
 	      bool pass = ( 
 			   (passCondition0i && passCondition1j && passCondition2k && passCondition3m) ||
@@ -489,7 +490,7 @@ const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int
  * @return The result of the comparison (false if a condition does not exist).
  */
 
-const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const {
+const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, unsigned int index) const {
 
     // number of objects in condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
@@ -510,6 +511,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
       << "\n\t condRelativeBx = " << m_gtCaloTemplate->condRelativeBx()
       << "\n ObjectParameter : "
       << "\n\t etThreshold = " << objPar.etLowThreshold << " - " << objPar.etHighThreshold
+      << "\n\t indexRange  = " << objPar.indexLow << " - " << objPar.indexHigh
       << "\n\t etaRange    = " << objPar.etaRange
       << "\n\t phiRange    = " << objPar.phiRange
       << "\n\t isolationLUT= " << objPar.isolationLUT
@@ -527,6 +529,12 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
     if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
       LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkThreshold" << std::endl;
         return false;
+    }
+
+    // check index
+    if ( !checkIndex(objPar.indexLow, objPar.indexHigh, index) ) {
+      LogDebug("L1TGlobal") << "\t\t ilt::Candidate Failed checkIndex " << std::endl;
+      return false;
     }
 
     // check eta

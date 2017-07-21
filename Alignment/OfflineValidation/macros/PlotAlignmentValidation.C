@@ -1,6 +1,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -39,13 +40,12 @@
 #include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //------------------------------------------------------------------------------
-PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : bigtext_(bigtext)
+PlotAlignmentValidation::PlotAlignmentValidation(bool bigtext) : bigtext_(bigtext)
 {
   setOutputDir(".");
   setTreeBaseDir();
   sourcelist = NULL;
   
-  loadFileList( inputFile, legendName, lineColor, lineStyle);
   moreThanOneSource=false;
   useFit_ = false;
 
@@ -63,6 +63,12 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
 }
 
 //------------------------------------------------------------------------------
+PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : PlotAlignmentValidation(bigtext)
+{
+  loadFileList(inputFile, legendName, lineColor, lineStyle);
+}
+
+//------------------------------------------------------------------------------
 PlotAlignmentValidation::~PlotAlignmentValidation()
 {
 
@@ -72,14 +78,32 @@ PlotAlignmentValidation::~PlotAlignmentValidation()
   }
 
   delete sourcelist;
+
+}
+
+//------------------------------------------------------------------------------
+void PlotAlignmentValidation::openSummaryFile()
+{
+  if (!openedsummaryfile) {
+    openedsummaryfile = true;
+    summaryfile.open(outputDir+"/"+summaryfilename);
+    for (auto vars : sourceList) {
+      summaryfile << "\t" << vars->getName();
+    }
+    summaryfile << "\tformat={}\n";
+  }
 }
 
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::loadFileList(const char *inputFile, std::string legendName, int lineColor, int lineStyle)
 {
 
+  if (openedsummaryfile) {
+    std::cout << "Can't load a root file after opening the summary file!" << std::endl;
+    assert(0);
+  }
   sourceList.push_back( new TkOfflineVariables( inputFile, treeBaseDir, legendName, lineColor, lineStyle ) );
-  
+
 }
 
 //------------------------------------------------------------------------------
@@ -157,6 +181,10 @@ void PlotAlignmentValidation::legendOptions(TString options)
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
+  if (openedsummaryfile) {
+    std::cout << "Can't set the output dir after opening the summary file!" << std::endl;
+    assert(0);
+  }
   outputDir = dir;
   gSystem->mkdir(outputDir.data(), true);
 }
@@ -761,7 +789,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
-    
+
+    openSummaryFile();
+    vmean.clear(); vrms.clear(); vdeltamean.clear();
+
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it) {
 
@@ -783,7 +814,17 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	}
 
 	if (plotinfo.plotPlain) {
-	  if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0, layer); }
+	  if (plotinfo.h) {
+            setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0, layer);
+          } else {
+            if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0) {
+              vmean.push_back(nan(""));
+              vrms.push_back(nan(""));
+              if (plotinfo.plotSplits && plotinfo.plotPlain) {
+                vdeltamean.push_back(nan(""));
+              }
+            }
+          }
 	}
 
 	if (plotinfo.plotSplits) {
@@ -813,6 +854,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	    legend.str("");
 	    legend << "#Delta#mu = " << deltamu << unit;
 	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
+
+            if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && !plotLayers && layer==0) {
+              vdeltamean.push_back(deltamu);
+            }
 	  }
 	  if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1, layer); }
 	  if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1, layer); }
@@ -855,14 +900,17 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     else if (variable=="rmsNormX") plotName << "rmsNR_";
     else if (variable=="rmsNormY") plotName << "rmsNYR_";
 
+    TString subdet;
     switch (i) {
-      case 1: plotName << "BPIX"; break;
-      case 2: plotName << "FPIX"; break;
-      case 3: plotName << "TIB"; break;
-      case 4: plotName << "TID"; break;
-      case 5: plotName << "TOB"; break;
-      case 6: plotName << "TEC"; break;
+      case 1: subdet = "BPIX"; break;
+      case 2: subdet = "FPIX"; break;
+      case 3: subdet = "TIB"; break;
+      case 4: subdet = "TID"; break;
+      case 5: subdet = "TOB"; break;
+      case 6: subdet = "TEC"; break;
     }
+
+    plotName << subdet;
 
     if (plotPlain && !plotSplits) { plotName << "_plain"; }
     else if (!plotPlain && plotSplits) { plotName << "_split"; }
@@ -898,6 +946,42 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     delete plotinfo.h1;
     delete plotinfo.h2;
 
+    if (vmean.size()) {
+      summaryfile << "   mu_" << subdet;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << " (um)\t"
+                  << "latexname=$\\mu_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto mu : vmean) summaryfile << "\t" << mu;
+      summaryfile << "\n";
+    }
+    if (vrms.size()) {
+      summaryfile << "sigma_" << subdet;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << " (um)\t"
+                  << "latexname=$\\sigma_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto sigma : vrms) summaryfile << "\t" << sigma;
+      summaryfile << "\n";
+    }
+    if (vdeltamean.size()) {
+      summaryfile << "  dmu_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << " (um)\t"
+                  << "latexname=$\\Delta\\mu_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
   }
 
 }
@@ -919,8 +1003,8 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     if(mta1 != NULL) {
       mtb1 = (TDirectoryFile*) mta1->Get("GlobalTrackVariables");
       if(mtb1 != NULL) {
-        normchi = (TCanvas*) mtb1->Get("h_normchi2");
-	chiprob = (TCanvas*) mtb1->Get("h_chi2Prob");
+        normchi = dynamic_cast<TCanvas*>(mtb1->Get("h_normchi2"));
+        chiprob = dynamic_cast<TCanvas*>(mtb1->Get("h_chi2Prob"));
         if (normchi != NULL && chiprob != NULL) {
           errorflag = kFALSE;
         }
@@ -932,6 +1016,38 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     std::cout << "PlotAlignmentValidation::plotChi2: Can't find data from given file,"
               << " no chi^2-plots produced" << std::endl;
     return;
+  }
+
+  TLegend *legend = 0;
+  for (auto primitive : *normchi->GetListOfPrimitives()) {
+    legend = dynamic_cast<TLegend*>(primitive);
+    if (legend) break;
+  }
+  if (legend) {
+    openSummaryFile();
+    summaryfile << "ntracks";
+    for (auto alignment : sourceList) {
+      summaryfile << "\t";
+      TString title = alignment->getName();
+      int color = alignment->getLineColor();
+      int style = alignment->getLineStyle();
+      bool foundit = false;
+      for (auto entry : *legend->GetListOfPrimitives()) {
+        TLegendEntry *legendentry = dynamic_cast<TLegendEntry*>(entry);
+        assert(legendentry);
+        TH1 *h = dynamic_cast<TH1*>(legendentry->GetObject());
+        if (!h) continue;
+        if (legendentry->GetLabel() == title && h->GetLineColor() == color && h->GetLineStyle() == style) {
+          foundit = true;
+          summaryfile << h->GetEntries();
+          break;
+        }
+      }
+      if (!foundit) {
+        summaryfile << 0;
+      }
+    }
+    summaryfile << "\n";
   }
 
   chiprob->Draw();
@@ -954,7 +1070,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   chiprob->Write();
   fi3.Close();
 
-  fi1->Close();
+  delete fi1;
 
 }
 
@@ -1502,6 +1618,11 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
       legend << ", ";
   }
 
+  if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
+    vmean.push_back(mean);
+    vrms.push_back(rms);
+  }
+
   // Legend: Delta mu for split plots
   if (showdeltamu) {
     float factor = 10000.0f;
@@ -1513,6 +1634,10 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
     legend << "#Delta#mu = " << deltamu << units;
     if ((showModules_ || showUnderOverFlow_) && !twolines_)
       legend << ", ";
+
+    if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
+      vdeltamean.push_back(deltamu);
+    }
   }
 
   if (twolines_) {
@@ -1606,3 +1731,5 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   // Make some room for the legend
   hs->SetMaximum(hs->GetMaximum("nostack PE")*1.3);
 }
+
+const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary.txt";

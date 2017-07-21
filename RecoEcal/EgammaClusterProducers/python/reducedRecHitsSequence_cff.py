@@ -35,6 +35,24 @@ interestingEcalDetIdPFES = RecoEcal.EgammaClusterProducers.interestingDetIdColle
     keepNextToBoundary = cms.bool(False)    
     )
 
+interestingEcalDetIdOOTPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALBarrel"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+
+interestingEcalDetIdOOTPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALEndcap"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
+
+interestingEcalDetIdOOTPFES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALPreshower"),
+    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    severityLevel = cms.int32(-1),
+    keepNextToDead = cms.bool(False),
+    keepNextToBoundary = cms.bool(False)    
+    )
+
 interestingEcalDetIdRefinedEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
     basicClustersLabel = cms.InputTag("particleFlowEGamma","EBEEClusters"),
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
@@ -72,9 +90,12 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             #ged
             cms.InputTag("interestingEcalDetIdPFEB"),
             cms.InputTag("interestingEcalDetIdRefinedEB"),
+            # oot
+            cms.InputTag("interestingEcalDetIdOOTPFEB"),
             # egamma
             cms.InputTag("interestingGedEleIsoDetIdEB"),
             cms.InputTag("interestingGedGamIsoDetIdEB"),
+            cms.InputTag("interestingOotGamIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
@@ -94,9 +115,12 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             #ged
             cms.InputTag("interestingEcalDetIdPFEE"),
             cms.InputTag("interestingEcalDetIdRefinedEE"),            
+            # oot
+            cms.InputTag("interestingEcalDetIdOOTPFEE"),
             # egamma
             cms.InputTag("interestingGedEleIsoDetIdEE"),
             cms.InputTag("interestingGedGamIsoDetIdEE"),
+            cms.InputTag("interestingOotGamIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
@@ -116,9 +140,11 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       interestingDetIds = cms.VInputTag(
                                         cms.InputTag("interestingEcalDetIdPFES"),
                                         cms.InputTag("interestingEcalDetIdRefinedES"), 
+                                        cms.InputTag("interestingEcalDetIdOOTPFES"),
                                       ),
                                       interestingDetIdsNotToClean = cms.VInputTag(
                                           cms.InputTag("interestingGedEgammaIsoESDetId"),
+                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
                                       )
 )
 
@@ -128,6 +154,7 @@ from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
                                           interestingEcalDetIdEE*
                                           interestingEcalDetIdPFEB*interestingEcalDetIdPFEE*interestingEcalDetIdPFES*
+                                          interestingEcalDetIdOOTPFEB*interestingEcalDetIdOOTPFEE*interestingEcalDetIdOOTPFES*
                                           interestingEcalDetIdRefinedEB*interestingEcalDetIdRefinedEE*interestingEcalDetIdRefinedES*
                                           interestingTrackEcalDetIds*
                                           reducedEcalRecHitsEB*

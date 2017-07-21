@@ -101,15 +101,12 @@ class MatrixInjector(object):
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
-            "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
+            "ConfigCacheUrl": self.couch,                     #URL of CouchDB containing Config Cache
             "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
             #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
             "nowmTasklist" : [],  #a list of tasks as we put them in
-            "unmergedLFNBase" : "/store/unmerged",
-            "mergedLFNBase" : "/store/relval",
-            "dashboardActivity" : "relval",
             "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
@@ -195,21 +192,21 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2016reHLT']=5
             wmsplit['RECODR2_50nsreHLT_HIPM']=5
             wmsplit['RECODR2_25nsreHLT_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimSingleMu']=5
-            wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
-            wmsplit['RECODR2_2016reHLT_skimMuonEG']=5
-            wmsplit['RECODR2_2016reHLT_skimJetHT']=5
-            wmsplit['RECODR2_2016reHLT_skimMET']=5
-            wmsplit['RECODR2_2016reHLT_skimSinglePh']=5
-            wmsplit['RECODR2_2016reHLT_skimMuOnia']=5
-            wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimSingleMu']=1
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG']=1
+            wmsplit['RECODR2_2016reHLT_skimMuonEG']=1
+            wmsplit['RECODR2_2016reHLT_skimJetHT']=1
+            wmsplit['RECODR2_2016reHLT_skimMET']=1
+            wmsplit['RECODR2_2016reHLT_skimSinglePh']=1
+            wmsplit['RECODR2_2016reHLT_skimMuOnia']=1
+            wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=1
+            wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=1
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
@@ -222,6 +219,9 @@ class MatrixInjector(object):
             wmsplit['RecoFull']=5
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
+            wmsplit['RECOHID11']=1
+            wmsplit['DigiFullPU_2023D17PU']=1
+            wmsplit['RecoFullGlobalPU_2023D17PU']=1
 
                                     
             #import pprint
@@ -351,11 +351,11 @@ class MatrixInjector(object):
                             if acqEra:
                                 #chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
-                                chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
+                                chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','').replace('-','_')+thisLabel
                             else:
                                 #chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
-                                chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
+                                chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','').replace('-','_')+thisLabel
 
                             if (self.batchName):
                                 chainDict['nowmTasklist'][-1]['Campaign'] = chainDict['nowmTasklist'][-1]['AcquisitionEra']+self.batchName
@@ -501,14 +501,14 @@ class MatrixInjector(object):
                     #upload
                     couchID=self.uploadConf(d[it]['ConfigCacheID'],
                                             str(n)+d[it]['TaskName'],
-                                            d['ConfigCacheURL']
+                                            d['ConfigCacheUrl']
                                             )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
-                                            d['ConfigCacheURL']
+                                            d['ConfigCacheUrl']
                                             )
                     print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
                     d['DQMConfigCacheID']=couchID
@@ -536,7 +536,6 @@ class MatrixInjector(object):
                 print pprint.pprint(d)
                 print "Submitting",n,"..........."
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
-                approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()
             

@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *          Vladimir Rekovic - extend for indexing
  *
  *
  */
@@ -111,6 +112,10 @@ protected:
     template<class Type1, class Type2> const bool checkThreshold(const Type1& thresholdL, const Type1& thresholdH,
         const Type2& value, bool condGEqValue) const;
 
+    /// check if a index is in a given range 
+    template<class Type1> const bool checkIndex( const Type1& indexLo, const Type1& indexHi,
+							const unsigned int index ) const;
+
     /// check if a bit with a given number is set in a mask
     template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
 
@@ -193,6 +198,29 @@ template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshol
         return false;
     }
 }
+
+// check if a index in a given range
+template<class Type1> const bool ConditionEvaluation::checkIndex(const Type1& indexLo, const Type1& indexHi,
+    const unsigned int index) const {
+
+  LogDebug("l1t|Global")
+    << "\n l1t::ConditionEvaluation"
+    << "\n\t indexLo = " << indexLo
+    << "\n\t indexHi = " << indexHi
+    << "\n\t index = " << index
+    << std::endl;
+
+  // set condtion to false if indexLo > indexHi
+  if( indexLo > indexHi ) {
+    return false;
+  }
+  if (index >= indexLo && index <= indexHi) {
+    return true;
+  }
+
+  return false;
+}
+
 
 // check if a bit with a given number is set in a mask
 template<class Type1> const bool ConditionEvaluation::checkBit(const Type1& mask,

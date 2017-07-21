@@ -10,6 +10,7 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 class SiPixelPhase1Clusters : public SiPixelPhase1Base {
   enum {
@@ -26,7 +27,8 @@ class SiPixelPhase1Clusters : public SiPixelPhase1Base {
     POSITION_YZ,
     SIZE_VS_ETA,
     READOUT_CHARGE,
-    READOUT_NCLUSTERS
+    READOUT_NCLUSTERS,
+    PIXEL_TO_STRIP_RATIO
   };
   // Uncomment to add trigger event flag enumerators
   // Make sure enum corresponds correctly with flags defined in _cfi.py file
@@ -40,7 +42,8 @@ class SiPixelPhase1Clusters : public SiPixelPhase1Base {
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelSrcToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripSrcToken_;
 };
 
 #endif

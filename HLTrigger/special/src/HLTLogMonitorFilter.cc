@@ -37,7 +37,7 @@
 class HLTLogMonitorFilter : public edm::EDFilter {
 public:
     explicit HLTLogMonitorFilter(const edm::ParameterSet &);
-    ~HLTLogMonitorFilter();
+    ~HLTLogMonitorFilter() override;
 
     struct CategoryEntry {
       uint32_t threshold;       // configurable threshold, after which messages in this Category start to be logarithmically prescaled
@@ -79,13 +79,13 @@ public:
     // ---------- private methods -----------------------
 
     /// EDFilter accept method
-    virtual bool filter(edm::Event&, const edm::EventSetup &) override;
+    bool filter(edm::Event&, const edm::EventSetup &) override;
 
     /// EDFilter beginJob method
-    virtual void beginJob(void) override;
+    void beginJob() override;
 
     /// EDFilter endJob method
-    virtual void endJob(void) override;
+    void endJob() override;
 
     /// check if the requested category has a valid entry
     bool knownCategory(const std::string & category);
@@ -97,7 +97,7 @@ public:
     CategoryEntry & getCategory(const std::string & category);
 
     /// summarize to LogInfo
-    void summary(void);
+    void summary();
 
 
     // ---------- member data ---------------------------
@@ -129,18 +129,16 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
 
   typedef std::vector<edm::ParameterSet> VPSet; 
   const VPSet & categories = config.getParameter<VPSet>("categories");
-  for (VPSet::const_iterator category = categories.begin(); category != categories.end(); ++category) {
-    const std::string & name = category->getParameter<std::string>("name");
-    uint32_t threshold       = category->getParameter<uint32_t>("threshold");
+  for (auto const & categorie : categories) {
+    const std::string & name = categorie.getParameter<std::string>("name");
+    uint32_t threshold       = categorie.getParameter<uint32_t>("threshold");
     addCategory(name, threshold);
   }
 
   produces<std::vector<edm::ErrorSummaryEntry> >();
 }
 
-HLTLogMonitorFilter::~HLTLogMonitorFilter()
-{
-}
+HLTLogMonitorFilter::~HLTLogMonitorFilter() = default;
 
 //
 // member functions
@@ -189,11 +187,11 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
 }
 
 // ------------ method called at the end of the Job ---------
-void HLTLogMonitorFilter::beginJob(void) {
+void HLTLogMonitorFilter::beginJob() {
   edm::EnableLoggedErrorsSummary();
 }
 // ------------ method called at the end of the Job ---------
-void HLTLogMonitorFilter::endJob(void) {
+void HLTLogMonitorFilter::endJob() {
   edm::DisableLoggedErrorsSummary();
   summary();
 }
@@ -215,7 +213,7 @@ HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::addCategory(const std:
 /// return the entry for requested category, if it exists, or create a new one with the default threshold value
 HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::getCategory(const std::string & category) {
   // check before inserting, to avoid the construction of a CategoryEntry object
-  CategoryMap::iterator i = m_data.find(category);
+  auto i = m_data.find(category);
   if (i != m_data.end())
     return i->second;
   else
@@ -223,7 +221,7 @@ HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::getCategory(const std:
 }
 
 /// summarize to LogInfo
-void HLTLogMonitorFilter::summary(void) {
+void HLTLogMonitorFilter::summary() {
   std::stringstream out;
   out << "Log-Report ---------- HLTLogMonitorFilter Summary ------------\n"
       << "Log-Report  Threshold   Prescale     Issued   Accepted   Rejected Category\n";

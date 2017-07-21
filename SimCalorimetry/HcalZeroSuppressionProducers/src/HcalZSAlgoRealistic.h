@@ -15,7 +15,7 @@ class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoRealistic(bool markAndPass, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
   HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
-  
+  virtual ~HcalZSAlgoRealistic() = default; 
 protected:
   //these need to be overloads instead of templates to avoid linking issues when calling private member function templates
   virtual bool shouldKeep(const HBHEDataFrame& digi) const;

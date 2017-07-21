@@ -26,7 +26,7 @@
 class ThroughputServiceClient : public DQMEDHarvester {
 public:
   explicit ThroughputServiceClient(edm::ParameterSet const &);
-  ~ThroughputServiceClient();
+  ~ThroughputServiceClient() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -43,10 +43,6 @@ private:
 
 ThroughputServiceClient::ThroughputServiceClient(edm::ParameterSet const & config) :
   m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
-{
-}
-
-ThroughputServiceClient::~ThroughputServiceClient()
 {
 }
 

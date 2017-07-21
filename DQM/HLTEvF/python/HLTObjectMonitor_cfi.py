@@ -1,38 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
 #setup names for multiple plots that use the same paths+modules
-photon_pathName = "HLT_Photon30_R9Id90_HE10_IsoM"
-photon_moduleName ="hltEG30R9Id90HE10IsoMTrackIsoFilter"
+photon_pathName = "HLT_DoublePhoton33_CaloIdL" # "HLT_Photon30_R9Id90_HE10_IsoM"
+photon_moduleName = "hltEG33CaloIdLClusterShapeFilter" # "hltEG30R9Id90HE10IsoMTrackIsoFilter"
 
 muon_pathName = "HLT_IsoMu27"
-muon_moduleName = "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
+muon_moduleName = "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07" # "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
 
 l2muon_pathName = "HLT_L2Mu10"
 l2muon_moduleName = "hltL2fL1sMu22L1f0L2Filtered10Q"
 
-l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX"
-l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
+l2NoBPTXmuon_pathName = "HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX" # "HLT_L2Mu10_NoVertex_NoBPTX3BX"
+l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3" # "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
 
-electron_pathName = "HLT_Ele23_WPLoose_Gsf"
-electron_moduleName = "hltEle23WPLooseGsfTrackIsoFilter"
+electron_pathName = "HLT_Ele38_WPTight_Gsf" # "HLT_Ele23_WPLoose_Gsf"
+electron_moduleName = "hltEle38noerWPTightGsfTrackIsoFilter" # "hltEle23WPLooseGsfTrackIsoFilter"
 
 caloMet_pathName = "HLT_MET60_IsoTrk35_Loose"
 caloMet_moduleName = "hltMET60"
 
-pfMet_pathName = "HLT_PFMET120_PFMHT120_IDTight"
-pfMet_moduleName = "hltPFMET120"
+pfMet_pathName = "HLT_PFMET110_PFMHT110_IDTight" # "HLT_PFMET120_PFMHT120_IDTight"
+pfMet_moduleName = "hltPFMET110" # "hltPFMET120"
 
-jetAk8_pathName = "HLT_AK8PFJet360_TrimMass30"
-jetAk8_moduleName = "hltAK8SinglePFJet360TrimModMass30"
+jetAk8_pathName = "HLT_AK8PFJet400_TrimMass30" # "HLT_AK8PFJet360_TrimMass30"
+jetAk8_moduleName = "hltAK8SinglePFJet400TrimModMass30" # "hltAK8SinglePFJet360TrimModMass30"
 
 rsq_mr_pathName = "HLT_RsqMR240_Rsq0p09_MR200"
 rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
 
-bJet_pathNameCalo = "HLT_PFMET120_BTagCSV_p067"
-bJet_moduleNameCalo = "hltBTagCaloCSVp067Single"
+bJet_pathNameCalo = "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6" # "HLT_PFMET120_BTagCSV_p067"
+bJet_moduleNameCalo = "hltBTagCalo80x6CSVp0p92DoubleWithMatching" # "hltBTagCaloCSVp067Single"
 
-bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500"
-bJet_moduleNamePF = "hltBTagPFCSVp016SingleWithMatching"
+bJet_pathNamePF = "HLT_PFHT380_SixJet32_DoubleBTagCSV_p075" # "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500"
+bJet_moduleNamePF = "hltBTagPFCSVp075Double" # "hltBTagPFCSVp016SingleWithMatching"
 
 #To avoid booking histogram, set pathName = cms.string("")
 
@@ -229,8 +229,8 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(200)
         ),   
     tauPt = cms.PSet(
-        pathName = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"),
-        moduleName = cms.string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
+        pathName = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1"), # HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"),
+        moduleName = cms.string("hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"), #hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
         axisLabel = cms.string("tau p_{T} [GeV]"),
         plotLabel = cms.string("Tau_pT"),
         mainWorkspace = cms.bool(True),
@@ -374,9 +374,9 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         ),
     diMuonMass = cms.PSet(
         pathName = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"),
-        moduleName = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        moduleName = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4"), #hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2"),
         pathName_OR = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"),
-        moduleName_OR = cms.string("hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        moduleName_OR = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4"), # hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2"),
         plotLabel = cms.string("diMuon_Mass"),
         axisLabel = cms.string("dimuon mass [GeV]"),
         mainWorkspace = cms.bool(True),

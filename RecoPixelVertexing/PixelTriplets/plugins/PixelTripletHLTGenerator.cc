@@ -312,6 +312,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, Ordered
 	
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
+	  if(tripletLastLayerIndex) tripletLastLayerIndex->clear();
 	  edm::LogError("TooManyTriplets")<<" number of triples exceeds maximum. no triplets produced.";
 	  return;
 	}

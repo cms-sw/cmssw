@@ -8,6 +8,7 @@
   *  \author Valeri Andreev
   */
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitAbsAlgo.h"
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"

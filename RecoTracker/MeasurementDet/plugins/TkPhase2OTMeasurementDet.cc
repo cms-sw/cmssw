@@ -7,14 +7,6 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-//FIXME:just temporary solution for phase2!
-/*
-namespace {
-  const float theRocWidth  = 8.1;
-  const float theRocHeight = 8.1;
-}
-*/
-
 TkPhase2OTMeasurementDet::TkPhase2OTMeasurementDet( const GeomDet* gdet,
 					      Phase2OTMeasurementConditionSet & conditions ) : 
     MeasurementDet (gdet),
@@ -35,15 +27,7 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
     return true;
   }
   
-  auto oldSize = result.size();
-  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet, data);
-  for (auto && hit : allHits) {
-    std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
-    if ( diffEst.first)
-      result.add(std::move(hit), diffEst.second);
-  }
-
-  if (result.size()>oldSize) return true;
+  if (recHits(stateOnThisDet,est,data,result.hits,result.distances)) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet, data);
@@ -51,6 +35,86 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
   return inac;
 
 }
+
+bool TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
+                                        RecHitContainer & result, std::vector<float> & diffs) const {
+
+  if unlikely( (!isActive(data)) || isEmpty(data.phase2OTData()) ) return false;
+
+  auto oldSize = result.size();
+
+
+
+  const detset & detSet = data.phase2OTData().detSet(index()); 
+  auto begin = &(data.phase2OTData().handle()->data().front());
+  auto reject = [&](auto ci)-> bool { return (!data.phase2OTClustersToSkip().empty()) && data.phase2OTClustersToSkip()[ci-begin];};
+
+  /// use the usual 5 sigma cut from the Traj to identify the column.... 
+  auto firstCluster = detSet.begin();
+  auto lastCluster = detSet.end();
+
+  // do not use this as it does not account for APE...
+  // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+  auto le = stateOnThisDet.localError().positionError();
+  LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
+  auto ye = le.yy();
+  if (lape.valid()) {
+    ye+=lape.yy();
+  }
+  // 5 sigma to be on the safe side
+  ye = 5.f*std::sqrt(ye);
+  LocalVector  maxD(0,ye,0);
+  // pixel topology is rectangular: x and y are independent 
+  auto ymin = specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()-maxD);
+  auto ymax = specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()+maxD);
+  int utraj = ymin.x();
+  // do not apply for iteration not cutting on propagation
+  if (est.maxSagitta() >=0 ) {
+    int colMin = ymin.y();
+    int colMax = ymax.y();
+    firstCluster = 
+         std::find_if(firstCluster, detSet.end(), [colMin](const Phase2TrackerCluster1D& hit) { return int(hit.column()) >= colMin; });
+    lastCluster =        	
+         std::find_if(firstCluster, detSet.end(), [colMax](const Phase2TrackerCluster1D& hit) { return int(hit.column()) > colMax; });
+  }
+
+  while (firstCluster!=lastCluster) { // loop on each column
+    auto const col = firstCluster->column();
+    auto endCluster =
+    std::find_if(firstCluster, detSet.end(), [col](const Phase2TrackerCluster1D& hit) { return hit.column() != col; });
+    // find trajectory position in this column
+    auto rightCluster = 
+      std::find_if(firstCluster, endCluster, [utraj](const Phase2TrackerCluster1D& hit) { return int(hit.firstStrip()) > utraj; });
+    // search for compatible clusters...
+    if ( rightCluster != firstCluster) {
+     // there are hits on the left of the utraj
+     auto leftCluster = rightCluster;
+     while ( --leftCluster >=  firstCluster) {
+       if(reject(leftCluster)) continue;
+       Phase2TrackerCluster1DRef cluster = detSet.makeRefTo( data.phase2OTData().handle(), leftCluster);
+       auto hit = buildRecHit( cluster, stateOnThisDet.localParameters() );
+       auto diffEst = est.estimate( stateOnThisDet, *hit); 
+       if ( !diffEst.first ) break; // exit loop on first incompatible hit
+       result.push_back(hit);
+       diffs.push_back(diffEst.second);
+     }
+    }
+    for ( ; rightCluster != endCluster; rightCluster++) {
+       if(reject(rightCluster)) continue;
+       Phase2TrackerCluster1DRef cluster = detSet.makeRefTo( data.phase2OTData().handle(), rightCluster);
+       auto hit = buildRecHit( cluster, stateOnThisDet.localParameters() );
+       auto diffEst = est.estimate( stateOnThisDet, *hit);
+       if ( !diffEst.first ) break; // exit loop on first incompatible hit
+       result.push_back(hit);
+       diffs.push_back(diffEst.second);
+     }
+     firstCluster = endCluster;
+   } // loop over columns 
+   return result.size()>oldSize;
+} 
+ 
+
+
 
 TrackingRecHit::RecHitPointer
 TkPhase2OTMeasurementDet::buildRecHit( const Phase2TrackerCluster1DRef & cluster,
@@ -68,8 +132,8 @@ TkPhase2OTMeasurementDet::RecHitContainer
 TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data ) const
 {
   RecHitContainer result;
-  if (isEmpty(data.phase2OTData())== true ) return result;
-  if (isActive(data) == false) return result;
+  if (isEmpty(data.phase2OTData())) return result;
+  if (!isActive(data)) return result;
   const Phase2TrackerCluster1D* begin=0;
   if (0 != data.phase2OTData().handle()->data().size()) {
      begin = &(data.phase2OTData().handle()->data().front());

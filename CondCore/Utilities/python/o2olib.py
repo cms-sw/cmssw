@@ -254,7 +254,7 @@ class O2OJobMgr(O2OMgr):
         res = self.session.query(O2ORun.job_name,sqlalchemy.func.max(O2ORun.start_time)).group_by(O2ORun.job_name).order_by(O2ORun.job_name)
         for r in res:
             runs[r[0]] = str(r[1])
-        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled).all()
+        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled).order_by(O2OJob.name).all()
         table = []
         for r in res:
             row = []
@@ -444,7 +444,7 @@ class O2OTool():
         parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
         parser_create.add_argument('--interval', '-i', type=int, help='the chron job interval',default=0)
         parser_create.set_defaults(func=self.create)
-        parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job')
+        parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job. The configuration is expected as a list of entries "param": "value" (dictionary). The "param" labels will be used to inject the values in the command to execute. The dictionary is stored in JSON format.')
         parser_setConfig.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
         parser_setConfig.set_defaults(func=self.setConfig)
@@ -462,31 +462,32 @@ class O2OTool():
         parser_migrateConf.set_defaults(func=self.migrate)
         parser_listJobs = parser_subparsers.add_parser('listJobs', description='list the registered jobs')
         parser_listJobs.set_defaults(func=self.listJobs)
-        parser_listConf = parser_subparsers.add_parser('listConf', description='shows the configurations for the specified job')
+        parser_listConf = parser_subparsers.add_parser('listConfig', description='shows the configurations for the specified job')
         parser_listConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_listConf.add_argument('--dump', type=int, help='Dump the specified config.',default=0)
         parser_listConf.set_defaults(func=self.listConf)
-        parser_dumpConf = parser_subparsers.add_parser('dumpConf', description='dumps a specific job configuration version')
+        parser_dumpConf = parser_subparsers.add_parser('dumpConfig', description='dumps a specific job configuration version')
         parser_dumpConf.add_argument('versionIndex', type=str,help='the version to dump')
         parser_dumpConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_dumpConf.add_argument('--configFile', '-c', type=str, help='the JSON configuration file name - default:[jobname]_[version].json')
         parser_dumpConf.set_defaults(func=self.dumpConf)
-        parser_run = parser_subparsers.add_parser('run', description='wrapper for O2O jobs')
+        parser_run = parser_subparsers.add_parser('run', description='Wrapper for O2O jobs execution. Supports input parameter injection from the configuration file associated to the job. The formatting syntax supported are the python ones: "command -paramName {paramLabel}" or "command -paramName %(paramLabel)s". where [paramName] is the name of the parameter required for the command, and [paramLabel] is the key of the parameter entry in the config dictionary (recommended to be equal for clarity!"')
         parser_run.add_argument('executable', type=str,help='command to execute')
         parser_run.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_run.set_defaults(func=self.run)
 
         args = parser.parse_args()
 
-        self.setup(args)
         if args.verbose >=1:
+            self.setup(args)
             return args.func()
         else:
             try:
-                return args.func()
+                self.setup(args) 
+                sys.exit( args.func())
             except Exception as e:
-                print str(e)
-                return 1
+                logging.error(e)
+                sys.exit(1)
 
     def setup(self, args):
         self.args = args

@@ -1,4 +1,3 @@
-
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
@@ -15,6 +14,10 @@ from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
+from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
+# HCAL
+from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
+from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -33,6 +36,7 @@ hltassociation = cms.Sequence(
     +egammaSelectors
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
+    +hltMultiTrackValidationMuonTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -49,7 +53,8 @@ hltvalidation = cms.Sequence(
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
     +SMPValidationSequence
-    +hltbtagValidationSequence
+#too noisy for now    +hltbtagValidationSequence
+    +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
     )
 
 # some hlt collections have no direct fastsim equivalent
@@ -60,6 +65,7 @@ if fastSim.isChosen():
     hltassociation.remove(hltMultiTrackValidation)
     hltassociation.remove(hltMultiPVValidation)
     hltassociation.remove(hltMultiTrackValidationGsfTracks)
+    hltassociation.remove(hltMultiTrackValidationMuonTracks)
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal

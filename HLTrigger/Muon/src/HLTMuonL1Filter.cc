@@ -46,11 +46,11 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(i
   //set the quality bit mask
   qualityBitMask_ = 0;
   vector<int> selectQualities = iConfig.getParameter<vector<int> >("SelectQualities");
-  for(size_t i=0; i<selectQualities.size(); i++){
-    if(selectQualities[i] > 7){
+  for(int selectQualitie : selectQualities){
+    if(selectQualitie > 7){
       throw edm::Exception(edm::errors::Configuration) << "QualityBits must be smaller than 8!";
     }
-    qualityBitMask_ |= 1<<selectQualities[i];
+    qualityBitMask_ |= 1<<selectQualitie;
   }
 
   // dump parameters for debugging
@@ -74,9 +74,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(i
   }
 }
 
-HLTMuonL1Filter::~HLTMuonL1Filter()
-{
-}
+HLTMuonL1Filter::~HLTMuonL1Filter() = default;
 
 void
 HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -209,7 +207,7 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon
   int csctfMode = -999;
 
   // loop over the CSCTF tracks
-  for(L1CSCTrackCollection::const_iterator trk = csctfTracks.begin(); trk < csctfTracks.end(); trk++){
+  for(auto trk = csctfTracks.begin(); trk < csctfTracks.end(); trk++){
 
     int trEndcap = (trk->first.endcap()==2 ? trk->first.endcap()-3 : trk->first.endcap());
     int trSector = 6*(trk->first.endcap()-1)+trk->first.sector();

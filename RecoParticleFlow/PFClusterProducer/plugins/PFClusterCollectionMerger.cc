@@ -24,7 +24,7 @@ public:
     produces<reco::PFClusterCollection>();
   }
 
-  virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override {
     auto output = std::make_unique<reco::PFClusterCollection>();
     for( const auto& input : _inputs ) {
       edm::Handle<reco::PFClusterCollection> handle;

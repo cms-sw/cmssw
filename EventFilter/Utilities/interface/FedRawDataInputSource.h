@@ -28,8 +28,8 @@ class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct  InputChunk;
 
 namespace evf {
 class FastMonitoringService;
@@ -42,8 +42,8 @@ class DataPointDefinition;
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
-friend class InputFile;
-friend class InputChunk;
+friend struct InputFile;
+friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
@@ -56,8 +56,6 @@ protected:
   virtual void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-  virtual void preForkReleaseResources() override;
-  virtual void postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>) override;
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
@@ -165,7 +163,7 @@ private:
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
-  std::vector<int> *streamFileTrackerPtr_ = nullptr;
+  std::vector<int> streamFileTracker_;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 

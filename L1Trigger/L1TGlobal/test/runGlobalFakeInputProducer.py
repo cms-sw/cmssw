@@ -76,7 +76,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        "/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
+        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/444C2036-84FC-E611-A86D-02163E01433C.root",
+        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/E0A9F101-84FC-E611-9B29-02163E01A4AA.root",
+        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/563E9F08-84FC-E611-BEA2-02163E01A2F7.root",
+        ## "/store/mc/PhaseIFall16DR/QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v2/120002/C023E584-8700-E711-AE30-002590747E28.root",
+        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/CE22C0CB-9965-E611-9101-0025905C4262.root",
+        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/D6D4CAF2-AD65-E611-9642-001EC94BA169.root",
+        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/DACA98C0-9A65-E611-8626-0025905C54C6.root"
+        #"/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
         #"/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
@@ -95,7 +102,7 @@ process.output =cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
 	fileName = cms.untracked.string('testGlobalMCInputProducer_'+repr(job)+'.root')
 	)
-	
+
 process.options = cms.untracked.PSet()
 
 
@@ -106,7 +113,26 @@ process.TFileService.fileName = cms.string('l1t_histos.root')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+## process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2017_realistic_PerfectEcalIc_EGM_PFCalib', '')
+## auto:upgradePLS1
+## 81X_upgrade2017_realistic_v26
+## 80X_mcRun2_asymptotic_v14
+
+## ## needed until prescales go into GlobalTag ########################
+## from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+## process.l1conddb = cms.ESSource("PoolDBESSource",
+##        CondDBSetup,
+##        connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS'),
+##        toGet   = cms.VPSet(
+##             cms.PSet(
+##                  record = cms.string('L1TGlobalPrescalesVetosRcd'),
+##                  tag = cms.string("L1TGlobalPrescalesVetos_passThrough_mc")
+##             )
+##        )
+## )
+## process.es_prefer_l1conddb = cms.ESPrefer( "PoolDBESSource","l1conddb")
+## # done ##############################################################
 
 # Flag to switch between using MC particles and injecting individual particles
 useMCtoGT = True
@@ -116,7 +142,7 @@ process.dumpGT = cms.EDAnalyzer("l1t::GtInputDump",
 		muInputTag    = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
-		etsumInputTag = cms.InputTag("gtInput"), 
+		etsumInputTag = cms.InputTag("gtInput"),
 		minBx         = cms.int32(0),
 		maxBx         = cms.int32(0)
 		 )
@@ -129,7 +155,7 @@ process.mcL1GTinput = cms.EDProducer("l1t::GenToInputProducer",
 				     maxMuCand = cms.int32(8),
 				     maxJetCand = cms.int32(12),
 				     maxEGCand  = cms.int32(12),
-				     maxTauCand = cms.int32(8),				     				     
+				     maxTauCand = cms.int32(8),
                                      jetEtThreshold = cms.double(1),
                                      tauEtThreshold = cms.double(1),
                                      egEtThreshold  = cms.double(1),
@@ -146,7 +172,7 @@ process.mcL1GTinput.maxTauCand = cms.int32(8)
 # Fake the input
 process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 
-# Note: There is no error checking on these parameters...you are responsible. 
+# Note: There is no error checking on these parameters...you are responsible.
                        egParams = cms.untracked.PSet(
 		           egBx    = cms.untracked.vint32(-2, -1,  0,  0,  1,  2),
 			   egHwPt  = cms.untracked.vint32(10, 20, 30, 61, 40, 50),
@@ -154,7 +180,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 			   egHwEta = cms.untracked.vint32(12, 22, 32, 62, 42, 52),
 			   egIso   = cms.untracked.vint32( 0,  0,  1,  1,  0,  0)
 		       ),
-		       
+
                        muParams = cms.untracked.PSet(
 		           muBx    = cms.untracked.vint32(-2, -1,  0,  0,  1,  2),
 			   muHwPt  = cms.untracked.vint32(5, 20, 30, 61, 40, 50),
@@ -170,27 +196,40 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 			   tauHwEta = cms.untracked.vint32(),
 			   tauIso   = cms.untracked.vint32()
 		       ),
-		       
+
                        jetParams = cms.untracked.PSet(
 		           jetBx    = cms.untracked.vint32(  0,   0,   2,   1,   1,   2),
 			   jetHwPt  = cms.untracked.vint32(100, 200, 130, 170,  85, 145),
 			   jetHwPhi = cms.untracked.vint32(  2,  67,  10,   3,  78,  10),
 			   jetHwEta = cms.untracked.vint32(  110,  -99,  11,   0,  17,  11)
 		       ),
-		       
+
                        etsumParams = cms.untracked.PSet(
 		           etsumBx    = cms.untracked.vint32( -2, -1,   0,  1,  2),
-			   etsumHwPt  = cms.untracked.vint32(  2,  1, 204,  3,  4),  
+			   etsumHwPt  = cms.untracked.vint32(  2,  1, 204,  3,  4),
 			   etsumHwPhi = cms.untracked.vint32(  2,  1,  20,  3,  4)
-		       )		       		       		       		       
+		       )
                     )
 
 ## Load our L1 menu
 process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v2c.xml')
-#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_ettem_etmhf.xml')
+
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v2c.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('towercount.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v3_HIDilepton_v5.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v0.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v2.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v3_m2.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v8_m2.xml')
+## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_mass_trv.xml')
+
+## xmlMenu="L1Menu_test_mass_trv.xml"
+##xmlMenu="L1Menu_BPH2017_v0.xml"
+xmlMenu="L1Menu_test_mass_tbpt.xml"
+process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
+
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
@@ -231,13 +270,14 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
-		maxBxVec       = cms.int32(0),		
+		maxBxVec       = cms.int32(0),
 		dumpGTRecord   = cms.bool(True),
-		dumpGTObjectMap= cms.bool(True),
-                dumpTrigResults= cms.bool(True),
+		dumpGTObjectMap= cms.bool(False),
+                dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
 		tvVersion      = cms.int32(2),
+                ReadPrescalesFromFile = cms.bool(True),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
                 psColumn       = cms.int32(1),
 		unprescaleL1Algos = cms.bool(False),
@@ -293,12 +333,13 @@ process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		minBx          = cms.int32(0),
 		maxBx          = cms.int32(0),
 		minBxVec       = cms.int32(0),
-		maxBxVec       = cms.int32(0),		
+		maxBxVec       = cms.int32(0),
 		dumpGTRecord   = cms.bool(True),
 		dumpGTObjectMap= cms.bool(True),
                 dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(False),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+                ReadPrescalesFromFile = cms.bool(False),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
                 psColumn       = cms.int32(1)
 		 )
@@ -331,14 +372,14 @@ process.p1 = cms.Path(
     *process.simGtExtFakeProd
     *process.simGtStage2Digis
     *process.dumpGTRecord
-    
-## Sequence for packing and unpacking uGT data    
+
+## Sequence for packing and unpacking uGT data
 #    +process.gtStage2Raw
 #    +process.dumpRaw
 #    +process.newGtStage2Digis
 #    +process.newDumpGTRecord
 
-## Analysis/Dumping 
+## Analysis/Dumping
     *process.l1tGlobalAnalyzer
 #    *process.menuDumper
 #    *process.debug

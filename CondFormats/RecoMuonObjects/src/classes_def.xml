@@ -6,4 +6,6 @@
    <class name="DYTParamsObject" class_version="2"/>
    <class name="DYTParamObject"/>
    <class name="std::vector<DYTParamObject>"/>
+   <class name="MuonSystemAging" class_version="0"/>
+   <class name="std::map<unsigned int, std::pair<unsigned int, float> >"/>
 </lcgdict>   

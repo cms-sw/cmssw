@@ -58,7 +58,7 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
 }
 
 template<typename T>
-HLTAlphaTFilter<T>::~HLTAlphaTFilter(){}
+HLTAlphaTFilter<T>::~HLTAlphaTFilter()= default;
 
 template<typename T>
 void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

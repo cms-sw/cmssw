@@ -158,9 +158,12 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   virtual geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const override final;
   virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
 
+  virtual geom_set getNeighborsFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+
   virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
   virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
 
+  virtual bool validTriggerCell( const unsigned trigger_cell_det_id ) const override final;
 
  protected:
   geom_map cells_to_trigger_cells_;

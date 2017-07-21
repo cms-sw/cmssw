@@ -504,7 +504,8 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	  if (pixelEff_.FromConfig) {
 	    // setup the chip indices conversion
 	    if    (pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
-		   pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB){// barrel layers
+		   pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
+                   pixdet->subDetector()==GeomDetEnumerators::SubDetector::P2PXB){// barrel layers
 	      int layerIndex=tTopo->layer(detID);
 	      pixelEfficiency  = pixelEff_.thePixelEfficiency[layerIndex-1];
 	      columnEfficiency = pixelEff_.thePixelColEfficiency[layerIndex-1];

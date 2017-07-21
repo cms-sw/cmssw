@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Classes which are needed by the mps_validate.py file.
 ##
@@ -81,9 +79,10 @@ class MonitorData:
     """
     monitors = []
 
-    def __init__(self, name, ntracks):
+    def __init__(self, name, ntracks, weight = None):
         self.name = name
         self.ntracks = ntracks
+        self.weight = weight
         self.monitors.append(self)
 
 

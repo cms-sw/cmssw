@@ -37,7 +37,7 @@ HLTJetCollectionsFilter<jetType>::HLTJetCollectionsFilter(const edm::ParameterSe
 }
 
 template <typename jetType>
-HLTJetCollectionsFilter<jetType>::~HLTJetCollectionsFilter(){}
+HLTJetCollectionsFilter<jetType>::~HLTJetCollectionsFilter()= default;
 
 template <typename jetType>
 void

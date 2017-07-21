@@ -13,9 +13,11 @@
 #  mps_fire.py -h
 
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
 import sys
 import shutil
+import cPickle
 import subprocess
 import re
 import argparse
@@ -185,9 +187,21 @@ else:
                 if not os.path.isfile(backupCfgPath):
                     os.system('cp -p '+cfgPath+' '+backupCfgPath)
 
+                # retrieve weights configuration
+                with open(os.path.join(Path, ".weights.pkl"), "rb") as f:
+                    weight_conf = cPickle.load(f)
+
+                # blank weights
+                mps_tools.run_checked(["mps_weight.pl", "-c"])
+
+                # apply weights
+                for name,weight in weight_conf:
+                    print " ".join(["mps_weight.pl", "-N", name, weight])
+                    mps_tools.run_checked(["mps_weight.pl", "-N", name, weight])
+
                 # rewrite the mergeCfg using only 'OK' jobs (uses first mille-job as baseconfig)
                 inCfgPath = theJobData+'/'+lib.JOBDIR[0]+'/the.py'
-                command ='mps_merge.py -c '+inCfgPath+' '+Path+'/'+mergeCfg+' '+Path+' '+str(lib.nJobs)
+                command ='mps_merge.py -w -c '+inCfgPath+' '+Path+'/'+mergeCfg+' '+Path+' '+str(lib.nJobs)
                 os.system(command)
 
                 # rewrite theScript.sh using inly 'OK' jobs
@@ -238,6 +252,3 @@ else:
 
 
 lib.write_db()
-
-
-

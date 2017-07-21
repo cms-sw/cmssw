@@ -317,9 +317,9 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::computeDZ(edm
   if ( reco::deltaR(*r1, *r2) < minDR_ ) 
     return false;
   reco::Electron e1;
-  for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
-    if (eleIt->superCluster() == r1->superCluster())
-      e1 = *(eleIt);
+  for(auto const & eleIt : *electronHandle_) {
+    if (eleIt.superCluster() == r1->superCluster())
+      e1 = eleIt;
   }
   
   const reco::RecoChargedCandidate& candidate2(*r2);
@@ -346,9 +346,9 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::computeDZ(edm
   if ( reco::deltaR(*r1, *r2) < minDR_ ) 
     return false;
   reco::Electron e2;
-  for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
-    if (eleIt->superCluster() == r2->superCluster())
-      e2 = *(eleIt);
+  for(auto const & eleIt : *electronHandle_) {
+    if (eleIt.superCluster() == r2->superCluster())
+      e2 = eleIt;
   }
   
   const reco::RecoChargedCandidate& candidate1(*r1);	
@@ -375,11 +375,11 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::computeDZ(edm::E
   if ( reco::deltaR(*r1, *r2) < minDR_ ) 
     return false;
   reco::Electron e1, e2;
-  for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
-    if (eleIt->superCluster() == r2->superCluster())
-      e2 = *(eleIt);
-    if (eleIt->superCluster() == r1->superCluster())
-      e1 = *(eleIt);
+  for(auto const & eleIt : *electronHandle_) {
+    if (eleIt.superCluster() == r2->superCluster())
+      e2 = eleIt;
+    if (eleIt.superCluster() == r1->superCluster())
+      e1 = eleIt;
   }
   
   bool skipDZ = false;

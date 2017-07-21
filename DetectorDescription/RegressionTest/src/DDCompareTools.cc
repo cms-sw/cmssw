@@ -235,6 +235,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case ddpolyhedra_rz:
     case ddpolycone_rrz:
     case ddpolyhedra_rrz:
+    case ddextrudedpolygon:
     case ddtorus:
     case ddpseudotrap:
     case ddtrunctubs:

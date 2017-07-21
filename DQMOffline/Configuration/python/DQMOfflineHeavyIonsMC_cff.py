@@ -4,8 +4,8 @@ from DQMOffline.Configuration.DQMOfflineHeavyIons_cff import *
 
 #	remove TP Task and Raw Task from MC workflow for hcal
 #	identical to pp MC Workflow
-#hcalOfflineSourceSequence.remove(tpTask)
-#hcalOfflineSourceSequence.remove(rawTask)
+hcalOfflineSourceSequence.remove(tpTask)
+hcalOfflineSourceSequence.remove(rawTask)
 
 siStripFEDCheck.RawDataTag = 'rawDataCollector'
 siStripFEDMonitor.RawDataTag = 'rawDataCollector'

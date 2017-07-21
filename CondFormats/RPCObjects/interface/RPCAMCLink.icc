@@ -15,14 +15,14 @@ inline RPCAMCLink::operator ::uint32_t() const
     return id_;
 }
 
-inline bool RPCAMCLink::matches(RPCAMCLink const & _rhs) const
+inline bool RPCAMCLink::matches(RPCAMCLink const & rhs) const
 {
-    return ((id_ & _rhs.getMask()) == (getMask() & _rhs.id_));
+    return ((id_ & rhs.getMask()) == (getMask() & rhs.id_));
 }
 
-inline void RPCAMCLink::setId(::uint32_t const & _id)
+inline void RPCAMCLink::setId(::uint32_t const & id)
 {
-    id_ = _id;
+    id_ = id;
 }
 
 inline void RPCAMCLink::reset()
@@ -47,67 +47,67 @@ inline int RPCAMCLink::getAMCInput() const
 }
 
 // Field Setters
-inline RPCAMCLink & RPCAMCLink::setFED(int _fed)
+inline RPCAMCLink & RPCAMCLink::setFED(int fed)
 {
-    return bf_set(min_fed_, max_fed_, mask_fed_, pos_fed_, _fed);
+    return bf_set(min_fed_, max_fed_, mask_fed_, pos_fed_, fed);
 }
 
-inline RPCAMCLink & RPCAMCLink::setAMCNumber(int _amcnumber)
+inline RPCAMCLink & RPCAMCLink::setAMCNumber(int amcnumber)
 {
-    return bf_set(min_amcnumber_, max_amcnumber_, mask_amcnumber_, pos_amcnumber_, _amcnumber);
+    return bf_set(min_amcnumber_, max_amcnumber_, mask_amcnumber_, pos_amcnumber_, amcnumber);
 }
 
-inline RPCAMCLink & RPCAMCLink::setAMCInput(int _amcinput)
+inline RPCAMCLink & RPCAMCLink::setAMCInput(int amcinput)
 {
-    return bf_set(min_amcinput_, max_amcinput_, mask_amcinput_, pos_amcinput_, _amcinput);
+    return bf_set(min_amcinput_, max_amcinput_, mask_amcinput_, pos_amcinput_, amcinput);
 }
 
-inline bool RPCAMCLink::operator<(RPCAMCLink const & _rhs) const
+inline bool RPCAMCLink::operator<(RPCAMCLink const & rhs) const
 {
-    return (id_ < _rhs.id_);
+    return (id_ < rhs.id_);
 }
 
-inline bool RPCAMCLink::operator==(RPCAMCLink const & _rhs) const
+inline bool RPCAMCLink::operator==(RPCAMCLink const & rhs) const
 {
-    return (id_ == _rhs.id_);
+    return (id_ == rhs.id_);
 }
 
-inline bool RPCAMCLink::operator!=(RPCAMCLink const & _rhs) const
+inline bool RPCAMCLink::operator!=(RPCAMCLink const & rhs) const
 {
-    return (id_ != _rhs.id_);
+    return (id_ != rhs.id_);
 }
 
-inline bool RPCAMCLink::operator<(::uint32_t const & _rhs) const
+inline bool RPCAMCLink::operator<(::uint32_t const & rhs) const
 {
-    return (id_ < _rhs);
+    return (id_ < rhs);
 }
 
-inline bool RPCAMCLink::operator==(::uint32_t const & _rhs) const
+inline bool RPCAMCLink::operator==(::uint32_t const & rhs) const
 {
-    return (id_ == _rhs);
+    return (id_ == rhs);
 }
 
-inline bool RPCAMCLink::operator!=(::uint32_t const & _rhs) const
+inline bool RPCAMCLink::operator!=(::uint32_t const & rhs) const
 {
-    return (id_ != _rhs);
+    return (id_ != rhs);
 }
 
 inline RPCAMCLink & RPCAMCLink::operator++()
 {
-    int _value(0);
-    if ((_value = getAMCInput()) != wildcard_) {
-        if (_value < max_amcinput_)
-            return setAMCInput(_value + 1);
+    int value(0);
+    if ((value = getAMCInput()) != wildcard_) {
+        if (value < max_amcinput_)
+            return setAMCInput(value + 1);
         setAMCInput(min_amcinput_);
     }
-    if ((_value = getAMCNumber()) != wildcard_) {
-        if (_value < max_amcnumber_)
-            return setAMCNumber(_value + 1);
+    if ((value = getAMCNumber()) != wildcard_) {
+        if (value < max_amcnumber_)
+            return setAMCNumber(value + 1);
         setAMCNumber(min_amcnumber_);
     }
-    if ((_value = getFED()) != wildcard_) {
-        if (_value < max_fed_)
-            return setFED(_value + 1);
+    if ((value = getFED()) != wildcard_) {
+        if (value < max_fed_)
+            return setFED(value + 1);
         setFED(min_fed_);
     }
     return *this;
@@ -115,27 +115,27 @@ inline RPCAMCLink & RPCAMCLink::operator++()
 
 inline RPCAMCLink RPCAMCLink::operator++(int)
 {
-    RPCAMCLink _return(*this);
+    RPCAMCLink _value(*this);
     ++(*this);
-    return _return;
+    return _value;
 }
 
 inline RPCAMCLink & RPCAMCLink::operator--()
 {
-    int _value(0);
-    if ((_value = getAMCInput()) != wildcard_) {
-        if (_value > min_amcinput_)
-            return setAMCInput(_value - 1);
+    int value(0);
+    if ((value = getAMCInput()) != wildcard_) {
+        if (value > min_amcinput_)
+            return setAMCInput(value - 1);
         setAMCInput(max_amcinput_);
     }
-    if ((_value = getAMCNumber()) != wildcard_) {
-        if (_value > min_amcnumber_)
-            return setAMCNumber(_value - 1);
+    if ((value = getAMCNumber()) != wildcard_) {
+        if (value > min_amcnumber_)
+            return setAMCNumber(value - 1);
         setAMCNumber(max_amcnumber_);
     }
-    if ((_value = getFED()) != wildcard_) {
-        if (_value > min_fed_)
-            return setFED(_value - 1);
+    if ((value = getFED()) != wildcard_) {
+        if (value > min_fed_)
+            return setFED(value - 1);
         setFED(max_fed_);
     }
     return *this;
@@ -143,38 +143,38 @@ inline RPCAMCLink & RPCAMCLink::operator--()
 
 inline RPCAMCLink RPCAMCLink::operator--(int)
 {
-    RPCAMCLink _return(*this);
+    RPCAMCLink _value(*this);
     --(*this);
-    return _return;
+    return _value;
 }
 
-inline int RPCAMCLink::bf_get(int const _min, ::uint32_t const _mask, int const _pos) const
+inline int RPCAMCLink::bf_get(int const min, ::uint32_t const mask, int const pos) const
 {
-    ::uint32_t _value(id_ & _mask);
-    if (_value == 0)
+    ::uint32_t value(id_ & mask);
+    if (value == 0)
         return wildcard_;
-    return _min + (int)(_value >> _pos) - 1;
+    return min + (int)(value >> pos) - 1;
 }
 
-inline RPCAMCLink & RPCAMCLink::bf_set(int const _min, int const _max, ::uint32_t const _mask, int const _pos, int const _value)
+inline RPCAMCLink & RPCAMCLink::bf_set(int const min, int const max, ::uint32_t const mask, int const pos, int const value)
 {
-    if (_value >= _min && _value <= _max) {
-        id_ &= ~_mask;
-        id_ |= (((::uint32_t)(_value - _min + 1) << _pos) & _mask);
-    } else if (_value == wildcard_)
-        id_ &= ~_mask;
+    if (value >= min && value <= max) {
+        id_ &= ~mask;
+        id_ |= (((::uint32_t)(value - min + 1) << pos) & mask);
+    } else if (value == wildcard_)
+        id_ &= ~mask;
     else
         throw cms::Exception("OutOfRange")
-            << "Out-of-range input for RPCAMCLink::bf_set, position " << _pos << ": " << _value;
+            << "Out-of-range input for RPCAMCLink::bf_set, position " << pos << ": " << value;
     return *this;
 }
 
-inline std::ostream &  RPCAMCLink::bf_stream(std::ostream & _ostream, int const _min, ::uint32_t const _mask, int const _pos) const
+inline std::ostream &  RPCAMCLink::bf_stream(std::ostream & ostream, int const min, ::uint32_t const mask, int const pos) const
 {
-    ::uint32_t _value(id_ & _mask);
-    if (_value == 0)
-        return (_ostream << '*');
-    return (_ostream << (_min + (int)(_value >> _pos) - 1));
+    ::uint32_t value(id_ & mask);
+    if (value == 0)
+        return (ostream << '*');
+    return (ostream << (min + (int)(value >> pos) - 1));
 }
 
 #endif // CondFormats_RPCObjects_RPCAMCLink_icc

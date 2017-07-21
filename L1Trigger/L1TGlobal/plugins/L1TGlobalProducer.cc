@@ -1,5 +1,6 @@
 // L1TGlobalProducer.cc
 //author:   Brian Winer - Ohio State
+//          Vladimir Rekovic - extend for overlap removal
 
 #include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
 
@@ -325,6 +326,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                         gtParser.vecEnergySumTemplate(),
                         gtParser.vecExternalTemplate(),
                         gtParser.vecCorrelationTemplate(),
+                        gtParser.vecCorrelationWithOverlapRemovalTemplate(),
                         gtParser.corMuonTemplate(),
                         gtParser.corCaloTemplate(),
                         gtParser.corEnergySumTemplate()) ;

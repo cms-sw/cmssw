@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates histograms of the modules of one structure. and returns them as
 # a list of PlotData objects.
@@ -7,13 +5,13 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TImage, TPaveLabel, TPaveText, TTree, gROOT,
-                  gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import subModule
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification, setstatsize
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.subModule as mpsv_subModule
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
 
 
 def plot(MillePedeUser, alignables, config):
@@ -35,7 +33,7 @@ def plot(MillePedeUser, alignables, config):
         plots.append([])
         # loop over structures
         for structNumber, struct in enumerate(alignables.structures):
-            plots[modeNumber].append(PlotData(mode))
+            plots[modeNumber].append(mpsv_classes.PlotData(mode))
 
     # initialize histograms
     for modeNumber, mode in enumerate(["xyz", "rot", "dist"]):
@@ -45,10 +43,10 @@ def plot(MillePedeUser, alignables, config):
 
             for i in range(3):
                 if (mode == "xyz"):
-                    plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
+                    plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
                                       i], mode), "", numberOfBins, -1000, 1000))
                 else:
-                    plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
+                    plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
                                       i], mode), "", numberOfBins, -0.1, 0.1))
 
                 if (plot.unit!=""):
@@ -60,9 +58,9 @@ def plot(MillePedeUser, alignables, config):
                 plot.histoAxis.append(plot.histo[i].GetXaxis())
 
             # add labels
-            plot.title = TPaveLabel(
+            plot.title = ROOT.TPaveLabel(
                 0.1, 0.8, 0.9, 0.9, "Module: {0} {1}".format(struct.get_name(), mode))
-            plot.text = TPaveText(0.05, 0.1, 0.95, 0.75)
+            plot.text = ROOT.TPaveText(0.05, 0.1, 0.95, 0.75)
             plot.text.SetTextAlign(12)
             plot.text.SetTextSizePixels(20)
 
@@ -240,14 +238,14 @@ def plot(MillePedeUser, alignables, config):
     #
 
     # show the skewness in the legend
-    gStyle.SetOptStat("emrs")
+    ROOT.gStyle.SetOptStat("emrs")
 
     for modeNumber, mode in enumerate(["xyz", "rot", "dist"]):
         for structNumber, struct in enumerate(alignables.structures):
             # use a copy for shorter name
             plot = plots[modeNumber][structNumber]
 
-            canvas = TCanvas("canvasModules{0}_{1}".format(
+            canvas = ROOT.TCanvas("canvasModules{0}_{1}".format(
                 struct.get_name(), mode), "Parameter", 300, 0, 800, 600)
             canvas.Divide(2, 2)
 
@@ -256,7 +254,7 @@ def plot(MillePedeUser, alignables, config):
             plot.text.Draw()
 
             # draw identification
-            ident = identification(config)
+            ident = mpsv_style.identification(config)
             ident.Draw()
 
             # is there any plot?
@@ -267,7 +265,7 @@ def plot(MillePedeUser, alignables, config):
                 if(plot.histo[i].GetEntries() > 0):
                     plotNumber += 1
                     canvas.cd(i + 2)
-                    setstatsize(canvas, plot.histo[i], config)
+                    mpsv_style.setstatsize(canvas, plot.histo[i], config)
                     plot.histo[i].DrawCopy()
 
             if (plotNumber == 0):
@@ -280,26 +278,26 @@ def plot(MillePedeUser, alignables, config):
                 "{0}/plots/pdf/modules_{1}_{2}.pdf".format(config.outputPath, mode, struct.get_name()))
 
             # export as png
-            image = TImage.Create()
+            image = ROOT.TImage.Create()
             image.FromPad(canvas)
             image.WriteImage(
                 "{0}/plots/png/modules_{1}_{2}.png".format(config.outputPath, mode, struct.get_name()))
 
             # add to output list
-            output = OutputData(plottype="mod", name=struct.get_name(),
-                                parameter=mode, filename="modules_{0}_{1}".format(mode, struct.get_name()))
+            output = mpsv_classes.OutputData(plottype="mod", name=struct.get_name(),
+                                             parameter=mode, filename="modules_{0}_{1}".format(mode, struct.get_name()))
             config.outputList.append(output)
 
     ######################################################################
     # make plots with substructure
     #
 
-    if (config.showsubmodule == 1):
+    if config.showsubmodule:
         alignables.create_children_list()
         for modeNumber, mode in enumerate(["xyz", "rot", "dist"]):
             for structNumber, struct in enumerate(alignables.structures):
                 # use a copy for shorter name
                 plot = plots[modeNumber][structNumber]
 
-                subModule.plot(MillePedeUser, alignables,
-                               mode, struct, plot, config)
+                mpsv_subModule.plot(MillePedeUser, alignables,
+                                    mode, struct, plot, config)

@@ -114,7 +114,7 @@ void createWatchers(const edm::ParameterSet& iP,
 
 RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC) 
   :   m_generator(new Generator(p.getParameter<edm::ParameterSet>("Generator"))),
-      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))),
+      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_LHCtr(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(nullptr), 
@@ -288,8 +288,10 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
-  m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
-  m_prodCuts->update();
+  if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
+    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts->update();
+  }
 
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();

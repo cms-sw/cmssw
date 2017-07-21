@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -127,7 +128,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -167,7 +168,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -208,7 +209,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -310,8 +311,14 @@ for tracks in selectedTracks :
     TrackingDQMSourceTier0 += cms.ignore(locals()[label])
 # seeding monitoring
 for _eraName, _postfix, _era in _cfg.allEras():
+    mvaSel = _utils.getMVASelectors(_postfix)
     _seq = cms.Sequence()
     for step in locals()["selectedIterTrackingStep"+_postfix]:
+        if step in mvaSel:
+            locals()["TrackSeedMon"+step].doMVAPlots = True
+            locals()["TrackSeedMon"+step].TrackProducerForMVA = mvaSel[step][0]
+            locals()["TrackSeedMon"+step].MVAProducers = mvaSel[step][1]
+
         _seq += locals()["TrackSeedMon"+step]
     if _eraName == "":
         locals()["TrackSeedMonSequence"] = _seq

@@ -33,7 +33,7 @@ HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
 }
 
 // Destructor
-HLTPFJetIDProducer::~HLTPFJetIDProducer() {}
+HLTPFJetIDProducer::~HLTPFJetIDProducer() = default;
 
 // Fill descriptions
 void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -60,10 +60,10 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::Handle<reco::PFJetCollection> pfjets;
     iEvent.getByToken(m_thePFJetToken, pfjets);
 
-    for (reco::PFJetCollection::const_iterator j = pfjets->begin(); j != pfjets->end(); ++j) {
+    for (auto const & j : *pfjets) {
         bool pass = false;
-        double pt = j->pt();
-        double eta = j->eta();
+        double pt = j.pt();
+        double eta = j.eta();
 	double abseta = std::abs(eta);
 
         if (!(pt > 0.))  continue;  // skip jets with zero or negative pt
@@ -75,14 +75,14 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             pass = true;
 
         } else {
-            double chf  = j->chargedHadronEnergyFraction();
+            double chf  = j.chargedHadronEnergyFraction();
             //double nhf  = j->neutralHadronEnergyFraction() + j->HFHadronEnergyFraction();
-            double nhf  = j->neutralHadronEnergyFraction();
-            double cef  = j->chargedEmEnergyFraction();
-            double nef  = j->neutralEmEnergyFraction();
-	    double cftot= chf + cef + j->chargedMuEnergyFraction();
-            int    nch  = j->chargedMultiplicity();
-            int    ntot = j->numberOfDaughters();
+            double nhf  = j.neutralHadronEnergyFraction();
+            double cef  = j.chargedEmEnergyFraction();
+            double nef  = j.neutralEmEnergyFraction();
+	    double cftot= chf + cef + j.chargedMuEnergyFraction();
+            int    nch  = j.chargedMultiplicity();
+            int    ntot = j.numberOfDaughters();
 
             pass = true;
             pass = pass && (ntot > NTOT_);
@@ -94,7 +94,7 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    pass = pass && (cftot < maxCF_ || abseta >= 2.4);
         }
 
-        if (pass)  result->push_back(*j);
+        if (pass)  result->push_back(j);
     }
 
     // Put the products into the Event

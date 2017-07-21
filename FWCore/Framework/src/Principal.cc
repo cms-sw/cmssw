@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Principal.h"
 
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -30,6 +31,18 @@
 namespace edm {
 
   static ProcessHistory const s_emptyProcessHistory;
+
+  static
+  std::string appendCurrentProcessIfAlias(std::string const& processFromInputTag, std::string const& currentProcess) {
+    if (processFromInputTag == InputTag::kCurrentProcess) {
+      std::string returnValue = processFromInputTag;
+      returnValue += " (";
+      returnValue += currentProcess;
+      returnValue += ")";
+      return returnValue;
+    }
+    return processFromInputTag;
+  }
 
   static
   void
@@ -114,7 +127,8 @@ namespace edm {
     reader_(),
     branchType_(bt),
     historyAppender_(historyAppender),
-    cacheIdentifier_(nextIdentifier())
+    cacheIdentifier_(nextIdentifier()),
+    atEndTransition_(false)
   {
     productResolvers_.resize(reg->getNextIndexValue(bt));
     //Now that these have been set, we can create the list of Branches we need.
@@ -306,12 +320,25 @@ namespace edm {
   }
 
   void
+  Principal::setAtEndTransition(bool iAtEnd) {
+    atEndTransition_ = iAtEnd;
+  }
+  
+  void
   Principal::deleteProduct(BranchID const& id) const {
     auto phb = getExistingProduct(id);
     assert(nullptr != phb);
     phb->unsafe_deleteProduct();
   }
   
+  void
+  Principal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
+      iResolver->setupUnscheduled(iConfigure);
+    });
+  }
+  
+
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist,
@@ -319,6 +346,7 @@ namespace edm {
                            DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_=nextIdentifier();
+    atEndTransition_=false;
     if(reader) {
       reader_ = reader;
     }
@@ -355,9 +383,29 @@ namespace edm {
       std::vector<std::string> const& lookupProcessNames = productLookup_->lookupProcessNames();
       lookupProcessOrder_.assign(lookupProcessNames.size(), 0);
       unsigned int k = 0;
-      for (auto iter = processHistoryPtr_->rbegin(),
-                iEnd = processHistoryPtr_->rend();
-           iter != iEnd; ++iter) {
+
+      // We loop over processes in reverse order of the ProcessHistory.
+      // If any entries in the product lookup tables are associated with
+      // the process we add it to the vector of processes in the order
+      // the lookup should be performed. There is one exception though,
+      // We start with the current process even if it is not in the ProcessHistory.
+      // The current process might be needed but not be in the process
+      // history if all the products produced in the current process are
+      // transient.
+      auto nameIter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processConfiguration_->processName());
+      if (nameIter != lookupProcessNames.end()) {
+        lookupProcessOrder_.at(k) = nameIter - lookupProcessNames.begin();
+        ++k;
+      }
+
+      // We just looked for the current process so skip it if
+      // it is in the ProcessHistory.
+      auto iter = processHistoryPtr_->rbegin();
+      if (iter->processName() == processConfiguration_->processName()) {
+        ++iter;
+      }
+
+      for (auto iEnd = processHistoryPtr_->rend(); iter != iEnd; ++iter) {
         auto nameIter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), iter->processName());
         if (nameIter == lookupProcessNames.end()) {
           continue;
@@ -456,7 +504,8 @@ namespace edm {
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
     if(result == 0) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
-        return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
+        return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(),
+                                     appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       }));
     }
     return BasicHandle(result->wrapper(), &(result->provenance()));
@@ -632,6 +681,8 @@ namespace edm {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
         processName = "\0";
+      } else if (inputTag.process() == InputTag::kCurrentProcess) {
+        processName = processConfiguration_->processName().c_str();
       }
 
       index = productLookup().index(kindOfType,
@@ -641,14 +692,16 @@ namespace edm {
                                     processName);
 
       if(index == ProductResolverIndexAmbiguous) {
-        throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
+        throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(),
+                                appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
         return 0;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
     if(unlikely( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
-      failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),inputTag.process());
+      failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),
+                               appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
     }
 
     
@@ -656,7 +709,8 @@ namespace edm {
 
     auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
     if(resolution.isAmbiguous()) {
-      throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
+      throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(),
+                              appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
     }
     return resolution.data();
   }

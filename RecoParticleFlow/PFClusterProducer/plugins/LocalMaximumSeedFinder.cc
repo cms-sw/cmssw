@@ -60,7 +60,7 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 
   for( unsigned i = 0; i < nhits; ++i ) {
     if( !mask[i] ) continue; // cannot seed masked objects
-    const auto & maybeseed = (*input)[i];
+    auto const & maybeseed = (*input)[i];
     energies[i]=maybeseed.energy();
     int seedlayer = (int)maybeseed.layer();
     if( seedlayer == PFLayer::HCAL_BARREL2 &&
@@ -80,7 +80,7 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     ordered_hits.pop();  
     if( !usable[idx] ) continue;
     //get the neighbours of this seed
-    const auto & maybeseed = (*input)[idx];
+    auto const & maybeseed = (*input)[idx];
     reco::PFRecHit::Neighbours  myNeighbours;
     switch( _nNeighbours ) {
     case -1:

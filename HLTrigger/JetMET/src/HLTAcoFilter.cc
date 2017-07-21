@@ -41,7 +41,7 @@ HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
    m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
-HLTAcoFilter::~HLTAcoFilter(){}
+HLTAcoFilter::~HLTAcoFilter()= default;
 
 void
 HLTAcoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -99,7 +99,7 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
   CaloJetRef ref1,ref2;
 
   if (JetNum>0) {
-    CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+    auto recocalojet = recocalojets->begin();
 	
     etjet1 = recocalojet->et();
     phijet1 = recocalojet->phi();

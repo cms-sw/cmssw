@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -40,7 +40,7 @@
 // class decleration
 //
 
-class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
+class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
    public:
       explicit EventWithHistoryProducerFromL1ABC(const edm::ParameterSet&);
       ~EventWithHistoryProducerFromL1ABC();

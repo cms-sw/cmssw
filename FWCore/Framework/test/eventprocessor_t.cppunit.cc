@@ -430,12 +430,12 @@ testeventprocessor::activityRegistryTest() {
   CPPUNIT_ASSERT(listener.postEndJob_ == 1);
   CPPUNIT_ASSERT(listener.preEventProcessing_ == 5);
   CPPUNIT_ASSERT(listener.postEventProcessing_ == 5);
-  CPPUNIT_ASSERT(listener.preModule_ == 10);
-  CPPUNIT_ASSERT(listener.postModule_ == 10);
+  CPPUNIT_ASSERT(listener.preModule_ == 15);
+  CPPUNIT_ASSERT(listener.postModule_ == 15);
 
   typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
   ModuleDescs allModules = proc.getAllModuleDescriptions();
-  CPPUNIT_ASSERT(2 == allModules.size()); // TestMod & TriggerResults
+  CPPUNIT_ASSERT(3 == allModules.size()); // TestMod & TriggerResults
   //std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
   for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
        i != e ;

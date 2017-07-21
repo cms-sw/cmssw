@@ -31,11 +31,13 @@ private:
     static G4VSolid * unionsolid(const DDSolid &);
     static G4VSolid * subtraction(const DDSolid &);
     static G4VSolid * intersection(const DDSolid &);
+    static G4VSolid * multiunion(const DDSolid &);    
     static G4VSolid * shapeless(const DDSolid &);
     static G4VSolid * polycone_rz(const DDSolid &);
     static G4VSolid * polycone_rrz(const DDSolid &);
     static G4VSolid * polyhedra_rz(const DDSolid &);
     static G4VSolid * polyhedra_rrz(const DDSolid &);
+    static G4VSolid * extrudedpolygon(const DDSolid &);
     static G4VSolid * pseudotrap(const DDSolid & s);
     static G4VSolid * torus(const DDSolid &);
     static G4VSolid * trunctubs(const DDSolid &);
@@ -51,7 +53,6 @@ private:
 
     friend class testTruncTubs;
     friend class testPseudoTrap;
-
 };
 
 #endif

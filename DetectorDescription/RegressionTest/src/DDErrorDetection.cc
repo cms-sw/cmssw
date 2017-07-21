@@ -4,9 +4,9 @@ namespace std { } using namespace std;
 
 #include <fstream>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 //***** Explicit template instantiation of Singleton
-#include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"

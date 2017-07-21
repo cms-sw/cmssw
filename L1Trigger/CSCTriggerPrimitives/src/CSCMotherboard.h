@@ -50,7 +50,7 @@ class CSCMotherboard
   CSCMotherboard();
 
   /** Default destructor. */
-  ~CSCMotherboard();
+  virtual ~CSCMotherboard() = default;
 
   /** Test version of run function. */
   void run(const std::vector<int> w_time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],

@@ -48,7 +48,7 @@ namespace cond {
   // Basic element of the IOV sequence.
   struct Iov_t {
     Iov_t(): since(time::MAX_VAL),till(time::MIN_VAL),payloadId(""){}
-    virtual ~Iov_t(){}
+    virtual ~Iov_t() = default;
     virtual void clear();
     bool isValid() const;
     bool isValidFor( Time_t target ) const;
@@ -58,6 +58,7 @@ namespace cond {
   };
 
   struct Tag_t {
+    virtual ~Tag_t() = default;
     virtual void clear();
     std::string tag;
     std::string payloadType;

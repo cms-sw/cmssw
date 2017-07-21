@@ -9,7 +9,9 @@
 // Original Author: Marcel Schneider
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class SiPixelPhase1RecHits : public SiPixelPhase1Base {
   enum {
@@ -27,7 +29,11 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
-  edm::EDGetTokenT<SiPixelRecHitCollection> srcToken_;
+    edm::EDGetTokenT<reco::TrackCollection> srcToken_;
+    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+    bool onlyValid_;
+    bool applyVertexCut_;
 };
 
 #endif

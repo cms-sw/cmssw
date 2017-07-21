@@ -5,7 +5,7 @@ from  Configuration.PyReleaseValidation.relval_steps import *
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
 
-# each workflow defines a name and a list of steps to be done. 
+# each workflow defines a name and a list of steps to be done.
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
@@ -15,6 +15,12 @@ workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVD1','ALC
 workflows[1002]=['RRD',['RunMinBias2011A','RECODR1','COPYPASTE']]#,'RECODFROMRAWRECO']]
 workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
 workflows[1004] = [ '',['RunHI2011','TIER0EXPHI','ALCAEXPHI','ALCAHARVD1HI','ALCAHARVD2HI','ALCAHARVD3HI','ALCAHARVD5HI']]
+
+workflows[1010] =  ['',['TestEnableEcalHCAL2016H','TIER0EXPTE', 'ALCAEXPTE', 'ALCAHARVDTE']]
+workflows[1020] =  ['',['AlCaLumiPixels2016H','TIER0PROMPTLP']]
+workflows[1030] =  ['',['RunHLTPhy2017B','TIER0EXPHPBS','ALCASPLITHPBS','ALCAHARVDHPBS']]
+
+
 
 ## MC production test
 #workflows[1100] = [ '',[]]

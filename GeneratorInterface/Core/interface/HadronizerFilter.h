@@ -161,11 +161,11 @@ namespace edm
 
     produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenLumiInfoHeader, edm::InLumi>();
-    produces<GenLumiInfoProduct, edm::InLumi>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
+    produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
     if(filter_)
-      produces<GenFilterInfo, edm::InLumi>(); 
+      produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>(); 
   }
 
   template <class HAD, class DEC>
@@ -257,8 +257,8 @@ namespace edm
       ++naccept;
       
       //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
-      finalEvent.reset(event.release());
-      finalGenEventInfo.reset(genEventInfo.release());
+      finalEvent = std::move(event);
+      finalGenEventInfo = std::move(genEventInfo);
       
     }
     

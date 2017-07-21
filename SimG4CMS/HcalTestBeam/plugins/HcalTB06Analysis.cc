@@ -14,6 +14,7 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
+#include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -201,7 +202,7 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     for (unsigned int i=0; i<BeamHits->size(); ++i) {
       unsigned int id = ((*BeamHits)[i].id());
       int det, lay, ix, iy;
-      HcalTB06BeamSD::unpackIndex(id,det,lay,ix,iy);
+      HcalTestBeamNumbering::unpackIndex(id,det,lay,ix,iy);
       if ((det == 1) && ((*BeamHits)[i].time() < m_timeLimit)) {
 	if (lay > 0 && lay <= 4) {
 	  eTrig[lay-1] += (*BeamHits)[i].energy();

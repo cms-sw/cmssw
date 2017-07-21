@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrack = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -49,7 +50,7 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
 )
 
 
-postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackComp = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' extractedGlobalMuons/effic probeTrks/effic",
@@ -63,7 +64,7 @@ postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackCompFS = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' extractedGlobalMuons/effic probeTrks/effic",
@@ -78,7 +79,7 @@ postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
 )
 
 
-postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
+postProcessorRecoMuon = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
     #efficiencies and fractions
     efficiency = cms.vstring("EffP   'Efficiency vs p'     P   SimP  ",
@@ -111,29 +112,29 @@ postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 )
 
 # for each type monitored
-postProcessorRecoMuon_Glb = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Glb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
+postProcessorRecoMuonGlb = postProcessorRecoMuon.clone()
+postProcessorRecoMuonGlb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
 
-postProcessorRecoMuon_Trk = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Trk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
+postProcessorRecoMuonTrk = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTrk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
 
-postProcessorRecoMuon_Sta = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Sta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
+postProcessorRecoMuonSta = postProcessorRecoMuon.clone()
+postProcessorRecoMuonSta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
 
-postProcessorRecoMuon_Tgt = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Tgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
+postProcessorRecoMuonTgt = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
 
-postProcessorRecoMuon_GlbPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_GlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
+postProcessorRecoMuonGlbPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonGlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
 
-postProcessorRecoMuon_TrkPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_TrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
+postProcessorRecoMuonTrkPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
 
-postProcessorRecoMuon_StaPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
+postProcessorRecoMuonStaPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonStaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
 
 #not sure about this one, which types are monitored
-postProcessorRecoMuonComp = cms.EDAnalyzer(
+postProcessorRecoMuonComp = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -150,7 +151,7 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorRecoMuonCompPF = cms.EDAnalyzer(
+postProcessorRecoMuonCompPF = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -164,4 +165,4 @@ postProcessorRecoMuonCompPF = cms.EDAnalyzer(
 )
         
 
-recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_Tgt*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
+recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuonGlb*postProcessorRecoMuonTrk*postProcessorRecoMuonSta*postProcessorRecoMuonTgt*postProcessorRecoMuonGlbPF*postProcessorRecoMuonTrkPF*postProcessorRecoMuonStaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)

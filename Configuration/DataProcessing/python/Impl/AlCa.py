@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect,addMonitoring
 import FWCore.ParameterSet.Config as cms
 
 class AlCa(Scenario):
@@ -39,7 +39,7 @@ class AlCa(Scenario):
         options.step = step
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
-        
+
         process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
@@ -58,26 +58,44 @@ class AlCa(Scenario):
         AlcaReco processing & skims for proton collisions
 
         """
+        step = ""
+        pclWflws = [x for x in skims if "PromptCalibProd" in x]
+        skims = filter(lambda x: x not in pclWflws, skims)
+
+        if len(pclWflws):
+            step += 'ALCA:'+('+'.join(pclWflws))
+
+        if len(skims) > 0:
+            if step != "":
+                step += ","
+            step += "ALCAOUTPUT:"+('+'.join(skims))
+
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = "ALCAOUTPUT:"+('+'.join(skims))
+        options.step = step
         options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
         if 'globalTagConnect' in args and args['globalTagConnect'] != '':
             options.conditions += ','+args['globalTagConnect']
 
         options.triggerResultsProcess = 'RECO'
-        
+
         process = cms.Process('ALCA', self.eras)
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process=process)
 
         # Input source
         process.source = cms.Source(
            "PoolSource",
-           fileNames = cms.untracked.vstring()
+           fileNames=cms.untracked.vstring()
         )
 
-        cb.prepare() 
+        cb.prepare()
+
+        # FIXME: dirty hack..any way around this?
+        # Tier0 needs the dataset used for ALCAHARVEST step to be a different data-tier
+        for wfl in pclWflws:
+            methodToCall = getattr(process, 'ALCARECOStream'+wfl)
+            methodToCall.dataset.dataTier = cms.untracked.string('ALCAPROMPT')
 
         return process
 
@@ -94,7 +112,7 @@ class AlCa(Scenario):
         options.step = "HARVESTING:alcaHarvesting"
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
- 
+
         process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
         configBuilder = ConfigBuilder(options, process = process)
@@ -112,5 +130,5 @@ class AlCa(Scenario):
         #    process.DQMStore.referenceFileName = \
         #                        cms.untracked.string(args['referenceFile'])
         harvestingMode(process,datasetName,args)
-        
+
         return process

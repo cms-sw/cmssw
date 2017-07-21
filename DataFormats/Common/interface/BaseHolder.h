@@ -9,9 +9,9 @@
 
 namespace edm {
   class ProductID;
-  class RefHolderBase;
 
   namespace reftobase {
+    class RefHolderBase;
     template<typename T> class BaseVectorHolder;
     class RefVectorHolderBase;
 

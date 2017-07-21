@@ -26,9 +26,6 @@ public:
   virtual ~HcalTB06BeamSD();
   virtual double getEnergyDeposit(G4Step* );
   virtual uint32_t setDetUnitId(G4Step* step);
-  static uint32_t  packIndex(int det, int lay, int x, int y);
-  static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
-			       int& x, int& y);
 
 private:    
 

@@ -13,7 +13,7 @@
  */
 
 /* Base Class Headers */
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 /* Collaborating Class Declarations */
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -35,12 +35,12 @@ class DTLayer : public GeomDetUnit {
             const DTSuperLayer* sl=0) ;
 
 /* Destructor */ 
-    virtual ~DTLayer() ;
+    ~DTLayer() override ;
 
 /* Operations */ 
-    const Topology& topology() const;
+    const Topology& topology() const override;
 
-    const GeomDetType& type() const;
+    const GeomDetType& type() const override;
 
     const DTTopology& specificTopology() const;
 
@@ -59,7 +59,7 @@ class DTLayer : public GeomDetUnit {
     bool operator==(const DTLayer& l) const;
 
     /// A Layer has no components
-    virtual std::vector< const GeomDet*> components() const;
+    std::vector< const GeomDet*> components() const override;
 
   private:
     DTLayerId   theId;

@@ -70,11 +70,14 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
   
+  std::string topFolderName_;
+
   std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;
   std::string eventype_;
   std::string sign_;
+  bool hep17_;
   std::string mc_;
   bool        famos_;
 
@@ -141,6 +144,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> emean_vs_ieta_HE;
   std::vector<MonitorElement*> emean_vs_ieta_HEM0;
   std::vector<MonitorElement*> emean_vs_ieta_HEM3;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M0;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M3;
   std::vector<MonitorElement*> emean_vs_ieta_HF;
   MonitorElement              *emean_vs_ieta_HO;
 
@@ -149,10 +155,10 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> occupancy_map_HF;
   MonitorElement              *occupancy_map_HO;
 
-  std::vector<MonitorElement*> occupancy_vs_ieta_HB;
-  std::vector<MonitorElement*> occupancy_vs_ieta_HE;
-  std::vector<MonitorElement*> occupancy_vs_ieta_HF;
-  MonitorElement              *occupancy_vs_ieta_HO;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HBP, nrechits_vs_iphi_HBM;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HEP, nrechits_vs_iphi_HEM;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HFP, nrechits_vs_iphi_HFM;
+  MonitorElement              *nrechits_vs_iphi_HOP, *nrechits_vs_iphi_HOM;
 
   // for single monoenergetic particles - cone collection profile vs ieta.
   MonitorElement* meEnConeEtaProfile;
@@ -180,6 +186,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meRecHitsEnergyHE;
   MonitorElement* meRecHitsEnergyHEM0;
   MonitorElement* meRecHitsEnergyHEM3;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M0;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M3;
   MonitorElement* meRecHitsEnergyM2vM0HE;
   MonitorElement* meRecHitsEnergyM3vM0HE;
   MonitorElement* meRecHitsEnergyM3vM2HE;

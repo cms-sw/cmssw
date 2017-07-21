@@ -115,7 +115,7 @@ namespace cscdqm {
   class MonitorObjectProvider {
 
     public:
-    
+      virtual ~MonitorObjectProvider() noexcept(false) {}
       virtual bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const = 0;
       virtual MonitorObject *bookMonitorObject (const HistoBookRequest& p_req) = 0; 
   };

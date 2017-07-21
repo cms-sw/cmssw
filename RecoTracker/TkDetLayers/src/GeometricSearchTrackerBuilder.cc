@@ -12,7 +12,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/Common/interface/Trie.h"
@@ -60,6 +60,14 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
     }
 
     if( (*it)->type() == GeometricDet::PixelPhase1Barrel) {
+      vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
+      for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
+	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
+	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+      }
+    }
+
+    if( (*it)->type() == GeometricDet::PixelPhase2Barrel) {
       vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
 	  it2!=thePxlBarGeometricDetLayers.end(); it2++){

@@ -64,9 +64,7 @@ HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) 
    produces<TriggerFilterObjectWithRefs>();
 }
 
-HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter()
-{
-}
+HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter() = default;
 
 //
 // member functions
@@ -125,8 +123,8 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
    vector<l1extra::L1MuonParticleRef> vl1cands;
    previousLevelCands->getObjects(TriggerL1Mu,vl1cands);
 
-   std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > ::iterator L1toL3s_it = L1toL3s.begin();
-   std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > ::iterator L1toL3s_end = L1toL3s.end();
+   auto L1toL3s_it = L1toL3s.begin();
+   auto L1toL3s_end = L1toL3s.end();
    for (; L1toL3s_it!=L1toL3s_end; ++L1toL3s_it){
 
      if (!triggeredAtL1(L1toL3s_it->first,vl1cands)) continue;
@@ -172,8 +170,8 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
 
    vector<RecoChargedCandidateRef> vref;
    filterproduct.getObjects(TriggerMuon,vref);
-   for (unsigned int i=0; i<vref.size(); i++ ) {
-     TrackRef tk = vref[i]->track();
+   for (auto & i : vref) {
+     TrackRef tk = i->track();
      LogDebug("HLTMuonL1toL3TkPreFilter")
        << " Track passing filter: pt= " << tk->pt() << ", eta: "
        << tk->eta();
@@ -193,9 +191,9 @@ HLTMuonL1toL3TkPreFilter::triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,
   bool ok=false;
 
   // compare to previously triggered L1
-  for (unsigned int i=0; i<vcands.size(); i++) {
+  for (auto & vcand : vcands) {
     //    l1extra::L1MuonParticleRef candref =  L1MuonParticleRef(vcands[i]);
-    if (vcands[i] == l1mu){
+    if (vcand == l1mu){
       ok=true;
       LogDebug("HLTMuonL1toL3TkPreFilter") << "The L1 mu triggered";
       break;}

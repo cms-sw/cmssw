@@ -5,21 +5,6 @@
 <use   name="FWCore/PythonParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
-<library   file="CaloTowerGeometryAnalyzer.cc" name="testCaloTowerGeometryESProducer">
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalGeometryAnalyzer.cc" name="testHcalGeometryESProducer">
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalGeometryTester.cc" name="testHcalGeometryHardcodeLoader">
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalGeometryDump.cc" name="testHcalGeometryDumpESProducer">
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalDetIdTester.cc" name="testHcalGeometryDetIdTester">
+<library   file="*.cc" name="testHcalTowerAlgoTester">
  <flags   EDM_PLUGIN="1"/>
 </library>

@@ -42,12 +42,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -67,7 +62,7 @@
 class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo( const edm::ParameterSet& );
-  ~ModuleInfo();
+  ~ModuleInfo() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -120,6 +115,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
+  edm::ESHandle<TrackerTopology> tTopo_handle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
+  const TrackerTopology* tTopo = tTopo_handle.product();
   //
   
   // counters
@@ -187,16 +185,17 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "************************ List of modules with positions ************************" << std::endl;
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
   std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
-  for(unsigned int i=0; i<modules.size();i++){
-    unsigned int rawid = modules[i]->geographicalID().rawId();
+  for(auto & module : modules){
+    unsigned int rawid = module->geographicalID().rawId();
+    DetId id(rawid);
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
-      if (gdei->geographicalId() == modules[i]->geographicalId()) break;
+      if (gdei->geographicalId() == module->geographicalId()) break;
     }
 
     if (gdei == gdeEnd) throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"; //THIS never happens!
 
-    GeometricDet::NavRange detPos = modules[i]->navpos();
+    GeometricDet::NavRange detPos = module->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
@@ -204,11 +203,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       Output << "\t nav type = " << detPos;
     } 
     Output << std::endl;
-    int subdetid = modules[i]->geographicalID().subdetId();
+    int subdetid = module->geographicalID().subdetId();
     double volume = gdei->volume() / 1000; // mm3->cm3
     double density = gdei->density() / density_units;
     double weight = gdei->weight() / density_units / 1000.; // [kg], hence the factor 1000;
-    double thickness = modules[i]->bounds()->thickness() * 10000; // cm-->um
+    double thickness = module->bounds()->thickness() * 10000; // cm-->um
     double activeSurface = volume / ( thickness / 10000 ); // cm2 (thickness in um)
 
     volume_total+=volume;
@@ -217,19 +216,18 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     switch (subdetid) {
       
       // PXB
-    case 1:
+    case PixelSubdetector::PixelBarrel:
       {
 	pxbN++;
 	volume_pxb+=volume;
 	weight_pxb+=weight;
 	activeSurface_pxb+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "PixelBarrelActiveFull") pxb_fullN++;
 	if(name == "PixelBarrelActiveHalf") pxb_halfN++;
-	PXBDetId module(rawid);
-	unsigned int theLayer  = module.layer();
-	unsigned int theLadder = module.ladder();
-	unsigned int theModule = module.module();
+	unsigned int theLayer  = tTopo->pxbLayer(id);
+	unsigned int theLadder = tTopo->pxbLadder(id);
+	unsigned int theModule = tTopo->pxbModule(id);
 	
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t";
@@ -242,25 +240,24 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // PXF
-    case 2:
+    case PixelSubdetector::PixelEndcap:
       {
 	pxfN++;
 	volume_pxf+=volume;
 	weight_pxf+=weight;
 	activeSurface_pxf+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "PixelForwardActive1x2") pxf_1x2N++;
 	if(name == "PixelForwardActive1x5") pxf_1x5N++;
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
 	if(name == "PixelForwardActive2x4") pxf_2x4N++;
 	if(name == "PixelForwardActive2x5") pxf_2x5N++;
-	PXFDetId module(rawid);
-	unsigned int thePanel  = module.panel();
-	unsigned int theDisk   = module.disk();
-	unsigned int theBlade  = module.blade();
-	unsigned int theModule = module.module();
+	unsigned int thePanel  = tTopo->pxfPanel(id);
+	unsigned int theDisk   = tTopo->pxfDisk(id);
+	unsigned int theBlade  = tTopo->pxfBlade(id);
+	unsigned int theModule = tTopo->pxfModule(id);
 	std::string side;
-	side = (module.side() == 1 ) ? "-" : "+";
+	side = (tTopo->pxfSide(id) == 1 ) ? "-" : "+";
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
@@ -272,20 +269,19 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // TIB
-    case 3:
+    case StripSubdetector::TIB:
       {
 	tibN++;
 	volume_tib+=volume;
 	weight_tib+=weight;
 	activeSurface_tib+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TIBActiveRphi0") tib_L12_rphiN++;
 	if(name == "TIBActiveSter0") tib_L12_sterN++;
 	if(name == "TIBActiveRphi2") tib_L34_rphiN++;
-	TIBDetId module(rawid);
-	unsigned int              theLayer  = module.layer();
-	std::vector<unsigned int> theString = module.string();
-	unsigned int              theModule = module.module();
+	unsigned int              theLayer  = tTopo->tibLayer(id);
+	std::vector<unsigned int> theString = tTopo->tibStringInfo(id);
+	unsigned int              theModule = tTopo->tibModule(id);
 	std::string side;
 	std::string part;
 	side = (theString[0] == 1 ) ? "-" : "+";
@@ -298,81 +294,77 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
       // TID
-    case 4:
+    case StripSubdetector::TID:
       {
 	tidN++;      
 	volume_tid+=volume;
 	weight_tid+=weight;
 	activeSurface_tid+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TIDModule0RphiActive")   tid_r1_rphiN++;
 	if(name == "TIDModule0StereoActive") tid_r1_sterN++;
 	if(name == "TIDModule1RphiActive")   tid_r2_rphiN++;
 	if(name == "TIDModule1StereoActive") tid_r2_sterN++;
 	if(name == "TIDModule2RphiActive")   tid_r3_rphiN++;
-	TIDDetId module(rawid);
-	unsigned int         theDisk   = module.wheel();
-	unsigned int         theRing   = module.ring();
-	std::vector<unsigned int> theModule = module.module();
+	unsigned int         theDisk   = tTopo->tidWheel(id);
+	unsigned int         theRing   = tTopo->tidRing(id);
 	std::string side;
 	std::string part;
-	side = (module.side() == 1 ) ? "-" : "+";
-	part = (theModule[0] == 1 ) ? "back" : "front";
+	side = (tTopo->tidSide(id) == 1 ) ? "-" : "+";
+	part = (tTopo->tidOrder(id) == 1 ) ? "back" : "front";
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
-	       << "\t" << " module " << theModule[1] << "\t" << name << "\t";
+	       << "\t" << " module " << tTopo->tidModule(id) << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
       // TOB
-    case 5:
+    case StripSubdetector::TOB:
       {
 	tobN++;
 	volume_tob+=volume;
 	weight_tob+=weight;
 	activeSurface_tob+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TOBActiveRphi0") tob_L12_rphiN++;
 	if(name == "TOBActiveSter0") tob_L12_sterN++;
 	if(name == "TOBActiveRphi2") tob_L34_rphiN++;
 	if(name == "TOBActiveRphi4") tob_L56_rphiN++;
-	TOBDetId module(rawid);
-	unsigned int              theLayer  = module.layer();
-	std::vector<unsigned int> theRod    = module.rod();
-	unsigned int              theModule = module.module();
+	unsigned int              theLayer  = tTopo->tobLayer(id);
+	unsigned int              theModule = tTopo->tobModule(id);
 	std::string side;
 	std::string part;
-	side = (theRod[0] == 1 ) ? "-" : "+";
+	side = (tTopo->tobSide(id) == 1 ) ? "-" : "+";
 	
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
-	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" ;
+	       << "\t" << "rod " << tTopo->tobRod(id) << " module " << theModule << "\t" << name << "\t" ;
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
       // TEC
-    case 6:
+    case StripSubdetector::TEC:
       {
 	tecN++;      
 	volume_tec+=volume;
 	weight_tec+=weight;
 	activeSurface_tec+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TECModule0RphiActive")   tec_r1_rphiN++;
 	if(name == "TECModule0StereoActive") tec_r1_sterN++;
 	if(name == "TECModule1RphiActive")   tec_r2_rphiN++;
@@ -383,29 +375,27 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TECModule4StereoActive") tec_r5_sterN++;
 	if(name == "TECModule5RphiActive")   tec_r6_rphiN++;
 	if(name == "TECModule6RphiActive")   tec_r7_rphiN++;
-	TECDetId module(rawid);
-	unsigned int              theWheel  = module.wheel();
-	unsigned int              theModule = module.module();
-	std::vector<unsigned int> thePetal  = module.petal();
-	unsigned int              theRing   = module.ring();
+	unsigned int              theWheel  = tTopo->tecWheel(id);
+	unsigned int              theModule = tTopo->tecModule(id);
+	unsigned int              theRing   = tTopo->tecRing(id);
 	std::string side;
 	std::string petal;
-	side  = (module.side() == 1 ) ? "-" : "+";
-	petal = (thePetal[0] == 1 ) ? "back" : "front";
-	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
+	side  = (tTopo->tecSide(id) == 1 ) ? "-" : "+";
+	petal = (tTopo->tecOrder(id) == 1 ) ? "back" : "front";
+	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << tTopo->tecPetalNumber(id) << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
-	int out_side  = (module.side() == 1 ) ? -1 : 1;
-	unsigned int out_disk = module.wheel();
-	unsigned int out_sector = thePetal[1];
-	int out_petal = (thePetal[0] == 1 ) ? 1 : -1;
+	int out_side  = (tTopo->tecSide(id) == 1 ) ? -1 : 1;
+	unsigned int out_disk = tTopo->tecWheel(id);
+	unsigned int out_sector = tTopo->tecPetalNumber(id);
+	int out_petal = (tTopo->tecOrder(id) == 1 ) ? 1 : -1;
 	// swap sector numbers for TEC-
 	if (out_side == -1) {
 	  // fine for back petals, substract 1 for front petals
@@ -413,7 +403,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	    out_sector = (out_sector+6) % 8 + 1;
 	  }
 	}
-	unsigned int out_ring = module.ring();
+	unsigned int out_ring = tTopo->tecRing(id);
 	int out_sensor = 0;
 	if(name == "TECModule0RphiActive")   out_sensor = -1;
 	if(name == "TECModule0StereoActive") out_sensor =  1;
@@ -429,7 +419,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if (out_ring == 1 || out_ring == 2 || out_ring == 5) {
 	  // rings with stereo modules
 	  // create number odd by default
-	  out_module = 2*(module.module()-1)+1;
+	  out_module = 2*(tTopo->tecModule(id)-1)+1;
 	  if (out_sensor == 1) {
 	    // in even rings, stereo modules are the even ones
 	    if (out_ring == 2)
@@ -441,14 +431,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	      out_module += 1;
 	}
 	else {
-	  out_module = module.module();
+	  out_module = tTopo->tecModule(id);
 	}
-	double out_x = modules[i]->translation().X();
-	double out_y = modules[i]->translation().Y();
-	double out_z = modules[i]->translation().Z();
-	double out_r = sqrt(modules[i]->translation().X()*modules[i]->translation().X() + 
-			    modules[i]->translation().Y()*modules[i]->translation().Y());
-	double out_phi_rad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
+	double out_x = module->translation().X();
+	double out_y = module->translation().Y();
+	double out_z = module->translation().Z();
+	double out_r = sqrt(module->translation().X()*module->translation().X() + 
+			    module->translation().Y()*module->translation().Y());
+	double out_phi_rad = atan2(module->translation().Y(),module->translation().X());
 	TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal
 		  << " " << out_ring << " " << out_module << " " << out_sensor
 		  << " " << out_x << " " << out_y << " " << out_z << " " << out_r << " " << out_phi_rad << std::endl;
@@ -460,7 +450,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
     
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(modules[i]->geographicalID());
+    const GeomDet* geomdet = pDD->idToDet(module->geographicalID());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1,0,0);
     LocalVector yLocal(0,1,0);
@@ -479,14 +469,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << "thickness "      << std::fixed << std::setprecision(0) << thickness << " um \t"
 	   << " active area "   << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation().X()
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Y()
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Z()
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << module->translation().X()
+	   << ","        << std::fixed << std::setprecision(4) << module->translation().Y()
+	   << ","        << std::fixed << std::setprecision(4) << module->translation().Z()
 	   << ")" << std::endl;
     //
-    double polarRadius = std::sqrt(modules[i]->translation().X()*modules[i]->translation().X()+modules[i]->translation().Y()*modules[i]->translation().Y());
-    double phiDeg = atan2(modules[i]->translation().Y(),modules[i]->translation().X()) * 360. / 6.283185307;
-    double phiRad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
+    double polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
+    double phiDeg = atan2(module->translation().Y(),module->translation().X()) * 360. / 6.283185307;
+    double phiRad = atan2(module->translation().Y(),module->translation().X());
     //
     Output << "\t\t polar radius " 
 	   << std::fixed << std::setprecision(4) << polarRadius
@@ -497,7 +487,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << std::endl;
     // active area versors (rotation matrix)
     DD3Vector x,y,z;
-    modules[i]->rotation().GetComponents(x,y,z);
+    module->rotation().GetComponents(x,y,z);
     Output << "\tActive Area Rotation Matrix" << std::endl;
     Output << "\t z = n = (" << std::fixed << std::setprecision(4) << z.X()
 	   << ","            << std::fixed << std::setprecision(4) << z.Y()
@@ -530,9 +520,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       NumberingOutput << " " << detPos;
     }
     NumberingOutput << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().Y() << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().Z() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().X() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().Y() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().Z() << " "
 		    << std::endl;
     //
   }

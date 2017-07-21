@@ -46,7 +46,7 @@ MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset
 					 pset.getParameter<int>("statusGP"),
 					 pset.getParameter<std::vector<int> >("pdgIdGP"));
 
-  if(UseAssociators) {
+  if(useAssociators_) {
     for(auto const& src: associators) {
       if( src.label() == kTrackAssociatorByChi2) {
         label_gen_associator = consumes<reco::TrackToGenParticleAssociator>(src);
@@ -109,7 +109,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   }
 
   const reco::TrackToGenParticleAssociator* trackGenAssociator =nullptr;
-  if(UseAssociators) {
+  if(useAssociators_) {
     if(label_gen_associator.isUninitialized()) {
       return;
     }
@@ -152,7 +152,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     reco::RecoToGenCollection recGenColl;
     reco::GenToRecoCollection genRecColl;
     //associate tracks
-    if(UseAssociators){
+    if(useAssociators_){
       edm::LogVerbatim("TrackValidator") << "Analyzing " 
                                          << label[www].process()<<":"
                                          << label[www].label()<<":"
@@ -402,7 +402,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
     } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
     
-    histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
+    histoProducerAlgo_->fill_trackBased_histos(w,at,rT,rT,st);
     
     edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
                                        << "Total Associated (genToReco): " << ats << "\n"

@@ -156,7 +156,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "generatorSmeared"
-        HepMCProductLabel = cms.string('generatorSmeared'),
+        HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
         MinPCut = cms.double(0.04), ## the cut is in GeV 
@@ -278,6 +278,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TestBeam        = cms.untracked.bool(False),
         NullNumbering   = cms.untracked.bool(False),
         StoreRadLength  = cms.untracked.bool(False),
+        ScaleRadLength  = cms.untracked.double(1.0),
         AgeingWithSlopeLY  = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
@@ -299,12 +300,14 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BetaThreshold             = cms.double(0.7),
         TimeSliceUnit             = cms.double(1),
         IgnoreTrackID             = cms.bool(False),
+        HBDarkening               = cms.bool(False),
         HEDarkening               = cms.bool(False),
         HFDarkening               = cms.bool(False),
         UseHF                     = cms.untracked.bool(True),
         ForTBH2                   = cms.untracked.bool(False),
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
+        TestNS                    = cms.untracked.bool(False),
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(
@@ -406,6 +409,12 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
+        StoreAllG4Hits   = cms.bool(False),
+        RejectMouseBite  = cms.bool(False),
+        RotatedWafer     = cms.bool(False),
+        WaferAngles      = cms.untracked.vdouble(90.0,30.0),
+        WaferSize        = cms.untracked.double(123.7),
+        MouseBite        = cms.untracked.double(2.5),
         CheckID          = cms.untracked.bool(True),
     ),
     TotemSD = cms.PSet(

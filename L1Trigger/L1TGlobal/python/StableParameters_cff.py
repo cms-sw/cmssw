@@ -5,7 +5,8 @@
 import sys
 import FWCore.ParameterSet.Config as cms
 
-print >> sys.stderr, 'L1Trigger/L1TGlobal/python/StableParameters_cff.py is deprecated, please use GlobalParameters_cff.py instead.'
+#seems this is not the case
+#print >> sys.stderr, 'L1Trigger/L1TGlobal/python/StableParameters_cff.py is deprecated, please use GlobalParameters_cff.py instead.'
 
 StableParametersRcdSource = cms.ESSource("EmptyESSource",
     recordName = cms.string('L1TGlobalParametersRcd'),

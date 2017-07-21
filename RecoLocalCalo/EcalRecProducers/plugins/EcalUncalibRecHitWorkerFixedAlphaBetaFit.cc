@@ -32,7 +32,7 @@
 #include <fstream>
 
 EcalUncalibRecHitWorkerFixedAlphaBetaFit::EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass( ps,c )
+  EcalUncalibRecHitWorkerRunOneDigiBase( ps,c )
 {
         alphaEB_= ps.getParameter<double>("alphaEB");
         betaEB_= ps.getParameter<double>("betaEB");

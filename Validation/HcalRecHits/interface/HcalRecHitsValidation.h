@@ -68,6 +68,8 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
 
+  std::string topFolderName_;
+
   std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;

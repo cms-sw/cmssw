@@ -953,22 +953,6 @@ namespace edm {
       // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
-      /// signal is emitted before we fork the processes
-      typedef signalslot::Signal<void()> PreForkReleaseResources;
-      PreForkReleaseResources preForkReleaseResourcesSignal_;
-      void watchPreForkReleaseResources(PreForkReleaseResources::slot_type const& iSlot) {
-         preForkReleaseResourcesSignal_.connect_front(iSlot);
-      }
-      AR_WATCH_USING_METHOD_0(watchPreForkReleaseResources)
-      
-      /// signal is emitted after we forked the processes
-      typedef signalslot::Signal<void(unsigned int, unsigned int)> PostForkReacquireResources;
-      PostForkReacquireResources postForkReacquireResourcesSignal_;
-      void watchPostForkReacquireResources(PostForkReacquireResources::slot_type const& iSlot) {
-         postForkReacquireResourcesSignal_.connect_front(iSlot);
-      }
-      AR_WATCH_USING_METHOD_2(watchPostForkReacquireResources)
-      
       // ---------- member functions ---------------------------
       
       ///forwards our signals to slots connected to iOther

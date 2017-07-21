@@ -45,8 +45,6 @@ const double defaultYaxisTitleSize = 0.05;
 const double defaultYaxisMaximumScaleFactor_linear = 1.6;
 const double defaultYaxisMaximumScaleFactor_log = 5.e+2;
 
-double TauDQMHistPlotter::cfgEntryAxisY::yAxisNorm_ = 0.;
-
 // defaults for cfgEntryLegend
 const double defaultLegendPosX = 0.50;
 const double defaultLegendPosY = 0.55;
@@ -257,7 +255,7 @@ void TauDQMHistPlotter::cfgEntryAxisY::print() const
   std::cout << " yAxisTitleSize = " << yAxisTitleSize_ << std::endl;
 }
 
-void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
+void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram, double norm) const
 {
   if ( histogram ) {
     bool yLogScale = ( yScale_ == yScale_log ) ? true : false;
@@ -273,7 +271,7 @@ void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
 //    normalize y-axis range to maximum of any histogram included in drawJob
 //    times defaultYaxisMaximumScaleFactor (apply scale factor in order to make space for legend)
       double defaultYaxisMaximumScaleFactor = ( yLogScale ) ? defaultYaxisMaximumScaleFactor_log : defaultYaxisMaximumScaleFactor_linear;
-      histogram->SetMaximum(defaultYaxisMaximumScaleFactor*yAxisNorm_);
+      histogram->SetMaximum(defaultYaxisMaximumScaleFactor*norm);
     }
     histogram->GetYaxis()->SetTitle(yAxisTitle_.data());
     histogram->GetYaxis()->SetTitleOffset(yAxisTitleOffset_);
@@ -1038,7 +1036,6 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       yAxisNorm = TMath::Max(yAxisNorm, it->first->GetMaximum());
     }
     //std::cout << " yAxisNorm = " << yAxisNorm << std::endl;
-    cfgEntryAxisY::setNorm(yAxisNorm);
 
 //--- prepare histograms for drawing
     const cfgEntryAxisX* xAxisConfig = findCfgDef<cfgEntryAxisX>(drawJob->xAxis_, xAxes_, "xAxis", drawJobName);
@@ -1079,7 +1076,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       if ( drawJob->title_ != "" ) histogram->SetTitle(drawJob->title_.data());
 
       xAxisConfig->applyTo(histogram);
-      yAxisConfig->applyTo(histogram);
+      yAxisConfig->applyTo(histogram,yAxisNorm);
 
       bool yLogScale = ( yAxisConfig->yScale_ == yScale_log ) ? true : false;
       //std::cout << " yLogScale = " << yLogScale << std::endl; 

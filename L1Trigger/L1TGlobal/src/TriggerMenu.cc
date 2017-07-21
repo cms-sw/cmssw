@@ -8,6 +8,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - extend for overlap removal
  *
  * $Date$
  * $Revision$
@@ -45,6 +46,7 @@ TriggerMenu::TriggerMenu(
         const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTemplateVal,
         const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplateVal,
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplateVal,
+        const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationWithOverlapRemovalTemplateVal,
         const std::vector<std::vector<MuonTemplate> >& corMuonTemplateVal,
         const std::vector<std::vector<CaloTemplate> >& corCaloTemplateVal,
         const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTemplateVal
@@ -59,6 +61,7 @@ TriggerMenu::TriggerMenu(
             m_vecEnergySumTemplate(vecEnergySumTemplateVal),
             m_vecExternalTemplate(vecExternalTemplateVal),
             m_vecCorrelationTemplate(vecCorrelationTemplateVal),
+            m_vecCorrelationWithOverlapRemovalTemplate(vecCorrelationWithOverlapRemovalTemplateVal),
             m_corMuonTemplate(corMuonTemplateVal),
             m_corCaloTemplate(corCaloTemplateVal),
             m_corEnergySumTemplate(corEnergySumTemplateVal)
@@ -87,6 +90,7 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs)
     m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
     m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
+    m_vecCorrelationWithOverlapRemovalTemplate = rhs.m_vecCorrelationWithOverlapRemovalTemplate;
     m_corMuonTemplate = rhs.m_corMuonTemplate;
     m_corCaloTemplate = rhs.m_corCaloTemplate;
     m_corEnergySumTemplate = rhs.m_corEnergySumTemplate;
@@ -138,6 +142,7 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
         m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
         m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
+        m_vecCorrelationWithOverlapRemovalTemplate = rhs.m_vecCorrelationWithOverlapRemovalTemplate;
         m_corMuonTemplate = rhs.m_corMuonTemplate;
         m_corCaloTemplate = rhs.m_corCaloTemplate;
         m_corEnergySumTemplate = rhs.m_corEnergySumTemplate;
@@ -299,6 +304,29 @@ void TriggerMenu::buildGtConditionMap() {
         }
     }
 
+    //
+    size_t vecCorrelationWORSize = m_vecCorrelationWithOverlapRemovalTemplate.size();
+    if (condMapSize < vecCorrelationWORSize) {
+        m_conditionMap.resize(vecCorrelationWORSize);
+        condMapSize = m_conditionMap.size();
+    }
+
+    chipNr = -1;
+    for (std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >::iterator
+            itCondOnChip = m_vecCorrelationWithOverlapRemovalTemplate.begin();
+            itCondOnChip != m_vecCorrelationWithOverlapRemovalTemplate.end();
+            itCondOnChip++) {
+
+        chipNr++;
+
+        for (std::vector<CorrelationWithOverlapRemovalTemplate>::iterator
+                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+                itCond++) {
+
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
+        }
+    }
+
 
 
 
@@ -363,6 +391,12 @@ void TriggerMenu::setVecCorrelationTemplate(
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTempl) {
 
     m_vecCorrelationTemplate = vecCorrelationTempl;
+}
+
+void TriggerMenu::setVecCorrelationWithOverlapRemovalTemplate(
+        const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationTempl) {
+
+    m_vecCorrelationWithOverlapRemovalTemplate = vecCorrelationTempl;
 }
 
 // set the vectors containing the conditions for correlation templates

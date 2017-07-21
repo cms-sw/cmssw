@@ -84,7 +84,6 @@ for an in _config.analysis:
 	vstr = s.__getattribute__("hltPathsToCheck")
 	map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
-print triggers
 #------------------------------------------------------------
 
 # Generating the list with all the efficiencies
@@ -162,10 +161,6 @@ hltExoticaPostDisplacedDimuon = hltExoticaPostProcessor.clone()
 hltExoticaPostDisplacedDimuon.subDirs = ['HLT/Exotica/DisplacedDimuon']
 hltExoticaPostDisplacedDimuon.efficiencyProfile = efficiency_strings
 
-hltExoticaPostDisplacedL2Dimuon = hltExoticaPostProcessor.clone()
-hltExoticaPostDisplacedL2Dimuon.subDirs = ['HLT/Exotica/DisplacedL2Dimuon']
-hltExoticaPostDisplacedL2Dimuon.efficiencyProfile = efficiency_strings
-
 hltExoticaPostMonojet = hltExoticaPostProcessor.clone()
 hltExoticaPostMonojet.subDirs = ['HLT/Exotica/Monojet']
 hltExoticaPostMonojet.efficiencyProfile = efficiency_strings
@@ -181,10 +176,6 @@ hltExoticaPostPureMET.efficiencyProfile = efficiency_strings
 hltExoticaPostMETplusTrack = hltExoticaPostProcessor.clone()
 hltExoticaPostMETplusTrack.subDirs = ['HLT/Exotica/METplusTrack']
 hltExoticaPostMETplusTrack.efficiencyProfile = efficiency_strings
-
-hltExoticaDisplacedDimuonDijet = hltExoticaPostProcessor.clone()
-hltExoticaDisplacedDimuonDijet.subDirs = ['HLT/Exotica/DisplacedDimuonDijet']
-hltExoticaDisplacedDimuonDijet.efficiencyProfile = efficiency_strings
 
 hltExoticaEleMu = hltExoticaPostProcessor.clone()
 hltExoticaEleMu.subDirs = ['HLT/Exotica/EleMu']
@@ -233,13 +224,11 @@ hltExoticaPostProcessors = cms.Sequence(
     # Displaced paths
     hltExoticaPostDisplacedMuEG +
     hltExoticaPostDisplacedDimuon +
-    hltExoticaPostDisplacedL2Dimuon +
     # Others
     hltExoticaPostMonojet +
     hltExoticaPostMonojetBackup +
     hltExoticaPostPureMET +
     hltExoticaPostMETplusTrack +
-    hltExoticaDisplacedDimuonDijet +
     hltExoticaEleMu +
     hltExoticaPhotonMET +
     hltExoticaHTDisplacedJets +

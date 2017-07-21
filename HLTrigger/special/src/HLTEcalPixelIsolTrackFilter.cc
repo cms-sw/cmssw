@@ -16,7 +16,7 @@ HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet
   candTok = consumes<reco::IsolatedPixelTrackCandidateCollection>(candTag_);
 }
 
-HLTEcalPixelIsolTrackFilter::~HLTEcalPixelIsolTrackFilter(){}
+HLTEcalPixelIsolTrackFilter::~HLTEcalPixelIsolTrackFilter()= default;
 
 void HLTEcalPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

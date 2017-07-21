@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_PhotonHT = cms.EDAnalyzer("SUSY_HLT_PhotonHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
@@ -14,7 +15,7 @@ SUSY_HLT_PhotonHT = cms.EDAnalyzer("SUSY_HLT_PhotonHT",
   htThrOffline = cms.untracked.double( 600 ),
 )
 
-SUSY_HLT_PhotonHT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToPhotonHToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon90_CaloIdL_PFHT500_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

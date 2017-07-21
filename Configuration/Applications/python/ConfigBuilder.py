@@ -5,6 +5,11 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
+
+# The following import is provided for backward compatibility reasons.
+# The function used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+
 import sys
 import re
 import collections
@@ -169,10 +174,6 @@ def filesFromDASQuery(query,option="",s=None):
 	if len(sec)!=0:
 		print "found parent files:",sec
 	return (prim,sec)
-
-def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
-    from PhysicsTools.PatAlgos.tools.helpers import massReplaceInputTag
-    massReplaceInputTag(aProcess, oldT, newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
@@ -416,11 +417,14 @@ class ConfigBuilder(object):
 			   if len(line)<2:
 				   print 'Issue to load LHE files, please check and try again.'
 				   sys.exit(-1)
+			   #Additional check to protect empty fileNames in process.source
+			   if len(self.process.source.fileNames)==0:
+				   print 'Issue with empty filename, but can pass line check'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
 			   filesFromOption(self)
-
 		   
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
@@ -438,7 +442,10 @@ class ConfigBuilder(object):
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
-
+	       
+	       if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+		       self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
+		       
 	##drop LHEXMLStringProduct on input to save memory if appropriate
 	if 'GEN' in self.stepMap.keys():
         	if self._options.inputCommands:
@@ -939,6 +946,8 @@ class ConfigBuilder(object):
 
 	if "DIGIPREMIX" in self.stepMap.keys():
             self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+            self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawPreMixing_cff"
+            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
@@ -1398,7 +1407,7 @@ class ConfigBuilder(object):
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if sequence == 'pdigi_valid':
+        if sequence == 'pdigi_valid' or sequence == 'pdigi_hi':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and not self.process.source.type_()=='EmptySource':
@@ -1660,7 +1669,9 @@ class ConfigBuilder(object):
 	if self._options.hltProcess:
 	     if len(self._options.customise_commands) > 1:
 		     self._options.customise_commands = self._options.customise_commands + " \n"
-	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
+             self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
 #            self.renameHLTprocessInSequence(sequence)
 
         return

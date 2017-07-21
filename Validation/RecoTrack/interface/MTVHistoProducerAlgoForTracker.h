@@ -22,21 +22,29 @@
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
+#include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+namespace edm { class Event; class EventSetup; }
+
 class MTVHistoProducerAlgoForTracker {
  public:
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector && iC) :
-    MTVHistoProducerAlgoForTracker(pset, doSeedPlots, iC) {}
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector & iC) ;
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector && iC) :
+    MTVHistoProducerAlgoForTracker(pset, beamSpotTag, doSeedPlots, iC) {}
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC) ;
   ~MTVHistoProducerAlgoForTracker();
 
+  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector& iC);
+  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector&& iC) { return makeRecoTrackSelectorFromTPSelectorParameters(pset, beamSpotTag, iC); }
+
+  void init(const edm::Event& event, const edm::EventSetup& setup);
+
   void bookSimHistos(DQMStore::IBooker& ibook);
-  void bookSimTrackHistos(DQMStore::IBooker& ibook);
+  void bookSimTrackHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook);
-  void bookRecoHistos(DQMStore::IBooker& ibook);
+  void bookRecoHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
   void bookRecodEdxHistos(DQMStore::IBooker& ibook);
   void bookSeedHistos(DQMStore::IBooker& ibook);
@@ -58,6 +66,7 @@ class MTVHistoProducerAlgoForTracker {
 					   double dR,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
+                                           const math::XYZPoint& bsPosition,
                                            const std::vector<float>& mvas,
                                            unsigned int selectsLoose, unsigned int selectsHP);
 
@@ -68,6 +77,9 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices);
 
+  void fill_duplicate_histos(int count,
+                             const reco::Track& track1,
+                             const reco::Track& track2);
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
@@ -94,7 +106,8 @@ class MTVHistoProducerAlgoForTracker {
   void fill_trackBased_histos(int count,
 		 	      int assTracks,
 			      int numRecoTracks,
-			      int numSimTracks);
+			      int numRecoTracksSelected,
+			      int numSimTracksSelected);
 
 
   void fill_ResoAndPull_recoTrack_histos(int count,
@@ -131,6 +144,10 @@ class MTVHistoProducerAlgoForTracker {
   std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXR;
   std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXZ;
 
+  std::unique_ptr<RecoTrackSelectorBase> trackSelectorVsEta;
+  std::unique_ptr<RecoTrackSelectorBase> trackSelectorVsPhi;
+  std::unique_ptr<RecoTrackSelectorBase> trackSelectorVsPt;
+
   std::unique_ptr<GenParticleCustomSelector> generalGpSelector;
   std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsEta;
   std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsPhi;
@@ -147,7 +164,7 @@ class MTVHistoProducerAlgoForTracker {
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
   double dxyDzZoom;
-  double minVertpos, maxVertpos;  int nintVertpos;
+  double minVertpos, maxVertpos;  int nintVertpos; bool useLogVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
   double minChi2, maxChi2; int nintChi2;
@@ -179,13 +196,13 @@ class MTVHistoProducerAlgoForTracker {
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
-  std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
-  std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
+  std::vector<MonitorElement*> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
+  std::vector<MonitorElement*> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
   std::vector<MonitorElement*> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;
   std::vector<MonitorElement*> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer, h_pileuplayer;
   std::vector<MonitorElement*> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
   std::vector<MonitorElement*> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer, h_misid3Dlayer, h_pileup3Dlayer;
-  std::vector<MonitorElement*> h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_pileuppu;
+  std::vector<MonitorElement*> h_recopu, h_reco2pu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_pileuppu;
   std::vector<MonitorElement*> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_pileupphi;
   std::vector<MonitorElement*> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_pileupdxy;
   std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
@@ -219,6 +236,9 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<std::vector<MonitorElement*> > h_reco_mva_hp, h_assoc2_mva_hp;
   std::vector<std::vector<MonitorElement*> > h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
 
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp, h_fake_mva_vs_pt_hp;
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp, h_fake_mva_vs_eta_hp;
+
   // dE/dx
   // in the future these might become an array
   std::vector<std::vector<MonitorElement*>> h_dedx_estim;
@@ -229,15 +249,16 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> nrec_vs_nsim;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
+  std::vector<MonitorElement*> h_duplicates_oriAlgo_vs_oriAlgo;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta,
-    nPXBhits_vs_eta, nPXFhits_vs_eta,
+    nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
     nTIBhits_vs_eta,nTIDhits_vs_eta,
-    nTOBhits_vs_eta,nTEChits_vs_eta,
+    nTOBhits_vs_eta,nTEChits_vs_eta, nSTRIPhits_vs_eta,
     nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
     nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
 

@@ -245,6 +245,7 @@
    <rParent name="pixbarladderfull1:PixelBarrelModuleFullMinus"/>
    <rChild name="pixbarladderfull1:PixelBarrelSensorFull"/>
   <Translation x="[zero]" y="[SensorY]" z="[zero]" />
+  <rRotation name="pixbarladder:Y180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="pixbarladderfull1:PixelBarrelModuleFullMinus"/>
@@ -270,6 +271,7 @@
    <rParent name="pixbarladderfull1:PixelBarrelModuleFullPlus"/>
    <rChild name="pixbarladderfull1:PixelBarrelSensorFull"/>
   <Translation x="[zero]" y="[SensorY]" z="[zero]" />
+  <rRotation name="pixbarladder:Y180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="pixbarladderfull1:PixelBarrelModuleFullPlus"/>

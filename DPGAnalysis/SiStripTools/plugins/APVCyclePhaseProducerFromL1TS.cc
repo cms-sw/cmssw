@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -55,7 +55,7 @@
 // class decleration
 //
 
-class APVCyclePhaseProducerFromL1TS : public edm::EDProducer {
+class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<> {
    public:
       explicit APVCyclePhaseProducerFromL1TS(const edm::ParameterSet&);
       ~APVCyclePhaseProducerFromL1TS();

@@ -55,6 +55,7 @@ namespace edm {
   class MakeProvenanceReader {
   public:
     virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const = 0;
+    virtual ~MakeProvenanceReader() = default;
   };
 
   class RootFile {

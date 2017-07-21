@@ -33,7 +33,7 @@ GEMTrivialModel::simulateSignal(const GEMEtaPartition* roll,
      // please keep hit time always 0 for this model
     std::pair<int, int> digi(topology.channel(entry) + 1, 0);
     detectorHitMap_.insert(DetectorHitMap::value_type(digi, &hit));
-    strips_.insert(digi);
+    strips_.emplace(digi);
   }
 }
 

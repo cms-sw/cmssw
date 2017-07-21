@@ -22,9 +22,7 @@ HLTPixelActivityHFSumEnergyFilter::HLTPixelActivityHFSumEnergyFilter(const edm::
   LogDebug("") << "Using the " << inputTag_ << " input collection";
 }
 
-HLTPixelActivityHFSumEnergyFilter::~HLTPixelActivityHFSumEnergyFilter()
-{
-}
+HLTPixelActivityHFSumEnergyFilter::~HLTPixelActivityHFSumEnergyFilter() = default;
 
 void
 HLTPixelActivityHFSumEnergyFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -58,9 +56,9 @@ bool HLTPixelActivityHFSumEnergyFilter::filter(edm::Event& iEvent, const edm::Ev
 
   double sumE = 0.;
 
-  for (HFRecHitCollection::const_iterator it=HFRecHitsH->begin(); it!=HFRecHitsH->end(); it++) {
-    if (it->energy()>eCut_HF_) {
-      sumE += it->energy();
+  for (auto const & it : *HFRecHitsH) {
+    if (it.energy()>eCut_HF_) {
+      sumE += it.energy();
     }
   }
 

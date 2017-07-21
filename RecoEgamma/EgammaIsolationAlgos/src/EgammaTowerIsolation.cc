@@ -9,7 +9,7 @@
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include<cassert>
-
+#include <memory>
 
 #ifdef ETISTATDEBUG
 // #include<iostream>
@@ -25,7 +25,7 @@ namespace etiStat {
 
 namespace {
   struct TLS {   
-    EgammaTowerIsolationNew<1> * newAlgo=nullptr;;
+    std::unique_ptr<EgammaTowerIsolationNew<1>> newAlgo=nullptr;;
     const CaloTowerCollection* oldTowers=nullptr;;
     uint32_t id15=0;
   };
@@ -44,9 +44,8 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
   assert(0==etLow);
 
   // extremely poor in quality  (test of performance)
-  if (tls.newAlgo==nullptr ||  towers!=tls.oldTowers || towers->size()!=tls.newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=tls.id15)) {
-    delete tls.newAlgo;
-    tls.newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
+  if (tls.newAlgo.get()==nullptr ||  towers!=tls.oldTowers || towers->size()!=tls.newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=tls.id15)) {
+    tls.newAlgo = std::make_unique<EgammaTowerIsolationNew<1>>(&extRadius,&intRadius,*towers);
     tls.oldTowers=towers;
     tls.id15 = towers->size()>15 ? (*towers)[15].id() : 0;
   }

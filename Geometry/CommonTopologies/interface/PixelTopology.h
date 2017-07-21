@@ -10,7 +10,7 @@
 class PixelTopology : public Topology {
  public:  
   ////explicit PixelTopology( DetType* d) : Topology(d) {}
-  virtual ~PixelTopology() {}
+  ~PixelTopology() override {}
   
   //  The following methods are moved to the base class (Topology)
   

@@ -202,7 +202,7 @@ void HGCalTriggerBestChoiceTester::checkSelectedCells(const edm::Event& e,
     {
         const l1t::HGCalCluster& cluster = *cl_itr;
         uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
+        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, cluster.subdetId(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
         itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
     }
     std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_select;
@@ -210,7 +210,7 @@ void HGCalTriggerBestChoiceTester::checkSelectedCells(const edm::Event& e,
     {
         const l1t::HGCalCluster& cluster = *cl_itr;
         uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
+        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, cluster.subdetId(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
         itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
     }
 

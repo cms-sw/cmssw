@@ -47,13 +47,35 @@ namespace edm {
       
       void postBeginJob();
       void postEndJob();
-      
+           
       void preEvent(StreamContext const&);
       void postEvent(StreamContext const&);
+
+      void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
+
+      void preSourceEvent(StreamID);
+      void postSourceEvent(StreamID);
       
-      void preModule(StreamContext const&, ModuleCallingContext const&);
-      void postModule(StreamContext const&, ModuleCallingContext const&);
+      void preSourceLumi();
+      void postSourceLumi();
       
+      void preSourceRun();
+      void postSourceRun();
+     
+      void preOpenFile(std::string const&, bool);
+      void postOpenFile(std::string const&, bool);
+        
+      void preModule(ModuleDescription const& md);
+      void postModule(ModuleDescription const& md);
+
+      void preModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
+
+      void preModuleStream(StreamContext const&, ModuleCallingContext const&);
+      void postModuleStream(StreamContext const&, ModuleCallingContext const&);
+
+      double postCommon() const;
+
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
                                 //use last run time for determining end of processing
@@ -62,7 +84,7 @@ namespace edm {
       std::vector<double> curr_events_time_;  // seconds
       bool summary_only_;
       bool report_summary_;
-      
+      double threshold_;
       //
       // Min Max and total event times for each Stream.
       //  Used for summary at end of job
@@ -126,6 +148,22 @@ namespace edm {
       return s_stack;
     }
 
+    static 
+    double popStack() {
+      auto& modStack = moduleTimeStack();
+      assert(modStack.size() > 0);
+      double curr_module_time = modStack.back();
+      modStack.pop_back();
+      double t = getTime() - curr_module_time;
+      return t;
+    }
+
+    static 
+    void pushStack() {
+      auto& modStack = moduleTimeStack();
+      modStack.push_back(getTime());
+    }
+
     Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry) :
         curr_job_time_(0.),
         curr_job_cpu_(0.),
@@ -134,6 +172,7 @@ namespace edm {
         curr_events_time_(),
         summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
         report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
+        threshold_(iPS.getUntrackedParameter<double>("excessiveTimeThreshold")),
         max_events_time_(),
         min_events_time_(),
         total_event_count_(0) {
@@ -143,11 +182,66 @@ namespace edm {
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
 
-      if(not summary_only_) {
-        iRegistry.watchPreModuleEvent(this, &Timing::preModule);
-        iRegistry.watchPostModuleEvent(this, &Timing::postModule);
+      bool checkThreshold = true;
+      if (threshold_ <= 0.0) {
+        //we need to ignore the threshold check
+        threshold_ = std::numeric_limits<double>::max();
+        checkThreshold = false;
       }
           
+      if( (not summary_only_) || (checkThreshold) ) {
+        iRegistry.watchPreModuleEvent(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleEvent(this, &Timing::postModuleEvent);
+      } 
+      if(checkThreshold) {
+        iRegistry.watchPreSourceEvent(this, &Timing::preSourceEvent);
+        iRegistry.watchPostSourceEvent(this, &Timing::postSourceEvent);
+      
+        iRegistry.watchPreSourceLumi(this, &Timing::preSourceLumi);
+        iRegistry.watchPostSourceLumi(this, &Timing::postSourceLumi);
+      
+        iRegistry.watchPreSourceRun(this, &Timing::preSourceRun);
+        iRegistry.watchPostSourceRun(this, &Timing::postSourceRun);
+      
+        iRegistry.watchPreOpenFile(this, &Timing::preOpenFile);
+        iRegistry.watchPostOpenFile(this, &Timing::postOpenFile);
+      
+        iRegistry.watchPreEventReadFromSource(this, &Timing::preModuleStream);
+        iRegistry.watchPostEventReadFromSource(this, &Timing::postModuleStream);
+
+        iRegistry.watchPreModuleConstruction(this, &Timing::preModule);
+        iRegistry.watchPostModuleConstruction(this, &Timing::postModule);
+
+        iRegistry.watchPreModuleBeginJob(this, &Timing::preModule);
+        iRegistry.watchPostModuleBeginJob(this, &Timing::postModule);
+
+        iRegistry.watchPreModuleEndJob(this, &Timing::preModule);
+        iRegistry.watchPostModuleEndJob(this, &Timing::postModule);
+
+        iRegistry.watchPreModuleStreamBeginRun(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleStreamBeginRun(this, &Timing::postModuleStream);
+        iRegistry.watchPreModuleStreamEndRun(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleStreamEndRun(this, &Timing::postModuleStream);
+
+        iRegistry.watchPreModuleStreamBeginLumi(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleStreamBeginLumi(this, &Timing::postModuleStream);
+        iRegistry.watchPreModuleStreamEndLumi(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleStreamEndLumi(this, &Timing::postModuleStream);
+
+        iRegistry.watchPreModuleGlobalBeginRun(this, &Timing::preModuleGlobal);
+        iRegistry.watchPostModuleGlobalBeginRun(this, &Timing::postModuleGlobal);
+        iRegistry.watchPreModuleGlobalEndRun(this, &Timing::preModuleGlobal);
+        iRegistry.watchPostModuleGlobalEndRun(this, &Timing::postModuleGlobal);
+
+        iRegistry.watchPreModuleGlobalBeginLumi(this, &Timing::preModuleGlobal);
+        iRegistry.watchPostModuleGlobalBeginLumi(this, &Timing::postModuleGlobal);
+        iRegistry.watchPreModuleGlobalEndLumi(this, &Timing::preModuleGlobal);
+        iRegistry.watchPostModuleGlobalEndLumi(this, &Timing::postModuleGlobal);
+
+        iRegistry.watchPreSourceConstruction(this, &Timing::preModule);
+        iRegistry.watchPostSourceConstruction(this, &Timing::postModule);
+      }
+
       iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
         nStreams_ = iBounds.maxNumberOfStreams();
         nThreads_ = iBounds.maxNumberOfThreads();
@@ -182,6 +276,8 @@ namespace edm {
       "If 'true' do not report timing for each event");
       desc.addUntracked<bool>("useJobReport", true)->setComment(
        "If 'true' write summary information to JobReport");
+      desc.addUntracked<double>("excessiveTimeThreshold", 0.)->setComment(
+       "Amount of time in seconds before reporting a module or source has taken excessive time. A value of 0.0 turns off this reporting.");
       descriptions.add("Timing", desc);
       descriptions.setComment(
        "This service reports the time it takes to run each module in a job.");
@@ -289,32 +385,92 @@ namespace edm {
       ++total_event_count_;
     }
 
-    void Timing::preModule(StreamContext const&, ModuleCallingContext const&) {
-      auto & modStack = moduleTimeStack();
-      modStack.push_back(getTime());
-    }
-
-    void Timing::postModule(StreamContext const& iStream, ModuleCallingContext const& iModule) {
-      //LogInfo("TimeModule")
-      auto& modStack = moduleTimeStack();
-      assert(modStack.size() > 0);
-      double curr_module_time = modStack.back();
-      modStack.pop_back();
-      double t = getTime() - curr_module_time;
-      //move waiting module start times forward to account
-      // for the fact that they were paused while this module ran
-      for(auto& waitingModuleStartTime : modStack) {
-        waitingModuleStartTime +=t;
-      }
+    void Timing::postModuleEvent(StreamContext const& iStream, ModuleCallingContext const& iModule) {
       auto const & eventID = iStream.eventID();
       auto const & desc = *(iModule.moduleDescription());
-      
-      LogPrint("TimeModule") << "TimeModule> "
-      << eventID.event() << " "
-      << eventID.run() << " "
-      << desc.moduleLabel() << " "
-      << desc.moduleName() << " "
-      << t;
+      double t = postCommon();
+      if ( not summary_only_) {
+          LogPrint("TimeModule") << "TimeModule> "
+          << eventID.event() << " "
+          << eventID.run() << " "
+          << desc.moduleLabel() << " "
+          << desc.moduleName() << " "
+          << t;
+      }
+    }
+
+    void Timing::preSourceEvent(StreamID sid) {
+      pushStack(); 
+    }
+
+    void Timing::postSourceEvent(StreamID sid) {
+      postCommon();
+    }
+
+    void Timing::preSourceLumi() {
+      pushStack();
+    }
+ 
+    void Timing::postSourceLumi() {
+      postCommon();
+    }
+  
+    void Timing::preSourceRun() {
+      pushStack();
+    }
+
+    void Timing::postSourceRun() {
+      postCommon();
+    }
+
+    void Timing::preOpenFile(std::string const& lfn, bool b) {
+      pushStack();
+    }
+
+    void Timing::postOpenFile(std::string const& lfn, bool b) {
+      postCommon();
+    }
+
+    void
+    Timing::preModule(ModuleDescription const&) {
+      pushStack();
+    }
+
+    void
+    Timing::postModule(ModuleDescription const& desc) {
+      postCommon();
+    }
+
+    void
+    Timing::preModuleGlobal(GlobalContext const&, ModuleCallingContext const&) {
+      pushStack();
+    }
+
+    void
+    Timing::postModuleGlobal(GlobalContext const&, ModuleCallingContext const& mcc) {
+      postCommon();
+    }
+
+    void
+    Timing::preModuleStream(StreamContext const&, ModuleCallingContext const&) {
+      pushStack();
+    }
+
+    void
+    Timing::postModuleStream(StreamContext const&, ModuleCallingContext const& mcc) {
+      postCommon();
+    }
+
+    double
+    Timing::postCommon() const {
+      double t = popStack();
+      if(t > threshold_) {
+        LogError("ExcessiveTime")
+          << "ExcessiveTime: Module used " << t
+          << " seconds of time which exceeds the error threshold configured in the Timing Service of "
+          << threshold_ << " seconds.";
+      }
+      return t;
     }
   }
 }

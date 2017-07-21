@@ -21,6 +21,8 @@
 <use   name="CalibCalorimetry/CaloMiscalibTools"/>
 <use   name="CondTools/Ecal"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use name="DQMServices/Core"/>
+<use name="CondCore/DBOutputService"/>
 <export>
   <lib   name="1"/>
 </export>

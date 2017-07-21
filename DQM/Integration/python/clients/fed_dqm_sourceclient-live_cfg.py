@@ -60,8 +60,6 @@ process.load('DQM.EcalMonitorTasks.EcalFEDMonitor_cfi')
 process.ecalFEDMonitor.folderName = cms.untracked.string(folder_name)
 # HCAL sequence:
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
-process.load('DQM.HcalMonitorTasks.HcalDataIntegrityTask_cfi')
-process.hcalDataIntegrityMonitor.TaskFolder = folder_name
 # DT sequence:
 process.load('DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cff')
 process.DTDataIntegrityTask.processingMode = 'SM'
@@ -91,7 +89,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalDigis.InputLabel = cms.InputTag('rawDataRepacker')
     process.ecalFEDMonitor.FEDRawDataCollection = cms.InputTag('rawDataRepacker')
     process.hcalDigis.InputLabel = cms.InputTag('rawDataRepacker')
-    process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag('rawDataRepacker')
     process.dtunpacker.inputLabel = cms.InputTag('rawDataRepacker')
     process.rpcunpacker.InputLabel = cms.InputTag('rawDataRepacker')
     process.cscDQMEvF.InputObjects = cms.untracked.InputTag('rawDataRepacker')
@@ -105,7 +102,6 @@ else:
     process.ecalDigis.InputLabel = cms.InputTag('rawDataCollector')
     process.ecalFEDMonitor.FEDRawDataCollection = cms.InputTag('rawDataCollector')
     process.hcalDigis.InputLabel = cms.InputTag('rawDataCollector')
-    process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag('rawDataCollector')
     process.dtunpacker.inputLabel = cms.InputTag('rawDataCollector')
     process.rpcunpacker.InputLabel = cms.InputTag('rawDataCollector')
     process.cscDQMEvF.InputObjects = cms.untracked.InputTag('rawDataCollector')
@@ -127,7 +123,6 @@ process.FEDModulesPath = cms.Path(
  			                      + process.ecalDigis
                                   + process.ecalFEDMonitor
 			                      + process.hcalDigis
-                                  + process.hcalDataIntegrityMonitor
                                   + process.cscDQMEvF
  			                      + process.dtunpacker
                                   + process.DTDataIntegrityTask

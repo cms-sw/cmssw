@@ -1,7 +1,6 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/JsonPrinter.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
-#include "CondCore/CondDB/interface/PayloadReader.h"
 
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
@@ -10,104 +9,52 @@
 
 namespace {
 
-  class BeamSpotPlot_x {
+  class BeamSpot_hx : public cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> > {
   public:
-    BeamSpotPlot_x(){
+    BeamSpot_hx(): cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
     }
 
-    // return the type-name of the objects we handle, so the PayloadInspector can find corresponding tags
-    std::string objectType() {
-      return "BeamSpotObjects";
-    }
-
-    // return a title string to be used in the PayloadInspector
-    std::string title() {
-      return "x vs run number";
-    }
-
-    std::string info() {
-      return title();
-    }
-
-    std::string data( const boost::python::list& iovs ){
-      cond::persistency::PayloadReader reader;
-      // TO DO: add try /catch block                                                                                                                                                   
-      cond::utilities::JsonPrinter jprint("Run","x");
-      for( int i=0; i< len( iovs ); i++ ) {
-	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
-	jprint.append(boost::lexical_cast<std::string>( iov.since ),
-		      boost::lexical_cast<std::string>( obj->GetX() ),
-		      boost::lexical_cast<std::string>( obj->GetXError() ) );
-      }
-      return jprint.print();
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+      return std::make_pair(payload.GetX(),payload.GetXError());
     }
   };
 
-  class BeamSpotPlot_y {
+  class BeamSpot_rhx : public cond::payloadInspector::RunHistoryPlot<BeamSpotObjects,std::pair<double,double> > {
   public:
-    BeamSpotPlot_y(){
+    BeamSpot_rhx(): cond::payloadInspector::RunHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
     }
 
-    // return the type-name of the objects we handle, so the PayloadInspector can find corresponding tags
-    std::string objectType() {
-      return "BeamSpotObjects";
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+      return std::make_pair(payload.GetX(),payload.GetXError());
+    }
+  };
+  class BeamSpot_x : public cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> > {
+  public:
+    BeamSpot_x(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs time", "x"){
     }
 
-    // return a title string to be used in the PayloadInspector
-    std::string title() {
-      return "y vs run number";
-    }
-
-    std::string info() {
-      return title();
-    }
-
-    std::string data( const boost::python::list& iovs ){
-      cond::persistency::PayloadReader reader;
-      // TO DO: add try /catch block                                                                                                                                                   
-      cond::utilities::JsonPrinter jprint("Run","y");
-      for( int i=0; i< len( iovs ); i++ ) {
-	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
-	jprint.append(boost::lexical_cast<std::string>( iov.since ),
-		      boost::lexical_cast<std::string>( obj->GetY() ),
-		      boost::lexical_cast<std::string>( obj->GetYError() ) );
-      }
-      return jprint.print();
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+      return std::make_pair(payload.GetX(),payload.GetXError());
     }
   };
 
-  class BeamSpotPlot_xy {
+  class BeamSpot_y : public cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >{
   public:
-    BeamSpotPlot_xy(){
+    BeamSpot_y(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "y vs time", "y"){
     }
 
-    // return the type-name of the objects we handle, so the PayloadInspector can find corresponding tags
-    std::string objectType() {
-      return "BeamSpotObjects";
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+      return std::make_pair(payload.GetY(),payload.GetYError());
+    }
+  };
+
+  class BeamSpot_xy : public cond::payloadInspector::ScatterPlot<BeamSpotObjects,double,double>{
+  public:
+    BeamSpot_xy(): cond::payloadInspector::ScatterPlot<BeamSpotObjects,double,double>("BeamSpot x vs y","x","y" ){
     }
 
-    // return a title string to be used in the PayloadInspector
-    std::string title() {
-      return "BeamSpot x vs y";
-    }
-
-    std::string info() {
-      return title();
-    }
-
-    std::string data( const boost::python::list& iovs ){
-      cond::persistency::PayloadReader reader;
-      // TO DO: add try /catch block                                                                                                                                                   
-      cond::utilities::JsonPrinter jprint("x","y");
-      for( int i=0; i< len( iovs ); i++ ) {
-	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
-	jprint.append(boost::lexical_cast<std::string>( obj->GetX() ), 
-		      boost::lexical_cast<std::string>( obj->GetY() ) );
-      }
-      return jprint.print();
+    std::tuple<double,double> getFromPayload( BeamSpotObjects& payload ){
+      return std::make_tuple( payload.GetX(), payload.GetY() );
     }
   };
 
@@ -115,7 +62,9 @@ namespace {
 }
 
 PAYLOAD_INSPECTOR_MODULE( BeamSpot ){
-  PAYLOAD_INSPECTOR_CLASS( BeamSpotPlot_x );
-  PAYLOAD_INSPECTOR_CLASS( BeamSpotPlot_y );
-  PAYLOAD_INSPECTOR_CLASS( BeamSpotPlot_xy );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_hx );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_rhx );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_x );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_y );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_xy );
 }

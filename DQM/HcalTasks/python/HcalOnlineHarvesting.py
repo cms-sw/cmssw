@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hcalOnlineHarvesting = cms.EDAnalyzer(
+hcalOnlineHarvesting = DQMEDHarvester(
 	"HcalOnlineHarvesting",
 
 	name = cms.untracked.string("HcalOnlineHarvesting"),

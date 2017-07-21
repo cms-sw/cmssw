@@ -1,7 +1,7 @@
 #ifndef SimMuon_GEMDigitizer_GEMPadDigiProducer_h
 #define SimMuon_GEMDigitizer_GEMPadDigiProducer_h
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,7 +32,7 @@ public:
 
 private:
   
-  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads);
+  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;

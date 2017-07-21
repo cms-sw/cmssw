@@ -90,3 +90,5 @@ Severity    # Occurrences   Total Occurrences
 Info                    2                   2
 Warning                20                  20
 System                 20                  20
+
+dropped waiting message count 0

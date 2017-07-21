@@ -17,10 +17,12 @@ Table Of Contents
 
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,TString yvar,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
     if (TkAlStyle::status() == NO_STATUS)
         TkAlStyle::set(INTERNAL);
+    TString legendOptions = TkAlStyle::legendoptions;
+    legendOptions.ReplaceAll("all","meanerror,rmserror").ToLower();
     if (outliercut < 0)
         outliercut = -1;
     gStyle->SetMarkerSize(1.5);
@@ -89,7 +91,9 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         axislimits(nFiles,files,yvar,'y',relative,pull,ymin,ymax,ybins);
 
     std::vector<TString> meansrmss(n);
-    Bool_t  used[n];        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
+    std::vector<double> means(n);
+    std::vector<double> rmss(n);
+    std::vector<bool> used(n);        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
 
     for (Int_t i = 0; i < n; i++)
     {
@@ -163,6 +167,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                                                   sigmaorg = 0;
         Int_t xint = 0, xint2 = 0;
         Int_t runNumber = 0;
+        double pt1 = 0, maxpt1 = 0;
 
         if (!relative && !pull && (yvar == "dz" || yvar == "dxy"))
             rel = 1e-4;                                     //it's in cm but we want it in um, so divide by 1e-4
@@ -201,6 +206,11 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         if (relative && pull)
             tree->SetBranchAddress(sigmaorgvariable,&sigmaorg);
+        if (xvar == "pt" || yvar == "pt" || xvar == "qoverpt" || yvar == "qoverpt") {
+            tree->SetBranchAddress("pt1_spl", &pt1);
+        } else {
+            maxpt1 = 999;
+        }
 
         Int_t notincluded = 0;                              //this counts the number that aren't in the right run range.
                                                             //it's subtracted from lengths[i] in order to normalize the histograms
@@ -229,6 +239,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             else
                 error = sqrt(sigma1 * sigma1 + sigma2 * sigma2);   // = sqrt(2) if !pull; this divides by sqrt(2) to get the error in 1 track
             y /= (rel * error);
+
+            if (pt1 > maxpt1) maxpt1 = pt1;
 
             if (ymin <= y && y < ymax && xmin <= x && x < xmax)
             {
@@ -284,13 +296,20 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         lengths[i] -= notincluded;
 
+        if (maxpt1 < 6) { //0T
+            used[i] = false;
+            p[i]->SetLineColor(kWhite);
+            p[i]->SetMarkerColor(kWhite);
+            for (unsigned int j = 0; j < q.size(); j++)
+                delete q[j];
+            continue;
+        }
+
         meansrmss[i] = "";
         if (type == Histogram || type == OrgHistogram)
         {
             stringstream meanrms;
             meanrms.precision(3);
-            TString legendOptions = TkAlStyle::legendoptions;
-            legendOptions.ReplaceAll("all","meanerror,rmserror").ToLower();
 
             double average = -1e99;
             double rms = -1e99;
@@ -308,6 +327,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                     average = findAverage(files[i], var, axis, relative, pull);
                 cout << "Average = " << average;
                 meanrms << "#mu = " << average;
+                means[i] = average;
                 if (legendOptions.Contains("meanerror"))
                 {
                     if (outliercut < 0)
@@ -337,6 +357,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 }
                 cout << "RMS     = " << rms;
                 meanrms << "rms = " << rms;
+                rmss[i] = rms;
                 if (legendOptions.Contains("rmserror"))
                 {
                     //https://root.cern.ch/root/html/src/TH1.cxx.html#7076
@@ -374,6 +395,49 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
 
         setAxisLabels(p[i],type,xvar,yvar,relative,pull);
+    }
+
+    if (type == Histogram && !pull && any_of(begin(used), end(used), identity<bool>)) {
+        if (legendOptions.Contains("mean")) {
+            summaryfile << "   mu_Delta" << yvar;
+            if (relative) summaryfile << "/" << yvar;
+            if (pull)     summaryfile << "_pull";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << plainunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "latexname=$\\mu_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << latexunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "format={:.3g}\t"
+                        << "latexformat=${:.3g}$";
+            for (int i = 0; i < n; i++) {
+                if (used[i]) {
+                    summaryfile << "\t" << means[i];
+                } else {
+                    summaryfile << "\t" << nan("");
+                }
+            }
+            summaryfile << "\n";
+        }
+        if (legendOptions.Contains("rms")) {
+            summaryfile << "sigma_Delta" << yvar;
+            if (relative) summaryfile << "/" << yvar;
+            if (pull)     summaryfile << "_pull";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << plainunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "latexname=$\\sigma_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$";
+            if (!pull && !relative && latexunits(yvar, 'y') != "") summaryfile << " (" << latexunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "format={:.3g}\t"
+                        << "latexformat=${:.3g}$";
+            for (int i = 0; i < n; i++) {
+                if (used[i]) {
+                    summaryfile << "\t" << rmss[i];
+                } else {
+                    summaryfile << "\t" << nan("");
+                }
+            }
+            summaryfile << "\n";
+        }
     }
 
     TH1 *firstp = 0;
@@ -503,7 +567,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             }
             else
             {
-                p[i]->Draw("same");
+                p[i]->Draw("same hist");
                 legend->AddEntry(p[i],names[i],"l");
             }
             legend->AddEntry((TObject*)0,meansrmss[i],"");
@@ -542,9 +606,9 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 //make a 1D histogram of Delta_yvar
 
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString var,
-                        Bool_t relative,Bool_t pull,TString saveas)
+                        Bool_t relative,Bool_t pull,TString saveas, ostream& summaryfile)
 {
-    return trackSplitPlot(nFiles,files,names,"",var,relative,false,pull,saveas);
+    return trackSplitPlot(nFiles,files,names,"",var,relative,false,pull,saveas,summaryfile);
 }
 
 
@@ -553,7 +617,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString var,
 
 TCanvas *trackSplitPlot(TString file,TString xvar,TString yvar,Bool_t profile,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
     Int_t nFiles = 0;
     if (profile)                       //it interprets nFiles < 1 as 1 file, make a scatterplot
@@ -561,20 +625,20 @@ TCanvas *trackSplitPlot(TString file,TString xvar,TString yvar,Bool_t profile,
     TString *files = &file;
     TString name = "";
     TString *names = &name;
-    return trackSplitPlot(nFiles,files,names,xvar,yvar,relative,resolution,pull,saveas);
+    return trackSplitPlot(nFiles,files,names,xvar,yvar,relative,resolution,pull,saveas,summaryfile);
 }
 
 //make a 1D histogram of Delta_yvar
 
 TCanvas *trackSplitPlot(TString file,TString var,
                         Bool_t relative,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
     Int_t nFiles = 1;
     TString *files = &file;
     TString name = "";
     TString *names = &name;
-    return trackSplitPlot(nFiles,files,names,var,relative,pull,saveas);
+    return trackSplitPlot(nFiles,files,names,var,relative,pull,saveas,summaryfile);
 }
 
 void saveplot(TCanvas *c1,TString saveas)
@@ -703,7 +767,7 @@ void misalignmentDependence(TCanvas *c1old,
 
     TH1 **p = new TH1*[n];
     TF1 **f = new TF1*[n];
-    Bool_t used[n];
+    bool used[n];
     for (Int_t i = 0; i < n; i++)
     {
         stringstream s0;
@@ -1373,6 +1437,13 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
 
     TString directorytomake = directory;
     gSystem->mkdir(directorytomake,true);
+
+    ofstream summaryfile(directorytomake+"/TrackSplittingValidationSummary.txt");
+    for (int i = 0; i < nFiles; i++) {
+        summaryfile << "\t" << TString(names[i]).ReplaceAll("#", "\\");
+    }
+    summaryfile << "\tformat={}\tlatexformat={}\n";
+
     if (misalignment != "")
     {
         directorytomake.Append("/fits");
@@ -1481,7 +1552,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 if (xvariables[x] != "" && yvariables[y] != "")
                 {
                     //make profile
-                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i]);
+                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i],summaryfile);
                     if (misalignmentDependence(c1,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],false,(bool)pull,s[i+2]))
                     {
@@ -1496,7 +1567,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                         delete (TFile*)gROOT->GetListOfFiles()->Last();
 
                     //make resolution plot
-                    TCanvas *c2 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],true ,(bool)pull,s[i+1]);
+                    TCanvas *c2 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],true ,(bool)pull,s[i+1],summaryfile);
                     if (misalignmentDependence(c2,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],true,(bool)pull,s[i+3]))
                     {
@@ -1513,7 +1584,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 else
                 {
                     //make histogram
-                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i]);
+                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i],summaryfile);
                     if (misalignmentDependence(c1,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],false,(bool)pull,s[i+2]))
                     {
@@ -1541,6 +1612,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory, Boo
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,Bool_t matrix[xsize][ysize])
 {
     setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
@@ -1620,6 +1692,7 @@ void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phas
                TString xvar,TString yvar)
 {
     setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
@@ -1677,6 +1750,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory)
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory)
 {
     setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
@@ -1765,6 +1839,20 @@ TString units(TString variable,Char_t axis)
     return "";
 }
 
+TString plainunits(TString variable, char axis) {
+    TString result = units(variable, axis);
+    result.ReplaceAll("#mu", "u");
+    result.ReplaceAll("#times10^{-3}", "* 1e-3 ");
+    return result;
+}
+
+TString latexunits(TString variable, char axis) {
+    TString result = units(variable, axis);
+    result.ReplaceAll("#", "\\").ReplaceAll("{", "{{").ReplaceAll("}", "}}")
+          .ReplaceAll("\\mum", "$\\mu$m")
+          .ReplaceAll("\\times10^{{-3}}", "$\\times10^{{-3}}$");
+    return result;
+}
 
 //this gives the full axis label, including units.  It can handle any combination of relative, resolution, and pull.
 TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull)
@@ -1829,6 +1917,13 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
         s << " (" << units(variable,axis) << ")";
     TString result = s.str();
     result.ReplaceAll("#Deltaq/p_{T}","#Delta(q/p_{T})");
+    return result;
+}
+
+TString latexlabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull) {
+    TString result = axislabel(variable, axis, relative, resolution, pull);
+    result.ReplaceAll(" ("+units(variable, axis)+")", "");
+    result.ReplaceAll("#", "\\").ReplaceAll("\\Delta", "\\Delta ");
     return result;
 }
 

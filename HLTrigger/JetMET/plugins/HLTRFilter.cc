@@ -55,9 +55,7 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
 
 }
 
-HLTRFilter::~HLTRFilter()
-{
-}
+HLTRFilter::~HLTRFilter() = default;
 
 void
 HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

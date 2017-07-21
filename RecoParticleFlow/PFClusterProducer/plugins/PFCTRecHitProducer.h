@@ -36,9 +36,9 @@ class DetId;
 class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
  public:
   explicit PFCTRecHitProducer(const edm::ParameterSet&);
-  ~PFCTRecHitProducer();
+  ~PFCTRecHitProducer() override;
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
 				    const edm::EventSetup & es) override;
   
   void produce(edm::Event& iEvent, 

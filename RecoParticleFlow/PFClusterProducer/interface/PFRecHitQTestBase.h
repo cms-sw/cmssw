@@ -31,8 +31,9 @@
 
 class PFRecHitQTestBase {
  public:
-  PFRecHitQTestBase() {}
+  PFRecHitQTestBase() = default;
   PFRecHitQTestBase(const edm::ParameterSet& iConfig) {}
+  virtual ~PFRecHitQTestBase() = default;
 
   virtual void beginEvent(const edm::Event&,const edm::EventSetup&)=0;
 

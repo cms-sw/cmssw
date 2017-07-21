@@ -13,11 +13,11 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
+#include<cstdlib>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <set>
@@ -63,5 +63,6 @@ class RPCSynchronizer
   double the_exact_time;
   double the_smeared_time;
   RPCSimSetUp * theSimSetUp;
+  int N_BX;
 };
 #endif

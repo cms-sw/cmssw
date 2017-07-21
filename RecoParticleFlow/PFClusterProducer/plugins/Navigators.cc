@@ -17,7 +17,7 @@ class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
 
     }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
     topology_.reset( new EcalBarrelTopology(geoHandle) );
@@ -32,7 +32,7 @@ class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
 
     }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
     topology_.reset( new EcalEndcapTopology(geoHandle) );
@@ -45,7 +45,7 @@ class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId,E
 
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
     topology_.reset( new EcalBarrelTopology(geoHandle) );
@@ -58,7 +58,7 @@ class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId,E
 
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
     topology_.reset( new EcalEndcapTopology(geoHandle) );
@@ -72,7 +72,7 @@ class PFRecHitPreshowerNavigator final : public PFRecHitCaloNavigator<ESDetId,Ec
   }
 
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
     topology_.reset( new EcalPreshowerTopology(geoHandle) );
@@ -87,7 +87,7 @@ class PFRecHitHCALNavigator final : public PFRecHitCaloNavigator<HcalDetId,HcalT
   }
 
 
-  void beginEvent(const edm::EventSetup& iSetup) {    
+  void beginEvent(const edm::EventSetup& iSetup) override {    
       edm::ESHandle<HcalTopology> hcalTopology;
       iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
       topology_.release();
@@ -103,7 +103,7 @@ class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalD
   }
 
 
-  void beginEvent(const edm::EventSetup& iSetup) {    
+  void beginEvent(const edm::EventSetup& iSetup) override {    
       edm::ESHandle<HcalTopology> hcalTopology;
       iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
       topology_.release();
@@ -119,7 +119,7 @@ class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,C
   }
 
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloTowerTopology> caloTowerTopology;
     iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
     topology_.release();
@@ -146,7 +146,7 @@ public:
   PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig) {
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {      
+  void beginEvent(const edm::EventSetup& iSetup) override {      
   }
 };
 
@@ -155,7 +155,7 @@ public:
   PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig) {
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {      
+  void beginEvent(const edm::EventSetup& iSetup) override {      
   }
 };
 
@@ -164,7 +164,7 @@ public:
   PFRecHitHGCHexNavigator(const edm::ParameterSet& iConfig) {
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {      
+  void beginEvent(const edm::EventSetup& iSetup) override {      
   }
 };
 

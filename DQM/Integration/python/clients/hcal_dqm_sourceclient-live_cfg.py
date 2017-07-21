@@ -11,7 +11,12 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-process			= cms.Process('HCALDQM')
+from Configuration.StandardSequences.Eras import eras
+process			= cms.Process('HCALDQM', 
+    eras.run2_HCAL_2017, 
+    eras.run2_HF_2017,
+    eras.run2_HEPlan1_2017
+)
 subsystem		= 'Hcal'
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
@@ -27,7 +32,7 @@ useMap		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
+	process.GlobalTag.globaltag = '90X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -88,7 +93,18 @@ process.emulTPDigis.FrontEndFormatError = \
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 process.emulTPDigis.FG_threshold = cms.uint32(2)
 process.emulTPDigis.InputTagFEDRaw = rawTag
+process.emulTPDigis.upgradeHF = cms.bool(True)
+process.emulTPDigis.upgradeHE = cms.bool(True)
+process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+# Enable ZS on emulated TPs, to match what is done in data
+process.emulTPDigis.RunZS = cms.bool(True)
+process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
+
+# Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
 
 #-------------------------------------
 #	Hcal DQM Tasks and Harvesters import
@@ -98,8 +114,7 @@ process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
-process.load('DQM.HcalTasks.QIE10Task')
-process.load('DQM.HcalTasks.ZDCTask')
+#process.load('DQM.HcalTasks.ZDCTask')
 process.load('DQM.HcalTasks.QIE11Task')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
@@ -133,12 +148,9 @@ process.rawTask.runkeyVal = runType
 process.rawTask.runkeyName = runTypeName
 process.tpTask.runkeyVal = runType
 process.tpTask.runkeyName = runTypeName
-process.qie10Task.runkeyVal = runType
-process.qie10Task.runkeyName = runTypeName
-process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
-process.zdcTask.runkeyVal = runType
-process.zdcTask.runkeyName = runTypeName
-process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
+#process.zdcTask.runkeyVal = runType
+#process.zdcTask.runkeyName = runTypeName
+#process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
 process.qie11Task.runkeyVal = runType
 process.qie11Task.runkeyName = runTypeName
 process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
@@ -151,10 +163,9 @@ process.tasksPath = cms.Path(
 		+process.digiTask
 		+process.tpTask
 		+process.nocqTask
-		+process.qie10Task
 		+process.qie11Task
 		#ZDC to be removed for 2017 pp running
-		+process.zdcTask
+		#+process.zdcTask
 )
 
 process.harvestingPath = cms.Path(

@@ -110,7 +110,7 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
 
   // check content of data buffer
   if ( m_DataBuffer ) {
-    if ( L1MuDTTFConfig::Debug(4) && m_DataBuffer->numberTSphi() > 0 ) {
+    if ( m_tf.config()->Debug(4) && m_DataBuffer->numberTSphi() > 0 ) {
       cout << "Phi track segments received by " << m_spid << " : " << endl;
       m_DataBuffer->printTSphi();
     }
@@ -121,7 +121,7 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   if ( m_EU && m_DataBuffer && m_DataBuffer->numberTSphi() > 1 ) {
     m_EU->run(c);
     n_ext = m_EU->numberOfExt();
-    if ( L1MuDTTFConfig::Debug(3) && n_ext > 0  ) {
+    if ( m_tf.config()->Debug(3) && n_ext > 0  ) {
       cout << "Number of successful extrapolations : " << n_ext << endl;
       m_EU->print();
     }
@@ -133,7 +133,7 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   // perform track assembling
   if ( m_TA &&  n_ext > 0 ) {
     m_TA->run();
-    if ( L1MuDTTFConfig::Debug(3) ) m_TA->print();
+    if ( m_tf.config()->Debug(3) ) m_TA->print();
   }
 
   // assign pt, eta, phi and quality

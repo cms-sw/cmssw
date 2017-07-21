@@ -139,10 +139,10 @@ void CentralityDQM::analyze(const edm::Event& iEvent,
   edm::Handle<reco::EvtPlaneCollection> ep;
   iEvent.getByToken(eventplaneToken, ep);
 
-  //  if (!cent.isValid()) return;
   if(cent.isValid()){
-  int hibin = *cbin;
-  
+  int hibin = -999;
+  if(cbin.isValid()) hibin = *cbin;
+
   //  std::cout<<  " ------------------------------------- "  << hibin << std::endl;
 
   h_cent_bin->Fill(hibin);

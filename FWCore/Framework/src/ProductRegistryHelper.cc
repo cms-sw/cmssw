@@ -37,7 +37,7 @@ namespace edm {
       }
 
       TypeWithDict type(p->typeID_.typeInfo());
-      BranchDescription pdesc(p->branchType_,
+      BranchDescription pdesc(convertToBranchType(p->transition_),
                               iDesc.moduleLabel(),
                               iDesc.processName(),
                               p->typeID_.userClassName(),
@@ -45,7 +45,9 @@ namespace edm {
                               p->productInstanceName_,
                               iDesc.moduleName(),
                               iDesc.parameterSetID(),
-                              type);
+                              type,
+                              true,
+                              isEndTransition(p->transition_));
 
       if (pdesc.transient()) {
         if (!checkDictionary(missingDictionaries, pdesc.wrappedName(), pdesc.wrappedType())) {

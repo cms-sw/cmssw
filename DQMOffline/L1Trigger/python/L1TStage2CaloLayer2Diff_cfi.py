@@ -41,8 +41,8 @@ plots2D = [
     'L1METPhivsCaloMETPhi', 'L1MHTPhivsRecoMHTPhi',
     # jets
     'L1JetETvsCaloJetET_HB', 'L1JetETvsCaloJetET_HE', 'L1JetETvsCaloJetET_HF',
-    'L1JetETvsCaloJetET_HB_HE', 'L1JetETvsCaloJetET_HB', 'L1JetETvsCaloJetET_HE',
-    'L1JetETvsCaloJetET_HF', 'L1JetETvsCaloJetET_HB_HE', 'L1JetEtavsCaloJetEta_HB',
+    'L1JetETvsCaloJetET_HB_HE', 'L1JetPhivsCaloJetPhi_HB', 'L1JetPhivsCaloJetPhi_HE',
+    'L1JetPhivsCaloJetPhi_HF', 'L1JetPhivsCaloJetPhi_HB_HE', 'L1JetEtavsCaloJetEta_HB',
 ]
 
 allPlots = []

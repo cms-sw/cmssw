@@ -53,6 +53,10 @@ namespace hcaldqm
 			//	emap
 			HcalElectronicsMap const* _emap;
 
+			// Crate and crate eid lists
+			std::vector<int> _vCrates;
+			std::vector<uint32_t> _vhashCrates;
+
 			//	FED and FED Eids lists
 			std::vector<int> _vFEDs;
 			std::vector<uint32_t> _vhashFEDs;

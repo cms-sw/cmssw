@@ -17,7 +17,7 @@ SiPixelPhase1Geometry = cms.PSet(
   n_rocs = cms.int32(16), # two-row geometry is assumed
 
   # "time geometry" parameters
-  max_lumisection = cms.int32(1000),
+  max_lumisection = cms.int32(5000),
   max_bunchcrossing = cms.int32(3600),
 
   # to select a different cabling map (for pilotBlade)
@@ -26,6 +26,9 @@ SiPixelPhase1Geometry = cms.PSet(
   # online-specific things
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
+
+  # lumiblock -  for coarse temporal splitting 
+  lumiblock = cms.int32(10),       # Number of LS to include in a block
 
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
   # there are lots of geometry assuptions in the code.
@@ -296,7 +299,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel/PXLayer/Event")
+    Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
@@ -309,7 +312,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Event")
+    Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
@@ -325,6 +328,7 @@ StandardSpecificationTrend_Num = [
 
 
 StandardSpecification2DProfile_Num = [
+
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")

@@ -9,11 +9,11 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-#include<cstring>
-#include<iostream>
-#include<string>
-#include<vector>
-#include<stdlib.h>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 

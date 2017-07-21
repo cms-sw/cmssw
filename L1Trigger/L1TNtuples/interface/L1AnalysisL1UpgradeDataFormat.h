@@ -97,6 +97,8 @@ namespace L1Analysis
       muonIEt.clear();
       muonIEta.clear();
       muonIPhi.clear();
+      muonIEtaAtVtx.clear();
+      muonIPhiAtVtx.clear();
       muonIDEta.clear();
       muonIDPhi.clear();
       muonChg.clear();
@@ -104,7 +106,7 @@ namespace L1Analysis
       muonQual.clear();
       muonTfMuonIdx.clear();
       muonBx.clear();
-
+      
       nSums = 0;
       sumType.clear();
       sumEt.clear();
@@ -178,6 +180,8 @@ namespace L1Analysis
     std::vector<short int>   muonIEt;
     std::vector<short int>   muonIEta;
     std::vector<short int>   muonIPhi;
+    std::vector<short int>   muonIEtaAtVtx;
+    std::vector<short int>   muonIPhiAtVtx;
     std::vector<short int>   muonIDEta;
     std::vector<short int>   muonIDPhi;
     std::vector<short int>      muonChg;

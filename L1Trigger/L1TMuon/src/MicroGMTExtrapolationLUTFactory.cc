@@ -19,8 +19,15 @@ namespace l1t {
   MicroGMTExtrapolationLUTFactory::create(const std::string& filename, const int type, const int fwVersion) {
     ReturnType p;
 
-    if (fwVersion >= 1) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(filename, type));
+    int outWidth = 3;
+    if (type == MicroGMTConfiguration::ETA_OUT) {
+      outWidth = 4;
+    }
+
+    if (fwVersion >= 1 && fwVersion < 0x4010000) {
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(filename, outWidth, 6, 6);
+    } else if (fwVersion >= 0x4010000) {
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(filename, 4, 5, 7);
     } else {
       LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
@@ -31,8 +38,15 @@ namespace l1t {
   MicroGMTExtrapolationLUTFactory::create(l1t::LUT* lut, const int type, const int fwVersion) {
     ReturnType p;
 
-    if (fwVersion >= 1) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(lut, type));
+    int outWidth = 3;
+    if (type == MicroGMTConfiguration::ETA_OUT) {
+      outWidth = 4;
+    }
+
+    if (fwVersion >= 1 && fwVersion < 0x4010000) {
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(lut, outWidth, 6, 6);
+    } else if (fwVersion >= 0x4010000) {
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(lut, 4, 5, 7);
     } else {
       LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }

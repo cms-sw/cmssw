@@ -32,8 +32,8 @@ def unique(seq, keepstr=True):
     except TypeError: # hashing didn't work, see if seq is sortable
         try:
             from itertools import groupby
-            s = sorted(enumerate(seq),key=lambda (i,v):(v,i))
-            return t(g.next() for k,g in groupby(s, lambda (i,v): v))
+            s = sorted(enumerate(seq),key=lambda i_v1:(i_v1[1],i_v1[0]))
+            return t(next(g) for k,g in groupby(s, lambda i_v: i_v[1]))
         except:  # not sortable, use brute force
             seen = []
             return t(c for c in seq if not (c in seen or seen.append(c)))

@@ -95,9 +95,9 @@ EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolver
 }
 
 std::vector<edm::ProductResolverIndexAndSkipBit> const&
-EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
+EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFromEvent();  
+  return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
 void
@@ -121,6 +121,13 @@ EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescrip
                                                        std::string const& processName) const {
   assert(not m_streamModules.empty());
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+}
+
+void
+EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
+  for(auto mod: m_streamModules) {
+    mod->convertCurrentProcessAlias(processName);
+  }
 }
 
 std::vector<edm::ConsumesInfo>
@@ -213,20 +220,6 @@ void
 EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
-void
-EDAnalyzerAdaptorBase::doPreForkReleaseResources()
-{
-  for(auto mod: m_streamModules) {
-    mod->preForkReleaseResources();
-  }
-}
-void
-EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren)
-{
-  for(auto mod: m_streamModules) {
-    mod->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-  }
-}
 
 void
 EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {

@@ -42,7 +42,7 @@ public:
 		     CornersMgr*        mgr       ,
 		     const CCGFloat*    parm       ) ;
 
-  virtual ~IdealObliquePrism() ;
+  ~IdealObliquePrism() override ;
 
   CCGFloat dEta() const ;
   CCGFloat dPhi() const ;
@@ -54,12 +54,12 @@ public:
 			    const CCGFloat* pv  ,
 			    Pt3D&           ref  ) ;
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
+  void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
 			     Pt3D&           ref  ) const override;
 
 private:
-  virtual void initCorners(CornersVec&)  override;
+  void initCorners(CornersVec&)  override;
 
   static GlobalPoint etaPhiPerp( float eta, float phi, float perp ) ;
   static GlobalPoint etaPhiZ(float eta, float phi, float z) ;

@@ -81,7 +81,9 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
   ivalue = cms.int32(11)
 )
 
-process.t = cms.Task(process.intProducerU, process.intProducerA, process.intVectorProducer)
+process.intProducerB = cms.EDProducer("IntProducer", ivalue = cms.int32(1000))
+
+process.t = cms.Task(process.intProducerU, process.intProducerA, process.intProducerB, process.intVectorProducer)
 
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3, process.t)
 

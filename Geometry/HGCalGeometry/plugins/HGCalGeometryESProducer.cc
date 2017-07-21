@@ -39,7 +39,7 @@ class HGCalGeometryESProducer : public edm::ESProducer {
 
 public:
   HGCalGeometryESProducer( const edm::ParameterSet& iP );
-  virtual ~HGCalGeometryESProducer() ;
+  ~HGCalGeometryESProducer() override ;
 
   typedef std::shared_ptr<HGCalGeometry> ReturnType;
 

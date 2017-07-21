@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDEcalPreshowerAlgoTB : public DDAlgorithm {
 
@@ -14,8 +14,8 @@ public:
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& pos);
+		  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& pos) override;
 
 private:
   std::string getMaterial(unsigned int i)   const {return materials_[i];}

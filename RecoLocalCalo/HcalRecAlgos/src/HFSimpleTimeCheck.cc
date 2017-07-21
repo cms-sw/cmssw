@@ -42,11 +42,15 @@ HFSimpleTimeCheck::HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                                      const float i_timeShift,
                                      const float i_triseIfNoTDC,
                                      const float i_tfallIfNoTDC,
+                                     const float i_minChargeForUndershoot,
+                                     const float i_minChargeForOvershoot,
                                      const bool rejectAllFailures)
     : soiPhase_(i_soiPhase),
       timeShift_(i_timeShift),
       triseIfNoTDC_(i_triseIfNoTDC),
       tfallIfNoTDC_(i_tfallIfNoTDC),
+      minChargeForUndershoot_(i_minChargeForUndershoot),
+      minChargeForOvershoot_(i_minChargeForOvershoot),
       rejectAllFailures_(rejectAllFailures)
 {
     tlimits_[0] = tlimits[0];
@@ -107,12 +111,12 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
     bool isTimingReliable[2] = {true, true};
     for (unsigned ianode=0; ianode<2; ++ianode)
     {
-        const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
-        if (anodeInfo)
+        if (flaggedBadInDB[ianode])
+            states[ianode] = HFAnodeStatus::FLAGGED_BAD;
+        else
         {
-            if (flaggedBadInDB[ianode])
-                states[ianode] = HFAnodeStatus::FLAGGED_BAD;
-            else
+            const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
+            if (anodeInfo)
                 states[ianode] = determineAnodeStatus(ianode, *anodeInfo,
                                                       &isTimingReliable[ianode]);
         }

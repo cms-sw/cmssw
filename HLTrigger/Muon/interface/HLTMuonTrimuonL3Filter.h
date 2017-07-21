@@ -15,6 +15,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -56,6 +57,8 @@ class HLTMuonTrimuonL3Filter : public HLTFilter {
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_DCAMuMu_;      // DCA between the three muons
       double max_YTriplet_;        // |rapidity| of triplet
+      const edm::InputTag theL3LinksLabel;					//Needed to iterL3
+      const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;	//Needed to iterL3
 };
 
 #endif //HLTMuonDimuonFilter_h

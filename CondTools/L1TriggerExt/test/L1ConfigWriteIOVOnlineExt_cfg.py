@@ -44,12 +44,24 @@ options.register('logTransactions',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Record transactions in log DB")
+options.register('tagUpdate',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Comma-separated list of column-separated pairs relating type to a new tagBase")
 options.parseArguments()
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
 initL1O2OTagsExt()
+
+# Override the tag bases if instructed to do so
+if options.tagUpdate :
+    for type2tagBase in options.tagUpdate.split(',') :
+        (t,tagBase) = type2tagBase.split(':')
+        index = L1CondEnumExt.__dict__[t]
+        initL1O2OTagsExt.tagBaseVec[index] = tagBase
 
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBIOVWriterExt_cff import initIOVWriterExt

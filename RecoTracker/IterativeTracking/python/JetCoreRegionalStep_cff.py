@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # This step runs over all clusters
 
 # run only if there are high pT jets
-from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
-initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
-from RecoJets.JetProducers.caloJetsForTrk_cff import *
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
@@ -185,7 +182,7 @@ trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierProm
 ))
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*jetsForCoreTracking*
+JetCoreRegionalStep = cms.Sequence(jetsForCoreTracking*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*

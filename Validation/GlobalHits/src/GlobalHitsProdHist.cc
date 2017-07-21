@@ -606,7 +606,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // create persistent objects
   for (std::size_t i = 0; i < histName_.size(); ++i) {
-    produces<TH1F, edm::InRun>(histName_[i]).setBranchAlias(histName_[i]);
+    produces<TH1F, edm::Transition::EndRun>(histName_[i]).setBranchAlias(histName_[i]);
   }
 }
 

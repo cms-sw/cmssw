@@ -92,7 +92,8 @@ bool UCTTower::process() {
 bool UCTTower::processHFTower() {
   uint32_t calibratedET = hcalET;
   if(hfLUT != 0) {
-    const std::vector< uint32_t > a = hfLUT->at((region - NRegionsInCard) * NHFEtaInRegion + iEta);
+    uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
+    const std::array< uint32_t, 256> a = hfLUT->at(etaAddress);
     calibratedET = a[hcalET] & 0xFF;
   }
   uint32_t absCaloEta = abs(caloEta());

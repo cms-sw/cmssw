@@ -34,7 +34,7 @@ HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig) : HLTFilter
    m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
-HLTPhi2METFilter::~HLTPhi2METFilter(){}
+HLTPhi2METFilter::~HLTPhi2METFilter()= default;
 
 void HLTPhi2METFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -84,7 +84,7 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     double phimiss = vrefMET.at(0)->phi();
     int countjets =0;
 
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+    for (auto recocalojet = recocalojets->begin();
 	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 
       if(countjets==0) {

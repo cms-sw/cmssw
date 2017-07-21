@@ -11,7 +11,7 @@ ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
 #ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL1SingleMu3']
 #ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_.*']
 ALCARECODtCalibHIHLTFilter.throw = False ## dont throw on unknown path names
-ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibHI'
+ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'DtCalibHI'
 
 import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi as dt4DSegmentsCfiRef
 dt4DSegmentsNoWire = dt4DSegmentsCfiRef.dt4DSegments.clone()

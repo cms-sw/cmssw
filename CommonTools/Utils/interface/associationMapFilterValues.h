@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 
-#include <unordered_set>
+#include "FWCore/Utilities/interface/IndexSet.h"
 
 namespace associationMapFilterValuesHelpers {
   // Common implementation
@@ -16,7 +16,7 @@ namespace associationMapFilterValuesHelpers {
   void findInsert(T_AssociationMap& ret, const T_Key& key,
                   const T_ValueIndex& valueIndex, const T_Value& value,
                   const T_ValueIndices& value_indices) {
-    if(value_indices.find(valueIndex) != value_indices.end()) {
+    if(value_indices.has(valueIndex)) {
       ret.insert(key, value);
     }
   }
@@ -134,7 +134,8 @@ T_AssociationMap associationMapFilterValues(const T_AssociationMap& map, const T
   T_AssociationMap ret(map.refProd());
 
   // First copy the keys of values to a set for faster lookup of their existence in the map
-  std::unordered_set<typename T_AssociationMap::index_type> value_indices;
+  edm::IndexSet value_indices;
+  value_indices.reserve(valueRefs.size()); // hopefully a good guess of the last ref index without having to do the gymnastics for genericity
   associationMapFilterValuesHelpers::FillIndices<T_RefVector>::fill(value_indices, valueRefs, map.refProd());
 
   for(const auto& keyValue: map) {

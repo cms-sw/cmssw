@@ -1,7 +1,10 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/src/PathStatusInserter.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +31,9 @@ namespace edm {
     act_table_(&actions),
     workers_(workers),
     pathContext_(path_name, streamContext, bitpos, pathType),
-    stopProcessingEvent_(stopProcessingEvent){
+    stopProcessingEvent_(stopProcessingEvent),
+    pathStatusInserter_(nullptr),
+    pathStatusInserterWorker_(nullptr) {
 
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
@@ -48,7 +53,9 @@ namespace edm {
     workers_(r.workers_),
     earlyDeleteHelpers_(r.earlyDeleteHelpers_),
     pathContext_(r.pathContext_),
-    stopProcessingEvent_(r.stopProcessingEvent_){
+    stopProcessingEvent_(r.stopProcessingEvent_),
+    pathStatusInserter_(r.pathStatusInserter_),
+    pathStatusInserterWorker_(r.pathStatusInserterWorker_) {
 
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
@@ -99,7 +106,8 @@ namespace edm {
               e.addAdditionalInfo(ost.str());
             }
 	  }
-          throw e;
+          //throw will copy which will slice the object
+          e.raise();
       }
     }
 
@@ -184,6 +192,13 @@ namespace edm {
   }
 
   void
+  Path::setPathStatusInserter(PathStatusInserter* pathStatusInserter,
+                              Worker* pathStatusInserterWorker) {
+    pathStatusInserter_ = pathStatusInserter;
+    pathStatusInserterWorker_ = pathStatusInserterWorker;
+  }
+
+  void
   Path::handleEarlyFinish(EventPrincipal const& iEvent) {
     for(auto helper: earlyDeleteHelpers_) {
       helper->pathFinished(iEvent);
@@ -205,7 +220,7 @@ namespace edm {
     state_ = hlt::Ready;
     
     if(workers_.empty()) {
-      finished(-1, true, std::exception_ptr(), iStreamContext);
+      finished(-1, true, std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
       return;
     }
     
@@ -228,7 +243,7 @@ namespace edm {
       try {
         std::rethrow_exception(*iException);
       } catch(cms::Exception& oldEx) {
-        pEx = std::make_unique<cms::Exception>(oldEx);
+        pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
       }
       try {
         std::ostringstream ost;
@@ -260,11 +275,14 @@ namespace edm {
       }
       handleEarlyFinish(iEP);
     }
-    finished(iModuleIndex, shouldContinue, finalException, iContext);
+    finished(iModuleIndex, shouldContinue, finalException, iContext, iEP, iES, iID);
   }
   
   void
-  Path::finished(int iModuleIndex, bool iSucceeded, std::exception_ptr iException, StreamContext const* iContext) {
+  Path::finished(int iModuleIndex, bool iSucceeded, std::exception_ptr iException, StreamContext const* iContext,
+                 EventPrincipal const& iEP,
+                 EventSetup const& iES,
+                 StreamID const& streamID) {
     
     if(not iException) {
       updateCounters(iSucceeded, true);
@@ -272,6 +290,18 @@ namespace edm {
     }
     try {
       HLTPathStatus status(state_, iModuleIndex);
+
+      if (pathStatusInserter_) { // pathStatusInserter is null for EndPaths
+        pathStatusInserter_->setPathStatus(streamID, status);
+      }
+      std::exception_ptr jException =
+        pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal,
+                                                                      BranchActionStreamBegin>>(
+          iEP, iES, streamID, ParentContext(iContext), iContext
+        );
+      if(jException && not iException) {
+        iException = jException;
+      }
       actReg_->postPathEventSignal_(*iContext, pathContext_, status);
     } catch(...) {
       if(not iException) {

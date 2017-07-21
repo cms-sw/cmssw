@@ -1,5 +1,4 @@
 <use   name="SimGeneral/HepPDTRecord"/>
-<use   name="DataFormats/RecoCandidate"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/TrackReco"/>

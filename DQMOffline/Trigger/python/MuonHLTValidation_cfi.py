@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ################# Muon HLT Quality Tests  #########################
 qTesterMuonHLT = cms.EDAnalyzer("QualityTester",
@@ -15,7 +16,7 @@ qTesterMuonHLT = cms.EDAnalyzer("QualityTester",
         #reportThreshold = cms.untracked.string("black")
 )
 
-muonHLTCertSummary = cms.EDAnalyzer("HLTMuonCertSummary",
+muonHLTCertSummary = DQMEDHarvester("HLTMuonCertSummary",
     verbose = cms.untracked.bool(False),
 )
 

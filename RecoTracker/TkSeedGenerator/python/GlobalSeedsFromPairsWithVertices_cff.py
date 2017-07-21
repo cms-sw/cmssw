@@ -25,8 +25,3 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(globalSeedsFromPairsWithVertices,
-    OrderedHitsFactoryPSet = dict(maxElement = 0),
-)
-

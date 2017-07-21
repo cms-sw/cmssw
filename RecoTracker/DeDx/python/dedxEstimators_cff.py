@@ -4,7 +4,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     tracks                     = cms.InputTag("generalTracks"),
 
     minTrackHits       = cms.uint32(0),
-    minTrackPt         = cms.double(15),
+    minTrackPt         = cms.double(10),
     maxTrackEta        = cms.double(5.0),
 
     useStrip           = cms.bool(True),
@@ -37,6 +37,8 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
     calibrationPath = cms.string(""),
 )
 
+dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
+
 dedxTruncated40 = dedxHarmonic2.clone()
 dedxTruncated40.estimator =  cms.string('truncated')
 
@@ -58,4 +60,4 @@ dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
 dedxDiscrimASmi         = dedxHarmonic2.clone()
 dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
-doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxHitInfo)
+doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxHitInfo)

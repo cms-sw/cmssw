@@ -78,7 +78,12 @@ options.register('subsystemLabels',
                  'uGT,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Coma separated list of specific payloads to be processed")
+                 "Comma-separated list of specific payloads to be processed")
+options.register('tagUpdate',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Comma-separated list of column-separated pairs relating type to a new tagBase")
 
 options.parseArguments()
 
@@ -114,6 +119,13 @@ setTSCPayloadsDB( process, options.onlineDBConnect, options.onlineDBAuth, option
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
 initL1O2OTagsExt()
+
+# Override the tag bases if instructed to do so
+if options.tagUpdate :
+    for type2tagBase in options.tagUpdate.split(',') :
+        (t,tagBase) = type2tagBase.split(':')
+        index = L1CondEnumExt.__dict__[t]
+        initL1O2OTagsExt.tagBaseVec[index] = tagBase
 
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cff import initPayloadWriterExt

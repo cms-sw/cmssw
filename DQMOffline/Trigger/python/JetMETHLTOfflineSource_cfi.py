@@ -149,4 +149,96 @@ jetMETHLTOfflineSourceAK8 = jetMETHLTOfflineSourceAK4.clone(
 
 )
 
-jetMETHLTOfflineSource = cms.Sequence( jetMETHLTOfflineSourceAK4 * jetMETHLTOfflineSourceAK8 )
+jetMETHLTOfflineSourceAK8Fwd = jetMETHLTOfflineSourceAK4.clone(
+    dirname = cms.untracked.string('HLT/JetMET/AK8Fwd'),
+    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
+    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+
+    pathFilter = cms.untracked.vstring('HLT_AK8PFJetFwd', 
+    ),
+    pathPairs = cms.VPSet(cms.PSet(
+        denompathname = cms.string('HLT_AK8PFJetFwd40_v'),
+        pathname = cms.string('HLT_AK8PFJetFwd60_v')
+    ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd60_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd80_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd80_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd140_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd140_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd200_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd200_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd260_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd260_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd320_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd320_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd400_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd400_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd450_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJetFwd450_v'),
+            pathname = cms.string('HLT_AK8PFJetFwd500_v')
+        )),
+
+)
+
+jetMETHLTOfflineSourceAK4Fwd = jetMETHLTOfflineSourceAK4.clone(
+    dirname = cms.untracked.string('HLT/JetMET/AK4Fwd'),
+    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
+    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+
+    pathFilter = cms.untracked.vstring('HLT_PFJetFwd', 
+    ),
+    pathPairs = cms.VPSet(cms.PSet(
+        denompathname = cms.string('HLT_PFJetFwd40_v'),
+        pathname = cms.string('HLT_PFJetFwd60_v')
+    ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd60_v'),
+            pathname = cms.string('HLT_PFJetFwd80_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd80_v'),
+            pathname = cms.string('HLT_PFJetFwd140_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd140_v'),
+            pathname = cms.string('HLT_PFJetFwd200_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd200_v'),
+            pathname = cms.string('HLT_PFJetFwd260_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd260_v'),
+            pathname = cms.string('HLT_PFJetFwd320_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd320_v'),
+            pathname = cms.string('HLT_PFJetFwd400_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd400_v'),
+            pathname = cms.string('HLT_PFJetFwd450_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_PFJetFwd450_v'),
+            pathname = cms.string('HLT_PFJetFwd500_v')
+        )),
+
+)
+
+jetMETHLTOfflineSource = cms.Sequence( jetMETHLTOfflineSourceAK4 * jetMETHLTOfflineSourceAK8 * jetMETHLTOfflineSourceAK4Fwd * jetMETHLTOfflineSourceAK8Fwd)

@@ -37,14 +37,20 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   minBunch_(config.getParameter<int>("minBunch")), 
   maxBunch_(config.getParameter<int>("maxBunch")),
   instLumi_(config.getParameter<double>("instLumi")),
-  rateFact_(config.getParameter<double>("rateFact"))
+  rateFact_(config.getParameter<double>("rateFact")),
+  referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
   // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
-  neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
-  neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
-  eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
-  eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
+  neuBkg.push_back(0.00386257);
+  neuBkg.push_back(6344.65);
+  neuBkg.push_back(16627700);
+  neuBkg.push_back(-102098);
+  
+  eleBkg.push_back(0.00171409);
+  eleBkg.push_back(4900.56);
+  eleBkg.push_back(710909);
+  eleBkg.push_back(-4327.25);
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
@@ -91,8 +97,7 @@ for (const auto & hit: simHits)
   int res = 1;
   if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
     
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
-  digi_.insert(digi);
+  digi_.emplace(x,y,ex,ey,corr,tof,pdgid,res);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
 					      << " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
@@ -154,6 +159,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
     double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
     // max length in x for given y coordinate (cfr trapezoidal eta partition)
+    const float rSqrtR = yy_glob * sqrt(yy_glob);
     double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
     double sigma_u_new = sigma_u;
@@ -174,12 +180,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateElectronBkg_) {
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
-      double averageElectronRatePerRoll = 0.0;
-      double yy_helper = 1.0;
-      for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
-
+      double averageElectronRatePerRoll =  eleBkg[0] * rSqrtR* std::exp( eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
+      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
 
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
       const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
@@ -214,11 +217,15 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	else             pdgid = 11;  // positron
 	if (ex == 0) ex = error_u;//errors cannot be zero
 	if (ey == 0) ey = error_v;
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
-	digi_.insert(digi);
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+
+	digi_.emplace(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()
+							 <<"] =====> electron hit in "<<roll->id()
+							 <<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
-							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand
+							 <<" time = "<<time<<" [ns]"; 
       }
     } // end if electron bkg
 
@@ -227,12 +234,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateNeutralBkg_) {
       // Extract / Calculate the Average Neutral Rate 
       // for the given global Y coord from Parametrization
-      double averageNeutralRatePerRoll = 0.0;
-      double yy_helper = 1.0;
-      for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
-
-      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/5;
+      double averageNeutralRatePerRoll = neuBkg[0] * yy_glob* std::exp( neuBkg[1]/rSqrtR) + 
+	neuBkg[2]/rSqrtR + neuBkg[3]/(sqrt(yy_glob));
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
+      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);
@@ -267,11 +272,15 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
 	if (ex == 0) ex = error_u;//errors cannot be zero
 	if (ey == 0) ey = error_v;
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
-	digi_.insert(digi);
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+
+	digi_.emplace(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()
+							 <<"] ======> neutral hit in "<<roll->id()
+							 <<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
-							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand
+							 <<" time = "<<time<<" [ns]"; 
       }
       
     } // end if neutral bkg

@@ -8,6 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
+geometry='Extended2016'
 
 # ARGUMENT PARSING
 
@@ -54,7 +55,7 @@ fi
 
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root ; then
   cmsDriver.py step2  \
--s DIGI:pdigi_valid,L1,DIGI2RAW,HLT \
+-s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016 \
 --conditions auto:run2_mc \
 -n -1 \
 --era Run2_2016 \
@@ -127,7 +128,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
@@ -136,7 +137,7 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
-  root -b -q "MaterialBudget.C(\"${t}\")"
+  python MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1
@@ -146,4 +147,4 @@ done
 if [ ! -e Images ]; then
   mkdir Figures
 fi
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "Run2Detector")'
+python MaterialBudget.py -c -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l Run2Detector > MaterialBudget_Simul_vs_Reco_Run2Detector.log 2>&1

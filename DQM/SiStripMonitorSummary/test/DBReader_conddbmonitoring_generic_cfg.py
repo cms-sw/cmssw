@@ -180,6 +180,7 @@ process.source = cms.Source("EmptyIOVSource",
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),

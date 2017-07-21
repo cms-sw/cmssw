@@ -29,7 +29,7 @@ HLTEgammaAllCombMassFilter::HLTEgammaAllCombMassFilter(const edm::ParameterSet& 
   secondLegLastFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(secondLegLastFilterTag_);
 }
 
-HLTEgammaAllCombMassFilter::~HLTEgammaAllCombMassFilter(){}
+HLTEgammaAllCombMassFilter::~HLTEgammaAllCombMassFilter()= default;
 
 void
 HLTEgammaAllCombMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -60,9 +60,9 @@ bool HLTEgammaAllCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   getP4OfLegCands(iEvent,secondLegLastFilterToken_,secondLegP4s);
 
   bool accept=false;
-  for(size_t firstLegNr=0;firstLegNr<firstLegP4s.size();firstLegNr++){
-    for(size_t secondLegNr=0;secondLegNr<secondLegP4s.size();secondLegNr++){
-      math::XYZTLorentzVector pairP4 = firstLegP4s[firstLegNr] + secondLegP4s[secondLegNr];
+  for(auto & firstLegP4 : firstLegP4s){
+    for(auto & secondLegP4 : secondLegP4s){
+      math::XYZTLorentzVector pairP4 = firstLegP4 + secondLegP4;
       double mass = pairP4.M();
       if(mass>=minMass_) accept=true;
     }
@@ -99,16 +99,16 @@ void  HLTEgammaAllCombMassFilter::getP4OfLegCands(const edm::Event& iEvent, cons
   filterOutput->getObjects(trigger::TriggerElectron,eleCands);
 
   if(!phoCands.empty()){ //its photons
-    for(size_t candNr=0;candNr<phoCands.size();candNr++){
-      p4s.push_back(phoCands[candNr]->p4());
+    for(auto & phoCand : phoCands){
+      p4s.push_back(phoCand->p4());
     }
   }else if(!clusCands.empty()){ //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){
-      p4s.push_back(clusCands[candNr]->p4());
+    for(auto & clusCand : clusCands){
+      p4s.push_back(clusCand->p4());
     }
   }else if(!eleCands.empty()){
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){
-      p4s.push_back(eleCands[candNr]->p4());
+    for(auto & eleCand : eleCands){
+      p4s.push_back(eleCand->p4());
     }
   }
 }

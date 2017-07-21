@@ -24,7 +24,7 @@
 #include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 
 class FWHistSliceSelector;

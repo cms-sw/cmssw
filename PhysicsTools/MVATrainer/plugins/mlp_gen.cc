@@ -113,7 +113,7 @@ L10:
 /* extern "C"Dllexport */void MLP_Out_T(type_pat *rrin)
 {
         int i, il, in, j, ilm1, m, mp1;
-	register dbl a;
+	dbl a;
 
 /* input layer */  
 
@@ -184,9 +184,9 @@ L20:
 /* extern "C"Dllexport */void MLP_Out2(type_pat *rrin)
 {
   	int il, in, m, mp1;
-	register int i;
+	int i;
 	dbl **rrout, **deriv1;
-	register dbl *prrout;
+	dbl *prrout;
 	type_pat *prrin;
 	int nhid = NET.Nneur[1];
 	int nin = NET.Nneur[0];
@@ -522,7 +522,7 @@ L25:
 	int il, in1, in, itest2;
 	dbl deriv, deriv1, deriv2, deriv3, deriv4, pond;
 	dbl eta, eps;
-	register dbl a, b, dd, a1, a2, a3, a4;
+	dbl a, b, dd, a1, a2, a3, a4;
 	dbl *pout, *pdelta, *pw1, *pw2, *pw3, *pw4;
 	dbl ***weights;
     
@@ -1126,7 +1126,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 /*	dbl err[NMAX][4]; */
 	dbl deriv;
 	dbl *pout, *pdedw, *pdelta;
-	register dbl a, b;
+	dbl a, b;
 /*	char buf[50];*/
 
 /* output layer */ 
@@ -1422,7 +1422,7 @@ void SetDefaultFuncs()
 	dble factor=0; 
 	dble *Hgamma;
 	dble *tmp;
-	register dble a, b;
+	dble a, b;
 	int i,j;
 	
 	Hgamma = (dble *) malloc(Nweights*sizeof(dble));
@@ -1756,7 +1756,7 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 /* extern "C"Dllexport */
 void MLP_Line(dbl ***w0, dbl alpha)
 {
-	register int il,in,jn;
+	int il,in,jn;
 	
 	for(il=1; il<NET.Nlayer; il++)
 		for(in=0; in<NET.Nneur[il]; in++)
@@ -3682,7 +3682,7 @@ int MLP_SetNet(int *nl, int *nn)
 void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m+1]);
 	dbl *pM3 = &(M[2*(m+1)]);
@@ -3748,7 +3748,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m]);
 	dbl *pM3 = &(M[2*m]);

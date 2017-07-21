@@ -32,23 +32,23 @@ class DTSuperLayer : public GeomDet {
                  const DTChamber* ch=0);
 
 /* Destructor */ 
-    virtual ~DTSuperLayer() ;
+    ~DTSuperLayer() override ;
 
 /* Operations */ 
     /// Return the DetId of this SL
     DTSuperLayerId id() const;
 
     // Which subdetector
-    virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+    SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
 
     /// True if id are the same
     bool operator==(const DTSuperLayer& sl) const ;
 
     /// Return the layers in the SL
-    virtual std::vector< const GeomDet*> components() const;
+    std::vector< const GeomDet*> components() const override;
 
     /// Return the layer with a given id in this SL
-    virtual const GeomDet* component(DetId id) const;
+    const GeomDet* component(DetId id) const override;
 
     /// Return the layers in the SL
     const std::vector< const DTLayer*>& layers() const;

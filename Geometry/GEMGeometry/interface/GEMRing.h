@@ -34,10 +34,10 @@ class GEMRing
   void add(GEMSuperChamber* ch);
   
   /// Return the super chambers in the ring
-  virtual std::vector<const GeomDet*> components() const;
+  std::vector<const GeomDet*> components() const;
 
   /// Return the sub-component (super chamber) with a given id in this ring
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const;
 
   /// Return the chamber corresponding to the given id 
   const GEMSuperChamber* superChamber(GEMDetId id) const;

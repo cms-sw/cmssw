@@ -44,8 +44,7 @@ namespace hcaldqm
 				fDigiSize = 0,
 				fNChsHF=1,
 				fUnknownIds=2,
-				nLSFlags=3, // defines the boundayr between lumi based and run
-				//	 based flags
+				nLSFlags=3, // defines the boundary between lumi-based and run-based flags
 				fUniHF=4,
 				fDead=5,
 				nDigiFlag = 6

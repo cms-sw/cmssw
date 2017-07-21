@@ -39,7 +39,7 @@ HLTMonoJetFilter<T>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFil
 }
 
 template<typename T>
-HLTMonoJetFilter<T>::~HLTMonoJetFilter(){}
+HLTMonoJetFilter<T>::~HLTMonoJetFilter()= default;
 
 template<typename T>
 void 

@@ -44,6 +44,10 @@ interestingGedGamIsoDetIdEE.etCut = 0.110
 interestingGedGamIsoDetIdEE.outerRadius = 0.6
 interestingGedGamIsoDetIdEE.innerRadius = 0.0
 
+## OOT photons 
+interestingOotGamIsoDetIdEB = interestingGedGamIsoDetIdEB.clone(emObjectLabel = 'ootPhotons')
+interestingOotGamIsoDetIdEE = interestingGedGamIsoDetIdEE.clone(emObjectLabel = 'ootPhotons')
+
 import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
 interestingGamIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
 interestingGamIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
@@ -77,6 +81,11 @@ interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(5)
 interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(5)
 interestingGedEgammaIsoHCALDetId.minEnergyHCAL = cms.double(0.8)
 
+## OOT Photons
+interestingOotEgammaIsoHCALDetId = interestingGedEgammaIsoHCALDetId.clone()
+interestingOotEgammaIsoHCALDetId.phosLabel=cms.InputTag("ootPhotons")
+interestingOotEgammaIsoHCALDetId.elesLabel=cms.InputTag("")
+interestingOotEgammaIsoHCALDetId.superClustersLabel=cms.InputTag("")
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff
 interestingGedEgammaIsoESDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff.interestingEgammaIsoESDetId.clone()
@@ -90,13 +99,25 @@ interestingGedEgammaIsoESDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoESDetId.minPhoEt=cms.double(20)
 interestingGedEgammaIsoESDetId.maxDR=cms.double(0.4)
 
+## OOT Photons
+interestingOotEgammaIsoESDetId = interestingGedEgammaIsoESDetId.clone()
+interestingOotEgammaIsoESDetId.eeClusToESMapLabel=cms.InputTag("particleFlowClusterOOTECAL")
+interestingOotEgammaIsoESDetId.ecalPFClustersLabel=cms.InputTag("particleFlowClusterOOTECAL")
+interestingOotEgammaIsoESDetId.phosLabel=cms.InputTag("ootPhotons")
+interestingOotEgammaIsoESDetId.elesLabel=cms.InputTag("")
+interestingOotEgammaIsoESDetId.superClustersLabel=cms.InputTag("")
+
 interestingEgammaIsoDetIds = cms.Sequence(
     interestingGedEleIsoDetIdEB *
     interestingGedEleIsoDetIdEE * 
     interestingGedGamIsoDetIdEB * 
     interestingGedGamIsoDetIdEE *   
+    interestingOotGamIsoDetIdEB * 
+    interestingOotGamIsoDetIdEE *   
     interestingGamIsoDetIdEB * 
     interestingGamIsoDetIdEE *
     interestingGedEgammaIsoHCALDetId*
-    interestingGedEgammaIsoESDetId
+    interestingOotEgammaIsoHCALDetId*
+    interestingGedEgammaIsoESDetId*
+    interestingOotEgammaIsoESDetId
 )

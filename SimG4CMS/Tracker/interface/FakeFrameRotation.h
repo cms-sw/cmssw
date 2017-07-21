@@ -13,6 +13,7 @@
 class FakeFrameRotation : public FrameRotation 
 {
 public:
+    virtual ~FakeFrameRotation() = default;
     virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const;
 };
 

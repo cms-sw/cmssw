@@ -48,6 +48,7 @@ namespace edm {
   class SharedResourcesAcquirer;
   class InputProductResolver;
   class WaitingTask;
+  class UnscheduledConfigurator;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -82,7 +83,12 @@ namespace edm {
     void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
 
     void clearPrincipal();
-
+    
+    void setupUnscheduled(UnscheduledConfigurator const&);
+  
+    void setAtEndTransition(bool iAtEnd);
+    bool atEndTransition() const {return atEndTransition_;}
+    
     void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
@@ -286,6 +292,7 @@ namespace edm {
     
     CacheIdentifier_t cacheIdentifier_;
 
+    bool atEndTransition_;
   };
 
   template <typename PROD>

@@ -21,11 +21,9 @@ void L1TGlobalPrescalesVetosObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1
 
     std::string uGTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGT ) ;
 
-    std::string uGTrsKey = uGTKey.substr( uGTKey.find(":")+1 );
-
     pL1TriggerKey->add( "L1TGlobalPrescalesVetosO2ORcd",
                         "L1TGlobalPrescalesVetos",
-                         uGTrsKey) ;
+                         uGTKey) ;
 }
 
 

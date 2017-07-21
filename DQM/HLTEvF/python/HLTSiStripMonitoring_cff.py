@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.RecoGeometry.RecoGeometries_cff import *
 hltESPDummyDetLayerGeometry = DummyDetLayerGeometry.clone(
-#hltESPDummyDetLayerGeometry = GlobalDetLayerGeometry.clone(
     ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
 )
 
@@ -11,13 +10,9 @@ hltESPDummyDetLayerGeometry = DummyDetLayerGeometry.clone(
 # the track trajectory is needed
 # => the track re-fit has to be performed
 # => some ESProducer have to be defined
-# hltESPStripCPEfromTrackAngle depends on APV gain
-# => it has different setting in 25ns and 50ns HLT menu
-# please, make sure it has the setting in synch w/ HLT menu
-# current setting is for 50ns menu
 
 ## NB: the following ESProducer should be the same used in the HLT menu
-##     make sure they are not already defined somewhereelse inthe final configuration
+##     make sure they are not already defined somewhereelse in the final configuration
 from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import templates
 hltESPPixelCPETemplateReco = templates.clone(
   DoCosmics = cms.bool( False ),
@@ -61,7 +56,6 @@ hltESPTTRHBuilderAngleAndTemplate = TTRHBuilderAngleAndTemplate.clone(
   PixelCPE = cms.string( "hltESPPixelCPETemplateReco" ),
   ComponentName = cms.string( "hltESPTTRHBuilderAngleAndTemplate" )
 )
-
 hltESPTTRHBWithTrackAngle = TTRHBuilderAngleAndTemplate.clone(
   StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
@@ -78,10 +72,10 @@ hltESPStripCPEfromTrackAngle = stripCPEESProducer.clone(
     mLC_P2 = cms.double( 0.3 ),
     mLC_P1 = cms.double( 0.618 ),
     mLC_P0 = cms.double( -0.326 ),
-    useLegacyError = cms.bool( True ), # 50ns menu
-    maxChgOneMIP = cms.double( -6000.0 ), # 50ns menu
-#    useLegacyError = cms.bool( False ), # 25ns menu
-#    maxChgOneMIP = cms.double( 6000.0 ), #25ns menu
+#    useLegacyError = cms.bool( True ), # 50ns menu
+#    maxChgOneMIP = cms.double( -6000.0 ), # 50ns menu
+    useLegacyError = cms.bool( False ), # 25ns menu
+    maxChgOneMIP = cms.double( 6000.0 ), #25ns menu
     mTEC_P1 = cms.double( 0.471 ),
     mTEC_P0 = cms.double( -1.885 ),
     mTOB_P0 = cms.double( -1.026 ),
@@ -153,9 +147,14 @@ hltESPKFUpdator = KFUpdatorESProducer.clone(
 )
 
 hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 30.0 ),
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" ),
   nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 30.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
 
 from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import KFTrajectoryFitter
@@ -165,8 +164,11 @@ hltESPTrajectoryFitterRK = KFTrajectoryFitter.clone(
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-#  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+
+hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
+    ProductLabel = cms.InputTag( "rawDataCollector" )
 )
 
 hltMeasurementTrackerEvent = cms.EDProducer( "MeasurementTrackerEventProducer",
@@ -179,13 +181,52 @@ hltMeasurementTrackerEvent = cms.EDProducer( "MeasurementTrackerEventProducer",
     measurementTracker = cms.string( "hltESPMeasurementTracker" )
 )
 
+#####
+hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
+  minHits = cms.int32( 3 ),
+  ComponentName = cms.string( "hltESPTrajectoryFitterRK" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  errorRescaling = cms.double( 100.0 ),
+  minHits = cms.int32( 3 ),
+  ComponentName = cms.string( "hltESPTrajectorySmootherRK" ),
+  appendToDataLabel = cms.string( "" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+hltESPFittingSmootherIT = cms.ESProducer( "KFFittingSmootherESProducer",
+  EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  Fitter = cms.string( "hltESPTrajectoryFitterRK" ),
+  MinNumberOfHits = cms.int32( 3 ),
+  Smoother = cms.string( "hltESPTrajectorySmootherRK" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
+  MaxFractionOutliers = cms.double( 0.3 ),
+  NoInvalidHitsBeginEnd = cms.bool( True ),
+  ComponentName = cms.string( "hltESPFittingSmootherIT" ),
+  RejectTracks = cms.bool( True )
+)
+
+
+
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
 hltTrackRefitterForSiStripMonitorTrack.Propagator              = cms.string('hltESPRungeKuttaTrackerPropagator')
-hltTrackRefitterForSiStripMonitorTrack.Fitter                  = cms.string('hltESPTrajectoryFitterRK')
-hltTrackRefitterForSiStripMonitorTrack.MeasurementTracker      = cms.string('hltESPMeasurementTracker')
+hltTrackRefitterForSiStripMonitorTrack.Fitter                  = cms.string('hltESPFittingSmootherIT')
 hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('hltMeasurementTrackerEvent')
-hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = cms.string('')
+hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = cms.string('navigationSchoolESProducer')
+hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltTracksMerged") # hltIter2Merged
 
 HLTSiStripMonitorTrack.TopFolderName = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.TrackProducer = 'hltTrackRefitterForSiStripMonitorTrack'
@@ -198,7 +239,34 @@ HLTSiStripMonitorTrack.OffHisto_On   = cms.bool(True)
 HLTSiStripMonitorTrack.HistoFlag_On  = cms.bool(False)
 HLTSiStripMonitorTrack.TkHistoMap_On = cms.bool(False)
 
+HLTSiStripMonitorClusterAPVgainCalibration = HLTSiStripMonitorCluster.clone()
+from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
+#HLTSiStripMonitorClusterAPVgainCalibration.BPTXfilter = genericTriggerEventFlag4fullTrackerAndHLTnoHIPnoOOTdb # HLT_ZeroBias_FirstCollisionAfterAbortGap_*
+HLTSiStripMonitorClusterAPVgainCalibration.BPTXfilter = cms.PSet(
+   andOr         = cms.bool( False ),
+### DCS selection
+   dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+   dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ),
+   andOrDcs      = cms.bool( False ),
+   errorReplyDcs = cms.bool( True ),
+### HLT selection
+   andOrHlt      = cms.bool(True),# True:=OR; False:=AND
+   hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
+   hltPaths      = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_v*"),
+   errorReplyHlt = cms.bool( False ),
+#   errorReplyHlt = cms.bool( True ),
+### L1 selection
+#   andOrL1       = cms.bool( True ),
+#   l1Algorithms  = cms.vstring("L1_ZeroBias_FirstCollidingBunch"),
+##   l1BeforeMask  = cms.bool( True ), # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
+#   l1BeforeMask  = cms.bool( False ), # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
+#   errorReplyL1  = cms.bool( False ),   
+   verbosityLevel = cms.uint32(1)
+)
+HLTSiStripMonitorClusterAPVgainCalibration.TopFolderName = cms.string('HLT/SiStrip/ZeroBias_FirstCollisionAfterAbortGap')
+
 sistripOnlineMonitorHLTsequence = cms.Sequence(
     hltMeasurementTrackerEvent
     * sistripMonitorHLTsequence # strip cluster monitoring
+    * HLTSiStripMonitorClusterAPVgainCalibration
 )

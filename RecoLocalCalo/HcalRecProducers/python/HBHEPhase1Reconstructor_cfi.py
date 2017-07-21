@@ -26,6 +26,9 @@ hbheprereco = cms.EDProducer(
     # the reconstruction algorithm?
     recoParamsFromDB = cms.bool(True),
 
+    # include SiPM dark current contribution in pedestal mean
+    saveEffectivePedestal = cms.bool(False),
+
     # Drop zero-suppressed channels?
     dropZSmarkedPassed = cms.bool(True),
 
@@ -40,6 +43,12 @@ hbheprereco = cms.EDProducer(
     # are either tagged bad in DB of zero-suppressed. Note that the rechit
     # collection will not include such channels even if this flag is set.
     saveDroppedInfos = cms.bool(False),
+
+    # Parameters which define how we calculate the charge for the basic SiPM
+    # nonlinearity correction. To sum up the charge in all time slices
+    # (e.g., for cosmics), set sipmQTSShift to -100 and sipmQNTStoSum to 200.
+    sipmQTSShift = cms.int32(0),
+    sipmQNTStoSum = cms.int32(3),
 
     # Configure the reconstruction algorithm
     algorithm = cms.PSet(
@@ -90,3 +99,6 @@ hbheprereco = cms.EDProducer(
 
 # Disable the "triangle peak fit" and the corresponding HBHETriangleNoise flag
 hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
+
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify(hbheprereco, saveEffectivePedestal = cms.bool(True))

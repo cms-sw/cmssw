@@ -34,9 +34,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a      = 1;
@@ -193,9 +193,6 @@ CSCMotherboard::CSCMotherboard() :
     dumpConfigParams();
     config_dumped = true;
   }
-}
-
-CSCMotherboard::~CSCMotherboard() {
 }
 
 void CSCMotherboard::clear() {

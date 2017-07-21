@@ -45,7 +45,7 @@ HLTDiJetAveEtaFilter<T>::HLTDiJetAveEtaFilter(const edm::ParameterSet& iConfig) 
 }
 
 template<typename T>
-HLTDiJetAveEtaFilter<T>::~HLTDiJetAveEtaFilter(){}
+HLTDiJetAveEtaFilter<T>::~HLTDiJetAveEtaFilter()= default;
 
 template<typename T>
 void

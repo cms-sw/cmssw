@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Laurent Forthomme
 *
 ****************************************************************************/
 
@@ -14,6 +15,8 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
+
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -24,69 +27,78 @@
 class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
 {
   public:
-    explicit CTPPSLocalTrackLiteProducer(const edm::ParameterSet& conf);
-  
+    explicit CTPPSLocalTrackLiteProducer( const edm::ParameterSet& );
     virtual ~CTPPSLocalTrackLiteProducer() {}
-  
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-  
+
+    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+
   private:
-    edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> siStripTrackToken;
+    edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;
+    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondLocalTrack> > diamondTrackToken_;
 
     /// if true, this module will do nothing
     /// needed for consistency with CTPPS-less workflows
-    bool doNothing;
+    bool doNothing_;
 };
 
 //----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
 
-using namespace std;
-using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(edm::ParameterSet const& conf) :
-  doNothing(conf.getParameter<bool>("doNothing"))
+CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
+  doNothing_( iConfig.getParameter<bool>( "doNothing" ) )
 {
-  if (doNothing)
-    return;
+  if ( doNothing_ ) return;
 
-  siStripTrackToken = consumes<DetSetVector<TotemRPLocalTrack>>(conf.getParameter<edm::InputTag>("tagSiStripTrack"));
+  siStripTrackToken_ = consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") );
+  diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
 
-  produces<vector<CTPPSLocalTrackLite>>();
+  produces< std::vector<CTPPSLocalTrackLite> >();
 }
 
 //----------------------------------------------------------------------------------------------------
  
-void CTPPSLocalTrackLiteProducer::produce(edm::Event& e, const edm::EventSetup& es)
+void
+CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
-  if (doNothing)
+  if ( doNothing_ )
     return;
 
-  // get input from Si strips
-  edm::Handle< DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
-  e.getByToken(siStripTrackToken, inputSiStripTracks);
-
   // prepare output
-  vector<CTPPSLocalTrackLite> output;
+  std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pOut( new std::vector<CTPPSLocalTrackLite>() );
   
-  // process tracks from Si strips
-  for (const auto rpv : *inputSiStripTracks)
-  {
-    const uint32_t rpId = rpv.detId();
+  //----- TOTEM strips
 
-    for (const auto t : rpv)
-    {
-      if (t.isValid())
-        output.push_back(CTPPSLocalTrackLite(rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma()));
+  // get input from Si strips
+  edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
+  iEvent.getByToken( siStripTrackToken_, inputSiStripTracks );
+
+  // process tracks from Si strips
+  for ( const auto& rpv : *inputSiStripTracks ) {
+    const uint32_t rpId = rpv.detId();
+    for ( const auto& trk : rpv ) {
+      if ( !trk.isValid() ) continue;
+      pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
+    }
+  }
+
+  //----- diamond detectors
+
+  // get input from diamond detectors
+  edm::Handle< edm::DetSetVector<CTPPSDiamondLocalTrack> > inputDiamondTracks;
+  iEvent.getByToken( diamondTrackToken_, inputDiamondTracks );
+
+  // process tracks from diamond detectors
+  for ( const auto& rpv : *inputDiamondTracks ) {
+    const unsigned int rpId = rpv.detId();
+    for ( const auto& trk : rpv ) {
+      if ( !trk.isValid() ) continue;
+      pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getT() );
     }
   }
 
   // save output to event
-  e.put(make_unique<vector<CTPPSLocalTrackLite>>(output));
+  iEvent.put( std::move( pOut ) );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(CTPPSLocalTrackLiteProducer);
+DEFINE_FWK_MODULE( CTPPSLocalTrackLiteProducer );

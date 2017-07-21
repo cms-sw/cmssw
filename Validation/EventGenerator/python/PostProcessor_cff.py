@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-postProcessorBasicHepMCValidation = cms.EDAnalyzer(
+postProcessorBasicHepMCValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Particles*"),
     efficiency = cms.vstring(""),
@@ -345,7 +346,7 @@ postProcessorBasicHepMCValidation.normalization.extend(["gluonLifeTime nEvt",
                                                         "unknownPDTNumber nEvt",
                                                         "vrtxRadius nEvt"])
 
-postProcessorBasicGenParticleValidation = cms.EDAnalyzer(
+postProcessorBasicGenParticleValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/GenParticles*"),
     efficiency = cms.vstring(""),
@@ -367,7 +368,7 @@ postProcessorBasicGenParticleValidation = cms.EDAnalyzer(
                                           "genJetTotPt nEvt")        
 )    
 
-postProcessorMBUEandQCDValidation = cms.EDAnalyzer(
+postProcessorMBUEandQCDValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/MBUEandQCD*"),
     efficiency = cms.vstring(""),
@@ -452,7 +453,7 @@ postProcessorMBUEandQCDValidation = cms.EDAnalyzer(
                                           "Tracketa nEvt")
 )        
 
-postProcessorWValidation = cms.EDAnalyzer(
+postProcessorWValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/W*"),
     efficiency = cms.vstring(""),
@@ -476,7 +477,7 @@ postProcessorWValidation = cms.EDAnalyzer(
                                           "leadeta nEvt")
 )    
 
-postProcessorDrellYanValidation = cms.EDAnalyzer(
+postProcessorDrellYanValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/DrellYan*"),
     efficiency = cms.vstring(""),
@@ -500,7 +501,7 @@ postProcessorDrellYanValidation = cms.EDAnalyzer(
                                           "seceta nEvt")
 )
 
-postProcessorTauValidation = cms.EDAnalyzer(
+postProcessorTauValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Tau*"),
     efficiency = cms.vstring(""),
@@ -581,7 +582,7 @@ postProcessorTauValidation = cms.EDAnalyzer(
                                           )
     )
 
-postProcessorTTbarValidation = cms.EDAnalyzer(
+postProcessorTTbarValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/TTbar*"),
     efficiency = cms.vstring(""),
@@ -634,7 +635,7 @@ postProcessorTTbarValidation = cms.EDAnalyzer(
                                           )
     )
 
-postProcessorTTbarSpinCorr = cms.EDAnalyzer("DQMGenericClient",
+postProcessorTTbarSpinCorr = DQMEDHarvester("DQMGenericClient",
                                               subDirs = cms.untracked.vstring("Generator/TTbarSpinCorr*"),
                                               efficiency = cms.vstring(""),
                                               resolution = cms.vstring(""),
@@ -646,7 +647,7 @@ postProcessorTTbarSpinCorr = cms.EDAnalyzer("DQMGenericClient",
                                               )
 
 
-postProcessorHiggsValidation = cms.EDAnalyzer(
+postProcessorHiggsValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Higgs*"),
     efficiency = cms.vstring(""),
@@ -685,7 +686,7 @@ postProcessorHiggsValidation = cms.EDAnalyzer(
                                          )
     )
 
-postProcessorHplusValidation = cms.EDAnalyzer(
+postProcessorHplusValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Hplus*"),
     efficiency = cms.vstring(""),
@@ -725,7 +726,7 @@ postProcessorHplusValidation = cms.EDAnalyzer(
     )
 
 
-postProcessorBPhysicsValidation = cms.EDAnalyzer(
+postProcessorBPhysicsValidation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/BPhysics*"),
     efficiency = cms.vstring(""),

@@ -1,6 +1,4 @@
-
 import os, sys, time
-import random
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
@@ -56,16 +54,15 @@ class MatrixRunner(object):
             
     	    # make sure we don't run more than the allowed number of threads:
     	    while self.activeThreads() >= self.maxThreads:
-    	        time.sleep(10)
-                continue
+                time.sleep(1)
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
             sys.stdout.flush()
-            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads)
+            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads, opt.maxSteps)
     	    self.threadList.append(current)
     	    current.start()
             if not dryRun:
-                time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec
+                time.sleep(0.5) # try to avoid race cond by sleeping 0.5 sec
 
     	# wait until all threads are finished
         while self.activeThreads() > 0:

@@ -13,7 +13,8 @@ enum DDSolidShape { dd_not_init,
 		    ddshapeless,
 		    ddpseudotrap, ddtrunctubs, ddsphere,
 		    ddorb, ddellipticaltube, ddellipsoid,
-		    ddparallelepiped, ddcuttubs
+		    ddparallelepiped, ddcuttubs,
+		    ddextrudedpolygon, ddmultiunion
 		   };
 		   
 struct DDSolidShapesName {
@@ -31,7 +32,7 @@ struct DDSolidShapesName {
       "ShapelessSolid",
       "PseudoTrapezoid","TruncatedTube(section)",
       "Sphere(section)", "Orb", "EllipticalTube", "Ellipsoid",
-      "Parallelepiped", "CutTubs"
+      "Parallelepiped", "CutTubs", "ExtrudedPolygon", "MultiUnionSolid"
     };
     return c[s];   			  
   }
@@ -106,6 +107,12 @@ struct DDSolidShapesName {
       break;
     case 22:
       return ddcuttubs;
+      break;
+    case 23:
+      return ddextrudedpolygon;
+      break;
+    case 24:
+      return ddmultiunion;
       break;
     default:
       throw cms::Exception("DDException") << "DDSolidShapes:index wrong shape";   

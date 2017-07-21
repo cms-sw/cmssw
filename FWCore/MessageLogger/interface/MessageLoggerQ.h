@@ -17,7 +17,6 @@ class ErrorObj;
 class ParameterSet;
 class ELdestination;
 namespace service {
-class NamedDestination;
 class AbstractMLscribe;
 }
 
@@ -46,7 +45,6 @@ public:
   static  void  MLqEND();
   static  void  MLqLOG( ErrorObj * p );
   static  void  MLqCFG( ParameterSet * p );
-  static  void  MLqEXT( service::NamedDestination* p );
   static  void  MLqSUM();
   static  void  MLqMOD( std::string * jm );
   static  void  MLqSHT();

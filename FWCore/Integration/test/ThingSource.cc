@@ -9,10 +9,10 @@ namespace edmtest {
   ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
     ProducerSourceBase(pset, desc, false), alg_() {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InLumi>("beginLumi");
-    produces<ThingCollection, edm::InLumi>("endLumi");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
+    produces<ThingCollection, edm::Transition::EndRun>("endRun");
   }
 
   // Virtual destructor needed.

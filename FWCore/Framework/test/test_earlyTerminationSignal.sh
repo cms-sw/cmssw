@@ -9,3 +9,6 @@ echo "running cmsRun testEarlyTerminationSignal_cfg.py"
 
 echo "runnig cmsRun test_dependentPathsAndExceptions_cfg.py"
 (cmsRun ${LOCAL_TEST_DIR}/test_dependentPathsAndExceptions_cfg.py 2>&1 | grep -q "Intentional 'NotFound' exception for testing purposes") || die "dependent Paths and Exceptions failed" $?
+
+echo "runnig cmsRun test_dependentRunDataAndException_cfg.py"
+(cmsRun ${LOCAL_TEST_DIR}/test_dependentRunDataAndException_cfg.py 2>&1 | grep -q "Intentional 'NotFound' exception for testing purposes") || die "dependent Run data and Exceptions failed" $?

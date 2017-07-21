@@ -21,9 +21,7 @@ HLTGetRaw::HLTGetRaw(const edm::ParameterSet& ps) :
 {
 }
 
-HLTGetRaw::~HLTGetRaw()
-{
-}
+HLTGetRaw::~HLTGetRaw() = default;
 
 void
 HLTGetRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

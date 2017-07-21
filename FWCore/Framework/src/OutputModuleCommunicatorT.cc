@@ -28,12 +28,6 @@ namespace edm {
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::openNewFileIfNeeded() {
-    module().maybeOpenFile();
-  }
-
-  template<typename T>
-  void
   OutputModuleCommunicatorT<T>::openFile(edm::FileBlock const& fb) {
     module().doOpenFile(fb);
   }

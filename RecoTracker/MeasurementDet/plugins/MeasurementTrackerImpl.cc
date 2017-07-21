@@ -5,7 +5,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -81,6 +80,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
 				       const PixelClusterParameterEstimator* pixelCPE,
 				       const StripClusterParameterEstimator* stripCPE,
 				       const SiStripRecHitMatcher*  hitMatcher,
+				       const TrackerTopology*  trackerTopology,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
                                        const SiStripQuality *stripQuality,
@@ -98,7 +98,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
   thePxDetConditions(pixelCPE),
   thePhase2DetConditions(phase2OTCPE)
 {
-  this->initialize();
+  this->initialize(trackerTopology);
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
 }
@@ -108,7 +108,7 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
 }
 
 
-void MeasurementTrackerImpl::initialize()
+void MeasurementTrackerImpl::initialize(const TrackerTopology* trackerTopology)
 { 
 
   bool subIsPixel = false;
@@ -158,7 +158,7 @@ void MeasurementTrackerImpl::initialize()
   // now the glued dets
   sortTKD(theGluedDets);
   for (unsigned int i=0; i!=theGluedDets.size(); ++i)
-    initGluedDet(theGluedDets[i]);
+    initGluedDet(theGluedDets[i], trackerTopology);
 
   // then the pixels
   sortTKD(thePixelDets);
@@ -310,7 +310,7 @@ void MeasurementTrackerImpl::addStackDet( const StackGeomDet* gd)
   theStackDets.push_back(TkStackMeasurementDet( gd, thePxDetConditions.pixelCPE() ));
 }
 
-void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
+void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det, const TrackerTopology* trackerTopology)
 {
   const GluedGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
@@ -319,7 +319,7 @@ void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
-  det.init(monoDet,stereoDet);
+  det.init(monoDet, stereoDet, trackerTopology);
   theDetMap[gd.geographicalId()] = &det;
 }
 

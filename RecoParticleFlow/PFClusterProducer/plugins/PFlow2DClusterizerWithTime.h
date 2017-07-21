@@ -13,11 +13,11 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
  public:
   PFlow2DClusterizerWithTime(const edm::ParameterSet& conf);
     
-  virtual ~PFlow2DClusterizerWithTime() {}
+  ~PFlow2DClusterizerWithTime() override = default;
   PFlow2DClusterizerWithTime(const B2DGPF&) = delete;
   B2DGPF& operator=(const B2DGPF&) = delete;
 
-  void update(const edm::EventSetup& es) { 
+  void update(const edm::EventSetup& es) override { 
     _positionCalc->update(es); 
     if( _allCellsPosCalc ) _allCellsPosCalc->update(es);
     if( _convergencePosCalc ) _convergencePosCalc->update(es);
@@ -25,7 +25,7 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
 
   void buildClusters(const reco::PFClusterCollection&,
 		     const std::vector<bool>&,
-		     reco::PFClusterCollection& outclus);
+		     reco::PFClusterCollection& outclus) override;
 
  private:  
   const unsigned _maxIterations;

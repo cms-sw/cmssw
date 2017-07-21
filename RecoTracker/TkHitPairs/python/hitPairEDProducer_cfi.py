@@ -1,7 +1,5 @@
 from RecoTracker.TkHitPairs.hitPairEDProducerDefault_cfi import hitPairEDProducerDefault as _hitPairEDProducerDefault
 
 hitPairEDProducer = _hitPairEDProducerDefault.clone()
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase1PU70.toModify(hitPairEDProducer, maxElement=0)
 trackingPhase2PU140.toModify(hitPairEDProducer, maxElement=0)

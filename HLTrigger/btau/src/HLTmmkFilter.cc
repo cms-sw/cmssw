@@ -58,9 +58,7 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
 
 
 // ----------------------------------------------------------------------
-HLTmmkFilter::~HLTmmkFilter() {
-
-}
+HLTmmkFilter::~HLTmmkFilter() = default;
 
 void
 HLTmmkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -151,7 +149,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   int counter = 0;
 
   //run algorithm
-  for (RecoChargedCandidateCollection::const_iterator mucand1=mucands->begin(), endCand1=mucands->end(); mucand1!=endCand1; ++mucand1) {
+  for (auto mucand1=mucands->begin(), endCand1=mucands->end(); mucand1!=endCand1; ++mucand1) {
 
   	if ( mucands->size()<2) break;
   	if ( trkcands->size()<1) break;
@@ -165,9 +163,9 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	// Pt threshold cut
 	if (trk1->pt() < minPt_) continue;
 
-  	RecoChargedCandidateCollection::const_iterator mucand2 = mucand1; ++mucand2;
+  	auto mucand2 = mucand1; ++mucand2;
   	
-  	for (RecoChargedCandidateCollection::const_iterator endCand2=mucands->end(); mucand2!=endCand2; ++mucand2) {
+  	for (auto endCand2=mucands->end(); mucand2!=endCand2; ++mucand2) {
 
   		TrackRef trk2 = mucand2->get<TrackRef>();
 
@@ -214,7 +212,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
  			//skip overlapping muon candidates
 			bool skip=false;
- 			for (unsigned int itmc=0;itmc<trkMuCands.size();itmc++) if(trk3==trkMuCands.at(itmc)) skip=true;
+ 			for (auto & trkMuCand : trkMuCands) if(trk3==trkMuCand) skip=true;
 			if(skip) continue;
 
 			//skip already used tracks
@@ -304,8 +302,8 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			bool i3done = false;
 			vector<RecoChargedCandidateRef> vref;
 			filterproduct.getObjects(TriggerMuon,vref);
-			for (unsigned int i=0; i<vref.size(); i++) {
-				RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+			for (auto & i : vref) {
+				RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
 				TrackRef trktmp = candref->get<TrackRef>();
 				if (trktmp==trk1) {
 					i1done = true;

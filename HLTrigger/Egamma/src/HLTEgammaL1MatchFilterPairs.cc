@@ -52,7 +52,7 @@ HLTEgammaL1MatchFilterPairs::HLTEgammaL1MatchFilterPairs(const edm::ParameterSet
    L1SeedFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(L1SeedFilterTag_);
 }
 
-HLTEgammaL1MatchFilterPairs::~HLTEgammaL1MatchFilterPairs(){}
+HLTEgammaL1MatchFilterPairs::~HLTEgammaL1MatchFilterPairs()= default;
 
 void
 HLTEgammaL1MatchFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -90,14 +90,14 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(candNonIsolatedToken_,recoNonIsolecalcands);
 
   // create pairs <L1Iso,L1Iso> and optionally <L1Iso, L1NonIso>
-   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand1= recoIsolecalcands->begin(); recoecalcand1!=recoIsolecalcands->end(); recoecalcand1++) {
+   for (auto recoecalcand1= recoIsolecalcands->begin(); recoecalcand1!=recoIsolecalcands->end(); recoecalcand1++) {
      edm::Ref<reco::RecoEcalCandidateCollection> ref1 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand1) );
-       for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
+       for (auto recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
 	 edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand2) );
 	 if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
        }
        if (AlsoNonIsolatedSecond_){
-	 for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
+	 for (auto recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
 	   edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand2) );
 	   if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
 	 }
@@ -107,14 +107,14 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
   // create pairs <L1NonIso,L1Iso> and optionally <L1NonIso, L1NonIso>
    if (AlsoNonIsolatedFirst_){
-     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand1= recoNonIsolecalcands->begin(); recoecalcand1!=recoNonIsolecalcands->end(); recoecalcand1++) {
+     for (auto recoecalcand1= recoNonIsolecalcands->begin(); recoecalcand1!=recoNonIsolecalcands->end(); recoecalcand1++) {
        edm::Ref<reco::RecoEcalCandidateCollection> ref1 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand1) );
-       for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
+       for (auto recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
 	 edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand2) );
 	 if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
        }
        if (AlsoNonIsolatedSecond_){
-	 for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
+	 for (auto recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
 	   edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand2) );
 	   if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
 	 }
@@ -168,20 +168,20 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
 bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection> ref, std::vector<l1extra::L1EmParticleRef >& l1EGIso, std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const {
 
-  for (unsigned int i=0; i<l1EGIso.size(); i++) {
+  for (auto & i : l1EGIso) {
     //ORCA matching method
     double etaBinLow  = 0.;
     double etaBinHigh = 0.;	
     if(fabs(ref->eta()) < barrel_end_){
-      etaBinLow = l1EGIso[i]->eta() - region_eta_size_/2.;
+      etaBinLow = i->eta() - region_eta_size_/2.;
       etaBinHigh = etaBinLow + region_eta_size_;
     }
     else{
-      etaBinLow = l1EGIso[i]->eta() - region_eta_size_ecap_/2.;
+      etaBinLow = i->eta() - region_eta_size_ecap_/2.;
       etaBinHigh = etaBinLow + region_eta_size_ecap_;
     }
 
-    float deltaphi=fabs(ref->phi() -l1EGIso[i]->phi());
+    float deltaphi=fabs(ref->phi() -i->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
     if(deltaphi>M_PI) deltaphi=TWOPI-deltaphi;
 
@@ -189,20 +189,20 @@ bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandida
 
   }
 
-  for (unsigned int i=0; i<l1EGNonIso.size(); i++) {
+  for (auto & i : l1EGNonIso) {
     //ORCA matching method
     double etaBinLow  = 0.;
     double etaBinHigh = 0.;	
     if(fabs(ref->eta()) < barrel_end_){
-      etaBinLow = l1EGNonIso[i]->eta() - region_eta_size_/2.;
+      etaBinLow = i->eta() - region_eta_size_/2.;
       etaBinHigh = etaBinLow + region_eta_size_;
     }
     else{
-      etaBinLow = l1EGNonIso[i]->eta() - region_eta_size_ecap_/2.;
+      etaBinLow = i->eta() - region_eta_size_ecap_/2.;
       etaBinHigh = etaBinLow + region_eta_size_ecap_;
     }
 
-    float deltaphi=fabs(ref->phi() - l1EGNonIso[i]->phi());
+    float deltaphi=fabs(ref->phi() - i->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
     if(deltaphi>M_PI) deltaphi=TWOPI-deltaphi;
 

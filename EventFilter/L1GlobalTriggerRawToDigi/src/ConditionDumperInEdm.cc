@@ -20,9 +20,9 @@ ConditionDumperInEdm::ConditionDumperInEdm(const edm::ParameterSet& iConfig)
 
 
   //per LUMI products
-  produces<edm::ConditionsInLumiBlock,edm::InLumi>();
+  produces<edm::ConditionsInLumiBlock,edm::Transition::EndLuminosityBlock>();
   //per RUN products
-  produces<edm::ConditionsInRunBlock,edm::InRun>();
+  produces<edm::ConditionsInRunBlock,edm::Transition::EndRun>();
   //per EVENT products
   produces<edm::ConditionsInEventBlock>();
 

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #Client:
-sipixelEDAClientP5 = cms.EDAnalyzer("SiPixelEDAClient",
+sipixelEDAClientP5 = DQMEDHarvester("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(True), ## do not set to False, otherwise Summary histos not filled!
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -14,9 +15,9 @@ sipixelEDAClientP5 = cms.EDAnalyzer("SiPixelEDAClient",
 )
 
 #DataCertification:
-sipixelDaqInfo = cms.EDAnalyzer("SiPixelDaqInfo")
-sipixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
-sipixelCertification = cms.EDAnalyzer("SiPixelCertification")
+sipixelDaqInfo = DQMEDHarvester("SiPixelDaqInfo")
+sipixelDcsInfo = DQMEDHarvester("SiPixelDcsInfo")
+sipixelCertification = DQMEDHarvester("SiPixelCertification")
 
 #Predefined Sequences:
 PixelP5DQMClient = cms.Sequence(sipixelEDAClientP5)

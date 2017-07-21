@@ -89,7 +89,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 setWhatProduced( this, &TestCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
-      ~TestCaloAlignmentEP() {}
+      ~TestCaloAlignmentEP() override {}
 
 //-------------------------------------------------------------------
  

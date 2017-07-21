@@ -18,7 +18,7 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                           ecal_dqm_source_offline *
-                                          #hcalOfflineSourceSequence *
+                                          hcalOfflineSourceSequence *
                                           SiStripDQMTier0_hi *
                                           siPixelOfflineDQM_heavyions_source *
                                           dtSources *
@@ -47,6 +47,14 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 triggerOfflineDQMSource.remove(exoticaMonitorHLT)
+triggerOfflineDQMSource.remove(susyMonitorHLT)
+triggerOfflineDQMSource.remove(b2gMonitorHLT)
+triggerOfflineDQMSource.remove(bphMonitorHLT)
+triggerOfflineDQMSource.remove(higgsMonitorHLT)
+triggerOfflineDQMSource.remove(smpMonitorHLT)
+triggerOfflineDQMSource.remove(topMonitorHLT)
+triggerOfflineDQMSource.remove(btagMonitorHLT)
+triggerOfflineDQMSource.remove(egammaMonitorHLT)
 
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
@@ -78,10 +86,10 @@ hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
 hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 
 
-globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+globalAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 pvMonitor.vertexLabel = cms.InputTag("hiSelectedVertex")
 

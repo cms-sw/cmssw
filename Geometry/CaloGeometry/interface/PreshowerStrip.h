@@ -40,14 +40,14 @@ public:
 		  const CCGFloat*    parm  ) :
     CaloCellGeometry ( po , mgr, parm ) {initSpan();}
 
-  virtual ~PreshowerStrip();
+  ~PreshowerStrip() override;
 
   CCGFloat dx() const { return param()[0] ; }
   CCGFloat dy() const { return param()[1] ; }
   CCGFloat dz() const { return param()[2] ; }
   CCGFloat tilt() const { return param()[3] ; }
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
+  void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
 			     Pt3D&           ref  ) const override 
     { localCorners( vec, pv, ref ) ; }
@@ -56,10 +56,10 @@ public:
 			    const CCGFloat* pv  , 
 			    Pt3D&           ref  ) ;
 
-  virtual void getTransform( Tr3D& tr, Pt3DVec* /*lptr*/ ) const override
+  void getTransform( Tr3D& tr, Pt3DVec* /*lptr*/ ) const override
     { }
  private:
-  virtual void initCorners(CaloCellGeometry::CornersVec&) override;
+  void initCorners(CaloCellGeometry::CornersVec&) override;
 };
 
 std::ostream& operator<<( std::ostream& s , const PreshowerStrip& cell) ;

@@ -10,7 +10,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -27,7 +27,7 @@ class DTGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public: 
   DTGeometryAnalyzer( const edm::ParameterSet& pset);
-  ~DTGeometryAnalyzer();
+  ~DTGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -86,12 +86,11 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check layers
   cout << "LAYERS " << dashedLine_ << endl;
-  for(vector<const DTLayer*>::const_iterator det = pDD->layers().begin(); 
-      det != pDD->layers().end(); ++det){
-    const DTTopology& topo = (*det)->specificTopology();
-    const BoundPlane& surf=(*det)->surface();
-    cout << "Layer " << (*det)->id() << " SL " << (*det)->superLayer()->id() 
-      << " chamber " << (*det)->chamber()->id() 
+  for(auto det : pDD->layers()){
+    const DTTopology& topo = det->specificTopology();
+    const BoundPlane& surf=det->surface();
+    cout << "Layer " << det->id() << " SL " << det->superLayer()->id() 
+      << " chamber " << det->chamber()->id() 
       << " Topology W/H/L: " 
       << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght() 
       << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
@@ -105,11 +104,10 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check superlayers
   cout << "SUPERLAYERS " << dashedLine_ << endl;
-  for(vector<const DTSuperLayer*>::const_iterator det = pDD->superLayers().begin(); 
-      det != pDD->superLayers().end(); ++det){
-    const BoundPlane& surf=(*det)->surface();
-    cout << "SuperLayer " << (*det)->id()
-      << " chamber " << (*det)->chamber()->id()
+  for(auto det : pDD->superLayers()){
+    const BoundPlane& surf=det->surface();
+    cout << "SuperLayer " << det->id()
+      << " chamber " << det->chamber()->id()
       << " Position " << surf.position()
       << " normVect " << surf.normalVector() 
       << " bounds W/H/L: " << surf.bounds().width() << "/" 
@@ -120,12 +118,11 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check chamber
   cout << "CHAMBERS " << dashedLine_ << endl;
-  for(vector<const DTChamber*>::const_iterator det = pDD->chambers().begin(); 
-      det != pDD->chambers().end(); ++det){
+  for(auto det : pDD->chambers()){
     //cout << "Chamber " << (*det)->geographicalId().det() << endl;
-    const BoundPlane& surf=(*det)->surface();
+    const BoundPlane& surf=det->surface();
     //cout << "surf " << &surf <<  endl;
-    cout << "Chamber " << (*det)->id() 
+    cout << "Chamber " << det->id() 
       << " Position " << surf.position()
       << " normVect " << surf.normalVector() 
       << " bounds W/H/L: " << surf.bounds().width() << "/" 

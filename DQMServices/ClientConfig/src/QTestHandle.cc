@@ -12,8 +12,11 @@
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/scoped_ptr.hpp"
+#include <atomic>
 
-bool firstTime=true;
+namespace {
+  std::atomic<bool> firstTime{true};
+}
 
 QTestHandle::QTestHandle()
 {
@@ -65,6 +68,9 @@ void QTestHandle::attachTests(DQMStore *bei, bool verboseQT)
   std::map<std::string, std::vector<std::string> > mapMeToTests
     = qtParser->meToTestsList();
  
+  //If firstTime is true, then firstCaller will be true
+  bool expected = true;
+  const bool firstCaller = firstTime.compare_exchange_strong(expected,false);
  
   for (std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
        itr != mapMeToTests.end();
@@ -76,13 +82,12 @@ void QTestHandle::attachTests(DQMStore *bei, bool verboseQT)
     for (std::vector<std::string>::const_iterator testsItr = tests.begin();
 	 testsItr != tests.end(); ++testsItr){
       int cases =  bei->useQTestByMatch(meName, *testsItr);
-      if (firstTime && verboseQT && cases == 0)
+      if (firstCaller && verboseQT && cases == 0)
        edm::LogWarning ("QTestHandle::attachTests")
        << " ==>> Invalid qtest xml: Link '"<< meName 
        <<"', QTest '"<< *testsItr << "'  - no matching ME! <<== ";
       }
   }
-  firstTime = false;
 }
 
 std::pair<std::string,std::string>

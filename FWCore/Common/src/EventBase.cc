@@ -44,6 +44,11 @@ namespace edm
    {
    }
 
+   edm::ParameterSet const*
+   EventBase::parameterSetForID_(edm::ParameterSetID const& iPSID) {
+      return edm::pset::Registry::instance()->getMapped(iPSID);
+   }
+
    TriggerNames const*
    EventBase::triggerNames_(edm::TriggerResults const& triggerResults) {
 

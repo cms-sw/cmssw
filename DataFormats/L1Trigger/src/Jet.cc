@@ -55,7 +55,7 @@ void Jet::setPUEt(short int et) {
   puEt_ = et;
 }
 
-void Jet::setPUDonutEt(uint i, short int et) {
+void Jet::setPUDonutEt(unsigned int i, short int et) {
   if (i<4) puDonutEt_[i] = et;
 }
 

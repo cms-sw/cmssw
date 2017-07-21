@@ -114,7 +114,6 @@ def main():
     # test with synch=any
     tag = 'test_CondUpload_any'
     test.execute( inputTag0, bfile0, tag, 'any', 1, True, 'CREATE' )
-    test.execute( inputTag1, bfile1, tag, 'any', 1, False, 'FAIL' )  
     test.execute( inputTag0, bfile0, tag, 'any', 200, True, 'APPEND' )  
     test.execute( inputTag0, bfile0, tag, 'any', 100, True, 'INSERT')  
     test.execute( inputTag0, bfile0, tag, 'any', 200, True, 'INSERT')  
@@ -127,9 +126,9 @@ def main():
     test.execute( inputTag0, bfile0, tag, 'validation', 100, True, 'INSERT')  
     # test with synch=mc
     tag = 'test_CondUpload_mc'
-    test.execute( inputTag1, bfile1, tag, 'mc', 1, False, 'FAIL')  
     test.execute( inputTag0, bfile0, tag, 'mc', 1, True, 'CREATE')  
     db.setSynchronizationType( tag, 'mc' ) 
+    test.execute( inputTag1, bfile1, tag, 'mc', 1, False, 'FAIL')  
     test.execute( inputTag0, bfile0, tag, 'mc', 1, False, 'FAIL')  
     test.execute( inputTag0, bfile0, tag, 'mc', 200, False, 'FAIL') 
     # test with synch=hlt
@@ -193,6 +192,7 @@ def main():
     test.execute( inputTag0, bfile0, tag, 'runmc', 2000, True, 'APPEND' )
     os.remove( fileName )
     print 'Done. Errors: %s' %test.errors
+
     
 if __name__ == '__main__':
     main()

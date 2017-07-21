@@ -12,6 +12,7 @@
 
 class LHERunInfoProduct {
     public:
+    typedef std::vector<std::pair<std::string,std::string> > weights_defs;
 	class Header {
 	    public:
 		typedef std::vector<std::string>::const_iterator const_iterator;
@@ -48,7 +49,9 @@ class LHERunInfoProduct {
 	LHERunInfoProduct() {}
 	LHERunInfoProduct(const lhef::HEPRUP &heprup) : heprup_(heprup) {}
 	~LHERunInfoProduct() {}
-
+  
+	bool find_if_checklist(const std::string x, std::vector<std::string> checklist);
+  
 	void addHeader(const Header &header) { headers_.push_back(header); }
 	void addComment(const std::string &line) { comments_.push_back(line); }
 

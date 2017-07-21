@@ -18,7 +18,7 @@ public:
   virtual ~AHCalSD();
   virtual double                getEnergyDeposit(G4Step* );
   virtual uint32_t              setDetUnitId(G4Step* step);
-  static bool                   unpackIndex(const uint32_t & idx, int & row, 
+  bool                          unpackIndex(const uint32_t & idx, int & row, 
 					    int& col, int& depth);
 protected:
 

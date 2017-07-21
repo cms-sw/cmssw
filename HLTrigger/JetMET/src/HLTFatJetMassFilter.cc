@@ -49,7 +49,7 @@ HLTFatJetMassFilter<jetType>::HLTFatJetMassFilter(const edm::ParameterSet& iConf
 }
 
 template<typename jetType>
-HLTFatJetMassFilter<jetType>::~HLTFatJetMassFilter(){}
+HLTFatJetMassFilter<jetType>::~HLTFatJetMassFilter()= default;
 
 template<typename jetType>
 void 

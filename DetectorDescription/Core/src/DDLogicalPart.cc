@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
@@ -348,8 +348,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
     for (LPNAMES::value_type::const_iterator it=bn; it != ed; ++it)
       if(aRegex.match(it->first)) candidates.push_back(it);
   }
-  for (int i=0; i<int(candidates.size()); ++i) {
-    LPNAMES::value_type::const_iterator it = candidates[i];
+  for (const auto & it : candidates) {
     //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
     std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
     if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces

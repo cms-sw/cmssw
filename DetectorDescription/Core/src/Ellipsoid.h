@@ -27,12 +27,12 @@ namespace DDI {
 	p_.push_back(zBottomCut);
 	p_.push_back(zTopCut);
       }  
-      ~Ellipsoid() { }
+      ~Ellipsoid() override { }
       
       /// Not as flexible and possibly less accurate than G4 volume.
-      double volume() const ;
+      double volume() const override ;
       double halfVol (double dz, double maxz) const;
-      void stream(std::ostream & os) const;
+      void stream(std::ostream & os) const override;
   };
   
 }

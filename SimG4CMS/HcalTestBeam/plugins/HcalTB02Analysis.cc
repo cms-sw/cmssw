@@ -134,7 +134,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
   // HCAL
   HcalTB02HcalNumberingScheme *org = new HcalTB02HcalNumberingScheme();   
 
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for ( ihit = 0; ihit < nentries; ihit++) {
 
       CaloG4Hit* aHit = (*theHCHC)[ihit]; 
@@ -287,7 +287,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
     // XTALS
 
-    if (XTALSid >= 0 && theXTHC > 0) {
+    if (XTALSid >= 0 && theXTHC != nullptr) {
       for (int xihit = 0; xihit < xentries; xihit++) {
 
 	CaloG4Hit* xaHit = (*theXTHC)[xihit]; 

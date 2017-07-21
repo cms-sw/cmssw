@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -214,7 +214,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 					      const std::string & sdTag1,
 					      const DDCompactView* cpv,
 					      const std::string & sdTag2,
-					      const std::string & sdTag3) {
+					      const std::string & sdTag3,
+					      HGCalGeometryMode::WaferMode mode) {
  
   DDFilteredView fv = _fv;
   bool dodet(true);
@@ -322,11 +323,22 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	  HGCalGeomParameters::cellParameters cell(false,wafer,p);
 	  wafers.emplace_back(cell);
 	  if ( names.count(name) == 0 ) {
-	    const DDPolyhedra & polyhedra = static_cast<DDPolyhedra>(sol);
-	    std::vector<double> zv = polyhedra.zVec();
-	    std::vector<double> rv = polyhedra.rMaxVec();
+	    std::vector<double> zv, rv;
+	    if (mode == HGCalGeometryMode::Polyhedra) {
+	      const DDPolyhedra & polyhedra = static_cast<DDPolyhedra>(sol);
+	      zv = polyhedra.zVec();
+	      rv = polyhedra.rMaxVec();
+	    } else {
+	      const DDExtrudedPolygon & polygon = static_cast<DDExtrudedPolygon>(sol);
+	      zv = polygon.zVec();
+	      rv = polygon.xVec();
+	    }
 	    php.waferR_ = rv[0]/std::cos(30.0*CLHEP::deg);
 	    double dz   = 0.5*(zv[1]-zv[0]);
+#ifdef EDM_ML_DEBUG
+	    std::cout << "Mode " << mode << " R " << php.waferR_ << " z " << dz
+		      << std::endl;
+#endif
 	    HGCalParameters::hgtrap mytr;
 	    mytr.lay = 1;           mytr.bl = php.waferR_; 
 	    mytr.tl = php.waferR_;  mytr.h = php.waferR_; 
@@ -421,13 +433,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
 
   for (unsigned int i=0; i<layers.size(); ++i) {
-    for (std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.begin();
-	 itr != layers.end(); ++itr) {
-      if (itr->first == (int)(i+1)) {
+    for (auto & layer : layers) {
+      if (layer.first == (int)(i+1)) {
 	php.layerIndex_.push_back(i);
-	php.rMinLayHex_.push_back(itr->second.rmin);
-	php.rMaxLayHex_.push_back(itr->second.rmax);
-	php.zLayerHex_.push_back(itr->second.zpos);
+	php.rMinLayHex_.push_back(layer.second.rmin);
+	php.rMaxLayHex_.push_back(layer.second.rmax);
+	php.zLayerHex_.push_back(layer.second.zpos);
 	break;
       }
     }
@@ -657,8 +668,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   DDsvalues_type sv(fv.mergedSpecifics());
   int nmin(4);
   php.boundR_ = getDDDArray("RadiusBound",sv,nmin);
-  for (unsigned int k=0; k<php.boundR_.size(); ++k) 
-    php.boundR_[k] *= k_ScaleFromDDD;
+  for (double & k : php.boundR_) 
+    k *= k_ScaleFromDDD;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalGeomParameters: wafer radius ranges for cell grouping " 
 	    << php.boundR_[0] << ":" << php.boundR_[1] << ":"
@@ -666,8 +677,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 #endif
   nmin = 2;
   php.rLimit_ = getDDDArray("RadiusLimits",sv,nmin);
-  for (unsigned int k=0; k<php.rLimit_.size(); ++k) 
-    php.rLimit_[k] *= k_ScaleFromDDD;
+  for (double & k : php.rLimit_) 
+    k *= k_ScaleFromDDD;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalGeomParameters: Minimum/maximum R " 
 	    << php.rLimit_[0] << ":" << php.rLimit_[1] << "\n";

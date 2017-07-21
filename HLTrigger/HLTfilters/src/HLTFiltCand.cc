@@ -75,9 +75,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
    ;
 }
 
-HLTFiltCand::~HLTFiltCand()
-{
-}
+HLTFiltCand::~HLTFiltCand() = default;
 
 //
 // member functions
@@ -155,8 +153,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // photons
    int nphot(0);
-   RecoEcalCandidateCollection::const_iterator aphot(photons->begin());
-   RecoEcalCandidateCollection::const_iterator ophot(photons->end());
+   auto aphot(photons->begin());
+   auto ophot(photons->end());
    RecoEcalCandidateCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= min_Pt_) {
@@ -168,8 +166,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // electrons
    int nelec(0);
-   ElectronCollection::const_iterator aelec(electrons->begin());
-   ElectronCollection::const_iterator oelec(electrons->end());
+   auto aelec(electrons->begin());
+   auto oelec(electrons->end());
    ElectronCollection::const_iterator ielec;
    for (ielec=aelec; ielec!=oelec; ielec++) {
      if (ielec->pt() >= min_Pt_) {
@@ -181,8 +179,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // muon
    int nmuon(0);
-   RecoChargedCandidateCollection::const_iterator amuon(muons->begin());
-   RecoChargedCandidateCollection::const_iterator omuon(muons->end());
+   auto amuon(muons->begin());
+   auto omuon(muons->end());
    RecoChargedCandidateCollection::const_iterator imuon;
    for (imuon=amuon; imuon!=omuon; imuon++) {
      if (imuon->pt() >= min_Pt_) {
@@ -194,8 +192,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // taus (are stored as jets)
    int ntaus(0);
-   CaloJetCollection::const_iterator ataus(taus->begin());
-   CaloJetCollection::const_iterator otaus(taus->end());
+   auto ataus(taus->begin());
+   auto otaus(taus->end());
    CaloJetCollection::const_iterator itaus;
    for (itaus=ataus; itaus!=otaus; itaus++) {
      if (itaus->pt() >= min_Pt_) {
@@ -207,8 +205,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // jets
    int njets(0);
-   CaloJetCollection::const_iterator ajets(jets->begin());
-   CaloJetCollection::const_iterator ojets(jets->end());
+   auto ajets(jets->begin());
+   auto ojets(jets->end());
    CaloJetCollection::const_iterator ijets;
    for (ijets=ajets; ijets!=ojets; ijets++) {
      if (ijets->pt() >= min_Pt_) {
@@ -220,8 +218,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // mets
    int nmets(0);
-   CaloMETCollection::const_iterator amets(mets->begin());
-   CaloMETCollection::const_iterator omets(mets->end());
+   auto amets(mets->begin());
+   auto omets(mets->end());
    CaloMETCollection::const_iterator imets;
    for (imets=amets; imets!=omets; imets++) {
      if (imets->pt() >= min_Pt_) {
@@ -233,8 +231,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // mhts
    int nmhts(0);
-   METCollection::const_iterator amhts(mhts->begin());
-   METCollection::const_iterator omhts(mhts->end());
+   auto amhts(mhts->begin());
+   auto omhts(mhts->end());
    METCollection::const_iterator imhts;
    for (imhts=amhts; imhts!=omhts; imhts++) {
      if (imhts->pt() >= min_Pt_) {
@@ -246,8 +244,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // trcks
    int ntrck(0);
-   RecoChargedCandidateCollection::const_iterator atrcks(trcks->begin());
-   RecoChargedCandidateCollection::const_iterator otrcks(trcks->end());
+   auto atrcks(trcks->begin());
+   auto otrcks(trcks->end());
    RecoChargedCandidateCollection::const_iterator itrcks;
    for (itrcks=atrcks; itrcks!=otrcks; itrcks++) {
      if (itrcks->pt() >= min_Pt_) {
@@ -259,8 +257,8 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
 
    // ecals
    int necal(0);
-   RecoEcalCandidateCollection::const_iterator aecals(ecals->begin());
-   RecoEcalCandidateCollection::const_iterator oecals(ecals->end());
+   auto aecals(ecals->begin());
+   auto oecals(ecals->end());
    RecoEcalCandidateCollection::const_iterator iecals;
    for (iecals=aecals; iecals!=oecals; iecals++) {
      if (iecals->pt() >= min_Pt_) {

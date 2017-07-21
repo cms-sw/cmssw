@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -160,8 +160,8 @@ class testDDIsValid : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkAgaistOld);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown() {}
+  void setUp() override{}
+  void tearDown() override {}
   void buildIt();
   void testloading();
   void checkAgaistOld();

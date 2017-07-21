@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -189,6 +189,8 @@ void DDHGCalModule::constructLayers(DDLogicalPart module,
 		  << " Tubs made of " << matName << " of dimensions " << rinB 
 		  << ", " << routF << ", " << 0.5*thick[ii] << ", 0.0, "
 		  << CLHEP::twopi/CLHEP::deg << std::endl;
+	std::cout << "DDHGCalModule test position in: " << glog.name() 
+		  << " number "	<< copy << std::endl;
 #endif
 	positionSensitive(glog,rinB,routF,cpv);
       }

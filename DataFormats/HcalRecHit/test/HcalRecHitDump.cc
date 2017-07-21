@@ -55,13 +55,26 @@ namespace {
     }
 
     void printRecHitAuxInfo(std::ostream& s, const HFPreRecHit& i,
-                            const std::vector<int>& bits)
+                            const std::vector<int>& bits, bool)
     {
     }
 
     void printRecHitAuxInfo(std::ostream& s, const HBHERecHit& i,
-                            const std::vector<int>& bits)
+                            const std::vector<int>& bits, const bool plan1)
     {
+        if (plan1 && i.isMerged())
+        {
+            // This is a "Plan 1" combined rechit
+            std::vector<HcalDetId> ids;
+            i.getMergedIds(&ids);
+            const unsigned n = ids.size();
+            s << "; merged " << n << ": ";
+            for (unsigned j=0; j<n; ++j)
+            {
+                if (j) s << ", ";
+                s << ids[j];
+            }
+        }
         if (!bits.empty())
         {
             std::array<uint32_t,4> allbits;
@@ -75,7 +88,7 @@ namespace {
     }
 
     void printRecHitAuxInfo(std::ostream& s, const HFRecHit& i,
-                            const std::vector<int>& bits)
+                            const std::vector<int>& bits, bool)
     {
         if (!bits.empty())
         {
@@ -104,6 +117,7 @@ private:
     string hfPrefix_;
     string hfprePrefix_;
     std::vector<int> bits_;
+    bool printPlan1Info_;
 
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
@@ -113,7 +127,8 @@ private:
 
     template<class Collection, class Token>
     void analyzeT(edm::Event const& e, const Token& tok,
-                  const char* name, const string& prefix) const
+                  const char* name, const string& prefix,
+                  const bool printPlan1Info = false) const
     {
         cout << prefix << " rechit dump " << counter_ << endl;
 
@@ -130,7 +145,7 @@ private:
             for (typename Collection::const_iterator j = coll->begin(); j != coll->end(); ++j)
             {
                 cout << prefix << *j;
-                printRecHitAuxInfo(cout, *j, bits_);
+                printRecHitAuxInfo(cout, *j, bits_, printPlan1Info);
                 cout << endl;
             }
         }
@@ -142,6 +157,7 @@ HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf)
       hfPrefix_(conf.getUntrackedParameter<string>("hfPrefix", "")),
       hfprePrefix_(conf.getUntrackedParameter<string>("hfprePrefix", "")),
       bits_(conf.getUntrackedParameter<std::vector<int> >("bits")),
+      printPlan1Info_(conf.getUntrackedParameter<bool>("printPlan1Info", false)),
       counter_(0)
 {
     if (!hbhePrefix_.empty())
@@ -158,7 +174,7 @@ HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf)
 void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c)
 {
     if (!hbhePrefix_.empty())
-        analyzeT<HBHERecHitCollection>(e, tok_hbhe_, "HBHE", hbhePrefix_);
+        analyzeT<HBHERecHitCollection>(e, tok_hbhe_, "HBHE", hbhePrefix_, printPlan1Info_);
     if (!hfPrefix_.empty())
         analyzeT<HFRecHitCollection>(e, tok_hf_, "HF", hfPrefix_);
     if (!hfprePrefix_.empty())

@@ -33,9 +33,7 @@ HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) : HLTFilter
      << cut_<< " " << min_N_ ;
 }
 
-HLTSummaryFilter::~HLTSummaryFilter()
-{
-}
+HLTSummaryFilter::~HLTSummaryFilter() = default;
 
 //
 // member functions

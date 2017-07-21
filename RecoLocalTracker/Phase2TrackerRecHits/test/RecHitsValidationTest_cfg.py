@@ -7,7 +7,7 @@ process = cms.Process('cluTest')
 # Import all the necessary files
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -46,7 +46,11 @@ process.analysis = cms.EDAnalyzer('Phase2TrackerRecHitsValidation',
     links = cms.InputTag("simSiPixelDigis", "Tracker"),
     simhitsbarrel = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
     simhitsendcap = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-    simtracks = cms.InputTag("g4SimHits")
+    simtracks = cms.InputTag("g4SimHits"),
+    ECasRings = cms.bool(True),
+    SimTrackMinPt = cms.double(2.),
+    MinEta = cms.double(0.),
+    MaxEta = cms.double(10.)
 )
 
 # Processes to run

@@ -17,7 +17,7 @@ from DQM.HcalTasks.OfflineHarvestingSequence_cosmic import *
 
 DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient * 
                                                     ecal_dqm_client_offline *
-                                                    #hcalOfflineHarvesting *
+                                                    hcalOfflineHarvesting *
                                                     SiStripCosmicDQMClient *
                                                     PixelOfflineDQMClientNoDataCertification_cosmics *
                                                     dtClientsCosmics *

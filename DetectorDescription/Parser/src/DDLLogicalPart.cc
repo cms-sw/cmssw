@@ -46,8 +46,8 @@ void
 DDLLogicalPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   // rMaterial and rSolid  
-  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
+  auto myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
+  auto myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
 
   DDXMLAttribute atts = getAttributeSet();
 

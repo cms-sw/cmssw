@@ -28,13 +28,14 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Use for HBHERecHitCollection
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -46,7 +47,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 // class declaration
 //
 
-class HcalLaserEventFilter : public edm::EDFilter {
+class HcalLaserEventFilter : public edm::global::EDFilter<> {
    public:
       explicit HcalLaserEventFilter(const edm::ParameterSet&);
       ~HcalLaserEventFilter();
@@ -54,12 +55,10 @@ class HcalLaserEventFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::vector<int>  GetCMSSWVersion(std::string const&);
-  bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&);
+  std::vector<int>  GetCMSSWVersion(std::string const&) const;
+  bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&) const;
 
       // ----------member data ---------------------------
 
@@ -85,10 +84,6 @@ class HcalLaserEventFilter : public edm::EDFilter {
   edm::EDGetTokenT<HcalNoiseSummary> hcalNoiseSummaryToken_;
 
   const bool taggingMode_;
-
-  // Control maximum number of error messages to display
-  int errorcount;
-  int maxerrormessage_;
 
   // Decide whether to use the HcalNoiseSummary to get the RecHit info, or to use the RecHit Collection itself
   bool useHcalNoiseSummary_;
@@ -118,11 +113,9 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   , reverseFilter_              (iConfig.getUntrackedParameter<bool>("reverseFilter",false))
   , hbheInputLabel_             (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
   , hbheToken_             (mayConsume<HBHERecHitCollection>(hbheInputLabel_))
-
   , hcalNoiseSummaryLabel_      (iConfig.getUntrackedParameter<edm::InputTag>("hcalNoiseSummaryLabel",edm::InputTag("hcalnoise")))
   , hcalNoiseSummaryToken_      (mayConsume<HcalNoiseSummary>(hcalNoiseSummaryLabel_))
   , taggingMode_                (iConfig.getParameter<bool>("taggingMode"))
-  , maxerrormessage_            (iConfig.getUntrackedParameter<int>("maxerrormessage",1))
   , forceUseRecHitCollection_   (iConfig.getUntrackedParameter<bool>("forceUseRecHitCollection",false))
   , forceUseHcalNoiseSummary_   (iConfig.getUntrackedParameter<bool>("forceUseHcalNoiseSummary",false))
 
@@ -140,8 +133,19 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
       edm::EventNumber_t evt=temprunevt[i+1];
       RunEventData_.push_back(std::make_pair(run,evt));
     }
-  errorcount=0;
   produces<bool>();
+
+  // Specify the minimum release that has the rechit counts in the HcalNoiseSummary object.
+  // If current release >= that release, then HcalNoiseSummary will be used.  Otherwise, Rechit collection will be used.
+  std::string minRelease="\"CMSSW_5_2_0\"";
+
+  minVersion_=GetCMSSWVersion(minRelease);
+  std::vector <int> currentVersion=GetCMSSWVersion(edm::getReleaseVersion());
+
+  if (IsGreaterThanMinCMSSWVersion(currentVersion)) // current Version is >= minVersion_
+    useHcalNoiseSummary_=true;
+  else
+    useHcalNoiseSummary_=false;
 }
 
 
@@ -160,13 +164,13 @@ HcalLaserEventFilter::~HcalLaserEventFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
 
    bool filterDecision=true;
 
-   if (debug_) std::cout <<"<HcalLaserEventFilter> Run = "<<iEvent.id().run()<<" Event = "<<iEvent.id().event()<<std::endl;
+   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter> Run = "<<iEvent.id().run()<<" Event = "<<iEvent.id().event();
 
    // Veto events by run/event numbers
    if (vetoByRunEventNumber_)
@@ -176,7 +180,7 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (iEvent.id().run()==RunEventData_[i].first &&
 	       iEvent.id().event()==RunEventData_[i].second)
 	     {
-	       if (debug_) std::cout<<"\t<HcalLaserEventFilter> Filtering bad event;  Run "<<iEvent.id().run()<<" Event = "<<iEvent.id().event()<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter")<<"\t<HcalLaserEventFilter> Filtering bad event;  Run "<<iEvent.id().run()<<" Event = "<<iEvent.id().event();
 	       filterDecision=false;
 	       break;
 	     }
@@ -203,18 +207,16 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   edm::Handle<HBHERecHitCollection> hbheRecHits;
 	   if (iEvent.getByToken(hbheToken_,hbheRecHits))
 	     {
-	       if (debug_) std::cout <<"Rechit size = "<<hbheRecHits->size()<<"  threshold = "<<minOccupiedHBHE_<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"Rechit size = "<<hbheRecHits->size()<<"  threshold = "<<minOccupiedHBHE_;
 	       if (hbheRecHits->size()>=minOccupiedHBHE_)
 		 {
-		   if (debug_) std::cout <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size; "<<hbheRecHits->size()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_<<std::endl;
+		   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size; "<<hbheRecHits->size()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_;
 		   filterDecision=false;
 		 }
 	     }
 	   else
 	     {
-	       if (debug_ && errorcount<maxerrormessage_)
-		 std::cout <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found"<<std::endl;
-	       ++errorcount;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found";
 	     }
 	 }
 
@@ -228,18 +230,16 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   Handle<HcalNoiseSummary> hSummary;
 	   if (iEvent.getByToken(hcalNoiseSummaryToken_,hSummary)) // get by label, usually with label 'hcalnoise'
 	     {
-	       if (debug_)  std::cout << " RECHIT SIZE (from HcalNoiseSummary) = "<<hSummary->GetRecHitCount()<<"  threshold = "<<minOccupiedHBHE_<<std::endl;
+	       if (debug_)  edm::LogInfo("HcalLaserEventFilter") << " RECHIT SIZE (from HcalNoiseSummary) = "<<hSummary->GetRecHitCount()<<"  threshold = "<<minOccupiedHBHE_;
 	       if (hSummary->GetRecHitCount() >= (int)minOccupiedHBHE_)
 		 {
-		   if (debug_) std::cout <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size in HcalNoiseSummary; "<<hSummary->GetRecHitCount()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_<<std::endl;
+		   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size in HcalNoiseSummary; "<<hSummary->GetRecHitCount()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_;
 		   filterDecision=false;
 		 }
 	     }
 	   else
 	     {
-	       if (debug_ && errorcount<maxerrormessage_)
-		 std::cout <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found"<<std::endl;
-	       ++errorcount;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found";
 	     }
 	 }
      }// if (vetoByHBHEOccupancy_)
@@ -253,28 +253,6 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return taggingMode_ || filterDecision;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-HcalLaserEventFilter::beginJob()
-{
-  // Specify the minimum release that has the rechit counts in the HcalNoiseSummary object.
-  // If current release >= that release, then HcalNoiseSummary will be used.  Otherwise, Rechit collection will be used.
-  std::string minRelease="\"CMSSW_5_2_0\"";
-
-  minVersion_=GetCMSSWVersion(minRelease);
-  std::vector <int> currentVersion=GetCMSSWVersion(edm::getReleaseVersion());
-
-  if (IsGreaterThanMinCMSSWVersion(currentVersion)) // current Version is >= minVersion_
-    useHcalNoiseSummary_=true;
-  else
-    useHcalNoiseSummary_=false;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-HcalLaserEventFilter::endJob() {
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -285,7 +263,7 @@ HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring)
+std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring) const
 {
   std::vector <int> temp;
 
@@ -317,7 +295,7 @@ std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instr
   return temp;
 }
 
-bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> const& currentVersion)
+bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> const& currentVersion) const
 {
   // Returns false if current version is less than min version
   // Otherwise, returns true

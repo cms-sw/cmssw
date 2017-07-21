@@ -42,7 +42,7 @@ namespace gen {
   class Py8GunBase : public Py8InterfaceBase {
   public:
     Py8GunBase( edm::ParameterSet const& ps );
-    ~Py8GunBase() {}
+    virtual ~Py8GunBase() {}
     
     virtual bool residualDecay(); // common func
     bool initializeForInternalPartons();

@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
@@ -26,7 +26,7 @@ class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer
 {
 public:
   XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& );
-  ~XMLIdealMagneticFieldGeometryESProducer();
+  ~XMLIdealMagneticFieldGeometryESProducer() override;
   
   typedef std::unique_ptr<DDCompactView> ReturnType;
   

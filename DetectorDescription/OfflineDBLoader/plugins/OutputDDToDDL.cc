@@ -37,7 +37,7 @@ class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
-  ~OutputDDToDDL();
+  ~OutputDDToDDL() override;
 
   void beginJob() override {}
   void beginRun( edm::Run const& iEvent, edm::EventSetup const& ) override;
@@ -245,6 +245,15 @@ OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, 
       addToSolStore( bs.solidB(), solStore, rotStore );
     }
     rotStore.insert( bs.rotation());
+  }
+  if( sol.shape() == ddmultiunion ) {
+    const DDMultiUnionSolid& ms( sol );
+    for( auto it : ms.solids())
+      if( solStore.find(it) == solStore.end()) {
+	addToSolStore( it, solStore, rotStore );
+      }
+    for( auto it : ms.rotations())
+      rotStore.insert( it );
   }
 }
 

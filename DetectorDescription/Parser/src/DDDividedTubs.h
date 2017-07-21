@@ -6,7 +6,7 @@
 // ********************************************************************
 
 #include "DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
 class DDCompactView;
@@ -19,10 +19,10 @@ class DDDividedTubsRho final : public DDDividedGeometryObject
 
   DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv );
 
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( const int copyNo ) const override;
+  DDRotation makeDDRotation( const int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
 };
 
 class DDDividedTubsPhi final : public DDDividedGeometryObject
@@ -31,10 +31,10 @@ class DDDividedTubsPhi final : public DDDividedGeometryObject
 
   DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv );
   
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( const int copyNo ) const override;
+  DDRotation makeDDRotation( const int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
 };
 
 class DDDividedTubsZ final : public DDDividedGeometryObject
@@ -43,10 +43,10 @@ class DDDividedTubsZ final : public DDDividedGeometryObject
 
   DDDividedTubsZ( const DDDivision& div, DDCompactView* cpv );
 
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( const int copyNo ) const override;
+  DDRotation makeDDRotation( const int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart(const int copyNo ) const override;
 };
 
 #endif

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates a histogram where the the names of the structures are present
 # as humanreadable text.
@@ -7,23 +5,23 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TGraph, TImage, TPaveLabel, TPaveText, TTree,
-                  gROOT, gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import OutputData, PlotData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def plot(MillePedeUser, alignables, config):
     logger = logging.getLogger("mpsvalidate")
     
     # more space for labels
-    gStyle.SetPadBottomMargin(0.25)
-    gStyle.SetOptStat("emrs")
+    ROOT.gStyle.SetPadBottomMargin(0.25)
+    ROOT.gStyle.SetOptStat("emrs")
 
     for mode in ["xyz", "rot"]:
-        big = PlotData(mode)
+        big = mpsv_classes.PlotData(mode)
 
         # count number of needed bins and max shift
         for line in MillePedeUser:
@@ -38,7 +36,7 @@ def plot(MillePedeUser, alignables, config):
 
         # initialize histograms
         for i in range(3):
-            big.histo.append(TH1F("Big Structure {0} {1}".format(big.xyz[i], mode), "", big.numberOfBins[i], 0, big.numberOfBins[i]))
+            big.histo.append(ROOT.TH1F("Big Structure {0} {1}".format(big.xyz[i], mode), "", big.numberOfBins[i], 0, big.numberOfBins[i]))
             if (big.unit!=""):
                 big.histo[i].SetYTitle("#Delta"+big.xyz[i]+" ["+big.unit+"]")
             else:
@@ -51,9 +49,9 @@ def plot(MillePedeUser, alignables, config):
             big.histo[i].GetYaxis().SetTitleOffset(1.6)
 
         # add labels
-        big.title = TPaveLabel(
+        big.title = ROOT.TPaveLabel(
             0.1, 0.8, 0.9, 0.9, "High Level Structures {0}".format(mode))
-        big.text = TPaveText(0.05, 0.1, 0.95, 0.75)
+        big.text = ROOT.TPaveText(0.05, 0.1, 0.95, 0.75)
         big.text.SetTextAlign(12)
 
         # error if shift is bigger than limit
@@ -75,7 +73,8 @@ def plot(MillePedeUser, alignables, config):
                     if (abs(line.Par[big.data[i]]) != 999999):
                         # set name of the structure
                         big.histoAxis[i].SetBinLabel(
-                            big.binPosition[i], alignables.get_name_by_objid(line.ObjId))
+                            big.binPosition[i],
+                            str(line.Name) if len(line.Name) <= 13 else str(line.Name)[:12]+".")
                         # fill with data, big.data[i] xyz or rot data
                         # transform xyz data from cm to #mu m
                         if (mode == "xyz"):
@@ -137,7 +136,7 @@ def plot(MillePedeUser, alignables, config):
                         big.xyz[i], int(big.hiddenEntries[i])))
 
         # create canvas
-        cBig = TCanvas("canvasBigStrucutres_{0}".format(
+        cBig = ROOT.TCanvas("canvasBigStrucutres_{0}".format(
             mode), "Parameter", 300, 0, 800, 600)
         cBig.Divide(2, 2)
 
@@ -147,7 +146,7 @@ def plot(MillePedeUser, alignables, config):
         big.text.Draw()
 
         # draw identification
-        ident = identification(config)
+        ident = mpsv_style.identification(config)
         ident.Draw()
 
         # TGraph copy to hide outlier
@@ -164,7 +163,7 @@ def plot(MillePedeUser, alignables, config):
                                                  abs(big.usedRange[i]), 1.1 * abs(big.usedRange[i]))
 
             # TGraph object to hide outlier
-            copy[i] = TGraph(big.histo[i])
+            copy[i] = ROOT.TGraph(big.histo[i])
             # set the new range
             copy[i].SetMaximum(1.1 * abs(big.usedRange[i]))
             copy[i].SetMinimum(-1.1 * abs(big.usedRange[i]))
@@ -178,15 +177,15 @@ def plot(MillePedeUser, alignables, config):
             "{0}/plots/pdf/structures_{1}.pdf".format(config.outputPath, mode))
 
         # export as png
-        image = TImage.Create()
+        image = ROOT.TImage.Create()
         image.FromPad(cBig)
         image.WriteImage(
             "{0}/plots/png/structures_{1}.png".format(config.outputPath, mode))
 
         # add to output list
-        output = OutputData(plottype="big", parameter=mode,
-                            filename="structures_{0}".format(mode))
+        output = mpsv_classes.OutputData(plottype="big", parameter=mode,
+                                         filename="structures_{0}".format(mode))
         config.outputList.append(output)
 
     # reset BottomMargin
-    gStyle.SetPadBottomMargin(0.1)
+    ROOT.gStyle.SetPadBottomMargin(0.1)

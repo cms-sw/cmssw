@@ -9,6 +9,7 @@
  */
 
 #include <algorithm>
+#include <atomic>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
@@ -346,7 +347,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 								      AlignableExtras *aliExtras,
 								      const edm::ParameterSet &config)
 {
-  static bool oldRunRangeSelectionWarning = false;
+  static std::atomic<bool> oldRunRangeSelectionWarning{ false };
 
   theAlignableToRunRangeRangeMap.clear();
 
@@ -381,12 +382,12 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 	
       } else {
 	
-	if (!oldRunRangeSelectionWarning) {
+        bool expected = false;
+	if (oldRunRangeSelectionWarning.compare_exchange_strong(expected,true)) {
 	  edm::LogWarning("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap"
 				       << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
 				       << "number is used internally. The number of the last run is ignored and can be\n"
 				       << "safely removed from the config file.\n";
-	  oldRunRangeSelectionWarning = true;
 	}
 
 	std::vector<std::string> tokens = edm::tokenize(*iRunRange, ":");

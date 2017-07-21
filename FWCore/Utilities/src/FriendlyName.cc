@@ -6,8 +6,9 @@
  *
  */
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 #include <iostream>
+#include <cassert>
 #include "tbb/concurrent_unordered_map.h"
 
 //NOTE:  This should probably be rewritten so that we break the class name into a tree where the template arguments are the node.  On the way down the tree
@@ -17,67 +18,69 @@
 
 namespace edm {
   namespace friendlyname {
-    static boost::regex const reBeginSpace("^ +");
-    static boost::regex const reEndSpace(" +$");
-    static boost::regex const reAllSpaces(" +");
-    static boost::regex const reColons("::");
-    static boost::regex const reComma(",");
-    static boost::regex const reTemplateArgs("[^<]*<(.*)>$");
-    static boost::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
+    static std::regex const reBeginSpace("^ +");
+    static std::regex const reEndSpace(" +$");
+    static std::regex const reAllSpaces(" +");
+    static std::regex const reColons("::");
+    static std::regex const reComma(",");
+    static std::regex const reTemplateArgs("[^<]*<(.*)>$");
+    static std::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
+    static std::regex const rePointer("\\*");
     static std::string const emptyString("");
 
     std::string handleNamespaces(std::string const& iIn) {
-       return boost::regex_replace(iIn,reColons,emptyString,boost::format_perl);
+       return std::regex_replace(iIn,reColons,emptyString);
 
     }
 
     std::string removeExtraSpaces(std::string const& iIn) {
-       return boost::regex_replace(boost::regex_replace(iIn,reBeginSpace,emptyString),
+       return std::regex_replace(std::regex_replace(iIn,reBeginSpace,emptyString),
                                     reEndSpace, emptyString);
     }
 
     std::string removeAllSpaces(std::string const& iIn) {
-      return boost::regex_replace(iIn, reAllSpaces,emptyString);
+      return std::regex_replace(iIn, reAllSpaces,emptyString);
     }
-    static boost::regex const reWrapper("edm::Wrapper<(.*)>");
-    static boost::regex const reString("std::basic_string<char>");
-    static boost::regex const reString2("std::string");
-    static boost::regex const reString3("std::basic_string<char,std::char_traits<char> >");
+    static std::regex const reWrapper("edm::Wrapper<(.*)>");
+    static std::regex const reString("std::basic_string<char>");
+    static std::regex const reString2("std::string");
+    static std::regex const reString3("std::basic_string<char,std::char_traits<char> >");
     //The c++11 abi for gcc internally uses a different namespace for standard classes
-    static boost::regex const reCXX11("std::__cxx11::");
-    static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
-    static boost::regex const reclangabi("std::__1::");
-    static boost::regex const reULongLong("ULong64_t");
-    static boost::regex const reLongLong("Long64_t");
-    static boost::regex const reUnsigned("unsigned ");
-    static boost::regex const reLong("long ");
-    static boost::regex const reVector("std::vector");
-    static boost::regex const reSharedPtr("std::shared_ptr");
-    static boost::regex const reUniquePtr("std::unique_ptr");
-    static boost::regex const reAIKR(", *edm::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
+    static std::regex const reCXX11("std::__cxx11::");
+    static std::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
+    static std::regex const reclangabi("std::__1::");
+    static std::regex const reULongLong("ULong64_t");
+    static std::regex const reLongLong("Long64_t");
+    static std::regex const reUnsigned("unsigned ");
+    static std::regex const reLong("long ");
+    static std::regex const reVector("std::vector");
+    static std::regex const reSharedPtr("std::shared_ptr");
+    static std::regex const reUniquePtr("std::unique_ptr");
+    static std::regex const reAIKR(", *edm::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
     //force first argument to also be the argument to edm::ClonePolicy so that if OwnVector is within
     // a template it will not eat all the remaining '>'s
-    static boost::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<\\1 *> >");
+    static std::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<\\1 *> >");
 
     //NOTE: the '?' means make the smallest match. This may lead to problems where the template arguments themselves have commas
     // but we are using it in the cases where edm::AssociationMap appears multiple times in template arguments
-    static boost::regex const reOneToOne("edm::AssociationMap< *edm::OneToOne<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToMany("edm::AssociationMap< *edm::OneToMany<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToValue("edm::AssociationMap< *edm::OneToValue<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToManyWithQuality("edm::AssociationMap<edm::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
-    static boost::regex const reToVector("edm::AssociationVector<(.*), *(.*), *edm::Ref.*,.*>");
+    static std::regex const reOneToOne("edm::AssociationMap< *edm::OneToOne<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToMany("edm::AssociationMap< *edm::OneToMany<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToValue("edm::AssociationMap< *edm::OneToValue<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToManyWithQuality("edm::AssociationMap<edm::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
+    static std::regex const reToVector("edm::AssociationVector<(.*), *(.*), *edm::Ref.*,.*>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
-    static boost::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
+    static std::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
     //NOTE: If container is a template with one argument which is its 'type' then can simplify name
-    static boost::regex const reToRefs1("edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
-    static boost::regex const reToRefs2("edm::RefVector< *(.*) *, *(.*) *, *edm::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
-    static boost::regex const reToRefsAssoc("edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
+    static std::regex const reToRefs1("edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
+    static std::regex const reToRefs2("edm::RefVector< *(.*) *, *(.*) *, *edm::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
+    static std::regex const reToRefsAssoc("edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
     
     
     std::string standardRenames(std::string const& iIn) {
-       using boost::regex_replace;
-       using boost::regex;
+       using std::regex_replace;
+       using std::regex;
        std::string name = regex_replace(iIn, reWrapper, "$1");
+       name = regex_replace(name,rePointer,"ptr");
        name = regex_replace(name,reAIKR,"");
        name = regex_replace(name,reclangabi,"std::");
        name = regex_replace(name,reCXX11,"std::");
@@ -108,7 +111,7 @@ namespace edm {
 
     std::string handleTemplateArguments(std::string const&);
     std::string subFriendlyName(std::string const& iFullName) {
-       using namespace boost;
+       using namespace std;
        std::string result = removeExtraSpaces(iFullName);
 
        smatch theMatch;
@@ -125,7 +128,7 @@ namespace edm {
     }
 
     std::string handleTemplateArguments(std::string const& iIn) {
-       using namespace boost;
+       using namespace std;
        std::string result = removeExtraSpaces(iIn);
        bool shouldStop = false;
        while(!shouldStop) {

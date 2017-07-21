@@ -15,33 +15,27 @@
 #include <map>
 using namespace std;
 
-PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
-  reRunAlgo_ (iConfig.getUntrackedParameter<bool>("reRunAlgo",false)),
-  doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet")),
-  doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet")),
-  jetPtMin_(iConfig.getParameter<double>       ("jetPtMin")),
-  nSigmaPU_(iConfig.getParameter<double>("nSigmaPU")),
-  radiusPU_(iConfig.getParameter<double>("radiusPU")),
-  geo_(0)
-{
-  if (iConfig.exists("puPtMin"))
-    puPtMin_=iConfig.getParameter<double>       ("puPtMin");
-  else{
-    puPtMin_=10;
-    edm::LogWarning("MisConfiguration")<<"the parameter puPtMin is now necessary for PU substraction. setting it to "<<puPtMin_;
-  }
-   if ( doAreaFastjet_ || doRhoFastjet_ ) {
-      // default Ghost_EtaMax should be 5
-      double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
-      // default Active_Area_Repeats 1
-      int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
-      // default GhostArea 0.01
-      double ghostArea = iConfig.getParameter<double> ("GhostArea");
-      fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
-       								     activeAreaRepeats,
-       								     ghostArea));
-      fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
-   } 
+PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) {
+
+	geo_ = 0;
+	doAreaFastjet_	= iConfig.getParameter<bool>("doAreaFastjet");
+	doRhoFastjet_	= iConfig.getParameter<bool>("doRhoFastjet");
+	nSigmaPU_	= iConfig.getParameter<double>("nSigmaPU");
+	radiusPU_	= iConfig.getParameter<double>("radiusPU");
+	puPtMin_	= iConfig.getParameter<double>("puPtMin");
+	ghostEtaMax 	= iConfig.getParameter<double>("Ghost_EtaMax");
+	activeAreaRepeats = iConfig.getParameter<int>("Active_Area_Repeats");
+	ghostArea 	= iConfig.getParameter<double>("GhostArea");
+
+	if ( doAreaFastjet_ || doRhoFastjet_ ) {
+		fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
+									     activeAreaRepeats,
+									     ghostArea));
+		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
+		if ( ( ghostEtaMax < 0 ) || ( activeAreaRepeats < 0 ) || ( ghostArea < 0 ) )  
+			throw cms::Exception("doAreaFastjet or doRhoFastjet") << "Parameters ghostEtaMax, activeAreaRepeats or ghostArea for doAreaFastjet/doRhoFastjet are not defined." << std::endl;
+	} 
+
 }
 
 void PileUpSubtractor::reset(std::vector<edm::Ptr<reco::Candidate> >& input,
@@ -375,6 +369,20 @@ int PileUpSubtractor::iphi(const reco::CandidatePtr & in) const {
   return it;
 }
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void PileUpSubtractor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription desc;
+	desc.add<bool> ("doAreaFastjet", 	false);
+	desc.add<bool> ("doRhoFastjet", 	false);
+	desc.add<double> ("Ghost_EtaMax", 5);
+	desc.add<double> ("GhostArea", 0.01);
+	desc.add<int> ("Active_Area_Repeats", 1);
+	desc.add<double> ("puPtMin", 	10.);
+	desc.add<double> ("nSigmaPU", 	1.);
+	desc.add<double> ("radiusPU", 	0.5);
+	descriptions.addDefault(desc);
+}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 EDM_REGISTER_PLUGINFACTORY(PileUpSubtractorFactory,"PileUpSubtractorFactory");

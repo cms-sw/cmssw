@@ -198,12 +198,6 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::MLqEXT( service::NamedDestination* p )
-{
-  simpleCommand (EXTERN_DEST, static_cast<void *>(p)); 
-}
-
-void
   MessageLoggerQ::MLqSUM( )
 {
   simpleCommand (SUMMARIZE, 0); 

@@ -40,7 +40,7 @@ namespace edm {
   class ProcessContext;
   struct TriggerTimingReport;
   namespace service {
-    class TriggersNameService;
+    class TriggerNamesService;
   }
   
   class SystemTimeKeeper

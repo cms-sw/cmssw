@@ -55,5 +55,10 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 )
 
 run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
-run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHF=cms.bool(True))
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, 
+                      upgradeHF=cms.bool(True),
+                      numberOfSamplesHF = cms.int32(2),
+                      numberOfPresamplesHF = cms.int32(1)
+)
+run2_HF_2017.toModify(hfTPScaleShift, NCT=cms.int32(2))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))

@@ -9,7 +9,8 @@ using namespace std;
 
 
 MCSmartSingleParticleFilter::MCSmartSingleParticleFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //here do whatever other initialization is needed
    vector<int> defpid ;
@@ -119,6 +120,10 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
        decayZMax = decayZmax2;   
     }     
 
+    // check if beta is smaller than 1
+    if (std::abs(betaBoost) >= 1 ){
+      edm::LogError("MCSmartSingleParticleFilter") << "Input beta boost is >= 1 !";
+    }
 
 }
 
@@ -149,25 +154,30 @@ bool MCSmartSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSet
     
      for (unsigned int i = 0; i < particleID.size(); i++){
        if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
-	 
-	 if ( (*p)->momentum().rho() > pMin[i] && (*p)->momentum().perp() > ptMin[i]
-	      && (*p)->momentum().eta() > etaMin[i] && (*p)->momentum().eta() < etaMax[i]
-	      && ((*p)->status() == status[i] || status[i] == 0)) { 
 
-	   if (!((*p)->production_vertex())) continue;
+	 if ( (*p)->momentum().perp() > ptMin[i]
+              && ((*p)->status() == status[i] || status[i] == 0))  {
+
+           HepMC::FourVector mom = zboost((*p)->momentum());
+           if ( mom.rho() > pMin[i]
+                && mom.eta() > etaMin[i] && mom.eta() < etaMax[i]) {
+
+             if (!((*p)->production_vertex())) continue;
 	   
-            double decx = (*p)->production_vertex()->position().x();
-            double decy = (*p)->production_vertex()->position().y();
-            double decrad = sqrt(decx*decx+decy*decy);
-            if (decrad<decayRadiusMin[i] ) continue;
-            if (decrad>decayRadiusMax[i] ) continue;
+             double decx = (*p)->production_vertex()->position().x();
+             double decy = (*p)->production_vertex()->position().y();
+             double decrad = sqrt(decx*decx+decy*decy);
+             if (decrad<decayRadiusMin[i] ) continue;
+             if (decrad>decayRadiusMax[i] ) continue;
 
-            double decz = (*p)->production_vertex()->position().z();
-            if (decz<decayZMin[i] ) continue;
-            if (decz>decayZMax[i] ) continue;
+             double decz = (*p)->production_vertex()->position().z();
+             if (decz<decayZMin[i] ) continue;
+             if (decz>decayZMax[i] ) continue;
 
-            accepted = true; 
-	 }  
+             accepted = true;
+           }
+
+         }
 	 
        } 
      }
@@ -177,5 +187,16 @@ bool MCSmartSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSet
 
    if (accepted){ return true; } else {return false;}
 
+}
+
+
+HepMC::FourVector MCSmartSingleParticleFilter::zboost(const HepMC::FourVector& mom) {
+   //Boost this Lorentz vector (from TLorentzVector::Boost)
+   double b2 = betaBoost*betaBoost;
+   double gamma = 1.0 / sqrt(1.0 - b2);
+   double bp = betaBoost*mom.pz();
+   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+
+   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }
 

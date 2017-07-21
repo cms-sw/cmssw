@@ -9,6 +9,7 @@
 # include "classlib/utils/Time.h"
 # include <pthread.h>
 # include <stdint.h>
+# include <signal.h>
 # include <iostream>
 # include <vector>
 # include <string>

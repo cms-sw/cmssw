@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-triggerTest = cms.EDAnalyzer("DTLocalTriggerTest",
+triggerTest = DQMEDHarvester("DTLocalTriggerTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment

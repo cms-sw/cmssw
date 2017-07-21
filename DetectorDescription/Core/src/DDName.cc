@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sstream>
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "FWCore/Utilities/interface/Exception.h"

@@ -89,7 +89,7 @@ TidMinusRing1Rphi = TidMinusRing1.clone(
 )
 TidMinusRing1Stereo = TidMinusRing1.clone(
     name = 'TidMinusRing1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TidMinusRing2Rphi = TidMinusRing2.clone(
     name = 'TidMinusRing2Rphi',
@@ -97,7 +97,7 @@ TidMinusRing2Rphi = TidMinusRing2.clone(
 )
 TidMinusRing2Stereo = TidMinusRing2.clone(
     name = 'TidMinusRing2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TidPlusRing1Rphi = TidPlusRing1.clone(
     name = 'TidPlusRing1Rphi',
@@ -105,7 +105,7 @@ TidPlusRing1Rphi = TidPlusRing1.clone(
 )
 TidPlusRing1Stereo = TidPlusRing1.clone(
     name = 'TidPlusRing1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TidPlusRing2Rphi = TidPlusRing2.clone(
     name = 'TidPlusRing2Rphi',
@@ -113,7 +113,7 @@ TidPlusRing2Rphi = TidPlusRing2.clone(
 )
 TidPlusRing2Stereo = TidPlusRing2.clone(
     name = 'TidPlusRing2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 
 TIDSideAndRingSeparation = cms.VPSet(

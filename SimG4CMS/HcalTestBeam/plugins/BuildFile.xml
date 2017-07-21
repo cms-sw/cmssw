@@ -1,5 +1,6 @@
 <use   name="SimG4CMS/HcalTestBeam"/>
 <use   name="SimG4Core/Watcher"/>
+<use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>

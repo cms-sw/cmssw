@@ -23,6 +23,8 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
   validator(iConfig, consumesCollector())
 {
   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
 }
 
 void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -33,15 +35,16 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
-  const auto primaryVertex = vertices->at(0); 
 
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
+
   validator.fillTrackQuantities(iEvent, iSetup, 
     // tell the validator to only look at good tracks
     [&](const reco::Track& track) -> bool { 
-      return track.pt() > 0.75
-          && std::abs( track.dxy(primaryVertex.position()) ) < 5*track.dxyError();
+	return (!applyVertexCut_ || (track.pt() > 0.75
+				     && std::abs( track.dxy(vertices->at(0).position()) ) < 5*track.dxyError())) ;
     }, vtracks);
 
   for (auto& track : vtracks) {
@@ -51,19 +54,21 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
       if (!isPixel) continue; 
 
       //TO BE UPDATED WITH VINCENZO STUFF
+      /*
       const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
       const PixelTopology& topol = geomdetunit->specificTopology();
 
       float lpx=it.localX;
       float lpy=it.localY;
       LocalPoint lp(lpx,lpy);
-
+      
       MeasurementPoint mp = topol.measurementPosition(lp);
       int row = (int) mp.x();
       int col = (int) mp.y();
-
-      histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent, col, row);
-      histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent, col, row);
+      */
+      
+      histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
+      histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
     }
   }
 

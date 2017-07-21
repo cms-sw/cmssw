@@ -33,7 +33,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 
 	_vflags.resize(nTPFlag);
 	_vflags[fEtMsm]=flag::Flag("EtMsm");
-	_vflags[fFGMsm]=flag::Flag("FGMsm");
 	_vflags[fDataMsn]=flag::Flag("DataMsn");
 	_vflags[fEmulMsn]=flag::Flag("EmulMsn");
 	_vflags[fUnknownIds]=flag::Flag("UnknownIds");
@@ -48,9 +47,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalDbService> dbs;
 	es.get<HcalDbRecord>().get(dbs);
 	_emap = dbs->getHcalMapping();
-	std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
-	std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
-	std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 	std::vector<uint32_t> vVME;
 	std::vector<uint32_t> vuTCA;
 	std::vector<uint32_t> depth0;
@@ -65,22 +61,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	depth0.push_back(HcalTrigTowerDetId(1, 1, 0).rawId());
 	_filter_depth0.initialize(filter::fPreserver, hcaldqm::hashfunctions::fTTdepth,
 		depth0);
-
-	//	push the rawIds of each fed into the vector
-	//	this vector is used at endlumi for online state generation
-	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
-		it!=vFEDsVME.end(); ++it)
-	{
-		_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN,
-			SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
-	}
-	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
-		it!=vFEDsuTCA.end(); ++it)
-	{
-        std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
-		_vhashFEDs.push_back(HcalElectronicsId(cspair.first, 
-			cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	}
 
 	//	INITIALIZE FIRST
 	//	Et/FG
@@ -102,26 +82,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
-	_cEtData_ElectronicsVME.initialize(_name, "EtData", 
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
-	_cEtData_ElectronicsuTCA.initialize(_name, "EtData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
-	_cEtEmul_ElectronicsVME.initialize(_name, "EtEmul", 
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
-	_cEtEmul_ElectronicsuTCA.initialize(_name, "EtEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
 	_cEtData_depthlike.initialize(_name, "EtData",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
@@ -139,49 +99,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
 
-	//	Occupancies
-	_cOccupancyData_ElectronicsVME.initialize(_name, "OccupancyData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyEmul_ElectronicsVME.initialize(_name, "OccupancyEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyData_ElectronicsuTCA.initialize(_name, "OccupancyData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyEmul_ElectronicsuTCA.initialize(_name, "OccupancyEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-
-	_cOccupancyCutData_ElectronicsVME.initialize(_name, "OccupancyCutData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyCutEmul_ElectronicsVME.initialize(_name, "OccupancyCutEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyCutData_ElectronicsuTCA.initialize(_name, "OccupancyCutData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cOccupancyCutEmul_ElectronicsuTCA.initialize(_name, "OccupancyCutEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-
+	// Occupancy
 	_cOccupancyData_depthlike.initialize(_name, "OccupancyData",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
@@ -200,26 +118,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	//	Mismatches
-	_cEtMsm_ElectronicsVME.initialize(_name, "EtMsm",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cFGMsm_ElectronicsVME.initialize(_name, "FGMsm",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cEtMsm_ElectronicsuTCA.initialize(_name, "EtMsm",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cFGMsm_ElectronicsuTCA.initialize(_name, "FGMsm",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cEtMsm_depthlike.initialize(_name, "EtMsm",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
@@ -230,26 +128,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	//	Missing Data w.r.t. Emulator
-	_cMsnData_ElectronicsVME.initialize(_name, "MsnData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMsnData_ElectronicsuTCA.initialize(_name, "MsnData",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMsnEmul_ElectronicsVME.initialize(_name, "MsnEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMsnEmul_ElectronicsuTCA.initialize(_name, "MsnEmul",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMsnData_depthlike.initialize(_name, "MsnData",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
@@ -258,16 +136,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cEtCorrRatio_ElectronicsVME.initialize(_name, "EtCorrRatio",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),0);
-	_cEtCorrRatio_ElectronicsuTCA.initialize(_name, "EtCorrRatio",
-		hcaldqm::hashfunctions::fElectronics,
-		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),0);
+
 	_cEtCorrRatio_depthlike.initialize(_name, "EtCorrRatio",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
@@ -414,23 +283,163 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
-			hcaldqm::hashfunctions::fFED,
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::FlagQuantity(_vflags),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
-		_cSummaryvsLS.initialize(_name, "SummaryvsLS",
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::FEDQuantity(vFEDs),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
+	}
 
-		_xEtMsm.initialize(hcaldqm::hashfunctions::fFED);
-		_xFGMsm.initialize(hcaldqm::hashfunctions::fFED);
-		_xNumCorr.initialize(hcaldqm::hashfunctions::fFED);
-		_xDataMsn.initialize(hcaldqm::hashfunctions::fFED);
-		_xDataTotal.initialize(hcaldqm::hashfunctions::fFED);
-		_xEmulMsn.initialize(hcaldqm::hashfunctions::fFED);
-		_xEmulTotal.initialize(hcaldqm::hashfunctions::fFED);
+	// FED-based containers
+	if (_ptype != fOffline) { // hidefed2crate
+		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
+		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+		//	push the rawIds of each fed into the vector
+		//	this vector is used at endlumi for online state generation
+		for (std::vector<int>::const_iterator it=vFEDsVME.begin();
+			it!=vFEDsVME.end(); ++it)
+		{
+			_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN,
+				SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
+		}
+		for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
+			it!=vFEDsuTCA.end(); ++it)
+		{
+	        std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
+			_vhashFEDs.push_back(HcalElectronicsId(cspair.first, 
+				cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		}
+		_cEtData_ElectronicsVME.initialize(_name, "EtData", 
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
+		_cEtData_ElectronicsuTCA.initialize(_name, "EtData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
+		_cEtEmul_ElectronicsVME.initialize(_name, "EtEmul", 
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
+		_cEtEmul_ElectronicsuTCA.initialize(_name, "EtEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_256),0);
+		//	Occupancies
+		_cOccupancyData_ElectronicsVME.initialize(_name, "OccupancyData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyEmul_ElectronicsVME.initialize(_name, "OccupancyEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyData_ElectronicsuTCA.initialize(_name, "OccupancyData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyEmul_ElectronicsuTCA.initialize(_name, "OccupancyEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+
+		_cOccupancyCutData_ElectronicsVME.initialize(_name, "OccupancyCutData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyCutEmul_ElectronicsVME.initialize(_name, "OccupancyCutEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyCutData_ElectronicsuTCA.initialize(_name, "OccupancyCutData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyCutEmul_ElectronicsuTCA.initialize(_name, "OccupancyCutEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		//	Mismatches
+		_cEtMsm_ElectronicsVME.initialize(_name, "EtMsm",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cFGMsm_ElectronicsVME.initialize(_name, "FGMsm",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cEtMsm_ElectronicsuTCA.initialize(_name, "EtMsm",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cFGMsm_ElectronicsuTCA.initialize(_name, "FGMsm",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+		//	Missing Data w.r.t. Emulator
+		_cMsnData_ElectronicsVME.initialize(_name, "MsnData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMsnData_ElectronicsuTCA.initialize(_name, "MsnData",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMsnEmul_ElectronicsVME.initialize(_name, "MsnEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMsnEmul_ElectronicsuTCA.initialize(_name, "MsnEmul",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cEtCorrRatio_ElectronicsVME.initialize(_name, "EtCorrRatio",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),0);
+		_cEtCorrRatio_ElectronicsuTCA.initialize(_name, "EtCorrRatio",
+			hcaldqm::hashfunctions::fElectronics,
+			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),0);
+		if (_ptype == fOnline) {
+			_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
+				hcaldqm::hashfunctions::fFED,
+				new hcaldqm::quantity::LumiSection(_maxLS),
+				new hcaldqm::quantity::FlagQuantity(_vflags),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
+			_cSummaryvsLS.initialize(_name, "SummaryvsLS",
+				new hcaldqm::quantity::LumiSection(_maxLS),
+				new hcaldqm::quantity::FEDQuantity(vFEDs),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
+
+			_xEtMsm.initialize(hcaldqm::hashfunctions::fFED);
+			_xFGMsm.initialize(hcaldqm::hashfunctions::fFED);
+			_xNumCorr.initialize(hcaldqm::hashfunctions::fFED);
+			_xDataMsn.initialize(hcaldqm::hashfunctions::fFED);
+			_xDataTotal.initialize(hcaldqm::hashfunctions::fFED);
+			_xEmulMsn.initialize(hcaldqm::hashfunctions::fFED);
+			_xEmulTotal.initialize(hcaldqm::hashfunctions::fFED);
+
+		}
 	}
 
 	//	BOOK HISTOGRAMS
@@ -443,41 +452,49 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_cEtData_TTSubdet.book(ib, _emap, _subsystem);
 	_cEtEmul_TTSubdet.book(ib, _emap, _subsystem);
 	_cEtCorr_TTSubdet.book(ib, _emap, _subsystem);
-	_cEtData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cEtData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cEtEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cEtEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cEtData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cEtData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cEtEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cEtEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 	_cEtData_depthlike.book(ib, _subsystem);
 	_cEtEmul_depthlike.book(ib, _subsystem);
 	_cEtCutData_depthlike.book(ib, _subsystem);
 	_cEtCutEmul_depthlike.book(ib, _subsystem);
-	_cOccupancyData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancyEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancyData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cOccupancyEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cOccupancyCutData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancyCutEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancyCutData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cOccupancyCutEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cOccupancyData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancyEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancyData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cOccupancyEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cOccupancyCutData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancyCutEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancyCutData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cOccupancyCutEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 	_cOccupancyData_depthlike.book(ib, _subsystem);
 	_cOccupancyEmul_depthlike.book(ib, _subsystem);
 	_cOccupancyCutData_depthlike.book(ib, _subsystem);
 	_cOccupancyCutEmul_depthlike.book(ib, _subsystem);
-	_cEtMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cEtMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cFGMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cFGMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cMsnData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cMsnData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cMsnEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cMsnEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cEtCorrRatio_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cEtCorrRatio_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+
 	_cEtCorrRatio_depthlike.book(ib, _subsystem);
 	_cEtMsm_depthlike.book(ib, _subsystem);
 	_cFGMsm_depthlike.book(ib, _subsystem);
 	_cMsnData_depthlike.book(ib, _subsystem);
 	_cMsnEmul_depthlike.book(ib, _subsystem);
+
+	if (_ptype != fOffline) { // hidefed2crate
+		_cEtMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cEtMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cFGMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cFGMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cMsnData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cMsnData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cMsnEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cMsnEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cEtCorrRatio_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cEtCorrRatio_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 
 	//	whatever has to go online only goes here
 	if (_ptype==fOnline)
@@ -625,15 +642,17 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtData_TTSubdet.fill(tid, soiEt_d);
 		_cEtData_depthlike.fill(tid, soiEt_d);
 		_cOccupancyData_depthlike.fill(tid);
-		if (eid.isVMEid())
-		{
-			_cOccupancyData_ElectronicsVME.fill(eid);
-			_cEtData_ElectronicsVME.fill(eid, soiEt_d);
-		}
-		else
-		{
-			_cOccupancyData_ElectronicsuTCA.fill(eid);
-			_cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
+		if (_ptype != fOffline) { // hidefed2crate
+			if (eid.isVMEid())
+			{
+				_cOccupancyData_ElectronicsVME.fill(eid);
+				_cEtData_ElectronicsVME.fill(eid, soiEt_d);
+			}
+			else
+			{
+				_cOccupancyData_ElectronicsuTCA.fill(eid);
+				_cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
+			}
 		}
 		
 		//	FILL w/a CUT
@@ -651,11 +670,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_xDataTotal.get(eid)++;
 			}
 			//	^^^ONLINE ONLY!
-
-			if (eid.isVMEid())
-				_cOccupancyCutData_ElectronicsVME.fill(eid);
-			else
-				_cOccupancyCutData_ElectronicsuTCA.fill(eid);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+					_cOccupancyCutData_ElectronicsVME.fill(eid);
+				else
+					_cOccupancyCutData_ElectronicsuTCA.fill(eid);
+			}
 		}
 
 		//	FIND the EMULATOR DIGI
@@ -687,13 +707,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			for (uint32_t ibit=0; ibit<constants::NUM_FGBITS; ibit++)
 				_cFGCorr_TTSubdet[ibit].fill(tid, soiFG_d[ibit], soiFG_e[ibit]);
 			//	FILL w/o a CUT
-			if (eid.isVMEid())
-			{
-				_cEtCorrRatio_ElectronicsVME.fill(eid, rEt);
-			}
-			else
-			{
-				_cEtCorrRatio_ElectronicsuTCA.fill(eid, rEt);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+				{
+					_cEtCorrRatio_ElectronicsVME.fill(eid, rEt);
+				}
+				else
+				{
+					_cEtCorrRatio_ElectronicsuTCA.fill(eid, rEt);
+				}
 			}
 
 			//	if SOI Et are not equal
@@ -702,10 +724,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			{
 				tid.ietaAbs()>=29?numMsmHF++:numMsmHBHE++;
 				_cEtMsm_depthlike.fill(tid);
-				if (eid.isVMEid())
-					_cEtMsm_ElectronicsVME.fill(eid);
-				else
-					_cEtMsm_ElectronicsuTCA.fill(eid);
+				if (_ptype != fOffline) { // hidefed2crate
+					if (eid.isVMEid())
+						_cEtMsm_ElectronicsVME.fill(eid);
+					else
+						_cEtMsm_ElectronicsuTCA.fill(eid);
+				}
 				if (_ptype==fOnline)
 					_xEtMsm.get(eid)++;
 			}
@@ -716,10 +740,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				if (soiFG_d[ibit]!=soiFG_e[ibit] && _vFGBitsReady[ibit])
 				{
 					_cFGMsm_depthlike.fill(tid);
-					if (eid.isVMEid())
-						_cFGMsm_ElectronicsVME.fill(eid);
-					else
-						_cFGMsm_ElectronicsuTCA.fill(eid);
+					if (_ptype != fOffline) { // hidefed2crate
+						if (eid.isVMEid())
+							_cFGMsm_ElectronicsVME.fill(eid);
+						else
+							_cFGMsm_ElectronicsuTCA.fill(eid);
+					}
 					if (_ptype==fOnline)
 						_xFGMsm.get(eid)++;
 				}
@@ -730,10 +756,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			_cEtCorr_TTSubdet.fill(tid, soiEt_d, -2);
 			_cMsnEmul_depthlike.fill(tid);
 			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
-			if (eid.isVMEid())
-				_cMsnEmul_ElectronicsVME.fill(eid);
-			else
-				_cMsnEmul_ElectronicsuTCA.fill(eid);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+					_cMsnEmul_ElectronicsVME.fill(eid);
+				else
+					_cMsnEmul_ElectronicsuTCA.fill(eid);
+			}
 
 			if (soiEt_d>_cutEt)
 			{
@@ -850,15 +878,17 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtEmul_TTSubdet.fill(tid, soiEt);
 		_cEtEmul_depthlike.fill(tid, soiEt);
 		_cOccupancyEmul_depthlike.fill(tid);
-		if (eid.isVMEid())
-		{
-			_cOccupancyEmul_ElectronicsVME.fill(eid);
-			_cEtEmul_ElectronicsVME.fill(eid, soiEt);
-		}
-		else
-		{
-			_cOccupancyEmul_ElectronicsuTCA.fill(eid);
-			_cEtEmul_ElectronicsuTCA.fill(eid, soiEt);
+		if (_ptype != fOffline) { // hidefed2crate
+			if (eid.isVMEid())
+			{
+				_cOccupancyEmul_ElectronicsVME.fill(eid);
+				_cEtEmul_ElectronicsVME.fill(eid, soiEt);
+			}
+			else
+			{
+				_cOccupancyEmul_ElectronicsuTCA.fill(eid);
+				_cEtEmul_ElectronicsuTCA.fill(eid, soiEt);
+			}
 		}
 
 		//	FILL w/ a CUT
@@ -867,10 +897,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			tid.ietaAbs()>=29?numCutHF++:numCutHBHE++;
 			_cOccupancyCutEmul_depthlike.fill(tid);
 			_cEtCutEmul_depthlike.fill(tid, soiEt);
-			if (eid.isVMEid())
-				_cOccupancyCutEmul_ElectronicsVME.fill(eid);
-			else 
-				_cOccupancyCutEmul_ElectronicsuTCA.fill(eid);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+					_cOccupancyCutEmul_ElectronicsVME.fill(eid);
+				else 
+					_cOccupancyCutEmul_ElectronicsuTCA.fill(eid);
+			}
 
 			//	ONLINE ONLY!
 			if (_ptype==fOnline)
@@ -882,21 +914,27 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	^^^ONLINE ONLY!
 		}
 
-		//	FIND a data digi
-		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
-		if (jt==cdata->end())
-		{
-			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
-			_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
-			if (eid.isVMEid())
-				_cMsnData_ElectronicsVME.fill(eid);
-			else
-				_cMsnData_ElectronicsuTCA.fill(eid);
-			if (soiEt>_cutEt)
+		// Look for a data digi. 
+		// Do not perform if the emulated digi is zero suppressed.
+		if(!(it->zsMarkAndPass())) {
+			HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
+			if (jt==cdata->end())
 			{
-				tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
-				if (_ptype==fOnline)
-					_xDataMsn.get(eid)++;
+				tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
+				_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
+				_cMsnData_depthlike.fill(tid);
+				if (_ptype != fOffline) { // hidefed2crate
+					if (eid.isVMEid())
+						_cMsnData_ElectronicsVME.fill(eid);
+					else
+						_cMsnData_ElectronicsuTCA.fill(eid);
+				}
+				if (soiEt>_cutEt)
+				{
+					tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
+					if (_ptype==fOnline)
+						_xDataMsn.get(eid)++;
+				}
 			}
 		}
 	}
@@ -985,14 +1023,14 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	FED is @cDAQ
 			double etmsm = _xNumCorr.get(eid)>0?
 				double(_xEtMsm.get(eid))/double(_xNumCorr.get(eid)):0;
-			double fgmsm = _xNumCorr.get(eid)>0?
-				double(_xFGMsm.get(eid))/double(_xNumCorr.get(eid)):0;
 			/*	
 			 * UNUSED VARS
 			 * double dmsm = _xDataTotal.get(eid)>0?
 				double(_xDataMsn.get(eid))/double(_xDataTotal.get(eid)):0;
 			double emsm = _xEmulTotal.get(eid)>0?
 				double(_xEmulMsn.get(eid))/double(_xEmulTotal.get(eid)):0;
+			double fgmsm = _xNumCorr.get(eid)>0?
+				double(_xFGMsm.get(eid))/double(_xNumCorr.get(eid)):0;				
 				*/
 			if (etmsm>=_thresh_EtMsmRate_high)
 				_vflags[fEtMsm]._state = flag::fBAD;
@@ -1000,12 +1038,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_vflags[fEtMsm]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fEtMsm]._state = flag::fGOOD;
-			if (fgmsm>=_thresh_FGMsmRate_high)
-				_vflags[fFGMsm]._state = flag::fBAD;
-			else if (fgmsm>=_thresh_FGMsmRate_low)
-				_vflags[fFGMsm]._state = flag::fPROBLEMATIC;
-			else
-				_vflags[fFGMsm]._state = flag::fGOOD;
 			/*
 			 *	DISABLE THESE FLAGS FOR ONLINE FOR NOW!
 			if (dmsm>=_thresh_DataMsn)

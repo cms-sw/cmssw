@@ -91,6 +91,10 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
       const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.trackRef());
       transientTracks.push_back(transientTrack);
     }
+    else if(pfCand.gsfTrackRef().isNonnull()){
+      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.gsfTrackRef());
+      transientTracks.push_back(transientTrack);
+    }
   }
   if(transientTracks.size() > 1){
     KalmanVertexFitter kvf(true);

@@ -27,7 +27,6 @@ public:
 
 
   bool cfebAvailable(unsigned icfeb) { 
-	assert (icfeb < (theFirmwareVersion==2013)?7:5);
 	return (theHeaderFormat->cfebAvailable() >> icfeb) & 1;
     }
 

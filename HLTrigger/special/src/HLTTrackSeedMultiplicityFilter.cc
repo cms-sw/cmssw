@@ -13,11 +13,11 @@
 class HLTTrackSeedMultiplicityFilter : public HLTFilter {
 public:
   explicit HLTTrackSeedMultiplicityFilter(const edm::ParameterSet&);
-  ~HLTTrackSeedMultiplicityFilter();
+  ~HLTTrackSeedMultiplicityFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
   unsigned int  min_seeds_;      // minimum number of track seeds
@@ -48,9 +48,7 @@ HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::Parame
     LogDebug("") << "...but no more than " << max_seeds_ << " seeds";
 }
 
-HLTTrackSeedMultiplicityFilter::~HLTTrackSeedMultiplicityFilter()
-{
-}
+HLTTrackSeedMultiplicityFilter::~HLTTrackSeedMultiplicityFilter() = default;
 
 void
 HLTTrackSeedMultiplicityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -80,7 +78,7 @@ bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::Eve
   edm::Handle<TrajectorySeedCollection> seedColl;
   event.getByToken(inputToken_, seedColl);
 
-  const TrajectorySeedCollection *rsSeedCollection = 0;
+  const TrajectorySeedCollection *rsSeedCollection = nullptr;
 
 
   if( seedColl.isValid() )

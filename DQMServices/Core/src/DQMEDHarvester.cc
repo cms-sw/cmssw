@@ -1,9 +1,14 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
+#include <memory>
 
 DQMEDHarvester::DQMEDHarvester() {
   usesResource("DQMStore");
+  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
 }
 
 void DQMEDHarvester::endJob() {
@@ -19,4 +24,8 @@ void DQMEDHarvester::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
   store->meBookerGetter([this, &iLumi, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
       this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
     });
+}
+
+void DQMEDHarvester::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const&) {
+  iLumi.put(std::make_unique<DQMToken>());
 }

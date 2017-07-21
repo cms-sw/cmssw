@@ -39,17 +39,15 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class L1TdeCSCTF : public thread_unsafe::DQMEDAnalyzer {
+class L1TdeCSCTF : public DQMEDAnalyzer {
 private:
   edm::EDGetTokenT<L1CSCTrackCollection> dataTrackProducer;
   edm::EDGetTokenT<L1CSCTrackCollection> emulTrackProducer;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dataStubProducer;
   edm::EDGetTokenT<L1MuDTChambPhContainer> emulStubProducer;
 
-  const L1MuTriggerScales *ts;
-  CSCTFPtLUT* ptLUT_;
   edm::ParameterSet ptLUTset;
-  CSCTFDTReceiver* my_dtrc;
+  std::unique_ptr<CSCTFDTReceiver> my_dtrc;
 	
   // Define Monitor Element Histograms
   ////////////////////////////////////

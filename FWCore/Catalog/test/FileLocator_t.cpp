@@ -1,13 +1,10 @@
 #include "FWCore/Catalog/interface/FileLocator.h"
-
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include <boost/filesystem.hpp>
 #include <iostream>
-
 
 int main() {
 
@@ -51,8 +48,14 @@ int main() {
    }
 
     {
-      edm::FileLocator fl("trivialcatalog_file:FWCore/Catalog/test/override_catalog.xml?protocol=override", false);
-    
+      
+      std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
+      std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
+      std::string file_name("/src/FWCore/Catalog/test/override_catalog.xml");
+      std::string full_file_name = boost::filesystem::exists((CMSSW_BASE+file_name).c_str()) ? CMSSW_BASE+file_name : CMSSW_RELEASE_BASE+file_name;
+      
+      edm::FileLocator fl(("trivialcatalog_file:"+full_file_name+"?protocol=override").c_str(), false);
+      
       const char * lfn[] = {
       "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root",
       "/store/group/bha/bho",
@@ -79,7 +82,9 @@ int main() {
   } 
   catch (cms::Exception const & e) {
     std::cout << e.what()  << std::endl;
+    return 1;
   }
+  
   catch (...) {
     std::cout << "got a problem..." << std::endl;
     return 1;

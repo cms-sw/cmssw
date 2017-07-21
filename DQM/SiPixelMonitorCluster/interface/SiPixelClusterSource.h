@@ -50,7 +50,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -112,8 +112,8 @@
        int noOfLayers;
        int noOfDisks;
 
-       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,
-			    std::vector<MonitorElement*> meinput);
+       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* const tTopo,
+			    std::vector<MonitorElement*> const & meinput);
        void getrococcupancye(DetId detId,const edmNew::DetSetVector<SiPixelCluster> & clustColl, const TrackerTopology* const pTT,
 			     edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput);
 

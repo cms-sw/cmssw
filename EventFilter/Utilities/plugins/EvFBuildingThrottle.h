@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/statvfs.h>
+#include <atomic>
 
 #include "boost/thread/thread.hpp"
 
@@ -101,7 +102,7 @@ namespace evf{
       
       double highWaterMark_;
       double lowWaterMark_;
-      volatile bool m_stoprequest;
+      std::atomic<bool> m_stoprequest;
       boost::shared_ptr<boost::thread> m_thread;
       boost::mutex lock_;
       std::string baseDir_;

@@ -8,6 +8,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
   class DeDxHitInfo

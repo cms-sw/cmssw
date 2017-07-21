@@ -40,6 +40,7 @@ public:
 		float maxChi2Prune      ;
 		float maxChi2GoodSeg    ;
 		float maxTOFDiff        ;
+		bool requireCentralBX   ;
 		unsigned int minNumberOfHits;
 		bool  requireBeamConstr  ;
 

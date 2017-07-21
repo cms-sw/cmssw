@@ -93,6 +93,26 @@ namespace edmtest {
   };
   //--------------------------------------------------------------------
   //
+  class IntFromRunConsumingAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    IntFromRunConsumingAnalyzer(edm::ParameterSet const& iPSet)
+    {
+      consumes<IntProduct, edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
+    }
+    
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("getFromModule");
+      descriptions.add("consumeInt", desc);
+      
+    }
+    
+    
+  };
+  //--------------------------------------------------------------------
+  //
   class ConsumingStreamAnalyzer : public edm::stream::EDAnalyzer<> {
   public:
     ConsumingStreamAnalyzer(edm::ParameterSet const& iPSet) :
@@ -253,6 +273,7 @@ using edmtest::DSVAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(IntConsumingAnalyzer);
+DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
 DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);

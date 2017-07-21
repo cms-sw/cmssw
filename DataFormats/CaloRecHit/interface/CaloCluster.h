@@ -25,6 +25,9 @@
 
 namespace reco {
 
+  class CaloCluster;
+  std::ostream& operator<<(std::ostream& out, 
+                           const CaloCluster& cluster);
 
   class CaloCluster {
   public:

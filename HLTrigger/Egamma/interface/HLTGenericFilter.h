@@ -53,17 +53,27 @@ private:
     edm::InputTag varTag_; // input tag identifying product that contains variable map
     edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
     edm::EDGetTokenT<T1IsolationMap> varToken_;
-    bool lessThan_;           // the cut is "<" or ">" ?
-    bool useEt_;              // use E or Et in relative isolation cuts
-    double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel
-    double thrRegularEE_;     // threshold for regular cut (x < thr) - ECAL endcap
-    double thrOverEEB_;       // threshold for x/E < thr cut (isolations) - ECAL barrel
-    double thrOverEEE_;       // threshold for x/E < thr cut (isolations) - ECAL endcap
-    double thrOverE2EB_;      // threshold for x/E^2 < thr cut (isolations) - ECAL barrel
-    double thrOverE2EE_;      // threshold for x/E^2 < thr cut (isolations) - ECAL endcap
-    int    ncandcut_;        // number of candidates required
+
+    std::vector<double> energyLowEdges_; // lower bin edges for energy-dependent cuts
+    bool lessThan_;                      // the cut is "<" or ">" ?
+    bool useEt_;                         // use E or Et in relative isolation cuts
+    std::vector<double> thrRegularEB_;   // threshold for regular cut (x < thr) - ECAL barrel
+    std::vector<double> thrRegularEE_;   // threshold for regular cut (x < thr) - ECAL endcap
+    std::vector<double> thrOverEEB_;     // threshold for x/E < thr cut (isolations) - ECAL barrel
+    std::vector<double> thrOverEEE_;     // threshold for x/E < thr cut (isolations) - ECAL endcap
+    std::vector<double> thrOverE2EB_;    // threshold for x/E^2 < thr cut (isolations) - ECAL barrel
+    std::vector<double> thrOverE2EE_;    // threshold for x/E^2 < thr cut (isolations) - ECAL endcap
+    int    ncandcut_;                    // number of candidates required
     
     edm::InputTag l1EGTag_;
+
+    edm::InputTag rhoTag_; // input tag identifying rho producer
+    edm::EDGetTokenT<double> rhoToken_;
+    bool doRhoCorrection_;
+    double rhoMax_;
+    double rhoScale_;
+    std::vector<double> effectiveAreas_;
+    std::vector<double> absEtaLowEdges_;
 };
 
 #endif //HLTGenericFilter_h

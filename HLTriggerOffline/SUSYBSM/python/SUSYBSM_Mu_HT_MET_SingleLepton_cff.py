@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
 SUSY_HLT_Mu15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
@@ -43,7 +44,7 @@ SUSY_HLT_Mu15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  )
 
 
-SUSY_HLT_Mu15_HT350_MET50_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSYoHLToMu15oHT350oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT350_PFMET50_v'),
                                                                 efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -95,7 +96,7 @@ SUSY_HLT_Mu15_HT400_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  )
 
 
-SUSY_HLT_Mu15_HT400_MET50_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSYoHLToMu15oHT400oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT400_PFMET50_v'),
                                                                 efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -110,6 +111,6 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.Sequence( SUSY_HLT_Mu15_HT350_MET50_Single
                                                 + SUSY_HLT_Mu15_HT400_MET50_SingleLepton
 )
 
-SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING = cms.Sequence( SUSY_HLT_Mu15_HT350_MET50_SingleLepton_POSTPROCESSING
-                                                               + SUSY_HLT_Mu15_HT400_MET50_SingleLepton_POSTPROCESSING
+SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING = cms.Sequence( SUSYoHLToMu15oHT350oMET50oSingleLeptonPOSTPROCESSING
+                                                               + SUSYoHLToMu15oHT400oMET50oSingleLeptonPOSTPROCESSING
 )

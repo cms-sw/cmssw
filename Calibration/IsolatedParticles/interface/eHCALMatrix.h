@@ -39,6 +39,8 @@ namespace spr{
   template< typename T>
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool algoNew=true, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool useRaw=false, bool debug=false);
 
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det, std::vector<PCaloHit>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+
   template< typename T>
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool useRaw=false, bool debug=false);
 
@@ -50,6 +52,8 @@ namespace spr{
 
   template <typename T>
   double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO=false, bool useRaw=false, bool debug=false);
+
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, std::vector<PCaloHit>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO=false, bool debug=false);
 
   template <typename T>
   double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool useRaw=false, bool debug=false);
@@ -69,12 +73,16 @@ namespace spr{
   template <typename T>
   void energyHCALCell(HcalDetId detId, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth=1, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool useRaw=false, bool debug=false);
 
+  void energyHCALCell(HcalDetId detId, std::vector<PCaloHit>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth=1, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+
   template <typename T>
   void hitsHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, std::vector< typename T::const_iterator>& hitlist, bool debug=false);
 
   HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, bool useRaw=false,  bool debug=false);
 
   HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool includeHO, bool useRaw=false, bool debug=false);
+
+  double eHCALThreshold(int subdet, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100);
 }
 
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.icc"

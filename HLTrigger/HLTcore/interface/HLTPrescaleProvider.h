@@ -19,6 +19,7 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 #include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <string>
 #include <utility>
@@ -76,6 +77,8 @@ public:
   std::pair<std::vector<std::pair<std::string,int> >,int> prescaleValuesInDetail(const edm::Event& iEvent,
                                                                                  const edm::EventSetup& iSetup,
                                                                                  const std::string& trigger);
+  // Event rejected by HLTPrescaler on ith HLT path?
+  bool rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const;
 
  private:
 
