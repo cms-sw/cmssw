@@ -198,7 +198,7 @@ class RealisticHitToClusterAssociator
                     {
                         unsigned int hitId = elt.first;
                         float fraction = elt.second;
-                        if(hitToRealisticSimCluster_[hitId].size() >1)
+                        if(hitToRealisticSimCluster_[hitId].size() >1 && fraction < 1.f)
                         {
                             float correction = 1.f - fraction;
                             unsigned int numberOfClusters = hitToRealisticSimCluster_[hitId].size();
@@ -224,7 +224,6 @@ class RealisticHitToClusterAssociator
                                     hitToRealisticEnergyFraction_[hitId][i] = newFraction;
                                     if(newFraction > exclusiveFraction)
                                     {
-
                                         realisticSimClusters_[hitToRealisticSimCluster_[hitId][i]].increaseExclusiveEnergy(sharedEnergy);
                                         if(oldFraction <=exclusiveFraction)
                                         {
@@ -242,7 +241,7 @@ class RealisticHitToClusterAssociator
                     for(auto& elt : hAndF)
                     {
                         unsigned int hitId = elt.first;
-                        if(hitToRealisticSimCluster_[hitId].size()==1)
+                        if(hitToRealisticSimCluster_[hitId].size()==1 and totalSharedEnergy > 0.f)
                         {
                             for (auto& pair: energyInNeighbors)
                             {
