@@ -197,7 +197,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
-    errorSummaryNum->Fill(RBXRANGE, incBin[RBXRANGE]);
+    if (incBin[RBXRANGE]) errorSummaryNum->Fill(RBXRANGE);
     int bx;
     for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
         muColl1BxRange->Fill(bx);
@@ -220,7 +220,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
     // check number of muons
     if (muonBxColl1->size(iBx) != muonBxColl2->size(iBx)) {
       summary->Fill(NMUONBAD);
-      errorSummaryNum->Fill(RNMUON, incBin[RNMUON]);
+      if (incBin[RNMUON]) errorSummaryNum->Fill(RNMUON);
       muColl1nMu->Fill(muonBxColl1->size(iBx));
       muColl2nMu->Fill(muonBxColl2->size(iBx));
 
@@ -288,57 +288,57 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       bool muonSelMismatch = false; // Muon mismatches excluding ignored bins
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RPT];
+        if (incBin[RPT]) muonSelMismatch = true;
         summary->Fill(PTBAD);
-        errorSummaryNum->Fill(RPT, incBin[RPT]);
+        if (incBin[RPT]) errorSummaryNum->Fill(RPT);
       }
       if (muonIt1->hwEta() != muonIt2->hwEta()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RETA];
+        if (incBin[RETA]) muonSelMismatch = true;
         summary->Fill(ETABAD);
-        errorSummaryNum->Fill(RETA, incBin[RETA]);
+        if (incBin[RETA]) errorSummaryNum->Fill(RETA);
       }
       if (muonIt1->hwPhi() != muonIt2->hwPhi()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RLOCALPHI];
+        if (incBin[RLOCALPHI]) muonSelMismatch = true;
         summary->Fill(LOCALPHIBAD);
-        errorSummaryNum->Fill(RLOCALPHI, incBin[RLOCALPHI]);
+        if (incBin[RLOCALPHI]) errorSummaryNum->Fill(RLOCALPHI);
       }
       if (muonIt1->hwSign() != muonIt2->hwSign()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RSIGN];
+        if (incBin[RSIGN]) muonSelMismatch = true;
         summary->Fill(SIGNBAD);
-        errorSummaryNum->Fill(RSIGN, incBin[RSIGN]);
+        if (incBin[RSIGN]) errorSummaryNum->Fill(RSIGN);
       }
       if (muonIt1->hwSignValid() != muonIt2->hwSignValid()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RSIGNVAL];
+        if (incBin[RSIGNVAL]) muonSelMismatch = true;
         summary->Fill(SIGNVALBAD);
-        errorSummaryNum->Fill(RSIGNVAL, incBin[RSIGNVAL]);
+        if (incBin[RSIGNVAL]) errorSummaryNum->Fill(RSIGNVAL);
       }
       if (muonIt1->hwQual() != muonIt2->hwQual()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RQUAL];
+        if (incBin[RQUAL]) muonSelMismatch = true;
         summary->Fill(QUALBAD);
-        errorSummaryNum->Fill(RQUAL, incBin[RQUAL]);
+        if (incBin[RQUAL]) errorSummaryNum->Fill(RQUAL);
       }
       if (muonIt1->link() != muonIt2->link()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RLINK];
+        if (incBin[RLINK]) muonSelMismatch = true;
         summary->Fill(LINKBAD);
-        errorSummaryNum->Fill(RLINK, incBin[RLINK]);
+        if (incBin[RLINK]) errorSummaryNum->Fill(RLINK);
       }
       if (muonIt1->processor() != muonIt2->processor()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RPROC];
+        if (incBin[RPROC]) muonSelMismatch = true;
         summary->Fill(PROCBAD);
-        errorSummaryNum->Fill(RPROC, incBin[RPROC]);
+        if (incBin[RPROC]) errorSummaryNum->Fill(RPROC);
       }
       if (muonIt1->trackFinderType() != muonIt2->trackFinderType()) {
         muonMismatch = true;
-        muonSelMismatch = muonSelMismatch || incBin[RTF];
+        if (incBin[RTF]) muonSelMismatch = true;
         summary->Fill(TFBAD);
-        errorSummaryNum->Fill(RTF, incBin[RTF]);
+        if (incBin[RTF]) errorSummaryNum->Fill(RTF);
       }
       // check track address
       const std::map<int, int> muon1TrackAddr = muonIt1->trackAddress();
@@ -360,18 +360,17 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       if (badTrackAddr) {
         if (!ignoreBadTrkAddr) {
           muonMismatch = true;
-          muonSelMismatch = muonSelMismatch || incBin[RTRACKADDR];
+          if (incBin[RTRACKADDR]) muonSelMismatch = true;
         }
         summary->Fill(TRACKADDRBAD);
-        errorSummaryNum->Fill(RTRACKADDR, incBin[RTRACKADDR]);
+        if (incBin[RTRACKADDR]) errorSummaryNum->Fill(RTRACKADDR);
       }
 
       if (muonSelMismatch) {
-        errorSummaryNum->Fill(RMUON, incBin[RMUON]);
+        if (incBin[RMUON]) errorSummaryNum->Fill(RMUON);
       }
 
       if (muonMismatch) {
-        errorSummaryNum->Fill(RMUON, incBin[RMUON]);
 
         muColl1hwPt->Fill(muonIt1->hwPt());
         muColl1hwEta->Fill(muonIt1->hwEta());
