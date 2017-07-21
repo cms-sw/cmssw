@@ -4,9 +4,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "DQMOffline/Trigger/plugins/TagAndProbeBtagTriggerMonitor.h"
 
-#include "TLorentzVector.h"
+//#include "TLorentzVector.h"
 
 
 // -----------------------------
@@ -108,27 +110,25 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
       reco::JetTagCollection jettags = *(offlineJetTagPFHandler.product());
       if ( jettags.size() > 1 )
       {
-         const reco::Jet * jet1 = jettags.key(0).get();
-         const reco::Jet * jet2 = jettags.key(1).get();
-	 TLorentzVector p4_jet1;
-	 p4_jet1.SetPtEtaPhiM(jet1->pt(),jet1->eta(),jet1->phi(),0);
-	 TLorentzVector p4_jet2;
-	 p4_jet2.SetPtEtaPhiM(jet2->pt(),jet2->eta(),jet2->phi(),0);
-         float btag1 = jettags.value(0);
+		
+	const reco::Jet jet1 = *(jettags.key(0).get());
+        const reco::Jet jet2 = *(jettags.key(1).get());
+	         
+	 float btag1 = jettags.value(0);
          float btag2 = jettags.value(1);
             
-         if ( jet1->pt() > jetPtmin_ && jet2->pt() > jetPtmin_ && fabs(jet1->eta()) < jetEtamax_ && fabs(jet2->eta()) < jetEtamax_ )
+         if ( jet1.pt() > jetPtmin_ && jet2.pt() > jetPtmin_ && fabs(jet1.eta()) < jetEtamax_ && fabs(jet2.eta()) < jetEtamax_ )
          {
             if ( btag1 > tagBtagmin_ && btag2 > probeBtagmin_ )
             {
-               pt_jet1_  -> Fill(jet1->pt());
-               pt_jet2_  -> Fill(jet2->pt());
-               eta_jet1_ -> Fill(jet1->eta());
-               eta_jet2_ -> Fill(jet2->eta());
-               phi_jet1_ -> Fill(jet1->phi());
-               phi_jet2_ -> Fill(jet2->phi());
-               eta_phi_jet1_ -> Fill(jet1->eta(),jet1->phi());
-               eta_phi_jet2_ -> Fill(jet2->eta(),jet2->phi());
+	       pt_jet1_  -> Fill(jet1.pt());
+               pt_jet2_  -> Fill(jet2.pt());
+               eta_jet1_ -> Fill(jet1.eta());
+               eta_jet2_ -> Fill(jet2.eta());
+               phi_jet1_ -> Fill(jet1.phi());
+               phi_jet2_ -> Fill(jet2.phi());
+               eta_phi_jet1_ -> Fill(jet1.eta(),jet1.phi());
+               eta_phi_jet2_ -> Fill(jet2.eta(),jet2.phi());
                if ( btag1 < 0 ) btag1 = -0.5;
                if ( btag2 < 0 ) btag2 = -0.5;
                discr_offline_btag_jet1_ -> Fill(btag1);
@@ -149,28 +149,24 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
 		    onlinebtags.push_back(triggerObjects[key]);
                   }
                }
-               for ( auto & to : onlinebtags )
+               for ( const auto & to : onlinebtags )
                {
-		  TLorentzVector p4_to;
-		  p4_to.SetPtEtaPhiM(to.pt(),to.eta(),to.phi(),0);
-                  
-                  if ( p4_jet1.DeltaR(p4_to) ) match1 = true;
-                  if ( p4_jet2.DeltaR(p4_to) ) match2 = true;
-	       
+		 if ( reco::deltaR(jet1,to) ) match1 = true;
+		 if ( reco::deltaR(jet2,to) ) match2 = true;
                 }
  
               if ( match1 ) // jet1 is the tag
                {
-                  pt_probe_  -> Fill(jet2->pt());
-                  eta_probe_ -> Fill(jet2->eta());
-                  phi_probe_ -> Fill(jet2->phi());
-                  eta_phi_probe_ -> Fill(jet2->eta(),jet2->phi());
+                  pt_probe_  -> Fill(jet2.pt());
+                  eta_probe_ -> Fill(jet2.eta());
+                  phi_probe_ -> Fill(jet2.phi());
+                  eta_phi_probe_ -> Fill(jet2.eta(),jet2.phi());
                   if ( match2 ) // jet2 is the probe
                   {
-                     pt_probe_match_  -> Fill(jet2->pt());
-                     eta_probe_match_ -> Fill(jet2->eta());
-                     phi_probe_match_ -> Fill(jet2->phi());
-                     eta_phi_probe_match_ -> Fill(jet2->eta(),jet2->phi());
+                     pt_probe_match_  -> Fill(jet2.pt());
+                     eta_probe_match_ -> Fill(jet2.eta());
+                     phi_probe_match_ -> Fill(jet2.phi());
+                     eta_phi_probe_match_ -> Fill(jet2.eta(),jet2.phi());
                   }
                }
             } // offline jets btag
