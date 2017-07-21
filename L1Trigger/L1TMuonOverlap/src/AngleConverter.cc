@@ -88,6 +88,20 @@ int etaKeyWG2Code(const CSCDetId& detId, uint16_t keyWG) {
   return etaCode;
 }
 
+
+int fixCscOffsetGeom(int offsetLoc) {
+  // fix for CSC feo dependance from GlobalTag
+
+  // dump of CSC offsets for MC global tag
+  std::vector<int> offCSC = { -154, -133, -17, -4, 4, 17, 133, 146, 154, 167, 
+                            283, 296, 304, 317, 433, 446, 454, 467,  
+                            583, 596, 604, 617, 733, 746, 754, 767,  883, 904};
+  auto gep = std::lower_bound(offCSC.begin(), offCSC.end(), offsetLoc);
+  int fixOff = (gep != offCSC.end()) ? *gep : *(gep-1); 
+  if (gep != offCSC.begin() && std::abs(*(gep-1)-offsetLoc) < std::abs(fixOff-offsetLoc)  ) fixOff= *(gep-1);
+  return fixOff;
+}
+
 }
 
 
@@ -190,7 +204,12 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   int halfStrip = digi.getStrip(); // returns halfStrip 0..159
   //FIXME: to be checked (only important for ME1/3) keep more bits for offset, truncate at the end
-  int phi = offsetLoc + order*scale*halfStrip;
+
+  // a quick fix for towards geometry changes due to global tag.
+  // in case of MC tag fixOff shold be identical to offsetLoc 
+  int fixOff = fixCscOffsetGeom(offsetLoc);
+
+  int phi = fixOff + order*scale*halfStrip;
 
 //  std::cout <<" hs: "<< halfStrip <<" offset: " << offsetLoc <<" oder*scale: "<< order*scale 
 //            <<" phi: " <<phi<<" ("<<offsetLoc + order*scale*halfStrip<<")"<< std::endl;
