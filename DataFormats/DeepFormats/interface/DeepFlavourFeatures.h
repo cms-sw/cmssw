@@ -22,6 +22,8 @@ class DeepFlavourFeatures {
     std::vector<NeutralCandidateFeatures> n_pf_features;
     std::vector<ChargedCandidateFeatures> c_pf_features;
     
+    std::size_t npv; // used by deep flavour
+    
 };    
 
 
