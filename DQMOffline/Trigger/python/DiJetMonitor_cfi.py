@@ -8,19 +8,7 @@ DiPFjetAve40_Prommonitoring.histoPSet.dijetPSet = cms.PSet(
   xmin  = cms.double(   0),
   xmax  = cms.double(1000.),
 )
-DiPFjetAve40_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
-  nbins = cms.uint32 (  200 ),
-  xmin  = cms.double(   0.),
-  xmax  = cms.double(1000.),
-)
-DiPFjetAve40_Prommonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-#DiPFjetAve40_Prommonitoring.pfjets    = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 DiPFjetAve40_Prommonitoring.dijetSrc  = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
-DiPFjetAve40_Prommonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-DiPFjetAve40_Prommonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
-DiPFjetAve40_Prommonitoring.ptcut     = cms.double(20) # while pfIsolatedMuonsEI are reco::PFCandidate !
-DiPFjetAve40_Prommonitoring.ispfdijettrg = cms.bool(True) # is PFJet Trigge  ?
-DiPFjetAve40_Prommonitoring.iscalodijettrg = cms.bool(False) # is CaloJet Trigge  ?
 
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("JetMETDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
