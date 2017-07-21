@@ -1,4 +1,4 @@
-FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.VBFMETMonitor_cff import *
 from DQMOffline.Trigger.METMonitor_cfi import hltMETmonitoring
