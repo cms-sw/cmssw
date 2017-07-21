@@ -211,10 +211,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (distMagXY/sigmaDistMagXY < vtxDecaySigXYCut_) continue;
 
       // 3D decay significance
-      SVector3 distVecXYZ(vtxPos.x()-referencePos.x(), vtxPos.y()-referencePos.y(), vtxPos.z()-referencePos.z());
-      double distMagXYZ = ROOT::Math::Mag(distVecXYZ);
-      double sigmaDistMagXYZ = sqrt(ROOT::Math::Similarity(totalCov, distVecXYZ)) / distMagXYZ;
-      if (distMagXYZ/sigmaDistMagXYZ < vtxDecaySigXYZCut_) continue;
+      if (vtxDecaySigXYZCut_ > 0.) {
+         SVector3 distVecXYZ(vtxPos.x()-referencePos.x(), vtxPos.y()-referencePos.y(), vtxPos.z()-referencePos.z());
+         double distMagXYZ = ROOT::Math::Mag(distVecXYZ);
+         double sigmaDistMagXYZ = sqrt(ROOT::Math::Similarity(totalCov, distVecXYZ)) / distMagXYZ;
+         if (distMagXYZ/sigmaDistMagXYZ < vtxDecaySigXYZCut_) continue;
+      }
 
       // make sure the vertex radius is within the inner track hit radius
       if (innerHitPosCut_ > 0. && positiveTrackRef->innerOk()) {
@@ -270,10 +272,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (angleXY < cosThetaXYCut_) continue;
 
       // 3D pointing angle
-      double dz = theVtx.z()-referencePos.z();
-      double pz = totalP.z();
-      double angleXYZ = (dx*px+dy*py+dz*pz)/(sqrt(dx*dx+dy*dy+dz*dz)*sqrt(px*px+py*py+pz*pz));
-      if (angleXYZ < cosThetaXYZCut_) continue;
+      if (cosThetaXYZCut_ > -1.) {
+         double dz = theVtx.z()-referencePos.z();
+         double pz = totalP.z();
+         double angleXYZ = (dx*px+dy*py+dz*pz)/(sqrt(dx*dx+dy*dy+dz*dz)*sqrt(px*px+py*py+pz*pz));
+         if (angleXYZ < cosThetaXYZCut_) continue;
+      }
 
       // calculate total energy of V0 3 ways: assume it's a kShort, a Lambda, or a LambdaBar.
       double piPlusE = sqrt(positiveP.mag2() + piMassSquared);
