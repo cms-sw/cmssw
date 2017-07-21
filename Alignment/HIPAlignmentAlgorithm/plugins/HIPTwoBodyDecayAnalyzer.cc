@@ -127,30 +127,30 @@ HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(std::st
 }
 void HIPTwoBodyDecayAnalyzer::cleanBranches(){
   for (unsigned short el=0; el<shortBranches.size(); el++){
-    if (shortBranches.at(el).second!=0) delete shortBranches.at(el).second;
-    shortBranches.at(el).second=0;
+    if (shortBranches.at(el).second!=nullptr) delete shortBranches.at(el).second;
+    shortBranches.at(el).second=nullptr;
   }
   shortBranches.clear();
   for (unsigned int el=0; el<intBranches.size(); el++){
-    if (intBranches.at(el).second!=0) delete intBranches.at(el).second;
-    intBranches.at(el).second=0;
+    if (intBranches.at(el).second!=nullptr) delete intBranches.at(el).second;
+    intBranches.at(el).second=nullptr;
   }
   intBranches.clear();
   for (unsigned int el=0; el<floatBranches.size(); el++){
-    if (floatBranches.at(el).second!=0) delete floatBranches.at(el).second;
-    floatBranches.at(el).second=0;
+    if (floatBranches.at(el).second!=nullptr) delete floatBranches.at(el).second;
+    floatBranches.at(el).second=nullptr;
   }
   floatBranches.clear();
 }
 void HIPTwoBodyDecayAnalyzer::initializeBranches(){
   for (unsigned short el=0; el<shortBranches.size(); el++){
-    if (shortBranches.at(el).second!=0) *(shortBranches.at(el).second)=0;
+    if (shortBranches.at(el).second!=nullptr) *(shortBranches.at(el).second)=0;
   }
   for (unsigned int el=0; el<intBranches.size(); el++){
-    if (intBranches.at(el).second!=0) *(intBranches.at(el).second)=0;
+    if (intBranches.at(el).second!=nullptr) *(intBranches.at(el).second)=0;
   }
   for (unsigned int el=0; el<floatBranches.size(); el++){
-    if (floatBranches.at(el).second!=0) *(floatBranches.at(el).second)=0;
+    if (floatBranches.at(el).second!=nullptr) *(floatBranches.at(el).second)=0;
   }
 }
 
@@ -193,7 +193,7 @@ bool HIPTwoBodyDecayAnalyzer::actuateBranches(){
   std::cout << "Number of short branches: " << shortBranches.size() << std::endl;
   std::cout << "Number of int branches: " << intBranches.size() << std::endl;
   std::cout << "Number of float branches: " << floatBranches.size() << std::endl;
-  if (tree!=0){
+  if (tree!=nullptr){
     for (unsigned short el=0; el<shortBranches.size(); el++){
       std::cout << "Actuating branch " << shortBranches.at(el).first << " at address " << shortBranches.at(el).second << std::endl;
       if (!tree->GetBranchStatus(shortBranches.at(el).first.c_str()))

@@ -31,8 +31,8 @@ minPixelProbQ(other.minPixelProbQ),
 maxPixelProbQ(other.maxPixelProbQ)
 {}
 
-align::ID HIPAlignableSpecificParameters::id()const{ if (aliObj!=0) return aliObj->id(); else return 0; }
-align::StructureType HIPAlignableSpecificParameters::objId()const{ if (aliObj!=0) return aliObj->alignableObjectId(); else return align::invalid; }
+align::ID HIPAlignableSpecificParameters::id()const{ if (aliObj!=nullptr) return aliObj->id(); else return 0; }
+align::StructureType HIPAlignableSpecificParameters::objId()const{ if (aliObj!=nullptr) return aliObj->alignableObjectId(); else return align::invalid; }
 
 bool HIPAlignableSpecificParameters::matchAlignable(const Alignable* ali)const{
   if (aliObj==(Alignable*)0) return false;

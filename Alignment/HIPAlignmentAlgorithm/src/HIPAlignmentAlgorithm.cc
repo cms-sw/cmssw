@@ -455,7 +455,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
     theSurveyIORootFile->cd();
     if (theSurveyTree!=nullptr) theSurveyTree->Write();
     delete theSurveyTree;
-    theSurveyTree=0;
+    theSurveyTree=nullptr;
     theSurveyIORootFile->Close();
   }
   // Alignable-wise tree is only filled once at iteration 1
@@ -463,7 +463,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
     theAlignablesMonitorIORootFile->cd();
     if (theAlignablesMonitorTree!=nullptr) theAlignablesMonitorTree->Write();
     delete theAlignablesMonitorTree;
-    theAlignablesMonitorTree=0;
+    theAlignablesMonitorTree=nullptr;
     theAlignablesMonitorIORootFile->Close();
   }
   // Eventwise and hitwise monitoring trees
@@ -472,12 +472,12 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
     if (theTrackMonitorTree!=nullptr){
       theTrackMonitorTree->Write();
       delete theTrackMonitorTree;
-      theTrackMonitorTree=0;
+      theTrackMonitorTree=nullptr;
     }
     if (theHitMonitorTree!=nullptr){
       theHitMonitorTree->Write();
       delete theHitMonitorTree;
-      theHitMonitorTree=0;
+      theHitMonitorTree=nullptr;
     }
     theTrackHitMonitorIORootFile->Close();
   }
@@ -1172,7 +1172,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
       m2_surfDef.clear();
       {
         std::vector<std::pair<int, SurfaceDeformation*> > dali_id_pairs;
-        SurfaceDeformation* dali_obj=0;
+        SurfaceDeformation* dali_obj=nullptr;
         SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
         std::vector<double> dali;
         if (1 == ali->surfaceDeformationIdPairs(dali_id_pairs)){
@@ -1485,8 +1485,8 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
   if (theTrackHitMonitorIORootFile!=nullptr){ // This should never happen
     edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collectMonitorTrees"
       << "Monitor file is already open while it is not supposed to be!";
-    delete theTrackMonitorTree; theTrackMonitorTree=0;
-    delete theHitMonitorTree; theHitMonitorTree=0;
+    delete theTrackMonitorTree; theTrackMonitorTree=nullptr;
+    delete theHitMonitorTree; theHitMonitorTree=nullptr;
     theTrackHitMonitorIORootFile->Close();
   }
   theTrackHitMonitorIORootFile = TFile::Open(theMonitorConfig.outfile.c_str(), "update");
