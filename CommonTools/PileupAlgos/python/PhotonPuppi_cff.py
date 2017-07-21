@@ -4,13 +4,13 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 puppiPhoton = cms.EDProducer("PuppiPhoton",
                              candName       = cms.InputTag('particleFlow'),
                              puppiCandName  = cms.InputTag('puppi'),
+                             usePFphotons   = cms.bool(True), # Use PF photons and not GED photons
                              photonName     = cms.InputTag('reducedEgamma','reducedGedPhotons'),
-			     recoToPFMap    = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap"),
-                             photonId       = cms.InputTag(""), # Add once available and validated (Note that Spring16 cut based photon ID fails for high pT photons in 93X)
+                             recoToPFMap    = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap"),
+                             photonId       = cms.InputTag(""),
                              pt             = cms.double(20),
                              eta            = cms.double(2.5),
-                             usePFphotons   = cms.bool(True), # Use PF photons and not GED photons
-			     runOnMiniAOD   = cms.bool(False), # If set to true photon ID is taken from pat::Photon, otherwise from the value map at RECO/AOD level
+                             runOnMiniAOD   = cms.bool(False), # If set to true photon ID is taken from pat::Photon, otherwise from the value map at RECO/AOD level
                              useRefs        = cms.bool(True),
                              dRMatch        = cms.vdouble(0.005,0.005,0.005,0.005),
                              pdgids         = cms.vint32 (22,11,211,130),
