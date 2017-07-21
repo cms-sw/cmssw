@@ -121,7 +121,7 @@ void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCa
             layer = tc->layer() + kLayersEE_;
         }
         else if( subdet == HGCHEB ){
-            edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented";            
+            layer = tc->layer() + kLayersEE_ + kLayersFH_;
         }
         
         reshuffledTriggerCells[endcap][layer-1].emplace_back(tc);

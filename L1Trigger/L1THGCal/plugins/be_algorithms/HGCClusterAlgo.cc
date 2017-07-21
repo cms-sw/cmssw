@@ -36,8 +36,6 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
         multicluster_product_( new l1t::HGCalMulticlusterBxCollection ),
-        HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
-        HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
         multiclustering_( conf.getParameterSet("C3d_parameters" ) )
@@ -87,13 +85,6 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
     
-        /* lables of sensitive detector (geometry record) */
-        std::string HGCalEESensitive_;
-        std::string HGCalHESiliconSensitive_;
-    
-        /* handles to the detector topologies */
-        edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
-        edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
         /* algorithms instances */
@@ -112,9 +103,6 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                                        const edm::EventSetup & es,
                                        edm::Event & evt ) 
 {
- 
-    es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
-    es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
 
     for( const auto& digi : coll ){
