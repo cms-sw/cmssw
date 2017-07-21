@@ -95,13 +95,6 @@ namespace l1t
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
-      void setNlayers(int Nlayers) { Nlayers_ = Nlayers;}
-      void setEmax(float Emax) { Emax_ = Emax;}
-      void setSeeMax(float SeeMax) { SeeMax_ = SeeMax;}
-      void setSeeTot(float SeeTot) { SeeTot_ = SeeTot;}
-      void setSppMax(float SppMax) { SppMax_ = SppMax;}
-      void setSppTot(float SppTot) { SppTot_ = SppTot;}
-
 
       /* distance in 'cm' */
       double distance( const l1t::HGCalTriggerCell &tc ) const 
@@ -148,12 +141,31 @@ namespace l1t
       uint32_t layer() const {return detId_.layer();}
       int32_t zside() const {return detId_.zside();}
 
+
+      //shower shape
+
       int Nlayers() const { return Nlayers_; }
-      float Emax() const { return Emax_; }
+      int firstLayer() const { return firstLayer_; }
+      float EMax() const { return EMax_; }
       float SeeMax() const { return SeeMax_; }
       float SppMax() const { return SppMax_; }
       float SeeTot() const { return SeeTot_; }
       float SppTot() const { return SppTot_; }
+      float Szz() const { return Szz_; }
+      float See2D() const { return See2D_; }
+      float Spp2D() const { return Spp2D_; }
+
+
+      void setNlayers(int Nlayers) { Nlayers_ = Nlayers;}
+      void setfirstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void setEMax(float EMax) { EMax_ = EMax;}
+      void setSeeMax(float SeeMax) { SeeMax_ = SeeMax;}
+      void setSeeTot(float SeeTot) { SeeTot_ = SeeTot;}
+      void setSppMax(float SppMax) { SppMax_ = SppMax;}
+      void setSppTot(float SppTot) { SppTot_ = SppTot;}
+      void setSzz(float Szz) { Szz_ = Szz;}
+      void setSee2D(float See2D) { See2D_ = See2D;}
+      void setSpp2D(float Spp2D) { Spp2D_ = Spp2D;}
       
 
       /* operators */
@@ -174,11 +186,15 @@ namespace l1t
       double seedMipPt_;
 
       int Nlayers_;
-      float Emax_;
+      int firstLayer_;
+      float EMax_;
       float SeeMax_;
       float SppMax_;
       float SeeTot_;
       float SppTot_;
+      float Szz_;
+      float See2D_;
+      float Spp2D_;
 
       ClusterShapes shapes_;
 
