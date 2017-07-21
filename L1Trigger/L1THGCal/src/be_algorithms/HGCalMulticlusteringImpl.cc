@@ -77,23 +77,19 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
                                                0. );
         // overwriting the 4p with the calibrated 4p     
         multiclustersTmp.at(i).setP4( calibP4 );
-        /*float SeeTot=shape->SigmaEtaEta();
-        float SppTot=shape->SigmaPhiPhi();
-        float EMax= shape->EMax();
-        float SeeMax= shape->SigmaEtaEtaMax();
-        float SppMax= shape->SigmaPhiPhiMax();*/
+        
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
 
             //compute shower shape
-            const edm::PtrVector<l1t::HGCalCluster> & clustersPtr = multiclustersTmp.at(i).constituents();
 	    HGCalShowerShape *shape=new HGCalShowerShape();
-            shape->makeHGCalProfile(clustersPtr);
-            multiclustersTmp.at(i).setNlayers(shape->nLayers());
-            multiclustersTmp.at(i).setEmax(shape->EMax());
-            multiclustersTmp.at(i).setSeeMax(shape->SigmaEtaEtaMax());
-            multiclustersTmp.at(i).setSppMax(shape->SigmaPhiPhiMax());
-            multiclustersTmp.at(i).setSeeTot(shape->SigmaEtaEta());
-            multiclustersTmp.at(i).setSppTot(shape->SigmaPhiPhi());
+            multiclustersTmp.at(i).setNlayers(shape->nLayers(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setfirstLayer(shape->firstLayer(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setSeeTot(shape->SigmaEtaEtaTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setSeeMax(shape->SigmaEtaEtaMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setSppTot(shape->SigmaPhiPhiTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setSppMax(shape->SigmaPhiPhiMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setSzz(shape->SigmaZZ(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).setEMax(shape->EMax(multiclustersTmp.at(i)));
 
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }
