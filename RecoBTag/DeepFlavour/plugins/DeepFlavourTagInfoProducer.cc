@@ -108,6 +108,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     auto jet = dynamic_cast<const pat::Jet &>(jet_ref.operator*());
     // fill basic jet features
     deep::jet_features_converter(jet, features.jet_features);
+    // fill number of pv
+    features.npv = vtxs->size();
 
     // fill features from ShallowTagInfo
     const auto & tag_info_vars = tag_info.taggingVariables();
