@@ -99,6 +99,7 @@ private:
   bool verbose;
   bool unpackHcalMask;
   bool unpackEcalMask;
+  int  fwVersion;
 
   UCTLayer1 *layer1;
 
@@ -131,13 +132,13 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")), 
   unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
-  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
+  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
+  fwVersion(iConfig.getParameter<int>("firmwareVersion"))
 {
   produces<CaloTowerBxCollection>();
   produces<L1CaloRegionCollection>();
 
   // See UCTLayer1.hh for firmware version definitions
-  int fwVersion = iConfig.getParameter<int>("firmwareVersion");
   layer1 = new UCTLayer1(fwVersion);
 
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -309,7 +310,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT, fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> eCalLayer1EtaSideEtArray;
     std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> hCalLayer1EtaSideEtArray;

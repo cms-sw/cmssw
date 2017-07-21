@@ -90,24 +90,37 @@ bool UCTTower::process() {
 }
 
 bool UCTTower::processHFTower() {
-  uint32_t calibratedET = hcalET;
-  if(hfLUT != 0) {
-    uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
-    const std::array< uint32_t, 256> a = hfLUT->at(etaAddress);
-    calibratedET = a[hcalET] & 0xFF;
+  if ( fwVersion > 2 ) {
+    uint32_t calibratedET = hcalET;
+    if(hfLUT != 0) {
+      uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
+      const std::array< uint32_t, 256> a = hfLUT->at(etaAddress);
+      calibratedET = a[hcalET] & 0x1FF;
+    }
+    towerData = calibratedET | zeroFlagMask;
+    if((hcalFB & 0x1) == 0x1) towerData |= ecalFlagMask; // LSB defines short over long fiber ratio
+    if((hcalFB & 0x2) == 0x2) towerData |= hcalFlagMask; // MSB defines minbias flag
   }
-  uint32_t absCaloEta = abs(caloEta());
-  if(absCaloEta > 29 && absCaloEta < 40) {
-    // Divide by two (since two duplicate towers are sent)
-    calibratedET /= 2;
+  else {
+    uint32_t calibratedET = hcalET;
+    if(hfLUT != 0) {
+      uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
+      const std::array< uint32_t, 256> a = hfLUT->at(etaAddress);
+      calibratedET = a[hcalET] & 0xFF;
+    }
+    uint32_t absCaloEta = abs(caloEta());
+    if(absCaloEta > 29 && absCaloEta < 40) {
+      // Divide by two (since two duplicate towers are sent)
+      calibratedET /= 2;
+    }
+    else if(absCaloEta == 40 || absCaloEta == 41) {
+      // Divide by four
+      calibratedET /= 4;
+    }
+    towerData = calibratedET | zeroFlagMask;
+    if((hcalFB & 0x1) == 0x1) towerData |= ecalFlagMask; // LSB defines short over long fiber ratio
+    if((hcalFB & 0x2) == 0x2) towerData |= hcalFlagMask; // MSB defines minbias flag
   }
-  else if(absCaloEta == 40 || absCaloEta == 41) {
-    // Divide by four
-    calibratedET /= 4;
-  }
-  towerData = calibratedET | zeroFlagMask;
-  if((hcalFB & 0x1) == 0x1) towerData |= ecalFlagMask; // LSB defines short over long fiber ratio
-  if((hcalFB & 0x2) == 0x2) towerData |= hcalFlagMask; // MSB defines minbias flag
   return true;
 }
 
