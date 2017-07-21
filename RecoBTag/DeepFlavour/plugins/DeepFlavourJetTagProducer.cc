@@ -17,6 +17,9 @@
 #include "DNN/Tensorflow/interface/Graph.h"
 #include "DNN/Tensorflow/interface/Tensor.h"
 
+#include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
+
+
 
 class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 
@@ -109,12 +112,23 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
   };
   
   // initalize inputs
+  // CMMSW-DNN sets zeros by default
   for (std::size_t i=0; i < input_sizes.size(); i++) {
     auto & input_shape = input_sizes.at(i);
     dnn_inputs_.at(i)->setArray(input_shape.size(),
                                 &input_shape[0]);
   }
 
+  // fill values
+  for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
+    // jet and oother global features
+    const auto & features = tag_infos->at(jet_n).features();
+    jet_tensor_filler(dnn_inputs_.at(0), jet_n, features);
+    
+  }
+  
+
+  // compute graph
   graph_.eval();
 
   // create output collection
