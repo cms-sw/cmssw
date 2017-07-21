@@ -121,10 +121,33 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // fill values
   for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
-    // jet and oother global features
+    // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
     jet_tensor_filler(dnn_inputs_.at(0), jet_n, features);
-    
+    // c_pf candidates
+    auto max_c_pf_n = std::min(features.c_pf_features.size(),
+                               (std::size_t) input_sizes.at(1).at(1));
+    for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
+      const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
+      c_pf_tensor_filler(dnn_inputs_.at(1), jet_n, c_pf_n, c_pf_features);
+    }
+    // n_pf candidates
+    auto max_n_pf_n = std::min(features.n_pf_features.size(),
+                               (std::size_t) input_sizes.at(2).at(1));
+    for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
+      const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
+      n_pf_tensor_filler(dnn_inputs_.at(2), jet_n, n_pf_n, n_pf_features);
+    }
+    // sv candidates
+    auto max_sv_n = std::min(features.sv_features.size(),
+                               (std::size_t) input_sizes.at(3).at(1));
+    for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
+      const auto & sv_features = features.sv_features.at(sv_n);
+      sv_tensor_filler(dnn_inputs_.at(3), jet_n, sv_n, sv_features);
+    }
+    // last input: corrected jet pt
+    dnn_inputs_.at(4)->setValue(jet_n, 0, features.jet_features.corr_pt);
+
   }
   
 
