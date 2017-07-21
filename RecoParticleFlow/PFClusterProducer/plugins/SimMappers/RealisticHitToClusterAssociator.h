@@ -123,9 +123,9 @@ class RealisticHitToClusterAssociator
                     partialEnergies.resize(numberOfClusters,0.f);
                     unsigned int layer = layerId_[hitId];
                     float sumE = 0.f;
+                    float energyDecayLength = getDecayLength(layer, fhOffset, bhOffset);
                     for(unsigned int clId = 0; clId < numberOfClusters; ++clId )
                     {
-                        float energyDecayLength = getDecayLength(layer, fhOffset, bhOffset);
                         auto simClusterId = mcAssociatedSimCluster_[hitId][clId];
                         distanceFromMaxHit_[hitId][clId] = XYdistanceFromMaxHit(hitId,simClusterId);
                         // partial energy is computed based on the distance from the maximum energy hit and its energy
