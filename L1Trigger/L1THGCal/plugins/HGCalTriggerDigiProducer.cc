@@ -99,6 +99,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   }
   std::unordered_map<uint32_t,HGCBHDigiCollection> hit_modules_bh;
   for(const auto& bhdata : bh_digis) {
+    if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
     uint32_t module = triggerGeometry_->getModuleFromCell(bhdata.id());
     // Disconnect module = 0
     if(HGCalDetId(module).wafer()==0) continue;
