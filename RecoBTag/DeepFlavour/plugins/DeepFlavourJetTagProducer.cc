@@ -40,7 +40,7 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 
 	  const edm::EDGetTokenT< TagInfoCollection > src_;
     std::string graph_path_;
-    std::vector<std::string> outputs_;
+    std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
     std::vector<std::string> input_names_;
     std::vector<std::string> output_names_;
 
@@ -56,14 +56,22 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   graph_path_(iConfig.getParameter<std::string>("graph_path")),
-  outputs_(iConfig.getParameter<std::vector<std::string>>("outputs")),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
   graph_(graph_path_)
 {
 
-  for (const auto & output : outputs_) {
-    produces<JetTagCollection>(output);
+  // get output names from flav_table
+  const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
+  for (const auto flav_pair : flav_pset.tbl()) {
+    const auto & flav_name = flav_pair.first;
+    flav_pairs_.emplace_back(flav_name,
+                                flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
+  }
+
+
+  for (const auto & flav_pair : flav_pairs_) {
+    produces<JetTagCollection>(flav_pair.first);
   }
 
   for (const auto & input_name : input_names_) {
@@ -121,6 +129,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // fill values
   for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
+
     // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
     jet_tensor_filler(dnn_inputs_.at(0), jet_n, features);
@@ -149,13 +158,13 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
     dnn_inputs_.at(4)->setValue(jet_n, 0, features.jet_features.corr_pt);
 
   }
-  
 
   // compute graph
   graph_.eval();
 
+
   // create output collection
-  for (std::size_t i=0; i < outputs_.size(); i++) {
+  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
     if (tag_infos->size() > 0) {
       auto jet_ref = tag_infos->begin()->jet();
       output_tags.emplace_back(std::make_unique<JetTagCollection>(
@@ -165,10 +174,23 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }
   }
 
-  
+  // set output values for flavour probs
+  for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
+    const auto & jet_ref = tag_infos->at(jet_n).jet();
+    for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); flav_n++) {
+      const auto & flav_pair = flav_pairs_.at(flav_n);
+      float o_sum = 0.;
+      for (const unsigned int & ind : flav_pair.second) {
+        o_sum +=  dnn_outputs_.at(0)->getValue<float>((dnn::tf::Shape) jet_n,
+                                                      (dnn::tf::Shape) flav_n,
+                                                      (dnn::tf::Shape) ind);
+      } 
+      (*output_tags.at(flav_n))[jet_ref] = o_sum;
+    }
+  }
 
-  for (std::size_t i=0; i < outputs_.size(); i++) {
-    iEvent.put(std::move(output_tags.at(i)), outputs_.at(i));
+  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
+    iEvent.put(std::move(output_tags.at(i)), flav_pairs_.at(i).first);
   }
 
 }
