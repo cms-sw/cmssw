@@ -99,8 +99,8 @@ edm::ParameterSetDescription fillDescriptionForParseHFPhase1AlgoDescription()
     desc.add<double>("minChargeForOvershoot", -10000.f);
 
     desc.ifValue(edm::ParameterDescription<std::string>("Class", "HFSimpleTimeCheck", true),
-                 "HFSimpleTimeCheck" >> edm::ParameterDescription<bool>("rejectAllFailures", false) or
-                 "HFFlexibleTimeCheck" >> edm::ParameterDescription<bool>("rejectAllFailures", true));
+                 "HFSimpleTimeCheck" >> edm::ParameterDescription<bool>("rejectAllFailures", false, true) or
+                 "HFFlexibleTimeCheck" >> edm::ParameterDescription<bool>("rejectAllFailures", true, true));
 
     return desc;
 }
