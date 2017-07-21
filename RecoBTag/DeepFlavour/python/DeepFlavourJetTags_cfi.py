@@ -8,7 +8,14 @@ pfDeepFlavourJetTags = cms.EDProducer(
     'DeepFlavourJetTagProducer',
     src = cms.InputTag('DeepFlavourTagInfos'),
     graph_path = cms.string('/afs/cern.ch/work/p/pdecastr/public/Deep/models_19072017/KERAS_model.h5_tfsession/tf'),
-    outputs = cms.vstring(["probb"]),
+    flav_table = cms.PSet(
+                      probb = cms.vuint32(0),
+                      probbb = cms.vuint32(1),
+                      problepb = cms.vuint32(2),
+                      probc = cms.vuint32(3),
+                      probuds = cms.vuint32(4),
+                      probg = cms.vuint32(5),
+                      ),
     input_names = cms.vstring(input_names),
     output_names = cms.vstring(output_names)
 )
