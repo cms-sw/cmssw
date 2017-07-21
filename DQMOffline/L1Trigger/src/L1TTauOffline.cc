@@ -2,42 +2,18 @@
  *  @file     L1TTauOffline.cc
  *  @authors  Olivier Davignon (University of Bristol), Cécile Caillol (University of Wisconsin - Madison)
  *  @date     24/05/2017  
- *  @version  1.0 
+ *  @version  1.1 
  *  
  */
 
 #include "DQMOffline/L1Trigger/interface/L1TTauOffline.h"
-#include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-// Geometry
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "TLorentzVector.h"
-
-#include "DataFormats/L1Trigger/interface/Muon.h"							
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/BaseTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTauTagInfo.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
-#include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-
-#include "TMath.h"
 #include "TLorentzVector.h"
 
-#include <iostream>
 #include <iomanip>
 #include <stdio.h>
 #include <string>
@@ -170,7 +146,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!taus.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauCollection " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauCollection " << std::endl;
       return; 
     }
 
@@ -179,7 +155,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!muons.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::MuonCollection " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::MuonCollection " << std::endl;
       return; 
     }    
 
@@ -188,7 +164,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!beamSpot.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::BeamSpot " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::BeamSpot " << std::endl;
       return; 
     }
 
@@ -197,7 +173,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!vertex.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::VertexCollection " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::VertexCollection " << std::endl;
       return; 
     }
 
@@ -206,7 +182,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   
   if(!l1tCands.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: l1t::TauBxCollection " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: l1t::TauBxCollection " << std::endl;
       return;        
     }
   
@@ -215,7 +191,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!trigResults.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: edm::TriggerResults " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: edm::TriggerResults " << std::endl;
       return;      
     }
   
@@ -224,7 +200,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!trigEvent.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: trigger::TriggerEvent " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: trigger::TriggerEvent " << std::endl;
       return;      
     }
 
@@ -232,7 +208,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   e.getByToken(MetInputTag_, mets);
 
   if(!mets.isValid()) {
-    edm::LogError("L1TTauOffline") << "invalid collection: reco::PFMETCollection " << std::endl;
+    //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFMETCollection " << std::endl;
     return;
   }
 
@@ -592,7 +568,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   iEvent.getByToken(AntiMuInputTag_, antimu);
   if(!antimu.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
       return;  
     }
 
@@ -600,7 +576,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
   if(!dmf.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
       return;  
     }
 
@@ -608,7 +584,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   iEvent.getByToken(AntiEleInputTag_, antiele);
   if(!antiele.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
       return;  
     }
 
@@ -616,7 +592,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   iEvent.getByToken(comb3TInputTag_, comb3T);
   if(!comb3T.isValid())
     {
-      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
       return;  
     }
 
