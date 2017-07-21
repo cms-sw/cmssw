@@ -34,6 +34,7 @@
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 
 // PB
@@ -600,7 +601,7 @@ FWEveViewManager::setContext(const fireworks::Context* x)
 {
    FWViewManagerBase::setContext(x);
    x->commonPrefs()->getEnergyScale()->parameterChanged_.connect(boost::bind(&FWEveViewManager::globalEnergyScaleChanged,this));
-
+   x->commonPrefs()->eventCenterChanged_.connect(boost::bind(&FWEveViewManager::eventCenterChanged,this));
 }
 
 void
@@ -617,6 +618,19 @@ FWEveViewManager::globalEnergyScaleChanged()
       }
 
    }
+}
+
+void
+FWEveViewManager::eventCenterChanged()
+{
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
+      {
+	(*i)->setupEventCenter();
+      }
+   }
+
 }
 
 void

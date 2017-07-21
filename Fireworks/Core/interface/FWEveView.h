@@ -89,6 +89,7 @@ public:
    virtual void useGlobalEnergyScaleChanged();
    virtual bool isEnergyScaleGlobal() const;
    virtual void setupEnergyScale();
+   virtual void setupEventCenter();
    virtual void voteCaloMaxVal();
 
    virtual bool requestGLHandlerPick() const { return 0;} 

@@ -23,15 +23,18 @@
 
 #include "Rtypes.h"
 #include "TGLUtil.h"
+#include "TEveVector.h"
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 
 class CmsShowCommonPopup;
+class FWViewEnergyScale;
 class FWColorManager;
 namespace fireworks
 {
@@ -66,9 +69,9 @@ public:
 
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(int val, bool projected);
+   FWViewEnergyScale* getEnergyScale() const { return m_viewContext.getEnergyScale(); }
 
-   FWViewEnergyScale* getEnergyScale() const { return m_energyScale.get(); }
-
+  
    const TGLColorSet& getLightColorSet() const { return m_lightColorSet; }
    const TGLColorSet& getDarkColorSet()  const { return m_darkColorSet;  }
 
@@ -77,6 +80,12 @@ public:
    bool    getRnrPTBMarkers() const { return m_drawBreakPoints.value(); }
 
    void setView(CmsShowCommonPopup* x) { m_view= x;}
+  
+   void                 getEventCenter(float* inC) const;
+   void                 setEventCenter(float, float, float);
+   void                 resetEventCenter();
+  
+   mutable sigc::signal<void, const CmsShowCommon*> eventCenterChanged_;
 
 protected:
    const FWColorManager*   colorManager() const;
@@ -103,8 +112,10 @@ protected:
    TGLColorSet         m_lightColorSet;
    TGLColorSet         m_darkColorSet;
  
-   std::auto_ptr<FWViewEnergyScale>  m_energyScale;
+   FWViewContext        m_viewContext;
 
+   bool                  m_useBeamSpot;
+   TEveVector            m_externalEventCenter; //cached
 
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
