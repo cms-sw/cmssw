@@ -124,11 +124,11 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* engine ) const
 {
-  //  std::cout << "*** " << hit.depth() << std::endl;
-   assert( 1 == hit.depth() ||
-	   2 == hit.depth()    ) ;
+  std::cout << "*** " << hit.depth() << std::endl;
+  int iddepth = (hit.depth() & 0x3);
+  assert( 1 == iddepth || 2 == iddepth ) ;
 
-   double npe ( hit.energy()*( 2 == hit.depth() ?
+   double npe ( hit.energy()*( 2 == iddepth ?
 			       apdParameters()->simToPELow() :
 			       apdParameters()->simToPEHigh() ) ) ;
 
@@ -229,7 +229,8 @@ void
 EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
-    if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
+    int iddepth = (hit.depth() & 0x3);
+    if ( 0 == iddepth ) // for now take only nonAPD hits
      {
        if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
      }
@@ -270,7 +271,8 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engin
 	  ( 0 == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 
-	if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
+	int iddepth = (hit.depth() & 0x3);
+	if( 0 == iddepth ) // for now take only nonAPD hits
 	  {
 	    if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
 	  }

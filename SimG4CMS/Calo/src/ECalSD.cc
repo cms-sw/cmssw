@@ -268,15 +268,19 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  if      (storeRL) {
-    return getRadiationLength(aStep);
-  } else if (storeLayerTimeSim) {
-    return getLayerIDForTimeSim(aStep);
-  } else {
-    if      (any(useDepth1,lv)) return 1;
-    else if (any(useDepth2,lv)) return 2;
-    else                        return 0;
-  }
+  uint16_t depth  = any(useDepth1,lv) ? 1 : (any(useDepth2,lv) ? 2 : 0);
+  auto ite        = xtalLMap.find(lv);
+  uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 :
+						   kEcalDepthRefz);
+  uint16_t depth2 = (storeLayerTimeSim) ? getLayerIDForTimeSim(aStep) :
+    getRadiationLength(aStep);
+  depth          |= (((depth2&kEcalDepthMask) << kEcalDepthOffset) | depth1);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":"
+			      << depth2 << ":" << depth << std::dec << " L "
+			      << (ite == xtalLMap.end()) << ":" <<ite->second;
+#endif
+  return depth;
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
@@ -520,6 +524,7 @@ double ECalSD::crystalDepth(G4LogicalVolume* lv,
   auto ite = xtalLMap.find(lv);
   double depth = (ite == xtalLMap.end()) ? 0 :
     (std::abs(0.5*(ite->second)+localPoint.z()));
+//  (0.5*std::abs(ite->second)+localPoint.z());
   return depth;
 }
 
