@@ -3,6 +3,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing('analysis')
 options.register('globaltag',	'', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, '') 
+options.register('run',	        '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, '') 
 options.register('inputDir',	'', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, '') 
 options.register('plotsDir',	'', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, '') 
 options.register('tags',	'', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, '') 
@@ -14,14 +15,17 @@ options.parseArguments()
 
 process = cms.Process("LutPlot")
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.Geometry.GeometryExtended2017Plan1_cff")
-process.load("Configuration.Geometry.GeometryExtended2017Plan1Reco_cff")
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = 'INFO'
+
+
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globaltag 
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptySource")
+process.source.firstRun = cms.untracked.uint32(options.run)
 
 process.plot  = cms.EDAnalyzer("HcalLutAnalyzer",
     inputDir  = cms.string(options.inputDir),

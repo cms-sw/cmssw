@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HcalLutAnalyzer
+// Package:    Test/HcalLutAnalyzer
 // Class:      HcalLutAnalyzer
 // 
-/**\class HcalLutAnalyzer HcalLutAnalyzer.cc MyTest/HcalLutAnalyzer/src/HcalLutAnalyzer.cc
+/**\class HcalLutAnalyzer HcalLutAnalyzer.cc Test/HcalLutAnalyzer/plugins/HcalLutAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -11,9 +11,8 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Aleko Khukhunaishvili,591 R-009,+41227674490,
-//         Created:  Fri Feb 14 15:57:12 CET 2014
-// $Id$
+// Original Author:  Aleko Khukhunaishvili
+//         Created:  Fri, 21 Jul 2017 08:42:05 GMT
 //
 //
 
@@ -25,12 +24,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
@@ -50,19 +49,14 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-
-
-class HcalLutAnalyzer : public edm::EDAnalyzer {
+class HcalLutAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit HcalLutAnalyzer(const edm::ParameterSet&);
       ~HcalLutAnalyzer(){};
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-
-      virtual void beginJob(){}
-      virtual void analyze(const edm::Event&, const edm::EventSetup&){}
-      virtual void endJob(){} 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       std::string inputDir;
       std::string plotsDir;
@@ -72,14 +66,13 @@ class HcalLutAnalyzer : public edm::EDAnalyzer {
       std::vector<std::string> gains_;
       std::vector<std::string> respcorrs_;
 
-      double Zmin=0;
-      double Zmax=10;
-      double Ymin=0.7;
-      double Ymax=1.3;
-      double Pmin=0.9;
-      double Pmax=1.1;
+      double Zmin;
+      double Zmax;
+      double Ymin;
+      double Ymax;
+      double Pmin;
+      double Pmax;
 };
-
 
 HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -101,13 +94,13 @@ HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig)
 
 
 void 
-HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 {
+    using namespace std;
+
     edm::ESHandle<HcalTopology> topology ;
-    //iSetup.get<IdealGeometryRecord>().get( topology );
     iSetup.get<HcalRecNumberingRecord>().get( topology );
 
-    using namespace std;
     typedef std::vector<std::string> vstring;
     typedef std::map<unsigned long int, float> LUTINPUT;
 
@@ -203,11 +196,10 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
     std::vector<HcalDetId> BadChans[2];
     std::vector<HcalDetId> ZeroLuts[2];
 
-
     //Read input condition files
     for(int ii=0; ii<2; ++ii){
 	//Gains
-	std::ifstream infile(edm::FileInPath(Form("%s/Gains/DumpGains_Run%s.txt", inputDir.c_str(), gains_[ii].c_str())).fullPath().c_str());
+	std::ifstream infile(edm::FileInPath(Form("%s/Gains/Gains_Run%s.txt", inputDir.c_str(), gains_[ii].c_str())).fullPath().c_str());
 	assert(!infile.fail());
 	while(!infile.eof()){
 	    infile.getline(buffer, 1024);
@@ -228,7 +220,7 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 
 	//Pedestals
-	std::ifstream infped(edm::FileInPath(Form("%s/Pedestals/DumpPedestals_Run%s.txt", inputDir.c_str(), pedestals_[ii].c_str())).fullPath().c_str());
+	std::ifstream infped(edm::FileInPath(Form("%s/Pedestals/Pedestals_Run%s.txt", inputDir.c_str(), pedestals_[ii].c_str())).fullPath().c_str());
 	assert(!infped.fail());
 	while(!infped.eof()){
 	    infped.getline(buffer, 1024);
@@ -250,7 +242,7 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 
 	//Response corrections
-	std::ifstream inresp(edm::FileInPath(Form("%s/RespCorrs/DumpRespCorrs_Run%s.txt", inputDir.c_str(), respcorrs_[ii].c_str())).fullPath().c_str());
+	std::ifstream inresp(edm::FileInPath(Form("%s/RespCorrs/RespCorrs_Run%s.txt", inputDir.c_str(), respcorrs_[ii].c_str())).fullPath().c_str());
 	assert(!inresp.fail());
 	while(!inresp.eof()){
 	    inresp.getline(buffer, 1024);
@@ -271,13 +263,12 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 
 	//ChannelQuality
-	std::ifstream inchan(edm::FileInPath(Form("%s/ChannelQuality/DumpChannelQuality_Run%s.txt", inputDir.c_str(), quality_[ii].c_str())).fullPath().c_str());
+	std::ifstream inchan(edm::FileInPath(Form("%s/ChannelQuality/ChannelQuality_Run%s.txt", inputDir.c_str(), quality_[ii].c_str())).fullPath().c_str());
 	assert(!inchan.fail());
 	while(!inchan.eof()){
 	    inchan.getline(buffer, 1024);
 	    if(buffer[0]=='#') continue;
 	    std::istringstream(buffer) >> ieta >> iphi >> idep >> det >> base >> val1 >> iraw ; 
-	    //if(det!="HB" && det!="HE" && det!="HF") continue;
 
 	    float theval = val1;
 
@@ -487,7 +478,6 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	}
     }
 
-
     gROOT->SetStyle("Plain");
     gStyle->SetPalette(1);
     gStyle->SetStatW(0.2);
@@ -574,5 +564,11 @@ HcalLutAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 
 
-//define this as a plug-in
+void
+HcalLutAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
+
 DEFINE_FWK_MODULE(HcalLutAnalyzer);
