@@ -65,6 +65,7 @@ metbtagEfficiency_btag = DQMEDHarvester("DQMGenericClient",
 )
 
 from DQMOffline.Trigger.VBFMETMonitor_Client_cff import *
+from DQMOffline.Trigger.VBFTauMonitor_Client_cff import *
 
 ###############Same flavour dilepton with dz cuts#######################
 ele23Ele12CaloIdLTrackIdLIsoVL_effdz = DQMEDHarvester("DQMGenericClient",
@@ -351,7 +352,7 @@ mu8diEle12CaloIdLTrackIdL_effele = DQMEDHarvester("DQMGenericClient",
         "effic_elePtEta_2	'efficiency vs sub-leading electron pt-#eta; electron pt [GeV]; electron #eta' elePtEta_2_numerator       elePtEta_2_denominator",
         "effic_eleEtaPhi_2	 'efficiency vs sub-leading electron #eta-#phi; electron #eta ; electron #phi' eleEtaPhi_2_numerator       eleEtaPhi_2_denominator",
     ),
-) 
+)
 mu8diEle12CaloIdLTrackIdL_effmu = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/muLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -416,7 +417,7 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
         "eff_photon_subr9      'efficiency vs sublead r9;          Photon subr9; efficiency'        subphoton_r9_numerator       subphoton_r9_denominator",
         "eff_photon_subhoE     'efficiency vs sublead hoE;         Photon subhoE; efficiency'       subphoton_hoE_numerator      subphoton_hoE_denominator",
         "eff_photon_subEtaPhi  'Photon sublead phi;                Photon sublead eta; efficiency'  subphoton_etaphi_numerator   subphoton_etaphi_denominator",
-        
+
     ),
     efficiencyProfile = cms.untracked.vstring(
         "eff_photon_vs_LS 'Photon pt efficiency vs LS; LS' photonVsLS_numerator photonVsLS_denominator"
@@ -426,10 +427,11 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
 higgsClient = cms.Sequence(
     diphotonEfficiency
   + vbfmetClient
+  + vbftauClient
   + ele23Ele12CaloIdLTrackIdLIsoVL_effdz
-  + dimu9ele9caloIdLTrackIdLdz_effmu 
-  + dimu9ele9caloIdLTrackIdLdz_effele 
-  + dimu9ele9caloIdLTrackIdLdz_effdz 
+  + dimu9ele9caloIdLTrackIdLdz_effmu
+  + dimu9ele9caloIdLTrackIdLdz_effele
+  + dimu9ele9caloIdLTrackIdLdz_effdz
   + mu8diEle12CaloIdLTrackIdL_effmu
   + mu8diEle12CaloIdLTrackIdL_effele
   + mu8diEle12CaloIdLTrackIdL_effdz
