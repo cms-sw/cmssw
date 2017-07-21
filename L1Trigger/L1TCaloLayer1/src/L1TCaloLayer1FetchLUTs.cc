@@ -37,7 +37,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    bool useCalib,
 			    bool useECALLUT,
 			    bool useHCALLUT,
-                            bool useHFLUT) {
+                            bool useHFLUT,
+                            int fwVersion) {
 
   int hfValid = 1;
   edm::ESHandle<HcalTrigTowerGeometry> pG;
@@ -171,9 +172,18 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
             if (useLSB) calibratedECalInput /= caloLSB;
 
 	    value = calibratedECalInput;
-	    if(value > 0xFF) {
-	      value = 0xFF;
-	    }
+            if ( fwVersion > 2 ) {
+              // Saturate if either decompressed value is over 127.5 GeV or input saturated
+              // (meaningless for ecal, since ecalLSB == caloLSB)
+              if(value > 0xFF || ecalInput == 0xFF) {
+                value = 0xFF;
+              }
+            }
+            else {
+              if(value > 0xFF) {
+                value = 0xFF;
+              }
+            }
 	  }
 	  if(value == 0) {
 	    value = (1 << 11);
@@ -226,8 +236,16 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
             if(useLSB) calibratedHcalInput /= caloLSB;
 
             value = calibratedHcalInput;
-            if(value > 0xFF) {
-              value = 0xFF;
+            if ( fwVersion > 2 ) {
+              // Saturate if either decompressed value is over 127.5 GeV or input saturated
+              if(value > 0xFF || hcalInput == 0xFF) {
+                value = 0xFF;
+              }
+            }
+            else {
+              if(value > 0xFF) {
+                value = 0xFF;
+              }
             }
           }
           if(value == 0) {
@@ -282,9 +300,27 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           if(useCalib) calibratedHFInput *= hfSF.at(phiBin*hfScalePhiBins.size()*12+etBin*12+etaBin);
           if(useLSB) calibratedHFInput /= caloLSB;
 
-          value = calibratedHFInput;
-          if(value > 0xFF) {
-            value = 0xFF;
+          if ( fwVersion > 2 ) {
+            uint32_t absCaloEta = abs(caloEta);
+            if(absCaloEta > 29 && absCaloEta < 40) {
+              // Divide by two (since two duplicate towers are sent)
+              calibratedHFInput /= 2.;
+            }
+            else if(absCaloEta == 40 || absCaloEta == 41) {
+              // Divide by four
+              calibratedHFInput /= 4.;
+            }
+            value = calibratedHFInput;
+            // Saturate if either decompressed value is over 127.5 GeV or input saturated
+            if(value >= 0xFF || etCode == 0xFF) {
+              value = 0x1FD;
+            }
+          }
+          else {
+            value = calibratedHFInput;
+            if(value > 0xFF) {
+              value = 0xFF;
+            }
           }
         }
         hfLUT[phiBin][etaBin][etCode] = value;

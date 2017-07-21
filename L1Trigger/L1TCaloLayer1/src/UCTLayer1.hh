@@ -16,6 +16,10 @@ public:
   // Default (0): initial version for 2016 running
   // 1: Update to include saturated tower codes to layer 2
   //    (put online at run >= 275908: http://cmsonline.cern.ch/cms-elog/931059)
+  // 2: Update for all-LUT processing, initially no change in behavior
+  //    (put online at run >= 291173: http://cmsonline.cern.ch/cms-elog/973914)
+  // 3: Update to handle saturation codes HF (and do division in LUT, and consider HBHE saturation before decompression)
+  //    (put online at run >= ?: )
   //
   UCTLayer1(int fwv=0);
 
