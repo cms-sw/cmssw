@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_TrackTools_h
-#define L1TMuonEndCap_TrackTools_h
+#ifndef L1Trigger_L1TMuonEndCap_TrackTools_h
+#define L1Trigger_L1TMuonEndCap_TrackTools_h
 
 #include <cmath>
 #include <assert.h>
@@ -205,4 +205,4 @@ namespace emtf {
 
 }  // namespace emtf
 
-#endif
+#endif /* #define L1Trigger_L1TMuonEndCap_TrackTools_h */
