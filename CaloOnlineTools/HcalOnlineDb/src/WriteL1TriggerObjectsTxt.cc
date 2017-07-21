@@ -46,9 +46,7 @@ class WriteL1TriggerObjectsTxt : public edm::one::EDAnalyzer<edm::one::SharedRes
 
 
    private:
-      virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
 
       std::string tagName_;
 };
@@ -56,7 +54,6 @@ class WriteL1TriggerObjectsTxt : public edm::one::EDAnalyzer<edm::one::SharedRes
 WriteL1TriggerObjectsTxt::WriteL1TriggerObjectsTxt(const edm::ParameterSet& iConfig):
    tagName_(iConfig.getParameter<std::string>("TagName"))
 {
-   usesResource("TFileService");
 }
 WriteL1TriggerObjectsTxt::~WriteL1TriggerObjectsTxt(){}
 
@@ -109,17 +106,6 @@ WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetu
     outfilename += ".txt";
     std::ofstream of(outfilename.c_str());
     HcalDbASCIIIO::dumpObject(of, *HcalL1TrigObjCol);
-}
-
-
-void 
-WriteL1TriggerObjectsTxt::beginJob()
-{
-}
-
-void 
-WriteL1TriggerObjectsTxt::endJob() 
-{
 }
 
 void
