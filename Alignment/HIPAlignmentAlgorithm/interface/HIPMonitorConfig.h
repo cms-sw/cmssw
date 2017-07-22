@@ -13,10 +13,9 @@ protected:
 
   TTree* tree;
 
-
 public:
 
-  HIPMonitorVariables() : tree(0){}
+  HIPMonitorVariables() : tree(nullptr){}
   virtual ~HIPMonitorVariables(){}
 
   void setTree(TTree* tree_){ tree=tree_; }
