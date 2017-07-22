@@ -5,6 +5,7 @@
   <use   name="DataFormats/Common"/>
   <use   name="RecoBTag/Combined"/>
   <use   name="DataFormats/PatCandidates"/>
+  <use name="CommonTools/UtilAlgos"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="DNN/Tensorflow" />
   <flags   EDM_PLUGIN="1"/>
