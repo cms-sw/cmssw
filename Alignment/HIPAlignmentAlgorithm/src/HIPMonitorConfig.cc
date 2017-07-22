@@ -35,7 +35,7 @@ bool HIPMonitorConfig::checkNhits(){ bool res = (maxHits<0 || maxHits>hitCounter
 
 
 void HIPTrackMonitorVariables::bookBranches(){
-  if (tree!=0){
+  if (tree!=nullptr){
     tree->Branch("Ntracks", &m_Ntracks);
     tree->Branch("Nhits", &m_Nhits);
     //tree->Branch("DataType", &m_datatype); This is done in HIPAlignmentAlgorithm
@@ -56,7 +56,7 @@ void HIPTrackMonitorVariables::bookBranches(){
   }
 }
 void HIPHitMonitorVariables::bookBranches(){
-  if (tree!=0){
+  if (tree!=nullptr){
     tree->Branch("Id", &m_detId, "Id/i");
     tree->Branch("sinTheta", &m_sinTheta);
     tree->Branch("impactAngle", &m_angle);
@@ -68,7 +68,7 @@ void HIPHitMonitorVariables::bookBranches(){
   }
 }
 void HIPTrackMonitorVariables::fill(){
-  if (tree==0) return;
+  if (tree==nullptr) return;
   if (maxNEvents>=0 && nEvents>=maxNEvents) return;
 
   bool doFill=false;
@@ -97,7 +97,7 @@ void HIPTrackMonitorVariables::fill(){
   resetPerEvent();
 }
 void HIPHitMonitorVariables::fill(){
-  if (tree==0) return;
+  if (tree==nullptr) return;
 
   bool doFill=(maxHitsRcd<0 || nHits<maxHitsRcd);
 
