@@ -5,9 +5,11 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltMonopole = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 hltMonopole.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
 hltMonopole.HLTPaths = cms.vstring(
-    "HLT_Photon175_v*",
-    "HLT_PFMET300_v*",
-    "HLT_PFMET170_HBHE_BeamHaloCleaned_v*"
+    "HLT_Photon200_v*",
+    "HLT_Photon300_NoHE_v*",
+    "HLT_PFMET140_PFMHT140_IDTight_v*",
+    "HLT_PFMET250_HBHECleaned_v*",
+    "HLT_PFMET300_HBHECleaned_v*"
 )
 hltMonopole.throw = False
 hltMonopole.andOr = True
