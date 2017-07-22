@@ -56,13 +56,6 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
 PuppiPhoton::~PuppiPhoton(){}
 // ------------------------------------------------------------------------------------------
 void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  edm::Handle<CandidateView> hPhoProduct;
-  iEvent.getByToken(tokenPhotonCandidates_,hPhoProduct);
-  const CandidateView *phoCol = hPhoProduct.product();
-
-  edm::Handle<edm::ValueMap<bool> > photonId;
-  if(usePhotonId_) iEvent.getByToken(tokenPhotonId_,photonId);
   int iC = -1;
   std::vector<const reco::Candidate*> phoCands;
   std::vector<uint16_t> phoIndx;
@@ -89,6 +82,13 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
    }
   } else {
+   edm::Handle<CandidateView> hPhoProduct;
+   iEvent.getByToken(tokenPhotonCandidates_,hPhoProduct);
+   const CandidateView *phoCol = hPhoProduct.product();
+
+   edm::Handle<edm::ValueMap<bool> > photonId;
+   if(usePhotonId_) iEvent.getByToken(tokenPhotonId_,photonId);
+
    for(CandidateView::const_iterator itPho = phoCol->begin(); itPho!=phoCol->end(); itPho++) {
     iC++;
     bool passObject = false;
