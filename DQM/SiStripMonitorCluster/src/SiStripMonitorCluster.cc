@@ -162,6 +162,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   edm::ParameterSet ParametersNclusVsCycleTimeProf2D = conf_.getParameter<edm::ParameterSet>("NclusVsCycleTimeProf2D");
   globalswitchnclusvscycletimeprof2don = ParametersNclusVsCycleTimeProf2D.getParameter<bool>("globalswitchon");
 
+  edm::ParameterSet ParametersFEDCluster = conf_.getParameter<edm::ParameterSet>("TProfNClustersFED");
+  globalswitchFEDCluster = ParametersFEDCluster.getParameter<bool>("globalswitchon");
+
   edm::ParameterSet ParametersClusWidthVsAmpTH2 = conf_.getParameter<edm::ParameterSet>("ClusWidthVsAmpTH2");
   clusterWidth_vs_amplitude_on = ParametersClusWidthVsAmpTH2.getParameter<bool>("globalswitchon");
   layer_clusterWidth_vs_amplitude_on = ParametersClusWidthVsAmpTH2.getParameter<bool>("layerswitchon");
@@ -553,6 +556,22 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
       NumberOfPixelClus_vs_BX->setAxisTitle("Absolute BX", 1);
       NumberOfPixelClus_vs_BX->setAxisTitle("# of Clusters in Pixel", 2);
 
+      if(globalswitchFEDCluster){
+        // Number of clusters per FED
+        edm::ParameterSet FEDCluster = conf_.getParameter<edm::ParameterSet>("TProfNClustersFED");
+        HistoName = "NumberOfClustersinFED_v_FEDID";
+        NumberOfFEDClus = ibooker.bookProfile(HistoName,
+                                         HistoName,
+                                         FEDCluster.getParameter<int32_t>("Nbinsx"),
+                                         FEDCluster.getParameter<double>("xmin"),
+                                         FEDCluster.getParameter<double>("xmax"),
+                                         FEDCluster.getParameter<int32_t>("Nbinsy"),
+                                         FEDCluster.getParameter<double>("ymin"),
+                                         FEDCluster.getParameter<double>("ymax"));
+        NumberOfFEDClus->setAxisTitle("FED ID",1);
+        NumberOfFEDClus->setAxisTitle("Mean # of Cluster in FED",2);
+      }
+
     }
 
   }//end of if
@@ -657,6 +676,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   SiStripFolderOrganizer folder_organizer;
   bool found_layer_me = false;
+  //Map of cumulative clusters per fed ID.
+  std::map<int,int> FEDID_v_clustersum;
+
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
 
@@ -711,8 +733,43 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
 
       //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
-      //      edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+      //edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
       edmNew::DetSet<SiStripCluster> cluster_detset = (*isearch);
+
+
+      //////////////////////////////////////////////////////////////
+      // Get all FED connections associated with given detID.
+      // All connections for a detid have same FED Id therefore one FEDID is associated with a given detID.
+      // Vector of constant FedChannelConnection objects to variable pointers.
+      std::vector<const FedChannelConnection*> fedConnections = SiStripDetCabling_->getConnections(detid);
+
+      // Filling FED Id associated clusters map.
+
+      int good_fcc_index = -999;
+      for(unsigned int x=0;x<fedConnections.size();x++){
+        if(fedConnections[x]!=NULL){
+          good_fcc_index = x;
+          break;
+        }
+      }
+      if(good_fcc_index!=-999 && fedConnections[good_fcc_index]!=NULL){
+        int temp_fedid = fedConnections[good_fcc_index]->fedId();
+        if(FEDID_v_clustersum.find(temp_fedid) != FEDID_v_clustersum.end()){
+          if(cluster_detset.size() < 1000 && !cluster_detset.empty()){
+            FEDID_v_clustersum[temp_fedid] = FEDID_v_clustersum.find(temp_fedid)->second + cluster_detset.size();
+          }
+        }
+        else{
+          if(cluster_detset.size() < 1000 && !cluster_detset.empty()){
+            FEDID_v_clustersum[temp_fedid] = cluster_detset.size();
+          }
+        }
+      }
+      else{
+        edm::LogInfo("SiStripMonitorCluster") << "SiStripMonitorCluster::analyze WARNING! no good connections for detid = " << detid << endl;
+      }
+      //////////////////////////////////////////////////////////////
+
 
       // Filling TkHistoMap with number of clusters for each module
       if(clustertkhistomapon) {
@@ -926,6 +983,19 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	    }
 
 	  }
+
+    //Filling # clusters per FED ID histogram from FED Id clusters map (for all layers simultaneously).
+    map<int,int>::iterator it;
+    //for(it=FEDID_v_clustersum.begin(); it!=FEDID_v_clustersum.end(); it++){
+    for ( auto const & fedidEntry : FEDID_v_clustersum ) {
+      //NumberOfFEDClus->Fill(it->first,it->second);
+      NumberOfFEDClus->Fill(fedidEntry.first,fedidEntry.second);
+      //if(it->first < 100){
+      //  Trend_NumberOfFEDClus->Fill(trendVar,it->first,it->second);
+      //}
+    }
+    FEDID_v_clustersum.clear();
+
 	}
       }
 
