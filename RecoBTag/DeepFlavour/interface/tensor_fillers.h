@@ -48,13 +48,12 @@ namespace deep {
     tensor->setValue(jet_n, c_pf_n, 7, c_pf_features.BtagPf_trackSip3dVal);
     tensor->setValue(jet_n, c_pf_n, 8, c_pf_features.BtagPf_trackSip3dSig);
     tensor->setValue(jet_n, c_pf_n, 9, c_pf_features.BtagPf_trackJetDistVal);
-    tensor->setValue(jet_n, c_pf_n, 10, c_pf_features.BtagPf_trackJetDistSig);
-    tensor->setValue(jet_n, c_pf_n, 11, c_pf_features.ptrel);
-    tensor->setValue(jet_n, c_pf_n, 12, c_pf_features.drminsv);
-    tensor->setValue(jet_n, c_pf_n, 13, c_pf_features.fromPV);
-    tensor->setValue(jet_n, c_pf_n, 14, c_pf_features.VTX_ass);
-    tensor->setValue(jet_n, c_pf_n, 15, c_pf_features.puppiw);
-    tensor->setValue(jet_n, c_pf_n, 16, c_pf_features.chi2);
+    tensor->setValue(jet_n, c_pf_n, 10, c_pf_features.ptrel);
+    tensor->setValue(jet_n, c_pf_n, 11, c_pf_features.drminsv);
+    tensor->setValue(jet_n, c_pf_n, 12, c_pf_features.VTX_ass);
+    tensor->setValue(jet_n, c_pf_n, 13, c_pf_features.puppiw);
+    tensor->setValue(jet_n, c_pf_n, 14, c_pf_features.chi2);
+    tensor->setValue(jet_n, c_pf_n, 15, c_pf_features.quality);
 
   }
 
