@@ -7,7 +7,7 @@ output_names = ["ID_pred/Softmax:0", "regression_pred/BiasAdd:0"]
 pfDeepFlavourJetTags = cms.EDProducer(
     'DeepFlavourJetTagProducer',
     src = cms.InputTag('DeepFlavourTagInfos'),
-    graph_path = cms.string('/afs/cern.ch/work/p/pdecastr/public/Deep/models_19072017/KERAS_model.h5_tfsession/tf'),
+    graph_path = cms.string('/afs/cern.ch/work/p/pdecastr/public/Deep/models_22072017/TEST_BN/KERAS_model.h5_tfsession/tf'),
     flav_table = cms.PSet(
                       probb = cms.vuint32(0),
                       probbb = cms.vuint32(1),
@@ -17,5 +17,6 @@ pfDeepFlavourJetTags = cms.EDProducer(
                       probg = cms.vuint32(5),
                       ),
     input_names = cms.vstring(input_names),
-    output_names = cms.vstring(output_names)
+    output_names = cms.vstring(output_names),
+    lp_names = cms.vstring("globals_input_batchnorm/keras_learning_phase:0")
 )
