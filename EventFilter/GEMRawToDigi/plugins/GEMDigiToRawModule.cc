@@ -2,8 +2,7 @@
  *  \author J. Lee - UoS
  */
 
-#include "EventFilter/GEMRawToDigi/src/GEMDigiToRawModule.h"
-#include "EventFilter/GEMRawToDigi/src/GEMDigiToRaw.h"
+#include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
