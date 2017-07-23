@@ -72,7 +72,7 @@ namespace{
     else if(enumConstName=="kForSiStrips") return MyEnum::kForSiStrips;
     else if(enumConstName=="kAlways") return MyEnum::kAlways;
     else{
-      throw cms::Exception("Configuration") <<enumConstName<<" is not a valid member of "<<typeid(MyEnum).name()<<" (or strToEnum needs updating, this is a manual translation found at "<<__FILE__<<" line "<<__LINE__<<")";
+      throw cms::Exception("InvalidConfiguration") <<enumConstName<<" is not a valid member of "<<typeid(MyEnum).name()<<" (or strToEnum needs updating, this is a manual translation found at "<<__FILE__<<" line "<<__LINE__<<")";
     }
   }
 
@@ -106,6 +106,8 @@ private:
 		       const MeasurementTrackerEvent* measTrackerEvent,
 		       const MagneticField& magField)const;
   
+private:
+  void validateConfigSettings()const;
 
 private:
   double ptMin_; 
@@ -114,6 +116,11 @@ private:
   double deltaEtaRegion_;
   double deltaPhiRegion_;
   bool useZInVertex_;
+  bool useZInBeamspot_;
+  bool useDefaultZ_;
+  double nrSigmaForBSDeltaZ_;
+  double defaultZ_;
+  double minBSDeltaZ_;
   bool precise_;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker whereToUseMeasTracker_;
   
@@ -147,9 +154,16 @@ TrackingRegionsFromSuperClustersProducer(const edm::ParameterSet& cfg,
   deltaPhiRegion_        = regionPSet.getParameter<double>("deltaPhiRegion");
   deltaEtaRegion_        = regionPSet.getParameter<double>("deltaEtaRegion");
   useZInVertex_          = regionPSet.getParameter<bool>("useZInVertex");
+  useZInBeamspot_        = regionPSet.getParameter<bool>("useZInBeamspot");
+  useDefaultZ_           = regionPSet.getParameter<bool>("useDefaultZ");
+  nrSigmaForBSDeltaZ_    = regionPSet.getParameter<double>("nrSigmaForBSDeltaZ"); 
+  defaultZ_              = regionPSet.getParameter<double>("defaultZ");
+  minBSDeltaZ_           = regionPSet.getParameter<double>("minBSDeltaZ");
   precise_               = regionPSet.getParameter<bool>("precise");
   whereToUseMeasTracker_ = strToEnum<RectangularEtaPhiTrackingRegion::UseMeasurementTracker>(regionPSet.getParameter<std::string>("whereToUseMeasTracker"));
   
+  validateConfigSettings();
+
   auto verticesTag         = regionPSet.getParameter<edm::InputTag>("vertices");
   auto beamSpotTag         = regionPSet.getParameter<edm::InputTag>("beamSpot");
   auto superClustersTags   = regionPSet.getParameter<std::vector<edm::InputTag> >("superClusters");
@@ -181,6 +195,11 @@ fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("deltaPhiRegion",0.4);
   desc.add<double>("deltaEtaRegion",0.1);
   desc.add<bool>("useZInVertex", false);
+  desc.add<bool>("useZInBeamspot", true);
+  desc.add<bool>("useDefaultZ", false);
+  desc.add<double>("nrSigmaForBSDeltaZ",3.0);
+  desc.add<double>("minBSDeltaZ",0.0);
+  desc.add<double>("defaultZ",0.);
   desc.add<bool>("precise", true);
   desc.add<std::string>("whereToUseMeasTracker","kNever");
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
@@ -204,7 +223,7 @@ regions(const edm::Event& iEvent, const edm::EventSetup& iSetup)const
   
   double deltaZVertex=0;
   GlobalPoint vtxPos = getVtxPos(iEvent,deltaZVertex);
-  
+
   const MeasurementTrackerEvent *measTrackerEvent = nullptr;    
   if(!measTrackerEventToken_.isUninitialized()){
     measTrackerEvent = getHandle(iEvent,measTrackerEventToken_).product();
@@ -239,14 +258,21 @@ getVtxPos(const edm::Event& iEvent,double& deltaZVertex)const
   //we fall back to beamspot mode
   auto beamSpotHandle = getHandle(iEvent,beamSpotToken_);
   const reco::BeamSpot::Point& bsPos = beamSpotHandle->position();
-  //SH: this is what SeedFilter did, no idea what its trying to achieve....
-  const double sigmaZ = beamSpotHandle->sigmaZ();
-  const double sigmaZ0Error = beamSpotHandle->sigmaZ0Error();
-  deltaZVertex = 3*std::sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  //  std::cout <<"z "<<bsPos.z()<<" deltaZ "<<deltaZVertex<<std::endl;
-  //deltaZVertex = 30.;
-  return GlobalPoint(bsPos.x(),bsPos.y(),bsPos.z());
-  //return GlobalPoint(bsPos.x(),bsPos.y(),0);
+  
+  if(useZInBeamspot_){
+    //as this is what has been done traditionally for e/gamma, others just use sigmaZ
+    const double bsSigmaZ = std::sqrt(beamSpotHandle->sigmaZ()*beamSpotHandle->sigmaZ() + 
+				      beamSpotHandle->sigmaZ0Error()*beamSpotHandle->sigmaZ0Error());
+    const double sigmaZ = std::max(bsSigmaZ,minBSDeltaZ_);
+    deltaZVertex = nrSigmaForBSDeltaZ_*sigmaZ;
+    
+    return GlobalPoint(bsPos.x(),bsPos.y(),bsPos.z());
+  }else{
+    deltaZVertex = originHalfLength_;
+    return GlobalPoint(bsPos.x(),bsPos.y(),defaultZ_); 
+  }
+  
+  
 }
 
 std::unique_ptr<TrackingRegion>
@@ -270,6 +296,17 @@ createTrackingRegion(const reco::SuperCluster& superCluster,const GlobalPoint& v
 							   whereToUseMeasTracker_,
 							   precise_,
 							   measTrackerEvent);
+}
+
+void TrackingRegionsFromSuperClustersProducer::validateConfigSettings()const
+{
+  int nrSetTrue=0;
+  if(useZInVertex_) nrSetTrue++;
+  if(useZInBeamspot_) nrSetTrue++;
+  if(useDefaultZ_) nrSetTrue++;
+  if(nrSetTrue!=1){
+    throw cms::Exception("InvalidConfiguration") <<" when constructing TrackingRegionsFromSuperClustersProducer there much be exactly one of useZInVertex(="<<useZInVertex_<<") useZInBeampot(="<<useZInBeamspot_<<") useDefaultZ(="<<useDefaultZ_<<") set";
+  }
 }
 
 #endif 
