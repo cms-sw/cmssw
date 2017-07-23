@@ -23,12 +23,12 @@ namespace deep {
     const auto & tag_info_features = features.tag_info_features;
     tensor->setValue(jet_n, 6, tag_info_features.trackSumJetEtRatio);
     tensor->setValue(jet_n, 7, tag_info_features.trackSumJetDeltaR);
-    tensor->setValue(jet_n, 8, tag_info_features.trackSumJetDeltaR);
-    tensor->setValue(jet_n, 9, tag_info_features.vertexCategory);
-    tensor->setValue(jet_n, 10, tag_info_features.trackSip2dValAboveCharm);
-    tensor->setValue(jet_n, 11, tag_info_features.trackSip2dSigAboveCharm);
-    tensor->setValue(jet_n, 12, tag_info_features.trackSip3dValAboveCharm);
-    tensor->setValue(jet_n, 13, tag_info_features.trackSip3dSigAboveCharm);
+    tensor->setValue(jet_n, 8, tag_info_features.vertexCategory);
+    tensor->setValue(jet_n, 9, tag_info_features.trackSip2dValAboveCharm);
+    tensor->setValue(jet_n, 10, tag_info_features.trackSip2dSigAboveCharm);
+    tensor->setValue(jet_n, 11, tag_info_features.trackSip3dValAboveCharm);
+    tensor->setValue(jet_n, 12, tag_info_features.trackSip3dSigAboveCharm);
+    tensor->setValue(jet_n, 13, tag_info_features.jetNSelectedTracks);
     tensor->setValue(jet_n, 14, tag_info_features.jetNTracksEtaRel);
 
   } 
