@@ -120,6 +120,7 @@ unsigned
 HGCalTriggerGeometryHexImp2::
 getTriggerCellFromCell( const unsigned cell_id ) const
 {
+    if(DetId(cell_id).det() == DetId::Hcal) return 0;
     HGCalDetId cell_det_id(cell_id);
     int wafer_type = cell_det_id.waferType();
     unsigned cell = cell_det_id.cell();
@@ -139,6 +140,7 @@ unsigned
 HGCalTriggerGeometryHexImp2::
 getModuleFromCell( const unsigned cell_id ) const
 {
+    if(DetId(cell_id).det() == DetId::Hcal) return 0;
     HGCalDetId cell_det_id(cell_id);
     unsigned wafer = cell_det_id.wafer();
     unsigned subdet = cell_det_id.subdetId();
@@ -175,6 +177,7 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     unsigned wafer = trigger_cell_det_id.wafer();
     unsigned subdet = trigger_cell_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return 0;
     std::unordered_map<short, short>::const_iterator module_itr;
     bool out_of_range_error = false;
     switch(subdet)
@@ -206,6 +209,8 @@ HGCalTriggerGeometryHexImp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
+    unsigned subdet = trigger_cell_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_set();
     int wafer_type = trigger_cell_det_id.waferType();
     unsigned trigger_cell = trigger_cell_det_id.cell();
     // FIXME: better way to do this TC->cell mapping?
@@ -224,8 +229,9 @@ getCellsFromModule( const unsigned module_id ) const
 {
 
     HGCalDetId module_det_id(module_id);
-    unsigned module = module_det_id.wafer();
     unsigned subdet = module_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_set();
+    unsigned module = module_det_id.wafer();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -260,8 +266,9 @@ HGCalTriggerGeometryHexImp2::
 getOrderedCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
-    unsigned module = module_det_id.wafer();
     unsigned subdet = module_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_ordered_set();
+    unsigned module = module_det_id.wafer();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -296,8 +303,9 @@ HGCalTriggerGeometryHexImp2::
 getTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
-    unsigned module = module_det_id.wafer();
     unsigned subdet = module_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_set();
+    unsigned module = module_det_id.wafer();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -333,8 +341,9 @@ HGCalTriggerGeometryHexImp2::
 getOrderedTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
-    unsigned module = module_det_id.wafer();
     unsigned subdet = module_det_id.subdetId();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_ordered_set();
+    unsigned module = module_det_id.wafer();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -376,6 +385,7 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
     int wafer_type = trigger_cell_det_id.waferType();
     unsigned subdet = trigger_cell_det_id.subdetId();
     unsigned trigger_cell = trigger_cell_det_id.cell();
+    if(subdet==ForwardSubdetector::HGCHEB) return geom_set();
     // Retrieve surrounding wafers (around the wafer containing
     // the trigger cell)
     std::unordered_map<short, std::vector<short>>::const_iterator surrounding_wafers_itr;
@@ -456,6 +466,7 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
     // Position: barycenter of the trigger cell.
     Basic3DVector<float> triggerCellVector(0.,0.,0.);
     const auto cell_ids = getCellsFromTriggerCell(trigger_cell_det_id);
+    if(cell_ids.size()==0) return GlobalPoint(0,0,0);
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
@@ -472,6 +483,7 @@ getModulePosition(const unsigned module_det_id) const
     // Position: barycenter of the module.
     Basic3DVector<float> moduleVector(0.,0.,0.);
     const auto cell_ids = getCellsFromModule(module_det_id);
+    if(cell_ids.size()==0) return GlobalPoint(0,0,0);
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
