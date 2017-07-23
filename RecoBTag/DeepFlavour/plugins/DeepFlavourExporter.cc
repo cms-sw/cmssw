@@ -18,6 +18,9 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
+#include <algorithm>
+#include <string>
+
 #include "TTree.h"
 
 class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResources> {
@@ -77,7 +80,9 @@ void DeepFlavourExporter::beginJob()
   tree->Branch("features",&features_, 64000, 2);
 
   for (std::size_t i=0; i<disc_names_.size(); i++) {
-    tree->Branch(disc_names_.at(i).c_str(),&(disc_values_.at(i)));
+    std::string disc_name = disc_names_.at(i);
+    std::replace(disc_name.begin(), disc_name.end(), ':', '_');
+    tree->Branch(disc_name.c_str(),&disc_values_[i]);
   }
 }
 
@@ -101,6 +106,7 @@ void DeepFlavourExporter::analyze(const edm::Event& iEvent, const edm::EventSetu
     for (std::size_t j=0; j<disc_names_.size(); j++) {
       disc_values_.at(j) = jet.bDiscriminator(disc_names_.at(j));
     }
+
 
     // fill tree per jet
     tree->Fill();
