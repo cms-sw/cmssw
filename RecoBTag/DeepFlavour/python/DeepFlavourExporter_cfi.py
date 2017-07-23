@@ -9,9 +9,8 @@ pfDeepFlavourExporter = cms.EDAnalyzer(
     tag_info_src = cms.InputTag('pfDeepFlavourTagInfos'),
     jet_src = cms.InputTag('updatedPatJetsTransientCorrected'),
     btagDiscriminators = cms.vstring(
-      'pfCombinedSecondaryVertexV2BJetTags',
-      'pfDeepCSVJetTags:probb',
       'pfDeepFlavourJetTags:probb',
+      'pfDeepFlavourJetTags:probbb',
       'pfDeepFlavourJetTags:problepb',
       'pfDeepFlavourJetTags:probc',
       'pfDeepFlavourJetTags:probuds',
