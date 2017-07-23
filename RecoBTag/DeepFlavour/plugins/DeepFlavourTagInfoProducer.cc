@@ -103,8 +103,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // create data containing structure
     deep::DeepFlavourFeatures features;
 
-    const pat::Jet & jet = jets->at(jet_n);
-    edm::RefToBase<reco::Jet> jet_ref = jets->refAt(jet_n);
+    const auto & jet = dynamic_cast<const pat::Jet &>(jets->at(jet_n));
+    edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
     edm::Ptr<reco::ShallowTagInfo> match;
@@ -226,7 +226,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     
 
-    output_tag_infos->emplace_back(features, jet_ref);
+  output_tag_infos->emplace_back(features, jet_ref);
   }
 
   iEvent.put(std::move(output_tag_infos));
