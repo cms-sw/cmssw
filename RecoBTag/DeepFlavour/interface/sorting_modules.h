@@ -10,6 +10,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <vector>
+
 namespace sorting{
 
 /*
@@ -111,7 +113,7 @@ public:
 
 
 
-std::vector<size_t> invertSortingVector(const std::vector<sortingClass<size_t> > & in);
+std::vector<std::size_t> invertSortingVector(const std::vector<sortingClass<std::size_t> > & in);
 
 
 template<class T>
