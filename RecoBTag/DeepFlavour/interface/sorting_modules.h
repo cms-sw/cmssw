@@ -28,14 +28,28 @@ bool comparePt(T a, T b){
 template <class T>
 class sortingClass{
 public:
-    sortingClass(const T*t, float sortA, float sortB=0, float sortC=0){
+
+    sortingClass():sortValA(0),sortValB(0),sortValC(0),t_(0){}
+
+    sortingClass(const T& t, float sortA, float sortB=0, float sortC=0){
         t_=t;
         sortValA=sortA;
         sortValB=sortB;
         sortValC=sortC;
     }
+    sortingClass(const sortingClass&rhs):
+    sortValA(rhs.sortValA),sortValB(rhs.sortValB),sortValC(rhs.sortValC),t_(rhs.t_)
+    {	}
+    
+    sortingClass& operator=(const sortingClass&rhs){
+    	sortValA=(rhs.sortValA);
+    	sortValB=(rhs.sortValB);
+    	sortValC=(rhs.sortValC);
+    	t_=(rhs.t_);
+    	return *this;
+    }
 
-    const T* get()const{return t_;}
+    const T& get()const{return t_;}
 
     //hierarchical sort
     static bool compareByABC(sortingClass a, sortingClass b){
@@ -59,8 +73,7 @@ public:
                 return false;
             }
             else{
-                if(std::isnormal(a.sortValC) && std::isnormal(b.sortValC)){
-                    // here no check if both the same anymore
+                if(std::isnormal(a.sortValC) && std::isnormal(b.sortValC) && a.sortValC!=b.sortValC){
                     return CompareC(a,b);
                 }
                 else if(!std::isnormal(a.sortValC) && std::isnormal(b.sortValC)){
@@ -81,8 +94,9 @@ public:
         return !compareByABC(a,b);
     }
 
-    //private:
+ private:
     float sortValA,sortValB,sortValC;
+    
     static bool CompareA(sortingClass a, sortingClass b){
         return a.sortValA<b.sortValA;
     }
@@ -92,8 +106,12 @@ public:
     static bool CompareC(sortingClass a, sortingClass b){
         return a.sortValC<b.sortValC;
     }
-    const T* t_;
+    T t_;
 };
+
+
+
+std::vector<size_t> invertSortingVector(const std::vector<sortingClass<size_t> > & in);
 
 
 template<class T>

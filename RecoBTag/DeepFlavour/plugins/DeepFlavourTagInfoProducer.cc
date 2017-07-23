@@ -115,7 +115,6 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     const auto & tag_info_vars = tag_info.taggingVariables();
     btag_features_converter(tag_info_vars, features.tag_info_features);
 
- 
     // copy which will be sorted
     auto svs_sorted = *svs;     
     // sort by dxy
@@ -137,7 +136,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     math::XYZVector jet_dir = jet.momentum().Unit();
     GlobalVector jet_ref_track_dir(jet.px(),jet.py(),jet.pz());
 
-    std::vector<sorting::sortingClass<pat::PackedCandidate>> sortedall;
+    std::vector<sorting::sortingClass<size_t> > c_sorted, n_sorted;
 
     deep::TrackInfoBuilder trackinfo(track_builder);
 
@@ -147,42 +146,60 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
         auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(jet.daughter(i));
         if(packed_cand){
-
+          if (packed_cand->charge() != 0) {
             trackinfo.buildTrackInfo(packed_cand,jet_dir,jet_ref_track_dir,pv);
-
-            sortedall.emplace_back(packed_cand, trackinfo.getTrackSip2dSig(),
+            c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
                     -deep::mindrsvpfcand(svs_unsorted,packed_cand), packed_cand->pt()/jet.pt());
-
+          } else {
+            n_sorted.emplace_back(i, -1,
+                    -deep::mindrsvpfcand(svs_unsorted,packed_cand), packed_cand->pt()/jet.pt());
+          }
         }
     }
 
-    // sort collection (open the black-box if you please) 
-    std::sort(sortedall.begin(),sortedall.end(),
-              sorting::sortingClass<pat::PackedCandidate>::compareByABCInv);
+    // sort collections (open the black-box if you please) 
+    std::sort(c_sorted.begin(),c_sorted.end(),
+      sorting::sortingClass<std::size_t>::compareByABCInv);
+    std::sort(n_sorted.begin(),n_sorted.end(),
+      sorting::sortingClass<std::size_t>::compareByABCInv);
 
-  for (const auto& s : sortedall) {
+    std::vector<size_t> c_sortedindices,n_sortedindices;
+   
+    // this puts 0 everywhere and the right position in ind 
+    c_sorted_indices=sorting::invertSortingVector(c_sorted);
+    n_sorted_indices=sorting::invertSortingVector(n_sorted);
 
-    // get ref and check that is correct
-    const auto& packed_cand =s.get();
+    // set right size to vectors
+    features.c_pf_features.clear();
+    features.c_pf_features.resize(c_sorted.size());
+    features.n_pf_features.clear();
+    features.n_pf_features.resize(n_sorted.size());
+
+
+
+  for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
+
+    // get pointer and check that is correct
+    auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(jet.daughter(i));
     if(!packed_cand) continue;
 
     float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, packed_cand);
     
     if (packed_cand->charge() != 0) {
-      // is charged candidate, add with default values
-      features.c_pf_features.emplace_back();
+      // is charged candidate
+      auto entry = c_sortedindices.at(i);
       // build track info
       trackinfo.buildTrackInfo(packed_cand,jet_dir,jet_ref_track_dir,pv);
-      // in C++17 could just get from emplace_back output
-      auto & c_pf_features = features.c_pf_features.back();
+      // get_ref to vector element
+      auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
       deep::c_pf_features_converter(packed_cand, jet, trackinfo, 
                                     drminpfcandsv, c_pf_features);
     } else {
-      // is neutral candidate, add with default values
-      features.n_pf_features.emplace_back();
-      // in C++17 could just get from emplace_back output
-      auto & n_pf_features = features.n_pf_features.back();
+      // is neutral candidate
+      auto entry = n_sortedindices.at(i);
+      // get_ref to vector element
+      auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure 
       deep::n_pf_features_converter(packed_cand, jet, drminpfcandsv, 
                                    n_pf_features);
