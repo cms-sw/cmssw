@@ -40,7 +40,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     typedef std::vector<reco::DeepFlavourTagInfo> DeepFlavourTagInfoCollection;
     typedef reco::VertexCompositePtrCandidateCollection SVCollection;
     typedef reco::VertexCollection VertexCollection;
-    typedef std::vector<reco::ShallowTagInfo> ShallowTagInfoCollection;
+    typedef edm::View<reco::ShallowTagInfo> ShallowTagInfoCollection;
 
 	  virtual void beginStream(edm::StreamID) override {}
 	  virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -48,7 +48,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
     
     const double jet_radius_;
-    edm::EDGetTokenT<edm::View<pat::Jet>>  jet_token_;
+    edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
     edm::EDGetTokenT<VertexCollection> vtx_token_;
     edm::EDGetTokenT<SVCollection> sv_token_;
     edm::EDGetTokenT<ShallowTagInfoCollection> shallow_tag_info_token_;
@@ -59,7 +59,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
   jet_radius_(iConfig.getParameter<double>("jet_radius")),
-  jet_token_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
+  jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
   shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos")))
@@ -81,7 +81,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   auto output_tag_infos = std::make_unique<DeepFlavourTagInfoCollection>();
 
-  edm::Handle<edm::View<pat::Jet>> jets;
+  edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jet_token_, jets);
 
   edm::Handle<VertexCollection> vtxs;
@@ -98,14 +98,30 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<TransientTrackBuilder> track_builder; 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
 
-  for (const auto & tag_info : *shallow_tag_infos) {
+  for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
 
     // create data containing structure
     deep::DeepFlavourFeatures features;
 
-    auto jet_ref = tag_info.jet();
-    // TODO: add an isAvailable check
-    auto jet = dynamic_cast<const pat::Jet &>(jet_ref.operator*());
+    const pat::Jet & jet = jets->at(jet_n);
+    edm::RefToBase<reco::Jet> jet_ref = jets->refAt(jet_n);
+    // TagInfoCollection not in an associative container so search for matchs
+    const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
+    edm::Ptr<reco::ShallowTagInfo> match;
+    // Try first by 'same index'
+    if ((jet_n < taginfos.size()) && (taginfos[jet_n].jet() == jet_ref)) {
+        match = taginfos.ptrAt(jet_n);
+    } else {
+      // otherwise fail back to a simple search
+      for (auto itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
+        if (itTI->jet() == jet_ref) { match = taginfos.ptrAt( itTI - taginfos.begin() ); break; }
+      }
+    }
+    reco::ShallowTagInfo tag_info;
+    if (match.isNonnull()) {
+      tag_info = *match; 
+    } // will be default values otherwise
+
     // fill basic jet features
     deep::jet_features_converter(jet, features.jet_features);
     // fill number of pv
