@@ -66,7 +66,7 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   for (const auto flav_pair : flav_pset.tbl()) {
     const auto & flav_name = flav_pair.first;
     flav_pairs_.emplace_back(flav_name,
-                                flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
+                             flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
   }
 
 
@@ -184,16 +184,16 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & flav_pair = flav_pairs_.at(flav_n);
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
+
         o_sum +=  dnn_outputs_.at(0)->getValue<float>((dnn::tf::Shape) jet_n,
-                                                      (dnn::tf::Shape) flav_n,
                                                       (dnn::tf::Shape) ind);
       } 
-      (*output_tags.at(flav_n))[jet_ref] = o_sum;
+      (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }
   }
 
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    iEvent.put(std::move(output_tags.at(i)), flav_pairs_.at(i).first);
+    iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
   }
 
 }
