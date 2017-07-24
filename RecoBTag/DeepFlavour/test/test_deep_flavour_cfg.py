@@ -44,6 +44,8 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
       'pfCombinedSecondaryVertexV2BJetTags',
@@ -65,7 +67,7 @@ from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAO
 process.source.fileNames = filesRelValTTbarPileUpMINIAODSIM
 process.source.fileNames = cms.untracked.vstring('/store/mc/PhaseIFall16MiniAOD/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PhaseIFall16PUFlat20to50_PhaseIFall16_81X_upgrade2017_realistic_v26-v1/50000/08358A47-61E3-E611-8B77-001E677928AE.root')
 
-process.maxEvents.input = 1000
+process.maxEvents.input = 10
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands = MINIAODSIMEventContent.outputCommands
