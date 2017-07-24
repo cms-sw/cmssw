@@ -555,6 +555,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       jets = jetSource,
                                       vertices=pvSource,
                                       secondary_vertices=svSource,
+                                      shallow_tag_infos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
                                       puppi_value_map = "", # so it is not used
                                       pvasq_value_map = "", # so it is not used
                                       ),

@@ -165,8 +165,6 @@ def applySubstructure( process, postfix="" ) :
                     ]) ),
                     process, task)
 
-        
-    # Patify AK8 PF PUPPI
     addJetCollection(process, postfix=postfix, labelName = 'AK8Puppi',
                      jetSource = cms.InputTag('ak8PFJetsPuppi'+postfix),
                      algo= 'AK', rParam = 0.8,
