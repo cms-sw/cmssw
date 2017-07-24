@@ -41,12 +41,14 @@ class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResource
     virtual void endJob() override;
 
 	  const edm::EDGetTokenT< TagInfoCollection > tag_info_src_;
-	  const edm::EDGetTokenT<edm::View<pat::Jet>> jet_src_;
+	  edm::EDGetTokenT<edm::View<pat::Jet>> jet_src_;
 
     // to keep data to be saved in the TTree
     std::vector<std::string> disc_names_;
     std::vector<float> disc_values_;
     deep::DeepFlavourFeatures features_;
+    
+    bool use_jet_src_;
 
     edm::Service<TFileService> fs;
     TTree* tree;
@@ -54,10 +56,15 @@ class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResource
 
 DeepFlavourExporter::DeepFlavourExporter(const edm::ParameterSet& iConfig) :
   tag_info_src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("tag_info_src"))),
-  jet_src_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jet_src"))),
   disc_names_((iConfig.getParameter<std::vector<std::string>>("btagDiscriminators"))),
   disc_values_(disc_names_.size(),0.0)
 {
+  auto jet_src_tag = iConfig.getParameter<edm::InputTag>("jet_src");
+  if (jet_src_tag.label().size() == 0) {
+    use_jet_src_ = false;
+  } else {
+    jet_src_ = consumes<edm::View<pat::Jet>>(jet_src_tag);
+  } 
   usesResource("TFileService");
 }
 
@@ -93,18 +100,22 @@ void DeepFlavourExporter::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(tag_info_src_, tag_infos);
 
   edm::Handle<edm::View<pat::Jet>> jets;
-  iEvent.getByToken(jet_src_, jets);
+  if (use_jet_src_) {
+    iEvent.getByToken(jet_src_, jets);
+  }
 
-  for (std::size_t i = 0; i<jets->size(); i++) {
-    const auto & jet = jets->at(i);
+  for (std::size_t i = 0; i<tag_infos->size(); i++) {
     const auto & tag_info = tag_infos->at(i);
 
     // make a copy of features (avoid const problem in branch)
     features_ = tag_info.features();
-
-    // save discriminator outputs in corresponding branches
-    for (std::size_t j=0; j<disc_names_.size(); j++) {
-      disc_values_.at(j) = jet.bDiscriminator(disc_names_.at(j));
+    
+    if (use_jet_src_) {
+      const auto & jet = jets->at(i);
+      // save discriminator outputs in corresponding branches
+      for (std::size_t j=0; j<disc_names_.size(); j++) {
+        disc_values_.at(j) = jet.bDiscriminator(disc_names_.at(j));
+      }
     }
 
 
