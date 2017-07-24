@@ -3,14 +3,14 @@
 1. Copy the cfg file in your area
 
     ```shell
-    cp $CMSSW_BASE/src/RecoPixelVertexing/PixelLowPtUtilities/test/clusterShapeExtractor_phase* .
+    cp $CMSSW_RELEASE_BASE/src/RecoPixelVertexing/PixelLowPtUtilities/test/clusterShapeExtractor_phase* .
     ```
 2. Get the list of files from relval and substitute to those in the file in the release
 3. cmsRun it: it create a root file named _clusterShape.root_
 4. Produce a calibration file:
 
     ```shell
-    $CMSSW_BASE/test/slc7_amd64_gcc630/clusterShapeAnalyzer --input clusterShapeMinBias90Kall_phase2.root --output clusterShapeMinBias90Kall_phase2.par
+    clusterShapeAnalyzer --input clusterShape.root --output myClusterShape.par
     ```
 5.  you can produce also a calibration file w/o taking BPIX1 into account : just change
     ```code
