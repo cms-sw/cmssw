@@ -28,6 +28,10 @@
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
 #include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
 
+// conversion map from quality flags used in PV association and miniAOD one
+constexpr int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+
+
 class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
   public:
@@ -54,11 +58,11 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<SVCollection> sv_token_;
     edm::EDGetTokenT<ShallowTagInfoCollection> shallow_tag_info_token_;
     edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
+    edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
 
     bool use_puppi_value_map_;
+    bool use_pvasq_value_map_;
     
-
-
 };
 
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
@@ -67,7 +71,8 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
   shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
-  use_puppi_value_map_(false)
+  use_puppi_value_map_(false),
+  use_pvasq_value_map_(false)
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -76,6 +81,13 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
   }
+
+  const auto & pvasq_value_map_tag = iConfig.getParameter<edm::InputTag>("pvasq_value_map");
+  if (!pvasq_value_map_tag.label().empty()) {
+    pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvasq_value_map_tag);
+    use_pvasq_value_map_ = true;
+  }
+
 }
 
 
@@ -109,6 +121,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> puppi_value_map;
   if (use_puppi_value_map_) { 
     iEvent.getByToken(puppi_value_map_token_, puppi_value_map);
+  }
+
+  edm::Handle<edm::ValueMap<int>> pvasq_value_map;
+  if (use_pvasq_value_map_) { 
+    iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map);
   }
 
   edm::ESHandle<TransientTrackBuilder> track_builder; 
@@ -221,8 +238,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // get pointer and check that is correct
     auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
     if(!cand) continue;
-    auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
+    auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
     float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, cand);
     
@@ -238,12 +255,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
                                              drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
-        float puppiw = 0.0;
-        float pv_ass_quality = 0.0;
+        // need some edm::Ptr or edm::Ref
+        auto reco_ptr = pf_jet->getPFConstituent(i);
+        // get PUPPI weight from value map
+        float puppiw = (*puppi_value_map)[reco_ptr];
+        int quality = (*pvasq_value_map)[reco_ptr];
+        int pv_ass_quality = qualityMap[quality];
         deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
-                                           pv_ass_quality,
-                                           c_pf_features);
+                                           pv_ass_quality, c_pf_features);
       }
     } else {
       // is neutral candidate
@@ -255,7 +275,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
                                             n_pf_features);
       } else if (reco_cand) {
-        float puppiw = 0.0;
+        // need some edm::Ptr or edm::Ref
+        auto reco_ptr = pf_jet->getPFConstituent(i);
+        // get PUPPI weight from value map
+        float puppiw = (*puppi_value_map)[reco_ptr];
         deep::n_pf_reco_features_converter(reco_cand, jet,
                                            drminpfcandsv, puppiw,
                                            n_pf_features);

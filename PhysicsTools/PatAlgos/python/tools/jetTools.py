@@ -556,10 +556,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       vertices=pvSource,
                                       secondary_vertices=svSource,
                                       puppi_value_map = "", # so it is not used
+                                      pvasq_value_map = "", # so it is not used
                                       ),
                                     process, task)
-                if svClustering or fatJets != cms.InputTag(''):
-                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
