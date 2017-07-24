@@ -68,10 +68,7 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
 
-    edm::ParameterSet beamConditions_;
     double sqrtS_;
-    double vertexSize_;
-    double beamDivergence_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
@@ -88,12 +85,6 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
     std::vector<edm::ParameterSet> detectorPackages_;
-
-    double thetaPhys_;
-
-    bool simulateVertexX_, simulateVertexY_;
-    bool simulateScatteringAngleX_, simulateScatteringAngleY_;
-    bool simulateBeamDivergence_;
 
     std::vector<CTPPSPotInfo> pots_;
     std::unordered_map<unsigned int, std::vector<CTPPSDetId> > strips_list_;
@@ -112,14 +103,11 @@ const bool CTPPSFastProtonSimulation::invertBeamCoordinatesSystem_ = true;
 
 CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& iConfig ) :
   protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
-  beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
-  sqrtS_                      ( beamConditions_.getParameter<double>( "sqrtS" ) ),
-  vertexSize_                 ( beamConditions_.getParameter<double>( "vertexSize" ) ),
-  beamDivergence_             ( beamConditions_.getParameter<double>( "beamDivergence" ) ),
-  halfCrossingAngleSector45_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
-  halfCrossingAngleSector56_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ),
-  yOffsetSector45_            ( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
-  yOffsetSector56_            ( beamConditions_.getParameter<double>( "yOffsetSector56" ) ),
+  sqrtS_                      ( iConfig.getParameter<double>( "sqrtS" ) ),
+  halfCrossingAngleSector45_  ( iConfig.getParameter<double>( "halfCrossingAngleSector45" ) ),
+  halfCrossingAngleSector56_  ( iConfig.getParameter<double>( "halfCrossingAngleSector56" ) ),
+  yOffsetSector45_            ( iConfig.getParameter<double>( "yOffsetSector45" ) ),
+  yOffsetSector56_            ( iConfig.getParameter<double>( "yOffsetSector56" ) ),
   simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
@@ -129,12 +117,6 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
-  thetaPhys_                  ( iConfig.getParameter<double>( "scatteringAngle" ) ),
-  simulateVertexX_            ( iConfig.getParameter<bool>( "simulateVertexX" ) ),
-  simulateVertexY_            ( iConfig.getParameter<bool>( "simulateVertexY" ) ),
-  simulateScatteringAngleX_   ( iConfig.getParameter<bool>( "simulateScatteringAngleX" ) ),
-  simulateScatteringAngleY_   ( iConfig.getParameter<bool>( "simulateScatteringAngleY" ) ),
-  simulateBeamDivergence_     ( iConfig.getParameter<bool>( "simulateBeamDivergence" ) ),
   rnd_( 0 )
 {
   produces< edm::DetSetVector<TotemRPRecHit> >();
@@ -233,24 +215,9 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   const HepMC::GenVertex* vtx = in_trk->production_vertex();
   const HepMC::FourVector mom = in_trk->momentum();
   const double xi = 1.-mom.e()/sqrtS_*2.0;
+  const double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
 
   double vtx_x = vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
-  if ( simulateVertexX_ ) vtx_x += CLHEP::RandGauss::shoot( rnd_ ) * vertexSize_;
-  if ( simulateVertexY_ ) vtx_y += CLHEP::RandGauss::shoot( rnd_ ) * vertexSize_;
-
-  // convert physics kinematics to the LHC reference frame
-  double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
-  if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
-
-  // generate scattering angles
-  if ( simulateScatteringAngleX_ ) th_x += CLHEP::RandGauss::shoot( rnd_ ) * thetaPhys_;
-  if ( simulateScatteringAngleY_ ) th_y += CLHEP::RandGauss::shoot( rnd_ ) * thetaPhys_;
-
-  // generate beam divergence
-  if ( simulateBeamDivergence_ ) {
-    th_x += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
-    th_y += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
-  }
 
   double half_cr_angle = 0.0, vtx_y_offset = 0.0;
   int z_sign = 0;
@@ -269,8 +236,6 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   smeared_vtx.setX( vtx_x );
   smeared_vtx.setY( vtx_y+vtx_y_offset );
 
-  th_x += half_cr_angle;
-
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
     // first check the side
@@ -281,7 +246,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     if ( rp.detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) continue;
     if ( strips_list_.find( rp.detid.rawId() )==strips_list_.end() ) continue;
 
-    const double optics_z0 = rp.z_position*1.e3; // in mm
+    const double optics_z0 = rp.z_position*1.0e3; // in mm
 
     // retrieve the sensor from geometry
     for ( const auto& detid : strips_list_.at( rp.detid.rawId() ) ) {
@@ -315,8 +280,8 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
       // evaluate positions (in mm) of track and beam
       const double de_z = ( gl_oz-optics_z0 ) * z_sign;
 
-      const double x_tr = a_x_tr * de_z + b_x_tr * 1.e3;
-      const double y_tr = a_y_tr * de_z + b_y_tr * 1.e3;
+      const double x_tr = a_x_tr * de_z + b_x_tr * 1.0e3;
+      const double y_tr = a_y_tr * de_z + b_y_tr * 1.0e3;
 
       // global hit in coordinates "aligned to beam" (as in the RP alignment)
       CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_oz );
@@ -335,8 +300,8 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
 
           //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
 
-          const double x_be = a_x_be * de_z + b_x_be * 1.e3;
-          const double y_be = a_y_be * de_z + b_y_be * 1.e3;
+          const double x_be = a_x_be * de_z + b_x_be * 1.0e3;
+          const double y_be = a_y_be * de_z + b_y_be * 1.0e3;
 
           /*std::cout << detid << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) <<
             " | track: x=" << x_tr << ", y=" << y_tr <<

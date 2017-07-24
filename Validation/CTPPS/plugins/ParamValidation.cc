@@ -82,10 +82,10 @@ ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
 
   // prepare plots - generator level
   TFileDirectory gen_dir = fs->mkdir( "gen level" );
-  h_gen_vtx_x_ = gen_dir.make<TH1D>( "h_gen_vtx_x", ";vtx_{x}^{gen}", 100, -1.e-4, 1.e-4 );
-  h_gen_vtx_y_ = gen_dir.make<TH1D>( "h_gen_vtx_y", ";vtx_{y}^{gen}", 100, -1.e-3, 1.e-3 );
-  h_gen_th_x_ = gen_dir.make<TH1D>( "h_gen_th_x", ";#theta_{x}^{gen}", 100, -1.e-4, 1.e-4 );
-  h_gen_th_y_ = gen_dir.make<TH1D>( "h_gen_th_y", ";#theta_{y}^{gen}", 100, -1.e-4, 1.e-4 );
+  h_gen_vtx_x_ = gen_dir.make<TH1D>( "h_gen_vtx_x", ";vtx_{x}^{gen}", 100, -1.0e-4, 1.0e-4 );
+  h_gen_vtx_y_ = gen_dir.make<TH1D>( "h_gen_vtx_y", ";vtx_{y}^{gen}", 100, -1.0e-3, 1.0e-3 );
+  h_gen_th_x_ = gen_dir.make<TH1D>( "h_gen_th_x", ";#theta_{x}^{gen}", 100, -1.0e-4, 1.0e-4 );
+  h_gen_th_y_ = gen_dir.make<TH1D>( "h_gen_th_y", ";#theta_{y}^{gen}", 100, -1.0e-4, 1.0e-4 );
   h_gen_xi_ = gen_dir.make<TH1D>( "h_gen_xi", ";#xi^{gen}", 100, 0.0, 0.25 );
 
   unsigned short i = 0;

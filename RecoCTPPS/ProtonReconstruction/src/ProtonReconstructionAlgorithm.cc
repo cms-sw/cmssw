@@ -157,8 +157,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(const std::string &
 //----------------------------------------------------------------------------------------------------
 
 ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
-{
-}
+{}
 
 //----------------------------------------------------------------------------------------------------
 
