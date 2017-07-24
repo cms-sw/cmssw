@@ -89,8 +89,12 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
+    conf.addParameter<double>     ("adcsaturationBH", codecImpl_.adcsaturationBH());
+    conf.addParameter<uint32_t>   ("adcnBitsBH",      codecImpl_.adcnBitsBH());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
     conf.addParameter<double>        ("TCThreshold_fC", codecImpl_.TCThreshold_fC());
+    conf.addParameter<double>        ("TCThresholdBH_MIP", codecImpl_.TCThresholdBH_MIP());
+    conf.addParameter<std::vector<double>>("ThicknessCorrections", codecImpl_.ThicknessCorrections());
     HGCalTriggerCellThresholdCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);

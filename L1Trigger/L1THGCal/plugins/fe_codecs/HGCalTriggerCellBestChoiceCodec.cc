@@ -79,6 +79,7 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
+    conf.addParameter<std::vector<double>>("ThicknessCorrections", codecImpl_.ThicknessCorrections());
     HGCalTriggerCellBestChoiceCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
