@@ -31,6 +31,7 @@ process.source = cms.Source("EmptySource",
 # DQM services
 #########################
 
+process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load("DQMServices.Core.DQM_cfg")
 
 
