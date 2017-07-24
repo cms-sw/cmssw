@@ -28,10 +28,10 @@ process.generator = cms.EDFilter('Pythia8GeneratorFilter',
     comEnergy = cms.double(13000.),
     PythiaParameters = cms.PSet(
         pythia8_proc = cms.vstring(
-            'SoftQCD:nonDiffractive = on',
+            'SoftQCD:nonDiffractive = off',
             'SoftQCD:singleDiffractive = on',
-            'SoftQCD:doubleDiffractive = on',
-            'Tune:pp 2',
+            'SoftQCD:doubleDiffractive = off',
+            'Tune:pp 5', #4C
         ),
         parameterSets = cms.vstring('pythia8_proc')
     )
