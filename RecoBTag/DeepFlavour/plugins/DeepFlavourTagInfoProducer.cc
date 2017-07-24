@@ -49,11 +49,11 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     
     const double jet_radius_;
 
-    edm::EDGetTokenT<edm::View<reco::Jet>>  jet_unc_token_;
     edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
     edm::EDGetTokenT<VertexCollection> vtx_token_;
     edm::EDGetTokenT<SVCollection> sv_token_;
     edm::EDGetTokenT<ShallowTagInfoCollection> shallow_tag_info_token_;
+    edm::EDGetTokenT<ShallowTagInfoCollection> puppi_value_map_token_;
     
 
 
@@ -105,7 +105,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // create data containing structure
     deep::DeepFlavourFeatures features;
 
-    const auto & jet = dynamic_cast<const pat::Jet &>(jets->at(jet_n));
+    // reco jet reference (use as much as possible)
+    const auto & jet = jets->at(jet_n);
+    // dynamical castoting to pointers, null if not possible
+    const auto * pf_jet = dynamic_cast<const reco::PFJet *>(&jet);
+    const auto * pat_jet = dynamic_cast<const pat::Jet *>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
@@ -126,6 +130,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // fill basic jet features
     deep::jet_features_converter(jet, features.jet_features);
+
     // fill number of pv
     features.npv = vtxs->size();
 
@@ -152,7 +157,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // stuff required for dealing with pf candidates 
     math::XYZVector jet_dir = jet.momentum().Unit();
-    GlobalVector jet_ref_track_dir(jet.px(),jet.py(),jet.pz());
+    GlobalVector jet_ref_track_dir(jet.px(),
+                                   jet.py(),
+                                   jet.pz());
 
     std::vector<sorting::sortingClass<size_t> > c_sorted, n_sorted;
 
@@ -162,15 +169,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     const auto & svs_unsorted = *svs;     
     // fill collection, from DeepTNtuples plus some styling
     for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
-        auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(jet.daughter(i));
-        if(packed_cand){
-          if (packed_cand->charge() != 0) {
-            trackinfo.buildTrackInfo(packed_cand,jet_dir,jet_ref_track_dir,pv);
+        auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
+        if(cand){
+          if (cand->charge() != 0) {
+            trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
-                    -deep::mindrsvpfcand(svs_unsorted,packed_cand), packed_cand->pt()/jet.pt());
+                    -deep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
           } else {
             n_sorted.emplace_back(i, -1,
-                    -deep::mindrsvpfcand(svs_unsorted,packed_cand), packed_cand->pt()/jet.pt());
+                    -deep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
           }
         }
     }
@@ -198,20 +205,20 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
 
     // get pointer and check that is correct
-    auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(jet.daughter(i));
-    if(!packed_cand) continue;
+    auto cand = dynamic_cast<const pat::PackedCandidate *>(jet.daughter(i));
+    if(!cand) continue;
 
-    float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, packed_cand);
+    float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, cand);
     
-    if (packed_cand->charge() != 0) {
+    if (cand->charge() != 0) {
       // is charged candidate
       auto entry = c_sortedindices.at(i);
       // build track info
-      trackinfo.buildTrackInfo(packed_cand,jet_dir,jet_ref_track_dir,pv);
+      trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
       // get_ref to vector element
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
-      deep::c_pf_features_converter(packed_cand, jet, trackinfo, 
+      deep::c_pf_features_converter(cand, jet, trackinfo, 
                                     drminpfcandsv, c_pf_features);
     } else {
       // is neutral candidate
@@ -219,7 +226,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       // get_ref to vector element
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure 
-      deep::n_pf_features_converter(packed_cand, jet, drminpfcandsv, 
+      deep::n_pf_features_converter(cand, jet, drminpfcandsv, 
                                    n_pf_features);
     }
 

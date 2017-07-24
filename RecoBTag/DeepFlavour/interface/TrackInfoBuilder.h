@@ -36,17 +36,24 @@ public:
 
 }
 
-    void buildTrackInfo(const pat::PackedCandidate* PackedCandidate_ ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
-        const reco::Track & PseudoTrack =  PackedCandidate_->pseudoTrack();
-        //                       const reco::Track * pf_track=PackedCandidate_->bestTrack();
-        //edm::ESHandle<TransientTrackBuilder> builder;
-        //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+    void buildTrackInfo(const reco::Candidate * candidate ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
+        
+        // deal with PAT/AOD polymorphism to get track
+        const reco::Track * track_ptr = nullptr;
+        auto packed_candidate = dynamic_cast<const pat::PackedCandidate *>(candidate);
+        auto pf_candidate = dynamic_cast<const reco::PFCandidate *>(candidate);
+        if (pf_candidate) {
+          track_ptr = pf_candidate->bestTrack(); // trackRef was sometimes null
+        } else if (packed_candidate) {
+          track_ptr = &(packed_candidate->pseudoTrack());
+        }
+
         reco::TransientTrack transientTrack;
-        transientTrack=builder->build(PseudoTrack);
+        transientTrack=builder->build(*track_ptr);
         Measurement1D meas_ip2d=IPTools::signedTransverseImpactParameter(transientTrack, refjetdirection, pv).second;
         Measurement1D meas_ip3d=IPTools::signedImpactParameter3D(transientTrack, refjetdirection, pv).second;
         Measurement1D jetdist=IPTools::jetTrackDistance(transientTrack, refjetdirection, pv).second;
-        math::XYZVector trackMom = PseudoTrack.momentum();
+        math::XYZVector trackMom = track_ptr->momentum();
         double trackMag = std::sqrt(trackMom.Mag2());
         TVector3 trackMom3(trackMom.x(),trackMom.y(),trackMom.z());
         TVector3 jetDir3(jetDir.x(),jetDir.y(),jetDir.z());

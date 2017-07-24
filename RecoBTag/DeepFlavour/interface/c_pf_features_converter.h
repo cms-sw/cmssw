@@ -8,7 +8,7 @@ namespace deep {
   template <typename CandidateType, typename JetType,
             typename TrackInfoBuilderType,
             typename ChargedCandidateFeaturesType>
-  void c_pf_features_converter(const CandidateType & c_pf,
+  void c_pf_features_converter(const CandidateType * c_pf,
                                const JetType & jet,
                                const TrackInfoBuilderType & track_info,
                                const float & drminpfcandsv,

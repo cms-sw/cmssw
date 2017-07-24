@@ -8,7 +8,7 @@ namespace deep {
   template <typename CandidateType,
             typename JetType,
             typename NeutralCandidateFeaturesType>
-  void n_pf_features_converter(const CandidateType & n_pf,
+  void n_pf_features_converter(const CandidateType * n_pf,
                                const JetType & jet,
                                const float & drminpfcandsv,
                                NeutralCandidateFeaturesType & n_pf_features) {
