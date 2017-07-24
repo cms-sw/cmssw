@@ -155,7 +155,6 @@ TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, c
     auto lp = tsos.localPosition();
     auto le = tsos.localError().positionError();
     for (auto const & broc : badRocPositions_) {
-      // std::cout << "Bad roc at " << broc.x() << '/' << broc.y() << std::endl;
       auto dx = std::abs(broc.x() - lp.x()) - theRocWidth;
       auto dy = std::abs(broc.y() - lp.y()) - theRocHeight;
       if ( (dx<=0.f) & (dy<=0.f) ) return true;
