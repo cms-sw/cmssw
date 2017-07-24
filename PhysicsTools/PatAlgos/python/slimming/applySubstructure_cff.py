@@ -49,23 +49,15 @@ def applySubstructure( process, postfix="" ) :
     process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
     task.add(process.Njettiness)
     addToProcessAndTask('NjettinessAK8'+postfix, process.Njettiness.clone(), process, task)
-
-
     getattr(process,"NjettinessAK8").src = cms.InputTag("ak8PFJetsCHS"+postfix)
     getattr(process,"NjettinessAK8").cone = cms.double(0.8)
     getattr(process,"patJetsAK8").userData.userFloats.src += ['NjettinessAK8'+postfix+':tau1','NjettinessAK8'+postfix+':tau2','NjettinessAK8'+postfix+':tau3']
 
-
-
     # add Njetiness from CHS
-    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
-    task.add(process.Njettiness)
     addToProcessAndTask('NjettinessAK8Subjets'+postfix, process.Njettiness.clone(), process, task)
     getattr(process,"NjettinessAK8Subjets"+postfix).src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")
     getattr(process,"NjettinessAK8Subjets").cone = cms.double(0.8)
-    
-
-    
+        
     ## PATify CHS soft drop fat jets
     addJetCollection(
         process,
