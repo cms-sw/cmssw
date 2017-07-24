@@ -1,8 +1,8 @@
 
-#ifndef EMTFTrackTools_h
-#define EMTFTrackTools_h
+#ifndef L1Trigger_L1TMuonEndCap_EMTFTrack2016Tools_h
+#define L1Trigger_L1TMuonEndCap_EMTFTrack2016Tools_h
 
-#include "DataFormats/L1TMuon/interface/EMTFTrackExtra.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack2016Extra.h"
 
 namespace l1t {
   
@@ -34,4 +34,4 @@ namespace l1t {
   
 }
 
-#endif /* define EMTFTrackTools_h */
+#endif /* define L1Trigger_L1TMuonEndCap_EMTFTrack2016Tools_h */
