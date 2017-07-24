@@ -85,7 +85,7 @@ namespace l1t {
          // internal muons
          auto gmt_imd_unp = static_pointer_cast<l1t::stage2::IntermediateMuonUnpacker>(UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker"));
          gmt_imd_unp->setAlgoVersion(fw);
-         for (int oLink = 49; oLink < 63; oLink += 2)
+         for (int oLink = 49; oLink < 65; oLink += 2)
             res[oLink] = gmt_imd_unp;
 
          // output muons (6 copies)
