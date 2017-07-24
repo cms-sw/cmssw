@@ -14,6 +14,7 @@
 
 #include "EventFilter/GEMRawToDigi/interface/GEMAMC13EventFormat.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
@@ -22,8 +23,6 @@
 namespace edm {
    class ConfigurationDescriptions;
 }
-
-class GEMRawToDigi;
 
 class GEMRawToDigiModule : public edm::EDProducer {
  public:
@@ -40,8 +39,6 @@ class GEMRawToDigiModule : public edm::EDProducer {
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-
-  GEMRawToDigi * unPacker;
 
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   AMC13Event * m_AMC13Event;

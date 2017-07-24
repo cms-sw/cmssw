@@ -2,21 +2,24 @@
  *  \author J. Lee - UoS
  */
 
-#include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "CondFormats/DataRecord/interface/GEMChamberMapRcd.h"
 
-GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset): 
-  packer(new GEMDigiToRaw(pset))
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
+#include "CondFormats/DataRecord/interface/GEMChamberMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChamberMap.h"
+#include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
+
+GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset) 
+//packer(new GEMDigiToRaw(pset))
 {
   event_type_ = pset.getParameter<int>("eventType");
   digi_token = consumes<GEMDigiCollection>( pset.getParameter<edm::InputTag>("gemDigi") );
@@ -30,7 +33,7 @@ GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset):
 
 
 GEMDigiToRawModule::~GEMDigiToRawModule(){
-  delete packer;
+  //  delete packer;
 }
 
 void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -40,7 +43,7 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("gemPadDigiCluster", edm::InputTag("simMuonGEMPadDigiClusters"));
   desc.add<edm::InputTag>("gemCoPadDigi", edm::InputTag("simCscTriggerPrimitiveDigis"));
  
-  descriptions.add("gemPacker", desc);
+  //  descriptions.add("gemPacker", desc);
 }
 
 
@@ -64,29 +67,29 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   e.getByToken( coPadDigi_token, gemCoPadDigi );
 
 
-  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
+  // for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
 
-    FEDHeader::set(data.data() + size * 8, event_type_, e.id().event(), e.bunchCrossing(), fed_amcs.first);
+  //   FEDHeader::set(data.data() + size * 8, event_type_, e.id().event(), e.bunchCrossing(), fed_amcs.first);
 
-  std::vector<unsigned char> byteVec;  
-  // make FEROL headers
-  uint64_t m_word;
+  // std::vector<unsigned char> byteVec;  
+  // // make FEROL headers
+  // uint64_t m_word;
 
-  // 
-  m_AMC13Event = new AMC13Event();
-  m_AMC13Event->setCDFHeader(m_word);
-  m_AMC13Event->setAMC13header(m_word);
+  // // 
+  // m_AMC13Event = new AMC13Event();
+  // m_AMC13Event->setCDFHeader(m_word);
+  // m_AMC13Event->setAMC13header(m_word);
 
-  for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
-    std::fread(&m_word, sizeof(uint64_t), 1, m_file);
-    if(verbose_)  printf("%016lX\n", m_word);
-    GEMUnpacker::ByteVector(byteVec, m_word);
-    m_AMC13Event->addAMCheader(m_word);
-  }
+  // for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
+  //   std::fread(&m_word, sizeof(uint64_t), 1, m_file);
+  //   if(verbose_)  printf("%016lX\n", m_word);
+  //   //    GEMUnpacker::ByteVector(byteVec, m_word);
+  //   m_AMC13Event->addAMCheader(m_word);
+  // }
 
-  // Create the packed data
-  packer->createFedBuffers(*gemDigi, *gemPadDigi, *gemPadDigiCluster, *gemCoPadDigi
-                           *(fed_buffers.get()), theMapping, e);
+  // // Create the packed data
+  // //  packer->createFedBuffers(*gemDigi, *gemPadDigi, *gemPadDigiCluster, *gemCoPadDigi
+  //                          *(fed_buffers.get()), theMapping, e);
   
   // put the raw data to the event
   e.put(std::move(fed_buffers), "GEMRawData");
