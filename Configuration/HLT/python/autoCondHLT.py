@@ -27,15 +27,6 @@ l1Menus= {
     'PRef'         : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
 }
 
-pfRecord = 'GBRDWrapperRcd'
-pfTime   = '2016-02-17 21:00:00.000'
-pfscecal = ()
-for det in ('EB','EE'):
-    for obj in ('Correction','Uncertainty'):
-        pfLabel  = 'pfscecal_'+det+obj+'_online'
-        pfTag    = pfLabel+'_v0'
-        pfscecal = pfscecal + (','.join( [ pfTag,pfRecord,connectionString,pfLabel,pfTime] ), )
-
 hltGTs = {
 
 #   'symbolic GT'            : ('base GT',[('payload1',payload2')])
@@ -66,12 +57,12 @@ hltGTs = {
     'run2_data_Fake'         : ('run2_data_relval'     ,l1Menus['Fake']),
     'run2_data_Fake1'        : ('run2_data_relval'     ,l1Menus['Fake1']),
     'run2_data_Fake2'        : ('run2_data_relval'     ,l1Menus['Fake2']),
-    'run2_data_2e34_v2'      : ('run2_data_promptlike' ,l1Menus['2e34_v2']+pfscecal),
-    'run2_data_FULL'         : ('run2_data_promptlike' ,l1Menus['FULL']+pfscecal),
-    'run2_data_GRun'         : ('run2_data_promptlike' ,l1Menus['GRun']+pfscecal),
+    'run2_data_2e34_v2'      : ('run2_data_promptlike' ,l1Menus['2e34_v2']),
+    'run2_data_FULL'         : ('run2_data_promptlike' ,l1Menus['FULL']),
+    'run2_data_GRun'         : ('run2_data_promptlike' ,l1Menus['GRun']),
     'run2_data_HIon'         : ('run2_data_relval'     ,l1Menus['HIon']),
-    'run2_data_PIon'         : ('run2_data_promptlike' ,l1Menus['PIon']+pfscecal),
-    'run2_data_PRef'         : ('run2_data_promptlike' ,l1Menus['PRef']+pfscecal),
+    'run2_data_PIon'         : ('run2_data_promptlike' ,l1Menus['PIon']),
+    'run2_data_PRef'         : ('run2_data_promptlike' ,l1Menus['PRef']),
 
 }
 
