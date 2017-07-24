@@ -88,13 +88,13 @@ namespace deep {
     return size;
   }
 
-  // adapted from DeepNtuples
+  // adapted from DeepNtuples (now polymorphic)
   float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> svs, 
-                      const pat::PackedCandidate* pfcand, float mindr=0.4) {
+                      const reco::Candidate* cand, float mindr=0.4) {
 
     for (unsigned int i0=0; i0<svs.size(); ++i0) {
 
-        float tempdr = reco::deltaR(svs[i0],*pfcand);
+        float tempdr = reco::deltaR(svs[i0],*cand);
         if (tempdr<mindr) { mindr = tempdr; }
 
     }
