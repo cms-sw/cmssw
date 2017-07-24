@@ -52,7 +52,7 @@ private:
 
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight, storeTrack, storeRL;
-  bool                              useBirk, useBirkL3;
+  bool                              useBirk, useBirkL3, ignoreDepCorr;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY;
   std::string                       crystalMat, depth1Name, depth2Name;

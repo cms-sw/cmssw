@@ -63,6 +63,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   birkCut      = m_EC.getParameter<double>("BirkCut");
   slopeLY      = m_EC.getParameter<double>("SlopeLightYield");
   storeTrack   = m_EC.getParameter<bool>("StoreSecondary");
+  ignoreDepCorr= m_EC.getParameter<bool>("IgnoreDepthCorr");
   crystalMat   = m_EC.getUntrackedParameter<std::string>("XtalMat","E_PbWO4");
   bool isItTB  = m_EC.getUntrackedParameter<bool>("TestBeam", false);
   bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
@@ -438,8 +439,11 @@ double ECalSD::crystalDepth(G4LogicalVolume* lv,
                             const G4ThreeVector& localPoint) {
 
   auto ite = xtalLMap.find(lv);
-  double depth = (ite == xtalLMap.end()) ? 0 :
-    (std::abs(0.5*(ite->second)+localPoint.z()));
+  double depth(0);
+  if (ite != xtalLMap.end()) {
+    if (ignoreDepCorr) depth = (0.5*std::abs(ite->second)+localPoint.z());
+    else               depth = std::abs(0.5*(ite->second)+localPoint.z());
+  }
   return depth;
 }
 
