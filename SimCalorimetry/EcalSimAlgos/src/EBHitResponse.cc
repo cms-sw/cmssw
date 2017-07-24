@@ -124,7 +124,6 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* engine ) const
 {
-  std::cout << "*** " << hit.depth() << std::endl;
   int iddepth = (hit.depth() & 0x3);
   assert( 1 == iddepth || 2 == iddepth ) ;
 
