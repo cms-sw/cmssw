@@ -149,7 +149,7 @@ void
 RunLumiEventChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<edm::EventID> >("eventSequence");
-  descriptions.add("eventIDChecker", desc);
+  descriptions.add("runLumiEventIDChecker", desc);
 }
 
 //define this as a plug-in
