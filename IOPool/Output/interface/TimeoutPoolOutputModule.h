@@ -16,6 +16,7 @@
 #include "IOPool/Output/interface/PoolOutputModule.h"
 
 namespace edm {
+  class ConfigurationDescriptions;
   class ModuleCallingContext;
   class ParameterSet;
 
@@ -25,6 +26,9 @@ namespace edm {
     virtual ~TimeoutPoolOutputModule(){};
     TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
     TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
   protected:
     virtual bool shouldWeCloseFile() const override;
     virtual void write(EventForOutput const& e) override;
