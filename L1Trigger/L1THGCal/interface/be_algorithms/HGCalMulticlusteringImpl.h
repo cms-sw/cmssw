@@ -20,20 +20,12 @@ public:
     void clusterize( const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
 
-   // void showerShape3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtr);
 
 private:
     
     double dr_;
     double ptC3dThreshold_;
     double calibSF_;
-   /* int Nlayers_;
-    double EMax_; //Maximum energy deposited in a layer
-    double SeeTot_; //SigmaEtaEta considering all TC in 3DC
-    double SeeMax_; //Maximum SigmaEtaEta in a layer
-    double SppTot_; //same but for SigmaPhiPhi
-    double SppMax_;*/
-
 
 };
 
