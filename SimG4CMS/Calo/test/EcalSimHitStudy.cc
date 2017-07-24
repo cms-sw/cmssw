@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+//#define EDM_ML_DEBUG
+
 class EcalSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
@@ -237,9 +239,10 @@ void EcalSimHitStudy::beginJob() {
 
 void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "Run = " << e.id().run() << " Event = " 
 			       << e.id().event();
-
+#endif
   // get handles to calogeometry
   edm::ESHandle<CaloGeometry> pG;
   iS.get<CaloGeometryRecord>().get(pG);
@@ -267,12 +270,14 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   else if (std::abs(etaInc) > 1.49 && std::abs(etaInc) < 3.0) type = 1;
   if (type >= 0) {
     bool getHits(false);
-    unsigned int nhits(0);
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByToken(toks_calo_[type],hitsCalo); 
-    if (hitsCalo.isValid()) {getHits = true; nhits = hitsCalo->size();}
+    if (hitsCalo.isValid()) getHits = true; 
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "EcalSimHitStudy: Input flags Hits " 
-				 << getHits << " with " << nhits << " hits";
+				 << getHits << " with " << hitsCalo->size()
+				 << " hits";
+#endif
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(),hitsCalo->begin(),hitsCalo->end());
@@ -329,6 +334,7 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     if ((depM & 0X4) != 0) select = (selX_ >  0);
     else                   select = (selX_ == 0);
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::analyzeHits: Index " 
 			       << indx << " Emax " << edepM << " IDMax "
 			       << std::hex << idM << ":" << depM << std::dec 
@@ -336,7 +342,7 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 			       << " Hits " << hits.size() << ":" << nEC << ":"
 			       << hitMap.size() << " ETotal " << etot << ":" 
 			       << etotG;
-
+#endif
   if (select) {
     etot_[indx]->Fill(etot);
     etotg_[indx]->Fill(etotG);
@@ -389,19 +395,22 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
       numEtaEta += std::abs(w * dEta * dEta);
       numEtaPhi += std::abs(w * dEta * dPhi);
       numPhiPhi += std::abs(w * dPhi * dPhi);
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HitStudy") << "[" << k << "] dEta " << dEta <<" dPhi "
 				   << dPhi << " Wt " << energy[k]/e25 << ":" 
 				   << std::log(energy[k]/e25) << ":" << w;
+#endif
     }
     double sEtaEta = (denom > 0) ? (numEtaEta / denom) : -1.0;
     double sEtaPhi = (denom > 0) ? (numEtaPhi / denom) : -1.0;
     double sPhiPhi = (denom > 0) ? (numPhiPhi / denom) : -1.0;
 
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::Ratios " << r1by9 
 				 << " : " << r1by25 << " : " << r9by25 
 				 << " Covariances " << sEtaEta << " : " 
 				 << sEtaPhi << " : " << sPhiPhi;
-
+#endif
     r1by9_[indx]->Fill(r1by9);     r1by25_[indx]->Fill(r1by25);
     r9by25_[indx]->Fill(r9by25);   sEtaEta_[indx]->Fill(sEtaEta);
     sEtaPhi_[indx]->Fill(sEtaPhi); sPhiPhi_[indx]->Fill(sPhiPhi);
