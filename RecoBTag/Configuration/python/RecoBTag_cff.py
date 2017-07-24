@@ -68,8 +68,7 @@ pfBTaggingTask = cms.Task(
     pfCombinedMVAV2BJetTags,
     pfChargeBJetTags,
     # new DeepFlavour tagger
-    pfDeepFlavourTagInfos,
-    pfDeepFlavourJetTags
+    pfDeepFlavourTaskNew,
 )
 
 pfBTagging = cms.Sequence(pfBTaggingTask)
