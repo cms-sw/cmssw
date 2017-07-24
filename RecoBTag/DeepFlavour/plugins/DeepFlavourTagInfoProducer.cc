@@ -61,7 +61,6 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
   jet_radius_(iConfig.getParameter<double>("jet_radius")),
-  jet_unc_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets_uncorrected"))),
   jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
@@ -87,9 +86,6 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jet_token_, jets);
 
-  edm::Handle<edm::View<reco::Jet>> jets_unc;
-  iEvent.getByToken(jet_unc_token_, jets_unc);
-
   edm::Handle<VertexCollection> vtxs;
   iEvent.getByToken(vtx_token_, vtxs);
   // reference to primary vertex
@@ -110,7 +106,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     deep::DeepFlavourFeatures features;
 
     const auto & jet = dynamic_cast<const pat::Jet &>(jets->at(jet_n));
-    edm::RefToBase<reco::Jet> jet_ref(jets_unc, jet_n);
+    edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
     edm::Ptr<reco::ShallowTagInfo> match;
