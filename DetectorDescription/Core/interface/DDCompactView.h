@@ -5,16 +5,16 @@
 #include <memory>
 #include <string>
 #include <utility>
-# include <vector>
+#include <vector>
 
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/Store.h"
-# include "DetectorDescription/Core/interface/DDLogicalPart.h"
-# include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
-# include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/Graph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 
 class DDCompactViewImpl;
 class DDDivision;
@@ -92,19 +92,19 @@ class DDCompactView
  
 public:
   //! container-type of children of a given node in the compact-view
-  typedef std::vector<DDLogicalPart> logchild_type;
+  using logchild_type = std::vector<DDLogicalPart>;
   
   //! container-type of pairs of children nodes and their relative position data of a given node in the compact-view
-  typedef std::vector< std::pair<DDLogicalPart,DDPosData*> > poschildren_type;
+  using poschildren_type = std::vector< std::pair<DDLogicalPart,DDPosData*>>;
   
   //! pair ...
-  typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
+  using pos_type = std::pair<DDLogicalPart,DDPosData*>;
   
-  typedef graphwalker<DDLogicalPart,DDPosData*> walker_type;
+  using walker_type = graphwalker<DDLogicalPart,DDPosData*>;
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;
+  using graph_type = ::Graph<DDLogicalPart,DDPosData*>;
     
   //! Creates a compact-view 
   explicit DDCompactView();

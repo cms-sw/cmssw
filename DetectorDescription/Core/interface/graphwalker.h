@@ -1,29 +1,26 @@
-#ifndef x_graphwalker_h
-#define x_graphwalker_h
+#ifndef DETECTOR_DESCRIPTION_CORE_GRAPH_WALKER_H
+#define DETECTOR_DESCRIPTION_CORE_GRAPH_WALKER_H
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
-
-#include <vector>
+#include "DetectorDescription/Core/interface/Graph.h"
 #include <queue>
-
-//#include <iostream> // debug
+#include <vector>
 
 /** a walker for an acyclic directed multigraph */
 template <class N, class E>
 class graphwalker
 {
 public:
-  typedef typename graph<N,E>::index_type index_type;
+  typedef typename Graph<N,E>::index_type index_type;
   
-  typedef typename graph<N,E>::index_result index_result;
+  typedef typename Graph<N,E>::index_result index_result;
 
-  typedef typename graph<N,E>::edge_type edge_type;
+  typedef typename Graph<N,E>::edge_type edge_type;
   
-  typedef typename graph<N,E>::edge_list edge_list;
+  typedef typename Graph<N,E>::edge_list edge_list;
   
-  typedef typename graph<N,E>::edge_iterator edge_iterator;
+  typedef typename Graph<N,E>::edge_iterator edge_iterator;
   
-  typedef typename graph<N,E>::const_edge_iterator const_edge_iterator;
+  typedef typename Graph<N,E>::const_edge_iterator const_edge_iterator;
   
   // only a const-edge_range!
   typedef typename std::pair<const_edge_iterator, const_edge_iterator> edge_range;
@@ -35,15 +32,15 @@ public:
 
   typedef bool /*std::pair<const N &, bool>*/ result_type;
   
-  typedef typename graph<N,E>::value_type value_type;
+  typedef typename Graph<N,E>::value_type value_type;
   
   
 public:
-  //! creates a walker rooted by the first candidate root found in the underlying graph
-  graphwalker(const graph<N,E> &);
+  //! creates a walker rooted by the first candidate root found in the underlying Graph
+  graphwalker(const Graph<N,E> &);
 
   //! creates a walker rooted by the node given
-  graphwalker(const graph<N,E> &, const N & );
+  graphwalker(const Graph<N,E> &, const N & );
    
   // operations
   
@@ -70,17 +67,15 @@ protected:
   bfs_type queue_; // breath first search queue
   edge_list root_; // root of the walker
   //std::vector<N> rootCandidates_; 
-  const graph<N,E> & graph_;
+  const Graph<N,E> & graph_;
   //jklsdfjklsdfkljsdfakjl;
 private:
   graphwalker();
 
 };
 
-
-
 template<class N, class E>
-graphwalker<N,E>::graphwalker(const graph<N,E> & g)
+graphwalker<N,E>::graphwalker(const Graph<N,E> & g)
  : graph_(g)
 {  // complexity = (no nodes) * (no edges)
    graph_.findRoots(root_);
@@ -92,7 +87,7 @@ graphwalker<N,E>::graphwalker(const graph<N,E> & g)
 
 
 template<class N, class E>
-graphwalker<N,E>::graphwalker(const graph<N,E> & g, const N & root)
+graphwalker<N,E>::graphwalker(const Graph<N,E> & g, const N & root)
  : graph_(g)
 {
    index_result rr = graph_.nodeIndex(root);
@@ -152,7 +147,6 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::firstChild()
    return result;
 }
 
-
 template<class N, class E>
 typename graphwalker<N,E>::result_type graphwalker<N,E>::nextSibling()
 {
@@ -166,7 +160,6 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::nextSibling()
    //}
    return result;
 }
-
 
 template<class N, class E>
 typename graphwalker<N,E>::result_type graphwalker<N,E>::parent()
@@ -220,4 +213,5 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::next_bfs()
    }
    return result;
 }
+
 #endif

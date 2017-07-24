@@ -1,16 +1,14 @@
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Core/interface/graph_util.h"
-//#include "DDD/RegressionTest/src/TagName.h"
 
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-typedef graph<string,string> graph_type;
-
-typedef graphwalker<string,string> walker_type;
+using graph_type = Graph<string,string>;
+using walker_type = graphwalker<string,string>;
 
 void build_graph(graph_type & g)
 {

@@ -16,7 +16,7 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 //**** to get rid of compile errors about ambiguous delete of Stores
@@ -198,7 +198,7 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
   if (result_.size()) return result_;
  
   // build the material dependency graph
-  typedef graph<DDSolid,double> ma_graph_t;
+  typedef Graph<DDSolid,double> ma_graph_t;
   typedef graphwalker<DDSolid,double> ma_walker_t;
     
   ma_graph_t mag;
