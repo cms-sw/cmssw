@@ -97,30 +97,5 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     
 }
 
-/*
-void HGCalMulticlusteringImpl::showerShape3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtr){
 
-    Nlayers_=0;
-    EMax_=0; //Maximum energy deposited in a layer
-    SeeTot_=0; //SigmaEtaEta considering all TC in 3DC
-    SeeMax_=0; //Maximum SigmaEtaEta in a layer
-    SppTot_=0; //same but for SigmaPhiPhi
-    SppMax_=0;
-
-    HGCalShowerShape *shape=new HGCalShowerShape();
-    //shape->Init3D(clustersPtr);
-    shape->makeHGCalProfile(clustersPtr);
-    Nlayers_=shape->nLayers();
-    cout<<" MulticlusteringImpl : Nlayers "<<Nlayers_<<endl;
-    SeeTot_=shape->SigmaEtaEta();
-    SppTot_=shape->SigmaPhiPhi();
-    EMax_= shape->EMax();
-    SeeMax_= shape->SigmaEtaEtaMax();
-    SppMax_= shape->SigmaPhiPhiMax();
-
-
-
-}
-
-*/
 

@@ -18,7 +18,6 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
   private:
     virtual void clear() override final;
 
-
     edm::EDGetToken multiclusters_token_;
 
     int cl3d_n_ ;

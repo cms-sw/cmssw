@@ -155,7 +155,6 @@ namespace l1t
       float See2D() const { return See2D_; }
       float Spp2D() const { return Spp2D_; }
 
-
       void setNlayers(int Nlayers) { Nlayers_ = Nlayers;}
       void setfirstLayer(int firstLayer) { firstLayer_ = firstLayer;}
       void setEMax(float EMax) { EMax_ = EMax;}
@@ -184,6 +183,8 @@ namespace l1t
 
       double mipPt_;
       double seedMipPt_;
+
+      //shower shape
 
       int Nlayers_;
       int firstLayer_;
