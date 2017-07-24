@@ -255,6 +255,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
                                              drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
+        if (pf_jet) { 
         // need some edm::Ptr or edm::Ref
         auto reco_ptr = pf_jet->getPFConstituent(i);
         // get PUPPI weight from value map
@@ -264,6 +265,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
                                            pv_ass_quality, c_pf_features);
+        }
       }
     } else {
       // is neutral candidate
@@ -275,6 +277,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
                                             n_pf_features);
       } else if (reco_cand) {
+        if (pf_jet) { 
         // need some edm::Ptr or edm::Ref
         auto reco_ptr = pf_jet->getPFConstituent(i);
         // get PUPPI weight from value map
@@ -282,6 +285,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         deep::n_pf_reco_features_converter(reco_cand, jet,
                                            drminpfcandsv, puppiw,
                                            n_pf_features);
+        }
       }
     }
 
