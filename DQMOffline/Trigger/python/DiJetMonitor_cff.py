@@ -6,21 +6,11 @@ from DQMOffline.Trigger.DiJetMonitor_cfi import DiPFjetAve40_Prommonitoring
 DiPFjetAve60_Prommonitoring = DiPFjetAve40_Prommonitoring.clone()
 DiPFjetAve60_Prommonitoring.FolderName = cms.string('HLT/JetMET/HLT_DiPFJetAve60/')
 DiPFjetAve60_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiPFJetAve60_v*")
-#DiPFjetAve60_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
-#  nbins = cms.uint32 (  60),
-#  xmin  = cms.double(   0.),
-#  xmax  = cms.double(1000),
-#)
 
 # DiPFjetAve80
 DiPFjetAve80_Prommonitoring = DiPFjetAve40_Prommonitoring.clone()
 DiPFjetAve80_Prommonitoring.FolderName = cms.string('HLT/JetMET/HLT_DiPFJetAve80/')
 DiPFjetAve80_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiPFJetAve80_v*")
-#DiPFjetAve80_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
-#  nbins = cms.uint32 (  80),
-#  xmin  = cms.double(   0.),
-#  xmax  = cms.double(1000),
-#)
 
 # DiPFjetAve140
 DiPFjetAve140_Prommonitoring = DiPFjetAve40_Prommonitoring.clone()
@@ -81,22 +71,6 @@ DiPFJetAve220_HFJEC_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vst
 DiPFJetAve300_HFJEC_Prommonitoring = DiPFjetAve40_Prommonitoring.clone()
 DiPFJetAve300_HFJEC_Prommonitoring.FolderName = cms.string('HLT/JetMET/HLT_DiPFJetAve300_HFJEC/')
 DiPFJetAve300_HFJEC_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiPFJetAve300_HFJEC_v*")
-#HLT_DiPFJetAve40
-#HLT_DiPFJetAve60
-#HLT_DiPFJetAve80
-#HLT_DiPFJetAve140
-#HLT_DiPFJetAve200
-#HLT_DiPFJetAve260
-#HLT_DiPFJetAve320
-#HLT_DiPFJetAve400
-#HLT_DiPFJetAve500
-#HLT_DiPFJetAve60_HFJEC
-#HLT_DiPFJetAve80_HFJEC
-#HLT_DiPFJetAve100_HFJEC
-#HLT_DiPFJetAve160_HFJEC
-#HLT_DiPFJetAve220_HFJEC
-#HLT_DiPFJetAve300_HFJEC
-
 
 HLTDiJetmonitoring = cms.Sequence(
     DiPFjetAve40_Prommonitoring
