@@ -53,7 +53,9 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<VertexCollection> vtx_token_;
     edm::EDGetTokenT<SVCollection> sv_token_;
     edm::EDGetTokenT<ShallowTagInfoCollection> shallow_tag_info_token_;
-    edm::EDGetTokenT<ShallowTagInfoCollection> puppi_value_map_token_;
+    edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
+
+    bool use_puppi_value_map_;
     
 
 
@@ -64,9 +66,16 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
-  shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos")))
+  shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
+  use_puppi_value_map_(false)
 {
   produces<DeepFlavourTagInfoCollection>();
+
+  const auto & puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  if (!puppi_value_map_tag.label().empty()) {
+    puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
+    use_puppi_value_map_ = true;
+  }
 }
 
 
@@ -96,6 +105,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   edm::Handle<ShallowTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
+
+  edm::Handle<edm::ValueMap<float>> puppi_value_map;
+  if (use_puppi_value_map_) { 
+    iEvent.getByToken(puppi_value_map_token_, puppi_value_map);
+  }
 
   edm::ESHandle<TransientTrackBuilder> track_builder; 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
@@ -205,8 +219,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
 
     // get pointer and check that is correct
-    auto cand = dynamic_cast<const pat::PackedCandidate *>(jet.daughter(i));
+    auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
     if(!cand) continue;
+    auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
+    auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
 
     float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, cand);
     
@@ -218,16 +234,32 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       // get_ref to vector element
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
-      deep::c_pf_features_converter(cand, jet, trackinfo, 
-                                    drminpfcandsv, c_pf_features);
+      if (packed_cand) {
+        deep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
+                                             drminpfcandsv, c_pf_features);
+      } else if (reco_cand) {
+        float puppiw = 0.0;
+        float pv_ass_quality = 0.0;
+        deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
+                                           drminpfcandsv, puppiw,
+                                           pv_ass_quality,
+                                           c_pf_features);
+      }
     } else {
       // is neutral candidate
       auto entry = n_sortedindices.at(i);
       // get_ref to vector element
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure 
-      deep::n_pf_features_converter(cand, jet, drminpfcandsv, 
-                                   n_pf_features);
+      if (packed_cand) {
+        deep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
+                                            n_pf_features);
+      } else if (reco_cand) {
+        float puppiw = 0.0;
+        deep::n_pf_reco_features_converter(reco_cand, jet,
+                                           drminpfcandsv, puppiw,
+                                           n_pf_features);
+      }
     }
 
     

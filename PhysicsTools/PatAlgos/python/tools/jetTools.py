@@ -554,7 +554,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pfDeepFlavourTagInfos.clone(
                                       jets = jetSource,
                                       vertices=pvSource,
-                                      secondary_vertices=svSource),
+                                      secondary_vertices=svSource,
+                                      puppi_value_map = "", # so it is not used
+                                      ),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
