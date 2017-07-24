@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJet.JetProducers.ECFAdder_cfi import ECFAdder
+from RecoJets.JetProducers.ECFAdder_cfi import ECFAdder
 
 ecf = ECFAdder.clone(
              src = cms.InputTag("ak8CHSJets"),

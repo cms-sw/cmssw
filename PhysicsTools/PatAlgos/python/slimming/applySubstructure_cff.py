@@ -103,13 +103,13 @@ def applySubstructure( process, postfix="" ) :
 
 
     # add groomed ECFs and N-subjettiness to soft dropped pat::Jets for fat jets and subjets
-    process.load('RecoJets.JetProducers.ECF_cfi')
-    addToProcessAndTask('Nb1AK8PuppiSoftDrop'+postfix, process.ECFNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
-    addToProcessAndTask('Nb2AK8PuppiSoftDrop'+postfix, process.ECFNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
+    process.load('RecoJets.JetProducers.ECF_cff')
+    addToProcessAndTask('Nb1AK8PuppiSoftDrop'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
+    addToProcessAndTask('Nb2AK8PuppiSoftDrop'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
     getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['Nb1AK8PuppiSoftDrop'+postfix+':ecfN2','Nb1AK8PuppiSoftDrop'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['Nb2AK8PuppiSoftDrop'+postfix+':ecfN2','Nb2AK8PuppiSoftDrop'+postfix+':ecfN3']
-    addToProcessAndTask('Nb1AK8PuppiSoftDropSubjets'+postfix, process.ECFNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
-    addToProcessAndTask('Nb2AK8PuppiSoftDropSubjets'+postfix, process.ECFNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
+    addToProcessAndTask('Nb1AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
+    addToProcessAndTask('Nb2AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['Nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN2','Nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['Nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','Nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3']
