@@ -48,9 +48,9 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     default: electronPlots = false; muonPlots = false; tauPlots = false;
   }
 
-  if (etaRanges.size() == 0)
+  if (etaRanges.size() <= 1)
       etaRanges = { pSet.getParameter<double>("etaMin"), pSet.getParameter<double>("etaMax") };
-  if (ptRanges.size() == 0)
+  if (ptRanges.size() <= 1)
       ptRanges = { pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax") };
   
   genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
@@ -111,9 +111,10 @@ void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker & ibook, edm::R
 
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
-  const int iEtaEnd   = etaRanges.size() - 1 ;
+  const int iEtaEnd   = etaRanges.size() > 2 ? etaRanges.size() - 1 : 0; // if there is only one bin defined, leave it as the inactive one
   const int iPtStart  = -1                   ;  // this will be the inactive one
-  const int iPtEnd    = ptRanges.size() - 1  ;
+  const int iPtEnd    = ptRanges.size() > 2 ? ptRanges.size() - 1 : 0; // if there is only one bin defined, leave it as the inactive one
+
   setTDRStyle();
 
   TagInfoPlotterFactory theFactory;

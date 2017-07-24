@@ -29,9 +29,9 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   jecMCToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceMC" ));
   jecDataToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceData" ));
   
-  if (etaRanges.size() == 0)
+  if (etaRanges.size() <= 1)
       etaRanges = { pSet.getParameter<double>("etaMin"), pSet.getParameter<double>("etaMax") };
-  if (ptRanges.size() == 0)
+  if (ptRanges.size() <= 1)
       ptRanges = { pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax") };
   
   for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin();
@@ -82,9 +82,9 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
 
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
-  const int iEtaEnd   = etaRanges.size() - 1 ;
+  const int iEtaEnd   = etaRanges.size() > 2 ? etaRanges.size() - 1 : 0; // if there is only one bin defined, leave it as the inactive one
   const int iPtStart  = -1                   ;  // this will be the inactive one
-  const int iPtEnd    = ptRanges.size() - 1  ;
+  const int iPtEnd    = ptRanges.size() > 2 ? ptRanges.size() - 1 : 0; // if there is only one bin defined, leave it as the inactive one
   setTDRStyle();
 
   TagInfoPlotterFactory theFactory;
