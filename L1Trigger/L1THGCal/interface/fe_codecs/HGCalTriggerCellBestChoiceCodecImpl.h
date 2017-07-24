@@ -54,6 +54,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         double   tdcOnsetfC() const {return tdcOnsetfC_;}
         uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
         uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
+        std::vector<double> ThicknessCorrections() const {return thickness_corrections_;}
 
 
     private:
