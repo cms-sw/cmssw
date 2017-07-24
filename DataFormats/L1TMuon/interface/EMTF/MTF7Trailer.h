@@ -13,14 +13,8 @@ namespace l1t {
     public:
       explicit MTF7Trailer(uint64_t dataword); 
       
-    // Empty constructor
     MTF7Trailer() :
       crc_32(-99), lv1_id(-99), data_length(-99), format_errors(0), dataword(-99)
-	{};
-      
-    // Fill constructor
-    MTF7Trailer(int int_crc_32, int int_lv1_id, int int_data_length) :
-      crc_32(int_crc_32), lv1_id(int_lv1_id), data_length(int_data_length), format_errors(0), dataword(-99)
 	{};
       
       virtual ~MTF7Trailer() {};
@@ -31,11 +25,11 @@ namespace l1t {
       void add_format_error()          { format_errors += 1; }
       void set_dataword(uint64_t bits) { dataword = bits;    }
 
-      int      CRC_32()        const { return crc_32;        }
-      int      LV1_id()        const { return lv1_id;        }
-      int      Data_length()   const { return data_length;   }
-      int      Format_Errors() const { return format_errors; }
-      uint64_t Dataword()      const { return dataword;      }
+      int CRC_32()        const { return crc_32;        }
+      int LV1_id()        const { return lv1_id;        }
+      int Data_length()   const { return data_length;   }
+      int Format_errors() const { return format_errors; }
+      uint64_t Dataword() const { return dataword;      }
       
     private:
       int crc_32;
