@@ -1,6 +1,6 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

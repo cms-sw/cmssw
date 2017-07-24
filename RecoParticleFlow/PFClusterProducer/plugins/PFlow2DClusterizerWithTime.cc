@@ -64,7 +64,7 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _recHitEnergyNorms.emplace(_layerMap.find(det)->second,rhE_norm);
   }
   
-  _allCellsPosCalc.reset(NULL);
+  _allCellsPosCalc.reset(nullptr);
   if( conf.exists("allCellsPositionCalc") ) {
     const edm::ParameterSet& acConf = 
       conf.getParameterSet("allCellsPositionCalc");
@@ -75,7 +75,7 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _allCellsPosCalc.reset(accalc);
   }
   // if necessary a third pos calc for convergence testing
-  _convergencePosCalc.reset(NULL);
+  _convergencePosCalc.reset(nullptr);
   if( conf.exists("positionCalcForConvergence") ) {
     const edm::ParameterSet& convConf = 
       conf.getParameterSet("positionCalcForConvergence");
@@ -85,14 +85,14 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
       PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
     _convergencePosCalc.reset(convcalc);
   }
-  _timeResolutionCalcBarrel.reset(NULL);
+  _timeResolutionCalcBarrel.reset(nullptr);
   if( conf.exists("timeResolutionCalcBarrel") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcBarrel");
       _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(
         timeResConf));
   }
-  _timeResolutionCalcEndcap.reset(NULL);
+  _timeResolutionCalcEndcap.reset(nullptr);
   if( conf.exists("timeResolutionCalcEndcap") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcEndcap");

@@ -2,6 +2,13 @@ import FWCore.ParameterSet.Config as cms
 import copy
 from EventFilter.EcalRawToDigi.EcalUnpackerData_cfi import ecalEBunpacker
 from Calibration.EcalCalibAlgos.ecalPedestalPCLworker_cfi import ecalpedestalPCL
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+
+ALCARECOEcalTestPulsesRaw = copy.deepcopy(hltHighLevel)
+ALCARECOEcalTestPulsesRaw.HLTPaths = ['pathALCARECOEcalTestPulsesRaw']
+# dont throw on unknown path names
+ALCARECOEcalTestPulsesRaw.throw = True
+ALCARECOEcalTestPulsesRaw.TriggerResultsTag = cms.InputTag("TriggerResults", "", "RECO")
 
 ALCARECOEcalPedestalsDigis = ecalEBunpacker.clone()
 ALCARECOEcalPedestalsDigis.InputLabel = cms.InputTag('hltEcalCalibrationRaw')
@@ -23,6 +30,7 @@ MEtoEDMConvertEcalPedestals = cms.EDProducer("MEtoEDMConverter",
                                              )
 
 # The actual sequence
-seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCARECOEcalPedestalsDigis *
+seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCARECOEcalTestPulsesRaw *
+                                                       ALCARECOEcalPedestalsDigis *
                                                        ALCARECOEcalPedestals *
                                                        MEtoEDMConvertEcalPedestals)

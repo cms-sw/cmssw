@@ -1,7 +1,7 @@
 #ifndef Geometry_RPCSimAlgo_RPCRoll_H
 #define Geometry_RPCSimAlgo_RPCRoll_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

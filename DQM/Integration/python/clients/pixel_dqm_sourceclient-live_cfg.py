@@ -86,7 +86,9 @@ elif(offlineTesting):
 
 # Real data raw to digi
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
+process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
 
 process.siPixelDigis.IncludeErrors = True
 
@@ -141,7 +143,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
 
 else:
-    process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+    process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siPixelClusters)
 
 process.p = cms.Path(
   process.hltHighLevel #trigger selection

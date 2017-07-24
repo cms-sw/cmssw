@@ -45,7 +45,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"

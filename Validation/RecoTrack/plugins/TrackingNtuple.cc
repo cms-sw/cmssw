@@ -56,6 +56,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
@@ -84,6 +85,8 @@
 #include "HepPDT/ParticleID.hh"
 
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
+
+#include "RecoTracker/FinalTrackSelectors/plugins/getBestVertex.h"
 
 #include <set>
 #include <map>
@@ -369,6 +372,9 @@ private:
     Unknown = 99
   };
 
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
+
   struct TPHitIndex {
     TPHitIndex(unsigned int tp=0, unsigned int simHit=0, float to=0, unsigned int id=0): tpKey(tp), simHitIdx(simHit), tof(to), detId(id) {}
     unsigned int tpKey;
@@ -443,11 +449,14 @@ private:
                   const TrackingParticleRefVector& tpCollection,
                   const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                   const reco::BeamSpot& bs,
+                  const reco::VertexCollection& vertices,
                   const reco::TrackToTrackingParticleAssociator& associatorByHits,
                   const TransientTrackingRecHitBuilder& theTTRHBuilder,
                   const TrackerTopology& tTopo,
                   const std::set<edm::ProductID>& hitProductIds,
-                  const std::map<edm::ProductID, size_t>& seedToCollIndex
+                  const std::map<edm::ProductID, size_t>& seedToCollIndex,
+                  const std::vector<const MVACollection *>& mvaColls,
+                  const std::vector<const QualityMaskCollection *>& qualColls
                   );
 
   void fillSimHits(const TrackerGeometry& tracker,
@@ -505,6 +514,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > seedTokens_;
   std::vector<edm::EDGetTokenT<std::vector<short> > > seedStopReasonTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+  std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityCollectionTokens_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
   edm::EDGetTokenT<TrackingParticleRefVector> trackingParticleRefToken_;
   edm::EDGetTokenT<ClusterTPAssociation> clusterTPMapToken_;
@@ -529,6 +539,8 @@ private:
   std::string parametersDefinerName_;
   const bool includeSeeds_;
   const bool includeAllHits_;
+  const bool includeMVA_;
+  const bool includeTrackingParticles_;
 
   HistoryBase tracer_;
 
@@ -834,6 +846,10 @@ private:
   std::vector<float> trk_phi      ;
   std::vector<float> trk_dxy      ;
   std::vector<float> trk_dz       ;
+  std::vector<float> trk_dxyPV    ;
+  std::vector<float> trk_dzPV     ;
+  std::vector<float> trk_dxyClosestPV;
+  std::vector<float> trk_dzClosestPV;
   std::vector<float> trk_ptErr    ;
   std::vector<float> trk_etaErr   ;
   std::vector<float> trk_lambdaErr;
@@ -844,16 +860,21 @@ private:
   std::vector<float> trk_refpoint_y;
   std::vector<float> trk_refpoint_z;
   std::vector<float> trk_nChi2    ;
+  std::vector<float> trk_nChi2_1Dmod;
+  std::vector<float> trk_ndof    ;
+  std::vector<std::vector<float>> trk_mvas;
+  std::vector<std::vector<unsigned short>> trk_qualityMasks;
   std::vector<int> trk_q       ;
   std::vector<unsigned int> trk_nValid  ;
   std::vector<unsigned int> trk_nInvalid;
   std::vector<unsigned int> trk_nPixel  ;
   std::vector<unsigned int> trk_nStrip  ;
+  std::vector<unsigned int> trk_nOuterLost;
+  std::vector<unsigned int> trk_nInnerLost;
   std::vector<unsigned int> trk_nPixelLay;
   std::vector<unsigned int> trk_nStripLay;
   std::vector<unsigned int> trk_n3DLay  ;
-  std::vector<unsigned int> trk_nOuterLost;
-  std::vector<unsigned int> trk_nInnerLost;
+  std::vector<unsigned int> trk_nLostLay;
   std::vector<unsigned int> trk_algo    ;
   std::vector<unsigned int> trk_originalAlgo;
   std::vector<decltype(reco::TrackBase().algoMaskUL())> trk_algoMask;
@@ -861,6 +882,7 @@ private:
   std::vector<short> trk_isHP    ;
   std::vector<int> trk_seedIdx ;
   std::vector<int> trk_vtxIdx;
+  std::vector<short> trk_isTrue;
   std::vector<std::vector<float> > trk_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_hitIdx;      // second index runs through hits
@@ -1046,6 +1068,7 @@ private:
   std::vector<unsigned int> see_algo    ;
   std::vector<unsigned short> see_stopReason;
   std::vector<int> see_trkIdx;
+  std::vector<short> see_isTrue;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_hitIdx;      // second index runs through hits
@@ -1110,7 +1133,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   builderName_(iConfig.getUntrackedParameter<std::string>("TTRHBuilder")),
   parametersDefinerName_(iConfig.getUntrackedParameter<std::string>("parametersDefiner")),
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
-  includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits"))
+  includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
+  includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
+  includeTrackingParticles_(iConfig.getUntrackedParameter<bool>("includeTrackingParticles"))
 {
   if(includeSeeds_) {
     seedTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("seedTracks"), [&](const edm::InputTag& tag) {
@@ -1144,6 +1169,14 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
 
   tracer_.depth(-2); // as in SimTracker/TrackHistory/src/TrackClassifier.cc
 
+  if(includeMVA_) {
+    mvaQualityCollectionTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<std::string> >("trackMVAs"),
+                                                        [&](const std::string& tag) {
+                                                          return std::make_tuple(consumes<MVACollection>(edm::InputTag(tag, "MVAValues")),
+                                                                                 consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
+                                                        });
+  }
+
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   t = fs->make<TTree>("tree","tree");
@@ -1171,6 +1204,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_phi"      , &trk_phi);
   t->Branch("trk_dxy"      , &trk_dxy      );
   t->Branch("trk_dz"       , &trk_dz       );
+  t->Branch("trk_dxyPV"    , &trk_dxyPV    );
+  t->Branch("trk_dzPV"     , &trk_dzPV     );
+  t->Branch("trk_dxyClosestPV", &trk_dxyClosestPV    );
+  t->Branch("trk_dzClosestPV", &trk_dzClosestPV     );
   t->Branch("trk_ptErr"    , &trk_ptErr    );
   t->Branch("trk_etaErr"   , &trk_etaErr   );
   t->Branch("trk_lambdaErr", &trk_lambdaErr);
@@ -1181,16 +1218,31 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_refpoint_y", &trk_refpoint_y);
   t->Branch("trk_refpoint_z", &trk_refpoint_z);
   t->Branch("trk_nChi2"    , &trk_nChi2);
+  t->Branch("trk_nChi2_1Dmod", &trk_nChi2_1Dmod);
+  t->Branch("trk_ndof"     , &trk_ndof);
+  if(includeMVA_) {
+    trk_mvas.resize(mvaQualityCollectionTokens_.size());
+    trk_qualityMasks.resize(mvaQualityCollectionTokens_.size());
+    if(!trk_mvas.empty()) {
+      t->Branch("trk_mva"    , &(trk_mvas[0]));
+      t->Branch("trk_qualityMask", &(trk_qualityMasks[0]));
+      for(size_t i=1; i<trk_mvas.size(); ++i) {
+        t->Branch(("trk_mva"+std::to_string(i+1)).c_str(), &(trk_mvas[i]));
+        t->Branch(("trk_qualityMask"+std::to_string(i+1)).c_str(), &(trk_qualityMasks[i]));
+      }
+    }
+  }
   t->Branch("trk_q"        , &trk_q);
   t->Branch("trk_nValid"   , &trk_nValid  );
   t->Branch("trk_nInvalid" , &trk_nInvalid);
   t->Branch("trk_nPixel"   , &trk_nPixel  );
   t->Branch("trk_nStrip"   , &trk_nStrip  );
+  t->Branch("trk_nOuterLost", &trk_nOuterLost  );
+  t->Branch("trk_nInnerLost", &trk_nInnerLost  );
   t->Branch("trk_nPixelLay", &trk_nPixelLay);
   t->Branch("trk_nStripLay", &trk_nStripLay);
   t->Branch("trk_n3DLay"   , &trk_n3DLay  );
-  t->Branch("trk_nOuterLost", &trk_nOuterLost  );
-  t->Branch("trk_nInnerLost", &trk_nInnerLost  );
+  t->Branch("trk_nLostLay"   , &trk_nLostLay  );
   t->Branch("trk_algo"     , &trk_algo    );
   t->Branch("trk_originalAlgo", &trk_originalAlgo);
   t->Branch("trk_algoMask" , &trk_algoMask);
@@ -1200,47 +1252,54 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("trk_seedIdx"  , &trk_seedIdx );
   }
   t->Branch("trk_vtxIdx"   , &trk_vtxIdx);
-  t->Branch("trk_shareFrac", &trk_shareFrac);
-  t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
+  if(includeTrackingParticles_) {
+    t->Branch("trk_shareFrac", &trk_shareFrac);
+    t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
+  }
+  else {
+    t->Branch("trk_isTrue",    &trk_isTrue);
+  }
   if(includeAllHits_) {
     t->Branch("trk_hitIdx" , &trk_hitIdx);
     t->Branch("trk_hitType", &trk_hitType);
   }
-  //sim tracks
-  t->Branch("sim_event"    , &sim_event    );
-  t->Branch("sim_bunchCrossing", &sim_bunchCrossing);
-  t->Branch("sim_pdgId"    , &sim_pdgId    );
-  t->Branch("sim_genPdgIds", &sim_genPdgIds);
-  t->Branch("sim_isFromBHadron", &sim_isFromBHadron);
-  t->Branch("sim_px"       , &sim_px       );
-  t->Branch("sim_py"       , &sim_py       );
-  t->Branch("sim_pz"       , &sim_pz       );
-  t->Branch("sim_pt"       , &sim_pt       );
-  t->Branch("sim_eta"      , &sim_eta      );
-  t->Branch("sim_phi"      , &sim_phi      );
-  t->Branch("sim_pca_pt"   , &sim_pca_pt  );
-  t->Branch("sim_pca_eta"  , &sim_pca_eta  );
-  t->Branch("sim_pca_lambda", &sim_pca_lambda);
-  t->Branch("sim_pca_cotTheta", &sim_pca_cotTheta);
-  t->Branch("sim_pca_phi"  , &sim_pca_phi  );
-  t->Branch("sim_pca_dxy"  , &sim_pca_dxy  );
-  t->Branch("sim_pca_dz"   , &sim_pca_dz   );
-  t->Branch("sim_q"        , &sim_q        );
-  t->Branch("sim_nValid"   , &sim_nValid   );
-  t->Branch("sim_nPixel"   , &sim_nPixel   );
-  t->Branch("sim_nStrip"   , &sim_nStrip   );
-  t->Branch("sim_nLay"     , &sim_nLay     );
-  t->Branch("sim_nPixelLay", &sim_nPixelLay);
-  t->Branch("sim_n3DLay"   , &sim_n3DLay   );
-  t->Branch("sim_trkIdx"   , &sim_trkIdx   );
-  t->Branch("sim_shareFrac", &sim_shareFrac);
-  if(includeSeeds_) {
-    t->Branch("sim_seedIdx"   , &sim_seedIdx   );
-  }
-  t->Branch("sim_parentVtxIdx", &sim_parentVtxIdx);
-  t->Branch("sim_decayVtxIdx", &sim_decayVtxIdx);
-  if(includeAllHits_) {
-    t->Branch("sim_simHitIdx" , &sim_simHitIdx );
+  if(includeTrackingParticles_) {
+    //sim tracks
+    t->Branch("sim_event"    , &sim_event    );
+    t->Branch("sim_bunchCrossing", &sim_bunchCrossing);
+    t->Branch("sim_pdgId"    , &sim_pdgId    );
+    t->Branch("sim_genPdgIds", &sim_genPdgIds);
+    t->Branch("sim_isFromBHadron", &sim_isFromBHadron);
+    t->Branch("sim_px"       , &sim_px       );
+    t->Branch("sim_py"       , &sim_py       );
+    t->Branch("sim_pz"       , &sim_pz       );
+    t->Branch("sim_pt"       , &sim_pt       );
+    t->Branch("sim_eta"      , &sim_eta      );
+    t->Branch("sim_phi"      , &sim_phi      );
+    t->Branch("sim_pca_pt"   , &sim_pca_pt  );
+    t->Branch("sim_pca_eta"  , &sim_pca_eta  );
+    t->Branch("sim_pca_lambda", &sim_pca_lambda);
+    t->Branch("sim_pca_cotTheta", &sim_pca_cotTheta);
+    t->Branch("sim_pca_phi"  , &sim_pca_phi  );
+    t->Branch("sim_pca_dxy"  , &sim_pca_dxy  );
+    t->Branch("sim_pca_dz"   , &sim_pca_dz   );
+    t->Branch("sim_q"        , &sim_q        );
+    t->Branch("sim_nValid"   , &sim_nValid   );
+    t->Branch("sim_nPixel"   , &sim_nPixel   );
+    t->Branch("sim_nStrip"   , &sim_nStrip   );
+    t->Branch("sim_nLay"     , &sim_nLay     );
+    t->Branch("sim_nPixelLay", &sim_nPixelLay);
+    t->Branch("sim_n3DLay"   , &sim_n3DLay   );
+    t->Branch("sim_trkIdx"   , &sim_trkIdx   );
+    t->Branch("sim_shareFrac", &sim_shareFrac);
+    if(includeSeeds_) {
+      t->Branch("sim_seedIdx"   , &sim_seedIdx   );
+    }
+    t->Branch("sim_parentVtxIdx", &sim_parentVtxIdx);
+    t->Branch("sim_decayVtxIdx", &sim_decayVtxIdx);
+    if(includeAllHits_) {
+      t->Branch("sim_simHitIdx" , &sim_simHitIdx );
+    }
   }
   if(includeAllHits_) {
     //pixels
@@ -1389,8 +1448,13 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_algo"     , &see_algo    );
     t->Branch("see_stopReason", &see_stopReason);
     t->Branch("see_trkIdx"   , &see_trkIdx  );
-    t->Branch("see_shareFrac", &see_shareFrac);
-    t->Branch("see_simTrkIdx", &see_simTrkIdx  );
+    if(includeTrackingParticles_) {
+      t->Branch("see_shareFrac", &see_shareFrac);
+      t->Branch("see_simTrkIdx", &see_simTrkIdx  );
+    }
+    else {
+      t->Branch("see_isTrue", &see_isTrue);
+    }
     if(includeAllHits_) {
       t->Branch("see_hitIdx" , &see_hitIdx  );
       t->Branch("see_hitType", &see_hitType );
@@ -1462,6 +1526,10 @@ void TrackingNtuple::clearVariables() {
   trk_phi      .clear();
   trk_dxy      .clear();
   trk_dz       .clear();
+  trk_dxyPV    .clear();
+  trk_dzPV     .clear();
+  trk_dxyClosestPV.clear();
+  trk_dzClosestPV.clear();
   trk_ptErr    .clear();
   trk_etaErr   .clear();
   trk_lambdaErr.clear();
@@ -1472,16 +1540,25 @@ void TrackingNtuple::clearVariables() {
   trk_refpoint_y.clear();
   trk_refpoint_z.clear();
   trk_nChi2    .clear();
+  trk_nChi2_1Dmod.clear();
+  trk_ndof     .clear();
+  for(auto& mva: trk_mvas) {
+    mva.clear();
+  }
+  for(auto& mask: trk_qualityMasks) {
+    mask.clear();
+  }
   trk_q        .clear();
   trk_nValid   .clear();
   trk_nInvalid .clear();
   trk_nPixel   .clear();
   trk_nStrip   .clear();
+  trk_nOuterLost.clear();
+  trk_nInnerLost.clear();
   trk_nPixelLay.clear();
   trk_nStripLay.clear();
   trk_n3DLay   .clear();
-  trk_nOuterLost.clear();
-  trk_nInnerLost.clear();
+  trk_nLostLay   .clear();
   trk_algo     .clear();
   trk_originalAlgo.clear();
   trk_algoMask .clear();
@@ -1489,6 +1566,7 @@ void TrackingNtuple::clearVariables() {
   trk_isHP     .clear();
   trk_seedIdx  .clear();
   trk_vtxIdx   .clear();
+  trk_isTrue   .clear();
   trk_shareFrac.clear();
   trk_simTrkIdx.clear();
   trk_hitIdx   .clear();
@@ -1655,8 +1733,10 @@ void TrackingNtuple::clearVariables() {
   see_algo    .clear();
   see_stopReason.clear();
   see_trkIdx  .clear();
-  see_shareFrac.clear();
-  see_simTrkIdx.clear();
+  if(includeTrackingParticles_) {
+    see_shareFrac.clear();
+    see_simTrkIdx.clear();
+  }
   see_hitIdx  .clear();
   see_hitType .clear();
   //seed algo offset
@@ -1843,7 +1923,31 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for(edm::View<Track>::size_type i=0; i<tracks.size(); ++i) {
     trackRefs.push_back(tracks.refAt(i));
   }
-  fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset);
+  std::vector<const MVACollection *> mvaColls;
+  std::vector<const QualityMaskCollection *> qualColls;
+  if(includeMVA_) {
+    edm::Handle<MVACollection> hmva;
+    edm::Handle<QualityMaskCollection> hqual;
+
+    for(const auto& tokenTpl: mvaQualityCollectionTokens_) {
+      iEvent.getByToken(std::get<0>(tokenTpl), hmva);
+      iEvent.getByToken(std::get<1>(tokenTpl), hqual);
+
+      mvaColls.push_back(hmva.product());
+      qualColls.push_back(hqual.product());
+      if(mvaColls.back()->size() != tracks.size()) {
+        throw cms::Exception("Configuration") << "Inconsistency in track collection and MVA sizes. Track collection has " << tracks.size() << " tracks, whereas the MVA " << (mvaColls.size()-1) << " has " << mvaColls.back()->size() << " entries. Double-check your configuration.";
+      }
+      if(qualColls.back()->size() != tracks.size()) {
+        throw cms::Exception("Configuration") << "Inconsistency in track collection and quality mask sizes. Track collection has " << tracks.size() << " tracks, whereas the quality mask " << (qualColls.size()-1) << " has " << qualColls.back()->size() << " entries. Double-check your configuration.";
+      }
+    }
+  }
+
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(vertexToken_, vertices);
+
+  fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, *vertices, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset, mvaColls, qualColls);
 
   //tracking particles
   //sort association maps with simHits
@@ -1851,8 +1955,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   fillTrackingParticles(iEvent, iSetup, trackRefs, bs, tpCollection, tvKeyToIndex, associatorByHits, tpHitList);
 
   // vertices
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(vertexToken_, vertices);
   fillVertices(*vertices, trackRefs);
 
   // tracking vertices
@@ -2460,8 +2562,13 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajPz.push_back(mom.z());
 
       see_trkIdx  .push_back(-1); // to be set correctly in fillTracks
-      see_shareFrac.push_back( sharedFraction );
-      see_simTrkIdx.push_back( tpIdx );
+      if(includeTrackingParticles_) {
+        see_shareFrac.push_back( sharedFraction );
+        see_simTrkIdx.push_back( tpIdx );
+      }
+      else {
+        see_isTrue.push_back(!tpIdx.empty());
+      }
 
       /// Hmm, the following could make sense instead of plain failing if propagation to beam line fails
       /*
@@ -2613,16 +2720,22 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
                                 const TrackingParticleRefVector& tpCollection,
                                 const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                 const reco::BeamSpot& bs,
+                                const reco::VertexCollection& vertices,
                                 const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                 const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                 const TrackerTopology& tTopo,
                                 const std::set<edm::ProductID>& hitProductIds,
-                                const std::map<edm::ProductID, size_t>& seedCollToOffset
+                                const std::map<edm::ProductID, size_t>& seedCollToOffset,
+                                const std::vector<const MVACollection *>& mvaColls,
+                                const std::vector<const QualityMaskCollection *>& qualColls
                                 ) {
   reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(tracks, tpCollection);
   edm::EDConsumerBase::Labels labels;
   labelsForToken(trackToken_, labels);
   LogTrace("TrackingNtuple") << "NEW TRACK LABEL: " << labels.module;
+
+  auto pvPosition = vertices[0].position();
+
   for(size_t iTrack = 0; iTrack<tracks.size(); ++iTrack) {
     const auto& itTrack = tracks[iTrack];
     int nSimHits = 0;
@@ -2645,9 +2758,24 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     float eta = itTrack->eta();
     const double lambda = itTrack->lambda();
     float chi2 = itTrack->normalizedChi2();
+    float ndof = itTrack->ndof();
     float phi = itTrack->phi();
     int nHits = itTrack->numberOfValidHits();
     const reco::HitPattern& hp = itTrack->hitPattern();
+
+    float chi2_1Dmod = chi2;
+    int count1dhits = 0;
+    for(auto iHit = itTrack->recHitsBegin(), iEnd=itTrack->recHitsEnd(); iHit != iEnd; ++iHit) {
+      const TrackingRecHit& hit = **iHit;
+      if(hit.isValid() && typeid(hit) == typeid(SiStripRecHit1D))
+        ++count1dhits;
+    }
+    if(count1dhits > 0) {
+      chi2_1Dmod = (chi2+count1dhits)/(ndof+count1dhits);
+    }
+
+    Point bestPV = getBestVertex(*itTrack, vertices);
+
     trk_px       .push_back(itTrack->px());
     trk_py       .push_back(itTrack->py());
     trk_pz       .push_back(itTrack->pz());
@@ -2666,6 +2794,10 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_phi      .push_back(phi);
     trk_dxy      .push_back(itTrack->dxy(bs.position()));
     trk_dz       .push_back(itTrack->dz(bs.position()));
+    trk_dxyPV    .push_back(itTrack->dxy(pvPosition));
+    trk_dzPV     .push_back(itTrack->dz(pvPosition));
+    trk_dxyClosestPV.push_back(itTrack->dxy(bestPV));
+    trk_dzClosestPV .push_back(itTrack->dz(bestPV));
     trk_ptErr    .push_back(itTrack->ptError());
     trk_etaErr   .push_back(itTrack->etaError());
     trk_lambdaErr.push_back(itTrack->lambdaError());
@@ -2675,23 +2807,31 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_refpoint_x.push_back(itTrack->vx());
     trk_refpoint_y.push_back(itTrack->vy());
     trk_refpoint_z.push_back(itTrack->vz());
-    trk_nChi2    .push_back( itTrack->normalizedChi2());
-    trk_shareFrac.push_back(sharedFraction);
+    trk_nChi2    .push_back(chi2);
+    trk_nChi2_1Dmod.push_back(chi2_1Dmod);
+    trk_ndof     .push_back(ndof);
     trk_q        .push_back(charge);
     trk_nValid   .push_back(hp.numberOfValidHits());
     trk_nInvalid .push_back(hp.numberOfLostHits(reco::HitPattern::TRACK_HITS));
     trk_nPixel   .push_back(hp.numberOfValidPixelHits());
     trk_nStrip   .push_back(hp.numberOfValidStripHits());
+    trk_nOuterLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
+    trk_nInnerLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
     trk_nPixelLay.push_back(hp.pixelLayersWithMeasurement());
     trk_nStripLay.push_back(hp.stripLayersWithMeasurement());
     trk_n3DLay   .push_back(hp.numberOfValidStripLayersWithMonoAndStereo()+hp.pixelLayersWithMeasurement());
-    trk_nOuterLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
-    trk_nInnerLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
+    trk_nLostLay .push_back(hp.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
     trk_algo     .push_back(itTrack->algo());
     trk_originalAlgo.push_back(itTrack->originalAlgo());
     trk_algoMask .push_back(itTrack->algoMaskUL());
     trk_stopReason.push_back(itTrack->stopReason());
     trk_isHP     .push_back(itTrack->quality(reco::TrackBase::highPurity));
+    if(includeMVA_) {
+      for(size_t i=0; i<trk_mvas.size(); ++i) {
+        trk_mvas        [i].push_back( (*(mvaColls [i]))[iTrack] );
+        trk_qualityMasks[i].push_back( (*(qualColls[i]))[iTrack] );
+      }
+    }
     if(includeSeeds_) {
       auto offset = seedCollToOffset.find(itTrack->seedRef().id());
       if(offset == seedCollToOffset.end()) {
@@ -2709,7 +2849,13 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
       see_trkIdx[seedIndex] = iTrack;
     }
     trk_vtxIdx   .push_back(-1); // to be set correctly in fillVertices
-    trk_simTrkIdx.push_back(tpIdx);
+    if(includeTrackingParticles_) {
+      trk_simTrkIdx.push_back(tpIdx);
+      trk_shareFrac.push_back(sharedFraction);
+    }
+    else {
+      trk_isTrue.push_back(!tpIdx.empty());
+    }
     LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
                                << ", chi2=" << chi2
@@ -3055,6 +3201,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       edm::InputTag("muonSeededTrackCandidatesOutIn")
     });
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.addUntracked<std::vector<std::string> >("trackMVAs", std::vector<std::string>{{"generalTracks"}});
   desc.addUntracked<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
   desc.addUntracked<bool>("trackingParticlesRef", false);
   desc.addUntracked<edm::InputTag>("clusterTPMap", edm::InputTag("tpClusterProducer"));
@@ -3078,6 +3225,8 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<std::string>("parametersDefiner", "LhcParametersDefinerForTP");
   desc.addUntracked<bool>("includeSeeds", false);
   desc.addUntracked<bool>("includeAllHits", false);
+  desc.addUntracked<bool>("includeMVA", true);
+  desc.addUntracked<bool>("includeTrackingParticles", true);
   descriptions.add("trackingNtuple",desc);
 }
 

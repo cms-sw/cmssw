@@ -24,8 +24,6 @@ class HGCalDDDConstants {
 
 public:
 
-  typedef std::array<std::vector<int32_t>, 2> simrecovecs;  
-  
   HGCalDDDConstants(const HGCalParameters* hp, const std::string name);
   ~HGCalDDDConstants();
 
@@ -77,6 +75,7 @@ public:
   bool                waferInLayer(int wafer, int lay, bool reco) const;
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
   int                 wafers() const;
+  int                 wafers(int layer, int type) const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
   // wafer transverse thickness classification (2 = coarse, 1 = fine)
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
@@ -102,13 +101,16 @@ private:
 			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
 
+  typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
+  typedef std::array<int,3>                   HGCWaferParam;
   const HGCalParameters*          hgpar_;
   constexpr static double         tan30deg_ = 0.5773502693;
   double                          rmax_, hexside_;
   HGCalGeometryMode::GeometryMode mode_;
   int32_t                         tot_wafers_, modHalf_;
   std::array<uint32_t,2>          tot_layers_;
-  simrecovecs                     max_modules_layer_; 
+  Simrecovecs                     max_modules_layer_;
+  std::map<int,HGCWaferParam>     waferLayer_;
 };
 
 #endif

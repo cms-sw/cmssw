@@ -16,7 +16,7 @@ from RecoHI.HiTracking.HISelectedProtoTracks_cfi import *
 from RecoHI.HiTracking.HIPixelAdaptiveVertex_cfi import *
 
 # selection of best primary vertex
-from RecoHI.HiTracking.HISelectedVertex_cfi import *
+from RecoHI.HiTracking.HIBestVertexSequences_cff import *
 
 hiPixelVertices = cms.Sequence(hiPixelClusterVertex
                                 * PixelLayerTriplets

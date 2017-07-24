@@ -30,7 +30,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"

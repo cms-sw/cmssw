@@ -183,8 +183,6 @@ namespace edm {
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     void doRegisterThinnedAssociations(ProductRegistry const&,
                                        ThinnedAssociationsHelper&) { }
 
@@ -225,8 +223,6 @@ namespace edm {
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     virtual bool isFileOpen() const { return true; }
 

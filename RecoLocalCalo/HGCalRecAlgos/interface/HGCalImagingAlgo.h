@@ -112,10 +112,10 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         verbosity(the_verbosity),
         initialized(false),
         points(2*(maxlayer+1)),
-        minpos(2*(maxlayer+1),{
+	minpos(2*(maxlayer+1),{
                 {0.0f,0.0f}
         }),
-        maxpos(2*(maxlayer+1),{ {0.0f,0.0f} })
+	maxpos(2*(maxlayer+1),{ {0.0f,0.0f} })
 {
 }
 
@@ -164,12 +164,11 @@ static const unsigned int maxlayer = 52;
 
 
 private:
-
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
 // maximum number of wafers per Layer: 666 (V7), 794 (V8)
-static const unsigned int maxNumberOfWafersPerLayer = 794;
+static const unsigned int maxNumberOfWafersPerLayer = 796;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas;

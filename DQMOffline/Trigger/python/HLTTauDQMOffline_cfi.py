@@ -67,7 +67,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     EtaMin = cms.untracked.double(-2.3),
                     EtaMax = cms.untracked.double(2.3),
                     PhiMin = cms.untracked.double(-3.15),
-                    PhiMax = cms.untracked.double(3-15)
+                    PhiMax = cms.untracked.double(3.15)
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
@@ -165,8 +165,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),  
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -180,8 +180,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -195,8 +195,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -210,8 +210,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),  
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_TightID_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -225,8 +225,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),  
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_TightID_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -240,8 +240,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),  
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_TightID_SingleL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -255,8 +255,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -270,8 +270,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -285,8 +285,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -300,8 +300,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -315,8 +315,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -330,8 +330,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -345,8 +345,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -360,8 +360,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -375,8 +375,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),                                                                                                                                                        
             etamax      = cms.double(2.5),                                                                                                                                                         
             nPhiBins    = cms.int32(20),                                                                                                                                                           
-            phimin      = cms.double(-3.14),                                                                                                                                                       
-            phimax      = cms.double(3.14),                                                                                                                                                        
+            phimin      = cms.double(-3.15),                                                                                                                                                       
+            phimax      = cms.double(3.15),                                                                                                                                                        
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*')),                                                        
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -390,8 +390,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -405,8 +405,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -420,8 +420,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -435,8 +435,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -450,8 +450,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -465,8 +465,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau100HighPtRelaxedIso_Trk50_eta2p1_1pr_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
         ),
@@ -480,10 +480,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau30_eta2p1_CrossL1'),
@@ -495,10 +495,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5), 
             nPhiBins    = cms.int32(20),  
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14), 
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('TightChargedIsoPFTau30_eta2p1_CrossL1'),
@@ -510,10 +510,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5), 
             nPhiBins    = cms.int32(20),  
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14), 
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('LooseChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -525,10 +525,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5), 
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),    
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14), 
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -540,10 +540,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14), 
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('TightChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -555,10 +555,10 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MET90'),
@@ -567,8 +567,8 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             ptmin       = cms.double(0.),
             ptmax       = cms.double(200.),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET90_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*'))
         ),
@@ -579,10 +579,55 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             ptmin       = cms.double(0.),   
             ptmax       = cms.double(200.),
             nPhiBins    = cms.int32(20),
-            phimin      = cms.double(-3.14),
-            phimax      = cms.double(3.14),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*'))
         ),
+        cms.untracked.PSet(
+            name        = cms.string('IsoMu20_eta2p1'),
+            xvariable   = cms.string('Muon'),
+            nPtBins     = cms.int32(20),
+            ptmin       = cms.double(0.),
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5),
+            nPhiBins    = cms.int32(20),
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleIsoMu20_eta2p1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
+        ),
+        cms.untracked.PSet(
+            name        = cms.string('IsoMu24_eta2p1'),
+            xvariable   = cms.string('Muon'),
+            nPtBins     = cms.int32(20),  
+            ptmin       = cms.double(0.),  
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5), 
+            nPhiBins    = cms.int32(20),   
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleIsoMu24_eta2p1_v*')),                                                        
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
+        ),
+        cms.untracked.PSet(
+            name        = cms.string('Ele24_eta2p1_WPTight_Gsf'),
+            xvariable   = cms.string('Electron'),
+            nPtBins     = cms.int32(20),   
+            ptmin       = cms.double(0.),
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5), 
+            nPhiBins    = cms.int32(20),   
+            phimin      = cms.double(-3.15),
+            phimax      = cms.double(3.15),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleEle24_eta2p1_WPTight_Gsf_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
+        )
     )
 )

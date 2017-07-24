@@ -108,6 +108,10 @@ namespace hcaldqm
 		_cRunKeyVal.fill(_runkeyVal);
 		_cRunKeyName.fill(_runkeyName);
 		_cProcessingTypeName.fill(pTypeNames[_ptype]);
+
+		// Load conditions and emap
+		es.get<HcalDbRecord>().get(_dbService);
+		_emap = _dbService->getHcalMapping();
 	}
 
 	/* virtual */ void DQTask::dqmBeginRun(edm::Run const& r,

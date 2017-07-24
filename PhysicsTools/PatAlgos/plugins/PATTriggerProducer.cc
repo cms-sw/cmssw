@@ -157,7 +157,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
   // HLT configuration parameters
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? InputTag::kSkipCurrentProcess : nameProcess_  ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? std::string("") : nameProcess_  ) ), this);
   if ( iConfig.exists( "triggerEvent" ) ) tagTriggerEvent_ = iConfig.getParameter< InputTag >( "triggerEvent" );
   triggerEventGetter_ = GetterOfProducts< trigger::TriggerEvent >( InputTagMatch( InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance() ) ), this);
   if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
@@ -180,7 +180,9 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     if ( iConfig.exists( "l1ExtraTauJet" ) ) l1ExtraTauJetGetter_( bd );
     if ( iConfig.exists( "l1ExtraETM" ) ) l1ExtraETMGetter_( bd );
     if ( iConfig.exists( "l1ExtraHTM" ) ) l1ExtraHTMGetter_( bd );
-    triggerResultsGetter_( bd );
+    if(not ( this->autoProcessName_ and bd.processName()==this->moduleDescription().processName()) ) {
+      triggerResultsGetter_( bd );
+    }
     triggerEventGetter_( bd );
     if ( iConfig.exists( "hltPrescaleTable" ) ) {
       hltPrescaleTableRunGetter_( bd );

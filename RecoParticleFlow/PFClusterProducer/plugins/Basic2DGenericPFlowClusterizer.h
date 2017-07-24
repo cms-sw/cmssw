@@ -11,11 +11,11 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
  public:
   Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf);
     
-  virtual ~Basic2DGenericPFlowClusterizer() {}
+  ~Basic2DGenericPFlowClusterizer() override = default;
   Basic2DGenericPFlowClusterizer(const B2DGPF&) = delete;
   B2DGPF& operator=(const B2DGPF&) = delete;
 
-  void update(const edm::EventSetup& es) { 
+  void update(const edm::EventSetup& es) override { 
     _positionCalc->update(es); 
     if( _allCellsPosCalc ) _allCellsPosCalc->update(es);
     if( _convergencePosCalc ) _convergencePosCalc->update(es);
@@ -23,7 +23,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
 
   void buildClusters(const reco::PFClusterCollection&,
 		     const std::vector<bool>&,
-		     reco::PFClusterCollection& outclus);
+		     reco::PFClusterCollection& outclus) override;
 
  private:  
   const unsigned _maxIterations;

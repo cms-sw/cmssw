@@ -115,6 +115,14 @@ namespace edm {
     }
 
     template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
+      for(auto mod: m_streamModules) {
+        mod->convertCurrentProcessAlias(processName);
+      }
+    }
+
+    template< typename T>
     std::vector<edm::ConsumesInfo>
     ProducingModuleAdaptorBase<T>::consumesInfo() const {
       assert(not m_streamModules.empty());
@@ -226,20 +234,6 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&){}
-    template< typename T>
-    void
-    ProducingModuleAdaptorBase<T>::doPreForkReleaseResources(){
-      for(auto m: m_streamModules) {
-        m->preForkReleaseResources();
-      }
-    }
-    template< typename T>
-    void
-    ProducingModuleAdaptorBase<T>::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){
-      for(auto m: m_streamModules) {
-        m->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-      }
-    }
 
     template< typename T>
     void

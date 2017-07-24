@@ -13,6 +13,8 @@ namespace HcalDetIdTransform
         IETA,         // ieta() + shift
         IETAABS,      // ietaAbs()
         SUBDET,       // subdetId()
+        IETADEPTH,    // maps ieta() and depth() into a unique number
+        IETAABSDEPTH, // maps ietaAbs() and depth() into a unique number
         N_TRANSFORMS
     };
 

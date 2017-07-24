@@ -245,8 +245,8 @@ namespace evf{
       Encoding encModule_;
       std::vector<Encoding> encPath_;
       FedRawDataInputSource * inputSource_ = nullptr;
-      std::atomic<FastMonitoringThread::InputState> inputState_;
-      std::atomic<FastMonitoringThread::InputState> inputSupervisorState_;
+      std::atomic<FastMonitoringThread::InputState> inputState_           { FastMonitoringThread::InputState::inInit };
+      std::atomic<FastMonitoringThread::InputState> inputSupervisorState_ { FastMonitoringThread::InputState::inInit };
 
       unsigned int nStreams_;
       unsigned int nThreads_;

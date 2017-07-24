@@ -15,11 +15,10 @@
 
 // tracker info
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // data in edm::event

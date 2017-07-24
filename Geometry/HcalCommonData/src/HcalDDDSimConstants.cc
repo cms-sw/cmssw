@@ -325,6 +325,20 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
   }
 }
 
+int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
+
+  int lay=0;
+  if (det == 1) {
+    if      (eta == 16 || eta == -16) lay = layFHB[1];
+    else                              lay = layFHB[0];
+  } else {
+    if      (eta == 16 || eta == -16) lay = layFHE[1];
+    else if (eta == 18 || eta == -18) lay = layFHE[2];
+    else                              lay = layFHE[0];
+  }
+  return lay;
+}
+
 double HcalDDDSimConstants::getLayer0Wt(const int det, const int phi, 
 					const int zside) const {
 
@@ -843,6 +857,8 @@ void HcalDDDSimConstants::initialize( void ) {
     std::cout << " [" << k << "] " << idHF2QIE[k] << std::endl;
 #endif
 
+  layFHB[0] = 0; layFHB[1] = 1;
+  layFHE[0] = 1; layFHE[1] = 9; layFHE[2] = 0;
   depthMaxSp_ = std::pair<int,int>(0,0);
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
@@ -854,8 +870,8 @@ void HcalDDDSimConstants::initialize( void ) {
       int ndp16 = hpar->noff[noffk+4];
       int ndp29 = hpar->noff[noffk+5];
       double wt = 0.1*(hpar->noff[noffk+6]);
-      if (dtype == 1 || dtype == 2) {
-	if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+      if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+	if (dtype == 1 || dtype == 2) {
 	  std::vector<int> ifi, iet, ily, idp;
 	  for (int i=0; i<nphi; ++i) ifi.push_back(hpar->noff[noffk+7+i]);
 	  for (int i=0; i<ndeps;++i) {
@@ -883,8 +899,21 @@ void HcalDDDSimConstants::initialize( void ) {
 	  depthMaxSp_ = std::pair<int,int>(dtype,ldmap_.getDepthMax(dtype,iphi,zside));
 	}
       }
+      int noffm = (noffk+7+nphi+3*ndeps);
+      if ((int)(hpar->noff.size()) > noffm) {
+	int ndnext = hpar->noff[noffm];
+	if (ndnext > 4 && (int)(hpar->noff.size()) >= noffm+ndnext) {
+	  for (int i=0; i<2; ++i) layFHB[i] = hpar->noff[noffm+i+1];
+	  for (int i=0; i<3; ++i) layFHE[i] = hpar->noff[noffm+i+3];
+	}
+      }
     }
   }
+#ifdef EDM_ML_DEBUG
+  std::cout << "Front Layer Definition for HB: " << layFHB[0] << ":" 
+	    << layFHB[1] << " and for HE: " << layFHE[0] << ":" << layFHE[1] 
+	    << ":" << layFHE[2] << std::endl;
+#endif
   if (depthMaxSp_.first == 0) {
     depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
   } else if (depthMaxSp_.first == 1) {

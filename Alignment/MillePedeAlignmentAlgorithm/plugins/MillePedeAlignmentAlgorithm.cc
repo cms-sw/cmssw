@@ -54,7 +54,7 @@
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"

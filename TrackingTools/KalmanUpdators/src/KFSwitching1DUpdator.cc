@@ -1,7 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFSwitching1DUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 TrajectoryStateOnSurface
 KFSwitching1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {

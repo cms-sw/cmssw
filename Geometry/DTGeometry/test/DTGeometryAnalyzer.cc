@@ -10,7 +10,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>

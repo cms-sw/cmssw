@@ -20,9 +20,9 @@ namespace {
   edm::ConsumesCollector iC = consumesCollector();
 
   std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
-  for (unsigned int i=0;i<creators.size();++i) {
-      std::string name = creators.at(i).getParameter<std::string>("name");
-      creators_.emplace_back(PFRecHitFactory::get()->create(name,creators.at(i),iC));
+  for (auto & creator : creators) {
+      std::string name = creator.getParameter<std::string>("name");
+      creators_.emplace_back(PFRecHitFactory::get()->create(name,creator,iC));
   }
 
 
@@ -33,9 +33,7 @@ namespace {
 }
 
 
- PFRecHitProducer::~ PFRecHitProducer()
-{
- }
+ PFRecHitProducer::~ PFRecHitProducer() = default;
 
 
 //

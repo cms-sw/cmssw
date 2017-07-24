@@ -353,12 +353,6 @@ int main(int argc, char* argv[]) {
       context = "Calling beginJob";
       proc->beginJob();
 
-      alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
-      if (!proc->forkProcess(jobReportFile)) {
-        return 0;
-      }
-
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
       proc.on();

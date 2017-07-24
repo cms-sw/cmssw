@@ -25,3 +25,5 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(packedPFCandidates, covarianceVersion =1 )
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(packedPFCandidates, chargedHadronIsolation = "" )

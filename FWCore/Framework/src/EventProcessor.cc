@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -81,15 +80,6 @@
 #include <sys/msg.h>
 
 #include "tbb/task.h"
-
-//Used for forking
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <sys/fcntl.h>
-#include <unistd.h>
-
 
 //Used for CPU affinity
 #ifndef __APPLE__
@@ -259,9 +249,6 @@ namespace edm {
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
-    numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false),
     eventSetupDataToExcludeFromPrefetching_() {
     std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
     auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
@@ -302,9 +289,6 @@ namespace edm {
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
-    numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false),
     asyncStopRequestedWhileProcessingEvents_(false),
     nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
@@ -348,9 +332,6 @@ namespace edm {
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
-    numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false),
     asyncStopRequestedWhileProcessingEvents_(false),
     nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
@@ -390,9 +371,6 @@ namespace edm {
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
-    numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false),
     asyncStopRequestedWhileProcessingEvents_(false),
     nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
@@ -483,17 +461,6 @@ namespace edm {
       //bad
       }
     */
-    //forking
-    ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
-    numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
-    numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
-    setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
-    continueAfterChildFailure_ = forking.getUntrackedParameter<bool>("continueAfterChildFailure",false);
-    std::vector<ParameterSet> const& excluded = forking.getUntrackedParameterSetVector("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
-    for(auto const& ps : excluded) {
-      eventSetupDataToExcludeFromPrefetching_[ps.getUntrackedParameter<std::string>("record")].emplace(ps.getUntrackedParameter<std::string>("type", "*"),
-                                                                                                       ps.getUntrackedParameter<std::string>("label", ""));
-    }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     printDependencies_ =  optionsPset.getUntrackedParameter("printDependencies", false);
@@ -618,6 +585,7 @@ namespace edm {
                                  preallocations_.numberOfRuns(),
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
+    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
 
     //NOTE: this may throw
@@ -692,529 +660,6 @@ namespace edm {
   ServiceToken
   EventProcessor::getToken() {
     return serviceToken_;
-  }
-
-  //Setup signal handler to listen for when forked children stop
-  namespace {
-    //These are volatile since the compiler can not be allowed to optimize them
-    // since they can be modified in the signaller handler
-    volatile bool child_failed = false;
-    volatile unsigned int num_children_done = 0;
-    volatile int child_fail_exit_status = 0;
-    volatile int child_fail_signal = 0;
-
-    //NOTE: We setup the signal handler to run in the main thread which
-    // is also the same thread that then reads the above values
-
-    extern "C" {
-      void ep_sigchld(int, siginfo_t*, void*) {
-        //printf("in sigchld\n");
-        //FDEBUG(1) << "in sigchld handler\n";
-        int stat_loc;
-        pid_t p = waitpid(-1, &stat_loc, WNOHANG);
-        while(0<p) {
-          //printf("  looping\n");
-          if(WIFEXITED(stat_loc)) {
-            ++num_children_done;
-            if(0 != WEXITSTATUS(stat_loc)) {
-              child_fail_exit_status = WEXITSTATUS(stat_loc);
-              child_failed = true;
-            }
-          }
-          if(WIFSIGNALED(stat_loc)) {
-            ++num_children_done;
-            child_fail_signal = WTERMSIG(stat_loc);
-            child_failed = true;
-          }
-          p = waitpid(-1, &stat_loc, WNOHANG);
-        }
-      }
-    }
-
-  }
-
-  enum {
-    kChildSucceed,
-    kChildExitBadly,
-    kChildSegv,
-    kMaxChildAction
-  };
-
-  namespace {
-    unsigned int numberOfDigitsInChildIndex(unsigned int numberOfChildren) {
-      unsigned int n = 0;
-      while(numberOfChildren != 0) {
-        ++n;
-        numberOfChildren /= 10;
-      }
-      if(n == 0) {
-        n = 3; // Protect against zero numberOfChildren
-      }
-      return n;
-    }
-
-    /*This class embodied the thread which is used to listen to the forked children and
-      then tell them which events they should process */
-    class MessageSenderToSource {
-    public:
-      MessageSenderToSource(std::vector<int> const& childrenSockets, std::vector<int> const& childrenPipes, long iNEventsToProcess);
-      void operator()();
-
-    private:
-      const std::vector<int>& m_childrenPipes;
-      long const m_nEventsToProcess;
-      fd_set m_socketSet;
-      unsigned int m_aliveChildren;
-      int m_maxFd;
-    };
-
-    MessageSenderToSource::MessageSenderToSource(std::vector<int> const& childrenSockets,
-                                                 std::vector<int> const& childrenPipes,
-                                                 long iNEventsToProcess):
-      m_childrenPipes(childrenPipes),
-      m_nEventsToProcess(iNEventsToProcess),
-      m_aliveChildren(childrenSockets.size()),
-      m_maxFd(0)
-    {
-      FD_ZERO(&m_socketSet);
-      for (auto const socket : childrenSockets) {
-        FD_SET(socket, &m_socketSet);
-        if (socket > m_maxFd) {
-          m_maxFd = socket;
-        }
-      }
-      for (auto const pipe : childrenPipes) {
-        FD_SET(pipe, &m_socketSet);
-        if (pipe > m_maxFd) {
-          m_maxFd = pipe;
-        }
-      }
-      m_maxFd++; // select reads [0,m_maxFd).
-    }
-
-    /* This function is the heart of the communication between parent and child.
-     * When ready for more data, the child (see MessageReceiverForSource) requests
-     * data through a AF_UNIX socket message.  The parent will then assign the next
-     * chunk of data by sending a message back.
-     *
-     * Additionally, this function also monitors the read-side of the pipe fd from the child.
-     * If the child dies unexpectedly, the pipe will be selected as ready for read and
-     * will return EPIPE when read from.  Further, if the child thinks the parent has died
-     * (defined as waiting more than 1s for a response), it will write a single byte to
-     * the pipe.  If the parent has died, the child will get a EPIPE and throw an exception.
-     * If still alive, the parent will read the byte and ignore it.
-     *
-     * Note this function is complemented by the SIGCHLD handler above as currently only the SIGCHLD
-     * handler can distinguish between success and failure cases.
-     */
-
-    void
-    MessageSenderToSource::operator()() {
-      multicore::MessageForParent childMsg;
-      LogInfo("ForkingController") << "I am controller";
-      //this is the master and therefore the controller
-
-      multicore::MessageForSource sndmsg;
-      sndmsg.startIndex = 0;
-      sndmsg.nIndices = m_nEventsToProcess;
-      do {
-
-        fd_set readSockets, errorSockets;
-        // Wait for a request from a child for events.
-        memcpy(&readSockets, &m_socketSet, sizeof(m_socketSet));
-        memcpy(&errorSockets, &m_socketSet, sizeof(m_socketSet));
-        // Note that we don't timeout; may be reconsidered in the future.
-        ssize_t rc;
-        while (((rc = select(m_maxFd, &readSockets, NULL, &errorSockets, NULL)) < 0) && (errno == EINTR)) {}
-        if (rc < 0) {
-          std::cerr << "select failed; should be impossible due to preconditions.\n";
-          abort();
-          break;
-        }
-
-        // Read the message from the child.
-        for (int idx=0; idx<m_maxFd; idx++) {
-
-          // Handle errors
-          if (FD_ISSET(idx, &errorSockets)) {
-            LogInfo("ForkingController") << "Error on socket " << idx;
-            FD_CLR(idx, &m_socketSet);
-            close(idx);
-            // See if it was the watchdog pipe that died.
-            for (std::vector<int>::const_iterator it = m_childrenPipes.begin(); it != m_childrenPipes.end(); it++) {
-              if (*it == idx) {
-                m_aliveChildren--;
-              }
-            }
-            continue;
-          }
-
-          if (!FD_ISSET(idx, &readSockets)) {
-            continue;
-          }
-
-          // See if this FD is a child watchdog pipe.  If so, read from it to prevent
-          // writes from blocking.
-          bool is_pipe = false;
-          for (std::vector<int>::const_iterator it = m_childrenPipes.begin(), itEnd = m_childrenPipes.end(); it != itEnd; it++) {
-            if (*it == idx) {
-              is_pipe = true;
-              char buf;
-              while (((rc = read(idx, &buf, 1)) < 0) && (errno == EINTR)) {}
-              if (rc <= 0) {
-                m_aliveChildren--;
-                FD_CLR(idx, &m_socketSet);
-                close(idx);
-              }
-            }
-          }
-
-          // Only execute this block if the FD is a socket for sending the child work.
-          if (!is_pipe) {
-            while (((rc = recv(idx, reinterpret_cast<char*>(&childMsg),childMsg.sizeForBuffer() , 0)) < 0) && (errno == EINTR)) {}
-            if (rc < 0) {
-              FD_CLR(idx, &m_socketSet);
-              close(idx);
-              continue;
-            }
-
-            // Tell the child what events to process.
-            // If 'send' fails, then the child process has failed (any other possibilities are
-            // eliminated because we are using fixed-size messages with Unix datagram sockets).
-            // Thus, the SIGCHLD handler will fire and set child_fail = true.
-            while (((rc = send(idx, (char *)(&sndmsg), multicore::MessageForSource::sizeForBuffer(), 0)) < 0) && (errno == EINTR)) {}
-            if (rc < 0) {
-              FD_CLR(idx, &m_socketSet);
-              close(idx);
-              continue;
-            }
-            //std::cout << "Sent chunk starting at " << sndmsg.startIndex << " to child, length " << sndmsg.nIndices << std::endl;
-            sndmsg.startIndex += sndmsg.nIndices;
-          }
-        }
-
-      } while (m_aliveChildren > 0);
-
-      return;
-    }
-
-  }
-
-
-  void EventProcessor::possiblyContinueAfterForkChildFailure() {
-    if(child_failed && continueAfterChildFailure_) {
-      if (child_fail_signal) {
-        LogSystem("ForkedChildFailed") << "child process ended abnormally with signal " << child_fail_signal;
-        child_fail_signal=0;
-      } else if (child_fail_exit_status) {
-        LogSystem("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
-        child_fail_exit_status=0;
-      } else {
-        LogSystem("ForkedChildFailed") << "child process ended abnormally for unknown reason";
-      }
-      child_failed =false;
-    }
-  }
-
-  bool
-  EventProcessor::forkProcess(std::string const& jobReportFile) {
-
-    if(0 == numberOfForkedChildren_) {return true;}
-    assert(0<numberOfForkedChildren_);
-    //do what we want done in common
-    {
-      beginJob(); //make sure this was run
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
-
-      InputSource::ItemType itemType;
-      itemType = input_->nextItemType();
-
-      assert(itemType == InputSource::IsFile);
-      {
-        readFile();
-      }
-      itemType = input_->nextItemType();
-      assert(itemType == InputSource::IsRun);
-
-      LogSystem("ForkingEventSetupPreFetching") << " prefetching for run " << input_->runAuxiliary()->run();
-      IOVSyncValue ts(EventID(input_->runAuxiliary()->run(), 0, 0),
-                      input_->runAuxiliary()->beginTime());
-      espController_->eventSetupForInstance(ts);
-      EventSetup const& es = esp_->eventSetup();
-
-      //now get all the data available in the EventSetup
-      std::vector<eventsetup::EventSetupRecordKey> recordKeys;
-      es.fillAvailableRecordKeys(recordKeys);
-      std::vector<eventsetup::DataKey> dataKeys;
-      for(std::vector<eventsetup::EventSetupRecordKey>::const_iterator itKey = recordKeys.begin(), itEnd = recordKeys.end();
-          itKey != itEnd;
-          ++itKey) {
-        eventsetup::EventSetupRecord const* recordPtr = es.find(*itKey);
-        //see if this is on our exclusion list
-        ExcludedDataMap::const_iterator itExcludeRec = eventSetupDataToExcludeFromPrefetching_.find(itKey->type().name());
-        ExcludedData const* excludedData(nullptr);
-        if(itExcludeRec != eventSetupDataToExcludeFromPrefetching_.end()) {
-          excludedData = &(itExcludeRec->second);
-          if(excludedData->size() == 0 || excludedData->begin()->first == "*") {
-            //skip all items in this record
-            continue;
-          }
-        }
-        if(0 != recordPtr) {
-          dataKeys.clear();
-          recordPtr->fillRegisteredDataKeys(dataKeys);
-          for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(), itDataKeyEnd = dataKeys.end();
-              itDataKey != itDataKeyEnd;
-              ++itDataKey) {
-            //std::cout << "  " << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
-            if(0 != excludedData && excludedData->find(std::make_pair(itDataKey->type().name(), itDataKey->name().value())) != excludedData->end()) {
-              LogInfo("ForkingEventSetupPreFetching") << "   excluding:" << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
-              continue;
-            }
-            try {
-              recordPtr->doGet(*itDataKey);
-            } catch(cms::Exception& e) {
-              LogWarning("ForkingEventSetupPreFetching") << e.what();
-            }
-          }
-        }
-      }
-    }
-    LogSystem("ForkingEventSetupPreFetching") <<"  done prefetching";
-    {
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
-      Service<JobReport> jobReport;
-      jobReport->parentBeforeFork(jobReportFile, numberOfForkedChildren_);
-
-      //Now actually do the forking
-      actReg_->preForkReleaseResourcesSignal_();
-      input_->doPreForkReleaseResources();
-      schedule_->preForkReleaseResources();
-    }
-    installCustomHandler(SIGCHLD, ep_sigchld);
-
-
-    unsigned int childIndex = 0;
-    unsigned int const kMaxChildren = numberOfForkedChildren_;
-    unsigned int const numberOfDigitsInIndex = numberOfDigitsInChildIndex(kMaxChildren);
-    std::vector<pid_t> childrenIds;
-    childrenIds.reserve(kMaxChildren);
-    std::vector<int> childrenSockets;
-    childrenSockets.reserve(kMaxChildren);
-    std::vector<int> childrenPipes;
-    childrenPipes.reserve(kMaxChildren);
-    std::vector<int> childrenSocketsCopy;
-    childrenSocketsCopy.reserve(kMaxChildren);
-    std::vector<int> childrenPipesCopy;
-    childrenPipesCopy.reserve(kMaxChildren);
-    int pipes[] {0, 0};
-
-    {
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
-      Service<JobReport> jobReport;
-      int sockets[2], fd_flags;
-      for(; childIndex < kMaxChildren; ++childIndex) {
-        // Create a UNIX_DGRAM socket pair
-        if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets)) {
-          printf("Error creating communication socket (errno=%d, %s)\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        if (pipe(pipes)) {
-          printf("Error creating communication pipes (errno=%d, %s)\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        // set CLOEXEC so the socket/pipe doesn't get leaked if the child exec's.
-        if ((fd_flags = fcntl(sockets[1], F_GETFD, NULL)) == -1) {
-          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        // Mark socket as non-block.  Child must be careful to do select prior
-        // to reading from socket.
-        if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC | O_NONBLOCK) == -1) {
-          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        if ((fd_flags = fcntl(pipes[1], F_GETFD, NULL)) == -1) {
-          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        if (fcntl(pipes[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
-          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        // Linux man page notes there are some edge cases where reading from a
-        // fd can block, even after a select.
-        if ((fd_flags = fcntl(pipes[0], F_GETFD, NULL)) == -1) {
-          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-        if (fcntl(pipes[0], F_SETFD, fd_flags | O_NONBLOCK) == -1) {
-          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
-          exit(EXIT_FAILURE);
-        }
-
-        childrenPipesCopy = childrenPipes;
-        childrenSocketsCopy = childrenSockets;
-
-        pid_t value = fork();
-        if(value == 0) {
-          // Close the parent's side of the socket and pipe which will talk to us.
-          close(pipes[0]);
-          close(sockets[0]);
-          // Close our copies of the parent's other communication pipes.
-          for(std::vector<int>::const_iterator it=childrenPipesCopy.begin(); it != childrenPipesCopy.end(); it++) {
-            close(*it);
-          }
-          for(std::vector<int>::const_iterator it=childrenSocketsCopy.begin(); it != childrenSocketsCopy.end(); it++) {
-            close(*it);
-          }
-
-          // this is the child process, redirect stdout and stderr to a log file
-          fflush(stdout);
-          fflush(stderr);
-          std::stringstream stout;
-          stout << "redirectout_" << getpgrp() << "_" << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << ".log";
-          if(0 == freopen(stout.str().c_str(), "w", stdout)) {
-            LogError("ForkingStdOutRedirect") << "Error during freopen of child process "<< childIndex;
-          }
-          if(dup2(fileno(stdout), fileno(stderr)) < 0) {
-            LogError("ForkingStdOutRedirect") << "Error during dup2 of child process"<< childIndex;
-          }
-
-          LogInfo("ForkingChild") << "I am child " << childIndex << " with pgid " << getpgrp();
-          if(setCpuAffinity_) {
-            // CPU affinity is handled differently on macosx.
-            // We disable it and print a message until someone reads:
-            //
-            // http://developer.apple.com/mac/library/releasenotes/Performance/RN-AffinityAPI/index.html
-            //
-            // and implements it.
-#ifdef __APPLE__
-            LogInfo("ForkingChildAffinity") << "Architecture support for CPU affinity not implemented.";
-#else
-            LogInfo("ForkingChildAffinity") << "Setting CPU affinity, setting this child to cpu " << childIndex;
-            cpu_set_t mask;
-            CPU_ZERO(&mask);
-            CPU_SET(childIndex, &mask);
-            if(sched_setaffinity(0, sizeof(mask), &mask) != 0) {
-              LogError("ForkingChildAffinity") << "Failed to set the cpu affinity, errno " << errno;
-              exit(-1);
-            }
-#endif
-          }
-          break;
-        } else {
-          //this is the parent
-          close(pipes[1]);
-          close(sockets[1]);
-        }
-        if(value < 0) {
-          LogError("ForkingChild") << "failed to create a child";
-          exit(-1);
-        }
-        childrenIds.push_back(value);
-        childrenSockets.push_back(sockets[0]);
-        childrenPipes.push_back(pipes[0]);
-      }
-
-      if(childIndex < kMaxChildren) {
-        jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
-        actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
-
-        auto receiver = std::make_shared<multicore::MessageReceiverForSource>(sockets[1], pipes[1]);
-        input_->doPostForkReacquireResources(receiver);
-        schedule_->postForkReacquireResources(childIndex, kMaxChildren);
-        //NOTE: sources have to reset themselves by listening to the post fork message
-        //rewindInput();
-        return true;
-      }
-      jobReport->parentAfterFork(jobReportFile);
-    }
-
-    //this is the original, which is now the master for all the children
-
-    //Need to wait for signals from the children or externally
-    // To wait we must
-    // 1) block the signals we want to wait on so we do not have a race condition
-    // 2) check that we haven't already meet our ending criteria
-    // 3) call sigsuspend, which unblocks the signals and waits until a signal is caught
-    sigset_t blockingSigSet;
-    sigset_t unblockingSigSet;
-    sigset_t oldSigSet;
-    pthread_sigmask(SIG_SETMASK, NULL, &unblockingSigSet);
-    pthread_sigmask(SIG_SETMASK, NULL, &blockingSigSet);
-    sigaddset(&blockingSigSet, SIGCHLD);
-    sigaddset(&blockingSigSet, SIGUSR2);
-    sigaddset(&blockingSigSet, SIGINT);
-    sigdelset(&unblockingSigSet, SIGCHLD);
-    sigdelset(&unblockingSigSet, SIGUSR2);
-    sigdelset(&unblockingSigSet, SIGINT);
-    pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
-
-    // If there are too many fd's (unlikely, but possible) for select, denote this
-    // because the sender will fail.
-    bool too_many_fds = false;
-    if (pipes[1]+1 > FD_SETSIZE) {
-      LogError("ForkingFileDescriptors") << "too many file descriptors for multicore job";
-      too_many_fds = true;
-    }
-
-    //create a thread that sends the units of work to workers
-    // we create it after all signals were blocked so that this
-    // thread is never interupted by a signal
-    MessageSenderToSource sender(childrenSockets, childrenPipes, numberOfSequentialEventsPerChild_);
-    boost::thread senderThread(sender);
-
-    if(not too_many_fds) {
-      //NOTE: a child could have failed before we got here and even after this call
-      // which is why the 'if' is conditional on continueAfterChildFailure_
-      possiblyContinueAfterForkChildFailure();
-      while(!shutdown_flag && (!child_failed or continueAfterChildFailure_) && (childrenIds.size() != num_children_done)) {
-        sigsuspend(&unblockingSigSet);
-        possiblyContinueAfterForkChildFailure();
-        LogInfo("ForkingAwake") << "woke from sigwait" << std::endl;
-      }
-    }
-    pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
-
-    LogInfo("ForkingStopping") << "num children who have already stopped " << num_children_done;
-    if(child_failed) {
-      LogError("ForkingStopping") << "child failed";
-    }
-    if(shutdown_flag) {
-      LogSystem("ForkingStopping") << "asked to shutdown";
-    }
-
-    if(too_many_fds || shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
-      LogInfo("ForkingStopping") << "must stop children" << std::endl;
-      for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
-          it != itEnd; ++it) {
-        /* int result = */ kill(*it, SIGUSR2);
-      }
-      pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
-      while(num_children_done != kMaxChildren) {
-        sigsuspend(&unblockingSigSet);
-      }
-      pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
-    }
-    // The senderThread will notice the pipes die off, one by one.  Once all children are gone, it will exit.
-    senderThread.join();
-    if(child_failed && !continueAfterChildFailure_) {
-      if (child_fail_signal) {
-        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with signal " << child_fail_signal;
-      } else if (child_fail_exit_status) {
-        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
-      } else {
-        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally for unknown reason";
-      }
-    }
-    if(too_many_fds) {
-      throw cms::Exception("ForkedParentFailed") << "hit select limit for number of fds";
-    }
-    return false;
   }
 
   std::vector<ModuleDescription const*>
@@ -1329,20 +774,6 @@ namespace edm {
             while(true) {
 
               bool more = true;
-              if(numberOfForkedChildren_ > 0) {
-                size_t size = preg_->size();
-                {
-                  SendSourceTerminationSignalIfException sentry(actReg_.get());
-                  more = input_->skipForForking();
-                  sentry.completedSuccessfully();
-                }
-                if(more) {
-                  if(size < preg_->size()) {
-                    principalCache_.adjustIndexesAfterProductRegistryAddition();
-                  }
-                  principalCache_.adjustEventsToNewProductRegistry(preg());
-                }
-              }
               {
                 SendSourceTerminationSignalIfException sentry(actReg_.get());
                 itemType = (more ? input_->nextItemType() : InputSource::IsStop);
@@ -1502,9 +933,8 @@ namespace edm {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
     }
     principalCache_.adjustEventsToNewProductRegistry(preg());
-    if((numberOfForkedChildren_ > 0) or
-       (preallocations_.numberOfStreams()>1 and
-        preallocations_.numberOfThreads()>1)) {
+    if(preallocations_.numberOfStreams()>1 and
+        preallocations_.numberOfThreads()>1) {
       fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
     sentry.completedSuccessfully();
@@ -1726,10 +1156,22 @@ namespace edm {
       //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+
       runPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-      schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
-      for_all(subProcesses_, [&runPrincipal, &ts, cleaningUpAfterException](auto& subProcess){subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException); });
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1966,11 +1408,6 @@ namespace edm {
     }
 
     ServiceRegistry::Operate operate(serviceToken_);
-    if(preallocations_.numberOfThreads()>1) {
-      edm::Service<RootHandlers> handler;
-      handler->initializeThisThreadForUse();
-    }
-
     try {
       //need to use lock in addition to the serial task queue because
       // of delayed provenance reading and reading data in response to
@@ -2048,17 +1485,6 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
-    if(numberOfForkedChildren_>0) {
-      //Have to do something special for forking since
-      // after each event the system may have to skip
-      // some transitions. This is handled in runToCompletion
-      readEvent(0);
-      auto eventLoopWaitTask = make_empty_waiting_task();
-      eventLoopWaitTask->increment_ref_count();
-      processEventAsync(WaitingTaskHolder(eventLoopWaitTask.get()),0);
-      eventLoopWaitTask->wait_for_all();
-      return;
-    }
     nextItemTypeFromProcessingEvents_ = InputSource::IsEvent; //needed for looper
     asyncStopRequestedWhileProcessingEvents_ = false;
 

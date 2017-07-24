@@ -14,7 +14,7 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

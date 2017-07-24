@@ -64,7 +64,6 @@ namespace edm {
       saveFileNameRecorded_(false),
       restoreFileName_(pset.getUntrackedParameter<std::string>("restoreFileName")),
       enableChecking_(pset.getUntrackedParameter<bool>("enableChecking")),
-      childIndex_(0U),
       eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
       verbose_(pset.getUntrackedParameter<bool>("verbose")) {
 
@@ -175,8 +174,6 @@ namespace edm {
       activityRegistry.watchPreModuleConstruction(this, &RandomNumberGeneratorService::preModuleConstruction);
 
       activityRegistry.watchPreallocate(this, &RandomNumberGeneratorService::preallocate);
-
-      activityRegistry.watchPostForkReacquireResources(this, &RandomNumberGeneratorService::postForkReacquireResources);
 
       if(enableChecking_) {
 
@@ -412,57 +409,6 @@ namespace edm {
     }
 
     void
-    RandomNumberGeneratorService::postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren) {
-      assert(nStreams_ == 1);
-      childIndex_ = childIndex;
-
-      if(!restoreFileName_.empty()) {
-        throw Exception(errors::Configuration)
-          << "Configuration is illegal. The RandomNumberGeneratorService is configured\n"
-          << "to run replay using a text file to input the random engine states and\n"
-          << "the process is configured to fork multiple processes. No forking is\n"
-          << "is allowed with this type of replay\n";
-      }
-
-      if (childIndex_ != 0) {
-        std::vector<LabelAndEngine>& engines = streamEngines_[0];
-        for(auto& labelAndEngine : engines) {
-          std::map<std::string, SeedsAndName>::const_iterator seedsAndName = seedsAndNameMap_.find(labelAndEngine.label());
-          assert(seedsAndName != seedsAndNameMap_.end());
-          resetEngineSeeds(labelAndEngine,
-                           seedsAndName->second.engineName(),
-                           seedsAndName->second.seeds(),
-                           childIndex,
-                           eventSeedOffset_);
-        }
-      }
-      if (kMaxChildren != 0) {
-        for(unsigned int i = 0; i < lumiEngines_.size(); ++i) {
-          std::vector<LabelAndEngine>& engines = lumiEngines_.at(i);
-          for(auto& labelAndEngine : engines) {
-            std::map<std::string, SeedsAndName>::const_iterator seedsAndName = seedsAndNameMap_.find(labelAndEngine.label());
-            assert(seedsAndName != seedsAndNameMap_.end());
-            resetEngineSeeds(labelAndEngine,
-                             seedsAndName->second.engineName(),
-                             seedsAndName->second.seeds(),
-                             kMaxChildren,
-                             0);
-          }
-          snapShot(lumiEngines_[i], lumiCache_[i]);
-        }
-      }
-
-      if(!saveFileName_.empty()) {
-        std::ostringstream suffix;
-        suffix << "_" << childIndex;
-        saveFileName_ += suffix.str();
-      }
-      if(verbose_) {
-        print(std::cout);
-      }
-    }
-
-    void
     RandomNumberGeneratorService::preBeginLumi(LuminosityBlock const& lumi) {
 
       if(!restoreStateTag_.label().empty()) {
@@ -594,7 +540,6 @@ namespace edm {
       os << "    saveFileNameRecorded_ = " << saveFileNameRecorded_ << "\n";
       os << "    restoreFileName_ = " << restoreFileName_ << "\n";
       os << "    enableChecking_ = " << enableChecking_ << "\n";
-      os << "    childIndex_ = " << childIndex_ << "\n";
       os << "    eventSeedOffset_ = " << eventSeedOffset_ << "\n";
       os << "    verbose_ = " << verbose_ << "\n";
       os << "    restoreStateTag_ = " << restoreStateTag_ << "\n";

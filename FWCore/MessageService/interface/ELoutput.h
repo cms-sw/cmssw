@@ -78,7 +78,7 @@ protected:
   virtual void suppressSubroutine() override;
   virtual void includeSubroutine() override;
   virtual void suppressText() override;
-  virtual void includeText();
+  virtual void includeText() override;
   virtual void suppressContext() override;
   virtual void includeContext() override;
   virtual void suppressSerial() override;

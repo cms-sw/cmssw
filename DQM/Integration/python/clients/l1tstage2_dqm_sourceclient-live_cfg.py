@@ -43,7 +43,8 @@ process.rawToDigiPath = cms.Path(process.RawToDigi)
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.hltFatEventFilter = hltHighLevel.clone()
 process.hltFatEventFilter.throw = cms.bool(False)
-process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
+# HLT_Physics now has the event % 107 filter as well as L1FatEvents
+process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*', 'HLT_Physics_v*')
 
 # This can be used if HLT filter not available in a run
 process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",

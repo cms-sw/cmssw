@@ -422,7 +422,7 @@ SiStripGainsPCLWorker::checkBookAPVColls(const edm::EventSetup& es){
     for(unsigned int i=0;i<Det.size();i++){  //Make two loop such that the Pixel information is added at the end --> make transition simpler
       DetId  Detid  = Det[i]->geographicalId();
       int    SubDet = Detid.subdetId();
-      if( SubDet == PixelSubdetector::PixelBarrel || PixelSubdetector::PixelEndcap ){
+      if( SubDet == PixelSubdetector::PixelBarrel || SubDet == PixelSubdetector::PixelEndcap ){
 	auto DetUnit     = dynamic_cast<const PixelGeomDetUnit*> (Det[i]);
 	if(!DetUnit) continue;
 	

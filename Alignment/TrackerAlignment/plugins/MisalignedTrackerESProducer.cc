@@ -12,7 +12,7 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

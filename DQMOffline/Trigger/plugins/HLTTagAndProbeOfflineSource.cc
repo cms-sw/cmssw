@@ -26,7 +26,7 @@
 #include <string>
 
 
-template <typename ObjType,typename ObjCollType> 
+template <typename TagType,typename TagCollType,typename ProbeType=TagType,typename ProbeCollType=TagCollType> 
 class HLTTagAndProbeOfflineSource : public DQMEDAnalyzer {
  public:
   explicit HLTTagAndProbeOfflineSource(const edm::ParameterSet&);
@@ -41,43 +41,43 @@ class HLTTagAndProbeOfflineSource : public DQMEDAnalyzer {
   virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override{}
 
 private:
-  std::vector<HLTDQMTagAndProbeEff<ObjType,ObjCollType> > tagAndProbeEffs_;
+  std::vector<HLTDQMTagAndProbeEff<TagType,TagCollType,ProbeType,ProbeCollType> > tagAndProbeEffs_;
 
 };
 
-template <typename ObjType,typename ObjCollType> 
-HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+template <typename TagType,typename TagCollType,typename ProbeType,typename ProbeCollType> 
+HLTTagAndProbeOfflineSource<TagType,TagCollType,ProbeType,ProbeCollType>::
 HLTTagAndProbeOfflineSource(const edm::ParameterSet& config)
 {
   auto histCollConfigs =  config.getParameter<std::vector<edm::ParameterSet> >("tagAndProbeCollections");
   for(auto& histCollConfig : histCollConfigs){
-    tagAndProbeEffs_.emplace_back(HLTDQMTagAndProbeEff<ObjType,ObjCollType>(histCollConfig,consumesCollector()));
+    tagAndProbeEffs_.emplace_back(HLTDQMTagAndProbeEff<TagType,TagCollType,ProbeType,ProbeCollType>(histCollConfig,consumesCollector()));
   }
 }
 
 
-template <typename ObjType,typename ObjCollType> 
-void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+template <typename TagType,typename TagCollType,typename ProbeType,typename ProbeCollType> 
+void HLTTagAndProbeOfflineSource<TagType,TagCollType,ProbeType,ProbeCollType>::
 fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("objs", edm::InputTag(""));
   desc.addVPSet("tagAndProbeCollections",
-		HLTDQMTagAndProbeEff<ObjType,ObjCollType>::makePSetDescription(),
+		HLTDQMTagAndProbeEff<TagType,TagCollType,ProbeType,ProbeCollType>::makePSetDescription(),
 		std::vector<edm::ParameterSet>());
   descriptions.add("hltTagAndProbeOfflineSource", desc);
   
 }
 
-template <typename ObjType,typename ObjCollType> 
-void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+template <typename TagType,typename TagCollType,typename ProbeType,typename ProbeCollType> 
+void HLTTagAndProbeOfflineSource<TagType,TagCollType,ProbeType,ProbeCollType>::
 bookHistograms(DQMStore::IBooker& iBooker,const edm::Run& run,const edm::EventSetup& setup)
 {
   for(auto& tpEff : tagAndProbeEffs_) tpEff.bookHists(iBooker);
 }
 
-template <typename ObjType,typename ObjCollType> 
-void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+template <typename TagType,typename TagCollType,typename ProbeType,typename ProbeCollType> 
+void HLTTagAndProbeOfflineSource<TagType,TagCollType,ProbeType,ProbeCollType>::
 analyze(const edm::Event& event,const edm::EventSetup& setup)
 {
   for(auto& tpEff : tagAndProbeEffs_) tpEff.fill(event,setup);
@@ -86,5 +86,18 @@ analyze(const edm::Event& event,const edm::EventSetup& setup)
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
 using HLTEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElectron,reco::GsfElectronCollection>;
+using HLTPhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Photon,reco::PhotonCollection>;
+using HLTElePhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElectron,reco::GsfElectronCollection,reco::Photon,reco::PhotonCollection>;
+using HLTMuEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection,reco::GsfElectron,reco::GsfElectronCollection>;
+using HLTMuTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection>;
 DEFINE_FWK_MODULE(HLTEleTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTPhoTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTElePhoTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTMuEleTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTMuTagAndProbeOfflineSource);
+

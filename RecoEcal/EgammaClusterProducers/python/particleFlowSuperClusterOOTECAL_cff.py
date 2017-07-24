@@ -15,3 +15,17 @@ particleFlowSuperClusterOOTECAL.PFSuperClusterCollectionEndcapWithPreshower = cm
 particleFlowSuperClusterOOTECAL.isOOTCollection = cms.bool(True)
 particleFlowSuperClusterOOTECAL.barrelRecHits = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 particleFlowSuperClusterOOTECAL.endcapRecHits = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+
+run2_miniAOD_80XLegacy.toModify(
+    particleFlowSuperClusterOOTECAL, 
+    barrelRecHits = "reducedEcalRecHitsEB",
+    endcapRecHits = "reducedEcalRecHitsEE"
+)
+run2_miniAOD_80XLegacy.toModify(
+    particleFlowSuperClusterOOTECAL.regressionConfig, 
+    ecalRecHitsEB = "reducedEcalRecHitsEB",
+    ecalRecHitsEE = "reducedEcalRecHitsEE"
+)
+

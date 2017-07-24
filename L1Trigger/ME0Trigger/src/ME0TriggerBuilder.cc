@@ -31,7 +31,7 @@ ME0TriggerBuilder::~ME0TriggerBuilder()
 {
 }
 
-void ME0TriggerBuilder::build(const ME0PadDigiCollection* me0Pads,
+void ME0TriggerBuilder::build(const ME0PadDigiClusterCollection* me0Pads,
 			      ME0TriggerDigiCollection& oc_trig)
 {
   for (int endc = 0; endc < 2; endc++)
@@ -63,3 +63,4 @@ void ME0TriggerBuilder::build(const ME0PadDigiCollection* me0Pads,
     } 
   }
 }
+

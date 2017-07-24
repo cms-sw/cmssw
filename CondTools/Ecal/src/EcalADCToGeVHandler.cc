@@ -25,17 +25,14 @@ popcon::EcalADCToGeVHandler::EcalADCToGeVHandler(const edm::ParameterSet & ps)
 
         std::cout << m_sid<<"/"<<m_user<<"/"<<m_location<<"/"<<m_gentag   << std::endl;
 
+
 }
 
-popcon::EcalADCToGeVHandler::~EcalADCToGeVHandler()
-{
-}
+popcon::EcalADCToGeVHandler::~EcalADCToGeVHandler() {}
 
 
-void popcon::EcalADCToGeVHandler::getNewObjects()
-{
-
-	std::cout << "------- Ecal - > getNewObjects\n";
+void popcon::EcalADCToGeVHandler::getNewObjects() {
+  std::cout << "------- Ecal - > getNewObjects\n";
 
   std::ostringstream ss; 
   ss<<"ECAL ";
@@ -70,8 +67,8 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 
 	//unused	float the_value_low_eb=0.03894;
 	// Run 1 :	float the_value_low_ee=0.05678;
-        float the_value_low_ee=0.0590975;
-        if( adc_ee > the_value_low_ee ) magnet_high=true;
+        float the_value_low_ee = 0.0590975;
+        if( adc_ee > the_value_low_ee ) magnet_high = true;
   }  // check if there is already a payload
   else something_to_transfer = true;
 
@@ -80,12 +77,6 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
 	std::cout << "Connection done" << std::endl;
 	
-	if (!econn)
-	  {
-	    std::cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
-	    throw cms::Exception("OMDS not available");
-	  } 
-
 
 	std::cout << "Retrieving last run from ONLINE DB ... " << std::endl;
 	std::map<EcalLogicID, RunDat> rundat;
@@ -111,7 +102,6 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	  } else {
 	    std::cout<< "retrieved magnet current"<<std::endl;  
 	  }
-	  
 	  
 	  float mag_cur=0;
 	  
@@ -165,41 +155,59 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
     }
 	  
     if(something_to_transfer) {
-	    
-	    std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
-	    std::cout << "going to open file "<<file_ << std::flush;
-	    
-	    
-	    EcalCondHeader   header;
-	    EcalADCToGeVConstant * payload = new EcalADCToGeVConstant;
-	    EcalADCToGeVXMLTranslator::readXML(file_,header,*payload);
-	    
-	    
-	    Time_t snc= (Time_t) irun ;
-	    
-	    popcon::PopConSourceHandler<EcalADCToGeVConstant>::m_to_transfer.push_back(
-											  std::make_pair(payload,snc));
-	    
-	    ss << "Run=" << irun << "_Magnet_changed_"<<std::endl; 
-	    m_userTextLog = ss.str()+";";
-	    
+      std::cout << "Generating popcon record for run " << irun 
+		<< "  going to open file " << file_ << "\n" << std::flush;
+      EcalADCToGeVConstant * payload = new EcalADCToGeVConstant;
+      //      EcalCondHeader   header;   // DBv1
+      //	    EcalADCToGeVXMLTranslator::readXML(file_,header,*payload);   // DBv1
+      // DBv2 poor xml file :-(
+      std::ifstream fxml;
+      fxml.open(file_.c_str());
+      std::string line, bid, bid2;
+      float val;
+      for (int il = 0; il < 4; il++) {
+	std::getline(fxml, line);
+	//	std::cout << line << "\n";
+      }
+      for (int iPart = 0; iPart < 2; iPart++) {    //  EB, EE
+	fxml >> bid;
+	std::size_t begin = bid.find_first_of(">");
+	std::size_t end = bid.find_last_of("<");
+	begin++;
+	std::string str2 = bid.substr(begin, end - begin);
+	std::size_t endmantissa = str2.find("e");
+	std::string mantissa = str2.substr(0, endmantissa);
+	std::size_t string_size = str2.size();
+	std::string exponent = str2.substr(endmantissa + 1, string_size);
+	std::istringstream is(mantissa);
+	is >> val;
+	float mult;
+	std::istringstream ise(exponent);
+	ise >> mult;
+	val = val * pow(10, mult);
+	std::cout << " Partition " << iPart << " ADCToGeV " << val << "\n";
+	if(iPart < 1) payload->setEBValue(val);
+	else payload->setEEValue(val);
+      }
+      // end change for DBv2
+ 	    
+      Time_t snc= (Time_t) irun ;
+      popcon::PopConSourceHandler<EcalADCToGeVConstant>::m_to_transfer.push_back(std::make_pair(payload,snc));
+      ss << "Run=" << irun << "_Magnet_changed_" << std::endl; 
+      m_userTextLog = ss.str()+";";
     } else {
-	    std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
-	  
-	    ss<< "Run=" << irun << "_Magnet_NOT_changed_"<<std::endl; 
-	    m_userTextLog = ss.str()+";";
+      std::cout << "Run " << irun << " nothing sent to the DB" << std::endl;
+      ss<< "Run=" << irun << "_Magnet_NOT_changed_" << std::endl; 
+      m_userTextLog = ss.str()+";";
     }
 	
     delete econn;
   }  // irun > max_since
   else {
-	    std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
-	    ss<< "Run=" << irun << "_no_new_runs_"<<std::endl; 
-	    m_userTextLog = ss.str()+";";
-
-
+    std::cout << "Run " << irun << " nothing sent to the DB" << std::endl;
+    ss<< "Run=" << irun << "_no_new_runs_"<<std::endl; 
+    m_userTextLog = ss.str()+";";
   }
-
-	std::cout << "Ecal - > end of getNewObjects -----------\n";
+  std::cout << "Ecal - > end of getNewObjects -----------\n";
 }
 

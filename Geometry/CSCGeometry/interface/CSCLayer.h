@@ -11,7 +11,7 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>

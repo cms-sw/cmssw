@@ -42,10 +42,10 @@ class GEMCoPadProcessor
   /** Returns vector of CoPads in the read-out time window, if any. */
   const std::vector<GEMCoPadDigi>& readoutCoPads();
 
- private:
   // declusterizes the clusters into single pad digis
   void declusterize(const GEMPadDigiClusterCollection*, GEMPadDigiCollection&);
 
+ private:
   /** Chamber id (trigger-type labels). */
   const int theEndcap;
   const int theStation;

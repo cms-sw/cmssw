@@ -125,7 +125,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     double layerEnergy = 0.0;
     for( auto k : neighbours4 ) {
       if( !mask[k] ) continue;
-      const auto & neighbour = hits[k];
+      auto const & neighbour = hits[k];
       const double sum = neighbour.energy(); //energyUp is just rechit energy?
       surroundingEnergy += sum;
       neighbourEnergy   += sum;
@@ -163,7 +163,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       auto const & neighbours4i = rechit.neighbours4();
       for( auto k : neighbours4i ) {
 	if( !mask[k] ) continue;
-        const auto & neighbour = hits[k];
+        auto const & neighbour = hits[k];
 	const double nenergy = neighbour.energy();
 	surroundingEnergyi += nenergy;
 	if( nenergy > enmax ) {

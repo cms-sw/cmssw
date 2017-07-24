@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"

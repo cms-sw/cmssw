@@ -49,7 +49,7 @@ public:
     ///   second sub-condition, the category of third sub-condition, the index of first sub-condition in the cor* vector,
     ///   the index of second sub-condition in the cor* vector, the index of second sub-condition in the cor* vector
     CorrelationWithOverlapRemovalTemplate(const std::string&,
-            const l1t::GtConditionCategory&, const l1t::GtConditionCategory&, const l1t::GtConditionCategory&, 
+            const l1t::GtConditionCategory&, const l1t::GtConditionCategory&, const l1t::GtConditionCategory&,
             const int, const int, const int);
 
     /// copy constructor
@@ -66,37 +66,42 @@ public:
     /// typedef for correlation parameters
     struct CorrelationWithOverlapRemovalParameter
     {
-	
+
 	// Cut values in hardware
 	long long minEtaCutValue;
-	long long maxEtaCutValue; 
+	long long maxEtaCutValue;
 	unsigned int precEtaCut;
 
 	long long minPhiCutValue;
-	long long maxPhiCutValue; 
+	long long maxPhiCutValue;
 	unsigned int precPhiCut;
 
 	long long minDRCutValue;
 	long long maxDRCutValue;
-	unsigned int precDRCut; 
+
+	unsigned int precDRCut;
 
 	long long minMassCutValue;
 	long long maxMassCutValue;
-	unsigned int precMassCut; 
+	unsigned int precMassCut;
+
+	long long minTBPTCutValue;
+	long long maxTBPTCutValue;
+	unsigned int precTBPTCut;
 
 	long long minOverlapRemovalEtaCutValue;
-	long long maxOverlapRemovalEtaCutValue; 
+	long long maxOverlapRemovalEtaCutValue;
 	unsigned int precOverlapRemovalEtaCut;
 
 	long long minOverlapRemovalPhiCutValue;
-	long long maxOverlapRemovalPhiCutValue; 
+	long long maxOverlapRemovalPhiCutValue;
 	unsigned int precOverlapRemovalPhiCut;
 
 	long long minOverlapRemovalDRCutValue;
 	long long maxOverlapRemovalDRCutValue;
-	unsigned int precOverlapRemovalDRCut; 
+	unsigned int precOverlapRemovalDRCut;
 
-        //Requirement on charge of legs (currently only Mu-Mu).	
+        //Requirement on charge of legs (currently only Mu-Mu).
 	unsigned int chargeCorrelation;
 
 	int corrCutType;

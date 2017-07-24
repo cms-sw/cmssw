@@ -70,7 +70,8 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
     Specification().groupBy("FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED")
-                   .groupBy("", "EXTEND_Y")
+                   .reduce("MEAN")
+                   .groupBy("", "EXTEND_X")
                    .save()
   )
 )
@@ -108,7 +109,9 @@ SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
+
     Specification().groupBy("Lumisection")
+                   .reduce("MEAN")
                    .groupBy("", "EXTEND_X").save(),
     Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save()
@@ -152,16 +155,21 @@ SiPixelPhase1DigisOccupancy = DefaultHistoReadout.clone(
   specs = VPSet(
     Specification(PerReadout).groupBy("PXBarrel/FED/Channel")
                              .groupBy("PXBarrel/FED", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXBarrel/FED/Channel/RocInLink")
-                             .groupBy("PXBarrel/FED/Channel", "EXTEND_Y")
-                             .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+
+    #Specification(PerReadout).groupBy("PXBarrel/FED/Channel/RocInLink") #Deactivating 2D maps giving redundant information
+    #                         .groupBy("PXBarrel/FED/Channel", "EXTEND_Y")
+    #                         .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+
     Specification(PerReadout).groupBy("PXForward/FED/Channel")
                              .groupBy("PXForward/FED", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXForward/FED/Channel/RocInLink")
-                             .groupBy("PXForward/FED/Channel", "EXTEND_Y")
-                             .groupBy("PXForward/FED", "EXTEND_X").save(),
+
+    #Specification(PerReadout).groupBy("PXForward/FED/Channel/RocInLink")
+    #                         .groupBy("PXForward/FED/Channel", "EXTEND_Y")
+    #                         .groupBy("PXForward/FED", "EXTEND_X").save(),
+
     Specification(PerReadout).groupBy("PXBarrel/FED")
                              .groupBy("PXBarrel", "EXTEND_X").save(),
+
     Specification(PerReadout).groupBy("PXForward/FED")
                              .groupBy("PXForward", "EXTEND_X").save(),
 

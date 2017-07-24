@@ -99,6 +99,8 @@ namespace edm {
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
 
+      void convertCurrentProcessAlias(std::string const& processName);
+
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
@@ -150,9 +152,6 @@ namespace edm {
                                           ModuleCallingContext const*)=0;
       virtual void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                         ModuleCallingContext const*)=0;
-
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);

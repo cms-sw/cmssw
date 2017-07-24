@@ -84,6 +84,10 @@ class HLTMuonL2FromL1TPreFilter : public HLTFilter {
 
     /// pt uncertainty margin (in number of sigmas)
     double nSigmaPt_;
+
+    /// require the matching with the L1 firing the L1 filter
+    bool matchPreviousCand_;
+
 };
 
 #endif //HLTMuonL2FromL1TPreFilter_h

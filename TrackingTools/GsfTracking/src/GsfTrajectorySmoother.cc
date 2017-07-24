@@ -6,7 +6,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DebugHelpers.h"
+#include "TrackingTools/TrackFitters/interface/DebugHelpers.h"
 
 
 GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aPropagator,
@@ -183,8 +183,8 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 		     theGeometry->idToLayer((*itm).recHit()->geographicalId() ) ),
 		  (*itm).estimate());
        LogDebug("GsfTrackFitters") << "added measurement #" << hitcounter-- <<" with chi2 " << chi2;
-       dump(predTsos,"predTsos");
-       dump(smooTsos,"smooTsos");
+       dump(predTsos,"predTsos","GsfTrackFitters");
+       dump(smooTsos,"smooTsos","GsfTrackFitters");
 
     } 
     else {
@@ -209,12 +209,12 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 		     0.,
 		     theGeometry->idToLayer((*itm).recHit()->geographicalId()) ));
        LogDebug("GsfTrackFitters") << "added invalid measurement #" << hitcounter--;
-       dump(predTsos,"predTsos");
-       dump(combTsos,"smooTsos");
+       dump(predTsos,"predTsos","GsfTrackFitters");
+       dump(combTsos,"smooTsos","GsfTrackFitters");
     }
     if ( theMerger )  currTsos = theMerger->merge(currTsos);
 
-    dump(currTsos,"currTsos");
+    dump(currTsos,"currTsos","GsfTrackFitters");
   }
 
   //last smoothed tm is last filtered
@@ -255,8 +255,8 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 		   theGeometry->idToLayer(avtm.front().recHit()->geographicalId() )),
 		avtm.front().estimate());
     LogDebug("GsfTrackFitters") << "added measurement #" << hitcounter-- <<" with chi2 " << chi2;
-    dump(predTsos,"predTsos");
-    dump(currTsos,"smooTsos");
+    dump(predTsos,"predTsos","GsfTrackFitters");
+    dump(currTsos,"smooTsos","GsfTrackFitters");
 
   }
   else {

@@ -67,7 +67,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 //added by Ajay 6Nov 2014

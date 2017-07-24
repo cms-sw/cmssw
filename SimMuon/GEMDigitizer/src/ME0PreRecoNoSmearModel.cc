@@ -18,7 +18,7 @@ ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
   for (const auto & hit: simHits)
   {
     if (std::abs(hit.particleType()) != 13) continue;
-    auto entry = hit.entryPoint();
+    const auto& entry = hit.entryPoint();
     float x=entry.x();
     float y=entry.y(); 
     float ex=0.001;
@@ -26,9 +26,7 @@ ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
     float corr=0.;
     float t = hit.timeOfFlight();
     int pdgid=hit.particleType();
-     // please keep hit time always 0 for this model
-    ME0DigiPreReco digi(x,y,ex,ey,corr,t,pdgid,1);
-    digi_.insert(digi);
+    digi_.emplace(x,y,ex,ey,corr,t,pdgid,1);
   }
 }
 

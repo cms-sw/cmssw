@@ -61,7 +61,7 @@ def L1TReEmulFromRAW2015(process):
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
 
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
         process.simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
         # When available, this will switch to TwinMux input Digis:
         process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag("dttfDigis")
@@ -100,14 +100,14 @@ def L1TReEmulFromRAW2015(process):
 
 def L1TReEmulMCFromRAW2015(process):
     L1TReEmulFromRAW2015(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
             process.simEmtfDigis.CSCInput           = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
             process.simOmtfDigis.srcCSC             = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
     return process
 
 def L1TReEmulFromRAW2015simCaloTP(process):
     L1TReEmulFromRAW2015(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
             process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
     return process
 
@@ -122,7 +122,7 @@ def L1TReEmulFromRAW(process):
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
         #cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
         #for b in cutlist:
         #    process.SimL1Emulator.remove(getattr(process,b))
@@ -163,26 +163,62 @@ def L1TReEmulFromRAW(process):
 
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
             process.simEmtfDigis.CSCInput           = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
             process.simOmtfDigis.srcCSC             = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
     return process
 
+def L1TReEmulMCFromRAWSimEcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if hasattr(process, "stage2L1Trigger"):
+            process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+    return process
+
+def L1TReEmulMCFromRAWSimHcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if hasattr(process, "stage2L1Trigger"):
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
+def L1TReEmulMCFrom90xRAWSimHcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if hasattr(process, "stage2L1Trigger"):
+            process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+                cms.InputTag('simHcalUnsuppressedDigis'),
+                cms.InputTag('simHcalUnsuppressedDigis')
+            )
+            process.simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+                cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
+                cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')
+            )
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+    #inputUpgradeLabel = cms.VInputTag(
+    #    cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
+    #    cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
+
+def L1TReEmulMCFromRAWSimCalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if hasattr(process, "stage2L1Trigger"):
+            process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
 def L1TReEmulFromRAWsimEcalTP(process):
     L1TReEmulFromRAW(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
             process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
     return process
 
 def L1TReEmulFromRAWsimHcalTP(process):
     L1TReEmulFromRAW(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
             process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
     return process
 
 def L1TReEmulFromRAWsimTP(process):
     L1TReEmulFromRAW(process)
-    if stage2L1Trigger.isChosen():
+    if hasattr(process, "stage2L1Trigger"):
         # TwinMux
         process.simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
         process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('simDtTriggerPrimitiveDigis')

@@ -51,7 +51,7 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 

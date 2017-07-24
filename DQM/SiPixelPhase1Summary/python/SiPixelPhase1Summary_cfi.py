@@ -11,10 +11,6 @@ SiPixelPhase1Summary_Online = DQMEDHarvester("SiPixelPhase1Summary",
     RunOnEndJob = cms.bool(True),
     SummaryMaps = cms.VPSet(
         cms.PSet(
-            MapName = cms.string("Grand"),
-            MapHist = cms.string("")
-            ),
-        cms.PSet(
             MapName = cms.string("Digi"),
             MapHist = cms.string("mean_num_digis")
             ),
@@ -43,10 +39,6 @@ SiPixelPhase1Summary_Offline = DQMEDHarvester("SiPixelPhase1Summary",
     RunOnEndJob = cms.bool(True),
     SummaryMaps = cms.VPSet(
         cms.PSet(
-            MapName = cms.string("Grand"),
-            MapHist = cms.string("")
-            ),
-        cms.PSet(
             MapName = cms.string("Digi"),
             MapHist = cms.string("mean_num_digis")
             ),
@@ -74,10 +66,6 @@ SiPixelPhase1Summary_Cosmics = DQMEDHarvester("SiPixelPhase1Summary",
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
     SummaryMaps = cms.VPSet(
-        cms.PSet(
-            MapName = cms.string("Grand"),
-            MapHist = cms.string("")
-            ),
         cms.PSet(
             MapName = cms.string("Digi"),
             MapHist = cms.string("mean_num_digis")

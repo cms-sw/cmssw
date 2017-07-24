@@ -11,7 +11,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 hiRegitMuMixedTripletStepTrackingRegionsA = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
     MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
     MuonTrackingRegionBuilder = dict(
-        vertexCollection = "hiSelectedVertex",
+        vertexCollection = "hiSelectedPixelVertex",
         UseVertex     = True,
         Phi_fixed     = True,
         Eta_fixed     = True,
@@ -124,7 +124,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 = 'hiRegitMuMixedTripletStepTracks',
-    vertices            = cms.InputTag("hiSelectedVertex"),
+    vertices            = cms.InputTag("hiSelectedPixelVertex"),
     useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),

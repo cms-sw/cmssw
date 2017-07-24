@@ -137,7 +137,7 @@ namespace edm {
       std::shared_ptr<ProductResolverIndexHelper>& runProductLookup() {return get_underlying_safe(runProductLookup_);}
 
       bool frozen_;
-      // Is at least one (run), (lumi), (event) product produced this process?
+      // Is at least one (run), (lumi), (event) persistent product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 

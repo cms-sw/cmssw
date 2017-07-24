@@ -8,6 +8,8 @@
 
 typedef int run_t;
 
+class IIOV;
+
 class IRunIOV {
  public:
   virtual void fetchAt(IIOV* fillIOV, const run_t run, ITag* tag) const noexcept(false) =0;

@@ -19,7 +19,7 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>

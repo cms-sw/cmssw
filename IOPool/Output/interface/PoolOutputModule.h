@@ -16,6 +16,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <regex>
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -107,6 +108,18 @@ namespace edm {
 
     typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
+    struct SpecialSplitLevelForBranch {
+      SpecialSplitLevelForBranch(std::string const& iBranchName, int iSplitLevel):
+      branch_(convert(iBranchName)),
+      splitLevel_(iSplitLevel < 1? 1: iSplitLevel) //minimum is 1
+      {}
+      bool match(std::string const& iBranchName) const;
+      std::regex convert(std::string const& iGlobBranchExpression )const;
+      
+      std::regex branch_;
+      int splitLevel_;
+    };
+    
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
@@ -126,7 +139,6 @@ namespace edm {
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
     virtual void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
     virtual void writeRun(RunForOutput const& r) override;
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
     virtual bool isFileOpen() const override;
     virtual void reallyOpenFile() override;
     virtual void reallyCloseFile() override;
@@ -157,6 +169,7 @@ namespace edm {
     RootServiceChecker rootServiceChecker_;
     AuxItemArray auxItems_;
     OutputItemListArray selectedOutputItemList_;
+    std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
     std::string const fileName_;
     std::string const logicalFileName_;
     std::string const catalog_;

@@ -1,7 +1,7 @@
 #ifndef Geometry_GEMGeometry_ME0EtaPartition_H
 #define Geometry_GEMGeometry_ME0EtaPartition_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

@@ -7,14 +7,17 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source('PoolSource',
- fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
+ fileNames = cms.untracked.vstring(#'file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root'
+'file:/afs/cern.ch/work/g/gkaratha/private/bmtf/merge/CMSSW_9_0_0_pre2/src/L1Trigger/L1TMuonBarrel/test/reSim_jpsi.root'
+
+)
 	                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -54,7 +57,7 @@ process.L1TMuonSeq = cms.Sequence( process.esProd
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tbmtf.root")
+   fileName = cms.untracked.string("l1tbmtf_merge2_test_diMuon.root")
 )
 
 process.output_step = cms.EndPath(process.out)

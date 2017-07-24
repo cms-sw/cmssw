@@ -228,15 +228,15 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     TH2CStripVsCpixel = cms.PSet(
         Nbinsx = cms.int32(150),
         xmin   = cms.double(-0.5),
-        xmax   = cms.double(74999.5),
+        xmax   = cms.double(149999.5),
         Nbinsy = cms.int32(50),
         ymin   = cms.double(-0.5),
-        ymax   = cms.double(14999.5),
+        ymax   = cms.double(29999.5),
         globalswitchon = cms.bool(True)
         ),
                                        
     MultiplicityRegions = cms.PSet(
-        k0 = cms.double(0.097),  # k from linear fit of the diagonal default 0.13
+        k0 = cms.double(0.188),  # k from linear fit of the diagonal default 0.13
         q0 = cms.double(300),   # +/- variation of y axis intercept default 300
         dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone defoult 40
         MaxClus = cms.double(26000), #Divide Region 2 and Region 3  default 20000

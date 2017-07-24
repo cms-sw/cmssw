@@ -32,6 +32,7 @@
 #include <functional>
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 namespace hltdqm {
   //here we define needed functions that otherwise dont exist
@@ -69,7 +70,13 @@ namespace hltdqm {
     else if(varName=="hOverE") varFunc = &reco::GsfElectron::hcalOverEcal;
     return varFunc;
   }
-  
+  template<>
+  std::function<float(const reco::Photon&)> getUnaryFuncExtraFloat<reco::Photon>(const std::string& varName){
+    std::function<float(const reco::Photon&)> varFunc;
+    if(varName=="scEta") varFunc = scEtaFunc<reco::Photon>;
+    else if(varName=="hOverE") varFunc = &reco::Photon::hadTowOverEm;
+    return varFunc;
+  }
   
 }
 

@@ -51,7 +51,7 @@ void HIPixelTrackFilterProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("clusterShapeCacheSrc", edm::InputTag("siPixelClusterShapeCache"));
-  desc.add<edm::InputTag>("VertexCollection", edm::InputTag("hiSelectedVertex"));
+  desc.add<edm::InputTag>("VertexCollection", edm::InputTag("hiSelectedPixelVertex"));
   desc.add<double>("ptMin", 1.5);
   desc.add<double>("ptMax", 999999.);
   desc.add<double>("tipMax", 0);

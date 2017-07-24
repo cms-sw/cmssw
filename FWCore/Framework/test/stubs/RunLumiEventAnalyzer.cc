@@ -170,16 +170,6 @@ namespace edmtest {
     }
   }
 
-  void
-  RunLumiEventAnalyzer::postForkReacquireResources(unsigned int iChildIndex, unsigned int /*iNumberOfChildren*/) {
-    if(iChildIndex == 0U) {
-      expectedRunLumisEvents_ = &expectedRunLumisEvents0_;
-      expectedEndingIndex_ = expectedEndingIndex0_;
-    } else {
-      expectedRunLumisEvents_ = &expectedRunLumisEvents1_;
-      expectedEndingIndex_ = expectedEndingIndex1_;
-    }
-  }
 }
 using edmtest::RunLumiEventAnalyzer;
 DEFINE_FWK_MODULE(RunLumiEventAnalyzer);

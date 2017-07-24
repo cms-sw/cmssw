@@ -292,7 +292,6 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
             dz_par2 = ( 0.45, 4.0 )
             ),
         ), #end of vpset
-    vertices = "pixelVertices"
 ) #end of clone
 
 

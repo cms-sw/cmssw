@@ -268,13 +268,6 @@ namespace edm {
 
       ~JobReport();
 
-      /// New output file for child
-      void childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren);
-
-      void parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren);
-
-      void parentAfterFork(std::string const& jobReportFile);
-
       /// Report that an input file has been opened.
       /// The returned Token should be used for later identification
       /// of this file.

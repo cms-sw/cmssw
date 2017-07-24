@@ -10,7 +10,7 @@ namespace reco {
     struct ParameterAdapter<OrPairSelector<S1, S2> > {
       static OrPairSelector<S1, S2> make(const edm::ParameterSet & cfg) {
 	return OrPairSelector<S1, S2>(modules::make<S1>(cfg.getParameter<edm::ParameterSet>("cut1")), 
-				      modules::make<S2>(cfg.getParameter<edm::ParameterSet>("cut2"));) 
+				      modules::make<S2>(cfg.getParameter<edm::ParameterSet>("cut2"))); 
       }
     };
 

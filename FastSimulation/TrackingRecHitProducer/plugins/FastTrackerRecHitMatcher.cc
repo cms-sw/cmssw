@@ -18,7 +18,7 @@
 // geometry stuff
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

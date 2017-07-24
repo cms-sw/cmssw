@@ -28,7 +28,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"

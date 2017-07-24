@@ -17,8 +17,6 @@ namespace stage2 {
      unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
      unsigned int bxid = block.amc().getBX();
 
-     // handle offset between BC0 marker and actual BC0...
-     if( (tmt-1) != ((bxid-1+3)%9) ) return true;
      LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
 
      // Link number is block_ID / 2

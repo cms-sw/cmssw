@@ -3,6 +3,7 @@
 // author D.Kovalskyi
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace edm {

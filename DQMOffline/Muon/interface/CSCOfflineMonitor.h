@@ -174,9 +174,13 @@ private:
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
   MonitorElement *hSTimeDiff;
+  std::vector<MonitorElement*> hSTimeDiffByChamberType;
   MonitorElement *hSTimeAnode;
+  std::vector<MonitorElement*> hSTimeAnodeByChamberType;
   MonitorElement *hSTimeCathode;
+  std::vector<MonitorElement*> hSTimeCathodeByChamberType;
   MonitorElement *hSTimeCombined;
+  std::vector<MonitorElement*> hSTimeCombinedByChamberType;
   MonitorElement *hSTimeDiffSerial;
   MonitorElement *hSTimeAnodeSerial;
   MonitorElement *hSTimeCathodeSerial;

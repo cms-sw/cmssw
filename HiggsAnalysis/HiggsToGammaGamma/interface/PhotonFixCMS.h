@@ -44,7 +44,7 @@
 #include <string>
 #include "../interface/PhotonFix.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 
 class PhotonFixCMS {
  public:

@@ -1,7 +1,17 @@
 #ifndef SimMuon_GEMDigitizer_GEMPadDigiClusterProducer_h
 #define SimMuon_GEMDigitizer_GEMPadDigiClusterProducer_h
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+/** 
+ *  \class ME0PadDigiClusterProducer
+ *
+ *  Produces GEM pad clusters from at most 8 adjacent GEM pads.
+ *  Clusters are used downstream in the CSC local trigger to build 
+ *  GEM-CSC triggers and in the muon trigger to build EMTF tracks
+ *   
+ *  \author Sven Dildick (TAMU)
+ */
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

@@ -24,6 +24,7 @@ namespace edm {
     static boost::regex const reComma(",");
     static boost::regex const reTemplateArgs("[^<]*<(.*)>$");
     static boost::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
+    static boost::regex const rePointer("\\*");
     static std::string const emptyString("");
 
     std::string handleNamespaces(std::string const& iIn) {
@@ -78,6 +79,7 @@ namespace edm {
        using boost::regex_replace;
        using boost::regex;
        std::string name = regex_replace(iIn, reWrapper, "$1");
+       name = regex_replace(name,rePointer,"ptr");
        name = regex_replace(name,reAIKR,"");
        name = regex_replace(name,reclangabi,"std::");
        name = regex_replace(name,reCXX11,"std::");

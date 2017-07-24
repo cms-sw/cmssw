@@ -42,7 +42,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

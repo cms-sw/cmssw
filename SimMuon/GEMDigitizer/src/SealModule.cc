@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModelFactory.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
-
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
 DEFINE_FWK_MODULE(GEMDigiProducer);
@@ -31,5 +31,14 @@ DEFINE_EDM_PLUGIN(ME0DigiPreRecoModelFactory, ME0PreRecoGaussianModel, "ME0PreRe
 #include "SimMuon/GEMDigitizer/interface/ME0ReDigiProducer.h"
 DEFINE_FWK_MODULE(ME0ReDigiProducer);
 
+#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
+DEFINE_FWK_MODULE(ME0DigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0SimpleModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiModelFactory, ME0SimpleModel, "ME0SimpleModel");
+
 #include "SimMuon/GEMDigitizer/interface/ME0PadDigiProducer.h"
 DEFINE_FWK_MODULE(ME0PadDigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
+DEFINE_FWK_MODULE(ME0PadDigiClusterProducer);

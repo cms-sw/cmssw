@@ -368,7 +368,7 @@ void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> 
     std::vector<std::string> mylabels(filterLabels_);
     for (unsigned int i = 0, n = filterLabelIndices_.size(), m = labels.size(); i < n; ++i) {
         if (filterLabelIndices_[i] >= m) throw cms::Exception("RuntimeError", "Error, filter label index out of bounds");
-        mylabels.push_back(labels[i]);
+        mylabels.push_back(labels[filterLabelIndices_[i]]);
     }
     filterLabelIndices_.clear();
     filterLabels_.swap(mylabels);

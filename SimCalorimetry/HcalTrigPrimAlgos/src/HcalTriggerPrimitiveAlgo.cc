@@ -197,6 +197,10 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
 {
+   HcalDetId detId = frame.detid();
+   // prevent QIE10 calibration channels from entering TP emulation
+   if(detId.subdet() != HcalForward) return;
+
    auto ids = theTrigTowerGeometry->towerIds(frame.id());
    for (const auto& id: ids) {
       if (id.version() == 0) {
@@ -228,6 +232,9 @@ void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 {
    HcalDetId detId(frame.id());
+   // prevent QIE11 calibration channels from entering TP emulation
+   if(detId.subdet() != HcalEndcap && detId.subdet() != HcalBarrel) return;
+
    std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    assert(ids.size() == 1 || ids.size() == 2);
    IntegerCaloSamples samples1(ids[0], int(frame.samples()));
@@ -527,6 +534,9 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
 bool
 HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
 {
+   // channels with invalid data should not contribute to the sum
+   if(digi.linkError() || ts>=digi.samples() || !digi[ts].ok()) return false;
+
    auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
    if (mask)
       return false;
