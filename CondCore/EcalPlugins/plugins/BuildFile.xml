@@ -31,3 +31,36 @@
   <use   name="CondFormats/EcalObjects"/>
   <use   name="boost_python"/>
 </library>
+
+<library   file="EcalIntercalibConstants_PayloadInspector.cc" name="EcalIntercalibConstants_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library> 
+
+<library   file="EcalLaserAPDPNRatios_PayloadInspector.cc" name="EcalLaserAPDPNRatios_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalGainRatios_PayloadInspector.cc" name="EcalGainRatios_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalAlignment_PayloadInspector.cc" name="EcalAlignment_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
