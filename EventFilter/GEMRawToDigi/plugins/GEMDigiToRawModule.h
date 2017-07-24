@@ -39,8 +39,7 @@ class GEMDigiToRawModule : public edm::EDProducer {
 
  private:
 
-  GEMDigiToRaw * packer;
-
+  int event_type_;
   edm::EDGetTokenT<GEMDigiCollection>             digi_token;
   edm::EDGetTokenT<GEMPadDigiCollection>          padDigi_token;
   edm::EDGetTokenT<GEMPadDigiClusterCollection>   padDigiCluster_token;
