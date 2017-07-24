@@ -7,7 +7,8 @@ output_names = ["ID_pred/Softmax:0", "regression_pred/BiasAdd:0"]
 pfDeepFlavourJetTags = cms.EDProducer(
     'DeepFlavourJetTagProducer',
     src = cms.InputTag('pfDeepFlavourTagInfos'),
-    graph_path = cms.string('/afs/cern.ch/work/p/pdecastr/public/Deep/model_24072017/tf'),
+    graph_path = cms.string('/afs/cern.ch/work/p/pdecastr/public/Deep/model_24072017_updated/tf'),
+
     flav_table = cms.PSet(
                       probb = cms.vuint32([0]),
                       probbb = cms.vuint32([1]),
