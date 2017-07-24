@@ -233,7 +233,7 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
 
 
 def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
-                  algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix, jetSourceOriginal):
+                  algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
 
     task = getPatAlgosToolsTask(process)
 
@@ -549,10 +549,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
             if btagInfo == 'pfDeepFlavourTagInfos':
                 # as if now the training tag info is based on corrected jets
+                # so we expect a bit of a loss on performance
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepFlavourTagInfos.clone(
-                                      jets_uncorrected = jetSource,
-                                      jets = jetSourceOriginal),
+                                      jets = jetSource),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -1096,7 +1096,7 @@ class AddJetCollection(ConfigToolBase):
         ## run btagging if required by user
         if (bTagging):
             setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
-                          _algo, rParam, btagDiscriminators, btagInfos, _newPatJets, _labelName, btagPrefix, postfix, jetSourceOriginal)
+                          _algo, rParam, btagDiscriminators, btagInfos, _newPatJets, _labelName, btagPrefix, postfix)
         else:
             _newPatJets.addBTagInfo = False
             _newPatJets.addTagInfos = False
@@ -1544,7 +1544,6 @@ class UpdateJetCollection(ConfigToolBase):
             sys.stderr.write("will first be undone for 'updatedPatJets%s' and then applied to\n" % (_labelName+postfix) )
             sys.stderr.write("'updatedPatJetsTransientCorrected%s'.\n" % (_labelName+postfix) )
             sys.stderr.write("**************************************************************\n")
-            jetSourceOriginal = jetSource
             _jetSource = cms.InputTag('updatedPatJets'+_labelName+postfix)
             ## insert new jet collection with jet corrections applied and btag info added
             self(
@@ -1572,7 +1571,7 @@ class UpdateJetCollection(ConfigToolBase):
             ## setup btagging
             _patJets=getattr(process, 'updatedPatJetsTransientCorrected'+_labelName+postfix)
             setupBTagging(process, _jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
-                          _algo, rParam, btagDiscriminators, btagInfos, _patJets, _labelName, btagPrefix, postfix, jetSourceOriginal)
+                          _algo, rParam, btagDiscriminators, btagInfos, _patJets, _labelName, btagPrefix, postfix)
             ## update final selected jets
             _newSelectedPatJets=getattr(process, 'selectedUpdatedPatJets'+_labelName+postfix)
             _newSelectedPatJets.src='updatedPatJetsTransientCorrected'+_labelName+postfix
