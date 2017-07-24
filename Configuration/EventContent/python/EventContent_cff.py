@@ -545,6 +545,11 @@ PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCol
 if fastSim.isChosen():
     PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
+from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
+hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,
+    func=lambda outputCommands: outputCommands.append('keep *_simHcalDigis_*_*')
+)
+
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
 PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_mix_*_*')
