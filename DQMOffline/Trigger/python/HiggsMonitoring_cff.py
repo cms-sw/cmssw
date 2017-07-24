@@ -1,6 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.VBFMETMonitor_cff import *
 from DQMOffline.Trigger.VBFTauMonitor_cff import *
 from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cff import *
