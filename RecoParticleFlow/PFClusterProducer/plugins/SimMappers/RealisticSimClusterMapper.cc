@@ -44,7 +44,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     const SimClusterCollection& simClusters = *simClusterH_;
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;
-    constexpr const int numberOfLayers = 52;
+    const int numberOfLayers = rhtools_.getLayer(ForwardSubdetector::ForwardEmpty);
     //TODO: get number of layers+1 from geometry
     realisticAssociator.init(hits.size(), simClusters.size(), numberOfLayers + 1);
     // for quick indexing back to hit energy
