@@ -42,6 +42,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <set>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -58,6 +59,8 @@ static char const* const kLibraryOpt = "library";
 static char const* const kLibraryCommandOpt = "library,l";
 static char const* const kPathOpt = "path";
 static char const* const kPathCommandOpt = "path,p";
+static char const* const kPluginOpt = "plugin";
+static char const* const kPluginCommandOpt = "plugin,x";
 
 namespace {
   void getMatchingPluginNames(edmplugin::PluginInfo const& pluginInfo,
@@ -78,7 +81,8 @@ namespace {
   }
 
   void writeCfisForPlugin(std::string const& pluginName,
-                          edm::ParameterSetDescriptionFillerPluginFactory* factory) {
+                          edm::ParameterSetDescriptionFillerPluginFactory* factory,
+                          std::set<std::string>& usedCfiFileNames) {
     std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
 
     std::string baseType = filler->baseType();
@@ -99,7 +103,7 @@ namespace {
 
     try {
       edm::convertException::wrap([&]() {
-        descriptions.writeCfis(baseType, pluginName);
+        descriptions.writeCfis(baseType, pluginName, usedCfiFileNames);
       });
     }
     catch(cms::Exception& e) {
@@ -143,14 +147,15 @@ try {
 
   // Process the command line arguments
   std::string descString(argv[0]);
-  descString += " [options] [--";
+  descString += " [options] [[--";
   descString += kLibraryOpt;
-  descString += "] library_filename\n\n";
+  descString += "] library_filename]\n\n";
   descString += "Generates and writes configuration files that have the suffix _cfi.py.\n";
   descString += "One configuration file is written for each configuration defined with a\n";
   descString += "module label in the fillDescriptions functions of the plugins in the library.\n";
   descString += "Silently does nothing if the library is not in the edmplugincache, does not\n";
-  descString += "exist at all, or the plugins in the library have not defined any configurations.\n\n";
+  descString += "exist at all, or the plugins in the library have not defined any configurations.\n";
+  descString += "Instead of specifying a library, there is also an option to specify a plugin.\n\n";
   descString += "Allowed options";
   boost::program_options::options_description desc(descString);
   desc.add_options()
@@ -167,7 +172,10 @@ try {
                    "a filename without any directories.  In that case, it is assumed "
                    "the build system has already put the library file in the "
                    "appropriate place, built the edmplugincache, and the PluginManager "
-                   "is used to find and load the library.");
+                   "is used to find and load the library.")
+                  (kPluginCommandOpt,
+                   boost::program_options::value<std::string>(),
+                   "plugin name. You must specify either a library or plugin, but not both.");
 
   boost::program_options::positional_options_description p;
   p.add(kLibraryOpt, -1);
@@ -189,23 +197,36 @@ try {
   }
 
   std::string library;
+  std::string requestedPlugin;
 
   try {
     edm::convertException::wrap([&]() {
 
+      if(vm.count(kLibraryOpt) && vm.count(kPluginOpt)) {
+        throw cms::Exception("Command Line Arguments")
+          << "Both library and plugin specified. You must specify one or the other, but not both.";
+      }
       if(vm.count(kLibraryOpt)) {
         library = vm[kLibraryOpt].as<std::string>();
       }
+      else if(vm.count(kPluginOpt)) {
+        requestedPlugin = vm[kPluginOpt].as<std::string>();
+      }
       else {
         throw cms::Exception("Command Line Arguments")
-          << "No library specified";
+          << "No library or plugin specified. You must specify one or the other (but not both).";
       }
 
       edm::ParameterSetDescriptionFillerPluginFactory* factory;
       std::vector<std::string> pluginNames;
 
+      if(vm.count(kPluginOpt)) {
+        edmplugin::PluginManager::configure(edmplugin::standard::config());
+        factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
+        pluginNames.push_back(requestedPlugin);
+      }
       // If using the PluginManager to find the library
-      if(!vm.count(kPathOpt)) {
+      else if(!vm.count(kPathOpt)) {
 
         // From the PluginManager get a reference to a
         // a vector of PlugInInfo's for plugins defining ParameterSetDescriptions.
@@ -280,15 +301,19 @@ try {
                                                          std::cref(factory->category())));
       }
 
+      std::set<std::string> usedCfiFileNames;
       edm::for_all(pluginNames, std::bind(&writeCfisForPlugin,
                                             _1,
-                                            factory));
+                                            factory,
+                                            std::ref(usedCfiFileNames)));
     });
   }
   catch (cms::Exception & iException) {
-    std::ostringstream ost;
-    ost << "Processing library " << library;
-    iException.addContext(ost.str());
+    if (!library.empty()) {
+      std::ostringstream ost;
+      ost << "Processing library " << library;
+      iException.addContext(ost.str());
+    }
     iException.addContext("Running executable \"edmWriteConfigs\"");
     std::cerr
       << "----- Begin Fatal Exception "
