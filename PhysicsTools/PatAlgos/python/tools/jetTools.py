@@ -552,7 +552,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 # so we expect a bit of a loss on performance
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepFlavourTagInfos.clone(
-                                      jets = jetSource),
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svSource),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -892,7 +894,7 @@ class AddJetCollection(ConfigToolBase):
         getJetMCFlavour=self._parameters['getJetMCFlavour'].value
         genJetCollection=self._parameters['genJetCollection'].value
         genParticles=self._parameters['genParticles'].value
-        jetCorrections=sel, jetSourceOriginalf._parameters['jetCorrections'].value
+        jetCorrections=self._parameters['jetCorrections'].value
         btagDiscriminators=list(self._parameters['btagDiscriminators'].value)
         btagInfos=list(self._parameters['btagInfos'].value)
         jetTrackAssociation=self._parameters['jetTrackAssociation'].value
