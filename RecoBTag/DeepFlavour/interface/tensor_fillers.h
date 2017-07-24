@@ -1,12 +1,12 @@
 #ifndef RecoBTag_DeepFlavour_tensor_fillers_h
 #define RecoBTag_DeepFlavour_tensor_fillers_h
 
-#include "DNN/Tensorflow/interface/Tensor.h"
+#include "PhysicsTools/TensorflowInterface/interface/Tensor.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
 namespace deep {
 
-  void jet_tensor_filler(dnn::tf::Tensor * tensor,
+  void jet_tensor_filler(tf::Tensor * tensor,
                          std::size_t jet_n,
                          const deep::DeepFlavourFeatures & features) {
 
@@ -33,7 +33,7 @@ namespace deep {
 
   } 
 
-  void c_pf_tensor_filler(dnn::tf::Tensor * tensor,
+  void c_pf_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
                           const deep::ChargedCandidateFeatures & c_pf_features) {
@@ -57,7 +57,7 @@ namespace deep {
 
   }
 
-  void n_pf_tensor_filler(dnn::tf::Tensor * tensor,
+  void n_pf_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t n_pf_n,
                           const deep::NeutralCandidateFeatures & n_pf_features) {
@@ -71,7 +71,7 @@ namespace deep {
 
   }
 
-  void sv_tensor_filler(dnn::tf::Tensor * tensor,
+  void sv_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t sv_n,
                           const deep::SecondaryVertexFeatures & sv_features) {

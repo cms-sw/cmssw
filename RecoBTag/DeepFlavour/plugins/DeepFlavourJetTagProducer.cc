@@ -14,8 +14,8 @@
 
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
-#include "DNN/Tensorflow/interface/Graph.h"
-#include "DNN/Tensorflow/interface/Tensor.h"
+#include "PhysicsTools/TensorflowInterface/interface/Graph.h"
+#include "PhysicsTools/TensorflowInterface/interface/Tensor.h"
 
 #include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
 
@@ -45,10 +45,10 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
     std::vector<std::string> output_names_;
 
     // graph for TF evaluation
-    dnn::tf::Graph graph_;
+    tf::Graph graph_;
     // not owing vector of pointers for inputs and outputs
-    std::vector<dnn::tf::Tensor *> dnn_inputs_;
-    std::vector<dnn::tf::Tensor *> dnn_outputs_;
+    std::vector<tf::Tensor *> dnn_inputs_;
+    std::vector<tf::Tensor *> dnn_outputs_;
 
 
 };
@@ -75,24 +75,21 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   }
 
   for (const auto & input_name : input_names_) {
-    dnn_inputs_.emplace_back(graph_.defineInput(new dnn::tf::Tensor(input_name)));
+    dnn_inputs_.emplace_back(graph_.defineInput(new tf::Tensor(input_name)));
   }
 
   // required because of batch norm
   // names for the learing phase placeholders (to init and set as false)
   const auto & lp_names = iConfig.getParameter<std::vector<std::string>>("lp_names");
   for (const auto & lp_name : lp_names) {
-    auto input_ptr = graph_.defineInput(new dnn::tf::Tensor(lp_name));
+    auto input_ptr = graph_.defineInput(new tf::Tensor(lp_name));
     input_ptr->setArray(0, nullptr);
     input_ptr->setValue<bool>(false);
   }
 
   for (const auto & output_name : output_names_) {
-    dnn_outputs_.emplace_back(graph_.defineOutput(new dnn::tf::Tensor(output_name)));
+    dnn_outputs_.emplace_back(graph_.defineOutput(new tf::Tensor(output_name)));
   }
-
-
-  
 
 }
 
@@ -113,8 +110,8 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
 
-  auto n_jets = dnn::tf::Shape(tag_infos->size());
-  std::vector<std::vector<dnn::tf::Shape>> input_sizes {
+  auto n_jets = tf::Shape(tag_infos->size());
+  std::vector<std::vector<tf::Shape>> input_sizes {
     {n_jets, 15},         // input_1 - global jet features
     {n_jets, 25, 16},     // input_2 - charged pf
     {n_jets, 25, 6},      // input_3 - neutral pf
@@ -185,8 +182,8 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
 
-        o_sum +=  dnn_outputs_.at(0)->getValue<float>((dnn::tf::Shape) jet_n,
-                                                      (dnn::tf::Shape) ind);
+        o_sum +=  dnn_outputs_.at(0)->getValue<float>((tf::Shape) jet_n,
+                                                      (tf::Shape) ind);
       } 
       (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }
