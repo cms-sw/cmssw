@@ -14,8 +14,6 @@ class JetFeatures {
     float mass;
     float energy;
 
-    float looseId;
-
 };
 
 }
