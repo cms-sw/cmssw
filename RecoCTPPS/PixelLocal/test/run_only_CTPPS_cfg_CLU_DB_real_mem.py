@@ -40,7 +40,6 @@ duplicateCheckMode = cms.untracked.string("checkEachFile")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
-
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
