@@ -151,8 +151,7 @@ l1TriggerEmulatorOnline = cms.Sequence(
                                 )
 
 l1TriggerEmulatorOffline = cms.Sequence(
-    l1TriggerEmulatorOnline *
-    l1tStage2CaloLayer2OfflineDQMEmu 
+    l1TriggerEmulatorOnline 
 )
 #
 
