@@ -12,7 +12,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
   toaMode_(WEIGHTEDBYE)
 {
   tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
-
+  thresholdFollowsMIP_ = ps.getParameter< bool >("thresholdFollowsMIP");
   fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
   edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
   if( ps.exists("adcPulse") )                       
@@ -67,7 +67,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness)
+void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness, float cce)
 {
   bool debug(false);
   
@@ -78,13 +78,14 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
   if(debug) edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
   
   //set new ADCs
- 
+  const float adj_thresh = thresholdFollowsMIP_ ? thickness*adcThreshold_fC_*cce : thickness*adcThreshold_fC_;
+
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {      
       //brute force saturation, maybe could to better with an exponential like saturation      
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_fC_) / adcLSB_fC_ );
       HGCSample newSample;
-      newSample.set(chargeColl[it]>thickness*adcThreshold_fC_,false,0,adc);
+      newSample.set(chargeColl[it]>adj_thresh,false,0,adc);
       dataFrame.setSample(it,newSample);
 
       if(debug) edm::LogVerbatim("HGCFE") << adc << " (" << chargeColl[it] << "/" << adcLSB_fC_ << ") ";
@@ -99,7 +100,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness)
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness, float cce)
 {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
@@ -129,12 +130,14 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
     }
 
   //set new ADCs
+    const float adj_thresh = thresholdFollowsMIP_ ? thickness*adcThreshold_fC_*cce : thickness*adcThreshold_fC_;
+ 
     for(int it=0; it<(int)(newCharge.size()); it++)
     {
       //brute force saturation, maybe could to better with an exponential like saturation
       const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
       HGCSample newSample;
-      newSample.set(newCharge[it]>thickness*adcThreshold_fC_,false,0,floor(saturatedCharge/adcLSB_fC_));
+      newSample.set(newCharge[it]>adj_thresh,false,0,std::floor(saturatedCharge/adcLSB_fC_));
       dataFrame.setSample(it,newSample);      
 
       if(debug) edm::LogVerbatim("HGCFE") << std::floor(saturatedCharge/adcLSB_fC_) << " (" << saturatedCharge << "/" << adcLSB_fC_ <<" ) " ;
@@ -149,7 +152,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, int thickness, CLHEP::HepRandomEngine* engine)
+void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, int thickness, CLHEP::HepRandomEngine* engine, float cce)
 {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -313,7 +316,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
-  const float adj_thresh = thickness*adcThreshold_fC_;
+  const float adj_thresh = thresholdFollowsMIP_ ? thickness*adcThreshold_fC_*cce : thickness*adcThreshold_fC_;
   for(int it=0; it<(int)(newCharge.size()); it++)
     {
       if(debug) edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";

@@ -110,7 +110,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   verbosity_         = ps.getUntrackedParameter< uint32_t >("verbosity",0);
   tofDelay_          = ps.getParameter< double >("tofDelay");  
-  
+
   std::unordered_set<DetId>().swap(validIds_);
   
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits",hitCollection_));
@@ -296,9 +296,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     
     if (verbosity_>0) {
       if (producesEEDigis())
-	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << std::dec << " o/p " << id.rawId() << std::endl;
+	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec << std::endl;
       else
-	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << std::dec << " o/p " << id.rawId() << std::endl;
+	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec << std::endl;
     }
 
     if( 0 != id.rawId() ) {      
