@@ -140,7 +140,7 @@ l1TriggerOnline = cms.Sequence(
 
 l1TriggerOffline = cms.Sequence(
     l1TriggerOnline *
-    dqmEnvL1TriggerReco 
+    dqmEnvL1TriggerReco
 )
 
 #
