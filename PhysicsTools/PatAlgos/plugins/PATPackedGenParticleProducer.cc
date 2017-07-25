@@ -49,7 +49,6 @@ namespace pat {
     const edm::EDGetTokenT<reco::GenParticleCollection>    GenOrigs_;
     const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
     const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
-    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
     const double maxRapidity_;
   };
 }
@@ -59,7 +58,6 @@ pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::Param
   GenOrigs_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputOriginal"))),
   Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
   AssoOriginal_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("inputCollection"))),
-  PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   maxRapidity_(iConfig.getParameter<double>("maxRapidity"))
 {
   produces< std::vector<pat::PackedGenParticle> > ();
@@ -84,16 +82,6 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
     edm::Handle<reco::GenParticleCollection> genOrigs;
     iEvent.getByToken( GenOrigs_, genOrigs);
     std::vector<int> mapping(genOrigs->size(), -1);
-
-
-    edm::Handle<reco::VertexCollection> PVs;
-    iEvent.getByToken( PVs_, PVs );
-    reco::VertexRef PV(PVs.id());
-    math::XYZPoint  PVpos;
-    if (!PVs->empty()) {
-        PV = reco::VertexRef(PVs, 0);
-        PVpos = PV->position();
-    }
 
     //invert the value map from Orig2New to New2Orig
     std::map< edm::Ref<reco::GenParticleCollection> ,  edm::Ref<reco::GenParticleCollection> > reverseMap;
