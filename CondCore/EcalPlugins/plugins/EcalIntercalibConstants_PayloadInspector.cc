@@ -21,8 +21,8 @@
 
 namespace {
   enum {kEBChannels = 61200, kEEChannels = 14648};
-  enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360};   // barrel lower and upper bounds on eta and phi
-  enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100};         // endcaps lower and upper bounds on x and y
+  enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360, EBhistEtaMax = 171};   // barrel lower and upper bounds on eta and phi
+  enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100, EEhistXMax = 220};           // endcaps lower and upper bounds on x and y
 
   /*******************************************************
    
@@ -33,13 +33,10 @@ namespace {
   // inherit from one of the predefined plot class: Histogram2D
   class EcalIntercalibConstantsEBMap : public cond::payloadInspector::Histogram2D<EcalIntercalibConstants> {
 
-  private:
-    int EBhistEtaMax = 2 * EBDetId::MAX_IETA + 1;
-
   public:
     EcalIntercalibConstantsEBMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>("ECAL Barrel Intercalib Constants - map ",
-												  "iphi", EBDetId::MAX_IPHI, EBDetId::MIN_IPHI, EBDetId::MAX_IPHI + 1,
-												  "ieta", EBhistEtaMax, -EBDetId::MAX_IETA, EBDetId::MAX_IETA + 1) {
+												  "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI + 1,
+												  "ieta", EBhistEtaMax, -MAX_IETA, MAX_IETA + 1) {
       Base::setSingleIov( true );
     }
 
@@ -52,7 +49,7 @@ namespace {
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  if (!payload->barrelItems().size()) return false;
 	  // set to -1 for ieta 0 (no crystal)
-	  for(int iphi = EBDetId::MIN_IPHI; iphi < EBDetId::MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
+	  for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
 
 	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
 	    uint32_t rawid = EBDetId::unhashIndex(cellid);
@@ -76,12 +73,11 @@ namespace {
 
   private:
     int EEhistSplit = 20;
-    int EEhistXMax = 2 * EEDetId::IX_MAX +  EEhistSplit;
 
   public:
     EcalIntercalibConstantsEEMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>( "ECAL Endcap Intercalib Constants - map ",
-												   "ix", EEhistXMax, EEDetId::IX_MIN, EEhistXMax + 1, 
-												   "iy", EEDetId::IY_MAX, EEDetId::IY_MIN, EEDetId::IY_MAX + 1) {
+												   "ix", EEhistXMax, IX_MIN, EEhistXMax + 1, 
+												   "iy", IY_MAX, IY_MIN, IY_MAX + 1) {
       Base::setSingleIov( true );
     }
 
@@ -93,8 +89,8 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // set to -1 everywhwere
-	  for(int ix = EEDetId::IX_MIN; ix < EEhistXMax + 1; ix++)
-	    for(int iy = EEDetId::IY_MAX; iy < EEDetId::IY_MAX + 1; iy++)
+	  for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
+	    for(int iy = IY_MAX; iy < IY_MAX + 1; iy++)
 	      fillWithValue(ix, iy, -1);
 
 	  for (int cellid = 0;  cellid < EEDetId::kSizeForDenseIndexing; ++cellid){    // loop on EE cells
@@ -107,7 +103,7 @@ namespace {
 	      if(myEEId.zside() == -1)
 		fillWithValue(myEEId.ix(), myEEId.iy(), weight);
 	      else
-		fillWithValue(myEEId.ix() + EEDetId::IX_MAX + EEhistSplit, myEEId.iy(), weight);
+		fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
 	    }  // validDetId 
 	  }   // loop over cellid
 	}    // payload
