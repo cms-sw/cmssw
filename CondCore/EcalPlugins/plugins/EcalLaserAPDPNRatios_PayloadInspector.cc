@@ -21,8 +21,8 @@
 
 namespace {
   enum {kEBChannels = 61200, kEEChannels = 14648};
-  enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360};   // barrel lower and upper bounds on eta and phi
-  enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100};         // endcaps lower and upper bounds on x and y
+  enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360, EBhistEtaMax = 171};   // barrel lower and upper bounds on eta and phi
+  enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100, EEhistXMax = 220};           // endcaps lower and upper bounds on x and y
 
   /*******************************************************
    
@@ -34,13 +34,10 @@ namespace {
   // inherit from one of the predefined plot class: Histogram2D
   class EcalLaserAPDPNRatiosEBMap : public cond::payloadInspector::Histogram2D<EcalLaserAPDPNRatios> {
 
-  private:
-    int EBhistEtaMax = 2 * EBDetId::MAX_IETA + 1;
-
   public:
     EcalLaserAPDPNRatiosEBMap() : cond::payloadInspector::Histogram2D<EcalLaserAPDPNRatios>( "ECAL Barrel APDPNRatios - map ",
-											     "iphi", EBDetId::MAX_IPHI, EBDetId::MIN_IPHI, EBDetId::MAX_IPHI + 1,
-											     "ieta", EBhistEtaMax, -EBDetId::MAX_IETA, EBDetId::MAX_IETA + 1) {
+											     "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI + 1,
+											     "ieta", EBhistEtaMax, -MAX_IETA, MAX_IETA + 1) {
     Base::setSingleIov( true );
     }
 
@@ -70,12 +67,11 @@ namespace {
 
   private:
     int EEhistSplit = 20;
-    int EEhistXMax = 2 * EEDetId::IX_MAX +  EEhistSplit;
 
   public:
     EcalLaserAPDPNRatiosEEMap() : cond::payloadInspector::Histogram2D<EcalLaserAPDPNRatios>( "ECAL Endcap APDPNRatios - map ",
-											     "ix", EEhistXMax, EEDetId::IX_MIN, EEhistXMax + 1, 
-											     "iy", EEDetId::IY_MAX, EEDetId::IY_MIN, EEDetId::IY_MAX + 1) {
+											     "ix", EEhistXMax, IX_MIN, EEhistXMax + 1, 
+											     "iy", IY_MAX, IY_MIN, IY_MAX + 1) {
       Base::setSingleIov( true );
     }
 
@@ -86,8 +82,8 @@ namespace {
 	if( payload.get() ){
 
 	  // set to -1 everywhwere
-	  for(int ix = EEDetId::IX_MIN; ix < EEhistXMax + 1; ix++)
-	    for(int iy = EEDetId::IY_MAX; iy < EEDetId::IY_MAX + 1; iy++)
+	  for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
+	    for(int iy = IY_MAX; iy < IY_MAX + 1; iy++)
 	      fillWithValue(ix, iy, -1);
 
 	  for(int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {
@@ -98,7 +94,7 @@ namespace {
 	    if(myEEId.zside() == -1)
 	      fillWithValue(myEEId.ix(), myEEId.iy(), p2);
 	    else
-	      fillWithValue(myEEId.ix() + EEDetId::IX_MAX + EEhistSplit, myEEId.iy(), p2);
+	      fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), p2);
 	  }   // loop over cellid
 	}    // payload
       }     // loop over IOV's (1 in this case)
@@ -295,13 +291,13 @@ namespace {
 	      pEE[2][cellid] = (payload->getLaserMap())[rawid].p3;
 	    }
 	    else {
-	      double diff1 = pEE[0][cellid] - (payload->getLaserMap())[rawid].p1;
+	      double diff1 = (payload->getLaserMap())[rawid].p1 - pEE[0][cellid];
 	      if(diff1 < pEEmin[0]) pEEmin[0] = diff1;
 	      if(diff1 > pEEmax[0]) pEEmax[0] = diff1;
-	      double diff2 = pEE[1][cellid] - (payload->getLaserMap())[rawid].p2;
+	      double diff2 = (payload->getLaserMap())[rawid].p2 - pEE[1][cellid];
 	      if(diff2 < pEEmin[1]) pEEmin[1] = diff2;
 	      if(diff2 > pEEmax[1]) pEEmax[1] = diff2;
-	      double diff3 = pEE[2][cellid] - (payload->getLaserMap())[rawid].p3;
+	      double diff3 = (payload->getLaserMap())[rawid].p3 - pEE[2][cellid];
 	      if(diff3 < pEEmin[2]) pEEmin[2] = diff3;
 	      if(diff3 > pEEmax[2]) pEEmax[2] = diff3;
 	      if (myEEId.zside() == 1) {
@@ -328,7 +324,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i - %i", run[0], run[1]));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i - %i", run[1], run[0]));
 
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
