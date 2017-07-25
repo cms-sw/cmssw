@@ -231,17 +231,8 @@ namespace {
 	      if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	      else eta  = eta + 0.5;         //  -84.5 to -0.5
 	      double diff = weight - pEB[cellid];
-	      std::cout << " channel " << cellid << " new " << weight << " old " << pEB[cellid] << " diff " << diff << std::endl;
-	      //	      if(diff < pEBmin) pEBmin = diff;
-	      //	      if(diff > pEBmax) pEBmax = diff;
-	      if(diff < pEBmin) {
-		pEBmin = diff;
-		std::cout << " new min " << pEBmin << std::endl;
-	      }
-	      if(diff > pEBmax) {
-		pEBmax = diff;
-		std::cout << " new max " << pEBmax << std::endl;
-	      }
+	      if(diff < pEBmin) pEBmin = diff;
+	      if(diff > pEBmax) pEBmax = diff;
 	      barrel->Fill(phi, eta, diff);
 	    }
 	  }// loop over cellid

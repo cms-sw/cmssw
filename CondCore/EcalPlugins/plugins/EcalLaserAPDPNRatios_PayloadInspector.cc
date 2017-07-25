@@ -265,15 +265,15 @@ namespace {
 	      Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
 	      if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	      else eta  = eta + 0.5;         //  -84.5 to -0.5
-	      double diff = pEB[0][cellid] - (payload->getLaserMap())[rawid].p1;
+	      double diff = (payload->getLaserMap())[rawid].p1 - pEB[0][cellid];
 	      if(diff < pEBmin[0]) pEBmin[0] = diff;
 	      if(diff > pEBmax[0]) pEBmax[0] = diff;
 	      barrel[0]->Fill(phi, eta, diff);
-	      diff = pEB[1][cellid] - (payload->getLaserMap())[rawid].p2;
+	      diff = (payload->getLaserMap())[rawid].p2 - pEB[1][cellid];
 	      if(diff < pEBmin[1]) pEBmin[1] = diff;
 	      if(diff > pEBmax[1]) pEBmax[1] = diff;
 	      barrel[1]->Fill(phi, eta, diff);
-	      diff = pEB[2][cellid] - (payload->getLaserMap())[rawid].p3;
+	      diff = (payload->getLaserMap())[rawid].p3 - pEB[2][cellid];
 	      if(diff < pEBmin[2]) pEBmin[2] = diff;
 	      if(diff > pEBmax[2]) pEBmax[2] = diff;
 	      barrel[2]->Fill(phi, eta, diff);
