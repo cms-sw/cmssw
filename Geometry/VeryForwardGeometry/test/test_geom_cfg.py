@@ -1,29 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DUMP")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process = cms.Process("CTPPS")
 
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'START36_V10::All'
+from FWCore.MessageLogger.MessageLogger_cfi import *
 
-process.source = cms.Source("EmptySource")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+
+from Geometry.VeryForwardGeometry.geometryRP_cfi import XMLIdealGeometryESSource_CTPPS
+
+process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+process.source = cms.Source("EmptySource")
 
-process.add_(cms.ESProducer("TGeoMgrFromDdd",
-        verbose = cms.untracked.bool(False),
-        level   = cms.untracked.int32(14)
-))
-
-process.dump = cms.EDAnalyzer("DumpGeom",
-        verbose = cms.untracked.bool(False),
+process.prod = cms.EDProducer("GeometryProducer",
+    MagneticField = cms.PSet(
+        delta = cms.double(1.0)
+    ),
+    UseMagneticField = cms.bool(False),
+    UseSensitiveDetectors = cms.bool(False)
 )
 
-process.p = cms.Path(process.dump)
+process.add_(
+    cms.ESProducer("TGeoMgrFromDdd",
+        verbose = cms.untracked.bool(False),
+        level   = cms.untracked.int32(14)
+    )
+)
+
+process.dump = cms.EDAnalyzer("DumpSimGeometry",
+    outputFileName = cms.untracked.string('ctppsGeometry.root')
+)
+
+process.p = cms.Path(process.prod+process.dump)
