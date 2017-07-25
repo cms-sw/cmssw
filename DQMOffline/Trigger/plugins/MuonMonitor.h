@@ -1,5 +1,5 @@
-#ifndef MuonMonitor_H
-#define MuonMonitor_H
+#ifndef DQMOffline_Trigger_MuonMonitor_h
+#define DQMOffline_Trigger_MuonMonitor_h
 
 #include <string>
 #include <vector>
@@ -78,40 +78,33 @@ protected:
 
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet const& pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet  const& pset);
+  static MEbinning getHistoLSPSet  (edm::ParameterSet const& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::MuonCollection>     muonToken_;
+  edm::EDGetTokenT<reco::PFMETCollection>        metToken_;
+  edm::EDGetTokenT<reco::MuonCollection>         muonToken_;
   edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron>> eleToken_;
 
+  static constexpr double MAX_PHI = 3.2;
+  static constexpr int    N_PHI = 64;
+  const MEbinning phi_binning_{
+    N_PHI, -MAX_PHI, MAX_PHI
+  };
 
-  double MAX_PHI1 = 3.2;
-  int N_PHI1 = 64;
-  const MEbinning phi_binning_1{
-    N_PHI1, -MAX_PHI1, MAX_PHI1
-      };
-
-
-  double MAX_dxy = 2.5;
-  int N_dxy = 50;
+  static constexpr double MAX_dxy = 2.5;
+  static constexpr int    N_dxy = 50;
   const MEbinning dxy_binning_{
     N_dxy, -MAX_dxy, MAX_dxy
-      };
+  };
 
-
-  double MAX_ETA = 2.4;
-  int N_ETA = 68;
+  static constexpr double MAX_ETA = 2.4;
+  static constexpr int    N_ETA = 68;
   const MEbinning eta_binning_{
     N_ETA, -MAX_ETA, MAX_ETA
-      };
-
-
-
-
+  };
 
   std::vector<double> muon_variable_binning_;
   std::vector<double> muoneta_variable_binning_;
@@ -121,7 +114,6 @@ private:
   std::vector<double> elePt_variable_binning_2D_;
   std::vector<double> muEta_variable_binning_2D_;
   std::vector<double> eleEta_variable_binning_2D_;
-  
   
   MuonME muonME_;
   MuonME muonEtaME_;
@@ -137,7 +129,6 @@ private:
   MuonME eleEta_muEta_;
   MuonME elePt_muPt_;
 
-
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
@@ -147,10 +138,6 @@ private:
   unsigned int njets_;
   unsigned int nmuons_;
   unsigned int nelectrons_;
-  
-
-
-
 };
 
-#endif // MuonMonitor_H
+#endif // DQMOffline_Trigger_MuonMonitor_h
