@@ -14,7 +14,6 @@ from FWCore.PythonUtilities.LumiList import LumiList
 from helperFunctions import cache
 from TkAlExceptions import AllInOneError
 
-
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
                   cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"],
@@ -395,7 +394,7 @@ class Dataset(object):
                         return datatype
                 return "unknown"
 
-        dasQuery_type = ( 'dataset dataset=%s instance=%s | grep dataset.datatype,'
+        dasQuery_type = ( 'dataset dataset=%s instance=%s detail=true | grep dataset.datatype,'
                           'dataset.name'%( self.__name, self.__dasinstance ) )
         data = self.__getData( dasQuery_type )
 
@@ -524,7 +523,7 @@ class Dataset(object):
                         return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
-            dasQuery = ('run=%s instance=%s'%(run, self.__dasinstance))                         #for data
+            dasQuery = ('run=%s instance=%s detail=true'%(run, self.__dasinstance))   #for data
             data = self.__getData(dasQuery)
             try:
                 return self.__findInJson(data, ["run","bfield"])
@@ -578,7 +577,7 @@ class Dataset(object):
             searchdataset = self.parentDataset()
         else:
             searchdataset = self.__name
-        dasQuery_files = ( 'file dataset=%s instance=%s | grep file.name, file.nevents, '
+        dasQuery_files = ( 'file dataset=%s instance=%s detail=true | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( searchdataset, self.__dasinstance ) )
         print "Requesting file information for '%s' from DAS..."%( searchdataset ),

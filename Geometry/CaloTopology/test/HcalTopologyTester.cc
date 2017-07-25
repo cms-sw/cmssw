@@ -23,10 +23,10 @@
 class HcalTopologyTester : public edm::EDAnalyzer {
 public:
   explicit HcalTopologyTester(const edm::ParameterSet& );
-  ~HcalTopologyTester();
+  ~HcalTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const HcalTopology& topology);
 
 private:
@@ -74,24 +74,24 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 	    std::vector<DetId> idU = topology.up(id);
 	    std::cout << "Neighbours for : Tower " << id << std::endl;
 	    std::cout << "          " << idE.size() << " sets along East:";
-	    for (unsigned int i=0; i<idE.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idE[i]());
+	    for (auto & i : idE) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idW.size() << " sets along West:";
-	    for (unsigned int i=0; i<idW.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idW[i]());
+	    for (auto & i : idW) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idN.size() << " sets along North:";
-	    for (unsigned int i=0; i<idN.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idN[i]());
+	    for (auto & i : idN) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idS.size() << " sets along South:";
-	    for (unsigned int i=0; i<idS.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idS[i]());
+	    for (auto & i : idS) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idU.size() << " sets up in depth:";
-	    for (unsigned int i=0; i<idU.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idU[i]());
+	    for (auto & i : idU) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	  }
 	}

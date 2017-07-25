@@ -8,6 +8,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
+	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
@@ -17,6 +19,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
@@ -52,19 +55,19 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_emap = dbs->getHcalMapping();
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
-	std::vector<uint32_t> vhashC36;
+	std::vector<uint32_t> vhashC38;
 	vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
 		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
 	vhashuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	vhashC36.push_back(HcalElectronicsId(36, SLOT_uTCA_MIN,
+	vhashC38.push_back(HcalElectronicsId(38, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	_filter_VME.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashVME);
 	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashuTCA);
-	_filter_C36.initialize(filter::fFilter, hcaldqm::hashfunctions::fCrate,
-		vhashC36);
+	_filter_C38.initialize(filter::fFilter, hcaldqm::hashfunctions::fCrate,
+		vhashC38);
 
 	//	Containers XXX
 	_xPedSum1LS.initialize(hcaldqm::hashfunctions::fDChannel);
@@ -170,7 +173,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cOccupancyEAvsLS_Subdet.initialize(_name, "OccupancyEAvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 	_cNBadMeanvsLS_Subdet.initialize(_name, "NBadMeanvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
@@ -435,8 +438,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		//	skip if calib or whatever
 		if (!it->isHcalDetId())
 			continue;
-		//	skip Crate 36
-		if (_filter_C36.filter(HcalElectronicsId(_ehashmap.lookup(*it))))
+		//	skip Crate 38
+		if (_filter_C38.filter(HcalElectronicsId(_ehashmap.lookup(*it))))
 			continue;
 #ifndef HIDE_PEDESTAL_CONDITIONS
 		HcalDetId did = HcalDetId(it->rawId());
@@ -560,7 +563,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		if (!it->isHcalDetId())
 			continue;
 		HcalElectronicsId eid(_ehashmap.lookup(*it));
-		if (_filter_C36.filter(eid))
+		if (_filter_C38.filter(eid))
 			continue;
 
 		//	filter out channels with bad quality
@@ -842,6 +845,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	edm::Handle<HBHEDigiCollection>		chbhe;
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<QIE10DigiCollection>		chf;
+	edm::Handle<QIE11DigiCollection>		chep17;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
@@ -852,6 +856,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	if (!e.getByToken(_tokHF, chf))
 		_logger.dqmthrow("Collection QIE10DigiCollection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
+	if (!e.getByToken(_tokHEP17, chep17))
+		_logger.dqmthrow("Collection QIE11DigiCollection isn't available"
+			+ _tagHEP17.label() + " " + _tagHEP17.instance());
 
 	int nHB(0), nHE(0), nHO(0), nHF(0);
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
@@ -876,6 +883,33 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			_xPedEntriesTotal.get(did)++;
 		}
 	}
+	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+		++it)
+	{
+		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
+		HcalDetId const& did = digi.detid();
+		// Require barrel or endcap. As of 2017, some calibration channels are ending up in this collection.
+		if ((did.subdet() != HcalEndcap) && (did.subdet() != HcalBarrel)) {
+			continue;
+		}
+		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
+			constants::CAPS_NUM-1;
+		did.subdet()==HcalBarrel ? nHB++ : nHE++;
+
+		for (int i=0; i<digiSizeToUse; i++)
+		{
+			_cADC_SubdetPM.fill(did, digi[i].adc());
+
+			_xPedSum1LS.get(did)+=digi[i].adc();
+			_xPedSum21LS.get(did)+=digi[i].adc()*digi[i].adc();
+			_xPedEntries1LS.get(did)++;
+			
+			_xPedSumTotal.get(did)+=digi[i].adc();
+			_xPedSum2Total.get(did)+=digi[i].adc()*digi[i].adc();
+			_xPedEntriesTotal.get(did)++;
+		}
+	}
+
 	_cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1,1,1), 
 		_currentLS, nHB);
 	_cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1,1,1), 
@@ -910,6 +944,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 		HcalDetId did = digi.detid();
+		if (did.subdet() != HcalForward) {
+			continue;
+		}
 		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
 		nHF++;

@@ -26,6 +26,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -120,7 +121,7 @@ private:
 /// returns true iff the node is of the given name
   bool Test(xercesc::DOMNode *node, const std::string &name)
   {
-    return !(name.compare(xercesc::XMLString::transcode(node->getNodeName())));
+    return !(name.compare(cms::xerces::toString(node->getNodeName())));
   }
 
 /// determines node type
@@ -129,13 +130,13 @@ private:
 /// returns the content of the node
   string GetNodeContent(xercesc::DOMNode *parent)
   {
-    return string(xercesc::XMLString::transcode(parent->getTextContent()));
+    return cms::xerces::toString(parent->getTextContent());
   }
 
 /// returns the value of the node
   string GetNodeValue(xercesc::DOMNode *node)
   {
-    return string(xercesc::XMLString::transcode(node->getNodeValue()));
+    return cms::xerces::toString(node->getNodeValue());
   }
 
 /// extracts VFAT's DAQ channel from XML attributes
@@ -346,7 +347,7 @@ void CTPPSPixelDAQMappingESSourceXML::ParseTreePixel(ParseType pType, xercesc::D
 						     const std::unique_ptr<CTPPSPixelAnalysisMask>& mask)
 {
 #ifdef DEBUG
-  printf(">> CTPPSPixelDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", XMLString::transcode(parent->getNodeName()),
+  printf(">> CTPPSPixelDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", cms::xerces::toString(parent->getNodeName()),
 	 parentType, parentID);
 #endif
 
@@ -361,7 +362,7 @@ void CTPPSPixelDAQMappingESSourceXML::ParseTreePixel(ParseType pType, xercesc::D
       NodeType type = GetNodeType(n);
 
 #ifdef DEBUG
-      printf("\tname = %s, type = %u\n", XMLString::transcode(n->getNodeName()), type);
+      printf("\tname = %s, type = %u\n", cms::xerces::toString(n->getNodeName()), type);
 #endif
 
     // structure control
@@ -382,8 +383,8 @@ void CTPPSPixelDAQMappingESSourceXML::ParseTreePixel(ParseType pType, xercesc::D
 
       if (expectedParentType != parentType)
 	{
-	  throw cms::Exception("CTPPSPixelDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
-								  << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
+	  throw cms::Exception("CTPPSPixelDAQMappingESSourceXML") << "Node " << cms::xerces::toString(n->getNodeName())
+								  << " not allowed within " << cms::xerces::toString(parent->getNodeName()) << " block.\n";
 	}
 
     // parse tag attributes
@@ -396,20 +397,20 @@ void CTPPSPixelDAQMappingESSourceXML::ParseTreePixel(ParseType pType, xercesc::D
 	{
 	  DOMNode *a = attr->item(j);
 
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
+	  if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
 	    {
-	      sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
+	      sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &id);
 	      id_set = true;
 	    }
 
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "full_mask"))
-	    fullMask = (strcmp(XMLString::transcode(a->getNodeValue()), "no") != 0);
+	  if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "full_mask"))
+	    fullMask = (strcmp(cms::xerces::toString(a->getNodeValue()).c_str(), "no") != 0);
 	}
 
     // content control
       if (!id_set)
 	throw cms::Exception("CTPPSPixelDAQMappingESSourceXML::ParseTreePixel") << "id not given for element `"
-										<< XMLString::transcode(n->getNodeName()) << "'" << endl;
+										<< cms::xerces::toString(n->getNodeName()) << "'" << endl;
 
       if (type == nRPixPlane && id > 5)
 	throw cms::Exception("CTPPSPixelDAQMappingESSourceXML::ParseTreePixel") <<
@@ -479,11 +480,11 @@ CTPPSPixelFramePosition CTPPSPixelDAQMappingESSourceXML::ChipFramePosition(xerce
     {
       DOMNode *a = attr->item(j);
 
-      if (fp.setXMLAttribute(XMLString::transcode(a->getNodeName()), XMLString::transcode(a->getNodeValue()), attributeFlag) > 1)
+      if (fp.setXMLAttribute(cms::xerces::toString(a->getNodeName()), cms::xerces::toString(a->getNodeValue()), attributeFlag) > 1)
 	{
 	  throw cms::Exception("CTPPSPixelDAQMappingESSourceXML") <<
-	    "Unrecognized tag `" << XMLString::transcode(a->getNodeName()) <<
-	    "' or incompatible value `" << XMLString::transcode(a->getNodeValue()) <<
+	    "Unrecognized tag `" << cms::xerces::toString(a->getNodeName()) <<
+	    "' or incompatible value `" << cms::xerces::toString(a->getNodeValue()) <<
 	    "'." << endl;
 	}
     }
@@ -511,7 +512,7 @@ CTPPSPixelDAQMappingESSourceXML::NodeType CTPPSPixelDAQMappingESSourceXML::GetNo
   if (Test(n, tagRPixPlane)) return nRPixPlane;
 
   throw cms::Exception("CTPPSPixelDAQMappingESSourceXML::GetNodeType") << "Unknown tag `"
-								       << XMLString::transcode(n->getNodeName()) << "'.\n";
+								       << cms::xerces::toString(n->getNodeName()) << "'.\n";
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -534,17 +535,17 @@ void CTPPSPixelDAQMappingESSourceXML::GetPixels(xercesc::DOMNode *n, set<std::pa
 	{
 	  DOMNode *a = attr->item(j);
 
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "row"))
+	  if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "row"))
 	    {
 	      unsigned int row = 0;
-	      sscanf(XMLString::transcode(a->getNodeValue()), "%u", &row);
+	      sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &row);
 	      currentPixel.first = row;
 	      rowSet = true;
 	    }
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "col"))
+	  if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "col"))
 	    {
 	      unsigned int col = 0;
-	      sscanf(XMLString::transcode(a->getNodeValue()), "%u", &col);
+	      sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &col);
 	      currentPixel.second = col;
 	      colSet = true;
 	    }

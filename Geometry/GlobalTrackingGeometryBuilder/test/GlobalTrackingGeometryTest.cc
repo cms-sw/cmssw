@@ -31,7 +31,7 @@ class GlobalTrackingGeometryTest : public edm::one::EDAnalyzer<>
 public:
  
   explicit GlobalTrackingGeometryTest( const edm::ParameterSet& );
-  ~GlobalTrackingGeometryTest();
+  ~GlobalTrackingGeometryTest() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

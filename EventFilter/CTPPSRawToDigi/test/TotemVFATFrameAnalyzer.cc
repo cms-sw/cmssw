@@ -39,7 +39,7 @@ class TotemVFATFrameAnalyzer : public edm::global::EDAnalyzer<>
 
     edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-    RawDataUnpacker rawDataUnpacker;
+    ctpps::RawDataUnpacker rawDataUnpacker;
 
     template <typename DigiType>
     void run(edm::Event&, const edm::EventSetup&);

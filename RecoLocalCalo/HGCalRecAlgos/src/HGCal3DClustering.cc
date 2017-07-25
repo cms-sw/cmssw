@@ -102,9 +102,13 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
 
       }
       if( temp.size() > minClusters ) {
+	math::XYZPoint position = clusterTools->getMultiClusterPosition(temp);
+	if (std::abs(position.z()) <= 0.) continue;
+	// only store multiclusters that pass the energy threshold in getMultiClusterPosition
+	// giving them a position inside the HGCal
 	thePreClusters.push_back(temp);
 	auto& back = thePreClusters.back();
-	back.setPosition(clusterTools->getMultiClusterPosition(back));
+	back.setPosition(position);
 	back.setEnergy(clusterTools->getMultiClusterEnergy(back));
       }
 

@@ -12,15 +12,15 @@ class DDHCalFibreBundle : public DDAlgorithm {
 public:
   //Constructor and Destructor
   DDHCalFibreBundle(); 
-  virtual ~DDHCalFibreBundle();
+  ~DDHCalFibreBundle() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 

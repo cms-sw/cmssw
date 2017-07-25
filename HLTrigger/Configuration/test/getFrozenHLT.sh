@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 Fake2 GRun2016"
+TABLES="Fake Fake1 Fake2 2e34_v2"
 HLT_Fake="/dev/CMSSW_9_2_0/Fake"
 HLT_Fake1="/dev/CMSSW_9_2_0/Fake1"
 HLT_Fake2="/dev/CMSSW_9_2_0/Fake2"
-HLT_GRun2016="/dev/CMSSW_9_0_0/GRun"
+HLT_2e34_v2="/dev/CMSSW_9_2_0/GRun/V97"
 
 # print extra messages ?
 VERBOSE=false

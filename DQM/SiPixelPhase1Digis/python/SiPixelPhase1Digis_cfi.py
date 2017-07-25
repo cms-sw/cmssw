@@ -9,8 +9,8 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   title = "Digi ADC values",
   xlabel = "adc readout",
   range_min = -0.5,
-  range_max = 300.5,
-  range_nbins = 301,
+  range_max = 255.5,
+  range_nbins = 32,
   specs = VPSet(
     StandardSpecificationTrend,
     StandardSpecificationTrend2D,
@@ -25,7 +25,7 @@ SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   title = "Digis",
   xlabel = "digis",
   range_min = 0,
-  range_max = 100,
+  range_max = 200,
   range_nbins = 100,
   dimensions = 0, # this is a count
 
@@ -63,7 +63,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   title = "Digis",   # should allow setting the range per spec, but OTOH a 
   xlabel = "digis",  # HistogramManager is almost free.
   range_min = 0,
-  range_max = 2000,
+  range_max = 4000,
   range_nbins = 200,
   dimensions = 0, 
   specs = VPSet(

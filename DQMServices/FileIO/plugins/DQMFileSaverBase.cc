@@ -118,26 +118,6 @@ void DQMFileSaverBase::globalEndRun(const edm::Run &iRun,
   this->saveRun(fp);
 }
 
-void DQMFileSaverBase::postForkReacquireResources(
-    unsigned int childIndex, unsigned int numberOfChildren) {
-  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
-  unsigned int digits = 0;
-  while (numberOfChildren != 0) {
-    ++digits;
-    numberOfChildren /= 10;
-  }
-  // protect against zero numberOfChildren
-  if (digits == 0) {
-    digits = 3;
-  }
-
-  char buffer[digits + 2];
-  snprintf(buffer, digits + 2, "_F%0*d", digits, childIndex);
-
-  std::unique_lock<std::mutex> lck(initial_fp_lock_);
-  initial_fp_.child_ = std::string(buffer);
-}
-
 const std::string DQMFileSaverBase::filename(const FileParameters& fp, bool useLumi) {
   char buf[256];
   if (useLumi) {

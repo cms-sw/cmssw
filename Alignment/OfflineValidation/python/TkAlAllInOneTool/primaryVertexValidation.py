@@ -1,11 +1,11 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ValidationWithPlots, pythonboolstring
+from genericValidation import GenericValidationData_CTSR, ValidationWithPlots, pythonboolstring
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
-class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
+class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexValidation"
     scriptBaseName  = "TkAlPrimaryVertexValidation"
     crabCfgBaseName = "TkAlPrimaryVertexValidation"
@@ -35,16 +35,21 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
         return configTemplates.PrimaryVertexValidationTemplate
 
     @property
-    def TrackSelectionRefitting(self):
-        return configTemplates.SingleTrackRefitter
+    def DefinePath(self):
+        return configTemplates.PVValidationPath
+
+    @property
+    def ValidationSequence(self):
+        #never enters anywhere, since we use the custom DefinePath which includes the goodVertexSkim
+        return ""
+
+    @property
+    def use_d0cut(self):
+        return False
 
     @property
     def ProcessName(self):
         return "PrimaryVertexValidation"
-
-    @property
-    def DefinePath(self):
-        return configTemplates.PVValidationPath
 
     def createScript(self, path):
         return super(PrimaryVertexValidation, self).createScript(path, template = configTemplates.PVValidationScriptTemplate)

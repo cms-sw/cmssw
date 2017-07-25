@@ -7,7 +7,8 @@ def customise(process):
                                           oncePerEventMode=cms.untracked.bool(False))
     #Adding Timing service:
     process.Timing=cms.Service("Timing",
-                               summaryOnly=cms.untracked.bool(True))
+                               summaryOnly=cms.untracked.bool(True),
+                               excessiveTimeThreshold=cms.untracked.double(600))
     
     #Add these 3 lines to put back the summary for timing information at the end of the logfile
     #(needed for TimeReport report)

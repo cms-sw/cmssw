@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
@@ -79,9 +78,14 @@ HGCalRecHit = cms.EDProducer(
 
     # EM Scale calibrations
     layerWeights = dEdX_weights,
-    thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um 
 
+    thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um 
+    HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
+    HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
+    HGCHEB_noise_MIP = hgchebackDigitizer.digiCfg.noise_MIP,
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")
     
     )
+
+

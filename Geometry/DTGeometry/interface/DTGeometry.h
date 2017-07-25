@@ -31,30 +31,30 @@ class DTGeometry : public TrackingGeometry {
     DTGeometry();
 
     /// Destructor
-    virtual ~DTGeometry();
+    ~DTGeometry() override;
 
     //---- Base class' interface 
 
     // Return a vector of all det types
-    virtual const DetTypeContainer&  detTypes() const override;
+    const DetTypeContainer&  detTypes() const override;
 
     // Returm a vector of all GeomDetUnit
-    virtual const DetUnitContainer&  detUnits() const override;
+    const DetUnitContainer&  detUnits() const override;
 
     // Returm a vector of all GeomDet (including all GeomDetUnits)
-    virtual const DetContainer& dets() const override;
+    const DetContainer& dets() const override;
 
     // Returm a vector of all GeomDetUnit DetIds
-    virtual const DetIdContainer&    detUnitIds() const override;
+    const DetIdContainer&    detUnitIds() const override;
 
     // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    virtual const DetIdContainer& detIds() const override;
+    const DetIdContainer& detIds() const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    virtual const GeomDetUnit* idToDetUnit(DetId) const override;
+    const GeomDetUnit* idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
-    virtual const GeomDet* idToDet(DetId) const override;
+    const GeomDet* idToDet(DetId) const override;
 
 
     //---- Extension of the interface
