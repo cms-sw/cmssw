@@ -76,7 +76,6 @@ MicroEventContentGEN = cms.PSet(
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
-        'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
         'keep GenFilterInfo_*_*_*',
         'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
@@ -84,7 +83,6 @@ MicroEventContentGEN = cms.PSet(
         # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
-        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*',
     )
 )
 
@@ -92,5 +90,10 @@ MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
 MicroEventContentMC.outputCommands += MicroEventContentGEN.outputCommands
-MicroEventContentMC.outputCommands += ['keep *_slimmedGenJets*_*_*']
+MicroEventContentMC.outputCommands += [
+                                        'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
+                                        'keep *_slimmedGenJets*_*_*',
+                                        # RUN
+                                        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
+                                      ]
 
