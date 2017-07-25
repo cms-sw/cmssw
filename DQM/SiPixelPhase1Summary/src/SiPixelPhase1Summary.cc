@@ -213,7 +213,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	  continue; // Ignore non-existing MEs, as this can cause the whole thing to crash
 	}
 
-	if (!summaryMap_[name]){
+	if (summaryMap_[name]==nullptr){
 	  edm::LogWarning("SiPixelPhase1Summary") << "Summary map " << name << " is not available !!";
 	  continue; // Based on reported errors it seems possible that we're trying to access a non-existant summary map, so if the map doesn't exist but we're trying to access it here we'll skip it instead.
 	}
@@ -226,7 +226,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
   float sumOfNonNegBins = 0.;
   //Now we will use the other summary maps to create the overall map.
   for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
-    if (!summaryMap_["Grand"]){
+    if (summaryMap_["Grand"]==nullptr){
       edm::LogWarning("SiPixelPhase1Summary") << "Grand summary does not exist!";
       break;
     }
@@ -234,7 +234,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
       summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
       for (auto const mapInfo: summaryPlotName_){ //Check summary maps
 	auto name = mapInfo.first;
-	if (!summaryMap_[name]){
+	if (summaryMap_[name]==nullptr){
 	  edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";
 	  continue;
 	}
@@ -278,7 +278,7 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
     iGetter.cd();
     histName = "PixelPhase1/Phase1_MechanicalView/" + trendNames[trendIt];
     MonitorElement * tempLayerME = iGetter.get(histName);
-    if (!tempLayerME) continue;
+    if (tempLayerME==nullptr) continue;
     float lowEffValue = 0.25 * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
     for (int i=1; i<=tempLayerME->getTH1()->GetXaxis()->GetNbins(); i++){
       for (int j=1; j<=tempLayerME->getTH1()->GetYaxis()->GetNbins(); j++){
@@ -309,14 +309,14 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   for (auto it : {1,2,3,4}) { //PXBarrel
     histName = "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" +std::to_string(it);
     MonitorElement * toReset = iGetter.get(histName);
-    if (toReset) {
+    if (toReset!=nullptr) {
       toReset->Reset();
     }
   }
   for (auto it : {-3,-2,-1,1,2,3}){ //PXForward
     histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::to_string(it);
     MonitorElement * toReset = iGetter.get(histName);
-    if (toReset) {
+    if (toReset!=nullptr) {
       toReset->Reset();
     }
   }
