@@ -2,8 +2,8 @@
 HLT_Physics_v*	#	CMSHLT-892
 DST_Physics_v*	#	trigger studies
 HLT_ZeroBias_v*	#	trigger studies
-AlCa_LumiPixels_Random_v*	#	
-AlCa_LumiPixels_ZeroBias_v*	#	
+AlCa_LumiPixels_Random_v*	#	CMSHLT-1393
+AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1393
 HLTriggerFinalPath	#	
 HLTriggerFirstPath	#	
 HLT_EcalCalibration_v*	#	CMSHLT-1231
@@ -39,6 +39,9 @@ HLT_PFJet60_v*	#	CMSHLT-1233
 HLT_PFJet80_v*	#	CMSHLT-1233
 HLT_BTagMu_AK8DiJet170_Mu5_v*	#	CMSHLT-1234
 HLT_BTagMu_AK8Jet300_Mu5_v*	#	CMSHLT-1234
+DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v*	#	CMSHLT-1243
+DST_DoubleMu3_noVtx_CaloScouting_v*	#	CMSHLT-1243
+ScoutingCaloMuonOutput	#	CMSHLT-1243
 HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx_v*	#	CMSHLT-1244
 HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx_v*	#	CMSHLT-1244
 HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*	#	CMSHLT-1244
@@ -335,6 +338,20 @@ HLT_RsqMR300_Rsq0p09_MR200_4jet_v*	#	CMSHLT-1323
 HLT_RsqMR300_Rsq0p09_MR200_v*	#	CMSHLT-1323
 HLT_RsqMR320_Rsq0p09_MR200_4jet_v*	#	CMSHLT-1323
 HLT_RsqMR320_Rsq0p09_MR200_v*	#	CMSHLT-1323
+DST_CaloJet40_BTagScouting_v*	#	CMSHLT-1324
+DST_CaloJet40_CaloBTagScouting_v*	#	CMSHLT-1324
+DST_CaloJet40_CaloScouting_PFScouting_v*	#	CMSHLT-1324
+DST_HT250_CaloBTagScouting_v*	#	CMSHLT-1324
+DST_HT250_CaloScouting_v*	#	CMSHLT-1324
+DST_HT410_BTagScouting_v*	#	CMSHLT-1324
+DST_HT410_PFScouting_v*	#	CMSHLT-1324
+DST_L1DoubleMu_BTagScouting_v*	#	CMSHLT-1324
+DST_L1DoubleMu_CaloScouting_PFScouting_v*	#	CMSHLT-1324
+DST_L1HTT_BTagScouting_v*	#	CMSHLT-1324
+DST_L1HTT_CaloBTagScouting_v*	#	CMSHLT-1324
+DST_L1HTT_CaloScouting_PFScouting_v*	#	CMSHLT-1324
+DST_ZeroBias_BTagScouting_v*	#	CMSHLT-1324
+DST_ZeroBias_CaloScouting_PFScouting_v*	#	CMSHLT-1324
 HLT_DoubleLooseChargedIsoPFTau35_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
 HLT_DoubleLooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*	#	CMSHLT-1326
 HLT_DoubleLooseChargedIsoPFTau40_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
@@ -372,7 +389,7 @@ HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_SingleL1_v*	#	CMSHLT-1326
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_TightID_SingleL1_v*	#	CMSHLT-1326
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
-HLT_MediumChargedIsoPFTau100HighPtRelaxedIso_Trk50_eta2p1_1pr_v*	#	CMSHLT-1326
+HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET90_v*	#	CMSHLT-1326
@@ -463,6 +480,10 @@ HLT_Ele20_eta2p1_WPLoose_Gsf_v*	#	CMSHLT-1431
 HLT_Ele20_WPLoose_Gsf_v*	#	CMSHLT-1431
 HLT_Ele20_WPTight_Gsf_v*	#	CMSHLT-1431
 HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v*	#	CMSHLT-1438
+HLT_PFMET120_PFMHT120_IDTight_HFCleaned_v*	#	CMSHLT-1504
+HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_HFCleaned_v*	#	CMSHLT-1504
+HLT_PFMETTypeOne120_PFMHT120_IDTight_HFCleaned_v*	#	CMSHLT-1504
+HLT_PFMET120_PFMHT120_IDTight_PFHT60_HFCleaned_v*	#	CMSHLT-1504
 
 ## EndPath ##
 
@@ -479,7 +500,6 @@ ParkingOutput                             # CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
 ParkingZeroBiasOutput
 PhysicsParkingScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
-ScoutingCaloOutput                        # CMSHLT-548
 ScoutingPFOutput                          # CMSHLT-548
 DQMOutput
 DQMEventDisplayOutput
@@ -493,7 +513,6 @@ RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
-ALCAELECTRONOutput                       # CMSHLT-366, renamed
 ExpressOutput
 ExpressAlignmentOutput
 #LookAreaOutput
