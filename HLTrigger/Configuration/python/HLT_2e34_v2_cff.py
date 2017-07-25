@@ -72614,10 +72614,10 @@ if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.
 
 # add specific customizations
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-fragment = customizeHLTforAll(fragment,"GRun")
+fragment = customizeHLTforAll(fragment,"2e34_v2")
 
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-fragment = customizeHLTforCMSSW(fragment,"GRun")
+fragment = customizeHLTforCMSSW(fragment,"2e34_v2")
 
 # Eras-based customisations
 from HLTrigger.Configuration.Eras import modifyHLTforEras
