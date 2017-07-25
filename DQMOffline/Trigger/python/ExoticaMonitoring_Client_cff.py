@@ -38,7 +38,24 @@ NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
     ),
     efficiencyProfile = cms.untracked.vstring(
         "effic_jetE_vs_LS 'Calo jet energy efficiency vs LS; LS; Jet p_{T} Efficiency' jetEVsLS_numerator jetEVsLS_denominator",
-    ), 
+    ),
+)
+
+METplusTrackEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs = cms.untracked.vstring("HLT/MET/MET105_IsoTrk50/", "HLT/MET/MET120_IsoTrk50/"),
+    verbose = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution = cms.vstring(),
+    efficiency = cms.vstring(
+        "effic_met_variable    'MET leg turnON;              CaloMET [GeV]; efficiency'     met_variable_numerator    met_variable_denominator",
+        "effic_metPhi          'MET leg efficiency vs phi;   CaloMET phi [rad]; efficiency' metPhi_numerator          metPhi_denominator",
+        "effic_muonPt_variable 'Track leg turnON;            Muon p_{T} [GeV]; efficiency'  muonPt_variable_numerator muonPt_variable_denominator",
+        "effic_muonEta         'Track leg efficiency vs eta; Muon #eta; efficiency'         muonEta_numerator         muonEta_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_met_vs_LS     'MET leg efficiency vs LS; LS; CaloMET leg efficiency' metVsLS_numerator metVsLS_denominator",
+        "effic_muonPt_vs_LS 'Track leg efficiency vs LS; LS; Track leg efficiency'  muonPtVsLS_numerator muonPtVsLS_denominator",
+    ),
+
 )
 
 exoticaClient = cms.Sequence(
@@ -46,4 +63,5 @@ exoticaClient = cms.Sequence(
   + photonEfficiency
   + htClient
   + metClient
+  + METplusTrackEfficiency
 )
