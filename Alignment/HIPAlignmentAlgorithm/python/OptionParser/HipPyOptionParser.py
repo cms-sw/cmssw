@@ -175,6 +175,17 @@ class HipPyOptionParser:
          elif key=="uniformetaformula":
             self.uniformetaformula=val
          ## Options for mMin. bias
+         # Apply vertex constraint
+         elif (key=="primaryvertextpye" or key=="pvtype"):
+            val=val.lower()
+            if (val=="nobs" or val=="withbs"):
+               self.PVtype=val
+            else:
+               raise ValueError("PV type can only receive NoBS or WithBS.")
+         elif (key=="primaryvertexconstraint" or key=="pvconstraint"):
+            self.applyPVConstraint=parseBoolString(val)
+            if not hasattr(self,"PVtype"):
+               self.PVtype="nobs"
          # Get custom track selection for TBD
          elif (key=="twobodytrackselection" or key=="twobodydecayselection" or key=="tbdselection"):
             val=val.lower()
@@ -217,6 +228,10 @@ class HipPyOptionParser:
 
 
    def doCheckOptions(self,optstocheck):
+      # First check option consistencies overall
+      if (hasattr(self,"TBDconstraint") and hasattr(self,"applyPVConstraint")):
+         raise RuntimeError("Options TBDconstraint and applyPVConstraint cannot coexist.")
+      # Force presence of the options passed
       for oc in optstocheck:
          if not hasattr(self,oc):
             raise RuntimeError("Option {} needs to specified in {}.".format(oc, self.flag))

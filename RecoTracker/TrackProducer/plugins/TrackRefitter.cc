@@ -136,6 +136,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithVertex." << "\n" << e << "\n"; throw; }
+      break;
     }
   case trackParameters :
     {

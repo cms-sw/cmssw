@@ -173,7 +173,7 @@ foreach $iov ( @iovInput1) {
    system "chmod a+x $odir/main/runScript_$k.csh";
 }
 
-if($result==0){
+if($success==0){
    system("touch $odir/ERROR");
 }
 
