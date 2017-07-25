@@ -3,7 +3,7 @@ from Configuration.StandardSequences.Eras import eras
 
 
 
-process = cms.Process('DIGI',eras.Phase2C2)
+process = cms.Process('DIGI',eras.Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -13,7 +13,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_1_patch1/RelValZEE_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/38679F3C-B04A-E711-9C7F-0CC47A4D7636.root') )
+       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/92X_upgrade2023_realistic_v1_2023D17noPU-v1/00000/002E1FCB-8168-E711-BD97-0CC47A4C8EA8.root') )
 
 process.options = cms.untracked.PSet(
 
