@@ -140,10 +140,7 @@ l1TriggerOnline = cms.Sequence(
 
 l1TriggerOffline = cms.Sequence(
     l1TriggerOnline *
-    dqmEnvL1TriggerReco *
-    l1tStage2CaloLayer2OfflineDQM *
-    l1tEGammaOfflineDQM *
-    l1tTauOfflineDQM
+    dqmEnvL1TriggerReco 
 )
 
 #
@@ -155,9 +152,7 @@ l1TriggerEmulatorOnline = cms.Sequence(
 
 l1TriggerEmulatorOffline = cms.Sequence(
     l1TriggerEmulatorOnline *
-    l1tStage2CaloLayer2OfflineDQMEmu *
-    l1tEGammaOfflineDQMEmu *
-    l1tTauOfflineDQMEmu
+    l1tStage2CaloLayer2OfflineDQMEmu 
 )
 #
 
