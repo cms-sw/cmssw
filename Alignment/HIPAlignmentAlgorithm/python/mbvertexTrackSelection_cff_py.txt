@@ -34,7 +34,7 @@ if (hasattr(optpy, "TBDconstraint") and strtbdsel!=""):
 elif hasattr(optpy, "applyPVConstraint"):
    # Existence of PVtype is guaranteed in the option parser
    strpvtype=optpy.PVtype
-   process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi.py")
+   process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
    process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
    process.offlinePrimaryVertices.TrackLabel=cms.InputTag("AlignmentTrackSelector")
    if strpvtype=="withbs":
