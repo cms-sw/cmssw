@@ -104,8 +104,8 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   Handle<reco::TrackCollection> theTCollection;
   iEvent.getByToken(trkToken_, theTCollection);
 
-  Handle<reco::VertexCollection> primaryVertexHandle;
-  iEvent.getByToken(vtxToken_, primaryVertexHandle);
+  Handle<reco::VertexCollection> theVertexHandle;
+  iEvent.getByToken(vtxToken_, theVertexHandle);
 
   edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
   std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
@@ -115,10 +115,17 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   //primary vertex extraction
 
-  if(primaryVertexHandle->size()>0){
-    reco::Vertex pv = primaryVertexHandle->front();
+  if (theVertexHandle->size()>0){
+    const reco::Vertex& pv = theVertexHandle->front();
     for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
-      VertexConstraint tmp(GlobalPoint(pv.x(),pv.y(),pv.z()),GlobalError(pv.xError(),0,pv.yError(),0,0,pv.zError()));  
+      VertexConstraint tmp(
+        GlobalPoint(pv.x(), pv.y(), pv.z()),
+        GlobalError(
+        pv.covariance(0, 0),
+        pv.covariance(1, 0), pv.covariance(1, 1),
+        pv.covariance(2, 0), pv.covariance(2, 1), pv.covariance(2, 2)
+        )
+        );
       pairs->push_back(tmp);
       output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<VertexConstraint> >(rPairs,index) );
       index++;
