@@ -146,13 +146,12 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   iEvent.getByToken(jetToken_, jetsHandle);
   if(jetsHandle->size() < njets_) return;
   std::vector<reco::PFJet> jets;
-  jets.clear();
   for(auto const & j : *jetsHandle) {
     if(jetSelection_(j)) jets.push_back(j);
   }
   if(jets.size() < njets_) return;
-  if(njets_ > 0 && jets.size() > 0 && fabs(jets[0].eta()) > leadJetEtaCut_) return;
-  float deltaphi_metjet1 = (jets.size() > 0) ? fabs(deltaPhi(caloMet.phi(), jets[0].phi())) : 10.0;
+  if(njets_ > 0 && !(jets.empty()) && fabs(jets[0].eta()) > leadJetEtaCut_) return;
+  float deltaphi_metjet1 = !(jets.empty()) ? fabs(deltaPhi(caloMet.phi(), jets[0].phi())) : 10.0;
 
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
@@ -169,7 +168,6 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   iEvent.getByToken(muonToken_, muonHandle);
   if(muonHandle->size() < nmuons_) return;
   std::vector<reco::Muon> muons;
-  muons.clear();
   for(auto const & m : *muonHandle) {
     bool passTightID = muon::isTightMuon(m, *pv) &&
                        m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) == 0 &&
@@ -209,10 +207,10 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   metVsHltMetClean_.numerator->Fill(hltMetClean.pt(), met);
 
   // Filling track leg histograms (denominator)
-  double leadMuonPt = muons.size() ? muons[0].pt() : -1.0;
-  double leadMuonEta = muons.size() ? muons[0].eta() : 10.0;
-  double leadMuonPhi = muons.size() ? muons[0].phi() : 10.0;
-  float deltaphi_metmuon = fabs(deltaPhi(caloMet.phi(), muons[0].phi()));
+  double leadMuonPt      = !(muons.empty()) ? muons[0].pt()  : -1.0;
+  double leadMuonEta     = !(muons.empty()) ? muons[0].eta() : 10.0;
+  double leadMuonPhi     = !(muons.empty()) ? muons[0].phi() : 10.0;
+  float deltaphi_metmuon = !(muons.empty()) ? fabs(deltaPhi(caloMet.phi(), muons[0].phi())) : 10.0;
 
   muonPtME_variableBinning_.denominator->Fill(leadMuonPt);
   muonPtVsLS_.denominator->Fill(ls, leadMuonPt);
@@ -228,7 +226,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   if(!passesTrackLegFilter) return;
 
   // if requested, require lead selected muon is matched to the track leg filter object
-  if(requireLeadMatched_ && muons.size() && deltaR(muons[0], isoTrk) < maxMatchDeltaR_) return;
+  if(requireLeadMatched_ && !(muons.empty()) && deltaR(muons[0], isoTrk) < maxMatchDeltaR_) return;
 
   // require the full HLT path is fired
   if(num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup)) return;
