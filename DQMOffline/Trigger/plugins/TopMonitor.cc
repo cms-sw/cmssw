@@ -51,6 +51,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
+  , eleSelection1_ ( iConfig.getParameter<std::string>("eleSelection1") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , HTdefinition_ ( iConfig.getParameter<std::string>("HTdefinition") )
   , vtxSelection_ ( iConfig.getParameter<std::string>("vertexSelection") )
@@ -553,7 +554,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::GsfElectron> electrons;
   if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
-    if ( eleSelection_( e ) ) electrons.push_back(e);
+    if ( eleSelection_( e ) || eleSelection1_( e ) ) electrons.push_back(e);
     //Suvankar
     if ( usePVcuts_ && 
          (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
@@ -895,6 +896,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
+  desc.add<std::string>("eleSelection1", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<std::string>("HTdefinition", "pt > 0");
   //Suvankar
