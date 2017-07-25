@@ -84,15 +84,6 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.TestNumberingScheme = True
 
-# customisation of the process.
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted(process)
-
-# End of customisation functions
 for label, prod in process.producers_().iteritems():
         if prod.type_() == "OscarMTProducer":
             # ugly hack

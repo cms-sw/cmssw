@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 class CaloGeometry;
 class DetId;
@@ -16,7 +17,7 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-  RecHitTools() : geom_(nullptr) {}
+  RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0) {}
     ~RecHitTools() {}
 
     void getEvent(const edm::Event&);
@@ -29,6 +30,7 @@ namespace hgcal {
     std::float_t getSiThickness(const DetId&) const;
     std::float_t getRadiusToSide(const DetId&) const;
 
+    unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
     unsigned int getWafer(const DetId&) const;
@@ -47,8 +49,12 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const CaloGeometry * getGeometry() const {return geom_;};
+    unsigned int lastLayerEE() const {return fhOffset_;}
+    unsigned int lastLayerFH() const {return bhOffset_;}
+    unsigned int maxNumberOfWafersPerLayer() const {return maxNumberOfWafersPerLayer_;}
   private:
     const CaloGeometry* geom_;
+    unsigned int        fhOffset_, bhOffset_, maxNumberOfWafersPerLayer_;
   };
 }
 

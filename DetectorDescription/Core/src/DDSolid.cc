@@ -77,7 +77,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     solid = new DDI::Cons(0,0,0,0,0,0,0);
     break;
   case ddpseudotrap:
-    solid = new DDI::PseudoTrap(0,0,0,0,0,0,0);
+    solid = new DDI::PseudoTrap(0,0,0,0,0,0,false);
     break;
   case ddshapeless:
     solid = new DDI::Shapeless();
@@ -98,7 +98,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     solid = new DDI::Polycone(0,0,dummy,dummy,dummy);
     break;			
   case ddtrunctubs:
-    solid = new DDI::TruncTubs(0,0,0,0,0,0,0,0);
+    solid = new DDI::TruncTubs(0,0,0,0,0,0,0,false);
     break;
   case ddtorus:
     solid = new DDI::Torus(0,0,0,0,0);

@@ -14,13 +14,12 @@ def setupVIDSelection(vidproducer,cutflow):
     if not hasattr(cutflow,'cutFlow'):
         raise Exception('InvalidVIDCutFlow', 'The cutflow configuration provided is malformed and does not have a specific cutflow!')
     cutflow_md5 = central_id_registry.getMD5FromName(cutflow.idName)
-    isPOGApproved = cms.untracked.bool(False)
+    isPOGApproved = False
     if hasattr(cutflow,'isPOGApproved'):
-        isPOGApproved = cutflow.isPOGApproved
-        del cutflow.isPOGApproved
+        isPOGApproved = cutflow.isPOGApproved.value()
     vidproducer.physicsObjectIDs.append(
         cms.PSet( idDefinition = cutflow,
-                  isPOGApproved = isPOGApproved,
+                  isPOGApproved = cms.untracked.bool(isPOGApproved),
                   idMD5 = cms.string(cutflow_md5) )
     )    
 #    sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))

@@ -25,20 +25,6 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolEmptyTest_cfg.py || die 'Failure us
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolEmptyTest2_cfg.py || die 'Failure using PoolEmptyTest2_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_gen_file_cfg.py || die 'Failure using poolsource_multiprocess_gen_file_cfg.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_cfg.py || die 'Failure using poolsource_multiprocess_cfg.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_gen_file_oneRun_cfg.py || die 'Failure using poolsource_multiprocess_gen_file_oneRun_cfg.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_oneRun_cfg.py || die 'Failure using poolsource_multiprocess_oneRun_cfg.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_WithSkip_cfg.py || die 'Failure using poolsource_multiprocess_WithSkip_cfg.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_selectevents_cfy.py || die 'Failure using poolsource_multiprocess_selectevents_cfy.py' $?
-
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_emptyrunslumis_cfy.py || die 'Failure using poolsource_multiprocess_emptyrunslumis_cfy.py' $?
-
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1_cfg.py || die 'Failure using PoolAliasTestStep1_cfg.py' $?
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2_cfg.py || die 'Failure using PoolAliasTestStep2_cfg.py' $?

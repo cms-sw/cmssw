@@ -45,7 +45,6 @@ private:
    virtual void beginJob() override;
    virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
    virtual void endJob() override;
-   virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
 
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;
@@ -146,10 +145,6 @@ EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.add("eventIDChecker", desc);
 }
 
-void
-EventIDChecker::postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {
-   mustSearch_ = true;
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EventIDChecker);

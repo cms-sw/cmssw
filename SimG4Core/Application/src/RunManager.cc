@@ -114,7 +114,7 @@ void createWatchers(const edm::ParameterSet& iP,
 
 RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC) 
   :   m_generator(new Generator(p.getParameter<edm::ParameterSet>("Generator"))),
-      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))),
+      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_LHCtr(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(nullptr), 

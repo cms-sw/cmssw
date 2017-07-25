@@ -81,12 +81,13 @@ HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
   min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   min_Mass_ (iConfig.template getParameter<double>       ("MinMass" )),
+  max_Mass_ (iConfig.template getParameter<double>       ("MaxMass" )),
   min_Eta_  (iConfig.template getParameter<double>       ("MinEta"  )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  ))
 {
    LogDebug("") << "Input/ptcut/etacut/ncut : "
 		<< inputTag_.encode() << " "
-		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " "
+		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " " << max_Mass_ << " "
 		<< min_Eta_ << " " << max_Eta_ << " " << min_N_ ;
 }
 
@@ -103,6 +104,7 @@ HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("MinE",-1.0);
   desc.add<double>("MinPt",-1.0);
   desc.add<double>("MinMass",-1.0);
+  desc.add<double>("MaxMass",-1.0);
   desc.add<double>("MinEta",-1.0);
   desc.add<double>("MaxEta",-1.0);
   desc.add<int>("MinN",1);
@@ -148,6 +150,7 @@ HLTSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trig
      if ( (i->energy() >= min_E_) &&
 	  (i->pt() >= min_Pt_) &&
 	  (i->mass() >= min_Mass_) &&
+	  ( (max_Mass_ < 0.0) || (i->mass() <= max_Mass_ ) ) &&
 	  ( (min_Eta_ < 0.0) || (std::abs(i->eta()) >= min_Eta_) )  &&
 	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;

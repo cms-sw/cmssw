@@ -281,6 +281,7 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
 
     if (st == 2) {
+      Error("ReadBuffer","ReadBufferViaCache failed");
       return kTRUE;
     }
 
@@ -304,6 +305,9 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
+  if(n == 0) {
+    Error("ReadBuffer", "read from Storage::xread returned 0");
+  }
   return n ? kFALSE : kTRUE;
 }
 
@@ -410,6 +414,7 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
     std::vector<IOPosBuffer> &iov = repacker.iov();
     IOSize result = storage_->readv(&iov[0], iov.size());
     if (result != io_buffer_used) {
+      Error("ReadBuffersSync","Storage::readv returned different size result=%ld expected=%ld",result,io_buffer_used);
       return kTRUE;
     }
     xstats.tick(io_buffer_used);
@@ -473,7 +478,13 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.
-  return success ? kFALSE : TFile::ReadBuffers(buf, pos, len, nbuf);
+  if(not success) {
+    if(TFile::ReadBuffers(buf, pos, len, nbuf)) {
+      Error("ReadBuffers", "call to TFile::ReadBuffers failed after prefetch already failed.");
+      return kTRUE;
+    }
+  }
+  return kFALSE;
 }
 
 Bool_t

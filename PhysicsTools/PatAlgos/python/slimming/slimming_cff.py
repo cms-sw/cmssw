@@ -9,10 +9,12 @@ from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedCaloJets_cfi  import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
+from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedSecondaryVertices_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
@@ -32,6 +34,7 @@ slimmingTask = cms.Task(
     genParticlesTask,
     selectedPatTrigger,
     slimmedPatTrigger,
+    slimmedCaloJets,
     slimmedJets,
     slimmedJetsAK8,
     slimmedGenJets,
@@ -39,6 +42,7 @@ slimmingTask = cms.Task(
     slimmedElectrons,
     slimmedMuons,
     slimmedPhotons,
+    slimmedOOTPhotons,
     slimmedTaus,
     slimmedSecondaryVertices,
     slimmedKshortVertices,

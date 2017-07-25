@@ -35,7 +35,7 @@
 class EcalTBGeometryBuilder : public edm::ESProducer {
    public:
   EcalTBGeometryBuilder(const edm::ParameterSet&);
-  ~EcalTBGeometryBuilder();
+  ~EcalTBGeometryBuilder() override;
 
   typedef std::unique_ptr<CaloGeometry> ReturnType;
 

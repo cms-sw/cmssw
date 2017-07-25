@@ -49,8 +49,8 @@ set BASE2RD  = auto:run2_data
 
 set NNPPMC = 100
 set NNPPRD = 100
-set NNHIMC = 25
-set NNHIRD = 25
+set NNPRMC = 20
+set NNPRRD = 20
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
@@ -87,7 +87,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
-    set NNHI   = $NNHIRD
+    set NNPR   = $NNPRRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
@@ -95,7 +95,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
-    set NNHI   = $NNHIMC
+    set NNPR   = $NNPRMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
@@ -107,7 +107,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34_v2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -174,16 +174,16 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == GRun2016 ) then
+    else if ( $table == 2e34_v2 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:GRun2016
-      set GTAG = ${BASE2}_GRun2016
-      set RTAG = ${BASE2RD}_GRun2016
+      set XHLT = HLT:2e34_v2
+      set GTAG = ${BASE2}_2e34_v2
+      set RTAG = ${BASE2RD}_2e34_v2
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp2016
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
@@ -203,7 +203,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
       set RTAG = ${BASE2RD}_HIon
-      set NN   = $NNHI
+      set NN   = $NNPP
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon1
       set InputLHCRaw = $InputLHCRawHIon1
@@ -227,7 +227,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:PRef
       set GTAG = ${BASE2}_PRef
       set RTAG = ${BASE2RD}_PRef
-      set NN   = $NNPP
+      set NN   = $NNPR
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3

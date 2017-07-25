@@ -56,8 +56,8 @@ std::ostream & operator<<(std::ostream & os , const DDsvalues_type & s)
 
 std::ostream & operator<<(std::ostream & os , const std::vector<const DDsvalues_type*> & v)
 {
-   for (unsigned int i=0; i<v.size() ; ++i) {
-     os << *(v[i]); // << std::endl;
+   for (const auto & i : v) {
+     os << *i; // << std::endl;
    }
    
    return os;

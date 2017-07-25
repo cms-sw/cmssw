@@ -32,7 +32,8 @@ process.source = cms.Source("DQMRootSource",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')  
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')  
+process.GlobalTag = GlobalTag(process.GlobalTag, '92X_dataRun2_Express_v2_withECALPedHLT', '') 
 
 # Load CondDB service
 process.load("CondCore.CondDB.CondDB_cfi")

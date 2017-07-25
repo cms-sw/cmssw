@@ -23,9 +23,9 @@ class MuonSimHitNumberingScheme : public MuonNumberingScheme {
 
   MuonSimHitNumberingScheme(MuonSubDetector*, const DDCompactView& cpv);
   MuonSimHitNumberingScheme(MuonSubDetector*, const MuonDDDConstants& muonConstants);
-  ~MuonSimHitNumberingScheme();
+  ~MuonSimHitNumberingScheme() override;
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
  private:
 

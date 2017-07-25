@@ -46,7 +46,7 @@ namespace cond {
 	    m_objects[n] = deserialize<T>( i->second.first, i->second.second.first, i->second.second.second );
 	    m_data.erase( n );
 	  } else {
-	    throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
+	    throwException( "Payload for index "+std::to_string(n)+" has not been found.",
 			    "KeyList::get");
 	  }
 	}

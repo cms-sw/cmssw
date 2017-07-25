@@ -48,9 +48,9 @@ namespace {
     GroupFilter(std::vector< DDSpecificsFilter* >& filters):
       filters_(filters) {}
 
-    bool accept(const DDExpandedView &cv ) const override final {
+    bool accept(const DDExpandedView &cv ) const final {
       bool returnValue = true;
-      for(auto f: filters_) {
+      for(const auto & f : filters_) {
         returnValue = returnValue and f->accept(cv);
         if(not returnValue) {
           break;
@@ -504,10 +504,10 @@ void tutorial()
 	case 's':
 	  fv.print();
 	  std::cout << std::endl <<"specifics sets = " << v.size() << ":" << std::endl;
-	  for (spectype::size_type o=0;o<v.size();++o) {
-	    std::cout << *(v[o].first) 
+	  for (const auto & o : v) {
+	    std::cout << *(o.first) 
 		      << " = " 
-		      << *(v[o].second) 
+		      << *(o.second) 
 		      << std::endl;// << std::endl;
 	  }
 	  std::cout << std::endl;
@@ -515,8 +515,8 @@ void tutorial()
 	  std::cout << merged << std::endl;
 	 
 	  std::cout << "specifics only at logicalPart:" << std::endl;
-	  for (std::vector<const DDsvalues_type *>::size_type o=0;o<only.size();++o) {
-	    std::cout << *(only[o]) << std::endl;
+	  for (const auto & o : only) {
+	    std::cout << *o << std::endl;
 	  }
 	  std::cout << std::endl;	 
 	  std::cout << "translation: " << fv.translation() << std::endl;

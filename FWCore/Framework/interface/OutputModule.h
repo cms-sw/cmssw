@@ -183,8 +183,6 @@ namespace edm {
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     void doRegisterThinnedAssociations(ProductRegistry const&,
                                        ThinnedAssociationsHelper&) { }
 
@@ -196,11 +194,6 @@ namespace edm {
 
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
-
-    /// Tell the OutputModule to open an output file, if one is not
-    /// already open.
-    void maybeOpenFile();
-
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
@@ -225,12 +218,8 @@ namespace edm {
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     virtual bool isFileOpen() const { return true; }
-
-    virtual void reallyOpenFile() {}
 
     void keepThisBranch(BranchDescription const& desc,
                         std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,

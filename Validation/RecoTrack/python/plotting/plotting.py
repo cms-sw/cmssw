@@ -532,10 +532,12 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
     coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
     coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
     """
-    if coverage is not None:
+    if coverage is not None or isinstance(th1s[0], ROOT.TH2):
         # the only use case for coverage for now is ratio, for which
         # the scalings are not needed (actually harmful), so let's
         # just ignore them if 'coverage' is set
+        #
+        # Also for TH2 do not adjust automatic y bounds
         y_scale_max = lambda y: y
         y_scale_min = lambda y: y
     else:
@@ -596,6 +598,138 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
         th1.GetYaxis().SetRangeUser(ymin, ymax)
 
     return (ymin, ymax)
+
+def _th1RemoveEmptyBins(histos, xbinlabels):
+    binsToRemove = set()
+    for b in xrange(1, histos[0].GetNbinsX()+1):
+        binEmpty = True
+        for h in histos:
+            if h.GetBinContent(b) > 0:
+                binEmpty = False
+                break
+        if binEmpty:
+            binsToRemove.add(b)
+
+    if len(binsToRemove) > 0:
+        # filter xbinlabels
+        xbinlab_new = []
+        for i in xrange(len(xbinlabels)):
+            if (i+1) not in binsToRemove:
+                xbinlab_new.append(xbinlabels[i])
+        xbinlabels = xbinlab_new
+
+        # filter histogram bins
+        histos_new = []
+        for h in histos:
+            values = []
+            for b in xrange(1, h.GetNbinsX()+1):
+                if b not in binsToRemove:
+                    values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
+
+            if len(values) > 0:
+                h_new = h.Clone(h.GetName()+"_empty")
+                h_new.SetBins(len(values), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(values))
+                for b, (l, v, e) in enumerate(values):
+                    h_new.GetXaxis().SetBinLabel(b+1, l)
+                    h_new.SetBinContent(b+1, v)
+                    h_new.SetBinError(b+1, e)
+
+                histos_new.append(h_new)
+        histos = histos_new
+
+    return (histos, xbinlabels)
+
+def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
+    xbinsToRemove = set()
+    ybinsToRemove = set()
+    for ih, h in enumerate(histos):
+        for bx in xrange(1, h.GetNbinsX()+1):
+            binEmpty = True
+            for by in xrange(1, h.GetNbinsY()+1):
+                if h.GetBinContent(bx, by) > 0:
+                    binEmpty = False
+                    break
+            if binEmpty:
+                xbinsToRemove.add(bx)
+            elif ih > 0:
+                xbinsToRemove.discard(bx)
+
+        for by in xrange(1, h.GetNbinsY()+1):
+            binEmpty = True
+            for bx in xrange(1, h.GetNbinsX()+1):
+                if h.GetBinContent(bx, by) > 0:
+                    binEmpty = False
+                    break
+            if binEmpty:
+                ybinsToRemove.add(by)
+            elif ih > 0:
+                ybinsToRemove.discard(by)
+
+    if len(xbinsToRemove) > 0 or len(ybinsToRemove) > 0:
+        xbinlabels_new = []
+        xbins = []
+        for b in xrange(1, len(xbinlabels)+1):
+            if b not in xbinsToRemove:
+                xbinlabels_new.append(histos[0].GetXaxis().GetBinLabel(b))
+                xbins.append(b)
+        xbinlabels = xbinlabels_new
+        ybinlabels_new = []
+        ybins = []
+        for b in xrange(1, len(ybinlabels)+1):
+            if b not in ybinsToRemove:
+                ybinlabels.append(histos[0].GetYaxis().GetBinLabel(b))
+                ybins.append(b)
+        ybinlabels = xbinlabels_new
+
+        histos_new = []
+        if len(xbinlabels) == 0 or len(ybinlabels) == 0:
+            return (histos_new, xbinlabels, ybinlabels)
+        for h in histos:
+            h_new = ROOT.TH2F(h.GetName()+"_empty", h.GetTitle(), len(xbinlabels),0,len(xbinlabels), len(ybinlabels),0,len(ybinlabels))
+            for b, l in enumerate(xbinlabels):
+                h_new.GetXaxis().SetBinLabel(b+1, l)
+            for b, l in enumerate(ybinlabels):
+                h_new.GetYaxis().SetBinLabel(b+1, l)
+
+            for ix, bx in enumerate(xbins):
+                for iy, by in enumerate(ybins):
+                    h_new.SetBinContent(ix+1, iy+1, h.GetBinContent(bx, by))
+                    h_new.SetBinError(ix+1, iy+1, h.GetBinError(bx, by))
+            histos_new.append(h_new)
+        histos = histos_new
+    return (histos, xbinlabels, ybinlabels)
+
+def _mergeBinLabels(labelsAll):
+    labels_merged = labelsAll[0]
+    for labels in labelsAll[1:]:
+        diff = difflib.unified_diff(labels_merged, labels, n=max(len(labels_merged), len(labels)))
+        labels_merged = []
+        operation = []
+        for item in diff: # skip the "header" lines
+            if item[:2] == "@@":
+                break
+        for item in diff:
+            operation.append(item[0])
+            lab = item[1:]
+            if lab in labels_merged:
+                # pick the last addition of the bin
+                ind = labels_merged.index(lab)
+                if operation[ind] == "-" and operation[-1] == "+":
+                    label_merged.remove(lab)
+                    del operation[ind] # to keep xbinlabels and operation indices in sync
+                elif operation[ind] == "+" and operation[-1] == "-":
+                    del operation[-1] # to keep xbinlabels and operation indices in sync
+                    continue
+                else:
+                    raise Exception("This should never happen")
+            labels_merged.append(lab)
+        # unified_diff returns empty diff if labels_merged and labels are equal
+        # so if labels_merged is empty here, it can be just set to labels
+        if len(labels_merged) == 0:
+            labels_merged = labels
+
+
+    return labels_merged
 
 class Subtract:
     """Class for subtracting two histograms"""
@@ -1015,7 +1149,7 @@ class ROC:
 _plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34, 33]
 
-def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, suffix=""):
+def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
     """Function to draw a frame
 
     Arguments:
@@ -1028,17 +1162,22 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
     xbinlabeloption -- Optional string for the x axis bin options (passed to ROOT.TH1.LabelsOption())
     suffix          -- Optional string for a postfix of the frame name
     """
-    if xbinlabels is None:
+    if xbinlabels is None and ybinlabels is None:
         frame = pad.DrawFrame(*bounds)
     else:
         # Special form needed if want to set x axis bin labels
         nbins = len(xbinlabels)
-        frame = ROOT.TH1F("hframe"+suffix, "", nbins, bounds[0], bounds[2])
+        if ybinlabels is None:
+            frame = ROOT.TH1F("hframe"+suffix, "", nbins, bounds[0], bounds[2])
+            frame.SetMinimum(bounds[1])
+            frame.SetMaximum(bounds[3])
+            frame.GetYaxis().SetLimits(bounds[1], bounds[3])
+        else:
+            ybins = len(ybinlabels)
+            frame = ROOT.TH2F("hframe"+suffix, "", nbins,bounds[0],bounds[2], ybins,bounds[1],bounds[3])
+
         frame.SetBit(ROOT.TH1.kNoStats)
         frame.SetBit(ROOT.kCanDelete)
-        frame.SetMinimum(bounds[1])
-        frame.SetMaximum(bounds[3])
-        frame.GetYaxis().SetLimits(bounds[1], bounds[3])
         frame.Draw("")
 
         xaxis = frame.GetXaxis()
@@ -1049,19 +1188,31 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
         if xbinlabeloption is not None:
             frame.LabelsOption(xbinlabeloption)
 
+        if ybinlabels is not None:
+            yaxis = frame.GetYaxis()
+            for i, lab in enumerate(ybinlabels):
+                yaxis.SetBinLabel(i+1, lab)
+            if xbinlabelsize is not None:
+                yaxis.SetLabelSize(xbinlabelsize)
+            if xbinlabeloption is not None:
+                frame.LabelsOption(xbinlabeloption, "Y")
+
     return frame
 
 class Frame:
     """Class for creating and managing a frame for a simple, one-pad plot"""
-    def __init__(self, pad, bounds, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
+    def __init__(self, pad, bounds, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None):
         self._pad = pad
-        self._frame = _drawFrame(pad, bounds, xbinlabels, xbinlabelsize, xbinlabeloption)
+        self._frame = _drawFrame(pad, bounds, xbinlabels, xbinlabelsize, xbinlabeloption, ybinlabels)
 
         yoffsetFactor = 1
         xoffsetFactor = 1
         if nrows == 2:
             yoffsetFactor *= 2
             xoffsetFactor *= 2
+        elif nrows >= 5:
+            yoffsetFactor *= 1.5
+            xoffsetFactor *= 1.5
         elif nrows >= 3:
             yoffsetFactor *= 4
             xoffsetFactor *= 3
@@ -1544,6 +1695,7 @@ class Plot:
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
         legend       -- Bool to enable/disable legend (default True)
+        adjustMarginLeft  -- Float for adjusting left margin (default None)
         adjustMarginRight  -- Float for adjusting right margin (default None)
         ratio        -- Possibility to disable ratio for this particular plot (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
@@ -1612,6 +1764,7 @@ class Plot:
         _set("legendDh", None)
         _set("legend", True)
 
+        _set("adjustMarginLeft", None)
         _set("adjustMarginRight", None)
 
         _set("ratio", None)
@@ -1842,100 +1995,44 @@ class Plot:
         # label are compared with each other
         histosHaveBinLabels = len(histos[0].GetXaxis().GetBinLabel(1)) > 0
         xbinlabels = self._xbinlabels
+        ybinlabels = None
         if xbinlabels is None:
             if histosHaveBinLabels:
-                xbinlabels = [histos[0].GetXaxis().GetBinLabel(i) for i in xrange(1, histos[0].GetNbinsX()+1)]
-                # Merge bin labels with difflib
-                for h in histos[1:]:
-                    labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
-                    diff = difflib.unified_diff(xbinlabels, labels, n=max(len(xbinlabels), len(labels)))
-                    xbinlabels = []
-                    operation = []
-                    for item in diff: # skip the "header" lines
-                        if item[:2] == "@@":
-                            break
-                    for item in diff:
-                        operation.append(item[0])
-                        lab = item[1:]
-                        if lab in xbinlabels:
-                            # pick the last addition of the bin
-                            ind = xbinlabels.index(lab)
-                            if operation[ind] == "-" and operation[-1] == "+":
-                                xbinlabels.remove(lab)
-                                del operation[ind] # to keep xbinlabels and operation indices in sync
-                            elif operation[ind] == "+" and operation[-1] == "-":
-                                del operation[-1] # to keep xbinlabels and operation indices in sync
-                                continue
-                            else:
-                                raise Exception("This should never happen")
-                        xbinlabels.append(lab)
-                    # unified_diff returns empty diff if xbinlabels and labels are equal
-                    # so if xbinlabels is empty here, it can be just set to labels
-                    if len(xbinlabels) == 0:
-                        xbinlabels = labels
+                xbinlabels = _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+                if isinstance(histos[0], ROOT.TH2):
+                    ybinlabels = _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
 
-                histos_new = []
-                for h in histos:
-                    h_new = h.Clone(h.GetName()+"_xbinlabels")
-                    h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
-                    for i, label in enumerate(xbinlabels):
-                        bin = h.GetXaxis().FindFixBin(label)
-                        if bin >= 0:
-                            h_new.SetBinContent(i+1, h.GetBinContent(bin))
-                            h_new.SetBinError(i+1, h.GetBinError(bin))
-                        else:
-                            h_new.SetBinContent(i+1, 0)
-                            h_new.SetBinError(i+1, 0)
-                    histos_new.append(h_new)
-                self._tmp_histos = histos_new # need to keep these in memory too ...
-                histos = histos_new
+                if len(histos) > 1: # don't bother if only one histogram
+                    # doing this for TH2 is pending for use case, for now there is only 1 histogram/plot for TH2
+                    histos_new = []
+                    for h in histos:
+                        h_new = h.Clone(h.GetName()+"_xbinlabels")
+                        h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
+                        for i, label in enumerate(xbinlabels):
+                            bin = h.GetXaxis().FindFixBin(label)
+                            if bin >= 0:
+                                h_new.SetBinContent(i+1, h.GetBinContent(bin))
+                                h_new.SetBinError(i+1, h.GetBinError(bin))
+                            else:
+                                h_new.SetBinContent(i+1, 0)
+                                h_new.SetBinError(i+1, 0)
+                        histos_new.append(h_new)
+                    self._tmp_histos = histos_new # need to keep these in memory too ...
+                    histos = histos_new
 
         # Remove empty bins, but only if histograms have bin labels
         if self._removeEmptyBins and histosHaveBinLabels:
             # at this point, all histograms have been "equalized" by their x binning and labels
             # therefore remove bins which are empty in all histograms
-            binsToRemove = set()
-            for b in xrange(1, histos[0].GetNbinsX()+1):
-                binEmpty = True
-                for h in histos:
-                    if h.GetBinContent(b) > 0:
-                        binEmpty = False
-                        break
-                if binEmpty:
-                    binsToRemove.add(b)
-
-            if len(binsToRemove) > 0:
-                # filter xbinlabels
-                xbinlab_new = []
-                for i in xrange(len(xbinlabels)):
-                    if (i+1) not in binsToRemove:
-                        xbinlab_new.append(xbinlabels[i])
-                xbinlabels = xbinlab_new
-
-                # filter histogram bins
-                histos_new = []
-                for h in histos:
-                    values = []
-                    for b in xrange(1, h.GetNbinsX()+1):
-                        if b not in binsToRemove:
-                            values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
-
-                    if len(values) > 0:
-                        h_new = h.Clone(h.GetName()+"_empty")
-                        h_new.SetBins(len(values), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(values))
-                        for b, (l, v, e) in enumerate(values):
-                            h_new.GetXaxis().SetBinLabel(b+1, l)
-                            h_new.SetBinContent(b+1, v)
-                            h_new.SetBinError(b+1, e)
-
-                        histos_new.append(h_new)
-
-                self._tmp_histos = histos_new # need to keep these in memory too ...
-                histos = histos_new
-                if len(histos) == 0:
-                    if verbose:
-                        print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
-                    return
+            if isinstance(histos[0], ROOT.TH2):
+                (histos, xbinlabels, ybinlabels) = _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels)
+            else:
+                (histos, xbinlabels) = _th1RemoveEmptyBins(histos, xbinlabels)
+            self._tmp_histos = histos # need to keep these in memory too ...
+            if len(histos) == 0:
+                if verbose:
+                    print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
+                return
 
         if self._printBins and histosHaveBinLabels:
             print "####################"
@@ -2002,7 +2099,7 @@ class Plot:
                 ratioBounds = (bounds[0], ratioBoundsY[0], bounds[2], ratioBoundsY[1])
                 frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
             else:
-                frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+                frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption, ybinlabels=ybinlabels)
 
         # Set log and grid
         frame.setLogx(self._xlog)
@@ -2040,6 +2137,8 @@ class Plot:
             frame.setZTitle(self._ztitle)
         if self._ztitleoffset is not None:
             frame.setZTitleOffset(self._ztitleoffset)
+        if self._adjustMarginLeft is not None:
+            frame.adjustMarginLeft(self._adjustMarginLeft)
         if self._adjustMarginRight is not None:
             frame.adjustMarginRight(self._adjustMarginRight)
         elif "z" in opt:
@@ -2098,7 +2197,7 @@ class Plot:
             else:
                 legend.AddEntry(h, label, "LP")
 
-class PlotGroup:
+class PlotGroup(object):
     """Group of plots, results a TCanvas"""
     def __init__(self, name, plots, **kwargs):
         """Constructor.
@@ -2117,6 +2216,8 @@ class PlotGroup:
         overrideLegendLabels -- List of strings for legend labels, if given, these are used instead of the ones coming from Plotter (default None)
         onlyForPileup  -- Plots this group only for pileup samples
         """
+        super(PlotGroup, self).__init__()
+
         self._name = name
         self._plots = plots
 
@@ -2364,7 +2465,34 @@ class PlotGroup:
 
         return [name+saveFormat]
 
+class PlotOnSideGroup(PlotGroup):
+    """Resembles DQM GUI's "On side" layout.
+
+    Like PlotGroup, but has only a description of a single plot. The
+    plot is drawn separately for each file. Useful for 2D histograms."""
+
+    def __init__(self, name, plot, ncols=2, onlyForPileup=False):
+        super(PlotOnSideGroup, self).__init__(name, [], ncols=ncols, legend=False, onlyForPileup=onlyForPileup)
+        self._plot = plot
+        self._plot.setProperties(ratio=False)
+
+    def append(self, *args, **kwargs):
+        raise Exception("PlotOnSideGroup.append() is not implemented")
+
+    def create(self, tdirectoryNEvents, requireAllHistograms=False):
+        self._plots = []
+        for element in tdirectoryNEvents:
+            pl = self._plot.clone()
+            pl.create([element], requireAllHistograms)
+            self._plots.append(pl)
+
+    def draw(self, *args, **kwargs):
+        kargs = copy.copy(kwargs)
+        kargs["ratio"] = False
+        return super(PlotOnSideGroup, self).draw(*args, **kargs)
+
 class PlotFolder:
+
     """Represents a collection of PlotGroups, produced from a single folder in a DQM file"""
     def __init__(self, *plotGroups, **kwargs):
         """Constructor.

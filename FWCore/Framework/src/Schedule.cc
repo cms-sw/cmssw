@@ -79,7 +79,7 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(std::shared_ptr<TriggerResultInserter>(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams())),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -983,11 +983,6 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded() {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
-  }
-
   void Schedule::openOutputFiles(FileBlock& fb) {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
@@ -1043,15 +1038,6 @@ namespace edm {
     streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,pathStatusInserters_);
   }
   
-  void Schedule::preForkReleaseResources() {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));
-  }
-  void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
-  }
-
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
                               const ProductRegistry& iRegistry) {
@@ -1102,6 +1088,12 @@ namespace edm {
   Schedule::AllWorkers const&
   Schedule::allWorkers() const {
     return globalSchedule_->allWorkers();
+  }
+
+  void Schedule::convertCurrentProcessAlias(std::string const& processName) {
+    for (auto const& worker : allWorkers()) {
+      worker->convertCurrentProcessAlias(processName);
+    }
   }
 
   void

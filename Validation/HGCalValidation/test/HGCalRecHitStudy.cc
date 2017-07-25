@@ -68,7 +68,7 @@ private:
     float layer;
   };
 
-  virtual void beginJob() override;
+  virtual void beginJob() override {}
   virtual void endJob() override {}
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
@@ -101,6 +101,7 @@ private:
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) {
 
   usesResource("TFileService");
+  layers_       = 0;
   nameDetector_ = iConfig.getParameter<std::string>("DetectorName");
   verbosity_    = iConfig.getUntrackedParameter<int>("Verbosity",0);
   auto temp     = iConfig.getParameter<edm::InputTag>("RecHitSource");
@@ -118,6 +119,10 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) {
       << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
       << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!"; 
   }
+  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " 
+				      << nameDetector_  << " with i/p tag " 
+				      << temp << " Flag " << ifHCAL_ << ":"
+				      << verbosity_;
 }
 
 
@@ -142,8 +147,8 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
       iEvent.getByToken(recHitSource_, hbhecoll);
       if (hbhecoll.isValid()) {
 	if (verbosity_>0) 
-	  edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
-					  << hbhecoll->size() << " element(s)";
+	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					      << hbhecoll->size() << " element(s)";
 	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
 	  DetId detId = it->id();
 	  ntot++;
@@ -162,8 +167,8 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
       iEvent.getByToken(recHitSource_, hbhecoll);
       if (hbhecoll.isValid()) {
 	if (verbosity_>0) 
-	  edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
-					  << hbhecoll->size() << " element(s)";
+	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					      << hbhecoll->size() << " element(s)";
 	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
 	  DetId detId = it->id();
 	  ntot++; nused++;
@@ -185,9 +190,9 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
     iEvent.getByToken(recHitSource_, theRecHitContainers);
     if (theRecHitContainers.isValid()) {
       if (verbosity_>0) 
-	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
-					<< theRecHitContainers->size()
-					<< " element(s)";
+	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					    << theRecHitContainers->size()
+					    << " element(s)";
       for (auto it=theRecHitContainers->begin();
 	   it !=theRecHitContainers->end(); ++it) {
 	ntot++; nused++;
@@ -208,7 +213,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 
 template<class T1, class T2>
 void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer, 
-					     const T1* geom, T2 it) {
+					const T1* geom, T2 it) {
 
   GlobalPoint global = geom->getPosition(detId);
   double      energy = it->energy();
@@ -227,10 +232,10 @@ void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer,
   hinfo.eta    = global.eta();
       
   if (verbosity_>1) 
-    edm::LogInfo("HGCalValidation") << " --------------------------   gx = "
-				    << globalx << " gy = "  << globaly   
-				    << " gz = " << globalz << " phi = " 
-				    << hinfo.phi << " eta = " << hinfo.eta;
+    edm::LogVerbatim("HGCalValidation")<< " --------------------------   gx = "
+				       << globalx << " gy = "  << globaly   
+				       << " gz = " << globalz << " phi = " 
+				       << hinfo.phi << " eta = " << hinfo.eta;
       
   fillHitsInfo(hinfo);
       
@@ -284,13 +289,12 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
     const HGCalDDDConstants & hgcons_ = (*pHGDC);
     layers_ = hgcons_.layers(true);
   }
-}
 
-void HGCalRecHitStudy::beginJob() {
+  edm::LogVerbatim("HGCalValidation") << "Finds " << layers_ << " layers for " 
+				      << nameDetector_;
 
   edm::Service<TFileService> fs;
   char histoname[100];
-
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
     sprintf (histoname,"HitOccupancy_Plus_layer_%d", ilayer);
     HitOccupancy_Plus_.push_back(fs->make<TH1D>(histoname, "RecHitOccupancy_Plus", 100, 0, 10000));
@@ -303,7 +307,7 @@ void HGCalRecHitStudy::beginJob() {
     EtaPhi_Minus_.push_back(fs->make<TH2D>(histoname, "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
       
     sprintf (histoname, "Energy_Layer_%d", ilayer); 
-    energy_.push_back(fs->make<TH1D>(histoname,"Energy",100,0,0.002));
+    energy_.push_back(fs->make<TH1D>(histoname,"Energy",1000,0,10.0));
   }//loop over layers ends here 
 
   MeanHitOccupancy_Plus_= fs->make<TH1D>("SUMOfRecHitOccupancy_Plus", "SUMOfRecHitOccupancy_Plus", layers_, -0.5, layers_-0.5);

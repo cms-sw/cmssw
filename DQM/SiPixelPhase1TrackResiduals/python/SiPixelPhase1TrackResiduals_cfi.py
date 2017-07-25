@@ -28,7 +28,6 @@ SiPixelPhase1TrackResidualsConf = cms.VPSet(
 SiPixelPhase1TrackResidualsAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackResiduals",
         trajectoryInput = cms.string("generalTracks"),
         Tracks        = cms.InputTag("generalTracks"),
-        VertexCut                  = cms.bool(True), # Will not apply the vertex cuts on cosmics
         histograms = SiPixelPhase1TrackResidualsConf,
         geometry = SiPixelPhase1Geometry
 )

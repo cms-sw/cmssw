@@ -180,9 +180,6 @@ namespace edm {
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded();
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb);
 
@@ -194,9 +191,6 @@ namespace edm {
 
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
-
-    void preForkReleaseResources();
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
@@ -279,6 +273,9 @@ namespace edm {
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
+
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
 
   private:
 

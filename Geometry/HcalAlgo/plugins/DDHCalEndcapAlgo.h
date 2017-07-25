@@ -11,7 +11,7 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalEndcapAlgo(); //const std::string & name);
-  virtual ~DDHCalEndcapAlgo();
+  ~DDHCalEndcapAlgo() override;
   
   //Get Methods
   std::string getGenMat()                  const {return genMaterial;}
@@ -81,9 +81,9 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
