@@ -258,11 +258,10 @@ def create_mass_storage_directory(mps_dir_name, general_options):
 
     # set directory on eos
     mss_dir = general_options.get("massStorageDir",
-                                  "/store/caf/user/"+os.environ["USER"])
+                                  "/eos/cms/store/caf/user/"+os.environ["USER"])
     mss_dir = os.path.join(mss_dir, "MPproduction", mps_dir_name)
 
-    cmd = ["/afs/cern.ch/project/eos/installation/cms/bin/eos.select",
-           "mkdir", "-p", mss_dir]
+    cmd = ["mkdir", "-p", mss_dir]
 
     # create directory
     if not general_options.get("testMode", False):
