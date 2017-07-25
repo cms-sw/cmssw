@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
 fC_per_ele     = 1.6020506e-4
-nonAgedNoises = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
+nonAgedCCEs    = [1.0, 1.0, 1.0]
+nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
+thresholdTracksMIP = False
 
 # ECAL
 hgceeDigitizer = cms.PSet( 
@@ -20,6 +22,8 @@ hgceeDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
         keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
+
+        chargeCollectionEfficiency = cms.vdouble( nonAgedCCEs ),
         noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
@@ -42,6 +46,7 @@ hgceeDigitizer = cms.PSet(
             # raise threshold flag (~MIP/2) this is scaled 
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
+            thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
@@ -72,6 +77,7 @@ hgchefrontDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(        
         keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
+        chargeCollectionEfficiency = cms.vdouble( nonAgedCCEs ),
         noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
@@ -93,6 +99,7 @@ hgchefrontDigitizer = cms.PSet(
             # raise threshold flag (~MIP/2) this is scaled 
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
+            thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
@@ -138,15 +145,18 @@ hgchebackDigitizer = cms.PSet(
             # ADC saturation : in this case we use the same variable but fC=MIP
             adcSaturation_fC = cms.double(1024.0),
             # threshold for digi production : in this case we use the same variable but fC=MIP
-            adcThreshold_fC = cms.double(0.50)
+            adcThreshold_fC = cms.double(0.50),
+            thresholdFollowsMIP = cms.bool(False)
             )
         )                              
     )
 
 #function to set noise to aged HGCal
+endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
 def HGCal_setEndOfLifeNoise(digitizer):
     if( digitizer.digiCollection != "HGCDigisHEback" ):
         digitizer.digiCfg.noise_fC = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] )
+        digitizer.digiCfg.chargeCollectionEfficiency = cms.double(endOfLifeCCEs)
     else: #use S/N of 7 for SiPM readout
         digitizer.digiCfg.noise_MIP = cms.vdouble( 1.0/5.0 )

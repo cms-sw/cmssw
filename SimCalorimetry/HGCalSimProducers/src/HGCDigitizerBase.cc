@@ -52,6 +52,13 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
   doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
   if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
   else                          keV2fC_   = 1.0;
+
+  if( ps.existsAs<std::vector<double> >( "chargeCollectionEfficiencies" ) ) {
+    cce_ = ps.getParameter<std::vector<double> >("chargeCollectionEfficiencies");
+  } else {
+    std::vector<double>().swap(cce_);
+  }
+
   if(myCfg_.existsAs<double>("noise_fC")) {
     noise_fC_.resize(1);
     noise_fC_[0] = myCfg_.getParameter<double>("noise_fC");
@@ -101,6 +108,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
     
     for(size_t i=0; i<cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
+      if( cce_.size() ) rawCharge *= cce_[cell.thickness-1];
       
       //time of arrival
       toa[i]=cell.hit_info[1][i];
@@ -120,8 +128,11 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
     }
     
     //run the shaper to create a new data frame
-    DFr rawDataFrame( id );    
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
+    DFr rawDataFrame( id );
+    if( cce_.size() )
+      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness-1]);
+    else
+      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
 
     //update the output according to the final shape
     updateOutput(coll,rawDataFrame);

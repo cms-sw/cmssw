@@ -87,6 +87,9 @@ class HGCDigitizerBase {
   
   //noise level
   std::vector<float> noise_fC_;
+
+  //charge collection efficiency
+  std::vector<double> cce_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;

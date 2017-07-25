@@ -8,6 +8,16 @@ def getHcalDigitizer(process):
         return process.mix.digitizers.hcal
     return None
 
+def getHGCalDigitizer(process,section):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
+        if section == 'EE' and hasattr(process.mix.digitizers,'hgceeDigitizer'):
+            return process.mix.digitizers.hgceeDigitizer
+        elif section == 'FH' and hasattr(process.mix.digitizers,'hgchefrontDigitizer'):
+            return process.mix.digitizers.hgchefrontDigitizer
+        elif section == 'BH' and hasattr(process.mix.digitizers,'hgchebackDigitizer'):
+            return process.mix.digitizers.hgchebackDigitizer
+    return None
+
 # change assumptions about lumi rate
 def setScenarioHLLHC(module,scenarioHLLHC):
     if scenarioHLLHC=="nominal":
@@ -47,6 +57,13 @@ def ageHF(process,turnon):
     if hcaldigi is not None: hcaldigi.HFDarkening = cms.bool(turnon)
     if hasattr(process,'es_hardcode'):
         process.es_hardcode.HFRecalibration = cms.bool(turnon)
+    return process
+
+def agedHGCal(process):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
+    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'EE'))
+    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'FH'))
+    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'BH'))
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)
@@ -182,14 +199,17 @@ def customise_aging_1000(process):
 def customise_aging_3000(process):
     process=ageHcal(process,3000,5.0e34,"nominal")
     process=ageEcal(process,3000,5.0e34)
+    process=agedHGCal(process)
     return process
 
 def customise_aging_3000_ultimate(process):
     process=ageHcal(process,3000,7.5e34,"ultimate")
     process=ageEcal(process,3000,7.5e34)
+    process=agedHGCal(process)
     return process
 
 def customise_aging_4500_ultimate(process):
     process=ageHcal(process,4500,7.5e34,"ultimate")
     process=ageEcal(process,4500,7.5e34)
+    process=agedHGCal(process)
     return process

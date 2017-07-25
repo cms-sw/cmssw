@@ -64,6 +64,7 @@ private:
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
+    if( word > mask ) word = mask; // deal with saturation
     //clear required bits
     const uint32_t masked_word = (word & mask) << pos;
     value_ &= ~(masked_word); 
