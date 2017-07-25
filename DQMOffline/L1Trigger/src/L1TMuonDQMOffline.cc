@@ -1,5 +1,5 @@
 /**
- * \file L1TEfficiencyMuons_Offline.cc
+ * \file L1TMuonDQMOffline.cc
  *
  * \author J. Pela, C. Battilana
  *
@@ -7,7 +7,7 @@
  *
  */
 
-#include "DQMOffline/L1Trigger/interface/L1TEfficiencyMuons_Offline.h"
+#include "DQMOffline/L1Trigger/interface/L1TMuonDQMOffline.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -104,11 +104,12 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 }
 
 //__________DQM_base_class_______________________________________________
-L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
+L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps){
     m_verbose = ps.getUntrackedParameter<bool>("verbose");
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] ____________ Storage initialization ____________ " << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
 
     // Initializing config params
+    m_HistFolder  = ps.getUntrackedParameter<string>("histFolder");
     m_GmtPtCuts = ps.getUntrackedParameter< vector<int> >("gmtPtCuts");
     m_MuonInputTag =  consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"));
     m_GmtInputTag  =  consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"));
@@ -128,16 +129,16 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 }
 
 //_____________________________________________________________________
-L1TEfficiencyMuons_Offline::~L1TEfficiencyMuons_Offline(){ }
+L1TMuonDQMOffline::~L1TMuonDQMOffline(){ }
 //----------------------------------------------------------------------
-void L1TEfficiencyMuons_Offline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Called beginRun." << endl;
+void L1TMuonDQMOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Called beginRun." << endl;
     bool changed = true;
     m_hltConfig.init(run,iSetup,m_trigProcess,changed);
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
     //book histos
     bookControlHistos(ibooker);
     vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
@@ -162,22 +163,22 @@ void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, cons
                 m_trigIndices.push_back(tIndex);
             }
         }
-        if (tIndex < 0 && m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;   
+        if (tIndex < 0 && m_verbose) cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;   
     }
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
+void L1TMuonDQMOffline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
+void L1TMuonDQMOffline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
+void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     Handle<reco::MuonCollection> muons;
     iEvent.getByToken(m_MuonInputTag, muons);
@@ -219,7 +220,7 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
 //    vector<l1t::Muon>::const_iterator gmtIt = gmtContainer.begin();
 //    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
 
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Computing efficiencies" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Computing efficiencies" << endl;
 
     vector<MuonGmtPair>::const_iterator muonGmtPairsIt  = m_MuonGmtPairs.begin();
     vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
@@ -243,63 +244,63 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
             string ptTag = ptCutToTag.str();
 
             if (fabs(eta) < m_MaxMuonEta) {
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt" + ptTag + "Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "Den"]->Fill(pt);
+                m_EfficiencyHistos[gmtPtCut]["EffvsPt_" + ptTag + "_Den"]->Fill(pt);
+                m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "_Den"]->Fill(pt);
+                m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "_Den"]->Fill(pt);
+                m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "_Den"]->Fill(pt);
 
                 if (gmtAboveCut) {
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPt" + ptTag + "Num"]->Fill(pt);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsPt_" + ptTag + "_Num"]->Fill(pt);
 
-                    if (qual >= 4) m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "Num"]->Fill(pt);
-                    if (qual >= 8) m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "Num"]->Fill(pt);
-                    if (qual >= 12) m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "Num"]->Fill(pt);
+                    if (qual >= 4) m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "_Num"]->Fill(pt);
+                    if (qual >= 8) m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "_Num"]->Fill(pt);
+                    if (qual >= 12) m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "_Num"]->Fill(pt);
                 }
 
                 // efficiency in eta/phi at plateau
                 if (pt > 1.25*gmtPtCut) {       // efficiency in eta/phi at plateau
 
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi" + ptTag + "Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta" + ptTag + "Den"]->Fill(eta);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_" + ptTag + "_Den"]->Fill(phi);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_" + ptTag + "_Den"]->Fill(eta);
 
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "Den"]->Fill(eta);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "_Den"]->Fill(phi);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "_Den"]->Fill(eta);
 
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "Den"]->Fill(eta);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "_Den"]->Fill(phi);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "_Den"]->Fill(eta);
 
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "Den"]->Fill(eta);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "_Den"]->Fill(phi);
+                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "_Den"]->Fill(eta);
 
                     if (gmtAboveCut) {
-                        m_EfficiencyHistos[gmtPtCut]["EffvsPhi" + ptTag + "Num"]->Fill(phi);
-                        m_EfficiencyHistos[gmtPtCut]["EffvsEta" + ptTag + "Num"]->Fill(eta);
+                        m_EfficiencyHistos[gmtPtCut]["EffvsPhi_" + ptTag + "_Num"]->Fill(phi);
+                        m_EfficiencyHistos[gmtPtCut]["EffvsEta_" + ptTag + "_Num"]->Fill(eta);
 
                         if (qual >= 4) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "Num"]->Fill(eta);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "_Num"]->Fill(phi);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "_Num"]->Fill(eta);
                         }
                         if (qual >= 8) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "Num"]->Fill(eta);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "_Num"]->Fill(phi);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "_Num"]->Fill(eta);
                         }
                         if (qual >= 12) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "Num"]->Fill(eta);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "_Num"]->Fill(phi);
+                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "_Num"]->Fill(eta);
                         }
                     }
                 }
             }
         }
     }
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Computation finished" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Computation finished" << endl;
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookControlHistos(DQMStore::IBooker& ibooker) {
-    if(m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Booking Control Plot Histos" << endl;
+void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Booking Control Plot Histos" << endl;
 
-    ibooker.setCurrentFolder("L1T/Efficiency/Muons/Control");
+    ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
     string name = "MuonGmtDeltaR";
     m_ControlHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),25.,0.,2.5);
@@ -327,87 +328,87 @@ void L1TEfficiencyMuons_Offline::bookControlHistos(DQMStore::IBooker& ibooker) {
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) {
-    if(m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Booking Efficiency Plot Histos for pt cut = " << ptCut << endl;
+void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) {
+    if(m_verbose) cout << "[L1TMuonDQMOffline:] Booking Efficiency Plot Histos for pt cut = " << ptCut << endl;
 
     stringstream ptCutToTag; ptCutToTag << ptCut;
     string ptTag = ptCutToTag.str();
 
-    ibooker.setCurrentFolder("L1T/Efficiency/Muons/");
+    ibooker.setCurrentFolder(m_HistFolder+"/numerators_and_denominators");
     float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
 
-    string name1 = "EffvsPt" + ptTag + "Den";
+    string name1 = "EffvsPt_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
-    string name2 = "EffvsPt" + ptTag + "Num";
+    string name2 = "EffvsPt_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
 
-    name1 = "EffvsPt_OPEN_" + ptTag + "Den";
+    name1 = "EffvsPt_OPEN_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
-    name2 = "EffvsPt_OPEN_" + ptTag + "Num";
+    name2 = "EffvsPt_OPEN_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
 
-    name1 = "EffvsPt_DOUBLE_" + ptTag + "Den";
+    name1 = "EffvsPt_DOUBLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32, xbins);
-    name2 = "EffvsPt_DOUBLE_" + ptTag + "Num";
+    name2 = "EffvsPt_DOUBLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32, xbins);
 
-    name1 = "EffvsPt_SINGLE_" + ptTag + "Den";
+    name1 = "EffvsPt_SINGLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
-    name2 = "EffvsPt_SINGLE_" + ptTag + "Num";
+    name2 = "EffvsPt_SINGLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
 
 ////////////////////////////////////////////////
 
-    name1 = "EffvsPhi" + ptTag + "Den";
+    name1 = "EffvsPhi_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name2 = "EffvsPhi" + ptTag + "Num";
+    name2 = "EffvsPhi_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
 
-    name1 = "EffvsEta" + ptTag + "Den";
+    name1 = "EffvsEta_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    name2 = "EffvsEta" + ptTag + "Num";
+    name2 = "EffvsEta_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
 
 //////////////////////////////////////////////
 
-    name1 = "EffvsPhi_OPEN_" + ptTag + "Den";
+    name1 = "EffvsPhi_OPEN_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name2 = "EffvsPhi_OPEN_" + ptTag + "Num";
+    name2 = "EffvsPhi_OPEN_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
 
-    name1 = "EffvsEta_OPEN_" + ptTag + "Den";
+    name1 = "EffvsEta_OPEN_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    name2 = "EffvsEta_OPEN_" + ptTag + "Num";
+    name2 = "EffvsEta_OPEN_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
 
 //////////////////////////////////////////////
 
-    name1 = "EffvsPhi_DOUBLE_" + ptTag + "Den";
+    name1 = "EffvsPhi_DOUBLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name2 = "EffvsPhi_DOUBLE_" + ptTag + "Num";
+    name2 = "EffvsPhi_DOUBLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
 
-    name1 = "EffvsEta_DOUBLE_" + ptTag + "Den";
+    name1 = "EffvsEta_DOUBLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    name2 = "EffvsEta_DOUBLE_" + ptTag + "Num";
+    name2 = "EffvsEta_DOUBLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
 
 //////////////////////////////////////////////
 
-    name1 = "EffvsPhi_SINGLE_" + ptTag + "Den";
+    name1 = "EffvsPhi_SINGLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name2 = "EffvsPhi_SINGLE_" + ptTag + "Num";
+    name2 = "EffvsPhi_SINGLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
 
 
-    name1 = "EffvsEta_SINGLE_" + ptTag + "Den";
+    name1 = "EffvsEta_SINGLE_" + ptTag + "_Den";
     m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    name2 = "EffvsEta_SINGLE_" + ptTag + "Num";
+    name2 = "EffvsEta_SINGLE_" + ptTag + "_Num";
     m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
 }
 
 //_____________________________________________________________________
-const reco::Vertex L1TEfficiencyMuons_Offline::getPrimaryVertex( Handle<VertexCollection> & vertex,
+const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex( Handle<VertexCollection> & vertex,
                                  Handle<BeamSpot> & beamSpot ) {
     Vertex::Point posVtx;
     Vertex::Error errVtx;
@@ -439,9 +440,9 @@ const reco::Vertex L1TEfficiencyMuons_Offline::getPrimaryVertex( Handle<VertexCo
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  const Vertex & vertex) {
+void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  const Vertex & vertex) {
 
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Getting tight muons" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Getting tight muons" << endl;
     m_TightMuons.clear();
     MuonCollection::const_iterator muonIt  = muons->begin();
     MuonCollection::const_iterator muonEnd = muons->end();
@@ -455,10 +456,10 @@ void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection>
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
+void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                            edm::Handle<trigger::TriggerEvent> & trigEvent) {
 
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] getting probe muons" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
     m_ProbeMuons.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
@@ -493,10 +494,10 @@ void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & tri
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
+void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
 
     m_MuonGmtPairs.clear();
-    if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Getting muon GMT pairs" << endl;
+    if (m_verbose) cout << "[L1TMuonDQMOffline:] Getting muon GMT pairs" << endl;
 
     vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
@@ -537,7 +538,7 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollecti
 }
 
 //_____________________________________________________________________
-bool L1TEfficiencyMuons_Offline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
+bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
 
     double matchDeltaR = 9999;
 
@@ -566,4 +567,4 @@ bool L1TEfficiencyMuons_Offline::matchHlt(edm::Handle<TriggerEvent>  & triggerEv
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TEfficiencyMuons_Offline);
+DEFINE_FWK_MODULE(L1TMuonDQMOffline);
