@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.VBFMETMonitor_cff import *
 from DQMOffline.Trigger.METMonitor_cfi import hltMETmonitoring
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 from DQMOffline.Trigger.VBFTauMonitor_cff import *
+from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cff import *
+from DQMOffline.Trigger.MssmHbbMonitoring_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_cfi import hltHIGmonitoring
 
 # HLT_PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1 MET monitoring
@@ -285,13 +288,15 @@ higgsMonitorHLT = cms.Sequence(
   + diMu9Ele9CaloIdLTrackIdL_muleg
   + diMu9Ele9CaloIdLTrackIdL_eleleg
   + diMu9Ele9CaloIdLTrackIdL_dz
-    + PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1_METmonitoring
-    + PFMET110_PFMHT110_IDTight_CaloBTagCSV_3p1_METmonitoring
-    + PFMET110_PFMHT110_IDTight_CaloBTagCSV_3p1_TOPmonitoring
-    + PFMET120_PFMHT120_IDTight_CaloBTagCSV_3p1_METmonitoring
-    + PFMET120_PFMHT120_IDTight_CaloBTagCSV_3p1_TOPmonitoring
-    + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_METmonitoring
-    + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_TOPmonitoring
-    + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_METmonitoring
-    + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1_METmonitoring
+  + PFMET110_PFMHT110_IDTight_CaloBTagCSV_3p1_METmonitoring
+  + PFMET110_PFMHT110_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + PFMET120_PFMHT120_IDTight_CaloBTagCSV_3p1_METmonitoring
+  + PFMET120_PFMHT120_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_METmonitoring
+  + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_METmonitoring
+  + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + mssmHbbBtagTriggerMonitor 
+  + mssmHbbMonitorHLT 
 )
