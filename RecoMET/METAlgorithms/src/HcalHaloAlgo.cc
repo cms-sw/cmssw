@@ -12,10 +12,7 @@ namespace {
   constexpr float zseparation_HBHE = 380.;
 };
 
-
-using namespace std;
 using namespace reco;
-using namespace edm;
 
 #include <iomanip>
 bool CompareTime(const HBHERecHit* x, const HBHERecHit* y ){ return x->time() < y->time() ;}
@@ -143,7 +140,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
   for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
-    if(abs(tower->ieta()) > maxAbsIEta) continue;
+    if(std::abs(tower->ieta()) > maxAbsIEta) continue;
 
     int iPhi = tower->iphi();
     if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
@@ -203,7 +200,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
         float energyRatio = 0.0;
         if(iPhiHadEtMap.count(iPhiLower)) energyRatio += iPhiHadEtMap[iPhiLower];
         if(iPhiHadEtMap.count(iPhiUpper)) energyRatio += iPhiHadEtMap[iPhiUpper];
-        iPhiHadEtMap[iPhi] = max(iPhiHadEtMap[iPhi], 0.001F);
+        iPhiHadEtMap[iPhi] = std::max(iPhiHadEtMap[iPhi], 0.001F);
 
         energyRatio /= iPhiHadEtMap[iPhi];
         strip.energyRatio = energyRatio;
@@ -519,7 +516,7 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
   GlobalPoint pos;
-  if (id.det() == 4) {
+  if (id.det() == DetId::Hcal) {
     pos = hgeo_->getPosition(id);
   } else {
     pos = GlobalPoint(geo_->getPosition(id));
