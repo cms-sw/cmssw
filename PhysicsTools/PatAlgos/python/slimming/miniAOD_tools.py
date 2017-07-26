@@ -407,7 +407,3 @@ def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
     return process
-
-def miniAOD_customizeAllGEN(process):
-    miniAOD_customizeGEN(process)
-    return process
