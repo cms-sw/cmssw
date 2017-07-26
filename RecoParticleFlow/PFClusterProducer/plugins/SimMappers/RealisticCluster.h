@@ -7,8 +7,20 @@
 
 class RealisticCluster
 {
+        using Hit3DPosition = std::array<float,3>;
 
     public:
+
+        // for each SimCluster and for each layer, we store the position of the most energetic hit of the simcluster in the layer
+
+        struct LayerInfo
+        {
+            Hit3DPosition centerOfGravityAtLayer_;
+            Hit3DPosition maxHitPosAtLayer_;
+            float maxEnergyHitAtLayer_;
+        };
+
+
 
         RealisticCluster():
             totalEnergy(0.f),
@@ -17,6 +29,7 @@ class RealisticCluster
         {
 
         }
+
         void increaseEnergy(float value)
         {
             totalEnergy+=value;
@@ -55,6 +68,43 @@ class RealisticCluster
             visible = vis;
         }
 
+        void setCenterOfGravity(unsigned int layerId, const Hit3DPosition position)
+        {
+            layerInfo_[layerId].centerOfGravityAtLayer_ = position;
+        }
+
+        Hit3DPosition getCenterOfGravity(unsigned int layerId) const
+        {
+            return layerInfo_[layerId].centerOfGravityAtLayer_ ;
+        }
+
+        bool setMaxEnergyHit(unsigned int layerId, float newEnergy, const Hit3DPosition position)
+        {
+            if (newEnergy > layerInfo_[layerId].maxEnergyHitAtLayer_)
+            {
+                layerInfo_[layerId].maxEnergyHitAtLayer_ = newEnergy;
+                layerInfo_[layerId].maxHitPosAtLayer_ = position;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        Hit3DPosition getMaxEnergyPosition (unsigned int layerId) const
+        {
+            return layerInfo_[layerId].maxHitPosAtLayer_;
+        }
+
+        float getMaxEnergy(unsigned int layerId) const
+        {
+            return layerInfo_[layerId].maxEnergyHitAtLayer_;
+        }
+
+        void setLayersNum(unsigned int numberOfLayers)
+        {
+            layerInfo_.resize(numberOfLayers);
+        }
+
         void addHitAndFraction(unsigned int hit, float fraction)
         {
             hitIdsAndFractions_.emplace_back(hit,fraction);
@@ -62,12 +112,10 @@ class RealisticCluster
 
         void modifyFractionForHitId(float fraction, unsigned int hitId)
         {
-
             auto it = std::find_if( hitIdsAndFractions_.begin(), hitIdsAndFractions_.end(),
                 [&hitId](const std::pair<unsigned int, float>& element){ return element.first == hitId;} );
 
             it->second = fraction;
-
         }
 
         const std::vector< std::pair<unsigned int, float> > & hitsIdsAndFractions() const { return hitIdsAndFractions_; }
@@ -75,8 +123,10 @@ class RealisticCluster
 
 
     private:
-        std::vector<std::pair<unsigned int, float> > hitIdsAndFractions_;
 
+
+        std::vector<std::pair<unsigned int, float> > hitIdsAndFractions_;
+        std::vector<LayerInfo> layerInfo_;
 
         float totalEnergy;
         float exclusiveEnergy;

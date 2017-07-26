@@ -40,12 +40,12 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         const std::vector<bool>& rechitMask, const std::vector<bool>& seedable,
         reco::PFClusterCollection& output)
 {
-
+    float totalSimEnergyInEvent = 0.f;
+    float totalRealEnergyInEvent = 0.f;
     const SimClusterCollection& simClusters = *simClusterH_;
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;
     const int numberOfLayers = rhtools_.getLayer(ForwardSubdetector::ForwardEmpty);
-    //TODO: get number of layers+1 from geometry
     realisticAssociator.init(hits.size(), simClusters.size(), numberOfLayers + 1);
     // for quick indexing back to hit energy
     std::unordered_map < uint32_t, size_t > detIdToIndex(hits.size());
@@ -70,7 +70,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             auto itr = detIdToIndex.find(hAndF.first);
             if (itr == detIdToIndex.end())
             {
-                continue; // hit wasn't saved in reco
+                continue; // hit wasn't saved in reco or did not pass the SNR threshold
             }
 
             auto hitId = itr->second;
@@ -80,7 +80,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             float associatedEnergy = fraction * ref->energy();
             realisticAssociator.insertSimClusterIdAndFraction(ic, fraction, hitId,
                     associatedEnergy);
-
+            totalSimEnergyInEvent += associatedEnergy;
         }
 
     }
@@ -104,7 +104,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 auto ref = makeRefhit(input, idAndF.first);
                 back.addRecHitFraction(reco::PFRecHitFraction(ref, idAndF.second));
                 const float hit_energy = idAndF.second * ref->energy();
-
+                totalRealEnergyInEvent +=hit_energy;
                 if (hit_energy > highest_energy || highest_energy == 0.0)
                 {
                     highest_energy = hit_energy;
