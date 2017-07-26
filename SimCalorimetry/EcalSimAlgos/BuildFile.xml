@@ -3,6 +3,7 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="SimCalorimetry/CaloSimAlgos"/>
 <use   name="SimGeneral/NoiseGenerators"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CalibCalorimetry/EcalLaserCorrection"/>
 <use   name="CalibFormats/CaloObjects"/>
