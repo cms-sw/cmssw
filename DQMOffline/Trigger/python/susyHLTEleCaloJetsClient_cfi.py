@@ -3,7 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 susyHLTEleCaloJetsClient = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SusyHLTOffline/SusyMonitor/EleJet/*"),
+    subDirs        = cms.untracked.vstring(
+        'HLT/SusyHLTOffline/SusyMonitor/Ele8CaloJet30/*',
+        'HLT/SusyHLTOffline/SusyMonitor/Ele8CaloIdMJet30/*',
+        'HLT/SusyHLTOffline/SusyMonitor/Ele12CaloJet30/*',
+        'HLT/SusyHLTOffline/SusyMonitor/Ele17CaloIdMJet30/*',
+        'HLT/SusyHLTOffline/SusyMonitor/Ele23CaloJet30/*',
+        'HLT/SusyHLTOffline/SusyMonitor/Ele23CaloIdMJet30/*'
+    ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
