@@ -357,11 +357,11 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
       else if (pt>=2.5 && pt<6.) coridx = 2 + regind;
       else if (pt>=6.) coridx = 3 + regind;
     }
-    if (!ZS_bit && !FR_bit) {
+    if (!ZS_bit || clusFlag > 7) {
       edm::LogWarning("PFClusterEMEnergyCorrector") << "We can only correct regions readout in ZS (flag 1,5) or FULL readout (flag 3,7). Flag " << clusFlag << " is not recognized."
 						    << "\n" << "Assuming FULL readout and continuing";
     }
-           
+
     const GBRForestD &meanforest = *forestH_mean[coridx].product();
     const GBRForestD &sigmaforest = *forestH_sigma[coridx].product();
 
