@@ -37,7 +37,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(con
 
     retval->PtAssignVersion_ = PtAssignVersion;
     retval->firmwareVersion_ = firmwareVersion; 
-    retval->PhiMatchWindowSt1_ = changeDate;
+    // retval->PhiMatchWindowSt1_ = changeDate;  // This should be set to PrimConvVersion - AWB 13.06.17
     return retval;
 }
 
