@@ -61,10 +61,7 @@ MuonMonitor::MuonMonitor( const edm::ParameterSet& iConfig ) :
 
 }
 
-MuonMonitor::~MuonMonitor()
-{
-
-}
+MuonMonitor::~MuonMonitor() = default;
 
 MEbinning MuonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {

@@ -21,6 +21,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 namespace egHLT {
   template<class T> class MonElemContainer : public MonElemWithCutBase<T> {
@@ -43,12 +44,12 @@ namespace egHLT {
   public:
     
     MonElemContainer(std::string baseName="",std::string baseTitle="",
-		     EgHLTDQMCut<T>* cut=NULL):
-      baseName_(baseName),
-      baseTitle_(baseTitle),
+		     EgHLTDQMCut<T>* cut=nullptr):
+      baseName_(std::move(baseName)),
+      baseTitle_(std::move(baseTitle)),
       cut_(cut){}
     
-    ~MonElemContainer();
+    ~MonElemContainer() override;
     
   //yes this is little more than a struct with some unnecessary function wrapers
     std::vector<MonElemWithCutBase<T>*>& cutMonElems(){return cutMonElems_;}
@@ -60,7 +61,7 @@ namespace egHLT {
     const std::string& name()const{return baseName_;}
     const std::string& title()const{return baseTitle_;}
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
   
@@ -68,13 +69,13 @@ namespace egHLT {
   {
     for(size_t i=0;i<monElems_.size();i++) delete monElems_[i];
     for(size_t i=0;i<cutMonElems_.size();i++) delete cutMonElems_[i];
-    if(cut_!=NULL) delete cut_;
+    if(cut_!=nullptr) delete cut_;
   }
   
   
   template<class T> void MonElemContainer<T>::fill(const T& obj,const OffEvt& evt,float weight)
   {
-    if(cut_==NULL || cut_->pass(obj,evt)){
+    if(cut_==nullptr || cut_->pass(obj,evt)){
     for(size_t i=0;i<monElems_.size();i++) monElems_[i]->fill(obj,weight);
     for(size_t i=0;i<cutMonElems_.size();i++) cutMonElems_[i]->fill(obj,evt,weight);
     }

@@ -47,14 +47,14 @@ class TagAndProbeBtagTriggerMonitor : public DQMEDAnalyzer
 {
 public:
   TagAndProbeBtagTriggerMonitor( const edm::ParameterSet& );
-  ~TagAndProbeBtagTriggerMonitor();
+  ~TagAndProbeBtagTriggerMonitor() override;
 
 protected:
 
 
-  virtual void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
 

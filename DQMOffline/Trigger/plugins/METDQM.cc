@@ -1,8 +1,8 @@
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 
-METDQM::METDQM(){}
+METDQM::METDQM()= default;
 
-METDQM::~METDQM(){}
+METDQM::~METDQM()= default;
 
 void METDQM::initialise(const edm::ParameterSet& iConfig ){
 

@@ -58,7 +58,7 @@ class RazorMonitor : public DQMEDAnalyzer
 {
 public:
   RazorMonitor( const edm::ParameterSet& );
-  ~RazorMonitor();
+  ~RazorMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);
@@ -72,7 +72,7 @@ protected:
   void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setMETitle(RazorME& me, std::string titleX, std::string titleY);
+  void setMETitle(RazorME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 

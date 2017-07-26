@@ -59,7 +59,7 @@ class MuonMonitor : public DQMEDAnalyzer
 {
 public:
   MuonMonitor( const edm::ParameterSet& );
-  ~MuonMonitor();
+  ~MuonMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);

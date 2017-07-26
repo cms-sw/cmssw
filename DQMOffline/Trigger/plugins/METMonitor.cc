@@ -34,11 +34,9 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
 {
 }
 
-METMonitor::~METMonitor()
-{
-}
+METMonitor::~METMonitor() = default;
 
-METMonitor::MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
+METMonitor::MEbinning METMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return METMonitor::MEbinning{
     pset.getParameter<unsigned>("nbins"),
@@ -47,7 +45,7 @@ METMonitor::MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-METMonitor::MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
+METMonitor::MEbinning METMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return METMonitor::MEbinning{
     pset.getParameter<unsigned>("nbins"),
@@ -56,7 +54,7 @@ METMonitor::MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void METMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+void METMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -182,11 +180,11 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken(vtxToken_, vtxHandle);
 
   reco::Vertex vtx;
-  for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v) {
-    bool isFake =  v->isFake() ;
+  for (auto const & v : *vtxHandle) {
+    bool isFake =  v.isFake() ;
     
     if (!isFake) {
-      vtx = *v;
+      vtx = v;
       break;
     }
   }

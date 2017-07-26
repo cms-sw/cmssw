@@ -175,7 +175,7 @@ TopMonitor::~TopMonitor()
     if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.reset();
 }
 
-MEbinning TopMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning TopMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<uint32_t>("nbins"),
@@ -184,7 +184,7 @@ MEbinning TopMonitor::getHistoPSet(edm::ParameterSet pset)
   };
 }
 
-MEbinning TopMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning TopMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<uint32_t>("nbins"),
@@ -193,7 +193,7 @@ MEbinning TopMonitor::getHistoLSPSet(edm::ParameterSet pset)
   };
 }
 
-void TopMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+void TopMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -643,7 +643,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (jetSelection_(j)) {
       bool isJetOverlappedWithLepton = false;
       if(nmuons_>0) {
-        for (auto const m : muons) {
+        for (auto const& m : muons) {
           if (deltaR(j, m)<leptJetDeltaRmin_) {
             isJetOverlappedWithLepton=true;
             break;
@@ -699,8 +699,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   if ((nbjets_>0) && (nmuons_>0)){
       bool foundMuonInsideJet = false;
-      for (const auto & bjet : bjets){
-          for (const auto & mu : muons){
+      for (auto const & bjet : bjets){
+          for (auto const & mu : muons){
               double dR = deltaR(*bjet.first,mu);
               if (dR < bJetMuDeltaRmax_){
                   foundMuonInsideJet = true;

@@ -15,9 +15,9 @@ namespace egHLT {
     std::vector<std::pair<std::string,int> > _codeDefs;
     
   public:
-    ComCodes(){} 
-    ComCodes(const ComCodes& rhs):_codeDefs(rhs._codeDefs){}
-    ~ComCodes(){} 
+    ComCodes()= default; 
+    ComCodes(const ComCodes& rhs)= default;
+    ~ComCodes()= default; 
     
     //accessors
     int getCode(const char *descript)const;
