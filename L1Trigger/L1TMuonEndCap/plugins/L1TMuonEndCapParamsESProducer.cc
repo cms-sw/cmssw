@@ -58,7 +58,7 @@ L1TMuonEndCapParamsESProducer::ReturnType
 L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndcapParamsRcd& iRecord)
 {
    using namespace edm::es;
-   std::shared_ptr<L1TMuonEndCapParams> pEMTFParams(data_.getWriteInstance());
+   auto pEMTFParams = std::make_shared<L1TMuonEndCapParams>(*data_.getWriteInstance());
    return pEMTFParams;
    
 }
