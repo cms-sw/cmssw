@@ -8,12 +8,16 @@
 #ifndef Geometry_VeryForwardGeometryBuilder_CTPPSGeometry
 #define Geometry_VeryForwardGeometryBuilder_CTPPSGeometry
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
+
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
+
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 
 #include <map>
 #include <set>
