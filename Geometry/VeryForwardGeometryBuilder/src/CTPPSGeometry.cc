@@ -30,17 +30,14 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
     // check if it is a sensor
     if ( d->name().name().compare( DDD_TOTEM_RP_SENSOR_NAME ) == 0
       || d->name().name().compare( DDD_CTPPS_DIAMONDS_SEGMENT_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_PIXELS_SENSOR_NAME ) == 0 )
-    {
+      || d->name().name().compare( DDD_CTPPS_PIXELS_SENSOR_NAME ) == 0 ) {
 	  addSensor(d->geographicalID(), d);
     }
 
     // check if it is a RP
     if ( d->name().name().compare( DDD_TOTEM_RP_RP_NAME ) == 0
       || d->name().name().compare( DDD_CTPPS_PIXELS_RP_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_DIAMONDS_RP_NAME ) == 0
-      )
-    {
+      || d->name().name().compare( DDD_CTPPS_DIAMONDS_RP_NAME ) == 0 ) {
       addRP( d->geographicalID(), d );
     }
     
@@ -148,11 +145,7 @@ CTPPSGeometry::getSensorsInRP( unsigned int id ) const
 CLHEP::Hep3Vector
 CTPPSGeometry::localToGlobal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
 {
-  CLHEP::Hep3Vector tmp = gd->rotation() * r;
-  tmp.setX(tmp.x() + gd->translation().x() );
-  tmp.setY(tmp.y() + gd->translation().y() );
-  tmp.setZ(tmp.z() + gd->translation().z() );
-  return tmp;
+  return gd->rotation() * r + CLHEP::Hep3Vector( gd->translation().x(), gd->translation().y(), gd->translation().z() );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -168,11 +161,7 @@ CTPPSGeometry::localToGlobal( unsigned int id, const CLHEP::Hep3Vector& r ) cons
 CLHEP::Hep3Vector
 CTPPSGeometry::globalToLocal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
 {
-  CLHEP::Hep3Vector tmp = r;
-  tmp.setX( tmp.x() - gd->translation().x() );
-  tmp.setY( tmp.y() - gd->translation().y() );
-  tmp.setZ( tmp.z() - gd->translation().z() );
-  return gd->rotation().Inverse() * tmp;
+  return gd->rotation().Inverse() * ( r - CLHEP::Hep3Vector( gd->translation().x(), gd->translation().y(), gd->translation().z() ) );
 }
 
 //----------------------------------------------------------------------------------------------------
