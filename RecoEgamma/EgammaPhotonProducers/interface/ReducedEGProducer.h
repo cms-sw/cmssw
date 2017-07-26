@@ -106,7 +106,12 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   void relinkSuperCluster(T& core,
 			  const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap, 
 			  const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle);
+  
 
+  void relinkGsfTrack(reco::GsfElectronCore& electroncore,
+		      const std::map<reco::GsfTrackRef, unsigned int>& gsfTrackMap,
+		      const edm::OrphanHandle<reco::GsfTrackCollection>& outGsfTrackHandle);
+  
   void relinkConversions(reco::PhotonCore& photonCore, 
 			 const reco::ConversionRefVector& convrefs,
 			 const std::map<reco::ConversionRef, unsigned int>& conversionMap,
@@ -123,7 +128,8 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
  const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
- const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
+ const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
+ const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackT_;
  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
  const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
  
@@ -149,6 +155,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outOOTPhotonCores_;
  const std::string outGsfElectrons_;
  const std::string outGsfElectronCores_;
+ const std::string outGsfTracks_;
  const std::string outConversions_;
  const std::string outSingleConversions_;
  const std::string outSuperClusters_;
@@ -167,7 +174,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::vector<std::string> outPhotonPFClusterIsos_;
  const std::vector<std::string> outOOTPhotonPFClusterIsos_;
  const std::vector<std::string> outGsfElectronPFClusterIsos_;
- 
+  
  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
  const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
  const StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
