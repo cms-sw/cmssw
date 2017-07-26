@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
@@ -54,7 +55,7 @@ class MeasureLA : public edm::ESProducer {
   const unsigned stripsperbin,maxEvents;
   Book book;
 
-  std::unique_ptr<TrackerTopology> tTopo_;
+  TrackerTopology tTopo_;
 };
 
 }
