@@ -18,127 +18,87 @@ void mergeLUTs(const char* flist, const char* out){
     xmls.write(out);
 }
 
-void diffLUTs(const char* file1, const char* file2, int verbosity=0){
-    edm::FileInPath xmlFile1(file1);
-    edm::FileInPath xmlFile2(file2);
+void dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat=true, int detail=0){
+    const int ndet=5;
+    const char* DET[ndet]={"HB", "HE", "HO", "HF", "HT"};
+    const int dtype[ndet]={0,1,2,3,4};
 
+    const int nvar=4;
+    enum vtype {total, extra, zeros, match}; 
 
-    LutXml xmls1(xmlFile1.fullPath());
-    LutXml xmls2(xmlFile2.fullPath());
+    std::array<int, nvar> n[ndet];
 
-    xmls1.create_lut_map();
-    xmls2.create_lut_map();
-
-    const char* DET[7]={"EMPTY", "HB" , "HE", "HO", "HF", "HT", "OTHER"};
-    int ntota[7]; 
-    int nzero[7]; 
-    int nreal[7]; 
-    int extra[7];
-    for(int i=0; i<7; ++i) {
-	ntota[i]=0;
-	nzero[i]=0;
-	nreal[i]=0;
-	extra[i]=0;
-    }
-    cout << file2 << endl;
-    for (LutXml::const_iterator xml2 = xmls2.begin(); xml2 != xmls2.end(); ++xml2){
-	HcalGenericDetId id(xml2->first);
-	LutXml::const_iterator xml1 =xmls1.find(id.rawId());
-	HcalGenericDetId::HcalGenericSubdetector subdet = id.genericSubdet();
-	ntota[subdet]++;
-	if(xml1==xmls1.end()){
-	    extra[subdet]++;
-	    cout << "FAIL: DetId " << id << "(" << id.rawId() <<") IS PRESENT IN " << file2 << "  BUT ABSENT IN " <<  file1  << " " << id << endl;
-	    //return;
+    for(auto &d: n){
+	for(auto &v: d){
+	    v=0;
 	}
+    }
+
+    for (auto &x1 : xmls1){
+	HcalGenericDetId id(x1.first);
+	auto x2 =xmls2.find(id.rawId());
+	auto subdet = id.genericSubdet();
+	if(subdet==0 or subdet==6) continue; //'empty' or 'other'
+
+	auto &m= n[subdet-1];
+
+	m[total]++;
+	if(x2==xmls2.end()){
+	    m[extra]++;
+	    if(testFormat) cout << "Extra detId: " << id << endl;
+	    else continue;
+	}
+
+	const auto& lut1 = x1.second;
+	size_t size=lut1.size();
+
 	bool zero=true;
-	const std::vector<unsigned int>& lut2 = xml2->second;
-	for(size_t i=0; i<lut2.size(); ++i){
-	    if(lut2[i]>0){
-		zero=false;
-	    }
-	}
-	if(zero) nzero[subdet]++;
-	else     nreal[subdet]++;
-    }
-    cout << Form("%3s:  %8s  %8s  %8s  %8s", "Det", "total", "nonzeros", "zeroes", "extra") << endl; 
-    for(int i=1; i<6; ++i) cout << Form("%3s:  %8d  %8d  %8d  %8d", DET[i], ntota[i], nreal[i], nzero[i], extra[i]) << endl;
-    cout << "--------------------------------------------" << endl;
-    for(int i=0; i<7; ++i) {
-	ntota[i]=0;
-	nzero[i]=0;
-	nreal[i]=0;
-	extra[i]=0;
-    }
-    cout << file1 << endl;
-    for (LutXml::const_iterator xml1 = xmls1.begin(); xml1 != xmls1.end(); ++xml1){
-	HcalGenericDetId id(xml1->first);
-	LutXml::const_iterator xml2 =xmls2.find(id.rawId());
-	HcalGenericDetId::HcalGenericSubdetector subdet = id.genericSubdet();
-	ntota[subdet]++;
-	if(xml2==xmls2.end()){
-	    extra[subdet]++;
-	    HcalDetId hid(id);
-	    cout << "FAIL: DetId " << hid << "(" << id.rawId() <<") IS PRESENT IN " << file1 << "  BUT ABSENT IN " <<  file2  << " " << id << endl;
-	}
-	bool zero=true;
-	const std::vector<unsigned int>& lut1 = xml1->second;
-	for(size_t i=0; i<lut1.size(); ++i){
-	    if(lut1[i]>0){
+	for(auto &i: lut1){
+	    if(i>0) {
 		zero=false;
 		break;
 	    }
 	}
-	if(zero) nzero[subdet]++;
-	else     nreal[subdet]++;
-    }
-    cout << Form("%3s:  %8s  %8s  %8s  %8s", "Det", "total", "nonzeros", "zeroes", "extra") << endl; 
-    for(int i=1; i<6; ++i) cout << Form("%3s:  %8d  %8d  %8d  %8d", DET[i], ntota[i], nreal[i], nzero[i], extra[i]) << endl;
-    cout << "--------------------------------------------" << endl;
-
-    for(int i=0; i<7; ++i) {
-	ntota[i]=0;
-	nzero[i]=0;
-	nreal[i]=0;
-    }
-    for (LutXml::const_iterator xml1 = xmls1.begin(); xml1 != xmls1.end(); ++xml1){
-	HcalGenericDetId id(xml1->first);
-	LutXml::const_iterator xml2 =xmls2.find(id.rawId());
-	if(xml2==xmls2.end()){
-	    continue;
+	if(zero) {
+	    m[zeros]++;
+	    if(detail==1 and testFormat){
+		cout << "Zero LUT: " << id << endl;
+	    }
 	}
 
-	const std::vector<unsigned int>& lut1 = xml1->second;
-	const std::vector<unsigned int>& lut2 = xml2->second;
+	if(testFormat) continue;
 
-	size_t size = lut1.size();
-	bool match=true;
-	if(size != lut2.size()) {
-	    match=false;
-	}
-
-	for(size_t i=0; i<size && match; ++i){
+	const auto& lut2 = x2->second;
+	bool good= size==lut2.size(); 
+	for(size_t i=0; i<size and good; ++i){
 	    if(lut1[i]!=lut2[i]) {
-		match=false;
-		if(verbosity>0){
+		good=false;
+		if(detail==2){
 		    cout << Form("Mismatach in index=%3d, %4d!=%4d, ", int(i), lut1[i], lut2[i]) << id << endl;
 		}
 	    }
 	}
-	HcalGenericDetId::HcalGenericSubdetector subdet = id.genericSubdet();
-	ntota[subdet]++;
-	if(match) nreal[subdet]++;
-	else      nzero[subdet]++;
+	if(good) m[match]++;
     }
-    string result="PASS!";
-    for(int i=0; i<7; ++i) if(nzero[i]>0) result="FAIL!";
-    cout << "Comparison:" <<endl;
-    cout << Form("%3s:  %8s  %8s  %8s", "Det", "total", "match", "mismatch") << endl; 
-    for(int i=1; i<6; ++i) cout << Form("%3s:  %8d  %8d  %8d", DET[i], ntota[i], nreal[i], nzero[i]) << endl;
-    cout << "--------------------------------------------" << endl;
-    cout << result << endl;
-}
 
+    if(testFormat){
+	cout << Form("%3s:  %8s  %8s  %8s", "Det", "total", "zeroes", "extra") << endl; 
+	for(auto i: dtype) cout << Form("%3s:  %8d  %8d  %8d", DET[i], n[i][total], n[i][zeros], n[i][extra]) << endl;
+	cout << "--------------------------------------------" << endl;
+    }
+    else{
+	bool good=true;
+	for(auto &d: n){ 
+	    if(d[total]!=d[match]){
+		good=false;
+	    }
+	}
+	cout << Form("%3s:  %8s  %8s  %8s", "Det", "total", "match", "mismatch") << endl; 
+	for(auto i: dtype) cout << Form("%3s:  %8d  %8d  %8d", DET[i], n[i][total], n[i][match], n[i][total]-n[i][match]) << endl;
+	cout << "--------------------------------------------" << endl;
+	cout << (good?"PASS!":"FAIL!") << endl;
+    }
+}
 
 int main(int argc, char ** argv){
 
@@ -153,8 +113,24 @@ int main(int argc, char ** argv){
 	mergeLUTs(flist_.c_str(),  out_.c_str());
     }
     else if (strcmp(argv[1],"diff")==0){
-	std::vector<std::string> inputFiles_ = parser.stringVector("inputFiles");
-	diffLUTs(inputFiles_[0].c_str(), inputFiles_[1].c_str(), parser.integerValue("section")); 
+
+	auto files = parser.stringVector("inputFiles");
+	auto detail = parser.integerValue("section");
+
+	LutXml xmls1(edm::FileInPath(files[0]).fullPath());
+	LutXml xmls2(edm::FileInPath(files[1]).fullPath());
+
+	xmls1.create_lut_map();
+	xmls2.create_lut_map();
+
+	cout << files[0] << endl;
+	dumpLutDiff(xmls1, xmls2, true, detail);
+
+	cout << files[1] << endl;
+	dumpLutDiff(xmls2, xmls1, true, detail);
+
+	cout << "Comparison" << endl;
+	dumpLutDiff(xmls1, xmls2, false, detail);
     }
     else if (strcmp(argv[1],"create-lut-loader")==0){
 	std::string _file_list = parser.stringValue("outputFile");

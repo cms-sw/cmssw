@@ -83,7 +83,9 @@ class LutXml : public XMLDOMBlock
   XMLCh * brick;
   XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
   XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, int _value );
-  XERCES_CPP_NAMESPACE::DOMElement * addData( std::string _elements, std::string _encoding, const auto& _lut );
+
+  template <typename T>
+  XERCES_CPP_NAMESPACE::DOMElement * addData( std::string _elements, std::string _encoding, const T& _lut );
 
   XERCES_CPP_NAMESPACE::DOMElement * add_checksum(XERCES_CPP_NAMESPACE::DOMDocument * parent, Config & config );
 

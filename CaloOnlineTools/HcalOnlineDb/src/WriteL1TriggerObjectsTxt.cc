@@ -69,7 +69,7 @@ WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetu
     const HcalLutMetadata *metadata = conditions->getHcalLutMetadata();
     const HcalTopology *topo = metadata->topo();
 
-    std::auto_ptr<HcalL1TriggerObjects> HcalL1TrigObjCol(new HcalL1TriggerObjects);
+    std::unique_ptr<HcalL1TriggerObjects> HcalL1TrigObjCol(new HcalL1TriggerObjects);
 
     for (const auto& id: metadata->getAllChannels()) {
 	if (not (id.det() == DetId::Hcal and topo->valid(id))) continue;
@@ -83,7 +83,7 @@ WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetu
 	float gain = 0.0;
 	float ped = 0.0;
        
-	for (int i=0; i<4; ++i) {
+	for (auto i : {0,1,2,3}){
 	    gain += calibrations.LUTrespcorrgain(i);
 	    ped += calibrations.pedestal(i);
 	}

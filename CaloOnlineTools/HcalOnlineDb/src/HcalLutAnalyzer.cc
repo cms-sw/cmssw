@@ -192,7 +192,6 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
     float wid1, wid2, wid3, wid4;
     char buffer[1024];
 
-    std::vector<HcalDetId> BadTopol;
     std::vector<HcalDetId> BadChans[2];
     std::vector<HcalDetId> ZeroLuts[2];
 
@@ -290,19 +289,13 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
     xmls1.create_lut_map();
     xmls2.create_lut_map();
 
-
-    //This is just to check that they have the same format
-    for (LutXml::const_iterator xml2 = xmls2.begin(); xml2 != xmls2.end(); ++xml2){
-	HcalGenericDetId detid(xml2->first);
-	LutXml::const_iterator xml1 =xmls1.find(detid.rawId());
-	if(xml1==xmls1.end()){
-	    cout << "FAIL: DetId " << detid << " IS PRESENT IN " << tags_[1] << "  BUT ABSENT IN " <<  tags_[0]  << endl;
-	}
+    for (const auto& xml2 : xmls2){
+	HcalGenericDetId detid(xml2.first);
 
 	if(detid.genericSubdet()==HcalGenericDetId::HcalGenTriggerTower){
 	    HcalTrigTowerDetId tid(detid.rawId());
 	    if(!topology->validHT(tid)) continue;
-	    const std::vector<unsigned int>& lut2 = xml2->second;
+	    const auto& lut2 = xml2.second;
 
 	    int D=abs(tid.ieta())<29 ? (lut2.size()==1024 ? 0 : 3) : 
 		      tid.version()==0? 1: 2;
@@ -315,7 +308,7 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 	    HcalDetId id(detid);
 	    HcalSubdetector subdet=id.subdet();
 	    int idet = int(subdet);
-	    const std::vector<unsigned int>& lut2 = xml2->second;
+	    const auto& lut2 = xml2.second;
 	    int hbhe = idet==HcalForward ? 1 : 
 		       idet==HcalOuter   ? 3 : 
 		       lut2.size()==128 ? 0 : 2;
@@ -324,16 +317,12 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 		if(hbhe==2) hlut[hbhe][1]->Fill(i, lut2[i]&0x3FF); 
 	    }
 	}
-	else{
-	    HcalDetId id(detid);
-	    std::cout << "invalid detid: " << id << std::endl; 
-	}
     }
 
-    for (LutXml::const_iterator xml1 = xmls1.begin(); xml1 != xmls1.end(); ++xml1){
+    for (const auto& xml1 : xmls1){
 
-	HcalGenericDetId detid(xml1->first);
-	const std::vector<unsigned int>& lut1 = xml1->second;
+	HcalGenericDetId detid(xml1.first);
+	const auto& lut1 = xml1.second;
 
 	if(detid.genericSubdet()==HcalGenericDetId::HcalGenTriggerTower){
 	    HcalTrigTowerDetId tid(detid.rawId());
@@ -348,7 +337,7 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 	    HcalDetId id(detid);
 	    HcalSubdetector subdet=id.subdet();
 	    int idet = int(subdet);
-	    const std::vector<unsigned int>& lut1 = xml1->second;
+	    const auto& lut1 = xml1.second;
 	    int hbhe = idet==HcalForward ? 1 : 
 		       idet==HcalOuter   ? 3 : 
 		       lut1.size()==128 ? 0 : 2;
@@ -358,11 +347,8 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 	    }
 	}
 
-	LutXml::const_iterator xml2 =xmls2.find(detid.rawId());
-	if(xml2==xmls2.end()){
-	    cout << "FAIL: DetId " << detid << " IS PRESENT IN " << tags_[0] << "  BUT ABSENT IN " <<  tags_[1]  << endl;
-	    continue;
-	}
+	auto xml2 =xmls2.find(detid.rawId());
+	if(xml2==xmls2.end()) continue;
 
 	if(detid.genericSubdet()==HcalGenericDetId::HcalGenTriggerTower) continue;
 
@@ -375,28 +361,22 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 	int idep = id.depth()-1;
 	unsigned long int iraw = id.rawId();
 
-	if(!topology->valid(detid)) {
-	    BadTopol.push_back(id);
-	    continue;
-	}
+	if(!topology->valid(detid)) continue;
 
 	int hbhe = idet==HcalForward;
 
-	const std::vector<unsigned int>& lut2 = xml2->second;
+	const auto& lut2 = xml2->second;
 
 
 	size_t size = lut1.size();
-	if(size != lut2.size()) {
-	    cout << "FAIL: DetId=" << id.rawId() << ", lut1.size=" << size << ", lut2.size= " << lut2.size() << endl;
-	    continue;
-	}
+	if(size != lut2.size()) continue;
+
 	std::vector<unsigned int> llut1(size);
 	std::vector<unsigned int> llut2(size);
 	for(size_t i=0; i<size; ++i){
 	    llut1[i]=hbhe==0? lut1[i]&0x3FF: lut1[i] ;
 	    llut2[i]=hbhe==0? lut2[i]&0x3FF: lut2[i] ;
 	}
-
 
 	int threshold[2]={0, 0};
 	//Thresholds
@@ -545,19 +525,6 @@ HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 	houtput[3][i]->Draw("samebox"); 
 	cc->Print(TString(plotsDir)+Form("OUT_%d.gif",i));
     }
-
-
-    cout << "----------------------------------------------------------"<< endl;;
-    for(int k=0; k<2; ++k){
-	for(size_t i=0; i<ZeroLuts[k].size(); ++i){
-	    if(std::find(BadChans[k].begin(), BadChans[k].end(), ZeroLuts[k][i])==BadChans[k].end()) cout << "Zero LUTs for Good Channels!!! " << ZeroLuts[k][i];
-	}
-	cout << "----------------------------------------------------------"<< endl;;
-	cout << "Zero LUTs in " << tags_[k] <<endl;
-	for(size_t i=0; i<ZeroLuts[k].size(); ++i) cout << ZeroLuts[k][i] << endl;
-	cout << "----------------------------------------------------------"<< endl;;
-    }
-
 }
 
 

@@ -154,7 +154,8 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
   }
 }
 
-DOMElement * LutXml::addData( std::string _elements, std::string _encoding, const auto& _lut )
+template <typename T>
+DOMElement * LutXml::addData( std::string _elements, std::string _encoding, const T& _lut )
 {
   DOMElement * child    = document -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh( _elements ) );
