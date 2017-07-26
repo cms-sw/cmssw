@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from copy import deepcopy
 
 #Chi2 estimator
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
@@ -68,9 +69,13 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
 
+electronCkfTrackCandidatesFromMC = deepcopy(electronCkfTrackCandidates)
 
-
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+  electronCkfTrackCandidatesFromMC,
+  src = 'electronMergedSeedsFromMC'
+)
 
 
 
