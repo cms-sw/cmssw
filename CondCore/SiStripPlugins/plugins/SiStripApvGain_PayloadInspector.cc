@@ -14,6 +14,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
@@ -23,6 +24,16 @@
 
 #include <memory>
 #include <sstream>
+#include <iostream>
+
+// include ROOT 
+#include "TH2F.h"
+#include "TCanvas.h"
+#include "TLine.h"
+#include "TStyle.h"
+#include "TLatex.h"
+#include "TPave.h"
+#include "TPaveStats.h"
 
 namespace {
 
@@ -551,12 +562,160 @@ namespace {
     } // payload
   };
 
+  class SiStripApvGainsTest : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvGainsTest() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains test",
+										"SiStripApv Gains test", 10,0.0,10.0){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  SiStripDetSummary summaryGain;
+
+	  for (const auto & d : detid) {
+	    SiStripApvGain::Range range=payload->getRange(d);
+	    for( int it=0; it < range.second - range.first; ++it ) {
+	      summaryGain.add(d,payload->getApvGain(it, range));
+	      fillWithValue(payload->getApvGain(it,range));
+	    } 
+	  }
+	  std::map<unsigned int, SiStripDetSummary::Values> map = summaryGain.getCounts();
+
+	  myPrintSummary(map);
+
+	  /*
+	  std::cout<<"map size: "<<map.size()<< std::endl;
+	  std::stringstream ss;
+	  ss << "Summary of gain values:" << std::endl;
+	  summaryGain.print(ss, true);
+	  std::cout<<ss.str()<<std::endl;
+	  */
+
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  class SiStripApvGainsByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains By Partition" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
+
+      
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      SiStripDetSummary summaryGain;
+
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=payload->getRange(d);
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  summaryGain.add(d,payload->getApvGain(it, range));
+	}
+      } 
+
+      std::map<unsigned int, SiStripDetSummary::Values> map = summaryGain.getCounts();
+      //=========================
+      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+      TH1F* h1 = new TH1F("byPartition","SiStrip Gain average by partition;; average SiStrip Gain",map.size(),0.,map.size());
+      h1->SetStats(false);
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.12);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<TLine*> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : map){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	h1->SetBinContent(iBin,mean);
+	h1->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	h1->GetXaxis()->LabelsOption("v");
+	
+	if(detector!=currentDetector) {
+	  std::cout<<"detector has changed from "<<currentDetector<<" to "<<detector<<std::endl;
+	  TLine* l = new TLine(h1->GetBinLowEdge(iBin),canvas.cd()->GetUymin(),h1->GetBinLowEdge(iBin),canvas.cd()->GetUymax());
+	  l->SetLineWidth(1);
+	  l->SetLineStyle(9);
+	  l->SetLineColor(2);
+	  boundaries.push_back(l);
+	  currentDetector=detector;
+	}
+      }
+
+      h1->SetMarkerStyle(20);
+      h1->SetMarkerSize(1);
+      h1->Draw("HIST");
+      h1->Draw("Psame");
+
+      canvas.Update();
+
+      for (const auto & line : boundaries){
+	line->Draw("same");
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
     
 } // close namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMinimumTrackerMap);
