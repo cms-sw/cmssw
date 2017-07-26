@@ -163,16 +163,17 @@ extern "C" {
 
   static uint64_t (*serialising_rdtsc_resolver(void))(void)
   {
+    
     if (not tsc_allowed())
       return serialising_rdtsc_unimplemented;
 
     if (has_rdtscp())
       // if available, use the RDTSCP instruction
       return serialising_rdtscp;
-
+    
     if (has_tsc()) {
       // if the TSC is available, chck the processor vendor
-      unsigned int eax, ebx, ecx, edx;
+      unsigned int eax = 0, ebx = 0, ecx = 0, edx = 0;
       __get_cpuid(0x00, & eax, & ebx, & ecx, & edx);
       if (ebx == _("Genu") and edx == _("ineI") and ecx == _("ntel"))
         // for Intel processors, LFENCE can be used as a serialising instruction before RDTSC
