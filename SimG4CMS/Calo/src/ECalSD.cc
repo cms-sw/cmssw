@@ -269,12 +269,15 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
   uint16_t depth  = any(useDepth1,lv) ? 1 : (any(useDepth2,lv) ? 2 : 0);
-  auto ite        = xtalLMap.find(lv);
-  uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 :
-						   kEcalDepthRefz);
-  uint16_t depth2 = (storeLayerTimeSim) ? getLayerIDForTimeSim(aStep) :
-    getRadiationLength(aStep);
-  depth          |= (((depth2&kEcalDepthMask) << kEcalDepthOffset) | depth1);
+  if (storeRL) {
+    auto ite        = xtalLMap.find(lv);
+    uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 :
+						     kEcalDepthRefz);
+    uint16_t depth2 = getRadiationLength(aStep);
+    depth          |= (((depth2&kEcalDepthMask) << kEcalDepthOffset) | depth1);
+  } else if (storeLayerTimeSim) {
+    depth = getLayerIDForTimeSim(aStep);
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":"
 			      << depth2 << ":" << depth << std::dec << " L "

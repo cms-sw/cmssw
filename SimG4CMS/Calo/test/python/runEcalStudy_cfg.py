@@ -51,6 +51,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('electron10.root')
 )
 
+process.g4SimHits.ECalSD.StoreRadLength  = True
+
 process.EcalSimHitStudy.MaxEnergy = 15.0
 
 process.EcalSimHitStudyNormal = process.EcalSimHitStudy.clone(
