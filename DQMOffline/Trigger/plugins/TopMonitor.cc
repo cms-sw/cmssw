@@ -370,7 +370,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "muEtaPhi_"; histtitle = "muon #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,muEtaPhi_.at(iMu),histname,histtitle, muEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(muEtaPhi_.at(iMu),"muon p_{T} [GeV]","muon #eta");
+      setMETitle(muEtaPhi_.at(iMu),"muon #phi","muon #eta");
 
 
   }
@@ -407,7 +407,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "eleEtaPhi_"; histtitle = "electron #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,eleEtaPhi_.at(iEle),histname,histtitle, eleEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(eleEtaPhi_.at(iEle),"electron p_{T} [GeV]","electron #eta");
+      setMETitle(eleEtaPhi_.at(iEle),"electron #phi","electron #eta");
 
 
   }
@@ -444,7 +444,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "jetEtaPhi_"; histtitle = "jet #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,jetEtaPhi_.at(iJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(jetEtaPhi_.at(iJet),"jet p_{T} [GeV]","jet #eta");
+      setMETitle(jetEtaPhi_.at(iJet),"#phi","jet #eta");
 
 
 
@@ -488,7 +488,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetEtaPhi_"; histtitle = "b-jet #eta - #phi - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetEtaPhi_.at(iBJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet p_{T} [GeV]","b-jet #eta");
+    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet #phi","b-jet #eta");
 
     histname = "bjetCSVHT_"; histtitle = "HT - b-jet CSV - ";
     histname.append(index); histtitle.append(index);
