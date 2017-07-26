@@ -1684,8 +1684,6 @@ class ConfigBuilder(object):
 		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
             raise Exception("PATGEN step can only run on MC")
-        else:
-            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllGEN")
         return
 
     def prepare_EI(self, sequence = None):
