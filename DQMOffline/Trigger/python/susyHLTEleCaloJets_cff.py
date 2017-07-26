@@ -4,7 +4,7 @@ from DQMOffline.Trigger.SusyMonitor_cfi import hltSUSYmonitoring
 
 #This is added by Pablo in order to monitor the auxiliary paths for electron fake rate calculation
 susyEle8CaloJet30_jet = hltSUSYmonitoring.clone()
-susyEle8CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle8CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloJet30/JetMonitor')
 susyEle8CaloJet30_jet.nmuons = cms.uint32(0)
 susyEle8CaloJet30_jet.nelectrons = cms.uint32(1)
 susyEle8CaloJet30_jet.njets = cms.uint32(1)
@@ -20,7 +20,7 @@ susyEle8CaloJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele
 susyEle8CaloJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle8CaloJet30_ele = hltSUSYmonitoring.clone()
-susyEle8CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle8CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloJet30/ElectronMonitor')
 susyEle8CaloJet30_ele.nmuons = cms.uint32(0)
 susyEle8CaloJet30_ele.nelectrons = cms.uint32(1)
 susyEle8CaloJet30_ele.njets = cms.uint32(1)
@@ -36,7 +36,7 @@ susyEle8CaloJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele
 susyEle8CaloJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle8CaloJet30_all = hltSUSYmonitoring.clone()
-susyEle8CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle8CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloJet30/GlobalMonitor')
 susyEle8CaloJet30_all.nmuons = cms.uint32(0)
 susyEle8CaloJet30_all.nelectrons = cms.uint32(1)
 susyEle8CaloJet30_all.njets = cms.uint32(1)
@@ -52,7 +52,7 @@ susyEle8CaloJet30_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele
 # susyEle8CaloJet30_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 susyEle8CaloIdMJet30_jet = hltSUSYmonitoring.clone()
-susyEle8CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle8CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloIdMJet30/JetMonitor')
 susyEle8CaloIdMJet30_jet.nmuons = cms.uint32(0)
 susyEle8CaloIdMJet30_jet.nelectrons = cms.uint32(1)
 susyEle8CaloIdMJet30_jet.njets = cms.uint32(1)
@@ -68,7 +68,7 @@ susyEle8CaloIdMJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_
 susyEle8CaloIdMJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle8CaloIdMJet30_ele = hltSUSYmonitoring.clone()
-susyEle8CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle8CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloIdMJet30/ElectronMonitor')
 susyEle8CaloIdMJet30_ele.nmuons = cms.uint32(0)
 susyEle8CaloIdMJet30_ele.nelectrons = cms.uint32(1)
 susyEle8CaloIdMJet30_ele.njets = cms.uint32(1)
@@ -84,7 +84,7 @@ susyEle8CaloIdMJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_
 susyEle8CaloIdMJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle8CaloIdMJet30_all = hltSUSYmonitoring.clone()
-susyEle8CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle8CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele8CaloIdMJet30/GlobalMonitor')
 susyEle8CaloIdMJet30_all.nmuons = cms.uint32(0)
 susyEle8CaloIdMJet30_all.nelectrons = cms.uint32(1)
 susyEle8CaloIdMJet30_all.njets = cms.uint32(1)
@@ -100,7 +100,7 @@ susyEle8CaloIdMJet30_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_
 # susyEle8CaloIdMJet30_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 susyEle12CaloJet30_jet = hltSUSYmonitoring.clone()
-susyEle12CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle12CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele12CaloJet30/JetMonitor')
 susyEle12CaloJet30_jet.nmuons = cms.uint32(0)
 susyEle12CaloJet30_jet.nelectrons = cms.uint32(1)
 susyEle12CaloJet30_jet.njets = cms.uint32(1)
@@ -116,7 +116,7 @@ susyEle12CaloJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 susyEle12CaloJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle12CaloJet30_ele = hltSUSYmonitoring.clone()
-susyEle12CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle12CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele12CaloJet30/ElectronMonitor')
 susyEle12CaloJet30_ele.nmuons = cms.uint32(0)
 susyEle12CaloJet30_ele.nelectrons = cms.uint32(1)
 susyEle12CaloJet30_ele.njets = cms.uint32(1)
@@ -132,7 +132,7 @@ susyEle12CaloJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 susyEle12CaloJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle12CaloJet30_all = hltSUSYmonitoring.clone()
-susyEle12CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle12CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele12CaloJet30/GlobalMonitor')
 susyEle12CaloJet30_all.nmuons = cms.uint32(0)
 susyEle12CaloJet30_all.nelectrons = cms.uint32(1)
 susyEle12CaloJet30_all.njets = cms.uint32(1)
@@ -148,7 +148,7 @@ susyEle12CaloJet30_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 # susyEle12CaloJet30_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 susyEle17CaloIdMJet30_jet = hltSUSYmonitoring.clone()
-susyEle17CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle17CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele17CaloIdMJet30/JetMonitor')
 susyEle17CaloIdMJet30_jet.nmuons = cms.uint32(0)
 susyEle17CaloIdMJet30_jet.nelectrons = cms.uint32(1)
 susyEle17CaloIdMJet30_jet.njets = cms.uint32(1)
@@ -164,7 +164,7 @@ susyEle17CaloIdMJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 susyEle17CaloIdMJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle17CaloIdMJet30_ele = hltSUSYmonitoring.clone()
-susyEle17CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle17CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele17CaloIdMJet30/ElectronMonitor')
 susyEle17CaloIdMJet30_ele.nmuons = cms.uint32(0)
 susyEle17CaloIdMJet30_ele.nelectrons = cms.uint32(1)
 susyEle17CaloIdMJet30_ele.njets = cms.uint32(1)
@@ -180,7 +180,7 @@ susyEle17CaloIdMJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 susyEle17CaloIdMJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle17CaloIdMJet30_all = hltSUSYmonitoring.clone()
-susyEle17CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle17CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele17CaloIdMJet30/GlobalMonitor')
 susyEle17CaloIdMJet30_all.nmuons = cms.uint32(0)
 susyEle17CaloIdMJet30_all.nelectrons = cms.uint32(1)
 susyEle17CaloIdMJet30_all.njets = cms.uint32(1)
@@ -196,7 +196,7 @@ susyEle17CaloIdMJet30_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 # susyEle17CaloIdMJet30_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 susyEle23CaloJet30_jet = hltSUSYmonitoring.clone()
-susyEle23CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle23CaloJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloJet30/JetMonitor')
 susyEle23CaloJet30_jet.nmuons = cms.uint32(0)
 susyEle23CaloJet30_jet.nelectrons = cms.uint32(1)
 susyEle23CaloJet30_jet.njets = cms.uint32(1)
@@ -212,7 +212,7 @@ susyEle23CaloJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 susyEle23CaloJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle23CaloJet30_ele = hltSUSYmonitoring.clone()
-susyEle23CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle23CaloJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloJet30/ElectronMonitor')
 susyEle23CaloJet30_ele.nmuons = cms.uint32(0)
 susyEle23CaloJet30_ele.nelectrons = cms.uint32(1)
 susyEle23CaloJet30_ele.njets = cms.uint32(1)
@@ -228,7 +228,7 @@ susyEle23CaloJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 susyEle23CaloJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle23CaloJet30_all = hltSUSYmonitoring.clone()
-susyEle23CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle23CaloJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloJet30/GlobalMonitor')
 susyEle23CaloJet30_all.nmuons = cms.uint32(0)
 susyEle23CaloJet30_all.nelectrons = cms.uint32(1)
 susyEle23CaloJet30_all.njets = cms.uint32(1)
@@ -244,7 +244,7 @@ susyEle23CaloJet30_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_El
 # susyEle23CaloJet30_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 susyEle23CaloIdMJet30_jet = hltSUSYmonitoring.clone()
-susyEle23CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/JetMonitor')
+susyEle23CaloIdMJet30_jet.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloIdMJet30/JetMonitor')
 susyEle23CaloIdMJet30_jet.nmuons = cms.uint32(0)
 susyEle23CaloIdMJet30_jet.nelectrons = cms.uint32(1)
 susyEle23CaloIdMJet30_jet.njets = cms.uint32(1)
@@ -260,7 +260,7 @@ susyEle23CaloIdMJet30_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 susyEle23CaloIdMJet30_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight_Gsf_v*', 'HLT_Ele38_WPTight_Gsf_v*', 'HLT_Ele40_WPTight_Gsf_v*')
 
 susyEle23CaloIdMJet30_ele = hltSUSYmonitoring.clone()
-susyEle23CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/ElectronMonitor')
+susyEle23CaloIdMJet30_ele.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloIdMJet30/ElectronMonitor')
 susyEle23CaloIdMJet30_ele.nmuons = cms.uint32(0)
 susyEle23CaloIdMJet30_ele.nelectrons = cms.uint32(1)
 susyEle23CaloIdMJet30_ele.njets = cms.uint32(1)
@@ -276,7 +276,7 @@ susyEle23CaloIdMJet30_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 susyEle23CaloIdMJet30_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 susyEle23CaloIdMJet30_all = hltSUSYmonitoring.clone()
-susyEle23CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/EleJet/GlobalMonitor')
+susyEle23CaloIdMJet30_all.FolderName = cms.string('HLT/SusyHLTOffline/SusyMonitor/Ele23CaloIdMJet30/GlobalMonitor')
 susyEle23CaloIdMJet30_all.nmuons = cms.uint32(0)
 susyEle23CaloIdMJet30_all.nelectrons = cms.uint32(1)
 susyEle23CaloIdMJet30_all.njets = cms.uint32(1)

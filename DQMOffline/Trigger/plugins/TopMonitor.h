@@ -62,6 +62,7 @@ struct PVcut {
   double dz;
 };
 
+
 //
 // class declaration
 //
@@ -123,6 +124,10 @@ private:
   MEbinning           DR_binning_;
   // Marina
   MEbinning           csv_binning_;
+  //george
+   MEbinning           invMass_mumu_binning_;
+   MEbinning           MHT_binning_;
+
 
   std::vector<double> met_variable_binning_;
   std::vector<double> HT_variable_binning_;
@@ -132,6 +137,9 @@ private:
   std::vector<double> jetEta_variable_binning_;
   std::vector<double> muEta_variable_binning_;
   std::vector<double> eleEta_variable_binning_;
+   //george
+  std::vector<double> invMass_mumu_variable_binning_;
+  std::vector<double> MHT_variable_binning_;
 
   std::vector<double> HT_variable_binning_2D_;
   std::vector<double> jetPt_variable_binning_2D_;
@@ -171,6 +179,11 @@ private:
   METME mu1Eta_mu2Eta_;
   METME elePt_muPt_;
   METME eleEta_muEta_;
+  //george
+  METME invMass_mumu_;
+  METME eventMHT_;  
+  METME invMass_mumu_variableBinning_;
+  METME eventMHT_variableBinning_;
 
   //BTV
   METME DeltaR_jet_Mu_;
@@ -220,6 +233,7 @@ private:
 
   METME eventHT_;
   METME eventHT_variableBinning_;
+  
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -230,6 +244,7 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection1_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
+  
   //Suvankar
   StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
   
@@ -249,6 +264,18 @@ unsigned int njets_;
   //Suvankar
   PVcut  lepPVcuts_;
   bool usePVcuts_;
+
+  //george
+  double invMassUppercut_;
+  double invMassLowercut_;
+  bool opsign_;
+  StringCutObjectSelector<reco::PFJet,true   >    MHTdefinition_;
+  double MHTcut_;
+  double mll;
+  int   sign;
+  
+
+
   
 };
 
