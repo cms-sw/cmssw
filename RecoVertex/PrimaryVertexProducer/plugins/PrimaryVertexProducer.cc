@@ -53,6 +53,9 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   else if( clusteringAlgorithm=="DA2D" ) {
     theTrackClusterizer = new DAClusterizerInZT(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
     f4D = true;
+  } else if( clusteringAlgorithm=="DA2D_vect" ) {
+    theTrackClusterizer = new DAClusterizerInZT_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+    f4D = true;
   }
 
   else{
