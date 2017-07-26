@@ -41,7 +41,7 @@
  *
  * Second, it creates CTPPSGeometry from DetGeoDesc tree.
  **/
-class  CTPPSGeometryESModule : public edm::ESProducer
+class CTPPSGeometryESModule : public edm::ESProducer
 {
   public:
     CTPPSGeometryESModule( const edm::ParameterSet& );
@@ -82,8 +82,10 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig) :
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealGD,
-    const edm::ESHandle<RPAlignmentCorrectionsData>& alignments, DetGeomDesc*& newGD )
+void
+CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealGD,
+                                        const edm::ESHandle<RPAlignmentCorrectionsData>& alignments,
+                                        DetGeomDesc*& newGD )
 {
   newGD = new DetGeomDesc( *( idealGD.product() ) );
   std::deque<const DetGeomDesc*> buffer;
@@ -137,7 +139,8 @@ void CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& i
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd)
+void
+CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd)
 {
   // try to dive into next level
   if ( !fv->firstChild() ) return;
@@ -250,7 +253,8 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD( const IdealGeometryRecord& iRecord )
+std::unique_ptr<DetGeomDesc>
+CTPPSGeometryESModule::produceIdealGD( const IdealGeometryRecord& iRecord )
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
@@ -270,7 +274,8 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD( const IdealG
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGD( const VeryForwardRealGeometryRecord& iRecord )
+std::unique_ptr<DetGeomDesc>
+CTPPSGeometryESModule::produceRealGD( const VeryForwardRealGeometryRecord& iRecord )
 {
   // get the input GeometricalDet
   edm::ESHandle<DetGeomDesc> idealGD;
@@ -301,7 +306,8 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGD( const VeryFor
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD( const VeryForwardMisalignedGeometryRecord& iRecord )
+std::unique_ptr<DetGeomDesc>
+CTPPSGeometryESModule::produceMisalignedGD( const VeryForwardMisalignedGeometryRecord& iRecord )
 {
   // get the input GeometricalDet
   edm::ESHandle<DetGeomDesc> idealGD;

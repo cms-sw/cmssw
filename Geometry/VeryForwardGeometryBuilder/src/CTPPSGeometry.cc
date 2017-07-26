@@ -8,17 +8,10 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
-
-#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
-
-#include <iostream>
-
-using namespace std;
-
 //----------------------------------------------------------------------------------------------------
 
-char CTPPSGeometry::build(const DetGeomDesc *gD)
+char
+CTPPSGeometry::build( const DetGeomDesc* gD )
 {
   // reset
   theMap.clear();
@@ -28,10 +21,9 @@ char CTPPSGeometry::build(const DetGeomDesc *gD)
   detsInRP.clear();
 
   // propagate through the GeometricalDet structure and add all detectors to 'theMap'
-  deque<const DetGeomDesc *> buffer;
+  std::deque<const DetGeomDesc *> buffer;
   buffer.push_back(gD);
-  while ( buffer.size() > 0 )
-  {
+  while ( buffer.size() > 0 ) {
     const DetGeomDesc *d = buffer.front();
     buffer.pop_front();
 
@@ -57,8 +49,7 @@ char CTPPSGeometry::build(const DetGeomDesc *gD)
   }
 
   // build sets
-  for ( auto it = theMap.begin(); it != theMap.end(); ++it )
-  {
+  for ( auto it = theMap.begin(); it != theMap.end(); ++it ) {
     const CTPPSDetId detId( it->first );
     const CTPPSDetId rpId = detId.getRPId();
     const CTPPSDetId stId = detId.getStationId();
@@ -74,10 +65,10 @@ char CTPPSGeometry::build(const DetGeomDesc *gD)
 
 //----------------------------------------------------------------------------------------------------
 
-char CTPPSGeometry::addSensor( unsigned int id, const DetGeomDesc*& gD )
+char
+CTPPSGeometry::addSensor( unsigned int id, const DetGeomDesc*& gD )
 {
-  if ( theMap.find(id) != theMap.end() )
-    return 1;
+  if ( theMap.find( id ) != theMap.end() ) return 1;
 
   theMap[id] = gD;
   return 0;
@@ -85,10 +76,10 @@ char CTPPSGeometry::addSensor( unsigned int id, const DetGeomDesc*& gD )
 
 //----------------------------------------------------------------------------------------------------
 
-char CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD)
+char
+CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD )
 {
-  if ( theRomanPotMap.find(id) != theRomanPotMap.end() )
-    return 1;
+  if ( theRomanPotMap.find(id) != theRomanPotMap.end() ) return 1;
 
   theRomanPotMap[id] = (DetGeomDesc*) gD;
   return 0;
@@ -96,7 +87,8 @@ char CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD)
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getSensor( unsigned int id ) const
+const DetGeomDesc*
+CTPPSGeometry::getSensor( unsigned int id ) const
 {
   auto it = theMap.find( id );
   if ( it == theMap.end() )
@@ -108,7 +100,8 @@ const DetGeomDesc* CTPPSGeometry::getSensor( unsigned int id ) const
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* CTPPSGeometry::getRP( unsigned int id ) const
+const DetGeomDesc*
+CTPPSGeometry::getRP( unsigned int id ) const
 {
   auto it = theRomanPotMap.find( id );
   if ( it == theRomanPotMap.end() )
@@ -119,7 +112,8 @@ const DetGeomDesc* CTPPSGeometry::getRP( unsigned int id ) const
 }
 
 //----------------------------------------------------------------------------------------------------
-const std::set<unsigned int>& CTPPSGeometry::getStationsInArm( unsigned int id ) const
+const std::set<unsigned int>&
+CTPPSGeometry::getStationsInArm( unsigned int id ) const
 {
   auto it = stationsInArm.find( id );
   if ( it == stationsInArm.end() )
@@ -129,7 +123,8 @@ const std::set<unsigned int>& CTPPSGeometry::getStationsInArm( unsigned int id )
 
 //----------------------------------------------------------------------------------------------------
 
-const std::set<unsigned int>& CTPPSGeometry::getRPsInStation( unsigned int id ) const
+const std::set<unsigned int>&
+CTPPSGeometry::getRPsInStation( unsigned int id ) const
 {
   auto it = rpsInStation.find( id );
   if ( it == rpsInStation.end() )
@@ -139,7 +134,8 @@ const std::set<unsigned int>& CTPPSGeometry::getRPsInStation( unsigned int id ) 
 
 //----------------------------------------------------------------------------------------------------
 
-const std::set<unsigned int>& CTPPSGeometry::getSensorsInRP( unsigned int id ) const
+const std::set<unsigned int>&
+CTPPSGeometry::getSensorsInRP( unsigned int id ) const
 {
   auto it = detsInRP.find( id );
   if ( it == detsInRP.end() )
@@ -149,7 +145,8 @@ const std::set<unsigned int>& CTPPSGeometry::getSensorsInRP( unsigned int id ) c
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::localToGlobal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
 {
   CLHEP::Hep3Vector tmp = gd->rotation() * r;
   tmp.setX(tmp.x() + gd->translation().x() );
@@ -160,14 +157,16 @@ CLHEP::Hep3Vector CTPPSGeometry::localToGlobal( const DetGeomDesc* gd, const CLH
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobal( unsigned int id, const CLHEP::Hep3Vector& r ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::localToGlobal( unsigned int id, const CLHEP::Hep3Vector& r ) const
 {
   return localToGlobal( getSensor( id ), r );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::globalToLocal( const DetGeomDesc* gd, const CLHEP::Hep3Vector& r ) const
 {
   CLHEP::Hep3Vector tmp = r;
   tmp.setX( tmp.x() - gd->translation().x() );
@@ -178,49 +177,42 @@ CLHEP::Hep3Vector CTPPSGeometry::globalToLocal( const DetGeomDesc* gd, const CLH
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocal( unsigned int id, const CLHEP::Hep3Vector& r ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::globalToLocal( unsigned int id, const CLHEP::Hep3Vector& r ) const
 {
   return globalToLocal( getSensor( id ), r );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::localToGlobalDirection( unsigned int id, const CLHEP::Hep3Vector& dir ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::localToGlobalDirection( unsigned int id, const CLHEP::Hep3Vector& dir ) const
 {
   return getSensor( id )->rotation() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::globalToLocalDirection( unsigned int id, const CLHEP::Hep3Vector& dir ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::globalToLocalDirection( unsigned int id, const CLHEP::Hep3Vector& dir ) const
 {
   return getSensor( id )->rotation().Inverse() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::getSensorTranslation( unsigned int id ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::getSensorTranslation( unsigned int id ) const
 {
   auto gd = getSensor( id );
-
-  CLHEP::Hep3Vector tmp;
-  tmp.setX( gd->translation().x() );
-  tmp.setY( gd->translation().y() );
-  tmp.setZ( gd->translation().z() );
-
-  return tmp;
+  return CLHEP::Hep3Vector( gd->translation().x(), gd->translation().y(), gd->translation().z() );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector CTPPSGeometry::getRPTranslation( unsigned int id ) const
+CLHEP::Hep3Vector
+CTPPSGeometry::getRPTranslation( unsigned int id ) const
 {
   auto gd = getRP( id );
-
-  CLHEP::Hep3Vector tmp;
-  tmp.setX( gd->translation().x() );
-  tmp.setY( gd->translation().y() );
-  tmp.setZ( gd->translation().z() );
-
-  return tmp;
+  return CLHEP::Hep3Vector( gd->translation().x(), gd->translation().y(), gd->translation().z() );
 }
