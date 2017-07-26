@@ -28,8 +28,10 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   
   double hgcEE_keV2DIGI_,  hgceeUncalib2GeV_;
   std::vector<double> hgcEE_fCPerMIP_;
+  std::vector<double> hgcEE_cce_;
   double hgcHEF_keV2DIGI_, hgchefUncalib2GeV_;
   std::vector<double> hgcHEF_fCPerMIP_;
+  std::vector<double> hgcHEF_cce_;
   double hgcHEB_keV2DIGI_, hgchebUncalib2GeV_;
   bool hgcEE_isSiFE_, hgcHEF_isSiFE_, hgcHEB_isSiFE_;
   
