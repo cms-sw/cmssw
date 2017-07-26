@@ -273,7 +273,8 @@ uint16_t ECalSD::getDepth(G4Step * aStep) {
     uint16_t depth2 = getRadiationLength(aStep);
     depth          |= (((depth2&kEcalDepthMask) << kEcalDepthOffset) | depth1);
   } else if (storeLayerTimeSim) {
-    depth = getLayerIDForTimeSim(aStep);
+    uint16_t depth2 = getLayerIDForTimeSim(aStep);
+    depth          |= ((depth2&kEcalDepthMask) << kEcalDepthOffset);
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":"
@@ -328,8 +329,7 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
 uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) 
 {
   float    layerSize = 1*cm; //layer size in cm
-  if (!isEB && !isEE)
-    return 0;
+  if (!isEB && !isEE)  return 0;
 
   if (aStep != NULL ) {
     G4StepPoint* hitPoint = aStep->GetPreStepPoint();
@@ -338,7 +338,7 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
 					   hitPoint->GetTouchable());
     double detz     = crystalDepth(lv,localPoint);
     if (detz<0) detz= 0;
-    return 100+(int)detz/layerSize;
+    return (int)detz/layerSize;
   }
   return 0;
 }
