@@ -27,7 +27,7 @@ class MuonAssociatorByHits {
  public:
   
   MuonAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC);   
-  ~MuonAssociatorByHits();
+  virtual ~MuonAssociatorByHits();
   
   // Originally from TrackAssociatorBase from where this class used to inherit from
   reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH,
