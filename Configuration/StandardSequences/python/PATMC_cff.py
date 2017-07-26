@@ -13,3 +13,9 @@ patTask = cms.Task(
 )
 
 miniAOD=cms.Sequence()
+
+patGENTask = cms.Task(
+    slimmingGENTask
+)
+
+miniGEN=cms.Sequence()
