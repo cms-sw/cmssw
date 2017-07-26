@@ -379,9 +379,6 @@ def miniAOD_customizeMC(process):
     process.patJetFlavourAssociation.rParam = 0.4
 
 
-def miniAOD_customizeGEN(process):
-    process.tauGenJets.GenParticles = "prunedGenParticles"
-
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
