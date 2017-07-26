@@ -1,7 +1,7 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/MeasureLA.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "DataFormats/TrackerCommon/interface/LegacyTrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/StandaloneTrackerTopology.h"
 
 #include <boost/lexical_cast.hpp>
 #include <TChain.h>
@@ -30,7 +30,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   localybin(conf.getUntrackedParameter<double>("LocalYBin",0.0)),
   stripsperbin(conf.getUntrackedParameter<unsigned>("StripsPerBin",0)),
   maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
-  tTopo_(LegacyTrackerTopology::getTrackerTopology())
+  tTopo_(StandaloneTrackerTopology::fromTrackerParametersXML(conf.getParameter<edm::FileInPath>("TrackerParameters").fullPath()))
 {
   store_methods_and_granularity( reports );
   store_methods_and_granularity( measurementPreferences );
@@ -39,7 +39,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   TChain*const chain = new TChain("la_data"); 
   BOOST_FOREACH(const std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
-  LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, stripsperbin, maxEvents, tTopo_.get());
+  LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, stripsperbin, maxEvents, &tTopo_);
   laff.fill(chain, book);
   laff.fit(book);
   summarize_module_muH_byLayer(laff);
@@ -186,8 +186,8 @@ calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
 calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const {
   const bool isTIB = SiStripDetId(detid).subDetector() == SiStripDetId::TIB;
-  const bool stereo = isTIB ? tTopo_->tibStereo(detid) : tTopo_->tobStereo(detid);
-  const unsigned layer = isTIB ? tTopo_->tibLayer(detid) : tTopo_->tobStereo(detid);
+  const bool stereo = isTIB ? tTopo_.tibStereo(detid) : tTopo_.tobStereo(detid);
+  const unsigned layer = isTIB ? tTopo_.tibLayer(detid) : tTopo_.tobStereo(detid);
 
   return std::make_pair(LA_Filler_Fitter::layer_index(isTIB,stereo,layer),method);
 }
