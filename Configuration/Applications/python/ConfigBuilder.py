@@ -1679,6 +1679,7 @@ class ConfigBuilder(object):
     def prepare_PATGEN(self, sequence = "miniGEN"):
         ''' Enrich the schedule with PATGEN '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF) #this is unscheduled
+        self.labelsToAssociate.append('patGENTask')
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
