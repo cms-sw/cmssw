@@ -25,64 +25,27 @@ essourceSev =  cms.ESSource("EmptyESSource",
                    iovIsRunNotTime = cms.bool(True)
 )
 
+from RecoLocalCalo.HcalRecAlgos.hcalRecAlgos_cfi import hcalRecAlgos
 
-hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
-    SeverityLevels = cms.VPSet(
-        # the following is the default level, please do not modify its definition:
-        cms.PSet( Level = cms.int32(0),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('')
-                ),
-        cms.PSet( Level = cms.int32(1),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellCaloTowerProb')
-                ),
-        cms.PSet( Level = cms.int32(5),
-                  RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
-                                            'HSCP_ExpFit','ADCSaturationBit', 'HBHEIsolatedNoise',
-                                            'AddedSimHcalNoise'),
-                  ChannelStatus = cms.vstring('HcalCellExcludeFromHBHENoiseSummary')
-                ),
-        cms.PSet( Level = cms.int32(8),
-                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',
-                                            'HBHEPulseShape',
-                                            'HOBit',
-                                            'HFDigiTime',
-                                            'HFInTimeWindow',
-                                            'ZDCBit', 'CalibrationBit',
-                                            'TimingErrorBit',
-                                            'HBHEFlatNoise',
-                                            'HBHESpikeNoise',
-                                            'HBHETriangleNoise',
-                                            'HBHETS4TS5Noise',
-                                            'HBHENegativeNoise',
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify(hcalRecAlgos,
+    phase = cms.uint32(1),
+    SeverityLevels = {
+        2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise') ),
+        3 : dict( RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',  
+                                            'HBHEFlatNoise', 
+                                            'HBHESpikeNoise', 
+                                            'HBHETS4TS5Noise', 
+                                            'HBHENegativeNoise', 
                                             'HBHEOOTPU'
-                                           ),
-                  ChannelStatus = cms.vstring('')
-                ),
-        # March 2010:  HFLongShort now tested, and should be excluded from CaloTowers by default
-        cms.PSet( Level = cms.int32(11),
-                  RecHitFlags = cms.vstring('HFLongShort',
-                                            # HFPET and HFS8S1Ratio feed HFLongShort, and should be at the same severity
-                                            'HFPET',
-                                            'HFS8S1Ratio'
-                                            #'HFDigiTime'  # This should be set to 11 in data ONLY.  We can't set it to 11 by default, because default values should reflect MC settings, and the flag can't be used in MC
-                                            ),
-                  ChannelStatus = cms.vstring('')
-                ),
-        cms.PSet( Level = cms.int32(12),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
-                ),
-        cms.PSet( Level = cms.int32(15),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellHot')
-                ),
-        cms.PSet( Level = cms.int32(20),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
                 )
-        ),
-    RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
-    DropChannelStatusBits = cms.vstring('HcalCellMask','HcalCellOff', 'HcalCellDead')
+            ),
+        4: dict( RecHitFlags = cms.vstring('HFLongShort', 
+                                           'HFS8S1Ratio',  
+                                           'HFPET', 
+                                           'HFSignalAsymmetry'
+                )
+            ),
+    },
+    RecoveredRecHitBits = cms.vstring('')
 )
