@@ -113,13 +113,13 @@ class CTPPSGeometry
 
 
     /// after checks returns set of station ids corresponding to the given arm id
-    std::set<unsigned int> const& getStationsInArm(unsigned int) const;
+    const std::set<unsigned int>& getStationsInArm( unsigned int ) const;
 
     /// after checks returns set of RP ids corresponding to the given station id
-    std::set<unsigned int> const& getRPsInStation(unsigned int) const;
+    const std::set<unsigned int>& getRPsInStation( unsigned int ) const;
     
     /// after checks returns set of sensor ids corresponding to the given RP id
-    std::set<unsigned int> const& getSensorsInRP(unsigned int) const;
+    const std::set<unsigned int>& getSensorsInRP( unsigned int ) const;
 
   protected:
     /// map: sensor id --> DetGeomDesc
