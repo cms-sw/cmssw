@@ -52,7 +52,7 @@ class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase
 public:
 
   METplusTrackMonitor( const edm::ParameterSet& );
-  virtual ~METplusTrackMonitor() noexcept(true) {};
+  ~METplusTrackMonitor() noexcept(true) override { }
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:
@@ -62,7 +62,7 @@ protected:
 
 private:
 
-  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag filterTag, trigger::TriggerObject &obj) const;
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag& filterTag, trigger::TriggerObject &obj) const;
 
   std::string folderName_;
   std::string histoSuffix_;

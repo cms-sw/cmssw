@@ -312,7 +312,7 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions & desc
   descriptions.add("metPlusTrackMonitoring", desc);
 }
 
-bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag filterTag, trigger::TriggerObject &obj) const
+bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag& filterTag, trigger::TriggerObject &obj) const
 {
 
  double leadingPt = -1.0;
@@ -322,8 +322,8 @@ bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent> &tr
 
  if( !(filterIndex >= trigSummary->sizeFilters()) ) {
    const trigger::Keys& keys = trigSummary->filterKeys( filterIndex );
-   for(size_t j = 0; j < keys.size(); j++) {
-     trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+   for(unsigned short key : keys) {
+     trigger::TriggerObject foundObject = triggerObjects[key];
      if(foundObject.pt() > leadingPt) {
        obj = foundObject;
        leadingPt = obj.pt();

@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -149,7 +149,7 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
 		    onlinebtags.push_back(triggerObjects[key]);
                   }
                }
-               for ( const auto & to : onlinebtags )
+               for ( auto const & to : onlinebtags )
                {
 		 if ( reco::deltaR(jet1,to) ) match1 = true;
 		 if ( reco::deltaR(jet2,to) ) match2 = true;
