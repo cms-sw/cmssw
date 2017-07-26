@@ -696,6 +696,7 @@ namespace {
       h1->Draw("Psame");
 
       canvas.Update();
+      canvas.cd();
 
       for (const auto & line : boundaries){
 	line->Draw("same");

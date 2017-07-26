@@ -34,51 +34,52 @@ namespace sistrippayloadinspector {
   };
 };
 
+//**************************************//
 const char * regionType(int index)
 {
 
   auto region = static_cast<std::underlying_type_t<sistrippayloadinspector::TrackerRegion> >(index);
 
   switch(region){
-  case sistrippayloadinspector::TIB1r           : return "TIB L1 r#phi";
-  case sistrippayloadinspector::TIB1s           : return "TIB L1 stereo";
-  case sistrippayloadinspector::TIB2r           : return "TIB L2 r#phi";
-  case sistrippayloadinspector::TIB2s 	        : return "TIB L2 stereo";
-  case sistrippayloadinspector::TIB3r 	        : return "TIB L3 r#phi";
-  case sistrippayloadinspector::TIB4r 	        : return "TIB L4";
-  case sistrippayloadinspector::TOB1r           : return "TOB L1 r#phi";
-  case sistrippayloadinspector::TOB1s 	        : return "TOB L1 stereo";
-  case sistrippayloadinspector::TOB2r           : return "TOB L2 r#phi";
-  case sistrippayloadinspector::TOB2s 	        : return "TOB L2 stereo";
-  case sistrippayloadinspector::TOB3r 	        : return "TOB L3 r#phi";
-  case sistrippayloadinspector::TOB4r 	        : return "TOB L4";
-  case sistrippayloadinspector::TOB5r 	        : return "TOB L5";
-  case sistrippayloadinspector::TOB6r 	        : return "TOB L6";
-  case sistrippayloadinspector::TEC1r 	        : return "TEC D1 r#phi";
-  case sistrippayloadinspector::TEC1s 	        : return "TEC D1 stereo";
-  case sistrippayloadinspector::TEC2r           : return "TEC D2 r#phi";
-  case sistrippayloadinspector::TEC2s 	        : return "TEC D2 stereo";
-  case sistrippayloadinspector::TEC3r           : return "TEC D3 r#phi";
-  case sistrippayloadinspector::TEC3s 	        : return "TEC D3 stereo";
-  case sistrippayloadinspector::TEC4r           : return "TEC D4 r#phi";
-  case sistrippayloadinspector::TEC4s 	        : return "TEC D4 stereo";
-  case sistrippayloadinspector::TEC5r           : return "TEC D5 r#phi";
-  case sistrippayloadinspector::TEC5s 	        : return "TEC D5 stereo";
-  case sistrippayloadinspector::TEC6r           : return "TEC D6 r#phi";
-  case sistrippayloadinspector::TEC6s 	        : return "TEC D6 stereo";
-  case sistrippayloadinspector::TEC7r           : return "TEC D7 r#phi";
-  case sistrippayloadinspector::TEC7s 	        : return "TEC D7 stereo";
-  case sistrippayloadinspector::TEC8r           : return "TEC D8 r#phi";
-  case sistrippayloadinspector::TEC8s 	        : return "TEC D8 stereo";
-  case sistrippayloadinspector::TEC9r           : return "TEC D9 r#phi";
-  case sistrippayloadinspector::TEC9s 	        : return "TEC D9 stereo";
-  case sistrippayloadinspector::TID1r           : return "TID D1 r#phi";
-  case sistrippayloadinspector::TID1s 	        : return "TID D1 stereo";
-  case sistrippayloadinspector::TID2r           : return "TID D2 r#phi";
-  case sistrippayloadinspector::TID2s 	        : return "TID D2 stereo";
-  case sistrippayloadinspector::TID3r           : return "TID D3 r#phi"; 
-  case sistrippayloadinspector::TID3s 	        : return "TID D3 stereo";
-  case sistrippayloadinspector::END_OF_REGIONS  : return "undefined";
+  case sistrippayloadinspector::TIB1r: return "TIB L1 r#phi";
+  case sistrippayloadinspector::TIB1s: return "TIB L1 stereo";
+  case sistrippayloadinspector::TIB2r: return "TIB L2 r#phi";
+  case sistrippayloadinspector::TIB2s: return "TIB L2 stereo";
+  case sistrippayloadinspector::TIB3r: return "TIB L3";
+  case sistrippayloadinspector::TIB4r: return "TIB L4";
+  case sistrippayloadinspector::TOB1r: return "TOB L1 r#phi";
+  case sistrippayloadinspector::TOB1s: return "TOB L1 stereo";
+  case sistrippayloadinspector::TOB2r: return "TOB L2 r#phi";
+  case sistrippayloadinspector::TOB2s: return "TOB L2 stereo";
+  case sistrippayloadinspector::TOB3r: return "TOB L3 r#phi";
+  case sistrippayloadinspector::TOB4r: return "TOB L4";
+  case sistrippayloadinspector::TOB5r: return "TOB L5";
+  case sistrippayloadinspector::TOB6r: return "TOB L6";
+  case sistrippayloadinspector::TEC1r: return "TEC D1 r#phi";
+  case sistrippayloadinspector::TEC1s: return "TEC D1 stereo";
+  case sistrippayloadinspector::TEC2r: return "TEC D2 r#phi";
+  case sistrippayloadinspector::TEC2s: return "TEC D2 stereo";
+  case sistrippayloadinspector::TEC3r: return "TEC D3 r#phi";
+  case sistrippayloadinspector::TEC3s: return "TEC D3 stereo";
+  case sistrippayloadinspector::TEC4r: return "TEC D4 r#phi";
+  case sistrippayloadinspector::TEC4s: return "TEC D4 stereo";
+  case sistrippayloadinspector::TEC5r: return "TEC D5 r#phi";
+  case sistrippayloadinspector::TEC5s: return "TEC D5 stereo";
+  case sistrippayloadinspector::TEC6r: return "TEC D6 r#phi";
+  case sistrippayloadinspector::TEC6s: return "TEC D6 stereo";
+  case sistrippayloadinspector::TEC7r: return "TEC D7 r#phi";
+  case sistrippayloadinspector::TEC7s: return "TEC D7 stereo";
+  case sistrippayloadinspector::TEC8r: return "TEC D8 r#phi";
+  case sistrippayloadinspector::TEC8s: return "TEC D8 stereo";
+  case sistrippayloadinspector::TEC9r: return "TEC D9 r#phi";
+  case sistrippayloadinspector::TEC9s: return "TEC D9 stereo";
+  case sistrippayloadinspector::TID1r: return "TID D1 r#phi";
+  case sistrippayloadinspector::TID1s: return "TID D1 stereo";
+  case sistrippayloadinspector::TID2r: return "TID D2 r#phi";
+  case sistrippayloadinspector::TID2s: return "TID D2 stereo";
+  case sistrippayloadinspector::TID3r: return "TID D3 r#phi"; 
+  case sistrippayloadinspector::TID3s: return "TID D3 stereo";
+  case sistrippayloadinspector::END_OF_REGIONS : return "undefined";
   default : return "should never be here";  
   }
 }
@@ -140,21 +141,12 @@ void myPrintSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map
     int layer  = (element.first)/10 - (element.first)/1000*100;
     int stereo = (element.first) - (layer*10) -(element.first)/1000*1000;
 
-    //std::cout<<"key of the map:"<<element.first <<" " << detector<<" layer: "<<layer<<" stereo:"<<stereo<<"| count:"<<count<<" mean: "<<mean<<" rms: "<<rms<<std::endl;
-
-    std::cout<<"key of the map:"<<element.first <<" " << detector<<" layer: "<<layer<<" stereo:"<<stereo<<" region: "<<regionType(element.first)<<std::endl;
-
+    std::cout<<"key of the map:"<<element.first <<" ( region: "<<regionType(element.first) <<" ) "  
+	     << detector<<" layer: "<<layer<<" stereo:"<<stereo
+	     <<"| count:"<<count<<" mean: "<<mean<<" rms: "<<rms<<std::endl;
+    
   }
 }
 
-// std::map<sistrippayloadinspector::TrackerRegion,Values> remapCounts(const std::map<unsigned int, SiStripDetSummary::Values>& map){
-//   for (const auto &element : map){
-    
-//     int detector = ;
-//     int layer    = ;
-      
-    
-//   }
-// }
 
 #endif
