@@ -11,18 +11,32 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL)
 
 particleFlowSuperClusterHGCal = particleFlowSuperClusterECAL.clone()
+particleFlowSuperClusterHGCalFromMC = particleFlowSuperClusterECAL.clone()
 _phase2_hgcal_particleFlowSuperClusteringSequence = particleFlowSuperClusteringSequence.copy()
 _phase2_hgcal_particleFlowSuperClusteringSequence += particleFlowSuperClusterHGCal
+_phase2_hgcal_particleFlowSuperClusteringSequence += particleFlowSuperClusterHGCalFromMC
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     particleFlowSuperClusterHGCal,
     PFClusters = cms.InputTag('particleFlowClusterHGCal'),
     useRegression = cms.bool(False), #no HGCal regression yet
     use_preshower = cms.bool(False),
-    PFBasicClusterCollectionEndcap = cms.string(""),   
+    PFBasicClusterCollectionEndcap = cms.string(""),
     PFSuperClusterCollectionEndcap = cms.string(""),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string(""),
     thresh_PFClusterEndcap = cms.double(1.5e-1) # 150 MeV threshold
 )
+
+phase2_hgcal.toModify(
+    particleFlowSuperClusterHGCalFromMC,
+    PFClusters = cms.InputTag('particleFlowClusterHGCalFromMC'),
+    useRegression = cms.bool(False), #no HGCal regression yet
+    use_preshower = cms.bool(False),
+    PFBasicClusterCollectionEndcap = cms.string(""),
+    PFSuperClusterCollectionEndcap = cms.string(""),
+    PFSuperClusterCollectionEndcapWithPreshower = cms.string(""),
+    thresh_PFClusterEndcap = cms.double(1.5e-1) # 150 MeV threshold
+)
+
 phase2_hgcal.toReplaceWith( particleFlowSuperClusteringSequence, _phase2_hgcal_particleFlowSuperClusteringSequence )
 
