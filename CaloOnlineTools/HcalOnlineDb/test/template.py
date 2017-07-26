@@ -83,10 +83,6 @@ process.generateLuts = cms.EDAnalyzer("HcalLutGenerator",
    status_word_to_mask = cms.uint32(0x8000)
 )
 
-process.writeL1TriggerObjectsXml = cms.EDAnalyzer('WriteL1TriggerObjetsXml',
-   TagName = cms.string('L1TriggerObjects-__LUTtag__')
-)
-
 process.writeL1TriggerObjectsTxt = cms.EDAnalyzer('WriteL1TriggerObjectsTxt',
    TagName = cms.string('__LUTtag__'),
 )

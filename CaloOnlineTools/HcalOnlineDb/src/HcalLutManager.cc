@@ -1644,7 +1644,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
   const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
 
-  for(int masktype=0; masktype<3; ++masktype){
+  for(auto masktype: {0,1,2}){
       const auto masks=getMasks(masktype, _tag, split_by_crate);
       addLutMap(xml, masks);
   }
