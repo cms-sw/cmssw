@@ -378,7 +378,6 @@ def miniAOD_customizeMC(process):
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
 
-
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
