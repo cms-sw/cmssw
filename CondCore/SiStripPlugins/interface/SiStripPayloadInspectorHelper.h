@@ -3,7 +3,87 @@
 
 #include <vector>
 #include <numeric>
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 
+namespace sistrippayloadinspector {
+  
+  enum TrackerRegion { 
+    TIB1r = 1010, TIB1s = 1011, 
+    TIB2r = 1020, TIB2s = 1021,
+    TIB3r = 1030,
+    TIB4r = 1040,
+    TOB1r = 2010, TOB1s = 2011,
+    TOB2r = 2020, TOB2s = 2021,
+    TOB3r = 2030,
+    TOB4r = 2040,
+    TOB5r = 2050,
+    TOB6r = 2060,
+    TEC1r = 3010, TEC1s = 3011,
+    TEC2r = 3020, TEC2s = 3021,
+    TEC3r = 3030, TEC3s = 3031,
+    TEC4r = 3040, TEC4s = 3041,
+    TEC5r = 3050, TEC5s = 3051,
+    TEC6r = 3060, TEC6s = 3061,
+    TEC7r = 3070, TEC7s = 3071,
+    TEC8r = 3080, TEC8s = 3081,
+    TEC9r = 3090, TEC9s = 3091,
+    TID1r = 4010, TID1s = 4011,
+    TID2r = 4020, TID2s = 4021,
+    TID3r = 4030, TID3s = 4031,
+    END_OF_REGIONS	
+  };
+};
+
+const char * regionType(int index)
+{
+
+  auto region = static_cast<std::underlying_type_t<sistrippayloadinspector::TrackerRegion> >(index);
+
+  switch(region){
+  case sistrippayloadinspector::TIB1r           : return "TIB L1 r#phi";
+  case sistrippayloadinspector::TIB1s           : return "TIB L1 stereo";
+  case sistrippayloadinspector::TIB2r           : return "TIB L2 r#phi";
+  case sistrippayloadinspector::TIB2s 	        : return "TIB L2 stereo";
+  case sistrippayloadinspector::TIB3r 	        : return "TIB L3 r#phi";
+  case sistrippayloadinspector::TIB4r 	        : return "TIB L4";
+  case sistrippayloadinspector::TOB1r           : return "TOB L1 r#phi";
+  case sistrippayloadinspector::TOB1s 	        : return "TOB L1 stereo";
+  case sistrippayloadinspector::TOB2r           : return "TOB L2 r#phi";
+  case sistrippayloadinspector::TOB2s 	        : return "TOB L2 stereo";
+  case sistrippayloadinspector::TOB3r 	        : return "TOB L3 r#phi";
+  case sistrippayloadinspector::TOB4r 	        : return "TOB L4";
+  case sistrippayloadinspector::TOB5r 	        : return "TOB L5";
+  case sistrippayloadinspector::TOB6r 	        : return "TOB L6";
+  case sistrippayloadinspector::TEC1r 	        : return "TEC D1 r#phi";
+  case sistrippayloadinspector::TEC1s 	        : return "TEC D1 stereo";
+  case sistrippayloadinspector::TEC2r           : return "TEC D2 r#phi";
+  case sistrippayloadinspector::TEC2s 	        : return "TEC D2 stereo";
+  case sistrippayloadinspector::TEC3r           : return "TEC D3 r#phi";
+  case sistrippayloadinspector::TEC3s 	        : return "TEC D3 stereo";
+  case sistrippayloadinspector::TEC4r           : return "TEC D4 r#phi";
+  case sistrippayloadinspector::TEC4s 	        : return "TEC D4 stereo";
+  case sistrippayloadinspector::TEC5r           : return "TEC D5 r#phi";
+  case sistrippayloadinspector::TEC5s 	        : return "TEC D5 stereo";
+  case sistrippayloadinspector::TEC6r           : return "TEC D6 r#phi";
+  case sistrippayloadinspector::TEC6s 	        : return "TEC D6 stereo";
+  case sistrippayloadinspector::TEC7r           : return "TEC D7 r#phi";
+  case sistrippayloadinspector::TEC7s 	        : return "TEC D7 stereo";
+  case sistrippayloadinspector::TEC8r           : return "TEC D8 r#phi";
+  case sistrippayloadinspector::TEC8s 	        : return "TEC D8 stereo";
+  case sistrippayloadinspector::TEC9r           : return "TEC D9 r#phi";
+  case sistrippayloadinspector::TEC9s 	        : return "TEC D9 stereo";
+  case sistrippayloadinspector::TID1r           : return "TID D1 r#phi";
+  case sistrippayloadinspector::TID1s 	        : return "TID D1 stereo";
+  case sistrippayloadinspector::TID2r           : return "TID D2 r#phi";
+  case sistrippayloadinspector::TID2s 	        : return "TID D2 stereo";
+  case sistrippayloadinspector::TID3r           : return "TID D3 r#phi"; 
+  case sistrippayloadinspector::TID3s 	        : return "TID D3 stereo";
+  case sistrippayloadinspector::END_OF_REGIONS  : return "undefined";
+  default : return "should never be here";  
+  }
+}
+
+//**************************************//
 std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
   
   float sum = std::accumulate(std::begin(values), 
@@ -27,5 +107,54 @@ std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
   return std::make_pair(m-2*stdev,m+2*stdev);
   
 }
+
+//**************************************//
+void myPrintSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map){
+  for (const auto &element : map){
+    int count   = element.second.count;
+    double mean = (element.second.mean)/count;
+    double rms  = (element.second.rms)/count - mean*mean;
+    if(rms <= 0)
+      rms = 0;
+    else
+      rms = sqrt(rms);
+
+    std::string detector;
+
+    switch ((element.first)/1000) 
+      {
+      case 1:
+	detector = "TIB ";
+	break;
+      case 2:
+	detector = "TOB ";
+	break;
+      case 3:
+	detector = "TEC ";
+	break;
+      case 4:
+	detector = "TID ";
+	break;
+      }
+    
+    int layer  = (element.first)/10 - (element.first)/1000*100;
+    int stereo = (element.first) - (layer*10) -(element.first)/1000*1000;
+
+    //std::cout<<"key of the map:"<<element.first <<" " << detector<<" layer: "<<layer<<" stereo:"<<stereo<<"| count:"<<count<<" mean: "<<mean<<" rms: "<<rms<<std::endl;
+
+    std::cout<<"key of the map:"<<element.first <<" " << detector<<" layer: "<<layer<<" stereo:"<<stereo<<" region: "<<regionType(element.first)<<std::endl;
+
+  }
+}
+
+// std::map<sistrippayloadinspector::TrackerRegion,Values> remapCounts(const std::map<unsigned int, SiStripDetSummary::Values>& map){
+//   for (const auto &element : map){
+    
+//     int detector = ;
+//     int layer    = ;
+      
+    
+//   }
+// }
 
 #endif
