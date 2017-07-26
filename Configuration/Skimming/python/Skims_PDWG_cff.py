@@ -233,6 +233,17 @@ SKIMStreamEXOHPTE = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+from Configuration.Skimming.PDWG_EXOMONOPOLE_cff import *
+EXOMONOPOLEPath = cms.Path(EXOMonopoleSkimSequence)
+SKIMStreamEXOMONOPOLE = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'EXOMONOPOLE',
+        paths = (EXOMONOPOLEPath),
+        content = EXOMonopoleSkimContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('USER')
+        )
+
 #####################
 # For the Data on Data Mixing in TSG
 from HLTrigger.Configuration.HLT_Fake1_cff import fragment as _fragment
