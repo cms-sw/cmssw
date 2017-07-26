@@ -25,11 +25,28 @@ def customiseFor19029(process):
             producer.maxPhi = cms.double(3.2)
     return process
 
+def customiseFor19824_clusterShape_phase0(process) :
+    for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
+	producer.PixelShapeFileL1= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par')
+    return process
+
+def customiseFor19824_clusterShape_phase1(process) :
+    for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
+        producer.PixelShapeFileL1= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    if (menuType == "GRun2016"):
+        process = customiseFor19824_clusterShape_phase0(process)
+    else:
+        process = customiseFor19824_clusterShape_phase1(process)
+
     process = customiseFor19029(process)
 
     return process
