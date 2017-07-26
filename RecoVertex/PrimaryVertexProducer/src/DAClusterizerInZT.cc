@@ -324,7 +324,7 @@ bool DAClusterizerInZT::split( double beta,
       }
     }
     if(w1>0){  z1=z1/w1; t1=t1/w1;} else{ z1=y[ik].z-epsilon; t1=y[ik].t-epsilon; }
-    if(w2>0){  z2=z2/w2; t2=t2/w2;} else{ z2=y[ik].z+epsilon; t2=y[ik].t+epsilon;}
+    if(w2>0){  z2=z2/w2; t2=t2/w2;} else{ z2=y[ik].z+epsilon; t2=y[ik].t+epsilon; }
 
     // reduce split size if there is not enough room
     if( ( ik   > 0       ) && ( y[ik-1].z>=z1 ) ){ z1=0.5*(y[ik].z+y[ik-1].z); t1=0.5*(y[ik].t+y[ik-1].t); }

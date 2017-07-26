@@ -33,14 +33,14 @@ vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
                           )
 
 #timing
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2DParameters
+from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
 unsortedOfflinePrimaryVertices1D = unsortedOfflinePrimaryVertices.clone()
 unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(0.7)
 offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting")
 offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting")
-DA2DParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
+DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
-                                                                         TkClusParameters = DA2DParameters )
+                                                                         TkClusParameters = DA2D_vectParameters )
 unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.7)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
