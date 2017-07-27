@@ -1,7 +1,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
@@ -23,7 +23,7 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   bool new_forests = false;
 
   // Pull configuration from the EventSetup
-  auto& params_setup = iSetup.get<L1TMuonEndcapParamsRcd>();
+  auto& params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
     params_setup.get(params_);
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 emtfParamsSource = cms.ESSource(
 	"EmptyESSource",
-	recordName = cms.string('L1TMuonEndcapParamsRcd'),
+	recordName = cms.string('L1TMuonEndCapParamsRcd'),
 	iovIsRunNotTime = cms.bool(True),
 	firstValid = cms.vuint32(1)
 )

@@ -1,6 +1,6 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
@@ -21,7 +21,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
 
-REGISTER_PLUGIN(L1TMuonEndcapParamsRcd,  L1TMuonEndCapParams);
+REGISTER_PLUGIN(L1TMuonEndCapParamsRcd,  L1TMuonEndCapParams);
 REGISTER_PLUGIN(L1TMuonEndCapForestRcd,  L1TMuonEndCapForest);
 REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);

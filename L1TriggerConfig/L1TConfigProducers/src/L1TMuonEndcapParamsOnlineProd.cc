@@ -27,7 +27,7 @@ L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::Paramete
 std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) {
     using namespace edm::es;
 
-    const L1TMuonEndcapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndcapParamsRcd >() ;
+    const L1TMuonEndCapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndCapParamsRcd >() ;
     edm::ESHandle< L1TMuonEndCapParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 

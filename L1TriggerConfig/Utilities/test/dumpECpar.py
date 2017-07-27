@@ -21,7 +21,7 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
 process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TMuonEndcapParamsRcd'),
+      cms.PSet(record = cms.string('L1TMuonEndCapParamsRcd'),
                data = cms.vstring('L1TMuonEndcapParams'))
                    ),
    verbose = cms.untracked.bool(True)
@@ -35,7 +35,7 @@ outputDB = cms.Service("PoolDBOutputService",
                        connect = cms.string('sqlite_file:qwe.db'),
                        toPut   = cms.VPSet(
                            cms.PSet(
-                               record = cms.string('L1TMuonEndcapParamsRcd'),
+                               record = cms.string('L1TMuonEndCapParamsRcd'),
                                tag = cms.string("dummy")
                            )
                        )
