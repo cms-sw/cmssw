@@ -53,7 +53,3 @@ slimmingTask = cms.Task(
     bunchSpacingProducer,
     oniaPhotonCandidates
 )
-
-slimmingGENTask = cms.Task(
-    genParticlesTask
-)
