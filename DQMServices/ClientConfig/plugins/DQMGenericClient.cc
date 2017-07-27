@@ -469,7 +469,6 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     efficHist->GetXaxis()->SetTitle(hSim->GetXaxis()->GetTitle());
     efficHist->GetYaxis()->SetTitle(hSim->GetYaxis()->GetTitle());
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     for (int i=1; i <= hReco->GetNbinsX(); i++) {
 
       const double nReco = hReco->GetBinContent(i);
@@ -498,33 +497,6 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
     }
-#else
-    for (int i=1; i <= hReco->GetNbinsX(); i++) {
-
-      const double nReco = hReco->GetBinContent(i);
-      const double nSim = hSim->GetBinContent(i);
-      if(nSim > INT_MAX || nSim < INT_MIN || nReco > INT_MAX || nReco < INT_MIN)
-        {
-          LogError("DQMGenericClient")  << "computeEfficiency() : "
-                                        << "Overflow: bin content either too large or too small to be casted to int";
-          return;
-        }
-
-      TGraphAsymmErrorsWrapper asymm;
-      std::pair<double, double> efficiencyWithError;
-      efficiencyWithError = asymm.efficiency((int)nReco,
-                                             (int)nSim);
-      double effVal = efficiencyWithError.first;
-      double errVal = efficiencyWithError.second;
-      if ((int)nSim > 0) {
-        efficHist->SetBinContent(i, effVal);
-        efficHist->SetBinEntries(i, 1);
-        efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
-      }
-      if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
-	efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
-    }
-#endif
     ibooker.bookProfile(newEfficMEName.c_str(),efficHist);
     delete efficHist;  
   }
