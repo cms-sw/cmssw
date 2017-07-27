@@ -155,9 +155,14 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
 
     const double gen_xi = 1.-gen_pro->momentum().e()/sqrtS_*2.;
-    const double gen_th_x = atan2( gen_pro->momentum().px(), gen_pro->momentum().pz() );
-    const double gen_th_y = atan2( gen_pro->momentum().py(), gen_pro->momentum().pz() );
-    const double gen_vtx_x = gen_pos.x(), gen_vtx_y = gen_pos.y();
+
+    double gen_th_x = atan2( gen_pro->momentum().px(), fabs( gen_pro->momentum().pz() ) );
+    double gen_th_y = atan2( gen_pro->momentum().py(), fabs( gen_pro->momentum().pz() ) );
+    while ( gen_th_x<-M_PI ) gen_th_x += 2*M_PI; while ( gen_th_x>+M_PI ) gen_th_x -= 2*M_PI;
+    while ( gen_th_y<-M_PI ) gen_th_y += 2*M_PI; while ( gen_th_y>+M_PI ) gen_th_y -= 2*M_PI;
+    if ( gen_pro->momentum().pz()>0.0 ) { gen_th_x = -gen_th_x; }
+
+    const double gen_vtx_x = -gen_pos.x(), gen_vtx_y = gen_pos.y();
 
     h_gen_vtx_x_->Fill( gen_vtx_x );
     h_gen_vtx_y_->Fill( gen_vtx_y );
