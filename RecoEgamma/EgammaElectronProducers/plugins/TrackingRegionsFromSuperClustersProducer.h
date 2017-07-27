@@ -249,28 +249,35 @@ GlobalPoint TrackingRegionsFromSuperClustersProducer::
 getVtxPos(const edm::Event& iEvent,double& deltaZVertex)const
 {
   if(useZInVertex_){
-    auto verticesHandle = getHandle(iEvent,verticesToken_);   
-    deltaZVertex = originHalfLength_;
-    const auto& pv = verticesHandle->front();
-    return GlobalPoint(pv.x(),pv.y(),pv.z());
-  }
-  
-  auto beamSpotHandle = getHandle(iEvent,beamSpotToken_);
-  const reco::BeamSpot::Point& bsPos = beamSpotHandle->position();
-  
-  if(useZInBeamspot_){
-    //as this is what has been done traditionally for e/gamma, others just use sigmaZ
-    const double bsSigmaZ = std::sqrt(beamSpotHandle->sigmaZ()*beamSpotHandle->sigmaZ() + 
-				      beamSpotHandle->sigmaZ0Error()*beamSpotHandle->sigmaZ0Error());
-    const double sigmaZ = std::max(bsSigmaZ,minBSDeltaZ_);
-    deltaZVertex = nrSigmaForBSDeltaZ_*sigmaZ;
-    
-    return GlobalPoint(bsPos.x(),bsPos.y(),bsPos.z());
+    auto verticesHandle = getHandle(iEvent,verticesToken_);
+    //we throw if the vertices are not there but if no vertex is 
+    //recoed in the event, we default to 0,0,defaultZ as the vertex
+    if(!verticesHandle->empty()){ 
+      deltaZVertex = originHalfLength_;
+      const auto& pv = verticesHandle->front();
+      return GlobalPoint(pv.x(),pv.y(),pv.z());
+    }else{
+      deltaZVertex = originHalfLength_;
+      return GlobalPoint(0,0,defaultZ_);
+    }
   }else{
-    deltaZVertex = originHalfLength_;
-    return GlobalPoint(bsPos.x(),bsPos.y(),defaultZ_); 
+
+    auto beamSpotHandle = getHandle(iEvent,beamSpotToken_);
+    const reco::BeamSpot::Point& bsPos = beamSpotHandle->position();
+    
+    if(useZInBeamspot_){
+      //as this is what has been done traditionally for e/gamma, others just use sigmaZ
+      const double bsSigmaZ = std::sqrt(beamSpotHandle->sigmaZ()*beamSpotHandle->sigmaZ() + 
+					beamSpotHandle->sigmaZ0Error()*beamSpotHandle->sigmaZ0Error());
+      const double sigmaZ = std::max(bsSigmaZ,minBSDeltaZ_);
+      deltaZVertex = nrSigmaForBSDeltaZ_*sigmaZ;
+    
+      return GlobalPoint(bsPos.x(),bsPos.y(),bsPos.z());
+    }else{
+      deltaZVertex = originHalfLength_;
+      return GlobalPoint(bsPos.x(),bsPos.y(),defaultZ_); 
+    }
   }
-  
   
 }
 
