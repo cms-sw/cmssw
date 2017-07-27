@@ -991,6 +991,7 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
+		self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
@@ -1678,7 +1679,7 @@ class ConfigBuilder(object):
 
     def prepare_PATGEN(self, sequence = "miniGEN"):
         ''' Enrich the schedule with PATGEN '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF) #this is unscheduled
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF) #this is unscheduled
         self.labelsToAssociate.append('patGENTask')
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
