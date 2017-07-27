@@ -9,7 +9,7 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-using std::string;
+//using std::string;
 
 SensitiveDetector::SensitiveDetector(std::string & iname, 
 				     const DDCompactView & cpv,

@@ -19,20 +19,25 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
-//#define DebugLog
+// #define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
         const SensitiveDetectorCatalog & clg,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
-  eminHitD(0), m_trackManager(manager), currentHit(0), runInit(false),
-  timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), 
-  meanResponse(0) {
-  //Add Hcal Sentitive Detector Names
+  G4VGFlashSensitiveDetector(), theTrack(nullptr), preStepPoint(nullptr), eminHit(0.0), 
+  eminHitD(0.0), m_trackManager(manager), currentHit(nullptr), runInit(false),
+  timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), 
+  meanResponse(nullptr) {
 
+  //Add Hcal Sentitive Detector Names
   collectionName.insert(name);
+
+  // initialisation
+  incidentEnergy = edepositEM = edepositHAD = 0.0f;
+  primIDSaved = -99;
+  emPDG = epPDG = gammaPDG = 0;  
 
   //Parameters
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
@@ -118,7 +123,7 @@ CaloSD::~CaloSD() {
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   
-  // do not make any computation withou energy deposition
+  // do not make any computation without energy deposition
   if(aStep->GetTotalEnergyDeposit() > 0.) {
 
     NaNTrap(aStep);
@@ -224,10 +229,9 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
   
   cleanHitCollection();
   
-#ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries()
                           << " entries";
-#endif
+
   //  TimeMe("CaloSD:sortAndMergeHits",false);
 }
 
@@ -490,10 +494,8 @@ void CaloSD::update(const BeginOfRun *) {
   emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
   epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
   gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-#ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Particle code for e- = " << emPDG
 			  << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
-#endif
   initRun();
   runInit = true;
 } 
@@ -615,7 +617,7 @@ double CaloSD::getResponseWt(G4Track* aTrack) {
 
 void CaloSD::storeHit(CaloG4Hit* hit) {
   if (previousID.trackID()<0) return;
-  if (hit == 0) {
+  if (hit == nullptr) {
     edm::LogWarning("CaloSim") << "CaloSD: hit to be stored is NULL !!";
     return;
   }
