@@ -34,18 +34,18 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
-    int32_t hx(0), hy(0), ht(0);
-    int32_t hxHF(0), hyHF(0), htHF(0);
+    int hx(0), hy(0), ht(0);
+    int hxHF(0), hyHF(0), htHF(0);
 
     bool satMht(0), satMhtHF(0), satHt(0), satHtHF(0);
   
     // loop over rings    
-    for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
+    for (unsigned absieta=1; absieta<=(unsigned int)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
 
-      int32_t ringHx(0), ringHy(0), ringHt(0); 
-      int32_t ringHxHF(0), ringHyHF(0), ringHtHF(0); 
+      int ringHx(0), ringHy(0), ringHt(0); 
+      int ringHxHF(0), ringHyHF(0), ringHtHF(0); 
       
       // loop over phi
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
@@ -72,15 +72,15 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 		    satMht=true;
 		    satMhtHF=true;
 		  }else{
-		    ringHx += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
-		    ringHy += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
+		    ringHx += (int) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
+		    ringHy += (int) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
 		  }
 		}
 		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(mhtEtaMaxHF_)) {
 		  if(thisJet.hwPt()==CaloTools::kSatJet) satMhtHF=true;
 		  else{
-		    ringHxHF += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
-		    ringHyHF += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
+		    ringHxHF += (int) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
+		    ringHyHF += (int) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
 		  }
 		}
 		
