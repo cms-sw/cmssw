@@ -57,7 +57,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
   create(towers, jets, alljets, params_->jetPUSType());
 
   // calibrate all jets
-  calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
+  calibrate(alljets, 0, true); // pass all jets and the hw threshold above which to calibrate
 
   // jets accumulated sort
   accuSort(jets);
@@ -172,7 +172,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    if (iEt<=0) continue;
 
 	    // if tower Et is saturated, saturate jet Et
-	    if (seedEt >= 509) iEt = 65535;
+	    if (seedEt == CaloTools::kSatHcal || seedEt == CaloTools::kSatEcal || seedEt == CaloTools::kSatTower) iEt = CaloTools::kSatJet;
 
 	    jet.setHwPt(iEt);
 	    jet.setRawEt( (short int) rawEt);
@@ -190,7 +190,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	}
 
 	 // jet energy corrections
-	calibrate(jetsRing, 0); // pass the jet collection and the hw threshold above which to calibrate
+	calibrate(jetsRing, 0, false); // pass the jet collection and the hw threshold above which to calibrate
 
 	// sort these jets and keep top 6
 	start_ = jetsRing.begin();  
@@ -380,7 +380,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
       const CaloTower& towPhiDown = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiDown);
       towEt = towPhiDown.hwPt();
       ring[1] += towEt;
-            
+
     } 
     
     // do EtaUp
@@ -394,13 +394,10 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
         const CaloTower& towEtaUp = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towPhi);
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
-      }else{
-        ring[2] = 0;
-        break;
       }
-      
-    } 
-    
+
+    }
+
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
@@ -412,16 +409,13 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
         const CaloTower& towEtaDown = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towPhi);
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
-      }else{
-        ring[3] = 0;
-        break;
       }
-      
+     
     }     
     
     
   }
-  
+    
   // for donut subtraction we only use the middle 2 (in energy) ring strips
   // std::sort(ring.begin(), ring.end(), std::greater<int>());
   // return ( ring[1]+ring[2] ); 
@@ -429,15 +423,15 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
   
-  for(uint i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
-    
+  for(uint i=0; i<4; ++i) jet.setPUDonutEt(i, (short int) ring[i]);
+
   return ( ring[0] + ring[1] + ring[2] );
   
 }
 
 
 
-void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> & jets, int calibThreshold) {
+void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> & jets, int calibThreshold, bool isAllJets) {
 
   if( params_->jetCalibrationType() == "function6PtParams22EtaBins" ){ //One eta bin per region
 
@@ -556,6 +550,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
       //Check jet is above the calibration threshold, if not do nothing
       if(jet->hwPt() < calibThreshold) continue;
+      
+      //don't calibrate saturated jets for HT
+      if( isAllJets && (jet->hwPt() == CaloTools::kSatJet) ) continue;
 
       // In the firmware, we take bits 1 to 8 of the hwPt.
       // To avoid getting nonsense by only taking smaller bits,
