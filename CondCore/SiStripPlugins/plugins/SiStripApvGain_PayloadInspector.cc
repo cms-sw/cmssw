@@ -28,6 +28,7 @@
 
 // include ROOT 
 #include "TH2F.h"
+#include "TLegend.h"
 #include "TCanvas.h"
 #include "TLine.h"
 #include "TStyle.h"
@@ -753,6 +754,12 @@ namespace {
 	l->Draw("same");
       }
       
+      auto legend = new TLegend(0.70,0.8,0.95,0.9);
+      legend->SetHeader("Comparison","C"); // option "C" allows to center the header
+      legend->AddEntry(hfirst,("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
+      legend->AddEntry(hlast ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend->Draw("same");
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
