@@ -123,22 +123,16 @@ CaloSD::~CaloSD() {
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   
-  // do not make any computation without energy deposition
-  if(aStep->GetTotalEnergyDeposit() > 0.) {
-
-    NaNTrap(aStep);
-    if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.) {
-        currentHit = createNewHit();
-      }
-    }
+  NaNTrap(aStep);
+  if(getStepInfo(aStep) && hitExists() == false && edepositEM+edepositHAD>0.f) {
+    currentHit = createNewHit();
   }
   return true;
 } 
 
 bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) { 
 
-  if (aSpot != NULL) {   
+  if (aSpot != nullptr) {   
     theTrack = const_cast<G4Track *>(aSpot->GetOriginatorTrack()->GetPrimaryTrack());
     G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
     

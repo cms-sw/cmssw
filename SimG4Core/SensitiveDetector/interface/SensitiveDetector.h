@@ -34,14 +34,17 @@ public:
   virtual void AssignSD(const std::string & vname);
   virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
   enum coordinates {WorldCoordinates, LocalCoordinates};
-  Local3DPoint InitialStepPosition(G4Step * s, coordinates);
-  Local3DPoint FinalStepPosition(G4Step * s, coordinates);
-  Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point);    
-  std::string nameOfSD() { return name; }
+  Local3DPoint InitialStepPosition(G4Step * step, coordinates);
+  Local3DPoint FinalStepPosition(G4Step * step, coordinates);
+  inline Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point)
+  {
+    return Local3DPoint(point.x(),point.y(),point.z());
+  }    
+  inline std::string& nameOfSD() { return name; }
   virtual std::vector<std::string> getNames() 
   {
     std::vector<std::string> temp;
-    temp.push_back(nameOfSD());
+    temp.push_back(name);
     return temp;
   }
   
@@ -49,7 +52,6 @@ public:
     
 private:
   std::string name;
-  G4Step * currentStep;
 };
 
 #endif
