@@ -49,7 +49,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t etem(0);
     uint32_t mb0(0), mb1(0);
 
-    bool ecalSat(0), hcalSat(0);
+    bool ettSat(0), ettHFSat(0), ecalEtSat(0), metSat(0), metHFSat(0);
 
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
@@ -108,44 +108,44 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
         l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
 
-	//ecal, hcal and tower saturation check
-	if(tower.hwPt()==509) hcalSat=true;
-	if(tower.hwPt()==510) ecalSat=true;
-	if(tower.hwPt()==511){
-	  hcalSat=true;
-	  ecalSat=true;
-	}
-
 
 	// MET without HF
 
-	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_)) {
+	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_) && !metSat) {
 
 	  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
 	  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
 	  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
 	  // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) metSat=true;
 	  ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
 	  ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 
 	// MET *with* HF
-	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_)) {
+	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_) && !metHFSat) {
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) metHFSat=true;
 	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
 	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 
 	// scalar sum
-	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_) && !ettSat){
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ettSat=true;
 	  ringEt += tower.hwPt();
+	}
   
 	// scalar sum including HF
-	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_) && !ettHFSat) {
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ettHFSat=true;
 	  ringEtHF += tower.hwPt();
-		
+	}
+	
         // scalar sum (EM)
-        if (tower.hwPt()>towEtEcalSumThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_)
+        if (tower.hwPt()>towEtEcalSumThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_) && !ecalEtSat){
+	  if(tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ecalEtSat=true;
           ringEtEm += tower.hwEtEm();
+	}
 
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
@@ -179,17 +179,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     // saturate energy sums if saturated TP/tower
 
-    if(ecalSat) etem = 0xffff;
-
-    if(ecalSat || hcalSat){
-      et = 0xffff;
+    if(ecalEtSat) etem = 0xffff;
+    if(ettSat) et = 0xffff;
+    if(ettHFSat) etHF = 0xffff;
+    if(metSat){ 
       ex = 0x7fffffff;
       ey = 0x7fffffff;
-      etHF = 0xffff;
+    }
+    if(metHFSat){
       exHF = 0x7fffffff;
       eyHF = 0x7fffffff;
     }
-
+    
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
     l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);
