@@ -89,19 +89,22 @@ class RealisticHitToClusterAssociator
             return std::sqrt(distanceSquared);
         }
 
+        float XYdistanceFromPointOnSameLayer(unsigned int hitId, const Hit3DPosition& point)
+        {
+            float distanceSquared = std::pow((realisticHits_[hitId].hitPosition_[0] - point[0]),2) + std::pow((realisticHits_[hitId].hitPosition_[1] - point[1]),2);
+            return std::sqrt(distanceSquared);
+        }
+
         void computeAssociation( float exclusiveFraction, bool useMCFractionsForExclEnergy, unsigned int fhOffset, unsigned int bhOffset)
         {
             //if more than exclusiveFraction of a hit's energy belongs to a cluster, that rechit is not counted as shared
             unsigned int numberOfHits = realisticHits_.size();
             std::vector<float> partialEnergies;
-
             for(unsigned int hitId = 0; hitId < numberOfHits; ++hitId)
             {
                 partialEnergies.clear();
                 std::vector<unsigned int> removeAssociation;
-
                 auto& realisticHit = realisticHits_[hitId];
-
                 unsigned int numberOfClusters = realisticHit.hitToCluster_.size();
                 if(numberOfClusters == 1)
                 {
@@ -195,7 +198,6 @@ class RealisticHitToClusterAssociator
                         float fraction = elt.second;
                         auto& realisticHit = realisticHits_[hitId];
 
-
                         if(realisticHit.hitToCluster_.size() >1 && fraction < 1.f)
                         {
                             float correction = 1.f - fraction;
@@ -233,7 +235,6 @@ class RealisticHitToClusterAssociator
                                     }
                                 }
                             }
-
                             realisticSimClusters_[realisticHit.hitToCluster_[clusterToRemove].simClusterId_].modifyFractionForHitId(0.f, hitId);
                             realisticHit.hitToCluster_.erase(realisticHit.hitToCluster_.begin()+clusterToRemove);
                         }
@@ -257,7 +258,6 @@ class RealisticHitToClusterAssociator
                                 if(sharedFraction > exclusiveFraction)
                                     realisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
                             }
-
                         }
                     }
 
@@ -265,8 +265,73 @@ class RealisticHitToClusterAssociator
             }
         }
 
+        void findCentersOfGravity()
+        {
+            for(auto& cluster : realisticSimClusters_)
+            {
+                if(cluster.isVisible())
+                {
+                    unsigned int layersNum = cluster.getLayersNum();
+                    std::vector<float> totalEnergyPerLayer(layersNum, 0.f);
+                    std::vector<float> xEnergyPerLayer(layersNum, 0.f);
+                    std::vector<float> yEnergyPerLayer(layersNum, 0.f);
+                    std::vector<float> zPositionPerLayer(layersNum, 0.f);
+                    const auto& hAndF = cluster.hitsIdsAndFractions();
+                    for(auto& elt : hAndF)
+                    {
+                        auto hitId = elt.first;
+                        auto fraction = elt.second;
+                        const auto & hit = realisticHits_[hitId];
+                        const auto & hitPos = hit.hitPosition_;
+                        auto layerId = hit.layerId_;
+                        auto hitEinCluster = hit.totalEnergy_*fraction;
+                        totalEnergyPerLayer[layerId]+= hitEinCluster;
+                        xEnergyPerLayer[layerId] += hitPos[0]*hitEinCluster;
+                        yEnergyPerLayer[layerId] += hitPos[1]*hitEinCluster;
+                        zPositionPerLayer[layerId] = hitPos[2];
+                    }
+                    Hit3DPosition centerOfGravity;
+                    for(unsigned int layerId=0; layerId<layersNum; layerId++)
+                    {
+                        auto energyOnLayer = totalEnergyPerLayer[layerId];
+                        if(energyOnLayer > 0.f)
+                        {
+                            centerOfGravity = {{xEnergyPerLayer[layerId]/energyOnLayer,yEnergyPerLayer[layerId]/energyOnLayer, zPositionPerLayer[layerId] }};
+                            cluster.setCenterOfGravity(layerId,centerOfGravity );
+                        }
+                    }
+                }
+            }
+        }
+
+        void filterHitsByDistance(float maxDistance)
+        {
+            for(auto& cluster : realisticSimClusters_)
+            {
+                if(cluster.isVisible())
+                {
+                    auto& hAndF = cluster.hitsIdsAndFractions();
+                    for(unsigned int i = 0; i<hAndF.size(); ++i)
+                    {
+                        auto hitId = hAndF[i].first;
+                        const auto & hit = realisticHits_[hitId];
+                        auto layerId = hit.layerId_;
+                        if(XYdistanceFromPointOnSameLayer(hitId, cluster.getCenterOfGravity(layerId)) > maxDistance)
+                        {
+                            cluster.modifyFractionByIndex(0.f, i);
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
         const std::vector< RealisticCluster > & realisticClusters() const
         {   return realisticSimClusters_;}
+
+
 
     private:
 
