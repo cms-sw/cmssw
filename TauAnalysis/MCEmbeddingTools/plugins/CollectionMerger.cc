@@ -46,7 +46,7 @@ void  CollectionMerger<T1,T2>::fill_output_obj_tracker(std::unique_ptr<MergeColl
 
     std::map<uint32_t, std::vector<BaseHit> >   output_map;
   // First merge the collections with the help of the output map
-  for (auto inputCollection : inputCollections){
+  for (auto const & inputCollection : inputCollections){
    for ( typename MergeCollection::const_iterator clustSet = inputCollection->begin(); clustSet!= inputCollection->end(); ++clustSet ) {
       DetId detIdObject( clustSet->detId() );
       for (typename edmNew::DetSet<BaseHit>::const_iterator clustIt = clustSet->begin(); clustIt != clustSet->end(); ++clustIt ) {
@@ -73,7 +73,7 @@ void  CollectionMerger<T1,T2>::fill_output_obj_calo(std::unique_ptr<MergeCollect
 {
   std::map<uint32_t, BaseHit >   output_map;
   // First merge the two collections again
-  for (auto inputCollection : inputCollections){
+  for (auto const & inputCollection : inputCollections){
     for ( typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit!= inputCollection->end(); ++recHit ) {
       DetId detIdObject( recHit->detid().rawId() );
       T2 *akt_calo_obj = &output_map[detIdObject.rawId()];
@@ -98,7 +98,7 @@ void  CollectionMerger<T1,T2>::fill_output_obj_muonchamber(std::unique_ptr<Merge
 {
   std::map<uint32_t, std::vector<BaseHit> >   output_map;
   // First merge the collections with the help of the output map
-  for (auto inputCollection : inputCollections){
+  for (auto const & inputCollection : inputCollections){
    for ( typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit!= inputCollection->end(); ++recHit ) {
       DetId detIdObject( recHit->geographicalId() );
       output_map[detIdObject].push_back(*recHit);
