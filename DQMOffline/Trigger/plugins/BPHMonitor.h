@@ -83,7 +83,7 @@ protected:
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   template <typename T>
-  bool matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent);
+  bool matchToTrigger(const std::string &theTriggerName ,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent);
   //bool matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent);
 
 
@@ -135,18 +135,18 @@ private:
 
 
 ///
-METME  phPhi_   ;
-METME  phEta_   ;
-METME  phPt_   ;
-METME  DiMuPhi_   ;
-METME  DiMuEta_   ;
-METME  DiMuPt_   ;
-METME  DiMuPVcos_   ;
-METME  DiMuProb_   ;
-METME  DiMuDS_   ;
-METME  DiMuDCA_   ;
-METME  DiMuMass_   ;
-METME  DiMudR_   ;
+  METME  phPhi_   ;
+  METME  phEta_   ;
+  METME  phPt_   ;
+  METME  DiMuPhi_   ;
+  METME  DiMuEta_   ;
+  METME  DiMuPt_   ;
+  METME  DiMuPVcos_   ;
+  METME  DiMuProb_   ;
+  METME  DiMuDS_   ;
+  METME  DiMuDCA_   ;
+  METME  DiMuMass_   ;
+  METME  DiMudR_   ;
 
 
 //
@@ -158,12 +158,12 @@ METME  DiMudR_   ;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_tag;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_probe;
   int nmuons_;
-  int tnp_;
+  bool tnp_;
   int L3_;
   int trOrMu_;
   int Jpsi_;
   int Upsilon_;
-  int nofset_;
+  int enum_;
   int seagull_;
   double maxmass_;
   double minmass_;

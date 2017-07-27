@@ -33,12 +33,12 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , muoSelection_tag ( iConfig.getParameter<std::string>("muoSelection_tag") )
   , muoSelection_probe ( iConfig.getParameter<std::string>("muoSelection_probe") )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
-  , tnp_     ( iConfig.getParameter<int>("tnp" )     )
+  , tnp_     ( iConfig.getParameter<bool>("tnp" )     )
   , L3_     ( iConfig.getParameter<int>("L3" )     )
   , trOrMu_     ( iConfig.getParameter<int>("trOrMu" )     )
   , Jpsi_     ( iConfig.getParameter<int>("Jpsi" )     )
   , Upsilon_     ( iConfig.getParameter<int>("Upsilon" )     )//if ==1 path with Upsilon constraint
-  , nofset_     ( iConfig.getParameter<int>("nofset" )     )
+  , enum_     ( iConfig.getParameter<int>("enum" )     )
   , seagull_     ( iConfig.getParameter<int>("seagull" )     )
   , maxmass_     ( iConfig.getParameter<double>("maxmass" )     )
   , minmass_     ( iConfig.getParameter<double>("minmass" )     )
@@ -51,7 +51,6 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , minprob     ( iConfig.getParameter<double>("minprob" )     )
   , mincos     ( iConfig.getParameter<double>("mincos" )     )
   , minDS     ( iConfig.getParameter<double>("minDS" )     )
-  //, hltInputTag_ ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag")) 
   , hltInputTag_ (mayConsume<trigger::TriggerEvent>( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag"))) 
   , hltpaths_num     ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
   , hltpaths_den     ( iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
@@ -198,13 +197,13 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {  
   
   std::string histname, histtitle, istnp, trMuPh;
-  bool Ph_; if (nofset_==7) Ph_ = true;
+  bool Ph_; if (enum_==7) Ph_ = true;
   if (tnp_) istnp = "Tag_and_Probe/"; else istnp = "";
   std::string currentFolder = folderName_ + istnp;
   ibooker.setCurrentFolder(currentFolder.c_str());
   if (trOrMu_) trMuPh = "tr";else if (Ph_) trMuPh = "ph";else trMuPh = "mu";
 
-  if (nofset_==7 || nofset_==1 || nofset_==9 || nofset_==10){  
+  if (enum_==7 || enum_==1 || enum_==9 || enum_==10){  
    histname = trMuPh+"Pt"; histtitle = trMuPh+"_P_{t}";
    bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
    setMETitle(muPt_,trMuPh+"_Pt[GeV]","events/1GeV");
@@ -217,7 +216,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
    bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
    setMETitle(muEta_,trMuPh+"_#eta","events/ ");
   }
-  else if(nofset_==11){
+  else if(enum_==11){
   trMuPh = "tr";
   histname = trMuPh+"1Pt"; histtitle = trMuPh+"1_P_{t}";
   bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
@@ -245,27 +244,6 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
 }
 
-/////
-//  DiMuPhi_.numerator   = nullptr;
-//  DiMuPhi_.denominator = nullptr;
-//  DiMuEta_.numerator   = nullptr;
-//  DiMuEta_.denominator = nullptr;
-//  DiMuPt_.numerator   = nullptr;
-//  DiMuPt_.denominator = nullptr;
-//  DiMuPVcos_.numerator   = nullptr;
-//  DiMuPVcos_.denominator = nullptr;
-//  DiMuProb_.numerator   = nullptr;
-//  DiMuProb_.denominator = nullptr;
-//  DiMuDS_.numerator   = nullptr;
-//  DiMuDS_.denominator = nullptr;
-//  DiMuDCA_.numerator   = nullptr;
-//  DiMuDCA_.denominator = nullptr;
-//  DiMuMass_.numerator   = nullptr;
-//  DiMuMass_.denominator = nullptr;
-//  DiMudR_.numerator   = nullptr;
-//  DiMudR_.denominator = nullptr;
-
-//
 else{
   histname ="mu1Eta"; histtitle = "mu1Eta";
   bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
@@ -378,27 +356,21 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( phToken_, phHandle );
 
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
-//  edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent; 
-//  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
-//  if (handleTriggerEvent->sizeFilters()== 0)return;
-//  if(! handleTriggerEvent->isValid() ) return;
-//  edm::Handle<reco::BeamSpot> const& beamSpot;
+  edm::ESHandle<MagneticField> bFieldHandle;
   // Filter out events if Trigger Filtering is requested
   if (tnp_>0) {//TnP method 
     if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
     iEvent.getByToken( hltInputTag_, handleTriggerEvent);
     if (handleTriggerEvent->sizeFilters()== 0)return;
-    std::string hltpath = hltpaths_num[0]; 
+    const std::string & hltpath = hltpaths_num[0]; 
     std::vector<reco::Muon> tagMuons;
-    std::vector<reco::Muon> probeMuons;
     for ( auto const & m : *muoHandle ) {//applying tag selection 
-      if(!L3_){//matching does not work for L3 tnp monitoring yet 
-      if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;}
+      if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
       if ( muoSelection_ref( m ) ) tagMuons.push_back(m);
     }
     for (int i = 0; i<int(tagMuons.size());i++){
       for ( auto const & m : *muoHandle ) { 
-        if(!L3_){if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;}
+        if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
         if ((tagMuons[i].pt() == m.pt()))continue;//not the same  
         if ((tagMuons[i].p4()+m.p4()).M() >minmass_&& (tagMuons[i].p4()+m.p4()).M() <maxmass_){//near to J/psi mass
           muPhi_.denominator->Fill(m.phi());
@@ -420,7 +392,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
     iEvent.getByToken( hltInputTag_, handleTriggerEvent);
     if (handleTriggerEvent->sizeFilters()== 0)return;
-    std::string hltpath = hltpaths_den[0]; 
+    const std::string & hltpath = hltpaths_den[0]; 
     for (auto const & m : *muoHandle ) {
       if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
       if(!muoSelection_ref(m))continue;   
@@ -428,11 +400,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         if (m1.pt() == m.pt())continue;
         if(!muoSelection_ref(m1))continue;   
         if(!matchToTrigger(hltpath,m1, handleTriggerEvent)) continue;
-        if (nofset_<10){
+        if (enum_<10){
           if (!DMSelection_ref(m1.p4() + m.p4()))continue;
           if (m.charge()*m1.charge()>0 )continue;
         }
-        edm::ESHandle<MagneticField> bFieldHandle;
         iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
         const reco::BeamSpot& vertexBeamSpot = *beamSpot;
         std::vector<reco::TransientTrack> j_tks;
@@ -440,7 +411,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
         j_tks.push_back(mu1TT);
         j_tks.push_back(mu2TT);
-        if (j_tks.size()!=2) continue;
         KalmanVertexFitter jkvf;
         TransientVertex jtv = jkvf.vertex(j_tks);
         if (!jtv.isValid()) continue;
@@ -465,7 +435,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           cApp.calculate(mu1TS.theState(), mu2TS.theState());
         }
         double DiMuMass = (m1.p4()+m.p4()).M();
-        switch(nofset_){//nofset_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
+        switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
         case 1: tnp_=1;//already filled hists for tnp method
         case 2:
           if ((Jpsi_) && (!Upsilon_)){
@@ -516,7 +486,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           DiMuPt_.denominator ->Fill((m1.p4()+m.p4()).Pt() );
           DiMuEta_.denominator ->Fill((m1.p4()+m.p4()).Eta() );
           DiMuPhi_.denominator ->Fill((m1.p4()+m.p4()).Phi());
-          DiMudR_.denominator ->Fill(reco::deltaR(m.eta(),m.phi(),m1.eta(),m1.phi()));
+          DiMudR_.denominator ->Fill(reco::deltaR(m,m1));
           break;
         case 5:
           if (dimuonCL<minprob)continue;
@@ -536,7 +506,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           DiMuPt_.denominator ->Fill((m1.p4()+m.p4()).Pt() );
           DiMuEta_.denominator ->Fill((m1.p4()+m.p4()).Eta() );
           DiMuPhi_.denominator ->Fill((m1.p4()+m.p4()).Phi());
-          DiMudR_.denominator ->Fill(reco::deltaR(m.eta(),m.phi(),m1.eta(),m1.phi()));
+          DiMudR_.denominator ->Fill(reco::deltaR(m,m1));
           break;
         case 6: 
           if (dimuonCL<minprob)continue;
@@ -596,8 +566,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
               reco::Track itrk1       = t ;                                                
               
-              if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-              if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+              if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+              if((reco::deltaR(t,m) <= 0.001)) continue;
    
               if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
   
@@ -612,19 +582,18 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
               p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
               p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
               pB   = p1 + p2 + p3;
+              if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
               reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
   
               std::vector<reco::TransientTrack> t_tks;
               t_tks.push_back(mu1TT);
               t_tks.push_back(mu2TT);
               t_tks.push_back(trTT);
-              if (t_tks.size()!=3) continue;
               
               KalmanVertexFitter kvf;
               TransientVertex tv  = kvf.vertex(t_tks);
               reco::Vertex vertex = tv;
               if (!tv.isValid()) continue;
-              if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
               JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -657,8 +626,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             if(!trSelection_ref(t))continue;
             if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
             reco::Track itrk1       = t ;                                                
-            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+            if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t,m) <= 0.001)) continue;
             if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
             reco::Particle::LorentzVector pB, p2, p3;
             double trackMass2 = 0.493677 *0.493677;
@@ -668,6 +637,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
             p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
             pB   = p2 + p3;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
             reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
             std::vector<reco::TransientTrack> t_tks;
             t_tks.push_back(mu2TT);
@@ -676,7 +646,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             TransientVertex tv  = kvf.vertex(t_tks);
             reco::Vertex vertex = tv;
             if (!tv.isValid()) continue;
-            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
             float JpsiTkCL = 0;
             if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
             JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -712,9 +681,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             if(!matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
             reco::Track itrk1       = t ;                                                
             reco::Track itrk2       = t1 ;                                                
-            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t.eta(), t.phi(),t1.eta(),t1.phi()) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+            if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t,m) <= 0.001)) continue;
             if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
             if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
             reco::Particle::LorentzVector pB, p1, p2, p3, p4;
@@ -729,6 +698,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
             p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
             pB   = p1 + p2 + p3 + p4;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
             reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
             reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
             std::vector<reco::TransientTrack> t_tks;
@@ -740,7 +710,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             TransientVertex tv  = kvf.vertex(t_tks);
             reco::Vertex vertex = tv;
             if (!tv.isValid()) continue;
-            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
             float JpsiTkCL = 0;
             if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
             JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -774,8 +743,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
    }
   }
 
-   if (nofset_ == 7){//photons
-   std::string hltpath = hltpaths_den[0];
+   if (enum_ == 7){//photons
+   const std::string & hltpath = hltpaths_den[0];
    for (auto const & p : *phHandle) {
       if(!matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.denominator->Fill(p.phi());
@@ -790,18 +759,17 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   iEvent.getByToken( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
-  hltpath = hltpaths_num[0]; 
+  const std::string & hltpath1 = hltpaths_num[0]; 
   for (auto const & m : *muoHandle ) {
-    if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+    if(!matchToTrigger(hltpath1,m, handleTriggerEvent)) continue;
     if(!muoSelection_ref(m))continue;   
     for (auto const & m1 : *muoHandle ) {
       if (seagull_ && ((m.charge()* deltaPhi(m.phi(), m1.phi())) > 0.) )continue;
       if (m.charge()*m1.charge()>0 )continue;
       if (m1.pt() == m.pt())continue;
       if(!muoSelection_ref(m1))continue;   
-      if(!matchToTrigger(hltpath,m1, handleTriggerEvent)) continue;
+      if(!matchToTrigger(hltpath1,m1, handleTriggerEvent)) continue;
       if (!DMSelection_ref(m1.p4() + m.p4()))continue;
-      edm::ESHandle<MagneticField> bFieldHandle;
       iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
       const reco::BeamSpot& vertexBeamSpot = *beamSpot;
       std::vector<reco::TransientTrack> j_tks;
@@ -809,7 +777,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
       j_tks.push_back(mu1TT);
       j_tks.push_back(mu2TT);
-      if (j_tks.size()!=2) continue;
       KalmanVertexFitter jkvf;
       TransientVertex jtv = jkvf.vertex(j_tks);
       if (!jtv.isValid()) continue;
@@ -834,7 +801,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         cApp.calculate(mu1TS.theState(), mu2TS.theState());
       }
       double DiMuMass = (m1.p4()+m.p4()).M();
-      switch(nofset_){//nofset_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
+      switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
       case 1: tnp_=1;//already filled hists for tnp method
       case 2:
         if ((Jpsi_) && (!Upsilon_)){
@@ -886,7 +853,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
         DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
         DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-        DiMudR_.numerator ->Fill(reco::deltaR(m.eta(),m.phi(),m1.eta(),m1.phi()));
+        DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
         break;
       case 5:
         if (dimuonCL<minprob)continue;
@@ -905,7 +872,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
         DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
         DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-        DiMudR_.numerator ->Fill(reco::deltaR(m.eta(),m.phi(),m1.eta(),m1.phi()));
+        DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
         break;
       case 6: 
         if (dimuonCL<minprob)continue;
@@ -916,7 +883,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
         }
         for (auto const & m2 : *muoHandle) {//triple muon paths
-          if(!matchToTrigger(hltpath,m2, handleTriggerEvent)) continue;
+          if(!matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
           if (m2.pt() == m.pt())continue;
           mu1Phi_.numerator->Fill(m.phi());
           mu1Eta_.numerator->Fill(m.eta());
@@ -954,10 +921,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
         for (auto const & t : *trHandle) {
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+          if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
-          if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+          if((reco::deltaR(t,m) <= 0.001)) continue;
           if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
           reco::Particle::LorentzVector pB, p1, p2, p3;
           double trackMass2 = 0.493677 *0.493677;
@@ -969,17 +936,16 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
           p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
           pB   = p1 + p2 + p3;
+          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
           std::vector<reco::TransientTrack> t_tks;
           t_tks.push_back(mu1TT);
           t_tks.push_back(mu2TT);
           t_tks.push_back(trTT);
-          if (t_tks.size()!=3) continue;
           KalmanVertexFitter kvf;
           TransientVertex tv  = kvf.vertex(t_tks);
           reco::Vertex vertex = tv;
           if (!tv.isValid()) continue;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           float JpsiTkCL = 0;
           if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
           JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -1009,10 +975,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
         for (auto const & t : *trHandle) {
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+          if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
-          if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+          if((reco::deltaR(t,m) <= 0.001)) continue;
           if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
           reco::Particle::LorentzVector pB, p2, p3;
           double trackMass2 = 0.493677 *0.493677;
@@ -1022,6 +988,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
           p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
           pB   = p2 + p3;
+          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
           std::vector<reco::TransientTrack> t_tks;
           t_tks.push_back(mu2TT);
@@ -1031,7 +998,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           TransientVertex tv  = kvf.vertex(t_tks);
           reco::Vertex vertex = tv;
           if (!tv.isValid()) continue;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           float JpsiTkCL = 0;
           if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
           JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -1060,15 +1026,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
       for (auto const & t : *trHandle) {
         if(!trSelection_ref(t))continue;
-        if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+        if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
         for (auto const & t1 : *trHandle) {
           if(!trSelection_ref(t1))continue;
-          if(!matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
+          if(!matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
           reco::Track itrk2       = t1 ;                                                
-          if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t.eta(), t.phi(),t1.eta(),t1.phi()) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+          if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
+          if((reco::deltaR(t,m) <= 0.001)) continue;
           if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
           if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
 
@@ -1084,6 +1050,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
           p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
           pB   = p1 + p2 + p3 + p4;
+          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
           reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
           std::vector<reco::TransientTrack> t_tks;
@@ -1095,7 +1062,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           TransientVertex tv  = kvf.vertex(t_tks);
           reco::Vertex vertex = tv;
           if (!tv.isValid()) continue;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
           float JpsiTkCL = 0;
           if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
           JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
@@ -1128,8 +1094,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   } 
  }
 }
-    if (nofset_ == 7){//photons
-    std::string hltpath = hltpaths_num[0];
+    if (enum_ == 7){//photons
+    const std::string &hltpath = hltpaths_num[0];
       for (auto const & p : *phHandle) {
         if(!matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.numerator->Fill(p.phi());
@@ -1172,12 +1138,12 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("DMSelection_ref", "Pt>4 & abs(eta)");
 
   desc.add<int>("nmuons",     1);
-  desc.add<int>( "tnp", 0 );
+  desc.add<bool>( "tnp", 0 );
   desc.add<int>( "L3", 0 );
   desc.add<int>( "trOrMu", 0 );//if =0, track param monitoring
   desc.add<int>( "Jpsi", 0 );
   desc.add<int>( "Upsilon", 0 );
-  desc.add<int>( "nofset", 1 );//1...9, 9 sets of variables to be filled, depends on the hlt path
+  desc.add<int>( "enum", 1 );//1...9, 9 sets of variables to be filled, depends on the hlt path
   desc.add<int>( "seagull", 1 );//1...9, 9 sets of variables to be filled, depends on the hlt path
   desc.add<double>( "maxmass", 3.596 );
   desc.add<double>( "minmass", 2.596 );
@@ -1251,7 +1217,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   descriptions.add("bphMonitoring", desc);
 }
   template <typename T>
-  bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
+  bool BPHMonitor::matchToTrigger(const std::string  &theTriggerName , T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
   //bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent){
    
     bool matchedToTrigger = false;
