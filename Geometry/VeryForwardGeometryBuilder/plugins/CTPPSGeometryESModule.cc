@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
  
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -27,8 +25,10 @@
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
@@ -56,12 +56,11 @@ class CTPPSGeometryESModule : public edm::ESProducer
     std::unique_ptr<CTPPSGeometry> produceMisalignedTG( const VeryForwardMisalignedGeometryRecord& );
 
   protected:
-    unsigned int verbosity_;
-
-    static void applyAlignments( const edm::ESHandle<DetGeomDesc>& idealGD,
-      const edm::ESHandle<RPAlignmentCorrectionsData>& alignments, DetGeomDesc*& newGD );
-
+    static void applyAlignments( const edm::ESHandle<DetGeomDesc>&, const edm::ESHandle<RPAlignmentCorrectionsData>&, DetGeomDesc*& );
     static void buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd );
+
+    unsigned int verbosity_;
+    std::string compactViewTag_;
 };
 
 
@@ -69,7 +68,8 @@ class CTPPSGeometryESModule : public edm::ESProducer
 //----------------------------------------------------------------------------------------------------
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig) :
-  verbosity_( iConfig.getUntrackedParameter<unsigned int>( "verbosity", 1 ) )
+  verbosity_( iConfig.getUntrackedParameter<unsigned int>( "verbosity", 1 ) ),
+  compactViewTag_( iConfig.getParameter<std::string>( "compactViewTag" ) )
 {
   setWhatProduced( this, &CTPPSGeometryESModule::produceIdealGD );
 
@@ -102,7 +102,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     // Is it sensor? If yes, apply full sensor alignments
     if ( pD->name().name().compare( DDD_TOTEM_RP_SENSOR_NAME ) == 0
       || pD->name().name().compare( DDD_CTPPS_DIAMONDS_SEGMENT_NAME ) == 0
-	  || pD->name().name().compare( DDD_CTPPS_PIXELS_SENSOR_NAME )==0 ) {
+      || pD->name().name().compare( DDD_CTPPS_PIXELS_SENSOR_NAME )==0 ) {
       unsigned int plId = pD->geographicalID();
 
       if ( alignments.isValid() ) {
@@ -140,7 +140,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 //----------------------------------------------------------------------------------------------------
 
 void
-CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd)
+CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
 {
   // try to dive into next level
   if ( !fv->firstChild() ) return;
@@ -258,7 +258,7 @@ CTPPSGeometryESModule::produceIdealGD( const IdealGeometryRecord& iRecord )
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.get( cpv );
+  iRecord.get( compactViewTag_, cpv );
 
   // create DDFilteredView and apply the filter
   DDPassAllFilter filter;
