@@ -68,7 +68,7 @@ class RealisticCluster
             visible = vis;
         }
 
-        void setCenterOfGravity(unsigned int layerId, const Hit3DPosition position)
+        void setCenterOfGravity(unsigned int layerId, const Hit3DPosition& position)
         {
             layerInfo_[layerId].centerOfGravityAtLayer_ = position;
         }
@@ -105,6 +105,11 @@ class RealisticCluster
             layerInfo_.resize(numberOfLayers);
         }
 
+        unsigned int getLayersNum() const
+        {
+            return layerInfo_.size();
+        }
+
         void addHitAndFraction(unsigned int hit, float fraction)
         {
             hitIdsAndFractions_.emplace_back(hit,fraction);
@@ -116,6 +121,11 @@ class RealisticCluster
                 [&hitId](const std::pair<unsigned int, float>& element){ return element.first == hitId;} );
 
             it->second = fraction;
+        }
+
+        void modifyFractionByIndex(float fraction, unsigned int index)
+        {
+            hitIdsAndFractions_[index].second = fraction;
         }
 
         const std::vector< std::pair<unsigned int, float> > & hitsIdsAndFractions() const { return hitIdsAndFractions_; }
