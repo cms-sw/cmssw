@@ -8,7 +8,6 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
