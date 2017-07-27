@@ -230,7 +230,6 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
         DetId id = detWithState.front().first->geographicalId();
         MeasurementDetWithData const & measDet = measTk->idToDet(id);
         if(measDet.isActive() && !measDet.hasBadComponents(detWithState.front().second)){
-//        if(measDet.isActive()){ 
 	        InvalidTrackingRecHit tmpHit(*detWithState.front().first, outIn ? TrackingRecHit::missing_outer : TrackingRecHit::missing_inner);
 	        track.appendHitPattern(tmpHit, *ttopo);
 	        //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
