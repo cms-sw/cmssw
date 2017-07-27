@@ -24,10 +24,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet(
 # Enabling PFRecHitQTestHGCalThresholdSNR will filter out of the PFRecHits, all the HGCRecHits with energy not exceeding
 # 5 sigma noise                 
-#                 cms.PSet(
-#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-#                     thresholdSNR = cms.double(5.0),
-#                    ),
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+                    thresholdSNR = cms.double(5.0),
+                   ),
                 )              
            ),
            cms.PSet(
@@ -37,10 +37,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet(
 # Enabling PFRecHitQTestHGCalThresholdSNR will filter out of the PFRecHits, all the HGCRecHits with energy not exceeding
 # 5 sigma noise                     
-#                 cms.PSet(
-#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-#                     thresholdSNR = cms.double(5.0),
-#                    ),                 
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+                    thresholdSNR = cms.double(5.0),
+                   ),                 
                 )
            ),
            cms.PSet(
@@ -50,10 +50,10 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet(
 # Enabling PFRecHitQTestHGCalThresholdSNR will filter out of the PFRecHits, all the HGCRecHits with energy not exceeding
 # 5 sigma noise                     
-#                 cms.PSet(
-#                     name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
-#                     thresholdSNR = cms.double(5.0),
-#                    ),                 
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHGCalThresholdSNR"),
+                    thresholdSNR = cms.double(5.0),
+                   ),                 
                 )
            )
     )          
