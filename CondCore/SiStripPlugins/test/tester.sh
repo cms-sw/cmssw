@@ -11,12 +11,22 @@ cd $W_DIR;
 source /afs/cern.ch/cms/cmsset_default.sh;
 eval `scram run -sh`;
 
+# $W_DIR/getPayloadData.py  \
+#     --plugin pluginSiStripApvGain_PayloadInspector \
+#     --plot plot_SiStripApvGainsByPartition \
+#     --tag SiStripApvGain \
+#     --time_type Run \
+#     --iovs '{"start_iov": "299061", "end_iov": "299061"}' \
+#     --db sqlite_file:toCheck.db \
+#     --image_plot True \
+#     --test;
+
 $W_DIR/getPayloadData.py  \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsByPartition \
+    --plot plot_SiStripApvGainsComparatorByPartition \
     --tag SiStripApvGain \
     --time_type Run \
-    --iovs '{"start_iov": "299061", "end_iov": "299061"}' \
+    --iovs '{"start_iov": "286042", "end_iov": "299649"}' \
     --db sqlite_file:toCheck.db \
     --image_plot True \
     --test;

@@ -605,6 +605,161 @@ namespace {
     }// fill
   };
 
+  class SiStripApvGainsComparatorByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsComparatorByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison By Partition" ){
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+       
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::vector<uint32_t> detid;
+      last_payload->getDetIds(detid);
+
+      SiStripDetSummary summaryLastGain;
+
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=last_payload->getRange(d);
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  summaryLastGain.add(d,last_payload->getApvGain(it, range));
+	}
+      } 
+
+      SiStripDetSummary summaryFirstGain;
+
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=first_payload->getRange(d);
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  summaryFirstGain.add(d,first_payload->getApvGain(it, range));
+	}
+      } 
+
+      std::map<unsigned int, SiStripDetSummary::Values> firstmap = summaryFirstGain.getCounts();
+      std::map<unsigned int, SiStripDetSummary::Values> lastmap = summaryLastGain.getCounts();
+      //=========================
+      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+
+      TH1F* hfirst = new TH1F("byPartition1","SiStrip first Gain average by partition;; average SiStrip Gain",firstmap.size(),0.,firstmap.size());
+      TH1F* hlast  = new TH1F("byPartition2","SiStrip last Gain average by partition;; average SiStrip Gain",lastmap.size(),0.,lastmap.size());
+      
+      hfirst->SetStats(false);
+      hlast->SetStats(false);
+
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.12);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : lastmap){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	hlast->SetBinContent(iBin,mean);
+	hlast->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	hlast->GetXaxis()->LabelsOption("v");
+	
+	if(detector!=currentDetector) {
+	  std::cout<<"detector has changed from "<<currentDetector<<" to "<<detector<<std::endl;
+	  boundaries.push_back(iBin);
+	  currentDetector=detector;
+	}
+      }
+
+      // reset the count
+      iBin=0;
+
+      for (const auto &element : firstmap){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	hfirst->SetBinContent(iBin,mean);
+	hfirst->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	hfirst->GetXaxis()->LabelsOption("v");	
+      }
+
+      hlast->SetMarkerStyle(20);
+      hlast->SetMarkerSize(1);
+      hlast->Draw("HIST");
+      hlast->Draw("Psame");
+
+      hfirst->SetMarkerStyle(18);
+      hfirst->SetMarkerSize(1);
+      hfirst->SetLineColor(kBlue);
+      hfirst->SetMarkerColor(kBlue);
+      hfirst->Draw("HISTsame");
+      hfirst->Draw("Psame");
+
+      canvas.Update();
+      canvas.cd();
+
+      for (const auto & line : boundaries){
+	TLine* l = new TLine(hfirst->GetBinLowEdge(line),canvas.cd()->GetUymin(),hfirst->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l->SetLineWidth(1);
+	l->SetLineStyle(9);
+	l->SetLineColor(2);
+	l->Draw("same");
+      }
+      
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
   class SiStripApvGainsByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
     SiStripApvGainsByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains By Partition" ){
@@ -640,7 +795,7 @@ namespace {
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
-      std::vector<TLine*> boundaries;
+      std::vector<int> boundaries;
       unsigned int iBin=0;
 
       std::string detector;
@@ -681,11 +836,7 @@ namespace {
 	
 	if(detector!=currentDetector) {
 	  std::cout<<"detector has changed from "<<currentDetector<<" to "<<detector<<std::endl;
-	  TLine* l = new TLine(h1->GetBinLowEdge(iBin),canvas.cd()->GetUymin(),h1->GetBinLowEdge(iBin),canvas.cd()->GetUymax());
-	  l->SetLineWidth(1);
-	  l->SetLineStyle(9);
-	  l->SetLineColor(2);
-	  boundaries.push_back(l);
+	  boundaries.push_back(iBin);
 	  currentDetector=detector;
 	}
       }
@@ -699,9 +850,13 @@ namespace {
       canvas.cd();
 
       for (const auto & line : boundaries){
-	line->Draw("same");
+	TLine* l = new TLine(h1->GetBinLowEdge(line),canvas.cd()->GetUymin(),h1->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l->SetLineWidth(1);
+	l->SetLineStyle(9);
+	l->SetLineColor(2);
+	l->Draw("same");
       }
-
+      
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
@@ -709,7 +864,6 @@ namespace {
     }
   };
 
-    
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -717,6 +871,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMinimumTrackerMap);
