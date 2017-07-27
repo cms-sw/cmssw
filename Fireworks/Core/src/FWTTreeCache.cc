@@ -19,18 +19,18 @@ FWTTreeCache::~FWTTreeCache()
 
 //==============================================================================
 
-void FWTTreeCache::AddBranch(TBranch *b, Bool_t subbranches)
+Int_t FWTTreeCache::AddBranch(TBranch *b, Bool_t subbranches)
 {
    // printf("FWTTreeCache::AddBranch %s\n", b->GetName());
 
-   TTreeCache::AddBranch(b, subbranches);
+   return TTreeCache::AddBranch(b, subbranches);
 }
 
-void FWTTreeCache::AddBranch(const char *branch, Bool_t subbranches)
+Int_t FWTTreeCache::AddBranch(const char *branch, Bool_t subbranches)
 {
    // printf("FWTTreeCache::AddBranch %s\n", branch);
 
-   TTreeCache::AddBranch(branch, subbranches);
+   return TTreeCache::AddBranch(branch, subbranches);
 }
 
 //==============================================================================
