@@ -39,6 +39,32 @@ namespace l1t {
       return ((id_ & CTP7_mask) << CTP7_shift);
    }
 
+   BxBlocks
+   Block::getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const
+   {
+      BxBlocks bxBlocks;
+
+      // For MP7 format
+      unsigned int wordsPerBx = payloadWordsPerBx;
+      if (bxHeader) {
+         ++wordsPerBx;
+      }
+      // Calculate how many BxBlock objects can be made with the available payload
+      unsigned int nBxBlocks = payload_.size() / wordsPerBx;
+      for (size_t bxCtr = 0; bxCtr < nBxBlocks; ++bxCtr) {
+         size_t startIdx = bxCtr * wordsPerBx;
+         auto startBxBlock = payload_.cbegin()+startIdx;
+         // Pick the words from the block payload that correspond to the BX and add a BxBlock to the BxBlocks
+         if (bxHeader) {
+            bxBlocks.emplace_back(startBxBlock, startBxBlock+wordsPerBx);
+         } else {
+            bxBlocks.emplace_back(bxCtr, nBxBlocks, startBxBlock, startBxBlock+wordsPerBx);
+         }
+      }
+
+      return bxBlocks;
+   }
+
    std::unique_ptr<Block>
    Payload::getBlock()
    {

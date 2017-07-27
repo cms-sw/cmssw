@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/BxBlock.h"
 
 namespace l1t {
    enum block_t { MP7 = 0, CTP7, MTF7 };
@@ -63,6 +64,7 @@ namespace l1t {
          void amc(const amc::Header& h) { amc_ = h; };
          amc::Header amc() const { return amc_; };
 
+         BxBlocks getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const;
       private:
          BlockHeader header_;
          amc::Header amc_;
