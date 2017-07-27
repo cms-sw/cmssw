@@ -111,21 +111,21 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 }
 
 CaloSD::~CaloSD() { 
-  if (slave)           delete slave; 
-  if (theHC)           delete theHC;
-  if (meanResponse)    delete meanResponse;
+  delete slave; 
+  delete theHC;
+  delete meanResponse;
 }
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   
-  NaNTrap( aStep ) ;
-  
-  if (aStep == NULL) {
-    return true;
-  } else {
+  // do not make any computation withou energy deposition
+  if(aStep->GetTotalEnergyDeposit() > 0.) {
+
+    NaNTrap(aStep);
     if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.) 
+      if (hitExists() == false && edepositEM+edepositHAD>0.) {
         currentHit = createNewHit();
+      }
     }
   }
   return true;
