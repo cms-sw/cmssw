@@ -79,48 +79,34 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
 
     if ( aStep == nullptr ) return ;
     
-    G4Track* CurrentTrk = aStep->GetTrack() ;
-    G4ThreeVector CurrentPos = CurrentTrk->GetPosition() ;
-    G4ThreeVector CurrentMom = CurrentTrk->GetMomentum() ;
-    G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
-    G4String NameOfVol ;
-    if ( pCurrentVol != nullptr )
-    {
-       NameOfVol = pCurrentVol->GetName() ;
-    }
-    else
-    {
-       NameOfVol = "CorruptedVolumeInfo" ;
-    }
-    
-    // for simplicity... maybe edm::isNotFinite() will work on the 
-    // 3-vector directly...
+    G4Track* CurrentTrk = aStep->GetTrack();
 
-    double xyz[3] ;
-    xyz[0] = CurrentPos.x() ;
-    xyz[1] = CurrentPos.y() ;
-    xyz[2] = CurrentPos.z() ;
+    double xyz[3];
+    xyz[0] = CurrentTrk->GetPosition().x();
+    xyz[1] = CurrentTrk->GetPosition().y();
+    xyz[2] = CurrentTrk->GetPosition().z();
     
     //
     // this is another trick to check on a NaN, maybe it's even CPU-faster...
     // but ler's stick to system function edm::isNotFinite(...) for now
     //
-    // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
-    if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]) != 0 )
+    if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]))
     {
+      G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
+      G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
+	: "CorruptedVolumeInfo" ;
       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position) in volume " + NameOfVol);
     }
 
-    xyz[0] = CurrentMom.x() ;
-    xyz[1] = CurrentMom.y() ;
-    xyz[2] = CurrentMom.z() ;
-    if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
-         edm::isNotFinite(xyz[0]) != 0 || edm::isNotFinite(xyz[1]) != 0 || 
-	 edm::isNotFinite(xyz[2]) != 0 )
+    xyz[0] = CurrentTrk->GetMomentum().x();
+    xyz[1] = CurrentTrk->GetMomentum().y();
+    xyz[2] = CurrentTrk->GetMomentum().z();
+    if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]))
     {
+      G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
+      G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
+	: "CorruptedVolumeInfo" ;
       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum) in volume " + NameOfVol);
     }
-
    return;
-
 }

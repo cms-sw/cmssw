@@ -53,8 +53,8 @@ private:
     SimActivityRegistry m_registry;
     std::vector<std::shared_ptr<SimWatcher> > m_watchers;
     std::vector<std::shared_ptr<SimProducer> > m_producers;
-    std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
-    std::auto_ptr<SimTrackManager> m_trackManager;
+    std::unique_ptr<sim::FieldBuilder> m_fieldBuilder;
+    std::unique_ptr<SimTrackManager> m_trackManager;
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
