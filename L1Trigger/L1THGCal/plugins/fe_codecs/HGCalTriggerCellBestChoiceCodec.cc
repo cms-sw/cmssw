@@ -18,11 +18,11 @@ void
 HGCalTriggerCellBestChoiceCodec::
 setDataPayloadImpl(const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection& fh,
-        const HGCHEDigiCollection& ) 
+        const HGCBHDigiCollection& ) 
 {
     data_.reset();
-    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+    std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
     // convert ee and fh hit collections into the same object
     if(ee.size()>0)
     {
@@ -79,6 +79,7 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
+    conf.addParameter<std::vector<double>>("ThicknessCorrections", codecImpl_.ThicknessCorrections());
     HGCalTriggerCellBestChoiceCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);

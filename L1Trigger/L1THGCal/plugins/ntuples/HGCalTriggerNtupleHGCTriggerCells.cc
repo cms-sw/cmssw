@@ -1,6 +1,7 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
 
@@ -81,7 +82,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
   // retrieve geometry
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<IdealGeometryRecord>().get(geometry);
+  es.get<CaloGeometryRecord>().get(geometry);
 
   clear();
   for(auto tc_itr=trigger_cells.begin(0); tc_itr!=trigger_cells.end(0); tc_itr++)
