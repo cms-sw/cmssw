@@ -34,11 +34,11 @@ DEFINE_FWK_MODULE(DQMScalInfo);
 DEFINE_FWK_MODULE(DQMDaqInfo);
 
 // module converting between ME and ROOT in Run tree of edm file
-#include "DQMServices/Components/plugins/MEtoEDMConverter.h"
+/*#include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 DEFINE_FWK_MODULE(MEtoEDMConverter);
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 DEFINE_FWK_MODULE(EDMtoMEConverter);
 
 #include "DQMServices/Components/plugins/MEtoMEComparitor.h"
 //define this as a plug-in
-DEFINE_FWK_MODULE(MEtoMEComparitor);
+DEFINE_FWK_MODULE(MEtoMEComparitor);*/
