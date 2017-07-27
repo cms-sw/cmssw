@@ -463,7 +463,7 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
       
   for(int i=1;i<hval->GetNbinsX();++i) {
 	
-    if(averadius->GetBinEntries(i)*avez->GetBinEntries(i)) {
+    if( (averadius->GetBinEntries(i)*avez->GetBinEntries(i)) != 0) {
       
       double dz = -1.;
       double dr = -1.;
