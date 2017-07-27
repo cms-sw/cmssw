@@ -4,7 +4,9 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process('HLT', eras.ctpps_2016)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealisticCrossingAngleCollision2016_cfi')
+process.load('Configuration.StandardSequences.Generator_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000),
@@ -57,12 +59,22 @@ process.out = cms.OutputModule('PoolOutputModule',
 # for detectors resolution smearing
 process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
 
-process.p = cms.Path(
-    process.generator
-    * process.ctppsFastProtonSimulation
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(
+    process.ctppsFastProtonSimulation
     * process.totemRPUVPatternFinder
     * process.totemRPLocalTrackFitter
     * process.ctppsLocalTrackLiteProducer
 )
+process.outpath = cms.EndPath(process.out)
 
-process.e = cms.EndPath(process.out)
+process.schedule = cms.Schedule(
+    process.generation_step,
+    process.simulation_step,
+    process.outpath
+)
+
+# filter all path with the production filter sequence
+for path in process.paths:
+    getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+
