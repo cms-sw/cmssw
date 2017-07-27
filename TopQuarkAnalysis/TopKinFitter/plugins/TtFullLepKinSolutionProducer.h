@@ -218,7 +218,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   // Check if the leptons for the required Channel are available
   bool correctLeptons = ((electronsFound && eeChannel_) || (muonsFound && mumuChannel_) || (electronMuonFound && emuChannel_) );
   // Check for equally charged leptons if for wrong charge combinations is searched
-  if(isWrongCharge) correctLeptons *= searchWrongCharge_;
+  if(isWrongCharge) { correctLeptons = correctLeptons && searchWrongCharge_; }
 
   if(correctLeptons && METFound && jetsFound) {
 

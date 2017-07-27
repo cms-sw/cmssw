@@ -253,8 +253,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 #ifdef DebugLog  
     LogDebug("HFShower") << " zInX0 = " << zInX0 << " spotBeta*zInX0 = " << spotBeta*zInX0;
 #endif
-    if ((!zInX0) || (!spotBeta*zInX0) || (zInX0 < 0.01) || 
-	(spotBeta*zInX0 < 0.00001) || (!zInX0*beta) || (zInX0*beta < 0.00001)) 
+    if ((!zInX0) || (! (spotBeta*zInX0 != 0) ) || (zInX0 < 0.01) || 
+	(spotBeta*zInX0 < 0.00001) || (! (zInX0*beta != 0) ) || (zInX0*beta < 0.00001)) 
       return hit;
 
     G4int nSpotsInStep = 0;
