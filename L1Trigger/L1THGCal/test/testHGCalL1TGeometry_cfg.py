@@ -108,9 +108,6 @@ process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TModulesMapping = cms.F
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellNeighborsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_8inch_aligned_192_432_0.txt")
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_BH_3x3_30deg_0.txt")
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellNeighborsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_BH_3x3_30deg_0.txt")
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.eeSDName = cms.string('HGCalEESensitive')
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.fhSDName = cms.string('HGCalHESiliconSensitive')
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.bhSDName = cms.string('HGCalHEScintillatorSensitive')
 
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTester"
