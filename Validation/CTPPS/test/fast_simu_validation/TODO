@@ -1,0 +1,4 @@
+add a module which would run
+ * particle gun with xi only (zero scattering angles, zero vertex)
+ * fast simulation, scoring plane only
+ * for each RP, plot profile Y vs X
