@@ -25,7 +25,7 @@
 
   <ConstantsSection label="CTPPS_UFSD_Parameters.xml" eval="true">
 
-    <!-- Diamonds -->
+    <!-- Sensor -->
     <Constant name="UFSD_dx" value="6.00*mm"/>
     <Constant name="UFSD_dy" value="6.00*mm"/>
     <Constant name="UFSD_dz" value="0.35*mm"/>
@@ -35,7 +35,7 @@
     <Constant name="Metalized_thick" value="[Aluminium_thic]k"/>
 
     <!-- Detector Shift & Gaps -->    
-    <Constant name="Edge_dx" value="0.5*mm"/>
+    <Constant name="Edge_dx" value="4.5*mm"/>
     <Constant name="Shift_dy" value="1.0*mm"/>
     <Constant name="Strip_gap" value="0.05*mm"/>
 
