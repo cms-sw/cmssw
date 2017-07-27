@@ -18,6 +18,8 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
     InitialClusteringStepBase(conf,sumes),
     invisibleFraction_(conf.getParameter<double>("invisibleFraction")),
     exclusiveFraction_(conf.getParameter<double>("exclusiveFraction")),
+    maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
+    maxDistance_(conf.getParameter<double>("maxDistance")),
     useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy"))
     {
       simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
@@ -40,6 +42,8 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
   hgcal::RecHitTools rhtools_;
   const float invisibleFraction_ = 0.3f;
   const float exclusiveFraction_ = 0.7f;
+  const bool maxDistanceFilter_ = false;
+  const float maxDistance_ = 10.f;
   const bool useMCFractionsForExclEnergy_ = false;
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
   edm::Handle<SimClusterCollection> simClusterH_;

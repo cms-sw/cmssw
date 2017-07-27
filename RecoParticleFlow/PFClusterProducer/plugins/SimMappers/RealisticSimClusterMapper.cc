@@ -84,6 +84,10 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     realisticAssociator.computeAssociation(exclusiveFraction_, useMCFractionsForExclEnergy_,
             rhtools_.lastLayerEE(), rhtools_.lastLayerFH());
     realisticAssociator.findAndMergeInvisibleClusters(invisibleFraction_, exclusiveFraction_);
+    realisticAssociator.findCentersOfGravity();
+    if(maxDistanceFilter_)
+        realisticAssociator.filterHitsByDistance(maxDistance_);
+
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
     for (unsigned ic = 0; ic < nClusters; ++ic)
@@ -98,13 +102,17 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
-                auto ref = makeRefhit(input, idAndF.first);
-                back.addRecHitFraction(reco::PFRecHitFraction(ref, idAndF.second));
-                const float hit_energy = idAndF.second * ref->energy();
-                if (hit_energy > highest_energy || highest_energy == 0.0)
+                auto fraction = idAndF.second;
+                if (fraction > 0.f)
                 {
-                    highest_energy = hit_energy;
-                    seed = ref;
+                    auto ref = makeRefhit(input, idAndF.first);
+                    back.addRecHitFraction(reco::PFRecHitFraction(ref, fraction));
+                    const float hit_energy = fraction * ref->energy();
+                    if (hit_energy > highest_energy || highest_energy == 0.0)
+                    {
+                        highest_energy = hit_energy;
+                        seed = ref;
+                    }
                 }
             }
         }
