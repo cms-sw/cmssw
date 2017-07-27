@@ -230,6 +230,9 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad1m \t" << cpuInfo.fLoad1m << std::endl;
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad5m \t" << cpuInfo.fLoad5m << std::endl;
    }
+
+   printf("Before going to event %d:\n", event);
+   (*m_currentFile)->tree()->PrintCacheStats(); // ("cachedbranches");
    
    (*m_currentFile)->event()->to(event);
    (*m_currentFile)->tree()->LoadTree(event);

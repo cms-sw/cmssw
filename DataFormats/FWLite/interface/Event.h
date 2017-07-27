@@ -48,6 +48,7 @@
 #include <memory>
 #include <cstring>
 #include <string>
+#include <functional>
 
 #include "Rtypes.h"
 
@@ -87,7 +88,8 @@ namespace fwlite {
       public:
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as Event
-         Event(TFile* iFile);
+         Event(TFile* iFile, bool useCache=true,
+               std::function<void (TBranch*)> baFoo=[](TBranch*){});
          virtual ~Event();
 
          ///Advance to next event in the TFile
@@ -158,6 +160,8 @@ namespace fwlite {
 
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;
+
+         TBranch* getAuxBranch() const { return auxBranch_; }
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);

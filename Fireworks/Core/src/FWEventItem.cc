@@ -121,6 +121,7 @@ FWEventItem::~FWEventItem()
 void
 FWEventItem::setEvent(const edm::EventBase* iEvent)
 {
+   printf("FWEventItem::setEvent %s\n", m_name.c_str());
    m_printedErrorThisEvent = false;
    m_event = iEvent;
    m_accessor->reset();

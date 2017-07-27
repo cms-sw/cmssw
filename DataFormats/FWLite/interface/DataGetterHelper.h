@@ -34,6 +34,7 @@
 #include <memory>
 #include <typeinfo>
 #include <vector>
+#include <functional>
 
 // forward declarations
 class TTreeCache;
@@ -57,7 +58,7 @@ namespace fwlite {
                              std::shared_ptr<HistoryGetterBase> historyGetter,
                              std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
                              std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                             bool useCache = false);
+                             bool useCache = false, std::function<void (TBranch*)> baFoo = [](TBranch*){});
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
@@ -114,6 +115,8 @@ namespace fwlite {
             edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
             std::shared_ptr<edm::EDProductGetter const> getter_;
             mutable bool tcTrained_;
+            const   bool tcUse_;
+            std::function<void (TBranch*)> branchAccFoo_;
     };
 
 }

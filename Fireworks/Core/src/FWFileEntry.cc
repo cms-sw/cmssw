@@ -1,10 +1,15 @@
 #include <boost/regex.hpp>
 
 #include "TFile.h"
+#define protected public
 #include "TTreeCache.h"
+#undef  protected
 #include "TEveTreeTools.h"
 #include "TError.h"
 #include "TMath.h"
+#include "TEnv.h"
+
+#include "FWTTreeCache.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -20,6 +25,10 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
+
+#include "Fireworks/Core/interface/FWGUIManager.h"
+
+#include <boost/bind.hpp>
 
 FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
@@ -39,14 +48,21 @@ FWFileEntry::~FWFileEntry()
 void FWFileEntry::openFile(bool checkVersion)
 {
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
+
    TFile *newFile = TFile::Open(m_name.c_str());
+
    if (newFile == 0 || newFile->IsZombie() || !newFile->Get("Events")) {
       //  std::cout << "Invalid file. Ignored." << std::endl;
       // return false;
       throw std::runtime_error("Invalid file. Ignored.");
    }
-   gErrorIgnoreLevel = -1;
+
    m_file = newFile;
+
+   gErrorIgnoreLevel = -1;
+
+
+   TTreeCache::SetLearnEntries(10);
 
 
    // check CMSSW relese version for compatibility
@@ -98,13 +114,6 @@ void FWFileEntry::openFile(bool checkVersion)
       }
    }
 
-   // load event
-   m_event = new fwlite::Event(m_file);
-
-   if (m_event->size() == 0)
-         throw std::runtime_error("fwlite::Event size == 0");
-
-
    m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
    if (m_eventTree == 0)
@@ -112,12 +121,42 @@ void FWFileEntry::openFile(bool checkVersion)
       throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
 
-   // This now set in DataHelper
-   //TTreeCache::SetLearnEntries(2);
-   //m_eventTree->SetCacheSize(10*1024*1024);
-   //TTreeCache *tc = (TTreeCache*) m_file->GetCacheRead();
-   //tc->AddBranch(m_event->auxBranch_,kTRUE);
-   //tc->StartLearningPhase();
+   // Initialize caching ... determine if needed for this file! XXXX
+   // Have a parameter for cache size (chains and file queues!)
+   // m_eventTree->SetCacheSize(20 * 1024 * 1024);
+   m_file->SetCacheRead( new FWTTreeCache(m_eventTree, 50*1024*1024) );
+   gEnv->SetValue("TFile.AsyncReading", 1);
+   ((TTreeCache*) m_file->GetCacheRead())->SetEnablePrefetching(true);
+   ((TTreeCache*) m_file->GetCacheRead())->SetLearnPrefill(TTreeCache::kAllBranches);
+   ((TTreeCache*) m_file->GetCacheRead())->StartLearningPhase();
+   //m_eventTree->AddBranchToCache("*", true);
+
+   m_eventTree->LoadTree(0);
+
+   // load event
+   m_event = new fwlite::Event(m_file, false, [&](TBranch* b){this->AddBranchToCacheX(b);});
+
+   if (m_event->size() == 0)
+         throw std::runtime_error("fwlite::Event size == 0");
+
+
+   // Other cache related chores
+   FWEventItemsManager* eiMng = (FWEventItemsManager*) FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
+   eiMng->newItem_.connect(boost::bind(&FWFileEntry::AddBranchToCache, this, _1));
+   // XXX Connect to goingToClearItems_.
+   // XXX Some other branches to always add?? Add printouts in getBranch-something
+
+   for (FWEventItemsManager::const_iterator i = eiMng->begin(),
+           end = eiMng->end(); i != end; ++i)
+   {
+     printf("FWFileEntry::openFile add branch to cache %s\n", getBranchName(*i).c_str());
+
+     //m_eventTree->AddBranchToCache(getBranchName(*i).c_str(), true);
+
+     // XXX connect to remove signals
+   }
+
+   // ((TTreeCache*) m_file->GetCacheRead())->StopLearningPhase();
 }
 
 void FWFileEntry::closeFile()
@@ -313,7 +352,12 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
 
    m_file->cd();
    m_eventTree->SetEventList(0);
-   
+
+   TFileCacheRead *prevCache = m_file->GetCacheRead();
+   m_file->SetCacheRead(0);
+   TTreeCache::SetLearnEntries(1);
+   m_eventTree->SetCacheSize();
+
    // Since ROOT will leave any TBranches used in the filtering at the last event,
    // we need to be able to reset them to what fwlite::Event expects them to be
    // we do this by holding onto the old buffers and create temporary new ones.
@@ -371,6 +415,9 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
          i.first->SetAddress(i.second);
       }
    }
+
+   delete m_file->GetCacheRead();
+   m_file->SetCacheRead(prevCache);
 
    filter->m_needsUpdate = false;
 }
@@ -474,4 +521,40 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    fwLog(fwlog::kDebug) << "FWFile::filterEventsWithCustomParser file [" << m_file->GetName() << "], filter [" << filterEntry->m_selector->m_expression << "], selected [" << list->GetN() << "]"  << std::endl;
    
    return true;
+}
+
+//------------------------------------------------------------------------------
+
+std::string
+FWFileEntry::getBranchName(const FWEventItem *it) const
+{   
+   const edm::TypeWithDict elementType(const_cast<TClass*>(it->type()));
+   const edm::TypeWithDict wrapperType = edm::TypeWithDict::byName(edm::wrappedClassName(elementType.name()));
+   return m_event->getBranchNameFor(wrapperType.typeInfo(),
+                                    it->moduleLabel().c_str(), 
+                                    it->productInstanceLabel().c_str(),
+                                    it->processName().c_str());
+}
+
+void FWFileEntry::AddBranchToCache(const FWEventItem* it)
+{
+   printf("FWFileEntry:AddBranchToCache FWEventItem %s, learning=%d\n", getBranchName(it).c_str(),
+          ((TTreeCache*) m_file->GetCacheRead())->fIsLearning);
+
+   //((TTreeCache*) m_file->GetCacheRead())->fIsLearning = true;
+
+   m_eventTree->AddBranchToCache(getBranchName(it).c_str(), true);
+
+   //((TTreeCache*) m_file->GetCacheRead())->fIsLearning = false;
+}
+
+void FWFileEntry::AddBranchToCacheX(TBranch* branch)
+{
+   printf("FWFileEntry:AddBranchToCache TBranch cache %s\n", branch->GetName());
+
+   //((TTreeCache*) m_file->GetCacheRead())->fIsLearning = true;
+
+   m_eventTree->AddBranchToCache(branch, true);
+
+   //((TTreeCache*) m_file->GetCacheRead())->fIsLearning = false;
 }
