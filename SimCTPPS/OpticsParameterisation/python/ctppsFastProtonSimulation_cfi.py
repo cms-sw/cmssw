@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPackages_2016PreTS2
 
 ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
-    beamParticlesTag = cms.InputTag('generator', 'unsmeared'),
-    beamConditions = lhcBeamConditions_2016PreTS2,
+    beamParticlesTag = cms.InputTag('generatorSmeared'),
 
     sqrtS = cms.double(13.0e3),
 
@@ -13,7 +12,6 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
     halfCrossingAngleSector56 = cms.double(191.541e-6), # in rad
 
     detectorPackages = detectorPackages_2016PreTS2,
-    simulateDetectorsResolution = cms.bool(True),
     produceHitsRelativeToBeam = cms.bool(False),
 
     roundToPitch = cms.bool(False),

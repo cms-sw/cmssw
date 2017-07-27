@@ -1,49 +1,50 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('HLT')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('HLT', eras.ctpps_2016)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealisticCrossingAngleCollision2016_cfi')
+process.load('Configuration.StandardSequences.Generator_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000),
 )
-#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
+
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
 
 process.source = cms.Source('EmptySource')
-
-process.load('SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi')
-process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
-
-process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('lhcBeamProducer', 'unsmeared')
 
 # load the geometry
 process.load('SimCTPPS.OpticsParameterisation.simGeometryRP_cfi')
 
-# load the reconstruction
+# load the simulation part
+from SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi import lhcBeamProducer
+process.generator = lhcBeamProducer.clone(
+    MinXi = cms.double(0.03),
+    MaxXi = cms.double(0.15),
+)
+
+process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
+
+# load the reconstruction part
 process.load('RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi')
 process.load('RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 
-process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
+process.totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsFastProtonSimulation')
+
 
 process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
-process.ctppsOpticsReconstruction.genProtonsTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
 
-process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsFastProtonSimulation")
-#process.totemRPUVPatternFinder.verbosity = cms.untracked.uint32(10)
-process.ctppsLocalTrackLiteProducer.doNothing = cms.bool(False)
-
+process.load('RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi')
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root')
 )
 
-process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet(
-    initialSeed = cms.untracked.uint32(1),
-    #engineName = cms.untracked.string('TRandom3'),
-)
 # for detectors resolution smearing
-process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
+process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1) )
 
 # prepare the output file
 process.TFileService = cms.Service('TFileService',
@@ -59,15 +60,28 @@ process.Timing = cms.Service('Timing',
 #process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
 #    ignoreTotal = cms.untracked.int32(1),
 #)
- 
-process.p = cms.Path(
-    process.lhcBeamProducer
-    * process.ctppsFastProtonSimulation
+
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(
+    process.ctppsFastProtonSimulation
     * process.totemRPUVPatternFinder
     * process.totemRPLocalTrackFitter
     * process.ctppsLocalTrackLiteProducer
-    * process.ctppsOpticsReconstruction
+)
+process.validation_step = cms.Path(
+    process.ctppsProtonReconstruction
     * process.ctppsParameterisationValidation
 )
+process.outpath = cms.EndPath(process.out)
 
-process.e = cms.EndPath(process.out)
+process.schedule = cms.Schedule(
+    process.generation_step,
+    process.simulation_step,
+    process.validation_step,
+    process.outpath
+)
+
+# filter all path with the production filter sequence
+for path in process.paths:
+    getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+

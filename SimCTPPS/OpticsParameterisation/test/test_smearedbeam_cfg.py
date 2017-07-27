@@ -33,9 +33,6 @@ process.out = cms.OutputModule('PoolOutputModule',
     ),
 )
 
-# for initial particles' position/angular smearing
-process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet( initialSeed = cms.untracked.uint32(1) )
-
 process.Timing = cms.Service('Timing',
     summaryOnly = cms.untracked.bool(True),
     useJobReport = cms.untracked.bool(True),

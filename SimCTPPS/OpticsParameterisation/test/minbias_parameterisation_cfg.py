@@ -38,8 +38,8 @@ process.generator = cms.EDFilter('Pythia8GeneratorFilter',
 )
 
 process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
-#process.ctppsFastProtonSimulation.beamConditions.yOffsetSector45 = cms.double(0.0)
-#process.ctppsFastProtonSimulation.beamConditions.yOffsetSector56 = cms.double(0.0)
+#process.ctppsFastProtonSimulation.yOffsetSector45 = cms.double(0.0)
+#process.ctppsFastProtonSimulation.yOffsetSector56 = cms.double(0.0)
 #process.ctppsFastProtonSimulation.beamConditions.halfCrossingAngleSector45 = cms.double(0.0)
 #process.ctppsFastProtonSimulation.beamConditions.halfCrossingAngleSector56 = cms.double(0.0)
 

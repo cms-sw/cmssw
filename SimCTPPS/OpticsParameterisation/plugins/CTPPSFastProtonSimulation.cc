@@ -72,12 +72,10 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
-    bool simulateDetectorsResolution_;
-    bool roundToPitch_;
-
     bool checkApertures_;
     bool produceHitsRelativeToBeam_;
 
+    bool roundToPitch_;
     /// strip pitch in mm
     double pitch_;
     /// size of insensitive margin at sensor's edge facing the beam, in mm
@@ -108,10 +106,9 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   halfCrossingAngleSector56_  ( iConfig.getParameter<double>( "halfCrossingAngleSector56" ) ),
   yOffsetSector45_            ( iConfig.getParameter<double>( "yOffsetSector45" ) ),
   yOffsetSector56_            ( iConfig.getParameter<double>( "yOffsetSector56" ) ),
-  simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
-  roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
   produceHitsRelativeToBeam_  ( iConfig.getParameter<bool>( "produceHitsRelativeToBeam" ) ),
+  roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
   pitch_                      ( iConfig.getParameter<double>( "pitch" ) ),
   insensitiveMargin_          ( iConfig.getParameter<double>( "insensitiveMargin" ) ),
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
@@ -177,11 +174,6 @@ CTPPSFastProtonSimulation::produce( edm::Event& iEvent, const edm::EventSetup& i
   auto evt = new HepMC::GenEvent( *hepmc_prod->GetEvent() );
   std::unique_ptr<edm::HepMCProduct> pOutProd( new edm::HepMCProduct( evt ) );
 
-  if ( simulateDetectorsResolution_ ) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    rnd_ = &( rng->getEngine( iEvent.streamID() ) );
-  }
-
   // loop over event vertices
   for ( auto it_vtx=evt->vertices_begin(); it_vtx!=evt->vertices_end(); ++it_vtx ) {
     auto vtx = *( it_vtx );
@@ -215,13 +207,17 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   const HepMC::GenVertex* vtx = in_trk->production_vertex();
   const HepMC::FourVector mom = in_trk->momentum();
   const double xi = 1.-mom.e()/sqrtS_*2.0;
-  const double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
+  double th_x = atan2( mom.px(), fabs( mom.pz() ) );
+  double th_y = atan2( mom.py(), fabs( mom.pz() ) );
+  while ( th_x<-M_PI ) th_x += 2*M_PI; while ( th_x>+M_PI ) th_x -= 2*M_PI;
+  while ( th_y<-M_PI ) th_y += 2*M_PI; while ( th_y>+M_PI ) th_y -= 2*M_PI;
+  if ( mom.pz()>0.0 ) { th_x = -th_x; }
 
-  double vtx_x = vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
+  double vtx_x = -vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
 
   double half_cr_angle = 0.0, vtx_y_offset = 0.0;
   int z_sign = 0;
-  //FIXME LHC or CMS convention?
+  // CMS convention
   if ( mom.z()>0.0 ) { // sector 45
     z_sign = -1;
     half_cr_angle = halfCrossingAngleSector45_;
@@ -233,7 +229,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     vtx_y_offset = yOffsetSector56_;
   }
   smeared_vtx = vtx->position();
-  smeared_vtx.setX( vtx_x );
+  smeared_vtx.setX( -vtx_x );
   smeared_vtx.setY( vtx_y+vtx_y_offset );
 
   // transport the proton into each pot
@@ -263,12 +259,6 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
 
       // stop if proton not transportable
       if ( !tr_proton_transported ) return;
-
-      // simulate detector resolution
-      if ( simulateDetectorsResolution_ ) {
-        kin_out_tr[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution; // vtx_x
-        kin_out_tr[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution; // vtx_y
-      }
 
       const double a_x_tr = kin_out_tr[1]/( 1.-xi );
       const double a_y_tr = kin_out_tr[3]/( 1.-xi );
@@ -334,7 +324,7 @@ CTPPSFastProtonSimulation::produceHit( const CLHEP::Hep3Vector& coord_global, co
   // round the measurement
   if ( roundToPitch_ ) {
     double m = stripZeroPosition_ - v;
-    int strip = static_cast<int>( floor( m/pitch_ + 0.5 ) );
+    int strip = floor( m/pitch_ + 0.5 );
     v = stripZeroPosition_ - pitch_ * strip;
   }
 
