@@ -678,7 +678,7 @@ Dimuon0_addTrackMu_Onia1.DMSelection_ref = cms.string("abs(Eta)<2.4")
 
 DimuonX_HLT_OS_Vtx = hltBPHmonitoring.clone()
 DimuonX_HLT_OS_Vtx.FolderName = cms.string('HLT/BPH/DimuX_HLT_OS_Vtx/')
-DimuonX_HLT_OS_Vtx.tnp = cms.bool(True)
+DimuonX_HLT_OS_Vtx.tnp = cms.bool(False)
 DimuonX_HLT_OS_Vtx.enum = cms.int32(1)
 DimuonX_HLT_OS_Vtx.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Dimuon0_Jpsi_L1_NoOS_v*')
 DimuonX_HLT_OS_Vtx.numGenericTriggerEventPSet.l1Algorithms = cms.vstring('L1_DoubleMu0_SQ')
