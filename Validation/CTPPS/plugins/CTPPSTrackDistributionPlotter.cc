@@ -16,6 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "TFile.h"
@@ -93,7 +94,9 @@ void CTPPSTrackDistributionPlotter::analyze( const edm::Event& iEvent, const edm
   // process tracks
   for (const auto& trk : *tracks)
   {
-    rpPlots[trk.getRPId()].fill(trk.getX(), trk.getY());
+    CTPPSDetId rpId(trk.getRPId());
+    unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+    rpPlots[rpDecId].fill(trk.getX(), trk.getY());
   }
 }
 
