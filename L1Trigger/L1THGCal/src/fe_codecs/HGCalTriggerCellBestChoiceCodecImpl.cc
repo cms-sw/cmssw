@@ -13,7 +13,8 @@ HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
-    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
+    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
+    thickness_corrections_(conf.getParameter<std::vector<double>>("ThicknessCorrections"))
 {
   // Cannot have more selected cells than the max number of cells
   if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
@@ -144,21 +145,27 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
 
 void
 HGCalTriggerCellBestChoiceCodecImpl::
-linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
-        std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
+linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
+        std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes)
 {
-    double amplitude; uint32_t amplitude_int;
-   
+    double amplitude = 0.; 
+    uint32_t amplitude_int = 0;
 
     for(const auto& frame : dataframes) {//loop on DIGI
-        if (frame[2].mode()) {//TOT mode
-            amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
-        }
-        else {//ADC mode
-            amplitude = double(frame[2].data()) * adcLSB_;
-        }
+        if(frame.id().det()==DetId::Forward) {
+            if (frame[2].mode()) {//TOT mode
+                amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
+            }
+            else {//ADC mode
+                amplitude = double(frame[2].data()) * adcLSB_;
+            }
 
-        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+            amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+        }
+        else if(frame.id().det()==DetId::Hcal) {
+            // no linearization here. Take the raw ADC data
+            amplitude_int = frame[2].data();
+        }
         if (amplitude_int>65535) amplitude_int = 65535;
 
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
@@ -168,19 +175,37 @@ linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
 
 void 
 HGCalTriggerCellBestChoiceCodecImpl::
-triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
+triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, data_type& data)
 {
     if(linearized_dataframes.size()==0) return;
     std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
-        HGCalDetId cellid(frame.first);
+        DetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
         HGCalDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         uint32_t value = frame.second; 
+        // equalize value among cell thicknesses
+        if(cellid.det()==DetId::Forward)
+        {
+            int thickness = 0;
+            switch(cellid.subdetId())
+            {
+                case ForwardSubdetector::HGCEE:
+                    thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+                    break;
+                case ForwardSubdetector::HGCHEF:
+                    thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+                    break;
+                default:
+                    break;
+            };
+            double thickness_correction = thickness_corrections_.at(thickness);
+            value = (double)value*thickness_correction;
+        }
         payload[triggercellid] += value; // 32 bits integer should be largely enough 
 
     }

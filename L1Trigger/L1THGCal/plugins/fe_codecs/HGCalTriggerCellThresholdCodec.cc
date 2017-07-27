@@ -18,12 +18,12 @@ void
 HGCalTriggerCellThresholdCodec::
 setDataPayloadImpl(const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection& fh,
-        const HGCHEDigiCollection& ) 
+        const HGCBHDigiCollection& bh) 
 {
     data_.reset();
-    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
-    // convert ee and fh hit collections into the same object
+    std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+    std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
+    // convert ee, fh and bh hit collections into the same object
     if(ee.size()>0)
     {
         for(const auto& eedata : ee)
@@ -43,6 +43,17 @@ setDataPayloadImpl(const HGCEEDigiCollection& ee,
             for(int i=0; i<fhdata.size(); i++)
             {
                 dataframes.back().setSample(i, fhdata.sample(i));
+            }
+        }
+    }
+    else if(bh.size()>0)
+    {
+        for(const auto& bhdata : bh)
+        {
+            dataframes.emplace_back(bhdata.id());
+            for(int i=0; i<bhdata.size(); i++)
+            {
+                dataframes.back().setSample(i, bhdata.sample(i));
             }
         }
     }
@@ -78,8 +89,12 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
+    conf.addParameter<double>     ("adcsaturationBH", codecImpl_.adcsaturationBH());
+    conf.addParameter<uint32_t>   ("adcnBitsBH",      codecImpl_.adcnBitsBH());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
     conf.addParameter<double>        ("TCThreshold_fC", codecImpl_.TCThreshold_fC());
+    conf.addParameter<double>        ("TCThresholdBH_MIP", codecImpl_.TCThresholdBH_MIP());
+    conf.addParameter<std::vector<double>>("ThicknessCorrections", codecImpl_.ThicknessCorrections());
     HGCalTriggerCellThresholdCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
