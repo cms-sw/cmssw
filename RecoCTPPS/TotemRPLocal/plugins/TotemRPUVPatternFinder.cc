@@ -302,32 +302,37 @@ TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr 
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "tagRecHit", edm::InputTag( "totemRPRecHitProducer" ) ); // input selection
+  desc.add<edm::InputTag>( "tagRecHit", edm::InputTag( "totemRPRecHitProducer" ) )
+    ->setComment( "input rechits collection to retrieve" );
   desc.addUntracked<unsigned int>( "verbosity", 0 );
-  desc.add<unsigned int>( "maxHitsPerPlaneToSearch", 5 ); // if a plane has more hits than this parameter, it is considered as dirty
-  desc.add<unsigned int>( "minPlanesPerProjectionToSearch", 3 ); // minimal number of reasonable (= not empty and not dirty) planes per projeciton and per RP, to start the pattern search
-  desc.add<double>( "clusterSize_a", 0.02 /* rad */ ); // (full) cluster size in slope-intercept space
+  desc.add<unsigned int>( "maxHitsPerPlaneToSearch", 5 )
+    ->setComment( "minimum threshold of hits multiplicity to flag the pattern as dirty" );
+  desc.add<unsigned int>( "minPlanesPerProjectionToSearch", 3 )
+    ->setComment( "minimal number of reasonable (= not empty and not dirty) planes per projection and per RP, to start the pattern search" );
+  desc.add<double>( "clusterSize_a", 0.02 /* rad */ )
+    ->setComment( "(full) cluster size (in rad) in slope-intercept space" );
   desc.add<double>( "clusterSize_b", 0.3 /* mm */ );
 
-  // minimal weight of (Hough) cluster to accept it as candidate
-  //   weight of cluster = sum of weights of contributing points
-  //   weight of point = sigma0 / sigma_of_point
-  //   most often: weight of point ~ 1, thus cluster weight is roughly number of contributing points
-  desc.add<double>( "threshold", 2.99 );
+  desc.add<double>( "threshold", 2.99 )
+    ->setComment( "minimal weight of (Hough) cluster to accept it as candidate\n"
+                  "  weight of cluster = sum of weights of contributing points\n"
+                  "  weight of point = sigma0 / sigma_of_point\n"
+                  "most often: weight of point ~ 1, thus cluster weight is roughly number of contributing points" );
 
-  // minimal number of planes (in the recognised patterns) per projeciton and per RP, to tag the candidate as fittable
-  desc.add<unsigned int>( "minPlanesPerProjectionToFit", 3 );
+  desc.add<unsigned int>( "minPlanesPerProjectionToFit", 3 )
+    ->setComment( "minimal number of planes (in the recognised patterns) per projection and per RP, to tag the candidate as fittable" );
 
-  // whether to allow combination of most significant U and V pattern, in case there several of them
-  // don't set it to True, unless you have reason
-  desc.add<bool>( "allowAmbiguousCombination", false );
+  desc.add<bool>( "allowAmbiguousCombination", false )
+    ->setComment( "whether to allow combination of most significant U and V pattern, in case there several of them.\n"
+                  "don't set it to True, unless you have reason" );
 
-  // maximal angle (in any projection) to mark the candidate as fittable -> controls track parallelity with beam
-  // huge value -> no constraint
-  desc.add<double>( "max_a_toFit", 10.0 );
+  desc.add<double>( "max_a_toFit", 10.0 )
+    ->setComment( "maximal angle (in any projection) to mark the candidate as fittable -> controls track parallelity with beam\n"
+                  "huge value -> no constraint" );
 
   edm::ParameterSetDescription exceptions_validator;
-  exceptions_validator.add<unsigned int>( "rpId" ); // RP id according to CTPPSDetId
+  exceptions_validator.add<unsigned int>( "rpId" )
+    ->setComment( "RP id according to CTPPSDetId" );
   exceptions_validator.add<unsigned int>( "minPlanesPerProjectionToFit_U" );
   exceptions_validator.add<unsigned int>( "minPlanesPerProjectionToFit_V" );
   exceptions_validator.add<double>( "threshold_U" );
