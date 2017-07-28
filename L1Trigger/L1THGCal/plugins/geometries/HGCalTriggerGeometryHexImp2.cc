@@ -500,7 +500,11 @@ fillMaps()
     //
     // read module mapping file
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
-    if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
+    if(!l1tModulesMappingStream.is_open())
+    {
+        throw cms::Exception("MissingDataFile")
+            << "Cannot open HGCalTriggerGeometry L1TModulesMapping file\n";
+    }
     short subdet  = 0;
     short wafer   = 0;
     short module  = 0;
@@ -536,7 +540,11 @@ fillMaps()
     l1tModulesMappingStream.close();
     // read trigger cell mapping file
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
-    if(!l1tCellsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellsMapping file\n";
+    if(!l1tCellsMappingStream.is_open())
+    {
+        throw cms::Exception("MissingDataFile")
+            << "Cannot open HGCalTriggerGeometry L1TCellsMapping file\n";
+    }
     short waferType   = 0;
     short cell        = 0;
     short triggerCell = 0;
@@ -559,7 +567,11 @@ fillNeighborMaps()
 {
     // Fill trigger neighbor map
     std::ifstream l1tCellNeighborsMappingStream(l1tCellNeighborsMapping_.fullPath());
-    if(!l1tCellNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborsMapping file\n";
+    if(!l1tCellNeighborsMappingStream.is_open())
+    {
+        throw cms::Exception("MissingDataFile")
+            << "Cannot open HGCalTriggerGeometry L1TCellNeighborsMapping file\n";
+    }
     for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
     {
         std::string line(&buffer[0]);
@@ -621,7 +633,11 @@ fillNeighborMaps()
 
     // Fill wafer neighbor map
     std::ifstream l1tWaferNeighborsMappingStream(l1tWaferNeighborsMapping_.fullPath());
-    if(!l1tWaferNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TWaferNeighborsMapping file\n";
+    if(!l1tWaferNeighborsMappingStream.is_open())
+    {
+        throw cms::Exception("MissingDataFile")
+            << "Cannot open HGCalTriggerGeometry L1TWaferNeighborsMapping file\n";
+    }
     for(std::array<char,512> buffer; l1tWaferNeighborsMappingStream.getline(&buffer[0], 512); )
     {
         std::string line(&buffer[0]);
