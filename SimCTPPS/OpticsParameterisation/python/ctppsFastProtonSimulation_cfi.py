@@ -14,6 +14,8 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
     detectorPackages = detectorPackages_2016PreTS2,
     produceHitsRelativeToBeam = cms.bool(False),
 
+    simulateDetectorsResolution = cms.bool(False),
+
     roundToPitch = cms.bool(False),
     pitch = cms.double(66.e-3), # mm
     insensitiveMargin = cms.double(34.e-3), # mm
