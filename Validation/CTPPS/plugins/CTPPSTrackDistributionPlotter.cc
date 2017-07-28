@@ -21,6 +21,7 @@
 
 #include "TFile.h"
 #include "TH2D.h"
+#include "TProfile.h"
 
 #include <map>
 
@@ -46,10 +47,12 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
     struct RPPlots
     {
       TH2D *h2_y_vs_x;
+      TProfile *p_y_vs_x;
 
       void init()
       {
         h2_y_vs_x = new TH2D("", "", 300, -10., +50., 300, -30, +30.);
+        p_y_vs_x = new TProfile("", "", 300, -10., +50.);
       }
 
       void fill(double x, double y)
@@ -58,11 +61,13 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
           init();
 
         h2_y_vs_x->Fill(x, y);
+        p_y_vs_x->Fill(x, y);
       }
 
       void write() const
       {
         h2_y_vs_x->Write("h2_y_vs_x");
+        p_y_vs_x->Write("p_y_vs_x");
       }
     };
 
