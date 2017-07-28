@@ -54,7 +54,7 @@ class ObjMonitor : public DQMEDAnalyzer
 {
 public:
   ObjMonitor( const edm::ParameterSet& );
-  ~ObjMonitor();
+  ~ObjMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:

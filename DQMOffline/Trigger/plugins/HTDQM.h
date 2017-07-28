@@ -12,7 +12,7 @@ class HTDQM : public TriggerDQMBase
 {
  public:
   HTDQM();
-  virtual ~HTDQM();
+  ~HTDQM() override;
 
   void initialise(const edm::ParameterSet& iConfig);
   void bookHistograms(DQMStore::IBooker &);

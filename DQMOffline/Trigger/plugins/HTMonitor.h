@@ -64,7 +64,7 @@ public:
 
 
   HTMonitor( const edm::ParameterSet& );
-  ~HTMonitor();
+  ~HTMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -77,13 +77,13 @@ protected:
   void bookME(DQMStore::IBooker &, HTME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, HTME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, HTME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setHTitle(HTME& me, std::string titleX, std::string titleY);
+  void setHTitle(HTME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  static MEHTbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEHTbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEHTbinning getHistoPSet    (const edm::ParameterSet& pset);
+  static MEHTbinning getHistoLSPSet  (const edm::ParameterSet& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
