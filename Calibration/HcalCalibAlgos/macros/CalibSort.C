@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
 // .L CalibSort.C+g
-//  CalibSort(fname, dirname, prefix, flag, double mipCut=1.0);
+//  CalibSort(fname, dirname, prefix, flag, double mipCut);
 //  c1.Loop();
 //  findDuplicate(infile, outfile, debug)
 //
@@ -19,7 +19,7 @@
 //                               information (d = 0/1 for debug off/on;
 //                               o = 0/1 for creating the output "events.txt"
 //                               file in append/output mode. Default = 0
-//   mipCut          (double)  = cut off on ECAL energy (default = 1.0)
+//   mipCut          (double)  = cut off on ECAL energy (default = 2.0)
 //
 //   infile  (std::string)     = name of the input file containing run, event,
 //                               information (created by CalibSort)
@@ -61,7 +61,7 @@ struct record {
 class CalibSort {
 public :
   CalibSort(std::string fname, std::string dirname="HcalIsoTrkAnalyzer",
-	    std::string prefix="", int flag=0, double mipCut=1.0);
+	    std::string prefix="", int flag=0, double mipCut=2.0);
   virtual ~CalibSort();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -331,7 +331,7 @@ void CalibSort::Loop() {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    double cut = (t_p > 20) ? 2.0 : 0.0;
+    double cut = (t_p > 20) ? 10.0 : 0.0;
     if ((flag_/10)%10 > 0) 
       std::cout << "Entry " << jentry << " p " << t_p << " Cuts " << t_qltyFlag
 		<< "|" << t_selectTk << "|" << (t_hmaxNearP < cut) << "|" 
