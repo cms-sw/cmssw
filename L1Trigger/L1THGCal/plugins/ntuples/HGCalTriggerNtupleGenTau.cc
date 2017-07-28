@@ -18,13 +18,14 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
     private:
         virtual void clear() override final;
 
-        bool isStableLepton( const reco::GenParticle & daughter );
-        bool isElectron( const reco::GenParticle & daughter );
-        bool isMuon( const reco::GenParticle & daughter );
-        bool isChargedPion( const reco::GenParticle & daughter );
-        bool isNeutralPion( const reco::GenParticle & daughter );
-        bool isIntermediateResonance( const reco::GenParticle & daughter );
-        bool isGamma( const reco::GenParticle & daughter );
+        bool isGoodTau( const reco::GenParticle& candidate ) const;
+        bool isStableLepton( const reco::GenParticle & daughter ) const;
+        bool isElectron( const reco::GenParticle & daughter ) const;
+        bool isMuon( const reco::GenParticle & daughter ) const;
+        bool isChargedPion( const reco::GenParticle & daughter ) const;
+        bool isNeutralPion( const reco::GenParticle & daughter ) const;
+        bool isIntermediateResonance( const reco::GenParticle & daughter ) const;
+        bool isGamma( const reco::GenParticle & daughter ) const;
 
         edm::EDGetToken gen_token_;
         bool isPythia8generator_;
@@ -95,51 +96,51 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 
 }
 
-bool isGoodTau( const reco::GenParticle& candidate ){
+bool HGCalTriggerNtupleGenTau::isGoodTau( const reco::GenParticle& candidate ) const {
     return ( std::abs( candidate.pdgId() ) == 15 && candidate.status() == 2 );    
 }
 
 
-bool HGCalTriggerNtupleGenTau::isChargedPion( const reco::GenParticle& candidate ){
+bool HGCalTriggerNtupleGenTau::isChargedPion( const reco::GenParticle& candidate ) const {
     return ( std::abs(candidate.pdgId()) == 211 && candidate.status()==1 
              && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isStableLepton( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isStableLepton( const reco::GenParticle& candidate ) const
 {
     return ( (std::abs(candidate.pdgId()) == 11 || std::abs(candidate.pdgId()) == 13) && candidate.status()==1 
              && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isElectron( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isElectron( const reco::GenParticle& candidate ) const
 {
     return ( std::abs(candidate.pdgId()) == 11 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isMuon( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isMuon( const reco::GenParticle& candidate ) const
 {
     return ( std::abs(candidate.pdgId()) == 13 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isNeutralPion( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isNeutralPion( const reco::GenParticle& candidate ) const
 {
     return ( std::abs(candidate.pdgId()) == 111 && candidate.status()==2 && candidate.statusFlags().isTauDecayProduct()
              && !candidate.isDirectPromptTauDecayProductFinalState() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isGamma( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isGamma( const reco::GenParticle& candidate ) const
 {
     return ( std::abs(candidate.pdgId()) == 22 && candidate.status()==1 && candidate.statusFlags().isTauDecayProduct() 
              && !candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
 
-bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::GenParticle& candidate )
+bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::GenParticle& candidate ) const
 {
     return ( ( std::abs(candidate.pdgId()) == 213 || std::abs(candidate.pdgId()) == 20213 || std::abs(candidate.pdgId()) == 24 )
              && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 2 );
