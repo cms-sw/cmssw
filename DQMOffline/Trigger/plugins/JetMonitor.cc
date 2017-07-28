@@ -1,5 +1,7 @@
 #include "DQMOffline/Trigger/plugins/JetMonitor.h"
 
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
@@ -31,11 +33,9 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
 
 }
 
-JetMonitor::~JetMonitor()
-{
-}
+JetMonitor::~JetMonitor() = default;
 
-JetMonitor::MEbinning JetMonitor::getHistoPSet(edm::ParameterSet pset)
+JetMonitor::MEbinning JetMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return JetMonitor::MEbinning{
     pset.getParameter<unsigned int>("nbins"),
@@ -44,7 +44,7 @@ JetMonitor::MEbinning JetMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-JetMonitor::MEbinning JetMonitor::getHistoLSPSet(edm::ParameterSet pset)
+JetMonitor::MEbinning JetMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return JetMonitor::MEbinning{
     pset.getParameter<unsigned int>("nbins"),
@@ -53,7 +53,7 @@ JetMonitor::MEbinning JetMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void JetMonitor::setMETitle(JetME& me, std::string titleX, std::string titleY)
+void JetMonitor::setMETitle(JetME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -379,7 +379,7 @@ bool JetMonitor::isHEP18(double eta, double phi){
       a_me[i].numerator = nullptr;
    }
 }*/
-void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,std::string denu){
+void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,const std::string& denu){
    std::string isDeno = "";
    isDeno = denu;
    std::string DenoOrNume = "";
@@ -411,12 +411,12 @@ void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls
       edm::LogWarning("JetMonitor") << "CHECK OUT denu option in FillME !!! DenoOrNume ? : " << DenoOrNume << std::endl;
    }
 }
-void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int len_,std::string h_Name ,std::string h_Title, std::string h_subOptName , std::string h_suOptTitle ){
+void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName , std::string h_suOptTitle ){
    std::string hName = h_Name;
    std::string hTitle = h_Title;
    std::string hSubN =""; 
    std::string hSubT =""; 
-   hSubT = h_suOptTitle;
+   hSubT = std::move(h_suOptTitle);
 
    int nbin_phi = jet_phi_binning_.nbins;
    double maxbin_phi = jet_phi_binning_.xmax;

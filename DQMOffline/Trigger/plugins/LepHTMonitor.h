@@ -55,7 +55,7 @@ class LepHTMonitor: public DQMEDAnalyzer{
 
 public:
   LepHTMonitor(const edm::ParameterSet& ps);
-  virtual ~LepHTMonitor();
+  ~LepHTMonitor() override;
 
 protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
