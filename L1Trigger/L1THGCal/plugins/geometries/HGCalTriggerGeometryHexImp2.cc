@@ -35,6 +35,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         virtual GlobalPoint getModulePosition(const unsigned ) const override final;
 
         virtual bool validTriggerCell( const unsigned ) const override final;
+        virtual bool disconnectedModule(const unsigned) const override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -762,6 +763,14 @@ HGCalTriggerGeometryHexImp2::
 validTriggerCell(const unsigned trigger_cell_id) const
 {
     return invalid_triggercells_.find(trigger_cell_id)==invalid_triggercells_.end();
+}
+
+
+bool 
+HGCalTriggerGeometryHexImp2::
+disconnectedModule(const unsigned module_id) const
+{
+    return false;
 }
 
 bool 

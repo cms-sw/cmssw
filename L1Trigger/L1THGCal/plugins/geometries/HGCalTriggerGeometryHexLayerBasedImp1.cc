@@ -36,6 +36,7 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         virtual GlobalPoint getModulePosition(const unsigned ) const override final;
 
         virtual bool validTriggerCell( const unsigned ) const override final;
+        virtual bool disconnectedModule(const unsigned) const override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -64,6 +65,9 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
         std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_bh_;
 
+        // Disconnected modules
+        std::unordered_set<unsigned> disconnected_modules_;
+
         void fillMaps();
         void fillNeighborMaps(const edm::FileInPath&,  std::unordered_map<int, std::set<std::pair<short,short>>>&);
         void fillInvalidTriggerCells();
@@ -89,6 +93,8 @@ HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf):
     l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
     l1tCellNeighborsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsBHMapping"))
 {
+    std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedModules");
+    std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
 }
 
 void
@@ -669,6 +675,13 @@ HGCalTriggerGeometryHexLayerBasedImp1::
 validTriggerCell(const unsigned trigger_cell_id) const
 {
     return invalid_triggercells_.find(trigger_cell_id)==invalid_triggercells_.end();
+}
+
+bool 
+HGCalTriggerGeometryHexLayerBasedImp1::
+disconnectedModule(const unsigned module_id) const
+{
+    return disconnected_modules_.find(HGCalDetId(module_id).wafer())!=disconnected_modules_.end();
 }
 
 bool 
