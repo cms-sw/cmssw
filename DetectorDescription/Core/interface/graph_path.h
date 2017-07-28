@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 
 template <class N, class E>
 class GraphPath

@@ -2,11 +2,11 @@
 # define DDCompactViewImpl_h
 
 #include "DetectorDescription/Core/interface/DDTranslation.h"
-# include "DetectorDescription/Core/interface/DDLogicalPart.h"
-# include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
-# include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/Graph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 
 class DDDivision;
 class DDPartSelector;
@@ -16,8 +16,8 @@ class DDCompactViewImpl
 {
 public:
   
-  typedef ::graph<DDLogicalPart, DDPosData* > GraphNav;
-  typedef graphwalker<DDLogicalPart, DDPosData* > WalkerType;
+  using GraphNav = ::Graph<DDLogicalPart, DDPosData* >;
+  using WalkerType = graphwalker<DDLogicalPart, DDPosData* >;
 
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);

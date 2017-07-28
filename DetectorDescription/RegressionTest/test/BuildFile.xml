@@ -63,6 +63,10 @@
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
+<bin file="test_Graph.cpp">
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
 <bin file="reg_ddcore.cpp">
   <use name="DetectorDescription/RegressionTest"/>
 </bin>

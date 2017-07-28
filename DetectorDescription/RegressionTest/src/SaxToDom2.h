@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/RegressionTest/src/TinyDom2.h"
 #include "xercesc/sax/SAXParseException.hpp"

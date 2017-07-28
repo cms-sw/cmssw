@@ -4,7 +4,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
 /**
@@ -212,7 +212,7 @@ private:
 
  mutable bool empt;
  
- mutable graph<RefCountedKinematicVertex,RefCountedKinematicParticle> treeGraph;
+ mutable Graph<RefCountedKinematicVertex,RefCountedKinematicParticle> treeGraph;
  mutable graphwalker<RefCountedKinematicVertex, RefCountedKinematicParticle> * treeWalker; 
 
 };

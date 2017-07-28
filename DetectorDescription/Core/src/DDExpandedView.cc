@@ -6,7 +6,7 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/Graph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/Cartesian3D.h"
