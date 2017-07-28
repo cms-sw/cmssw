@@ -18,6 +18,7 @@ RunOne "test_acceptance_shape"
 RunOne "test_reco_simu_diff_with_det_sm"
 RunOne "test_reco_simu_diff_without_det_sm"
 RunOne "test_y_vs_x_profile"
+RunOne "test_long_extrapolation"
 cd - &> /dev/null
 
 
