@@ -7,6 +7,7 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
     nCellsInModule_(conf.getParameter<uint32_t>("MaxCellsInModule")), 
     linLSB_(conf.getParameter<double>("linLSB")),
+    linnBits_(conf.getParameter<uint32_t>("linnBits")),
     adcsaturation_(conf.getParameter<double>("adcsaturation")),
     adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
@@ -22,6 +23,7 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
     tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
     adcLSBBH_ =  adcsaturationBH_/pow(2.,adcnBitsBH_);
+    linMax_ = (0x1<<linnBits_)-1;
     triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
     TCThreshold_ADC_ = (int) (TCThreshold_fC_ / linLSB_);
     TCThresholdBH_ADC_ = (int) (TCThresholdBH_MIP_ / adcLSBBH_);
@@ -144,23 +146,24 @@ linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
 {
     double amplitude = 0.; 
     uint32_t amplitude_int = 0;
+    const int kIntimeSample = 2;
 
     for(const auto& frame : dataframes) {//loop on DIGI
         if(frame.id().det()==DetId::Forward) {
-            if (frame[2].mode()) {//TOT mode
-                amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
+            if (frame[kIntimeSample].mode()) {//TOT mode
+                amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[kIntimeSample].data()) * tdcLSB_;
             }
             else {//ADC mode
-                amplitude = double(frame[2].data()) * adcLSB_;
+                amplitude = double(frame[kIntimeSample].data()) * adcLSB_;
             }
 
             amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5)); 
         }
         else if(frame.id().det()==DetId::Hcal) {
             // no linearization here. Take the raw ADC data
-            amplitude_int = frame[2].data();
+            amplitude_int = frame[kIntimeSample].data();
         }
-        if (amplitude_int>65535) amplitude_int = 65535;
+        if (amplitude_int>linMax_) amplitude_int = linMax_;
 
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
     }
