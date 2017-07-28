@@ -27,7 +27,8 @@ def customiseFor19029(process):
 
 def customiseFor19824(process) :
     for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
-        producer.PixelShapeFileL1= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
+         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
+         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
     return process
 
 
