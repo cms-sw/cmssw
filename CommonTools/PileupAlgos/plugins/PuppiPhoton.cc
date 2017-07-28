@@ -72,13 +72,13 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenPuppiCandidates_,hPuppiProduct);
   const CandidateView *pupCol = hPuppiProduct.product();
   if(usePFphotons_) {
-   for(CandidateView::const_iterator itPho = pfCol->begin(); itPho!=pfCol->end(); itPho++) {
+   for(const auto & pho : *pfCol) {
     iC++;
-    if(itPho->pt() < pt_) continue;
-    if(abs(itPho->pdgId())!=22) continue;
-    if(fabs(itPho->eta()) < eta_ ) {
+    if(pho.pt() < pt_) continue;
+    if(std::abs(pho.pdgId())!=22) continue;
+    if(fabs(pho.eta()) < eta_ ) {
      phoIndx.push_back(iC);
-     phoCands.push_back(&(*itPho));
+     phoCands.push_back(&pho);
     }
    }
   } else {
