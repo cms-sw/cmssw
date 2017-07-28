@@ -41,9 +41,6 @@ public:
   void                              setNumberingScheme(EcalNumberingScheme*);
   virtual int                       getTrackID(G4Track*);
   virtual uint16_t                  getDepth(G4Step*);
-  static const int kEcalDepthMask   = 0x1FFF;
-  static const int kEcalDepthOffset = 3;
-  static const int kEcalDepthRefz   = 0X4;
 
 private:    
   void                              initMap(G4String, const DDCompactView &);
