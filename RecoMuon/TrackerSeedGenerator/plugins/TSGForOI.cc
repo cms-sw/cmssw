@@ -14,6 +14,7 @@ using namespace std;
 
 TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   src_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+  numOfMaxSeedsParam_(iConfig.getParameter<uint32_t>("maxSeeds")),
   numOfLayersToTry_(iConfig.getParameter<int32_t>("layersToTry")),
   numOfHitsToTry_(iConfig.getParameter<int32_t>("hitsToTry")),
   fixedErrorRescalingForHits_(iConfig.getParameter<double>("fixedErrorRescaleFactorForHits")),
@@ -25,7 +26,6 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
   useHitLessSeeds_(iConfig.getParameter<bool>("UseHitLessSeeds")),
   useStereoLayersInTEC_(iConfig.getParameter<bool>("UseStereoLayersInTEC")),
-  dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType())),
   updator_(new KFUpdator()),
   measurementTrackerTag_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
   pT1_(iConfig.getParameter<double>("pT1")),
@@ -38,12 +38,10 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF3_(iConfig.getParameter<double>("SF3")),
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
-  tsosDiff_(iConfig.getParameter<double>("tsosDiff"))
+  tsosDiff_(iConfig.getParameter<double>("tsosDiff")),
+  theCategory(string("Muon|RecoMuon|TSGForOI"))
 {
-  numOfMaxSeeds_=iConfig.getParameter<uint32_t>("maxSeeds");
   produces<std::vector<TrajectorySeed> >();
-  numSeedsMade_=0;
-  theCategory = "Muon|RecoMuon|TSGForOI";
 }
 
 
@@ -52,13 +50,31 @@ TSGForOI::~TSGForOI(){
 
 
 void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  /// Init variables
+  numOfMaxSeeds_ = numOfMaxSeedsParam_;
+  numSeedsMade_=0;
+  analysedL2_ = false;
+  foundHitlessSeed_ = false; 
+  layerCount_ = 0;
+
+  /// Surface used to make a TSOS at the PCA to the beamline
+  Plane::PlanePointer dummyPlane_ = Plane::build(Plane::PositionType(), Plane::RotationType());
+
+  /// Read ESHandles
+  edm::ESHandle<MagneticField>          magfield_;
+  edm::ESHandle<Propagator>             propagatorAlong_;
+  edm::ESHandle<Propagator>             propagatorOpposite_;
+  edm::ESHandle<GlobalTrackingGeometry> geometry_;
+
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
   iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorOpposite_);
   iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorAlong_);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);
   iEvent.getByToken(measurementTrackerTag_, measurementTracker_);
-  edm::Handle<reco::TrackCollection> l2TrackCol;					
+
+  /// Read L2 track collection
+  edm::Handle<reco::TrackCollection> l2TrackCol;
   iEvent.getByToken(src_, l2TrackCol);
 
   //	The product:
