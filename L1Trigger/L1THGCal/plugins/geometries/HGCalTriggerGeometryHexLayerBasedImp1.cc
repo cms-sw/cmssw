@@ -613,9 +613,10 @@ HGCalTriggerGeometryHexLayerBasedImp1::
 packWaferCellId(unsigned subdet, unsigned wafer, unsigned cell) const
 {
     unsigned packed_value = 0;
+    const int kSubdetMask = 0x7;
     packed_value |= ((cell & HGCalDetId::kHGCalCellMask) << HGCalDetId::kHGCalCellOffset);
     packed_value |= ((wafer & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
-    packed_value |= ((subdet & 0x7) << (HGCalDetId::kHGCalWaferTypeOffset));
+    packed_value |= ((subdet & kSubdetMask) << (HGCalDetId::kHGCalWaferTypeOffset));
     return packed_value;
 }
 

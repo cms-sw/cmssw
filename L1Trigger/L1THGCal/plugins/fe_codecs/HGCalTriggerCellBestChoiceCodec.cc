@@ -73,6 +73,7 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     // The data length should be the same for input and output, which is limiting
     conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
     conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
+    conf.addParameter<uint32_t>   ("linnBits",      codecImpl_.linnBits());
     conf.addParameter<double>     ("adcsaturation", codecImpl_.adcsaturation());
     conf.addParameter<uint32_t>   ("adcnBits",      codecImpl_.adcnBits());
     conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());

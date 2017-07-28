@@ -47,6 +47,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         size_t   nData() const {return nData_;}
         size_t   dataLength() const {return dataLength_;}
         double   linLSB() const {return linLSB_;}
+        uint32_t linnBits() const {return linnBits_;}
         double   adcsaturation() const {return adcsaturation_;}
         uint32_t adcnBits() const {return adcnBits_;}
         double   tdcsaturation() const {return tdcsaturation_;}
@@ -62,6 +63,8 @@ class HGCalTriggerCellBestChoiceCodecImpl
         size_t   dataLength_;
         size_t   nCellsInModule_;
         double   linLSB_;
+        uint32_t linnBits_;
+        uint32_t linMax_;
         double   adcsaturation_;
         uint32_t adcnBits_;
         double   tdcsaturation_ ;
