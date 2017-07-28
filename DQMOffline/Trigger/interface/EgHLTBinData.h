@@ -28,7 +28,7 @@ namespace egHLT {
     };
 
 
-    BinData(){}
+    BinData()= default;
     explicit BinData(const edm::ParameterSet& conf){setup(conf);}
     void setup(const edm::ParameterSet& conf);
     

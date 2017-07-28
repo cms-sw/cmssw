@@ -58,16 +58,14 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   offlinePVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
  
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
-  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) { 
+  for(auto & path : paths) { 
     custompathnamepairs_.push_back(make_pair(
-					     pathconf->getParameter<std::string>("pathname"),
-					     pathconf->getParameter<std::string>("pathtype")
+					     path.getParameter<std::string>("pathname"),
+					     path.getParameter<std::string>("pathtype")
 					     ));}
 }
 
-BTVHLTOfflineSource::~BTVHLTOfflineSource()
-{ 
-}
+BTVHLTOfflineSource::~BTVHLTOfflineSource() = default;
 
 void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c)
 {
@@ -85,9 +83,8 @@ void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup
     std::string triggerType = "";
     bool trigSelected = false;
     
-    for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); 
-          custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair){
-       if(pathname_.find(custompathnamepair->first)!=std::string::npos) { trigSelected = true; triggerType = custompathnamepair->second;}
+    for (auto & custompathnamepair : custompathnamepairs_){
+       if(pathname_.find(custompathnamepair.first)!=std::string::npos) { trigSelected = true; triggerType = custompathnamepair.second;}
       }
     
     if (!trigSelected) continue;
@@ -142,29 +139,29 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   if(!triggerResults_.isValid()) return;
    
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    unsigned index = triggerNames_.triggerIndex(v->getPath()); 
+  for(auto & v : hltPathsAll_){
+    unsigned index = triggerNames_.triggerIndex(v.getPath()); 
     if (index < triggerNames_.size() ){     
      float DR  = 9999.;
-     if (csvPfTags.isValid() && v->getTriggerType() == "PF")
+     if (csvPfTags.isValid() && v.getTriggerType() == "PF")
      {
       auto iter = csvPfTags->begin();
       
       float CSV_online = iter->second;
       if (CSV_online<0) CSV_online = -0.05;
     
-      v->getMEhisto_CSV()->Fill(CSV_online);  
-      v->getMEhisto_Pt()->Fill(iter->first->pt()); 
-      v->getMEhisto_Eta()->Fill(iter->first->eta());
+      v.getMEhisto_CSV()->Fill(CSV_online);  
+      v.getMEhisto_Pt()->Fill(iter->first->pt()); 
+      v.getMEhisto_Eta()->Fill(iter->first->eta());
       
       DR  = 9999.;
       if(offlineJetTagHandlerPF.isValid()){
-          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerPF->begin(); iterO != offlineJetTagHandlerPF->end(); iterO++ ){ 
-            float CSV_offline = iterO->second;
+          for (auto const & iterO : *offlineJetTagHandlerPF){ 
+            float CSV_offline = iterO.second;
             if (CSV_offline<0) CSV_offline = -0.05;
-            DR = reco::deltaR(iterO->first->eta(),iterO->first->phi(),iter->first->eta(),iter->first->phi());
+            DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3) {
-               v->getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
+               v.getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
                }
           }
       }
@@ -172,32 +169,32 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       iEvent.getByToken(hltPFPVToken_, VertexHandler);
       if (VertexHandler.isValid())
       { 
-        v->getMEhisto_PVz()->Fill(VertexHandler->begin()->z()); 
-        if (offlineVertexHandler.isValid()) v->getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
+        v.getMEhisto_PVz()->Fill(VertexHandler->begin()->z()); 
+        if (offlineVertexHandler.isValid()) v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
         }
       }
       
-     if (csvCaloTags.isValid() && v->getTriggerType() == "Calo" && !csvCaloTags->empty()) 
+     if (csvCaloTags.isValid() && v.getTriggerType() == "Calo" && !csvCaloTags->empty()) 
      { 
       auto iter = csvCaloTags->begin();
       
       float CSV_online = iter->second;
       if (CSV_online<0) CSV_online = -0.05;
     
-      v->getMEhisto_CSV()->Fill(CSV_online);  
-      v->getMEhisto_Pt()->Fill(iter->first->pt()); 
-      v->getMEhisto_Eta()->Fill(iter->first->eta());
+      v.getMEhisto_CSV()->Fill(CSV_online);  
+      v.getMEhisto_Pt()->Fill(iter->first->pt()); 
+      v.getMEhisto_Eta()->Fill(iter->first->eta());
       
       DR  = 9999.;
       if(offlineJetTagHandlerCalo.isValid()){
-          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerCalo->begin(); iterO != offlineJetTagHandlerCalo->end(); iterO++ )
+          for (auto const & iterO : *offlineJetTagHandlerCalo)
           {
-            float CSV_offline = iterO->second;
+            float CSV_offline = iterO.second;
             if (CSV_offline<0) CSV_offline = -0.05;
-            DR = reco::deltaR(iterO->first->eta(),iterO->first->phi(),iter->first->eta(),iter->first->phi());
+            DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3) 
             {
-                v->getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
+                v.getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
             }  
           }     
       }
@@ -205,15 +202,15 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       iEvent.getByToken(hltFastPVToken_, VertexHandler);
       if (VertexHandler.isValid()) 
       {
-        v->getMEhisto_PVz()->Fill(VertexHandler->begin()->z()); 
-	if (offlineVertexHandler.isValid()) v->getMEhisto_fastPVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
+        v.getMEhisto_PVz()->Fill(VertexHandler->begin()->z()); 
+	if (offlineVertexHandler.isValid()) v.getMEhisto_fastPVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
        }
       
       iEvent.getByToken(hltCaloPVToken_, VertexHandler);
       if (VertexHandler.isValid())
       {
-        v->getMEhisto_fastPVz()->Fill(VertexHandler->begin()->z()); 
-	if (offlineVertexHandler.isValid()) v->getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
+        v.getMEhisto_fastPVz()->Fill(VertexHandler->begin()->z()); 
+	if (offlineVertexHandler.isValid()) v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
        }
        
       }
@@ -228,9 +225,9 @@ void
 BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & c)
 {
   iBooker.setCurrentFolder(dirname_);
-   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+   for(auto & v : hltPathsAll_){
      //
-     std::string trgPathName = HLTConfigProvider::removeVersion(v->getPath());
+     std::string trgPathName = HLTConfigProvider::removeVersion(v.getPath());
      std::string subdirName  = dirname_ +"/"+ trgPathName;
      std::string trigPath    = "("+trgPathName+")";
      iBooker.setCurrentFolder(subdirName);  
@@ -271,6 +268,6 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      title = "online z(fastPV) - offline z(PV) "+trigPath;
      MonitorElement * fastPVz_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),100,-2,2);
     
-     v->setHistos(CSV,Pt,Eta,CSV_RECOvsHLT,PVz,fastPVz,PVz_HLTMinusRECO,fastPVz_HLTMinusRECO);  
+     v.setHistos(CSV,Pt,Eta,CSV_RECOvsHLT,PVz,fastPVz,PVz_HLTMinusRECO,fastPVz_HLTMinusRECO);  
    }
 }

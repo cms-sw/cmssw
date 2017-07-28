@@ -1,5 +1,5 @@
-#ifndef METMONITOR_H
-#define METMONITOR_H
+#ifndef DQMOffline_Trigger_METMonitor_h
+#define DQMOffline_Trigger_METMonitor_h
 
 #include <string>
 #include <vector>
@@ -37,27 +37,34 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 class GenericTriggerEventFlag;
 
-struct MEbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
-struct METME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
-};
 //
 // class declaration
 //
 
 class METMonitor : public DQMEDAnalyzer 
 {
+ public:
+
+  struct MEbinning {
+    unsigned nbins;
+    double xmin;
+    double xmax;
+  };
+  
+  struct METME {
+    MonitorElement* numerator = nullptr;
+    MonitorElement* denominator = nullptr;
+  };
+  
+
 public:
   METMonitor( const edm::ParameterSet& );
-  ~METMonitor();
+  ~METMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -70,13 +77,13 @@ protected:
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setMETitle(METME& me, std::string titleX, std::string titleY);
+  void setMETitle(METME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet  (const edm::ParameterSet& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -85,6 +92,7 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
 
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
@@ -94,17 +102,27 @@ private:
   METME metME_variableBinning_;
   METME metVsLS_;
   METME metPhiME_;
+  METME deltaphimetj1ME_;
+  METME deltaphij1j2ME_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
+
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+
+  static constexpr double MAX_PHI = 3.2;
+  static constexpr int N_PHI = 64;
+  static constexpr MEbinning phi_binning_{
+    N_PHI, -MAX_PHI, MAX_PHI
+  };
+
 
 };
 
