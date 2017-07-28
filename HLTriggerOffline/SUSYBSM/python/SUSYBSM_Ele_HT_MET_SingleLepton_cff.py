@@ -43,7 +43,7 @@ SUSY_HLT_Ele15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton'
                                                   csvThreshold = cms.untracked.double(-1.0)
                                                   )
 
-SUSY_HLT_Ele15_HT350_MET50_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEle15oHT350oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                  subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT350_PFMET50'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -94,7 +94,7 @@ SUSY_HLT_Ele15_HT400_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton'
                                                   csvThreshold = cms.untracked.double(-1.0)
                                                   )
 
-SUSY_HLT_Ele15_HT400_MET50_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEle15oHT400oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                  subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT400_PFMET50'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -114,6 +114,6 @@ SUSY_HLT_Ele_HT_MET_SingleLepton = cms.Sequence( SUSY_HLT_Ele15_HT350_MET50_Sing
                                                  + SUSY_HLT_Ele15_HT400_MET50_SingleLepton
 )
 
-SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING = cms.Sequence( SUSY_HLT_Ele15_HT350_MET50_SingleLepton_POSTPROCESSING
-                                                                + SUSY_HLT_Ele15_HT400_MET50_SingleLepton_POSTPROCESSING
+SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING = cms.Sequence( SUSYoHLToEle15oHT350oMET50oSingleLeptonPOSTPROCESSING
+                                                                + SUSYoHLToEle15oHT400oMET50oSingleLeptonPOSTPROCESSING
 )

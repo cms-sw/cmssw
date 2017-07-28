@@ -19,16 +19,16 @@ using namespace dqmTnP;
 using namespace std;
 
 
-typedef std::vector<std::string> vstring;
+using vstring = std::vector<std::string>;
 
 class DQMGenericTnPClient : public edm::EDAnalyzer{
   public:
     DQMGenericTnPClient(const edm::ParameterSet& pset);
-    virtual ~DQMGenericTnPClient();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &run, const edm::EventSetup &setup) override;
-  void calculateEfficiency(std::string dirName, const ParameterSet& pset);
-    void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+    ~DQMGenericTnPClient() override;
+    void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    void endRun(const edm::Run &run, const edm::EventSetup &setup) override;
+  void calculateEfficiency(const std::string& dirName, const ParameterSet& pset);
+    void findAllSubdirectories (const std::string& dir, std::set<std::string> * myList, TString pattern);
   private:
     DQMStore * dqmStore;
     TFile * plots;
@@ -47,7 +47,7 @@ DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
   efficiencies( pset.getUntrackedParameter<VParameterSet>("Efficiencies") )
 {
   TString savePlotsInRootFileName = pset.getUntrackedParameter<string>("SavePlotsInRootFileName","");
-  plots = savePlotsInRootFileName!="" ? new TFile(savePlotsInRootFileName,"recreate") : 0;
+  plots = savePlotsInRootFileName!="" ? new TFile(savePlotsInRootFileName,"recreate") : nullptr;
   GPLfitter = new GaussianPlusLinearFitter(verbose);
   VPEfitter = new VoigtianPlusExponentialFitter(verbose);
 }
@@ -68,7 +68,7 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
   if (myDQMrootFolder != "")
     subDirSet.insert(myDQMrootFolder);
   else {
-    for(vstring::const_iterator iSubDir = subDirs.begin(); 
+    for(auto iSubDir = subDirs.begin(); 
         iSubDir != subDirs.end(); ++iSubDir) {
       std::string subDir = *iSubDir;
       if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
@@ -84,24 +84,21 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
     }
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for(VParameterSet::const_iterator pset = efficiencies.begin(); 
-        pset != efficiencies.end(); ++pset) {
-      calculateEfficiency(dirName, *pset);
+  for(auto const & dirName : subDirSet) {
+    for(auto const & efficiencie : efficiencies) {
+      calculateEfficiency(dirName, efficiencie);
     }
   }
 
 }
   
-void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const ParameterSet& pset){
+void DQMGenericTnPClient::calculateEfficiency(const std::string& dirName, const ParameterSet& pset){
   //get hold of numerator and denominator histograms
   string allMEname = dirName+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
   string passMEname = dirName+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
   MonitorElement *allME = dqmStore->get(allMEname);
   MonitorElement *passME = dqmStore->get(passMEname);
-  if(allME==0 || passME==0){
+  if(allME==nullptr || passME==nullptr){
     LogDebug("DQMGenericTnPClient")<<"Could not find MEs: "<<allMEname<<" or "<<passMEname<<endl;
     return;
   }
@@ -109,7 +106,7 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   TH1 *pass = passME->getTH1();
   //setup the fitter  
   string fitFunction = pset.getUntrackedParameter<string>("FitFunction");
-  AbstractFitter *fitter = 0;
+  AbstractFitter *fitter = nullptr;
   if(fitFunction=="GaussianPlusLinear"){
     GPLfitter->setup(
       pset.getUntrackedParameter<double>("ExpectedMean"),
@@ -151,8 +148,8 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   prefix.ReplaceAll('/','_');
   //calculate and book efficiency
   if(dimensions==2){
-    TProfile* eff = 0;
-    TProfile* effChi2 = 0;
+    TProfile* eff = nullptr;
+    TProfile* effChi2 = nullptr;
     TString error = fitter->calculateEfficiency((TH2*)pass, (TH2*)all, massDimension, eff, effChi2, plots?prefix+effName.c_str():"");
     if(error!=""){
       LogError("DQMGenericTnPClient")<<error<<endl;
@@ -163,8 +160,8 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
     delete eff;
     delete effChi2;
   }else if(dimensions==3){
-    TProfile2D* eff = 0;
-    TProfile2D* effChi2 = 0;
+    TProfile2D* eff = nullptr;
+    TProfile2D* effChi2 = nullptr;
     TString error = fitter->calculateEfficiency((TH3*)pass, (TH3*)all, massDimension, eff, effChi2, plots?prefix+effName.c_str():"");
     if(error!=""){
       LogError("DQMGenericTnPClient")<<error<<endl;
@@ -184,7 +181,7 @@ DQMGenericTnPClient::~DQMGenericTnPClient(){
   }
 }
 
-void DQMGenericTnPClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
+void DQMGenericTnPClient::findAllSubdirectories (const std::string& dir, std::set<std::string> * myList, TString pattern = "") {
   if (!dqmStore->dirExists(dir)) {
     LogError("DQMGenericTnPClient") << " DQMGenericTnPClient::findAllSubdirectories ==> Missing folder " << dir << " !!!";
     return;
@@ -195,7 +192,7 @@ void DQMGenericTnPClient::findAllSubdirectories (std::string dir, std::set<std::
     TPRegexp regexp(pattern);
     dqmStore->cd(dir);
     vector <string> foundDirs = dqmStore->getSubdirs();
-    for(vector<string>::const_iterator iDir = foundDirs.begin();
+    for(auto iDir = foundDirs.begin();
         iDir != foundDirs.end(); ++iDir) {
       TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
       if (dirName.Contains(regexp))
