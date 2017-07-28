@@ -1,8 +1,8 @@
 #include "DQMOffline/Trigger/plugins/HTDQM.h"
 
-HTDQM::HTDQM(){}
+HTDQM::HTDQM()= default;
 
-HTDQM::~HTDQM(){}
+HTDQM::~HTDQM()= default;
 
 void HTDQM::initialise(const edm::ParameterSet& iConfig ){
 
@@ -39,8 +39,8 @@ void HTDQM::fillHistograms(const std::vector<reco::PFJet> & htjets,
 
   // filling histograms (denominator)  
   double htSum = 0;
-  for (unsigned ij(0); ij<htjets.size(); ++ij){
-    htSum += htjets[ij].pt(); 
+  for (auto const & htjet : htjets){
+    htSum += htjet.pt(); 
   }
 
   htME_variableBinning_.denominator -> Fill(htSum);

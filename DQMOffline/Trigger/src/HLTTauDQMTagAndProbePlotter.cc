@@ -69,8 +69,7 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker,edm:
 }
 
 
-HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() {
-}
+HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() = default;
 
 void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, const HLTTauDQMOfflineObjects& refCollection) {
 

@@ -48,7 +48,7 @@ namespace HLTOfflineDQMTopDiLepton {
     public:
       /// make clear which LorentzVector to use
       /// for jet, electrons and muon buffering
-      typedef reco::LeafCandidate::LorentzVector LorentzVector;
+      using LorentzVector = reco::LeafCandidate::LorentzVector;
       /// different decay channels
       enum DecayChannel{ NONE, DIMUON, DIELEC, ELECMU };
 
@@ -56,12 +56,12 @@ namespace HLTOfflineDQMTopDiLepton {
       /// default contructor
       MonitorDiLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
       /// default destructor
-      ~MonitorDiLepton(){};
+      ~MonitorDiLepton()= default;;
 
       /// book histograms in subdirectory _directory_
       void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
-      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
+      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths);
 
     private:
       /// deduce monitorPath from label, the label is expected
@@ -76,16 +76,16 @@ namespace HLTOfflineDQMTopDiLepton {
       /// set configurable labels for trigger monitoring histograms
       void triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels);
       /// fill trigger monitoring histograms
-      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const;
+      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const;
 
       /// check if histogram was booked
-      bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+      bool booked(const std::string& histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
       /// fill histogram if it had been booked before
-      void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+      void fill(const std::string& histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
+      void fill(const std::string& histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
+      void fill(const std::string& histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
     private:
       std::string folder_;
@@ -197,7 +197,7 @@ namespace HLTOfflineDQMTopDiLepton {
     }
 
   inline void 
-    MonitorDiLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
+    MonitorDiLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
@@ -256,8 +256,8 @@ class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
 
     /// do this during the event loop
-    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
     void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:
