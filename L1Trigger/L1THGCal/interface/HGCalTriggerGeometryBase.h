@@ -37,7 +37,7 @@ class HGCalTriggerGeometryBase
         const HcalGeometry& bhGeometry() const {return *static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));}
         const HGCalTopology& eeTopology() const {return eeGeometry().topology();}
         const HGCalTopology& fhTopology() const {return fhGeometry().topology();}
-       const HcalTopology& bhTopology() const {return bhGeometry().topology();}
+        const HcalTopology& bhTopology() const {return bhGeometry().topology();}
 
         // non-const access to the geometry class
         virtual void initialize(const edm::ESHandle<CaloGeometry>&) = 0;
