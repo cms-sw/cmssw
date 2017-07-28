@@ -350,7 +350,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     
     
 
-    if (ZS_bit && !FR_bit) ///it is clusFlag==1, 5
+    if (ZS_bit && FR_bit!=0) ///it is clusFlag==1, 5
       coridx = 0 + regind;
     else{
       if (pt<2.5) coridx = 1 + regind;
