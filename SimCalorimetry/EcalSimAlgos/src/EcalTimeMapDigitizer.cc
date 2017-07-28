@@ -4,7 +4,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "SimG4CMS/Calo/interface/ECalSD.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 //#include "CLHEP/Random/RandPoissonQ.h"
@@ -93,8 +93,8 @@ EcalTimeMapDigitizer::add(const std::vector<PCaloHit> & hits, int bunchCrossing)
 	continue;
 
       //Just consider only the hits belonging to the specified time layer
-      int depth2 = (((*it).depth() >> ECalSD::kEcalDepthOffset) & 
-		    ECalSD::kEcalDepthMask);
+      int depth2 = (((*it).depth() >> PCaloHit::kEcalDepthOffset) & 
+		    PCaloHit::kEcalDepthMask);
       
       if (depth2 != m_timeLayerId) continue;
 

@@ -19,6 +19,7 @@
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -269,12 +270,12 @@ uint16_t ECalSD::getDepth(G4Step * aStep) {
   if (storeRL) {
     auto ite        = xtalLMap.find(lv);
     uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 :
-						     kEcalDepthRefz);
+						     PCaloHit::kEcalDepthRefz);
     uint16_t depth2 = getRadiationLength(aStep);
-    depth          |= (((depth2&kEcalDepthMask) << kEcalDepthOffset) | depth1);
+    depth          |= (((depth2&PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset) | depth1);
   } else if (storeLayerTimeSim) {
     uint16_t depth2 = getLayerIDForTimeSim(aStep);
-    depth          |= ((depth2&kEcalDepthMask) << kEcalDepthOffset);
+    depth          |= ((depth2&PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset);
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":"
