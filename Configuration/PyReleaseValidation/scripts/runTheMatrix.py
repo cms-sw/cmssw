@@ -56,6 +56,7 @@ if __name__ == '__main__':
                      1001, #data+express
                      136.731, #2016B Photon data
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
+                     136.788, #2017B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
