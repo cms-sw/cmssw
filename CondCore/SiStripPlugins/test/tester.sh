@@ -21,12 +21,33 @@ eval `scram run -sh`;
 #     --image_plot True \
 #     --test;
 
+# $W_DIR/getPayloadData.py  \
+#     --plugin pluginSiStripApvGain_PayloadInspector \
+#     --plot plot_SiStripApvGainsComparatorByPartition \
+#     --tag SiStripApvGain \
+#     --time_type Run \
+#     --iovs '{"start_iov": "286042", "end_iov": "299649"}' \
+#     --db sqlite_file:toCheck.db \
+#     --image_plot True \
+#     --test;
+
+# $W_DIR/getPayloadData.py  \
+#     --plugin pluginSiStripApvGain_PayloadInspector \
+#     --plot plot_SiStripApvGainsTest \
+#     --tag SiStripApvGain \
+#     --time_type Run \
+#     --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
+#     --db sqlite_file:toCheck.db \
+#     --image_plot True \
+#     --test;
+
+
 $W_DIR/getPayloadData.py  \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsComparatorByPartition \
+    --plot plot_SiStripApvGainsDefaultTrackerMap \
     --tag SiStripApvGain \
     --time_type Run \
-    --iovs '{"start_iov": "286042", "end_iov": "299649"}' \
+    --iovs '{"start_iov": "299061", "end_iov": "299061"}' \
     --db sqlite_file:toCheck.db \
     --image_plot True \
     --test;
