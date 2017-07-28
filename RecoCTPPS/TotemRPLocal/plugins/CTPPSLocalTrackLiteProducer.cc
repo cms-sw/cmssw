@@ -107,9 +107,12 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "tagSiStripTrack", edm::InputTag( "totemRPLocalTrackFitter" ) );
-  desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) );
-  desc.add<bool>( "doNothing", true ); // disable the module by default
+  desc.add<edm::InputTag>( "tagSiStripTrack", edm::InputTag( "totemRPLocalTrackFitter" ) )
+    ->setComment( "input TOTEM strips' local tracks collection to retrieve" );
+  desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) )
+    ->setComment( "input diamond detectors' local tracks collection to retrieve" );
+  desc.add<bool>( "doNothing", true ) // disable the module by default
+    ->setComment( "disable the module" );
 
   descr.add( "ctppsLocalTrackLiteDefaultProducer", desc );
 }

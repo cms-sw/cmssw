@@ -190,7 +190,8 @@ TotemRPLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "tagUVPattern", edm::InputTag( "totemRPUVPatternFinder" ) );
+  desc.add<edm::InputTag>( "tagUVPattern", edm::InputTag( "totemRPUVPatternFinder" ) )
+    ->setComment( "input U-V patterns collection to retrieve" );
   desc.add<int>( "verbosity", 0 );
 
   descr.add( "totemRPLocalTrackFitter", desc );

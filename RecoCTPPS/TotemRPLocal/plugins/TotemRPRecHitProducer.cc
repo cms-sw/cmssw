@@ -92,7 +92,8 @@ TotemRPRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "tagCluster", edm::InputTag( "totemRPClusterProducer" ) );
+  desc.add<edm::InputTag>( "tagCluster", edm::InputTag( "totemRPClusterProducer" ) )
+    ->setComment( "input clusters collection to retrieve" );
   desc.add<int>( "verbosity", 0 );
 
   descr.add( "totemRPRecHitProducer", desc );
