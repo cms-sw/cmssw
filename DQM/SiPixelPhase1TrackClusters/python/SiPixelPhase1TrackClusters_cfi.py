@@ -71,6 +71,7 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1TrackClustersOnTrackShape = DefaultHistoTrack.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
   name = "shapeFilter",
   title = "Shape filter (OnTrack)",
   range_min = 0, range_max = 2, range_nbins = 2,
@@ -243,6 +244,7 @@ SiPixelPhase1ClustersSizeVsEtaOnTrackInner = SiPixelPhase1ClustersSizeVsEtaOnTra
 
 
 SiPixelPhase1TrackClustersOnTrackSizeYOuter = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
   name = "sizey_on_track_outer",
   title = "Cluster Size along Beamline vs. prediction (OnTrack) outer ladders",
   xlabel = "prediction",
@@ -253,32 +255,55 @@ SiPixelPhase1TrackClustersOnTrackSizeYInner = SiPixelPhase1TrackClustersOnTrackS
   name = "sizey_on_track_inner",
   title = "Cluster Size along Beamline vs. prediction (OnTrack) inner ladders",
 )
+SiPixelPhase1TrackClustersOnTrackSizeYF = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizey_on_track_forward",
+  title = "Cluster Size ortogonal to Beamline vs. prediction (OnTrack) forward",
+  range_y_min =  0, range_y_max = 10, range_y_nbins = 10,
+  range_min = 0, range_max  = 10, range_nbins   = 20,
+  specs = VPSet(
+    Specification().groupBy("PXForward/PXDisk").save(),
+  )
+)
 
 
 SiPixelPhase1TrackClustersOnTrackSizeXOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
   name = "sizex_on_track_outer",
   title = "Cluster Size along radial vs. prediction (OnTrack) outer ladders",
-  range_min = 0, range_max  = 6, range_nbins   = 12,
-  range_y_min =  0, range_y_max = 6, range_y_nbins = 6
+  range_min = 0, range_max  = 8, range_nbins   = 16,
+  range_y_min =  0, range_y_max = 8, range_y_nbins = 8
 
 )
 SiPixelPhase1TrackClustersOnTrackSizeXInner = SiPixelPhase1TrackClustersOnTrackSizeXOuter.clone(
   name = "sizex_on_track_inner",
   title = "Cluster Size along radial vs. prediction (OnTrack) inner ladders",
 )
+SiPixelPhase1TrackClustersOnTrackSizeXF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
+  name = "sizex_on_track_forward",
+  title = "Cluster Size radial vs. prediction (OnTrack) forward",
+)
+
 
 
 SiPixelPhase1TrackClustersOnTrackSizeXYOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
   name = "sizexy_on_track_outer",
-  title = "prediction - Cluster Size x vs y (OnTrack) outer ladders",
-  xlabel = "y diff",
-  ylabel = "x diff",
-  range_min = -6, range_max  = 6, range_nbins   = 24,
-  range_y_min = -6, range_y_max = 6, range_y_nbins = 24 
+  title = "Cluster Size x vs y (OnTrack) outer ladders",
+  xlabel = "y size",
+  ylabel = "x size",
+  range_min = 0, range_max  = 20, range_nbins   = 20,
+  range_y_min = 0, range_y_max = 10, range_y_nbins = 10 
 )
 SiPixelPhase1TrackClustersOnTrackSizeXYInner = SiPixelPhase1TrackClustersOnTrackSizeXYOuter.clone(
  name = "sizexy_on_track_inner",
- title = "prediction - Cluster Size x vs y (OnTrack) outer ladders"
+ title = "Cluster Size x vs y (OnTrack) inner ladders"
+)
+SiPixelPhase1TrackClustersOnTrackSizeXYF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
+  name = "sizexy_on_track_forward",
+  title = "Cluster Size x vs y (OnTrack) forward",
+  xlabel = "y size",
+  ylabel = "x size",
+  range_min = 0, range_max  = 10, range_nbins   = 10,
+  range_y_min = 0, range_y_max = 10, range_y_nbins = 10
+
 )
 
 
@@ -300,6 +325,7 @@ SiPixelPhase1TrackClustersOnTrackChargeInner = SiPixelPhase1TrackClustersOnTrack
 )  
 
 SiPixelPhase1TrackClustersOnTrackShapeOuter = DefaultHistoTrack.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
   name = "shapeFilterOuter",
   title = "Shape filter (OnTrack) Outer Ladders",
   range_min = 0, range_max = 2, range_nbins = 2,
@@ -314,7 +340,7 @@ SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackS
 )
 
 
-
+# copy this in the enum
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
@@ -336,13 +362,16 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 
   SiPixelPhase1TrackClustersOnTrackSizeXOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXF,
   SiPixelPhase1TrackClustersOnTrackSizeYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeYF,
 
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
-  SiPixelPhase1TrackClustersOnTrackSizeXYInner
-
+  SiPixelPhase1TrackClustersOnTrackSizeXYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXYF
 )
+
 
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
