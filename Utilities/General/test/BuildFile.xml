@@ -4,9 +4,6 @@
 <bin file="testGraph.cpp">
 </bin>
 
-<bin file="testGraphPath.cpp">
-</bin>
-
 <bin file="TestTBB.cc">
   <use name="tbb"/>
 </bin>
