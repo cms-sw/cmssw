@@ -339,16 +339,6 @@ TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr 
   exceptions_validator.add<double>( "threshold_V" );
 
   std::vector<edm::ParameterSet> exceptions_default;
-
-  // if a RP or projection needs adjustment of the above settings, you can use the following format:
-  /*edm::ParameterSet except0;
-  except0.addParameter<unsigned int>( "rpId", 1998061568 ); // RP id according to CTPPSDetId
-  except0.addParameter<unsigned int>( "minPlanesPerProjectionToFit_U", 2 );
-  except0.addParameter<unsigned int>( "minPlanesPerProjectionToFit_V", 3 );
-  except0.addParameter<double>( "threshold_U", 1.99 );
-  except0.addParameter<double>( "threshold_V", 2.99 );
-  exceptions_default.push_back( except0 );*/
-
   desc.addVPSet( "exceptionalSettings", exceptions_validator, exceptions_default );
 
   descr.add( "totemRPUVPatternFinder", desc );
