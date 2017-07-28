@@ -14,7 +14,7 @@ using namespace std;
 
 TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   src_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-  numOfMaxSeeds_(iConfig.getParameter<uint32_t>("maxSeeds")),
+  numOfMaxSeedsParam_(iConfig.getParameter<uint32_t>("maxSeeds")),
   numOfLayersToTry_(iConfig.getParameter<int32_t>("layersToTry")),
   numOfHitsToTry_(iConfig.getParameter<int32_t>("hitsToTry")),
   fixedErrorRescalingForHits_(iConfig.getParameter<double>("fixedErrorRescaleFactorForHits")),
@@ -51,6 +51,7 @@ TSGForOI::~TSGForOI(){
 
 void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   /// Init variables
+  numOfMaxSeeds_ = numOfMaxSeedsParam_;
   numSeedsMade_=0;
   analysedL2_ = false;
   foundHitlessSeed_ = false; 

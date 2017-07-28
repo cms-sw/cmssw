@@ -41,6 +41,7 @@ private:
 	const edm::EDGetTokenT<reco::TrackCollection> src_;
 
 	/// Maximum number of seeds for each L2
+	const unsigned int numOfMaxSeedsParam_;
 	unsigned int numOfMaxSeeds_;
 
 	/// How many layers to try
@@ -88,6 +89,7 @@ private:
 
 	/// Counters and flags for the implementation
 	const std::string theCategory;
+	
 	bool analysedL2_;
 	bool foundHitlessSeed_;
 	unsigned int numSeedsMade_;
