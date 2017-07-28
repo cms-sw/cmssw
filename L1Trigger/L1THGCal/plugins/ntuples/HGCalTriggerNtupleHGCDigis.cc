@@ -12,7 +12,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
 {
@@ -291,13 +291,10 @@ simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, s
         itr_insert.first->second += simhit.energy();
       }      
       //  BH
-      int z=0, depth0=0, eta0=0, phi0=0, lay=0;
       for( const auto& simhit : bh_simhits ) { 
-        HcalTestNumbering::unpackHcalIndex(simhit.id(), subdet, z, depth0, eta0, phi0, lay);
-        int sign = (z==0 ? -1 : 1);
-        HcalDDDRecConstants::HcalID tempid = triggerGeometry_->bhTopology().dddConstants()->getHCID(subdet, sign*eta0, phi0, lay, depth0);
-        if (subdet!=HcalEndcap) continue;
-        auto itr_insert = simhits_bh.emplace(HcalDetId(HcalEndcap,sign*tempid.eta,tempid.phi,tempid.depth), 0.);
+        HcalDetId id = HcalHitRelabeller::relabel(simhit.id(), triggerGeometry_->bhTopology().dddConstants());
+        if (id.subdetId()!=HcalEndcap) continue;
+        auto itr_insert = simhits_bh.emplace(id, 0.);
         itr_insert.first->second += simhit.energy();
       }      
 }
