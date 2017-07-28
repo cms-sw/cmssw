@@ -19,17 +19,28 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
 
-# QGSJET-II-04
-process.generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
-    beamid = cms.int32(1),
-    targetid = cms.int32(1),
-    model = cms.int32(7),
-    targetmomentum = cms.double(-6500),
-    beammomentum = cms.double(6500),
-    bmin = cms.double(0),
-    bmax = cms.double(10000),
-    paramFileName = cms.untracked.string("Configuration/Generator/data/ReggeGribovPartonMC.param"),
-    skipNuclFrag = cms.bool(True)
+# particle-data table
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+# particle generator
+process.generator = cms.EDProducer("RandomtXiGunProducer",
+  Verbosity = cms.untracked.int32(0),
+
+  FireBackward = cms.bool(True),
+  FireForward = cms.bool(True),
+
+  PGunParameters = cms.PSet(
+    PartID = cms.vint32(2212),
+    ECMS = cms.double(13E3),
+
+    Mint = cms.double(0),
+    Maxt = cms.double(1),
+    MinXi = cms.double(0.0),
+    MaxXi = cms.double(0.1),
+
+    MinPhi = cms.double(-3.14159265359),
+    MaxPhi = cms.double(+3.14159265359)
+  )
 )
 
 # random seeds
@@ -51,6 +62,7 @@ process.TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule")
 
 # fast simulation
 process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
+process.ctppsFastProtonSimulation.checkApertures = True
 process.ctppsFastProtonSimulation.produceHitsRelativeToBeam = False
 process.ctppsFastProtonSimulation.roundToPitch = True
 
@@ -68,7 +80,7 @@ process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 process.ctppsFastSimulationValidator = cms.EDAnalyzer("CTPPSFastSimulationValidator",
   simuTracksTag = cms.InputTag("ctppsFastProtonSimulation"),
   recoTracksTag = cms.InputTag("ctppsLocalTrackLiteProducer"),
-  outputFile = cms.string("output_with_detector_smearing.root")
+  outputFile = cms.string("output_reco_simu_diff_with_det_sm.root")
 )
 
 # processing path
