@@ -97,9 +97,9 @@ TrackerTopology fromTrackerParametersXML( const std::string& xmlFileName )
   } catch ( const DOMException& domEx ) {
     throw cms::Exception("StandaloneTrackerTopology",
         "DOM exception when parsing " + xmlFileName + " : " + xmlc_to_stdstring(domEx.getMessage()));
-  } catch (...) {
+  } catch ( const SAXException& saxEx ) {
     throw cms::Exception("StandaloneTrackerTopology",
-        "Unexpected exception when parsing " + xmlFileName);
+        "SAX exception when parsing " + xmlFileName + " : " + xmlc_to_stdstring(saxEx.getMessage()));
   }
 
   const std::string subdetName{"Subdetector"};
@@ -221,9 +221,9 @@ TrackerTopology fromTrackerParametersXML( const std::string& xmlFileName )
         }
       }
     }
-  } catch (...) {
+  } catch ( const DOMException& domEx ) {
     throw cms::Exception("StandaloneTrackerTopology",
-        "Unexpected exception in parsing "+xmlFileName);
+        "DOM exception in "+xmlFileName+" : "+xmlc_to_stdstring(domEx.getMessage()));
   }
 
   } // parser and DOM scope
