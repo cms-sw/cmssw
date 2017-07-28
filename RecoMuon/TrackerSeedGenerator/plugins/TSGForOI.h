@@ -73,11 +73,8 @@ private:
 	/// Switch ON to use Stereo layers instead of using every layer in TEC.
 	const bool useStereoLayersInTEC_;
 
-	/// Surface used to make a TSOS at the PCA to the beamline
-	Plane::PlanePointer dummyPlane_;
-
 	/// KFUpdator defined in constructor
-	std::unique_ptr<TrajectoryStateUpdator> updator_;
+	const std::unique_ptr<TrajectoryStateUpdator> updator_;
 
 	const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
 
@@ -90,16 +87,13 @@ private:
 	const double tsosDiff_;
 
 	/// Counters and flags for the implementation
+	const std::string theCategory;
 	bool analysedL2_;
 	bool foundHitlessSeed_;
 	unsigned int numSeedsMade_;
 	unsigned int layerCount_;
 
-	std::string theCategory;
-	edm::ESHandle<MagneticField>          magfield_;
-	edm::ESHandle<Propagator>             propagatorAlong_;
-	edm::ESHandle<Propagator>             propagatorOpposite_;
-	edm::ESHandle<GlobalTrackingGeometry> geometry_;
+
 	edm::Handle<MeasurementTrackerEvent>  measurementTracker_;
 	edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
 
