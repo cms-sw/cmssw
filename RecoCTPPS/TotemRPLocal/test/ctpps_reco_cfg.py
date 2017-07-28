@@ -32,7 +32,7 @@ process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff')
 #    )
 #)
 
-process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff')
 process.ctppsLocalTrackLiteProducer.doNothing = cms.bool(False)
 
 process.output = cms.OutputModule("PoolOutputModule",
