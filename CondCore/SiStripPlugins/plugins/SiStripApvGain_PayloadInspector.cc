@@ -116,7 +116,57 @@ namespace {
       return true;
     }
   };
-  
+
+    /************************************************
+    TrackerMap of SiStripApvGains (average gain per detid)
+  *************************************************/
+  class SiStripApvGainsDefaultTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsDefaultTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of SiStripGains to default" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
+
+      std::string titleMap = "SiStrip APV Gain to default per module (payload : "+std::get<1>(iov)+")";
+
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      tmap->setTitle(titleMap.c_str());
+      tmap->setPalette(1);
+      
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      int countDefaults=0;
+
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=payload->getRange(d);
+	float sumOfGains=0;
+	float nAPVsPerModule=0.;
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVsPerModule+=1;
+	  sumOfGains+=payload->getApvGain(it,range);
+	} // loop over APVs
+	// fill the tracker map taking the average gain on a single DetId
+	if((sumOfGains/nAPVsPerModule)==1.){
+	  tmap->fill(d,1.);
+	  countDefaults+=nAPVsPerModule;
+	}
+      } // loop over detIds
+
+      std::cout<<"there are "<< countDefaults << std::endl;
+
+      //=========================
+      
+      std::string fileName(m_imageFileName);
+      tmap->save(true,0,0,fileName.c_str());
+
+      return true;
+    }
+  };
+
   /************************************************
     TrackerMap of SiStripApvGains (ratio with previous gain per detid)
   *************************************************/
@@ -590,16 +640,14 @@ namespace {
 	  }
 	  std::map<unsigned int, SiStripDetSummary::Values> map = summaryGain.getCounts();
 
-	  myPrintSummary(map);
+	  //	  myPrintSummary(map);
 
-	  /*
-	  std::cout<<"map size: "<<map.size()<< std::endl;
+	  //std::cout<<"map size: "<<map.size()<< std::endl;
 	  std::stringstream ss;
 	  ss << "Summary of gain values:" << std::endl;
 	  summaryGain.print(ss, true);
 	  std::cout<<ss.str()<<std::endl;
-	  */
-
+	  
 	}// payload
       }// iovs
       return true;
@@ -880,6 +928,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsDefaultTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMinimumTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsRatioWithPreviousIOVTrackerMap);
