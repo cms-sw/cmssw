@@ -35,7 +35,7 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
     if(doHEP_){
            monElemFuncs.initStdEleHistsHEP(eleMonElem->monElems(),filterName,histname+"_passFilter"+eleMonElem->name(),bins);
     }else{  
-           monElemFuncs.initStdEleHists(eleMonElem->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElems->name(),bins);
+           monElemFuncs.initStdEleHists(eleMonElem->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElem->name(),bins);
           }
   }
   if(monHLTFailedEle){
