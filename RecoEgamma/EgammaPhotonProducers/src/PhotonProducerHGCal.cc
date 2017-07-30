@@ -296,6 +296,7 @@ void PhotonProducerHGCal::fillPhotonCollection(
       severitiesexcl_ = severitiesexclEE_;
     } else if (isHGCal) {
       // Compute everything HGCal related here inside.
+      preselCutValues = preselCutValuesEndcap_;
       if (scRef->energy() / cosh(scRef->eta()) <= preselCutValues[0]) continue;
       double photonEnergy = scRef->energy();
       math::XYZPoint vtx(0., 0., 0.);
