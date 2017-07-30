@@ -23,5 +23,6 @@ ecalDrivenGsfElectronCoresFromMC = ecalDrivenGsfElectronCores.clone()
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
   ecalDrivenGsfElectronCoresFromMC,
-  gsfTracks = 'electronGsfTracksFromMC'
+  gsfTracks = 'electronGsfTracksFromMC',
+  useGsfPfRecTracks = False
 )
