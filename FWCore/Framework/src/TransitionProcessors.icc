@@ -38,15 +38,17 @@ struct FileResources {
 
 struct RunResources {
   RunResources(EventProcessor& iEP, edm::ProcessHistoryID iHist,edm::RunNumber_t iRun) noexcept:
-  ep_(iEP), history_(iHist), run_(iRun) {}
+  ep_(iEP), history_(iHist), run_(iRun){}
   
   ~RunResources() noexcept {
     try {
-      //If we skip empty runs, this would be called conditionally
-      ep_.endRun(processHistoryID(), run(), cleaningUpAfterException_);
+      if(success_) {
+        //If we skip empty runs, this would be called conditionally
+        ep_.endRun(processHistoryID(), run(), cleaningUpAfterException_);
       
       
-      ep_.writeRun(processHistoryID(), run());
+        ep_.writeRun(processHistoryID(), run());
+      }
       ep_.deleteRunFromCache(processHistoryID(), run());
     }
     catch(...) {
@@ -69,11 +71,16 @@ struct RunResources {
   void normalEnd() {
     cleaningUpAfterException_ = false;
   }
+
+  void succeeded() {
+    success_ = true;
+  }
   
   EventProcessor& ep_;
   edm::ProcessHistoryID history_;
   edm::RunNumber_t run_;
   bool cleaningUpAfterException_ = true;
+  bool success_ = false;
 };
 
 struct LumiResources {
@@ -83,11 +90,15 @@ struct LumiResources {
   
   ~LumiResources() noexcept {
     try {
-      //If we skip empty lumis, this would be called conditionally
-      run_->ep_.endLumi(processHistoryID(), run(), lumi(), cleaningUpAfterException_);
+      if (success_) {
+      
+        //If we skip empty lumis, this would be called conditionally
+        run_->ep_.endLumi(processHistoryID(), run(), lumi(), cleaningUpAfterException_);
       
       
-      run_->ep_.writeLumi(processHistoryID(), run(), lumi());
+        run_->ep_.writeLumi(processHistoryID(), run(), lumi());
+      }
+
       run_->ep_.deleteLumiFromCache(processHistoryID(), run(), lumi());
       
     } catch(...) {
@@ -112,10 +123,15 @@ struct LumiResources {
   void normalEnd() {
     cleaningUpAfterException_ = false;
   }
-  
+
+  void succeeded() {
+    success_ = true;
+  }
+
   std::shared_ptr<RunResources> run_;
   edm::LuminosityBlockNumber_t lumi_;
   bool cleaningUpAfterException_ = true;
+  bool success_ = false;
 };
 
 struct EventResources {
@@ -193,6 +209,8 @@ private:
       auto id = iEP.readLuminosityBlock();
       assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID));
       iEP.beginLumi(currentLumi_->processHistoryID(), currentLumi_->run(), currentLumi_->lumi());
+      //only if we succeed at beginLumi should we run endLumi
+      currentLumi_->succeeded();
     } else {
       //merge
       auto id = iEP.readAndMergeLumi();
@@ -252,6 +270,8 @@ private:
       currentRun_ = std::make_shared<RunResources>(iEP,runID.first,runID.second);
       iEP.readRun();
       iEP.beginRun(runID.first,runID.second);
+      //only if we succeed at beginRun should we run endRun
+      currentRun_->succeeded();
     } else {
       //merge
       iEP.readAndMergeRun();

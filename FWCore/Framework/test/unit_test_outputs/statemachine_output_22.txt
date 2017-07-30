@@ -34,8 +34,6 @@ Machine parameters:  mode = NOMERGE
 	readRun 2
 	beginRun 2
 	throwing
-	endRun 2
-	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
@@ -76,8 +74,6 @@ Machine parameters:  mode = FULLMERGE
 	readRun 2
 	beginRun 2
 	throwing
-	endRun 2
-	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
