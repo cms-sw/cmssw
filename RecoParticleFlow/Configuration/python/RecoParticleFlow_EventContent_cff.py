@@ -154,12 +154,25 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFE
         'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
         'keep recoPFClusters_particleFlowClusterHGCal__*',
         'keep recoPFClusters_particleFlowClusterHGCalFromMC__*',
+        'keep *_particleFlowSuperClusterHGCalFromMC_*_*',
         'keep *_simPFProducer_*_*',
         'keep *_particleFlowTmpBarrel_*_*',
     ]
 )
-phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*', 'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*', 'keep recoPFClusters_particleFlowClusterHGCal*__*', 'keep recoPFBlocks_simPFProducer_*_*', 'keep recoSuperClusters_simPFProducer_*_*','keep *_particleFlowTmpBarrel_*_*' ] )
-phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*', 'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*', 'keep recoPFClusters_particleFlowClusterHGCal*__*', 'keep recoSuperClusters_simPFProducer_*_*' ] )
+phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [
+  'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
+  'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
+  'keep recoPFClusters_particleFlowClusterHGCal*__*',
+  'keep *_particleFlowSuperClusterHGCalFromMC_*_*',
+  'keep recoPFBlocks_simPFProducer_*_*',
+  'keep recoSuperClusters_simPFProducer_*_*',
+  'keep *_particleFlowTmpBarrel_*_*'
+  ] )
+phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [
+'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
+'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
+'keep recoPFClusters_particleFlowClusterHGCal*__*',
+'keep recoSuperClusters_simPFProducer_*_*' ] )
 
 #timing
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
