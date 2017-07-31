@@ -350,14 +350,14 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     
     
 
-    if (ZS_bit && FR_bit!=0) ///it is clusFlag==1, 5
+    if (ZS_bit!=0 && FR_bit==0) ///it is clusFlag==1, 5
       coridx = 0 + regind;
     else{
       if (pt<2.5) coridx = 1 + regind;
       else if (pt>=2.5 && pt<6.) coridx = 2 + regind;
       else if (pt>=6.) coridx = 3 + regind;
     }
-    if (ZS_bit!=0 || clusFlag > 7) {
+    if (ZS_bit==0 || clusFlag > 7) {
       edm::LogWarning("PFClusterEMEnergyCorrector") << "We can only correct regions readout in ZS (flag 1,5) or FULL readout (flag 3,7). Flag " << clusFlag << " is not recognized."
 						    << "\n" << "Assuming FULL readout and continuing";
     }
