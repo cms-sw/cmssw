@@ -145,11 +145,11 @@ std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const i
   std::vector<std::pair<double,double> > gcons;
   if (type == 0) {
     for (unsigned int i=0; i<hpar->rHB.size(); ++i) {
-      gcons.push_back(std::pair<double,double>(hpar->rHB[i],hpar->drHB[i]));
+      gcons.emplace_back(std::pair<double,double>(hpar->rHB[i],hpar->drHB[i]));
     }
   } else {
     for (unsigned int i=0; i<hpar->zHE.size(); ++i) {
-      gcons.push_back(std::pair<double,double>(hpar->zHE[i],hpar->dzHE[i]));
+      gcons.emplace_back(std::pair<double,double>(hpar->zHE[i],hpar->dzHE[i]));
     }
   }
   return gcons;
@@ -485,7 +485,7 @@ HcalDDDSimConstants::getPhis(const int subdet, const int ieta) const {
   for (int ifi = 0; ifi < nphi; ++ifi) {
     double phi =-ficons.first + (ifi+0.5)*ficons.second;
     int iphi   = phiNumber(ifi+1,units);
-    phis.push_back(std::pair<int,double>(iphi,phi));
+    phis.emplace_back(std::pair<int,double>(iphi,phi));
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "getPhis: subdet|ieta|iphi " << subdet << "|" << ieta 
@@ -591,7 +591,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 	      if (eta == hpar->noff[4]) {
 		int kk = (iz == 0) ? 7 : (7+hpar->noff[5]);
 		for (int miss=0; miss<hpar->noff[5+iz]; miss++) {
-		  phiMiss2.push_back(hpar->noff[kk]);
+		  phiMiss2.emplace_back(hpar->noff[kk]);
 		  kk++;
 		}
 	      }
@@ -606,7 +606,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 	  }
 	  int unit  = unitPhi(dphi);
 	  temp2.setPhi(phis,phiMiss2,fioff,dphi,unit);
-	  cellTypes.push_back(temp2);
+	  cellTypes.emplace_back(temp2);
 	  // For HF look at extra cells
 	  if ((subdet == HcalForward) && (idHF2QIE.size() > 0)) {
 	    HcalCellType temp3(subdet, eta, zside+2, depth, temp1,
@@ -621,13 +621,13 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 		  break;
 		}
 	      }
-	      if (!ok) phiMiss3.push_back(phi.first);
+	      if (!ok) phiMiss3.emplace_back(phi.first);
 	    }
 	    dphi  = hpar->phitable[eta-hpar->etaMin[2]];
 	    unit  = unitPhi(dphi);
 	    fioff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
 	    temp3.setPhi(phis,phiMiss2,fioff,dphi,unit);
-	    cellTypes.push_back(temp3);
+	    cellTypes.emplace_back(temp3);
 	  }
 	}
       }
@@ -777,7 +777,7 @@ void HcalDDDSimConstants::initialize( void ) {
 	  ll = l+1; break;
 	}
       }
-      depths[i].push_back(ll);
+      depths[i].emplace_back(ll);
     }
 
 #ifdef EDM_ML_DEBUG
@@ -846,7 +846,7 @@ void HcalDDDSimConstants::initialize( void ) {
     int npair = hpar->noff[noffsize+4];
     int kk    = noffsize+4;
     for (int k=0; k<npair; ++k) {
-      idHF2QIE.push_back(HcalDetId(HcalForward,hpar->noff[kk+1],hpar->noff[kk+2],1));
+      idHF2QIE.emplace_back(HcalDetId(HcalForward,hpar->noff[kk+1],hpar->noff[kk+2],1));
       kk += 2;
     }
   }
@@ -873,11 +873,11 @@ void HcalDDDSimConstants::initialize( void ) {
       if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
 	if (dtype == 1 || dtype == 2) {
 	  std::vector<int> ifi, iet, ily, idp;
-	  for (int i=0; i<nphi; ++i) ifi.push_back(hpar->noff[noffk+7+i]);
+	  for (int i=0; i<nphi; ++i) ifi.emplace_back(hpar->noff[noffk+7+i]);
 	  for (int i=0; i<ndeps;++i) {
-	    iet.push_back(hpar->noff[noffk+7+nphi+3*i]);
-	    ily.push_back(hpar->noff[noffk+7+nphi+3*i+1]);
-	    idp.push_back(hpar->noff[noffk+7+nphi+3*i+2]);
+	    iet.emplace_back(hpar->noff[noffk+7+nphi+3*i]);
+	    ily.emplace_back(hpar->noff[noffk+7+nphi+3*i+1]);
+	    idp.emplace_back(hpar->noff[noffk+7+nphi+3*i+2]);
 	  }
 #ifdef EDM_ML_DEBUG
 	  std::cout << "Initialize HcalLayerDepthMap for Detector " << dtype

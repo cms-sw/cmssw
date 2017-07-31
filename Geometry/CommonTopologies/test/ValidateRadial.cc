@@ -77,7 +77,7 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
     else rt = dynamic_cast<const TkRadialStripTopology*>(topol);
     if (!rt) std::cout << "no radial topology for " << radial_detid << std::endl;
     else
-    topos.push_back(rt);
+    topos.emplace_back(rt);
   }
   return topos;
 }

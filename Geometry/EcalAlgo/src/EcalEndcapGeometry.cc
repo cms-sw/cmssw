@@ -462,7 +462,7 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
                olist[6]=EBDetId( iEta  , myPhi( jPhi+2 ) ) ;
                olist[7]=EBDetId( iEta  , myPhi( jPhi-2 ) ) ;
                olist[8]=EBDetId( iEtam2,        jPhi     ) ;
-               ptrVec->push_back( &olist ) ;
+               ptrVec->emplace_back( &olist ) ;
            }
            bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
            if(!exchanged) delete ptrVec;
