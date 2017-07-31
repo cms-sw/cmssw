@@ -234,8 +234,8 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    unsigned int jscThresholdEndcap = rctParameters_->jscQuietThresholdEndcap();
    writeThresholdsFile(eicThreshold, jscThresholdBarrel, jscThresholdEndcap);
 
-  if (dummyE != 0) delete dummyE;
-  if (dummyH != 0) delete dummyH;
+  delete dummyE;
+  delete dummyH;
 
 }
 

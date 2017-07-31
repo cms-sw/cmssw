@@ -536,8 +536,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       if(inputCollectionType_ == 1) {
 	patElectrons->push_back(*myPatElectron);
      }
-      if (myPatElectron) delete myPatElectron;
-      if (mySCHelper) delete mySCHelper;
+      delete myPatElectron;
+      delete mySCHelper;
   } // loop on electrons
 
   // Write the new collection in the event (AOD case)

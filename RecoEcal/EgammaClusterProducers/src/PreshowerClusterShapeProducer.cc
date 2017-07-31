@@ -190,7 +190,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   evt.put(std::move(ps_cl_for_pi0_disc_y), PreshowerClusterShapeCollectionY_);  
   LogTrace("EcalClusters") << "PreshowerClusterShapeCollection added to the event" ;
   
-  if (topology_p)
+  
     delete topology_p;
 
   nEvt_++;

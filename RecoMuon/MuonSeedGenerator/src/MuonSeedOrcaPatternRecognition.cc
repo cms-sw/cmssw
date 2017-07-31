@@ -218,9 +218,9 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     }
   }
 
-  if ( MB3 ) delete [] MB3;
-  if ( MB2 ) delete [] MB2;
-  if ( MB1 ) delete [] MB1;
+  ) delete [] MB3;
+  ) delete [] MB2;
+  ) delete [] MB1;
 
   if(result.empty()) 
   {
@@ -465,10 +465,10 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     }
   }
 
-  if ( ME5 ) delete [] ME5;
-  if ( ME4 ) delete [] ME4;
-  if ( ME3 ) delete [] ME3;
-  if ( ME2 ) delete [] ME2;
+  ) delete [] ME5;
+  ) delete [] ME4;
+  ) delete [] ME3;
+  ) delete [] ME2;
 
   if(!patterns.empty())
   {

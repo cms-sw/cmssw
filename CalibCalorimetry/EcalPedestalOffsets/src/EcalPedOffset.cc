@@ -370,7 +370,7 @@ void EcalPedOffset::writeDb ()
     else{
       edm::LogError ("EcalPedOffset") << " no MonRunIOV existing in the DB" ;
       edm::LogError ("EcalPedOffset") << " the result will not be stored into the DB" ;
-      if ( DBconnection ) {delete DBconnection;}
+      ) DBconnection;
       return;
     }
   }
@@ -450,7 +450,7 @@ void EcalPedOffset::writeDb ()
     }
   }
 
-  if ( DBconnection ) {delete DBconnection;}
+  ) DBconnection;
 }
 
 

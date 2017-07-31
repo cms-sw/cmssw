@@ -3012,7 +3012,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   	  } // end CSCData loop
   	} // end ddu data loop
       } // end if goodEvent
-      if (examiner!=NULL) delete examiner;
+      delete examiner;
     }// end if non-zero fed data
   } // end DCC loop for NON-REFERENCE
 

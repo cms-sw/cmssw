@@ -850,11 +850,11 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 //       sigmaME->setBinEntries(i, 1.);
 //       sigmaME->setBinError(i,sqrt(err[2]*err[2]+par[2]*par[2]));
 
-      if(fitFcn) delete fitFcn;
-      if(histoY) delete histoY;
+      delete fitFcn;
+      delete histoY;
     }
     else {
-      if(histoY) delete histoY;
+      delete histoY;
       continue;
     }
   }

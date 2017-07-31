@@ -246,7 +246,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 						tkTrajectory? new Trajectory(*tkTrajectory) : 0);
 	
 	    if ( finalTrajectory ) refittedResult.push_back(finalTrajectory);
-	    if(tkTrajectory) delete tkTrajectory;
+	    delete tkTrajectory;
 	  }
 	  else{
 		MuonCandidate* finalTrajectory = 0;
@@ -267,7 +267,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 		// Creating MuonCandidate using only the tracker trajectory:
 		finalTrajectory = new MuonCandidate(new Trajectory(*tkTrajectory), it->muonTrack(), it->trackerTrack(),new Trajectory(*tkTrajectory));
 		if (finalTrajectory) refittedResult.push_back(finalTrajectory);
-		if(tkTrajectory) delete tkTrajectory;
+		delete tkTrajectory;
 	  }
   }
 
@@ -293,7 +293,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   for (auto&& it: refittedResult){
     if ( it->trajectory() ) delete it->trajectory();
     if ( it->trackerTrajectory() ) delete it->trackerTrajectory();
-    if ( it ) delete it;
+    ) delete it;
   }
   refittedResult.clear();
 

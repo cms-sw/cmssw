@@ -98,7 +98,7 @@ L1MuBMTrackFinder::~L1MuBMTrackFinder() {
 
   delete m_ms;
 
-  if ( m_config ) delete m_config;
+  ) delete m_config;
   m_config = 0;
 
 }

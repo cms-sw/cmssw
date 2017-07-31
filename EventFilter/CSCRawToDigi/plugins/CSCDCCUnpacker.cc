@@ -655,7 +655,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
               // dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
               // if(instantiateDQM)  monitor->process(examiner, NULL);
             }
-          if (examiner!=NULL) delete examiner;
+          delete examiner;
         } // end of if fed has data
     } // end of loop over DCCs
   // put into the event

@@ -175,7 +175,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
              }
          }
          
-         if( corrJet ) { delete corrJet; }
+         ) delete corrJet; 
      }
      
      if( runMvas_ ) {

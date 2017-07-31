@@ -190,7 +190,7 @@ public:
 	    }
 	  }
 	}
-	if (selection) delete selection;
+	delete selection;
       }
     }
  private:

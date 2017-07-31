@@ -325,7 +325,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     log<<coral::Error<<"Unexpected Exception parsing file \"" << inputFileName << "\"" <<coral::MessageStream::endmsg;
     result = false;
   }
-  if(memBufInputSource) delete memBufInputSource;
+  delete memBufInputSource;
   return result;
 }
 

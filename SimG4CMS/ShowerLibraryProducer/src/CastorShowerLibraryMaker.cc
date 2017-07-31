@@ -923,13 +923,13 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
 // Write number of hits to CastorShowerEvent instance
      if (nHits==0) {
         edm::LogInfo("CastorShowerLibraryMaker") << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
-        if (theCastorNumScheme) delete theCastorNumScheme;
+        delete theCastorNumScheme;
         return false;
      }
      shower->setNhit(nHits);
 
 // update the event counters
-     if (theCastorNumScheme) delete theCastorNumScheme;
+     delete theCastorNumScheme;
      return true;
 }
 int& CastorShowerLibraryMaker::SLnEvtInBinE(int ebin)

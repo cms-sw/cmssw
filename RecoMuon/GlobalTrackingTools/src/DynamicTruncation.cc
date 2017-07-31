@@ -274,7 +274,7 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
       }
     }
   }
-  if (theEstimator) delete theEstimator;
+  delete theEstimator;
 }
 
 

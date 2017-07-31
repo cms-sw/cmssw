@@ -494,7 +494,7 @@ for (int layer=1; layer < 44; layer++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 ) delete mod;
+        ) delete mod;
       }
     }
   }

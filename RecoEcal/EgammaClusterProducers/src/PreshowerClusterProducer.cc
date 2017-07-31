@@ -256,7 +256,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   evt.put(std::move(superclusters_p), assocSClusterCollection_);
   LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
   
-  if (topology_p)
+  
     delete topology_p;
   
   nEvt_++;

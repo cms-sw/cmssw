@@ -136,7 +136,7 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
   //Save Sideband histo
   SideBandHistos.push_back(*SideBandHist);
 
-  if(SideBandHist) delete SideBandHist;
+  delete SideBandHist;
   return 0;
 }
 static void print_histo(TH1F* plot, string outname)
@@ -483,8 +483,8 @@ int SideBandSubtract::doGlobalFit()
     }
 
   //  clean up our memory...
-  if(variable)      delete variable;
-  if(iter)          delete iter;
+       delete variable;
+           delete iter;
   return 0;
 }
 void SideBandSubtract::doFastSubtraction(TH1F &Total, TH1F &Result, SbsRegion& leftRegion, SbsRegion& rightRegion)

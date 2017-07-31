@@ -152,7 +152,7 @@ CentralityTableProducer::endJob() {
        thisBin->b.var = CB->bSigmaOfBin(j);
        printBin(thisBin);
        CT->m_table.push_back(*thisBin);
-       if(thisBin) delete thisBin;
+       delete thisBin;
   }
 
       edm::Service<cond::service::PoolDBOutputService> pool;
