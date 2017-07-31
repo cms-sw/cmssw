@@ -132,7 +132,7 @@ topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta ; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
         "effic_ele1Pt_ele2Pt    'efficiency vs ele1-ele2 pt; ele1 pt; ele2 pt' ele1Pt_ele2Pt_numerator       ele1Pt_ele2Pt_denominator",
         "effic_ele1Eta_ele2Eta    'efficiency vs ele1-ele2 #eta; ele1 #eta; ele2 #eta' ele1Eta_ele2Eta_numerator       ele1Eta_ele2Eta_denominator",
-        "effic_ele1Phi_ele2Phi    'efficiency vs ele1-ele2 #phi; ele1 #eta; ele2 #phi' ele1Phi_ele2Phi_numerator       ele1Phi_ele2Phi_denominator",
+        "effic_ele1Phi_ele2Phi    'efficiency vs ele1-ele2 #phi; ele1 #phi; ele2 #phi' ele1Phi_ele2Phi_numerator       ele1Phi_ele2Phi_denominator",
         "effic_elePt_eventHT    'efficiency vs elePT-eventHT ; ele p_T; event HT' elePt_eventHT_numerator       elePt_eventHT_denominator",
 
     ),
