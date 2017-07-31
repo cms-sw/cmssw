@@ -205,9 +205,9 @@ namespace l1t
 		    const std::string& authenticationPath ) ;
 
    private:
-      OMDSReader(const OMDSReader&); // stop default
+      OMDSReader(const OMDSReader&) = delete; // stop default
 
-      const OMDSReader& operator=(const OMDSReader&); // stop default
+      const OMDSReader& operator=(const OMDSReader&) = delete; // stop default
 
       // ---------- member data --------------------------------
 };

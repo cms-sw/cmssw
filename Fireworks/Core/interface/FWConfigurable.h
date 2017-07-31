@@ -41,9 +41,9 @@ public:
    virtual void setFrom(const FWConfiguration&) = 0;
 
 private:
-   FWConfigurable(const FWConfigurable&);    // stop default
+   FWConfigurable(const FWConfigurable&) = delete;    // stop default
 
-   const FWConfigurable& operator=(const FWConfigurable&);    // stop default
+   const FWConfigurable& operator=(const FWConfigurable&) = delete;    // stop default
 
    // ---------- member data --------------------------------
 

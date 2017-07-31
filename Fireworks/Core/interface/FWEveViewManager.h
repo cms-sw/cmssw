@@ -85,8 +85,8 @@ protected:
    virtual void colorsChanged();
 
 private:
-   FWEveViewManager(const FWEveViewManager&); // stop default
-   const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
+   FWEveViewManager(const FWEveViewManager&) = delete; // stop default
+   const FWEveViewManager& operator=(const FWEveViewManager&) = delete; // stop default
 
    FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
    FWEveView*  finishViewCreate     (std::shared_ptr<FWEveView>);

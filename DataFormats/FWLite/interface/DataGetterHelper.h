@@ -90,8 +90,8 @@ namespace fwlite {
 
         private:
 
-            DataGetterHelper(const DataGetterHelper&); // stop default
-            const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
+            DataGetterHelper(const DataGetterHelper&) = delete; // stop default
+            const DataGetterHelper& operator=(const DataGetterHelper&) = delete; // stop default
 
             typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
 

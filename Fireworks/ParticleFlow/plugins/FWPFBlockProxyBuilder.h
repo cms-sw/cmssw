@@ -91,8 +91,8 @@ class FWPFBlockEcalProxyBuilder : public FWPFBlockProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFBlockEcalProxyBuilder( const FWPFBlockEcalProxyBuilder& );
-      const FWPFBlockEcalProxyBuilder& operator=( const FWPFBlockEcalProxyBuilder& );
+      FWPFBlockEcalProxyBuilder( const FWPFBlockEcalProxyBuilder& ) = delete;
+      const FWPFBlockEcalProxyBuilder& operator=( const FWPFBlockEcalProxyBuilder& ) = delete;
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -109,8 +109,8 @@ class FWPFBlockHcalProxyBuilder : public FWPFBlockProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFBlockHcalProxyBuilder( const FWPFBlockHcalProxyBuilder& );
-      const FWPFBlockHcalProxyBuilder& operator=( const FWPFBlockHcalProxyBuilder& );
+      FWPFBlockHcalProxyBuilder( const FWPFBlockHcalProxyBuilder& ) = delete;
+      const FWPFBlockHcalProxyBuilder& operator=( const FWPFBlockHcalProxyBuilder& ) = delete;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

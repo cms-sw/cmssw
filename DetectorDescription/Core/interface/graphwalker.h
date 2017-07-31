@@ -73,7 +73,7 @@ protected:
   const graph<N,E> & graph_;
   //jklsdfjklsdfkljsdfakjl;
 private:
-  graphwalker();
+  graphwalker() = delete;
 
 };
 

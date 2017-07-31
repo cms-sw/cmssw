@@ -27,7 +27,7 @@ public:
   
 private:
   ///NOTE: do not call this, it is only here because ROOT demands it
-  BranchToClass();
+  BranchToClass() = delete;
 };
 
 TClass*

@@ -103,8 +103,8 @@ private:
   inline G4double SimpleScattering(G4double xmeanth, G4double x2meanth);
 
   //  hide assignment operator
-  UrbanMscModel93 & operator=(const  UrbanMscModel93 &right);
-  UrbanMscModel93(const  UrbanMscModel93&);
+  UrbanMscModel93 & operator=(const  UrbanMscModel93 &right) = delete;
+  UrbanMscModel93(const  UrbanMscModel93&) = delete;
 
   const G4ParticleDefinition* particle;
   G4ParticleChangeForMSC*     fParticleChange;

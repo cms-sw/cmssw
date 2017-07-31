@@ -122,8 +122,8 @@ class DTCCBConfig {
 
  private:
 
-  DTCCBConfig(DTCCBConfig const&);
-  DTCCBConfig& operator=(DTCCBConfig const&);
+  DTCCBConfig(DTCCBConfig const&) = delete;
+  DTCCBConfig& operator=(DTCCBConfig const&) = delete;
 
   int timeStamp;
   std::string dataVersion;

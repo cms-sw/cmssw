@@ -32,8 +32,8 @@ public:
 
 private:
 
-  CMSFieldManager(const CMSFieldManager&);
-  CMSFieldManager& operator=(const CMSFieldManager&);
+  CMSFieldManager(const CMSFieldManager&) = delete;
+  CMSFieldManager& operator=(const CMSFieldManager&) = delete;
 
   std::unique_ptr<sim::Field> theField;
 

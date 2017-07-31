@@ -52,9 +52,9 @@ protected:
 
 private:
   
-   FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&); // stop default
+   FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&) = delete; // stop default
   
-   const FWHFTowerProxyBuilderBase& operator=(const FWHFTowerProxyBuilderBase&); // stop default
+   const FWHFTowerProxyBuilderBase& operator=(const FWHFTowerProxyBuilderBase&) = delete; // stop default
   
    virtual void build(const FWEventItem* iItem,
                       TEveElementList* product, const FWViewContext*);

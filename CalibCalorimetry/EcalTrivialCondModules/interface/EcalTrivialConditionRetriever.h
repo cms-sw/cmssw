@@ -186,8 +186,8 @@ protected:
                                const edm::IOVSyncValue& ,
                                edm::ValidityInterval& ) ;
 private:
-  EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ); // stop default
-  const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ); // stop default
+  EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ) = delete; // stop default
+  const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ) = delete; // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 

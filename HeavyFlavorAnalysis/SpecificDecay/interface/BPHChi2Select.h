@@ -60,8 +60,8 @@ class BPHChi2Select: public BPHVertexSelect {
  private:
 
   // private copy and assigment constructors
-  BPHChi2Select           ( const BPHChi2Select& x );
-  BPHChi2Select& operator=( const BPHChi2Select& x );
+  BPHChi2Select           ( const BPHChi2Select& x ) = delete;
+  BPHChi2Select& operator=( const BPHChi2Select& x ) = delete;
 
   double probMin;
 

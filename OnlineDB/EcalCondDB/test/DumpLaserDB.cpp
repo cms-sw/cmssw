@@ -511,7 +511,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   void init();
   TTree *tree; 
   TFile *tfile;

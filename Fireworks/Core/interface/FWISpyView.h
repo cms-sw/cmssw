@@ -40,9 +40,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWISpyView(const FWISpyView&); // stop default
+   FWISpyView(const FWISpyView&) = delete; // stop default
 
-   const FWISpyView& operator=(const FWISpyView&); // stop default
+   const FWISpyView& operator=(const FWISpyView&) = delete; // stop default
 
    // ---------- member data --------------------------------};
 };

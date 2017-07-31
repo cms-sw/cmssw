@@ -68,9 +68,9 @@ public:
    
    
 private:
-   FWTextTableCellRenderer(const FWTextTableCellRenderer&); // stop default
+   FWTextTableCellRenderer(const FWTextTableCellRenderer&) = delete; // stop default
    
-   const FWTextTableCellRenderer& operator=(const FWTextTableCellRenderer&); // stop default
+   const FWTextTableCellRenderer& operator=(const FWTextTableCellRenderer&) = delete; // stop default
    
    // ---------- member data --------------------------------
    const TGGC* m_context;

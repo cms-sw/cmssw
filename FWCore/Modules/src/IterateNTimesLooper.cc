@@ -35,9 +35,9 @@ namespace edm {
       virtual Status endOfLoop(EventSetup const&, unsigned int) override;
 
     private:
-      IterateNTimesLooper(IterateNTimesLooper const&); // stop default
+      IterateNTimesLooper(IterateNTimesLooper const&) = delete; // stop default
 
-      IterateNTimesLooper const& operator=(IterateNTimesLooper const&); // stop default
+      IterateNTimesLooper const& operator=(IterateNTimesLooper const&) = delete; // stop default
 
       // ---------- member data --------------------------------
       unsigned int max_;

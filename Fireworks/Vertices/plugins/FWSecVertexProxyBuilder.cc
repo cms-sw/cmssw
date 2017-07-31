@@ -27,8 +27,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
  
 private:
-   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&); // stop default
-   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
+   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&) = delete; // stop default
+   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&) = delete; // stop default
    
    // ---------- member data --------------------------------
    using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;

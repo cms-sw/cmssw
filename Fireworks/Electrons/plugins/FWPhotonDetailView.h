@@ -32,8 +32,8 @@ public:
    virtual void setTextInfo(const FWModelId &id, const reco::Photon*);
 
 private:
-   FWPhotonDetailView(const FWPhotonDetailView&); // stop default
-   const FWPhotonDetailView& operator=(const FWPhotonDetailView&); // stop default
+   FWPhotonDetailView(const FWPhotonDetailView&) = delete; // stop default
+   const FWPhotonDetailView& operator=(const FWPhotonDetailView&) = delete; // stop default
 
    void addSceneInfo(const reco::Photon*, TEveElementList*);
 

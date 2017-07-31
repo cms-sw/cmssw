@@ -165,8 +165,8 @@ private:
       bool        passed;
    };
 
-   FWPSetTableManager(const FWPSetTableManager&); // stop default
-   const FWPSetTableManager& operator=(const FWPSetTableManager&); // stop default
+   FWPSetTableManager(const FWPSetTableManager&) = delete; // stop default
+   const FWPSetTableManager& operator=(const FWPSetTableManager&) = delete; // stop default
 
    void recalculateVisibility();
 

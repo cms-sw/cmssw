@@ -52,8 +52,8 @@ public:
 
 private:
   // undefined, no semantics
-  Storage (const Storage &);
-  Storage &operator= (const Storage &);
+  Storage (const Storage &) = delete;
+  Storage &operator= (const Storage &) = delete;
 };
 
 #endif // STORAGE_FACTORY_STORAGE_H

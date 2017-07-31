@@ -48,9 +48,9 @@ namespace edm {
                                      ValidityInterval&);
          
       private:
-         IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&); // stop default
+         IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&) = delete; // stop default
          
-         const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&); // stop default
+         const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&) = delete; // stop default
          
          // ---------- member data --------------------------------
          std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;

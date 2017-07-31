@@ -31,9 +31,9 @@ namespace fwlite {
             const edm::ProcessHistory& history() const;
 
         private:
-            RunHistoryGetter(const RunHistoryGetter&); // stop default
+            RunHistoryGetter(const RunHistoryGetter&) = delete; // stop default
 
-            const RunHistoryGetter& operator=(const RunHistoryGetter&); // stop default
+            const RunHistoryGetter& operator=(const RunHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::Run* run_;

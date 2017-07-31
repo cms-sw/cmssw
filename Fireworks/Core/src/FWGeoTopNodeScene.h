@@ -9,8 +9,8 @@ class TGLViewer;
 class FWGeoTopNodeGLScene : public TGLScenePad
 {
 private:
-   FWGeoTopNodeGLScene(const FWGeoTopNodeGLScene&);            // Not implemented
-   FWGeoTopNodeGLScene& operator=(const FWGeoTopNodeGLScene&); // Not implemented
+   FWGeoTopNodeGLScene(const FWGeoTopNodeGLScene&) = delete;            // Not implemented
+   FWGeoTopNodeGLScene& operator=(const FWGeoTopNodeGLScene&) = delete; // Not implemented
 protected:
 
 public:

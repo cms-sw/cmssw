@@ -30,9 +30,9 @@ public:
 
 private:
   // Disable default copy constructor
-  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& );    
+  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& ) = delete;    
   // Disable default assignment operator
-  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& );
+  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& ) = delete;
 
   using FWProxyBuilderBase::build;
   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;

@@ -24,9 +24,9 @@ public:
 
 private:
   // Disable default copy constructor
-  FWBeamSpotOnlineProxyBuilder( const FWBeamSpotOnlineProxyBuilder& );
+  FWBeamSpotOnlineProxyBuilder( const FWBeamSpotOnlineProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& );
+  const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& ) = delete;
 
   using FWSimpleProxyBuilderTemplate<BeamSpotOnline>::build;
   virtual void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

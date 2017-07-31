@@ -59,8 +59,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&); // stop default
-   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&); // stop default
+   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&) = delete; // stop default
+   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&) = delete; // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> ::build;
    virtual void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;

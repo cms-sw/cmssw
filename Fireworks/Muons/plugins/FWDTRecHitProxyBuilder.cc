@@ -30,9 +30,9 @@ public:
 
 private:
   // Disable default copy constructor
-  FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& );
+  FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
+  const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& ) = delete;
 
   using FWSimpleProxyBuilderTemplate<DTRecHit1DPair>::buildViewType;
   virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* ) override;

@@ -60,9 +60,9 @@ protected:
     void endJob() override ;
 
 private:
-    FFTJetEFlowSmoother();
-    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&);
-    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&);
+    FFTJetEFlowSmoother() = delete;
+    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&) = delete;
+    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&) = delete;
 
     void buildKernelConvolver(const edm::ParameterSet&);
 

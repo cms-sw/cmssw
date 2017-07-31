@@ -56,8 +56,8 @@ namespace magneticfield {
 
   private:
     // forbid copy ctor and assignment op.
-    VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&);
-    const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&);
+    VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
+    const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
     std::string closerNominalLabel(float current);
 
     edm::ParameterSet pset;

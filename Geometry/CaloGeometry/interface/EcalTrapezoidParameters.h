@@ -136,11 +136,11 @@ class EcalTrapezoidParameters
       // ---------- protected const member functions -----------
    private:
       // ---------- Constructors and destructor ----------------
-      EcalTrapezoidParameters();
-      EcalTrapezoidParameters( const EcalTrapezoidParameters& ); // stop default
+      EcalTrapezoidParameters() = delete;
+      EcalTrapezoidParameters( const EcalTrapezoidParameters& ) = delete; // stop default
 
       // ---------- assignment operator(s) ---------------------
-      const EcalTrapezoidParameters& operator=( const EcalTrapezoidParameters& ); // stop default
+      const EcalTrapezoidParameters& operator=( const EcalTrapezoidParameters& ) = delete; // stop default
 
       // ---------- private member functions -------------------
       // ---------- private const member functions -------------

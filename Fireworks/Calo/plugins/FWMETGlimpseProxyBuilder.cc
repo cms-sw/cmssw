@@ -20,8 +20,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWMETGlimpseProxyBuilder( const FWMETGlimpseProxyBuilder& );    // stop default
-   const FWMETGlimpseProxyBuilder& operator=( const FWMETGlimpseProxyBuilder& );    // stop default
+   FWMETGlimpseProxyBuilder( const FWMETGlimpseProxyBuilder& ) = delete;    // stop default
+   const FWMETGlimpseProxyBuilder& operator=( const FWMETGlimpseProxyBuilder& ) = delete;    // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
    virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );

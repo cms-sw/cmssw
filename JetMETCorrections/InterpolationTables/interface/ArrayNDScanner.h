@@ -76,7 +76,7 @@ namespace npstat {
             {state_ = state <= maxState_ ? state : maxState_;}
 
     private:
-        ArrayNDScanner();
+        ArrayNDScanner() = delete;
         
         void initialize(const unsigned* shape, unsigned lenShape);
 

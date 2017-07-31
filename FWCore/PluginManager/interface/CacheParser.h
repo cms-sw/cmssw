@@ -63,9 +63,9 @@ class CacheParser
    private:
       //for testing
       friend class ::TestCacheParser;
-      CacheParser(const CacheParser&); // stop default
+      CacheParser(const CacheParser&) = delete; // stop default
 
-      const CacheParser& operator=(const CacheParser&); // stop default
+      const CacheParser& operator=(const CacheParser&) = delete; // stop default
 
       static bool readline(std::istream& iIn, const boost::filesystem::path& iDirectory,
                unsigned long iRecordNumber, PluginInfo &oInfo, std::string& oPluginType);

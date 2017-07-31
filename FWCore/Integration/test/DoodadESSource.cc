@@ -43,9 +43,9 @@ protected:
                                 edm::ValidityInterval& iInterval);
    
 private:
-   DoodadESSource(const DoodadESSource&); // stop default
+   DoodadESSource(const DoodadESSource&) = delete; // stop default
    
-   const DoodadESSource& operator=(const DoodadESSource&); // stop default
+   const DoodadESSource& operator=(const DoodadESSource&) = delete; // stop default
    
    // ---------- member data --------------------------------
    unsigned int nCalls_;

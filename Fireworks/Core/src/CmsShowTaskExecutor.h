@@ -47,9 +47,9 @@ protected:
    virtual bool moreTasksAvailable();
 
 private:
-   CmsShowTaskExecutor(const CmsShowTaskExecutor&); // stop default
+   CmsShowTaskExecutor(const CmsShowTaskExecutor&) = delete; // stop default
 
-   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&); // stop default
+   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&) = delete; // stop default
 
    // ---------- member data --------------------------------
    std::deque<TaskFunctor> m_tasks;

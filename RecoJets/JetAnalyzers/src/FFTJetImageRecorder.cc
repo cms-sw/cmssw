@@ -51,9 +51,9 @@ public:
     ~FFTJetImageRecorder();
 
 private:
-    FFTJetImageRecorder();
-    FFTJetImageRecorder(const FFTJetImageRecorder&);
-    FFTJetImageRecorder& operator=(const FFTJetImageRecorder&);
+    FFTJetImageRecorder() = delete;
+    FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
+    FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
 
     virtual void beginJob() override ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;

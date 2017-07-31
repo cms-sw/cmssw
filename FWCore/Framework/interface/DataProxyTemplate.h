@@ -55,9 +55,9 @@ class DataProxyTemplate : public DataProxy
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
    private:
-      DataProxyTemplate(const DataProxyTemplate&); // stop default
+      DataProxyTemplate(const DataProxyTemplate&) = delete; // stop default
 
-      const DataProxyTemplate& operator=(const DataProxyTemplate&); // stop default
+      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
 };

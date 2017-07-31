@@ -28,8 +28,8 @@ public:
   
 private:
 
-  MaterialBudgetHcal(const MaterialBudgetHcal&); // stop default
-  const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&); // stop default
+  MaterialBudgetHcal(const MaterialBudgetHcal&) = delete; // stop default
+  const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete; // stop default
   
   void update(const BeginOfJob*);
   void update(const BeginOfTrack*);

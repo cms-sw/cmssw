@@ -62,9 +62,9 @@ private:
     typedef fftjet::Functor1<double,fftjet::Peak> PeakProperty;
     typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    FFTJetTreeDump();
-    FFTJetTreeDump(const FFTJetTreeDump&);
-    FFTJetTreeDump& operator=(const FFTJetTreeDump&);
+    FFTJetTreeDump() = delete;
+    FFTJetTreeDump(const FFTJetTreeDump&) = delete;
+    FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
 
     virtual void beginJob() override ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;

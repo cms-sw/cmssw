@@ -26,8 +26,8 @@ class SiStripHashedDetIdESProducer : public edm::ESProducer {
   
  private:
   
-  SiStripHashedDetIdESProducer( const SiStripHashedDetIdESProducer& );
-  const SiStripHashedDetIdESProducer& operator=( const SiStripHashedDetIdESProducer& );
+  SiStripHashedDetIdESProducer( const SiStripHashedDetIdESProducer& ) = delete;
+  const SiStripHashedDetIdESProducer& operator=( const SiStripHashedDetIdESProducer& ) = delete;
   
   virtual SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ) = 0; 
   

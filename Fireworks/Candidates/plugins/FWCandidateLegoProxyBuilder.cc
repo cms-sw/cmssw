@@ -41,8 +41,8 @@ class FWCandidateLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Ca
 
    private:
    // ----------------------- Data Members ----------------------------
-      FWCandidateLegoProxyBuilder( const FWCandidateLegoProxyBuilder& );
-      const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& );
+      FWCandidateLegoProxyBuilder( const FWCandidateLegoProxyBuilder& ) = delete;
+      const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::Candidate>::build;

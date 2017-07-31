@@ -24,8 +24,8 @@ public:
 
 private:
 
-   FWCaloRecHitDigitSetProxyBuilder( const FWCaloRecHitDigitSetProxyBuilder& );
-   const FWCaloRecHitDigitSetProxyBuilder& operator=( const FWCaloRecHitDigitSetProxyBuilder& );
+   FWCaloRecHitDigitSetProxyBuilder( const FWCaloRecHitDigitSetProxyBuilder& ) = delete;
+   const FWCaloRecHitDigitSetProxyBuilder& operator=( const FWCaloRecHitDigitSetProxyBuilder& ) = delete;
 
    bool m_invertBox;
    bool m_ignoreGeoShapeSize;

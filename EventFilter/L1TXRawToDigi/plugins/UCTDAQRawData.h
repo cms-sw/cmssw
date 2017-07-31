@@ -277,8 +277,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTDAQRawData(const UCTDAQRawData&);
-  const UCTDAQRawData& operator=(const UCTDAQRawData& i);
+  UCTDAQRawData(const UCTDAQRawData&) = delete;
+  const UCTDAQRawData& operator=(const UCTDAQRawData& i) = delete;
   
   // RawData data
   

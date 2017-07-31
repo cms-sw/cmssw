@@ -48,9 +48,9 @@ public:
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
 private:
-   FW3DViewGeometry(const FW3DViewGeometry&); // stop default
+   FW3DViewGeometry(const FW3DViewGeometry&) = delete; // stop default
 
-   const FW3DViewGeometry& operator=(const FW3DViewGeometry&); // stop default
+   const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

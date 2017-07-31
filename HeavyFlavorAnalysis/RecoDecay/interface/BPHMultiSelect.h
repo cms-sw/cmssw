@@ -89,8 +89,8 @@ class BPHMultiSelect: public T {
  private:
 
   // private copy and assigment constructors
-  BPHMultiSelect           ( const BPHMultiSelect<T>& x );
-  BPHMultiSelect& operator=( const BPHMultiSelect<T>& x );
+  BPHMultiSelect           ( const BPHMultiSelect<T>& x ) = delete;
+  BPHMultiSelect& operator=( const BPHMultiSelect<T>& x ) = delete;
 
   struct SelectElement {
     T* selector;

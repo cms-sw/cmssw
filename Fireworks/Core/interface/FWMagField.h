@@ -47,8 +47,8 @@ public:
    void   setFFFieldMag(float);
 
 private:
-   FWMagField(const FWMagField&); // stop default
-   const FWMagField& operator=(const FWMagField&); // stop default
+   FWMagField(const FWMagField&) = delete; // stop default
+   const FWMagField& operator=(const FWMagField&) = delete; // stop default
 
    ESource   m_source;
    float     m_userField;

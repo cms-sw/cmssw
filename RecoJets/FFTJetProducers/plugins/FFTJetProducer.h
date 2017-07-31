@@ -194,9 +194,9 @@ private:
         fftjetcms::Real,fftjetcms::VectorLike,fftjetcms::BgData> GridAlg;
 
     // Explicitly disable other ways to construct this object
-    FFTJetProducer();
-    FFTJetProducer(const FFTJetProducer&);
-    FFTJetProducer& operator=(const FFTJetProducer&);
+    FFTJetProducer() = delete;
+    FFTJetProducer(const FFTJetProducer&) = delete;
+    FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
     // Useful local utilities
     template<class Real>

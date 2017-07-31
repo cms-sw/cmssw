@@ -8,8 +8,8 @@ public:
    virtual ~FWTrackECALDetailView() {}
 
 private:
-   FWTrackECALDetailView(const FWTrackECALDetailView&); // stop default
-   const FWTrackECALDetailView& operator=(const FWTrackECALDetailView&); // stop default
+   FWTrackECALDetailView(const FWTrackECALDetailView&) = delete; // stop default
+   const FWTrackECALDetailView& operator=(const FWTrackECALDetailView&) = delete; // stop default
 
 
 };

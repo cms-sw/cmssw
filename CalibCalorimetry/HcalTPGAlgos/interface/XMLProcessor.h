@@ -172,7 +172,7 @@ class XMLProcessor
  private:
   XMLProcessor();
 
-  XMLProcessor(const XMLProcessor&); // stop default
+  XMLProcessor(const XMLProcessor&) = delete; // stop default
   
   //const XMLProcessor& operator=(const XMLProcessor&); // stop default
   

@@ -46,8 +46,8 @@ public:
    void doUpdate(Long_t);
 
 private:
-   FWLongParameterSetter(const FWLongParameterSetter&);                  // stop default
-   const FWLongParameterSetter& operator=(const FWLongParameterSetter&); // stop default
+   FWLongParameterSetter(const FWLongParameterSetter&) = delete;                  // stop default
+   const FWLongParameterSetter& operator=(const FWLongParameterSetter&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

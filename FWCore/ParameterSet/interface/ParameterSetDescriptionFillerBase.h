@@ -142,9 +142,9 @@ class ParameterSetDescriptionFillerBase
       }
   
    private:
-      ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
+      ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&) = delete; // stop default
 
-      const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&); // stop default
+      const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

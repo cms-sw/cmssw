@@ -155,8 +155,8 @@ class BPHRecoBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHRecoBuilder           ( const BPHRecoBuilder& x );
-  BPHRecoBuilder& operator=( const BPHRecoBuilder& x );
+  BPHRecoBuilder           ( const BPHRecoBuilder& x ) = delete;
+  BPHRecoBuilder& operator=( const BPHRecoBuilder& x ) = delete;
 
   // object to interface with a specific edm collection
   template <class T>

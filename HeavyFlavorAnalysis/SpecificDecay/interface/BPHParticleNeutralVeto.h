@@ -50,8 +50,8 @@ class BPHParticleNeutralVeto: public BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHParticleNeutralVeto           ( const BPHParticleNeutralVeto& x );
-  BPHParticleNeutralVeto& operator=( const BPHParticleNeutralVeto& x );
+  BPHParticleNeutralVeto           ( const BPHParticleNeutralVeto& x ) = delete;
+  BPHParticleNeutralVeto& operator=( const BPHParticleNeutralVeto& x ) = delete;
 
 };
 

@@ -45,7 +45,7 @@ namespace gs {
         }
 
     private:
-        ArrayAdaptor();
+        ArrayAdaptor() = delete;
 
         const T* data_;
         std::size_t size_;

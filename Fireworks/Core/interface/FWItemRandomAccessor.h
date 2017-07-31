@@ -47,9 +47,9 @@ protected:
    mutable void* m_data;
 
 private:
-   FWItemRandomAccessorBase(const FWItemRandomAccessorBase&); // stop default
+   FWItemRandomAccessorBase(const FWItemRandomAccessorBase&) = delete; // stop default
 
-   const FWItemRandomAccessorBase& operator=(const FWItemRandomAccessorBase&); // stop default
+   const FWItemRandomAccessorBase& operator=(const FWItemRandomAccessorBase&) = delete; // stop default
 };
 
 /** A generic helper class which can be used to create

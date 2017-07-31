@@ -158,7 +158,7 @@ namespace edm {
     //returns false if the cache is not yet set
     bool checkCachedItems() const;
     
-    PtrVectorBase& operator=(const PtrVectorBase&);
+    PtrVectorBase& operator=(const PtrVectorBase&) = delete;
 
     //Used when we need an iterator but cache is not yet set
     static const std::vector<void const*>& emptyCache();

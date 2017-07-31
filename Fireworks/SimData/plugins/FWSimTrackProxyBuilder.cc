@@ -30,9 +30,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWSimTrackProxyBuilder( const FWSimTrackProxyBuilder& );
+   FWSimTrackProxyBuilder( const FWSimTrackProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& );
+   const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& ) = delete;
 
    using FWProxyBuilderBase::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;

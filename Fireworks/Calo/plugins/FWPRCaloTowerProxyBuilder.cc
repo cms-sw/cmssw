@@ -13,8 +13,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ); 			// stop default
-   const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
+   FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ) = delete; 			// stop default
+   const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ) = delete; 	// stop default
 
    using FWDigitSetProxyBuilder::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	

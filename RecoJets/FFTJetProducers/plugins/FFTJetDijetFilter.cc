@@ -60,9 +60,9 @@ public:
 private:
     typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
 
-    FFTJetDijetFilter();
-    FFTJetDijetFilter(const FFTJetDijetFilter&);
-    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&);
+    FFTJetDijetFilter() = delete;
+    FFTJetDijetFilter(const FFTJetDijetFilter&) = delete;
+    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&) = delete;
 
     void beginJob() override;
     bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;

@@ -26,8 +26,8 @@ namespace magneticfield {
 
   private:
     // forbid copy ctor and assignment op.
-    VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&);
-    const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&);
+    VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&) = delete;
+    const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&) = delete;
 
     edm::ParameterSet pset;
   };

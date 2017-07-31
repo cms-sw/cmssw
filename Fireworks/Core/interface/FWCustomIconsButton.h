@@ -65,9 +65,9 @@ public:
 protected:
    virtual void DoRedraw();
 private:
-   FWCustomIconsButton(const FWCustomIconsButton&); // stop default
+   FWCustomIconsButton(const FWCustomIconsButton&) = delete; // stop default
 
-   const FWCustomIconsButton& operator=(const FWCustomIconsButton&); // stop default
+   const FWCustomIconsButton& operator=(const FWCustomIconsButton&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const TGPicture* m_upIcon;

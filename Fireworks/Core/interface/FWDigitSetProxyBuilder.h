@@ -61,9 +61,9 @@ protected:
    TEveBoxSet* getBoxSet() const { return m_boxSet; } 
 
 private:
-   FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&); // stop default
+   FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&) = delete; // stop default
 
-   const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&); // stop default
+   const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

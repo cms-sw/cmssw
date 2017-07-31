@@ -43,9 +43,9 @@ public:
    mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
    
 private:
-   FWViewContext(const FWViewContext&); // stop default
+   FWViewContext(const FWViewContext&) = delete; // stop default
 
-   const FWViewContext& operator=(const FWViewContext&); // stop default
+   const FWViewContext& operator=(const FWViewContext&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

@@ -26,8 +26,8 @@ public:
   
 private:
 
-  HGCalTBMB(const HGCalTBMB&);          // stop default
-  const HGCalTBMB& operator=(const HGCalTBMB&); // ...
+  HGCalTBMB(const HGCalTBMB&) = delete;          // stop default
+  const HGCalTBMB& operator=(const HGCalTBMB&) = delete; // ...
   
   void update(const BeginOfTrack*);
   void update(const G4Step*);

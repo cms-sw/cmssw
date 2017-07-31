@@ -61,8 +61,8 @@ public:
 
    void quit();
 private:
-   FWFFService(const FWFFService&);                  // stop default
-   const FWFFService& operator=(const FWFFService&); // stop default
+   FWFFService(const FWFFService&) = delete;                  // stop default
+   const FWFFService& operator=(const FWFFService&) = delete; // stop default
 
    // ---------- member data --------------------------------
    

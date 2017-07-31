@@ -113,8 +113,8 @@ public:
 private:
   // Disallow Default/copy ctor & assignment op.
   // (we want to handle only pointers!!!)
-  volumeHandle(const volumeHandle& v);
-  volumeHandle operator=(const volumeHandle &v);
+  volumeHandle(const volumeHandle& v) = delete;
+  volumeHandle operator=(const volumeHandle &v) = delete;
 
   // The volume's six surfaces.
   RCPS surfaces[6];

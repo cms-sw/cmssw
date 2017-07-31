@@ -23,9 +23,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWTrackingVertexProxyBuilder( const FWTrackingVertexProxyBuilder& );
+   FWTrackingVertexProxyBuilder( const FWTrackingVertexProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& );
+   const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<TrackingVertex>::build;
    void build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

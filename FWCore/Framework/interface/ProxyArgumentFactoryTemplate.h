@@ -54,9 +54,9 @@ class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&); // stop default
+      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete; // stop default
 
-      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&); // stop default
+      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
       mutable ArgT arg_;

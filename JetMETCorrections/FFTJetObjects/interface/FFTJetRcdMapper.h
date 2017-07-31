@@ -87,8 +87,8 @@ struct DefaultFFTJetRcdMapper :
     }
 
 private:
-    DefaultFFTJetRcdMapper(const DefaultFFTJetRcdMapper&);
-    DefaultFFTJetRcdMapper& operator=(const DefaultFFTJetRcdMapper&);
+    DefaultFFTJetRcdMapper(const DefaultFFTJetRcdMapper&) = delete;
+    DefaultFFTJetRcdMapper& operator=(const DefaultFFTJetRcdMapper&) = delete;
 };
 
 //
@@ -115,7 +115,7 @@ public:
     }
 
 private:
-    StaticFFTJetRcdMapper();
+    StaticFFTJetRcdMapper() = delete;
 };
 
 #endif // JetMETCorrections_FFTJetObjects_FFTJetRcdMapper_h

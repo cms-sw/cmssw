@@ -50,8 +50,8 @@ public:
   TGComboBox* getWidget() { return m_widget; }
 
 private:
-   FWEnumParameterSetter(const FWEnumParameterSetter&);                  // stop default
-   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&); // stop default
+   FWEnumParameterSetter(const FWEnumParameterSetter&) = delete;                  // stop default
+   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&) = delete; // stop default
 
    virtual void attach(FWParameterBase*);
 

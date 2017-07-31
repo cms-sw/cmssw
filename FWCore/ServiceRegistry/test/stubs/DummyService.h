@@ -50,9 +50,9 @@ namespace testserviceregistry {
 
    private:
       void doOnBeginJob() { beginJobCalled_=true;}
-      DummyService(const DummyService&); // stop default
+      DummyService(const DummyService&) = delete; // stop default
 
-      const DummyService& operator=(const DummyService&); // stop default
+      const DummyService& operator=(const DummyService&) = delete; // stop default
 
       // ---------- member data --------------------------------
       int value_;

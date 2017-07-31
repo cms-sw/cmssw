@@ -45,7 +45,7 @@ namespace {
                                  const char* name, const char* category)
             : gs::AbsRecord(classId, ioPrototype, name, category) {}
     private:
-        NotWritableRecord();
+        NotWritableRecord() = delete;
         inline bool writeData(std::ostream&) const {return false;}
     };
 }

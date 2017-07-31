@@ -62,9 +62,9 @@ protected:
    FWViewType           m_type;
 
 private:
-   FWViewBase(const FWViewBase&);    // stop default
+   FWViewBase(const FWViewBase&) = delete;    // stop default
 
-   const FWViewBase& operator=(const FWViewBase&);    // stop default
+   const FWViewBase& operator=(const FWViewBase&) = delete;    // stop default
 
    // ---------- member data --------------------------------
 

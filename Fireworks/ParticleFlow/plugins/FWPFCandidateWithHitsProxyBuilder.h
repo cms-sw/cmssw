@@ -24,8 +24,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPFCandidateWithHitsProxyBuilder( const FWPFCandidateWithHitsProxyBuilder& );                    // Stop default
-   const FWPFCandidateWithHitsProxyBuilder& operator=( const FWPFCandidateWithHitsProxyBuilder& );   // Stop default
+   FWPFCandidateWithHitsProxyBuilder( const FWPFCandidateWithHitsProxyBuilder& ) = delete;                    // Stop default
+   const FWPFCandidateWithHitsProxyBuilder& operator=( const FWPFCandidateWithHitsProxyBuilder& ) = delete;   // Stop default
 
    void addHitsForCandidate(const reco::PFCandidate& c, TEveElement* holder, const FWViewContext* vc);
    void initPFRecHitsCollections();

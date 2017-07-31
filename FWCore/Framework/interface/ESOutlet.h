@@ -69,9 +69,9 @@ private:
     //virtual ~ESOutlet();
 
    private:
-      ESOutlet(const ESOutlet&); // stop default
+      ESOutlet(const ESOutlet&) = delete; // stop default
 
-      const ESOutlet& operator=(const ESOutlet&); // stop default
+      const ESOutlet& operator=(const ESOutlet&) = delete; // stop default
 
       // ---------- member data --------------------------------
       Getter getter_;

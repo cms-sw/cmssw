@@ -354,7 +354,7 @@ public:
     }
 
 private:
-    CmdLine();
+    CmdLine() = delete;
 
     std::string progname_;
     Optlist args_;

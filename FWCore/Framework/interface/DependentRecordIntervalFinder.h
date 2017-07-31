@@ -57,9 +57,9 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
                                    ValidityInterval&);
       
    private:
-      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&); // stop default
+      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&) = delete; // stop default
 
-      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
+      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&) = delete; // stop default
 
       // ---------- member data --------------------------------
       typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;

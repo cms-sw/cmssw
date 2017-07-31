@@ -39,9 +39,9 @@ public:
    // ---------- member functions ---------------------------
    
 private:
-      ValueExample(const ValueExample&); // stop default
+      ValueExample(const ValueExample&) = delete; // stop default
    
-   const ValueExample& operator=(const ValueExample&); // stop default
+   const ValueExample& operator=(const ValueExample&) = delete; // stop default
    
    // ---------- member data --------------------------------
    int value_;

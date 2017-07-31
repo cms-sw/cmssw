@@ -28,8 +28,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWSiPixelClusterDetProxyBuilder(const FWSiPixelClusterDetProxyBuilder&);
-  const FWSiPixelClusterDetProxyBuilder& operator=(const FWSiPixelClusterDetProxyBuilder&);
+  FWSiPixelClusterDetProxyBuilder(const FWSiPixelClusterDetProxyBuilder&) = delete;
+  const FWSiPixelClusterDetProxyBuilder& operator=(const FWSiPixelClusterDetProxyBuilder&) = delete;
 };
 
 void FWSiPixelClusterDetProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext*)

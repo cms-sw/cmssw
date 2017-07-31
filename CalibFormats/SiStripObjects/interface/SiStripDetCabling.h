@@ -64,8 +64,8 @@ class SiStripDetCabling
   std::map< uint32_t, std::vector<int> > const & connected() const { return connected_;}
 
  private:
-  SiStripDetCabling(const SiStripDetCabling&); // stop default
-  const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
+  SiStripDetCabling(const SiStripDetCabling&) = delete; // stop default
+  const SiStripDetCabling& operator=(const SiStripDetCabling&) = delete; // stop default
   void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, std::map< int16_t, uint32_t >* connectionsToFill = nullptr ) const;
   bool IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > &) const;
   int16_t layerSearch( const uint32_t detId ) const;

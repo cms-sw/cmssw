@@ -51,8 +51,8 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
-      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
+      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& ) = delete;                    // Stop default
+      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& ) = delete;   // Stop default
 
    // --------------------- Member Functions --------------------------
       TEveVector calculateCentre( const float *corners );

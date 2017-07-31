@@ -60,9 +60,9 @@ public:
    void switchMode();
 
 private:
-   CSGContinuousAction(const CSGContinuousAction&); // stop default
+   CSGContinuousAction(const CSGContinuousAction&) = delete; // stop default
 
-   const CSGContinuousAction& operator=(const CSGContinuousAction&); // stop default
+   const CSGContinuousAction& operator=(const CSGContinuousAction&) = delete; // stop default
 
    // ---------- member data --------------------------------
    std::string m_imageFileName;

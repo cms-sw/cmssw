@@ -33,9 +33,9 @@ public:
    void doUpdate();
 
 private:
-   FWStringParameterSetter(const FWStringParameterSetter&);    // stop default
+   FWStringParameterSetter(const FWStringParameterSetter&) = delete;    // stop default
 
-   const FWStringParameterSetter& operator=(const FWStringParameterSetter&);    // stop default
+   const FWStringParameterSetter& operator=(const FWStringParameterSetter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    FWStringParameter* m_param;

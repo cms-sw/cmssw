@@ -22,8 +22,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWME0RecHitProxyBuilder(const FWME0RecHitProxyBuilder&);
-  const FWME0RecHitProxyBuilder& operator=(const FWME0RecHitProxyBuilder&); 
+  FWME0RecHitProxyBuilder(const FWME0RecHitProxyBuilder&) = delete;
+  const FWME0RecHitProxyBuilder& operator=(const FWME0RecHitProxyBuilder&) = delete; 
  
   virtual void buildViewType(const ME0RecHit& iData, 
                              unsigned int iIndex, 

@@ -735,8 +735,8 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   DateHandler* dh;
 
-  EcalCondDBInterface();
-  EcalCondDBInterface(const EcalCondDBInterface& copy);
+  EcalCondDBInterface() = delete;
+  EcalCondDBInterface(const EcalCondDBInterface& copy) = delete;
 
   std::map<int, int> _logicId2DetId; 
   std::map<int, int> _detId2LogicId;

@@ -44,9 +44,9 @@ public:
    virtual void setFrom(const FWConfiguration&);
 
 private:
-   FWCompositeParameter(const FWCompositeParameter&);    // stop default
+   FWCompositeParameter(const FWCompositeParameter&) = delete;    // stop default
 
-   const FWCompositeParameter& operator=(const FWCompositeParameter&);    // stop default
+   const FWCompositeParameter& operator=(const FWCompositeParameter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    unsigned int m_version;

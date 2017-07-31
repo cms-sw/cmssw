@@ -47,9 +47,9 @@ public:
    void setType(const edm::TypeWithDict&);
 
 private:
-   FWExpressionValidator(const FWExpressionValidator&); // stop default
+   FWExpressionValidator(const FWExpressionValidator&) = delete; // stop default
 
-   const FWExpressionValidator& operator=(const FWExpressionValidator&); // stop default
+   const FWExpressionValidator& operator=(const FWExpressionValidator&) = delete; // stop default
 
    // ---------- member data --------------------------------
    edm::TypeWithDict m_type;

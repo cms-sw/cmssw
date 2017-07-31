@@ -51,8 +51,8 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
                                 const FWViewContext *vc, float radius );
 
    private:
-      FWPFClusterRPZProxyBuilder( const FWPFClusterRPZProxyBuilder& );                    // Disable default
-      const FWPFClusterRPZProxyBuilder& operator=( const FWPFClusterRPZProxyBuilder& );   // Disable default
+      FWPFClusterRPZProxyBuilder( const FWPFClusterRPZProxyBuilder& ) = delete;                    // Disable default
+      const FWPFClusterRPZProxyBuilder& operator=( const FWPFClusterRPZProxyBuilder& ) = delete;   // Disable default
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -75,8 +75,8 @@ class FWPFEcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFEcalClusterRPZProxyBuilder( const FWPFEcalClusterRPZProxyBuilder& );
-      const FWPFEcalClusterRPZProxyBuilder& operator=( const FWPFEcalClusterRPZProxyBuilder& );
+      FWPFEcalClusterRPZProxyBuilder( const FWPFEcalClusterRPZProxyBuilder& ) = delete;
+      const FWPFEcalClusterRPZProxyBuilder& operator=( const FWPFEcalClusterRPZProxyBuilder& ) = delete;
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -99,8 +99,8 @@ class FWPFHcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFHcalClusterRPZProxyBuilder( const FWPFHcalClusterRPZProxyBuilder& );
-      const FWPFHcalClusterRPZProxyBuilder& operator=( const FWPFHcalClusterRPZProxyBuilder& );
+      FWPFHcalClusterRPZProxyBuilder( const FWPFHcalClusterRPZProxyBuilder& ) = delete;
+      const FWPFHcalClusterRPZProxyBuilder& operator=( const FWPFHcalClusterRPZProxyBuilder& ) = delete;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

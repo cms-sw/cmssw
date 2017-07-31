@@ -16,8 +16,8 @@ public:
    virtual void select(int iEntryIndex, const FWModelId &id, int iX, int iY);
 
 private:
-   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&); // stop default   
-   const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&); // stop default
+   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&) = delete; // stop default   
+   const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&) = delete; // stop default
 
    virtual void init(FWViewContextMenuHandlerBase::MenuEntryAdder&, const FWModelId &id);
 

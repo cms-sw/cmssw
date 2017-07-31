@@ -45,9 +45,9 @@ public:
    virtual void reset();
 
 private:
-   FWItemSingleAccessor(const FWItemSingleAccessor&); // stop default
+   FWItemSingleAccessor(const FWItemSingleAccessor&) = delete; // stop default
 
-   const FWItemSingleAccessor& operator=(const FWItemSingleAccessor&); // stop default
+   const FWItemSingleAccessor& operator=(const FWItemSingleAccessor&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const TClass* m_type;

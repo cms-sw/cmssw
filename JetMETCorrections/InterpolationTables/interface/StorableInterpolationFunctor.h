@@ -166,7 +166,7 @@ namespace npstat {
         }
 
     private:
-        StorableInterpolationFunctor();
+        StorableInterpolationFunctor() = delete;
 
         Table table_;
         Converter conv_;

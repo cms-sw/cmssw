@@ -51,8 +51,8 @@ class FWBoxRecHit
   void  setIsTallest( );
 
  private:
-  FWBoxRecHit( const FWBoxRecHit& );                    // Disable default
-  const FWBoxRecHit& operator=( const FWBoxRecHit& );   // Disable default
+  FWBoxRecHit( const FWBoxRecHit& ) = delete;                    // Disable default
+  const FWBoxRecHit& operator=( const FWBoxRecHit& ) = delete;   // Disable default
 
   // --------------------- Member Functions --------------------------
   void setupEveBox( std::vector<TEveVector> &corners, float scale );

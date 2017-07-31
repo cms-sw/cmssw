@@ -180,9 +180,9 @@ class ESProducer : public ESProxyFactoryProducer
          }
       */
    private:
-      ESProducer(const ESProducer&); // stop default
+      ESProducer(const ESProducer&) = delete; // stop default
 
-      ESProducer const& operator=(const ESProducer&); // stop default
+      ESProducer const& operator=(const ESProducer&) = delete; // stop default
 
       /*
       template<typename T, typename TProduct>

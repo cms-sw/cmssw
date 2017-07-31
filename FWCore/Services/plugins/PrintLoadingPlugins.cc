@@ -49,9 +49,9 @@ public:
   
 private:
   
-  PrintLoadingPlugins(const PrintLoadingPlugins&); // stop default
+  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete; // stop default
   
-  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&); // stop default
+  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete; // stop default
   
   // ---------- member data --------------------------------
   

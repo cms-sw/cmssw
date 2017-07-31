@@ -56,9 +56,9 @@ public:
     ~FFTJetPileupAnalyzer();
 
 private:
-    FFTJetPileupAnalyzer();
-    FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&);
-    FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&);
+    FFTJetPileupAnalyzer() = delete;
+    FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
+    FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
 
     // The following method should take all necessary info from
     // PileupSummaryInfo and fill out the ntuple

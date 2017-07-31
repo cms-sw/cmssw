@@ -57,9 +57,9 @@ public:
    std::future<int> CaptureAndSaveImage(const TString& file, int height=-1);
 
 private:
-   FWTEveViewer(const FWTEveViewer&); // stop default
+   FWTEveViewer(const FWTEveViewer&) = delete; // stop default
 
-   const FWTEveViewer& operator=(const FWTEveViewer&); // stop default
+   const FWTEveViewer& operator=(const FWTEveViewer&) = delete; // stop default
 
    void spawn_image_thread();
 

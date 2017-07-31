@@ -50,8 +50,8 @@ public:
    virtual ~FWTrackResidualDetailView();
 
 private:
-   FWTrackResidualDetailView(const FWTrackResidualDetailView&); // stop default
-   const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&); // stop default
+   FWTrackResidualDetailView(const FWTrackResidualDetailView&) = delete; // stop default
+   const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&) = delete; // stop default
 
    using FWDetailViewCanvas<reco::Track>::build;
    virtual void build (const FWModelId &id, const reco::Track*);

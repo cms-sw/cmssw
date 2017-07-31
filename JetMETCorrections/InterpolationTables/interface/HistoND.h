@@ -843,7 +843,7 @@ namespace npstat {
         static HistoND* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        HistoND();
+        HistoND() = delete;
 
         // Special constructor which speeds up the "transpose" operation.
         // Does not do full error checking (some of it is done in transpose).

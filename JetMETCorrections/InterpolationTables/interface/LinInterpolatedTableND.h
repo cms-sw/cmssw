@@ -212,7 +212,7 @@ namespace npstat {
             const gs::ClassId& id, std::istream& in);
 
     private:
-        LinInterpolatedTableND();
+        LinInterpolatedTableND() = delete;
 
         LinInterpolatedTableND(
             const ArrayND<Numeric>& data,

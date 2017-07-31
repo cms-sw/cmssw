@@ -46,8 +46,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&);
 
 private:
-  HGCPassive(const HGCPassive&); // stop default
-  const HGCPassive& operator=(const HGCPassive&);
+  HGCPassive(const HGCPassive&) = delete; // stop default
+  const HGCPassive& operator=(const HGCPassive&) = delete;
 
   // observer classes
   void update(const BeginOfRun * run);

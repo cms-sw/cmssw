@@ -33,8 +33,8 @@ private:
 		       const edm::IOVSyncValue& iov,
 		       edm::ValidityInterval& iValidity);
   
-  SiStripTemplateEmptyFakeESSource( const SiStripTemplateEmptyFakeESSource& );
-  const SiStripTemplateEmptyFakeESSource& operator=( const SiStripTemplateEmptyFakeESSource& );
+  SiStripTemplateEmptyFakeESSource( const SiStripTemplateEmptyFakeESSource& ) = delete;
+  const SiStripTemplateEmptyFakeESSource& operator=( const SiStripTemplateEmptyFakeESSource& ) = delete;
 };
 
 template< typename TObject , typename TRecord>

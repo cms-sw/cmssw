@@ -32,7 +32,7 @@ public:
   
 private:
 
-  HcalDDDGeometryLoader();
+  HcalDDDGeometryLoader() = delete;
 
   /// helper functions to make all the ids and cells, and put them into the
   /// vectors and mpas passed in.

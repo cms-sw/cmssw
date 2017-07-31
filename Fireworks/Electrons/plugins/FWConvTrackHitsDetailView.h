@@ -37,8 +37,8 @@ public:
 
       
 private:
-   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&); // stop default
-   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&); // stop default
+   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&) = delete; // stop default
+   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&) = delete; // stop default
    
    using FWDetailViewGL<reco::Conversion>::build;
    void build (const FWModelId &id, const reco::Conversion*);

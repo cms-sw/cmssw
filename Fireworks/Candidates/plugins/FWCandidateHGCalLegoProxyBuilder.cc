@@ -38,8 +38,8 @@ class FWCandidateHGCalLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<rec
 
    private:
    // ----------------------- Data Members ----------------------------
-      FWCandidateHGCalLegoProxyBuilder( const FWCandidateHGCalLegoProxyBuilder& );
-      const FWCandidateHGCalLegoProxyBuilder& operator=( const FWCandidateHGCalLegoProxyBuilder& );
+      FWCandidateHGCalLegoProxyBuilder( const FWCandidateHGCalLegoProxyBuilder& ) = delete;
+      const FWCandidateHGCalLegoProxyBuilder& operator=( const FWCandidateHGCalLegoProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;

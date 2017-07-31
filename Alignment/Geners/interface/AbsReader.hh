@@ -84,8 +84,8 @@ namespace gs {
         }
 
     private:
-        DefaultReader(const DefaultReader&);
-        DefaultReader& operator=(const DefaultReader&);
+        DefaultReader(const DefaultReader&) = delete;
+        DefaultReader& operator=(const DefaultReader&) = delete;
     };
 
     // A trivial implementation of the Meyers singleton for use with reader
@@ -121,7 +121,7 @@ namespace gs {
 
     private:
         // Disable the constructor
-        StaticReader();
+        StaticReader() = delete;
     };
 }
 

@@ -115,6 +115,6 @@ class L1RCTJetSummaryCard
 
   // Disabled constructors and operators
 
-  L1RCTJetSummaryCard();
+  L1RCTJetSummaryCard() = delete;
 };
 #endif

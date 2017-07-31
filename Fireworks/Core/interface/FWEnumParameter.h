@@ -65,8 +65,8 @@ class FWEnumParameter : public FWLongParameter
    const std::map<Long_t, std::string>& entryMap() const { return m_enumEntries; }
 
 private:
-   FWEnumParameter(const FWEnumParameter&);                  // stop default
-   const FWEnumParameter& operator=(const FWEnumParameter&); // stop default
+   FWEnumParameter(const FWEnumParameter&) = delete;                  // stop default
+   const FWEnumParameter& operator=(const FWEnumParameter&) = delete; // stop default
 
    // ---------- member data --------------------------------
    std::map<Long_t, std::string> m_enumEntries;

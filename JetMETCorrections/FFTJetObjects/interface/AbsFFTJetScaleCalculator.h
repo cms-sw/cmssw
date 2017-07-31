@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    AbsFFTJetScaleCalculator();
+    AbsFFTJetScaleCalculator() = delete;
 
     virtual void map(const Jet& jet,
                      const Adjustable& current,

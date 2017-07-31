@@ -20,8 +20,8 @@ class Phase2TrackerCablingESProducer : public edm::ESProducer {
   
  private:
   
-  Phase2TrackerCablingESProducer( const Phase2TrackerCablingESProducer& );
-  const Phase2TrackerCablingESProducer& operator=( const Phase2TrackerCablingESProducer& );
+  Phase2TrackerCablingESProducer( const Phase2TrackerCablingESProducer& ) = delete;
+  const Phase2TrackerCablingESProducer& operator=( const Phase2TrackerCablingESProducer& ) = delete;
   
   virtual Phase2TrackerCabling* make( const Phase2TrackerCablingRcd& ) = 0; 
   

@@ -35,8 +35,8 @@ class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Trac
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFTrackLegoProxyBuilder( const FWPFTrackLegoProxyBuilder& );
-      const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& );
+      FWPFTrackLegoProxyBuilder( const FWPFTrackLegoProxyBuilder& ) = delete;
+      const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::Track>::build;

@@ -19,7 +19,7 @@ namespace fftjetcms {
         inline double operator()(const Arg1&) const {return c_;}
 
     private:
-        ConstDouble();
+        ConstDouble() = delete;
         double c_;
     };
 
@@ -33,7 +33,7 @@ namespace fftjetcms {
         inline double operator()(const T& r) const {return r.scale()*c_;}
 
     private:
-        ProportionalToScale();
+        ProportionalToScale() = delete;
         double c_;
     };
 
@@ -53,7 +53,7 @@ namespace fftjetcms {
         inline double operator()(const T& r) const {return (*func_)(r)*c_;}
 
     private:
-        MultiplyByConst();
+        MultiplyByConst() = delete;
         double c_;
         const fftjet::Functor1<double,T>* func_;
         const bool ownsPointer_;
@@ -76,7 +76,7 @@ namespace fftjetcms {
         inline double operator()(const T& r) const {return (*f1_)((*f2_)(r));}
 
     private:
-        CompositeFunctor();
+        CompositeFunctor() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const fftjet::Functor1<double,T>* f2_;
         const bool ownsPointers_;
@@ -100,7 +100,7 @@ namespace fftjetcms {
             {return (*f1_)(r) * (*f2_)(r);}
 
     private:
-        ProductFunctor();
+        ProductFunctor() = delete;
         const fftjet::Functor1<double,T>* f1_;
         const fftjet::Functor1<double,T>* f2_;
         const bool ownsPointers_;
@@ -122,7 +122,7 @@ namespace fftjetcms {
             {return (*f1_)(r.magnitude());}
 
     private:
-        MagnitudeDependent();
+        MagnitudeDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -142,7 +142,7 @@ namespace fftjetcms {
             {return (*f1_)(r.eta());}
 
     private:
-        PeakEtaDependent();
+        PeakEtaDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -175,7 +175,7 @@ namespace fftjetcms {
         }
 
     private:
-        PeakEtaMagSsqDependent();
+        PeakEtaMagSsqDependent() = delete;
         const fftjet::LinearInterpolator2d* f1_;
         const bool ownsPointer_;
         const fftjet::JetMagnitudeMapper2d <fftjet::Peak>* jmmp_;
@@ -200,7 +200,7 @@ namespace fftjetcms {
             {return (*f1_)(r.vec().eta());}
 
     private:
-        JetEtaDependent();
+        JetEtaDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -234,7 +234,7 @@ namespace fftjetcms {
         }
 
     private:
-        Polynomial();
+        Polynomial() = delete;
         double* coeffs_;
         const unsigned nCoeffs;
     };

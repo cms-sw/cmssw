@@ -104,9 +104,9 @@ namespace fwlite {
          friend class internal::ProductGetter;
          friend class RunHistoryGetter;
 
-         Run(const Run&); // stop default
+         Run(const Run&) = delete; // stop default
 
-         const Run& operator=(const Run&); // stop default
+         const Run& operator=(const Run&) = delete; // stop default
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t runIndex) const;

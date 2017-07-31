@@ -38,8 +38,8 @@ namespace reco {
     }
 
   private:
-    MuonToTrackingParticleAssociator( const MuonToTrackingParticleAssociator&);
-    MuonToTrackingParticleAssociator& operator=( const MuonToTrackingParticleAssociator&);
+    MuonToTrackingParticleAssociator( const MuonToTrackingParticleAssociator&) = delete;
+    MuonToTrackingParticleAssociator& operator=( const MuonToTrackingParticleAssociator&) = delete;
 
     MuonToTrackingParticleAssociatorBaseImpl const* impl_;
   };

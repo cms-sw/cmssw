@@ -62,9 +62,9 @@ public:
 	
 private:
   // Disable default copy constructor
-  FWDTDigiProxyBuilder( const FWDTDigiProxyBuilder& );
+  FWDTDigiProxyBuilder( const FWDTDigiProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
+  const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& ) = delete;
 	
   using FWProxyBuilderBase::buildViewType;
   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;

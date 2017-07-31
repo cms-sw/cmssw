@@ -38,8 +38,8 @@ class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco:
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
-      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
+      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
+      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
       
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCandidate> ::build;

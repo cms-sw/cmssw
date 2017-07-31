@@ -90,8 +90,8 @@ protected:
    virtual const char* cellName(const NodeInfo& data) const;
 
 private:
-   FWGeometryTableManager(const FWGeometryTableManager&); // stop default
-   const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
+   FWGeometryTableManager(const FWGeometryTableManager&) = delete; // stop default
+   const FWGeometryTableManager& operator=(const FWGeometryTableManager&) = delete; // stop default
 
 
    FWGeometryTableView *m_browser;

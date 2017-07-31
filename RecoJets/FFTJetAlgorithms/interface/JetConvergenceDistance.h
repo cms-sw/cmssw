@@ -19,7 +19,7 @@ namespace fftjetcms {
         double operator()(const fftjet::RecombinedJet<VectorLike>& jet1,
                           const fftjet::RecombinedJet<VectorLike>& jet2) const;
     private:
-        JetConvergenceDistance();
+        JetConvergenceDistance() = delete;
 
         double etaBw_;
         double phiBw_;

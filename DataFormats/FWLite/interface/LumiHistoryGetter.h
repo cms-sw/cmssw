@@ -31,9 +31,9 @@ namespace fwlite {
             const edm::ProcessHistory& history() const;
 
         private:
-            LumiHistoryGetter(const LumiHistoryGetter&); // stop default
+            LumiHistoryGetter(const LumiHistoryGetter&) = delete; // stop default
 
-            const LumiHistoryGetter& operator=(const LumiHistoryGetter&); // stop default
+            const LumiHistoryGetter& operator=(const LumiHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::LuminosityBlock* lumi_;

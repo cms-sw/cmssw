@@ -27,9 +27,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWPSimHitProxyBuilder( const FWPSimHitProxyBuilder& );
+   FWPSimHitProxyBuilder( const FWPSimHitProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWPSimHitProxyBuilder& operator=( const FWPSimHitProxyBuilder& );
+   const FWPSimHitProxyBuilder& operator=( const FWPSimHitProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<PSimHit>::buildViewType;
    void buildViewType( const PSimHit& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* ) override;

@@ -43,9 +43,9 @@ public:
    }
    
 private:
-   FWCheckBoxIcon(const FWCheckBoxIcon&); // stop default
+   FWCheckBoxIcon(const FWCheckBoxIcon&) = delete; // stop default
    
-   const FWCheckBoxIcon& operator=(const FWCheckBoxIcon&); // stop default
+   const FWCheckBoxIcon& operator=(const FWCheckBoxIcon&) = delete; // stop default
    
    void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const;
    

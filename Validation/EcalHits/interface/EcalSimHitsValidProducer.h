@@ -38,8 +38,8 @@ public:
 
 
 private:
-   EcalSimHitsValidProducer(const EcalSimHitsValidProducer&); // stop default
-   const EcalSimHitsValidProducer& operator=(const EcalSimHitsValidProducer&); // stop default
+   EcalSimHitsValidProducer(const EcalSimHitsValidProducer&) = delete; // stop default
+   const EcalSimHitsValidProducer& operator=(const EcalSimHitsValidProducer&) = delete; // stop default
 
    void update(const BeginOfEvent*);
    void update(const G4Step*);

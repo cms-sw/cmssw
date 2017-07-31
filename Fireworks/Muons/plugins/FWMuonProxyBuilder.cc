@@ -29,9 +29,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWMuonProxyBuilder( const FWMuonProxyBuilder& );
+   FWMuonProxyBuilder( const FWMuonProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& );
+   const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& ) = delete;
 
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;

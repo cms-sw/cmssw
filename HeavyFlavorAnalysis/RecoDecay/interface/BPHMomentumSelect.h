@@ -48,8 +48,8 @@ class BPHMomentumSelect {
  private:
 
   // private copy and assigment constructors
-  BPHMomentumSelect           ( const BPHMomentumSelect& x );
-  BPHMomentumSelect& operator=( const BPHMomentumSelect& x );
+  BPHMomentumSelect           ( const BPHMomentumSelect& x ) = delete;
+  BPHMomentumSelect& operator=( const BPHMomentumSelect& x ) = delete;
 
 };
 

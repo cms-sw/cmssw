@@ -11,8 +11,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& );
-   const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& );
+   FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& ) = delete;
+   const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& ) = delete;
 };
 
 REGISTER_FWPROXYBUILDER( FWHORecHitProxyBuilder, HORecHitCollection, "HO RecHit", FWViewType::kISpyBit );

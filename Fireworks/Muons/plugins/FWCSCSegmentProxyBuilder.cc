@@ -30,8 +30,8 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWCSCSegmentProxyBuilder( const FWCSCSegmentProxyBuilder& );   
-  const FWCSCSegmentProxyBuilder& operator=( const FWCSCSegmentProxyBuilder& );
+  FWCSCSegmentProxyBuilder( const FWCSCSegmentProxyBuilder& ) = delete;   
+  const FWCSCSegmentProxyBuilder& operator=( const FWCSCSegmentProxyBuilder& ) = delete;
 
   using FWSimpleProxyBuilderTemplate<CSCSegment>::build;
   void build( const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

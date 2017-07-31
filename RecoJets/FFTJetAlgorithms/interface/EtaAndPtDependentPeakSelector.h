@@ -25,10 +25,10 @@ namespace fftjetcms {
         inline bool isValid() const {return ip_;}
 
     private:
-        EtaAndPtDependentPeakSelector();
-        EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&);
+        EtaAndPtDependentPeakSelector() = delete;
+        EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
         EtaAndPtDependentPeakSelector& operator=(
-            const EtaAndPtDependentPeakSelector&);
+            const EtaAndPtDependentPeakSelector&) = delete;
 
         fftjet::LinearInterpolator2d* ip_;
     };

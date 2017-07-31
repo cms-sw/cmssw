@@ -46,11 +46,11 @@ namespace edm
 
     private:
       /// avoid default constructor
-      TrieFactory();
+      TrieFactory() = delete;
       /// avoid copy constructor
-      TrieFactory(const TrieFactory &e);
+      TrieFactory(const TrieFactory &e) = delete;
       /// avoid affectation operator
-      TrieFactory& operator=(const TrieFactory &e);
+      TrieFactory& operator=(const TrieFactory &e) = delete;
 
     public:
       TrieNode<T>* newNode(const T &value);
@@ -88,9 +88,9 @@ namespace edm
 
   private:
     /// avoid copy constructor
-    TrieNode(const TrieNode &e);
+    TrieNode(const TrieNode &e) = delete;
     /// avoid affectation operator
-    TrieNode& operator=(const TrieNode &e);
+    TrieNode& operator=(const TrieNode &e) = delete;
 
   public:
     /// set value associed to node
@@ -186,11 +186,11 @@ namespace edm
 
     private:
       /// avoid default constructor
-      Trie();
+      Trie() = delete;
       /// avoid copy constructor
-      Trie(const Trie &e);
+      Trie(const Trie &e) = delete;
       /// avoid affectation operator
-      Trie& operator=(const Trie &e);
+      Trie& operator=(const Trie &e) = delete;
     
     public:
       /// add an entry in the Trie, if entry already exist an exception

@@ -144,9 +144,9 @@ public:
          void copySlotsFrom(ActivityRegistry&);
 
 private:
-         ServicesManager(ServicesManager const&); // stop default
+         ServicesManager(ServicesManager const&) = delete; // stop default
 
-         ServicesManager const& operator=(ServicesManager const&); // stop default
+         ServicesManager const& operator=(ServicesManager const&) = delete; // stop default
 
          void fillListOfMakers(std::vector<ParameterSet>&);
          void createServices();

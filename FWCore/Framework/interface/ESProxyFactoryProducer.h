@@ -118,9 +118,9 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
                                           const std::string& iLabel= std::string() );
 
    private:
-      ESProxyFactoryProducer(const ESProxyFactoryProducer&); // stop default
+      ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete; // stop default
 
-      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&); // stop default
+      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete; // stop default
 
       
       // ---------- member data --------------------------------

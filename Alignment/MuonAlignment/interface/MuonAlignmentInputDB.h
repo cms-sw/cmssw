@@ -41,9 +41,9 @@ class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
       virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentInputDB(const MuonAlignmentInputDB&); // stop default
+      MuonAlignmentInputDB(const MuonAlignmentInputDB&) = delete; // stop default
 
-      const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&); // stop default
+      const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

@@ -66,8 +66,8 @@ protected:
                                const edm::IOVSyncValue& ,
                                edm::ValidityInterval& ) ;
 private:
-  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ); // stop default
-  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ); // stop default
+  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ) = delete; // stop default
+  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ) = delete; // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 

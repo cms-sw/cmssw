@@ -31,8 +31,8 @@ protected:
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
 				   FWViewType::EType viewType, const FWViewContext* vc ) override;
 private:
-   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
-   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );
+   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& ) = delete;
+   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& ) = delete;
 
    TEveElementList* m_shapeList;            
 };

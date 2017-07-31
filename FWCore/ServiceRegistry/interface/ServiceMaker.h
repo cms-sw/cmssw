@@ -100,9 +100,9 @@ public:
          // ---------- member functions ---------------------------
 
 private:
-         ServiceMaker(ServiceMaker const&); // stop default
+         ServiceMaker(ServiceMaker const&) = delete; // stop default
 
-         ServiceMaker const& operator=(ServiceMaker const&); // stop default
+         ServiceMaker const& operator=(ServiceMaker const&) = delete; // stop default
 
          // ---------- member data --------------------------------
 

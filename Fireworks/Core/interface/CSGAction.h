@@ -88,9 +88,9 @@ public:
    sigc::signal<void> activated;
 
 private:
-   CSGAction(const CSGAction&); // stop default
+   CSGAction(const CSGAction&) = delete; // stop default
 
-   const CSGAction& operator=(const CSGAction&); // stop default
+   const CSGAction& operator=(const CSGAction&) = delete; // stop default
 
    void enableImp();
    void disableImp();

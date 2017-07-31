@@ -22,9 +22,9 @@ public:
 
 private:
   // Disable default copy constructor
-  FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& );
+  FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& );
+  const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& ) = delete;
   virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
 
   using FWSimpleProxyBuilderTemplate<reco::BeamSpot>::build;

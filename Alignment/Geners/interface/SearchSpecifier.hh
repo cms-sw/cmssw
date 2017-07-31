@@ -38,7 +38,7 @@ namespace gs {
         bool matches(const std::string& sentence) const;
 
     private:
-        SearchSpecifier();
+        SearchSpecifier() = delete;
 
         std::string tag_;
         Regex regex_;

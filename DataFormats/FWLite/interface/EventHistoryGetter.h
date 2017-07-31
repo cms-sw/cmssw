@@ -31,9 +31,9 @@ namespace fwlite {
             const edm::ProcessHistory& history() const;
 
         private:
-            EventHistoryGetter(const EventHistoryGetter&); // stop default
+            EventHistoryGetter(const EventHistoryGetter&) = delete; // stop default
 
-            const EventHistoryGetter& operator=(const EventHistoryGetter&); // stop default
+            const EventHistoryGetter& operator=(const EventHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::Event* event_;

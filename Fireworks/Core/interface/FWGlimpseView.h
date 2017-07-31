@@ -46,8 +46,8 @@ public:
    // ---------- static member functions --------------------
 
 private:
-   FWGlimpseView(const FWGlimpseView&);    // stop default
-   const FWGlimpseView& operator=(const FWGlimpseView&);    // stop default
+   FWGlimpseView(const FWGlimpseView&) = delete;    // stop default
+   const FWGlimpseView& operator=(const FWGlimpseView&) = delete;    // stop default
 
    void createAxis();
    void showAxes( );

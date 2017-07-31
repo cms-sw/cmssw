@@ -64,9 +64,9 @@ public:
    
    
 private:
-   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&); // stop default
+   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&) = delete; // stop default
    
-   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&); // stop default
+   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&) = delete; // stop default
    
    // ---------- member data --------------------------------
    const TGGC* m_context;

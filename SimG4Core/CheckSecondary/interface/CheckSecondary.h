@@ -33,8 +33,8 @@ public:
   virtual ~CheckSecondary();
 
 private:
-  CheckSecondary(const CheckSecondary&); // stop default
-  const CheckSecondary& operator=(const CheckSecondary&);
+  CheckSecondary(const CheckSecondary&) = delete; // stop default
+  const CheckSecondary& operator=(const CheckSecondary&) = delete;
 
   // observer classes
   TTree * bookTree(std::string);

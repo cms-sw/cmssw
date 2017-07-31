@@ -56,8 +56,8 @@ class BPHParticlePtSelect: public BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHParticlePtSelect           ( const BPHParticlePtSelect& x );
-  BPHParticlePtSelect& operator=( const BPHParticlePtSelect& x );
+  BPHParticlePtSelect           ( const BPHParticlePtSelect& x ) = delete;
+  BPHParticlePtSelect& operator=( const BPHParticlePtSelect& x ) = delete;
 
   double ptMin;
 

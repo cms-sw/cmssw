@@ -78,8 +78,8 @@ public:
      void modifyColumn ();
 
 private:
-     FWTableView(const FWTableView&);    // stop default
-     const FWTableView& operator=(const FWTableView&);    // stop default
+     FWTableView(const FWTableView&) = delete;    // stop default
+     const FWTableView& operator=(const FWTableView&) = delete;    // stop default
 
 protected:
      // ---------- member data --------------------------------

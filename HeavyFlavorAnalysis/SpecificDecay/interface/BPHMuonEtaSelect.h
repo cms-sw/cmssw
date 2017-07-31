@@ -51,8 +51,8 @@ class BPHMuonEtaSelect: public BPHParticleEtaSelect {
  private:
 
   // private copy and assigment constructors
-  BPHMuonEtaSelect           ( const BPHMuonEtaSelect& x );
-  BPHMuonEtaSelect& operator=( const BPHMuonEtaSelect& x );
+  BPHMuonEtaSelect           ( const BPHMuonEtaSelect& x ) = delete;
+  BPHMuonEtaSelect& operator=( const BPHMuonEtaSelect& x ) = delete;
 
 };
 

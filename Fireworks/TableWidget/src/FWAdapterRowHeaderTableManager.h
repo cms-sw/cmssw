@@ -48,9 +48,9 @@ class FWAdapterRowHeaderTableManager : public FWTableManagerBase
       virtual void implSort(int col, bool sortOrder) ;
 
    private:
-      FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager&); // stop default
+      FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager&) = delete; // stop default
 
-      const FWAdapterRowHeaderTableManager& operator=(const FWAdapterRowHeaderTableManager&); // stop default
+      const FWAdapterRowHeaderTableManager& operator=(const FWAdapterRowHeaderTableManager&) = delete; // stop default
 
       // ---------- member data --------------------------------
       const FWTableManagerBase* m_table;

@@ -119,7 +119,7 @@ namespace npstat {
         }
 
     private:
-        StorableHistoNDFunctor();
+        StorableHistoNDFunctor() = delete;
 
         Table table_;
         unsigned deg_;

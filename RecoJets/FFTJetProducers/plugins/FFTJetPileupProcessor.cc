@@ -63,9 +63,9 @@ protected:
     void endJob() override ;
 
 private:
-    FFTJetPileupProcessor();
-    FFTJetPileupProcessor(const FFTJetPileupProcessor&);
-    FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&);
+    FFTJetPileupProcessor() = delete;
+    FFTJetPileupProcessor(const FFTJetPileupProcessor&) = delete;
+    FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&) = delete;
 
     void buildKernelConvolver(const edm::ParameterSet&);
     void mixExtraGrid();

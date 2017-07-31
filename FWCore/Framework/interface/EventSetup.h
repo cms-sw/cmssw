@@ -129,9 +129,9 @@ class EventSetup
    private:
       EventSetup();
       
-      EventSetup(EventSetup const&); // stop default
+      EventSetup(EventSetup const&) = delete; // stop default
 
-      EventSetup const& operator=(EventSetup const&); // stop default
+      EventSetup const& operator=(EventSetup const&) = delete; // stop default
 
       void insert(const eventsetup::EventSetupRecordKey&,
                   const eventsetup::EventSetupRecord*);

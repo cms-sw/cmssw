@@ -218,8 +218,8 @@ public:
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
    
 private:
-   FWGUIManager(const FWGUIManager&);    // stop default
-   const FWGUIManager& operator=(const FWGUIManager&);    // stop default
+   FWGUIManager(const FWGUIManager&) = delete;    // stop default
+   const FWGUIManager& operator=(const FWGUIManager&) = delete;    // stop default
       
    TEveWindow* getSwapCandidate();
    

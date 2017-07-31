@@ -55,8 +55,8 @@ class Clipsi : public TGLClip
 {
 private:
    TGLRnrCtx* m_rnrCtx;
-   Clipsi(const Clipsi&);            // Not implemented
-   Clipsi& operator=(const Clipsi&); // Not implemented
+   Clipsi(const Clipsi&) = delete;            // Not implemented
+   Clipsi& operator=(const Clipsi&) = delete; // Not implemented
 
    TGLVertex3 vtx[4];
    TGLVertex3 appexOffset;

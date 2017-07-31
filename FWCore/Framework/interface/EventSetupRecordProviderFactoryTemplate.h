@@ -54,9 +54,9 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
       // ---------- member functions ---------------------------
 
    private:
-      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&); // stop default
+      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&) = delete; // stop default
 
-      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&); // stop default
+      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

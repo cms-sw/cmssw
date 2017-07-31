@@ -10,8 +10,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWFTLRecHitProxyBuilder( const FWFTLRecHitProxyBuilder& );
-   const FWFTLRecHitProxyBuilder& operator=( const FWFTLRecHitProxyBuilder& );
+   FWFTLRecHitProxyBuilder( const FWFTLRecHitProxyBuilder& ) = delete;
+   const FWFTLRecHitProxyBuilder& operator=( const FWFTLRecHitProxyBuilder& ) = delete;
 };
 
 REGISTER_FWPROXYBUILDER( FWFTLRecHitProxyBuilder, FTLRecHitCollection, "FTL RecHit", FWViewType::kISpyBit );

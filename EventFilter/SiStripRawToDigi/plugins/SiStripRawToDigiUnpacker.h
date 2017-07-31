@@ -71,7 +71,7 @@ namespace sistrip {
     void update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, RawDigis& common_mode );
     
     /// private default constructor
-    RawToDigiUnpacker();
+    RawToDigiUnpacker() = delete;
     
     /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
     void updateEventSummary( const sistrip::FEDBuffer&, SiStripEventSummary& );

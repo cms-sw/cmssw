@@ -87,9 +87,9 @@ public:
 
 private:
   /** Copy constructor */
-  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator &p);
+  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BetaBoostEvtVtxGenerator&  operator = (const BetaBoostEvtVtxGenerator & rhs );
+  BetaBoostEvtVtxGenerator&  operator = (const BetaBoostEvtVtxGenerator & rhs ) = delete;
 
   double alpha_, phi_;
   //TMatrixD boost_;

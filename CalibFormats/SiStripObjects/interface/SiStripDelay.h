@@ -88,8 +88,8 @@ class SiStripDelay
 
  private:
 
-  SiStripDelay(const SiStripDelay&); // stop default
-  const SiStripDelay& operator=(const SiStripDelay&); // stop default
+  SiStripDelay(const SiStripDelay&) = delete; // stop default
+  const SiStripDelay& operator=(const SiStripDelay&) = delete; // stop default
 
   // ---------- member data --------------------------------
 

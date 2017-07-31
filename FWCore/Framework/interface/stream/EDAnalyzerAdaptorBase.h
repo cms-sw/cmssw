@@ -104,9 +104,9 @@ namespace edm {
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
-      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&); // stop default
+      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete; // stop default
       
-      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&); // stop default
+      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete; // stop default
       
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,

@@ -53,9 +53,9 @@ protected:
 
 private:
   
-   FWHGTowerProxyBuilderBase(const FWHGTowerProxyBuilderBase&); // stop default
+   FWHGTowerProxyBuilderBase(const FWHGTowerProxyBuilderBase&) = delete; // stop default
   
-   const FWHGTowerProxyBuilderBase& operator=(const FWHGTowerProxyBuilderBase&); // stop default
+   const FWHGTowerProxyBuilderBase& operator=(const FWHGTowerProxyBuilderBase&) = delete; // stop default
   
    virtual void build(const FWEventItem* iItem,
                       TEveElementList* product, const FWViewContext*);

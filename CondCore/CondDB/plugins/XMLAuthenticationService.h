@@ -72,9 +72,9 @@ namespace cond {
       std::map< std::string, coral::AuthenticationCredentials* > m_data;
 
     private:
-      DataSourceEntry();
-      DataSourceEntry( const DataSourceEntry& );
-      DataSourceEntry& operator=( const DataSourceEntry& );
+      DataSourceEntry() = delete;
+      DataSourceEntry( const DataSourceEntry& ) = delete;
+      DataSourceEntry& operator=( const DataSourceEntry& ) = delete;
     };
 
     /**

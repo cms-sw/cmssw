@@ -26,8 +26,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&);
-   const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&);
+   FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&) = delete;
+   const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&) = delete;
 
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>  ::build;
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;

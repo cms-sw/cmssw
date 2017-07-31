@@ -20,8 +20,8 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWGEMSegmentProxyBuilder(const FWGEMSegmentProxyBuilder&);
-  const FWGEMSegmentProxyBuilder& operator=(const FWGEMSegmentProxyBuilder&); 
+  FWGEMSegmentProxyBuilder(const FWGEMSegmentProxyBuilder&) = delete;
+  const FWGEMSegmentProxyBuilder& operator=(const FWGEMSegmentProxyBuilder&) = delete; 
  
   using FWSimpleProxyBuilderTemplate<GEMSegment>::buildViewType;
   virtual void buildViewType(const GEMSegment& iData, 

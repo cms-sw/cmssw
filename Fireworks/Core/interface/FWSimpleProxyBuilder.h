@@ -56,9 +56,9 @@ protected:
    FWSimpleProxyHelper m_helper;
 
 private:
-   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default
+   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&) = delete; // stop default
 
-   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&); // stop default
+   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&) = delete; // stop default
 
    virtual void itemChangedImp(const FWEventItem*);
    

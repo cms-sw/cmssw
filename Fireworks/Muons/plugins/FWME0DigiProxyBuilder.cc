@@ -22,8 +22,8 @@ public:
 
 private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&);    
-  const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&);
+  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&) = delete;    
+  const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&) = delete;
 };
 
 void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)

@@ -168,9 +168,9 @@ namespace fwlite {
          friend class ChainEvent;
          friend class EventHistoryGetter;
 
-         Event(Event const&); // stop default
+         Event(Event const&) = delete; // stop default
 
-         Event const& operator=(Event const&); // stop default
+         Event const& operator=(Event const&) = delete; // stop default
 
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;

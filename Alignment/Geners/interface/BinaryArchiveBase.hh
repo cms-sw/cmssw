@@ -177,9 +177,9 @@ namespace gs {
         const ClassId* itemLocationClassId() const {return storedLocationId_;}
 
     private:
-        BinaryArchiveBase();
-        BinaryArchiveBase(const BinaryArchiveBase&);
-        BinaryArchiveBase& operator=(const BinaryArchiveBase&);
+        BinaryArchiveBase() = delete;
+        BinaryArchiveBase(const BinaryArchiveBase&) = delete;
+        BinaryArchiveBase& operator=(const BinaryArchiveBase&) = delete;
 
         static bool parseArchiveOptions(
             std::ostringstream& errmes,

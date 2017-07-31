@@ -29,8 +29,8 @@ public:
   virtual const TopologyType& specificTopology() const  { return *theTopology;}
 
 private:
-  PixelGeomDetType& operator = ( const PixelGeomDetType& other );
-  PixelGeomDetType( const PixelGeomDetType& other );
+  PixelGeomDetType& operator = ( const PixelGeomDetType& other ) = delete;
+  PixelGeomDetType( const PixelGeomDetType& other ) = delete;
     
   TopologyType*    theTopology;
 };

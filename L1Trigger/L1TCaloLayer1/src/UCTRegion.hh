@@ -91,15 +91,15 @@ private:
 
   // No default constructor is needed
 
-  UCTRegion();
+  UCTRegion() = delete;
 
   // No copy constructor is needed
 
-  UCTRegion(const UCTRegion&);
+  UCTRegion(const UCTRegion&) = delete;
 
   // No equality operator is needed
 
-  const UCTRegion& operator=(const UCTRegion&);
+  const UCTRegion& operator=(const UCTRegion&) = delete;
 
 protected:
 

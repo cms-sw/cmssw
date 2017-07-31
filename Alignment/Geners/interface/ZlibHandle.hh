@@ -15,8 +15,8 @@ namespace gs {
         inline z_stream_s& strm() {return *strm_;}
 
     private:
-        ZlibInflateHandle(const ZlibInflateHandle&);
-        ZlibInflateHandle& operator=(const ZlibInflateHandle&);
+        ZlibInflateHandle(const ZlibInflateHandle&) = delete;
+        ZlibInflateHandle& operator=(const ZlibInflateHandle&) = delete;
 
         z_stream_s *strm_;
     };
@@ -31,9 +31,9 @@ namespace gs {
         inline int level() {return level_;}
 
     private:
-        ZlibDeflateHandle();
-        ZlibDeflateHandle(const ZlibDeflateHandle&);
-        ZlibDeflateHandle& operator=(const ZlibDeflateHandle&);
+        ZlibDeflateHandle() = delete;
+        ZlibDeflateHandle(const ZlibDeflateHandle&) = delete;
+        ZlibDeflateHandle& operator=(const ZlibDeflateHandle&) = delete;
 
         z_stream_s *strm_;
         int level_;

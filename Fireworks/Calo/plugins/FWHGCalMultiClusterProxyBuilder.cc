@@ -14,8 +14,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHGCalMultiClusterProxyBuilder( const FWHGCalMultiClusterProxyBuilder& ); 			// stop default
-   const FWHGCalMultiClusterProxyBuilder& operator=( const FWHGCalMultiClusterProxyBuilder& ); 	// stop default
+   FWHGCalMultiClusterProxyBuilder( const FWHGCalMultiClusterProxyBuilder& ) = delete; 			// stop default
+   const FWHGCalMultiClusterProxyBuilder& operator=( const FWHGCalMultiClusterProxyBuilder& ) = delete; 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;
    void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );

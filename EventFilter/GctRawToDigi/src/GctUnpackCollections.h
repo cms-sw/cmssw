@@ -59,8 +59,8 @@ public:
 
 private:
 
-  GctUnpackCollections(const GctUnpackCollections&); ///< Copy ctor - deliberately not implemented!
-  GctUnpackCollections& operator=(const GctUnpackCollections&); ///< Assignment op - deliberately not implemented!  
+  GctUnpackCollections(const GctUnpackCollections&) = delete; ///< Copy ctor - deliberately not implemented!
+  GctUnpackCollections& operator=(const GctUnpackCollections&) = delete; ///< Assignment op - deliberately not implemented!  
 
   edm::Event& m_event;  ///< The event the collections will be put into on destruction of the GctUnpackCollections instance.
 
