@@ -118,7 +118,7 @@ namespace {
     Trajectory smoothingStep(Trajectory && fitted) const {
       if (theEstimateCut>0) {
 	// remove "outlier" at the end of Traj
-	while (!fitted.empty() &&
+	while (!fitted.empty() && fitted.foundHits()>=theMinNumberOfHits &&
 	       ( !fitted.lastMeasurement().recHitR().isValid()
 		 || ( fitted.lastMeasurement().recHitR().det()!=nullptr && fitted.lastMeasurement().estimate()>theEstimateCut)
 		 )

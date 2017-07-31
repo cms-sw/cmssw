@@ -1,9 +1,12 @@
 #ifndef Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
+#include <vector>
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
@@ -15,25 +18,32 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 	 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 	 
 
-class AlignableNavigator;
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+
+#include "Alignment/HIPAlignmentAlgorithm/interface/HIPMonitorConfig.h"
+#include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
+#include "TFormula.h"
+
+
 class TFile;
 class TTree;
 
-class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
-{
+class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase{
+public:
 
- public:
-  
   /// Constructor
   HIPAlignmentAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~HIPAlignmentAlgorithm() {};
+  ~HIPAlignmentAlgorithm(){};
 
   /// Call at beginning of job
-  void initialize( const edm::EventSetup& setup, 
-                   AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras, 
-                   AlignmentParameterStore* store);
+  void initialize(
+    const edm::EventSetup& setup,
+    AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras,
+    AlignmentParameterStore* store
+    );
 
   /// Call at end of job
   void terminate(const edm::EventSetup& setup);
@@ -44,37 +54,43 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Run the algorithm
   void run(const edm::EventSetup& setup, const EventInfo& eventInfo);
 
- private:
+private:
+  bool processHit1D(
+    const AlignableDetOrUnitPtr& alidet,
+    const Alignable* ali,
+    const HIPAlignableSpecificParameters* alispecifics,
+    const TrajectoryStateOnSurface& tsos,
+    const TrackingRecHit* hit,
+    double hitwt
+    );
 
-  // private member functions
-  
-  bool processHit1D(const AlignableDetOrUnitPtr& alidet,
-		    const Alignable* ali,
-		    const TrajectoryStateOnSurface & tsos,
-		    const TrackingRecHit* hit,
-                    double hitwt);
-
-  bool processHit2D(const AlignableDetOrUnitPtr& alidet,
-		    const Alignable* ali,
-		    const TrajectoryStateOnSurface & tsos,
-		    const TrackingRecHit* hit,
-                    double hitwt);  
+  bool processHit2D(
+    const AlignableDetOrUnitPtr& alidet,
+    const Alignable* ali,
+    const HIPAlignableSpecificParameters* alispecifics,
+    const TrajectoryStateOnSurface& tsos,
+    const TrackingRecHit* hit,
+    double hitwt
+    );
 
   int readIterationFile(std::string filename);
   void writeIterationFile(std::string filename, int iter);
   void setAlignmentPositionError(void);
-  double calcAPE(double* par, int iter, double function);
+  double calcAPE(double* par, int iter, int function);
   void bookRoot(void);
-  void fillRoot(const edm::EventSetup& setup);
-  bool calcParameters(Alignable* ali,int setDet, double start, double step);
+  void fillAlignablesMonitor(const edm::EventSetup& setup);
+  bool calcParameters(Alignable* ali, int setDet, double start, double step);
   void collector(void);
-  int  fillEventwiseTree(const char *filename, int iter, int ierr);
+  void collectMonitorTrees(const std::vector<std::string>& filenames);
+
+  HIPAlignableSpecificParameters* findAlignableSpecs(const Alignable* ali);
+
   // private data members
 
   std::unique_ptr<AlignableObjectId> alignableObjectId_;
   AlignmentParameterStore* theAlignmentParameterStore;
   std::vector<Alignable*> theAlignables;
-  AlignableNavigator* theAlignableDetAccessor;
+  std::unique_ptr<AlignableNavigator> theAlignableDetAccessor;
 
   AlignmentIORoot theIO;
   int ioerr;
@@ -83,60 +99,78 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // steering parameters
 
   // verbosity flag
-  bool verbose;
+  const bool verbose;
+  // Monitor configuration
+  HIPMonitorConfig theMonitorConfig;
+  const bool doTrackHitMonitoring;
   // names of IO root files
-  std::string outfile,outfile2,outpath,suvarfile,sparameterfile;
-  std::string struefile,smisalignedfile,salignedfile,siterationfile,ssurveyfile;
+  std::string outfile2, outpath, suvarfilecore, suvarfile, sparameterfile;
+  std::string struefile, smisalignedfile, salignedfile, siterationfile, ssurveyfile;
+
+  bool themultiIOV;
+  std::vector<unsigned> theIOVrangeSet;
 
   // alignment position error parameters
   bool theApplyAPE;
-  bool themultiIOV;
   std::vector<edm::ParameterSet> theAPEParameterSet;
-	std::vector<unsigned> theIOVrangeSet;
   std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > > theAPEParameters;
-  // max allowed pull (residual / uncertainty) on a hit used in alignment
-  double theMaxAllowedHitPull;
-  // min number of hits on alignable to calc parameters
-  int theMinimumNumberOfHits;
-  // max allowed rel error on parameter (else not used)
-  double theMaxRelParameterError;
+
+  // Default alignment specifications
+  // - min number of hits on alignable to calc parameters
+  // - max allowed rel error on parameter (else not used)
+  // - max allowed pull (residual / uncertainty) on a hit used in alignment
+  HIPAlignableSpecificParameters defaultAlignableSpecs;
+
+  bool theApplyCutsPerComponent;
+  std::vector<edm::ParameterSet> theCutsPerComponent;
+  std::vector<HIPAlignableSpecificParameters> theAlignableSpecifics;
+
   // collector mode (parallel processing)
   bool isCollector;
   int theCollectorNJobs;
   std::string theCollectorPath;
-  int theEventPrescale,theCurrentPrescale;
-  bool trackPs,trackWt,IsCollision,uniEta;
-  double Scale,cos_cut,col_cut;
-  bool theFillTrackMonitoring;
+  int theDataGroup; // The data type specified in the cfg
+  bool trackPs, trackWt, IsCollision, uniEta, rewgtPerAli;
+  std::string uniEtaFormula;
+  double Scale, cos_cut, col_cut;
   std::vector<double> SetScanDet;
+
+  std::unique_ptr<TFormula> theEtaFormula;
+
 
   const std::vector<std::string> surveyResiduals_;
   std::vector<align::StructureType> theLevels; // for survey residuals
 
   // root tree variables
-  TFile* theFile;
-  TTree* theTree; // event-wise tree
-  TTree* hitTree; // hit-wise tree
-  TFile* theFile2;
-  TTree* theTree2; // alignable-wise tree
-  TFile* theFile3;
-  TTree* theTree3; // survey tree
+  TFile* theTrackHitMonitorIORootFile;
+  TTree* theTrackMonitorTree; // event-wise tree
+  TTree* theHitMonitorTree; // hit-wise tree
+  TFile* theAlignablesMonitorIORootFile;
+  TTree* theAlignablesMonitorTree; // alignable-wise tree
+  TFile* theSurveyIORootFile;
+  TTree* theSurveyTree; // survey tree
 
   // variables for event-wise tree
-  static const int MAXREC = 99;
-  //int m_Run,m_Event;
-  int m_Ntracks,m_Nhits[MAXREC],m_nhPXB[MAXREC],m_nhPXF[MAXREC],m_nhTIB[MAXREC],m_nhTOB[MAXREC],m_nhTID[MAXREC],m_nhTEC[MAXREC];
-  float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC],m_P[MAXREC],m_d0[MAXREC],m_dz[MAXREC],m_wt[MAXREC];
+  int m_Ntracks;
+  std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
+  std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
 
   // variables for hit-wise tree
-  float m_sinTheta,m_hitwt,m_angle;
+  bool m_hasHitProb;
+  float m_sinTheta, m_hitwt, m_angle, m_probXY, m_probQ;
+  unsigned int m_rawQualityWord;
+  int m_datatype;
   align::ID m_detId;
 
   // variables for alignable-wise tree
-  int m2_Nhit,m2_Type,m2_Layer;
-  float m2_Xpos, m2_Ypos, m2_Zpos, m2_Eta, m2_Phi; 
   align::ID m2_Id;
   align::StructureType m2_ObjId;
+  int m2_Nhit, m2_Type, m2_Layer;
+  int m2_datatype;
+  float m2_Xpos, m2_Ypos, m2_Zpos;
+  SurfaceDeformationFactory::Type m2_dtype;
+  unsigned int m2_nsurfdef;
+  std::vector<float> m2_surfDef;
 
   // variables for survey tree 
   align::ID m3_Id;
