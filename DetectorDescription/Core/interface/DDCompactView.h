@@ -13,8 +13,8 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "Utilities/General/interface/Graph.h"
-#include "Utilities/General/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDCompactViewImpl;
 class DDDivision;
@@ -100,11 +100,11 @@ public:
   //! pair ...
   typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
   
-  typedef cms::util::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
+  typedef math::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef cms::util::Graph<DDLogicalPart,DDPosData*> graph_type;
+  typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
     
   //! Creates a compact-view 
   explicit DDCompactView();

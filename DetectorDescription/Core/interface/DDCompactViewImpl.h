@@ -5,8 +5,8 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "Utilities/General/interface/Graph.h"
-#include "Utilities/General/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDDivision;
 class DDPartSelector;
@@ -16,8 +16,8 @@ class DDCompactViewImpl
 {
 public:
   
-  using GraphNav = cms::util::Graph<DDLogicalPart, DDPosData* >;
-  using WalkerType = cms::util::GraphWalker<DDLogicalPart, DDPosData* >;
+  using GraphNav = math::Graph<DDLogicalPart, DDPosData* >;
+  using WalkerType = math::GraphWalker<DDLogicalPart, DDPosData* >;
 
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
@@ -32,7 +32,7 @@ public:
   
   const GraphNav & graph() const { return graph_; }
 
-  cms::util::GraphWalker<DDLogicalPart,DDPosData*> walker() const; 
+  math::GraphWalker<DDLogicalPart,DDPosData*> walker() const; 
   
   double weight(const DDLogicalPart &) const;
 

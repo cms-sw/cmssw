@@ -4,13 +4,13 @@
 #include <cstddef>
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "Utilities/General/interface/Graph.h"
+#include "DataFormats/Math/interface/Graph.h"
 
 class DDPartSelection;
 struct DDPartSelectionLevel;
 
 
-using PartSelectionTree = cms::util::Graph<DDPartSelectionLevel,char>;
+using PartSelectionTree = math::Graph<DDPartSelectionLevel,char>;
  
 
 class DDPartSelectionExpander

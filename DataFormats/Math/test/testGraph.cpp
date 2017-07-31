@@ -1,5 +1,5 @@
-#include "Utilities/General/interface/Graph.h"
-#include "Utilities/General/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 #include "Utilities/General/interface/GraphUtil.h"
 
 #include <iostream>
@@ -7,8 +7,8 @@
 
 using namespace std;
 
-using graph_type = cms::util::Graph<string,string>;
-using walker_type = cms::util::GraphWalker<string,string>;
+using graph_type = math::Graph<string,string>;
+using walker_type = math::GraphWalker<string,string>;
 
 void build_graph(graph_type & g)
 {
