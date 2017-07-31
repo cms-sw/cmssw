@@ -16,22 +16,27 @@ void FileInPath::init(const std::string & ipath, const std::string & ifile) {
   typedef std::vector<std::string>::const_iterator Itr;
   for (Itr d=directories.begin(); d!=directories.end(); d++) {
     file = *d; file += "/"; file += ifile;
-    in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
+    in = std::make_unique<std::ifstream>(file.c_str());
     if (in->good()) break;
   }
   if (!in->good()) { in.release(); file="";}
 }
 
 FileInPath::FileInPath(const FileInPath& rh ) : 
-  directories(rh.directories), file(rh.file) {
-  if (rh.in.get()) in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
+  directories(rh.directories), file(rh.file)
+{
+  if (rh.in.get()) {
+    in = std::make_unique<std::ifstream>(file.c_str());
+  }
 }
   
 
 FileInPath & FileInPath::operator=(const FileInPath& rh ) {
   directories = rh.directories; 
   file = rh.file;
-  if (rh.in.get()&&(!file.empty())) in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
+  if (rh.in.get()&&(!file.empty())) {
+    in = std::make_unique<std::ifstream>(file.c_str());
+  }
   return *this;
 }
 

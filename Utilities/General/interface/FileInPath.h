@@ -7,7 +7,7 @@
 #include<string>
 #include<vector>
 #include<iosfwd>
-#include "Utilities/General/interface/own_ptr.h"
+#include <memory>
 
 /** open the first file found in a ":"-separated list of files (path)
  */
@@ -40,7 +40,7 @@ private:
 private:
   std::vector<String> directories;
   String file;
-  own_ptr<std::ifstream> in;
+  std::unique_ptr<std::ifstream> in;
 
 };
 
