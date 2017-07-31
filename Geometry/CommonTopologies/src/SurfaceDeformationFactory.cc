@@ -20,37 +20,50 @@ SurfaceDeformationFactory::surfaceDeformationType(const std::string &typeString)
     throw cms::Exception("BadInput") << "SurfaceDeformationFactory::surfaceDeformationType: "
 				     << "Unknown SurfaceDeformation type " << typeString
 				     << " (must be 'BowedSurface' or 'TwoBowedSurfaces'.\n";
-    return kBowedSurface; // not reached, to please the compiler
+    return kNoDeformations; // not reached, to please the compiler
+  }
+}
+std::string SurfaceDeformationFactory::surfaceDeformationTypeName(const SurfaceDeformationFactory::Type &type){
+  switch (type){
+  case kBowedSurface:
+    return std::string("BowedSurface");
+  case kTwoBowedSurfaces:
+    return std::string("TwoBowedSurfaces");
+  default:
+    throw cms::Exception("BadInput") << "SurfaceDeformationFactory::surfaceDeformationTypeName: "
+      << "Unknown SurfaceDeformation type " << type
+      << " (must be 'kBowedSurface' or 'kTwoBowedSurfaces'.\n";
+    return std::string("NoDeformations");
   }
 }
 
+
 SurfaceDeformation* SurfaceDeformationFactory::create(int type, const std::vector<double> &params)
 {
-  switch(type) {
+  switch(type){
   case kBowedSurface:
-    {
-      if (params.size() <= BowedSurfaceDeformation::maxParameterSize() &&
-	  params.size() >= BowedSurfaceDeformation::minParameterSize()) {
-	return new BowedSurfaceDeformation(params);
-      } else {
-	break;
-      }
-    }
   case kTwoBowedSurfaces:
-    {
-      if (params.size() <= TwoBowedSurfacesDeformation::maxParameterSize() &&
-	  params.size() >= TwoBowedSurfacesDeformation::minParameterSize()) {
-	return new TwoBowedSurfacesDeformation(params);
-      } else {
-	break;
-      }
-    }
+    return SurfaceDeformationFactory::create(params);
+  default:
+    throw cms::Exception("BadInput") << "SurfaceDeformationFactory::create: "
+      << "Unknown SurfaceDeformation type " << type << " (need "
+      << kBowedSurface << " or " << kTwoBowedSurfaces
+      << ")\n";
+    return 0;
   }
+}
+
+SurfaceDeformation* SurfaceDeformationFactory::create(const std::vector<double> &params)
+{
+      if (params.size() <= BowedSurfaceDeformation::maxParameterSize() &&
+	  params.size() >= BowedSurfaceDeformation::minParameterSize()) 
+	return new BowedSurfaceDeformation(params);
+      else if (params.size() <= TwoBowedSurfacesDeformation::maxParameterSize() &&
+	  params.size() >= TwoBowedSurfacesDeformation::minParameterSize())
+	return new TwoBowedSurfacesDeformation(params);
 
   throw cms::Exception("BadInput") << "SurfaceDeformationFactory::create: "
-				   << "Unknown SurfaceDeformation type " << type << " (need "
-				   << kBowedSurface << " or " << kTwoBowedSurfaces 
-				   << ") or params.size() (" << params.size()
+				   << "Params.size() (" << params.size()
 				   << ") does not match.\n";
   
   return 0;

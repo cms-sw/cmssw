@@ -234,7 +234,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     }
   } // for loop
 
-   if (!retry) return ret;
+    if (!retry) return ret;
   } while(true);
   
   return Trajectory(); 
