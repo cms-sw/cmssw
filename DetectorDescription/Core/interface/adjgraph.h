@@ -238,8 +238,8 @@ typename graph<N,E>::index_type graph<N,E>::addNode(const N & node)
     = indexer_.insert(typename indexer_type::value_type(node,idx));
   
   if ( result.second ) { // new index!
-    nodes_.push_back(node);
-    adjl_.push_back(edge_list());
+    nodes_.emplace_back(node);
+    adjl_.emplace_back(edge_list());
   }  
   else {
     idx = result.first->second;
@@ -268,8 +268,8 @@ void graph<N,E>::addEdge(const N & from, const N & to, const E & edge)
   index_type iFrom = addNode(from);
   index_type iTo   = addNode(to);
   
-  adjl_[iFrom].push_back(edge_type(iTo,edges_.size()));
-  edges_.push_back(edge);
+  adjl_[iFrom].emplace_back(edge_type(iTo,edges_.size()));
+  edges_.emplace_back(edge);
 }
 
 
@@ -358,7 +358,7 @@ void graph<N,E>::findRoots(edge_list & result) const
   for (; v_sz < v_ed; ++v_sz) {
     if (rootCandidate[v_sz]) {
       //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
-      result.push_back(edge_type(v_sz,0));    
+      result.emplace_back(edge_type(v_sz,0));    
     }
   }  
 }

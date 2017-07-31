@@ -106,12 +106,12 @@ bool GraphPath<N,E>::fromTo(const N & from, const N & to, std::vector< std::vect
        //std::cout << pit->first << '-';
        ++pit;
        for(; pit!=pend; ++pit) {
-         v.push_back(pit->second);
+         v.emplace_back(pit->second);
 	 //std::cout << pit->second << '-';
        }  	 
        //std::cout << target << std::endl;
-       v.push_back(target);
-       result.push_back(v);	 
+       v.emplace_back(target);
+       result.emplace_back(v);	 
      }
 
      rslt=true;
@@ -131,8 +131,8 @@ bool GraphPath<N,E>::paths2(const segment_type & ft, result_type& result) const
   }
   
   std::vector<segment_type> v;
-  v.push_back(git->first);
-  result.push_back(v); // starting point; the set will be enlarged & the std::vectors inside
+  v.emplace_back(git->first);
+  result.emplace_back(v); // starting point; the set will be enlarged & the std::vectors inside
                     // get pushed_back as new path-segments appear ...
   
   // find a possible direct-connetion:
@@ -192,10 +192,10 @@ void GraphPath<N,E>::update(segment_type & s, result_type & result, int u) const
    ++segit;
    for (; segit!=segs.end(); ++segit) { // create new pathes (whenever a the path-tree is branching)
      std::vector<segment_type> v = temp_pth;
-     v.push_back(*segit);
-     result.push_back(v);     
+     v.emplace_back(*segit);
+     result.emplace_back(v);     
    }
-   temp_pth.push_back(*segs.begin()); // just append the first new segment to the existing one (also, when no branch!)
+   temp_pth.emplace_back(*segs.begin()); // just append the first new segment to the existing one (also, when no branch!)
    result[u]=temp_pth;
 }
 

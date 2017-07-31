@@ -53,9 +53,9 @@ int main() {
   }
 
   vector<double> vec;
-  vec.push_back(1.);
-  vec.push_back(2.);
-  vec.push_back(3.);
+  vec.emplace_back(1.);
+  vec.emplace_back(2.);
+  vec.emplace_back(3.);
   DDVector dd_vector(vector_name,&vec);
   cout << dd_vector << endl;
   cout << dd_vector[0] << ' ' << dd_vector[2] << endl;

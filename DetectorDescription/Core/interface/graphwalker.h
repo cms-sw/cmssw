@@ -84,7 +84,7 @@ graphwalker<N,E>::graphwalker(const graph<N,E> & g)
  : graph_(g)
 {  // complexity = (no nodes) * (no edges)
    graph_.findRoots(root_);
-   stack_.push_back(edge_range(root_.begin(),root_.end())); 
+   stack_.emplace_back(edge_range(root_.begin(),root_.end())); 
    if (root_.size()) {
      queue_.push(root_[0]);
    }
@@ -99,8 +99,8 @@ graphwalker<N,E>::graphwalker(const graph<N,E> & g, const N & root)
    if (!rr.second) // no such root node, no walker can be created!
      throw root;
      
-   root_.push_back(edge_type(rr.first, 0));
-   stack_.push_back(edge_range(root_.begin(),root_.end()));   
+   root_.emplace_back(edge_type(rr.first, 0));
+   stack_.emplace_back(edge_range(root_.begin(),root_.end()));   
    queue_.push(root_[0]);
 }
 
@@ -131,7 +131,7 @@ void graphwalker<N,E>::reset()
 {
   //std::cout << "graphwalker::reset" << std::endl;
   stack_.clear();
-  stack_.push_back(edge_range(root_.begin(),root_.end()));
+  stack_.emplace_back(edge_range(root_.begin(),root_.end()));
   queue_.clear();
   if (root_.size()) {
     queue_.push(root_[0]);   
@@ -146,7 +146,7 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::firstChild()
    const edge_range & adjEdges
      = graph_.edges(stack_.back().first->first);
    if (adjEdges.first != adjEdges.second) {
-     stack_.push_back(adjEdges);
+     stack_.emplace_back(adjEdges);
      result = true;
    }
    return result;
