@@ -139,25 +139,24 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      int countDefaults=0;
-
+      int totalDefaultAPVs=0;
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=payload->getRange(d);
 	float sumOfGains=0;
 	float nAPVsPerModule=0.;
+	int countDefaults=0;
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVsPerModule+=1;
 	  sumOfGains+=payload->getApvGain(it,range);
+	  if(payload->getApvGain(it,range)==1) countDefaults++;
 	} // loop over APVs
 	// fill the tracker map taking the average gain on a single DetId
-	if((sumOfGains/nAPVsPerModule)==1.){
-	  tmap->fill(d,1.);
-	  countDefaults+=nAPVsPerModule;
-	}
+	if(countDefaults>0.) tmap->fill(d,countDefaults);
+	totalDefaultAPVs+=countDefaults;
       } // loop over detIds
-
-      std::cout<<"there are "<< countDefaults << std::endl;
-
+      
+      std::cout<<"there are "<< totalDefaultAPVs << "APVs with default value (=1)" << std::endl;
+      
       //=========================
       
       std::string fileName(m_imageFileName);
@@ -654,6 +653,141 @@ namespace {
     }// fill
   };
 
+  class SiStripApvGainsComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsComparator () : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison" ){
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+       
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::vector<uint32_t> detid;
+      last_payload->getDetIds(detid);
+
+      std::map<std::pair<uint32_t,int>,float> lastmap,firstmap;
+
+      // loop on the last payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=last_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain=last_payload->getApvGain(it,range);
+	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
+	  lastmap[index]=Gain;
+	} // end loop on APVs
+      } // end loop on detids
+
+      detid.clear();
+      first_payload->getDetIds(detid);
+
+      // loop on the first payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=first_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain=first_payload->getApvGain(it,range);
+	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
+	  firstmap[index]=Gain;
+	} // end loop on APVs
+      }  // end loop on detids
+      
+      TCanvas canvas("Payload comparison","payload comparison",1200,1000); 
+      canvas.Divide(2,1);
+
+      std::map<std::string,TH1F*> ratios;
+      std::map<std::string,TH2F*> scatters;
+      std::map<std::string,int> colormap;
+      std::map<std::string,int> markermap;
+      colormap["TIB"] = kRed;       markermap["TIB"] = kFullCircle;           
+      colormap["TOB"] = kGreen;	    markermap["TOB"] = kFullTriangleUp;
+      colormap["TID"] = kBlack;	    markermap["TID"] = kFullSquare;
+      colormap["TEC"] = kBlue; 	    markermap["TEC"] = kFullTriangleDown; 
+
+      std::vector<std::string> parts = {"TIB","TOB","TID","TEC"};
+      
+      for ( const auto &part : parts){
+	ratios[part]   = new TH1F(Form("hRatio_%s",part.c_str()),";New Gain / Previous Gain;Number of APV",100,0.,2.);
+	scatters[part] = new TH2F(Form("hScatter_%s",part.c_str()),"new Gain vs previous Gain;Previous Gain;New Gain",100,0.5,1.8,100,0.5,1.8);
+      }
+      
+      // now loop on the cached maps
+      for(const auto &item : firstmap ) {
+	
+	// packed index (detid,APV)
+	auto index   = item.first;
+	auto mod     = item.first.first;
+
+	int subid = DetId(mod).subdetId();
+	float ratio = firstmap[index]/lastmap[index];
+
+	if(subid==StripSubdetector::TIB){
+	  ratios["TIB"]->Fill(ratio);
+	  scatters["TIB"]->Fill(lastmap[index],firstmap[index]);
+	}
+
+	if(subid==StripSubdetector::TOB){
+	  ratios["TOB"]->Fill(ratio);
+	  scatters["TOB"]->Fill(lastmap[index],firstmap[index]);
+	}
+
+	if(subid==StripSubdetector::TID){
+	  ratios["TID"]->Fill(ratio);
+	  scatters["TID"]->Fill(lastmap[index],firstmap[index]);
+	}
+
+	if(subid==StripSubdetector::TEC){
+	  ratios["TEC"]->Fill(ratio);
+	  scatters["TEC"]->Fill(lastmap[index],firstmap[index]);
+	}
+
+      }
+
+      canvas.cd(1)->SetLogy(); 
+      for ( const auto &part : parts){
+	ratios[part]->SetLineColor(colormap[part]);
+	if(part =="TIB")
+	  ratios[part]->Draw();
+	else
+	  ratios[part]->Draw("same");
+      }
+
+      canvas.cd(2);
+      for ( const auto &part : parts){
+	scatters[part]->SetMarkerColor(colormap[part]);
+	scatters[part]->SetMarkerStyle(markermap[part]);
+	scatters[part]->SetMarkerSize(0.5);
+	if(part =="TIB")
+	  scatters[part]->Draw("P");
+	else
+	  scatters[part]->Draw("Psame");
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      
+     
+      return true;
+
+    }
+  };
+
   class SiStripApvGainsComparatorByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
     SiStripApvGainsComparatorByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison By Partition" ){
@@ -926,6 +1060,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsDefaultTrackerMap);
