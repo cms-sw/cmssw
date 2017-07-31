@@ -1,23 +1,23 @@
-#ifndef UTILITIES_GENERAL_GRAPH_WALKER_H
-#define UTILITIES_GENERAL_GRAPH_WALKER_H
+#ifndef DATA_FORMATS_MATH_GRAPH_WALKER_H
+#define DATA_FORMATS_MATH_GRAPH_WALKER_H
 
-#include "Utilities/General/interface/Graph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include <queue>
 #include <vector>
 
-namespace cms::util {
+namespace math {
 
 /** a walker for an acyclic directed multigraph */
 template <class N, class E>
 class GraphWalker
 {
 public:
-  using index_type   = typename cms::util::Graph<N,E>::index_type;
-  using index_result = typename cms::util::Graph<N,E>::index_result;
-  using edge_type    = typename cms::util::Graph<N,E>::edge_type;
-  using edge_list    = typename cms::util::Graph<N,E>::edge_list;
-  using edge_iterator = typename cms::util::Graph<N,E>::edge_iterator;
-  using const_edge_iterator = typename cms::util::Graph<N,E>::const_edge_iterator;
+  using index_type   = typename math::Graph<N,E>::index_type;
+  using index_result = typename math::Graph<N,E>::index_result;
+  using edge_type    = typename math::Graph<N,E>::edge_type;
+  using edge_list    = typename math::Graph<N,E>::edge_list;
+  using edge_iterator = typename math::Graph<N,E>::edge_iterator;
+  using const_edge_iterator = typename math::Graph<N,E>::const_edge_iterator;
 
   // only a const-edge_range!
   using edge_range = std::pair<const_edge_iterator, const_edge_iterator>;
@@ -26,7 +26,7 @@ public:
   using bfs_type = std::queue<edge_type>;
 
   using result_type = bool /*std::pair<const N &, bool>*/;
-  using value_type = typename cms::util::Graph<N,E>::value_type;
+  using value_type = typename math::Graph<N,E>::value_type;
   
 public:
   //! creates a walker rooted by the first candidate root found in the underlying Graph
@@ -199,6 +199,6 @@ typename GraphWalker<N,E>::result_type GraphWalker<N,E>::next_bfs()
    return result;
 }
 
-} // namespase cms::util
+} // namespase math
 
 #endif

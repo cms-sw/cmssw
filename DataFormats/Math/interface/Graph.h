@@ -1,12 +1,12 @@
-#ifndef UTILITIES_GENERAL_GRAPH_H
-#define UTILITIES_GENERAL_GRAPH_H
+#ifndef DATA_FORMATS_MATH_GRAPH_H
+#define DATA_FORMATS_MATH_GRAPH_H
 
 #include <iostream>
 #include <map>
 #include <vector>
 
 // Adjecencylist Graph
-namespace cms::util {
+namespace math {
   
 // N,E must be concepts of default constructable, assignable, copyable, operator<
 template <class N, class E> 

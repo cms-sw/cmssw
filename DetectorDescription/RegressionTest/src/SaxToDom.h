@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "Utilities/General/interface/Graph.h"
-#include "Utilities/General/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include "xercesc/sax/SAXParseException.hpp"
 #include "xercesc/sax2/Attributes.hpp"

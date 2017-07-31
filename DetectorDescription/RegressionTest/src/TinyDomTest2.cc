@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "Utilities/General/interface/Graph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 
 using std::vector;

@@ -1,15 +1,15 @@
-#ifndef UTILITIES_GENERAL_GRAPH_UTIL_H
-#define UTILITIES_GENERAL_GRAPH_UTIL_H
+#ifndef DATA_FORMATS_MATH_GRAPH_UTIL_H
+#define DATA_FORMATS_MATH_GRAPH_UTIL_H
 
-#include "Utilities/General/interface/Graph.h"
-#include "Utilities/General/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 #include <iostream>
 #include <string>
 
 template<class N, class E>
-  void output(const cms::util::Graph<N,E> & g, const N & root)
+  void output(const math::Graph<N,E> & g, const N & root)
 {
-  cms::util::GraphWalker<N,E> w(g,root);
+  math::GraphWalker<N,E> w(g,root);
   bool go=true;
   while(go) {
     std::cout << w.current().first << ' ';
@@ -19,14 +19,14 @@ template<class N, class E>
 }
 
 template<class N, class E>
-  void graph_combine(const cms::util::Graph<N,E> & g1, const cms::util::Graph<N,E> & g2,
+  void graph_combine(const math::Graph<N,E> & g1, const math::Graph<N,E> & g2,
 		     const N & n1, const N & n2, const N & root,
-		     cms::util::Graph<N,E> & result)
+		     math::Graph<N,E> & result)
 {
   result = g1;
   result.replace(n1,n2);
   //output(result,n2);
-  cms::util::GraphWalker<N,E> walker(g2,n2);
+  math::GraphWalker<N,E> walker(g2,n2);
   while (walker.next()) {
     const N & parent = g2.nodeData((++walker.stack().rbegin())->first->first);
     /*
@@ -45,9 +45,9 @@ template<class N, class E>
 }		
 
 template<class N, class E>
-  void graph_tree_output(const cms::util::Graph<N,E> & g, const N & root, std::ostream & os)
+  void graph_tree_output(const math::Graph<N,E> & g, const N & root, std::ostream & os)
 {
-  cms::util::GraphWalker<N,E> w(g,root);
+  math::GraphWalker<N,E> w(g,root);
   bool go=true;
   unsigned int depth=0;
   while (go) {
