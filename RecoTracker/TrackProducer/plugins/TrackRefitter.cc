@@ -118,7 +118,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
 	theAlgo.runWithMomentum(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 				theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithMomentum." << "\n" << e << "\n"; throw; }
       break;
     }
   case  vertex :
@@ -135,7 +135,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithVertex." << "\n" << e << "\n"; throw; }
     }
   case trackParameters :
     {
@@ -152,7 +152,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
       theAlgo.runWithTrackParameters(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 				     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrackParameters." << "\n" << e << "\n"; throw; }
     }
     //default... there cannot be any other possibility due to the check in the ctor
   }

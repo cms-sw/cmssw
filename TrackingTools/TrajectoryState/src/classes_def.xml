@@ -1,5 +1,6 @@
 <lcgdict>
   <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
+  <class name="TrajectoryStateOnSurface"/>
   <class name="std::vector<TrajectoryStateOnSurface>" persistent="false"/>
   <class name="edm::Wrapper<std::vector<TrajectoryStateOnSurface> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<TrajectoryStateOnSurface> >"/>
