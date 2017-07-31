@@ -260,19 +260,17 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
     currentID.setID(unitID, time, primaryID, depth);
 
 #ifdef DebugLog
-    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
-			    << " PV "     << touch->GetVolume(0)->GetName()
-			    << " PVid = " << touch->GetReplicaNumber(0)
-			    << " MVid = " << touch->GetReplicaNumber(1)
+			    << " PV "     << theTouchableHistory->GetVolume(0)->GetName()
+			    << " PVid = " << theTouchableHistory->GetReplicaNumber(0)
+			    << " MVid = " << theTouchableHistory->GetReplicaNumber(1)
 			    << " Unit   " << currentID.unitID() 
 			    << " Edeposit = " << aStep->GetTotalEnergyDeposit();
   } else {
-    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
-			    << " PV "     << touch->GetVolume(0)->GetName()
-			    << " PVid = " << touch->GetReplicaNumber(0)
-			    << " MVid = " << touch->GetReplicaNumber(1)
+			    << " PV "     << theTouchableHistory->GetVolume(0)->GetName()
+			    << " PVid = " << theTouchableHistory->GetReplicaNumber(0)
+			    << " MVid = " << theTouchableHistory->GetReplicaNumber(1)
 			    << " Unit   " << std::hex << unitID << std::dec;
 #endif
   }
@@ -431,7 +429,7 @@ CaloG4Hit* CaloSD::createNewHit() {
     }
   }
   primIDSaved = currentID.trackID();
-  if (useMap) totalHits++;
+  if (useMap) ++totalHits;
   return aHit;
 }  
 
