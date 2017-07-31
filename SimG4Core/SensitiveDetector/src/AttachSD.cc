@@ -1,4 +1,3 @@
-//#include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorFactoryByName.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
@@ -6,11 +5,6 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//using std::vector;
-//using std::string;
-//using std::cout;
-//using std::endl;
 
 AttachSD::AttachSD() {}
 

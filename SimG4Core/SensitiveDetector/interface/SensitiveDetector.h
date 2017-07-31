@@ -47,8 +47,7 @@ public:
     std::vector<std::string> temp;
     temp.push_back(name);
     return temp;
-  }
-  
+  }  
   void NaNTrap( G4Step* step ) ;
     
 private:

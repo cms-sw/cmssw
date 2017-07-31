@@ -55,7 +55,7 @@ private:
     std::vector<std::shared_ptr<SimProducer> > m_producers;
     std::unique_ptr<sim::FieldBuilder> m_fieldBuilder;
     std::unique_ptr<SimTrackManager> m_trackManager;
-    AttachSD * m_attach;
+    std::unique_ptr<AttachSD> m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
     edm::ParameterSet m_p;

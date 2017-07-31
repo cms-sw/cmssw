@@ -224,10 +224,10 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
   
   cleanHitCollection();
   
+#ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries()
                           << " entries";
-
-  //  TimeMe("CaloSD:sortAndMergeHits",false);
+#endif
 }
 
 void CaloSD::clear() {} 
