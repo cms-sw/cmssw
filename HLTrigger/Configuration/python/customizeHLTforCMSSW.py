@@ -199,6 +199,17 @@ def customiseFor19181_pixel_phase1(process):
         producer.ClusterThreshold_L1 = cms.int32(2000)
     return process
 
+# Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
+def customiseFor19812(process):
+    if hasattr(process,'StableParametersRcdSource'):
+        delattr(process,'StableParametersRcdSource')
+    if hasattr(process,'StableParameters'):
+        delattr(process,'StableParameters')
+    if not hasattr(process,'GlobalParameters'):
+        from L1Trigger.L1TGlobal.GlobalParameters_cff import GlobalParameters
+        process.GlobalParameters = GlobalParameters
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -220,5 +231,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     else:
         process = customiseFor19181_pixel_phase1(process)
     process = customiseFor19029(process)
+    process = customiseFor19812(process)
 
     return process
