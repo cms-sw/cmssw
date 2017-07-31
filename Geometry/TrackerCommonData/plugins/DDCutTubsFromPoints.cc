@@ -44,7 +44,7 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
 
   for (unsigned i = 0; i < phis.size(); i++) {
     Section s = {phis[i], z_ls[i], z_ts[i] };
-    sections.push_back(s);
+    sections.emplace_back(s);
   }
   assert(sections.size() > 0);
 
@@ -160,8 +160,8 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
       DDSolid seg = DDSolidFactory::cuttubs(segname, dz, r_min, r_max, phi1, dphi,
                                             n_x_l, n_y_l, n_z_l,
                                             n_x_t, n_y_t, n_z_t); 
-      segments.push_back(seg);
-      offsets.push_back(offset);
+      segments.emplace_back(seg);
+      offsets.emplace_back(offset);
     }
     s1 = s2;
   }

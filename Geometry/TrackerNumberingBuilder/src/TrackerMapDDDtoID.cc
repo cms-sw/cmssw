@@ -34,7 +34,7 @@ void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
     
     path2id_.insert(std::pair<nav_type,uint32_t>(allDetector->navType(),(allDetector->geographicalID())()));
     revpath2id_.insert(std::pair<uint32_t,nav_type>((allDetector->geographicalID())(),allDetector->navType()));
-    navVec.push_back(allDetector->navType());
+    navVec.emplace_back(allDetector->navType());
   }
   edm::LogInfo("TrackerMapDDDtoID")<<"Created TrackerMapDDDtoID; results in "<<allDetectors.size()<<" detectors numbered.";
 }

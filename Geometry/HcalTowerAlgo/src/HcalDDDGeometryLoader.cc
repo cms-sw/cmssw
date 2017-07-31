@@ -103,7 +103,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 		<< ") depth " << depthBin << std::endl;
 #endif
       HcalDetId id(subdet, iside*etaRing, phi.first, depthBin);
-      hcalIds.push_back(id);
+      hcalIds.emplace_back(id);
       makeCell(id,hcalCell,phi.second,dphi,geom) ;
     }
   }
@@ -192,14 +192,14 @@ void HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
   hp.reserve(3) ;
   
   if (subdet==HcalForward) {
-    hp.push_back(deta/2.) ;
-    hp.push_back(dphi/2.) ;
-    hp.push_back(thickness/2.) ;
+    hp.emplace_back(deta/2.) ;
+    hp.emplace_back(dphi/2.) ;
+    hp.emplace_back(thickness/2.) ;
   } else { 
     const double sign ( isBarrel ? 1 : -1 ) ;
-    hp.push_back(deta/2.) ;
-    hp.push_back(dphi/2.) ;
-    hp.push_back(sign*thickness/2.) ;
+    hp.emplace_back(deta/2.) ;
+    hp.emplace_back(dphi/2.) ;
+    hp.emplace_back(sign*thickness/2.) ;
   }
   geom->newCellFast( point, point, point,
 		 CaloCellGeometry::getParmPtr( hp, 

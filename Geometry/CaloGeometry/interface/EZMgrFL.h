@@ -42,7 +42,7 @@ class EZMgrFL
 	 }
 	 for( size_type  i ( 0 ) ; i != m_subSize ; ++i )
 	 {
-	    m_vec.push_back( t ) ;
+	    m_vec.emplace_back( t ) ;
 	 }
 	 return ( m_vec.end() - m_subSize ) ;
       }

@@ -309,11 +309,11 @@ ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFiltere
   #endif
 
   std::vector<float> pars;
-  pars.push_back(b); 
-  pars.push_back(B); 
-  pars.push_back(L); 
-  pars.push_back(nStrips);
-  pars.push_back(nPads);
+  pars.emplace_back(b); 
+  pars.emplace_back(B); 
+  pars.emplace_back(L); 
+  pars.emplace_back(nStrips);
+  pars.emplace_back(nPads);
   
   bool isOdd = false; // detId.chamber()%2; // this gives the opportunity (in future) to change the face of the chamber (electronics facing IP or electronics away from IP)
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd ));

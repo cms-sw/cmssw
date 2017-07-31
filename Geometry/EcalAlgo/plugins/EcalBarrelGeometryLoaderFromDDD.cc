@@ -35,7 +35,7 @@ EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
       const CCGFloat factor ( 1==i || 2==i || 6==i || 10==i ? 1 : 
 			      (CCGFloat)k_ScaleFromDDDtoGeant ) ;
 
-      pv.push_back( factor*vv[i] ) ;
+      pv.emplace_back( factor*vv[i] ) ;
    }
 
    std::vector<GlobalPoint> corners (8);
