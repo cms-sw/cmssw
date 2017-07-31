@@ -39,11 +39,6 @@ from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 from RecoHI.HiEgammaAlgos.HiEgammaPostPF_cff import *
 
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
-PFTowers.src = cms.InputTag("particleFlow")
-akCs3PFJets.src = cms.InputTag("particleFlow")
-akCs4PFJets.src = cms.InputTag("particleFlow")
-kt4PFJetsForRho.src = cms.InputTag("particleFlow")
-
 
 #reduced rechits
 from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
