@@ -11,7 +11,6 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
