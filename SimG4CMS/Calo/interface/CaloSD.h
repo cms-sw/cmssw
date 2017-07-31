@@ -54,8 +54,8 @@ public:
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);
   virtual ~CaloSD();
-  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
+  virtual bool     ProcessHits(G4Step * step, G4TouchableHistory * tHistory);
+  virtual bool     ProcessHits(G4GFlashSpot*aSpot, G4TouchableHistory*);
   virtual double   getEnergyDeposit(G4Step* step); 
   virtual uint32_t setDetUnitId(G4Step* step)=0;
   
@@ -116,6 +116,7 @@ protected:
 
   CaloHitID                       currentID, previousID; 
   G4Track*                        theTrack;
+  G4TouchableHistory*             theTouchableHistory;
 
   G4StepPoint*                    preStepPoint; 
   float                           edepositEM, edepositHAD;
@@ -126,7 +127,7 @@ protected:
 
   const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
-//  TimerProxy                    theHitTimer;
+  //  TimerProxy                    theHitTimer;
   bool                            runInit;
 
   bool                            corrTOFBeam, suppressHeavy;

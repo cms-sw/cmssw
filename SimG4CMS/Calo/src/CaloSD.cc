@@ -26,10 +26,10 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), theTrack(nullptr), preStepPoint(nullptr), eminHit(0.0), 
-  eminHitD(0.0), m_trackManager(manager), currentHit(nullptr), runInit(false),
-  timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), 
-  meanResponse(nullptr) {
+  G4VGFlashSensitiveDetector(), theTrack(nullptr), theTouchableHistory(nullptr),
+  preStepPoint(nullptr), eminHit(0.0), eminHitD(0.0), m_trackManager(manager), 
+  currentHit(nullptr), runInit(false), timeSlice(timeSliceUnit), 
+  ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), meanResponse(nullptr) {
 
   //Add Hcal Sentitive Detector Names
   collectionName.insert(name);
@@ -121,10 +121,11 @@ CaloSD::~CaloSD() {
   delete meanResponse;
 }
 
-bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * tHistory) {
   
   NaNTrap(aStep);
-  if(getStepInfo(aStep) && hitExists() == false && edepositEM+edepositHAD>0.f) {
+  theTouchableHistory = tHistory;
+  if(getStepInfo(aStep) && !hitExists() && edepositEM+edepositHAD>0.f) {
     currentHit = createNewHit();
   }
   return true;
@@ -140,13 +141,13 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
         particleCode == epPDG ||
         particleCode == gammaPDG ) {
       edepositEM  = aSpot->GetEnergySpot()->GetEnergy();
-      edepositHAD = 0.;
+      edepositHAD = 0.f;
     } else {
-      edepositEM  = 0.;
-      edepositHAD = 0.;
+      edepositEM  = 0.f;
+      edepositHAD = 0.f;
     }
  
-    if (edepositEM>0.) {
+    if (edepositEM>0.f) {
       G4Step *      fFakeStep          = new G4Step();
       preStepPoint                     = fFakeStep->GetPreStepPoint();
       G4StepPoint * fFakePostStepPoint = fFakeStep->GetPostStepPoint();
@@ -250,14 +251,14 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   theTrack     = aStep->GetTrack();   
   
-  double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
   unsigned int unitID= setDetUnitId(aStep);
-  uint16_t     depth = getDepth(aStep);
-  int          primaryID = getTrackID(theTrack);
-  
   bool flag = (unitID > 0);
   if (flag) {
+    double    time  = theTrack->GetGlobalTime()/CLHEP::nanosecond;
+    uint16_t  depth = getDepth(aStep);
+    int       primaryID = getTrackID(theTrack);
     currentID.setID(unitID, time, primaryID, depth);
+
 #ifdef DebugLog
     G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
@@ -265,15 +266,14 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
 			    << " PVid = " << touch->GetReplicaNumber(0)
 			    << " MVid = " << touch->GetReplicaNumber(1)
 			    << " Unit   " << currentID.unitID() 
-			    << " Edeposit = " << edepositEM << " " << edepositHAD;
+			    << " Edeposit = " << aStep->GetTotalEnergyDeposit();
   } else {
     G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
 			    << " PV "     << touch->GetVolume(0)->GetName()
 			    << " PVid = " << touch->GetReplicaNumber(0)
 			    << " MVid = " << touch->GetReplicaNumber(1)
-			    << " Unit   " << std::hex << unitID << std::dec 
-			    << " Edeposit = " << edepositEM << " " << edepositHAD;
+			    << " Unit   " << std::hex << unitID << std::dec;
 #endif
   }
   
@@ -282,9 +282,9 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
       particleCode == epPDG ||
       particleCode == gammaPDG ) {
     edepositEM  = getEnergyDeposit(aStep);
-    edepositHAD = 0.;
+    edepositHAD = 0.f;
   } else {
-    edepositEM  = 0.;
+    edepositEM  = 0.f;
     edepositHAD = getEnergyDeposit(aStep);
   }
 
