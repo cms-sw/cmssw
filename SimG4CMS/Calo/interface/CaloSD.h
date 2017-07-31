@@ -55,7 +55,7 @@ public:
 	 float timeSlice=1., bool ignoreTkID=false);
   virtual ~CaloSD();
   virtual bool     ProcessHits(G4Step * step, G4TouchableHistory * tHistory);
-  virtual bool     ProcessHits(G4GFlashSpot*aSpot, G4TouchableHistory*);
+  virtual bool     ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*);
   virtual double   getEnergyDeposit(G4Step* step); 
   virtual uint32_t setDetUnitId(G4Step* step)=0;
   

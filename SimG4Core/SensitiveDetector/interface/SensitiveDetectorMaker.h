@@ -45,7 +45,7 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
 			std::unique_ptr<SensitiveTkDetector>& oTK,
 			std::unique_ptr<SensitiveCaloDetector>& oCalo) const
       {
-	std::unique_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
+        auto returnValue  = std::make_unique<T>(iname, cpv, clg, p, m);
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
 	this->convertTo(returnValue.get(), oTK,oCalo);
