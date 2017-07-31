@@ -38,7 +38,8 @@ public:
   Local3DPoint FinalStepPosition(G4Step * step, coordinates);
   inline Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point)
   {
-    return Local3DPoint(point.x(),point.y(),point.z());
+    Local3DPoint res(point.x(),point.y(),point.z());
+    return std::move(res);
   }    
   inline std::string& nameOfSD() { return name; }
   virtual std::vector<std::string> getNames() 

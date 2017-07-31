@@ -12,9 +12,9 @@
 #include "G4TouchableHistory.hh"
 
 SensitiveDetector::SensitiveDetector(std::string & iname, 
-				     const DDCompactView & cpv,
-				     const SensitiveDetectorCatalog & clg,
-				     edm::ParameterSet const & p) :
+                                     const DDCompactView & cpv,
+                                     const SensitiveDetectorCatalog & clg,
+                                     edm::ParameterSet const & p) :
   G4VSensitiveDetector(iname), name(iname) {}
 
 SensitiveDetector::~SensitiveDetector() {}
@@ -40,17 +40,17 @@ Local3DPoint SensitiveDetector::InitialStepPosition(G4Step * step, coordinates c
   G4StepPoint * preStepPoint = step->GetPreStepPoint();
   return (cc == WorldCoordinates) ? ConvertToLocal3DPoint(preStepPoint->GetPosition())
     : ConvertToLocal3DPoint(preStepPoint->GetTouchable()->GetHistory()
-			    ->GetTopTransform().TransformPoint(preStepPoint->GetPosition()));
+                            ->GetTopTransform().TransformPoint(preStepPoint->GetPosition()));
 }
 
 Local3DPoint SensitiveDetector::FinalStepPosition(G4Step * step, coordinates cc)
 {
   // transformation is defined pre-step
-  G4StepPoint * preStepPoint = step->GetPostStepPoint();
+  G4StepPoint * preStepPoint = step->GetPreStepPoint();
   G4StepPoint * postStepPoint = step->GetPostStepPoint();
   return (cc == WorldCoordinates) ? ConvertToLocal3DPoint(postStepPoint->GetPosition())
     : ConvertToLocal3DPoint(preStepPoint->GetTouchable()->GetHistory()
-			    ->GetTopTransform().TransformPoint(postStepPoint->GetPosition()));
+                            ->GetTopTransform().TransformPoint(postStepPoint->GetPosition()));
 }
 
 void SensitiveDetector::NaNTrap( G4Step* aStep )
@@ -63,9 +63,9 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     {
       G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
       G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
-	: "CorruptedVolumeInfo" ;
+        : "CorruptedVolumeInfo";
       throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position) in volume " 
-			   + NameOfVol);
+                           + NameOfVol);
     }
 
     xyz = CurrentTrk->GetMomentum().x() + CurrentTrk->GetMomentum().y() + CurrentTrk->GetMomentum().z();
@@ -73,7 +73,7 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     {
       G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
       G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
-	: "CorruptedVolumeInfo" ;
+        : "CorruptedVolumeInfo";
       throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum) in volume "
                            + NameOfVol);
     }
