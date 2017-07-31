@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "Utilities/General/interface/Graph.h"
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 
 using std::vector;

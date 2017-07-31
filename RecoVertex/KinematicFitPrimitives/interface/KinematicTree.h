@@ -4,8 +4,8 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "Utilities/General/interface/Graph.h"
+#include "Utilities/General/interface/GraphWalker.h"
 
 /**
  * Class describing the decay
@@ -212,8 +212,8 @@ private:
 
  mutable bool empt;
  
- mutable graph<RefCountedKinematicVertex,RefCountedKinematicParticle> treeGraph;
- mutable graphwalker<RefCountedKinematicVertex, RefCountedKinematicParticle> * treeWalker; 
+ mutable cms::util::Graph<RefCountedKinematicVertex,RefCountedKinematicParticle> treeGraph;
+ mutable cms::util::GraphWalker<RefCountedKinematicVertex, RefCountedKinematicParticle> * treeWalker; 
 
 };
 #endif 
