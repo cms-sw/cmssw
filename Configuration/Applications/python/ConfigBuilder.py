@@ -643,7 +643,7 @@ class ConfigBuilder(object):
 
                 if "MINIAOD" in streamType:
                     from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
-		    miniAOD_customizeOutput(output)
+                    miniAOD_customizeOutput(output)
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)

@@ -363,6 +363,7 @@ def miniAOD_customizeMC(process):
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
+    out.splitLevel = cms.untracked.int32(0)
     out.dropMetaData = cms.untracked.string('ALL')
     out.fastCloning= cms.untracked.bool(False)
     out.overrideInputFileSplitLevels = cms.untracked.bool(True)
