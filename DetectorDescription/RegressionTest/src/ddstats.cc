@@ -16,7 +16,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "Utilities/General/interface/Graph.h"
 
 struct DDPosData;
 
