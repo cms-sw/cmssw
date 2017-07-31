@@ -39,6 +39,7 @@ class TotemRPLocalTrackFitter : public edm::stream::EDProducer<>
     virtual ~TotemRPLocalTrackFitter() {}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
     int verbosity_;
@@ -180,6 +181,20 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
 
   // save results
   e.put(make_unique<DetSetVector<TotemRPLocalTrack>>(output));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
+TotemRPLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagUVPattern", edm::InputTag( "totemRPUVPatternFinder" ) )
+    ->setComment( "input U-V patterns collection to retrieve" );
+  desc.add<int>( "verbosity", 0 );
+
+  descr.add( "totemRPLocalTrackFitter", desc );
 }
 
 //----------------------------------------------------------------------------------------------------
