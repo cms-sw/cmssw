@@ -2,14 +2,14 @@
 
   <!-- EMTF Hit Occupancy -->
 
-  <QTEST name="EMTF_HitOccupancyDeadChamber">
+  <QTEST name="EMTF_LCTOccupancyDeadChamber">
     <TYPE>DeadChannel</TYPE>	
     <PARAM name="threshold">0</PARAM>
     <PARAM name="error">0.60</PARAM>
     <PARAM name="warning">0.80</PARAM>
   </QTEST>
 
-  <QTEST name="EMTF_HitOccupancyNoisyChamber">
+  <QTEST name="EMTF_LCTOccupancyNoisyChamber">
     <TYPE>NoisyChannel</TYPE>	
     <PARAM name="tolerance">20</PARAM>
     <PARAM name="neighbours">9</PARAM>
@@ -17,9 +17,9 @@
     <PARAM name="warning">0.999</PARAM>
   </QTEST>
   
-  <LINK name="*/L1TStage2EMTF/emtfHitOccupancy">
-      <TestName activate="true">EMTF_HitOccupancyDeadChamber</TestName>
-      <TestName activate="true">EMTF_HitOccupancyNoisyChamber</TestName>
+  <LINK name="*/L1TStage2EMTF/cscLCTOccupancy">
+      <TestName activate="true">EMTF_LCTOccupancyDeadChamber</TestName>
+      <TestName activate="true">EMTF_LCTOccupancyNoisyChamber</TestName>
   </LINK>
 
   <!-- EMTF Track BX -->
