@@ -9,7 +9,7 @@
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
-//   Modifications:   
+//   Modifications:
 //   G. Flouris	              U.Ioannina
 //   G. Karathanasis          U. Athens
 //--------------------------------------------------
@@ -34,7 +34,6 @@
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1BMTrackCollection.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcMap.h"
@@ -72,10 +71,6 @@ _cache0(144,-9,8),_cache(36, -9, 8) {
   m_spmap = new L1MuBMSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  // _cache1.reserve(1000);
-  // _cache2.reserve(1000);
-  // _cache3.reserve(1000);
-  // _cache4.reserve(1000);
   m_ms = 0;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
@@ -164,10 +159,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
  int bx_min = L1MuBMTFConfig::getBxMin();
  int bx_max = L1MuBMTFConfig::getBxMax();
 
- //Resize the bx range according to the config file  
+ //Resize the bx range according to the config file
   _cache0.setBXRange(bx_min,bx_max);
   _cache.setBXRange(bx_min,bx_max);
-     
+
 
 
 // run the barrel Muon Trigger Track Finder
@@ -241,7 +236,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
-	    rmc.setHwHF(cand->hwHF());
+            rmc.setHwHF(cand->hwHF());
 
             rmc.setHwPhi(cand->hwPhi());
             rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
@@ -250,10 +245,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTFIdentifiers(cand->spid().sector(),l1t::tftype::bmtf);
 
             _cache0.push_back(cand->bx(), rmc);
-	    _cache2.insert(std::end(_cache2), std::begin(cand->getTSphi()), std::end(cand->getTSphi()));
-	    _cache3.insert(std::end(_cache3), std::begin(cand->getTSeta()), std::end(cand->getTSeta()));
-	    _cache4.push_back(L1BMTrack(std::make_pair(*cand, cand->getTSphi())));
-	}
+            _cache2.insert(std::end(_cache2), std::begin(cand->getTSphi()), std::end(cand->getTSphi()));
+            _cache3.insert(std::end(_cache3), std::begin(cand->getTSeta()), std::end(cand->getTSeta()));
+        }
       }
       it_sp++;
     }
@@ -303,7 +297,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setHwQual((*iter)->hwQual());
         rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
 
-        if ( *iter ){ 
+        if ( *iter ){
 	  _cache.push_back((*iter)->bx(), rmc);
 	  _cache1.push_back(**iter);
 	}
@@ -435,7 +429,6 @@ void L1MuBMTrackFinder::clear() {
   _cache1.clear();
   _cache2.clear();
   _cache3.clear();
-  _cache4.clear();
 }
 
 
