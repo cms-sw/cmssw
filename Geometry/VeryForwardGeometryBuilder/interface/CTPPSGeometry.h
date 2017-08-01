@@ -9,9 +9,6 @@
 #define Geometry_VeryForwardGeometryBuilder_CTPPSGeometry
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
