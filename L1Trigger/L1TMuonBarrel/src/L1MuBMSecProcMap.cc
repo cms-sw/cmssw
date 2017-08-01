@@ -27,7 +27,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 
 using namespace std;

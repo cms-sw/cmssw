@@ -31,14 +31,15 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorReceiver.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMExtrapolationUnit.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 using namespace std;
 

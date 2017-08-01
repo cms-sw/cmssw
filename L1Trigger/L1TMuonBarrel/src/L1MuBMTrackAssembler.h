@@ -38,8 +38,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
 class L1MuBMSectorProcessor;
 
 //              ---------------------

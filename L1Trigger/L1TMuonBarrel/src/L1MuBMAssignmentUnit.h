@@ -40,7 +40,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
+
 class L1MuBMTrackSegPhi;
 class L1MuBMSectorProcessor;
 class L1MuBMLUTHandler;

@@ -29,7 +29,7 @@
 //-------------------------------
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEUX.h"
 

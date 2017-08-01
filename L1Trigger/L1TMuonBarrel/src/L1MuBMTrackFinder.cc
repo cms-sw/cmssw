@@ -35,13 +35,13 @@
 #include <FWCore/Framework/interface/Event.h>
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcMap.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEtaProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMMuonSorter.h"
 
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
