@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <numeric>
+#include <string>
+#include "TH1.h"
+#include "TPaveText.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 
 namespace sistrippayloadinspector {
@@ -108,6 +111,58 @@ std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
   return std::make_pair(m-2*stdev,m+2*stdev);
   
 }
+
+
+//**************************************//
+void DrawStatBox(std::map<std::string,TH1F*> histos, std::map<std::string,int> colormap, std::vector<std::string> legend, double X=0.15, double Y=0.93, double W=0.15, double H=0.10)
+{  
+  char   buffer[255];
+   
+   int i=0;
+   for ( const auto &element : legend ){
+     TPaveText* stat = new TPaveText(X,Y-(i*H), X+W, Y-(i+1)*H, "NDC");
+     i++;
+     TH1F* Histo = (TH1F*)histos[element];
+     sprintf(buffer,"Entries : %i\n",(int)Histo->GetEntries());
+     stat->AddText(buffer);
+     
+     sprintf(buffer,"Mean    : %6.2f\n",Histo->GetMean());
+     stat->AddText(buffer);
+       
+     sprintf(buffer,"RMS     : %6.2f\n",Histo->GetRMS());
+     stat->AddText(buffer);
+     
+     stat->SetFillColor(0);
+     stat->SetLineColor(colormap[element]);
+     stat->SetTextColor(colormap[element]);
+     stat->SetTextSize(0.03);
+     stat->SetBorderSize(0);
+     stat->SetMargin(0.05);
+     stat->SetTextAlign(12);
+     stat->Draw();
+   }
+}
+
+/*--------------------------------------------------------------------*/
+void makeNicePlotStyle(TH1 *hist)
+/*--------------------------------------------------------------------*/
+{ 
+  hist->SetStats(kFALSE);  
+  hist->SetLineWidth(2);
+  hist->GetXaxis()->CenterTitle(true);
+  hist->GetYaxis()->CenterTitle(true);
+  hist->GetXaxis()->SetTitleFont(42); 
+  hist->GetYaxis()->SetTitleFont(42);  
+  hist->GetXaxis()->SetTitleSize(0.05);
+  hist->GetYaxis()->SetTitleSize(0.05);
+  hist->GetXaxis()->SetTitleOffset(0.9);
+  hist->GetYaxis()->SetTitleOffset(1.3);
+  hist->GetXaxis()->SetLabelFont(42);
+  hist->GetYaxis()->SetLabelFont(42);
+  hist->GetYaxis()->SetLabelSize(.05);
+  hist->GetXaxis()->SetLabelSize(.05);
+}
+
 
 //**************************************//
 void myPrintSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map){
