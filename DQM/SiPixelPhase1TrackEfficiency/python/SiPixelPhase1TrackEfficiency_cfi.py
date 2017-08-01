@@ -11,7 +11,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
 
   specs = VPSet(
     StandardSpecifications1D_Num,
-    StandardSpecification2DProfile_Num,
+    #StandardSpecification2DProfile_Num, #for this we have the on track clusters map (i.e the same thing)
 
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
@@ -31,7 +31,6 @@ SiPixelPhase1TrackEfficiencyInactive = DefaultHistoTrack.clone(
   dimensions = 0,
 
   specs = VPSet(
-    StandardSpecifications1D_Num,
     StandardSpecification2DProfile_Num,
 
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
