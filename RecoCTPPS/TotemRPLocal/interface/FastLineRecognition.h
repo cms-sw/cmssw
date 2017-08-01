@@ -13,6 +13,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
