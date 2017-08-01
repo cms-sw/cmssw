@@ -16,10 +16,10 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
 #    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
 )
 
-photonCoreFromMC = photonCore.clone()
+photonCoreFromMultiCl = photonCore.clone()
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
-  photonCoreFromMC,
-  scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMC',
-  pixelSeedProducer = 'electronMergedSeedsFromMC'
+  photonCoreFromMultiCl,
+  scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMultiCl',
+  pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
 )

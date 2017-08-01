@@ -153,8 +153,8 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFE
         'keep recoPFRecHits_particleFlowRecHitHGC__*',
         'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
         'keep recoPFClusters_particleFlowClusterHGCal__*',
-        'keep recoPFClusters_particleFlowClusterHGCalFromMC__*',
-        'keep *_particleFlowSuperClusterHGCalFromMC_*_*',
+        'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
+        'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
         'keep *_simPFProducer_*_*',
         'keep *_particleFlowTmpBarrel_*_*',
     ]
@@ -163,7 +163,7 @@ phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRE
   'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
   'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
   'keep recoPFClusters_particleFlowClusterHGCal*__*',
-  'keep *_particleFlowSuperClusterHGCalFromMC_*_*',
+  'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
   'keep recoPFBlocks_simPFProducer_*_*',
   'keep recoSuperClusters_simPFProducer_*_*',
   'keep *_particleFlowTmpBarrel_*_*'

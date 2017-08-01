@@ -11,10 +11,10 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL)
 
 particleFlowSuperClusterHGCal = particleFlowSuperClusterECAL.clone()
-particleFlowSuperClusterHGCalFromMC = particleFlowSuperClusterECAL.clone()
+particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterECAL.clone()
 _phase2_hgcal_particleFlowSuperClusteringSequence = particleFlowSuperClusteringSequence.copy()
 _phase2_hgcal_particleFlowSuperClusteringSequence += particleFlowSuperClusterHGCal
-_phase2_hgcal_particleFlowSuperClusteringSequence += particleFlowSuperClusterHGCalFromMC
+_phase2_hgcal_particleFlowSuperClusteringSequence += particleFlowSuperClusterHGCalFromMultiCl
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     particleFlowSuperClusterHGCal,
@@ -28,8 +28,8 @@ phase2_hgcal.toModify(
 )
 
 phase2_hgcal.toModify(
-    particleFlowSuperClusterHGCalFromMC,
-    PFClusters = cms.InputTag('particleFlowClusterHGCalFromMC'),
+    particleFlowSuperClusterHGCalFromMultiCl,
+    PFClusters = cms.InputTag('particleFlowClusterHGCalFromMultiCl'),
     useRegression = cms.bool(False), #no HGCal regression yet
     use_preshower = cms.bool(False),
     PFBasicClusterCollectionEndcap = cms.string(""),

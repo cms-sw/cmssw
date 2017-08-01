@@ -44,7 +44,7 @@ particleFlowClusterHGCal = cms.EDProducer(
     energyCorrector = cms.PSet()
     )
 
-particleFlowClusterHGCalFromMC = cms.EDProducer(
+particleFlowClusterHGCalFromMultiCl = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
     recHitCleaners = cms.VPSet(),
