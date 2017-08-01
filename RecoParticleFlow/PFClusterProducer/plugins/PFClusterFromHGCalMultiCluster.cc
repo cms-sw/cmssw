@@ -25,10 +25,10 @@ void PFClusterFromHGCalMultiCluster::buildClusters(
   }
 
   for (const auto& mcl : hgcalMultiClusters) {
-    output.emplace_back();
-    reco::PFCluster& back = output.back();
     edm::Ref<std::vector<reco::PFRecHit> > seed;
     double energy = 0.0, highest_energy = 0.0;
+    output.emplace_back();
+    reco::PFCluster& back = output.back();
     for (const auto& cl : mcl) {
       const auto& hitsAndFractions = cl->hitsAndFractions();
       for (const auto& hAndF : hitsAndFractions) {
@@ -51,6 +51,10 @@ void PFClusterFromHGCalMultiCluster::buildClusters(
         }
       }  // end of hitsAndFractions
     }    // end of loop over clusters (2D/layer)
+    if (energy <= 1) {
+      output.pop_back();
+      continue;
+    }
     if (back.hitsAndFractions().size() != 0) {
       back.setSeed(seed->detId());
       back.setEnergy(energy);
