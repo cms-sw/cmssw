@@ -8,8 +8,6 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 
-using namespace xercesc;
-
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionsData
