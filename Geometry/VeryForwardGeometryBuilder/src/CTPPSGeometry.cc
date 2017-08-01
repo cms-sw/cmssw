@@ -42,12 +42,12 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
     }
     
     for ( unsigned int i = 0; i < d->components().size(); i++ )
-      buffer.emplace_back(d->components()[i]);
+      buffer.emplace_back( d->components()[i] );
   }
 
   // build sets
-  for ( auto it = theMap.begin(); it != theMap.end(); ++it ) {
-    const CTPPSDetId detId( it->first );
+  for ( const auto& it : theMap ) {
+    const CTPPSDetId detId( it.first );
     const CTPPSDetId rpId = detId.getRPId();
     const CTPPSDetId stId = detId.getStationId();
     const CTPPSDetId armId = detId.getArmId();
@@ -78,7 +78,7 @@ CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD )
 {
   if ( theRomanPotMap.find(id) != theRomanPotMap.end() ) return 1;
 
-  theRomanPotMap[id] = (DetGeomDesc*) gD;
+  theRomanPotMap[id] = const_cast<DetGeomDesc*>( gD );
   return 0;
 }
 
