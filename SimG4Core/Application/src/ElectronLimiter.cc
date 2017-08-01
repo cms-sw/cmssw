@@ -18,7 +18,7 @@ ElectronLimiter::ElectronLimiter(const edm::ParameterSet & p)
   // set Process Sub Type
   SetProcessSubType(static_cast<int>(STEP_LIMITER));
 
-  minStepLimit = p.getParameter<double>("MinStepLimit")*mm;
+  minStepLimit = p.getParameter<double>("MinStepLimit")*mm > 0;
   rangeCheckFlag = false;
   fieldCheckFlag = false;
   killTrack = false;
