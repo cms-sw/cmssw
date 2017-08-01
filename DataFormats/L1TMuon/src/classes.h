@@ -67,12 +67,13 @@ namespace L1Trigger_L1TMuonBarrel {
     L1MuBMTrackSegLoc  l1mu_dt_segloc;
     L1MuBMAddressArray l1mu_dt_addr;
 
-    std::vector<L1MuBMTrackSegPhi> l1mu_trk_ph_V;
-    std::vector<L1MuBMTrackSegEta> l1mu_trk_th_V;
-    std::vector<L1MuBMTrack>       l1mu_trk_tr_V;
+    L1MuBMTrackCollection l1mu_trk_tr_V;
+    edm::Wrapper<L1MuBMTrackCollection> l1mu_trk_tr_W;
 
-    edm::Wrapper<std::vector<L1MuBMTrackSegPhi> > l1mu_trk_ph_W;
-    edm::Wrapper<std::vector<L1MuBMTrackSegEta> > l1mu_trk_th_W;
-    edm::Wrapper<std::vector<L1MuBMTrack> >       l1mu_trk_tr_W;
+    L1MuBMTrackSegPhiCollection l1mu_trk_ph_V;
+    edm::Wrapper<L1MuBMTrackSegPhiCollection> l1mu_trk_ph_W;
+
+    L1MuBMTrackSegEtaCollection l1mu_trk_th_V;
+    edm::Wrapper<L1MuBMTrackSegEtaCollection> l1mu_trk_th_W;
   };
 }

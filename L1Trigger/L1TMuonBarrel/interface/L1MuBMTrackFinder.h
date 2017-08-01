@@ -118,9 +118,9 @@ class L1MuBMTrackFinder {
 
     l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
     l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
-    std::vector<L1MuBMTrack>&       getcache1() { return _cache1; }
-    std::vector<L1MuBMTrackSegPhi>& getcache2() { return _cache2; }
-    std::vector<L1MuBMTrackSegEta>& getcache3() { return _cache3; }
+    L1MuBMTrackCollection&       getcache1() { return _cache1; }
+    L1MuBMTrackSegPhiCollection& getcache2() { return _cache2; }
+    L1MuBMTrackSegEtaCollection& getcache3() { return _cache3; }
 
   private:
 
@@ -131,9 +131,9 @@ class L1MuBMTrackFinder {
 
     l1t::RegionalMuonCandBxCollection _cache0;
     l1t::RegionalMuonCandBxCollection _cache;
-    std::vector<L1MuBMTrack>         _cache1;
-    std::vector<L1MuBMTrackSegPhi>   _cache2;
-    std::vector<L1MuBMTrackSegEta>   _cache3;
+    L1MuBMTrackCollection         _cache1;
+    L1MuBMTrackSegPhiCollection   _cache2;
+    L1MuBMTrackSegEtaCollection   _cache3;
 
     L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors

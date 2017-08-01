@@ -77,13 +77,13 @@
     <version ClassVersion="10" checksum="1894920440"/>
   </class>
 
-  <class name="std::vector<L1MuBMTrackSegPhi>"/>
-  <class name="std::vector<L1MuBMTrackSegEta>"/>
-  <class name="std::vector<L1MuBMTrack>"/>
+  <class name="L1MuBMTrackCollection"/>
+  <class name="L1MuBMTrackSegPhiCollection"/>
+  <class name="L1MuBMTrackSegEtaCollection"/>
 
-  <class name="edm::Wrapper<std::vector<L1MuBMTrackSegPhi> >"/>
-  <class name="edm::Wrapper<std::vector<L1MuBMTrackSegEta> >"/>
-  <class name="edm::Wrapper<std::vector<L1MuBMTrack> >"/>
+  <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
 
  </selection>
 </lcgdict>
