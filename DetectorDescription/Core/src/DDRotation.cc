@@ -93,10 +93,10 @@ DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
    return DDRotation(ddname, rot);
 }
 
-DDRotation* DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
+std::unique_ptr<DDRotation> DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
-   return new DDRotation(ddname, rot);
+  return std::make_unique<DDRotation>(ddname, rot);
 }
  
 // makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.
