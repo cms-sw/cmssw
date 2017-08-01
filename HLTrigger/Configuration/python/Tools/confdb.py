@@ -530,41 +530,15 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     quote = '[\'\"]'
     self.data = re.compile(r'^(process\s*=\s*cms\.Process\(\s*' + quote + r')\w+(' + quote + r'\s*\).*)$', re.MULTILINE).sub(r'\1%s\2' % self.config.name, self.data, 1)
 
-    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
-    self.data += """
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in %%(dict)s:
-    %%(process)s.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreExpressOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTMONOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)s.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-    %%(process)s.hltDQMHLTScalers.processname                      = '%(name)s'
-
-if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)s.hltDQML1SeedLogicScalers.processname              = '%(name)s'
-""" % self.config.__dict__
-
+    # when --setup option is used, remove possible errors from PrescaleService due to missing HLT paths.
+    if self.config.setup: self.data += """
+# avoid PrescaleService error due to missing HLT paths
+if 'PrescaleService' in process.__dict__:
+    for pset in reversed(process.PrescaleService.prescaleTable):
+        if not hasattr(process,pset.pathName.value()):
+            process.PrescaleService.prescaleTable.remove(pset)
+"""
+    
 
   def updateMessageLogger(self):
     # request summary informations from the MessageLogger
