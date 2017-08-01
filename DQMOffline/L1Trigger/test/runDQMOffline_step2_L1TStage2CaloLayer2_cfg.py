@@ -27,6 +27,8 @@ process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Efficiency_cfi')
 process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Diff_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaEfficiency_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaDiff_cfi')
+process.load('DQMOffline.L1Trigger.L1TTauEfficiency_cfi')
+process.load('DQMOffline.L1Trigger.L1TTauDiff_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -50,7 +52,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  # for MC
 process.myHarvesting = cms.Path(process.DQMExampleStep2)
 process.myEff = cms.Path(
     process.l1tStage2CaloLayer2Efficiency * process.l1tStage2CaloLayer2EmuDiff +
-    process. l1tEGammaEfficiency * process.l1tEGammaEmuDiff
+    process. l1tEGammaEfficiency * process.l1tEGammaEmuDiff + 
+    process. l1tTauEfficiency * process.l1tTauEmuDiff
 )
 process.myTest = cms.Path(process.DQMExample_qTester)
 process.dqmsave_step = cms.Path(process.dqmSaver)

@@ -14,12 +14,12 @@ class RPCRoll : public GeomDetUnit{
  public:
   
   RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs);
-  ~RPCRoll();
+  ~RPCRoll() override;
   const RPCRollSpecs* specs() const;
   RPCDetId id() const;
-  const Topology& topology() const;
+  const Topology& topology() const override;
   const StripTopology& specificTopology() const;
-  const GeomDetType& type() const; 
+  const GeomDetType& type() const override; 
  
   /// Return the chamber this roll belongs to 
   const RPCChamber* chamber() const;

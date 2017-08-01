@@ -1,6 +1,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 //#define DebugLog

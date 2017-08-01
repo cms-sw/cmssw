@@ -31,24 +31,24 @@ namespace cscdqm {
     * @return chamber y-axis position
     */
   int Utility::getCSCTypeBin(const std::string& cstr) {
-    if (cstr.compare("ME-4/2") == 0) return 0;
-    if (cstr.compare("ME-4/1") == 0) return 1;
-    if (cstr.compare("ME-3/2") == 0) return 2;
-    if (cstr.compare("ME-3/1") == 0) return 3;
-    if (cstr.compare("ME-2/2") == 0) return 4;
-    if (cstr.compare("ME-2/1") == 0) return 5;
-    if (cstr.compare("ME-1/3") == 0) return 6;
-    if (cstr.compare("ME-1/2") == 0) return 7;
-    if (cstr.compare("ME-1/1") == 0) return 8;
-    if (cstr.compare("ME+1/1") == 0) return 9;
-    if (cstr.compare("ME+1/2") == 0) return 10;
-    if (cstr.compare("ME+1/3") == 0) return 11;
-    if (cstr.compare("ME+2/1") == 0) return 12;
-    if (cstr.compare("ME+2/2") == 0) return 13;
-    if (cstr.compare("ME+3/1") == 0) return 14;
-    if (cstr.compare("ME+3/2") == 0) return 15;
-    if (cstr.compare("ME+4/1") == 0) return 16;
-    if (cstr.compare("ME+4/2") == 0) return 17;
+    if (cstr == "ME-4/2") return 0;
+    if (cstr == "ME-4/1") return 1;
+    if (cstr == "ME-3/2") return 2;
+    if (cstr == "ME-3/1") return 3;
+    if (cstr == "ME-2/2") return 4;
+    if (cstr == "ME-2/1") return 5;
+    if (cstr == "ME-1/3") return 6;
+    if (cstr == "ME-1/2") return 7;
+    if (cstr == "ME-1/1") return 8;
+    if (cstr == "ME+1/1") return 9;
+    if (cstr == "ME+1/2") return 10;
+    if (cstr == "ME+1/3") return 11;
+    if (cstr == "ME+2/1") return 12;
+    if (cstr == "ME+2/2") return 13;
+    if (cstr == "ME+3/1") return 14;
+    if (cstr == "ME+3/2") return 15;
+    if (cstr == "ME+4/1") return 16;
+    if (cstr == "ME+4/2") return 17;
     return 0;
   }
   

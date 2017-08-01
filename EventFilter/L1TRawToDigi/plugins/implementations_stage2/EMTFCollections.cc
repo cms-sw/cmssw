@@ -10,6 +10,8 @@ namespace l1t {
       event_.put(std::move(EMTFDaqOuts_));
       event_.put(std::move(EMTFHits_));
       event_.put(std::move(EMTFTracks_));
+      event_.put(std::move(EMTFHit2016s_));
+      event_.put(std::move(EMTFTrack2016s_));
       event_.put(std::move(EMTFLCTs_));
     }
   }

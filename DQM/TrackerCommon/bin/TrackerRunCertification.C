@@ -954,7 +954,7 @@ void certifyRun()
     Bool_t flagDet( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
     Bool_t flagDAQ( fCertificates_[ "SiStripDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDAQSummary" ] > minGood_ );
     Bool_t flagDCS( fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )GOOD );
-    Bool_t flagDQM( flagDet * flagDAQ * flagDCS );
+    Bool_t flagDQM( (flagDet * flagDAQ * flagDCS) != 0 );
     Bool_t flagCert( iFlagsRRTracker_[ sSubSys_[ SiStrip ] ] );
 //     iFlags[ sSubSys_[ SiStrip ] ] = ( Int_t )( flagDQM * bSiStripOn_ * flagCert );
     iFlags[ sSubSys_[ SiStrip ] ] = ( Int_t )( flagDQM * flagCert );
@@ -1019,7 +1019,7 @@ void certifyRun()
       Bool_t flagChi2( fCertificates_[ "ReportTrackChi2" ] > maxBad_ );
       Bool_t flagRate( fCertificates_[ "ReportTrackRate" ] > maxBad_ );
       Bool_t flagRecHits( fCertificates_[ "ReportTrackRecHits" ] > maxBad_ );
-      flagDQM  = flagChi2 * flagRate * flagRecHits;
+      flagDQM  = (flagChi2 * flagRate * flagRecHits) != 0 ;
       if ( ! flagChi2 )    comments.push_back( "Chi2/DoF too low" );
       if ( ! flagRate )    comments.push_back( "Track rate too low" );
       if ( ! flagRecHits ) comments.push_back( "Too few RecHits" );

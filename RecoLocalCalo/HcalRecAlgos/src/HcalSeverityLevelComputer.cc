@@ -1,10 +1,10 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 bool HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef, 
 					   const std::string& mybit)
@@ -32,72 +32,106 @@ bool HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef,
 }
 
 bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef, 
-					      const std::string& mybit)
+        const std::string& mybit, 
+        int phase)
 {
-  // HB, HE ++++++++++++++++++++
-  if (mybit == "HBHEHpdHitMultiplicity") setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEPulseShape")    setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
-  else if (mybit == "HSCP_R1R2")         setBit(HcalCaloFlagLabels::HSCP_R1R2, mydef.HBHEFlagMask);
-  else if (mybit == "HSCP_FracLeader")   setBit(HcalCaloFlagLabels::HSCP_FracLeader, mydef.HBHEFlagMask);
-  else if (mybit == "HSCP_OuterEnergy")  setBit(HcalCaloFlagLabels::HSCP_OuterEnergy, mydef.HBHEFlagMask);
-  else if (mybit == "HSCP_ExpFit")       setBit(HcalCaloFlagLabels::HSCP_ExpFit, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEFlatNoise")     setBit(HcalCaloFlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHESpikeNoise")    setBit(HcalCaloFlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETriangleNoise") setBit(HcalCaloFlagLabels::HBHETriangleNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETS4TS5Noise")   setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHENegativeNoise") setBit(HcalCaloFlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEPulseFitBit")   setBit(HcalCaloFlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEOOTPU")         setBit(HcalCaloFlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
+    if(phase==1) // Phase 1 Rechit flags 
+    { 
+        // HB, HE ++++++++++++++++++++
+        if (mybit == "HBHEHpdHitMultiplicity")  setBit(HcalPhase1FlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEIsolatedNoise")  setBit(HcalPhase1FlagLabels::HBHEIsolatedNoise, mydef.HBHEFlagMask );
+        else if (mybit == "HBHEFlatNoise")      setBit(HcalPhase1FlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHESpikeNoise")     setBit(HcalPhase1FlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHETS4TS5Noise")    setBit(HcalPhase1FlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHENegativeNoise")  setBit(HcalPhase1FlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEPulseFitBit")    setBit(HcalPhase1FlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEOOTPU")          setBit(HcalPhase1FlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
 
+        // HF ++++++++++++++++++++
+        else if (mybit == "HFLongShort")        setBit(HcalPhase1FlagLabels::HFLongShort, mydef.HFFlagMask);
+        else if (mybit == "HFS8S1Ratio")        setBit(HcalPhase1FlagLabels::HFS8S1Ratio, mydef.HFFlagMask);
+        else if (mybit == "HFPET")              setBit(HcalPhase1FlagLabels::HFPET, mydef.HFFlagMask);
+        else if (mybit == "HFSignalAsymmetry")  setBit(HcalPhase1FlagLabels::HFSignalAsymmetry, mydef.HFFlagMask);
 
-  // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
-  else if (mybit=="HBHETimingTrustBits") setBit(HcalCaloFlagLabels::HBHETimingTrustBits, mydef.HBHEFlagMask );
-  else if (mybit=="HBHETimingShapedCutsBits") setBit(HcalCaloFlagLabels::HBHETimingShapedCutsBits, mydef.HBHEFlagMask);
-  else if (mybit=="HBHEIsolatedNoise")   setBit(HcalCaloFlagLabels::HBHEIsolatedNoise, mydef.HBHEFlagMask );
+        // Common subdetector bits ++++++++++++++++++++++
+        else if (mybit == "TimingFromTDC")      setAllRHMasks(HcalPhase1FlagLabels::TimingFromTDC, mydef);
+        else if (mybit == "UserDefinedBit0")    setAllRHMasks(HcalPhase1FlagLabels::UserDefinedBit0, mydef);
 
-  // HO ++++++++++++++++++++
-  else if (mybit == "HOBit")    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
-  
-  // HF ++++++++++++++++++++
-  else if (mybit == "HFLongShort")    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
-  else if (mybit == "HFDigiTime")    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
-  else if (mybit == "HFInTimeWindow") setBit(HcalCaloFlagLabels::HFInTimeWindow, mydef.HFFlagMask);
-  else if (mybit == "HFS8S1Ratio") setBit(HcalCaloFlagLabels::HFS8S1Ratio, mydef.HFFlagMask);
-  else if (mybit == "HFPET")  setBit(HcalCaloFlagLabels::HFPET, mydef.HFFlagMask);
-  else if (mybit == "HFTimingTrustBits")  setBit(HcalCaloFlagLabels::HFTimingTrustBits, mydef.HFFlagMask); // multi-bit counter
-
-  // ZDC ++++++++++++++++++++
-  else if (mybit == "ZDCBit")     setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
-  
-  // Calib ++++++++++++++++++++
-  else if (mybit == "CalibrationBit")     setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
-
-  // Common subdetector bits ++++++++++++++++++++++
-  else if (mybit == "TimingSubtractedBit")  setAllRHMasks(HcalCaloFlagLabels::TimingSubtractedBit, mydef);
-  else if (mybit == "TimingAddedBit")       setAllRHMasks(HcalCaloFlagLabels::TimingAddedBit,      mydef);
-  else if (mybit == "TimingErrorBit")       setAllRHMasks(HcalCaloFlagLabels::TimingErrorBit,      mydef);
-  else if (mybit == "ADCSaturationBit")     setAllRHMasks(HcalCaloFlagLabels::ADCSaturationBit,    mydef);
-  else if (mybit== "AddedSimHcalNoise")     setAllRHMasks(HcalCaloFlagLabels::AddedSimHcalNoise,   mydef);
-
-  else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
-    
-
-  // additional defined diagnostic bits; not currently used for rejection
-  else if (mybit == "PresampleADC")         setAllRHMasks(HcalCaloFlagLabels::PresampleADC,     mydef);
-  else if (mybit == "Fraction2TS")         setAllRHMasks(HcalCaloFlagLabels::Fraction2TS,     mydef); // should deprecate this at some point; it's been replaced by PresampleADC
-
-
-
-  // unknown -------------------
-  else
-    {
-      // error: unrecognized flag name
-      edm::LogWarning  ("HcalSeverityLevelComputer") 
-	<< "HcalSeverityLevelComputer: Error: RecHitFlag >>" << mybit 
-	<< "<< unknown. Ignoring.";
-      return false;
+        // unknown -------------------
+        else
+        {
+            // error: unrecognized flag name
+            edm::LogWarning  ("HcalSeverityLevelComputer")
+                << "HcalSeverityLevelComputer: Error: RecHitFlag >>" << mybit
+                << "<< unknown. Ignoring.";
+            return false;
+        }
     }
-  return true;
+    else // Phase 0 Rechit flags 
+    {
+        // HB, HE ++++++++++++++++++++
+        if (mybit == "HBHEHpdHitMultiplicity") setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEPulseShape")    setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
+        else if (mybit == "HSCP_R1R2")         setBit(HcalCaloFlagLabels::HSCP_R1R2, mydef.HBHEFlagMask);
+        else if (mybit == "HSCP_FracLeader")   setBit(HcalCaloFlagLabels::HSCP_FracLeader, mydef.HBHEFlagMask);
+        else if (mybit == "HSCP_OuterEnergy")  setBit(HcalCaloFlagLabels::HSCP_OuterEnergy, mydef.HBHEFlagMask);
+        else if (mybit == "HSCP_ExpFit")       setBit(HcalCaloFlagLabels::HSCP_ExpFit, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEFlatNoise")     setBit(HcalCaloFlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHESpikeNoise")    setBit(HcalCaloFlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHETriangleNoise") setBit(HcalCaloFlagLabels::HBHETriangleNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHETS4TS5Noise")   setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHENegativeNoise") setBit(HcalCaloFlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEPulseFitBit")   setBit(HcalCaloFlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEOOTPU")         setBit(HcalCaloFlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
+
+
+        // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
+        else if (mybit=="HBHETimingTrustBits") setBit(HcalCaloFlagLabels::HBHETimingTrustBits, mydef.HBHEFlagMask );
+        else if (mybit=="HBHETimingShapedCutsBits") setBit(HcalCaloFlagLabels::HBHETimingShapedCutsBits, mydef.HBHEFlagMask);
+        else if (mybit=="HBHEIsolatedNoise")   setBit(HcalCaloFlagLabels::HBHEIsolatedNoise, mydef.HBHEFlagMask );
+
+        // HO ++++++++++++++++++++
+        else if (mybit == "HOBit")    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
+
+        // HF ++++++++++++++++++++
+        else if (mybit == "HFLongShort")    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
+        else if (mybit == "HFDigiTime")    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
+        else if (mybit == "HFInTimeWindow") setBit(HcalCaloFlagLabels::HFInTimeWindow, mydef.HFFlagMask);
+        else if (mybit == "HFS8S1Ratio") setBit(HcalCaloFlagLabels::HFS8S1Ratio, mydef.HFFlagMask);
+        else if (mybit == "HFPET")  setBit(HcalCaloFlagLabels::HFPET, mydef.HFFlagMask);
+        else if (mybit == "HFTimingTrustBits")  setBit(HcalCaloFlagLabels::HFTimingTrustBits, mydef.HFFlagMask); // multi-bit counter
+
+        // ZDC ++++++++++++++++++++
+        else if (mybit == "ZDCBit")     setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
+
+        // Calib ++++++++++++++++++++
+        else if (mybit == "CalibrationBit")     setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
+
+        // Common subdetector bits ++++++++++++++++++++++
+        else if (mybit == "TimingSubtractedBit")  setAllRHMasks(HcalCaloFlagLabels::TimingSubtractedBit, mydef);
+        else if (mybit == "TimingAddedBit")       setAllRHMasks(HcalCaloFlagLabels::TimingAddedBit,      mydef);
+        else if (mybit == "TimingErrorBit")       setAllRHMasks(HcalCaloFlagLabels::TimingErrorBit,      mydef);
+        else if (mybit == "ADCSaturationBit")     setAllRHMasks(HcalCaloFlagLabels::ADCSaturationBit,    mydef);
+        else if (mybit== "AddedSimHcalNoise")     setAllRHMasks(HcalCaloFlagLabels::AddedSimHcalNoise,   mydef);
+
+        else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
+
+
+        // additional defined diagnostic bits; not currently used for rejection
+        else if (mybit == "PresampleADC")         setAllRHMasks(HcalCaloFlagLabels::PresampleADC,     mydef);
+        else if (mybit == "Fraction2TS")         setAllRHMasks(HcalCaloFlagLabels::Fraction2TS,     mydef); // should deprecate this at some point; it's been replaced by PresampleADC
+
+        // unknown -------------------
+        else
+        {
+            // error: unrecognized flag name
+            edm::LogWarning  ("HcalSeverityLevelComputer") 
+                << "HcalSeverityLevelComputer: Error: RecHitFlag >>" << mybit 
+                << "<< unknown. Ignoring.";
+            return false;
+        }
+    }
+    return true;
 }
 
 HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& iConfig)
@@ -105,6 +139,8 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   // initialize: get the levels and masks from the cfg:
   typedef std::vector< edm::ParameterSet > myParameters;
   myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
+
+  unsigned int phase_   = iConfig.getParameter<unsigned int>("phase");
 
   // now run through the parameter set vector:
   for ( myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
@@ -140,7 +176,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	{
 	  if (myRecHitFlags[k].empty()) break; // empty string
 	  bnonempty++;
-	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k]);
+	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k], phase_); 
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
@@ -203,7 +239,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   for (unsigned k=0; k < myRecovered.size(); k++)
     {
       if (myRecovered[k].empty()) break;
-      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k]);
+      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k], phase_);
     }
 
   //

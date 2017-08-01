@@ -118,8 +118,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
       station->setName(name);
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri);
-	for (unsigned sch=0; sch<superChambers.size(); ++sch){
-	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(superChambers.at(sch));
+	for (auto sch : superChambers){
+	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(sch);
 	  const GEMDetId detId(superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  

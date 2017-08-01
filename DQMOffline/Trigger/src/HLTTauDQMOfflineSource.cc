@@ -34,12 +34,12 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
   if(ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
-    l1Plotter_.reset(new HLTTauDQML1Plotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
-                                            nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_));
+    l1Plotter_ = std::make_unique<HLTTauDQML1Plotter>(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
+                                            nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_);
   }
   if(ps.exists("PathSummaryPlotter")) {
-    pathSummaryPlotter_.reset(new HLTTauDQMPathSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
-                                                              doRefAnalysis_, dqmBaseFolder_, hltMatchDr_));
+    pathSummaryPlotter_ = std::make_unique<HLTTauDQMPathSummaryPlotter>(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
+                                                              doRefAnalysis_, dqmBaseFolder_, hltMatchDr_);
   }
   tagAndProbe_ = false;
   if(ps.exists("TagAndProbe")) {
@@ -63,8 +63,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   }
 }
 
-HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
-}
+HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() = default;
 
 //--------------------------------------------------------
 void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {

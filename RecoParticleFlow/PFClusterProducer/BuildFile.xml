@@ -11,6 +11,7 @@
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="Calibration/Tools"/>
 <use   name="CalibCalorimetry/EcalTPGTools"/>
+<use   name="DataFormats/HGCRecHit"/>
 <use   name="vdt_headers"/>
 <use   name="rootmath"/>
 <use   name="root"/>

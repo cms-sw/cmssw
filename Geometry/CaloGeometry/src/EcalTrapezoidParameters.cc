@@ -11,33 +11,16 @@
 // Created:     Wed Aug 12 09:24:56 EDT 1998
 //
 
-// system include files
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <algorithm>
 
-// user include files
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 
 typedef EcalTrapezoidParameters::TPFloat    TPFloat    ;
 typedef EcalTrapezoidParameters::VertexList VertexList ;
 typedef CaloCellGeometry::Pt3D              Pt3D       ;
 
-// STL classes
-
-//
-// constants, enums and typedefs
-//
-
-//static const char* const kReport = "DetectorGeometry.DGTrapezoidParameters" ;
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 EcalTrapezoidParameters::EcalTrapezoidParameters(
    TPFloat aHalfLengthXNegZLoY , // bl1, A/2
    TPFloat aHalfLengthXPosZLoY , // bl2

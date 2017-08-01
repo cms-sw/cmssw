@@ -76,6 +76,7 @@ protected:
     double fNeutralMinPt;
     double fNeutralSlope;
     double fPuppiWeightCut;
+    double fPtMax;
     int    fNAlgos;
     int    fNPV;
     double fPVFrac;

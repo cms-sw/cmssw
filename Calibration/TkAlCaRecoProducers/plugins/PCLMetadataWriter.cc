@@ -17,6 +17,7 @@
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 
+#include <iostream>
 
 using namespace std;
 using namespace edm;
@@ -30,8 +31,11 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet& pSet){
   for(vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin();
       recordPset != recordsToMap.end();
       ++recordPset) {
-    
+
+    // record is the key which identifies one set of metadata in DropBoxMetadataRcd
+    // (not necessarily a record in the strict framework sense)
     string record = (*recordPset).getUntrackedParameter<string>("record");
+
     map<string, string> jrInfo;
     if(!readFromDB) {
       vector<string> paramKeys = (*recordPset).getParameterNames();
@@ -85,6 +89,7 @@ void PCLMetadataWriter::endRun(const edm::Run& run, const edm::EventSetup& eSetu
 	  ++recordAndMap) {
 
 	string record = (*recordAndMap).first;
+
 	// this is the map of metadata that we write in the JR
 	map<string, string> jrInfo = (*recordAndMap).second;
 	if(readFromDB) {
@@ -92,11 +97,14 @@ void PCLMetadataWriter::endRun(const edm::Run& run, const edm::EventSetup& eSetu
 	    jrInfo = metadata->getRecordParameters(record).getParameterMap();
 	  }
 	}
-	jrInfo["inputtag"] = poolDbService->tag(record);
 	
+	// name of the the input tag in the metadata for the condUploader metadata
+	// needs to be the same as the tag written out by the harvesting step
+	jrInfo["inputtag"] = poolDbService->tag(record);
 	
 	// actually write in the job report
 	jr->reportAnalysisFile(filename, jrInfo);
+
       }
     }
   }

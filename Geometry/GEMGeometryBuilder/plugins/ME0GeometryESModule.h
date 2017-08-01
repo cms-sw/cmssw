@@ -22,7 +22,7 @@ class ME0GeometryESModule : public edm::ESProducer
   ME0GeometryESModule(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~ME0GeometryESModule();
+  ~ME0GeometryESModule() override;
   
   /// Produce ME0Geometry.
   std::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
