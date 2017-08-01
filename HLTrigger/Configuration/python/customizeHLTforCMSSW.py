@@ -32,7 +32,7 @@ def customiseFor19824(process) :
     return process
 
 # Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
-def customiseFor19812(process):
+def customiseFor19989(process):
     if hasattr(process,'StableParametersRcdSource'):
         delattr(process,'StableParametersRcdSource')
     if hasattr(process,'StableParameters'):
@@ -50,6 +50,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseFor19029(process)
     process = customiseFor19824(process)
-    process = customiseFor19812(process)
+    process = customiseFor19989(process)
 
     return process
