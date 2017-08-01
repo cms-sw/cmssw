@@ -31,9 +31,21 @@ zmumugammaOldAnalysis.ComponentName = cms.string('zmumugammaOldAnalysis')
 zmumugammaOldAnalysis.analyzerName = cms.string('zmumugammaOldValidation')
 zmumugammaOldAnalysis.phoProducer = cms.InputTag('photons')
 
-
-
+# HGCal customizations
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone()
+stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCalFromMC'
+stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMC'
+stdPhotonAnalysisHGCal.phoProducer = 'photonsFromMC'
+stdPhotonAnalysisHGCal.etaMin = -3.0
+stdPhotonAnalysisHGCal.etaMax = 3.0
+stdPhotonAnalysisHGCal.maxPhoEta = 3.0
 
 egammaDQMOffline = cms.Sequence(photonAnalysis*stdPhotonAnalysis*zmumugammaOldAnalysis*zmumugammaAnalysis*piZeroAnalysis*electronAnalyzerSequence)
+egammaDQMOfflineHGCal = egammaDQMOffline.copy()
+egammaDQMOfflineHGCal += cms.Sequence(stdPhotonAnalysisHGCal)
 
+phase2_hgcal.toReplaceWith(
+  egammaDQMOffline, egammaDQMOfflineHGCal
+)
 
