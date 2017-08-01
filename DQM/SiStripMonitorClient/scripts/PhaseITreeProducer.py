@@ -7,11 +7,19 @@ from copy import deepcopy
 
 gROOT.SetBatch()        # don't pop up canvases
 
+#get data files
+
+def getFileInPath(rfile):
+   import os
+   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
+     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)
+   return None
+
 # Default values
 inputFileName = "DQM.root"
 outputFileName = "DQMTree.root"
-detIDsFileName = "DATA/detids.dat"
-
+#detIDsFileName = "DATA/detids.dat"
+detIDsFileName = getFileInPath('DQM/SiStripMonitorClient/data/detids.dat')
 
 class ModuleLvlValuesReader:
 
@@ -313,10 +321,11 @@ for i in range(1, len(sys.argv), 1):
   if i == 1:
     inputFileName = sys.argv[i]
   elif i == 2:
-    detIDsFileName = sys.argv[i]
-  elif i == 3:
+#    detIDsFileName = sys.argv[i]
+#  elif i == 3:
     outputFileName = sys.argv[i]
 
+#readerObj = ModuleLvlValuesReader(inputFileName, outputFileName)
 readerObj = ModuleLvlValuesReader(inputFileName, outputFileName, detIDsFileName)
 readerObj.ReadHistograms()
 readerObj.CreateTree2()

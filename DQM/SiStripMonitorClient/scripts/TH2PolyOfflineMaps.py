@@ -8,13 +8,22 @@ from array import array
 
 gROOT.SetBatch()        # don't pop up canvases
 
+#Find Data files
+
+def getFileInPath(rfile):
+   import os 
+   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
+     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)                                                                          
+   return None
+
+
 # Default values
 inputFileName = "DQM_V0013_R000292154__StreamExpressCosmics__Commissioning2017-Express-v1__DQMIO.root"
 limitsFileName = "limits.dat"
 outputDirectoryName = "OUT/"
 minMaxFileName = "minmax.out"
-detIDsFileName = "DATA/detids.dat"
-
+#detIDsFileName = "DATA/detids.dat"
+detIDsFileName = getFileInPath('DQM/SiStripMonitorClient/data/detids.dat')
 #default one
 baseRootDirs = ["DQMData/Run 292154/PixelPhase1/Run summary/Phase1_MechanicalView"
                 ,"DQMData/Run 292154/PixelPhase1/Run summary/Tracks"
@@ -30,6 +39,22 @@ forwardDiskYShift = 45; # to make +DISK on top in the 'strip-like' layout
 
 plotWidth, plotHeight = 3000, 2000
 extremeBinsNum = 20
+
+limits = ["num_digis 0.01 90 1 0",
+          "num_clusters 0.01 25 1 0",
+          "Trechitsize_y 0.01 10 0 0",
+          "Trechitsize_x 0.01 10 0 0",
+          "Tresidual_y 0.0000001 0.004 0 1",
+          "Tresidual_x 0.0000001 0.004 0 1",
+          "Tcharge 2000 80000 0 0",
+          "Thitefficiency 0.95 1 0 0",
+          #"Tmissing 0.01 500 0 0",
+          "Tnum_clusters_ontrack 0.01 15 1 0",
+          "Tsize 0.01 15 0 0",
+          #"Tvalid 0.01 90 0 0",
+          "adc 0.01 256 0 0",
+          "charge 2000 80000 0 0",
+          "size 0.01 15 0 0",]
 
 class TH2PolyOfflineMaps:
   
@@ -238,13 +263,14 @@ class TH2PolyOfflineMaps:
     print("Base Tracker Map: constructed")
     
   ############################################################################
-
-  def __init__(self, inputDQMName, outputDirName, minMaxFileName, limitsFileName, modDicName, runNumber, dirs, dirsAliases):
+  def __init__(self, inputDQMName, outputDirName, minMaxFileName, limits,  modDicName, runNumber, dirs, dirsAliases):
+#  def __init__(self, inputDQMName, outputDirName, minMaxFileName, limitsFileName, modDicName, runNumber, dirs, dirsAliases):
     self.inputFileName = inputDQMName
     self.outputDirName = outputDirName
     self.minMaxFileName = minMaxFileName
-    self.limitsFileName = limitsFileName
+#    self.limitsFileName = limitsFileName
     self.detIDsFileName = modDicName
+    self.limits = limits
     
     self.runNumber = runNumber
     self.dirs = dirs
@@ -259,11 +285,13 @@ class TH2PolyOfflineMaps:
     
     self.geometryFilenames = []
     for i in range(maxPxBarrel):
-      self.geometryFilenames.append("DATA/Geometry/vertices_barrel_" + str(i + 1))
+       self.geometryFilenames.append(getFileInPath("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_" + str(i + 1))) 
+#      self.geometryFilenames.append("DATA/Geometry/vertices_barrel_" + str(i + 1))
     for i in range(-maxPxForward, maxPxForward + 1):
       if i == 0:
         continue #there is no 0 disk
-      self.geometryFilenames.append("DATA/Geometry/vertices_forward_" + str(i))
+      self.geometryFilenames.append(getFileInPath("DQM/SiStripMonitorClient/data/Geometry/vertices_forward_" + str(i)))
+#      self.geometryFilenames.append("DATA/Geometry/vertices_forward_" + str(i))
     
     self.internalData = {}
     
@@ -295,22 +323,22 @@ class TH2PolyOfflineMaps:
     ### CREATE LIMITS DICTIONARY
     
     self.limitsDic = {}
-    with open(self.limitsFileName) as file:
-      for line in file:
-        if line.startswith("#"):
-          continue;
-        lineSpl = line.strip().split()
+    for y in limits:
+
+      lineSpl = y.strip().split(" ")
+
+      if len(lineSpl) < 5:
+        continue
         
-        if len(lineSpl) < 4:
-          continue
-        
-        currName = lineSpl[0]
-        zMin = float(lineSpl[1])
-        zMax = float(lineSpl[2])
-        isLog = False if lineSpl[3] == "0" else True
-        
-        self.limitsDic.update({currName : {"zMin" : zMin, "zMax" : zMax, "isLog" : isLog}})
-  
+      currName = lineSpl[0]
+      zMin = float(lineSpl[1])
+      zMax = float(lineSpl[2])
+      isLog = False if lineSpl[3] == "0" else True
+      isAbs = False if lineSpl[4] == "0" else True
+
+      self.limitsDic.update({currName : {"zMin" : zMin, "zMax" : zMax, "isLog" : isLog, "isAbs" : isAbs}})
+ #     print limitsDic
+
   def ReadHistograms(self):
     if self.inputFile.IsOpen():
       for group in self.groupedHistograms:
@@ -389,6 +417,7 @@ class TH2PolyOfflineMaps:
         histoTitle = "Run " + self.runNumber + ": Tracker Map for " + mv
           
         applyLogScale = False
+        applyAbsValue = False
         if mv in self.limitsDic:
           limitsElem = self.limitsDic[mv]
           
@@ -397,14 +426,18 @@ class TH2PolyOfflineMaps:
           currentHist.SetMinimum(limitsElem["zMin"])
           currentHist.SetMaximum(limitsElem["zMax"])
           applyLogScale = limitsElem["isLog"]
-          
+          applyAbsValue = limitsElem["isAbs"]
+
         listOfVals = []
         onlineName = ""
         for detId in self.internalData:
           val = (self.internalData[detId])[mv]
           onlineName = self.rawToOnlineDict[detId]
           listOfVals.append([val, detId, onlineName])
-          currentHist.Fill(str(detId), val)
+          if applyAbsValue:
+             currentHist.Fill(str(detId), abs(val))
+          else:
+             currentHist.Fill(str(detId), val)
           
         listOfVals = sorted(listOfVals, key = lambda item: item[0])
         
@@ -422,9 +455,20 @@ class TH2PolyOfflineMaps:
         
         if applyLogScale:
           c1.SetLogz()
+
+
           
         currentHist.Draw("AC COLZ L")        
               
+        gPad.Update()
+        palette = currentHist.FindObject("palette");
+        palette.SetX1NDC(0.89);
+        palette.SetX2NDC(0.91);
+        palette.SetLabelSize(0.05);
+        gPad.Update()
+
+
+
         ### IMPORTANT - REALTIVE POSITIONING IS MESSY IN CURRENT VERION OF PYROOT
         ### IT CAN CHANGE FROM VERSION TO VERSION, SO YOU HAVE TO ADJUST IT FOR YOUR NEEDS
         ### !!!!!!!!!!!!!
@@ -492,9 +536,10 @@ for i in range(1, len(sys.argv), 1):
     plotWidth = int(sys.argv[i])
   elif i == 3:
     plotHeight = int(sys.argv[i])
+#  elif i == 4:
+#    limitsFileName = sys.argv[i]
+#  elif i == 5:
   elif i == 4:
-    limitsFileName = sys.argv[i]
-  elif i == 5:
     detIDsFileName = sys.argv[i]
 
 deductedRunNumber = inputFileName.split("_R000")[1][0:6]
@@ -507,8 +552,9 @@ baseRootDirs = ["DQMData/Run " + deductedRunNumber + "/PixelPhase1/Run summary/P
 baseRootDirsAliases = {baseRootDirs[0]:""
                     , baseRootDirs[1]:"T"
                     }
-    
-readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limitsFileName, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)  
+
+readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limits, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)   
+#readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limitsFileName, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)  
 readerObj.ReadHistograms()
 # readerObj.DumpData()
 readerObj.PrintTrackerMaps()

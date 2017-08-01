@@ -5,6 +5,14 @@ import string
 from ROOT import *
 from array import array
 
+def getFileInPath(rfile):
+   import os
+   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
+     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)
+   return None
+
+
+detIDsFileName = getFileInPath('DQM/SiStripMonitorClient/data/detids.dat')
 
 filename_online=sys.argv[1]
 filename_offline=sys.argv[2]
@@ -104,11 +112,11 @@ def BPIX_list(inputFile):
                         if (j%2 ==1): roc=7-(i-1)%8
                         if (j%2 ==0): roc=8+(i-1)%8
 
-                f1=open('ref.txt')                     
+                f1=open(getFileInPath('DQM/SiStripMonitorClient/data/detids.dat'))
+
                 refName = []      
                 for line in f1:
-                    if line != '\n': 
-                        refName.append(line.strip())                                                                                      
+                    refName.append(line.split(" ")[1])
 
                 Mod_check = 'LYR'+str(l) + '_LDR' + str(abs(lad)) + 'F_MOD' +str(abs(mod))
                 shell_check = "BPix_" + str(shell)
@@ -116,7 +124,18 @@ def BPIX_list(inputFile):
                     shell_ref = refName[x][:8]
                     module_ref = refName[x][14:]
                     if Mod_check == module_ref and shell_check == shell_ref:
-                        BPix_Name = refName[x]+"_ROC " + str(roc)
+                        ModuleName_BPIX = refName[x]+"_ROC "
+                        BmLYR1_check = ModuleName_BPIX.split('_')
+
+                        if BmLYR1_check[1] == 'BmI' or BmLYR1_check[1] == 'BmO' and BmLYR1_check[3] == 'LYR1':
+                            
+                            if int(roc) <= 7:
+                                roc = str(int(roc)+8)
+                            elif int(roc) >= 8:
+                                roc =str(int(roc)-8)
+
+                        BPix_Name = ModuleName_BPIX + str(roc)
+
                         BPIXCounter_v0.append(BPix_Name)
                         BPIXCounter = list(set(BPIXCounter_v0))
 
