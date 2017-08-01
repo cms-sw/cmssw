@@ -146,7 +146,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       layerCount = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
       }
     }
     
@@ -160,7 +161,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       layerCount = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
       }
     }
 
@@ -169,7 +171,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       layerCount = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
       }
     }
 
