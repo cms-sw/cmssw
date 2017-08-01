@@ -149,7 +149,7 @@ void CaloTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup con
       const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
       float fraction = 0.;
       if(totalenergy>0) fraction = hAndE.second/totalenergy;
-      else edm::LogWarning("CaloTruthAccumulator") << "TotalSimEnergy for hAndE.first is 0! The fraction for this hit cannot be computed.";
+      else edm::LogWarning("CaloTruthAccumulator") << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
       sc.addRecHitAndFraction(hAndE.first,fraction);
     }
   }
