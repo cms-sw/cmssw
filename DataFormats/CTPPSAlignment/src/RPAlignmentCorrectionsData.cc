@@ -29,7 +29,7 @@ RPAlignmentCorrectionData
 RPAlignmentCorrectionsData::GetRPCorrection( unsigned int id ) const
 {
   RPAlignmentCorrectionData align_corr;
-  mapType::const_iterator it = rps.find( id );
+  auto it = rps.find( id );
   if ( it != rps.end() )
     align_corr = it->second;
   return align_corr;
@@ -49,7 +49,7 @@ RPAlignmentCorrectionData
 RPAlignmentCorrectionsData::GetSensorCorrection( unsigned int id ) const
 {
   RPAlignmentCorrectionData align_corr;
-  mapType::const_iterator it = sensors.find( id );
+  auto it = sensors.find( id );
   if ( it != sensors.end() )
     align_corr = it->second;
   return align_corr;
@@ -98,7 +98,7 @@ RPAlignmentCorrectionsData::SetSensorCorrection( unsigned int id, const RPAlignm
 void
 RPAlignmentCorrectionsData::AddRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  mapType::iterator it = rps.find( id );
+  auto it = rps.find( id );
   if ( it == rps.end() )
     rps.insert( mapType::value_type( id, a ) );
   else
@@ -110,7 +110,7 @@ RPAlignmentCorrectionsData::AddRPCorrection( unsigned int id, const RPAlignmentC
 void
 RPAlignmentCorrectionsData::AddSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  mapType::iterator it = sensors.find( id );
+  auto it = sensors.find( id );
   if ( it == sensors.end() )
     sensors.insert( mapType::value_type( id, a ) );
   else
@@ -122,11 +122,11 @@ RPAlignmentCorrectionsData::AddSensorCorrection( unsigned int id, const RPAlignm
 void
 RPAlignmentCorrectionsData::AddCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  for ( mapType::const_iterator it = nac.rps.begin(); it != nac.rps.end(); ++it )
-    AddRPCorrection( it->first, it->second, sumErrors, addShR, addShZ, addRotZ );
+  for ( const auto& it : nac.rps )
+    AddRPCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
 
-  for ( mapType::const_iterator it = nac.sensors.begin(); it != nac.sensors.end(); ++it )
-    AddSensorCorrection( it->first, it->second, sumErrors, addShR, addShZ, addRotZ );
+  for ( const auto& it : nac.sensors )
+    AddSensorCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
 }
 
 //----------------------------------------------------------------------------------------------------
