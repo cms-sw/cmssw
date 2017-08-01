@@ -1242,6 +1242,24 @@ DQMStore::book2D(const std::string &name, const std::string &title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
 
+/// Book 2S variable bin histogram.
+MonitorElement *
+DQMStore::book2S(const char *name, const char *title,
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
+{
+  return book2S(pwd_, name, new TH2S(name, title,
+                                     nchX, xbinsize, nchY, ybinsize));
+}
+
+/// Book 2S variable bin histogram.
+MonitorElement *
+DQMStore::book2S(const std::string &name, const std::string &title,
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
+{
+  return book2S(pwd_, name, new TH2S(name.c_str(), title.c_str(),
+                                     nchX, xbinsize, nchY, ybinsize));
+}
+
 /// Book 2D histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2D(const char *name, TH2F *source)

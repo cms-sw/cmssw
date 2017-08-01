@@ -267,6 +267,9 @@ void SiStripGainsPCLWorker::processEvent(const TrackerTopology* topo) {
       if(Validation)     {ClusterChargeOverPath/=(*gainused)[i];}
       if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
     }
+
+    // keep processing of pixel cluster charge until here
+    if(APV->SubDet<=2) continue;
       
     // real histogram for calibration
     (Charge_Vs_Index[elepos])->Fill(APV->Index,ClusterChargeOverPath);
@@ -512,8 +515,26 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
   
   int elepos = statCollectionFromMode(tag);
+
+  //setting up the bin array for the Charge_Vs_Index histogram
+  float* binXarray = new float[NStripAPVs+1];
+  for(int a=0;a<=NStripAPVs;a++){
+     binXarray[a] = (float)a;
+  }
+
+  float* binYarray = new float[688];
+  double p0 = 5.445;
+  double p1 = 0.002113;
+  double p2 = 69.01576;
+  double y = 0.;
+  for(int b=0;b<687;b++) {
+     binYarray[b] = y;
+     if(y<=902.) y = y + 2.;
+     else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
+  }
+  binYarray[687] = 4000.;
   
-  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
+  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, binXarray, 687, binYarray);
   Charge_Vs_PathlengthTIB[elepos]   = ibooker.book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTOB[elepos]   = ibooker.book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTIDP[elepos]  = ibooker.book2S(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -563,4 +584,6 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
+  delete[] binXarray;
+  delete[] binYarray;
 }
