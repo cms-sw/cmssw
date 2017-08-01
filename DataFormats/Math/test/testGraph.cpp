@@ -1,6 +1,6 @@
 #include "DataFormats/Math/interface/Graph.h"
 #include "DataFormats/Math/interface/GraphWalker.h"
-#include "Utilities/General/interface/GraphUtil.h"
+#include "DataFormats/Math/interface/GraphUtil.h"
 
 #include <iostream>
 #include <string>
