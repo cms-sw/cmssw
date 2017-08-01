@@ -54,9 +54,9 @@ class EZMgrFL
 
    private:
 
-      EZMgrFL() ; //stop
-      EZMgrFL( const EZMgrFL& ) ; //stop
-      EZMgrFL& operator=( const EZMgrFL& ) ; //stop
+      EZMgrFL() = delete;
+      EZMgrFL( const EZMgrFL& ) = delete;
+      EZMgrFL& operator=( const EZMgrFL& ) = delete;
 
       const size_type m_vecSize ;
       const size_type m_subSize ;
