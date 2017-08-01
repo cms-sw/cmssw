@@ -15,7 +15,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
 
 //---------------
 // C++ Headers --

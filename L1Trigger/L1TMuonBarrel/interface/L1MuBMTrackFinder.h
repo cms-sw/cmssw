@@ -40,13 +40,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
