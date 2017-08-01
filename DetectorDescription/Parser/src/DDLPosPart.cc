@@ -93,17 +93,13 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
   DDRotation* myDDRotation;
   // if rotation is named ...
   if ( rotn.name() != "" && rotn.ns() != "" ) {
-    DDRotation temp(rotn);
-    myDDRotation = &temp;
+    myDDRotation = new DDRotation(rotn);
   } else { 
     // rotn is not assigned a name anywhere therefore the DDPos assumes the identity matrix.
-    DDRotation temp(DDName(std::string("identity"),std::string("generatedForDDD")));
-    myDDRotation = &temp;
+    myDDRotation = new DDRotation(DDName(std::string("identity"),std::string("generatedForDDD")));
     // if the identity is not yet defined, then...
     if ( !myDDRotation->isValid() ) {
-      DDRotationMatrix* dmr = new DDRotationMatrix;
-      temp = DDrot(DDName(std::string("identity"),std::string("generatedForDDD")), dmr );
-      myDDRotation = &temp;
+      myDDRotation = DDrotPtr(DDName(std::string("identity"),std::string("generatedForDDD")), new DDRotationMatrix );
     }
   }
 
