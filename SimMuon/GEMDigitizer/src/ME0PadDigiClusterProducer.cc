@@ -53,7 +53,8 @@ void ME0PadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 }
 
 
-void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads, ME0PadDigiClusterCollection &out_clusters)
+void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads,
+                                              ME0PadDigiClusterCollection &out_clusters)
 {
   // construct clusters
   for (const auto& ch: geometry_->chambers()) {

@@ -54,7 +54,7 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 
 
 void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection &det_pads,
-					      GEMPadDigiClusterCollection &out_clusters)
+                                              GEMPadDigiClusterCollection &out_clusters)
 {
   // construct clusters
   for (const auto& ch: geometry_->chambers()) {
