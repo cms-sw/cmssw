@@ -1120,11 +1120,12 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   /////////////////////////////DUMP ELECTRON CLASS
   
   
-  h1_eleClasses_->Fill(zeeCandidates[myBestZ].first->getRecoElectron()->classification());
-  h1_eleClasses_->Fill(zeeCandidates[myBestZ].second->getRecoElectron()->classification());
-  
   int class1 = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
   int class2 = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
+
+  h1_eleClasses_->Fill(class1);
+  h1_eleClasses_->Fill(class2);
+  
 
   std::cout << "BEFORE "<<std::endl;
 
@@ -1221,14 +1222,14 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(class1<100){
     if ( firstElehottestDetId.subdetId() == EcalBarrel &&  firstElectronIsOnModuleBorder ){
-      h1_borderElectronClassification_ -> Fill( zeeCandidates[myBestZ].first->getRecoElectron()->classification() );
+      h1_borderElectronClassification_ -> Fill( class1 );
       return kContinue;
     }  
   }
   
   if(class2<100){
     if ( secondElehottestDetId.subdetId() == EcalBarrel &&  secondElectronIsOnModuleBorder ){ 
-      h1_borderElectronClassification_ -> Fill( zeeCandidates[myBestZ].second->getRecoElectron()->classification() );
+      h1_borderElectronClassification_ -> Fill( class2 );
       return kContinue;
     }
   }
@@ -1306,56 +1307,57 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
    ///////////////////////////////////////EXCLUDE ELECTRONS HAVING HOTTEST XTAL WHICH IS A BORDER XTAL
   
 
-
+  int c1st = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
+  int c2nd = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
   if(electronSelection_==0)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 140);
+					   c1st!= 40 && 
+					   c1st!= 40 && 
+					   c2nd!= 40 && 
+					   c2nd!= 140);
   
   //1 = all electrons are Golden, BB or Narrow
   
   if(electronSelection_==1)selectionBool=( myBestZ != -1 &&
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==0 || 
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==10 || 
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==20 ||
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==100 ||
-                                            zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==110 ||
-                                            zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==120
+					   (c1st ==0 || 
+					    c1st ==10 || 
+					    c1st ==20 ||
+					    c1st ==100 ||
+                                            c1st ==110 ||
+                                            c1st ==120
 					    ) &&
-					   (zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 0 || 
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 10 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 20 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 100 ||
-                                            zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 110 ||
-                                            zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 120
+					   (c2nd == 0 || 
+					    c2nd == 10 ||
+					    c2nd == 20 ||
+					    c2nd == 100 ||
+                                            c2nd == 110 ||
+                                            c2nd == 120
 					    )
 					   );
   
   //2 = all electrons are Golden
   if(electronSelection_==2)selectionBool=( myBestZ != -1 &&
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() == 0 ||
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() == 100
+					   (c1st == 0 ||
+					    c1st == 100
 					    ) &&
-					   (zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 0 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 100
+					   (c2nd == 0 ||
+					    c2nd == 100
 					    ) 
 					   );
   //3 = all electrons are showering
   if(electronSelection_==3)selectionBool=( myBestZ != -1 &&
 					  (
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() >=30  &&
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification() <=34)  
+					   (c1st >=30  &&
+					   c1st <=34)  
 					   ||
-					   ((zeeCandidates[myBestZ].first->getRecoElectron()->classification() >=130  &&
-					     zeeCandidates[myBestZ].first->getRecoElectron()->classification() <=134))
+					   ((c1st >=130  &&
+					     c1st <=134))
 					   )
 					   &&
-					   ( (zeeCandidates[myBestZ].second->getRecoElectron()->classification() >=30  &&
-					      zeeCandidates[myBestZ].second->getRecoElectron()->classification() <=34)
+					   ( (c2nd >=30  &&
+					      c2nd <=34)
 					     ||
-					     ((zeeCandidates[myBestZ].second->getRecoElectron()->classification() >=130  &&
-					       zeeCandidates[myBestZ].second->getRecoElectron()->classification() <=134))
+					     ((c2nd >=130  &&
+					       c2nd <=134))
 					     )
 					   
 					   );
@@ -1366,21 +1368,21 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 					   (
 
 					   (
-					    (zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==0 ||
-					      zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==10 ||
-					      zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==20 
-					      ) && zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100 
-					    && zeeCandidates[myBestZ].second->getRecoElectron()->classification()!=140
+					    (c1st ==0 ||
+					      c1st ==10 ||
+					      c1st ==20 
+					      ) && c2nd>=100 
+					    && c2nd!=140
 					    )
 
 					   ||
 					   
 					   (
-                                            (zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==0 ||
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==10 ||
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==20
-					     ) && zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100
-                                            && zeeCandidates[myBestZ].first->getRecoElectron()->classification()!=140
+                                            (c2nd ==0 ||
+					     c2nd ==10 ||
+					     c2nd ==20
+					     ) && c1st>=100
+                                            && c1st!=140
                                             )
 
 
@@ -1390,26 +1392,26 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //5 = all Endcap electrons (but no crack)
   
   if(electronSelection_==5)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()>= 100 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 140 &&
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 140);
+					   c1st>=100 && 
+					   c2nd>= 100 && 
+					   c1st!= 140 &&
+					   c2nd!= 140);
 
   //6 = all Barrel electrons (but no crack)
   
   if(electronSelection_==6)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()< 100 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 &&
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 40);
+					   c1st<100 && 
+					   c2nd< 100 && 
+					   c1st!= 40 &&
+					   c2nd!= 40);
 
   //7 = this eliminates the events which have 1 ele in the Barrel and 1 in the Endcap
   
   if(electronSelection_==7)selectionBool=( myBestZ != -1 && 
-					   !(zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100) &&
-					   !(zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 &&
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification()<100) );
+					   !(c1st<100 && 
+					   c2nd>=100) &&
+					   !(c1st>=100 &&
+					     c2nd<100) );
 
 
       float ele1EnergyCorrection(1.);
@@ -1454,11 +1456,13 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 
       h1_reco_ZMassCorr_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
-      if(zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && zeeCandidates[myBestZ].second->getRecoElectron()->classification()<100 )
+      int c1st = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
+      int c2nd = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
+      if(c1st<100 && c2nd<100 )
 	h1_reco_ZMassCorrBB_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
 
-      if(zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 && zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100 )
+      if(c1st>=100 && c2nd>=100 )
 	h1_reco_ZMassCorrEE_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
 
@@ -2142,29 +2146,30 @@ double ZeeCalibration::getEtaCorrection(const reco::GsfElectron* ele){
 
   double correction(1.);
 
-  if(ele->classification() ==0 ||
-     ele->classification() ==10 ||
-     ele->classification() ==20)
+  int c = ele->classification();
+  if(c ==0 ||
+     c ==10 ||
+     c ==20)
     correction = fEtaBarrelGood(ele->superCluster()->eta());
                                                                                                                                                
-  if(ele->classification() ==100 ||
-     ele->classification() ==110 ||
-     ele->classification() ==120)
+  if(c ==100 ||
+     c ==110 ||
+     c ==120)
     correction = fEtaEndcapGood(ele->superCluster()->eta());
                                                                                                                                                
-  if(ele->classification() ==30 ||
-     ele->classification() ==31 ||
-     ele->classification() ==32 ||
-     ele->classification() ==33 ||
-     ele->classification() ==34)
+  if(c ==30 ||
+     c ==31 ||
+     c ==32 ||
+     c ==33 ||
+     c ==34)
     correction = fEtaBarrelBad(ele->superCluster()->eta());
 
 
-  if(ele->classification() ==130 ||
-     ele->classification() ==131 ||
-     ele->classification() ==132 ||
-     ele->classification() ==133 ||
-     ele->classification() ==134)
+  if(c ==130 ||
+     c ==131 ||
+     c ==132 ||
+     c ==133 ||
+     c ==134)
     correction = fEtaEndcapBad(ele->superCluster()->eta());
  
   return correction;                                                                                                                                              
