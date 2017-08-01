@@ -8,13 +8,6 @@ slimmedGenJets = cms.EDProducer("PATGenJetSlimmer",
     dropSpecific = cms.bool(False),
 )
 
-slimmedGenJetsFlavourInfos = cms.EDProducer("GenJetFlavourInfoPreserver",
-    genJets = cms.InputTag("ak4GenJetsNoNu"),
-    slimmedGenJets = cms.InputTag("slimmedGenJets"),                                      
-    genJetFlavourInfos = cms.InputTag("ak4GenJetFlavourInfos"),
-    slimmedGenJetAssociation = cms.InputTag("slimmedGenJets", "slimmedGenJetAssociation")
-)
-
 slimmedGenJetsAK8 = cms.EDProducer("PATGenJetSlimmer",
     src = cms.InputTag("ak8GenJetsNoNu"),
     packedGenParticles = cms.InputTag("packedGenParticles"),
