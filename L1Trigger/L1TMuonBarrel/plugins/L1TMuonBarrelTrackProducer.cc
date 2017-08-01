@@ -40,6 +40,11 @@ L1TMuonBarrelTrackProducer::L1TMuonBarrelTrackProducer(const edm::ParameterSet &
 
   produces<l1t::RegionalMuonCandBxCollection>("BMTF");
   produces<l1t::RegionalMuonCandBxCollection>("UnsortedBMTF");
+  produces<vector<L1MuBMTrack> >("BMTF");
+  produces<vector<L1MuBMTrackSegPhi> >("BMTF");
+  produces<vector<L1MuBMTrackSegEta> >("BMTF");
+  produces<L1BMTrackCollection> ("BMTF");
+
   usesResource("L1TMuonBarrelTrackProducer");
   setup1 = new L1MuBMTFSetup(*m_ps,consumesCollector());
 
@@ -68,7 +73,11 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
 
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> tra_product(new l1t::RegionalMuonCandBxCollection);
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> vec_product(new l1t::RegionalMuonCandBxCollection);
-
+  unique_ptr<vector<L1MuBMTrack> > vec_L1MuBMTrack(new vector<L1MuBMTrack>);
+  unique_ptr<vector<L1MuBMTrackSegPhi> > vec_L1MuBMTrackSegPhi(new vector<L1MuBMTrackSegPhi>);
+  unique_ptr<vector<L1MuBMTrackSegEta> > vec_L1MuBMTrackSegEta(new vector<L1MuBMTrackSegEta>);
+  unique_ptr<L1BMTrackCollection> col_L1BMTrack(new L1BMTrackCollection);
+  
   ///Muons before muon sorter
   l1t::RegionalMuonCandBxCollection  dtTracks = dtbx->getcache0();
   *tra_product = dtTracks;
@@ -76,14 +85,21 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
   ///Muons after muon sorter, for uGMT
   l1t::RegionalMuonCandBxCollection BMTracks = dtbx->getcache();
   *vec_product = BMTracks;
-
-
+  
+  *vec_L1MuBMTrack = dtbx->getcache1(); 
+  *vec_L1MuBMTrackSegPhi = dtbx->getcache2();
+  *vec_L1MuBMTrackSegEta = dtbx->getcache3();
+  *col_L1BMTrack = dtbx->getcache4();
+  
   //for (int ibx = BMTracks.getFirstBX(); ibx  <= BMTracks.getLastBX(); ibx++){
   //cout << "DEBUG:  BMTF size at bx " << ibx << " " << BMTracks.size(ibx) << "\n";
   //}
   e.put(std::move(tra_product),"UnsortedBMTF");
   e.put(std::move(vec_product),"BMTF");
-
+  e.put(std::move(vec_L1MuBMTrack),"BMTF");
+  e.put(std::move(vec_L1MuBMTrackSegPhi),"BMTF");
+  e.put(std::move(vec_L1MuBMTrackSegEta),"BMTF");
+  e.put(std::move(col_L1BMTrack),"BMTF");
 }
 
 
