@@ -20,14 +20,6 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetCollection.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-
 namespace pat {
 
   class PATGenJetSlimmer : public edm::stream::EDProducer<> {
@@ -60,7 +52,7 @@ pat::PATGenJetSlimmer::PATGenJetSlimmer(const edm::ParameterSet & iConfig) :
     dropSpecific_(iConfig.getParameter<bool>("dropSpecific"))
 {
     produces<std::vector<reco::GenJet> >();
-    produces< std::vector < std::pair<  int, int > > >("slimmedGenJetAssociation");
+    produces< edm::Association<std::vector<reco::GenJet> > >("slimmedGenJetAssociation");
 }
 
 void 
@@ -77,18 +69,21 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     Handle<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp;
     iEvent.getByToken(gp2pgp_,gp2pgp);
 
-    auto genJetSlimmedGenJetAssociation = make_unique< std::vector< std::pair< int, int > > > ();
+    auto genJetSlimmedGenJetAssociation = make_unique< edm::Association<std::vector<reco::GenJet> > > ();
+
+    auto mapping = std::make_unique<std::vector<int> >();
+    mapping->reserve(src->size());
 
     for (View<reco::GenJet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-        if (!cut_(*it)) continue;
+        if (!cut_(*it)) {
+            mapping->push_back(-1);
+            continue;
+        }
 
         out->push_back(*it);
         reco::GenJet & jet = out->back();
 
-        auto genJetIndexPair = std::make_pair ( std::distance( src->begin(), it), out->size() - 1);
-
-
-        genJetSlimmedGenJetAssociation->push_back(genJetIndexPair);
+        mapping->push_back(it-src->begin());
 
 
         if (clearDaughters_) {
@@ -120,8 +115,15 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         
     }
 
-    iEvent.put(std::move(out));
-    iEvent.put(std::move(genJetSlimmedGenJetAssociation),"slimmedGenJetAssociation");
+    edm::OrphanHandle<std::vector<reco::GenJet> >  orphanHandle= iEvent.put(std::move(out));
+
+    auto asso = std::make_unique<edm::Association<std::vector<reco::GenJet> > >(orphanHandle);
+    edm::Association< std::vector<reco::GenJet> >::Filler slimmedAssoFiller(*asso);
+    slimmedAssoFiller.insert(src, mapping->begin(), mapping->end());
+    slimmedAssoFiller.fill();
+
+    
+    iEvent.put(std::move(asso),"slimmedGenJetAssociation");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
