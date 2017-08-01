@@ -53,7 +53,7 @@ DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
   char buf[64];
   snprintf(buf, 64, "%s%i", baseName, countBlank++);
   prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
-  //  std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 
@@ -79,7 +79,7 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
   char buf[64];
   snprintf(buf, 64, "DdNoNa%i", countNN++);
   prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
-  //  std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 // void DDRotation::clear()
@@ -91,6 +91,12 @@ DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
    return DDRotation(ddname, rot);
+}
+
+DDRotation* DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
+{
+   // memory of rot goes sto DDRotationImpl!!
+   return new DDRotation(ddname, rot);
 }
  
 // makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.
