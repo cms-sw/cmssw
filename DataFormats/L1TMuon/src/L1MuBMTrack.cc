@@ -16,7 +16,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 //---------------
 // C++ Headers --
@@ -29,12 +29,12 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
 //#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 //#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
+//#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 using namespace std;
 
@@ -218,7 +218,7 @@ L1MuBMTrack& L1MuBMTrack::operator=(const L1MuBMTrack& track) {
 
   if ( this != &track ) {
     this->setBx(track.bx());
-    //this->setDataWord(track.getDataWord()); 
+    //this->setDataWord(track.getDataWord());
     m_spid      = track.m_spid;
     m_empty     = track.m_empty;
     m_name      = track.m_name;

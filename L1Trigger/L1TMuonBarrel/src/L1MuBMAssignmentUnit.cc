@@ -18,7 +18,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1MuBMAssignmentUnit.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 
 //---------------
 // C++ Headers --
@@ -32,13 +32,13 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1MuBMTFConfig.h"
-#include "L1MuBMSectorProcessor.h"
-#include "L1MuBMDataBuffer.h"
-#include "L1MuBMTrackSegPhi.h"
-#include "L1MuBMTrackSegLoc.h"
-#include "L1MuBMTrackAssembler.h"
-#include "L1MuBMTrackAssParam.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackAssParam.h"
 
 #include <iostream>
 #include <iomanip>
@@ -196,7 +196,7 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   phi_8 += sectordiff*48;
 
   int phi = phi_8 + 24;
-  // 78 phi bins (-8 to 69) correspond 30 degree sector plus 
+  // 78 phi bins (-8 to 69) correspond 30 degree sector plus
   // additional lower and higher bins for neighboring sectors.
   if (phi >  69) phi =  69;
   if (phi < -8) phi = -8;
