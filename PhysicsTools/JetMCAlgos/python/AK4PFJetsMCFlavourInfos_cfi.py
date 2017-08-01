@@ -11,3 +11,4 @@ ak4JetFlavourInfos = cms.EDProducer("JetFlavourClustering",
     ghostRescaling           = cms.double(1e-18),
     hadronFlavourHasPriority = cms.bool(False)
 )
+
