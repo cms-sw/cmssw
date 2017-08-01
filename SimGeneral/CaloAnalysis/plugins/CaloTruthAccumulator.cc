@@ -30,6 +30,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -429,13 +430,7 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<std::pair<
       DetId id(0);
       const uint32_t simId = simHit.id();
       if( isHcal ) {
-	int subdet, z, depth0, eta0, phi0, lay;
-	HcalTestNumbering::unpackHcalIndex(simId, subdet, z, depth0, eta0, phi0, lay);
-	int sign = (z==0) ? (-1):(1);
-	HcalDDDRecConstants::HcalID tempid = hcddd_->getHCID(subdet, sign*eta0, phi0, lay, depth0);
-	if (subdet==int(HcalEndcap)) {
-	  id = HcalDetId(HcalEndcap,sign*tempid.eta,tempid.phi,tempid.depth);    
-	}
+        id = HcalHitRelabeller::relabel(simId, hcddd_);
       } else {
 	int subdet, layer, cell, sec, subsec, zp;
 	HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
