@@ -25,7 +25,7 @@ class GZipLog(object):
 
         self.file = open(log_file, "wb+")
         self.file_min_size = 2*1024*1024    # this amount of space we keep after truncating
-        self.file_max_size = 64*1024*1024   # we truncate if file gets bigger
+        self.file_max_size = 16*1024*1024   # we truncate if file gets bigger
 
         self.file_truncate_pos = None
         self.file_truncate_state = None

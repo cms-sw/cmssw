@@ -8,6 +8,6 @@ autoHLT = {
   'relval50ns' : 'Fake',
   'relval25ns' : 'Fake1',
   'relval2016' : 'Fake2',
-  'relval2017' : 'GRun',
+  'relval2017' : '2e34_v2',
   'test'       : 'GRun',
 }
