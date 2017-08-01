@@ -96,9 +96,11 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
     } // end of partition loop
 
     // cluster selection: pick first maxClusters_ for now
-    for (unsigned iCluster = 0; iCluster < maxClusters_; ++iCluster){
-      const auto& p(proto_clusters[iCluster]);
+    unsigned int iCluster=0;
+    for (const auto& p: proto_clusters){
       out_clusters.insertDigi(ME0DetId(p.first), p.second);
+      iCluster++;
+      if (iCluster>maxClusters_) break;
     }
   } // end of chamber loop
 }
