@@ -47,6 +47,11 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   std::vector<int> v_DB_reco_flags_;
   bool killDeadChannels_;
 
+  uint32_t GhostDetIdPosMin_;
+  uint32_t GhostDetIdPosMax_;
+  uint32_t GhostDetIdNegMin_;
+  uint32_t GhostDetIdNegMax_;
+
   std::vector<double> rcorr_;
   std::vector<float> weights_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
