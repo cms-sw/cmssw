@@ -1281,7 +1281,7 @@ bool SiStripMonitorTrack::clusterInfos(
       if(noise == 0.0)
 	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
     }
-    if (TkHistoMap_On_ && (flag == OnTrack)) {
+    if (TkHistoMap_On_  && (flag == OnTrack)) {
       uint32_t adet=cluster->detId();
       tkhisto_ClusterWidthOnTrack->fill(adet,cluster->width());
       if(noise > 0.0) tkhisto_NoiseOnTrack->fill(adet,cluster->noiseRescaledByGain()*cosRZ);
@@ -1369,5 +1369,16 @@ bool SiStripMonitorTrack::clusterInfos(
     }
   }
   return true;
+  delete tkhisto_StoNCorrOnTrack;
+  delete tkhisto_NumOnTrack;
+  delete tkhisto_NumOffTrack;
+  delete tkhisto_ClChPerCMfromTrack;
+  delete tkhisto_NumMissingHits;
+  delete tkhisto_NumberInactiveHits;
+  delete tkhisto_NumberValidHits;
+  delete tkhisto_NoiseOnTrack;
+  delete tkhisto_NoiseOffTrack;
+  delete tkhisto_ClusterWidthOnTrack;
+  delete tkhisto_ClusterWidthOffTrack;
 }
 //--------------------------------------------------------------------------------

@@ -194,12 +194,20 @@ class HistogramManager:
       for j in range(int(xMax)):
         x1 = x1_base + j * xBaseStep
         x2 = x2_base + j * xBaseStep
+        if yMax == 6.5 and x1 <0:
+          y1 = y1_base + i * (zeroModuleHeight * 2) + (zeroModuleHeight if i % 2 else 0)
+          y2 = y2_base + i * (zeroModuleHeight * 2) + (zeroModuleHeight if i % 2 else 0)
+          self.drawRectangle(lineObj,(xBaseStep+x1-(x2-x1)),(xBaseStep+x2-(x2-x1)), y1+(y1-y2), y2+(y1-y2), color=8)
+          x1, x2 = -x1, -x2
+          yPosChange = -zeroModuleHeight if i % 2 else zeroModuleHeight
+          self.drawRectangle(lineObj, x1, x2, y1 - yPosChange-2*(zeroModuleHeight if i % 2 else 0), y2 - yPosChange-2*(zeroModuleHeight if i % 2 else 0), color=8)
+        else:
+          self.drawRectangle(lineObj, x1, x2, y1, y2, color=8)
 
-        #self.drawRectangle(lineObj, x1, x2, y1, y2, color=8)
+          x1, x2 = -x1, -x2
+          yPosChange = -zeroModuleHeight if i % 2 else zeroModuleHeight
+          self.drawRectangle(lineObj, x1, x2, y1 - yPosChange, y2 - yPosChange, color=8)
 
-        x1, x2 = -x1, -x2
-        yPosChange = -zeroModuleHeight if i % 2 else zeroModuleHeight
-        #self.drawRectangle(lineObj, x1, x2, y1 - yPosChange, y2 - yPosChange, color=8)
 
       # positive ladders/blades
       y1 = y1 - yMin + yBaseStep
@@ -209,12 +217,16 @@ class HistogramManager:
         x1 = x1_base + j * xBaseStep
         x2 = x2_base + j * xBaseStep
 
-        #self.drawRectangle(lineObj, x1, x2, y1, y2, color=8)
+        if yMax== 6.5 and x1 <0:
+          self.drawRectangle(lineObj, xBaseStep+x1-(x2-x1), xBaseStep+x2-(x2-x1), y1+(y1-y2), y2+(y1-y2), color=8)
+          x1, x2 = -x1, -x2
+          self.drawRectangle(lineObj, x1, x2, y1 - yPosChange- 2*(zeroModuleHeight if i % 2 else 0), y2 - yPosChange-2*(zeroModuleHeight if i % 2 else 0), color=8)
+        else:
+          self.drawRectangle(lineObj, x1, x2, y1, y2, color=8)
+          x1, x2 = -x1, -x2
+          self.drawRectangle(lineObj, x1, x2, y1 - yPosChange, y2 - yPosChange, color=8)
 
-        x1, x2 = -x1, -x2
-        #self.drawRectangle(lineObj, x1, x2, y1 - yPosChange, y2 - yPosChange, color=8)
-
-      #hist.GetZaxis().SetRangeUser(-0.5,15.5)
+#      hist.GetZaxis().SetRangeUser(-0.5,15.5)
 
   def saveHistograms(self):
     for hists in [self.barrelHists, self.forwardHists]:
@@ -479,7 +491,18 @@ with open (inputFileName, "r") as inputFile:
     if len(inputs) >= 2: # but take only first 2 elements (ignore others like '\n')
 
       detElements = inputs[0].split("_")
-      rocs = GetAffectedRocs(inputs[1]) #int(inputs[1]) #- 1 #shifts 0..16 rocNum to 0..15
+      if detElements[3]=='LYR1' and (detElements[1]=='BmI' or detElements[1]=='BmO'):
+
+        rocs = []
+        roc = GetAffectedRocs(inputs[1])
+        for roc_rotate in roc:
+          if int(str(roc_rotate)) <= 7:
+            rocs.append(int(str(roc_rotate))+8)
+          elif int(str(roc_rotate)) >= 8:
+            rocs.append(int(str(roc_rotate)) -8)
+      else:
+        rocs = GetAffectedRocs(inputs[1])
+#      rocs = GetAffectedRocs(inputs[1]) #int(inputs[1]) #- 1 #shifts 0..16 rocNum to 0..15
 
       if len(inputs) == 3:
         reason = str(inputs[2]).lower().strip()

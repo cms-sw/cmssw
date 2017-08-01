@@ -93,10 +93,13 @@ for i in range(len(Run_Number)):
     os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url+" > index.html") 
     f=codecs.open("index.html", 'r')
     index = f.readlines()
-    for s in range(len(index)): 
-        if str(Run_Number[i]) in index[s]:
-            if str("__DQMIO.root") in index[s]:
-                File_Name=str(str(index[s]).split("xx/")[1].split("'>DQM")[0])
+    if any(str(Run_Number[i]) in s for s in index):
+        for s in index:
+            if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s):
+                File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
+    else:
+        print 'No DQM file available. Please check the Offline server'
+        sys.exit(0)
 
     print 'Downloading DQM file:'+File_Name
 
@@ -110,12 +113,29 @@ for i in range(len(Run_Number)):
 ##################online file########    
     url1 = 'https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'
     os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url1+" > index_online.html")
+    
+    url2 = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OnlineData/original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'
+    os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url2+" > index_online_backup.html")
+    f_online_backup=codecs.open("index_online_backup.html", 'r')
+    index_online_backup = f_online_backup.readlines()
+
     f_online=codecs.open("index_online.html", 'r')
     index_online = f_online.readlines()
-    for x in range(len(index_online)):
-        if str(Run_Number[i]) in index_online[x]:
-            if str("_PixelPhase1_") in index_online[x]:
-                File_Name_online=str(str(index_online[x].split(".root'>")[1].split("</a></td><td>")[0]))
+    if any(str(Run_Number[i]) in x for x in index_online):
+        for x in index_online:
+            if (str(Run_Number[i]) in x) and ("_PixelPhase1_" in x):
+                File_Name_online=str(str(x).split(".root'>")[1].split("</a></td><td>")[0])
+                deadRocMap = True
+    else:
+        print "Can't find any file in offline server, trying the online server"
+        if any(str(Run_Number[i]) in y for y in index_online_backup):
+            for y in index_online:
+                if (str(Run_Number[i]) in y) and ("_PixelPhase1_" in y):
+                    File_Name_online=str(str(y).split(".root'>")[1].split("</a></td><td>")[0])
+                    deadRocMap = True
+        else:
+            print 'No Online DQM file available. Skip dead roc map'
+            deadRocMap = False
 
     print 'Downloading DQM file:'+File_Name_online
 
@@ -123,7 +143,7 @@ for i in range(len(Run_Number)):
     os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
 
     os.remove('index_online.html')
-
+    os.remove('index_online_backup.html')
 
 
 
@@ -157,10 +177,19 @@ for i in range(len(Run_Number)):
     else:
         os.makedirs(str(Run_Number[i])+'/'+Run_type)
         
-    globalTag = str(os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip())
-    print globalTag
-
+#######**Temporary solution**##############
+    ####After switch production to 9_3_X release, please comment out this section ##########
+    globalTag_v0 = os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip()
+    print "Global Tag: " + globalTag_v0
     
+    globalTag = raw_input("Please enter the GlobalTag that shows above: ")
+    ########################################################################################
+
+    ######and uncomment this two lines##################
+#    globalTag = os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip()
+#    print "Global Tag: " + globalTag
+    ####################################################
+
     if globalTag == "":
         print " No GlobalTag found: trying from DAS.... ";
         globalTag = str(os.popen('getGTscript.sh '+filepath+ File_Name+' ' +str(Run_Number[i])));
@@ -174,7 +203,6 @@ for i in range(len(Run_Number)):
 
     os.chdir(str(Run_Number[i])+'/'+Run_type)
    
-
 
     os.system('cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py globalTag='+globalTag+' runNumber='+str(Run_Number[i])+' dqmFile='+filepath+'/'+File_Name+' detIdInfoFile='+detIdInfoFileName)
     os.system('rm -f *svg')
@@ -267,13 +295,28 @@ for i in range(len(Run_Number)):
 
 ######Counting Dead ROCs during the run#########################
     
+    if deadRocMap == True:
 
-    shutil.copy(workPath+'/MaskedChannelPrintOut/ref.txt','.')
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/DeadROC_duringRun.py '+filepath+File_Name_online+' '+filepath+File_Name)
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/change_name.py')
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/PixelMapPlotter.py MaskedROC_sum.txt -c')
-    os.remove('ref.txt')
-    os.remove('MaskedROC_sum.txt')
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/DeadROC_duringRun.py '+filepath+File_Name_online+' '+filepath+File_Name)
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/change_name.py')
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PixelMapPlotter.py MaskedROC_sum.txt -c')
+        os.remove('MaskedROC_sum.txt')
+    else:
+        print 'No Online DQM file available, Dead ROC maps will not be produced'
+
+
+########Counting Inefficient DC during the run #################
+
+
+    if deadRocMap == True:
+      
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/InefficientDoubleROC.py '+filepath+File_Name_online)
+      
+    else:
+        print 'No Online DQM file available, inefficient DC list  will not be produced'
+
+
+
 
 
 ###################copy ouput files###################
@@ -292,8 +335,8 @@ for i in range(len(Run_Number)):
     os.remove('index.html')
 
     # produce pixel phase1 TH2Poly maps
-    os.chdir(CMSSW_BASE+'/src/DQM/SiStripMonitorClient/scripts/PhaseIMaps/')
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PhaseIMaps/TH2PolyOfflineMaps.py ' + filepath+'/'+File_Name+' 3000 2000 limits.dat')
+#    os.chdir(CMSSW_BASE+'/src/DQM/SiStripMonitorClient/scripts/PhaseIMaps/')
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/TH2PolyOfflineMaps.py ' + filepath+'/'+File_Name+' 3000 2000')
     shutil.move(workPath+'/PixZeroOccROCs_run'+str(Run_Number[i])+'.txt', 'OUT/PixZeroOccROCs_run'+str(Run_Number[i])+'.txt')
 
 
@@ -310,7 +353,7 @@ for i in range(len(Run_Number)):
 
     # produce pixel phase1 tree for Offline TkCommissioner
     pixelTreeFileName = 'PixelPhase1Tree_Run'+str(Run_Number[i])+'_'+Run_type+'.root'
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PhaseIMaps/PhaseITreeProducer.py ' + filepath+'/'+File_Name + ' DATA/detids.dat ' + pixelTreeFileName)
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PhaseITreeProducer.py ' + filepath+'/'+File_Name + ' ' + pixelTreeFileName)
 
     shutil.copyfile(pixelTreeFileName,'/data/users/event_display/TkCommissioner_runs/'+DataLocalDir+'/'+dest+'/'+pixelTreeFileName)
     os.remove(pixelTreeFileName)
