@@ -5,7 +5,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1HitsTofR = DefaultHisto.clone(
   name = "tof_r",
   title = "Time of flight vs r",
-  range_min = 0, range_max = 60, range_nbins = 500,
+  range_min = 0, range_max = 60, range_nbins = 2500,
   range_y_min = 0.0, range_y_max = 100.0, range_y_nbins = 100,
   xlabel = "r", ylabel = "Time of flight",
   topFolderName = "PixelPhase1V/Hits",
