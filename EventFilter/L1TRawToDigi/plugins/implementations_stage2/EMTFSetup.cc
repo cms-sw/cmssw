@@ -47,8 +47,6 @@ namespace l1t {
          prod.produces<EMTFDaqOutCollection>();
          prod.produces<EMTFHitCollection>();
          prod.produces<EMTFTrackCollection>();
-         prod.produces<EMTFHit2016Collection>();
-         prod.produces<EMTFTrack2016Collection>();
          prod.produces<CSCCorrelatedLCTDigiCollection>();
       }
 

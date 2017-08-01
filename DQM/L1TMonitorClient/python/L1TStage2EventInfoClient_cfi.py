@@ -146,13 +146,13 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("EMTF_HitOccupancyDeadChambe"),
-                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfHitOccupancy"),
+                                QualityTestName = cms.string("EMTF_LCTOccupancyDeadChambe"),
+                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/cscLCTOccupancy"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("EMTF_HitOccupancyNoisyChamber"),
-                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfHitOccupancy"),
+                                QualityTestName = cms.string("EMTF_LCTOccupancyNoisyChamber"),
+                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/cscLCTOccupancy"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
