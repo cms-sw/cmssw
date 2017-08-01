@@ -34,6 +34,7 @@ class TotemRPClusterProducer : public edm::stream::EDProducer<>
     virtual ~TotemRPClusterProducer() {}
   
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:
     edm::ParameterSet conf_;
@@ -94,6 +95,20 @@ void TotemRPClusterProducer::run(const edm::DetSetVector<TotemRPDigi>& input, ed
 
     algorithm_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data);
   }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
+TotemRPClusterProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagDigi", edm::InputTag( "totemRPRawToDigi", "TrackingStrip" ) )
+    ->setComment( "input digis collection to retrieve" );
+  desc.add<int>( "verbosity", 0 );
+
+  descr.add( "totemRPClusterProducer", desc );
 }
 
 //----------------------------------------------------------------------------------------------------

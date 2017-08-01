@@ -23,8 +23,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
-#include "boost/type_traits/is_base_and_derived.hpp"
-#include "boost/static_assert.hpp"
+#include <type_traits>
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -56,7 +55,7 @@ class EventSetup
          const T& get() const {
             //NOTE: this will catch the case where T does not inherit from EventSetupRecord
             //  HOWEVER the error message under gcc 3.x is awful
-            BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
+            static_assert(std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value, "Trying to get a class that is not a Record from EventSetup");
             const T* value = nullptr;
             eventSetupGetImplementation(*this, value);
             //NOTE: by construction, eventSetupGetImplementation should thrown an exception rather than return a null value
@@ -68,7 +67,7 @@ class EventSetup
       template< typename T>
       const T* tryToGet() const {
         //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-        BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
+        static_assert((std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value),"Trying to get a class that is not a Record from EventSetup");
         const T* value = nullptr;
         eventSetupTryToGetImplementation(*this, value);
         return value;

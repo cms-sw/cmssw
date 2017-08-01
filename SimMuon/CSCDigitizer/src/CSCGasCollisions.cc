@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
-#include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandExponential.h"
@@ -96,25 +96,15 @@ void CSCGasCollisions::readCollisionTable() {
   // This can be reset in .orcarc by SimpleConfigurable
   //    Muon:Endcap:CollisionsFile
 
-  string path( getenv( "CMSSW_SEARCH_PATH" ) );
   // TODO make configurable
   string colliFile = "SimMuon/CSCDigitizer/data/collisions.dat";
-  FileInPath f1( path, colliFile );
-  if (f1() == 0 ) {
-    string errorMessage = "Input file " + colliFile + "not found";
-    edm::LogError("CSCGasCollisions") << errorMessage << " in path " << path
-          << "\nSet Muon:Endcap:CollisionsFile in .orcarc to the "
-         " location of the file relative to ORCA_DATA_PATH." ;
-    throw cms::Exception( " Endcap Muon gas collisions data file not found.");
-  }
-  else {
-    edm::LogInfo(me) << ": reading " << f1.name();
-  }
+  edm::FileInPath f1{ colliFile };
+  edm::LogInfo(me) << ": reading " << f1.fullPath();
 
-  ifstream & fin = *f1();
+  ifstream  fin{ f1.fullPath() };
 
   if (fin.fail()) {
-    string errorMessage = "Cannot open input file " + path + colliFile;
+    string errorMessage = "Cannot open input file " + f1.fullPath();
     edm::LogError("CSCGasCollisions") << errorMessage;
     throw cms::Exception(errorMessage);
   }

@@ -162,6 +162,11 @@ def modulesInSequences(* sequences):
 def moduleLabelsInSequences(* sequences):
   return [module.label() for module in modulesInSequences(* sequences)]
 
+def createTaskWithAllProducersAndFilters(process):
+  from FWCore.ParameterSet.Config import Task
+  l = [ p for p in process.producers.itervalues()]
+  l.extend( (f for f in process.filters.itervalues()) )
+  return Task(*l)
 
 if __name__ == "__main__":
     import unittest
@@ -304,5 +309,30 @@ if __name__ == "__main__":
             self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3,process.end1,process.end2])
             listOfTasks = list(process.schedule._tasks)
             self.assertEqual(listOfTasks, [process.t1,t2])
+
+        def testCreateTaskWithAllProducersAndFilters(self):
+
+            import FWCore.ParameterSet.Config as cms
+            process = cms.Process("TEST")
+
+            process.a = cms.EDProducer("AProd")
+            process.b = cms.EDProducer("BProd")
+            process.c = cms.EDProducer("CProd")
+
+            process.f1 = cms.EDFilter("Filter")
+            process.f2 = cms.EDFilter("Filter2")
+            process.f3 = cms.EDFilter("Filter3")
+
+            process.out1 = cms.OutputModule("Output1")
+            process.out2 = cms.OutputModule("Output2")
+
+            process.analyzer1 = cms.EDAnalyzer("analyzerType1")
+            process.analyzer2 = cms.EDAnalyzer("analyzerType2")
+
+            process.task = createTaskWithAllProducersAndFilters(process)
+            process.path = cms.Path(process.a, process.task)
+
+            self.assertEqual(process.task.dumpPython(None),'cms.Task(process.a, process.b, process.c, process.f1, process.f2, process.f3)\n')
+            self.assertEqual(process.path.dumpPython(None),'cms.Path(process.a, process.task)\n')
 
     unittest.main()

@@ -207,6 +207,7 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=1
             wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=1
             wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=1
+            wmsplit['RECODR2_2017reHLT_skimSingleMu_Prompt_Lumi']=1
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1

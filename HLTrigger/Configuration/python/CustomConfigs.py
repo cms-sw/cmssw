@@ -139,6 +139,11 @@ def L1REPACK(process,sequence="Full"):
     for path in process.endpaths_():
         getattr(process,path).insert(0,process.SimL1Emulator)
 
+    # special L1T cleanup
+    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore'):
+        if hasattr(process,obj):
+            delattr(process,obj)
+
     return process
 
 def L1XML(process,xmlFile=None):

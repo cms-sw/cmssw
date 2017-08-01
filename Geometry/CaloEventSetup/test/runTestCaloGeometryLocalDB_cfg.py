@@ -38,9 +38,9 @@ process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
 
 process.es_prefer_geometry = cms.ESPrefer( "PoolDBESSource", "PoolDBESSourceGeometry" )
 
-process.etta = cms.EDAnalyzer("dumpEcalTrigTowerMapping")
+process.etta = cms.EDAnalyzer("DumpEcalTrigTowerMapping")
 
-process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
+process.ctgw = cms.EDAnalyzer("TestEcalGetWindow")
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              fullEcalDump = cms.untracked.bool(True)

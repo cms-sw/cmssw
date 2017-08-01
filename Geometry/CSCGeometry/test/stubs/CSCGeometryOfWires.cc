@@ -20,7 +20,7 @@ class CSCGeometryOfWires : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryOfWires( const edm::ParameterSet& );
-  ~CSCGeometryOfWires();
+  ~CSCGeometryOfWires() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

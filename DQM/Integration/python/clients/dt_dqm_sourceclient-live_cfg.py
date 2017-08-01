@@ -29,7 +29,6 @@ process.dqmSaver.tag = "DT"
 #OR HLT_Physics* to monitor FEDs in commissioning runs
 process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_Physics*")
 
-
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")

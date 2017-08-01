@@ -34,7 +34,7 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
 
    type_ = muon::TMLastStation; // default type
    std::string type = iConfig.getParameter<std::string>("algorithmType");
-   if ( type.compare("TMLastStation") != 0 )
+   if ( type != "TMLastStation" )
      edm::LogWarning("MuonIdentification") << "Unknown algorithm type is requested: " << type << "\nUsing the default one.";
    
    minNumberOfMatches_      = iConfig.getParameter<int>("minNumberOfMatchedStations");
@@ -46,11 +46,11 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
    maxChamberDistPull_      = iConfig.getParameter<double>("maxChamberDistancePull");
    
    std::string arbitrationType = iConfig.getParameter<std::string>("arbitrationType");
-   if (arbitrationType.compare("NoArbitration")==0)
+   if (arbitrationType=="NoArbitration")
      arbitrationType_ = reco::Muon::NoArbitration;
-   else if (arbitrationType.compare("SegmentArbitration")==0)
+   else if (arbitrationType=="SegmentArbitration")
      arbitrationType_ = reco::Muon::SegmentArbitration;
-   else if (arbitrationType.compare("SegmentAndTrackArbitration")==0)
+   else if (arbitrationType=="SegmentAndTrackArbitration")
      arbitrationType_ = reco::Muon::SegmentAndTrackArbitration;
    else {
       edm::LogWarning("MuonIdentification") << "Unknown arbitration type is requested: " << arbitrationType << "\nUsing the default one";

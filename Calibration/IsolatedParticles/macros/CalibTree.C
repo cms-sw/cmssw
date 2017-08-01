@@ -2,9 +2,9 @@
 // Usage:
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
-//     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, applyL1Cut,
-//     l1Cut, truncateFlag, phimin, phimax, zside, sysmode, fraction, maxIter,
-//     useGen, writeDebugHisto, debug);
+//     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, sysmode,
+//     puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, useGen, phimin, 
+//     phimax, zside, fraction, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -30,19 +30,21 @@
 //  ratMax      (double)      = Higher cut on E/p to select a track (3.0)
 //  ietaMax     (int)         = Maximum ieta value for which correcttion
 //                              factor is to be determined (25)
+//  sysmode     (int)         = systematic error study (0 if default)
+//                              -1 loose, -2 flexible, > 0 for systematic
+//  puCorr      (bool)        = PU correction to be applied or not (true)
 //  applyL1Cut  (int)         = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
 //  l1Cut       (double)      = Cut value for the closeness parameter (0.5)
 //  truncateFlag    (bool)    = Flag to treat both depths of ieta 15, 16 of
 //                              HB as depth 1 (True -- treat together)
+//  maxIter         (int)     = number of iterations (30)
+//  useGen          (bool)    = use generator level momentum information (False)
 //  phimin          (int)     = minimum iphi value (1)
 //  phimax          (int)     = maximum iphi value (72)
 //  zside           (int)     = the side of the detector if phi range chosen (1)
-//  sysmode         (int)     = systematic error study (0 if default)
 //  fraction        (double)  = fraction of events to be done (-1)    
-//  maxIter         (int)     = number of iterations
-//  useGen          (bool)    = use generator level momentum information (False)
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (False)
 //  debug           (bool)    = To produce more debug printing on screen
@@ -79,9 +81,9 @@ void Run(const char *inFileName="Silver",
 	 const char *dupFileName="events_DXS2.txt", 
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
-	 int applyL1Cut=1, double l1Cut=0.5, bool truncateFlag=true,
-	 int phimin=1, int phimax=72, int zside=1, int sysmode=0, 
-         double fraction=1.0, int maxIter=30, bool useGen=false, 
+	 int sysmode=0, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
+	 bool truncateFlag=true, int maxIter=30, bool useGen=false, 
+	 int phimin=1, int phimax=72, int zside=1, double fraction=1.0, 
 	 bool writeDebugHisto=false, bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -176,8 +178,8 @@ public :
   bool                                              truncateFlag_, useMean_;
   int                                               phimin_, phimax_;
   int                                               zside_, sysmode_;
-  bool                                              useGen_;
-  double                                            log16by24_, eHcalDelta_;
+  bool                                              puCorr_, useGen_;
+  double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
   std::map<unsigned int, TH1D*>                     histos;
@@ -191,7 +193,8 @@ public :
   };
 
   CalibTree(const char *dupFileName, bool flag, bool useMean, int phimin, 
-	    int phimax, int zside, int sysmode, bool useGen, TTree *tree=0);
+	    int phimax, int zside, int sysmode, bool puCorr, bool useGen, 
+	    TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -222,7 +225,8 @@ void doIt(const char* infile, const char* dup) {
     sprintf (outf2, "%s_%d.txt",  infile, k);
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
-    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,3.0,25,1,0.5,false,1,72,1,0,lumi,30,false,false,false);
+    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,
+	true,0.25,3.0,25,0,true,1,0.5,false,30,false,1,72,1,lumi,false,false);
   }
 }
 
@@ -230,9 +234,9 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *outFileName, const char *corrFileName,
 	 const char *dupFileName, bool useweight, bool useMean, int nMin, 
 	 bool inverse, double ratMin, double ratMax, int ietaMax, 
-	 int applyL1Cut, double l1Cut, bool truncateFlag, int phimin, 
-	 int phimax, int zside, int sysmode, double fraction, int maxIter, 
-	 bool useGen, bool writeHisto, bool debug) {
+	 int sysmode, bool puCorr, int applyL1Cut, double l1Cut, 
+	 bool truncateFlag, int maxIter, bool useGen, int phimin, 
+	 int phimax, int zside, double fraction,  bool writeHisto, bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -247,7 +251,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	    << nentries << std::endl;
   unsigned int k(0), kmax(maxIter);
   CalibTree t(dupFileName, truncateFlag, useMean, phimin, phimax, zside,
-	      sysmode, useGen, tree); 
+	      sysmode, puCorr, useGen, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
   t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
@@ -286,11 +290,11 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 }
 
 CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean, 
-		     int phimin, int phimax, int zside, int mode, bool gen,
+		     int fmin, int fmax, int zside, int mode, bool pu, bool gen,
 		     TTree *tree) : fChain(0), truncateFlag_(flag), 
-				    useMean_(useMean), phimin_(phimin),
-				    phimax_(phimax), zside_(zside), 
-				    sysmode_(mode), useGen_(gen) {
+				    useMean_(useMean), phimin_(fmin),
+				    phimax_(fmax), zside_(zside), 
+				    sysmode_(mode), puCorr_(pu), useGen_(gen) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
@@ -301,7 +305,7 @@ CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean,
     TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
     dir->GetObject("CalibTree",tree);
   }
-  log16by24_ = std::log(16.0)/24.0;
+  log2by18_  = std::log(2.5)/18.0;
   eHcalDelta_= 0;
   Init(tree, dupFileName);
 }
@@ -573,7 +577,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       // PU correction only for loose isolation cut
       double pufac(1.0);
-      if (sysmode_ < 0 && pmom > 0 && eHcalDelta_ > 0.02*pmom) { 
+      if (puCorr_ && pmom > 0 && eHcalDelta_ > 0.02*pmom) { 
 	double a1(-0.35), a2(-0.65);
 	if (std::abs(t_ieta) == 25) {
 	  a2 = -0.30;
@@ -834,11 +838,12 @@ bool CalibTree::goodTrack() {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
 	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (pmom > 40.0) &&
 	  (pmom < 60.0));
-  } else if (sysmode_ == -1) {
-    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 2.0*exp(eta*log16by24_);
-    ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
-  } else                    {
+  } else {
+    if (sysmode_ < 0) {
+      double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
+      if (sysmode_ == -2) cut = 8.0*exp(eta*log2by18_);
+      else                cut = 10.0;
+    }
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
 	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
 	  (pmom < 60.0));

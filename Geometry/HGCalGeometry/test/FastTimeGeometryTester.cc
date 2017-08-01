@@ -21,7 +21,7 @@
 class FastTimeGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit FastTimeGeometryTester(const edm::ParameterSet& );
-  ~FastTimeGeometryTester();
+  ~FastTimeGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -65,13 +65,10 @@ void FastTimeGeometryTester::doTest(const FastTimeGeometry& geom,
   int iEtaZ[]  = {1, 7, 13};
   int iPhis[]  = {1, 5, 10};
   int zsides[] = {1, -1};
-  for (int iz = 0; iz < 2; ++iz) {
-    int zside = zsides[iz];
-    for (int ie = 0; ie < 3; ++ie) {
-      int etaZ = iEtaZ[ie];
-      for (int ip = 0; ip < 3; ++ip) {
-	int phi  = iPhis[ip];
-	DetId id1 = (DetId)(FastTimeDetId(type_,etaZ,phi,zside));
+  for (int zside : zsides) {
+    for (int etaZ : iEtaZ) {
+      for (int phi : iPhis) {
+		DetId id1 = (DetId)(FastTimeDetId(type_,etaZ,phi,zside));
 	const CaloCellGeometry* icell1 = geom.getGeometry(id1);
 	GlobalPoint global1 = geom.getPosition(id1);
 	DetId       idc1    = geom.getClosestCell(global1);

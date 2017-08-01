@@ -40,16 +40,16 @@ public:
   static std::string producerTag() { return "HCAL" ; }
 
   /// return a linear packed id
-  virtual unsigned int detId2denseId(const DetId& id) const;
+  unsigned int detId2denseId(const DetId& id) const override;
   /// return a linear packed id
-  virtual DetId denseId2detId(unsigned int /*denseid*/) const;
+  DetId denseId2detId(unsigned int /*denseid*/) const override;
   /// return a count of valid cells (for dense indexing use)
-  virtual unsigned int ncells() const;
+  unsigned int ncells() const override;
   /// return a version which identifies the given topology
-  virtual int topoVersion() const;
+  int topoVersion() const override;
 
   /** Is this a valid cell id? */
-  virtual bool valid(const DetId& id) const;
+  bool valid(const DetId& id) const override;
   /** Is this a valid cell id? */
   bool validHcal(const HcalDetId& id) const;
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
@@ -59,17 +59,17 @@ public:
   /** Flag=0 for unmerged Id's; =1 for for merged Id's; =2 for either */
 
   /** Get the neighbors of the given cell in east direction*/
-  virtual std::vector<DetId> east(const DetId& id) const;
+  std::vector<DetId> east(const DetId& id) const override;
   /** Get the neighbors of the given cell in west direction*/
-  virtual std::vector<DetId> west(const DetId& id) const;
+  std::vector<DetId> west(const DetId& id) const override;
   /** Get the neighbors of the given cell in north direction*/
-  virtual std::vector<DetId> north(const DetId& id) const;
+  std::vector<DetId> north(const DetId& id) const override;
   /** Get the neighbors of the given cell in south direction*/
-  virtual std::vector<DetId> south(const DetId& id) const;
+  std::vector<DetId> south(const DetId& id) const override;
   /** Get the neighbors of the given cell in up direction (outward)*/
-  virtual std::vector<DetId> up(const DetId& id) const;
+  std::vector<DetId> up(const DetId& id) const override;
   /** Get the neighbors of the given cell in down direction (inward)*/
-  virtual std::vector<DetId> down(const DetId& id) const;
+  std::vector<DetId> down(const DetId& id) const override;
 
   /** Get the neighbors of the given cell with higher (signed) ieta */
   int incIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;

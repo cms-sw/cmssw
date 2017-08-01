@@ -48,6 +48,18 @@ hltTOPmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   9999.   ),
   dz  = cms.double(   9999.   ),
 )
+#george
+hltTOPmonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+#hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
+#  nbins = cms.uint32(   80  ),
+#  xmin  = cms.double(   60   ),
+#  xmax  = cms.double(  300  ),
+#)
+
 
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
@@ -86,6 +98,8 @@ hltTOPmonitoring.workingpoint     = cms.double(0.8484) # Medium
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)
+hltTOPmonitoring.bJetMuDeltaRmax  = cms.double(9999.)
+hltTOPmonitoring.bJetDeltaEtaMax  = cms.double(9999.)
 
 hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
@@ -102,4 +116,9 @@ hltTOPmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25,
 hltTOPmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltTOPmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-
+#george
+hltTOPmonitoring.MHTdefinition = cms.string('pt>30 & abs(eta)<2.5')
+hltTOPmonitoring.MHTcut = cms.double(-1)
+hltTOPmonitoring.invMassUppercut=cms.double(-1.0)
+hltTOPmonitoring.invMassLowercut=cms.double(-1.0)
+hltTOPmonitoring.oppositeSignMuons=cms.bool(False)

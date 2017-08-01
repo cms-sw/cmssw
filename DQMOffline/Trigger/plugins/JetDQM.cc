@@ -1,9 +1,9 @@
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-JetDQM::JetDQM(){}
+JetDQM::JetDQM()= default;
 
-JetDQM::~JetDQM(){}
+JetDQM::~JetDQM()= default;
 
 void JetDQM::initialise(const edm::ParameterSet& iConfig){
  
@@ -18,25 +18,6 @@ void JetDQM::initialise(const edm::ParameterSet& iConfig){
   mindphijmet_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("mindphijmetPSet"));
   ls_binning_ = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetlsPSet"));
 
-  jet1ptME_.clear();
-  jet2ptME_.clear();
-  jet1etaME_.clear();
-  jet2etaME_.clear();
-
-  cjetetaME_.clear();
-  fjetetaME_.clear();
-  cjetptME_.clear();
-  fjetptME_.clear();
-
-  mjjME_.clear();
-  detajjME_.clear();
-  dphijjME_.clear();
-
-  mindphijmetME_.clear();
-
-  jet1etaVsLS_.clear();
-  mjjVsLS_.clear();
-  mindphijmetVsLS_.clear();
 }
 
 void JetDQM::bookHistograms(DQMStore::IBooker     & ibooker) 

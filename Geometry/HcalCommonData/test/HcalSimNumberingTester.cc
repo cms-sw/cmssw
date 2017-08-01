@@ -42,7 +42,7 @@
 class HcalSimNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalSimNumberingTester( const edm::ParameterSet& );
-  ~HcalSimNumberingTester();
+  ~HcalSimNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

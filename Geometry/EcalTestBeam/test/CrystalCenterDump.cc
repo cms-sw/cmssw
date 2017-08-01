@@ -44,7 +44,7 @@ class CrystalCenterDump : public edm::one::EDAnalyzer<>
 {
 public:
   explicit CrystalCenterDump( const edm::ParameterSet& );
-  ~CrystalCenterDump();
+  ~CrystalCenterDump() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -92,13 +92,13 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
+  for (auto id : ids) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(*i);
+    const CaloCellGeometry* cell=geom->getGeometry(id);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalBarrel) {
-          EBDetId ebid(i->rawId());
+          EBDetId ebid(id.rawId());
           if (ebid.ism() == 1) {
             
             float depth = (crystalDepth());

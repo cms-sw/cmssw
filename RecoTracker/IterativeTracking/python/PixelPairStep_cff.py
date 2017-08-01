@@ -78,7 +78,7 @@ _region_Phase1 = dict(
 )
 trackingPhase1.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase1QuadProp.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
-trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 0.6, useMultipleScattering=False))
+trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 
 # SEEDS
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer

@@ -24,29 +24,29 @@ public:
     GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos);
 
     /// Destructor
-    virtual ~GlobalTrackingGeometry();  
+    ~GlobalTrackingGeometry() override;  
 
     // Return a vector of all det types.
-    virtual const DetTypeContainer&  detTypes()         const;
+    const DetTypeContainer&  detTypes()         const override;
 
     // Returm a vector of all GeomDetUnit
-    virtual const DetUnitContainer&  detUnits()         const;
+    const DetUnitContainer&  detUnits()         const override;
 
     // Returm a vector of all GeomDet (including all GeomDetUnits)
-    virtual const DetContainer&      dets()             const;
+    const DetContainer&      dets()             const override;
 
     // Returm a vector of all GeomDetUnit DetIds
-    virtual const DetIdContainer&    detUnitIds()       const;
+    const DetIdContainer&    detUnitIds()       const override;
 
     // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    virtual const DetIdContainer&    detIds()           const;
+    const DetIdContainer&    detIds()           const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    virtual const GeomDetUnit*       idToDetUnit(DetId) const;
+    const GeomDetUnit*       idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
     // (valid also for GeomDetUnits)
-    virtual const GeomDet*           idToDet(DetId)     const; 
+    const GeomDet*           idToDet(DetId)     const override; 
         
     /// Return the pointer to the actual geometry for a given DetId
     const TrackingGeometry* slaveGeometry(DetId id) const;
