@@ -465,7 +465,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   int nTracks = TrackCollection->size();
 
-  emtfnTracks->Fill(std::min(nTracks, emtfnTracks->getTH2F()->GetNbinsX() - 1));
+  emtfnTracks->Fill(std::min(nTracks, emtfnTracks->getTH1F()->GetNbinsX() - 1));
   
   for (std::vector<l1t::EMTFTrack>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
     int endcap = Track->Endcap();
