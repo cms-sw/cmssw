@@ -50,6 +50,10 @@
 //              -- Class Interface --
 //              ---------------------
 
+class L1MuBMTrack;
+
+typedef std::vector<L1MuBMTrack> L1MuBMTrackCollection;
+
 class L1MuBMTrack : public l1t::RegionalMuonCand {
 
   public:

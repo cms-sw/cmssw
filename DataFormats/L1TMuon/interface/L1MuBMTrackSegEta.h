@@ -33,6 +33,10 @@
 //              -- Class Interface --
 //              ---------------------
 
+class L1MuBMTrackSegEta;
+
+typedef std::vector<L1MuBMTrackSegEta> L1MuBMTrackSegEtaCollection;
+
 class L1MuBMTrackSegEta {
 
   public:
