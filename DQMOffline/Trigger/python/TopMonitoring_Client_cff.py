@@ -97,6 +97,9 @@ topEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
         "effic_jetPtEta_2       'efficiency vs jet p_T-#eta; jet #eta; jet p_T' jetPtEta_2_numerator       jetPtEta_2_denominator",
         "effic_jetEtaPhi_2       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_2_numerator       jetEtaPhi_2_denominator",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta ; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
+        "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
+        "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
+        "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
     ),
 )
 
@@ -134,7 +137,9 @@ topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
         "effic_ele1Eta_ele2Eta    'efficiency vs ele1-ele2 #eta; ele1 #eta; ele2 #eta' ele1Eta_ele2Eta_numerator       ele1Eta_ele2Eta_denominator",
         "effic_ele1Phi_ele2Phi    'efficiency vs ele1-ele2 #phi; ele1 #phi; ele2 #phi' ele1Phi_ele2Phi_numerator       ele1Phi_ele2Phi_denominator",
         "effic_elePt_eventHT    'efficiency vs elePT-eventHT ; ele p_T; event HT' elePt_eventHT_numerator       elePt_eventHT_denominator",
-
+        "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
+        "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
+        "effic_eleMulti       'efficiency vs ele multiplicity; ele multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
     ),
 )
 
@@ -173,7 +178,9 @@ topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
         "effic_mu1Eta_mu2Eta    'efficiency vs mu1-mu2 #eta; mu1 #eta; mu2 #eta' mu1Eta_mu2Eta_numerator       mu1Eta_mu2Eta_denominator",
         "effic_mu1Phi_mu2Phi    'efficiency vs mu1-mu2 #phi; mu1 #phi; mu2 #phi' mu1Phi_mu2Phi_numerator       mu1Phi_mu2Phi_denominator",
         "effic_muPt_eventHT    'efficiency vs muPT-eventHT ; mu p_T; event HT' muPt_eventHT_numerator       muPt_eventHT_denominator",        
-
+        "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
+        "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
+        "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
     ),
 )
 
@@ -211,6 +218,10 @@ topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
         "effic_eleEta_muEta    'efficiency vs ele-mu #eta; ele #eta; mu #phi' eleEta_muEta_numerator      eleEta_muEta_denominator",
         "effic_elePhi_muPhi    'efficiency vs ele-mu #phi; ele #phi; mu #phi' mu1Phi_mu2Phi_numerator       mu1Phi_mu2Phi_denominator",
         "effic_elePt_eventHT    'efficiency vs elePT-eventHT ; ele p_T; event HT' elePt_eventHT_numerator       elePt_eventHT_denominator",
+        "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
+        "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
+        "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
+        "effic_eleMulti       'efficiency vs ele multiplicity; ele multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
 
     ),
 )
