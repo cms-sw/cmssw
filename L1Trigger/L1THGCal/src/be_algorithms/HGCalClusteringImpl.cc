@@ -1,7 +1,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 

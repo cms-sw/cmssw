@@ -159,10 +159,6 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             break;
     }
 
-    /*compute shower shape variables
-    clustering_.showerShape2D( triggerCellsPtrs );*/
-
-
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
 
@@ -175,9 +171,6 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     
     /* call to multiclustering and compute shower shape*/
     multiclustering_.clusterize( clustersPtrs, *multicluster_product_ );
-
-    /*compute shower shape variables*/
-    //multiclustering_.showerShape3D( clustersPtrs );
 
     /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
     multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");

@@ -49,8 +49,6 @@ public:
                      const HGCalTriggerGeometryBase & triggerGeometry 
         );
 
-    //void showerShape2D( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs);
-
 
 private:
     
@@ -62,9 +60,7 @@ private:
     std::string clusteringAlgorithmType_;
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                  std::array<std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>, kNSides_> & reshuffledTriggerCells );
-    
-   // double sigmaEtaEta_;
-   // double sigmaPhiPhi_;
+
 
 };
 
