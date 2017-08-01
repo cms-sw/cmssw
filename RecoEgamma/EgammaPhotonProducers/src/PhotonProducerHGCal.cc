@@ -278,23 +278,29 @@ void PhotonProducerHGCal::fillPhotonCollection(
     reco::SuperClusterRef scRef = coreRef->superCluster();
     iSC++;
 
-    bool isHGCal = scRef->seed()->seed().det() == DetId::Forward;
+    bool isHGCal = (scRef->seed()->seed().det() == DetId::Forward) ||
+                   (scRef->seed()->seed().det() == DetId::Hcal);
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     subDetGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
 
-    if (subdet == EcalBarrel) {
-      preselCutValues = preselCutValuesBarrel_;
-      minR9 = minR9Barrel_;
-      hits = ecalBarrelHits;
-      flags_ = flagsexclEB_;
-      severitiesexcl_ = severitiesexclEB_;
-    } else if (subdet == EcalEndcap) {
-      preselCutValues = preselCutValuesEndcap_;
-      minR9 = minR9Endcap_;
-      hits = ecalEndcapHits;
-      flags_ = flagsexclEE_;
-      severitiesexcl_ = severitiesexclEE_;
-    } else if (isHGCal) {
+    if (!isHGCal) {
+      if (subdet == EcalBarrel) {
+        preselCutValues = preselCutValuesBarrel_;
+        minR9 = minR9Barrel_;
+        hits = ecalBarrelHits;
+        flags_ = flagsexclEB_;
+        severitiesexcl_ = severitiesexclEB_;
+      } else if (subdet == EcalEndcap) {
+        preselCutValues = preselCutValuesEndcap_;
+        minR9 = minR9Endcap_;
+        hits = ecalEndcapHits;
+        flags_ = flagsexclEE_;
+        severitiesexcl_ = severitiesexclEE_;
+      } else {
+        edm::LogWarning("") << "PhotonProducerHGCal: do not know if it is a barrel or "
+                               "endcap SuperCluster";
+      }
+    } else {
       // Compute everything HGCal related here inside.
       preselCutValues = preselCutValuesEndcap_;
       if (scRef->energy() / cosh(scRef->eta()) <= preselCutValues[0]) continue;
@@ -312,9 +318,6 @@ void PhotonProducerHGCal::fillPhotonCollection(
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
       outputPhotonCollection.push_back(newCandidate);
       continue;
-    } else {
-      edm::LogWarning("") << "PhotonProducerHGCal: do not know if it is a barrel or "
-                             "endcap SuperCluster";
     }
     if (hits == 0) continue;
 
