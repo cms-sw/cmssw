@@ -52,7 +52,7 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
 void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads) const
 {
-  auto etaPartitions = geometry_->etaPartitions();
+  const auto& etaPartitions = geometry_->etaPartitions();
   for(const auto& p: etaPartitions)
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
