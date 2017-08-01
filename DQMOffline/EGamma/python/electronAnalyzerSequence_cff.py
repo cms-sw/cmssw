@@ -48,28 +48,28 @@ electronAnalyzerSequence = cms.Sequence(
  * dqmElectronTagProbeAnalysis
 )
 
-mergedSuperClustersFromMC = mergedSuperClusters.clone()
-mergedSuperClustersFromMC.src = cms.VInputTag(
+mergedSuperClustersFromMultiCl = mergedSuperClusters.clone()
+mergedSuperClustersFromMultiCl.src = cms.VInputTag(
    cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
-   cms.InputTag("particleFlowSuperClusterHGCalFromMC","")
+   cms.InputTag("particleFlowSuperClusterHGCalFromMultiCl","")
  )
-dqmElectronAnalysisAllElectronsFromMC = dqmElectronAnalysisAllElectrons.clone()
-dqmElectronAnalysisAllElectronsFromMC.OutputFolderName = 'Egamma/Electrons/Ele2FromMC_All'
-dqmElectronAnalysisAllElectronsFromMC.MaxAbsEtaMatchingObject = 3.0
-dqmElectronAnalysisAllElectronsFromMC.EtaMax = 3.0
-dqmElectronAnalysisAllElectronsFromMC.EtaMin = -3.0
-dqmElectronAnalysisAllElectronsFromMC.MaxAbsEta = 3.0
-dqmElectronAnalysisAllElectronsFromMC.ElectronCollection = 'ecalDrivenGsfElectronsFromMC'
-dqmElectronAnalysisAllElectronsFromMC.MatchingObjectCollection = 'mergedSuperClustersFromMC'
+dqmElectronAnalysisAllElectronsFromMultiCl = dqmElectronAnalysisAllElectrons.clone()
+dqmElectronAnalysisAllElectronsFromMultiCl.OutputFolderName = 'Egamma/Electrons/Ele2FromMultiCl_All'
+dqmElectronAnalysisAllElectronsFromMultiCl.MaxAbsEtaMatchingObject = 3.0
+dqmElectronAnalysisAllElectronsFromMultiCl.EtaMax = 3.0
+dqmElectronAnalysisAllElectronsFromMultiCl.EtaMin = -3.0
+dqmElectronAnalysisAllElectronsFromMultiCl.MaxAbsEta = 3.0
+dqmElectronAnalysisAllElectronsFromMultiCl.ElectronCollection = 'ecalDrivenGsfElectronsFromMultiCl'
+dqmElectronAnalysisAllElectronsFromMultiCl.MatchingObjectCollection = 'mergedSuperClustersFromMultiCl'
 
-electronAnalyzerSequenceFromMC = electronAnalyzerSequence.copy()
-electronAnalyzerSequenceFromMC += cms.Sequence(mergedSuperClustersFromMC+dqmElectronAnalysisAllElectronsFromMC)
+electronAnalyzerSequenceFromMultiCl = electronAnalyzerSequence.copy()
+electronAnalyzerSequenceFromMultiCl += cms.Sequence(mergedSuperClustersFromMultiCl+dqmElectronAnalysisAllElectronsFromMultiCl)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( mergedSuperClusters, src = cms.VInputTag( cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"), cms.InputTag("particleFlowSuperClusterHGCal","") ) )
 
 phase2_hgcal.toReplaceWith(
-electronAnalyzerSequence, electronAnalyzerSequenceFromMC
+electronAnalyzerSequence, electronAnalyzerSequenceFromMultiCl
 )
 
 

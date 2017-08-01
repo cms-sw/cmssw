@@ -14,4 +14,4 @@ hgcalLocalRecoSequence = cms.Sequence( HGCalUncalibRecHit+
                                        hgcalLayerClusters+
                                        particleFlowRecHitHGCSeq+
                                        particleFlowClusterHGCal+
-                                       particleFlowClusterHGCalFromMC )
+                                       particleFlowClusterHGCalFromMultiCl )
