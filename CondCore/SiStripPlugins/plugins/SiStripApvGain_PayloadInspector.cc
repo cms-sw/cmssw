@@ -253,7 +253,7 @@ namespace {
   };
 
   /************************************************
-    TrackerMap of SiStripApvGains (ratio for largest deviation with previous gain per detid)
+   TrackerMap of SiStripApvGains (ratio for largest deviation with previous gain per detid)
   *************************************************/
   class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
@@ -674,6 +674,9 @@ namespace {
       std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
       std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
       
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
 
@@ -708,7 +711,7 @@ namespace {
 	} // end loop on APVs
       }  // end loop on detids
       
-      TCanvas canvas("Payload comparison","payload comparison",1200,1000); 
+      TCanvas canvas("Payload comparison","payload comparison",1400,1000); 
       canvas.Divide(2,1);
 
       std::map<std::string,TH1F*> ratios;
@@ -720,11 +723,11 @@ namespace {
       colormap["TID"] = kBlack;	    markermap["TID"] = kFullSquare;
       colormap["TEC"] = kBlue; 	    markermap["TEC"] = kFullTriangleDown; 
 
-      std::vector<std::string> parts = {"TIB","TOB","TID","TEC"};
+      std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = new TH1F(Form("hRatio_%s",part.c_str()),";New Gain / Previous Gain;Number of APV",100,0.,2.);
-	scatters[part] = new TH2F(Form("hScatter_%s",part.c_str()),"new Gain vs previous Gain;Previous Gain;New Gain",100,0.5,1.8,100,0.5,1.8);
+	ratios[part]   = new TH1F(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.);
+	scatters[part] = new TH2F(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
       }
       
       // now loop on the cached maps
@@ -759,25 +762,49 @@ namespace {
 
       }
 
+      auto legend = new TLegend(0.60,0.8,0.9,0.95);
+      legend->SetTextSize(0.05);
       canvas.cd(1)->SetLogy(); 
+      canvas.cd(1)->SetTopMargin(0.05);
+      canvas.cd(1)->SetLeftMargin(0.13);
+      canvas.cd(1)->SetRightMargin(0.08);
+
       for ( const auto &part : parts){
+	makeNicePlotStyle(ratios[part]);
+	ratios[part]->SetStats(false);
+	ratios[part]->SetLineWidth(2);
 	ratios[part]->SetLineColor(colormap[part]);
-	if(part =="TIB")
+	if(part =="TEC")
 	  ratios[part]->Draw();
 	else
 	  ratios[part]->Draw("same");
+	legend->AddEntry(ratios[part],part.c_str(),"L");
       }
 
+      legend->Draw("same");
+      DrawStatBox(ratios,colormap,parts);
+       
+      auto legend2 = new TLegend(0.60,0.8,0.9,0.95);
+      legend2->SetTextSize(0.05);
       canvas.cd(2);
+      canvas.cd(2)->SetTopMargin(0.05);
+      canvas.cd(2)->SetLeftMargin(0.13);
+      canvas.cd(2)->SetRightMargin(0.08);
+
       for ( const auto &part : parts){
+	makeNicePlotStyle(scatters[part]);
+	scatters[part]->SetStats(false);
 	scatters[part]->SetMarkerColor(colormap[part]);
 	scatters[part]->SetMarkerStyle(markermap[part]);
 	scatters[part]->SetMarkerSize(0.5);
-	if(part =="TIB")
+	if(part =="TEC")
 	  scatters[part]->Draw("P");
 	else
 	  scatters[part]->Draw("Psame");
+	legend2->AddEntry(scatters[part],part.c_str(),"P");
       }
+
+      legend2->Draw("same");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
