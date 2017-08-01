@@ -39,7 +39,7 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 	  virtual void endStream() override {}
 
 	  const edm::EDGetTokenT< TagInfoCollection > src_;
-    std::string graph_path_;
+    edm::FileInPath graph_path_;
     std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
     std::vector<std::string> input_names_;
     std::vector<std::string> output_names_;
@@ -55,10 +55,10 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 
 DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-  graph_path_(iConfig.getParameter<std::string>("graph_path")),
+  graph_path_(iConfig.getParameter<edm::FileInPath>("graph_path")),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
-  graph_(graph_path_)
+  graph_(graph_path_.fullPath().substr(0, graph_path_.fullPath().find_last_of(".")))
 {
 
   // get output names from flav_table
