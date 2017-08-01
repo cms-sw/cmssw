@@ -51,7 +51,7 @@ void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
 void ME0PadDigiProducer::buildPads(const ME0DigiCollection &det_digis, ME0PadDigiCollection &out_pads) const
 {
-  auto etaPartitions = geometry_->etaPartitions();
+  const auto& etaPartitions = geometry_->etaPartitions();
   for(const auto& p: etaPartitions)
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
