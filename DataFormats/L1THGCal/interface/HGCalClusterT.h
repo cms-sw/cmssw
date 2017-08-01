@@ -31,7 +31,7 @@ namespace l1t
         centre_(0, 0, 0),
         centreProj_(0., 0., 0.),
         mipPt_(0),
-        seedMipPt_(0){}
+        sigmaEtaEtadMipPt_(0){}
 
       HGCalClusterT( const edm::Ptr<C>& c ):
         valid_(true),
@@ -39,7 +39,7 @@ namespace l1t
         centre_(0., 0., 0.),
         centreProj_(0., 0., 0.),
         mipPt_(0.),
-        seedMipPt_(0.)
+        sigmaEtaEtadMipPt_(0.)
       {
         addConstituent(c);
       }
@@ -56,7 +56,7 @@ namespace l1t
         if( constituents_.empty() )
         { 
           detId_ = HGCalDetId(c->detId());
-          seedMipPt_ = c->mipPt();
+          sigmaEtaEtadMipPt_ = c->mipPt();
         }
 
         /* update cluster positions */
@@ -92,7 +92,7 @@ namespace l1t
       void setValid(bool valid) { valid_ = valid;}
       
       double mipPt() const { return mipPt_; }
-      double seedMipPt() const { return seedMipPt_; }
+      double sigmaEtaEtadMipPt() const { return sigmaEtaEtadMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
 
@@ -144,29 +144,24 @@ namespace l1t
 
       //shower shape
 
-      int Nlayers() const { return Nlayers_; }
+      int nLayers() const { return nLayers_; }
       int firstLayer() const { return firstLayer_; }
-      float EMax() const { return EMax_; }
-      float SeeMax() const { return SeeMax_; }
-      float SppMax() const { return SppMax_; }
-      float SeeTot() const { return SeeTot_; }
-      float SppTot() const { return SppTot_; }
-      float Szz() const { return Szz_; }
-      float See2D() const { return See2D_; }
-      float Spp2D() const { return Spp2D_; }
+      float eMax() const { return eMax_; }
+      float sigmaEtaEtaMax() const { return sigmaEtaEtaMax_; }
+      float sigmaPhiPhiMax() const { return sigmaPhiPhiMax_; }
+      float sigmaEtaEtaTot() const { return sigmaEtaEtaTot_; }
+      float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
+      float sigmaZZ() const { return sigmaZZ_; }
 
-      void setNlayers(int Nlayers) { Nlayers_ = Nlayers;}
-      void setfirstLayer(int firstLayer) { firstLayer_ = firstLayer;}
-      void setEMax(float EMax) { EMax_ = EMax;}
-      void setSeeMax(float SeeMax) { SeeMax_ = SeeMax;}
-      void setSeeTot(float SeeTot) { SeeTot_ = SeeTot;}
-      void setSppMax(float SppMax) { SppMax_ = SppMax;}
-      void setSppTot(float SppTot) { SppTot_ = SppTot;}
-      void setSzz(float Szz) { Szz_ = Szz;}
-      void setSee2D(float See2D) { See2D_ = See2D;}
-      void setSpp2D(float Spp2D) { Spp2D_ = Spp2D;}
+      void set_nLayers(int nLayers) { nLayers_ = nLayers;}
+      void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void set_eMax(float eMax) { eMax_ = eMax;}
+      void set_sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
+      void set_sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
+      void set_sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
+      void set_sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
+      void set_sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
       
-
       /* operators */
       bool operator<(const HGCalClusterT<C>& cl) const {return mipPt() < cl.mipPt();}
       bool operator>(const HGCalClusterT<C>& cl) const  { return  cl<*this;   }
@@ -182,20 +177,18 @@ namespace l1t
       GlobalPoint centreProj_; // centre projected onto the first HGCal layer
 
       double mipPt_;
-      double seedMipPt_;
+      double sigmaEtaEtadMipPt_;
 
       //shower shape
 
-      int Nlayers_;
+      int nLayers_;
       int firstLayer_;
-      float EMax_;
-      float SeeMax_;
-      float SppMax_;
-      float SeeTot_;
-      float SppTot_;
-      float Szz_;
-      float See2D_;
-      float Spp2D_;
+      float eMax_;
+      float sigmaEtaEtaMax_;
+      float sigmaPhiPhiMax_;
+      float sigmaEtaEtaTot_;
+      float sigmaPhiPhiTot_;
+      float sigmaZZ_;
 
       ClusterShapes shapes_;
 
