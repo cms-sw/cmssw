@@ -33,18 +33,13 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
-
-//#include "DataFormats/L1TMuon/interface/MuonInternalTrack.h"
-
-//using namespace L1TMuon;
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
 
 //              ---------------------
 //              -- Class Interface --

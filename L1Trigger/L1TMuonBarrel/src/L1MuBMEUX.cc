@@ -30,7 +30,7 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
@@ -141,7 +141,7 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
   if ( m_seu.ext() == EX24 ) qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
   if ( m_seu.ext() == EX34 ) qcut = pars.get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
 
-  if ( m_start->quality() < qcut ) {     
+  if ( m_start->quality() < qcut ) {
     delete theExtLUTs;
     return;
   }

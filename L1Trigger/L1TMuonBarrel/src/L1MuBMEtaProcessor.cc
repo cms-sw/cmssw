@@ -37,11 +37,8 @@
 //-------------------------------
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
@@ -49,6 +46,10 @@
 #include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
+
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
 
 using namespace std;
 
@@ -418,7 +419,7 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
       m_pattern[idx1] = 0;
       m_fine[idx1] = false;
       m_eta[idx2]  = theQualPatternLUT.getCoarseEta(i+1,adr2);
-   
+
       m_pattern[idx2] = 0;
       m_fine[idx2] = false;
     }

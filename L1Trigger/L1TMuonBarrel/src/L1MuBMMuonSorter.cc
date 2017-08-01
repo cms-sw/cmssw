@@ -31,9 +31,10 @@
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+
+#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 using namespace std;
 
