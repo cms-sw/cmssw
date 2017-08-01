@@ -37,14 +37,16 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1BMTrackCollection.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
@@ -120,7 +122,6 @@ class L1MuBMTrackFinder {
     std::vector<L1MuBMTrack>&       getcache1() { return _cache1; }
     std::vector<L1MuBMTrackSegPhi>& getcache2() { return _cache2; }
     std::vector<L1MuBMTrackSegEta>& getcache3() { return _cache3; }
-    L1BMTrackCollection& getcache4() { return _cache4; }
 
   private:
 
@@ -134,7 +135,6 @@ class L1MuBMTrackFinder {
     std::vector<L1MuBMTrack>         _cache1;
     std::vector<L1MuBMTrackSegPhi>   _cache2;
     std::vector<L1MuBMTrackSegEta>   _cache3;
-    L1BMTrackCollection   _cache4;
 
     L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors
