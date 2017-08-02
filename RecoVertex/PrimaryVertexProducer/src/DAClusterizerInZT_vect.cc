@@ -94,8 +94,10 @@ namespace {
     return vdt::fast_exp( inp );
   }
   
-  inline void local_exp_list( double const * __restrict__ arg_inp, double * __restrict__ arg_out, const int arg_arr_size) {
-    for(int i=0; i!=arg_arr_size; ++i ) arg_out[i]=vdt::fast_exp(arg_inp[i]);
+  inline void local_exp_list( double const * __restrict__ arg_inp, 
+			      double * __restrict__ arg_out, 
+			      const unsigned arg_arr_size) {
+    for(unsigned i=0; i!=arg_arr_size; ++i ) arg_out[i]=vdt::fast_exp(arg_inp[i]);
   }
 
 }
@@ -160,10 +162,10 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   const unsigned int nv = gvertices.GetSize();
   
   //initialize sums
-  double sumpi = 0;
+  double sumpi = 0.;
   
   // to return how much the prototype moved
-  double delta = 0;
+  double delta = 0.;
   
 
   // intial value of a sum
@@ -178,6 +180,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   auto kernel_calc_exp_arg = [ beta, nv ] ( const unsigned int itrack,
 					     track_t const& tracks,
 					     vertex_t const& vertices ) {
+    
     const auto track_z = tracks._z[itrack];
     const auto track_t = tracks._t[itrack];
     const auto botrack_dz2 = -beta*tracks._dz2[itrack];
@@ -185,8 +188,8 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
 
     // auto-vectorized
     for ( unsigned int ivertex = 0; ivertex < nv; ++ivertex) {
-      const auto mult_resz =  track_z - vertices._z[ivertex];
-      const auto mult_rest =  track_t - vertices._t[ivertex];
+      const auto mult_resz = track_z - vertices._z[ivertex];
+      const auto mult_rest = track_t - vertices._t[ivertex];
       vertices._ei_cache[ivertex] = botrack_dz2 * ( mult_resz * mult_resz ) + botrack_dt2 * ( mult_rest * mult_rest );
     }
   };
@@ -238,13 +241,13 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   for (auto itrack = 0U; itrack < nt; ++itrack) {
     kernel_calc_exp_arg(itrack, gtracks, gvertices);
     local_exp_list(gvertices._ei_cache, gvertices._ei, nv);
-    
+        
     gtracks._Z_sum[itrack] = kernel_add_Z(gvertices);
     if (edm::isNotFinite(gtracks._Z_sum[itrack])) gtracks._Z_sum[itrack] = 0.0;
     // used in the next major loop to follow
     sumpi += gtracks._pi[itrack];
     
-    if (gtracks._Z_sum[itrack] > 1.e-100){
+    if (gtracks._Z_sum[itrack] > 1.d-100){
       kernel_calc_normalization(itrack, gtracks, gvertices);
     }
   }
@@ -255,7 +258,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
     double delta=0;
     // does not vectorizes
     for (unsigned int ivertex = 0; ivertex < nv; ++ ivertex ) {
-      if (vertices._sw[ivertex] > 0) {
+      if (vertices._sw[ivertex] > 0.) {
 	//std::cout << " DA2D_vect sw = " << vertices._sw[ ivertex ] << ' ' << vertices._swz[ ivertex ] << ' ' << vertices._swt[ ivertex ] << std::endl;
 	auto znew = vertices._swz[ ivertex ] / vertices._sw[ ivertex ];
 	// prevents from vectorizing if 
