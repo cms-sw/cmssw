@@ -256,7 +256,7 @@ void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
   float thickness = gd->bounds()->thickness();
   std::string nameTag;  
   TrackerGeometry::ModuleType mtype = moduleType(name);
-  if (theDetTypetList.size() == 0) {
+  if (theDetTypetList.empty()) {
     theDetTypetList.emplace_back(detid, mtype, thickness);
   } else {
     auto  & t = (*(theDetTypetList.end()-1));

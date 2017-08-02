@@ -50,7 +50,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int eta,
 std::vector<int> HcalDDDRecConstants::getDepth(const int det, const int phi, const int zside, const unsigned int eta) const {
   std::map<int,int> layers;
   hcons.ldMap()->getLayerDepth(det, eta+1, phi, zside, layers);
-  if (layers.size() == 0) {
+  if (layers.empty()) {
     return getDepth(eta, false);
   } else {
     std::vector<int> depths;
@@ -102,7 +102,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	    }
 	  }
 	}
-	if (phiUse.size() > 0) {
+	if (!phiUse.empty()) {
 	  hcons.ldMap()->getLayerDepth(subdet,ieta,phiUse[0].first,zside,layers);
 	  getOneEtaBin(subdet,ieta,zside,phiUse,layers,true,bins);
 	}
@@ -232,7 +232,7 @@ HcalDDDRecConstants::getHFCellParameters() const {
     }
   }
   if (maxDepth[2] > 2) {
-    if (hcons.getIdHF2QIE().size() > 0) {
+    if (!hcons.getIdHF2QIE().empty()) {
       for (unsigned int k=0; k<hcons.getIdHF2QIE().size(); ++k) {
 	int ieta = hcons.getIdHF2QIE()[k].ieta();
 	int ind  = std::abs(ieta) - iEtaMin[2];
@@ -642,7 +642,7 @@ bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
     for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr) 
       ids.emplace_back(itr->first);
   }
-  return (ids.size() > 0);
+  return (!ids.empty());
 }
 
 void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zside,
@@ -661,7 +661,7 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
   int dstart = -1;
   int lmin(0), lmax(0);
   std::map<int,int>::iterator itr=layers.begin();
-  if (layers.size() > 0) {
+  if (!layers.empty()) {
     int dep = itr->second;
     if (subdet == HcalEndcap && ieta == iEtaMin[type]) 
       dep = hcons.getDepthEta16(subdet,phis[0].first,zside);

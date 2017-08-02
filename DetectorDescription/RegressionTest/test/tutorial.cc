@@ -591,7 +591,7 @@ void tutorial()
     // ask each expanded-not for its specifics 
     // std::vector<..>.size() will be 0 if there are no specifics
     std::vector<const DDsvalues_type *>  spec = ex.specifics();
-    if (spec.size()) {
+    if (!spec.empty()) {
       std::cout << spec.size() << " different specific-data sets found for " << std::endl; 
       dumpHistory(ex.geoHistory(),true) ;    
       std::cout << std::endl;

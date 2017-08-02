@@ -11,7 +11,7 @@
 
 //------------------------------------------------------------------------------
 BowedSurfaceDeformation::BowedSurfaceDeformation(const std::vector<double> &pars)
-  : theSagittaX (pars.size() > 0 ? pars[0] : 0.),
+  : theSagittaX (!pars.empty() ? pars[0] : 0.),
     theSagittaY (pars.size() > 2 ? pars[2] : 0.),
     theSagittaXY(pars.size() > 1 ? pars[1] : 0.)
 {

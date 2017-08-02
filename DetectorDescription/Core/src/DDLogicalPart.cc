@@ -386,7 +386,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   std::string message;
   
   // check whether the found logical-parts are also defined (i.e. have material, solid ...)
-  if (result.size()) {
+  if (!result.empty()) {
     std::vector<DDLogicalPart>::const_iterator lpit(result.begin()), lped(result.end());
     for (; lpit != lped; ++lpit) { 
       // std::cout << "VI- " << std::string(lpit->name()) << std::endl;

@@ -47,7 +47,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
 
   // if z is empty, then it better not have been a polycone defined
   // by RZPoints, instead, it must be a ZSection defined polycone.
-  if (z.size() == 0 )
+  if (z.empty() )
   {
     // get zSection information, note, we already have a z declared above
     // and we will use r for rmin.  In this case, no use "trying" because

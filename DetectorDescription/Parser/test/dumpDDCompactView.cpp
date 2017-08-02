@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     for (; git != gend; ++git) {
       const DDLogicalPart & ddLP = gt.nodeData(git);
       std::cout << ++i << " P " << ddLP.name() << std::endl;
-      if (git->size()) { 
+      if (!git->empty()) { 
 	DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
 	DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
 	for (; cit != cend; ++cit) {
