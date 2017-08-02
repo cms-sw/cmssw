@@ -476,14 +476,14 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
         efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
       
-      if (nReco < 0 or nReco > nSim) continue;
+      if (nSim == 0 or nReco < 0 or nReco > nSim) continue;
       const double effVal = nReco/nSim;
       const double errLo  = TEfficiency::ClopperPearson(nSim, nReco, 0.683, false);
       const double errUp  = TEfficiency::ClopperPearson(nSim, nReco, 0.683, true);
       const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
       efficHist->SetBinContent(i, effVal);
       efficHist->SetBinEntries(i, 1);
-      efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+      efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
     ibooker.bookProfile(newEfficMEName.c_str(),efficHist);
     delete efficHist;  
