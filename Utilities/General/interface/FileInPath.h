@@ -7,7 +7,7 @@
 #include<string>
 #include<vector>
 #include<iosfwd>
-#include "Utilities/General/interface/own_ptr.h"
+#include <memory>
 
 /** open the first file found in a ":"-separated list of files (path)
  */
@@ -28,19 +28,14 @@ public:
   ~FileInPath();
 
   /// return stream
-  std::ifstream * operator()() { return in.get();} 
+  std::ifstream * operator()() { return m_in.get();}
   
   /// return full name
-  const String & name() const { return file;}
+  const String & name() const { return m_file;}
 
 private:
-  void init(const String & ipath, const String & ifile);
-private:
-  static const String semicolon;
-private:
-  std::vector<String> directories;
-  String file;
-  own_ptr<std::ifstream> in;
+  String m_file;
+  std::unique_ptr<std::ifstream> m_in;
 
 };
 
