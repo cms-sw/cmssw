@@ -10,7 +10,7 @@
 #include "HLTrigger/special/interface/HLTHcalPhiSymFilter.h"
 #include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
-#include "HLTrigger/special/interface/HLTHcalIsolatedBunchFilter.h"
+#include "HLTrigger/special/interface/HLTMultipletFilter.h"
 #include "HLTrigger/special/interface/HLTEventNumberFilter.h"
 #include "HLTrigger/special/interface/HLTL1NumberFilter.h"
 #include "HLTrigger/special/interface/HLTHcalNZSFilter.h"
@@ -45,7 +45,7 @@ DEFINE_FWK_MODULE(HLTEcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalCalibTypeFilter);
-DEFINE_FWK_MODULE(HLTHcalIsolatedBunchFilter);
+DEFINE_FWK_MODULE(HLTMultipletFilter);
 DEFINE_FWK_MODULE(HLTEventNumberFilter);
 DEFINE_FWK_MODULE(HLTL1NumberFilter);
 DEFINE_FWK_MODULE(HLTHcalNZSFilter);
