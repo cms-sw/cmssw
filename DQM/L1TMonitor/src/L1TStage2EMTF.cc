@@ -566,7 +566,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 		    hist_index = histIndexRPC[{ Hit->Station(), Hit->Ring() }];
 		    if (Hit->Endcap() > 0) hist_index = 11 - hist_index;
 		    rpcHitTimingInTrack->Fill(Hit->BX(), hist_index + 0.5);
-		    rpcHitTiming[histIndexBX[trackhitBX]]->Fill((Hit->Sector_RPC() - 1) * 6 + Hit->Subsector(), hist_index + 0.5);
+		    rpcHitTiming[histIndexBX.at(Hit->BX())]->Fill((Hit->Sector_RPC() - 1) * 6 + Hit->Subsector(), hist_index + 0.5);
 		    
 		  }
 		}
@@ -582,8 +582,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 	  hist_index = histIndexRPC.at({station, ring});
 	  if (endcap > 0) hist_index = 11 - hist_index;
 	
-	  rpcHitTimingInTrack->Fill(tmpHit.BX(), hist_index + 0.5);
-	  rpcHitTiming[histIndexBX[trackhitBX]]->Fill((tmpHit.Sector_RPC() - 1) * 6 + subsector, hist_index + 0.5);
+	  rpcHitTimingInTrack->Fill(trackhitBX, hist_index + 0.5);
+	  rpcHitTiming[histIndexBX.at(trackhitBX)]->Fill((tmpHit.Sector_RPC() - 1) * 6 + subsector, hist_index + 0.5);
 	} // End conditional: if (tmpHit.Is_RPC() == true && neighbor == false)
 
       } // End loop: for (int iHit = 0; iHit < numHits; ++iHit)
