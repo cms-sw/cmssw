@@ -22,21 +22,13 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// DataFormats
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 // TriggerUtils
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
+// DataFormats
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+
 class GenericTriggerEventFlag;
-
-// Why this cannot be retrieved?
-// #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h" // to get MEbinning
-
 
 struct MEbinning {
   unsigned int nbins;
@@ -58,10 +50,8 @@ class Tau3MuMonitor : public DQMEDAnalyzer
   
   private:
     static MEbinning getHistoPSet   (edm::ParameterSet pset);
-    static MEbinning getHistoLSPSet (edm::ParameterSet pset);
   
     std::string folderName_;
-    std::string histoSuffix_;
   
     edm::EDGetTokenT<reco::CompositeCandidateCollection> tauToken_; // tau 3 mu collection
   
