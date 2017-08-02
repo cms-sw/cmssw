@@ -12,17 +12,23 @@ SimGeneralRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep CrossingFramePlaybackInfoNew_*_*_*',
                                            'keep PileupSummaryInfos_*_*_*',
                                            'keep int6stdbitsetstdpairs_*_AffectedAPVList_*',
-                                           'keep int_*_bunchSpacing_*')
+                                           'keep int_*_bunchSpacing_*',
+                                           'keep *_genPUProtons*_*_*', 
+                                           'keep *_*_genPUProtons*_*')
 )
 #RECO content
 SimGeneralRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep PileupSummaryInfos_*_*_*',
-                                           'keep int_*_bunchSpacing_*')
+                                           'keep int_*_bunchSpacing_*',
+                                           'keep *_genPUProtons*_*_*', 
+                                           'keep *_*_genPUProtons*_*')
 )
 #AOD content
 SimGeneralAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep PileupSummaryInfos_*_*_*',
-                                           'keep int_*_bunchSpacing_*')
+                                           'keep int_*_bunchSpacing_*',
+                                           'keep *_genPUProtons*_*_*', 
+                                           'keep *_*_genPUProtons*_*')
 )
 
 # mods for HGCAL
