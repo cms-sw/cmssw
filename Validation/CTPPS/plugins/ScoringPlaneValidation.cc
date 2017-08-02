@@ -24,8 +24,8 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "TCanvas.h"
 #include "TH1D.h"
+#include "TH2D.h"
 
 #include <map>
 
@@ -33,21 +33,22 @@ class ScoringPlaneValidation : public edm::one::EDAnalyzer<edm::one::SharedResou
 {
   public:
     explicit ScoringPlaneValidation( const edm::ParameterSet& );
-    ~ScoringPlaneValidation();
+    ~ScoringPlaneValidation() {}
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
-    virtual void beginJob() override;
+    virtual void beginJob() override {}
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    virtual void endJob() override;
+    virtual void endJob() override {}
 
     edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > spTracksToken_, recoTracksToken_;
 
     std::vector<edm::ParameterSet> detectorPackages_;
 
     std::map<unsigned int,TH1D*> m_rp_h_xpos_[2], m_rp_h_ypos_[2];
-    //std::map<unsigned int,TCanvas*> m_rp_c_xpos_, m_rp_c_ypos_;
+    std::map<unsigned int,TH2D*> m_rp_h2_xpos_vs_xpos_, m_rp_h2_ypos_vs_ypos_;
+    std::map<unsigned int,TH1D*> m_rp_h_de_x_, m_rp_h_de_y_;
 };
 
 ScoringPlaneValidation::ScoringPlaneValidation( const edm::ParameterSet& iConfig ) :
@@ -70,13 +71,12 @@ ScoringPlaneValidation::ScoringPlaneValidation( const edm::ParameterSet& iConfig
       m_rp_h_ypos_[i].insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_ypos_arm%d_rp%d_%s", pot_id.arm(), pot_id.rp(), nm ), ";y (mm)", 200, -10.0, 10.0 ) ) );
       i++;
     }
-    //m_rp_c_xpos_.insert( std::make_pair( pot_id, pot_dir.make<TCanvas>( Form( "c_rp_xpos_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) ) ) );
-    //m_rp_c_ypos_.insert( std::make_pair( pot_id, pot_dir.make<TCanvas>( Form( "c_rp_ypos_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) ) ) );
+    m_rp_h2_xpos_vs_xpos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_xpos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (scoring plane) (mm);x (reco) (mm)", 200, 0.0, 20.0, 200, 0.0, 20.0 ) ) );
+    m_rp_h2_ypos_vs_ypos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_ypos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";y (scoring plane) (mm);y (reco) (mm)", 200, -10.0, 10.0, 200, -10.0, 10.0 ) ) );
+    m_rp_h_de_x_.insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_de_x_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (reco) - x (scoring plane) (mm)", 100, -0.1, 0.1 ) ) );
+    m_rp_h_de_y_.insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_de_y_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";y (reco) - y (scoring plane) (mm)", 100, -0.1, 0.1 ) ) );
   }
 }
-
-ScoringPlaneValidation::~ScoringPlaneValidation()
-{}
 
 void
 ScoringPlaneValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
@@ -87,23 +87,22 @@ ScoringPlaneValidation::analyze( const edm::Event& iEvent, const edm::EventSetup
 
   for ( const auto& trk : *sp_tracks ) {
     const CTPPSDetId det_id( trk.getRPId() );
-    m_rp_h_xpos_[0][det_id]->Fill( trk.getX()*1.0 );
-    m_rp_h_ypos_[0][det_id]->Fill( trk.getY()*1.0 );
+    m_rp_h_xpos_[0][det_id]->Fill( trk.getX() );
+    m_rp_h_ypos_[0][det_id]->Fill( trk.getY() );
   }
   for ( const auto& trk : *reco_tracks ) {
     const CTPPSDetId det_id( trk.getRPId() );
-    m_rp_h_xpos_[1][det_id]->Fill( trk.getX()*1.0 );
-    m_rp_h_ypos_[1][det_id]->Fill( trk.getY()*1.0 );
+    m_rp_h_xpos_[1][det_id]->Fill( trk.getX() );
+    m_rp_h_ypos_[1][det_id]->Fill( trk.getY() );
+    for ( const auto& trk_sp : *sp_tracks ) {
+      if ( CTPPSDetId( trk_sp.getRPId() ) != det_id ) continue;
+      m_rp_h2_xpos_vs_xpos_[det_id]->Fill( trk.getX(), trk_sp.getX() );
+      m_rp_h2_ypos_vs_ypos_[det_id]->Fill( trk.getY(), trk_sp.getY() );
+      m_rp_h_de_x_[det_id]->Fill( trk.getX()-trk_sp.getX() );
+      m_rp_h_de_y_[det_id]->Fill( trk.getY()-trk_sp.getY() );
+    }
   }
 }
-
-void
-ScoringPlaneValidation::beginJob()
-{}
-
-void
-ScoringPlaneValidation::endJob()
-{}
 
 void
 ScoringPlaneValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {

@@ -35,7 +35,6 @@ process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 
 process.totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsFastProtonSimulation')
 
-
 process.load('Validation.CTPPS.scoringPlaneValidation_cfi')
 
 #process.out = cms.OutputModule('PoolOutputModule',
