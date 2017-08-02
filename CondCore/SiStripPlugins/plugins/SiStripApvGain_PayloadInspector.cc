@@ -762,7 +762,7 @@ namespace {
 
       }
 
-      auto legend = new TLegend(0.60,0.8,0.9,0.95);
+      auto legend = new TLegend(0.60,0.8,0.92,0.95);
       legend->SetTextSize(0.05);
       canvas.cd(1)->SetLogy(); 
       canvas.cd(1)->SetTopMargin(0.05);
@@ -784,7 +784,7 @@ namespace {
       legend->Draw("same");
       DrawStatBox(ratios,colormap,parts);
        
-      auto legend2 = new TLegend(0.60,0.8,0.9,0.95);
+      auto legend2 = new TLegend(0.60,0.8,0.92,0.95);
       legend2->SetTextSize(0.05);
       canvas.cd(2);
       canvas.cd(2)->SetTopMargin(0.05);
@@ -797,19 +797,29 @@ namespace {
 	scatters[part]->SetMarkerColor(colormap[part]);
 	scatters[part]->SetMarkerStyle(markermap[part]);
 	scatters[part]->SetMarkerSize(0.5);
+
+	//std::unique_ptr<TH2F>
+	auto temp =  (TH2F*)(scatters[part]->Clone());
+	temp->SetMarkerSize(1.3);
+
 	if(part =="TEC")
 	  scatters[part]->Draw("P");
 	else
 	  scatters[part]->Draw("Psame");
-	legend2->AddEntry(scatters[part],part.c_str(),"P");
+
+	legend2->AddEntry(temp,part.c_str(),"P");
       }
+
+      TLine diagonal(0.5,0.5,1.8,1.8);
+      diagonal.SetLineWidth(3);
+      diagonal.SetLineStyle(2);
+      diagonal.Draw("same");
 
       legend2->Draw("same");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
-      
-     
+
       return true;
 
     }
