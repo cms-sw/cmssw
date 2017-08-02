@@ -67,12 +67,12 @@ ScoringPlaneValidation::ScoringPlaneValidation( const edm::ParameterSet& iConfig
     TFileDirectory pot_dir = fs->mkdir( Form( "arm%d_pot%d", pot_id.arm(), pot_id.rp() ) );
     unsigned short i = 0;
     for ( const auto& nm : { "scorpl", "reco" } ) {
-      m_rp_h_xpos_[i].insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_xpos_arm%d_rp%d_%s", pot_id.arm(), pot_id.rp(), nm ), ";x (mm)", 200, 0.0, 20.0 ) ) );
-      m_rp_h_ypos_[i].insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_ypos_arm%d_rp%d_%s", pot_id.arm(), pot_id.rp(), nm ), ";y (mm)", 200, -10.0, 10.0 ) ) );
+      m_rp_h_xpos_[i].insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_xpos_arm%d_rp%d_%s", pot_id.arm(), pot_id.rp(), nm ), ";x (mm)", 300, -10.0, 50.0 ) ) );
+      m_rp_h_ypos_[i].insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_ypos_arm%d_rp%d_%s", pot_id.arm(), pot_id.rp(), nm ), ";y (mm)", 300, -30.0, 30.0 ) ) );
       i++;
     }
-    m_rp_h2_xpos_vs_xpos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_xpos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (scoring plane) (mm);x (reco) (mm)", 200, 0.0, 20.0, 200, 0.0, 20.0 ) ) );
-    m_rp_h2_ypos_vs_ypos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_ypos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";y (scoring plane) (mm);y (reco) (mm)", 200, -10.0, 10.0, 200, -10.0, 10.0 ) ) );
+    m_rp_h2_xpos_vs_xpos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_xpos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (scoring plane) (mm);x (reco) (mm)", 300, -10.0, 50.0, 300, -10.0, 50.0 ) ) );
+    m_rp_h2_ypos_vs_ypos_.insert( std::make_pair( pot_id, pot_dir.make<TH2D>( Form( "h2_rp_ypos_corr_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";y (scoring plane) (mm);y (reco) (mm)", 300, -30.0, 30.0, 300, -30.0, 30.0 ) ) );
     m_rp_h_de_x_.insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_de_x_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (reco) - x (scoring plane) (mm)", 100, -0.1, 0.1 ) ) );
     m_rp_h_de_y_.insert( std::make_pair( pot_id, pot_dir.make<TH1D>( Form( "h_rp_de_y_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";y (reco) - y (scoring plane) (mm)", 100, -0.1, 0.1 ) ) );
   }

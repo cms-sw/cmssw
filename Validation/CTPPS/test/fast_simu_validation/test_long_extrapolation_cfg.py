@@ -3,6 +3,16 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 process = cms.Process('CTPPSFastSimulation', eras.ctpps_2016)
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealisticCrossingAngleCollision2016_cfi')
+process.load('Configuration.StandardSequences.Generator_cff')
+
+# number of events
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(10000),
+)
+
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring(),
@@ -12,43 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-# number of events
 process.source = cms.Source("EmptySource")
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
-)
-
-# particle-data table
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-# particle generator
-process.generator = cms.EDProducer("RandomtXiGunProducer",
-  Verbosity = cms.untracked.int32(0),
-
-  FireBackward = cms.bool(True),
-  FireForward = cms.bool(True),
-
-  PGunParameters = cms.PSet(
-    PartID = cms.vint32(2212),
-    ECMS = cms.double(13E3),
-
-    Mint = cms.double(0),
-    Maxt = cms.double(1),
-    MinXi = cms.double(0.0),
-    MaxXi = cms.double(0.1),
-
-    MinPhi = cms.double(-3.14159265359),
-    MaxPhi = cms.double(+3.14159265359)
-  )
-)
-
-# random seeds
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    sourceSeed = cms.PSet(initialSeed =cms.untracked.uint32(98765)),
-    generator = cms.PSet(initialSeed = cms.untracked.uint32(98766)),
-    SmearingGenerator = cms.PSet(initialSeed =cms.untracked.uint32(3849))
-)
 
 # geometry
 from Geometry.VeryForwardGeometry.geometryRP_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles
@@ -56,6 +30,13 @@ from Geometry.VeryForwardGeometry.geometryRP_cfi import totemGeomXMLFiles, ctpps
 process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles+["Validation/CTPPS/test/fast_simu_with_phys_generator/qgsjet/global/RP_Dist_Beam_Cent.xml"],
     rootNodeName = cms.string('cms:CMSE'),
+)
+
+# particle generator
+from SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi import lhcBeamProducer
+process.generator = lhcBeamProducer.clone(
+    MinXi = cms.double(0.0),
+    MaxXi = cms.double(0.1),
 )
 
 process.TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule")
@@ -92,7 +73,7 @@ detectorPackagesLong = cms.VPSet(
 from SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi import ctppsFastProtonSimulation
 ctppsFastProtonSimulation.checkApertures = True
 ctppsFastProtonSimulation.produceHitsRelativeToBeam = False
-ctppsFastProtonSimulation.roundToPitch = False
+ctppsFastProtonSimulation.stripsRecHitsParams.roundToPitch = False
 
 process.ctppsFastProtonSimulationStd = ctppsFastProtonSimulation.clone(
     produceScoringPlaneHits = cms.bool(True),
@@ -115,23 +96,43 @@ process.load('RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi')
 # common reco: lite track production
 process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 
-# distribution plotters
-process.ctppsFastSimulationValidator = cms.EDAnalyzer("CTPPSFastSimulationValidator",
-  simuTracksTag = cms.InputTag("ctppsFastProtonSimulationStd"),
-  recoTracksTag = cms.InputTag("ctppsLocalTrackLiteProducer", ""),
-  outputFile = cms.string("output_long_extrapolation.root")
+# distribution plotter
+process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
+process.scoringPlaneValidation.spTracksTag = cms.InputTag('ctppsFastProtonSimulationStd', 'scoringPlane')
+process.scoringPlaneValidation.recoTracksTag = cms.InputTag('ctppsLocalTrackLiteProducer')
+
+# for detectors resolution smearing
+process.RandomNumberGeneratorService.ctppsFastProtonSimulationStd = cms.PSet( initialSeed = cms.untracked.uint32(1) )
+process.RandomNumberGeneratorService.ctppsFastProtonSimulationLong = cms.PSet( initialSeed = cms.untracked.uint32(1) )
+
+# prepare the output file
+process.TFileService = cms.Service('TFileService',
+    fileName = cms.string('output_long_extrapolation.root'),
+    closeFileFast = cms.untracked.bool(True),
 )
 
-# processing path
-process.p = cms.Path(
-    process.generator
-
-    * process.ctppsFastProtonSimulationStd
-
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(
+    process.ctppsFastProtonSimulationStd
     * process.ctppsFastProtonSimulationLong
     * process.totemRPUVPatternFinder
     * process.totemRPLocalTrackFitter
     * process.ctppsLocalTrackLiteProducer
-
-    * process.ctppsFastSimulationValidator
 )
+process.validation_step = cms.Path(
+    process.scoringPlaneValidation
+)
+#process.out = cms.OutputModule('PoolOutputModule', fileName = cms.untracked.string('test.root') )
+#process.outpath = cms.EndPath(process.out)
+
+process.schedule = cms.Schedule(
+    process.generation_step,
+    process.simulation_step,
+    process.validation_step
+    #process.outpath
+)
+
+# filter all path with the production filter sequence
+for path in process.paths:
+    getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+

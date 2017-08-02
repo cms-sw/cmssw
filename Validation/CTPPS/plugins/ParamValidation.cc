@@ -44,9 +44,9 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
-    virtual void beginJob() override;
+    virtual void beginJob() override {}
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    virtual void endJob() override;
+    virtual void endJob() override {}
 
     edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
     edm::EDGetTokenT< edm::View<reco::ProtonTrack> > recoProtonsToken_;
@@ -56,8 +56,6 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
     double sqrtS_;
     std::vector<edm::ParameterSet> detectorPackages_;
 
-    std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
-
     // gen-level plots
     TH1D* h_gen_vtx_x_, *h_gen_vtx_y_, *h_gen_th_x_, *h_gen_th_y_, *h_gen_xi_;
     // reco-gen 1D plots
@@ -66,6 +64,10 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
     TH2D* h2_de_vtx_x_vs_de_xi_[2], *h2_de_vtx_y_vs_de_xi_[2], *h2_de_th_x_vs_de_xi_[2], *h2_de_th_y_vs_de_xi_[2], *h2_de_vtx_y_vs_de_th_y_[2];
     // profiles
     TProfile* p_de_vtx_x_vs_xi_[2], *p_de_vtx_y_vs_xi_[2], *p_de_th_x_vs_xi_[2], *p_de_th_y_vs_xi_[2], *p_de_xi_vs_xi_[2];
+
+    // reco-level plots
+    std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
+    std::map<unsigned int,TProfile*> m_rp_p_y_vs_x_;
 };
 
 ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
@@ -119,7 +121,12 @@ ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   TFileDirectory hm_dir = fs->mkdir( "hitmaps" );
   for ( const auto& det : detectorPackages_ ) {
     const TotemRPDetId pot_id( det.getParameter<unsigned int>( "potId" ) );
-    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x (mm);y (mm)", 300, 0.0, 30.0, 200, -10.0, +10.0 ) ) );
+    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x (mm);y (mm)", 300, -10.0, +50.0, 300, -30.0, +30.0 ) ) );
+  }
+  TFileDirectory pr_dir = fs->mkdir( "profiles" );
+  for ( const auto& det : detectorPackages_ ) {
+    const TotemRPDetId pot_id( det.getParameter<unsigned int>( "potId" ) );
+    m_rp_p_y_vs_x_.insert( std::make_pair( pot_id, pr_dir.make<TProfile>( Form( "p_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ), ";x (mm);y (mm)", 300, -10.0, +50.0 ) ) );
   }
 }
 
@@ -134,15 +141,13 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 
   for ( const auto& trk : *tracks ) {
     const TotemRPDetId det_id( trk.getRPId() );
-    m_rp_h2_y_vs_x_[det_id.rawId()]->Fill( trk.getX(), trk.getY() );
+    m_rp_h2_y_vs_x_[det_id]->Fill( trk.getX(), trk.getY() );
+    m_rp_p_y_vs_x_[det_id]->Fill( trk.getX(), trk.getY() );
   }
 
   edm::Handle<edm::HepMCProduct> protons;
   iEvent.getByToken( genProtonsToken_, protons );
   const HepMC::GenEvent& evt = protons->getHepMCData();
-  /*if ( evt.particles_size()>1 ) {
-    throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
-  }*/
 
   edm::Handle< edm::View<reco::ProtonTrack> > reco_protons;
   iEvent.getByToken( recoProtonsToken_, reco_protons );
@@ -202,28 +207,6 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
       p_de_xi_vs_xi_[side_id]->Fill( gen_xi, de_xi );
     }
   }
-}
-
-void
-ParamValidation::beginJob()
-{}
-
-void
-ParamValidation::endJob()
-{
-/*
-  ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
-  ProfileToRMSGraph(p_de_vtx_y_vs_xi_45, "g_rms_de_vtx_y_vs_xi_45")->Write();
-  ProfileToRMSGraph(p_de_th_x_vs_xi_45, "g_rms_de_th_x_vs_xi_45")->Write();
-  ProfileToRMSGraph(p_de_th_y_vs_xi_45, "g_rms_de_th_y_vs_xi_45")->Write();
-  ProfileToRMSGraph(p_de_xi_vs_xi_45, "g_rms_de_xi_vs_xi_45")->Write();
-
-  ProfileToRMSGraph(p_de_vtx_x_vs_xi_56, "g_rms_de_vtx_x_vs_xi_56")->Write();
-  ProfileToRMSGraph(p_de_vtx_y_vs_xi_56, "g_rms_de_vtx_y_vs_xi_56")->Write();
-  ProfileToRMSGraph(p_de_th_x_vs_xi_56, "g_rms_de_th_x_vs_xi_56")->Write();
-  ProfileToRMSGraph(p_de_th_y_vs_xi_56, "g_rms_de_th_y_vs_xi_56")->Write();
-  ProfileToRMSGraph(p_de_xi_vs_xi_56, "g_rms_de_xi_vs_xi_56")->Write();
-*/
 }
 
 void
