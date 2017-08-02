@@ -1,37 +1,37 @@
-#include "Utilities/General/interface/Tokenizer.h"
 #include "Utilities/General/interface/FileInPath.h"
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <fstream>
 
-const std::string FileInPath::semicolon(":");
 
 FileInPath::FileInPath(const std::string & ipath, const std::string & ifile) {
-  init(ipath, ifile);
-}
-
-void FileInPath::init(const std::string & ipath, const std::string & ifile) {
   if (ipath.empty()||ifile.empty()) return;
 
-  directories = Tokenizer(semicolon,ipath);
-  typedef std::vector<std::string>::const_iterator Itr;
-  for (Itr d=directories.begin(); d!=directories.end(); d++) {
-    file = *d; file += "/"; file += ifile;
-    in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
-    if (in->good()) break;
+  std::vector<String> directories;
+  boost::split(directories, ipath, [](char iC) { return iC == ':';});
+  
+  for (auto const& d :directories) {
+    m_file = d; m_file += "/"; m_file += ifile;
+    m_in = std::make_unique<std::ifstream>(m_file.c_str());
+    if (m_in->good()) break;
   }
-  if (!in->good()) { in.release(); file="";}
+  if (!m_in->good()) { m_in.release(); m_file="";}
 }
 
 FileInPath::FileInPath(const FileInPath& rh ) : 
-  directories(rh.directories), file(rh.file) {
-  if (rh.in.get()) in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
+  m_file(rh.m_file)
+{
+  if (rh.m_in.get()) {
+    m_in = std::make_unique<std::ifstream>(m_file.c_str());
+  }
 }
   
 
 FileInPath & FileInPath::operator=(const FileInPath& rh ) {
-  directories = rh.directories; 
-  file = rh.file;
-  if (rh.in.get()&&(!file.empty())) in = own_ptr<std::ifstream>(new std::ifstream(file.c_str()));
+  m_file = rh.m_file;
+  if (rh.m_in.get()&&(!m_file.empty())) {
+    m_in = std::make_unique<std::ifstream>(m_file.c_str());
+  }
   return *this;
 }
 
