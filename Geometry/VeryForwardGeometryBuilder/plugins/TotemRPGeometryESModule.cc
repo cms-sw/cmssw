@@ -106,7 +106,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
   buffer.emplace_back(idealGD.product());
   bufferNew.emplace_back(newGD);
 
-  while (buffer.size() > 0)
+  while (!buffer.empty())
   {
     const DetGeomDesc *sD = buffer.front();
     DetGeomDesc *pD = bufferNew.front();

@@ -20,7 +20,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   std::vector<CellInfo> visited_cells;
   visited_cells.resize(northSouthSize * eastWestSize);
   
-  while (fringe.size() > 0)
+  while (!fringe.empty())
     {
       std::pair<Coordinate,DetId> cur = fringe.back();
       fringe.pop_back();
@@ -56,7 +56,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
 
 	  if ( neighbourCells.size() == 1 )
 	    visited_cells[int_index].cell = neighbourCells[0];
-	  else if ( neighbourCells.size() == 0 )
+	  else if ( neighbourCells.empty() )
 	    visited_cells[int_index].cell = DetId(0);
 	  else
 	    throw cms::Exception("getWindowError") << "Not supported subdetector for getWindow method";

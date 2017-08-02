@@ -40,7 +40,7 @@ namespace DDI {
       std::vector<DDPartSelection> temp;
       DDTokenize2(selString,regv);
       
-      if (!regv.size()) throw cms::Exception("DDException") << "Could not evaluate the selection-std::string ->" << selString << "<-";
+      if (regv.empty()) throw cms::Exception("DDException") << "Could not evaluate the selection-std::string ->" << selString << "<-";
       std::pair<bool,std::string> res;
       for( const auto& it : regv ) {
          std::vector<DDLogicalPart> lpv;
@@ -65,7 +65,7 @@ namespace DDI {
    void Specific::addSelectionLevel(std::vector<DDLogicalPart> & lpv, int copyno, ddselection_type st, 
                                     std::vector<DDPartSelection> & selv)
    {
-      if (!selv.size()) { // create one, no entry yet!
+      if (selv.empty()) { // create one, no entry yet!
          selv.emplace_back(DDPartSelection());
       }
       typedef std::vector<DDLogicalPart>::size_type lpv_sizetype;
@@ -121,7 +121,7 @@ namespace DDI {
    
    void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<const DDPartSelection*, const DDsvalues_type*> > >& result) const
    {
-      if (partSelections_.size()) {
+      if (!partSelections_.empty()) {
          const DDsvalues_type* sv = (&specifics_);
          for( const auto& it : partSelections_ ) {
             DDLogicalPart logp = it.back().lp_; 

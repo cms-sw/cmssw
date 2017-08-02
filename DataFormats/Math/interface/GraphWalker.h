@@ -71,7 +71,7 @@ GraphWalker<N,E>::GraphWalker(const Graph<N,E> & g)
 {  // complexity = (no nodes) * (no edges)
    graph_.findRoots(root_);
    stack_.emplace_back(edge_range(root_.begin(),root_.end())); 
-   if (root_.size()) {
+   if (!root_.empty()) {
      queue_.push(root_[0]);
    }
 }

@@ -56,7 +56,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
       putOne((*gde), *git, ev, lev);
       std::vector<const GeometricDet*> inone = (*git)->components();
       //    std::cout << lev << " type " << (*git)->type() << " " << int((*git)->geographicalId()) << std::endl; // << " has " << inone.size() << " components." << std::endl;
-      if ( inone.size() == 0 )  ++count;
+      if ( inone.empty() )  ++count;
       std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
       std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
       ++lev;
@@ -65,7 +65,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 	putOne((*gde), *git2, ev, lev);
 	std::vector<const GeometricDet*> intwo= (*git2)->components();
 	//      std::cout << lev << "\ttype " << (*git2)->type() << " " << int((*git2)->geographicalId()) << std::endl; // << " has " << intwo.size() << " components." << std::endl;
-	if ( intwo.size() == 0 )  ++count;
+	if ( intwo.empty() )  ++count;
 	std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
 	std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
 	++lev;
@@ -74,7 +74,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 	  putOne((*gde), *git3, ev, lev);
 	  std::vector<const GeometricDet*> inthree= (*git3)->components();
 	  //std::cout << lev << "\t\ttype " << (*git3)->type() << " " << int((*git3)->geographicalId()) << std::endl; // << " has " << inthree.size() << " components." << std::endl;
-	  if ( inthree.size() == 0 )  ++count;
+	  if ( inthree.empty() )  ++count;
 	  std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
 	  std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
 	  ++lev;
@@ -83,7 +83,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 	    putOne((*gde), *git4, ev, lev);
 	    std::vector<const GeometricDet*> infour= (*git4)->components();
 	    //  std::cout << lev << "\t\t\ttype " << (*git4)->type() << " " << int((*git4)->geographicalId()) << std::endl; // << " has " << infour.size() << " components." << std::endl;
-	    if ( infour.size() == 0 )  ++count;
+	    if ( infour.empty() )  ++count;
 	    std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
 	    std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
 	    ++lev;
@@ -92,7 +92,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 	      putOne((*gde), *git5, ev, lev);
 	      std::vector<const GeometricDet*> infive= (*git5)->components();
 	      //    std::cout << lev << "\t\t\t\ttype " << (*git5)->type() << " " << int((*git5)->geographicalId()) << std::endl; // << " has " << infive.size() << " components." << std::endl;
-	      if ( infive.size() == 0 )  ++count;
+	      if ( infive.empty() )  ++count;
 	      std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
 	      std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
 	      ++lev;
@@ -101,7 +101,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 		putOne((*gde), *git6, ev, lev);
 		std::vector<const GeometricDet*> insix= (*git6)->components();
 		//      std::cout << lev << "\t\t\t\t\ttype " << (*git6)->type() << " " << int((*git6)->geographicalId()) << std::endl; // << " has " << insix.size() << " components." << std::endl;
-		if ( insix.size() == 0 ){
+		if ( insix.empty() ){
 		  ++count;
 		} else {
 		  edm::LogError("GeometricDetExtra") << "Hierarchy has exceeded hard-coded level 6 for Tracker " ;
@@ -154,7 +154,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 	      std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
 	      for (; git6 != egit6; ++git6) { //level 6
 		helperMap[(*git6)->geographicalID()] = (*git6);
-		if ( (*git6)->components().size() != 0 ){
+		if ( !(*git6)->components().empty() ){
 		  edm::LogError("GeometricDetExtra") << "Hierarchy has exceeded hard-coded level of 6 for Tracker " ;
 		}
 	      } // level 6

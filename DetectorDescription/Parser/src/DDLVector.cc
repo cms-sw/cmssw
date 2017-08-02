@@ -94,7 +94,7 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
 		   ? true : false);
   std::string tTextToParse = getText();
 
-  if (tTextToParse.size() == 0) {
+  if (tTextToParse.empty()) {
     errorOut(" EMPTY STRING ");
   }
   

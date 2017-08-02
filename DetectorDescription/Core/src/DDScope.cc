@@ -90,7 +90,7 @@ DDScope::addScope( const DDGeoHistory & h )
     }  
   }
    
-  if( !subtrees_.size()) 
+  if( subtrees_.empty()) 
     subtrees_.emplace_back( h );
   else  
     subtrees_ = buf;

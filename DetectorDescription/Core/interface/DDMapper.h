@@ -223,7 +223,7 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
        if (DDfetch(*svIt,v)) {
          //std::cout << "found: ";
          const std::vector<std::string> & s = v.strings();
-  	  if (s.size()) {
+  	  if (!s.empty()) {
 	    //std::cout << s[0];
 	    if (s[0]==value) {
 	      result.emplace_back(std::make_pair(it->second,it->first));
@@ -257,7 +257,7 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
        if (DDfetch(*svIt,v)) {
          //std::cout << "found: ";
          const std::vector<double> & s = v.doubles();
-  	  if (s.size()) {
+  	  if (!s.empty()) {
 	    //std::cout << s[0];
 	    if (s[0]==value) {
 	      result.emplace_back(std::make_pair(it->second,it->first));

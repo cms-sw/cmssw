@@ -19,7 +19,7 @@ namespace {
     DDValue val( s );
     if (DDfetch( &sv, val )) {
       const std::vector<std::string> & fvec = val.strings();
-      if (fvec.size() == 0) {
+      if (fvec.empty()) {
 	throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get " << s << " tag.";
       }
 
