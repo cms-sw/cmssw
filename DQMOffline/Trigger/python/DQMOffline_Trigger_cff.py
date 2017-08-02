@@ -74,14 +74,13 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
-
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 # BPH
 from DQMOffline.Trigger.BPHMonitor_cff import *
-
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
+from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
 offlineHLTSource = cms.Sequence(
     hltResults *
@@ -109,7 +108,8 @@ offlineHLTSource = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor
+    hltObjectsMonitor *
+    jetmetMonitorHLT
     )
 
 # offline DQM for the HLTMonitoring stream
@@ -124,6 +124,7 @@ OfflineHLTMonitoring = cms.Sequence(
     sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
+    trackingMonitorHLTDisplacedJet* #DisplacedJet Tracking 
     egmTrackingMonitorHLT * # egm tracking
     vertexingMonitorHLT # vertexing
     )
