@@ -57,7 +57,7 @@ namespace DDI {
       if ( res.first ) { // i.e. it wasn't "thrown" out of the loop
          partSelections_.reserve(temp.size() + partSelections_.size());
          for( const auto& iit : temp ) {
-            partSelections_.push_back( iit );
+            partSelections_.emplace_back( iit );
          } 
       }
    }
@@ -66,7 +66,7 @@ namespace DDI {
                                     std::vector<DDPartSelection> & selv)
    {
       if (!selv.size()) { // create one, no entry yet!
-         selv.push_back(DDPartSelection());
+         selv.emplace_back(DDPartSelection());
       }
       typedef std::vector<DDLogicalPart>::size_type lpv_sizetype;
       typedef std::vector<DDPartSelection>::size_type ps_sizetype;
@@ -77,13 +77,13 @@ namespace DDI {
       for (; lpv_i < lpv_sz; ++lpv_i) {
          std::vector<DDPartSelection>::const_iterator ps_it = selv.begin();
          for (; ps_it != selv.end(); ++ps_it) {
-            result.push_back(*ps_it);
+            result.emplace_back(*ps_it);
          }
       }
       ps_sizetype ps_i = 0;
       for(lpv_i=0; lpv_i < lpv_sz; ++lpv_i) {
          for(ps_i = ps_sz*lpv_i; ps_i < ps_sz*(lpv_i+1); ++ps_i) {
-            result[ps_i].push_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
+            result[ps_i].emplace_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
          }
       }    
       selv = result;
@@ -129,7 +129,7 @@ namespace DDI {
             assert(ps); 
             assert(sv);
             std::pair<const DDPartSelection*,const DDsvalues_type*> pssv(ps,sv);
-            result.push_back(std::make_pair(logp,pssv));
+            result.emplace_back(std::make_pair(logp,pssv));
          }  
       }  
    }
