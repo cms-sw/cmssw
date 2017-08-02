@@ -23,8 +23,6 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
     useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy"))
     {
       simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
-
-
     }
   virtual ~RealisticSimClusterMapper() {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;
