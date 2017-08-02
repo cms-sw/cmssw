@@ -5,35 +5,21 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
-  range_min = 0, range_max = 200e3, range_nbins = 100,
+  range_min = 0, range_max = 150e3, range_nbins = 100,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
-    Specification().groupBy("PXForward/PXDisk").saveAll(),
-    StandardSpecification2DProfile,#what is below is only for the timing client
-
+    StandardSpecifications1D,    
+    StandardSpecification2DProfile,
+    
+    #what is below is only for the timing client    
     Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock")
          .groupBy("PXBarrel", "EXTEND_Y")
          .save(),
     Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock")
-          .groupBy("PXForward", "EXTEND_Y")
-          .save(),
-    
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save(),
+         .groupBy("PXForward", "EXTEND_Y")
+         .save(),
 
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXDisk", "EXTEND_X")
-                   .save(),
-
-    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
-    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save(),
-
-    
     Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
                    .groupBy("PXForward/PXDisk", "EXTEND_Y")
                    .save(),
@@ -50,23 +36,8 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
   xlabel = "size[pixels]",
 
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
-    Specification().groupBy("PXForward/PXDisk").saveAll(),
-    StandardSpecification2DProfile,
-
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save(),
-
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXDisk", "EXTEND_X")
-                   .save(),
-
-    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
-    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
-
+        StandardSpecifications1D,    
+        StandardSpecification2DProfile
   )
 )
 
@@ -101,7 +72,7 @@ SiPixelPhase1TrackClustersOnTrackShape = DefaultHistoTrack.clone(
 
 SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   name = "clusters_ontrack",
-  title = "Clusters_onTrack",
+  title = "Clusters_onTrack (valid hits)",
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "clusters",
   dimensions = 0,
@@ -237,6 +208,7 @@ SiPixelPhase1ClustersSizeVsEtaOnTrackOuter = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer").save()
   )
 )
+
 SiPixelPhase1ClustersSizeVsEtaOnTrackInner = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
   name = "sizeyvseta_on_track_inner",
   title = "Cluster Size along Beamline vs. Track #eta (OnTrack) inner ladders",
@@ -251,10 +223,12 @@ SiPixelPhase1TrackClustersOnTrackSizeYOuter = SiPixelPhase1ClustersSizeVsEtaOnTr
   ylabel = "length [pixels]",
   range_min = 0, range_max  = 30, range_nbins   = 60
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeYInner = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
   name = "sizey_on_track_inner",
   title = "Cluster Size along Beamline vs. prediction (OnTrack) inner ladders",
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeYF = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
   name = "sizey_on_track_forward",
   title = "Cluster Size ortogonal to Beamline vs. prediction (OnTrack) forward",
@@ -273,10 +247,12 @@ SiPixelPhase1TrackClustersOnTrackSizeXOuter = SiPixelPhase1TrackClustersOnTrackS
   range_y_min =  0, range_y_max = 8, range_y_nbins = 8
 
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeXInner = SiPixelPhase1TrackClustersOnTrackSizeXOuter.clone(
   name = "sizex_on_track_inner",
   title = "Cluster Size along radial vs. prediction (OnTrack) inner ladders",
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeXF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
   name = "sizex_on_track_forward",
   title = "Cluster Size radial vs. prediction (OnTrack) forward",
@@ -292,10 +268,12 @@ SiPixelPhase1TrackClustersOnTrackSizeXYOuter = SiPixelPhase1TrackClustersOnTrack
   range_min = 0, range_max  = 20, range_nbins   = 20,
   range_y_min = 0, range_y_max = 10, range_y_nbins = 10 
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeXYInner = SiPixelPhase1TrackClustersOnTrackSizeXYOuter.clone(
  name = "sizexy_on_track_inner",
  title = "Cluster Size x vs y (OnTrack) inner ladders"
 )
+
 SiPixelPhase1TrackClustersOnTrackSizeXYF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
   name = "sizexy_on_track_forward",
   title = "Cluster Size x vs y (OnTrack) forward",
@@ -306,9 +284,6 @@ SiPixelPhase1TrackClustersOnTrackSizeXYF = SiPixelPhase1TrackClustersOnTrackSize
 
 )
 
-
-
-
 SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   name = "chargeOuter",
   title = "Corrected Cluster Charge (OnTrack) outer ladders",
@@ -318,7 +293,8 @@ SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save()
   )
-)  
+)
+  
 SiPixelPhase1TrackClustersOnTrackChargeInner = SiPixelPhase1TrackClustersOnTrackChargeOuter.clone(
   name = "chargeInner",
   title = "Corrected Cluster Charge (OnTrack) inner ladders"
@@ -334,11 +310,11 @@ SiPixelPhase1TrackClustersOnTrackShapeOuter = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer").save()
   )
 )
+
 SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackShapeOuter.clone(
   name = "shapeFilterInner",
   title = "Shape filter (OnTrack) Inner Ladders",
 )
-
 
 # copy this in the enum
 SiPixelPhase1TrackClustersConf = cms.VPSet(
@@ -371,8 +347,6 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
   SiPixelPhase1TrackClustersOnTrackSizeXYF
 )
-
-
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),

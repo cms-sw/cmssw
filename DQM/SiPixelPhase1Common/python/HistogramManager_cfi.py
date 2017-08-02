@@ -40,7 +40,7 @@ PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
 PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
-OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(True)) #switch to overlay digi/clusters curves for timing scan
+OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(False)) #switch to overlay digi/clusters curves for timing scan
 
 # Default histogram configuration. This is _not_ used automatically, but you
 # can import and pass this (or clones of it) in the plugin config.
