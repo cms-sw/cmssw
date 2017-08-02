@@ -20,8 +20,6 @@ class RealisticCluster
             float maxEnergyHitAtLayer_;
         };
 
-
-
         RealisticCluster():
             totalEnergy(0.f),
             exclusiveEnergy(0.f),
@@ -130,11 +128,7 @@ class RealisticCluster
 
         const std::vector< std::pair<unsigned int, float> > & hitsIdsAndFractions() const { return hitIdsAndFractions_; }
 
-
-
     private:
-
-
         std::vector<std::pair<unsigned int, float> > hitIdsAndFractions_;
         std::vector<LayerInfo> layerInfo_;
 
