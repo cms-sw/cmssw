@@ -55,6 +55,8 @@ class CalorimetryManager{
   ~CalorimetryManager();
 
   // Does the real job
+  void initialize();
+  void reconstructTrack(FSimTrack& myTrack, RandomEngineAndDistribution const*);
   void reconstruct(RandomEngineAndDistribution const*);
 
   // Return the address of the Calorimeter 
@@ -73,6 +75,8 @@ class CalorimetryManager{
   void loadFromPreshower(edm::PCaloHitContainer & c) const;
   
   void loadMuonSimTracks(edm::SimTrackContainer & m) const;
+
+  void harvestMuonSimTracks(edm::SimTrackContainer & m) const;
   
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
