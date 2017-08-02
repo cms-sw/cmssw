@@ -5,8 +5,9 @@
  *
  * Note: Use the option USER_CXXFLAGS=-DEDM_ML_DEBUG with SCRAM in order to enable the debug messages
  *
- * March 9, 2017: initial version
- * March 14, 2017: Updated debug messages
+ * March  9, 2017 : Initial version.
+ * March 14, 2017 : Updated debug messages.
+ *  July 27, 2017 : Removed extra loop initially inherited from GenParticleProducer. 
  *
  */
 
@@ -200,36 +201,14 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
    }
    LogDebug("GenPUProtonProducer") << "Total size : " << totalSize << endl;
 
+   // Initialise containers
+   auto candsPtr = std::make_unique<GenParticleCollection>();
+   GenParticleCollection& cands = *candsPtr;
+
    // Loop over pile-up events
    MixCollection<HepMCProduct>::MixItr mixHepMC_itr;
    unsigned int total_number_of_protons = 0;
    size_t idx_mix = 0;
-   for( mixHepMC_itr = cfhepmcprod->begin() ; mixHepMC_itr != cfhepmcprod->end() ; ++mixHepMC_itr, ++idx_mix ){
-      int bunch = mixHepMC_itr.bunch();
-      if( find( bunchList_.begin(), bunchList_.end(), bunch ) != bunchList_.end() ){
-	 auto event = (*mixHepMC_itr).GetEvent();
-	 // Find protons
-	 unsigned int number_of_protons = 0;
-	 for( auto p = event->particles_begin() ; p != event->particles_end() ; ++p ){
-	    if( select_(*p, minPz_) ) ++number_of_protons;
-	 }
-	 LogDebug("GenPUProtonProducer") << "Idx : " << idx_mix << " Bunch : " << bunch << " Number of protons : " << number_of_protons << endl;
-	 total_number_of_protons += number_of_protons;
-      }
-   }
-   LogDebug("GenPUProtonProducer") << "Total number of protons : " << total_number_of_protons << endl;
-
-   // Initialise containers
-   const size_t size = total_number_of_protons;
-   vector<const HepMC::GenParticle *> particles( size );
-
-   auto candsPtr = std::make_unique<GenParticleCollection>(size);
-   auto barCodeVector = std::make_unique<vector<int>>(size);
-   ref_ = evt.getRefBeforePut<GenParticleCollection>();
-   GenParticleCollection& cands = *candsPtr;
-
-   size_t idx_particle = 0;
-   idx_mix = 0;
    // Fill collection
    for( mixHepMC_itr = cfhepmcprod->begin() ; mixHepMC_itr != cfhepmcprod->end() ; ++mixHepMC_itr, ++idx_mix ){
       int bunch = mixHepMC_itr.bunch();
@@ -245,21 +224,23 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
 	 for( auto p = event->particles_begin() ; p != event->particles_end() ; ++p ) {
 	    HepMC::GenParticle const* part = *p;  
 	    if( select_(part, minPz_) ) {
-	       reco::GenParticle& cand = cands[ idx_particle++ ];
+	       reco::GenParticle cand;
 	       convertParticle_( cand, part);
                ++number_of_protons;
+               cands.push_back( cand );
 	    } 
 	 }
 	 LogDebug("GenPUProtonProducer") << "Idx : " << idx_mix << " Bunch : " << bunch 
                                          << " Number of particles : " << num_particles 
-                                         << " Number of protons : " << number_of_protons 
-                                         << " Part. idx : " << idx_particle << endl;
+                                         << " Number of protons : " << number_of_protons << endl;
 
+         total_number_of_protons += number_of_protons;
       }
    }
+   LogDebug("GenPUProtonProducer") << "Total number of protons : " << total_number_of_protons << endl;
    LogDebug("GenPUProtonProducer") << "Output collection size : " << cands.size() << endl;
 
-   evt.put(std::move(candsPtr));
+   evt.put( std::move(candsPtr) );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
