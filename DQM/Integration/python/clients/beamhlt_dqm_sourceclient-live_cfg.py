@@ -39,8 +39,8 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'BeamMonitorHLT'
-process.dqmSaver.tag           = 'BeamMonitorHLT'
+process.dqmEnv.subSystemFolder = 'TrackingBeamspotStream'
+process.dqmSaver.tag           = 'TrackingBeamspotStream'
 
 #-----------------------------
 # BeamMonitor
@@ -59,14 +59,14 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Change Beam Monitor variables
 if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResultsHLT.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsHLT.txt'
 else:
   process.dqmBeamMonitor.BeamFitter.WriteAscii = False
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResultsHLT.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResultsHLT.txt'
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)
@@ -92,7 +92,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'BeamMonitorHLT'
+    process.dqmBeamMonitor.monitorName = 'trackingbeamspotstream'
 
     process.dqmBeamMonitor.OnlineMode = True              
 
