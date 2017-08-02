@@ -5,6 +5,7 @@
 #include "SimGeneral/CaloAnalysis/plugins/CaloTruthAccumulator.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -430,7 +431,8 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<std::pair<
       DetId id(0);
       const uint32_t simId = simHit.id();
       if( isHcal ) {
-        id = HcalHitRelabeller::relabel(simId, hcddd_);
+        HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
+        if(hid.subdet()==HcalEndcap) id = hid;
       } else {
 	int subdet, layer, cell, sec, subsec, zp;
 	HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
