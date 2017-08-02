@@ -144,7 +144,7 @@ namespace l1t
 
       //shower shape
 
-      int nLayers() const { return nLayers_; }
+      int showerLength() const { return showerLength_; }
       int firstLayer() const { return firstLayer_; }
       float eMax() const { return eMax_; }
       float sigmaEtaEtaMax() const { return sigmaEtaEtaMax_; }
@@ -153,7 +153,7 @@ namespace l1t
       float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
       float sigmaZZ() const { return sigmaZZ_; }
 
-      void set_nLayers(int nLayers) { nLayers_ = nLayers;}
+      void set_showerLength(int showerLength) { showerLength_ = showerLength;}
       void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
       void set_eMax(float eMax) { eMax_ = eMax;}
       void set_sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
@@ -181,7 +181,7 @@ namespace l1t
 
       //shower shape
 
-      int nLayers_;
+      int showerLength_;
       int firstLayer_;
       float eMax_;
       float sigmaEtaEtaMax_;

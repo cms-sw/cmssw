@@ -26,7 +26,7 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_eta_;
     std::vector<float> cl3d_phi_;
     std::vector<int> cl3d_nclu_;
-    std::vector<int> cl3d_nlayers_;
+    std::vector<int> cl3d_showerlength_;
     std::vector<int> cl3d_firstlayer_;
     std::vector<float> cl3d_seetot_;
     std::vector<float> cl3d_seemax_;
@@ -59,7 +59,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_eta", &cl3d_eta_);
   tree.Branch("cl3d_phi", &cl3d_phi_);
   tree.Branch("cl3d_nclu", &cl3d_nclu_);
-  tree.Branch("cl3d_nlayers", &cl3d_nlayers_);
+  tree.Branch("cl3d_showerlength", &cl3d_showerlength_);
   tree.Branch("cl3d_firstlayer", &cl3d_firstlayer_);
   tree.Branch("cl3d_seetot", &cl3d_seetot_);
   tree.Branch("cl3d_seemax", &cl3d_seemax_);
@@ -95,7 +95,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_eta_.emplace_back(cl3d_itr->eta());
     cl3d_phi_.emplace_back(cl3d_itr->phi());
     cl3d_nclu_.emplace_back(cl3d_itr->constituents().size());
-    cl3d_nlayers_.emplace_back(cl3d_itr->nLayers());
+    cl3d_showerlength_.emplace_back(cl3d_itr->showerLength());
     cl3d_firstlayer_.emplace_back(cl3d_itr->firstLayer());
     cl3d_seetot_.emplace_back(cl3d_itr->sigmaEtaEtaTot());
     cl3d_seemax_.emplace_back(cl3d_itr->sigmaEtaEtaMax());
@@ -123,7 +123,7 @@ clear()
   cl3d_eta_.clear();
   cl3d_phi_.clear();
   cl3d_nclu_.clear();
-  cl3d_nlayers_.clear();
+  cl3d_showerlength_.clear();
   cl3d_firstlayer_.clear();
   cl3d_seetot_.clear();
   cl3d_seemax_.clear();

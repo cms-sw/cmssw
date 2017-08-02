@@ -81,15 +81,14 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
 
             //compute shower shape
-	    HGCalShowerShape *shape=new HGCalShowerShape();
-            multiclustersTmp.at(i).set_nLayers(shape->nLayers(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_firstLayer(shape->firstLayer(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_sigmaEtaEtaTot(shape->sigmaEtaEtaTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_sigmaEtaEtaMax(shape->sigmaEtaEtaMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_sigmaPhiPhiTot(shape->sigmaPhiPhiTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_sigmaPhiPhiMax(shape->sigmaPhiPhiMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_sigmaZZ(shape->sigmaZZ(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_eMax(shape->eMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_showerLength(shape_.showerLength(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_eMax(shape_.eMax(multiclustersTmp.at(i)));
 
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }

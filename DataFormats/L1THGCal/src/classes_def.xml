@@ -21,7 +21,7 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalCluster" ClassVersion="11">
-    <version ClassVersion="11" checksum="2111159733"/>
+    <version ClassVersion="11" checksum="2528894839"/>
   </class>
   <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
@@ -29,7 +29,7 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
   <class name="l1t::HGCalMulticluster" ClassVersion="11">
-    <version ClassVersion="11" checksum="2287478233"/>
+    <version ClassVersion="11" checksum="375680319"/>
   </class>
   <class name="std::vector<l1t::HGCalMulticluster>" />
   <class name="l1t::HGCalMulticlusterBxCollection"/>
