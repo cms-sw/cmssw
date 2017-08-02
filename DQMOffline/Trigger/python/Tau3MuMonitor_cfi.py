@@ -35,7 +35,7 @@ hltTau3Mumonitoring.taus = cms.InputTag("hltTauPt10MuPts511Mass1p2to2p3Iso", "Ta
 
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOr          = cms.bool( False ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOrHlt       = cms.bool( True  ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L114
-hltTau3Mumonitoring.GenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10")
-hltTau3Mumonitoring.GenericTriggerEventPSet.verbosityLevel = cms.uint32(2) # set to 2 for debugging
-hltTau3Mumonitoring.GenericTriggerEventPSet.hltInputTag    = cms.InputTag("TriggerResults::reHLT") # change the process name to reHLT when running tests (if the process used to rerun the HLT is reHLT, of course)
+hltTau3Mumonitoring.GenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v*")
+# hltTau3Mumonitoring.GenericTriggerEventPSet.verbosityLevel = cms.uint32(2) # set to 2 for debugging
+# hltTau3Mumonitoring.GenericTriggerEventPSet.hltInputTag    = cms.InputTag("TriggerResults::reHLT") # change the process name to reHLT when running tests (if the process used to rerun the HLT is reHLT, of course)
 
