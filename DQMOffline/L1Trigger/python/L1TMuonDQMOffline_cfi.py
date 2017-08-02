@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
-    verbose   = cms.untracked.bool(False),
-    gmtPtCuts = cms.untracked.vint32(16,20,25),
+muonEfficiencyThresholds = [16, 20, 25]
+
+l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
+    histFolder = cms.untracked.string('L1T/L1TMuon'),
+    gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
+
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
     vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
@@ -19,5 +22,7 @@ l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
     ),
     trigInputTag       = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     trigProcess        = cms.untracked.string("HLT"),
-    trigProcess_token  = cms.untracked.InputTag("TriggerResults","","HLT")
+    trigProcess_token  = cms.untracked.InputTag("TriggerResults","","HLT"),
+
+    verbose   = cms.untracked.bool(False)
 )
