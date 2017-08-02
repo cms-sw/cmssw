@@ -70,16 +70,13 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             {
                 continue; // hit wasn't saved in reco or did not pass the SNR threshold
             }
-
             auto hitId = itr->second;
-
             auto ref = makeRefhit(input, hitId);
             float fraction = hAndF.second;
             float associatedEnergy = fraction * ref->energy();
             realisticAssociator.insertSimClusterIdAndFraction(ic, fraction, hitId,
                     associatedEnergy);
         }
-
     }
     realisticAssociator.computeAssociation(exclusiveFraction_, useMCFractionsForExclEnergy_,
             rhtools_.lastLayerEE(), rhtools_.lastLayerFH());
@@ -92,7 +89,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     unsigned int nClusters = realisticClusters.size();
     for (unsigned ic = 0; ic < nClusters; ++ic)
     {
-
         float highest_energy = 0.0f;
         output.emplace_back();
         reco::PFCluster& back = output.back();

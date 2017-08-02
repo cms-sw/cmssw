@@ -115,7 +115,6 @@ class RealisticHitToClusterAssociator
                     realisticSimClusters_[simClusterId].increaseEnergy(assignedEnergy);
                     realisticSimClusters_[simClusterId].addHitAndFraction(hitId, assignedFraction);
                     realisticSimClusters_[simClusterId].increaseExclusiveEnergy(assignedEnergy);
-
                 }
                 else
                 {
@@ -217,9 +216,7 @@ class RealisticHitToClusterAssociator
                                     float newFraction = oldFraction/correction;
                                     float oldEnergy = oldFraction*realisticHit.totalEnergy_;
                                     float newEnergy= newFraction*realisticHit.totalEnergy_;
-
                                     float sharedEnergy = newEnergy-oldEnergy;
-
                                     energyInNeighbors[simClusterIndex] +=sharedEnergy;
                                     totalSharedEnergy +=sharedEnergy;
                                     realisticSimClusters_[simClusterIndex].increaseEnergy(sharedEnergy);
@@ -325,17 +322,10 @@ class RealisticHitToClusterAssociator
             }
         }
 
-
-
-
         const std::vector< RealisticCluster > & realisticClusters() const
         {   return realisticSimClusters_;}
 
-
-
     private:
-
-
         // the vector of the Realistic SimClusters
         std::vector< RealisticCluster > realisticSimClusters_;
         // the vector of the Realistic SimClusters
