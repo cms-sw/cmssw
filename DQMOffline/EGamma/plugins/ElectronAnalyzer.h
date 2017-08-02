@@ -301,6 +301,9 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     // di-electron mass
     MonitorElement * h1_mee ;
     MonitorElement * h1_mee_os ;
+    MonitorElement * h1_mee_os_bb ;
+    MonitorElement * h1_mee_os_ee ;
+    MonitorElement * h1_mee_os_eb ;
 
 
     // histos for matching and matched objects
