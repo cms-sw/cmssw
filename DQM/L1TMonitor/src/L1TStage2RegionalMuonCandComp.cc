@@ -13,7 +13,7 @@ L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::Paramete
       verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
   // First include all bins
-  for (uint i = 1; i <= RTRACKADDR; i++) {
+  for (unsigned int i = 1; i <= RTRACKADDR; i++) {
     incBin[i] = true;
   }
   // Then check the list of bins to ignore
@@ -90,7 +90,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
 
   // Change the label for those bins that will be ignored
-  for (uint i = 1; i <= RTRACKADDR; i++) {
+  for (unsigned int i = 1; i <= RTRACKADDR; i++) {
     if (incBin[i]==false) {
       errorSummaryNum->setBinLabel(i, "Ignored", 1);
     }
@@ -288,57 +288,75 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       bool muonSelMismatch = false; // Muon mismatches excluding ignored bins
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
-        if (incBin[RPT]) muonSelMismatch = true;
         summary->Fill(PTBAD);
-        if (incBin[RPT]) errorSummaryNum->Fill(RPT);
+        if (incBin[RPT]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RPT);
+        }
       }
       if (muonIt1->hwEta() != muonIt2->hwEta()) {
         muonMismatch = true;
-        if (incBin[RETA]) muonSelMismatch = true;
         summary->Fill(ETABAD);
-        if (incBin[RETA]) errorSummaryNum->Fill(RETA);
+        if (incBin[RETA]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RETA);
+        }
       }
       if (muonIt1->hwPhi() != muonIt2->hwPhi()) {
         muonMismatch = true;
-        if (incBin[RLOCALPHI]) muonSelMismatch = true;
         summary->Fill(LOCALPHIBAD);
-        if (incBin[RLOCALPHI]) errorSummaryNum->Fill(RLOCALPHI);
+        if (incBin[RLOCALPHI]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RLOCALPHI);
+        }
       }
       if (muonIt1->hwSign() != muonIt2->hwSign()) {
         muonMismatch = true;
-        if (incBin[RSIGN]) muonSelMismatch = true;
         summary->Fill(SIGNBAD);
-        if (incBin[RSIGN]) errorSummaryNum->Fill(RSIGN);
+        if (incBin[RSIGN]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RSIGN);
+        }
       }
       if (muonIt1->hwSignValid() != muonIt2->hwSignValid()) {
         muonMismatch = true;
-        if (incBin[RSIGNVAL]) muonSelMismatch = true;
         summary->Fill(SIGNVALBAD);
-        if (incBin[RSIGNVAL]) errorSummaryNum->Fill(RSIGNVAL);
+        if (incBin[RSIGNVAL]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RSIGNVAL);
+        }
       }
       if (muonIt1->hwQual() != muonIt2->hwQual()) {
         muonMismatch = true;
-        if (incBin[RQUAL]) muonSelMismatch = true;
         summary->Fill(QUALBAD);
-        if (incBin[RQUAL]) errorSummaryNum->Fill(RQUAL);
+        if (incBin[RQUAL]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RQUAL);
+        }
       }
       if (muonIt1->link() != muonIt2->link()) {
         muonMismatch = true;
-        if (incBin[RLINK]) muonSelMismatch = true;
         summary->Fill(LINKBAD);
-        if (incBin[RLINK]) errorSummaryNum->Fill(RLINK);
+        if (incBin[RLINK]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RLINK);
+        }
       }
       if (muonIt1->processor() != muonIt2->processor()) {
         muonMismatch = true;
-        if (incBin[RPROC]) muonSelMismatch = true;
         summary->Fill(PROCBAD);
-        if (incBin[RPROC]) errorSummaryNum->Fill(RPROC);
+        if (incBin[RPROC]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RPROC);
+        }
       }
       if (muonIt1->trackFinderType() != muonIt2->trackFinderType()) {
         muonMismatch = true;
-        if (incBin[RTF]) muonSelMismatch = true;
         summary->Fill(TFBAD);
-        if (incBin[RTF]) errorSummaryNum->Fill(RTF);
+        if (incBin[RTF]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RTF);
+        }
       }
       // check track address
       const std::map<int, int> muon1TrackAddr = muonIt1->trackAddress();
@@ -366,8 +384,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         if (incBin[RTRACKADDR]) errorSummaryNum->Fill(RTRACKADDR);
       }
 
-      if (muonSelMismatch) {
-        if (incBin[RMUON]) errorSummaryNum->Fill(RMUON);
+      if (incBin[RMUON] && muonSelMismatch) {
+        errorSummaryNum->Fill(RMUON);
       }
 
       if (muonMismatch) {
