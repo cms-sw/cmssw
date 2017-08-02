@@ -1222,6 +1222,7 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 		tree->SetBranchAddress((CalibPrefix_ + "chargeoverpath" + CalibSuffix_).c_str(), &chargeoverpath, NULL);
 		tree->SetBranchAddress((CalibPrefix_ + "amplitude"      + CalibSuffix_).c_str(), &amplitude     , NULL);
 		tree->SetBranchAddress((CalibPrefix_ + "gainused"       + CalibSuffix_).c_str(), &gainused      , NULL);
+		tree->SetBranchAddress((CalibPrefix_ + "gainusedTick"   + CalibSuffix_).c_str(), &gainusedTick  , NULL);
 
 
 		unsigned int nentries = tree->GetEntries();
