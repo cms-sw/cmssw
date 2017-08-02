@@ -106,7 +106,6 @@ public:
     }
   };
 
-  void dump_graph( void ) const;  
   // Graphtypes
   
   struct value_type {
@@ -342,16 +341,12 @@ void Graph<N,E>::findRoots(edge_list & result) const
     const edge_list & el = *it;
     for (auto const & el_it : el) {
       rootCandidate[el_it.first]=false; 
-      //el_rt = el_it; // stop at the first encountered candidate!
-      //std::cout << "Graphwalker: found a root candidate = " << g.nodeData(el_rt->first) << std::endl;
-      //break; 
     }
   }
   std::vector<bool>::size_type v_sz = 0;
   std::vector<bool>::size_type v_ed = rootCandidate.size();
   for (; v_sz < v_ed; ++v_sz) {
     if (rootCandidate[v_sz]) {
-      //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
       result.emplace_back(edge_type(v_sz,0));    
     }
   }  
@@ -377,17 +372,13 @@ bool Graph<N,E>::replaceEdge(const E & oldEdge, const E & newEdge)
   typename edge_store::size_type it = 0;
   typename edge_store::size_type ed = edges_.size();
   bool result = false;
-  //std::cout << "newedge=" << newEdge << std::endl;
   for (; it < ed; ++it) {
-    //std::cout << "edge=" << edges_[it] << " ";
     if ( edges_[it] == oldEdge ) {
-      //std::cout << "FOUND!" << std::endl;
       result = true;
       edges_[it] = newEdge;
       break;
     }
   }
-  //std::cout << std::endl;
   return result;
 }
 
@@ -399,16 +390,6 @@ void Graph<N,E>::clear()
   edges_.clear();
   indexer_.clear();
 }
-
-template<class N, class E>
-void Graph<N,E>::dump_graph() const
-{
-  std::cout << "Nodes and their indices:" << std::endl;
-  for( auto const & it : indexer_ ) {
-    std::cout << ' ' << it.first << ' ' << it.second << std::endl;
-  }     
-}
-
 
 template<class N, class E>
 void Graph<N,E>::invert(Graph<N,E> & g) const
@@ -452,6 +433,6 @@ template<typename T> std::ostream & operator<<(std::ostream & o, const std::vect
   return o;
 }
  
-} // namespace DDI
+} // namespace math
 
 #endif

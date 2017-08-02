@@ -25,23 +25,12 @@ template<class N, class E>
 {
   result = g1;
   result.replace(n1,n2);
-  //output(result,n2);
   math::GraphWalker<N,E> walker(g2,n2);
   while (walker.next()) {
     const N & parent = g2.nodeData((++walker.stack().rbegin())->first->first);
-    /*
-      N parent = g2.nodeData((++walker.stack().rbegin())->first->first);
-      N child  = walker.current().first;
-      E edge   = walker.current().second;
-    */
-    //std::cout << parent << ' ' << walker.current().first << ' ' << walker.current().second<< std::endl;
     result.addEdge(parent, walker.current().first, walker.current().second);
-    //result.addEdge(parent,child,edge);
-    //result.dump_graph();
-    //output(result,n2);
   }
   result.replace(n2,root);  			
-  //output(result,root);
 }		
 
 template<class N, class E>

@@ -25,7 +25,7 @@ public:
   using stack_type = std::vector<edge_range>;
   using bfs_type = std::queue<edge_type>;
 
-  using result_type = bool /*std::pair<const N &, bool>*/;
+  using result_type = bool;
   using value_type = typename math::Graph<N,E>::value_type;
   
 public:
@@ -93,11 +93,6 @@ template<class N, class E>
 typename GraphWalker<N,E>::value_type GraphWalker<N,E>::current() const
 {
    const edge_range & er = stack_.back();
-/*
-   const N & n = graph_.nodeData(er.first->first);
-   const E & e = er.first->first;
-   return value_type(n,e);
-*/   
    return value_type(graph_.nodeData(er.first->first), graph_.edgeData(er.first->second)); 
 }
 
@@ -111,7 +106,6 @@ typename GraphWalker<N,E>::value_type GraphWalker<N,E>::current_bfs() const
 template<class N, class E>
 void GraphWalker<N,E>::reset()
 {
-  //std::cout << "GraphWalker::reset" << std::endl;
   stack_.clear();
   stack_.push_back(edge_range(root_.begin(),root_.end()));
   queue_.clear();
@@ -137,20 +131,17 @@ template<class N, class E>
 typename GraphWalker<N,E>::result_type GraphWalker<N,E>::nextSibling()
 {
    result_type result = false;
-   //if (stack_.size() > 1) { only if single-root should be enforced ...
-     edge_range & siblings = stack_.back();
-     if (siblings.first != (siblings.second - 1) ) {
-       ++siblings.first;
-       result = true;
-     }  
-   //}
+   edge_range & siblings = stack_.back();
+   if (siblings.first != (siblings.second - 1) ) {
+     ++siblings.first;
+     result = true;
+   }  
    return result;
 }
 
 template<class N, class E>
 typename GraphWalker<N,E>::result_type GraphWalker<N,E>::parent()
 {
-   //std::cout << "GraphWalker::parent()" << std::endl;
    result_type result = false;
    if (stack_.size()>1) {
      stack_.pop_back();
