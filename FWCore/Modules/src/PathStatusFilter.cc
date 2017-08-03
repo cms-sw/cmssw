@@ -41,10 +41,12 @@ It does not work for EndPaths or Paths from prior processes.
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/qi.hpp>
 
+#include <functional>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -72,7 +74,7 @@ namespace edm {
     virtual bool filter(StreamID, Event&, EventSetup const&) const override final;
 
   private:
-    std::unique_ptr<pathStatusExpression::Evaluator> evaluator_;
+    edm::propagate_const<std::unique_ptr<pathStatusExpression::Evaluator>> evaluator_;
     bool verbose_;
   };
 
@@ -99,7 +101,7 @@ namespace edm {
         pathName_(pathName.begin(), pathName.end()) {
       }
 
-      EvaluatorType type() const { return Name; }
+      EvaluatorType type() const override { return Name; }
 
       void print(std::ostream & out, unsigned int indentation) const override {
         out << std::string( indentation, ' ' ) << pathName_ << "\n";
@@ -122,9 +124,9 @@ namespace edm {
 
     class NotOperator : public Evaluator {
     public:
-      EvaluatorType type() const { return Not; }
+      EvaluatorType type() const override { return Not; }
 
-      virtual void setLeft(std::unique_ptr<Evaluator> && v) { operand_ = std::move(v); }
+      virtual void setLeft(std::unique_ptr<Evaluator> && v) override { operand_ = std::move(v); }
 
       void print(std::ostream & out, unsigned int indentation) const override {
         out << std::string( indentation, ' ' ) << "not\n";
@@ -140,21 +142,18 @@ namespace edm {
       }
 
     private:
-      std::unique_ptr<Evaluator> operand_;
+      edm::propagate_const<std::unique_ptr<Evaluator>> operand_;
     };
 
-    class AndOperator : public Evaluator {
+    template <typename T>
+    class BinaryOperator : public Evaluator {
     public:
-      EvaluatorType type() const { return And; }
+      EvaluatorType type() const override;
 
-      virtual void setLeft(std::unique_ptr<Evaluator> && v) { left_ = std::move(v); }
-      virtual void setRight(std::unique_ptr<Evaluator> && v) { right_ = std::move(v); }
+      virtual void setLeft(std::unique_ptr<Evaluator> && v) override { left_ = std::move(v); }
+      virtual void setRight(std::unique_ptr<Evaluator> && v) override { right_ = std::move(v); }
 
-      void print(std::ostream & out, unsigned int indentation) const override {
-        out << std::string( indentation, ' ' ) << "and\n";
-        left_->print(out, indentation + 4);
-        right_->print(out, indentation + 4);
-      }
+      void print(std::ostream & out, unsigned int indentation) const override;
 
       void init(ConsumesCollector & iC) override {
         left_->init(iC);
@@ -162,44 +161,46 @@ namespace edm {
       }
 
       bool evaluate(Event const& event) const override {
-        return left_->evaluate(event) && right_->evaluate(event);
+        T op;
+        return op(left_->evaluate(event), right_->evaluate(event));
       }
 
     private:
-      std::unique_ptr<Evaluator> left_;
-      std::unique_ptr<Evaluator> right_;
+      edm::propagate_const<std::unique_ptr<Evaluator>> left_;
+      edm::propagate_const<std::unique_ptr<Evaluator>> right_;
     };
 
-    class OrOperator : public Evaluator {
-    public:
-      EvaluatorType type() const { return Or; }
+    template <>
+    inline Evaluator::EvaluatorType
+    BinaryOperator<std::logical_and<bool>>::type() const { return And; }
 
-      virtual void setLeft(std::unique_ptr<Evaluator> && v) { left_ = std::move(v); }
-      virtual void setRight(std::unique_ptr<Evaluator> && v) { right_ = std::move(v); }
+    template <>
+    inline Evaluator::EvaluatorType
+    BinaryOperator<std::logical_or<bool>>::type() const { return Or; }
 
-      void print(std::ostream & out, unsigned int indentation) const override {
-        out << std::string( indentation, ' ' ) << "or\n";
-        left_->print(out, indentation + 4);
-        right_->print(out, indentation + 4);
-      }
+    template <>
+    void
+    BinaryOperator<std::logical_and<bool>>::print(std::ostream & out,
+                                                  unsigned int indentation) const {
+      out << std::string( indentation, ' ' ) << "and\n";
+      left_->print(out, indentation + 4);
+      right_->print(out, indentation + 4);
+    }
+    template <>
+    void
+    BinaryOperator<std::logical_or<bool>>::print(std::ostream & out,
+                                                 unsigned int indentation) const {
+      out << std::string( indentation, ' ' ) << "or\n";
+      left_->print(out, indentation + 4);
+      right_->print(out, indentation + 4);
+    }
 
-      void init(ConsumesCollector & iC) override {
-        left_->init(iC);
-        right_->init(iC);
-      }
-
-      bool evaluate(Event const& event) const override {
-        return left_->evaluate(event) || right_->evaluate(event);
-      }
-
-    private:
-      std::unique_ptr<Evaluator> left_;
-      std::unique_ptr<Evaluator> right_;
-    };
+    using AndOperator = BinaryOperator<std::logical_and<bool>>;
+    using OrOperator = BinaryOperator<std::logical_or<bool>>;
 
     class BeginParenthesis : public Evaluator {
     public:
-      EvaluatorType type() const { return BeginParen; }
+      EvaluatorType type() const override { return BeginParen; }
     };
 
     // This class exists to properly handle the precedence of the
@@ -386,19 +387,22 @@ namespace edm {
     if (!qi::phrase_parse(it, logicalExpression.cend(), grammar, ascii::space) ||
         (it != logicalExpression.cend())) {
       throw cms::Exception("Configuration")
-        << "Syntax error in logical expression. Syntax requirements are intuitive.\n"
+        << "Syntax error in logical expression. Here is an example of how\n"
+        << "the syntax should look:\n"
+        << "    \"path1 and not (path2 or not path3)\"\n"
         << "The expression must contain alternating appearances of operands\n"
         << "which are path names and binary operators which can be \'and\'\n"
-        << "or \'or\', with a path name at the beginning and end. In addition\n"
-        << "to the alternating path names and binary operators, the unary operator\n"
-        << "\'not\' can be inserted before a pathname or a begin parenthesis.\n"
+        << "or \'or\', with a path name at the beginning and end. There\n"
+        << "must be at least one path name. In addition to the alternating\n"
+        << "path names and binary operators, the unary operator \'not\' can\n"
+        << "be inserted before a path name or a begin parenthesis.\n"
         << "Parentheses are allowed. Parentheses must come in matching pairs.\n"
-        << "Matching begin and end parentheses must contain a full syntactically\n"
-        << "correct logical expression. There must be a least one space or\n"
-        << "parenthesis between operators and pathnames. Extra space is ignored\n"
-        << "and OK. Path names can only contain upper and lower case letters, numbers,\n"
-        << "and underscores. A path name cannot be the same as an operator name.\n"
-        << "For example: \"path1 and not (path2 or not path3)\"";
+        << "Matching begin and end parentheses must contain a complete and\n"
+        << "syntactically correct logical expression. There must be at least\n"
+        << "one space or parenthesis between operators and path names. Extra\n"
+        << "space is ignored and OK. Path names can only contain upper and\n"
+        << "lower case letters, numbers, and underscores. A path name cannot\n"
+        << "be the same as an operator name.\n";
     }
 
     evaluator_ = shuntingYardAlgorithm.finish();
