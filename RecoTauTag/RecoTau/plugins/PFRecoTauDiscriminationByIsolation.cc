@@ -374,13 +374,13 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   if ( !(pv.isNonnull() && pfTau->leadPFChargedHadrCand().isNonnull()) ) return 0.;
 
   qcuts_->setPV(pv);
-  qcuts_->setLeadTrack(pfTau->leadPFChargedHadrCand());
+  qcuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
 
   if ( applyDeltaBeta_ || calculateWeights_) {
     pileupQcutsGeneralQCuts_->setPV(pv);
-    pileupQcutsGeneralQCuts_->setLeadTrack(pfTau->leadPFChargedHadrCand());
+    pileupQcutsGeneralQCuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
     pileupQcutsPUTrackSelection_->setPV(pv);
-    pileupQcutsPUTrackSelection_->setLeadTrack(pfTau->leadPFChargedHadrCand());
+    pileupQcutsPUTrackSelection_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
   }
 
   // Load the tracks if they are being used.

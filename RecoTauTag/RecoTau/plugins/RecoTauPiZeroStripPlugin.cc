@@ -16,8 +16,8 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
@@ -96,24 +96,24 @@ void RecoTauPiZeroStripPlugin::beginEvent() {
 RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     const reco::PFJet& jet) const {
   // Get list of gamma candidates
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
-  typedef PFCandPtrs::iterator PFCandIter;
+  typedef std::vector<reco::CandidatePtr> CandPtrs;
+  typedef CandPtrs::iterator CandIter;
   PiZeroVector output;
 
   // Get the candidates passing our quality cuts
   qcuts_.setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_.filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  CandPtrs candsVector = qcuts_.filterCandRefs(pfCandidates(jet, inputPdgIds_));
   //PFCandPtrs candsVector = qcuts_.filterCandRefs(pfGammas(jet));
 
   // Convert to stl::list to allow fast deletions
-  typedef std::list<reco::PFCandidatePtr> PFCandPtrList;
-  typedef std::list<reco::PFCandidatePtr>::iterator PFCandPtrListIter;
-  PFCandPtrList cands;
+  typedef std::list<reco::CandidatePtr> CandPtrList;
+  typedef std::list<reco::CandidatePtr>::iterator CandPtrListIter;
+  CandPtrList cands;
   cands.insert(cands.end(), candsVector.begin(), candsVector.end());
 
   while (!cands.empty()) {
     // Seed this new strip, and delete it from future strips
-    PFCandidatePtr seed = cands.front();
+    CandidatePtr seed = cands.front();
     cands.pop_front();
 
     // Add a new candidate to our collection using this seed
@@ -122,7 +122,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     strip->addDaughter(seed);
 
     // Find all other objects in the strip
-    PFCandPtrListIter stripCand = cands.begin();
+    CandPtrListIter stripCand = cands.begin();
     while(stripCand != cands.end()) {
       if( fabs(strip->eta() - (*stripCand)->eta()) < etaAssociationDistance_
           && fabs(deltaPhi(*strip, **stripCand)) < phiAssociationDistance_ ) {

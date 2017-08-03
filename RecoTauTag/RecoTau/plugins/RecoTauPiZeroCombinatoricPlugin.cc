@@ -13,8 +13,8 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -55,24 +55,24 @@ RecoTauPiZeroCombinatoricPlugin::return_type
 RecoTauPiZeroCombinatoricPlugin::operator()(
     const reco::PFJet& jet) const {
   // Get list of gamma candidates
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
-  typedef PFCandPtrs::const_iterator PFCandIter;
+  typedef std::vector<reco::CandidatePtr> CandPtrs;
+  typedef CandPtrs::const_iterator CandIter;
   PiZeroVector output;
 
-  PFCandPtrs pfGammaCands = qcuts_.filterCandRefs(pfGammas(jet));
+  CandPtrs pfGammaCands = qcuts_.filterCandRefs(pfGammas(jet));
   // Check if we have anything to do...
   if (pfGammaCands.size() < choose_)
     return output.release();
 
   // Define the valid range of gammas to use
-  PFCandIter start_iter = pfGammaCands.begin();
-  PFCandIter end_iter = pfGammaCands.end();
+  CandIter start_iter = pfGammaCands.begin();
+  CandIter end_iter = pfGammaCands.end();
 
   // Only take the desired number of piZeros
   end_iter = takeNElements(start_iter, end_iter, maxInputGammas_);
 
   // Build the combinatoric generator
-  typedef CombinatoricGenerator<PFCandPtrs> ComboGenerator;
+  typedef CombinatoricGenerator<CandPtrs> ComboGenerator;
   ComboGenerator generator(start_iter, end_iter, choose_);
 
   // Find all possible combinations

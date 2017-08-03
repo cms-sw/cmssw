@@ -6,10 +6,10 @@
  *
  * Author: Evan K. Friis
  *
- * Constructs a number of independent requirements on PFCandidates by building
+ * Constructs a number of independent requirements on Candidates by building
  * binary predicate functions.  These are held in a number of lists of
- * functions.  Each of these lists is mapped to a PFCandidate particle type
- * (like hadron, gamma, etc).  When a PFCandidate is passed to filter(),
+ * functions.  Each of these lists is mapped to a Candidate particle type
+ * (like hadron, gamma, etc).  When a Candidate is passed to filter(),
  * the correct list is looked up, and the result is the AND of all the predicate
  * functions.  See the .cc files for the QCut functions.
  *
@@ -23,8 +23,8 @@
 #include <boost/foreach.hpp>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -37,9 +37,9 @@ class RecoTauQualityCuts
   // Quality cut types
   typedef boost::function<bool (const TrackBaseRef&)> TrackQCutFunc;  
   typedef std::vector<TrackQCutFunc> TrackQCutFuncCollection;
-  typedef boost::function<bool (const PFCandidate&)> CandQCutFunc;  
+  typedef boost::function<bool (const Candidate&)> CandQCutFunc;  
   typedef std::vector<CandQCutFunc> CandQCutFuncCollection;
-  typedef std::map<PFCandidate::ParticleType, CandQCutFuncCollection> CandQCutFuncMap;
+  typedef std::map<int, CandQCutFuncCollection> CandQCutFuncMap;
   
   explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
 
@@ -48,11 +48,11 @@ class RecoTauQualityCuts
     
   /// Update the leading track
   void setLeadTrack(const reco::TrackRef& leadTrack) const;
-  void setLeadTrack(const reco::PFCandidate& leadCand) const;
+  void setLeadTrack(const reco::Candidate& leadCand) const;
 
   /// Update the leading track (using reference)
   /// If null, this will set the lead track ref null.
-  void setLeadTrack(const reco::PFCandidateRef& leadCand) const;
+  void setLeadTrack(const reco::CandidateRef& leadCand) const;
 
   /// Filter a single Track
   bool filterTrack(const reco::TrackBaseRef& track) const;
@@ -69,14 +69,14 @@ class RecoTauQualityCuts
     return output;
   }
 
-  /// Filter a single PFCandidate
-  bool filterCand(const reco::PFCandidate& cand) const;
+  /// Filter a single Candidate
+  bool filterCand(const reco::Candidate& cand) const;
 
-  /// Filter a PFCandidate held by a smart pointer or Ref
-  template<typename PFCandRefType>
-  bool filterCandRef(const PFCandRefType& cand) const { return filterCand(*cand); }
+  /// Filter a Candidate held by a smart pointer or Ref
+  template<typename CandRefType>
+  bool filterCandRef(const CandRefType& cand) const { return filterCand(*cand); }
 
-  /// Filter a ref vector of PFCandidates
+  /// Filter a ref vector of Candidates
   template<typename Coll> 
   Coll filterCandRefs(const Coll& refcoll, bool invert = false) const 
   {
@@ -89,9 +89,9 @@ class RecoTauQualityCuts
 
  private:
   template <typename T> bool filterTrack_(const T& trackRef) const;
-  bool filterGammaCand(const reco::PFCandidate& cand) const;
-  bool filterNeutralHadronCand(const reco::PFCandidate& cand) const;
-  bool filterCandByType(const reco::PFCandidate& cand) const;
+  bool filterGammaCand(const reco::Candidate& cand) const;
+  bool filterNeutralHadronCand(const reco::Candidate& cand) const;
+  bool filterCandByType(const reco::Candidate& cand) const;
 
   // The current primary vertex
   mutable reco::VertexRef pv_;

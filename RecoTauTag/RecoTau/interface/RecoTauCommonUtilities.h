@@ -9,8 +9,8 @@
  *
  */
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <vector>
@@ -29,20 +29,20 @@ namespace reco { namespace tau {
 
 class SortPFCandsDescendingPt {
   public:
-    bool operator()(const PFCandidatePtr& a, const PFCandidatePtr& b) const {
+    bool operator()(const CandidatePtr& a, const CandidatePtr& b) const {
       return a->pt() > b->pt();
     }
 };
 
-/// Filter a collection of objects that are convertible to PFCandidatePtrs
+/// Filter a collection of objects that are convertible to CandidatePtrs
 /// by PFCandidate ID
-template<typename Iterator> std::vector<PFCandidatePtr>
+template<typename Iterator> std::vector<CandidatePtr>
 filterPFCandidates(const Iterator& begin, const Iterator& end,
-    int particleId, bool sort=true) {
-  std::vector<PFCandidatePtr> output;
+    int pdgId, bool sort=true) {
+  std::vector<CandidatePtr> output;
   for(Iterator iter = begin; iter != end; ++iter) {
-    reco::PFCandidatePtr ptr(*iter);
-    if (ptr->particleId() == particleId)
+    reco::CandidatePtr ptr(*iter);
+    if (std::abs(ptr->pdgId()) == pdgId)
       output.push_back(ptr);
   }
   if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
@@ -51,23 +51,23 @@ filterPFCandidates(const Iterator& begin, const Iterator& end,
 
 /// Extract pfCandidates of a given particle Id from a PFJet.  If sort is true,
 /// candidates will be sorted by descending PT
-std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
-                                         int particleId, bool sort=true);
+std::vector<CandidatePtr> pfCandidates(const Jet& jet,
+                                         int pdgId, bool sort=true);
 
 /// Extract pfCandidates of a that match a list of particle Ids from a PFJet
-std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
-                                         const std::vector<int>& particleIds,
+std::vector<CandidatePtr> pfCandidates(const Jet& jet,
+                                         const std::vector<int>& pdgIds,
                                          bool sort=true);
 
 /// Extract all non-neutral candidates from a PFJet
-std::vector<PFCandidatePtr> pfChargedCands(const PFJet& jet, bool sort=true);
+std::vector<CandidatePtr> pfChargedCands(const Jet& jet, bool sort=true);
 
 /// Extract all pfGammas from a PFJet
-std::vector<PFCandidatePtr> pfGammas(const PFJet& jet, bool sort=true);
+std::vector<CandidatePtr> pfGammas(const Jet& jet, bool sort=true);
 
 /// Flatten a list of pi zeros into a list of there constituent PFCandidates
-std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator&, const std::vector<RecoTauPiZero>::const_iterator&);
-std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>&);
+std::vector<CandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator&, const std::vector<RecoTauPiZero>::const_iterator&);
+std::vector<CandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>&);
 
 /// Convert a BaseView (View<T>) to a TRefVector
 template<typename RefVectorType, typename BaseView>
@@ -87,6 +87,7 @@ RefVectorType castView(const edm::Handle<BaseView>& view) {
   }
   return output;
 }
+
 
 /*
  *Given a range over a container of type C, return a new 'end' iterator such
@@ -141,5 +142,25 @@ template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     }
     return max_cand;
   }
+
+std::vector<PFCandidatePtr> convertPtrVector(const std::vector<CandidatePtr>& cands) {
+  std::vector<PFCandidatePtr> newSignalPFCands;
+  for (auto& cand : cands) {
+    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
+    newSignalPFCands.push_back(newPtr);
+  }
+  return newSignalPFCands;
+}
+
+std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands) {
+  std::vector<CandidatePtr> newSignalCands;
+  for (auto& cand : cands) {
+    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::Candidate> >();
+    newSignalCands.push_back(newPtr);
+  }
+  return newSignalCands;
+}
+
+
 }}  // end namespace reco::tau
 #endif
