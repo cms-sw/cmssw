@@ -47,12 +47,12 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   for(uint32_t i=0; i<comp.size();i++){
     auto component = det->component(i);
     if(component->type()== GeometricDet::ladder){
-      rods.push_back(component);
+      rods.emplace_back(component);
     } else if(component->type()== GeometricDet::panel){
       if(component->translation().z() < 0.){
-        ringsNeg.push_back(component);
+        ringsNeg.emplace_back(component);
       } else if (component->translation().z() > 0.) {
-        ringsPos.push_back(component);
+        ringsPos.emplace_back(component);
       }
     } else {
       edm::LogError("CmsTrackerOTLayerBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();

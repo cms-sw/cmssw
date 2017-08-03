@@ -20,7 +20,7 @@ bool ME0Chamber::operator==(const ME0Chamber& ch) const {
 }
 
 void ME0Chamber::add(ME0Layer* rl) {
-  layers_.push_back(rl);
+  layers_.emplace_back(rl);
 }
 
 std::vector<const GeomDet*> ME0Chamber::components() const {
@@ -55,7 +55,7 @@ const ME0Layer* ME0Chamber::layer(int isl) const {
 // For the old ME0 Geometry (with one eta partition)
 // we need to maintain this for a while 
 void ME0Chamber::add(ME0EtaPartition* rl) {
-  etaPartitions_.push_back(rl);
+  etaPartitions_.emplace_back(rl);
 }
 
 const std::vector<const ME0EtaPartition*>& ME0Chamber::etaPartitions() const {

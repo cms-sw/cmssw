@@ -32,7 +32,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goNorth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -45,7 +45,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goSouth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -58,7 +58,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goEast(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -71,7 +71,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goWest(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
   

@@ -65,7 +65,7 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
       id.iPhi  = phi;
       DetId idc = topology().encode(id);
       if (topology().valid(idc)) {
-	m_validIds.push_back(idc);
+	m_validIds.emplace_back(idc);
       }
     }
   }
@@ -216,8 +216,8 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
   
   for (unsigned int i( 0 ); i < numberOfCells; ++i) {
     DetId detId = m_validGeomIds[i];
-    dinsVector.push_back( topology().detId2denseGeomId( detId ));
-    iVector.push_back(1);
+    dinsVector.emplace_back( topology().detId2denseGeomId( detId ));
+    iVector.emplace_back(1);
     
     Tr3D tr;
     const CaloCellGeometry* ptr( cellGeomPtr( i ));
@@ -230,9 +230,9 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
       }
 
       const CLHEP::Hep3Vector tt( tr.getTranslation());
-      trVector.push_back( tt.x());
-      trVector.push_back( tt.y());
-      trVector.push_back( tt.z());
+      trVector.emplace_back( tt.x());
+      trVector.emplace_back( tt.y());
+      trVector.emplace_back( tt.z());
       if (6 == numberOfTransformParms()) {
 	const CLHEP::HepRotation rr( tr.getRotation());
 	const ROOT::Math::Transform3D rtr( rr.xx(), rr.xy(), rr.xz(), tt.x(),
@@ -240,9 +240,9 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 					   rr.zx(), rr.zy(), rr.zz(), tt.z());
 	ROOT::Math::EulerAngles ea;
 	rtr.GetRotation( ea );
-	trVector.push_back( ea.Phi());
-	trVector.push_back( ea.Theta());
-	trVector.push_back( ea.Psi());
+	trVector.emplace_back( ea.Phi());
+	trVector.emplace_back( ea.Theta());
+	trVector.emplace_back( ea.Psi());
       }
     }
   }

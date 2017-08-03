@@ -131,7 +131,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )
 	    {
-	       dims.push_back( *dsrc ) ;
+	       dims.emplace_back( *dsrc ) ;
 	       ++dsrc ;
 	    }
 

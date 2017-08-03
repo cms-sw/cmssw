@@ -102,11 +102,11 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   const double fiveDegInRad = 2*M_PI/72;
   for (double k : dPhiTable) {
     int units = (int)(k/fiveDegInRad+0.5);
-    unitPhi.push_back(units);
+    unitPhi.emplace_back(units);
   }
   for (double k : dPhiTableHF) {
     int units = (int)(k/fiveDegInRad+0.5);
-    unitPhiHF.push_back(units);
+    unitPhiHF.emplace_back(units);
   }
   int nEta = hcons_->getNEta();
   for (int ring=1; ring<=nEta; ++ring) {
@@ -280,7 +280,7 @@ std::vector<DetId> HcalTopology::east(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbors[i].rawId()));
   }
   return vNeighborsDetId;
 }
@@ -290,7 +290,7 @@ std::vector<DetId> HcalTopology::west(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbors[i].rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -300,7 +300,7 @@ std::vector<DetId> HcalTopology::north(const DetId& id) const {
   HcalDetId neighbor;
   if (incIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbor.rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -310,7 +310,7 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const {
   HcalDetId neighbor;
   if (decIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbor.rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -320,7 +320,7 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   if (incrementDepth(neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(neighbor);
+    vNeighborsDetId.emplace_back(neighbor);
   }
   return  vNeighborsDetId;
 }
@@ -330,7 +330,7 @@ std::vector<DetId> HcalTopology::down(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   if (decrementDepth(neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(neighbor);
+    vNeighborsDetId.emplace_back(neighbor);
   }
   return  vNeighborsDetId;
 }

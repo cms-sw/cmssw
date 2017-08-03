@@ -103,8 +103,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
   newGD = new DetGeomDesc( *(idealGD.product()) );
   deque<const DetGeomDesc *> buffer;
   deque<DetGeomDesc *> bufferNew;
-  buffer.push_back(idealGD.product());
-  bufferNew.push_back(newGD);
+  buffer.emplace_back(idealGD.product());
+  bufferNew.emplace_back(newGD);
 
   while (buffer.size() > 0)
   {
@@ -142,13 +142,13 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     for (unsigned int i = 0; i < sD->components().size(); i++)
     {
       const DetGeomDesc *sDC = sD->components()[i];
-      buffer.push_back(sDC);
+      buffer.emplace_back(sDC);
     
       // create new node with the same information as in sDC and add it as a child of pD
       DetGeomDesc * cD = new DetGeomDesc(*sDC);
       pD->addComponent(cD);
 
-      bufferNew.push_back(cD);
+      bufferNew.emplace_back(cD);
     }
   }
 }
