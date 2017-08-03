@@ -391,15 +391,16 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     GoodPVtxMin = cms.double( 0.),
     GoodPVtxMax = cms.double(200.),
 
-    LUMIBin  = cms.int32 ( 4000 ),
-    LUMIMin  = cms.double(    0.),
+    LUMIBin  = cms.int32 ( 400 ),
+    LUMIMin  = cms.double( 4000.),
     LUMIMax  = cms.double(20000.),
 
 #    # BXlumi                          
 #    BXlumiBin = cms.int32(400),
-#    BXlumiMin = cms.double(2000),
-#    BXlumiMax = cms.double(6000),
-                ###############################
+#    BXlumiMin = cms.double(4000),
+#    BXlumiMax = cms.double(20000),
+
+###############################
 ################## FOR HI PLOTS#####################
 #######
 TransDCABins = cms.int32(100),

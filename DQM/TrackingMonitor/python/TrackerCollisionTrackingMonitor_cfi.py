@@ -49,6 +49,7 @@ TrackerCollisionTrackMon.doPlotsVsBXlumi                     = cms.bool(False)
 TrackerCollisionTrackMon.doPlotsVsGoodPVtx                   = cms.bool(True)
 TrackerCollisionTrackMon.doEffFromHitPatternVsPU             = cms.bool(True)
 TrackerCollisionTrackMon.doEffFromHitPatternVsBX             = cms.bool(True)
+TrackerCollisionTrackMon.doEffFromHitPatternVsLUMI           = cms.bool(True)
 
 # LS analysis
 TrackerCollisionTrackMon.doLumiAnalysis       = cms.bool(True)     
@@ -81,7 +82,3 @@ TrackerCollisionTrackMon.TCSizeMin = cms.double(-0.5)
 TrackerCollisionTrackMon.GoodPVtxBin = cms.int32(60)
 TrackerCollisionTrackMon.GoodPVtxMin = cms.double( 0.)
 TrackerCollisionTrackMon.GoodPVtxMax = cms.double(60.)
-
-#TrackerCollisionTrackMon.BXlumiBin = cms.int32(100) # (400)
-#TrackerCollisionTrackMon.BXlumiMin = cms.double(1)  # (2000)
-#TrackerCollisionTrackMon.BXlumiMax = cms.double(10) # (6000)
