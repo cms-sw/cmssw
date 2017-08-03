@@ -1,4 +1,3 @@
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
 from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
