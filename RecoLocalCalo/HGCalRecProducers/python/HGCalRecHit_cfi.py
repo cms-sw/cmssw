@@ -76,7 +76,6 @@ HGCalRecHit = cms.EDProducer(
     HGCHEB_keV2DIGI = hgchebackDigitizer.digiCfg.keV2MIP,
     HGCHEB_isSiFE   = HGCalUncalibRecHit.HGCHEBConfig.isSiFE,
     # don't produce rechit if detid is a ghost one
-    # smallest and largest ghost detid on positive side
     rangeMask = cms.uint32(4294442496),
     rangeMatch = cms.uint32(1161838592),
 
