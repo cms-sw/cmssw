@@ -44,7 +44,7 @@ void DDHGCalTBModule::initialize(const DDNumericArguments & nArgs,
   names_        = vsArgs["VolumeNames"];
   thick_        = vArgs["Thickness"];
   for (unsigned int i=0; i<materials_.size(); ++i) {
-    copyNumber_.push_back(1);
+    copyNumber_.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalTBModule: " << materials_.size()

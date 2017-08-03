@@ -24,7 +24,7 @@ bool GEMStation::operator==(const GEMStation& st) const {
 }
 
 void GEMStation::add(GEMRing* ring) {
-  rings_.push_back(ring);
+  rings_.emplace_back(ring);
 }
 
 std::vector<const GeomDet*> GEMStation::components() const {
