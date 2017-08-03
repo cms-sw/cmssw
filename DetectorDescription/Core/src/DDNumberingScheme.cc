@@ -29,7 +29,7 @@ DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDExpandedView & ex)
   int count = 0;
   while (go) {
     std::pair<m_it,bool> res = path2id_.insert(std::make_pair(e.navPos(),count));
-    id2path_.push_back(res.first);
+    id2path_.emplace_back(res.first);
     ++count;
     go = e.next();
   }
@@ -48,7 +48,7 @@ DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDFilteredView & fv)
   int count = 0;
   while (go) {
     std::pair<m_it,bool> res = path2id_.insert(std::make_pair(f.navPos(),count));
-    id2path_.push_back(res.first);
+    id2path_.emplace_back(res.first);
     ++count;
     go = f.next();
   }

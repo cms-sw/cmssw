@@ -12,7 +12,7 @@ class DDLogicalPart;
 DDFilteredView::DDFilteredView(const DDCompactView & cpv, const DDFilter& fltr)
 : epv_(cpv), filter_(&fltr)
 {
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
 
 const DDLogicalPart & DDFilteredView::logicalPart() const
@@ -73,7 +73,7 @@ bool DDFilteredView::setScope(const DDGeoHistory & hist)
   bool result = epv_.setScope(hist,0);
   if (result) {
     parents_.clear();
-    parents_.push_back(hist);
+    parents_.emplace_back(hist);
   }  
   return result;
 }  
@@ -82,7 +82,7 @@ void DDFilteredView::clearScope()
 {
    epv_.clearScope();
    parents_.clear();
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
 
 bool DDFilteredView::next()
@@ -133,7 +133,7 @@ bool DDFilteredView::firstChild()
    }
    
    if (result) {
-     parents_.push_back(epv_.geoHistory());
+     parents_.emplace_back(epv_.geoHistory());
    }
      
    return result;
@@ -212,7 +212,7 @@ void DDFilteredView::reset()
 {
   epv_.reset();
   parents_.clear();
-  parents_.push_back(epv_.geoHistory());          
+  parents_.emplace_back(epv_.geoHistory());          
 }
 
 bool DDFilteredView::filter()

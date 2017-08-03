@@ -174,7 +174,7 @@ DDXMLElement::processElement( const std::string& name, const std::string& nmspac
 void
 DDXMLElement::loadText( const std::string& inText )
 {
-  text_.push_back(inText);
+  text_.emplace_back(inText);
 }
 
 void
@@ -236,9 +236,9 @@ DDXMLElement::appendAttributes( std::vector<std::string> & tv,
   {
     DDXMLAttribute::const_iterator itnv = attributes_[i].find(name);
     if (itnv != attributes_[i].end())
-      tv.push_back(itnv->second);
+      tv.emplace_back(itnv->second);
     else
-      tv.push_back("");
+      tv.emplace_back("");
   }  
 }
 

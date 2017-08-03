@@ -71,17 +71,17 @@ int main(int argc, char *argv[])
 
     std::cout << "Initialize names" << std::endl;
     std::vector<std::string> names;
-    names.push_back("name");
-    names.push_back("density");
-    names.push_back("atomicWeight");
-    names.push_back("atomicNumber");
+    names.emplace_back("name");
+    names.emplace_back("density");
+    names.emplace_back("atomicWeight");
+    names.emplace_back("atomicNumber");
 
     std::cout << "Initialize values" << std::endl;
     std::vector<std::string> values;
-    values.push_back("Carbon");
-    values.push_back("2.265*g/cm3");
-    values.push_back("12.011*g/mole");
-    values.push_back("6");
+    values.emplace_back("Carbon");
+    values.emplace_back("2.265*g/cm3");
+    values.emplace_back("12.011*g/mole");
+    values.emplace_back("6");
 
     std::cout << "Initialize element name and namespace" << std::endl;
     std::string element = "ElementaryMaterial";
