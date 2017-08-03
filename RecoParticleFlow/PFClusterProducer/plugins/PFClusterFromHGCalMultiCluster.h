@@ -6,8 +6,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 
 class PFClusterFromHGCalMultiCluster : public InitialClusteringStepBase {
-  typedef PFClusterFromHGCalMultiCluster B2DGT;
-
  public:
   PFClusterFromHGCalMultiCluster(const edm::ParameterSet& conf,
                                  edm::ConsumesCollector& sumes)
@@ -16,8 +14,10 @@ class PFClusterFromHGCalMultiCluster : public InitialClusteringStepBase {
         conf.getParameter<edm::InputTag>("clusterSrc"));
   }
   virtual ~PFClusterFromHGCalMultiCluster() {}
-  PFClusterFromHGCalMultiCluster(const B2DGT&) = delete;
-  B2DGT& operator=(const B2DGT&) = delete;
+  PFClusterFromHGCalMultiCluster(const PFClusterFromHGCalMultiCluster&) =
+      delete;
+  PFClusterFromHGCalMultiCluster& operator=(
+      const PFClusterFromHGCalMultiCluster&) = delete;
 
   virtual void updateEvent(const edm::Event&) override final;
 

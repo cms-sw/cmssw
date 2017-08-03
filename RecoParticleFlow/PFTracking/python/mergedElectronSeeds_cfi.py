@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from copy import deepcopy
 
 
 electronMergedSeeds =cms.EDProducer("ElectronSeedMerger",
@@ -7,7 +6,7 @@ electronMergedSeeds =cms.EDProducer("ElectronSeedMerger",
      TkBasedSeeds  = cms.InputTag("trackerDrivenElectronSeeds:SeedsForGsf")
     )
 
-electronMergedSeedsFromMultiCl = deepcopy(electronMergedSeeds)
+electronMergedSeedsFromMultiCl = electronMergedSeeds.clone()
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(

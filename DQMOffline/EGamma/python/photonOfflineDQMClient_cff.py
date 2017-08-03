@@ -17,10 +17,10 @@ stdPhotonOfflineClientHGCal.etaMin = stdPhotonAnalysisHGCal.etaMin
 stdPhotonOfflineClientHGCal.etaMax = stdPhotonAnalysisHGCal.etaMax
 
 photonOfflineDQMClient = cms.Sequence(photonOfflineClient*stdPhotonOfflineClient)
-photonOfflineDQMClientHGCal = photonOfflineDQMClient.copy()
-photonOfflineDQMClientHGCal += cms.Sequence(stdPhotonOfflineClientHGCal)
+_photonOfflineDQMClientHGCal = photonOfflineDQMClient.copy()
+_photonOfflineDQMClientHGCal += stdPhotonOfflineClientHGCal
 
 phase2_hgcal.toReplaceWith(
-  photonOfflineDQMClient, photonOfflineDQMClientHGCal
+  photonOfflineDQMClient, _photonOfflineDQMClientHGCal
 )
 

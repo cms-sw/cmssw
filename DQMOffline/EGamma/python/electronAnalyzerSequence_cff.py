@@ -62,14 +62,14 @@ dqmElectronAnalysisAllElectronsFromMultiCl.MaxAbsEta = 3.0
 dqmElectronAnalysisAllElectronsFromMultiCl.ElectronCollection = 'ecalDrivenGsfElectronsFromMultiCl'
 dqmElectronAnalysisAllElectronsFromMultiCl.MatchingObjectCollection = 'mergedSuperClustersFromMultiCl'
 
-electronAnalyzerSequenceFromMultiCl = electronAnalyzerSequence.copy()
-electronAnalyzerSequenceFromMultiCl += cms.Sequence(mergedSuperClustersFromMultiCl+dqmElectronAnalysisAllElectronsFromMultiCl)
+_electronAnalyzerSequenceFromMultiCl = electronAnalyzerSequence.copy()
+_electronAnalyzerSequenceFromMultiCl += cms.Sequence(mergedSuperClustersFromMultiCl+dqmElectronAnalysisAllElectronsFromMultiCl)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( mergedSuperClusters, src = cms.VInputTag( cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"), cms.InputTag("particleFlowSuperClusterHGCal","") ) )
 
 phase2_hgcal.toReplaceWith(
-electronAnalyzerSequence, electronAnalyzerSequenceFromMultiCl
+electronAnalyzerSequence, _electronAnalyzerSequenceFromMultiCl
 )
 
 
