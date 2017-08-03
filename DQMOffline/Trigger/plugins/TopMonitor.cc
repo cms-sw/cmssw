@@ -85,7 +85,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , MHTdefinition_ ( iConfig.getParameter<std::string>("MHTdefinition") )
   , MHTcut_     ( iConfig.getParameter<double>("MHTcut" )     )
 {
-    METME empty;
+    ObjME empty;
     empty.numerator = nullptr;
     empty.denominator = nullptr;
 
@@ -128,117 +128,51 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     //BTV
     DeltaR_jet_Mu_ = empty;
 
-    muPhi_= std::vector<METME> (nmuons_,empty);
-    muEta_= std::vector<METME> (nmuons_,empty);
-    muPt_= std::vector<METME> (nmuons_,empty);
-    muEta_variableBinning_= std::vector<METME> (nmuons_,empty);
-    muPt_variableBinning_= std::vector<METME> (nmuons_,empty);
-    muPtEta_= std::vector<METME> (nmuons_,empty);
-    muEtaPhi_= std::vector<METME> (nmuons_,empty);
+    muPhi_= std::vector<ObjME> (nmuons_,empty);
+    muEta_= std::vector<ObjME> (nmuons_,empty);
+    muPt_= std::vector<ObjME> (nmuons_,empty);
+    muEta_variableBinning_= std::vector<ObjME> (nmuons_,empty);
+    muPt_variableBinning_= std::vector<ObjME> (nmuons_,empty);
+    muPtEta_= std::vector<ObjME> (nmuons_,empty);
+    muEtaPhi_= std::vector<ObjME> (nmuons_,empty);
 
-    elePhi_= std::vector<METME> (nelectrons_,empty);
-    eleEta_= std::vector<METME> (nelectrons_,empty);
-    elePt_= std::vector<METME> (nelectrons_,empty);
-    eleEta_variableBinning_= std::vector<METME> (nelectrons_,empty);
-    elePt_variableBinning_= std::vector<METME> (nelectrons_,empty);
-    elePtEta_= std::vector<METME> (nelectrons_,empty);
-    eleEtaPhi_= std::vector<METME> (nelectrons_,empty);
+    elePhi_= std::vector<ObjME> (nelectrons_,empty);
+    eleEta_= std::vector<ObjME> (nelectrons_,empty);
+    elePt_= std::vector<ObjME> (nelectrons_,empty);
+    eleEta_variableBinning_= std::vector<ObjME> (nelectrons_,empty);
+    elePt_variableBinning_= std::vector<ObjME> (nelectrons_,empty);
+    elePtEta_= std::vector<ObjME> (nelectrons_,empty);
+    eleEtaPhi_= std::vector<ObjME> (nelectrons_,empty);
 
 
-    jetPhi_= std::vector<METME> (njets_,empty);
-    jetEta_= std::vector<METME> (njets_,empty);
-    jetPt_= std::vector<METME> (njets_,empty);
-    jetEta_variableBinning_= std::vector<METME> (njets_,empty);
-    jetPt_variableBinning_= std::vector<METME> (njets_,empty);
-    jetPtEta_= std::vector<METME> (njets_,empty);
-    jetEtaPhi_= std::vector<METME> (njets_,empty);
+    jetPhi_= std::vector<ObjME> (njets_,empty);
+    jetEta_= std::vector<ObjME> (njets_,empty);
+    jetPt_= std::vector<ObjME> (njets_,empty);
+    jetEta_variableBinning_= std::vector<ObjME> (njets_,empty);
+    jetPt_variableBinning_= std::vector<ObjME> (njets_,empty);
+    jetPtEta_= std::vector<ObjME> (njets_,empty);
+    jetEtaPhi_= std::vector<ObjME> (njets_,empty);
 
     // Marina
-    bjetPhi_= std::vector<METME> (nbjets_,empty);
-    bjetEta_= std::vector<METME> (nbjets_,empty);
-    bjetPt_= std::vector<METME> (nbjets_,empty);
-    bjetCSV_= std::vector<METME> (nbjets_,empty);
-    bjetEta_variableBinning_= std::vector<METME> (nbjets_,empty);
-    bjetPt_variableBinning_= std::vector<METME> (nbjets_,empty);
-    bjetPtEta_= std::vector<METME> (nbjets_,empty);
-    bjetEtaPhi_= std::vector<METME> (nbjets_,empty);
-    bjetCSVHT_= std::vector<METME> (nbjets_,empty);
+    bjetPhi_= std::vector<ObjME> (nbjets_,empty);
+    bjetEta_= std::vector<ObjME> (nbjets_,empty);
+    bjetPt_= std::vector<ObjME> (nbjets_,empty);
+    bjetCSV_= std::vector<ObjME> (nbjets_,empty);
+    bjetEta_variableBinning_= std::vector<ObjME> (nbjets_,empty);
+    bjetPt_variableBinning_= std::vector<ObjME> (nbjets_,empty);
+    bjetPtEta_= std::vector<ObjME> (nbjets_,empty);
+    bjetEtaPhi_= std::vector<ObjME> (nbjets_,empty);
+    bjetCSVHT_= std::vector<ObjME> (nbjets_,empty);
 
   //Suvankar
   lepPVcuts_.dxy = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy");
   lepPVcuts_.dz  = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz");
 }
 
-TopMonitor::~TopMonitor()
+TopMonitor::~TopMonitor() throw()
 {
     if (num_genTriggerEventFlag_) num_genTriggerEventFlag_.reset();
     if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.reset();
-}
-
-MEbinning TopMonitor::getHistoPSet(const edm::ParameterSet& pset)
-{
-  return MEbinning{
-    pset.getParameter<uint32_t>("nbins"),
-    pset.getParameter<double>("xmin"),
-    pset.getParameter<double>("xmax"),
-  };
-}
-
-MEbinning TopMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
-{
-  return MEbinning{
-    pset.getParameter<uint32_t>("nbins"),
-    0.,
-    double(pset.getParameter<uint32_t>("nbins"))
-  };
-}
-
-void TopMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
-{
-  me.numerator->setAxisTitle(titleX,1);
-  me.numerator->setAxisTitle(titleY,2);
-  me.denominator->setAxisTitle(titleX,1);
-  me.denominator->setAxisTitle(titleY,2);
-}
-
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double min, double max)
-{
-  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
-  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
-}
-
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binning)
-{
-  int nbins = binning.size()-1;
-  std::vector<float> fbinning(binning.begin(),binning.end());
-  float* arr = &fbinning[0];
-  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
-  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
-}
-
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax)
-{
-  me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax)
-{
-  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY)
-{
-  int nbinsX = binningX.size()-1;
-  std::vector<float> fbinningX(binningX.begin(),binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size()-1;
-  std::vector<float> fbinningY(binningY.begin(),binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
 
 void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
@@ -929,18 +863,6 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
 
 
-}
-
-void TopMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>   ( "nbins",40);
-  pset.add<double>( "xmin",0 );
-  pset.add<double>( "xmax",100 );
-}
-
-void TopMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
