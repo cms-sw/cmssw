@@ -241,6 +241,8 @@ private:
   PVcut  lepPVcuts_;
   bool usePVcuts_;
 
+  bool applyMETcut_ = false;
+
   //george
   double invMassUppercut_;
   double invMassLowercut_;
