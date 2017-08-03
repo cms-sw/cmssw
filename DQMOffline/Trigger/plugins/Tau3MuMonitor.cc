@@ -17,10 +17,7 @@ Tau3MuMonitor::Tau3MuMonitor( const edm::ParameterSet& iConfig ) :
   tau2DEtaPhi_ = nullptr;
 }
 
-Tau3MuMonitor::~Tau3MuMonitor()
-{
-  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
-}
+Tau3MuMonitor::~Tau3MuMonitor() = default;
 
 // shape the content of a "histogram PSet"
 void Tau3MuMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
@@ -92,10 +89,21 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // require the trigger to be fired
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup) ) return;
 
+  // check if the previous event failed because of missing tau3mu collection.
+  // Return silently, a warning must have been issued already at this point
+  if (!validProduct_) return;
+
   // get ahold of the tau(3mu) collection
   edm::Handle<reco::CompositeCandidateCollection> tauHandle;
   iEvent.getByToken( tauToken_, tauHandle );
-
+  
+  // if the handle is not valid issue a warning (only for the forst occurrency)
+  if (!tauHandle.isValid()) {
+    edm::LogWarning("ProductNotValid") << "Tau3Mu trigger product not valid";
+    validProduct_ = false;
+    return;
+  }
+  
   // loop and fill
   for (auto const & itau : *tauHandle) {
     tau1DPt_    ->Fill(itau.pt  ());
