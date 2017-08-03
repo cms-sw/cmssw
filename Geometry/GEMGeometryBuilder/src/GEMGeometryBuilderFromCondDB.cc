@@ -70,11 +70,11 @@ GEMGeometry* GEMGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
     std::vector<float> pars;
-    pars.push_back(be); //b/2;
-    pars.push_back(te); //B/2;
-    pars.push_back(ap); //h/2;
-    pars.push_back(nstrip);
-    pars.push_back(npad);
+    pars.emplace_back(be); //b/2;
+    pars.emplace_back(te); //B/2;
+    pars.emplace_back(ap); //h/2;
+    pars.emplace_back(nstrip);
+    pars.emplace_back(npad);
     
     GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
       
@@ -99,7 +99,7 @@ GEMGeometry* GEMGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       gepls = chids[chid];
     }
     */
-    gepls.push_back(gep);
+    gepls.emplace_back(gep);
     //chids[chid]=gepls;
     
   }

@@ -109,7 +109,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 
     auto rls = chids.find(chid);
     if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
-    rls->second.push_back(r);
+    rls->second.emplace_back(r);
   }
 
   // Create the RPCChambers and store them on the Geometry

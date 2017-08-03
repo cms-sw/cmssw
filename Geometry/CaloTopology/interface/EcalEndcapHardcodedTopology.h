@@ -24,7 +24,7 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
     EEDetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==EEDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
   
@@ -37,7 +37,7 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
     EEDetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==EEDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
   
@@ -50,7 +50,7 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
     EEDetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==EEDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
   
@@ -63,7 +63,7 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
     EEDetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==EEDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
   

@@ -91,9 +91,9 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
       vv.reserve( pv.size() + 1 ) ;
       for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
       {
-	 vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
+	 vv.emplace_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
       }
-      vv.push_back( 0. ) ; // tilt=0 here
+      vv.emplace_back( 0. ) ; // tilt=0 here
       const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 							 ebg->parMgr(), 
 							 ebg->parVecVec() ) ) ;
