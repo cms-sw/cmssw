@@ -34,11 +34,11 @@ electronOfflineClientSequence = cms.Sequence(
 # * dqmElectronClientSelectionEtIsoElID
  * dqmElectronClientTagAndProbe
 )
-electronOfflineClientSequenceFromMultiCl = electronOfflineClientSequence.copy()
-electronOfflineClientSequenceFromMultiCl += cms.Sequence(dqmElectronClientAllElectronsFromMultiCl)
+_electronOfflineClientSequenceFromMultiCl = electronOfflineClientSequence.copy()
+_electronOfflineClientSequenceFromMultiCl += dqmElectronClientAllElectronsFromMultiCl
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  electronOfflineClientSequence, electronOfflineClientSequenceFromMultiCl
+  electronOfflineClientSequence, _electronOfflineClientSequenceFromMultiCl
 )
 

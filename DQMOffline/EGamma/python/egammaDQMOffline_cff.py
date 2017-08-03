@@ -43,10 +43,10 @@ stdPhotonAnalysisHGCal.etaMax = 3.0
 stdPhotonAnalysisHGCal.maxPhoEta = 3.0
 
 egammaDQMOffline = cms.Sequence(photonAnalysis*stdPhotonAnalysis*zmumugammaOldAnalysis*zmumugammaAnalysis*piZeroAnalysis*electronAnalyzerSequence)
-egammaDQMOfflineHGCal = egammaDQMOffline.copy()
-egammaDQMOfflineHGCal += cms.Sequence(stdPhotonAnalysisHGCal)
+_egammaDQMOfflineHGCal = egammaDQMOffline.copy()
+_egammaDQMOfflineHGCal += stdPhotonAnalysisHGCal
 
 phase2_hgcal.toReplaceWith(
-  egammaDQMOffline, egammaDQMOfflineHGCal
+  egammaDQMOffline, _egammaDQMOfflineHGCal
 )
 

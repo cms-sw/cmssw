@@ -13,5 +13,5 @@ _photonSequenceFromMultiCl += cms.Sequence ( photonCoreFromMultiCl + photonsFrom
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-photonSequence, _photonSequenceFromMultiCl
+ photonSequence, _photonSequenceFromMultiCl
 )

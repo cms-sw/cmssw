@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # Author:  Ursula Berthon, Claude Charlot
 #
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff import *
-from copy import deepcopy
 
 ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
@@ -35,24 +34,18 @@ ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     ecalDrivenElectronSeeds,
-    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCal')
-)
-phase2_hgcal.toModify(
-    ecalDrivenElectronSeeds.SeedConfiguration,
-    allowHGCal = cms.bool(True)
+    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCal'),
+    SeedConfiguration = dict( allowHGCal = cms.bool(True) )
 )
 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
-ecalDrivenElectronSeedsFromMultiCl = deepcopy(ecalDrivenElectronSeeds)
+ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone()
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     ecalDrivenElectronSeedsFromMultiCl,
-    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCalFromMultiCl')
-)
-phase2_hgcal.toModify(
-    ecalDrivenElectronSeedsFromMultiCl.SeedConfiguration,
-    allowHGCal = cms.bool(True)
+    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCalFromMultiCl'),
+    SeedConfiguration = dict( allowHGCal = cms.bool(True) )
 )
 
