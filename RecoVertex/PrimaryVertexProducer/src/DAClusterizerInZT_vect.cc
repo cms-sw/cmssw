@@ -247,7 +247,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
     // used in the next major loop to follow
     sumpi += gtracks._pi[itrack];
     
-    if (gtracks._Z_sum[itrack] > 1.d-100){
+    if (gtracks._Z_sum[itrack] > 1.e-100){
       kernel_calc_normalization(itrack, gtracks, gvertices);
     }
   }
@@ -268,13 +268,13 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
 	// prevents from vectorizing if 
 	delta += std::pow( vertices._t[ ivertex ] - tnew, 2 );
         vertices._t[ ivertex ] = tnew;
-      }
+      }         
 #ifdef VI_DEBUG
       else {
 	edm::LogInfo("sumw") << "invalid sum of weights in fit: " << vertices._sw[ivertex] << endl;
 	if (this->verbose_) {
 	  std::cout  << " a cluster melted away ?  pk=" << vertices._pk[ ivertex ] << " sumw="
-						   << vertices._sw[ivertex] << endl;
+		     << vertices._sw[ivertex] << endl;
 	}
       }
 #endif
@@ -352,30 +352,53 @@ bool DAClusterizerInZT_vect::merge(vertex_t & y, double & beta)const{
 
 bool 
 DAClusterizerInZT_vect::purge(vertex_t & y, track_t & tks, double & rho0, const double beta) const {
+  constexpr double eps = 1.e-100;
   // eliminate clusters with only one significant/unique track
   const unsigned int nv = y.GetSize();
   const unsigned int nt = tks.GetSize();
-
+  
   if (nv < 2)
     return false;
   
   double sumpmin = nt;
   unsigned int k0 = nv;
   
+  int nUnique = 0;
+  double sump = 0;
+
+  AlignedVector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt);
+  double * __restrict__ _inverse_zsums __attribute__ ((aligned (16)));
+  double * __restrict__ _arg_cache __attribute__ ((aligned (16)));
+  double * __restrict__ _eik_cache __attribute__ ((aligned (16)));
+  _inverse_zsums = inverse_zsums.data();
+  _arg_cache = arg_cache.data();
+  _eik_cache = eik_cache.data();
+  for(unsigned i = 0; i < nt; ++i) {
+    inverse_zsums[i] = tks._Z_sum[i] > eps ? 1./tks._Z_sum[i] : 0.0;
+  }
+
   for (unsigned int k = 0; k < nv; ++k) {
     
-    int nUnique = 0;
-    double sump = 0;
+    nUnique = 0;
+    sump = 0;
 
-    double pmax = y._pk[k] / (y._pk[k] + rho0 * local_exp(-beta * dzCutOff_* dzCutOff_));
+    const double pmax = y._pk[k] / (y._pk[k] + rho0 * local_exp(-beta * dzCutOff_* dzCutOff_));
+    const double pcut = uniquetrkweight_ * pmax;
+    for(unsigned i = 0; i < nt; ++i) {
+      const auto track_z = tks._z[i];
+      const auto track_t = tks._t[i];
+      const auto botrack_dz2 = -beta*tks._dz2[i];
+      const auto botrack_dt2 = -beta*tks._dt2[i];
+      
+      const auto mult_resz = track_z - y._z[k];
+      const auto mult_rest = track_t - y._t[k];
+      _arg_cache[i] = botrack_dz2 * ( mult_resz * mult_resz ) + botrack_dt2 * ( mult_rest * mult_rest );
+    }
+    local_exp_list(_arg_cache, _eik_cache, nt);
     for (unsigned int i = 0; i < nt; ++i) {
-      if (tks._Z_sum[i] > 1.e-100) {
-	double p = y._pk[k] * local_exp(-beta * Eik(tks._z[i], y._z[k], tks._dz2[i], tks._t[i], y._t[k], tks._dt2[i])) / tks._Z_sum[i];
-	sump += p;
-	if ((p > uniquetrkweight_ * pmax) && (tks._pi[i] > 0)) {
-	  ++nUnique;
-	}
-      }
+      const double p = y._pk[k] * _eik_cache[i] * _inverse_zsums[i];
+      sump += p;
+      nUnique += ( ( p > pcut ) & ( tks._pi[i] > 0 ) );
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {
