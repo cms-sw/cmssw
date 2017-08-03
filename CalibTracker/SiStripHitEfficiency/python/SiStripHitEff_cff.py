@@ -19,7 +19,7 @@ anEff = cms.EDAnalyzer("HitEff",
                        commonMode = cms.InputTag("siStripDigis", "CommonMode"),
                        addCommonMode = cms.untracked.bool(False),
                        # do not cut on the total number of tracks
-                       cutOnTracks = cms.untracked.bool(False),
+                       cutOnTracks = cms.untracked.bool(True),
                        # compatibility
                        trackMultiplicity = cms.untracked.int(100)
                        )
