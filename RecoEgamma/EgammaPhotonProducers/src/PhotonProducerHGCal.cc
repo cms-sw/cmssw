@@ -316,6 +316,10 @@ void PhotonProducerHGCal::fillPhotonCollection(
                                   photonEnergy);
       reco::Photon newCandidate(p4, scRef->position(), coreRef, vtx);
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+      // Make it an EE photon
+      reco::Photon::FiducialFlags fiducialFlags;
+      fiducialFlags.isEE = true;
+      newCandidate.setFiducialVolumeFlags(fiducialFlags);
       outputPhotonCollection.push_back(newCandidate);
       continue;
     }
