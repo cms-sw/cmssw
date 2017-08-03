@@ -214,9 +214,9 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     float LUMIMax = conf_->getParameter<double>("LUMIMax");
     
 
-    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
-    float MIN[]        = { 0.5,     0.5,  0., LUMIMin };
-    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
+    int NBINS[]        = { 60,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
+    float MIN[]        = { 0.5,     0.5,  LUMIMin, LUMIMin };
+    float MAX[]        = { 60.5, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
     
     int mon = -1;
@@ -261,21 +261,6 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
               hits_valid_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
 		  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 1:
-              hits_missing_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 2:
-              hits_inactive_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 3:
-              hits_bad_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 4:
               hits_total_.insert(std::make_pair(
@@ -356,6 +341,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       histname = "NumberOfValidRecHitsPerTrack_";
       NumberOfValidRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of valid RecHits for each Track");
+
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfLostRecHitsPerTrack_";
@@ -1295,14 +1281,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
             case 1:
-              hits_missing_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
-              break;
-            case 2:
-              hits_inactive_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
-              break;
-            case 3:
-              hits_bad_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << hit_type << " ignored\n";

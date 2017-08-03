@@ -49,6 +49,7 @@ trackingEffFromHitPattern = DQMEDHarvester("DQMGenericClient",
         "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
+        "Muons /globalMuonsHitEffFromHitPattern*",
                                            ),
                                            efficiency = cms.vstring(
         _layers("PU", "GoodNumVertices", "") +
