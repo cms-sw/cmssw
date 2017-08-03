@@ -9,6 +9,9 @@ hltSUSYmonitoring.histoPSet.metPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
+hltSUSYmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 hltSUSYmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.uint32(  60   ),
   xmin  = cms.double(   0   ),
@@ -48,6 +51,18 @@ hltSUSYmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   9999.   ),
   dz  = cms.double(   9999.   ),
 )
+
+hltSUSYmonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+hltSUSYmonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
+)
+
 
 #MET and HT binning
 hltSUSYmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
