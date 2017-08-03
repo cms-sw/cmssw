@@ -37,6 +37,7 @@ stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone()
 stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCalFromMultiCl'
 stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMultiCl'
 stdPhotonAnalysisHGCal.phoProducer = 'photonsFromMultiCl'
+stdPhotonAnalysisHGCal.isolationStrength = 2
 stdPhotonAnalysisHGCal.etaMin = -3.0
 stdPhotonAnalysisHGCal.etaMax = 3.0
 stdPhotonAnalysisHGCal.maxPhoEta = 3.0

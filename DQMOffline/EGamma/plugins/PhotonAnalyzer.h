@@ -137,6 +137,7 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
 
   bool photonSelection(const reco::Photon* p);
+  bool photonSelectionSlimmed(const reco::Photon* p);
   float phiNormalization(float& a);
 
   //////////
@@ -291,6 +292,7 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   MonitorElement* h_invMassAllPhotons_;
   MonitorElement* h_invMassPhotonsEBarrel_;
   MonitorElement* h_invMassPhotonsEEndcap_;
+  MonitorElement* h_invMassPhotonsEEndcapEBarrel_;
 
   ////////2D vectors of histograms
 
