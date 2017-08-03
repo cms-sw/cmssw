@@ -23,12 +23,12 @@ public:
 
 private:
 
+  static const int nobj_=5;
+  enum Types {EGamma=0, EtSum=1, Jet=2, Muon=3, Tau=4};
   template<typename T1>
   int objects(edm::Event&, edm::EDGetTokenT<T1> const&, edm::InputTag const&,
-	      int, int) const;
+	      HLTMultipletFilter::Types, int) const;
 
-  static const int nobj_=5;
-  enum Tyoes {EGamma=0, EtSum=1, Jet=2, Muon=3, Tau=4};
   edm::InputTag hltEGammaSeedLabel_, hltEtSumSeedLabel_;
   edm::InputTag hltJetSeedLabel_,    hltMuonSeedLabel_;
   edm::InputTag hltTauSeedLabel_;

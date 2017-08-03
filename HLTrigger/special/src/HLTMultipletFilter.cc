@@ -91,55 +91,36 @@ bool HLTMultipletFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // the filter object
   if (saveTags()) {
-    for (int type=0; type<nobj_; ++type) {
-      if (flag_[type]) {
-	switch (type) {
-	  case EGamma:
-	    filterproduct.addCollectionTag(hltEGammaSeedLabel_);
-	    break;
-	  case EtSum:
-	    filterproduct.addCollectionTag(hltEtSumSeedLabel_);
-	    break;
-	  case Jet:
-	    filterproduct.addCollectionTag(hltJetSeedLabel_);
-	    break;
- 	  case Muon:
-	    filterproduct.addCollectionTag(hltMuonSeedLabel_);
-	    break;
-	  default:
-	    filterproduct.addCollectionTag(hltTauSeedLabel_);
-	    break;
-	}
-      }
-    }
+    if (flag_[EGamma]) filterproduct.addCollectionTag(hltEGammaSeedLabel_);
+    if (flag_[EtSum])  filterproduct.addCollectionTag(hltEtSumSeedLabel_);
+    if (flag_[Jet])    filterproduct.addCollectionTag(hltJetSeedLabel_);
+    if (flag_[Muon])   filterproduct.addCollectionTag(hltMuonSeedLabel_);
+    if (flag_[Tau])    filterproduct.addCollectionTag(hltTauSeedLabel_);
   }
 
   bool      accept(false);
   const int ibx(0);
   int       nobj(0);
 
-  for (int type=0; type<nobj_; ++type) {
-    if (flag_[type]) {
-      switch (type) {
-        case EGamma: 	
-	  nobj += objects(iEvent,hltEGammaToken_,hltEGammaSeedLabel_,type,ibx);
-	  break;
-        case EtSum: 	
-	  nobj += objects(iEvent,hltEtSumToken_,hltEtSumSeedLabel_,type,ibx);
-	  break;
-        case Jet:
-	  nobj += objects(iEvent,hltJetToken_,hltJetSeedLabel_,type,ibx);
-	  break;
-        case Muon:
-	  nobj += objects(iEvent,hltMuonToken_,hltMuonSeedLabel_,type,ibx);
-	  break;
-        default:
-	  nobj += objects(iEvent,hltTauToken_,hltTauSeedLabel_,type,ibx);
-	  break;
-      }
-      if (nobj > minN_) accept = true;
-      if (accept) break;
-    }
+  if ((!accept) && flag_[EGamma]) {
+    nobj += objects(iEvent,hltEGammaToken_,hltEGammaSeedLabel_,EGamma,ibx);
+    if (nobj > minN_) accept = true;
+  }
+  if ((!accept) && flag_[EtSum]) {
+    nobj += objects(iEvent,hltEtSumToken_,hltEtSumSeedLabel_,EtSum,ibx);
+    if (nobj > minN_) accept = true;
+  }
+  if ((!accept) && flag_[Jet]) {
+    nobj += objects(iEvent,hltJetToken_,hltJetSeedLabel_,Jet,ibx);
+    if (nobj > minN_) accept = true;
+  }
+  if ((!accept) && flag_[Muon]) {
+    nobj += objects(iEvent,hltMuonToken_,hltMuonSeedLabel_,Muon,ibx);
+    if (nobj > minN_) accept = true;
+  }
+  if ((!accept) && flag_[Tau]) {
+    nobj += objects(iEvent,hltTauToken_,hltTauSeedLabel_,Tau,ibx);
+    if (nobj > minN_) accept = true;
   }
       
   edm::LogVerbatim("Report") << "Selection flag " << accept;
@@ -150,7 +131,7 @@ template<typename T1>
 int HLTMultipletFilter::objects(edm::Event& iEvent, 
 				edm::EDGetTokenT<T1> const& hltToken,
 				edm::InputTag const& hltSeedLabel,
-				int type, int ibx) const {
+				HLTMultipletFilter::Types type,int ibx) const {
   int nobj(0);
   edm::Handle<T1> objs;
   iEvent.getByToken(hltToken, objs);
