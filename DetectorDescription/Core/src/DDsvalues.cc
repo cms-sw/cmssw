@@ -31,7 +31,7 @@ void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =t
   for (; sit != sed; ++sit) {
     DDsvalues_type::const_iterator it = find(target.begin(),ted, (*sit).first);
     if (it!=ted) const_cast<DDsvalues_Content_type&>(*it).second = (*sit).second;
-    else target.push_back(*sit);
+    else target.emplace_back(*sit);
   }
   if (sortit) std::sort(target.begin(),target.end());
 }
@@ -94,7 +94,7 @@ unsigned int DDfetch(const std::vector<const DDsvalues_type *> & sp, DDValue & t
    unsigned int count = 0;
    for( const auto & it : sp ) {
      if (DDfetch( it, toFetch)) {
-       result.push_back(toFetch);
+       result.emplace_back(toFetch);
        ++count;
      }
    }    

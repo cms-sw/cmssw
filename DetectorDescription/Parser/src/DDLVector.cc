@@ -165,14 +165,14 @@ DDLVector::do_makeDouble( char const* str, char const* end )
 {
   std::string ts(str, end);
   double td = myRegistry_->evaluator().eval(pNameSpace, ts);
-  pVector.push_back(td);
+  pVector.emplace_back(td);
 }
 
 void
 DDLVector::do_makeString( char const* str, char const* end )
 {
   std::string ts(str, end);
-  pStrVector.push_back(ts);
+  pStrVector.emplace_back(ts);
 }
 
 void

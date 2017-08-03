@@ -60,8 +60,8 @@ void ClhepEvaluator::set(const std::string & ns, const std::string & name, const
       case HepTool::Evaluator::OK:
       case HepTool::Evaluator::WARNING_EXISTING_FUNCTION:
       case HepTool::Evaluator::WARNING_BLANK_STRING:
-         variables_.push_back(newVar);
-         values_.push_back(newVal);
+         variables_.emplace_back(newVar);
+         values_.emplace_back(newVal);
          break;
       default:
          std::cout << "set-var: ns=" << ns << " nm=" << name << " val=" << exprValue << std::endl;
@@ -80,8 +80,8 @@ void ClhepEvaluator::set(const std::string & n, const std::string & v)
       case HepTool::Evaluator::OK:
       case HepTool::Evaluator::WARNING_EXISTING_FUNCTION:
       case HepTool::Evaluator::WARNING_BLANK_STRING:
-         variables_.push_back(n);
-         values_.push_back(v);
+         variables_.emplace_back(n);
+         values_.emplace_back(v);
          break;
       default:
          std::cout << "set-varname=" << n << " val=" << v << std::endl;
@@ -199,11 +199,11 @@ void ClhepEvaluator::prepare(const std::string & ns,
             if (nsFound) 
             {
                nsFound=false; // reset
-               hasNs.push_back(1);
+               hasNs.emplace_back(1);
             }
             else 
             {
-               hasNs.push_back(0);	 
+               hasNs.emplace_back(0);	 
             }	
             break;
          case ':':

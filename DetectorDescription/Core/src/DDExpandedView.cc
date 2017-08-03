@@ -38,7 +38,7 @@ DDExpandedView::DDExpandedView( const DDCompactView & cpv )
 		      0);
   
   // starting point for position calculations, == root of expanded view
-  history_.push_back(expn);		      		      
+  history_.emplace_back(expn);		      		      
 }
 
 DDExpandedView::~DDExpandedView() { }  
@@ -156,7 +156,7 @@ bool DDExpandedView::firstChild()
       DDExpandedNode expn(curr.first, curr.second,
                           newTrans, newRot, 0);
     
-      history_.push_back(expn);			
+      history_.emplace_back(expn);			
       result = true;                     
     } // if firstChild 
   } // if depthNotReached
@@ -272,7 +272,7 @@ DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
       const DDGeoHistory & hist = geoHistory();
       
       if (DDCompareEqual(hist, psel)()) 
-	result.push_back( it.second );
+	result.emplace_back( it.second );
     }
   }  
 }
