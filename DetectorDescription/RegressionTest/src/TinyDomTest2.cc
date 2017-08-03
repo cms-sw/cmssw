@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 
 using std::vector;
@@ -20,7 +20,7 @@ unsigned int TinyDomTest2::allNodes(const Node2 & n2, vector<const AttList2*> & 
     {
       if (n2.first.sameName(dom_.nodeData(it).first))
 	{
-	  at2.push_back(&(dom_.nodeData(it).second));
+	  at2.emplace_back(&(dom_.nodeData(it).second));
 	}
     }
   return at2.size();

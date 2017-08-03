@@ -24,9 +24,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDStrVector);
 void
 testDDStrVector::buildIt() {
   auto strVec = new std::vector<std::string>;
-  strVec->push_back("One");
-  strVec->push_back("Two");
-  strVec->push_back("Three");
+  strVec->emplace_back("One");
+  strVec->emplace_back("Two");
+  strVec->emplace_back("Three");
   
   DDStrVector testVec( "TestVector", strVec );
   std::cerr << testVec << std::endl;
@@ -35,9 +35,9 @@ testDDStrVector::buildIt() {
 void
 testDDStrVector::testloading() {
   auto strVec = new std::vector<std::string>;
-  strVec->push_back("One");
-  strVec->push_back("Two");
-  strVec->push_back("Three");
+  strVec->emplace_back("One");
+  strVec->emplace_back("Two");
+  strVec->emplace_back("Three");
   
   DDStrVector testVec( "TestVector", strVec );
   std::ostringstream  os;

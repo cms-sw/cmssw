@@ -25,9 +25,9 @@ DDLMaterial::setReference( const std::string& nmspace, DDCompactView& cpv )
       auto refmat = myRegistry_->getElement("rMaterial");
       std::vector<std::string> names;
       std::vector<std::string> values;
-      names.push_back("name");
+      names.emplace_back("name");
       DDXMLAttribute atts = getAttributeSet();
-      values.push_back(atts.find("name")->second);
+      values.emplace_back(atts.find("name")->second);
       refmat->loadAttributes("rMaterial", names, values, nmspace, cpv);
     }
   // clear THIS material's values.
