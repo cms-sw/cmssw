@@ -57,7 +57,7 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
                                               ME0PadDigiClusterCollection &out_clusters)
 {
   // construct clusters
-  for (const auto& ch: geometry_->chambers()) {
+  for (const auto& ch: geometry_->layers()) {
 
     // proto collection
     std::vector<std::pair<ME0DetId, ME0PadDigiCluster> > proto_clusters;
