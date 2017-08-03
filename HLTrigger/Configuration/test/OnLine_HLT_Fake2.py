@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/Fake2 --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_9_2_0/Fake2/V3 (CMSSW_9_2_2)
+# /dev/CMSSW_9_2_0/Fake2/V4 (CMSSW_9_2_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/Fake2/V3')
+  tableName = cms.string('/dev/CMSSW_9_2_0/Fake2/V4')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -96,6 +96,7 @@ process.hcalDDDSimConstants = cms.ESProducer( "HcalDDDSimConstantsESModule",
 process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
+    enableDQMbyPath = cms.untracked.bool( False ),
     dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
     dqmPathMemoryResolution = cms.untracked.double( 5000.0 ),
     enableDQM = cms.untracked.bool( True ),
@@ -249,6 +250,7 @@ process.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
     lenSlinkHeader = cms.untracked.int32( 8 ),
     MTF7 = cms.untracked.bool( False ),
     FWId = cms.uint32( 0 ),
+    TMTCheck = cms.bool( True ),
     debug = cms.untracked.bool( False ),
     FedIds = cms.vint32( 1404 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
@@ -323,7 +325,8 @@ process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  ),
     processName = cms.string( "@" ),
-    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' ),
+    throw = cms.bool( False )
 )
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
