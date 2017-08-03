@@ -1,3 +1,5 @@
+# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/Fake2 --type Fake2
+
 # /dev/CMSSW_9_2_0/Fake2/V3 (CMSSW_9_2_2)
 
 import FWCore.ParameterSet.Config as cms
