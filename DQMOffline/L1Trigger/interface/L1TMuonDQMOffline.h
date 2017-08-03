@@ -1,8 +1,8 @@
-#ifndef DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
-#define DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
+#ifndef DQMOFFLINE_L1TRIGGER_L1TMUONDQMOFFLINE_H
+#define DQMOFFLINE_L1TRIGGER_L1TMUONDQMOFFLINE_H
 
 /**
- * \file L1TEfficiencyMuons.h
+ * \file L1TMuonDQMOffline.h
  *
  * \author J. Pela, C. Battilana
 *
@@ -110,10 +110,10 @@ class MuonGmtPair {
 // DQM class declaration
 //
 
-class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
+class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
-        L1TEfficiencyMuons_Offline(const edm::ParameterSet& ps);
-        virtual ~L1TEfficiencyMuons_Offline();
+        L1TMuonDQMOffline(const edm::ParameterSet& ps);
+        virtual ~L1TMuonDQMOffline();
 
     protected:
    // Luminosity Block
@@ -160,6 +160,7 @@ class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
         BXVector<l1t::Muon>  m_L1tL1tMuons;
 
         // config params
+        std::string m_HistFolder;
         std::vector<int> m_GmtPtCuts;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
         edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;

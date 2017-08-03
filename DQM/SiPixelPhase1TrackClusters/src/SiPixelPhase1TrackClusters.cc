@@ -22,7 +22,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
@@ -56,6 +56,8 @@ enum {  // copy paste from cfy: the only safe way to doit....
 
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
+
+  SiPixelPhase1ClustersSizeVsEtaOnTrack,
 
 
   SiPixelPhase1TrackClustersEnumSize
@@ -113,7 +115,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     if (!vertices.isValid() || vertices->empty()) return;
   }
 
-
   //get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
@@ -123,11 +124,11 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     return;
   }
 
+
   edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
   iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);
   auto const & pixelClusterShapeCache = *pixelClusterShapeCacheH;
 
-  
   for (auto const & track : *tracks) {
 
     if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy((*vertices)[0].position()) ) > 5*track.dxyError())) continue;
@@ -139,7 +140,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     if(std::abs(d0)<15 && std::abs(dz)<50) crossesPixVol = true;
 
     auto etatk = track.eta();
-
 
     auto const & trajParams = track.extra()->trajParams();
     assert(trajParams.size()==track.recHitsSize());
@@ -170,6 +170,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       auto localDir = ltp.momentum()/ltp.momentum().mag();
 
       // correct charge for track impact angle
+
       auto charge = cluster.charge()*ltp.absdz();
 
       auto clustgp =  pixhit->globalPosition();  // from rechit
@@ -203,6 +204,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       histo[SiPixelPhase1TrackClustersOnTrackPositionB].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackPositionF].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
 
+      histo[SiPixelPhase1ClustersSizeVsEtaOnTrack].fill(etatk, cluster.sizeY(), id, &iEvent);
+
       if(tkTpl.pxbLadder(id)%2==1) {
         histo[SiPixelPhase1ClustersSizeVsEtaOnTrackOuter].fill(etatk, cluster.sizeY(), id, &iEvent);
         histo[SiPixelPhase1TrackClustersOnTrackChargeOuter].fill(charge, id, &iEvent);
@@ -210,7 +213,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         histo[SiPixelPhase1ClustersSizeVsEtaOnTrackInner].fill(etatk, cluster.sizeY(), id, &iEvent);
         histo[SiPixelPhase1TrackClustersOnTrackChargeInner].fill(charge, id, &iEvent);
       }
-
 
     }
 
