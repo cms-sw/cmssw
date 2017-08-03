@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
