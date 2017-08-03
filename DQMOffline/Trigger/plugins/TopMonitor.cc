@@ -86,47 +86,6 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , MHTcut_     ( iConfig.getParameter<double>("MHTcut" )     )
 {
     ObjME empty;
-    empty.numerator = nullptr;
-    empty.denominator = nullptr;
-
-    metME_ = empty ;
-    metME_variableBinning_ = empty ;
-    metVsLS_ = empty ;
-    metPhiME_ = empty ;
-    eventHT_ = empty ;
-    jetVsLS_ = empty ;
-    muVsLS_ = empty ;
-    eleVsLS_ = empty ;
-    // Marina
-    bjetVsLS_ = empty ;
-    htVsLS_ = empty ;
-    jetEtaPhi_HEP17_ = empty; // for HEP17 monitoring
-
-    jetMulti_ = empty;
-    eleMulti_ = empty;
-    muMulti_ = empty;
-    // Marina
-    bjetMulti_ = empty;
-
-    elePt_jetPt_ = empty;
-    elePt_eventHT_ = empty;
-
-    ele1Pt_ele2Pt_ = empty;
-    ele1Eta_ele2Eta_ = empty;
-    mu1Pt_mu2Pt_ = empty;
-    mu1Eta_mu2Eta_ = empty;
-    elePt_muPt_ = empty;
-    eleEta_muEta_ = empty;
-    //george
-    invMass_mumu_=empty;
-    eventMHT_=empty;
-    invMass_mumu_variableBinning_=empty;
-    eventMHT_variableBinning_=empty;
-
-
-
-    //BTV
-    DeltaR_jet_Mu_ = empty;
 
     muPhi_= std::vector<ObjME> (nmuons_,empty);
     muEta_= std::vector<ObjME> (nmuons_,empty);
@@ -143,7 +102,6 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     elePt_variableBinning_= std::vector<ObjME> (nelectrons_,empty);
     elePtEta_= std::vector<ObjME> (nelectrons_,empty);
     eleEtaPhi_= std::vector<ObjME> (nelectrons_,empty);
-
 
     jetPhi_= std::vector<ObjME> (njets_,empty);
     jetEta_= std::vector<ObjME> (njets_,empty);
