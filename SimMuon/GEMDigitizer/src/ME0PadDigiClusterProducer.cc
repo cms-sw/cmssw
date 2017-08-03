@@ -96,11 +96,11 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
     } // end of partition loop
 
     // cluster selection: pick first maxClusters_ for now
-    unsigned int iCluster=0;
-    for (const auto& p: proto_clusters){
-      out_clusters.insertDigi(ME0DetId(p.first), p.second);
-      iCluster++;
-      if (iCluster>maxClusters_) break;
+    unsigned loopMax=std::min(maxClusters_,unsigned(proto_clusters.size()));
+    for ( unsigned int i=0; i<loopMax; i++) {
+      const auto& detid(proto_clusters[i].first);
+      const auto& cluster(proto_clusters[i].second);
+      out_clusters.insertDigi(detid, cluster);
     }
   } // end of chamber loop
 }
