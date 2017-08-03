@@ -105,7 +105,7 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
 	DDMaterial tmat(i.first); 
 
 	if (DDCheckMaterial(tmat,error)) {
-	   errors.push_back(error);
+	   errors.emplace_back(error);
 	}	      
    }
 

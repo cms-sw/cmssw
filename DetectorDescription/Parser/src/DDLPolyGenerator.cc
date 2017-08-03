@@ -41,8 +41,8 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   for (size_t i = 0; i < myRZPoints->size(); ++i)
   {
     atts = myRZPoints->getAttributeSet(i);
-    z.push_back(ev.eval(nmspace, atts.find("z")->second));
-    r.push_back(ev.eval(nmspace, atts.find("r")->second));
+    z.emplace_back(ev.eval(nmspace, atts.find("z")->second));
+    r.emplace_back(ev.eval(nmspace, atts.find("r")->second));
   }
 
   // if z is empty, then it better not have been a polycone defined
@@ -57,9 +57,9 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
     for (size_t i = 0; i < myZSection->size(); ++i)
     {
       atts = myZSection->getAttributeSet(i);
-      z.push_back(ev.eval(nmspace, atts.find("z")->second));
-      r.push_back(ev.eval(nmspace, atts.find("rMin")->second));
-      rMax.push_back(ev.eval(nmspace, atts.find("rMax")->second));
+      z.emplace_back(ev.eval(nmspace, atts.find("z")->second));
+      r.emplace_back(ev.eval(nmspace, atts.find("rMin")->second));
+      rMax.emplace_back(ev.eval(nmspace, atts.find("rMax")->second));
     }
     atts = getAttributeSet();
     if (name == "Polycone") // defined with ZSections 
