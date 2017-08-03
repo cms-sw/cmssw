@@ -77,11 +77,9 @@ HGCalRecHit = cms.EDProducer(
     HGCHEB_isSiFE   = HGCalUncalibRecHit.HGCHEBConfig.isSiFE,
     # don't produce rechit if detid is a ghost one
     # smallest and largest ghost detid on positive side
-    GhostDetIdPosMin = 1162362881,
-    GhostDetIdPosMax = 1162362952,
-    # smallest and largest ghost detid on negative side
-    GhostDetIdNegMin = 1161838593,
-    GhostDetIdNegMax = 1161838664,
+    rangeMask = cms.uint32(4294442496),
+    rangeMatch = cms.uint32(1161838592),
+
 
     # EM Scale calibrations
     layerWeights = dEdX_weights,
