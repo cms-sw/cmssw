@@ -218,7 +218,7 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
      }  
     }
     else {
-      errs.push_back(ma);
+      errs.emplace_back(ma);
     }
   }
   

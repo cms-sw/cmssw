@@ -347,6 +347,10 @@ void Graph<N,E>::findRoots(edge_list & result) const
   std::vector<bool>::size_type v_ed = rootCandidate.size();
   for (; v_sz < v_ed; ++v_sz) {
     if (rootCandidate[v_sz]) {
+<<<<<<< HEAD:DataFormats/Math/interface/Graph.h
+=======
+      //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
+>>>>>>> DetectorDescription Clang check modernize-use-emplace:DetectorDescription/Core/interface/adjgraph.h
       result.emplace_back(edge_type(v_sz,0));    
     }
   }  

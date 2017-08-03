@@ -160,12 +160,12 @@ DDLParser::parse( const DDLDocumentProvider& dp )
     std::string tf = fileList[fileIndex];
     if ( ts.size() > 0 ) {
       if ( ts[ts.size() - 1] == '/') {
-	fullFileName.push_back( ts + tf );
+	fullFileName.emplace_back( ts + tf );
       } else {
-	fullFileName.push_back( ts + "/" + tf );
+	fullFileName.emplace_back( ts + "/" + tf );
       }
     } else {
-      fullFileName.push_back( tf );
+      fullFileName.emplace_back( tf );
     }
   }
 
