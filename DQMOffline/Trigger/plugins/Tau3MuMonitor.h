@@ -28,8 +28,6 @@
 // DataFormats
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
-class GenericTriggerEventFlag;
-
 struct MEbinning {
   unsigned int nbins;
   double xmin;
@@ -52,6 +50,8 @@ class Tau3MuMonitor : public DQMEDAnalyzer
     static MEbinning getHistoPSet   (edm::ParameterSet pset);
   
     std::string folderName_;
+    
+    bool validProduct_ = true; // internally store a flag to remember whether the needed tau3mu collection is present and valid
   
     edm::EDGetTokenT<reco::CompositeCandidateCollection> tauToken_; // tau 3 mu collection
   
@@ -66,7 +66,7 @@ class Tau3MuMonitor : public DQMEDAnalyzer
     MEbinning phi_binning_ ; // for the 1D tau phi histogram and 2D tau eta vs phi histogram
     MEbinning mass_binning_; // for the 1D tau mass histogram
       
-    GenericTriggerEventFlag* genTriggerEventFlag_; // "is trigger fired?" flag
+    std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_; // "is trigger fired?" flag
 };
 
 #endif // TAU3MUMONITOR_H
