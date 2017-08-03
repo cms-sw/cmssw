@@ -10,7 +10,7 @@ namespace reco { namespace tau {
 
 namespace {
   // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
-  const reco::TrackBaseRef getTrackRef(const PFCandidate& cand) 
+  const reco::TrackBaseRef getTrackRef(const Candidate& cand) 
   {
     if ( cand.trackRef().isNonnull() ) return reco::TrackBaseRef(cand.trackRef());
     else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
@@ -33,13 +33,13 @@ bool ptMin(const TrackBaseRef& track, double cut)
   return (track->pt() > cut);
 }
 
-bool ptMin_cand(const PFCandidate& cand, double cut) 
+bool ptMin_cand(const Candidate& cand, double cut) 
 {
   LogDebug("TauQCuts") << "<ptMin_cand>: Pt = " << cand.pt() << ", cut = " << cut ;
   return (cand.pt() > cut);
 }
 
-bool etMin_cand(const PFCandidate& cand, double cut) 
+bool etMin_cand(const Candidate& cand, double cut) 
 {
   LogDebug("TauQCuts") << "<etMin_cand>: Et = " << cand.et() << ", cut = " << cut ;
   return (cand.et() > cut);
@@ -52,7 +52,7 @@ bool trkPixelHits(const TrackBaseRef& track, int cut)
   return (track->hitPattern().numberOfValidPixelHits() >= cut);
 }
 
-bool trkPixelHits_cand(const PFCandidate& cand, int cut) 
+bool trkPixelHits_cand(const Candidate& cand, int cut) 
 {
   // For some reason, the number of hits is signed
   auto track = getTrackRef(cand);
@@ -71,7 +71,7 @@ bool trkTrackerHits(const TrackBaseRef& track, int cut)
   return (track->hitPattern().numberOfValidHits() >= cut);
 }
 
-bool trkTrackerHits_cand(const PFCandidate& cand, int cut) 
+bool trkTrackerHits_cand(const Candidate& cand, int cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
@@ -96,7 +96,7 @@ bool trkTransverseImpactParameter(const TrackBaseRef& track, const reco::VertexR
   return (std::fabs(track->dxy((*pv)->position())) <= cut);
 }
 
-bool trkTransverseImpactParameter_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+bool trkTransverseImpactParameter_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
@@ -120,7 +120,7 @@ bool trkLongitudinalImpactParameter(const TrackBaseRef& track, const reco::Verte
   return (std::fabs(track->dz((*pv)->position())) <= cut);
 }
 
-bool trkLongitudinalImpactParameter_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+bool trkLongitudinalImpactParameter_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
@@ -142,7 +142,7 @@ bool trkLongitudinalImpactParameterWrtTrack(const TrackBaseRef& track, const rec
   return (std::fabs(track->dz((*pv)->position()) - (*leadTrack)->dz((*pv)->position())) <= cut);
 }
 
-bool trkLongitudinalImpactParameterWrtTrack_cand(const PFCandidate& cand, const reco::TrackBaseRef* leadTrack, const reco::VertexRef* pv, double cut) 
+bool trkLongitudinalImpactParameterWrtTrack_cand(const Candidate& cand, const reco::TrackBaseRef* leadTrack, const reco::VertexRef* pv, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) return trkLongitudinalImpactParameterWrtTrack(track, leadTrack, pv, cut);
@@ -162,7 +162,7 @@ bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, 
   return ((*pv)->trackWeight(track) >= cut);
 }
 
-bool minTrackVertexWeight_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+bool minTrackVertexWeight_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
@@ -179,7 +179,7 @@ bool trkChi2(const TrackBaseRef& track, double cut)
   return (track->normalizedChi2() <= cut);
 }
 
-bool trkChi2_cand(const PFCandidate& cand, double cut) 
+bool trkChi2_cand(const Candidate& cand, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
@@ -200,7 +200,7 @@ bool AND(const TrackBaseRef& track, const RecoTauQualityCuts::TrackQCutFuncColle
   return true;
 }
 
-bool AND_cand(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncCollection& cuts) 
+bool AND_cand(const Candidate& cand, const RecoTauQualityCuts::CandQCutFuncCollection& cuts) 
 {
   BOOST_FOREACH( const RecoTauQualityCuts::CandQCutFunc& func, cuts ) {
     if ( !func(cand) ) return false;
@@ -209,10 +209,10 @@ bool AND_cand(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncCol
 }
 
 // Get the set of Q cuts for a given type (i.e. gamma)
-bool mapAndCutByType(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncMap& funcMap) 
+bool mapAndCutByType(const Candidate& cand, const RecoTauQualityCuts::CandQCutFuncMap& funcMap) 
 {
   // Find the cuts that for this particle type
-  RecoTauQualityCuts::CandQCutFuncMap::const_iterator cuts = funcMap.find(cand.particleId());
+  RecoTauQualityCuts::CandQCutFuncMap::const_iterator cuts = funcMap.find(std::abs(cand.pdgId()));
   // Return false if we dont' know how to deal with this particle type
   if ( cuts == funcMap.end() ) return false; 
   return AND_cand(cand, cuts->second); // Otherwise AND all the cuts
@@ -378,26 +378,26 @@ bool RecoTauQualityCuts::filterTrack_(const T& trackRef) const
   return true;
 }
 
-bool RecoTauQualityCuts::filterGammaCand(const reco::PFCandidate& cand) const {
+bool RecoTauQualityCuts::filterGammaCand(const reco::Candidate& cand) const {
   if(minGammaEt_ >= 0 && !(cand.et() > minGammaEt_)) return false;
   return true;
 }
 
-bool RecoTauQualityCuts::filterNeutralHadronCand(const reco::PFCandidate& cand) const {
+bool RecoTauQualityCuts::filterNeutralHadronCand(const reco::Candidate& cand) const {
   if(minNeutralHadronEt_ >= 0 && !(cand.et() > minNeutralHadronEt_)) return false;
   return true;
 }
 
-bool RecoTauQualityCuts::filterCandByType(const reco::PFCandidate& cand) const {
-  switch(cand.particleId()) {
-  case PFCandidate::gamma:
+bool RecoTauQualityCuts::filterCandByType(const reco::Candidate& cand) const {
+  switch(std::abs(cand.pdgId())) {
+  case 22:
     return filterGammaCand(cand);
-  case PFCandidate::h0:
+  case 130:
     return filterNeutralHadronCand(cand);
   // We use the same qcuts for muons/electrons and charged hadrons.
-  case PFCandidate::h:
-  case PFCandidate::e:
-  case PFCandidate::mu:
+  case 211:
+  case 11:
+  case 13:
     // no cuts ATM (track cuts applied in filterCand)
     return true;
   // Return false if we dont' know how to deal with this particle type
@@ -407,7 +407,7 @@ bool RecoTauQualityCuts::filterCandByType(const reco::PFCandidate& cand) const {
   return false;
 }
 
-bool RecoTauQualityCuts::filterCand(const reco::PFCandidate& cand) const 
+bool RecoTauQualityCuts::filterCand(const reco::Candidate& cand) const 
 {
   auto trackRef = cand.trackRef();
   bool result = true;
@@ -430,12 +430,12 @@ void RecoTauQualityCuts::setLeadTrack(const reco::TrackRef& leadTrack) const
   leadTrack_ = reco::TrackBaseRef(leadTrack);
 }
 
-void RecoTauQualityCuts::setLeadTrack(const reco::PFCandidate& leadCand) const 
+void RecoTauQualityCuts::setLeadTrack(const reco::Candidate& leadCand) const 
 {
   leadTrack_ = getTrackRef(leadCand);
 }
 
-void RecoTauQualityCuts::setLeadTrack(const reco::PFCandidateRef& leadCand) const 
+void RecoTauQualityCuts::setLeadTrack(const reco::CandidateRef& leadCand) const 
 {
   if ( leadCand.isNonnull() ) {
     leadTrack_ = getTrackRef(*leadCand);

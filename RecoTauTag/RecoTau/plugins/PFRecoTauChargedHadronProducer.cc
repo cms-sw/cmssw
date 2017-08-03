@@ -73,7 +73,7 @@ public:
 
   // input jet collection
   edm::InputTag srcJets_;
-  edm::EDGetTokenT<reco::CandidateView> Jets_token;
+  edm::EDGetTokenT<reco::JetView> Jets_token;
   double minJetPt_;
   double maxJetAbsEta_;
 
@@ -94,7 +94,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
-  Jets_token = consumes<reco::CandidateView>(srcJets_);
+  Jets_token = consumes<reco::JetView>(srcJets_);
   minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
   maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -147,11 +147,17 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
   
   // get a view of our jets via the base candidates
-  edm::Handle<reco::CandidateView> jets;
+  edm::Handle<reco::JetView> jets;
   evt.getByToken(Jets_token, jets);
   
   // convert the view to a RefVector of actual PFJets
-  reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
+  // reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
+  edm::RefToBaseVector<reco::Jet> pfJets;
+   // = reco::tau::castView<edm::RefToBaseVector<reco::Jet>>(jets);
+  size_t nElements = jets->size();
+  for (size_t i = 0; i < nElements; ++i) {
+    pfJets.push_back(jets->refAt(i));
+  }
 
   // make our association
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
@@ -160,13 +166,15 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   if ( !pfJets.empty() ) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     evt.get(pfJets.id(), pfJetCollectionHandle);
-    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::JetRefBaseProd(pfJetCollectionHandle));
   } else {
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>();
   }
 
   // loop over our jets
-  BOOST_FOREACH( const reco::PFJetRef& pfJet, pfJets ) {
+  // BOOST_FOREACH( const reco::JetBaseRef& pfJet, pfJets ) {
+  for (size_t i_j = 0; i_j < pfJets.size(); ++i_j) {
+    const auto& pfJet = pfJets.at(i_j);
     
     if(pfJet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;

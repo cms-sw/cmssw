@@ -17,7 +17,7 @@ namespace reco { namespace tau {
 
 // Get the highest pt track in a jet.
 // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
-reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
+reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const
 {
   std::vector<PFCandidatePtr> chargedPFCands = pfChargedCands(jet, true);
   if ( verbosity_ >= 1 ) {
@@ -229,7 +229,7 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt)
   }
   edm::EventNumber_t currentEvent = evt.id().event();
   if ( currentEvent != lastEvent_ || !jetToVertexAssociation_ ) {
-    if ( !jetToVertexAssociation_ ) jetToVertexAssociation_ = new std::map<const reco::PFJet*, reco::VertexRef>;
+    if ( !jetToVertexAssociation_ ) jetToVertexAssociation_ = new std::map<const reco::Jet*, reco::VertexRef>;
     else jetToVertexAssociation_->clear();
     lastEvent_ = currentEvent;
   }
@@ -248,7 +248,7 @@ RecoTauVertexAssociator::associatedVertex(const PFTau& tau, bool useJet) const
     }
   }
   // MB: use vertex associated to a given jet if explicitely requested or in case of missing leading track
-  reco::PFJetRef jetRef = tau.jetRef();
+  reco::JetRef jetRef = tau.jetRef();
   // FIXME workaround for HLT which does not use updated data format
   if ( jetRef.isNull() ) jetRef = tau.pfTauTagInfoRef()->pfjetRef();
   return associatedVertex(*jetRef);
@@ -335,7 +335,7 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 }
 
 reco::VertexRef
-RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const 
+RecoTauVertexAssociator::associatedVertex(const Jet& jet) const 
 {
   if ( verbosity_ >= 1 ) {
     std::cout << "<RecoTauVertexAssociator::associatedVertex>:" << std::endl;
@@ -348,10 +348,10 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const
   }
 
   reco::VertexRef jetVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
-  const PFJet* jetPtr = &jet;
+  const Jet* jetPtr = &jet;
 
   // check if jet-vertex association has been determined for this jet before
-  std::map<const reco::PFJet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
+  std::map<const reco::Jet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
   if ( vertexPtr != jetToVertexAssociation_->end() ) {
     jetVertex = vertexPtr->second;
   } else {
@@ -372,7 +372,7 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const
       }
     }
     
-    jetToVertexAssociation_->insert(std::pair<const PFJet*, reco::VertexRef>(jetPtr, jetVertex));
+    jetToVertexAssociation_->insert(std::pair<const Jet*, reco::VertexRef>(jetPtr, jetVertex));
   }
 
   if ( verbosity_ >= 1 ) {

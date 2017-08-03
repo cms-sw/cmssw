@@ -134,7 +134,8 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(jet_token, jetView);
   
   // Convert to a vector of PFJetRefs
-  reco::PFJetRefVector jets = reco::tau::castView<reco::PFJetRefVector>(jetView);
+  // reco::PFJetRefVector jets = reco::tau::castView<reco::PFJetRefVector>(jetView);
+  edm::RefToBaseVector<reco::Jet> jets = reco::tau::castView<edm::RefToBaseVector<reco::Jet>>(jetView);
   
   // Get the jet region producer
   edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;

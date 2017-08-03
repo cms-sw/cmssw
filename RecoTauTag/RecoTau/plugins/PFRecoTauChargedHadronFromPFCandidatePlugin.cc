@@ -21,7 +21,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
@@ -44,7 +44,7 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   ~PFRecoTauChargedHadronFromPFCandidatePlugin() override;
   // Return type is auto_ptr<ChargedHadronVector>
-  return_type operator()(const reco::PFJet&) const override;
+  return_type operator()(const reco::Jet&) const override;
   // Hook to update PV information
   void beginEvent() override;
   
@@ -163,7 +163,7 @@ namespace
   }
 }
 
-PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::PFJet& jet) const 
+PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::Jet& jet) const 
 {
   if ( verbosity_ ) {
     edm::LogPrint("TauChHadronFromPF") << "<PFRecoTauChargedHadronFromPFCandidatePlugin::operator()>:";
