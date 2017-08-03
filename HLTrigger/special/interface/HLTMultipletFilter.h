@@ -27,7 +27,7 @@ private:
   enum Types {EGamma=0, EtSum=1, Jet=2, Muon=3, Tau=4};
   template<typename T1>
   int objects(edm::Event&, edm::EDGetTokenT<T1> const&, edm::InputTag const&,
-	      HLTMultipletFilter::Types, int) const;
+	      HLTMultipletFilter::Types) const;
 
   edm::InputTag hltEGammaSeedLabel_, hltEtSumSeedLabel_;
   edm::InputTag hltJetSeedLabel_,    hltMuonSeedLabel_;
@@ -35,7 +35,7 @@ private:
   double        minEta_, maxEta_;
   double        minPhi_, maxPhi_;
   double        minPt_;
-  int           minN_;
+  int           ibxMin_, ibxMax_, minN_;
   bool          flag_[nobj_];
   edm::EDGetTokenT<l1t::EGammaBxCollection> hltEGammaToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection>  hltEtSumToken_;
