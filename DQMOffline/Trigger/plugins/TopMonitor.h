@@ -45,12 +45,6 @@
 
 class GenericTriggerEventFlag;
 
-//Suvankar
-struct PVcut {
-  double dxy;
-  double dz;
-};
-
 
 //
 // class declaration
@@ -92,6 +86,12 @@ private:
   edm::EDGetTokenT<reco::JetTagCollection>  jetTagToken_ ;
   //Suvankar
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+ //Suvankar
+  struct PVcut {
+      double dxy;
+      double dz;
+  };
 
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
