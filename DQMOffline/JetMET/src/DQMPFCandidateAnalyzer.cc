@@ -409,6 +409,9 @@ void DQMPFCandidateAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&
 // ***********************************************************
 void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  for (int ic=0; ic<(int)countsPFCandRECO_.size();ic++){
+    countsPFCandRECO_[ic]=0;
+  }
 
   //Vertex information
   Handle<VertexCollection> vertexHandle;
