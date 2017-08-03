@@ -34,7 +34,7 @@ a given threshold
 //
 // constructors and destructor
 //
-HLTHcalLaserMisfireFilter::HLTHcalLaserMisfireFilter(const edm::ParameterSet& config)  : HLTFilter(config) {
+HLTHcalLaserMisfireFilter::HLTHcalLaserMisfireFilter(const edm::ParameterSet& config) {
   inputHBHE_            = config.getParameter<edm::InputTag>("InputHBHE");
   inputHF_              = config.getParameter<edm::InputTag>("InputHF");
   minFracDiffHBHELaser_ = config.getParameter<double>("minFracDiffHBHELaser");
@@ -52,7 +52,6 @@ HLTHcalLaserMisfireFilter::~HLTHcalLaserMisfireFilter() { }
  
 void HLTHcalLaserMisfireFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("InputHBHE",edm::InputTag("source"));
   desc.add<edm::InputTag>("InputHF",edm::InputTag("source"));
   desc.add<int>("minADCHBHE",10);
@@ -63,14 +62,9 @@ void HLTHcalLaserMisfireFilter::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("hltHcalLaserMisfireFilter",desc);
 }
 
-bool HLTHcalLaserMisfireFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+bool HLTHcalLaserMisfireFilter::filter(edm::StreamID, edm::Event& iEvent,
+				       const edm::EventSetup& iSetup) const {
 
-  // the filter object
-  if (saveTags()) {
-    filterproduct.addCollectionTag(inputHBHE_);
-    filterproduct.addCollectionTag(inputHF_);
-  }
-  
   edm::Handle<HBHEDigiCollection>     hbhe_digi; 
   iEvent.getByToken(inputTokenHBHE_,  hbhe_digi);
 
