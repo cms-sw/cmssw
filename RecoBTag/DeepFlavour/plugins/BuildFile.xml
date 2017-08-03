@@ -8,6 +8,6 @@
   <use   name="DataFormats/PatCandidates"/>
   <use name="CommonTools/UtilAlgos"/>
   <use   name="TrackingTools/IPTools"/>
-  <use   name="PhysicsTools/TensorflowInterface" />
+  <use   name="PhysicsTools/TensorFlow" />
   <flags   EDM_PLUGIN="1"/>
 </library>
