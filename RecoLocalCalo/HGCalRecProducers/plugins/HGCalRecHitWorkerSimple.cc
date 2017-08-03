@@ -55,10 +55,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     hgcHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
 
     // don't produce rechit if detid is a ghost one
-    GhostDetIdPosMin_ = ps.getParameter<int>("GhostDetIdPosMin");
-    GhostDetIdPosMax_ = ps.getParameter<int>("GhostDetIdPosMax");
-    GhostDetIdNegMin_ = ps.getParameter<int>("GhostDetIdNegMin");
-    GhostDetIdNegMax_ = ps.getParameter<int>("GhostDetIdNegMax");
+    rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
+    rangeMask_  = ps.getParameter<uint32_t>("rangeMask");
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
@@ -92,7 +90,8 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
 {
     DetId detid = uncalibRH.id();
 // don't produce rechit if detid is a ghost one
-    if((detid < GhostDetIdPosMax_ +1  and GhostDetIdPosMin_-1 < detid ) or (detid < GhostDetIdNegMax_+1  and GhostDetIdNegMin_-1 < detid ) )
+
+    if((detid & rangeMask_) == rangeMatch_)
         return false;
 
     int thickness = -1;
