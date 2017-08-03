@@ -1,31 +1,13 @@
 ### Add MC classification by hits
-
-from SimGeneral.MixingModule.mixNoPU_cfi import *
-
-trackingParticlesNoSimHits = mix.clone(
-    digitizers = cms.PSet(
-        mergedtruth = theDigitizersValid.mergedtruth.clone(
-            simHitCollections = cms.PSet(
-                pixel = cms.VInputTag(),
-                tracker = cms.VInputTag(),
-                muon = cms.VInputTag(),
-            )
-        ),
-    ),
-    mixObjects = cms.PSet(
-        mixHepMC    = mix.mixObjects.mixHepMC.clone(),
-        mixVertices = mix.mixObjects.mixVertices.clone(),
-        mixTracks   = mix.mixObjects.mixTracks.clone(),
-    ),
-)
-
+### Note: this cfi needs TrackingParticle collection from the Event
+ 
 from SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi import * 
 
 classByHitsTM = cms.EDProducer("MuonMCClassifier",
     muons = cms.InputTag("muons"),
     muonPreselection = cms.string("muonID('TrackerMuonArbitrated')"), # definition of "duplicates" depends on the preselection
     trackType = cms.string("segments"),  # 'inner','outer','global','segments','glb_or_trk'
-    trackingParticles = cms.InputTag("trackingParticlesNoSimHits","MergedTrackTruth"),         
+    trackingParticles = cms.InputTag("mix","MergedTrackTruth"), # default TrackingParticle collection (should exist in the Event)      
     associatorLabel   = cms.InputTag("muonAssociatorByHitsNoSimHitsHelper"),
     decayRho  = cms.double(200), # to classify differently decay muons included in ppMuX
     decayAbsZ = cms.double(400), # and decay muons that could not be in ppMuX
@@ -50,7 +32,6 @@ classByHitsGlbOrTrk = classByHitsTM.clone(
 
 
 muonClassificationByHits = cms.Sequence(
-    trackingParticlesNoSimHits +
     muonAssociatorByHitsNoSimHitsHelper +
     ( 
 #      classByHitsTM      +
