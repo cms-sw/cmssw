@@ -17,7 +17,11 @@ anEff = cms.EDAnalyzer("HitEff",
                        lumiScalers = cms.InputTag("scalersRawToDigi"),
                        addLumi = cms.untracked.bool(False),
                        commonMode = cms.InputTag("siStripDigis", "CommonMode"),
-                       addCommonMode = cms.untracked.bool(False)
+                       addCommonMode = cms.untracked.bool(False),
+                       # do not cut on the total number of tracks
+                       cutOnTracks = cms.untracked.bool(False),
+                       # compatibility
+                       trackMultiplicity = cms.untracked.int(100)
                        )
 
 hiteff = cms.Sequence( anEff )
