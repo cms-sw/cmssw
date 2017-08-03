@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
 // .L CalibSort.C+g
-//  CalibSort(fname, dirname, prefix, flag, double mipCut);
+//  CalibSort c1(fname, dirname, prefix, flag, mipCut);
 //  c1.Loop();
-//  findDuplicate(infile, outfile, debug)
+//  findDuplicate(infile, outfile, mode debug)
 //
 //        This will prepare a list of dupliate entries from combined
-//        daa sets
+//        data sets
 //
 //   where:
 // 
@@ -25,6 +25,8 @@
 //                               information (created by CalibSort)
 //   outfile (std::string)     = name of the file containing the entry numbers
 //                               of duplicate events
+//   mode    (bool)            = algorithm type New=true/Old=false
+//                               (default = true)
 //   debug   (bool)            = true/false for getting or not debug printouts
 //                               (default = false)
 //////////////////////////////////////////////////////////////////////////////
@@ -42,20 +44,32 @@
 #include <TLegend.h>
 #include <TPaveStats.h>
 #include <TPaveText.h>
+
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 
-struct record {
-  record() {
-    serial_ = entry_ = run_ = event_ = ieta_ = p_ = 0;
-  };
-  record(int ser, int ent, int r, int ev, int ie, double p) :
-    serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {};
-  int serial_, entry_, run_, event_, ieta_;
+class record {
+public:
+  record(int ser=0, int ent=0, int r=0, int ev=0, int ie=0, double p=0) :
+    serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {}
+  virtual ~record() {}
+
+  int    serial_, entry_, run_, event_, ieta_;
   double p_;
+};
+
+class recordLess {
+public:
+  bool operator() (const record& a, const record& b) {
+    return ((a.run_ < b.run_) || 
+	    ((a.run_ == b.run_) && (a.event_ <  b.event_)) ||
+	    ((a.run_ == b.run_) && (a.event_ == b.event_) && 
+	     (a.ieta_ < b.ieta_)));
+  }
 };
 
 class CalibSort {
@@ -374,7 +388,7 @@ void readRecords(std::string fname, std::vector<record>& records, bool debug) {
   }
 }
 
-void sort(std::vector<record>& records, bool debug) {
+void sortOld(std::vector<record>& records, bool debug) {
   // First sort by run number
   for (int c = 0 ; c < ((int)(records.size())-1); c++) {
     for (int d = 0; d < ((int)(records.size())-c-1); d++) {
@@ -418,6 +432,20 @@ void sort(std::vector<record>& records, bool debug) {
   }
 }
 
+void sortNew(std::vector<record>& records, bool debug) {
+  // Use std::sort
+  std::sort(records.begin(), records.end(), recordLess());
+  if (debug) {
+    for (unsigned int k=0; k<records.size(); ++k) {
+      std::cout << "[" << k << ":" << records[k].serial_ << ":" 
+		<< records[k].entry_ << "] " << records[k].run_ << ":" 
+		<< records[k].event_ << " " << records[k].ieta_ << " " 
+		<< records[k].p_ << std::endl;
+    }
+  }
+}
+
+
 void duplicate (std::string fname, std::vector<record>& records, bool debug) {
   std::ofstream file;
   file.open(fname.c_str(), std::ofstream::out);
@@ -443,10 +471,12 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	    << " with p 40:60)" << std::endl;
 }
 
-void findDuplicate(std::string infile, std::string outfile, bool debug=false) {
+void findDuplicate(std::string infile, std::string outfile, bool mode=true,
+		   bool debug=false) {
 
   std::vector<record> records;
   readRecords(infile, records, debug);
-  sort(records, debug);
+  if (mode) sortNew(records,debug);
+  else      sortOld(records, debug);
   duplicate(outfile, records, debug);
 }
