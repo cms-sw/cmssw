@@ -20,7 +20,7 @@ process.source = cms.Source("PoolSource",
  )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )    
 
 process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -40,23 +40,19 @@ process.load("MuonAnalysis.MuonAssociators.muonClassificationByHitsTP_cfi")
 from MuonAnalysis.MuonAssociators.muonClassificationByHitsTP_cfi import addUserData as addClassByHits
 addClassByHits(process.patMuonsWithoutTrigger, extraInfo=True)
 
-# Output definition
-process.MYoutput = cms.OutputModule("PoolOutputModule",
+# test output
+process.output = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('ZMMpu25ns-UPG2023_test.root'),
+    fileName = cms.untracked.string('output_test.root'),
     splitLevel = cms.untracked.int32(0)
 )
 
-process.MuonClassifier = cms.Path(
-    process.muonClassificationByHits
-)
+process.muonClassifier = cms.Path(process.muonClassificationByHits)
 
-process.MYoutput_step = cms.EndPath(process.MYoutput)
+process.output_step = cms.EndPath(process.output)
 
-process.schedule = cms.Schedule(
-   process.MuonClassifier, 
-   process.MYoutput_step
-)
+process.schedule = cms.Schedule(process.muonClassifier)
+
 
 # customisation of the process.
 
@@ -65,20 +61,6 @@ from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 
 #call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
 process = setCrossingFrameOn(process)
-
-# End of customisation functions
-#do not add changes to your config after this point (unless you know what you are doing)
-from FWCore.ParameterSet.Utilities import convertToUnscheduled
-process=convertToUnscheduled(process)
-
-# customisation of the process.
-
-# Customisation from command line
-
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
 
 ######
 process.MessageLogger.categories = cms.untracked.vstring('MuonToTrackingParticleAssociatorEDProducer',
