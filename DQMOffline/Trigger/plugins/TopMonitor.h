@@ -103,8 +103,8 @@ private:
   // Marina
   MEbinning           csv_binning_;
   //george
-   MEbinning           invMass_mumu_binning_;
-   MEbinning           MHT_binning_;
+  MEbinning           invMass_mumu_binning_;
+  MEbinning           MHT_binning_;
 
 
   std::vector<double> met_variable_binning_;
@@ -166,6 +166,9 @@ private:
   //BTV
   ObjME DeltaR_jet_Mu_;
 
+  ObjME eventHT_;
+  ObjME eventHT_variableBinning_;
+  
   std::vector<ObjME> muPhi_;
   std::vector<ObjME> muEta_;
   std::vector<ObjME> muPt_;
@@ -209,10 +212,6 @@ private:
   std::vector<ObjME> bjetEtaPhi_;
   std::vector<ObjME> bjetCSVHT_;
 
-  ObjME eventHT_;
-  ObjME eventHT_variableBinning_;
-  
-
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
@@ -227,7 +226,7 @@ private:
   
   StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
 
-unsigned int njets_;
+  unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
