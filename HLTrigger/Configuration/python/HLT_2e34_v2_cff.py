@@ -1,11 +1,13 @@
-# /dev/CMSSW_9_2_0/GRun/V97 (CMSSW_9_2_6_HLT1)
+# hltGetConfiguration --cff --offline --data /frozen/2017/2e34/v2.1/HLT --type 2e34_v2
+
+# /frozen/2017/2e34/v2.1/HLT/V1 (CMSSW_9_2_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V97')
+  tableName = cms.string('/frozen/2017/2e34/v2.1/HLT/V1')
 )
 
 fragment.transferSystem = cms.PSet( 

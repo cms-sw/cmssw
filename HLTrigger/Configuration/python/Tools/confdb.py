@@ -45,11 +45,6 @@ class HLTProcess(object):
       self.labels['process'] = 'process'
       self.labels['dict']    = 'process.__dict__'
 
-    if self.config.online:
-      self.labels['connect'] = 'frontier://FrontierProd'
-    else:
-      self.labels['connect'] = 'frontier://FrontierProd'
-
     if self.config.prescale and (self.config.prescale.lower() != 'none'):
       self.labels['prescale'] = self.config.prescale
 
@@ -93,7 +88,7 @@ class HLTProcess(object):
     for key, vals in self.options.iteritems():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
-    
+
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
         sys.stderr.write("%s: error while retrieving the HLT menu\n\n" % os.path.basename(sys.argv[0]))
@@ -282,7 +277,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
 
-      # select specific Eras 
+      # select specific Eras
       self.addEras()
 
       # override the output modules to output root files
@@ -299,26 +294,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # replace DQMStore and DQMRootOutputModule with a configuration suitable for running offline
       self.instrumentDQM()
-
-      # load 5.2.x JECs, until they are in the GlobalTag
-#      self.loadAdditionalConditions('load 5.2.x JECs',
-#        {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
-#          'label'   : 'AK5CaloHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }, {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
-#          'label'   : 'AK5PFHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }, {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
-#          'label'   : 'AK5PFchsHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }
-#      )
 
     # add specific customisations
     self.specificCustomize()
@@ -411,7 +386,6 @@ if 'PrescaleService' in %(dict)s:
   def overrideGlobalTag(self):
     # overwrite GlobalTag
     # the logic is:
-    #   - always set the correct connection string and pfnPrefix
     #   - if a GlobalTag is specified on the command line:
     #      - override the global tag
     #      - if the GT is "auto:...", insert the code to read it from Configuration.AlCa.autoCond
@@ -420,10 +394,6 @@ if 'PrescaleService' in %(dict)s:
     #      - when running on mc, take the GT from the configuration.type
 
     # override the GlobalTag connection string and pfnPrefix
-    text = """
-# override the GlobalTag, connection string and pfnPrefix
-if 'GlobalTag' in %(dict)s:
-"""
 
     # when running on MC, override the global tag even if not specified on the command line
     if not self.config.data and not self.config.globaltag:
@@ -432,11 +402,11 @@ if 'GlobalTag' in %(dict)s:
       else:
         self.config.globaltag = globalTag['GRun']
 
-    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    # if requested, override the L1 menu from the GlobalTag
     if self.config.l1.override:
       self.config.l1.tag    = self.config.l1.override
       self.config.l1.record = 'L1TUtmTriggerMenuRcd'
-      self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
+      self.config.l1.connect = ''
       self.config.l1.label  = ''
       if not self.config.l1.snapshotTime:
         self.config.l1.snapshotTime = '9999-12-31 23:59:59.000'
@@ -445,23 +415,17 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
-      text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
-      text += "    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"
+      text = """
+# override the GlobalTag, connection string and pfnPrefix
+if 'GlobalTag' in %(dict)s:
+    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"""
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
       if self.config.l1cond:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
-
-    text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-"""
-#    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-#    for pset in %(process)s.GlobalTag.toGet.value():
-#        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
-#    # fix for multi-run processing
-#    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-#    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
-    self.data += text
+      self.data += text
 
   def overrideL1MenuXml(self):
     # if requested, override the GlobalTag's L1T menu from an Xml file
@@ -470,7 +434,7 @@ if 'GlobalTag' in %(dict)s:
 # override the GlobalTag's L1T menu from an Xml file
 from HLTrigger.Configuration.CustomConfigs import L1XML
 %%(process)s = L1XML(%%(process)s,"%s")
-""" % (self.config.l1Xml.XmlFile) 
+""" % (self.config.l1Xml.XmlFile)
       self.data += text
 
   def runL1Emulator(self):
@@ -518,7 +482,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       return
     processLine = self.data.find("\n",self.data.find("cms.Process"))
     self.data = self.data[:processLine]+'\nprocess.load("%s")'%self.config.setupFile+self.data[processLine:]
-    
+
   # override the process name and adapt the relevant filters
   def overrideProcessName(self):
     if self.config.name is None:
@@ -564,7 +528,6 @@ if 'GlobalTag' in %%(dict)s:
             record  = cms.string( '%(record)s' ),
             tag     = cms.string( '%(tag)s' ),
             label   = cms.untracked.string( '%(label)s' ),
-            connect = cms.untracked.string( '%(connect)s' )
         )
     )
 """ % condition
@@ -848,9 +811,6 @@ if 'GlobalTag' in %%(dict)s:
     if self.config.input:
       # if a dataset or a list of input files was given, use it
       self.source = self.expand_filenames(self.config.input)
-    elif self.config.online:
-      # online we always run on data
-      self.source = [ "file:/tmp/InputCollection.root" ]
     elif self.config.data:
       # offline we can run on data...
       self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]
