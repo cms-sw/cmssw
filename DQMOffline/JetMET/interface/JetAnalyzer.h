@@ -146,6 +146,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   //Cleaning parameters
   edm::ParameterSet cleaningParameters_;
+  
   edm::InputTag vertexLabel_;
   edm::InputTag gtLabel_;
 
@@ -340,9 +341,16 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mHFrac_profile;
   MonitorElement* mEFrac_profile;
 
+  
+  int LSBegin_;
+  int LSEnd_;
+
   bool hltInitialized_;
   bool bypassAllPVChecks_;
+  bool bypassAllDCSChecks_;
 
+  
+  
   HLTConfigProvider hltConfig_;
   std::string processname_;
 

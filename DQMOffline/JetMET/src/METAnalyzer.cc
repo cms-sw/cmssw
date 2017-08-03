@@ -872,7 +872,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     
     
     ibooker.setCurrentFolder("JetMET");
-    lumisecME = ibooker.book1D("lumisec", "lumisec", 2501, -1., 2500.);
+    lumisecME = ibooker.book1D("lumisec", "lumisec", 3001, -1., 3000.);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>("JetMET/lumisec",lumisecME));
   }//all non Z plots (restrict Z Plots only for resolution study)
 }

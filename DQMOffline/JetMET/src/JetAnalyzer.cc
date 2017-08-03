@@ -10,6 +10,9 @@
  *          M. Artur Weber
  *          R. Schoefbeck
  *          V. Sordini
+ *      
+ *         August 2017: modified by
+ *         Raman Khurana
  */
 
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
@@ -71,6 +74,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
   m_bitAlgTechTrig_=-1;
 
+  LSBegin_     = pSet.getParameter<int>("LSBegin");
+  LSEnd_       = pSet.getParameter<int>("LSEnd");
+  
   jetType_ = pSet.getParameter<std::string>("JetType");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
 
@@ -101,6 +107,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     patJetsToken_ = consumes<pat::JetCollection>(mInputCollection_);
     patMetToken_= consumes<pat::METCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
   }
+  
+  
   cutBasedPUDiscriminantToken_ = consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputCutPUIDDiscriminant"));
   cutBasedPUIDToken_ = consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputCutPUIDValue"));
   mvaPUIDToken_ = consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDValue"));
@@ -207,6 +215,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
   bypassAllPVChecks_= cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
+  bypassAllDCSChecks_    = cleaningParameters_.getParameter<bool>("bypassAllDCSChecks");
+
   vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
 
@@ -1314,9 +1324,11 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   cleanupME->setBinLabel(7,"DCS::HF");
   cleanupME->setBinLabel(8,"DCS::HO");
   cleanupME->setBinLabel(9,"DCS::Muon");
+  cleanupME->setBinLabel(10,"DCS::All");
+  
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>("JetMET/cleanup" ,cleanupME));
 
-  verticesME = ibooker.book1D("vertices", "vertices", 100, 0, 100);
+  verticesME = ibooker.book1D("vertices", "vertices", 110, 0, 110);
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>("JetMET/vertices" ,verticesME));
 
 
@@ -1725,8 +1737,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
     DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
   }
+  int myLuminosityBlock;
+  myLuminosityBlock = iEvent.luminosityBlock();
+  
  
+  if (myLuminosityBlock<LSBegin_) return;
+  if (myLuminosityBlock>LSEnd_ && LSEnd_>0) return;
 
+
+  
   Handle<ValueMap<float> > puJetIdMva;
   Handle<ValueMap<int> > puJetIdFlagMva;
   Handle<ValueMap<float> > puJetId;
@@ -1845,6 +1864,20 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( DCSFilterForDCSMonitoring_->passHF       ) cleanupME->Fill(6.5);
       if ( DCSFilterForDCSMonitoring_->passHO       ) cleanupME->Fill(7.5);
       if ( DCSFilterForDCSMonitoring_->passMuon     ) cleanupME->Fill(8.5);
+
+      // check the number of events when all the DCS bits are high. 
+      if (bPrimaryVertex 
+	   && DCSFilterForDCSMonitoring_->passPIX
+	   && DCSFilterForDCSMonitoring_->passSiStrip  
+	   && DCSFilterForDCSMonitoring_->passECAL     
+	   && DCSFilterForDCSMonitoring_->passES       
+	   && DCSFilterForDCSMonitoring_->passHBHE     
+	   && DCSFilterForDCSMonitoring_->passHF       
+	   && DCSFilterForDCSMonitoring_->passHO       
+	   && DCSFilterForDCSMonitoring_->passMuon) cleanupME->Fill(9.5);
+     
+      
+      
     }
   }
   edm::Handle<CaloJetCollection> caloJets;
@@ -1921,7 +1954,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //check for collections AND DCS filters
-  bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
+  bool dcsDecision = (bypassAllDCSChecks_ || DCSFilterForJetMonitoring_->filter(iEvent, iSetup));
+  
   bool jetCollectionIsValid = false;
   if (isCaloJet_)  jetCollectionIsValid = caloJets.isValid();
   //if (isJPTJet_)   jetCollectionIsValid = jptJets.isValid();
