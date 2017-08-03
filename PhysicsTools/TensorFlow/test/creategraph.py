@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Test script to create a simple graph for testing purposes at bin/data.
+Test script to create a simple graph for testing purposes at bin/data and save it using the
+SavedModel serialization format.
+
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_model/README.md
 """
 
 
@@ -23,5 +26,6 @@ sess.run(tf.global_variables_initializer())
 
 print(sess.run(y, feed_dict={x_: [range(10)]})[0][0])
 
-saver = tf.train.Saver()
-saver.save(sess, os.path.join(datadir, "simplegraph"))
+builder = tf.saved_model.builder.SavedModelBuilder(os.path.join(datadir, "simplegraph"))
+builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING])
+builder.save()

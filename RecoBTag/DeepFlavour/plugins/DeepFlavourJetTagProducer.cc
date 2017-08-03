@@ -14,8 +14,8 @@
 
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
-#include "PhysicsTools/TensorflowInterface/interface/Graph.h"
-#include "PhysicsTools/TensorflowInterface/interface/Tensor.h"
+#include "PhysicsTools/TensorFlow/interface/Graph.h"
+#include "PhysicsTools/TensorFlow/interface/Tensor.h"
 
 #include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
 
@@ -24,21 +24,21 @@
 class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
 
   public:
-	  explicit DeepFlavourJetTagProducer(const edm::ParameterSet&);
-	  ~DeepFlavourJetTagProducer();
+    explicit DeepFlavourJetTagProducer(const edm::ParameterSet&);
+    ~DeepFlavourJetTagProducer();
 
-	  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
 
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
 
-	  virtual void beginStream(edm::StreamID) override {}
-	  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-	  virtual void endStream() override {}
+    virtual void beginStream(edm::StreamID) override {}
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endStream() override {}
 
-	  const edm::EDGetTokenT< TagInfoCollection > src_;
+    const edm::EDGetTokenT< TagInfoCollection > src_;
     edm::FileInPath graph_path_;
     std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
     std::vector<std::string> input_names_;
@@ -49,8 +49,7 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
     // not owing vector of pointers for inputs and outputs
     std::vector<tf::Tensor *> dnn_inputs_;
     std::vector<tf::Tensor *> dnn_outputs_;
-
-
+    std::vector<tf::Tensor *> dnn_lp_tensors_;
 };
 
 DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig) :
@@ -58,7 +57,7 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   graph_path_(iConfig.getParameter<edm::FileInPath>("graph_path")),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
-  graph_(graph_path_.fullPath().substr(0, graph_path_.fullPath().find_last_of(".")))
+  graph_(graph_path_.fullPath().substr(0, graph_path_.fullPath().find_last_of(".")), "serve")
 {
 
   // get output names from flav_table
@@ -69,26 +68,30 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
                              flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
   }
 
-
   for (const auto & flav_pair : flav_pairs_) {
     produces<JetTagCollection>(flav_pair.first);
   }
 
   for (const auto & input_name : input_names_) {
-    dnn_inputs_.emplace_back(graph_.defineInput(new tf::Tensor(input_name)));
+    tf::Tensor* t = new tf::Tensor();
+    graph_.defineInput(t, input_name);
+    dnn_inputs_.push_back(t);
   }
 
   // required because of batch norm
   // names for the learing phase placeholders (to init and set as false)
   const auto & lp_names = iConfig.getParameter<std::vector<std::string>>("lp_names");
   for (const auto & lp_name : lp_names) {
-    auto input_ptr = graph_.defineInput(new tf::Tensor(lp_name));
-    input_ptr->setArray(0, nullptr);
-    input_ptr->setValue<bool>(false);
+    tf::Tensor* t = new tf::Tensor(0, 0, TF_BOOL);
+    *t->getPtr<bool>() = false;
+    graph_.defineInput(t, lp_name);
+    dnn_lp_tensors_.push_back(t);
   }
 
   for (const auto & output_name : output_names_) {
-    dnn_outputs_.emplace_back(graph_.defineOutput(new tf::Tensor(output_name)));
+    tf::Tensor* t = new tf::Tensor();
+    graph_.defineInput(t, output_name);
+    dnn_outputs_.push_back(t);
   }
 
 }
@@ -96,6 +99,19 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
 
 DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 {
+  // cleanup tensor vectors
+  while (!dnn_inputs_.empty()) {
+    delete dnn_inputs_.back();
+    dnn_inputs_.pop_back();
+  }
+  while (!dnn_outputs_.empty()) {
+    delete dnn_outputs_.back();
+    dnn_outputs_.pop_back();
+  }
+  while (!dnn_lp_tensors_.empty()) {
+    delete dnn_lp_tensors_.back();
+    dnn_lp_tensors_.pop_back();
+  }
 }
 
 void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
@@ -123,8 +139,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
   // CMMSW-DNN sets zeros by default
   for (std::size_t i=0; i < input_sizes.size(); i++) {
     auto & input_shape = input_sizes.at(i);
-    dnn_inputs_.at(i)->setArray(input_shape.size(),
-                                &input_shape[0]);
+    dnn_inputs_.at(i)->init(input_shape.size(), &input_shape[0]);
   }
 
   // fill values
@@ -155,13 +170,12 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       sv_tensor_filler(dnn_inputs_.at(3), jet_n, sv_n, sv_features);
     }
     // last input: corrected jet pt
-    dnn_inputs_.at(4)->setValue(jet_n, 0, features.jet_features.corr_pt);
+    *dnn_inputs_.at(4)->getPtr<float>(jet_n, 0) = features.jet_features.corr_pt;
 
   }
 
   // compute graph
   graph_.eval();
-
 
   // create output collection
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
@@ -181,9 +195,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & flav_pair = flav_pairs_.at(flav_n);
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
-
-        o_sum +=  dnn_outputs_.at(0)->getValue<float>((tf::Shape) jet_n,
-                                                      (tf::Shape) ind);
+        o_sum += *dnn_outputs_.at(0)->getPtr<float>(jet_n, (tf::Shape)ind);
       } 
       (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }

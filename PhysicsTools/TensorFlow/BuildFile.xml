@@ -1,0 +1,9 @@
+<use name="FWCore/Framework" />
+
+<use name="tensorflow-c" />
+
+<Flags CXXFLAGS="-g -O0 -fpermissive" />
+
+<export>
+    <lib name="1" />
+</export>
