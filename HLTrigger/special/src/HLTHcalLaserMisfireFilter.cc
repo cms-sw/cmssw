@@ -52,6 +52,7 @@ HLTHcalLaserMisfireFilter::~HLTHcalLaserMisfireFilter() { }
  
 void HLTHcalLaserMisfireFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("InputHBHE",edm::InputTag("source"));
   desc.add<edm::InputTag>("InputHF",edm::InputTag("source"));
   desc.add<int>("minADCHBHE",10);
