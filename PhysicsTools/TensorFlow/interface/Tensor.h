@@ -1,0 +1,374 @@
+/*
+ * TensorFlow tensor interface.
+ *
+ * Author:
+ *   Marcel Rieger
+ */
+
+#ifndef PHYSICSTOOLS_TENSORFLOW_TENSOR_H
+#define PHYSICSTOOLS_TENSORFLOW_TENSOR_H
+
+#include <stdexcept>
+#include <vector>
+
+#include "tensorflow/c/c_api.h"
+
+namespace tf
+{
+
+// forward declarations
+class GraphIO;
+class Graph;
+
+// typedefs
+typedef TF_DataType DataType;
+typedef int64_t Shape;
+
+// constants
+const DataType NO_DATATYPE = TF_RESOURCE;
+
+// the Tensor class
+class Tensor
+{
+public:
+    // default constructor
+    Tensor();
+
+    // constructor that initializes the internal tensorflow tensor object
+    Tensor(int rank, Shape* shape, DataType dtype = TF_FLOAT);
+
+    // destructor
+    virtual ~Tensor();
+
+    // static function to return the memory size of a tensor defined by its rank, shape and datatype
+    static size_t getTensorSize(int rank, Shape* shape, DataType dtype);
+
+    // inializes the internal tensorflow tensor object with an existing one, takes ownership
+    void init(TF_Tensor* t);
+
+    // inializes the internal tensorflow tensor object by creating a new one
+    inline void init(int rank, Shape* shape, DataType dtype = TF_FLOAT)
+    {
+        init(TF_AllocateTensor(dtype, shape, rank, getTensorSize(rank, shape, dtype)));
+    }
+
+    // resets the internal tensorflow tensor object
+    void reset();
+
+    // returns true if the internal tensorflow tensor object is not initalized yet, false otherwise
+    inline bool empty() const
+    {
+        return tf_tensor == 0;
+    }
+
+    // returns the datatype or NO_DATATYPE when empty
+    inline DataType getDataType() const
+    {
+        return empty() ? NO_DATATYPE : TF_TensorType(tf_tensor);
+    }
+
+    // returns the tensor tank or -1 when empty
+    inline int getRank() const
+    {
+        return empty() ? -1 : TF_NumDims(tf_tensor);
+    }
+
+    // performs sanity checks and returns a positive axis number for any (also negative) axis
+    int getAxis(int axis) const;
+
+    // returns the shape of an axis or -1 when empty
+    inline Shape getShape(int axis) const
+    {
+        return empty() ? -1 : TF_Dim(tf_tensor, getAxis(axis));
+    }
+
+    // returns the index in a one dimensional array given a coordinate with multi-dimensional shape
+    Shape getIndex(Shape* pos) const;
+
+    // returns a pointer to the data object or 0 when empty
+    inline void* getData()
+    {
+        return tf_tensor ? TF_TensorData(tf_tensor) : 0;
+    }
+
+    // returns the pointer to the data at an arbitrary position
+    template <typename T>
+    inline T* getPtrAtPos(Shape* pos)
+    {
+        T* ptr = static_cast<T*>(getData());
+        ptr += getIndex(pos);
+        return ptr;
+    }
+
+    // returns the pointer to a scalar
+    template <typename T>
+    inline T* getPtr()
+    {
+        assertRank(0);
+        return static_cast<T*>(getData());
+    }
+
+    // returns the pointer to an element in a rank 1 tensor
+    template <typename T>
+    inline T* getPtr(Shape i)
+    {
+        assertRank(1);
+        Shape pos[1] = { i };
+        return getPtrAtPos<T>(pos);
+    }
+
+    // returns the pointer to an element in a rank 2 tensor
+    template <typename T>
+    inline T* getPtr(Shape i, Shape j)
+    {
+        assertRank(2);
+        Shape pos[2] = { i, j };
+        return getPtrAtPos<T>(pos);
+    }
+
+    // returns the pointer to an element in a rank 3 tensor
+    template <typename T>
+    inline T* getPtr(Shape i, Shape j, Shape k)
+    {
+        assertRank(3);
+        Shape pos[3] = { i, j, k };
+        return getPtrAtPos<T>(pos);
+    }
+
+    // returns the pointer to an element in a rank 4 tensor
+    template <typename T>
+    inline T* getPtr(Shape i, Shape j, Shape k, Shape l)
+    {
+        assertRank(4);
+        Shape pos[4] = { i, j, k, l };
+        return getPtrAtPos<T>(pos);
+    }
+
+    // determines the value pointers of a tensor along an axis for a fixed position on the other
+    // axes
+    template <typename T>
+    void getPtrVectorAtPos(int axis, Shape* pos, std::vector<T*>& v);
+
+    // returns the value pointers of a tensor along an axis for a fixed position on the other axes
+    template <typename T>
+    inline std::vector<T*> getPtrVectorAtPos(int axis, Shape* pos)
+    {
+        std::vector<T*> v;
+        getPtrVectorAtPos(axis, pos, v);
+        return v;
+    }
+
+    // determines the value pointers of a rank 1 tensor
+    template <typename T>
+    inline void getPtrVector(std::vector<T*>& v)
+    {
+        assertRank(1);
+        getPtrVectorAtPos<T>(0, 0, v);
+    }
+
+    // returns the value pointers of a rank 1 tensor
+    template <typename T>
+    inline std::vector<T*> getPtrVector()
+    {
+        std::vector<T*> v;
+        getPtrVector(v);
+        return v;
+    }
+
+    // determines the value pointers of a rank 2 tensor along an axis for a fixed position of the
+    // other axis
+    template <typename T>
+    inline void getPtrVector(int axis, Shape a, std::vector<T*>& v)
+    {
+        assertRank(2);
+        Shape pos[1] = { a };
+        getPtrVectorAtPos<T>(axis, pos, v);
+    }
+
+    // returns the value pointers of a rank 2 tensor along an axis for a fixed position of the other
+    // axis
+    template <typename T>
+    inline std::vector<T*> getPtrVector(int axis, Shape a)
+    {
+        std::vector<T*> v;
+        getPtrVector<T>(axis, a, v);
+        return v;
+    }
+
+    // determines the value pointers of a rank 3 tensor along an axis for a fixed position of the
+    // other axes
+    template <typename T>
+    inline void getPtrVector(int axis, Shape a, Shape b, std::vector<T*>& v)
+    {
+        assertRank(3);
+        Shape pos[2] = { a, b };
+        getPtrVectorAtPos<T>(axis, pos, v);
+    }
+
+    // returns the value pointers of a rank 3 tensor along an axis for a fixed position of the other
+    // axes
+    template <typename T>
+    inline std::vector<T*> getPtrVector(int axis, Shape a, Shape b)
+    {
+        std::vector<T*> v;
+        getPtrVector<T>(axis, a, b, v);
+        return v;
+    }
+
+    // determines the value pointers of a rank 4 tensor along an axis for a fixed position of the
+    // other axes
+    template <typename T>
+    inline void getPtrVector(int axis, Shape a, Shape b, Shape c, std::vector<T*>& v)
+    {
+        assertRank(4);
+        Shape pos[3] = { a, b, c };
+        getPtrVectorAtPos<T>(axis, pos, v);
+    }
+
+    // returns the value pointers of a rank 4 tensor along an axis for a fixed position of the other
+    // axes
+    template <typename T>
+    inline std::vector<T*> getPtrVector(int axis, Shape a, Shape b, Shape c)
+    {
+        std::vector<T*> v;
+        getPtrVector<T>(axis, a, b, c, v);
+        return v;
+    }
+
+    // sets the values of a tensor along an axis for a fixed position on the other axes
+    template <typename T>
+    void setVectorAtPos(int axis, Shape* pos, std::vector<T>& v);
+
+    // sets the values of a rank 1 tensor
+    template <typename T>
+    inline void setVector(std::vector<T>& v)
+    {
+        assertRank(1);
+        setVectorAtPos<T>(0, 0, v);
+    }
+
+    // sets the values of a rank 2 tensor along an axis for a fixed position on the other axis
+    template <typename T>
+    inline void setVector(int axis, Shape a, std::vector<T>& v)
+    {
+        assertRank(2);
+        Shape pos[1] = { a };
+        setVectorAtPos<T>(axis, pos, v);
+    }
+
+    // sets the values of a rank 3 tensor along an axis for a fixed position on the other axes
+    template <typename T>
+    inline void setVector(int axis, Shape a, Shape b, std::vector<T>& v)
+    {
+        assertRank(3);
+        Shape pos[2] = { a, b };
+        setVectorAtPos<T>(axis, pos, v);
+    }
+
+    // sets the values of a rank 4 tensor along an axis for a fixed position on the other axes
+    template <typename T>
+    inline void setVector(int axis, Shape a, Shape b, Shape c, std::vector<T>& v)
+    {
+        assertRank(4);
+        Shape pos[3] = { a, b, c };
+        setVectorAtPos<T>(axis, pos, v);
+    }
+
+private:
+    // the internal tensorflow tensor object
+    TF_Tensor* tf_tensor;
+
+    // array of cumulative shape products to accelerate indexing
+    int64_t* prod;
+
+    // compares a passed rank to the current rank and throws an exception when they do not match
+    inline void assertRank(int rank) const
+    {
+        if (getRank() != rank)
+        {
+            throw std::runtime_error("invalid rank to perform operation: "
+                + std::to_string(getRank()) + " (expected " + std::to_string(rank) + ")");
+        }
+    }
+
+    // friends
+    friend GraphIO;
+    friend Graph;
+};
+
+template <typename T>
+void Tensor::getPtrVectorAtPos(int axis, Shape* pos, std::vector<T*>& v)
+{
+    const int rank = getRank();
+
+    // special treatment of scalars
+    if (rank == 0)
+    {
+        throw std::runtime_error("vectors cannot be extracted from scalars");
+    }
+
+    axis = getAxis(axis);
+
+    // create a position array that is altered on the requested axis when looping
+    Shape pos2[rank];
+    for (int i = 0; i < rank; i++)
+    {
+        if (i < axis)
+        {
+            pos2[i] = pos[i];
+        }
+        else if (i == axis)
+        {
+            pos2[i] = -1;
+        }
+        else
+        {
+            pos2[i] = pos[i - 1];
+        }
+    }
+
+    // start looping
+    v.clear();
+    for (Shape i = 0; i < getShape(axis); i++)
+    {
+        // alter the position array for the request axis
+        pos2[axis] = i;
+
+        // simply collect the pointers
+        v.push_back(getPtrAtPos<T>(pos2));
+    }
+}
+
+template <typename T>
+void Tensor::setVectorAtPos(int axis, Shape* pos, std::vector<T>& v)
+{
+    // special treatment of scalars
+    if (getRank() == 0)
+    {
+        throw std::runtime_error("vectors cannot be inserted into scalars");
+    }
+
+    // get the pointer vector
+    std::vector<T*> ptrs;
+    getPtrVectorAtPos<T>(axis, pos, ptrs);
+
+    // sanity check
+    const int len = getShape(axis);
+    if ((int64_t)v.size() != len)
+    {
+        throw std::runtime_error("invalid vector size: " + std::to_string(v.size())
+            + " (should be " + std::to_string(len) + ")");
+    }
+
+    // assign the passed values
+    for (int i = 0; i < len; i++)
+    {
+        *ptrs[i] = v[i];
+    }
+}
+
+} // namepace tf
+
+#include "PhysicsTools/TensorFlow/interface/Graph.h"
+
+#endif // PHYSICSTOOLS_TENSORFLOW_TENSOR_H

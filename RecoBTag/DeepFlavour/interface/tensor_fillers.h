@@ -1,59 +1,70 @@
 #ifndef RecoBTag_DeepFlavour_tensor_fillers_h
 #define RecoBTag_DeepFlavour_tensor_fillers_h
 
-#include "PhysicsTools/TensorflowInterface/interface/Tensor.h"
+#include "PhysicsTools/TensorFlow/interface/Tensor.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
 namespace deep {
+
+  // Note on setting tensor values:
+  // Instead of using the more convenient tensor.getPtr or tensor.setVector
+  // methods, we exploit that in the following methods values are set along
+  // the innermost (= last) axis. Those values are stored contiguously in
+  // the memory, so it is most performant to get the pointer to the first
+  // value and use pointer arithmetic to iterate through the next pointers.
 
   void jet_tensor_filler(tf::Tensor * tensor,
                          std::size_t jet_n,
                          const deep::DeepFlavourFeatures & features) {
 
+    float* ptr = tensor->getPtr<float>(jet_n, 0);
+
     // jet variables
     const auto & jet_features = features.jet_features;
-    tensor->setValue(jet_n, 0, jet_features.pt);
-    tensor->setValue(jet_n, 1, jet_features.eta);
+    *ptr     = jet_features.pt;
+    *(++ptr) = jet_features.eta;
     // number of elements in different collections
-    tensor->setValue(jet_n, 2, (float) features.c_pf_features.size());
-    tensor->setValue(jet_n, 3, (float) features.n_pf_features.size());
-    tensor->setValue(jet_n, 4, (float) features.sv_features.size());
-    tensor->setValue(jet_n, 5, (float) features.npv);
+    *(++ptr) = features.c_pf_features.size();
+    *(++ptr) = features.n_pf_features.size();
+    *(++ptr) = features.sv_features.size();
+    *(++ptr) = features.npv;
     // variables from ShallowTagInfo
     const auto & tag_info_features = features.tag_info_features;
-    tensor->setValue(jet_n, 6, tag_info_features.trackSumJetEtRatio);
-    tensor->setValue(jet_n, 7, tag_info_features.trackSumJetDeltaR);
-    tensor->setValue(jet_n, 8, tag_info_features.vertexCategory);
-    tensor->setValue(jet_n, 9, tag_info_features.trackSip2dValAboveCharm);
-    tensor->setValue(jet_n, 10, tag_info_features.trackSip2dSigAboveCharm);
-    tensor->setValue(jet_n, 11, tag_info_features.trackSip3dValAboveCharm);
-    tensor->setValue(jet_n, 12, tag_info_features.trackSip3dSigAboveCharm);
-    tensor->setValue(jet_n, 13, tag_info_features.jetNSelectedTracks);
-    tensor->setValue(jet_n, 14, tag_info_features.jetNTracksEtaRel);
+    *(++ptr) = tag_info_features.trackSumJetEtRatio;
+    *(++ptr) = tag_info_features.trackSumJetDeltaR;
+    *(++ptr) = tag_info_features.vertexCategory;
+    *(++ptr) = tag_info_features.trackSip2dValAboveCharm;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dValAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dSigAboveCharm;
+    *(++ptr) = tag_info_features.jetNSelectedTracks;
+    *(++ptr) = tag_info_features.jetNTracksEtaRel;
 
-  } 
+  }
 
   void c_pf_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
                           const deep::ChargedCandidateFeatures & c_pf_features) {
 
-    tensor->setValue(jet_n, c_pf_n, 0, c_pf_features.BtagPf_trackEtaRel);
-    tensor->setValue(jet_n, c_pf_n, 1, c_pf_features.BtagPf_trackPtRel);
-    tensor->setValue(jet_n, c_pf_n, 2, c_pf_features.BtagPf_trackPPar);
-    tensor->setValue(jet_n, c_pf_n, 3, c_pf_features.BtagPf_trackDeltaR);
-    tensor->setValue(jet_n, c_pf_n, 4, c_pf_features.BtagPf_trackPParRatio);
-    tensor->setValue(jet_n, c_pf_n, 5, c_pf_features.BtagPf_trackSip2dVal);
-    tensor->setValue(jet_n, c_pf_n, 6, c_pf_features.BtagPf_trackSip2dSig);
-    tensor->setValue(jet_n, c_pf_n, 7, c_pf_features.BtagPf_trackSip3dVal);
-    tensor->setValue(jet_n, c_pf_n, 8, c_pf_features.BtagPf_trackSip3dSig);
-    tensor->setValue(jet_n, c_pf_n, 9, c_pf_features.BtagPf_trackJetDistVal);
-    tensor->setValue(jet_n, c_pf_n, 10, c_pf_features.ptrel);
-    tensor->setValue(jet_n, c_pf_n, 11, c_pf_features.drminsv);
-    tensor->setValue(jet_n, c_pf_n, 12, c_pf_features.VTX_ass);
-    tensor->setValue(jet_n, c_pf_n, 13, c_pf_features.puppiw);
-    tensor->setValue(jet_n, c_pf_n, 14, c_pf_features.chi2);
-    tensor->setValue(jet_n, c_pf_n, 15, c_pf_features.quality);
+    float* ptr = tensor->getPtr<float>(jet_n, c_pf_n, 0);
+
+    *ptr     = c_pf_features.BtagPf_trackEtaRel;
+    *(++ptr) = c_pf_features.BtagPf_trackPtRel;
+    *(++ptr) = c_pf_features.BtagPf_trackPPar;
+    *(++ptr) = c_pf_features.BtagPf_trackDeltaR;
+    *(++ptr) = c_pf_features.BtagPf_trackPParRatio;
+    *(++ptr) = c_pf_features.BtagPf_trackSip2dVal;
+    *(++ptr) = c_pf_features.BtagPf_trackSip2dSig;
+    *(++ptr) = c_pf_features.BtagPf_trackSip3dVal;
+    *(++ptr) = c_pf_features.BtagPf_trackSip3dSig;
+    *(++ptr) = c_pf_features.BtagPf_trackJetDistVal;
+    *(++ptr) = c_pf_features.ptrel;
+    *(++ptr) = c_pf_features.drminsv;
+    *(++ptr) = c_pf_features.VTX_ass;
+    *(++ptr) = c_pf_features.puppiw;
+    *(++ptr) = c_pf_features.chi2;
+    *(++ptr) = c_pf_features.quality;
 
   }
 
@@ -62,12 +73,14 @@ namespace deep {
                           std::size_t n_pf_n,
                           const deep::NeutralCandidateFeatures & n_pf_features) {
 
-    tensor->setValue(jet_n, n_pf_n, 0, n_pf_features.ptrel);
-    tensor->setValue(jet_n, n_pf_n, 1, n_pf_features.deltaR);
-    tensor->setValue(jet_n, n_pf_n, 2, n_pf_features.isGamma);
-    tensor->setValue(jet_n, n_pf_n, 3, n_pf_features.HadFrac);
-    tensor->setValue(jet_n, n_pf_n, 4, n_pf_features.drminsv);
-    tensor->setValue(jet_n, n_pf_n, 5, n_pf_features.puppiw);
+    float* ptr = tensor->getPtr<float>(jet_n, n_pf_n, 0);
+
+    *ptr     = n_pf_features.ptrel;
+    *(++ptr) = n_pf_features.deltaR;
+    *(++ptr) = n_pf_features.isGamma;
+    *(++ptr) = n_pf_features.HadFrac;
+    *(++ptr) = n_pf_features.drminsv;
+    *(++ptr) = n_pf_features.puppiw;
 
   }
 
@@ -76,23 +89,23 @@ namespace deep {
                           std::size_t sv_n,
                           const deep::SecondaryVertexFeatures & sv_features) {
 
-    tensor->setValue(jet_n, sv_n, 0, sv_features.pt);
-    tensor->setValue(jet_n, sv_n, 1, sv_features.deltaR);
-    tensor->setValue(jet_n, sv_n, 2, sv_features.mass);
-    tensor->setValue(jet_n, sv_n, 3, sv_features.ntracks);
-    tensor->setValue(jet_n, sv_n, 4, sv_features.chi2);
-    tensor->setValue(jet_n, sv_n, 5, sv_features.normchi2);
-    tensor->setValue(jet_n, sv_n, 6, sv_features.dxy);
-    tensor->setValue(jet_n, sv_n, 7, sv_features.dxysig);
-    tensor->setValue(jet_n, sv_n, 8, sv_features.d3d);
-    tensor->setValue(jet_n, sv_n, 9, sv_features.d3dsig);
-    tensor->setValue(jet_n, sv_n, 10, sv_features.costhetasvpv);
-    tensor->setValue(jet_n, sv_n, 11, sv_features.enratio);
+    float* ptr = tensor->getPtr<float>(jet_n, sv_n, 0);
+
+    *ptr     = sv_features.pt;
+    *(++ptr) = sv_features.deltaR;
+    *(++ptr) = sv_features.mass;
+    *(++ptr) = sv_features.ntracks;
+    *(++ptr) = sv_features.chi2;
+    *(++ptr) = sv_features.normchi2;
+    *(++ptr) = sv_features.dxy;
+    *(++ptr) = sv_features.dxysig;
+    *(++ptr) = sv_features.d3d;
+    *(++ptr) = sv_features.d3dsig;
+    *(++ptr) = sv_features.costhetasvpv;
+    *(++ptr) = sv_features.enratio;
 
   }
-
 
 }
 
 #endif
-
