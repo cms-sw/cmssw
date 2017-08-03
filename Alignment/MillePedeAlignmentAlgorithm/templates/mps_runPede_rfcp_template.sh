@@ -7,9 +7,6 @@
 #temporary fix (?):
 #unset PYTHONHOME
 
-EOS="/afs/cern.ch/project/eos/installation/cms/bin/eos.select"
-EOSPREFIX="root://eoscms//eos/cms"
-
 cd ${CMSSW_BASE}/src
 eval `scramv1 runtime -sh`
 cd -
@@ -28,7 +25,7 @@ if [ "${MSSDIRPOOL}" != "cmscafuser" ]
 then
     :                           # do nothing
 else
-    TREEFILELIST=`${EOS} ls -l ${MSSDIR} | grep -i treeFile | grep -i root`
+    TREEFILELIST=`ls -l ${MSSDIR} | grep -i treeFile | grep -i root`
 fi
 if [[ -z "${TREEFILELIST}" ]]
 then
@@ -120,8 +117,8 @@ if [ "${MSSDIRPOOL}" != "cmscafuser" ]; then
   echo copytreefile rfcp ${MSSDIR}/treeFileISN.root ${BATCH_DIR} >> parallel-copy-commands.txt
 else
   MSSCAFDIR=`echo ${MSSDIR} | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  echo untilSuccess xrdcp ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz milleBinaryISN.dat.gz >> parallel-copy-commands.txt
-  echo copytreefile xrdcp ${EOSPREFIX}${MSSCAFDIR}/treeFileISN.root treeFileISN.root >> parallel-copy-commands.txt
+  echo untilSuccess xrdcp ${MSSCAFDIR}/milleBinaryISN.dat.gz milleBinaryISN.dat.gz >> parallel-copy-commands.txt
+  echo copytreefile xrdcp ${MSSCAFDIR}/treeFileISN.root treeFileISN.root >> parallel-copy-commands.txt
 fi
 xargs -a stager_get-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}
 xargs -a parallel-copy-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}

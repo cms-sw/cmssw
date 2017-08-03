@@ -26,36 +26,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-# diamonds mapping
-process.totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(0),
-  subSystem = cms.untracked.string("TimingDiamond"),
-  configuration = cms.VPSet(
-    # before diamonds inserted in DAQ
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 283819:max"),
-      mappingFileNames = cms.vstring(),
-      maskFileNames = cms.vstring()
-    ),
-    # after diamonds inserted in DAQ
-    cms.PSet(
-      validityRange = cms.EventRange("283820:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"),
-      maskFileNames = cms.vstring()
-    )
-  )
-)
-
 # raw-to-digi conversion
 process.load('EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi')
-process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-# rechits production
 process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
-# local tracks fitter
-process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff')
 #process.ctppsDiamondLocalTracks.trackingAlgorithmParams.threshold = cms.double(1.5)
 #process.ctppsDiamondLocalTracks.trackingAlgorithmParams.sigma = cms.double(0)
 #process.ctppsDiamondLocalTracks.trackingAlgorithmParams.resolution = cms.double(0.025) # in mm
@@ -72,8 +48,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.ctppsDiamondRawToDigi *
-    process.ctppsDiamondRecHits *
-    process.ctppsDiamondLocalTracks
+    process.ctppsDiamondLocalReconstruction
 )
 
 process.outpath = cms.EndPath(process.output) 

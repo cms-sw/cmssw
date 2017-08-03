@@ -172,7 +172,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = muCondition.condLastResult();
 
             cond0Comb = (muCondition.getCombinationsInCond());
-            cond0bx = (corrMuon->condRelativeBx());
+            cond0bx = bxEval + (corrMuon->condRelativeBx());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
             if (m_verbosity ) {
@@ -193,7 +193,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
-            cond0bx = (corrCalo->condRelativeBx());
+            cond0bx = bxEval + (corrCalo->condRelativeBx());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
             if (m_verbosity) {
@@ -213,7 +213,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
-            cond0bx = (corrEnergySum->condRelativeBx());
+            cond0bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity ) {
@@ -252,7 +252,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = muCondition.condLastResult();
 
             cond1Comb = (muCondition.getCombinationsInCond());
-            cond1bx = (corrMuon->condRelativeBx());
+            cond1bx = bxEval + (corrMuon->condRelativeBx());
 
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
@@ -273,7 +273,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
-            cond1bx = (corrCalo->condRelativeBx());
+            cond1bx = bxEval + (corrCalo->condRelativeBx());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
             if (m_verbosity ) {
@@ -294,7 +294,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
-            cond1bx = (corrEnergySum->condRelativeBx());
+            cond1bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -419,7 +419,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         switch (cond0Categ) {
             case CondMuon: {
 	        lutObj0 = "MU";
-                candMuVec = m_uGtB->getCandL1Mu();
+		candMuVec = m_uGtB->getCandL1Mu();
                 phiIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwEtaAtVtx();
 		etIndex0  =  (candMuVec->at(cond0bx,obj0Index))->hwPt();
@@ -705,10 +705,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	    //If we are dealing with the same object type avoid the two legs
 	    // either being the same object
 	    if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-	               obj0Index == obj1Index ) {
+		obj0Index == obj1Index &&
+		cond0bx == cond1bx) {
 
-		       LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
-		       continue;
+	      LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
+	      continue;
 	    }
 
             switch (cond1Categ) {
