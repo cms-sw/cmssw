@@ -33,6 +33,7 @@
 #include "HLTrigger/special/interface/HLTPixelActivityHFSumEnergyFilter.h"
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
 #include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
+#include "HLTrigger/special/interface/HLTHcalLaserMisfireFilter.h"
 
 DEFINE_FWK_MODULE(HLTPixlMBFilt);
 DEFINE_FWK_MODULE(HLTPixlMBForAlignmentFilter);
@@ -51,6 +52,7 @@ DEFINE_FWK_MODULE(HLTHcalNZSFilter);
 
 DEFINE_FWK_MODULE(HLTCSCOverlapFilter);
 DEFINE_FWK_MODULE(HLTCSCRing2or3Filter);
+DEFINE_FWK_MODULE(HLTHcalLaserMisfireFilter);
 
 typedef HLTCountNumberOfObject<SiStripRecHit2DCollection> HLTCountNumberOfSingleRecHit;
 DEFINE_FWK_MODULE(HLTCountNumberOfSingleRecHit);
