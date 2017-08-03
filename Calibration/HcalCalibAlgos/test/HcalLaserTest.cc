@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -23,14 +23,18 @@
 #include <string>
 #include <TH1F.h>
 
-class HcalLaserTest : public edm::global::EDFilter<> {
+class HcalLaserTest : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+
 public:
   explicit HcalLaserTest(const edm::ParameterSet&);
   virtual ~HcalLaserTest();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override { }
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override { }
   virtual void endJob(void) override;
   
   // ----------member data ---------------------------
@@ -58,22 +62,9 @@ HcalLaserTest::HcalLaserTest(const edm::ParameterSet& config) :
   minADCHF_(config.getParameter<int>("minADCHF")),
   testMode_(config.getUntrackedParameter<bool>("testMode", false)),
   eventsByType_(),
-  passedEventsByType_() {
+  passedEventsByType_() { 
 
-  for (auto & i : eventsByType_)       i = 0; 
-  for (auto & i : passedEventsByType_) i = 0; 
-
-  edm::Service<TFileService> tfile;
-  if ( !tfile.isAvailable() )
-    throw cms::Exception("HcalLaserTest") << "TFileService unavailable: "
-					  << "please add it to config file";
-  h_hb1_ = tfile->make<TH1F>("hb1","Maximum ADC in HB (Good)",5000,0,100);
-  h_hb2_ = tfile->make<TH1F>("hb2","Maximum ADC in HB (Bad)", 5000,0,100);
-  h_hb3_ = tfile->make<TH1F>("hb3","Signal Channel fraction (Good)", 1000,0,1);
-  h_hb4_ = tfile->make<TH1F>("hb4","Signal Channel fraction (Bad)",  1000,0,1);
-  h_hb5_ = tfile->make<TH1F>("hb5","Signal Channel fraction (Diff)",1000,-1,1);
-  h_hf1_ = tfile->make<TH1F>("hf1","Maximum ADC in HF",       5000,0,100);
-  h_hf2_ = tfile->make<TH1F>("hf2","Signal Channel fraction (HF)", 1000,0,1);
+  usesResource(TFileService::kSharedResource);
 }
 
 HcalLaserTest::~HcalLaserTest() { }
@@ -91,9 +82,9 @@ void HcalLaserTest::fillDescriptions(edm::ConfigurationDescriptions& description
   descriptions.add("hcalLaserTest",desc);
 }
 
-bool HcalLaserTest::filter(edm::StreamID, edm::Event& iEvent, 
-			   const edm::EventSetup& iSetup) const {
- 
+void HcalLaserTest::analyze(edm::Event const& iEvent, 
+			    edm::EventSetup const& iSetup) {
+  
   edm::Handle<HBHEDigiCollection>     hbhe_digi; 
   iEvent.getByToken(inputTokenHBHE_,  hbhe_digi);
 
@@ -185,13 +176,30 @@ bool HcalLaserTest::filter(edm::StreamID, edm::Event& iEvent,
       << "\n******************************************************************";
   
   if (((goodrbxfracHBHE-badrbxfracHBHE) < minFracDiffHBHELaser_) ||
-      (goodrbxfracHF < minFracHFLaser_))  return false;
-      
-  passedEventsByType_.at(laserType)++;
-  return true;
+      (goodrbxfracHF < minFracHFLaser_)) {
+  } else {
+    passedEventsByType_.at(laserType)++;
+  }
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
+void HcalLaserTest::beginJob() {
+
+  for (auto & i : eventsByType_)       i = 0; 
+  for (auto & i : passedEventsByType_) i = 0; 
+
+  edm::Service<TFileService> tfile;
+  if ( !tfile.isAvailable() )
+    throw cms::Exception("HcalLaserTest") << "TFileService unavailable: "
+					  << "please add it to config file";
+  h_hb1_ = tfile->make<TH1F>("hb1","Maximum ADC in HB (Good)",5000,0,100);
+  h_hb2_ = tfile->make<TH1F>("hb2","Maximum ADC in HB (Bad)", 5000,0,100);
+  h_hb3_ = tfile->make<TH1F>("hb3","Signal Channel fraction (Good)", 1000,0,1);
+  h_hb4_ = tfile->make<TH1F>("hb4","Signal Channel fraction (Bad)",  1000,0,1);
+  h_hb5_ = tfile->make<TH1F>("hb5","Signal Channel fraction (Diff)",1000,-1,1);
+  h_hf1_ = tfile->make<TH1F>("hf1","Maximum ADC in HF",       5000,0,100);
+  h_hf2_ = tfile->make<TH1F>("hf2","Signal Channel fraction (HF)", 1000,0,1);
+}
+
 void HcalLaserTest::endJob() {
   edm::LogVerbatim("HcalLaserTest") 
     << "Summary of filter decisions (passed/total): \n" 
