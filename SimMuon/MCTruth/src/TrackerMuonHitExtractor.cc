@@ -106,8 +106,10 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	int endcap, /*station, */ ring, chamber;
 	
 	edm::LogVerbatim("TrackerMuonHitExtractor") <<"Number of chambers: "<<mu.matches().size()
-					      <<", arbitrated: "<<mu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
+					      <<", arbitrated: "<<mu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)
+					      <<", tot (no arbitration): "<<mu.numberOfMatches(reco::Muon::NoArbitration);
 	unsigned int index_chamber = 0;
+	int n_segments_noArb = 0;
 	
 	for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
 	    chamberMatch != mu.matches().end(); ++chamberMatch, index_chamber++) {
@@ -135,6 +137,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	  
 	  chamberStr << ", Number of segments: "<<chamberMatch->segmentMatches.size();
 	  edm::LogVerbatim("TrackerMuonHitExtractor") << chamberStr.str();
+	  n_segments_noArb = n_segments_noArb + chamberMatch->segmentMatches.size();
 
 	  unsigned int index_segment = 0;
 	  
@@ -165,6 +168,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 		<<"\n\t  Local Position (X,Y)=("<<segmentX<<","<<segmentY<<") +/- ("<<segmentXerr<<","<<segmentYerr<<"), " 
 		<<"\n\t  Local Direction (dXdZ,dYdZ)=("<<segmentdXdZ<<","<<segmentdYdZ<<") +/- ("<<segmentdXdZerr<<","<<segmentdYdZerr<<")"; 
 	      
+	      // with the following line the DT segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
               if (segmentDT.get() != 0) {
@@ -198,6 +202,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 		<<"\n\t  Local Position (X,Y)=("<<segmentX<<","<<segmentY<<") +/- ("<<segmentXerr<<","<<segmentYerr<<"), " 
 		<<"\n\t  Local Direction (dXdZ,dYdZ)=("<<segmentdXdZ<<","<<segmentdYdZ<<") +/- ("<<segmentdXdZerr<<","<<segmentdYdZerr<<")"; 
 	      
+	      // with the following line the CSC segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
               if (segmentCSC.get() != 0) {
@@ -215,6 +220,8 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	    
 	  } // loop on vector<MuonSegmentMatch>	  
 	}  // loop on vector<MuonChamberMatch>	
+
+	edm::LogVerbatim("TrackerMuonHitExtractor")<<"\n N. matched Segments before arbitration = "<<n_segments_noArb;
 
         return ret;
 }

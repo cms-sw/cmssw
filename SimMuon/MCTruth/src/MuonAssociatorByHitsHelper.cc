@@ -613,9 +613,14 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
 
         // Handle the case of TrackingParticles that don't have PSimHits inside, e.g. because they were made on RECOSIM only.
         if (trpart->numberOfHits()==0) {
-            // FIXME this can be made better, counting the digiSimLinks associated to this TP, but perhaps it's not worth it
-            n_tracker_recounted_simhits = tracker_nshared;
-            n_muon_simhits = muon_nshared;
+	  // FIXME this can be made better, counting the digiSimLinks associated to this TP, but perhaps it's not worth it
+	  //n_tracker_recounted_simhits = tracker_nshared;
+	  //n_muon_simhits = muon_nshared;
+	  // ---> on RECOSIM when the AbsoluteNumberOfHits_muon=True this always obtains quality=1, 
+	  //      hence no sorting is possible in case of duplicate matchings
+	  // ---> reset these variables to 1 so to keep the number of shared hits as ranking criterion
+	  n_tracker_recounted_simhits = 1;
+	  n_muon_simhits = 1;
         }	
 	n_global_simhits = n_tracker_recounted_simhits + n_muon_simhits;
 
