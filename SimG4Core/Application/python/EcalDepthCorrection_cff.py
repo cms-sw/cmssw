@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customise(process):
+def customiseEcalSD(process):
 
   # fragment allowing to simulate correct Ecal hit depth 
 
