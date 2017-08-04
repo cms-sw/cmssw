@@ -8,6 +8,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -124,25 +125,25 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* engine ) const
 {
-   assert( 1 == hit.depth() ||
-	   2 == hit.depth()    ) ;
+  int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+  assert( 1 == iddepth || 2 == iddepth ) ;
 
-   double npe ( hit.energy()*( 2 == hit.depth() ?
-			       apdParameters()->simToPELow() :
-			       apdParameters()->simToPEHigh() ) ) ;
+  double npe ( hit.energy()*( 2 == iddepth ?
+			      apdParameters()->simToPELow() :
+			      apdParameters()->simToPEHigh() ) ) ;
 
-   // do we need to do Poisson statistics for the photoelectrons?
-   if( apdParameters()->doPEStats() &&
-       !m_apdOnly                      ) {
+  // do we need to do Poisson statistics for the photoelectrons?
+  if( apdParameters()->doPEStats() &&
+      !m_apdOnly                      ) {
+    
+    CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
+    npe = randPoissonQ.fire();
+  }
+  assert( 0 != m_intercal ) ;
+  double fac ( 1 ) ;
+  findIntercalibConstant( hit.id(), fac ) ;
 
-      CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
-      npe = randPoissonQ.fire();
-   }
-   assert( 0 != m_intercal ) ;
-   double fac ( 1 ) ;
-   findIntercalibConstant( hit.id(), fac ) ;
-
-   npe *= fac ;
+  npe *= fac ;
 
 //   edm::LogError( "EBHitResponse" ) << "--- # photoelectrons for "
 /*   std::cout << "--- # photoelectrons for "
@@ -150,7 +151,7 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* 
 	     <<" is " << npe //;
 	     <<std::endl ;*/
 
-   return npe ;
+  return npe ;
 }
 
 void 
@@ -228,20 +229,21 @@ void
 EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
-     if( 0 == hit.depth() ) // for now take only nonAPD hits
-     {
-       if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
-     }
-     else // APD hits here
-     {
+    int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+    if ( 0 == iddepth ) // for now take only nonAPD hits
+      {
+	if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
+      }
+    else // APD hits here
+      {
         if( apdParameters()->addToBarrel() ||
             m_apdOnly                         )
-        {
-           const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
-           m_apdNpeVec[ icell ] += apdSignalAmplitude( hit, engine ) ;
-           if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
-        }
-     }
+	  {
+	    const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
+	    m_apdNpeVec[ icell ] += apdSignalAmplitude( hit, engine ) ;
+	    if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
+	  }
+      }
   }
 }
 
@@ -269,7 +271,8 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engin
 	  ( 0 == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 
-	 if( 0 == hit.depth() ) // for now take only nonAPD hits
+	 int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+	 if( 0 == iddepth ) // for now take only nonAPD hits
 	 {
            if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
 	 }
