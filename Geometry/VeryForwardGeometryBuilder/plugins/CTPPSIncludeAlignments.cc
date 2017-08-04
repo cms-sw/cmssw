@@ -138,7 +138,7 @@ RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RP
     }
 
     for (auto sit : accumulator)
-      result[tvi].AddCorrections(*sit);
+      result[tvi].addCorrections(*sit);
   }
 
   return result;
