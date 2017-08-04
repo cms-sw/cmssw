@@ -87,9 +87,12 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     const double rh_fraction = rhf.fraction();
     rh_energy = refhit->energy()*rh_fraction;
     if( edm::isNotFinite(rh_energy) ) {
-      throw cms::Exception("PFClusterAlgo")
-	<<"rechit " << refhit->detId() << " has a NaN energy... " 
-	<< "The input of the particle flow clustering seems to be corrupted.";
+//temporarily changed exception to warning
+//      throw cms::Exception("PFClusterAlgo")
+      edm::LogWarning("PFClusterAlgo")
+      <<"rechit " << refhit->detId() << " has a NaN energy... " 
+      << "The input of the particle flow clustering seems to be corrupted.";
+      continue;
     }    
     pcavars[0] = refhit->position().x();
     pcavars[1] = refhit->position().y();
