@@ -104,9 +104,23 @@ class FilterPFCandByParticleId {
   public:
     FilterPFCandByParticleId(int particleId):
       id_(particleId){};
-    template<typename PFCandCompatiblePtrType>
+      template<typename PFCandCompatiblePtrType>
       bool operator()(const PFCandCompatiblePtrType& ptr) const {
         return ptr->particleId() == id_;
+      }
+  private:
+    int id_;
+};
+
+// Predicate to filter CandPtrs by the abs(pdgId)
+class FilterCandByAbsPdgId {
+  public:
+    FilterCandByAbsPdgId(int pdgId):
+      id_(pdgId){};
+      template<typename CandCompatiblePtrType>
+      bool operator()(const CandCompatiblePtrType& ptr) const {
+        CandidatePtr pfptr(ptr);
+        return std::abs(ptr->pdgId()) == id_;
       }
   private:
     int id_;

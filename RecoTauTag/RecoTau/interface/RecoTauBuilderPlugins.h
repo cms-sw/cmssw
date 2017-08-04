@@ -76,7 +76,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
 	    const reco::PFJetRef&, const 
 	    std::vector<reco::PFRecoTauChargedHadron>&, 
 	    const std::vector<reco::RecoTauPiZero>&, 
-	    const std::vector<PFCandidatePtr>&) const = 0;
+	    const std::vector<CandidatePtr>&) const = 0;
 
   /// Hack to be able to convert Ptrs to Refs
   const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };

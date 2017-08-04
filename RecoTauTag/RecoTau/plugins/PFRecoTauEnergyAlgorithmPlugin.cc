@@ -187,13 +187,13 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 
     // Determine which neutral PFCandidates are close to PFChargedHadrons
     // and have been merged into ChargedHadrons
-    std::vector<reco::PFCandidatePtr> mergedNeutrals;
+    std::vector<reco::CandidatePtr> mergedNeutrals;
     reco::Candidate::LorentzVector mergedNeutralsSumP4;
     for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
       if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
-	const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron->getNeutralPFCandidates();
-	for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
+	const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron->getNeutralPFCandidates();
+	for ( std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
 	      neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
 	  mergedNeutrals.push_back(*neutralPFCand);
 	  mergedNeutralsSumP4 += (*neutralPFCand)->p4();
@@ -234,7 +234,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 
     // Determine energy sum of all PFNeutralHadrons interpreted as ChargedHadrons with missing track
     unsigned numChargedHadronNeutrals = 0;
-    std::vector<reco::PFCandidatePtr> chargedHadronNeutrals;
+    std::vector<reco::CandidatePtr> chargedHadronNeutrals;
     reco::Candidate::LorentzVector chargedHadronNeutralsSumP4;
     for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
@@ -266,7 +266,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kPFNeutralHadron) ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  chargedHadron_modified.neutralPFCandidates_.clear();
-	  const PFCandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
+	  const CandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
 	  double chargedHadronPx_modified = scaleFactor*chargedPFCand->px();
 	  double chargedHadronPy_modified = scaleFactor*chargedPFCand->py();
 	  double chargedHadronPz_modified = scaleFactor*chargedPFCand->pz();

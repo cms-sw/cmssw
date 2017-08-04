@@ -208,7 +208,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     // keep track of neutral PFCandidates, charged PFCandidates and tracks "used" by ChargedHadron candidates in the clean collection
     typedef std::pair<double, double> etaPhiPair;
     std::list<etaPhiPair> tracksInCleanCollection;
-    std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
+    std::set<reco::CandidatePtr> neutralPFCandsInCleanCollection;
 
     while ( !uncleanedChargedHadrons.empty() ) {
       
@@ -224,12 +224,14 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
       const reco::Track* track = nullptr;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
-	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
-	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
-	else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+	const reco::PFCandidate* chargedPFCand = dynamic_cast<const reco::PFCandidate*> (&*nextChargedHadron->getChargedPFCandidate());
+        if (chargedPFCand) {
+          if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
+          else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+        }
       } 
       if ( nextChargedHadron->getTrack().isNonnull() && !track ) {
 	track = nextChargedHadron->getTrack().get();
@@ -254,9 +256,12 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard ChargedHadron candidates without track in case they are close to neutral PFCandidates "used" by ChargedHadron candidates in the clean collection
       bool isNeutralPFCand_overlap = false;
       if ( nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron) ) {
-	for ( std::set<reco::PFCandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
+	for ( std::set<reco::CandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
 	      neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end(); ++neutralPFCandInCleanCollection ) {
-	  if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() ) isNeutralPFCand_overlap = true;
+          // JAN - FIXME - this should be fine according to the documentation but need to double-check
+	  // if ( neutralPFCandInCleanCollection->id() == nextChargedHadron->getChargedPFCandidate().id() )
+          if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() )  isNeutralPFCand_overlap = true;
+
 	}
       }
       if ( verbosity_ ) {
@@ -265,7 +270,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if ( isNeutralPFCand_overlap ) continue;
       
       // find neutral PFCandidates that are not "used" by any ChargedHadron in the clean collection
-      std::vector<reco::PFCandidatePtr> uniqueNeutralPFCands;
+      std::vector<reco::CandidatePtr> uniqueNeutralPFCands;
       std::set_difference(nextChargedHadron->getNeutralPFCandidates().begin(),
 			  nextChargedHadron->getNeutralPFCandidates().end(),
 			  neutralPFCandsInCleanCollection.begin(),
@@ -281,7 +286,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	cleanedChargedHadrons.push_back(*nextChargedHadron);
       } else { // remove overlapping neutral PFCandidates, reevaluate ranking criterion and process ChargedHadron candidate again
 	nextChargedHadron->neutralPFCandidates_.clear();
-	BOOST_FOREACH( const reco::PFCandidatePtr& neutralPFCand, uniqueNeutralPFCands ) {
+	BOOST_FOREACH( const reco::CandidatePtr& neutralPFCand, uniqueNeutralPFCands ) {
           nextChargedHadron->neutralPFCandidates_.push_back(neutralPFCand);
         }
 	// update ChargedHadron four-momentum
