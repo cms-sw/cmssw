@@ -39,7 +39,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     return_type operator()(const reco::PFJetRef& jet,
 	const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons,
         const std::vector<RecoTauPiZero>& piZeros,
-        const std::vector<PFCandidatePtr>& regionalExtras) const override;
+        const std::vector<CandidatePtr>& regionalExtras) const override;
   private:
     RecoTauQualityCuts qcuts_;
 
@@ -107,10 +107,10 @@ namespace xclean
 { 
   // define template specialization for cross-cleaning
   template<>
-  inline void CrossCleanPiZeros<cone::PFCandPtrDRFilterIter>::initialize(const cone::PFCandPtrDRFilterIter& signalTracksBegin, const cone::PFCandPtrDRFilterIter& signalTracksEnd) 
+  inline void CrossCleanPiZeros<cone::CandPtrDRFilterIter>::initialize(const cone::CandPtrDRFilterIter& signalTracksBegin, const cone::CandPtrDRFilterIter& signalTracksEnd) 
   {
     // Get the list of objects we need to clean
-    for ( cone::PFCandPtrDRFilterIter signalTrack = signalTracksBegin; signalTrack != signalTracksEnd; ++signalTrack ) {
+    for ( cone::CandPtrDRFilterIter signalTrack = signalTracksBegin; signalTrack != signalTracksEnd; ++signalTrack ) {
       toRemove_.insert(reco::CandidatePtr(*signalTrack));
     }
   }
@@ -118,7 +118,7 @@ namespace xclean
   template<>
   inline void CrossCleanPtrs<PiZeroList::const_iterator>::initialize(const PiZeroList::const_iterator& piZerosBegin, const PiZeroList::const_iterator& piZerosEnd) 
   {
-    BOOST_FOREACH( const PFCandidatePtr &ptr, flattenPiZeros(piZerosBegin, piZerosEnd) ) {
+    BOOST_FOREACH( const CandidatePtr &ptr, flattenPiZeros(piZerosBegin, piZerosEnd) ) {
       toRemove_.insert(CandidatePtr(ptr));
     }
   }
@@ -188,7 +188,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
     const std::vector<RecoTauPiZero>& piZeros,
-    const std::vector<PFCandidatePtr>& regionalExtras) const {
+    const std::vector<CandidatePtr>& regionalExtras) const {
   //std::cout << "<RecoTauBuilderConePlugin::operator()>:" << std::endl;
   //std::cout << " jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << std::endl;
 
@@ -206,12 +206,12 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // Setup our quality cuts to use the current vertex (supplied by base class)
   qcuts_.setPV(primaryVertex(jet));
 
-  typedef std::vector<PFCandidatePtr> PFCandPtrs;
+  typedef std::vector<CandidatePtr> CandPtrs;
 
   // Get the PF Charged hadrons + quality cuts
-  PFCandPtrs pfchs;
+  CandPtrs pfchs;
   if (!usePFLeptonsAsChargedHadrons_) {
-    pfchs = qcuts_.filterCandRefs(pfCandidates(*jet, reco::PFCandidate::h));
+    pfchs = qcuts_.filterCandRefs(pfCandidates(*jet, 211));
   } else {
     // Check if we want to include electrons in muons in "charged hadron"
     // collection.  This is the preferred behavior, as the PF lepton selections
@@ -223,14 +223,14 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   std::sort(pfchs.begin(), pfchs.end(), SortPFCandsDescendingPt());
 
   // Get the PF gammas
-  PFCandPtrs pfGammas = qcuts_.filterCandRefs(
-      pfCandidates(*jet, reco::PFCandidate::gamma));
+  CandPtrs pfGammas = qcuts_.filterCandRefs(
+      pfCandidates(*jet, 22));
   // Neutral hadrons
-  PFCandPtrs pfnhs = qcuts_.filterCandRefs(
-      pfCandidates(*jet, reco::PFCandidate::h0));
+  CandPtrs pfnhs = qcuts_.filterCandRefs(
+      pfCandidates(*jet, 130));
 
   // All the extra junk
-  PFCandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
+  CandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
 
   /***********************************************
    ******     Lead Candidate Finding    **********
@@ -238,13 +238,13 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Define our matching cone and filters
   double matchingCone = matchingCone_(*jet);
-  PFCandPtrDRFilter matchingConeFilter(jet->p4(), 0, matchingCone);
+  CandPtrDRFilter matchingConeFilter(jet->p4(), 0, matchingCone);
 
   // Find the maximum PFCharged hadron in the matching cone.  The call to
   // PFCandidates always a sorted list, so we can just take the first if it
   // if it exists.
-  PFCandidatePtr leadPFCH;
-  PFCandPtrs::iterator leadPFCH_iter =
+  CandidatePtr leadPFCH;
+  CandPtrs::iterator leadPFCH_iter =
       std::find_if(pfchs.begin(), pfchs.end(), matchingConeFilter);
 
   if (leadPFCH_iter != pfchs.end()) {
@@ -258,8 +258,8 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   }
 
   // Find the leading neutral candidate
-  PFCandidatePtr leadPFGamma;
-  PFCandPtrs::iterator leadPFGamma_iter =
+  CandidatePtr leadPFGamma;
+  CandPtrs::iterator leadPFGamma_iter =
       std::find_if(pfGammas.begin(), pfGammas.end(), matchingConeFilter);
 
   if (leadPFGamma_iter != pfGammas.end()) {
@@ -268,7 +268,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     tau.setleadPFNeutralCand(leadPFGamma);
   }
 
-  PFCandidatePtr leadPFCand;
+  CandidatePtr leadPFCand;
   // Always use the leadPFCH if it is above our threshold
   if (leadPFCH.isNonnull() && leadPFCH->pt() > leadObjecPtThreshold_) {
     leadPFCand = leadPFCH;
@@ -293,29 +293,29 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // Define the signal and isolation cone sizes for this jet and build filters
   // to select elements in the given DeltaR regions
 
-  PFCandPtrDRFilter signalConePFCHFilter(
+  CandPtrDRFilter signalConePFCHFilter(
       coneAxis, -0.1, signalConeChargedHadrons_(*jet));
-  PFCandPtrDRFilter signalConePFNHFilter(
+  CandPtrDRFilter signalConePFNHFilter(
       coneAxis, -0.1, signalConeNeutralHadrons_(*jet));
   PiZeroDRFilter signalConePiZeroFilter(
       coneAxis, -0.1, signalConePiZeros_(*jet));
 
-  PFCandPtrDRFilter isoConePFCHFilter(
+  CandPtrDRFilter isoConePFCHFilter(
       coneAxis, signalConeChargedHadrons_(*jet), isoConeChargedHadrons_(*jet));
-  PFCandPtrDRFilter isoConePFGammaFilter(
+  CandPtrDRFilter isoConePFGammaFilter(
       coneAxis, signalConePiZeros_(*jet), isoConePiZeros_(*jet));
-  PFCandPtrDRFilter isoConePFNHFilter(
+  CandPtrDRFilter isoConePFNHFilter(
       coneAxis, signalConeNeutralHadrons_(*jet), isoConeNeutralHadrons_(*jet));
   PiZeroDRFilter isoConePiZeroFilter(
       coneAxis, signalConePiZeros_(*jet), isoConePiZeros_(*jet));
 
   // Additionally make predicates to select the different PF object types
   // of the regional junk objects to add to the iso cone.
-  typedef xclean::PredicateAND<xclean::FilterPFCandByParticleId, PFCandPtrDRFilter> RegionalJunkConeAndIdFilter;
+  typedef xclean::PredicateAND<xclean::FilterCandByAbsPdgId, CandPtrDRFilter> RegionalJunkConeAndIdFilter;
 
-  xclean::FilterPFCandByParticleId pfchCandSelector(reco::PFCandidate::h);
-  xclean::FilterPFCandByParticleId pfgammaCandSelector(reco::PFCandidate::gamma);
-  xclean::FilterPFCandByParticleId pfnhCandSelector(reco::PFCandidate::h0);
+  xclean::FilterCandByAbsPdgId pfchCandSelector(211);
+  xclean::FilterCandByAbsPdgId pfgammaCandSelector(22);
+  xclean::FilterCandByAbsPdgId pfnhCandSelector(130);
 
   // Predicate to select the regional junk in the iso cone by PF id
   RegionalJunkConeAndIdFilter pfChargedJunk(
@@ -334,15 +334,15 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
       );
 
   // Build filter iterators select the signal charged stuff.
-  PFCandPtrDRFilterIter signalPFCHCands_begin(
+  CandPtrDRFilterIter signalPFCHCands_begin(
       signalConePFCHFilter, pfchs.begin(), pfchs.end());
-  PFCandPtrDRFilterIter signalPFCHCands_end(
+  CandPtrDRFilterIter signalPFCHCands_end(
       signalConePFCHFilter, pfchs.end(), pfchs.end());
-  PFCandPtrs signalPFCHs;
+  CandPtrs signalPFCHs;
   int numSignalPFCHs = 0;
-  PFCandPtrs isolationPFCHs;
+  CandPtrs isolationPFCHs;
   int numIsolationPFCHs = 0;
-  for ( PFCandPtrDRFilterIter iter = signalPFCHCands_begin; iter != signalPFCHCands_end; ++iter ) {
+  for ( CandPtrDRFilterIter iter = signalPFCHCands_begin; iter != signalPFCHCands_end; ++iter ) {
     if ( numSignalPFCHs < maxSignalConeChargedHadrons_ || maxSignalConeChargedHadrons_ == -1 ) {
       //std::cout << "adding signalPFCH #" << numSignalPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
       signalPFCHs.push_back(*iter);
@@ -354,11 +354,11 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
       ++numIsolationPFCHs;
     }
   }
-  PFCandPtrs::const_iterator signalPFCHs_begin = signalPFCHs.begin();
-  PFCandPtrs::const_iterator signalPFCHs_end = signalPFCHs.end();
+  CandPtrs::const_iterator signalPFCHs_begin = signalPFCHs.begin();
+  CandPtrs::const_iterator signalPFCHs_end = signalPFCHs.end();
 
   // Cross clean pi zero content using signal cone charged hadron constituents.
-  xclean::CrossCleanPiZeros<PFCandPtrDRFilterIter> piZeroXCleaner(
+  xclean::CrossCleanPiZeros<CandPtrDRFilterIter> piZeroXCleaner(
       signalPFCHCands_begin, signalPFCHCands_end);
   std::vector<reco::RecoTauPiZero> cleanPiZeros = piZeroXCleaner(piZeros);
 
@@ -379,8 +379,8 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     isolationPFCHs.push_back(*iter);
     ++numIsolationPFCHs;
   }
-  PFCandPtrs::const_iterator isolationPFCHs_begin = isolationPFCHs.begin();
-  PFCandPtrs::const_iterator isolationPFCHs_end = isolationPFCHs.end();
+  CandPtrs::const_iterator isolationPFCHs_begin = isolationPFCHs.begin();
+  CandPtrs::const_iterator isolationPFCHs_end = isolationPFCHs.end();
 
   // Build signal charged hadrons
   tau.addPFCands(RecoTauConstructor::kSignal,

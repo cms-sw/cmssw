@@ -161,6 +161,7 @@ std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& ca
   return newSignalCands;
 }
 
+math::XYZPoint atECALEntrance(const reco::Candidate* part);
 
 }}  // end namespace reco::tau
 #endif

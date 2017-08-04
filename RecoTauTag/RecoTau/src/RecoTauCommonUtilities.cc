@@ -73,4 +73,29 @@ std::vector<reco::CandidatePtr> pfChargedCands(const reco::Jet& jet,
   return output;
 }
 
+math::XYZPoint atECALEntrance(const reco::Candidate* part) {
+  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate>(part);
+  if (pfCand)
+    return pfCand->positionAtECALEntrance();
+
+  math::XYZPoint pos;
+  BaseParticlePropagator theParticle =
+    BaseParticlePropagator(RawParticle(math::XYZTLorentzVector(part->px(),
+                     part->py(),
+                     part->pz(),
+                     part->energy()),
+               math::XYZTLorentzVector(part->vertex().x(),
+                     part->vertex().y(),
+                     part->vertex().z(),
+                     0.)), 
+         0.,0.,bField_);
+  theParticle.setCharge(part->charge());
+  theParticle.propagateToEcalEntrance(false);
+  if(theParticle.getSuccess()!=0){
+    pos = math::XYZPoint(theParticle.vertex());
+  }
+  return pos;
+}
+
+
 } }

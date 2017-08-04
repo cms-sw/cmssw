@@ -47,13 +47,13 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   ~PFRecoTauChargedHadron() override;
 
   /// reference to "charged" PFCandidate (either charged PFCandidate or PFNeutralHadron)
-  const PFCandidatePtr& getChargedPFCandidate() const;
+  const CandidatePtr& getChargedPFCandidate() const;
 
   /// reference to reco::Track
   const TrackPtr& getTrack() const;
 
   /// references to additional neutral PFCandidates
-  const std::vector<PFCandidatePtr>& getNeutralPFCandidates() const;  
+  const std::vector<CandidatePtr>& getNeutralPFCandidates() const;  
 
   /// position at ECAL entrance
   const math::XYZPointF& positionAtECALEntrance() const;
@@ -75,9 +75,9 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
 
   PFRecoTauChargedHadronAlgorithm algo_;
 
-  PFCandidatePtr chargedPFCandidate_;
+  CandidatePtr chargedPFCandidate_;
   TrackPtr track_;
-  std::vector<PFCandidatePtr> neutralPFCandidates_;
+  std::vector<CandidatePtr> neutralPFCandidates_;
 
   math::XYZPointF positionAtECALEntrance_;
 };
