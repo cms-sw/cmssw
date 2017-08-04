@@ -137,8 +137,8 @@ RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RP
       );
     }
 
-    for (set<const RPAlignmentCorrectionsData*>::iterator sit = accumulator.begin(); sit != accumulator.end(); ++sit)
-      result[tvi].AddCorrections(*(*sit));
+    for ( auto sit : accumulator )
+      result[tvi].addCorrections( *sit );
   }
 
   return result;

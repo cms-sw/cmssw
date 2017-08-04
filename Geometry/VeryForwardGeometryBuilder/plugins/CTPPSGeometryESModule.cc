@@ -14,7 +14,6 @@
  
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
@@ -110,7 +109,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
       unsigned int plId = pD->geographicalID();
 
       if ( alignments.isValid() ) {
-        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection( plId );
+        const RPAlignmentCorrectionData& ac = alignments->getFullSensorCorrection( plId );
         pD->ApplyAlignment( ac );
       }
     }
@@ -122,7 +121,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
       unsigned int rpId = pD->geographicalID();
       
       if ( alignments.isValid() ) {
-        const RPAlignmentCorrectionData& ac = alignments->GetRPCorrection( rpId );
+        const RPAlignmentCorrectionData& ac = alignments->getRPCorrection( rpId );
         pD->ApplyAlignment( ac );
       }
     }
@@ -294,8 +293,8 @@ CTPPSGeometryESModule::produceRealGD( const VeryForwardRealGeometryRecord& iReco
     if ( verbosity_ )
       edm::LogVerbatim("CTPPSGeometryESModule::produceRealGD")
         << ">> CTPPSGeometryESModule::produceRealGD > Real geometry: "
-        << alignments->GetRPMap().size() << " RP and "
-        << alignments->GetSensorMap().size() << " sensor alignments applied.";
+        << alignments->getRPMap().size() << " RP and "
+        << alignments->getSensorMap().size() << " sensor alignments applied.";
   }
   else {
     if ( verbosity_ )
@@ -326,8 +325,8 @@ CTPPSGeometryESModule::produceMisalignedGD( const VeryForwardMisalignedGeometryR
     if ( verbosity_ )
       edm::LogVerbatim("CTPPSGeometryESModule::produceMisalignedGD")
         << ">> CTPPSGeometryESModule::produceMisalignedGD > Misaligned geometry: "
-        << alignments->GetRPMap().size() << " RP and "
-        << alignments->GetSensorMap().size() << " sensor alignments applied.";
+        << alignments->getRPMap().size() << " RP and "
+        << alignments->getSensorMap().size() << " sensor alignments applied.";
   } else {
     if ( verbosity_ )
       edm::LogVerbatim("CTPPSGeometryESModule::produceMisalignedGD")
