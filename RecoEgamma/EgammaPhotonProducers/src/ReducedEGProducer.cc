@@ -284,7 +284,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   std::unordered_set<unsigned int> superClusterFullRelinkMap;
   std::unordered_set<unsigned int> ootSuperClusterFullRelinkMap;
-  //std::unordered_set<unsigned int> gsfTrackFullRelinkMap;
   
   //vectors for pfcandidate valuemaps
   std::vector<std::vector<reco::PFCandidateRef> > pfCandIsoPairVecPho;  
@@ -410,32 +409,23 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     const reco::GsfElectronCoreRef &gsfElectronCore = gsfElectron.core();
     linkCore(gsfElectronCore, *gsfElectronCores, gsfElectronCoreMap);
 
-
     const reco::GsfTrackRef &gsfTrack = gsfElectron.gsfTrack();
     
     // Save the main gsfTrack
     if (!gsfTrackMap.count(gsfTrack)) {
       gsfTracks->push_back(*gsfTrack);
       gsfTrackMap[gsfTrack] = gsfTracks->size() - 1;
-      //std::cout << "push back gsftrack to gsftrack ref" << std::endl;
-      //std::cout << " gsf track size: " << gsfTracks->size() << std::endl;
     }
     
     // Save additional ambiguous gsf tracks in a map:
     for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
-      //std::cout<<"    **** Found an AMBIGUOUS GSF ***** "<<std::endl;
-      //std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << (*igsf)->pt() << "\t gsf eta: "
-      //	<< (*igsf)->eta() << "\t gsf phi: " << (*igsf)->phi() << std::endl;
-      
       const reco::GsfTrackRef &ambigGsfTrack = *igsf;
       if (!gsfTrackMap.count(ambigGsfTrack)) {
 	gsfTracks->push_back(*ambigGsfTrack);
 	gsfTrackMap[ambigGsfTrack] = gsfTracks->size() - 1;
-	//std::cout << "Save ambiguous track in the map" << std::endl;
       }
     }
-    
-    
+        
     
     bool slimRelink = slimRelinkGsfElectronSel_(gsfElectron);
     //no supercluster relinking unless slimRelink selection is satisfied
@@ -463,14 +453,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     linkConversionsByTrackRef(singleConversionHandle, gsfElectron, *singleConversions, singleConversionMap);
   }
 
-
-  //std::cout << "gsf electrons size: " << gsfElectrons->size() << std::endl;
-  //std::cout << "superclusters size: " << superClusters->size() << std::endl;
-  //std::cout << "photons size: " << photons->size() << std::endl;
-  //std::cout << "conversions size: " << conversions->size() << std::endl;
-  //std::cout << "gsf tracks size: " << gsfTracks->size() << std::endl;
-  
-  
   //loop over output SuperClusters and fill maps
   index = 0;
   for (auto& superCluster : *superClusters) {
@@ -638,12 +620,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       }
       else
 	throw cms::Exception("There must be a problem with linking and mapping of ambiguous gsf tracks...");
-      
     }
     
     if (gsfElectron.ambiguousGsfTracksSize() > 0)
       gsfElectron.setAmbiguous(true); // Set the flag
-    
 
     ambigTracksInThisElectron.clear();
     
@@ -908,7 +888,6 @@ void ReducedEGProducer::relinkSuperCluster(T& core,
   }
 }   
 
-
 void ReducedEGProducer::relinkGsfTrack(reco::GsfElectronCore& gsfElectronCore, 
 				       const std::map<reco::GsfTrackRef, unsigned int>& gsfTrackMap, 
 				       const edm::OrphanHandle<reco::GsfTrackCollection>& outGsfTrackHandle) 
@@ -917,7 +896,6 @@ void ReducedEGProducer::relinkGsfTrack(reco::GsfElectronCore& gsfElectronCore,
   if (gsftkmapped != gsfTrackMap.end()) {
     reco::GsfTrackRef gsftkref(outGsfTrackHandle, gsftkmapped->second);
     gsfElectronCore.setGsfTrack(gsftkref);
-    //std::cout<< "relinked a gsf track" << std::endl;
   }
 }   
 
