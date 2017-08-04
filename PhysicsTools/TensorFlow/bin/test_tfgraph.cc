@@ -54,6 +54,9 @@ int main()
     tf::Tensor* x = new tf::Tensor(2, xShape);
     g.defineInput(x, "input");
 
+    tf::Tensor* s = new tf::Tensor(0, 0);
+    g.defineInput(s, "scale");
+
     // define the output
     tf::Tensor* y = new tf::Tensor();
     g.defineOutput(y, "output");
@@ -64,6 +67,9 @@ int main()
 
     std::vector<float> values1 = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 };
     x->setVector<float>(1, 1, values1);
+
+    // do not scale at all
+    *s->getPtr<float>() = 1.0;
 
     // evaluate
     g.eval();
@@ -91,14 +97,17 @@ int main()
     test(g.nOutputs() == 0, "graph should have 0 outputs");
 
     tf::GraphIO* xIO = g.defineInput(x, "input");
+    tf::GraphIO* sIO = g.defineInput(s, "scale");
     tf::GraphIO* yIO = g.defineOutput(y, "output");
-    test(g.nInputs() == 1, "graph should have 1 input");
+    test(g.nInputs() == 2, "graph should have 2 inputs");
     test(g.nOutputs() == 1, "graph should have 1 output");
 
     test(g.hasInput(x, "input"), "graph should have x as an input");
+    test(g.hasInput(s, "scale"), "graph should have s as an input");
     test(g.hasOutput(y, "output"), "graph should have y as an output");
 
     test(g.hasInput(xIO), "graph should have x as an input");
+    test(g.hasInput(sIO), "graph should have s as an input");
     test(g.hasOutput(yIO), "graph should have y as an output");
 
     catched = false;
@@ -107,20 +116,24 @@ int main()
     test(catched, "graph should detect duplicate inputs");
 
     g.removeInput(x, "input");
+    g.removeInput(s, "scale");
     g.removeOutput(y, "output");
     test(g.nInputs() == 0, "graph should have 0 inputs");
     test(g.nOutputs() == 0, "graph should have 0 outputs");
 
     xIO = g.defineInput(x, "input");
+    sIO = g.defineInput(s, "scale");
     yIO = g.defineOutput(y, "output");
     g.removeInput(xIO);
+    g.removeInput(sIO);
     g.removeOutput(yIO);
     test(g.nInputs() == 0, "graph should have 0 inputs");
     test(g.nOutputs() == 0, "graph should have 0 outputs");
 
     xIO = g.defineInput(x, "input");
+    sIO = g.defineInput(s, "scale");
     yIO = g.defineOutput(y, "output");
-    test(g.nInputs() == 1, "graph should have 1 input");
+    test(g.nInputs() == 2, "graph should have 2 inputs");
     test(g.nOutputs() == 1, "graph should have 1 output");
 
     g.eval();
@@ -134,6 +147,7 @@ int main()
 
     // cleanup
     delete x;
+    delete s;
     delete y;
 
     return 0;

@@ -5,6 +5,7 @@
  *   Marcel Rieger
  */
 
+#include <iostream>
 #include "PhysicsTools/TensorFlow/interface/Graph.h"
 
 namespace tf
@@ -284,8 +285,8 @@ void Graph::eval()
     TF_SessionRun(
         tf_session,
         0, // run options
-        nIn == 0 ? 0 : inputOutputs[0], nIn == 0 ? 0 : &inputTensors[0], nIn,
-        nOut == 0 ? 0 : outputOutputs[0], nOut == 0 ? 0 : &outputTensors[0], nOut,
+        nIn == 0 ? 0 : &inputOutputs[0], nIn == 0 ? 0 : &inputTensors[0], nIn,
+        nOut == 0 ? 0 : &outputOutputs[0], nOut == 0 ? 0 : &outputTensors[0], nOut,
         0, 0, // target ops, number of targets
         0, // run metadata
         status);
@@ -320,7 +321,7 @@ void Graph::prepareEval()
     std::vector<GraphIO*>::iterator it;
     for (it = inputs.begin(); it != inputs.end(); it++)
     {
-        inputOutputs.push_back(&(*it)->tf_output);
+        inputOutputs.push_back((*it)->tf_output);
         inputTensors.push_back((*it)->tensor->tf_tensor);
     }
 
@@ -329,7 +330,7 @@ void Graph::prepareEval()
     outputTensors.clear();
     for (it = outputs.begin(); it != outputs.end(); it++)
     {
-        outputOutputs.push_back(&(*it)->tf_output);
+        outputOutputs.push_back((*it)->tf_output);
         outputTensors.push_back((*it)->tensor->tf_tensor);
     }
 
