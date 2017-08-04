@@ -34,6 +34,9 @@ public:
     // default constructor
     Tensor();
 
+    // disable implicit copy constructor
+    Tensor(const Tensor& t) = delete;
+
     // constructor that initializes the internal tensorflow tensor object
     Tensor(int rank, Shape* shape, DataType dtype = TF_FLOAT);
 

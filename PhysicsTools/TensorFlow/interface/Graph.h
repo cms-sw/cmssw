@@ -49,6 +49,9 @@ public:
     // constructor
     Graph(const std::string& exportDir = "", const std::string& tag = "serve");
 
+    // disable implicit copy constructor
+    Graph(const Graph& g) = delete;
+
     // destructor
     virtual ~Graph();
 
