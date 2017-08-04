@@ -43,12 +43,12 @@ class ClusterSummarySingleMultiplicity {
   int mult() const;
 
  private:
-#ifndef __ROOTCLING__
-  edm::EDGetTokenT<ClusterSummary> m_collection;
-#endif
   ClusterSummary::CMSTracker m_subdetenum;
   ClusterSummary::VariablePlacement m_varenum;
   int m_mult;
+#ifndef __ROOTCLING__
+  edm::EDGetTokenT<ClusterSummary> m_collection;
+#endif
 
 };
 
@@ -70,43 +70,40 @@ class SingleMultiplicity {
 
  private:
 
-#ifndef __ROOTCLING__
-  edm::EDGetTokenT<T> m_collection;
-#endif
   int m_modthr;
   bool m_useQuality;
   std::string m_qualityLabel;
   int m_mult;
+#ifndef __ROOTCLING__
+  edm::EDGetTokenT<T> m_collection;
+#endif
 };
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity():
-  //  mult(0),
-#ifndef __ROOTCLING__
-m_collection(),
-#endif
     m_modthr(-1), m_useQuality(false),  m_qualityLabel(),
-  m_mult(0)
+    m_mult(0)
+#ifndef __ROOTCLING__
+    ,m_collection()
+#endif
 { }
 
 #ifndef __ROOTCLING__
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
-  //  mult(0),
-m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
   m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
   m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
   m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel","")),
-  m_mult(0)
+  m_mult(0),
+  m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName")))
 { }
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
-  //  mult(0),
-m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
   m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
   m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
   m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel","")),
-  m_mult(0)
+  m_mult(0),
+  m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName")))
 { }
 #endif
 
@@ -116,7 +113,6 @@ void
 SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   m_mult = 0;
-  //  mult = 0;
 
   edm::ESHandle<SiStripQuality> qualityHandle;
    if( m_useQuality) {
@@ -156,8 +152,6 @@ template <class T1, class T2>
     void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int mult1() const;
     int mult2() const;
-    //    int mult1;
-    //    int mult2;
 
  private:
 
@@ -168,20 +162,17 @@ template <class T1, class T2>
 
 template <class T1, class T2>
   MultiplicityPair<T1,T2>::MultiplicityPair():
-    //    mult1(0),mult2(0),
     m_multiplicity1(),  m_multiplicity2()
 { }
 
 #ifndef __ROOTCLING__
 template <class T1, class T2>
       MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
-    //    mult1(0),mult2(0),
   m_multiplicity1(iConfig.getParameter<edm::ParameterSet>("firstMultiplicityConfig"),iC),
     m_multiplicity2(iConfig.getParameter<edm::ParameterSet>("secondMultiplicityConfig"),iC)
 { }
 template <class T1, class T2>
       MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
-    //    mult1(0),mult2(0),
   m_multiplicity1(iConfig.getParameter<edm::ParameterSet>("firstMultiplicityConfig"),iC),
     m_multiplicity2(iConfig.getParameter<edm::ParameterSet>("secondMultiplicityConfig"),iC)
 { }
@@ -194,8 +185,6 @@ template <class T1, class T2>
   m_multiplicity1.getEvent(iEvent,iSetup);
   m_multiplicity2.getEvent(iEvent,iSetup);
 
-  //  mult1=m_multiplicity1.mult;
-  //  mult2=m_multiplicity2.mult;
 
 }
 
