@@ -3,7 +3,7 @@ import os
 import re
 
 import configTemplates
-from helperFunctions import replaceByMap, parsecolor, parsestyle
+from helperFunctions import conddb, parsecolor, parsestyle, replaceByMap
 from TkAlExceptions import AllInOneError
 
 class Alignment(object):
@@ -159,6 +159,11 @@ class Alignment(object):
                     if not os.path.exists(dbfile):
                         raise AllInOneError("No file {}.".format(dbfile))
 
+                    if "\nDeformations" not in conddb("--db", dbfile, "listTags"):
+                        deformations = False  #so that hp = XXXX works whether or not deformations were aligned
+                        if not alignments:    #then it's specified with hp_deformations, which is a mistake
+                            raise AllInOneError("{}{} has no deformations".format(option, number))
+
                 else:
                     assert False, option
 
@@ -228,17 +233,17 @@ class Alignment(object):
             raise AllInOneError("Some conditions are specified multiple times (possibly through mp or hp options)!\n"
                                 + ", ".join(rcdname for rcdname, count in rcdnames.iteritems() if count >= 2))
 
+        for condition in conditions:
+            self.__testDbExist(condition["connectString"], condition["tagName"])
 
         return conditions
 
-    def __testDbExist(self, dbpath):
-        #FIXME delete return to end train debuging
-        return
-        if not dbpath.startswith("sqlite_file:"):
-            print "WARNING: could not check existence for",dbpath
-        else:
+    def __testDbExist(self, dbpath, tagname):
+        if dbpath.startswith("sqlite_file:"):
             if not os.path.exists( dbpath.split("sqlite_file:")[1] ):
-                raise "could not find file: '%s'"%dbpath.split("sqlite_file:")[1]
+                raise AllInOneError("could not find file: '%s'"%dbpath.split("sqlite_file:")[1])
+            elif "\n"+tagname not in conddb("--db", dbpath.split("sqlite_file:")[1], "listTags"):
+                raise AllInOneError("{} does not exist in {}".format(tagname, dbpath))
 
     def restrictTo( self, restriction ):
         result = []
