@@ -425,8 +425,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 	gsfTrackMap[ambigGsfTrack] = gsfTracks->size() - 1;
       }
     }
-        
-    
+  
     bool slimRelink = slimRelinkGsfElectronSel_(gsfElectron);
     //no supercluster relinking unless slimRelink selection is satisfied
     if (!slimRelink) continue;
@@ -598,8 +597,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     relinkGsfElectronCore(gsfElectron, gsfElectronCoreMap, outgsfElectronCoreHandle);
 
     // -----
-    // Also in this loop let's reling ambiguous tracks
-    // -----
+    // Also in this loop let's relink ambiguous tracks
     std::vector<reco::GsfTrackRef> ambigTracksInThisElectron;
     // Here we loop over the ambiguous tracks and save them in a vector
     for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
@@ -611,8 +609,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     gsfElectron.clearAmbiguousGsfTracks();
     
     // And here we add them back, now from a new reduced collection:
-    for (std::vector<reco::GsfTrackRef>::const_iterator it = ambigTracksInThisElectron.begin(); it != ambigTracksInThisElectron.end(); ++it) {
-      const auto &gsftkmapped = gsfTrackMap.find(*it);
+    for (const auto &it : ambigTracksInThisElectron) {
+      const auto &gsftkmapped = gsfTrackMap.find(it);
       
       if (gsftkmapped != gsfTrackMap.end()) {
 	reco::GsfTrackRef gsftkref(outGsfTrackHandle, gsftkmapped->second);
