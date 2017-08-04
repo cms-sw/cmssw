@@ -226,13 +226,15 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  if      (storeRL) {
-    return getRadiationLength(aStep);
-  } else {
-    if      (any(useDepth1,lv)) return 1;
-    else if (any(useDepth2,lv)) return 2;
-    else                        return 0;
+  uint16_t depth  = any(useDepth1,lv) ? 1 : (any(useDepth2,lv) ? 2 : 0);
+  if (storeRL) {
+    auto ite        = xtalLMap.find(lv);
+    uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 :
+                                                     PCaloHit::kEcalDepthRefz);
+    uint16_t depth2 = getRadiationLength(aStep);
+    depth          |= (((depth2&PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset) | depth1);
   }
+  return depth;
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
