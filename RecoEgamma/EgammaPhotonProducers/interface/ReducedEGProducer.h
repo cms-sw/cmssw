@@ -106,7 +106,6 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   void relinkSuperCluster(T& core,
 			  const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap, 
 			  const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle);
-  
 
   void relinkGsfTrack(reco::GsfElectronCore& electroncore,
 		      const std::map<reco::GsfTrackRef, unsigned int>& gsfTrackMap,
