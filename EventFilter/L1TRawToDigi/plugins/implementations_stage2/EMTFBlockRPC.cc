@@ -32,7 +32,7 @@ namespace l1t {
 	if(GetHexBits(RPCb, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCb are incorrect"; }
 	if(GetHexBits(RPCc, 12, 13) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
 	if(GetHexBits(RPCc, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
-	if(GetHexBits(RPCd, 3, 15)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCd are incorrect"; }
+	if(GetHexBits(RPCd, 4, 15)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCd are incorrect"; }
 
 	return errors;
 	
