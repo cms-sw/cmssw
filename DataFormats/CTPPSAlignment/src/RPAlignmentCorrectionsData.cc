@@ -18,19 +18,19 @@
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionData&
-RPAlignmentCorrectionsData::GetRPCorrection( unsigned int id )
+RPAlignmentCorrectionsData::getRPCorrection( unsigned int id )
 {
-  return rps[id];
+  return rps_[id];
 }
 
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::GetRPCorrection( unsigned int id ) const
+RPAlignmentCorrectionsData::getRPCorrection( unsigned int id ) const
 {
   RPAlignmentCorrectionData align_corr;
-  auto it = rps.find( id );
-  if ( it != rps.end() )
+  auto it = rps_.find( id );
+  if ( it != rps_.end() )
     align_corr = it->second;
   return align_corr;
 } 
@@ -38,19 +38,19 @@ RPAlignmentCorrectionsData::GetRPCorrection( unsigned int id ) const
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionData&
-RPAlignmentCorrectionsData::GetSensorCorrection( unsigned int id )
+RPAlignmentCorrectionsData::getSensorCorrection( unsigned int id )
 {
-  return sensors[id];
+  return sensors_[id];
 }
 
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::GetSensorCorrection( unsigned int id ) const
+RPAlignmentCorrectionsData::getSensorCorrection( unsigned int id ) const
 {
   RPAlignmentCorrectionData align_corr;
-  auto it = sensors.find( id );
-  if ( it != sensors.end() )
+  auto it = sensors_.find( id );
+  if ( it != sensors_.end() )
     align_corr = it->second;
   return align_corr;
 }
@@ -58,21 +58,21 @@ RPAlignmentCorrectionsData::GetSensorCorrection( unsigned int id ) const
 //----------------------------------------------------------------------------------------------------
 
 RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::GetFullSensorCorrection( unsigned int id, bool useRPErrors ) const
+RPAlignmentCorrectionsData::getFullSensorCorrection( unsigned int id, bool useRPErrors ) const
 {
   RPAlignmentCorrectionData align_corr;
 
   // try to get alignment correction of the full RP
-  auto rpIt = rps.find( CTPPSDetId( id ).getRPId() );
-  if ( rpIt != rps.end() )
+  auto rpIt = rps_.find( CTPPSDetId( id ).getRPId() );
+  if ( rpIt != rps_.end() )
     align_corr = rpIt->second;
 
   // try to get sensor alignment correction
-  auto sIt = sensors.find( id );
+  auto sIt = sensors_.find( id );
 
   // merge the corrections
-  if ( sIt != sensors.end() )
-    align_corr.add(sIt->second, useRPErrors);
+  if ( sIt != sensors_.end() )
+    align_corr.add( sIt->second, useRPErrors );
 
   return align_corr;
 }
@@ -80,27 +80,27 @@ RPAlignmentCorrectionsData::GetFullSensorCorrection( unsigned int id, bool useRP
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::SetRPCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
+RPAlignmentCorrectionsData::setRPCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
 {
-  rps[id] = ac;
+  rps_[id] = ac;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::SetSensorCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
+RPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
 {
-  sensors[id] = ac;
+  sensors_[id] = ac;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::AddRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  auto it = rps.find( id );
-  if ( it == rps.end() )
-    rps.insert( mapType::value_type( id, a ) );
+  auto it = rps_.find( id );
+  if ( it == rps_.end() )
+    rps_.insert( mapType::value_type( id, a ) );
   else
     it->second.add( a, sumErrors, addShR, addShZ, addRotZ );
 }
@@ -108,11 +108,11 @@ RPAlignmentCorrectionsData::AddRPCorrection( unsigned int id, const RPAlignmentC
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::AddSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  auto it = sensors.find( id );
-  if ( it == sensors.end() )
-    sensors.insert( mapType::value_type( id, a ) );
+  auto it = sensors_.find( id );
+  if ( it == sensors_.end() )
+    sensors_.insert( mapType::value_type( id, a ) );
   else
     it->second.add( a, sumErrors, addShR, addShZ, addRotZ );
 }
@@ -120,22 +120,22 @@ RPAlignmentCorrectionsData::AddSensorCorrection( unsigned int id, const RPAlignm
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::AddCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
 {
-  for ( const auto& it : nac.rps )
-    AddRPCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
+  for ( const auto& it : nac.rps_ )
+    addRPCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
 
-  for ( const auto& it : nac.sensors )
-    AddSensorCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
+  for ( const auto& it : nac.sensors_ )
+    addSensorCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::Clear()
+RPAlignmentCorrectionsData::clear()
 {
-  rps.clear();
-  sensors.clear();
+  rps_.clear();
+  sensors_.clear();
 }
 
 //----------------------------------------------------------------------------------------------------
