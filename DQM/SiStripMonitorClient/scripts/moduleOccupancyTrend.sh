@@ -29,9 +29,10 @@ done
 
 echo "Summary" >> modulefile
 
-moduleOccupancyTrend rootfilestmp.txt modulefile
+moduleOccupancyTrend rootfilestmp.txt modulefile $7 $8
 
 rm modulefile
+rm rootfilestmp.txt
 
 cd -
 
