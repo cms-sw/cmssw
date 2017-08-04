@@ -125,8 +125,8 @@ private:
     std::vector<GraphIO*> outputs;
 
     // vectors for caching objects required for evaluation
-    std::vector<TF_Output*> inputOutputs;
-    std::vector<TF_Output*> outputOutputs;
+    std::vector<TF_Output> inputOutputs;
+    std::vector<TF_Output> outputOutputs;
     std::vector<TF_Tensor*> inputTensors;
     std::vector<TF_Tensor*> outputTensors;
 
