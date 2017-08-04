@@ -73,7 +73,9 @@ public:
    void setContext(fireworks::Context*);
 
    sigc::signal<void, FWEventItem*> newItem_;
+   sigc::signal<void, const FWEventItem*> removingItem_;
    sigc::signal<void>               goingToClearItems_;
+
 private:
 
    void removeItem(const FWEventItem*);

@@ -63,6 +63,7 @@
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/FWTTreeCache.h"
 
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
@@ -89,7 +90,7 @@ static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
 static const char* const kLogLevelCommandOpt   = "log";
-static const char* const kLogLevelOpt          = "log";
+static const char* const kLogTreeCacheOpt      = "log-tree-cache";
 static const char* const kEveOpt               = "eve";
 static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
@@ -184,6 +185,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
  po::options_description debugdesc("Debug");
    debugdesc.add_options()
    (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
+   (kLogTreeCacheOpt,                                  "Log tree cache operations and status")
    (kEveCommandOpt,                                    "Show TEveBrowser to help debug problems")
    (kEnableFPE,                                        "Enable detection of floating-point exceptions");
 
@@ -227,9 +229,13 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       exit(0);
    }
       
-   if(vm.count(kLogLevelOpt)) {
-      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+   if(vm.count(kLogLevelCommandOpt)) {
+      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelCommandOpt].as<unsigned int>());
       fwlog::setPresentLogLevel(level);
+   }
+
+   if(vm.count(kLogTreeCacheOpt)) {
+      FWTTreeCache::LoggingOn();
    }
 
    if(vm.count(kPlainRootCommandOpt)) {

@@ -145,7 +145,6 @@ namespace fwlite {
                 tree_->LoadTree(eventEntry);
             }
         }
-        printf("DataGetterHelper::getBranchData for '%s', entry %lld\n", iData.branch_->GetName(), eventEntry);
         branchAccFoo_(iData.branch_);
         iData.branch_->GetEntry(eventEntry);
 

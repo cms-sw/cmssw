@@ -22,6 +22,7 @@
 // forward declarations
 class FWEventItem;
 class FWTEventList;
+class FWTTreeCache;
 class CSGAction;
 class CmsShowMain;
 class TFile;
@@ -59,6 +60,7 @@ public:
    fwlite::Event* event() { return m_event; }
    TTree*         tree()  { return m_eventTree; }
    FWTEventList*  globalSelection() { return m_globalEventList; }
+   FWTTreeCache*  fwTreeCache();
    
    std::list<Filter*>& filters() { return m_filterEntries; }
    
@@ -82,17 +84,14 @@ public:
    void needUpdate() { m_needUpdate = true; }
    void updateFilters(const FWEventItemsManager* eiMng, bool isOR);
 
-   // XXX To be implemented and connected to appropriate signals
-   // void AddBranchesToCache();    // from read config / new file ready
-   void AddBranchToCache(const FWEventItem* it);      // from add collection
-   void AddBranchToCacheX(TBranch *branch);      // from data helper
-   // void RemoveBranchFromCache(); // from remove collection
-   // HLT / L1 come through table views ?
-  
+   // CallIns from FWEventItemsManager for tree-cache add/remove branch
+   void NewEventItemCallIn(const FWEventItem* it);
+   void RemovingEventItemCallIn(const FWEventItem* it);
+
 private:
    FWFileEntry(const FWFileEntry&);    // stop default
    const FWFileEntry& operator=(const FWFileEntry&);    // stop default
-   
+
    void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
    bool filterEventsWithCustomParser(Filter* filter);
 

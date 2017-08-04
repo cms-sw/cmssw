@@ -19,89 +19,107 @@ FWTTreeCache::~FWTTreeCache()
 
 //==============================================================================
 
+bool FWTTreeCache::s_logging = false;
+
+void FWTTreeCache::LoggingOn()  { s_logging = true;  }
+void FWTTreeCache::LoggingOff() { s_logging = false; }
+bool FWTTreeCache::IsLogging()  { return s_logging;  }
+
+//==============================================================================
+
+Int_t FWTTreeCache::AddBranchTopLevel (const char* bname)
+{
+   if (bname == nullptr || bname[0] == 0)
+   {
+      printf("FWTTreeCache::AddBranchTopLevel Invalid branch name <%s>\n",
+             bname == nullptr ? "nullptr" : "empty string");
+      return -1;
+   }
+
+   Int_t ret = 0;
+   if ( ! is_branch_in_cache(bname))
+   {
+      if (s_logging)
+         printf("FWTTreeCache::AddBranchTopLevel '%s' -- adding\n", bname);
+      {  LearnGuard _lg(this);
+         ret = AddBranch(bname, true);
+      }
+      if (ret == 0)
+         m_branch_set.insert(bname);
+   }
+   else
+   {
+      if (s_logging)
+         printf("FWTTreeCache::AddBranchTopLevel '%s' -- already in cache\n", bname);
+   }
+
+   return ret;
+}
+
+Int_t FWTTreeCache::DropBranchTopLevel(const char* bname)
+{
+   if (bname == nullptr || bname[0] == 0)
+   {
+      printf("FWTTreeCache::AddBranchTopLevel Invalid branch name");
+      return -1;
+   }
+
+   Int_t ret = 0;
+   if (is_branch_in_cache(bname))
+   {
+      if (s_logging)
+         printf("FWTTreeCache::DropBranchTopLevel '%s' -- dropping\n", bname);
+      m_branch_set.erase(bname);
+      LearnGuard _lg(this);
+      ret = DropBranch(bname, true);
+   }
+   else
+   {
+      if (s_logging)
+         printf("FWTTreeCache::DropBranchTopLevel '%s' -- not in cache\n", bname);
+   }
+   return ret;
+}
+
+void FWTTreeCache::BranchAccessCallIn(TBranch *b)
+{
+   if (s_logging)
+      printf("FWTTreeCache::BranchAccessCallIn '%s'\n", b->GetName());
+
+   AddBranchTopLevel(b->GetName());
+}
+
+//==============================================================================
+
 Int_t FWTTreeCache::AddBranch(TBranch *b, Bool_t subbranches)
 {
-   // printf("FWTTreeCache::AddBranch %s\n", b->GetName());
-
+   if (s_logging && ! m_silent_low_level)
+      printf("FWTTreeCache::AddBranch by ptr '%s', subbp=%d\n", b->GetName(), subbranches);
    return TTreeCache::AddBranch(b, subbranches);
 }
 
 Int_t FWTTreeCache::AddBranch(const char *branch, Bool_t subbranches)
 {
-   // printf("FWTTreeCache::AddBranch %s\n", branch);
-
+   if (s_logging)
+      printf("FWTTreeCache::AddBranch by name '%s', subbp=%d\n", branch, subbranches);
+   if (strcmp(branch,"*") == 0)
+      m_silent_low_level = true;
    return TTreeCache::AddBranch(branch, subbranches);
 }
 
-//==============================================================================
-
-Int_t FWTTreeCache::ReadBuffer(char *buf, Long64_t pos, Int_t len)
+Int_t FWTTreeCache::DropBranch(TBranch *b, Bool_t subbranches)
 {
-   // printf("FWTTreeCache::ReadBuffer \n");
-
-   if (!fEnabled) return 0;
-
-   if (fEnablePrefetching)
-      return ReadBufferPrefetch(buf, pos, len);
-   else
-      return ReadBufferNormal(buf, pos, len);
+   if (s_logging && ! m_silent_low_level)
+      printf("FWTTreeCache::DropBranch by ptr '%s', subbp=%d\n", b->GetName(), subbranches);
+   return TTreeCache::DropBranch(b, subbranches);
 }
 
-Int_t FWTTreeCache::ReadBufferNormal(char *buf, Long64_t pos, Int_t len)
+Int_t FWTTreeCache::DropBranch(const char *branch, Bool_t subbranches)
 {
-   // printf("FWTTreeCache::ReadBufferNormal \n");
-
-   //Is request already in the cache?
-   if (TFileCacheRead::ReadBuffer(buf,pos,len) == 1){
-      fNReadOk++;
-      return 1;
-   }
-
-   //not found in cache. Do we need to fill the cache?
-   Bool_t bufferFilled = FillBuffer();
-   if (bufferFilled) {
-      Int_t res = TFileCacheRead::ReadBuffer(buf,pos,len);
-
-      if (res == 1)
-         fNReadOk++;
-      else if (res == 0)
-         fNReadMiss++;
-
-      return res;
-   }
-   fNReadMiss++;
-
-   return 0;
-}
-
-Int_t FWTTreeCache::ReadBufferPrefetch(char *buf, Long64_t pos, Int_t len)
-{
-   // printf("FWTTreeCache::ReadBufferPrefetch \n");
-   
-   if (TFileCacheRead::ReadBuffer(buf, pos, len) == 1){
-      //call FillBuffer to prefetch next block if necessary
-      //(if we are currently reading from the last block available)
-      FillBuffer();
-      fNReadOk++;
-      return 1;
-   }
-
-   //keep on prefetching until request is satisfied
-   // try to prefetch a couple of times and if request is still not satisfied then
-   // fall back to normal reading without prefetching for the current request
-   Int_t counter = 0;
-   while (1) {
-      if(TFileCacheRead::ReadBuffer(buf, pos, len)) {
-         break;
-      }
-      FillBuffer();
-      fNReadMiss++;
-      counter++;
-      if (counter>1) {
-        return 0;
-      }
-   }
-
-   fNReadOk++;
-   return 1;
+   if (s_logging)
+      printf("FWTTreeCache::DropBranch by name '%s', subbp=%d\n", branch, subbranches);
+   Int_t ret = TTreeCache::DropBranch(branch, subbranches);
+   if (strcmp(branch,"*") == 0)
+      m_silent_low_level = false;
+   return ret;
 }

@@ -316,6 +316,7 @@ void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
    assert(iItem->id() < m_items.size());
+   removingItem_(iItem);
    m_items[iItem->id()] = 0;
 }
 
