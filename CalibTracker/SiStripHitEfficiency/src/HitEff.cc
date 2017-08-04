@@ -275,8 +275,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   if (DEBUG)  cout << "number ckf tracks found = " << tracksCKF->size() << endl;
   //if (tracksCKF->size() == 1 ){
   if (tracksCKF->size() > 0) {
-    if( cutOnTracks_ && (tracksCKF->size() > trackMultiplicityCut_) ) return;
-    if (DEBUG)    cout << "starting checking good event with < 100 tracks" << endl;
+    if( cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_) ) return;
+    if( DEBUG && cutOnTracks_ ) cout << "starting checking good event with < "<< trackMultiplicityCut_ <<" tracks" << endl;
 
     EventTrackCKF++;  
 
