@@ -31,11 +31,9 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
 {
 }
 
-HTMonitor::~HTMonitor()
-{
-}
+HTMonitor::~HTMonitor() = default;
 
-HTMonitor::MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
+HTMonitor::MEHTbinning HTMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return HTMonitor::MEHTbinning{
     pset.getParameter<unsigned>("nbins"),
@@ -44,7 +42,7 @@ HTMonitor::MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(edm::ParameterSet pset)
+HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return HTMonitor::MEHTbinning{
     pset.getParameter<unsigned>("nbins"),
@@ -53,7 +51,7 @@ HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void HTMonitor::setHTitle(HTME& me, std::string titleX, std::string titleY)
+void HTMonitor::setHTitle(HTME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -179,11 +177,11 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   iEvent.getByToken(vtxToken_, vtxHandle);
 
   reco::Vertex vtx;
-  for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v) {
-    bool isFake =  v->isFake() ;
+  for (auto const & v : *vtxHandle) {
+    bool isFake =  v.isFake() ;
     
     if (!isFake) {
-      vtx = *v;
+      vtx = v;
       break;
     }
   }

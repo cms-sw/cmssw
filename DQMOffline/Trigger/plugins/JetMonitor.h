@@ -61,7 +61,7 @@ public:
   };
 
   JetMonitor( const edm::ParameterSet& );
-  ~JetMonitor();
+  ~JetMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -74,7 +74,7 @@ protected:
   void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY);
-  void setMETitle(JetME& me, std::string titleX, std::string titleY);
+  void setMETitle(JetME& me, const std::string& titleX, const std::string& titleY);
   void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbins, double xmin, double xmax);
   void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax,int nbinsY, double ymin, double ymax );
 
@@ -88,12 +88,12 @@ protected:
   bool isHEP18(double eta, double phi); // -0.87< Phi < -1.22 
   //void FillME(std::vector<MonitorElement*> v_me,std::vector<double>v_pt, std::vector<double> v_phi); //Fill Histograms 
   //void AutoNullPtr(JetME* a_me,const int len_); //Fill Histograms 
-  void bookMESub(DQMStore::IBooker &,JetME* a_me,const int len_,std::string h_Name ,std::string h_Title, std::string h_subOptName, std::string h_subOptTitle ); //Fill Histograms 
-  void FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_, std::string denu); //Fill Histograms 
+  void bookMESub(DQMStore::IBooker &,JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName, std::string h_subOptTitle ); //Fill Histograms 
+  void FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_, const std::string& denu); //Fill Histograms 
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet  (const edm::ParameterSet& pset);
 
   std::string folderName_;
   std::string histoSuffix_;

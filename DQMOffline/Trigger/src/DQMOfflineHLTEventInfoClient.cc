@@ -8,9 +8,9 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <memory>

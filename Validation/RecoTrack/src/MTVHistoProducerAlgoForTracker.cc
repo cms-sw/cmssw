@@ -939,7 +939,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
 
   const auto vertexTPwrtBS = vertexTP - bsPosition;
-  const auto vertxy = vertexTPwrtBS.r();
+  const auto vertxy = std::sqrt(vertexTPwrtBS.perp2());
   const auto vertz = vertexTPwrtBS.z();
 
   //efficiency vs. cut on MVA
@@ -1111,7 +1111,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
   const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   const auto refPointWrtBS = track.referencePoint() - bsPosition;
-  const auto vertxy = refPointWrtBS.r();
+  const auto vertxy = std::sqrt(refPointWrtBS.perp2());
   const auto vertz = refPointWrtBS.z();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
   const auto chi2 = track.normalizedChi2();

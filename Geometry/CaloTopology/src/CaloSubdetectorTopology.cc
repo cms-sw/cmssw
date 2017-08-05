@@ -12,7 +12,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   //
   DetId myTmpId(id);
   std::vector<std::pair<Coordinate,DetId> > fringe;
-  fringe.push_back(std::pair<Coordinate,DetId>(Coordinate(0,0),myTmpId));
+  fringe.emplace_back(std::pair<Coordinate,DetId>(Coordinate(0,0),myTmpId));
   
   int halfWestEast = eastWestSize/2 ;
   int halfNorthSouth = northSouthSize/2 ;
@@ -62,7 +62,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
 	    throw cms::Exception("getWindowError") << "Not supported subdetector for getWindow method";
 	  
           if (!visited_cells[int_index].cell.null())
-            fringe.push_back(std::pair<Coordinate,DetId>(neighbour,visited_cells[int_index].cell));
+            fringe.emplace_back(std::pair<Coordinate,DetId>(neighbour,visited_cells[int_index].cell));
 		  
 	} // loop over all possible directions
     } // while some cells are left on the fringe
@@ -70,7 +70,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   
   for (auto & visited_cell : visited_cells)
     if (!visited_cell.cell.null())
-      cellsInWindow.push_back(visited_cell.cell);
+      cellsInWindow.emplace_back(visited_cell.cell);
   
   return cellsInWindow;
 }

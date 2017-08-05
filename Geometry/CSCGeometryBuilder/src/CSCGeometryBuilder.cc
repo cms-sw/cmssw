@@ -35,18 +35,18 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
     endIt = rig.shapeEnd(idt);
     fpar.clear();
     for ( it = rig.shapeStart(idt); it != endIt; ++it) {
-      fpar.push_back( (float)(*it) );
+      fpar.emplace_back( (float)(*it) );
     }
 
     gtran.clear();
     endIt = rig.tranEnd(idt);
     for ( it = rig.tranStart(idt); it != endIt; ++it ) {
-      gtran.push_back((float)(*it));
+      gtran.emplace_back((float)(*it));
     }
     grmat.clear();
     endIt = rig.rotEnd(idt);
     for ( it = rig.rotStart(idt) ; it != endIt; ++it ) {
-      grmat.push_back((float)(*it));
+      grmat.emplace_back((float)(*it));
     }
 
     // get the chamber type from existing info
@@ -70,7 +70,7 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
 		     << " in pfupars and go to " << numfuPars << "." << std::endl;
       for ( ++fu; fu < numfuPars; ++fu ) {
 	LogTrace(myName) << myName << ": pfupars[" << fu << "]=" << cscpars.pfupars[fu] << std::endl;
-	fupar.push_back(cscpars.pfupars[fu]);
+	fupar.emplace_back(cscpars.pfupars[fu]);
       }
     // now, we need to start from "here" at fu to go on and build wg...
     wg.wireSpacing = cscpars.pfupars[fu++];
@@ -83,11 +83,11 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
     size_t maxFu = fu + 1 + numgrp;
     fu++;
     for ( ;fu < maxFu; ++fu ) {
-      wg.wiresInEachGroup.push_back(int(cscpars.pfupars[fu]));
+      wg.wiresInEachGroup.emplace_back(int(cscpars.pfupars[fu]));
     } 
     maxFu = fu + numgrp;
     for ( ;fu < maxFu; ++fu ) {
-      wg.consecutiveGroups.push_back(int(cscpars.pfupars[fu]));
+      wg.consecutiveGroups.emplace_back(int(cscpars.pfupars[fu]));
     } 
           
     if ( wg.numberOfGroups != 0 ) {

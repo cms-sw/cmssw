@@ -46,7 +46,7 @@ RPCChamber::operator==(const RPCChamber& ch) const {
 
 void 
 RPCChamber::add(RPCRoll* rl) {
-  theRolls.push_back(rl);
+  theRolls.emplace_back(rl);
 }
 
 

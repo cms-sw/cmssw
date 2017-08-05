@@ -25,8 +25,6 @@ CopyRights += '#      marco.musich@cern.ch      #\n'
 CopyRights += '#         December 2015          #\n'
 CopyRights += '##################################\n'
 
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-
 ##############################################
 def drawProgressBar(percent, barLen=40):
 ##############################################
@@ -151,12 +149,12 @@ def mkdir_eos(out_path):
         newpath=os.path.join(newpath,dir)
         # do not issue mkdir from very top of the tree
         if newpath.find('test_out') > 0:
-            p = subprocess.Popen([eos+" mkdir",newpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(["eos", "mkdir", newpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (out, err) = p.communicate()
             p.wait()
 
     # now check that the directory exists
-    p = subprocess.Popen([eos+"ls",out_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(["eos", "ls", out_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     p.wait()
     if p.returncode !=0:

@@ -374,7 +374,7 @@ def miniAOD_customizeOutput(out):
 def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
-    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi")
+    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
     task = getPatAlgosToolsTask(process)
     task.add(process.ctppsLocalTrackLiteProducer)
 

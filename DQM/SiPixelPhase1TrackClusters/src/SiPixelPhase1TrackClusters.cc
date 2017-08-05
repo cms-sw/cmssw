@@ -51,12 +51,14 @@ enum {  // copy paste from cfy: the only safe way to doit....
 
   SiPixelPhase1TrackClustersOnTrackSizeXOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXF,
   SiPixelPhase1TrackClustersOnTrackSizeYOuter,
-  SiPixelPhase1TrackClustersOnTrackSizeYInner, 
-
+  SiPixelPhase1TrackClustersOnTrackSizeYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeYF,
+    
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
-
+  SiPixelPhase1TrackClustersOnTrackSizeXYF,
 
   SiPixelPhase1TrackClustersEnumSize
 };
@@ -154,6 +156,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid == PixelSubdetector::PixelBarrel) isBpixtrack = true;
       if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
+      bool iAmBarrel = subdetid ==PixelSubdetector::PixelBarrel;
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
 
@@ -180,18 +183,24 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       std::pair<float,float> pred;
       if(shapeFilter.getSizes(*pixhit,localDir,pixelClusterShapeCache, part,meas, pred)) {
        auto shape = shapeFilter.isCompatible(*pixhit,localDir,pixelClusterShapeCache);
-       if(tkTpl.pxbLadder(id)%2==1) {
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXOuter].fill(pred.first, cluster.sizeX(), id, &iEvent);
-       	 histo[SiPixelPhase1TrackClustersOnTrackSizeYOuter].fill(pred.second,cluster.sizeY(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXYOuter].fill(pred.second-cluster.sizeY(),pred.first-cluster.sizeX(), id, &iEvent);
+       if (iAmBarrel) {
+         if(tkTpl.pxbLadder(id)%2==1) {
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXOuter].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYOuter].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYOuter].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
 
-         histo[SiPixelPhase1TrackClustersOnTrackShapeOuter].fill(shape?1:0,id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackShapeOuter].fill(shape?1:0,id, &iEvent);
+         } else {
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXInner].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYInner].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYInner].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
+
+           histo[SiPixelPhase1TrackClustersOnTrackShapeInner].fill(shape?1:0,id, &iEvent);
+         }
        } else {
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXInner].fill(pred.first, cluster.sizeX(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeYInner].fill(pred.second,cluster.sizeY(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXYInner].fill(pred.second-cluster.sizeY(),pred.first-cluster.sizeX(), id, &iEvent);
-
-         histo[SiPixelPhase1TrackClustersOnTrackShapeInner].fill(shape?1:0,id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXF].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYF].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYF].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
        }
        histo[SiPixelPhase1TrackClustersOnTrackShape].fill(shape?1:0,id, &iEvent);
       }

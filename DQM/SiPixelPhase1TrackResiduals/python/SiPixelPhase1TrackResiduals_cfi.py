@@ -10,7 +10,22 @@ SiPixelPhase1TrackResidualsResidualsX = DefaultHistoTrack.clone(
   dimensions = 1,
   specs = VPSet(
     StandardSpecification2DProfile,
-    StandardSpecifications1D
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
+    StandardSpecification2DProfile,
+    
+    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+    Specification().groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save(),
+
+    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
   )
 )
 
