@@ -47,10 +47,7 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   }
 }
 
-ObjMonitor::~ObjMonitor()
-{
-
-}
+ObjMonitor::~ObjMonitor() = default;
 
 void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,

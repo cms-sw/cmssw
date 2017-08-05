@@ -20,10 +20,7 @@ lib = mpslib.jobdatabase()
 lib.read_db()
 
 # create a list of eos ls entries containing files on eos
-# previously 'cmsLs -l $mssDir' -> deprecated command. Removed in January 2016
-# the simple command "eos ls -l" doesn't work. Exact location of application must be specified.
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-command = eos+' ls -l '+lib.mssDir
+command = ' ls -l '+lib.mssDir
 eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).split('\n')
 
 # loop over FETCH jobs

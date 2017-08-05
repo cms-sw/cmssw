@@ -36,25 +36,25 @@ HcalDDDGeometry::fillDetIds() const
       const DetId id ( baseIds[i] );
       if( id.subdetId() == HcalBarrel )
       { 
-	 m_hbIds.push_back( id ) ;
+	 m_hbIds.emplace_back( id ) ;
       }
       else
       {
 	 if( id.subdetId() == HcalEndcap )
 	 { 
-	    m_heIds.push_back( id ) ;
+	    m_heIds.emplace_back( id ) ;
 	 }
 	 else
 	 {
 	    if( id.subdetId() == HcalOuter )
 	    { 
-	       m_hoIds.push_back( id ) ;
+	       m_hoIds.emplace_back( id ) ;
 	    }
 	    else
 	    {
 	       if( id.subdetId() == HcalForward )
 	       { 
-		  m_hfIds.push_back( id ) ;
+		  m_hfIds.emplace_back( id ) ;
 	       }
 	    }
 	 }
@@ -217,7 +217,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
               const DetId&       detId   )
 {
   newCellImpl(f1,f2,f3,parm,detId);
-  m_validIds.push_back(detId);
+  m_validIds.emplace_back(detId);
 }
 
 const CaloCellGeometry* 

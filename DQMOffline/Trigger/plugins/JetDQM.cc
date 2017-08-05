@@ -1,9 +1,9 @@
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-JetDQM::JetDQM(){}
+JetDQM::JetDQM()= default;
 
-JetDQM::~JetDQM(){}
+JetDQM::~JetDQM()= default;
 
 void JetDQM::initialise(const edm::ParameterSet& iConfig){
  

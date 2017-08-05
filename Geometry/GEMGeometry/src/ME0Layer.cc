@@ -19,7 +19,7 @@ bool ME0Layer::operator==(const ME0Layer& ch) const {
 }
 
 void ME0Layer::add(const ME0EtaPartition* rl) {
-  etaPartitions_.push_back(rl);
+  etaPartitions_.emplace_back(rl);
 }
 
 std::vector<const GeomDet*> ME0Layer::components() const {

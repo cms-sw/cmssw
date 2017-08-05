@@ -44,10 +44,10 @@ public:
 template <typename ObjType,typename ValType> 
 class HLTDQMHist1D : public HLTDQMHist<ObjType> {
 public:
-  HLTDQMHist1D(TH1* hist,const std::string& varName,
+  HLTDQMHist1D(TH1* hist,std::string  varName,
 	       std::function<ValType(const ObjType&)> func,
-	       const VarRangeCutColl<ObjType>& rangeCuts):
-    var_(func),varName_(varName),localRangeCuts_(rangeCuts),hist_(hist){}
+	       VarRangeCutColl<ObjType>  rangeCuts):
+    var_(std::move(func)),varName_(std::move(varName)),localRangeCuts_(std::move(rangeCuts)),hist_(hist){}
 
   void fill(const ObjType& obj,const edm::Event& event,
 	    const edm::EventSetup& setup,const VarRangeCutColl<ObjType>& globalRangeCuts)override{
@@ -67,13 +67,13 @@ private:
 template <typename ObjType,typename XValType,typename YValType=XValType> 
 class HLTDQMHist2D : public HLTDQMHist<ObjType> {
 public:
-  HLTDQMHist2D(TH2* hist,const std::string& xVarName,const std::string& yVarName,
+  HLTDQMHist2D(TH2* hist,std::string  xVarName,std::string  yVarName,
 	       std::function<XValType(const ObjType&)> xFunc,
 	       std::function<YValType(const ObjType&)> yFunc,
-	       const VarRangeCutColl<ObjType>& rangeCuts):
-    xVar_(xFunc),yVar_(yFunc),
-    xVarName_(xVarName),yVarName_(yVarName),
-    localRangeCuts_(rangeCuts),hist_(hist){}
+	       VarRangeCutColl<ObjType>  rangeCuts):
+    xVar_(std::move(xFunc)),yVar_(std::move(yFunc)),
+    xVarName_(std::move(xVarName)),yVarName_(std::move(yVarName)),
+    localRangeCuts_(std::move(rangeCuts)),hist_(hist){}
   
   void fill(const ObjType& obj,const edm::Event& event,
 	    const edm::EventSetup& setup,const VarRangeCutColl<ObjType>& globalRangeCuts)override{

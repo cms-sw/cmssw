@@ -47,17 +47,17 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
 EgHLTOfflineSource::~EgHLTOfflineSource()
 { 
   // LogDebug("EgHLTOfflineSource") << "destructor called";
-  for(size_t i=0;i<eleFilterMonHists_.size();i++){
-    delete eleFilterMonHists_[i];
+  for(auto & eleFilterMonHist : eleFilterMonHists_){
+    delete eleFilterMonHist;
   } 
-  for(size_t i=0;i<phoFilterMonHists_.size();i++){
-    delete phoFilterMonHists_[i];
+  for(auto & phoFilterMonHist : phoFilterMonHists_){
+    delete phoFilterMonHist;
   }
-  for(size_t i=0;i<eleMonElems_.size();i++){
-    delete eleMonElems_[i];
+  for(auto & eleMonElem : eleMonElems_){
+    delete eleMonElem;
   } 
-  for(size_t i=0;i<phoMonElems_.size();i++){
-    delete phoMonElems_[i];
+  for(auto & phoMonElem : phoMonElems_){
+    delete phoMonElem;
   }
 }
 
@@ -88,8 +88,8 @@ void EgHLTOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   //now book ME's
   iBooker.setCurrentFolder(dirName_+"/Source_Histos");
   //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-  for(size_t i=0;i<eleHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(monElemFuncs,eleHLTFilterNames_[i]);}
-  for(size_t i=0;i<phoHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);  addPhoTrigPath(monElemFuncs,phoHLTFilterNames_[i]);}
+  for(auto const & eleHLTFilterName : eleHLTFilterNames_){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterName);  addEleTrigPath(monElemFuncs,eleHLTFilterName);}
+  for(auto const & phoHLTFilterName : phoHLTFilterNames_){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterName);  addPhoTrigPath(monElemFuncs,phoHLTFilterName);}
   //efficiencies of one trigger path relative to another
   monElemFuncs.initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
   //new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
@@ -115,19 +115,19 @@ void EgHLTOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
   bool doTrigTagProbeEff=false;
   if(doTrigTagProbeEff){
-    for(size_t i=0;i<eleHLTFilterNames_.size();i++){
-      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
-      monElemFuncs.initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
+    for(auto const & eleHLTFilterName : eleHLTFilterNames_){
+      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterName);
+      monElemFuncs.initTrigTagProbeHist(eleMonElems_,eleHLTFilterName,cutMasks_.trigTPEle,binData_);
     }
-    for(size_t i=0;i<phoHLTFilterNames_.size();i++){
-      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
-      monElemFuncs.initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
+    for(auto const & phoHLTFilterName : phoHLTFilterNames_){
+      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterName);
+      monElemFuncs.initTrigTagProbeHist(phoMonElems_,phoHLTFilterName,cutMasks_.trigTPPho,binData_);
     }
-    for(size_t i=0;i<eleHLTFilterNames2Leg_.size();i++){
-      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2));
+    for(auto & i : eleHLTFilterNames2Leg_){
+      iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+i.substr(i.find("::")+2));
       //std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[i]<<std::endl;
       //std::cout<<"Folder: "<<eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2)<<std::endl;
-      monElemFuncs.initTrigTagProbeHist_2Leg(eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
+      monElemFuncs.initTrigTagProbeHist_2Leg(eleMonElems_,i,cutMasks_.trigTPEle,binData_);
     }
     //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
     // monElemFuncs.initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
@@ -148,24 +148,24 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
 
 
-  for(size_t pathNr=0;pathNr<eleFilterMonHists_.size();pathNr++){
-    eleFilterMonHists_[pathNr]->fill(offEvt_,weight);
+  for(auto & eleFilterMonHist : eleFilterMonHists_){
+    eleFilterMonHist->fill(offEvt_,weight);
   } 
-  for(size_t pathNr=0;pathNr<phoFilterMonHists_.size();pathNr++){
-    phoFilterMonHists_[pathNr]->fill(offEvt_,weight);
+  for(auto & phoFilterMonHist : phoFilterMonHists_){
+    phoFilterMonHist->fill(offEvt_,weight);
   }
 
-  for(size_t monElemNr=0;monElemNr<eleMonElems_.size();monElemNr++){
+  for(auto & eleMonElem : eleMonElems_){
     const std::vector<OffEle>& eles = offEvt_.eles();
-    for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-      eleMonElems_[monElemNr]->fill(eles[eleNr],offEvt_,weight);
+    for(auto const & ele : eles){
+      eleMonElem->fill(ele,offEvt_,weight);
     }
   }
 
-  for(size_t monElemNr=0;monElemNr<phoMonElems_.size();monElemNr++){
+  for(auto & phoMonElem : phoMonElems_){
     const std::vector<OffPho>& phos = offEvt_.phos();
-    for(size_t phoNr=0;phoNr<phos.size();phoNr++){
-      phoMonElems_[monElemNr]->fill(phos[phoNr],offEvt_,weight);
+    for(auto const & pho : phos){
+      phoMonElem->fill(pho,offEvt_,weight);
     }
   }
 }
@@ -173,7 +173,7 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
 void EgHLTOfflineSource::addEleTrigPath(MonElemFuncs& monElemFuncs,const std::string& name)
 {
-  EleHLTFilterMon* filterMon = new EleHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_);  
+  auto* filterMon = new EleHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_);  
   eleFilterMonHists_.push_back(filterMon);
   std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
 }
@@ -195,34 +195,34 @@ void EgHLTOfflineSource::addPhoTrigPath(MonElemFuncs& monElemFuncs,const std::st
 void EgHLTOfflineSource::getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const
 { 
   std::set<std::string> filterNameSet;
-  for(size_t i=0;i<eleHLTFilterNames_.size();i++) filterNameSet.insert(eleHLTFilterNames_[i]);
-  for(size_t i=0;i<phoHLTFilterNames_.size();i++) filterNameSet.insert(phoHLTFilterNames_[i]);
+  for(auto const & eleHLTFilterName : eleHLTFilterNames_) filterNameSet.insert(eleHLTFilterName);
+  for(auto const & phoHLTFilterName : phoHLTFilterNames_) filterNameSet.insert(phoHLTFilterName);
   //here we are little more complicated as entries are of the form "tightTrig:looseTrig" 
   //so we need to split them first
-  for(size_t tightLooseNr=0;tightLooseNr<eleTightLooseTrigNames_.size();tightLooseNr++){
+  for(auto const & eleTightLooseTrigName : eleTightLooseTrigNames_){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,eleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
+    boost::split(trigNames,eleTightLooseTrigName,boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   }
-  for(size_t tightLooseNr=0;tightLooseNr<diEleTightLooseTrigNames_.size();tightLooseNr++){
+  for(auto const & diEleTightLooseTrigName : diEleTightLooseTrigNames_){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,diEleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
+    boost::split(trigNames,diEleTightLooseTrigName,boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   }
-  for(size_t tightLooseNr=0;tightLooseNr<phoTightLooseTrigNames_.size();tightLooseNr++){
+  for(auto const & phoTightLooseTrigName : phoTightLooseTrigNames_){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,phoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
+    boost::split(trigNames,phoTightLooseTrigName,boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   } 
-  for(size_t tightLooseNr=0;tightLooseNr<diPhoTightLooseTrigNames_.size();tightLooseNr++){
+  for(auto const & diPhoTightLooseTrigName : diPhoTightLooseTrigNames_){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,diPhoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
+    boost::split(trigNames,diPhoTightLooseTrigName,boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);

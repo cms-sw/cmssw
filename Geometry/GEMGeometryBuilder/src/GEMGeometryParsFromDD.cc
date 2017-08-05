@@ -79,19 +79,19 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
 
     std::vector<std::string> strpars;
     std::string name = fview.logicalPart().name().name();
-    strpars.push_back(name);
+    strpars.emplace_back(name);
     DDTranslation tran = fview.translation();
 
     DDRotationMatrix rota = fview.rotation();//.Inverse();
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
     std::vector<double> pars;    
-    pars.push_back(dpar[4]); //b/2;
-    pars.push_back(dpar[8]); //B/2;
-    pars.push_back(dpar[0]); //h/2;
-    pars.push_back(0.4); // XXX: what is that? hardcoded thickness?
-    pars.push_back(nStrips);
-    pars.push_back(nPads);
+    pars.emplace_back(dpar[4]); //b/2;
+    pars.emplace_back(dpar[8]); //B/2;
+    pars.emplace_back(dpar[0]); //h/2;
+    pars.emplace_back(0.4); // XXX: what is that? hardcoded thickness?
+    pars.emplace_back(nStrips);
+    pars.emplace_back(nPads);
     
     std::vector<double> vtra(3);
     std::vector<double> vrot(9);

@@ -21,7 +21,7 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
   // propagate through the GeometricalDet structure and add
   // all detectors to 'theMap'
   deque<const DetGeomDesc *> buffer;
-  buffer.push_back(gD);
+  buffer.emplace_back(gD);
   while (buffer.size() > 0)
   {
     const DetGeomDesc *d = buffer.front();
@@ -37,7 +37,7 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
       AddRPDevice(d->geographicalID(), d);
     
     for (unsigned int i = 0; i < d->components().size(); i++)
-      buffer.push_back(d->components()[i]);
+      buffer.emplace_back(d->components()[i]);
   }
 
   // build sets from theMap

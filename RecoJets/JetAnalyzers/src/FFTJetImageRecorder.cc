@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include <TH3F.h>
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 

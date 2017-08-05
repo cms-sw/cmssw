@@ -170,7 +170,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
     std::string nm; //EMPTY
     for (const auto & pgde : pgdes) {
 	//   GeometricDetExtra( GeometricDet const *gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, const std::string& mat, const std::string& name, bool dd=false );
-      gde->push_back( GeometricDetExtra(helperMap[pgde._geographicalId], pgde._geographicalId, evs
+      gde->emplace_back( GeometricDetExtra(helperMap[pgde._geographicalId], pgde._geographicalId, evs
 				       , pgde._volume, pgde._density, pgde._weight, pgde._copy
 				       , pgde._material, nm));
     }
@@ -182,7 +182,7 @@ void TrackerGeometricDetExtraESModule::putOne(std::vector<GeometricDetExtra> & g
   std::string matname = ((ev.logicalPart()).material()).name().fullname();
   std::string lpname = ((ev.logicalPart()).name().fullname());
   std::vector<DDExpandedNode> evs = GeometricDetExtra::GeoHistory(ev.geoHistory().begin(),ev.geoHistory().end());
-  gde.push_back(GeometricDetExtra( gd, gd->geographicalId(), evs,
+  gde.emplace_back(GeometricDetExtra( gd, gd->geographicalId(), evs,
 				   ((ev.logicalPart()).solid()).volume(), ((ev.logicalPart()).material()).density(),
 				   ((ev.logicalPart()).material()).density() * ( ((ev.logicalPart()).solid()).volume() / 1000.),                                                                       
 				   ev.copyno(), matname, lpname, true ));

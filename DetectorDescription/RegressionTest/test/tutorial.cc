@@ -35,7 +35,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/Cartesian3D.h"

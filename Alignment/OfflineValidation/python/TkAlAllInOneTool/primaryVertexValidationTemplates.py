@@ -176,7 +176,6 @@ process.p = cms.Path(process.goodvertexSkim*
 PVValidationScriptTemplate="""
 #!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
-eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 
 echo  -----------------------
 echo  Job started at `date`
@@ -211,7 +210,7 @@ fi
 
 ls -lh .
 
-$eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
