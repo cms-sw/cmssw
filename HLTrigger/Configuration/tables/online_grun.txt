@@ -4,8 +4,8 @@ DST_Physics_v*	#	trigger studies
 HLT_ZeroBias_v*	#	trigger studies
 AlCa_LumiPixels_Random_v*	#	CMSHLT-1393
 AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1393
-HLTriggerFinalPath	#	
-HLTriggerFirstPath	#	
+HLTriggerFinalPath	#	menu structure
+HLTriggerFirstPath	#	menu structure
 HLT_EcalCalibration_v*	#	CMSHLT-1231
 HLT_HcalCalibration_v*	#	CMSHLT-1231
 HLT_Random_v*	#	CMSHLT-1231
@@ -484,6 +484,15 @@ HLT_PFMET120_PFMHT120_IDTight_HFCleaned_v*	#	CMSHLT-1504
 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_HFCleaned_v*	#	CMSHLT-1504
 HLT_PFMETTypeOne120_PFMHT120_IDTight_HFCleaned_v*	#	CMSHLT-1504
 HLT_PFMET120_PFMHT120_IDTight_PFHT60_HFCleaned_v*	#	CMSHLT-1504
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau40_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1507
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1507
+HLT_IsoMu24_eta2p1_TightChargedIsoPFTau40_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1507
+HLT_IsoMu24_eta2p1_TightChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1507
+HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v*	#	CMSHLT-1307
+HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_Charge1_v*	#	CMSHLT-1307
+HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_v*	#	CMSHLT-1307
+HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1_v*	#	CMSHLT-1307
+HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v*	#	CMSHLT-1522
 
 ## EndPath ##
 
