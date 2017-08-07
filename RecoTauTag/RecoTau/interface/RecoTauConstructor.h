@@ -27,7 +27,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -52,7 +52,7 @@ class RecoTauConstructor {
     };
 
     /// Constructor with PFCandidate Handle
-    RecoTauConstructor(const PFJetRef& jetRef,
+    RecoTauConstructor(const JetBaseRef& jetRef,
         const edm::Handle<PFCandidateCollection>& pfCands,
 	bool copyGammasFromPiZeros = false,
 	const StringObjectFunction<reco::PFTau>* signalConeSize = nullptr,

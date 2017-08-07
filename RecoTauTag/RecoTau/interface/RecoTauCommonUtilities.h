@@ -89,6 +89,25 @@ RefVectorType castView(const edm::Handle<BaseView>& view) {
 }
 
 
+/// Convert a BaseView (View<T>) to a TRefToBaseVector
+template<typename RefVectorType, typename BaseView>
+RefVectorType castViewToOtherBase(const edm::Handle<BaseView>& view) {
+  typedef typename RefVectorType::value_type OutputRef;
+  // Double check at compile time that the inheritance is okay.  It can still
+  // fail at runtime if you pass it the wrong collection.
+  BOOST_STATIC_ASSERT(
+      (boost::is_base_of<typename BaseView::value_type,
+                         typename RefVectorType::member_type>::value));
+  RefVectorType output;
+  size_t nElements = view->size();
+  // output.reserve(nElements);
+  // Cast each of our Refs
+  for (size_t i = 0; i < nElements; ++i) {
+    output.push_back(view->refAt(i).template castTo<OutputRef>());
+  }
+  return output;
+}
+
 /*
  *Given a range over a container of type C, return a new 'end' iterator such
  *that at max <N> elements are taken.  If there are less than N elements in the
