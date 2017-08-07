@@ -54,7 +54,9 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     hgcHEF_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCHEF_noise_fC");
     hgcHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
 
-
+    // don't produce rechit if detid is a ghost one
+    rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
+    rangeMask_  = ps.getParameter<uint32_t>("rangeMask");
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
@@ -87,6 +89,11 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         HGCRecHitCollection & result)
 {
     DetId detid = uncalibRH.id();
+// don't produce rechit if detid is a ghost one
+
+    if((detid & rangeMask_) == rangeMatch_)
+        return false;
+
     int thickness = -1;
     float sigmaNoiseGeV = 0.f;
     unsigned int layer = tools_->getLayerWithOffset(detid);
