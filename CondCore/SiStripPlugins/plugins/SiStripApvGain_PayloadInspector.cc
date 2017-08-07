@@ -21,6 +21,7 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
 
 #include <memory>
 #include <sstream>
@@ -68,6 +69,197 @@ namespace {
 	      
 	    }// loop over APVs
 	  } // loop over detIds
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
+    1d histogram of means of SiStripApvGains
+    for Tracker Barrel of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripApvBarrelGainsByLayer : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvBarrelGainsByLayer() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Barrel layer",
+											 "Barrel layer (0-3: TIB), (4-9: TOB)",10,0,10,"average SiStripApv Gain"){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  std::map<int,std::pair<float,float> > sumOfGainsByLayer;
+
+	  for (const auto & d : detid) {
+	    
+	    int subid = DetId(d).subdetId();
+	    int layer(-1); 
+	    if(subid!=3 && subid!=5) continue;
+	    if(subid==3){
+	      layer = tTopo.tibLayer(d);
+	    } else if(subid==5){
+	      // layers of TOB start at 5th bin
+	      layer = tTopo.tobLayer(d);
+	      layer+=4;
+	    }
+
+	    SiStripApvGain::Range range=payload->getRange(d);
+	    for(int it=0;it<range.second-range.first;it++){
+	      sumOfGainsByLayer[layer].first+=payload->getApvGain(it,range);
+	      sumOfGainsByLayer[layer].second+=1.;
+	    }// loop over APVs
+	  } // loop over detIds
+
+	  // loop on the map to fill the plot
+	  for (auto& data : sumOfGainsByLayer){
+	    
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
+	  }
+	  
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
+    1d histogram of means of SiStripApvGains
+    for Tracker Endcaps (minus side) of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripApvEndcapMinusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvEndcapMinusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (minus) disk",
+											     "Endcap (minus) disk (0-2: TID), (3-11: TEC)",12,0,12,"average SiStripApv Gain"){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
+
+	  for (const auto & d : detid) {
+
+	    int disk=-1;
+	    int side=-1;
+	    int subid = DetId(d).subdetId();
+	    if(subid!=4 && subid!=6) continue;
+	    	    
+	    if(subid==4){
+
+	      side = tTopo.tidSide(d);
+	      disk = tTopo.tidWheel(d); 
+	    } else {
+
+	      side = tTopo.tecSide(d);
+	      disk = tTopo.tecWheel(d);
+	      
+	      // disks of TEC start at 4th bin
+	      disk+=3;
+	    }
+
+	    // only negative side
+	    if(side!=1) continue;
+
+	    SiStripApvGain::Range range=payload->getRange(d);
+	    for(int it=0;it<range.second-range.first;it++){
+	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
+	      sumOfGainsByDisk[disk].second+=1.;
+	    }// loop over APVs
+	  } // loop over detIds
+
+	  // loop on the map to fill the plot
+	  for (auto& data : sumOfGainsByDisk){
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
+	  }
+	  
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
+    1d histogram of means of SiStripApvGains
+    for Tracker Endcaps (plus side) of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripApvEndcapPlusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvEndcapPlusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (plus) disk",
+											    "Endcap (plus) disk (0-2: TID), (3-11: TEC)",12,0,12,"average SiStripApv Gain"){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
+	  
+	  for (const auto & d : detid) {
+
+	    int disk=-1;
+	    int side=-1;
+	    int subid = DetId(d).subdetId();
+	    if(subid!=4 && subid!=6) continue;
+
+	    if(subid==4){
+	      side = tTopo.tidSide(d);
+	      disk = tTopo.tidWheel(d);; 
+	    } else {
+	      
+	      side = tTopo.tecSide(d);
+	      disk = tTopo.tecWheel(d); 
+	      
+	      // disks of TEC start at 4th bin
+	      disk+=3;
+	    }
+	    
+	    // only positive side
+	    if(side!=2) continue;
+
+	    SiStripApvGain::Range range=payload->getRange(d);
+	    for(int it=0;it<range.second-range.first;it++){
+	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
+	      sumOfGainsByDisk[disk].second+=1.;
+	    }// loop over APVs
+	  } // loop over detIds
+
+	  // loop on the map to fill the plot
+	  for (auto& data : sumOfGainsByDisk){
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
+	  }
+	  
 	}// payload
       }// iovs
       return true;
@@ -1146,6 +1338,9 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapMinusGainsByDisk);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapPlusGainsByDisk);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsDefaultTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
