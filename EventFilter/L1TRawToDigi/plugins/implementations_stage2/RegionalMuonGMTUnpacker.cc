@@ -11,6 +11,11 @@ namespace l1t {
       {
          unsigned int blockId = block.header().getID();
          LogDebug("L1T") << "Block ID  = " << blockId << " size = " << block.header().getSize();
+         // Process only if there is a payload.
+         // If all BX block were zero suppressed the block header size is 0.
+         if (block.header().getSize() < 1) {
+            return true;
+         }
 
          auto payload = block.payload();
 
@@ -72,8 +77,6 @@ namespace l1t {
                   uint32_t raw_data_32_63 = bxPayload[nWord+1];
                   LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
                   // skip empty muons (hwPt == 0)
-                  //// the msb are reserved for global information
-                  //if ((raw_data_00_31 & 0x7FFFFFFF) == 0 && (raw_data_32_63 & 0x7FFFFFFF) == 0) {
                   if (((raw_data_00_31 >> l1t::RegionalMuonRawDigiTranslator::ptShift_) & l1t::RegionalMuonRawDigiTranslator::ptMask_) == 0) {
                      LogDebug("L1T") << "Muon hwPt zero. Skip.";
                      continue;
@@ -93,7 +96,8 @@ namespace l1t {
                   res->push_back(bxBlock.header().getBx(), mu);
                }
             } else {
-               edm::LogWarning("L1T") << "Only " << bxPayload.size() << " 32 bit words in this BX but " << nWords_ << " are required. Not unpacking the data for BX " << bxBlock.header().getBx() << ".";
+               unsigned int nWords = nWords_; // This seems unnecessary but it prevents an 'undefined reference' linker error that occurs when using nWords_ directly with LogWarning.
+               edm::LogWarning("L1T") << "Only " << bxPayload.size() << " 32 bit words in this BX but " << nWords << " are required. Not unpacking the data for BX " << bxBlock.header().getBx() << ".";
             }
          }
          return true;
