@@ -272,13 +272,13 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	     {
 	       //std::cout << "eta-: mask is " << ecalMask.at(0).at(iphi-1).at(absIeta-1) << std::endl;
 	       energy = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).compressedEt();
-	       fineGrain = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).fineGrain();
+	       fineGrain = (ecalMask.at(0).at(iphi-1).at(absIeta-1) !=0) && ecalColl[i].sample(nSample).fineGrain();
 	     }
 	   else if (sign > 0)
 	     {
 	       //std::cout << "eta+: mask is " << ecalMask.at(1).at(iphi-1).at(absIeta-1) << std::endl;	   
 	       energy = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).compressedEt();
-	       fineGrain = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).fineGrain();
+	       fineGrain = (ecalMask.at(1).at(iphi-1).at(absIeta-1) != 0) && ecalColl[i].sample(nSample).fineGrain();
 	     }
 	   
 	   ecalDigi.setSample(nSample, EcalTriggerPrimitiveSample(energy,
@@ -324,12 +324,12 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	       if (sign < 0)
 		 {
 		   energy = hcalMask.at(0).at(iphi-1).at(absIeta-1) * hcalColl[i].sample(nSample).compressedEt();
-		   fineGrain = hcalMask.at(0).at(iphi-1).at(absIeta-1) * hcalColl[i].sample(nSample).fineGrain();
+		   fineGrain = (hcalMask.at(0).at(iphi-1).at(absIeta-1) != 0) && hcalColl[i].sample(nSample).fineGrain();
 		 }
 	       else if (sign > 0)
 		 {
 		   energy = hcalMask.at(1).at(iphi-1).at(absIeta-1) * hcalColl[i].sample(nSample).compressedEt();
-		   fineGrain = hcalMask.at(1).at(iphi-1).at(absIeta-1) * hcalColl[i].sample(nSample).fineGrain();
+		   fineGrain = (hcalMask.at(1).at(iphi-1).at(absIeta-1) !=0) && hcalColl[i].sample(nSample).fineGrain();
 		 }
 	     }
 	   else if ((absIeta >= 29) && (absIeta <= 32))
@@ -343,14 +343,14 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		   //std::cout << "ieta is " << ieta << ", absIeta is " << absIeta << ", iphi is " << iphi << std::endl;
 		   //std::cout << "eta-: mask is " << hfMask.at(0).at(hf_phi_index).at(absIeta-29) << std::endl; // hf ieta 0-3
 		   energy = hfMask.at(0).at(hf_phi_index).at(absIeta-29) * hcalColl[i].sample(nSample).compressedEt();  // for hf, iphi starts at 0
-		   fineGrain = hfMask.at(0).at(hf_phi_index).at(absIeta-29) * hcalColl[i].sample(nSample).fineGrain();
+		   fineGrain = (hfMask.at(0).at(hf_phi_index).at(absIeta-29) != 0) && hcalColl[i].sample(nSample).fineGrain();
 		 }
 	       else if (sign > 0)
 		 {
 		   //std::cout << "ieta is " << ieta << ", absIeta is " << absIeta << ", iphi is " << iphi << std::endl;
 		   //std::cout << "eta+: mask is " << hfMask.at(1).at(hf_phi_index).at(absIeta-29) << std::endl;
 		   energy = hfMask.at(1).at(hf_phi_index).at(absIeta-29) * hcalColl[i].sample(nSample).compressedEt();
-		   fineGrain = hfMask.at(1).at(hf_phi_index).at(absIeta-29) * hcalColl[i].sample(nSample).fineGrain();
+		   fineGrain = (hfMask.at(1).at(hf_phi_index).at(absIeta-29) != 0) && hcalColl[i].sample(nSample).fineGrain();
 		 }
 	       //iphi = iphi*4 + 1; // change back to original
 	       //std::cout << "New hf iphi = " << iphi << std::endl;
