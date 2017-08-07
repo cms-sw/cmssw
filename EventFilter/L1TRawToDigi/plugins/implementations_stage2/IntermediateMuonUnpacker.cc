@@ -9,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : algoVersion_(0)
+      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : algoVersion_(0), coll1Cnt_(0)
       {
       }
 
@@ -20,14 +20,20 @@ namespace l1t {
 
          auto payload = block.payload();
 
-         const unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
          int nBX, firstBX, lastBX;
-         nBX = int(ceil(block.header().getSize() / nWords));
+         // Check if per BX zero suppression was enabled
+         bool bxZsEnabled = ((block.header().getFlags() >> bxzs_enable_shift_) & 0x1) == 1;
+         // Calculate the total number of BXs
+         if (bxZsEnabled) {
+            BxBlockHeader bxHeader(payload.at(0));
+            nBX = bxHeader.getTotalBx();
+         } else {
+            nBX = int(ceil(block.header().getSize() / nWords_));
+         }
          getBXRange(nBX, firstBX, lastBX);
 
          // decide which collections to use according to the link ID
          unsigned int linkId = (block.header().getID() - 1) / 2;
-         unsigned int coll1Cnt = 0;
          MuonBxCollection* res1;
          MuonBxCollection* res2;
          // Intermediate muons come on uGMT output links 24-31.
@@ -41,42 +47,42 @@ namespace l1t {
            case 24:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
-             coll1Cnt = 3;
+             coll1Cnt_ = 3;
              break;
            case 25:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
-             coll1Cnt = 1;
+             coll1Cnt_ = 1;
              break;
            case 26:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             coll1Cnt = 2;
+             coll1Cnt_ = 2;
              break;
            case 27:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             coll1Cnt = 3;
+             coll1Cnt_ = 3;
              break;
            case 28:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             coll1Cnt = 3;
+             coll1Cnt_ = 3;
              break;
            case 29:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
-             coll1Cnt = 1;
+             coll1Cnt_ = 1;
              break;
            case 30:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
-             coll1Cnt = 2;
+             coll1Cnt_ = 2;
              break;
            case 31:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
              res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
-             coll1Cnt = 3;
+             coll1Cnt_ = 3;
              break;
            default:
              edm::LogWarning("L1T") << "Block ID " << block.header().getID() << " not associated with intermediate muons. Skip.";
@@ -84,16 +90,25 @@ namespace l1t {
          }
          res1->setBXRange(firstBX, lastBX);
          res2->setBXRange(firstBX, lastBX);
-
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-         // Initialise indices
-         unsigned int i = 0;
+         // Get the BX blocks and unpack them
+         auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
+         for (const auto& bxBlock : bxBlocks) {
+            unpackBx(res1, res2, bxBlock.header().getBx(), bxBlock.payload());
+         }
+         return true;
+      }
 
-         // Loop over multiple BX and then number of muons filling muon collection
-         for (int bx = firstBX; bx <= lastBX; ++bx) {
+
+      void
+      IntermediateMuonUnpacker::unpackBx(MuonBxCollection* res1, MuonBxCollection* res2, int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
+      {
+         unsigned int i = startIdx;
+         // Check if there are enough words left in the payload
+         if (i + nWords_ <= payload.size()) {
             unsigned int muonCnt = 0;
-            for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2, ++muonCnt) {
+            for (unsigned nWord = 0; nWord < nWords_; nWord += 2, ++muonCnt) {
                uint32_t raw_data_00_31 = payload[i++];
                uint32_t raw_data_32_63 = payload[i++];        
                LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << raw_data_00_31 << " raw_data_32_63 = 0x" << raw_data_32_63;
@@ -105,22 +120,25 @@ namespace l1t {
 
                Muon mu;
 
-               // The intermediate muons do not have coordinates estimated at the vertex in the RAW data
-               // The corresponding bits are set to zero
+               // The intermediate muons of the uGMT (FED number 1402) do not
+               // have coordinates estimated at the vertex in the RAW data.
+               // The corresponding bits are set to zero.
                MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, algoVersion_);
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
-               if (muonCnt < coll1Cnt) { 
+               if (muonCnt < coll1Cnt_) { 
                  res1->push_back(bx, mu);
                } else {
                  res2->push_back(bx, mu);
                }
             }
+         } else {
+            edm::LogWarning("L1T") << "Only " << payload.size() - i << " 32 bit words in this BX but " << nWords_ << " are required. Not unpacking the data for BX " << bx << ".";
          }
-         return true;
       }
-   }
-}
+
+   } // namespace stage2
+} // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::IntermediateMuonUnpacker);
