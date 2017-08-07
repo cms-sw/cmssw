@@ -15,6 +15,11 @@ namespace l1t {
       MuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
          LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+         // process only if there is a payload
+         // If all BX block were zero suppressed the block header size is 0.
+         if (block.header().getSize() < 1) {
+            return true;
+         }
 
          auto payload = block.payload();
 
