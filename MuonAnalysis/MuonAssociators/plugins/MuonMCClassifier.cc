@@ -318,7 +318,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             prodZ[i]     = tp->vertex().Z();
 
 	    // added info on GEANT process producing the TrackingParticle
-	    std::vector<SimVertex> G4Vs = tp->parentVertex()->g4Vertices();
+	    const std::vector<SimVertex> & G4Vs = tp->parentVertex()->g4Vertices();
 	    G4processType[i] = G4Vs[0].processType();
 
 	    signp[i] = tp->charge() * tp->p();
