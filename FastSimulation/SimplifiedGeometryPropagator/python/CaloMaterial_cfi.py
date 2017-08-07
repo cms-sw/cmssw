@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+from FastSimulation.SimplifiedGeometryPropagator.TrackerMaterial_cfi import TrackerMaterialBlock 
+
 #############
 ### Hack to interface "old" calorimetry with "new" propagation in tracker
 #############
 
 CaloMaterialBlock = cms.PSet(
     CaloMaterial = cms.PSet(
-        #magneticFieldZ = cms.untracked.double(0.),
         maxRadius = cms.untracked.double(500.),
         maxZ = cms.untracked.double(1200.),
         interactionModels = cms.untracked.vstring(),
@@ -84,4 +85,6 @@ CaloMaterialBlock = cms.PSet(
     )
 )
     
+if hasattr(TrackerMaterialBlock.TrackerMaterial, 'magneticFieldZ'):
+    CaloMaterialBlock.CaloMaterial.magneticFieldZ = TrackerMaterialBlock.TrackerMaterial.magneticFieldZ
     
