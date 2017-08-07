@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# List of bins to ignore
+ignoreBins = [1, 14]
+
 # compares the unpacked uGMT input regional muon collection from OMTF to the emulated OMTF regional muon collection
 # only muons that do not match are filled in the histograms
 l1tdeStage2Omtf = cms.EDAnalyzer(
@@ -11,6 +14,7 @@ l1tdeStage2Omtf = cms.EDAnalyzer(
     regionalMuonCollection2Title = cms.untracked.string("OMTF emulator"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT input muons from OMTF and OMTF emulator muons"),
     ignoreBadTrackAddress = cms.untracked.bool(True),
+    ignoreBin = cms.untracked.vint32(ignoreBins),
     verbose = cms.untracked.bool(False),
 )
 
