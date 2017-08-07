@@ -36,7 +36,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
   explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
     ~RecoTauBuilderConePlugin() override {}
     // Build a tau from a jet
-    return_type operator()(const reco::PFJetRef& jet,
+    return_type operator()(const reco::JetBaseRef& jet,
 	const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons,
         const std::vector<RecoTauPiZero>& piZeros,
         const std::vector<CandidatePtr>& regionalExtras) const override;
@@ -48,7 +48,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     double leadObjecPtThreshold_;
 
     /* String function to extract values from PFJets */
-    typedef StringObjectFunction<reco::PFJet> JetFunc;
+    typedef StringObjectFunction<reco::Jet> JetFunc;
 
     // Cone defintions
     JetFunc matchingCone_;
@@ -185,7 +185,7 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
 }
 
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
-    const reco::PFJetRef& jet,
+    const reco::JetBaseRef& jet,
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
     const std::vector<RecoTauPiZero>& piZeros,
     const std::vector<CandidatePtr>& regionalExtras) const {

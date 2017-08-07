@@ -37,7 +37,7 @@
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/Common/interface/Association.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -63,7 +63,7 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   double minJetPt_;
   double maxJetAbsEta_;
  //token definition
-  edm::EDGetTokenT<reco::CandidateView> jet_token;
+  edm::EDGetTokenT<reco::JetView> jet_token;
   edm::EDGetTokenT<edm::Association<reco::PFJetCollection> > jetRegion_token;
   edm::EDGetTokenT<reco::PFJetChargedHadronAssociation> chargedHadron_token;
   edm::EDGetTokenT<reco::JetPiZeroAssociation> piZero_token;
@@ -88,7 +88,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
   maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
   //consumes definition
-  jet_token=consumes<reco::CandidateView>(jetSrc_);
+  jet_token=consumes<reco::JetView>(jetSrc_);
   jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
   chargedHadron_token = consumes<reco::PFJetChargedHadronAssociation>(chargedHadronSrc_); 
   piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
@@ -130,12 +130,13 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
 void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   // Get the jet input collection via a view of Candidates
-  edm::Handle<reco::CandidateView> jetView;
+  edm::Handle<reco::JetView> jetView;
   evt.getByToken(jet_token, jetView);
   
   // Convert to a vector of PFJetRefs
   // reco::PFJetRefVector jets = reco::tau::castView<reco::PFJetRefVector>(jetView);
-  edm::RefToBaseVector<reco::Jet> jets = reco::tau::castView<edm::RefToBaseVector<reco::Jet>>(jetView);
+  // edm::RefVector<std::vector<reco::Jet>> jets = reco::tau::castView<edm::RefVector<std::vector<reco::Jet>>>(jetView);
+  // edm::RefToBaseVector<reco::Jet> jets = reco::tau::castViewToOtherBase<edm::RefToBaseVector<reco::Jet>>(jetView);
   
   // Get the jet region producer
   edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
@@ -161,10 +162,13 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // Create output collection
   auto output = std::make_unique<reco::PFTauCollection>();
-  output->reserve(jets.size());
+  output->reserve(jetView->size());
   
   // Loop over the jets and build the taus for each jet
-  BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
+  // BOOST_FOREACH( edm::Ref<std::vector<reco::Jet>> jetRef, jets ) {
+  for (size_t i_j = 0; i_j < jetView->size(); ++i_j) {
+    const auto& jetRef = jetView->refAt(i_j);
+
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -174,13 +178,13 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	<< "No jet region can be found for the current jet: " << jetRef.id();
     }
     // Remove all the jet constituents from the jet extras
-    std::vector<reco::PFCandidatePtr> jetCands = jetRef->getPFConstituents();
-    std::vector<reco::PFCandidatePtr> allRegionalCands = jetRegionRef->getPFConstituents();
+    std::vector<reco::CandidatePtr> jetCands = jetRef->daughterPtrVector();
+    std::vector<reco::CandidatePtr> allRegionalCands = jetRegionRef->daughterPtrVector();
     // Sort both by ref key
     std::sort(jetCands.begin(), jetCands.end());
     std::sort(allRegionalCands.begin(), allRegionalCands.end());
     // Get the regional junk candidates not in the jet.
-    std::vector<reco::PFCandidatePtr> uniqueRegionalCands;
+    std::vector<reco::CandidatePtr> uniqueRegionalCands;
 
     // This can actually be less than zero, if the jet has really crazy soft
     // stuff really far away from the jet axis.
@@ -204,8 +208,10 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	  builder != builders_.end(); ++builder) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
+      // JAN - convert reco::Jet ref to PFJet ref (only in direct interaction with PFTau)
+
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, jetRef));
+      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, jetRef.castTo<reco::PFJetRef>()));
       // Copy without selection
       if ( !outputSelector_.get() ) {
         output->insert(output->end(), taus.begin(), taus.end());
@@ -225,7 +231,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // jet.
     if ( !nTausBuilt && buildNullTaus_ ) {
       reco::PFTau nullTau(std::numeric_limits<int>::quiet_NaN(), jetRef->p4());
-      nullTau.setjetRef(jetRef);
+      nullTau.setjetRef(jetRef.castTo<reco::PFJetRef>());
       output->push_back(nullTau);
     }
   }

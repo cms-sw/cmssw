@@ -37,7 +37,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
@@ -51,7 +51,7 @@
 
 namespace reco { namespace tau {
 
-/* Class that constructs PFTau(s) from a PFJet and its associated PiZeros */
+/* Class that constructs PFTau(s) from a Jet and its associated PiZeros */
 class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin 
 {
  public:
@@ -73,7 +73,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
   /// reconstructed PiZeros and regional extras i.e. objects in a 0.8 cone
   /// about the jet
   virtual return_type operator()(
-	    const reco::PFJetRef&, const 
+	    const reco::JetBaseRef&, const 
 	    std::vector<reco::PFRecoTauChargedHadron>&, 
 	    const std::vector<reco::RecoTauPiZero>&, 
 	    const std::vector<CandidatePtr>&) const = 0;
@@ -82,7 +82,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
   const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };
 
   /// Get primary vertex associated to this jet
-  reco::VertexRef primaryVertex(const reco::PFJetRef& jet) const { return vertexAssociator_.associatedVertex(*jet); }
+  reco::VertexRef primaryVertex(const reco::JetBaseRef& jet) const { return vertexAssociator_.associatedVertex(*jet); }
   /// Get primary vertex associated to this tau
   reco::VertexRef primaryVertex(const reco::PFTau& tau, bool useJet=false) const { return vertexAssociator_.associatedVertex(tau, useJet); }
 
