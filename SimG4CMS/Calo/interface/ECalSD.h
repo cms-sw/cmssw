@@ -42,6 +42,7 @@ private:
   void                              initMap(G4String, const DDCompactView &);
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
+  double                            crystalDepth(G4LogicalVolume*, const G4ThreeVector&);
   void                              getBaseNumber(const G4Step*); 
   double                            getBirkL3(G4Step*);
   std::vector<double>               getDDDArray(const std::string&,
@@ -51,7 +52,7 @@ private:
 
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight, storeTrack, storeRL;
-  bool                              useBirk, useBirkL3;
+  bool                              useBirk, useBirkL3, ignoreDepCorr;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY;
   std::string                       crystalMat, depth1Name, depth2Name;
