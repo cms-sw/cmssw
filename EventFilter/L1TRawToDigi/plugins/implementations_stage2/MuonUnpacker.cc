@@ -7,7 +7,7 @@
 
 namespace l1t {
    namespace stage2 {
-      MuonUnpacker::MuonUnpacker() : algoVersion_(0), muonCopy_(0)
+      MuonUnpacker::MuonUnpacker() : res_(nullptr), algoVersion_(0), muonCopy_(0)
       {
       }
 
@@ -30,22 +30,22 @@ namespace l1t {
          }
          getBXRange(nBX, firstBX, lastBX);
 
-         // Create the muon collection and set the BX range
-         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
-         res->setBXRange(firstBX, lastBX);
+         // Set the muon collection and the BX range
+         res_ = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
+         res_->setBXRange(firstBX, lastBX);
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
-            unpackBx(res, bxBlock.header().getBx(), bxBlock.payload());
+            unpackBx(bxBlock.header().getBx(), bxBlock.payload());
          }
          return true;
       }
 
 
       void
-      MuonUnpacker::unpackBx(MuonBxCollection* res, int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
+      MuonUnpacker::unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
       {
          unsigned int i = startIdx;
          // Check if there are enough words left in the payload
@@ -66,7 +66,7 @@ namespace l1t {
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
-               res->push_back(bx, mu);
+               res_->push_back(bx, mu);
             }
          } else {
             edm::LogWarning("L1T") << "Only " << payload.size() - i << " 32 bit words in this BX but " << nWords_ << " are required. Not unpacking the data for BX " << bx << ".";

@@ -9,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : algoVersion_(0), coll1Cnt_(0)
+      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : res1_(nullptr), res2_(nullptr), algoVersion_(0), coll1Cnt_(0)
       {
       }
 
@@ -34,8 +34,6 @@ namespace l1t {
 
          // decide which collections to use according to the link ID
          unsigned int linkId = (block.header().getID() - 1) / 2;
-         MuonBxCollection* res1;
-         MuonBxCollection* res2;
          // Intermediate muons come on uGMT output links 24-31.
          // Each link can transmit 3 muons and we receive 4 intermediate muons from
          // EMTF/OMTF on each detector side and 8 intermediate muons from BMTF.
@@ -45,64 +43,64 @@ namespace l1t {
          // and 4 from EMTF neg.
          switch (linkId) {
            case 24:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
              coll1Cnt_ = 3;
              break;
            case 25:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
              coll1Cnt_ = 1;
              break;
            case 26:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFPos();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              coll1Cnt_ = 2;
              break;
            case 27:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              coll1Cnt_ = 3;
              break;
            case 28:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
              coll1Cnt_ = 3;
              break;
            case 29:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsBMTF();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
              coll1Cnt_ = 1;
              break;
            case 30:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsOMTFNeg();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
              coll1Cnt_ = 2;
              break;
            case 31:
-             res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
-             res2 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
+             res1_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
+             res2_ = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFNeg();
              coll1Cnt_ = 3;
              break;
            default:
              edm::LogWarning("L1T") << "Block ID " << block.header().getID() << " not associated with intermediate muons. Skip.";
              return false;
          }
-         res1->setBXRange(firstBX, lastBX);
-         res2->setBXRange(firstBX, lastBX);
+         res1_->setBXRange(firstBX, lastBX);
+         res2_->setBXRange(firstBX, lastBX);
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
-            unpackBx(res1, res2, bxBlock.header().getBx(), bxBlock.payload());
+            unpackBx(bxBlock.header().getBx(), bxBlock.payload());
          }
          return true;
       }
 
 
       void
-      IntermediateMuonUnpacker::unpackBx(MuonBxCollection* res1, MuonBxCollection* res2, int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
+      IntermediateMuonUnpacker::unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
       {
          unsigned int i = startIdx;
          // Check if there are enough words left in the payload
@@ -128,9 +126,9 @@ namespace l1t {
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
                if (muonCnt < coll1Cnt_) { 
-                 res1->push_back(bx, mu);
+                 res1_->push_back(bx, mu);
                } else {
-                 res2->push_back(bx, mu);
+                 res2_->push_back(bx, mu);
                }
             }
          } else {
