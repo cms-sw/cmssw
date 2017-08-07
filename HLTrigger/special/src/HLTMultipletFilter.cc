@@ -103,32 +103,28 @@ bool HLTMultipletFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     if (flag_[Tau])    filterproduct.addCollectionTag(hltTauSeedLabel_);
   }
 
-  bool      accept(false);
   int       nobj(0);
-
-  if ((!accept) && flag_[EGamma]) {
+  if (flag_[EGamma]) {
     nobj += objects(iEvent,hltEGammaToken_,hltEGammaSeedLabel_,EGamma);
-    if (nobj >= minN_) accept = true;
+    if (nobj >= minN_) return true;
   }
-  if ((!accept) && flag_[EtSum]) {
+  if (flag_[EtSum]) {
     nobj += objects(iEvent,hltEtSumToken_,hltEtSumSeedLabel_,EtSum);
-    if (nobj >= minN_) accept = true;
+    if (nobj >= minN_) return true;
   }
-  if ((!accept) && flag_[Jet]) {
+  if (flag_[Jet]) {
     nobj += objects(iEvent,hltJetToken_,hltJetSeedLabel_,Jet);
-    if (nobj >= minN_) accept = true;
+    if (nobj >= minN_) return true;
   }
-  if ((!accept) && flag_[Muon]) {
+  if (flag_[Muon]) {
     nobj += objects(iEvent,hltMuonToken_,hltMuonSeedLabel_,Muon);
-    if (nobj >= minN_) accept = true;
+    if (nobj >= minN_) return true;
   }
-  if ((!accept) && flag_[Tau]) {
+  if (flag_[Tau]) {
     nobj += objects(iEvent,hltTauToken_,hltTauSeedLabel_,Tau);
-    if (nobj >= minN_) accept = true;
+    if (nobj >= minN_) return true;
   }
-      
-  edm::LogVerbatim("Report") << "Selection flag " << accept;
-  return accept;
+  return false;
 }
 
 template<typename T1>
