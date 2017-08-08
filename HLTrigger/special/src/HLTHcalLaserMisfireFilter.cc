@@ -72,10 +72,10 @@ bool HLTHcalLaserMisfireFilter::filter(edm::StreamID, edm::Event& iEvent,
   iEvent.getByToken(inputTokenHF_,    hf_digi);
 
   // Count digis in good, bad RBXes.  ('bad' RBXes see no laser signal)
-  double badrbxfracHBHE(0), goodrbxfracHBHE(0), goodrbxfracHF(0);
+  double badrbxfracHBHE(0), goodrbxfracHBHE(0), allrbxfracHF(0);
   int NbadHBHE = 72*3;             // 3 bad RBXes, 72 channels each
   int NgoodHBHE= 2592*2-NbadHBHE;  // remaining HBHE channels are 'good'
-  int NgoodHF  = 864*4;
+  int NallHF   = 864*4;
 
   for (auto hbhe = hbhe_digi->begin();  hbhe != hbhe_digi->end(); ++ hbhe){
     const HBHEDataFrame digi = (const HBHEDataFrame)(*hbhe);
@@ -111,21 +111,21 @@ bool HLTHcalLaserMisfireFilter::filter(edm::StreamID, edm::Event& iEvent,
     if (maxdigiHF > minADCHF_) passCut = true;
 
     if (passCut) {
-      goodrbxfracHF += 1.;
+      allrbxfracHF += 1.;
     }
   }
-  goodrbxfracHF /= NgoodHF;
+  allrbxfracHF /= NallHF;
 
   if (testMode_) 
     edm::LogVerbatim("Report") 
       << "******************************************************************\n"
       << "goodrbxfracHBHE: " << goodrbxfracHBHE << " badrbxfracHBHE: " 
       << badrbxfracHBHE << " Size " << hbhe_digi->size() << "\n"
-      << "goodrbxfracHF:   " << goodrbxfracHF   << " Size " << hf_digi->size()
+      << "allrbxfracHF:    " << allrbxfracHF   << " Size " << hf_digi->size()
       << "\n******************************************************************";
   
   if (((goodrbxfracHBHE-badrbxfracHBHE) < minFracDiffHBHELaser_) ||
-      (goodrbxfracHF < minFracHFLaser_))  return false;
+      (allrbxfracHF < minFracHFLaser_))  return false;
       
   return true;
 }
