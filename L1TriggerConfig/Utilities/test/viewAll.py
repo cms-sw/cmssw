@@ -32,7 +32,7 @@ process.GlobalTag.toGet = cms.VPSet(
            connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
           ),
  cms.PSet(
-           record  = cms.string("L1TMuonEndcapParamsRcd"),
+           record  = cms.string("L1TMuonEndCapParamsRcd"),
            tag     = cms.string("L1TMuonEndcapParams_Stage2v0_hlt"),
            connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
           ),
@@ -72,7 +72,7 @@ process.GlobalTag.toGet = cms.VPSet(
 #               tag     = cms.string("L1TMuonOverlapParams_Stage2v0_hlt"),
 #            ),
 #            cms.PSet(
-#                 record = cms.string("L1TMuonEndcapParamsRcd"),
+#                 record = cms.string("L1TMuonEndCapParamsRcd"),
 #                 tag    = cms.string("L1TMuonEndcapParams_Stage2v0_hlt")
 #            ),
 #            cms.PSet(

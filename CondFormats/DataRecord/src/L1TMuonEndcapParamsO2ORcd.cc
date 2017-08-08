@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Subsystem/Package
-// Class  :     L1TMuonEndcapParamsRcd
+// Class  :     L1TMuonEndCapParamsRcd
 //
 // Author:      Matthew Carver UF
 // Created:

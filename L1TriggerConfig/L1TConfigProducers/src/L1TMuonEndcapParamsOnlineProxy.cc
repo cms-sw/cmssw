@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 
 class L1TMuonEndcapParamsOnlineProxy : public edm::ESProducer {
@@ -27,7 +27,7 @@ L1TMuonEndcapParamsOnlineProxy::L1TMuonEndcapParamsOnlineProxy(const edm::Parame
 
 std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(const L1TMuonEndcapParamsO2ORcd& record) {
 /*
-    const L1TMuonEndcapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndcapParamsRcd >() ;
+    const L1TMuonEndCapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndCapParamsRcd >() ;
     edm::ESHandle< L1TMuonEndcapParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
@@ -37,7 +37,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(con
 
     retval->PtAssignVersion_ = PtAssignVersion;
     retval->firmwareVersion_ = firmwareVersion; 
-    retval->PhiMatchWindowSt1_ = changeDate;
+    retval->PhiMatchWindowSt1_ = changeDate;  // This should be set to PrimConvVersion - AWB 13.06.17
     return retval;
 }
 

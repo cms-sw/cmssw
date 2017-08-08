@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 ///#include "L1Trigger/L1TMuonEndCap/interface/ForestHelper.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -31,7 +31,7 @@ public:
 void L1TMuonEndcapViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TMuonEndCapParams> handle1;
-    evSetup.get<L1TMuonEndcapParamsRcd>().get( handle1 ) ;
+    evSetup.get<L1TMuonEndCapParamsRcd>().get( handle1 ) ;
 //    evSetup.get<L1TMuonEndCapParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product ())));
 
