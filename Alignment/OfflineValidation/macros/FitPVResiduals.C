@@ -516,14 +516,14 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
     if(gDirectory->GetListOfKeys()->Contains("etaMax")){
       gDirectory->GetObject("etaMax",theEtaHistos[i]);
-      theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
+      theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1)/theEtaHistos[i]->GetEntries();
     } else {
       theEtaMax_[i]   = 2.5;
     }
     	
     if(gDirectory->GetListOfKeys()->Contains("nbins")){
       gDirectory->GetObject("nbins",thebinsHistos[i]);
-      theNBINS[i] = thebinsHistos[i]->GetBinContent(1);
+      theNBINS[i] = thebinsHistos[i]->GetBinContent(1)/thebinsHistos[i]->GetEntries();	  
       std::cout<<"File n. "<<i<<" has theNBINS["<<i<<"] = "<< theNBINS[i]<<std::endl;
     } else {
       theNBINS[i] = 48.;
@@ -532,7 +532,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
     if(gDirectory->GetListOfKeys()->Contains("nladders")){
       gDirectory->GetObject("nladders",theLaddersHistos[i]);
-      theLadders[i] = theLaddersHistos[i]->GetBinContent(1);
+      theLadders[i] = theLaddersHistos[i]->GetBinContent(1)/theLaddersHistos[i]->GetEntries();
       std::cout<<"File n. "<<i<<" has theNLadders["<<i<<"] = "<< theLadders[i]<<std::endl;
     } else {
       theLadders[i] = -1.;
