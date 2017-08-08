@@ -44,6 +44,7 @@ def L1NtupleCustomReco(process):
 
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
+        +process.ak4CaloL1FastL2L3ResidualCorrectorChain
         +process.HBHENoiseFilterResultProducer
         +process.correctionTermsPfMetType1Type2
         +process.pfMetT1
