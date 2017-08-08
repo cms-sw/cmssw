@@ -117,8 +117,8 @@ namespace {
     }
   };
 
-    /************************************************
-    TrackerMap of SiStripApvGains (average gain per detid)
+  /************************************************
+    TrackerMap of SiStripApvGains (module with default)
   *************************************************/
   class SiStripApvGainsDefaultTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
@@ -130,16 +130,23 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
-      std::string titleMap = "SiStrip APV Gain to default per module (payload : "+std::get<1>(iov)+")";
+      
+
+      std::cout<<"payload hash: "<<std::get<1>(iov)<<std::endl;
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+
       tmap->setPalette(1);
       
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      int totalDefaultAPVs=0;
+      float G1default = 690./640.;
+      float G2default = 1.;
+
+      int totalG1DefaultAPVs=0;
+      int totalG2DefaultAPVs=0;
+
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=payload->getRange(d);
 	float sumOfGains=0;
@@ -148,17 +155,37 @@ namespace {
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVsPerModule+=1;
 	  sumOfGains+=payload->getApvGain(it,range);
-	  if(payload->getApvGain(it,range)==1) countDefaults++;
+	  if( (payload->getApvGain(it,range))==G1default || (payload->getApvGain(it,range))==G2default) countDefaults++;
+	  //	  if( (payload->getApvGain(it,range))==G1default) countDefaults++;
 	} // loop over APVs
 	// fill the tracker map taking the average gain on a single DetId
-	if(countDefaults>0.) tmap->fill(d,countDefaults);
-	totalDefaultAPVs+=countDefaults;
+	if(countDefaults>0.){
+	  tmap->fill(d,countDefaults);
+
+	  /*
+	    std::cout<<"sumOfGains/countDefaults = "<<sumOfGains/countDefaults<<std::endl;
+	    std::cout<<"std::fmod((sumOfGains/countDefaults),G1default) = "<<std::fmod((sumOfGains/countDefaults),G1default)<<std::endl;
+	    std::cout<<"std::fmod((sumOfGains/countDefaults),G2default) = "<<std::fmod((sumOfGains/countDefaults),G2default)<<std::endl;
+	  */
+
+	  if( std::fmod((sumOfGains/countDefaults),G1default)==0.){
+	    totalG1DefaultAPVs+=countDefaults;
+	  } else if ( std::fmod((sumOfGains/countDefaults),G2default)==0.){
+	    totalG2DefaultAPVs+=countDefaults;
+	  }
+	}
       } // loop over detIds
       
-      std::cout<<"there are "<< totalDefaultAPVs << "APVs with default value (=1)" << std::endl;
+      std::cout<<"there are "<< totalG2DefaultAPVs << " APVs with default G2 value (=1)"
+	       <<" and " << totalG1DefaultAPVs <<" APVs with default G1 value (=690./640.)" << std::endl;
       
       //=========================
-      
+
+      std::string gainType = totalG1DefaultAPVs==0 ? "G2 value (=1)" : "G1 value (=690./640.)";
+
+      std::string titleMap = "# of APVs/module w/ default "+gainType+" (payload : "+std::get<1>(iov)+")";
+      tmap->setTitle(titleMap.c_str());
+
       std::string fileName(m_imageFileName);
       tmap->save(true,0,0,fileName.c_str());
 
