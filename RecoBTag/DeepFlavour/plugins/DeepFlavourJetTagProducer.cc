@@ -130,7 +130,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
     {n_jets, 4, 12},      // input_4 - vertices 
     {n_jets, 1}           // input_5 - jet pt for reg 
   };
-  
+
   // initalize inputs
   for (std::size_t i=0; i < input_sizes.size(); i++) {
     auto & input_name = input_names_.at(i);
@@ -154,8 +154,10 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       c_pf_tensor_filler(dnn_inputs_.at(1), jet_n, c_pf_n, c_pf_features);
     }
     // fill remaining values with zeros
-    if (max_c_pf_n < (std::size_t)input_sizes.at(1).at(1)) {
-      dnn_inputs_.at(1)->fillValues<float>(0, jet_n, max_c_pf_n, 0);
+    std::size_t diff_c_pf_n = (std::size_t)input_sizes.at(1).at(1) - max_c_pf_n;
+    if (diff_c_pf_n > 0) {
+      dnn_inputs_.at(1)->fillValues<float>(0, diff_c_pf_n * (std::size_t)input_sizes.at(1).at(2),
+                                           jet_n, max_c_pf_n, 0);
     }
 
     // n_pf candidates
@@ -166,8 +168,10 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       n_pf_tensor_filler(dnn_inputs_.at(2), jet_n, n_pf_n, n_pf_features);
     }
     // fill remaining values with zeros
-    if (max_n_pf_n < (std::size_t)input_sizes.at(2).at(1)) {
-      dnn_inputs_.at(2)->fillValues<float>(0, jet_n, max_n_pf_n, 0);
+    std::size_t diff_n_pf_n = (std::size_t)input_sizes.at(2).at(1) - max_n_pf_n;
+    if (diff_n_pf_n > 0) {
+      dnn_inputs_.at(2)->fillValues<float>(0, diff_n_pf_n * (std::size_t)input_sizes.at(2).at(2),
+                                           jet_n, max_n_pf_n, 0);
     }
 
     // sv candidates
@@ -178,8 +182,10 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       sv_tensor_filler(dnn_inputs_.at(3), jet_n, sv_n, sv_features);
     }
     // fill remaining values with zeros
-    if (max_sv_n < (std::size_t)input_sizes.at(3).at(1)) {
-      dnn_inputs_.at(3)->fillValues<float>(0, jet_n, max_sv_n, 0);
+    std::size_t diff_sv_n = (std::size_t)input_sizes.at(3).at(1) - max_sv_n;
+    if (diff_sv_n > 0) {
+      dnn_inputs_.at(3)->fillValues<float>(0, diff_sv_n * (std::size_t)input_sizes.at(3).at(2),
+                                           jet_n, max_sv_n, 0);
     }
 
     // last input: corrected jet pt
