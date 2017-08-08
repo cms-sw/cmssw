@@ -130,8 +130,6 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
-      
-
       std::cout<<"payload hash: "<<std::get<1>(iov)<<std::endl;
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
@@ -156,7 +154,6 @@ namespace {
 	  nAPVsPerModule+=1;
 	  sumOfGains+=payload->getApvGain(it,range);
 	  if( (payload->getApvGain(it,range))==G1default || (payload->getApvGain(it,range))==G2default) countDefaults++;
-	  //	  if( (payload->getApvGain(it,range))==G1default) countDefaults++;
 	} // loop over APVs
 	// fill the tracker map taking the average gain on a single DetId
 	if(countDefaults>0.){
@@ -639,6 +636,10 @@ namespace {
     } // payload
   };
 
+  /************************************************
+    test class
+  *************************************************/
+
   class SiStripApvGainsTest : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
     
   public:
@@ -679,6 +680,10 @@ namespace {
       return true;
     }// fill
   };
+
+  /************************************************
+    Compare Gains from 2 IOVs, 2 pads canvas, firsr for ratio, second for scatter plot
+  *************************************************/
 
   class SiStripApvGainsComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
@@ -789,14 +794,14 @@ namespace {
 
       }
 
-      auto legend = new TLegend(0.60,0.8,0.92,0.95);
-      legend->SetTextSize(0.05);
+      auto legend = TLegend(0.60,0.8,0.92,0.95);
+      legend.SetTextSize(0.05);
       canvas.cd(1)->SetLogy(); 
       canvas.cd(1)->SetTopMargin(0.05);
       canvas.cd(1)->SetLeftMargin(0.13);
       canvas.cd(1)->SetRightMargin(0.08);
 
-      for ( const auto &part : parts){
+      for (const auto &part : parts){
 	makeNicePlotStyle(ratios[part]);
 	ratios[part]->SetStats(false);
 	ratios[part]->SetLineWidth(2);
@@ -805,27 +810,26 @@ namespace {
 	  ratios[part]->Draw();
 	else
 	  ratios[part]->Draw("same");
-	legend->AddEntry(ratios[part],part.c_str(),"L");
+	legend.AddEntry(ratios[part],part.c_str(),"L");
       }
 
-      legend->Draw("same");
+      legend.Draw("same");
       DrawStatBox(ratios,colormap,parts);
        
-      auto legend2 = new TLegend(0.60,0.8,0.92,0.95);
-      legend2->SetTextSize(0.05);
+      auto legend2 = TLegend(0.60,0.8,0.92,0.95);
+      legend2.SetTextSize(0.05);
       canvas.cd(2);
       canvas.cd(2)->SetTopMargin(0.05);
       canvas.cd(2)->SetLeftMargin(0.13);
       canvas.cd(2)->SetRightMargin(0.08);
 
-      for ( const auto &part : parts){
+      for (const auto &part : parts){
 	makeNicePlotStyle(scatters[part]);
 	scatters[part]->SetStats(false);
 	scatters[part]->SetMarkerColor(colormap[part]);
 	scatters[part]->SetMarkerStyle(markermap[part]);
 	scatters[part]->SetMarkerSize(0.5);
 
-	//std::unique_ptr<TH2F>
 	auto temp =  (TH2F*)(scatters[part]->Clone());
 	temp->SetMarkerSize(1.3);
 
@@ -834,7 +838,7 @@ namespace {
 	else
 	  scatters[part]->Draw("Psame");
 
-	legend2->AddEntry(temp,part.c_str(),"P");
+	legend2.AddEntry(temp,part.c_str(),"P");
       }
 
       TLine diagonal(0.5,0.5,1.8,1.8);
@@ -842,7 +846,7 @@ namespace {
       diagonal.SetLineStyle(2);
       diagonal.Draw("same");
 
-      legend2->Draw("same");
+      legend2.Draw("same");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -851,6 +855,10 @@ namespace {
 
     }
   };
+
+  /************************************************
+    Compare Gains for each tracker partition 
+  *************************************************/
 
   class SiStripApvGainsComparatorByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
@@ -901,8 +909,8 @@ namespace {
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
 
-      TH1F* hfirst = new TH1F("byPartition1","SiStrip first Gain average by partition;; average SiStrip Gain",firstmap.size(),0.,firstmap.size());
-      TH1F* hlast  = new TH1F("byPartition2","SiStrip last Gain average by partition;; average SiStrip Gain",lastmap.size(),0.,lastmap.size());
+      auto hfirst = std::unique_ptr<TH1F>(new TH1F("byPartition1","SiStrip first Gain average by partition;; average SiStrip Gain",firstmap.size(),0.,firstmap.size()));
+      auto hlast  = std::unique_ptr<TH1F>(new TH1F("byPartition2","SiStrip last Gain average by partition;; average SiStrip Gain",lastmap.size(),0.,lastmap.size()));
       
       hfirst->SetStats(false);
       hlast->SetStats(false);
@@ -993,18 +1001,18 @@ namespace {
       canvas.cd();
 
       for (const auto & line : boundaries){
-	TLine* l = new TLine(hfirst->GetBinLowEdge(line),canvas.cd()->GetUymin(),hfirst->GetBinLowEdge(line),canvas.cd()->GetUymax());
-	l->SetLineWidth(1);
-	l->SetLineStyle(9);
-	l->SetLineColor(2);
-	l->Draw("same");
+	TLine l = TLine(hfirst->GetBinLowEdge(line),canvas.cd()->GetUymin(),hfirst->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l.SetLineWidth(1);
+	l.SetLineStyle(9);
+	l.SetLineColor(2);
+	l.Draw("same");
       }
       
-      auto legend = new TLegend(0.70,0.8,0.95,0.9);
-      legend->SetHeader("Comparison","C"); // option "C" allows to center the header
-      legend->AddEntry(hfirst,("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
-      legend->AddEntry(hlast ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
-      legend->Draw("same");
+      TLegend legend = TLegend(0.70,0.8,0.95,0.9);
+      legend.SetHeader("Comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(hfirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
+      legend.AddEntry(hlast.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.Draw("same");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -1012,6 +1020,10 @@ namespace {
       return true;
     }
   };
+
+  /************************************************
+    Plot gain averages by partition 
+  *************************************************/
 
   class SiStripApvGainsByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
@@ -1041,7 +1053,7 @@ namespace {
       
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
-      TH1F* h1 = new TH1F("byPartition","SiStrip Gain average by partition;; average SiStrip Gain",map.size(),0.,map.size());
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition","SiStrip Gain average by partition;; average SiStrip Gain",map.size(),0.,map.size()));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.12);
@@ -1103,11 +1115,11 @@ namespace {
       canvas.cd();
 
       for (const auto & line : boundaries){
-	TLine* l = new TLine(h1->GetBinLowEdge(line),canvas.cd()->GetUymin(),h1->GetBinLowEdge(line),canvas.cd()->GetUymax());
-	l->SetLineWidth(1);
-	l->SetLineStyle(9);
-	l->SetLineColor(2);
-	l->Draw("same");
+	TLine l = TLine(h1->GetBinLowEdge(line),canvas.cd()->GetUymin(),h1->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l.SetLineWidth(1);
+	l.SetLineStyle(9);
+	l.SetLineColor(2);
+	l.Draw("same");
       }
       
       std::string fileName(m_imageFileName);
