@@ -167,10 +167,6 @@ class HipPyOptionParser:
                      raise RuntimeError("Keep/drop command {} is not keep or drop.".format(keepdrop_det_pair[0]))
                else:
                   raise RuntimeError("Keep/drop-det. pair {} does not have size==2 or has a command other than keep or drop.".format(vallist[iv]))
-
-               vallist[iv]=vallist[iv].replace('/',' ') # e.g. 'PIX/2' instead of 'PIX 2'
-               vallist[iv]=vallist[iv].upper()
-
          # Get data type
          elif (key=="type" or key=="datatype" or key=="datagroup"):
             try:
