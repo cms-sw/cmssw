@@ -88,6 +88,9 @@ bool HLTHcalLaserMisfireFilter::filter(edm::StreamID, edm::Event& iEvent,
       if(digi.sample(i).adc() > maxdigiHB) maxdigiHB = digi.sample(i).adc();
     if (maxdigiHB > minADCHBHE_) passCut = true;
 
+    // Three RBX's in HB do not receive any laser light (HBM5, HBM8, HBM9)
+    // They correspond to iphi = 15:18, 27:30, 31:34 respectively and
+    // ieta < 0
     if ( myid.subdet()==HcalBarrel && myid.ieta()<0 ) {
       if (myid.iphi()>=15 && myid.iphi()<=18) isbad=true;
       else if (myid.iphi()>=27 && myid.iphi()<=34) isbad=true;
