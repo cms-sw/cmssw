@@ -10,27 +10,12 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
-
-
-TowerBlockFormatter::TowerBlockFormatter() {
-
-}
-
-TowerBlockFormatter::~TowerBlockFormatter() {
-
-}
-
-
+using namespace edm;
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
-					 const EcalElectronicsMapping* TheMapping)
+					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const
 
 {
-
- int bx = *pbx_;
- int lv1 = *plv1_ - 1;
-
-
   int rdsize = rawdata.size() / 8;  // size in Word64
 
         const EBDetId& ebdetid = dataframe.id();
@@ -47,15 +32,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		"TowerBlockFormatter::DigiToRaw : Invalid iFE " << iFE << endl;
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = local.fedorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = local.fedmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
-                if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
+        if (fen == local.fedorder.end()) {
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
 		map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = local.fedorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
 		map<int,int> FEmap;
-		pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+		pair<map<int, map<int,int> >::iterator, bool> t2 = local.fedmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
 		fed = t2.first;
         }
@@ -69,22 +54,22 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 	if (fe != FEorder.end()) {
 		FE_order = (*fe).second;
 		map<int,int>::iterator ff = FEmap.find(FE_order);
-		if (ff == FEmap.end()) cout << "Error with maps... " << endl;
+		if (ff == FEmap.end()) LogInfo("EcalDigiToRaw: ") << "Error with maps... " << endl;
 		FE_index = (*ff).second; 
-                if (debug_) cout << "FE already there, FE_index = " << dec << FE_index <<  " FEorder " << FE_order << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "FE already there, FE_index = " << dec << FE_index <<  " FEorder " << FE_order << endl;
 	}
 	else {
-                if (debug_) cout << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
  		int inser = rdsize;
 		int number_FEs = FEorder.size() -1;
                 FE_order = number_FEs+1;
 		pair<map<int,int>::iterator, bool> t2 = FEorder.insert(map<int,int>::value_type(iFE,FE_order)); 
-		if (! t2.second) cout << " FE insertion failed...";
+		if (! t2.second) LogInfo("EcalDigiToRaw: ") << " FE insertion failed...";
                 pair<map<int,int>::iterator, bool> tt = FEmap.insert(map<int,int>::value_type(FE_order,inser));
                 fe = tt.first;
 		FE_index = (*fe).second;
-		if (debug_) cout << "Build the Tower Block header for FE id " << iFE << " start at line " << rdsize << endl;
-		if (debug_) cout << "This is the Fe number (order) " << number_FEs+1 << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "Build the Tower Block header for FE id " << iFE << " start at line " << rdsize << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "This is the Fe number (order) " << number_FEs+1 << endl;
                 rawdata.resize( 8*rdsize + 8);
 		unsigned char* pData = rawdata.data();
 		pData[8*FE_index] = iFE & 0xFF;
@@ -106,7 +91,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 	int istrip = elid.stripId();
 	int ichannel = elid.xtalId();
 
-	if (debug_) cout << "Now add crystal : strip  channel " << dec << istrip << " " << ichannel << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "Now add crystal : strip  channel " << dec << istrip << " " << ichannel << endl;
 
 
         unsigned char* pData = rawdata.data();
@@ -118,7 +103,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
         if (n_add % 8 != 0) n_add = n_add/8 +1;
 	else
 	n_add = n_add/8;
-	if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
         rawdata.resize( rawdata.size() + 8*n_add );
 	unsigned char* ppData = rawdata.data();
 
@@ -153,15 +138,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 	}
 
 	if (debug_) {
-	  cout << "pData for this FED is now " << endl;
+	  LogInfo("EcalDigiToRaw: ") << "pData for this FED is now " << endl;
 	  print(rawdata);
 	}
 
 	// and update the FEmap for this FED :
 	for (int i=FE_order+1; i < (int)FEorder.size(); i++) {
 		FEmap[i] += n_add;
-		if (debug_) cout << "FEmap updated for fe number " << dec << i << endl;
-		if (debug_) cout << " FEmap[" << i << "] = " << FEmap[i] << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "FEmap updated for fe number " << dec << i << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << " FEmap[" << i << "] = " << FEmap[i] << endl;
 	}
 
 	// update the block length
@@ -183,7 +168,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 //    order when reading the unsuppressed digis, but ganz durcheinander 
 //    when reading the SelectiveReadout_Suppressed digis.
 
-  if (debug_) cout << "enter in TowerBlockFormatter::EndEvent. First reorder the FE's. " << endl;
+  if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in TowerBlockFormatter::EndEvent. First reorder the FE's. " << endl;
 
   for (int idcc=1; idcc <= 54; idcc++) {
 
@@ -192,11 +177,11 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 	//if (idcc != 34) continue;
 
 	int FEDid = FEDNumbering::MINECALFEDID + idcc;
-	// cout << "Process FED " << FEDid << endl;
+	// LogInfo("EcalDigiToRaw: ") << "Process FED " << FEDid << endl;
 	FEDRawData& fedData = productRawData -> FEDData(FEDid);
 	if (fedData.size() <= 16) continue;
 
-	if (debug_) cout << "This is FEDid = " << FEDid << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "This is FEDid = " << FEDid << endl;
 
   	unsigned char * pData = fedData.data();
   	// Word64* words = reinterpret_cast<Word64*>(const_cast<unsigned char*>(pData));
@@ -220,12 +205,12 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
         if (iTCCBlock_header < 0) iTCCBlock_header = iSRBlock_header;
 
 	if (debug_) {
-        cout << "iDAQ_header = " << iDAQ_header << endl;
-        cout << " iDCC_header = " << iDCC_header << endl;
-        cout << " iTCCBlock_header = " << iTCCBlock_header << endl;
-        cout << " iSRBlock_header = " << iSRBlock_header << endl;
-        cout << " iTowerBlock_header = " << iTowerBlock_header << endl;
-        cout << " iDAQ_trailer = " << iDAQ_trailer << endl;
+        LogInfo("EcalDigiToRaw: ") << "iDAQ_header = " << iDAQ_header << endl;
+        LogInfo("EcalDigiToRaw: ") << " iDCC_header = " << iDCC_header << endl;
+        LogInfo("EcalDigiToRaw: ") << " iTCCBlock_header = " << iTCCBlock_header << endl;
+        LogInfo("EcalDigiToRaw: ") << " iSRBlock_header = " << iSRBlock_header << endl;
+        LogInfo("EcalDigiToRaw: ") << " iTowerBlock_header = " << iTowerBlock_header << endl;
+        LogInfo("EcalDigiToRaw: ") << " iDAQ_trailer = " << iDAQ_trailer << endl;
 	}
 
 	std::map<int, int> FrontEnd;
@@ -236,7 +221,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 	while (iTowerBlock_header < iDAQ_trailer) {
         	int fe = words[iTowerBlock_header] & 0xFF;
 		int nlines = (words[iTowerBlock_header] >> 48) & 0x1FF;
-		if (debug_) cout << "This is FE number " << fe << "needs nlines = " << nlines << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "This is FE number " << fe << "needs nlines = " << nlines << endl;
 		FrontEnd[fe] = nlines;
 		std::vector<Word64> xtal_data;
 		for (int j=0; j < nlines; j++) {
@@ -248,12 +233,12 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 	}
 
 	if (debug_) {
-		cout << "vector of FrontEnd : " << FrontEnd.size() << endl;
+		LogInfo("EcalDigiToRaw: ") << "vector of FrontEnd : " << FrontEnd.size() << endl;
 		for (std::map<int, int>::const_iterator it=FrontEnd.begin();
                         it != FrontEnd.end(); it++) {
 		    int fe = it -> first;
 			int l = it -> second;
-			cout << "FE line " << fe << " " << l << endl;
+			LogInfo("EcalDigiToRaw: ") << "FE line " << fe << " " << l << endl;
 		}
 	}
 
@@ -262,15 +247,15 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 			it != FrontEnd.end(); it++) {
 		int fe = it -> first;
 		int nlines = it -> second;
-		if (debug_) cout << "iTowerBlock_header = " << iTowerBlock_header << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "iTowerBlock_header = " << iTowerBlock_header << endl;
 		vector<Word64> xtal_data = Map_xtal_data[fe];
 		for (int j=0; j < nlines; j++) {
 			words[iTowerBlock_header+j] = xtal_data[j];
-			if (debug_) cout << "update line " << iTowerBlock_header+j << endl;
+			if (debug_) LogInfo("EcalDigiToRaw: ") << "update line " << iTowerBlock_header+j << endl;
 		}
 		if (debug_) {
 			int jFE = pData[8*(iTowerBlock_header)];
-			cout << "Front End on RD : " << jFE << endl; 
+			LogInfo("EcalDigiToRaw: ") << "Front End on RD : " << jFE << endl; 
 		}
 		iTowerBlock_header += nlines;
 	}
@@ -279,7 +264,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 	//    need : xtal 1,2,3,4, 5 in strip 1, xtal 1,2,3,4,5 in strip 2 etc..
 	//    with possibly missing ones.
 
-	if (debug_) cout << "now reorder the xtals within the FEs" << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "now reorder the xtals within the FEs" << endl;
 
 	iTowerBlock_header = iTowerBlock_header_keep;
 
@@ -287,8 +272,8 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
                         it != FrontEnd.end(); it++) {
 
 		int fe = it -> first;
-		if (fe > 68) cout << "Problem... fe = " << fe << " in FEDid = " << FEDid << endl;
-		if (debug_) cout << " This is for FE = " << fe << endl;
+		if (fe > 68) LogInfo("EcalDigiToRaw: ") << "Problem... fe = " << fe << " in FEDid = " << FEDid << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << " This is for FE = " << fe << endl;
 		int nlines = it -> second;
 		int timesamples = pData[8*iTowerBlock_header+1] & 0x7F;
 		int n4=timesamples-3;
@@ -336,22 +321,22 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 			jt != Strip_Map.end(); jt++) {
 
 			int strip = jt -> first;
-			if (debug_) cout << "   this is strip number " << strip << endl;
+			if (debug_) LogInfo("EcalDigiToRaw: ") << "   this is strip number " << strip << endl;
 			map<int, vector<Word64> > Xtal_Map = jt -> second;
 
 			for (map<int, vector<Word64> >::const_iterator kt = Xtal_Map.begin();
 				kt != Xtal_Map.end(); kt++) {
 				int xtal = kt -> first;
-				if (debug_) cout << "       this is xtal number " << xtal << endl;
+				if (debug_) LogInfo("EcalDigiToRaw: ") << "       this is xtal number " << xtal << endl;
 				vector<Word64> xtal_data = kt -> second;
 
 				int mlines = (int)xtal_data.size();
-				if (debug_) cout << "     mlines = " << mlines << endl;
+				if (debug_) LogInfo("EcalDigiToRaw: ") << "     mlines = " << mlines << endl;
 				for (int j=0; j < mlines; j++) {
 					int line = iTowerBlock_header+1+idx+j;
-					if (line >= iDAQ_trailer) cout << "smth wrong... line " << line << " trailer " << iDAQ_trailer << endl;
+					if (line >= iDAQ_trailer) LogInfo("EcalDigiToRaw: ") << "smth wrong... line " << line << " trailer " << iDAQ_trailer << endl;
 					words[line] = xtal_data[j] ;
-					if (debug_) cout << "      updated line " << iTowerBlock_header+idx+j << endl;
+					if (debug_) LogInfo("EcalDigiToRaw: ") << "      updated line " << iTowerBlock_header+idx+j << endl;
 				}
 				idx += mlines; 
 
@@ -366,41 +351,23 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 	}  // end loop on FEs
 
 	
-	if (debug_) cout << " DONE FOR FED " << FEDid << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << " DONE FOR FED " << FEDid << endl;
 	FrontEnd.clear();
 	Map_xtal_data.clear();
 
   }  // end loop on DCC
 
-  // cout << " finished reorder, now clean up " << endl;
+  // LogInfo("EcalDigiToRaw: ") << " finished reorder, now clean up " << endl;
 
 // -- clean up
 
- // FEDmap -> empty();
- // FEDorder -> empty();
- FEDmap -> clear();
- FEDorder -> clear();
- delete FEDmap;
- delete FEDorder;
- FEDmap = 0;
- FEDorder = 0;
+ //debug_ = false;
 
- debug_ = false;
-
- // cout << "end of EndEvent " << endl;
-}
-
-void TowerBlockFormatter::StartEvent() {
-
- FEDmap = new map<int, map<int,int> >;
- FEDorder = new map<int, map<int,int> >;
- 
+ // LogInfo("EcalDigiToRaw: ") << "end of EndEvent " << endl;
 }
 
 
-
-
-void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping)
+void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder& local) const
 
 	// -- now that we have the EcalElectronicsMapping, this method could probably be
 	//    merged with DigiToRaw(EBdataframe).
@@ -408,10 +375,6 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 {
 
  // debug_ = false;
-
- int bx = *pbx_;
- int lv1 = *plv1_;
-
 
   int rdsize = rawdata.size() / 8;  // size in Word64
 
@@ -421,26 +384,26 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 	int iFE = elid.towerId();
 
-	if (debug_) cout << "enter in TowerBlockFormatter::DigiToRaw DCCid FEDid iFE " <<
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in TowerBlockFormatter::DigiToRaw DCCid FEDid iFE " <<
 	dec << DCCid << " " << FEDid << " " << iFE << endl;
 
         int nsamples = dataframe.size();
 
         if (iFE <= 0 || iFE > 68)  {
-		cout << "invalid iFE for EndCap DCCid iFE " << DCCid << " " << iFE << endl;
+		LogInfo("EcalDigiToRaw: ") << "invalid iFE for EndCap DCCid iFE " << DCCid << " " << iFE << endl;
 		return;
 	}
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = local.fedorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = local.fedmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
-                if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
+        if (fen == local.fedorder.end()) {
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
                 map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = local.fedorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
                 map<int,int> FEmap;
-                pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+                pair<map<int, map<int,int> >::iterator, bool> t2 = local.fedmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
                 fed = t2.first;
         }
@@ -454,22 +417,22 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         if (fe != FEorder.end()) {
                 FE_order = (*fe).second;
                 map<int,int>::iterator ff = FEmap.find(FE_order);
-                if (ff == FEmap.end()) cout << "Error with maps... " << endl;
+                if (ff == FEmap.end()) LogInfo("EcalDigiToRaw: ") << "Error with maps... " << endl;
                 FE_index = (*ff).second;
-                if (debug_) cout << "FE already there, FE_index = " << dec << FE_index <<  " FEorder " << FE_order << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "FE already there, FE_index = " << dec << FE_index <<  " FEorder " << FE_order << endl;
         }
         else {
-                if (debug_) cout << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
                 int inser = rdsize;
                 int number_FEs = FEorder.size() -1;
                 FE_order = number_FEs+1;
                 pair<map<int,int>::iterator, bool> t2 = FEorder.insert(map<int,int>::value_type(iFE,FE_order));
-                if (! t2.second) cout << " FE insertion failed...";
+                if (! t2.second) LogInfo("EcalDigiToRaw: ") << " FE insertion failed...";
                 pair<map<int,int>::iterator, bool> tt = FEmap.insert(map<int,int>::value_type(FE_order,inser));
                 fe = tt.first;
                 FE_index = (*fe).second;
-                if (debug_) cout << "Build the Tower Block header for FE id " << iFE << " start at line " << rdsize << endl;
-                if (debug_) cout << "This is the Fe number (order) " << number_FEs+1 << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "Build the Tower Block header for FE id " << iFE << " start at line " << rdsize << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "This is the Fe number (order) " << number_FEs+1 << endl;
                 rawdata.resize( 8*rdsize + 8);
                 unsigned char* pData = rawdata.data();
 
@@ -492,7 +455,7 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	int istrip = elid.stripId();
 	int ichannel = elid.xtalId();
 
-        if (debug_) cout << "Now add crystal  strip  channel " << dec << istrip << " " << ichannel << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "Now add crystal  strip  channel " << dec << istrip << " " << ichannel << endl;
 
         unsigned char* pData = rawdata.data();
 
@@ -503,8 +466,8 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         if (n_add % 8 != 0) n_add = n_add/8 +1;
         else
         n_add = n_add/8;
-	if (debug_) cout << "nsamples = " << dec << nsamples << endl;
-        if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "nsamples = " << dec << nsamples << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
         rawdata.resize( rawdata.size() + 8*n_add );
         unsigned char* ppData = rawdata.data();
 
@@ -539,15 +502,15 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         }
 
         if (debug_) {
-          cout << "pData for this FED is now " << endl;
+          LogInfo("EcalDigiToRaw: ") << "pData for this FED is now " << endl;
           print(rawdata);
         }
 
         // and update the FEmap for this FED :
         for (int i=FE_order+1; i < (int)FEorder.size(); i++) {
                 FEmap[i] += n_add;
-                if (debug_) cout << "FEmap updated for fe number " << dec << i << endl;
-                if (debug_) cout << " FEmap[" << i << "] = " << FEmap[i] << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << "FEmap updated for fe number " << dec << i << endl;
+                if (debug_) LogInfo("EcalDigiToRaw: ") << " FEmap[" << i << "] = " << FEmap[i] << endl;
         }
 
         // update the block length
