@@ -52,12 +52,32 @@ eval `scram run -sh`;
 #     --image_plot True \
 #     --test;
 
+# $W_DIR/getPayloadData.py  \
+#     --plugin pluginSiStripApvGain_PayloadInspector \
+#     --plot plot_SiStripApvGainsComparator \
+#     --tag SiStripApvGain \
+#     --time_type Run \
+#     --iovs '{"start_iov": "286042", "end_iov": "299649"}' \
+#     --db sqlite_file:toCheck.db \
+#     --image_plot True \
+#     --test;
+
+# $W_DIR/getPayloadData.py  \
+#     --plugin pluginSiStripApvGain_PayloadInspector \
+#     --plot plot_SiStripApvGainsDefaultTrackerMap \
+#     --tag  SiStripApvGain_GR10_v1_hlt\
+#     --time_type Run \
+#     --iovs '{"start_iov": "298430", "end_iov": "298430"}' \
+#     --db Prod \
+#     --image_plot True \
+#     --test;
+
 $W_DIR/getPayloadData.py  \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsComparator \
-    --tag SiStripApvGain \
+    --plot plot_SiStripApvGainsDefaultTrackerMap \
+    --tag  SiStripApvGain_FromParticles_GR10_v1_express \
     --time_type Run \
-    --iovs '{"start_iov": "286042", "end_iov": "299649"}' \
-    --db sqlite_file:toCheck.db \
+    --iovs '{"start_iov": "300577", "end_iov": "300577"}' \
+    --db Prod \
     --image_plot True \
     --test;
