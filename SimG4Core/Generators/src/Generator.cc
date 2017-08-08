@@ -6,6 +6,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "HepPDT/ParticleID.hh"
+
 #include "G4Event.hh"
 
 #include "G4HEPEvtParticle.hh"
@@ -150,7 +152,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // 2:  particles are decayed by generator but need to be propagated by GEANT
       // 3:  particles are decayed by generator but do not need to be propagated by GEANT
       int status = (*pitr)->status();
-      if (status > 3 && isExotic(*pitr)) {
+      if (status > 3 && isExotic(*pitr) && (!(isExoticNonDetectable(*pitr)))) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
         // By setting the status to 2 for exotic particles, they will be checked:
         // if its decay vertex is outside the beampipe, it will be propagated by GEANT.
@@ -226,7 +228,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       double decay_length = 0.0;
       int status = (*pitr)->status();
 
-      if (status > 3 && isExotic(*pitr)) {
+      if (status > 3 && isExotic(*pitr) && (!(isExoticNonDetectable(*pitr))) ) {
 	status = 2;
       }
 
@@ -524,6 +526,20 @@ bool Generator::isExotic(HepMC::GenParticle* p) const
 
   return false;
 }
+
+bool Generator::isExoticNonDetectable(HepMC::GenParticle* p) const
+{
+  int pdgid = abs(p->pdg_id());  
+  HepPDT::ParticleID pid(p->pdg_id());
+  int charge = pid.threeCharge();
+  if ((charge==0) && (pdgid >= 1000000 && pdgid <  1000040)) // SUSY 
+    {
+    return true;
+  } 
+
+  return false;
+}
+
 
 
 void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt) 
