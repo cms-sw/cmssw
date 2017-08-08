@@ -183,21 +183,13 @@ std::vector<float> PVValHelper::generateBins(int n, float start,float range)
 Measurement1D PVValHelper::getMedian(TH1F *histo)
 //*************************************************************
 {
-  double median = 999;
-  int nbins = histo->GetNbinsX();
-
-  //extract median from histogram
-  double *x = new double[nbins];
-  double *y = new double[nbins];
-  for (int j = 0; j < nbins; j++) {
-    x[j] = histo->GetBinCenter(j+1);
-    y[j] = histo->GetBinContent(j+1);
-  }
-  median = TMath::Median(nbins, x, y);
+  double median=0.;
+  double q = 0.5; // 0.5 quantile for "median"
+  // protect against empty histograms
+  if(histo->Integral()!=0){
+    histo->GetQuantiles(1, &median, &q);
+  }  
   
-  delete[] x; x = nullptr;
-  delete[] y; y = nullptr;  
-
   Measurement1D result(median,median/TMath::Sqrt(histo->GetEntries()));
 
   return result;
@@ -213,21 +205,20 @@ Measurement1D PVValHelper::getMAD(TH1F *histo)
   double median = getMedian(histo).value();
   double x_lastBin = histo->GetBinLowEdge(nbins+1);
   const char *HistoName =histo->GetName();
-  TString Finalname = Form("resMed%s",HistoName);
-  TH1F *newHisto = new TH1F(Finalname,Finalname,nbins,0.,x_lastBin);
+  std::string Finalname = "resMed_";
+  Finalname.append(HistoName);
+  TH1F *newHisto = new TH1F(Finalname.c_str(),Finalname.c_str(),nbins,0.,x_lastBin);
   double *residuals = new double[nbins];
-  double *weights = new double[nbins];
+  const float *weights = histo->GetArray(); 
 
   for (int j = 0; j < nbins; j++) {
     residuals[j] = std::abs(median - histo->GetBinCenter(j+1));
-    weights[j]=histo->GetBinContent(j+1);
     newHisto->Fill(residuals[j],weights[j]);
   }
   
   double theMAD = (PVValHelper::getMedian(newHisto).value())*1.4826;
   
   delete[] residuals; residuals=nullptr;
-  delete[] weights; weights=nullptr;
   newHisto->Delete("");
   
   Measurement1D result(theMAD,theMAD/histo->GetEntries());
