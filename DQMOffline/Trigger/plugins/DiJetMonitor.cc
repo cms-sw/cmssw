@@ -17,18 +17,45 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
 {
   folderName_            = iConfig.getParameter<std::string>("FolderName"); 
   dijetSrc_  = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
-  dijetpT_binning           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
+  dijetpT_variable_binning_  = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
+  dijetpt_binning_           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
+  dijetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPtThrPSet")    );
+  ls_binning_            = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
 
-  jetpt1ME_.histo = nullptr;
-  jetpt2ME_.histo = nullptr;
-  jetptAvgaME_.histo = nullptr;
-  jetptAvgbME_.histo = nullptr;
-  jetptTagME_.histo = nullptr;
-  jetptPrbME_.histo = nullptr;
-  jetptAsyME_.histo = nullptr;
-  jetetaPrbME_.histo = nullptr;
-  jetAsyEtaME_.histo = nullptr;
+
+  ptcut_      = iConfig.getParameter<double>("ptcut" ); 
+  etacut_      = iConfig.getParameter<double>("etacut" ); // for DiJet Offline selection 
+  phicut_      = iConfig.getParameter<double>("delphicut" ); // for DiJet Offline selection
+
+      jetpt1ME_.numerator = nullptr;
+      jetpt2ME_.numerator = nullptr;
+   jetptAvgaME_.numerator = nullptr;
+jetptAvgaThrME_.numerator = nullptr;
+   jetptAvgbME_.numerator = nullptr;
+    jetptTagME_.numerator = nullptr;
+    jetptPrbME_.numerator = nullptr;
+    jetptAsyME_.numerator = nullptr;
+   jetetaPrbME_.numerator = nullptr;
+   jetetaTagME_.numerator = nullptr;
+   jetphiPrbME_.numerator = nullptr;
+   jetAsyEtaME_.numerator = nullptr;
+   jetEtaPhiME_.numerator = nullptr;
+  
+      jetpt1ME_.denominator = nullptr;
+      jetpt2ME_.denominator = nullptr;
+   jetptAvgaME_.denominator = nullptr;
+jetptAvgaThrME_.denominator = nullptr;
+   jetptAvgbME_.denominator = nullptr;
+    jetptTagME_.denominator = nullptr;
+    jetptPrbME_.denominator = nullptr;
+    jetptAsyME_.denominator = nullptr;
+   jetetaPrbME_.denominator = nullptr;
+   jetetaTagME_.denominator = nullptr;
+   jetphiPrbME_.denominator = nullptr;
+   jetAsyEtaME_.denominator = nullptr;
+   jetEtaPhiME_.denominator = nullptr;
 }
+
 
 
 DiJetMonitor::~DiJetMonitor()
@@ -52,32 +79,37 @@ DiJetMonitor::MEbinning DiJetMonitor::getHistoLSPSet(edm::ParameterSet pset)
       double(pset.getParameter<unsigned int>("nbins"))
       };
 }
-
-void DiJetMonitor::setMETitle(DiJetME& me, std::string titleX, std::string titleY)
+void DiJetMonitor::setMETitle(JetME& me, std::string titleX, std::string titleY)
 {
-  me.histo->setAxisTitle(titleX,1);
-  me.histo->setAxisTitle(titleY,2);
+  me.numerator->setAxisTitle(titleX,1);
+  me.numerator->setAxisTitle(titleY,2);
+  me.denominator->setAxisTitle(titleX,1);
+  me.denominator->setAxisTitle(titleY,2);
 }
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& histname, std::string& histtitle, unsigned int nbins, double min, double max)
+void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, unsigned int nbins, double min, double max)
 {
-  me.histo = ibooker.book1D(histname, histtitle, nbins, min, max);
+  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
+  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
 }
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& histname, std::string& histtitle, std::vector<double> binning)
+void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binning)
 {
   int nbins = binning.size()-1;
   std::vector<float> fbinning(binning.begin(),binning.end());
   float* arr = &fbinning[0];
-  me.histo = ibooker.book1D(histname, histtitle, nbins, arr);
+  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
+  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
+void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
 {
-  me.histo = ibooker.bookProfile(histname, histtitle, nbinsX, xmin, xmax, ymin, ymax);
+  me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
+  me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
 }
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
+void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
 {
-  me.histo = ibooker.book2D(histname, histtitle, nbinsX, xmin, xmax, nbinsY, ymin, ymax);
+  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
+  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
 }
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY)
+void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY)
 {
   int nbinsX = binningX.size()-1;
   std::vector<float> fbinningX(binningX.begin(),binningX.end());
@@ -86,8 +118,10 @@ void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, DiJetME& me, std::string& 
   std::vector<float> fbinningY(binningY.begin(),binningY.end());
   float* arrY = &fbinningY[0];
 
-  me.histo = ibooker.book2D(histname, histtitle, nbinsX, arrX, nbinsY, arrY);
+  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, arrX, nbinsY, arrY);
+  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
+
 
 void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
@@ -95,47 +129,60 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {  
   
   std::string histname, histtitle;
-  std::string hist_obtag = "";
-  std::string histtitle_obtag = "";
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
 
+  histname = "jetpt1"; histtitle = "leading Jet Pt";
+  bookME(ibooker,jetpt1ME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  setMETitle(jetpt1ME_,"Pt_1 [GeV]","events");
 
-  histname = "pt_1"; histtitle = "leading Jet Pt";
-  bookME(ibooker,jetpt1ME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetpt1ME_,"Pt_1 [GeV]","events / [GeV]");
+  histname = "jetpt2"; histtitle = "second leading Jet Pt";
+  bookME(ibooker,jetpt2ME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  setMETitle(jetpt2ME_,"Pt_2 [GeV]","events");
 
-  histname = "pt_2"; histtitle = "second leading Jet Pt";
-  bookME(ibooker,jetpt2ME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetpt2ME_,"Pt_2 [GeV]","events / [GeV]");
+  histname = "jetptAvgB"; histtitle = "Pt average before offline selection";
+  bookME(ibooker,jetptAvgbME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  setMETitle(jetptAvgbME_,"(pt_1 + pt_2)*0.5 [GeV]","events");
 
-  histname = "pt_avg_b"; histtitle = "Pt average before offline selection";
-  bookME(ibooker,jetptAvgbME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetptAvgbME_,"(pt_1 + pt_2)*0.5 [GeV]","events / [GeV]");
+  histname = "jetptAvgA"; histtitle = "Pt average after offline selection";
+  bookME(ibooker,jetptAvgaME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  setMETitle(jetptAvgaME_,"(pt_1 + pt_2)*0.5 [GeV]","events");
 
-  histname = "pt_avg_a"; histtitle = "Pt average after offline selection";
-  bookME(ibooker,jetptAvgaME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetptAvgaME_,"(pt_1 + pt_2)*0.5 [GeV]","events / [GeV]");
+  histname = "jetptAvgAThr"; histtitle = "Pt average after offline selection";
+  bookME(ibooker,jetptAvgaThrME_,histname,histtitle,dijetptThr_binning_.nbins,dijetptThr_binning_.xmin, dijetptThr_binning_.xmax);
+  setMETitle(jetptAvgaThrME_,"(pt_1 + pt_2)*0.5 [GeV]","events");
 
-  histname = "pt_tag"; histtitle = "Tag Jet Pt";
-  bookME(ibooker,jetptTagME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetptTagME_,"Pt_tag [GeV]","events / [GeV]");
+  histname = "jetptTag"; histtitle = "Tag Jet Pt";
+  bookME(ibooker,jetptTagME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
+  setMETitle(jetptTagME_,"Pt_tag [GeV]","events ");
 
-  histname = "pt_prb"; histtitle = "Probe Jet Pt";
-  bookME(ibooker,jetptPrbME_,histname,histtitle,dijetpT_binning.nbins,dijetpT_binning.xmin, dijetpT_binning.xmax);
-  setMETitle(jetptPrbME_,"Pt_prb [GeV]","events / [GeV]");
+  histname = "jetptPrb"; histtitle = "Probe Jet Pt";
+  bookME(ibooker,jetptPrbME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin,dijetpt_binning_.xmax);
+  setMETitle(jetptPrbME_,"Pt_prb [GeV]","events");
 
-  histname = "pt_asym"; histtitle = "Jet Pt Asymetry";
+  histname = "jetptAsym"; histtitle = "Jet Pt Asymetry";
   bookME(ibooker,jetptAsyME_,histname,histtitle,asy_binning_.nbins,asy_binning_.xmin, asy_binning_.xmax);
   setMETitle(jetptAsyME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","events");
 
-  histname = "eta_prb"; histtitle = "Probe Jet eta";
+  histname = "jetetaPrb"; histtitle = "Probe Jet eta";
   bookME(ibooker,jetetaPrbME_,histname,histtitle,dijet_eta_binning_.nbins,dijet_eta_binning_.xmin, dijet_eta_binning_.xmax);
-  setMETitle(jetetaPrbME_,"Eta_probe","events");
+  setMETitle(jetetaPrbME_,"Eta_probe #eta","events");
 
-  histname = "pt_Asym_VS_eta_prb"; histtitle = "Pt_Asym vs eta_ptb";
+  histname = "jetetaTag"; histtitle = "Tag Jet eta";
+  bookME(ibooker,jetetaTagME_,histname,histtitle,dijet_eta_binning_.nbins,dijet_eta_binning_.xmin, dijet_eta_binning_.xmax);
+  setMETitle(jetetaTagME_,"Eta_tag #eta","events");
+
+  histname = "ptAsymVSetaPrb"; histtitle = "Pt_Asym vs eta_prb";
   bookME(ibooker,jetAsyEtaME_,histname,histtitle,asy_binning_.nbins, asy_binning_.xmin, asy_binning_.xmax, dijet_eta_binning_.nbins, dijet_eta_binning_.xmin,dijet_eta_binning_.xmax);
-  setMETitle(jetAsyEtaME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","Eta_probe");
+  setMETitle(jetAsyEtaME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","Eta_probe #eta");
+
+  histname = "etaPrbVSphiPrb"; histtitle = "eta_prb vs phi_prb";
+  bookME(ibooker,jetEtaPhiME_,histname,histtitle,dijet_eta_binning_.nbins, dijet_eta_binning_.xmin, dijet_eta_binning_.xmax, dijet_phi_binning_.nbins, dijet_phi_binning_.xmin,dijet_phi_binning_.xmax);
+  setMETitle(jetEtaPhiME_,"Eta_probe #eta","Phi_probe #phi");
+
+  histname = "jetphiPrb"; histtitle = "Probe Jet phi";
+  bookME(ibooker,jetphiPrbME_,histname,histtitle,dijet_phi_binning_.nbins,dijet_phi_binning_.xmin, dijet_phi_binning_.xmax);
+  setMETitle(jetphiPrbME_,"Phi_probe #phi","events");
 
   // Initialize the GenericTriggerEventFlag
   // Initialize the GenericTriggerEventFlag
@@ -152,11 +199,12 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
+ 
   v_jetpt.clear();
   v_jeteta.clear();
   v_jetphi.clear();
 
+//  edm::Handle< edm::View<reco::Jet> > offjets;
   edm::Handle<reco::PFJetCollection > offjets;
   iEvent.getByToken( dijetSrc_, offjets );
   if (!offjets.isValid()){
@@ -164,60 +212,98 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
       return;
   }
   for ( reco::PFJetCollection::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin; ijet != iend; ++ijet ) {
-    if (ijet->pt()< 20) {continue;}
+    if (ijet->pt()< ptcut_) {continue;}
     v_jetpt.push_back(ijet->pt()); 
     v_jeteta.push_back(ijet->eta()); 
     v_jetphi.push_back(ijet->phi()); 
-//    cout << " ijet->pt() (view ) : " << ijet->pt() << endl;
   }
-
   if (v_jetpt.size() < 2) {return;}
-  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; 
-//      edm::LogWarning("DiJetMonitor") << " events 'num_genTriggerEventFlag_->on'  \n";
   double pt_1 = v_jetpt[0];
   double eta_1 = v_jeteta[0];
   double phi_1 = v_jetphi[0];
-
   double pt_2 = v_jetpt[1];
   double eta_2 = v_jeteta[1];
   double phi_2 = v_jetphi[1];
-
-  jetpt1ME_.histo -> Fill(pt_1);
-  jetpt2ME_.histo -> Fill(pt_2);
   double pt_avg_b = (pt_1 + pt_2)*0.5;
-  jetptAvgbME_.histo -> Fill(pt_avg_b);
-
   int tag_id = -999, probe_id = -999;
-//_______Offline selection______//  
-  if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) == false ) return;
+
+     jetpt1ME_.denominator -> Fill(pt_1);
+     jetpt2ME_.denominator -> Fill(pt_2);
+  jetptAvgbME_.denominator -> Fill(pt_avg_b);
+
+  if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) ){ 
   
-  if(tag_id == 0 && probe_id == 1) {
-    double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
-    double pt_avg = (pt_1 + pt_2)*0.5;
-   jetptAvgaME_.histo -> Fill(pt_avg);
-   jetptTagME_.histo -> Fill(pt_1);
-   jetptPrbME_.histo -> Fill(pt_2);
-   jetetaPrbME_.histo -> Fill(eta_2);
-   jetptAsyME_.histo->Fill(pt_asy);
-   jetetaPrbME_.histo -> Fill(eta_2);
-   jetAsyEtaME_.histo -> Fill(pt_asy,eta_2);
+    if(tag_id == 0 && probe_id == 1) {
+      double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
+      double pt_avg = (pt_1 + pt_2)*0.5;
+    jetptAvgaME_.denominator -> Fill(pt_avg);
+    jetptAvgaThrME_.denominator -> Fill(pt_avg);
+     jetptTagME_.denominator -> Fill(pt_1);
+     jetptPrbME_.denominator -> Fill(pt_2);
+    jetetaPrbME_.denominator -> Fill(eta_2);
+    jetetaTagME_.denominator -> Fill(eta_1);
+     jetptAsyME_.denominator ->Fill(pt_asy);
+    jetphiPrbME_.denominator -> Fill(phi_2);
+    jetAsyEtaME_.denominator -> Fill(pt_asy,eta_2);
+  jetEtaPhiME_.denominator -> Fill(eta_2,phi_2);
+    }
+    if(tag_id == 1 && probe_id == 0) {
+      double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
+      double pt_avg = (pt_2 + pt_1)*0.5;
+   jetptAvgaME_.denominator -> Fill(pt_avg);
+   jetptAvgaThrME_.denominator -> Fill(pt_avg);
+    jetptTagME_.denominator -> Fill(pt_2);
+    jetptPrbME_.denominator -> Fill(pt_1);
+   jetetaPrbME_.denominator -> Fill(eta_1);
+   jetetaTagME_.denominator -> Fill(eta_2);
+    jetptAsyME_.denominator->Fill(pt_asy);
+   jetphiPrbME_.denominator -> Fill(phi_1);
+   jetAsyEtaME_.denominator -> Fill(pt_asy,eta_1);
+   jetEtaPhiME_.denominator -> Fill(eta_1,phi_1);
+   }
+
   }
-  if(tag_id == 1 && probe_id == 0) {
-    double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
-    double pt_avg = (pt_2 + pt_1)*0.5;
-   jetptAvgaME_.histo -> Fill(pt_avg);
-   jetptTagME_.histo -> Fill(pt_2);
-   jetptPrbME_.histo -> Fill(pt_1);
-   jetetaPrbME_.histo -> Fill(eta_1);
-   jetptAsyME_.histo->Fill(pt_asy);
-   jetetaPrbME_.histo -> Fill(eta_1);
-   jetAsyEtaME_.histo -> Fill(pt_asy,eta_1);
-  }
+
+  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; 
+
+     jetpt1ME_.numerator -> Fill(pt_1);
+     jetpt2ME_.numerator -> Fill(pt_2);
+  jetptAvgbME_.numerator -> Fill(pt_avg_b);
+
+//_______Offline selection______//  
+// if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) ) {
+    
+    if(tag_id == 0 && probe_id == 1) {
+      double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
+      double pt_avg = (pt_1 + pt_2)*0.5;
+    jetptAvgaME_.numerator -> Fill(pt_avg);
+    jetptAvgaThrME_.numerator -> Fill(pt_avg);
+     jetptTagME_.numerator -> Fill(pt_1);
+     jetptPrbME_.numerator -> Fill(pt_2);
+    jetetaPrbME_.numerator -> Fill(eta_2);
+    jetetaTagME_.numerator -> Fill(eta_1);
+     jetptAsyME_.numerator->Fill(pt_asy);
+    jetphiPrbME_.numerator -> Fill(phi_2);
+    jetAsyEtaME_.numerator -> Fill(pt_asy,eta_2);
+    jetEtaPhiME_.numerator -> Fill(eta_2,phi_2);
+    }
+    if(tag_id == 1 && probe_id == 0) {
+      double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
+      double pt_avg = (pt_2 + pt_1)*0.5;
+    jetptAvgaME_.numerator -> Fill(pt_avg);
+    jetptAvgaThrME_.numerator -> Fill(pt_avg);
+     jetptTagME_.numerator -> Fill(pt_2);
+     jetptPrbME_.numerator -> Fill(pt_1);
+    jetetaPrbME_.numerator -> Fill(eta_1);
+    jetetaTagME_.numerator -> Fill(eta_2);
+     jetptAsyME_.numerator->Fill(pt_asy);
+    jetphiPrbME_.numerator -> Fill(phi_1);
+    jetAsyEtaME_.numerator -> Fill(pt_asy,eta_1);
+    jetEtaPhiME_.numerator -> Fill(eta_1,phi_1);
+    }
+// }
+
 }
-
-
-
-
 
 void DiJetMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
@@ -234,9 +320,17 @@ void DiJetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pse
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
- desc.add<std::string>  ( "FolderName", "HLT/Jet" );
+  desc.add<std::string>  ( "FolderName", "HLT/JetMET" );
 
-  desc.add<edm::InputTag>( "dijetSrc",     edm::InputTag("ak4PFJetsCHS") );
+  desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
+  desc.add<edm::InputTag>( "dijetSrc",     edm::InputTag("ak4PFJets") );
+  desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
+  desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  desc.add<int>("njets",      0);
+  desc.add<int>("nelectrons", 0);
+  desc.add<double>("ptcut",   20);
+  desc.add<double>("etacut",   1.7);   //using dijet offline selection
+  desc.add<double>("delphicut",   2.7);//using dijet offline selection
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -248,6 +342,7 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   genericTriggerEventPSet.add<bool>("andOrHlt", true);
   genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
   genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths",{});
+//  genericTriggerEventPSet.add<std::string>("hltDBKey","");
   genericTriggerEventPSet.add<bool>("errorReplyHlt",false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel",1);
 
@@ -260,6 +355,9 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   fillHistoPSetDescription(dijetPSet);
   fillHistoPSetDescription(dijetPtThrPSet);
   histoPSet.add<edm::ParameterSetDescription>("dijetPSet", dijetPSet);  
+  histoPSet.add<edm::ParameterSetDescription>("dijetPtThrPSet", dijetPtThrPSet);  
+  std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.}; // DiJet pT Binning
+  histoPSet.add<std::vector<double> >("jetptBinning", bins);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
@@ -272,30 +370,30 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 //---- Additional DiJet offline selection------
 bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
   bool passeta; //check that one of the jets in the barrel
-  if (abs(eta_1)< 1.3 || abs(eta_2) < 1.3 ) 
+  if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ ) 
     passeta=true;
   
   float delta_phi_1_2= (phi_1 - phi_2);
   bool other_cuts;//check that jets are back to back
-  if (abs(delta_phi_1_2) >= 2.7)
+  if (abs(delta_phi_1_2) >= phicut_)
     other_cuts=true;
 
-   if(fabs(eta_1)<1.3 && fabs(eta_2)>1.3) {
+   if(fabs(eta_1)<etacut_ && fabs(eta_2)>etacut_) {
     tag_id = 0; 
     probe_id = 1;
   }
   else 
-    if(fabs(eta_2)<1.3 && fabs(eta_1)>1.3) {
+    if(fabs(eta_2)<etacut_ && fabs(eta_1)>etacut_) {
       tag_id = 1; 
       probe_id = 0;
     }
     else 
-      if(fabs(eta_2)<1.3 && fabs(eta_1)<1.3){
+      if(fabs(eta_2)<etacut_ && fabs(eta_1)<etacut_){
     int ran = rand();
     int numb = ran % 2 + 1;
        if(numb==1){
-         tag_id = 0; 
-         probe_id = 1;
+       tag_id = 0; 
+       probe_id = 1;
        }
        if(numb==2){
          tag_id = 1; 
