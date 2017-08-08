@@ -1,5 +1,6 @@
 /*
  * TensorFlow graph interface.
+ * Based on TensorFlow C API 1.1.
  *
  * Author:
  *   Marcel Rieger
