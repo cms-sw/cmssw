@@ -270,8 +270,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
      jetpt2ME_.numerator -> Fill(pt_2);
   jetptAvgbME_.numerator -> Fill(pt_avg_b);
 
-//_______Offline selection______//  
-// if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) ) {
     
     if(tag_id == 0 && probe_id == 1) {
       double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
@@ -301,7 +299,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     jetAsyEtaME_.numerator -> Fill(pt_asy,eta_1);
     jetEtaPhiME_.numerator -> Fill(eta_1,phi_1);
     }
-// }
 
 }
 
