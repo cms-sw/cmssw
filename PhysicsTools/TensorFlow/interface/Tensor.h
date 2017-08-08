@@ -278,44 +278,48 @@ public:
         setVectorAtPos<T>(axis, pos, v);
     }
 
-    // sets all elements to a constant value starting from a certain position
+    // sets n elements to a constant value starting from a certain position, negative n means all
     template <typename T>
-    void fillValuesAtPos(T v, Shape* pos);
+    void fillValuesAtPos(T v, int n, Shape* pos);
 
-    // sets all elements of a rank 1 tensor to a constant value starting from a certain position
+    // sets n elements of a rank 1 tensor to a constant value starting from a certain position,
+    // negative n means all
     template <typename T>
-    inline void fillValues(T v, Shape i)
+    inline void fillValues(T v, int n, Shape i)
     {
         assertRank(1);
         Shape pos[1] = { i };
-        fillValuesAtPos<T>(v, pos);
+        fillValuesAtPos<T>(v, n, pos);
     }
 
-    // sets all elements of a rank 2 tensor to a constant value starting from a certain position
+    // sets n elements of a rank 2 tensor to a constant value starting from a certain position,
+    // negative n means all
     template <typename T>
-    inline void fillValues(T v, Shape i, Shape j)
+    inline void fillValues(T v, int n, Shape i, Shape j)
     {
         assertRank(2);
         Shape pos[2] = { i, j };
-        fillValuesAtPos<T>(v, pos);
+        fillValuesAtPos<T>(v, n, pos);
     }
 
-    // sets all elements of a rank 3 tensor to a constant value starting from a certain position
+    // sets n elements of a rank 3 tensor to a constant value starting from a certain position,
+    // negative n means all
     template <typename T>
-    inline void fillValues(T v, Shape i, Shape j, Shape k)
+    inline void fillValues(T v, int n, Shape i, Shape j, Shape k)
     {
         assertRank(3);
         Shape pos[3] = { i, j, k };
-        fillValuesAtPos<T>(v, pos);
+        fillValuesAtPos<T>(v, n, pos);
     }
 
-    // sets all elements of a rank 4 tensor to a constant value starting from a certain position
+    // sets n elements of a rank 4 tensor to a constant value starting from a certain position,
+    // negative n means all
     template <typename T>
-    inline void fillValues(T v, Shape i, Shape j, Shape k, Shape l)
+    inline void fillValues(T v, int n, Shape i, Shape j, Shape k, Shape l)
     {
         assertRank(4);
         Shape pos[4] = { i, j, k, l };
-        fillValuesAtPos<T>(v, pos);
+        fillValuesAtPos<T>(v, n, pos);
     }
 
 private:
@@ -412,7 +416,7 @@ void Tensor::setVectorAtPos(int axis, Shape* pos, std::vector<T>& v)
 }
 
 template <typename T>
-void Tensor::fillValuesAtPos(T v, Shape* pos)
+void Tensor::fillValuesAtPos(T v, int n, Shape* pos)
 {
     // special treatment of scalars
     if (getRank() == 0)
@@ -421,8 +425,14 @@ void Tensor::fillValuesAtPos(T v, Shape* pos)
         return;
     }
 
-    // get the number of elements to fill
+    // get the maximum number of elements to fill
     int nElements = getShape(0) * prod[0] - getIndex(pos);
+
+    // limit by n
+    if (n >= 0 && n < nElements)
+    {
+        nElements = n;
+    }
 
     // set the values
     // here we exploit that the values we want to set are stored contiguously in the memory, so it
