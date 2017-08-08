@@ -69,6 +69,7 @@ private:
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr); 
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
+  void doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr); 
   void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
   void doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE);
 
@@ -93,7 +94,8 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>     pfJetToken_;
   edm::EDGetTokenT<reco::CaloJetCollection>     caloJetToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIDToken_;
-  edm::EDGetTokenT<reco::JetCorrector>        jecToken_;
+  edm::EDGetTokenT<reco::JetCorrector>        pfJECToken_;
+  edm::EDGetTokenT<reco::JetCorrector>        caloJECToken_;
 
   edm::EDGetTokenT<reco::PFMETCollection>     pfMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>   caloMetToken_;
@@ -110,6 +112,7 @@ private:
   unsigned int maxTrk_;
   
   bool pfJetCorrMissing_;
+  bool caloJetCorrMissing_;
   bool caloJetsMissing_;
   bool caloJetIDMissing_;
   bool pfMetMissing_;
@@ -122,6 +125,7 @@ private:
 L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   pfJetsMissing_(false),
   pfJetCorrMissing_(false),
+  caloJetCorrMissing_(false),
   caloJetsMissing_(false),
   caloJetIDMissing_(false),
   pfMetMissing_(false),
@@ -132,7 +136,8 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
   pfJetToken_ = consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken",edm::InputTag("ak4PFJetsCHS")));
   caloJetIDToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("caloJetIDToken",edm::InputTag("ak4JetID")));
-  jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
+  pfJECToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("pfJECToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
+  caloJECToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("caloJECToken",edm::InputTag("ak4CaloL1FastL2L3ResidualCorrector")));
 
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMetT1")));
   caloMetToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetToken",edm::InputTag("caloMet")));
@@ -190,8 +195,11 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(caloJetIDToken_,jetsID);
 
   edm::Handle<reco::JetCorrector> pfJetCorr;
-  iEvent.getByToken(jecToken_, pfJetCorr);
-
+  iEvent.getByToken(pfJECToken_, pfJetCorr);
+  
+  edm::Handle<reco::JetCorrector> caloJetCorr;
+  iEvent.getByToken(caloJECToken_, caloJetCorr);
+  
   edm::Handle<reco::CaloMETCollection> caloMet;
   iEvent.getByToken(caloMetToken_, caloMet);
 
@@ -216,7 +224,7 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
  
   }
   else {
-    if (!pfJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "Jet Corrector not found.  Branch will not be filled" << std::endl;}
+    if (!pfJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "PF Jet Corrector not found.  Branch will not be filled" << std::endl;}
     pfJetCorrMissing_ = true;
   }
  
@@ -231,6 +239,16 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
     if (!caloJetsMissing_) {edm::LogWarning("MissingProduct") << "Calo Jets not found.  Branch will not be filled" << std::endl;}
     caloJetsMissing_ = true;
   }
+
+  if (caloJetCorr.isValid()) {
+ 
+    doCaloJetCorr(caloJets,caloJetCorr);
+ 
+  }
+  else {
+    if (!caloJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "Calo Jet Corrector not found.  Branch will not be filled" << std::endl;}
+    caloJetCorrMissing_ = true;
+  } 
 
   if (!jetsID.isValid()){
     
@@ -275,7 +293,6 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
 
 void
 L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets) {
-
 
   for( auto it=caloJets->begin();
        it!=caloJets->end() && jet_data->nCaloJets < maxJet_;
@@ -388,30 +405,37 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   met_data->mHt	   = tv2->Mod();
   met_data->mHtPhi = tv2->Phi();
 
-  // std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
-  
-  // //get jet correction and fill corrected jet ets and corrections
-  // for( auto it=pfJets->begin(); it!=pfJets->end(); ++it) 
-  //   {
-  //     float corr = pfJetCorr.product()->correction(*it);
-  //     std::pair<float,float> corrJetEtAndCorr(corr*it->et(),corr);
-  //     corrJetEtsAndCorrs.push_back(corrJetEtAndCorr);
-  //   }
 
-  // // sort corrected jet ets and correction factors 
-  // // by corrected jet et
-  // std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
-  
-  // //fill jet data array with sorted jet ets and corr factors
-  // std::vector<std::pair<float,float> >::iterator it;
-  // unsigned int nJets = 0;
-    
-  // for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
-  //   jet_data->etCorr.push_back(it->first);
-  //   jet_data->corrFactor.push_back(it->second);
-  //   nJets++
-  // }
+}
 
+
+
+
+void
+L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr) {
+
+ 
+  float caloCorrFactor = 1.;
+  unsigned int nCaloJets = 0;
+  
+  met_data->caloHt     = 0;
+
+  for( auto it=caloJets->begin();
+       it!=caloJets->end() && nCaloJets < maxJet_;
+       ++it) {
+
+    caloCorrFactor = caloJetCorr.product()->correction(*it);
+  
+    jet_data->caloEtCorr.push_back(it->et()*caloCorrFactor);
+    jet_data->caloCorrFactor.push_back(caloCorrFactor);
+
+    nCaloJets++;
+
+    if (it->pt()*caloCorrFactor > jetptThreshold_ && fabs(it->eta())<jetetaMax_) {
+      met_data->caloHt  += it->pt()*caloCorrFactor;
+    }
+
+  }
 }
 
 void
