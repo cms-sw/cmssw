@@ -145,6 +145,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
     // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
     jet_tensor_filler(dnn_inputs_.at(0), jet_n, features);
+
     // c_pf candidates
     auto max_c_pf_n = std::min(features.c_pf_features.size(),
                                (std::size_t) input_sizes.at(1).at(1));
@@ -152,6 +153,11 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
       c_pf_tensor_filler(dnn_inputs_.at(1), jet_n, c_pf_n, c_pf_features);
     }
+    // fill remaining values with zeros
+    if (max_c_pf_n < (std::size_t)input_sizes.at(1).at(1)) {
+      dnn_inputs_.at(1)->fillValues<float>(0, jet_n, max_c_pf_n, 0);
+    }
+
     // n_pf candidates
     auto max_n_pf_n = std::min(features.n_pf_features.size(),
                                (std::size_t) input_sizes.at(2).at(1));
@@ -159,6 +165,11 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
       n_pf_tensor_filler(dnn_inputs_.at(2), jet_n, n_pf_n, n_pf_features);
     }
+    // fill remaining values with zeros
+    if (max_n_pf_n < (std::size_t)input_sizes.at(2).at(1)) {
+      dnn_inputs_.at(2)->fillValues<float>(0, jet_n, max_n_pf_n, 0);
+    }
+
     // sv candidates
     auto max_sv_n = std::min(features.sv_features.size(),
                                (std::size_t) input_sizes.at(3).at(1));
@@ -166,6 +177,11 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & sv_features = features.sv_features.at(sv_n);
       sv_tensor_filler(dnn_inputs_.at(3), jet_n, sv_n, sv_features);
     }
+    // fill remaining values with zeros
+    if (max_sv_n < (std::size_t)input_sizes.at(3).at(1)) {
+      dnn_inputs_.at(3)->fillValues<float>(0, jet_n, max_sv_n, 0);
+    }
+
     // last input: corrected jet pt
     *dnn_inputs_.at(4)->getPtr<float>(jet_n, 0) = features.jet_features.corr_pt;
   }
@@ -192,7 +208,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
         o_sum += *dnn_outputs_.at(0)->getPtr<float>(jet_n, (tf::Shape)ind);
-      } 
+      }
       (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }
   }
