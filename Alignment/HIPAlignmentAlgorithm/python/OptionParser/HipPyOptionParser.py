@@ -147,6 +147,30 @@ class HipPyOptionParser:
                   else:
                      raise RuntimeError("GT specification {} does not have size==2".format(namespec))
                gttogetpsets.append(apset)
+         # Get hits to drop or keep
+         elif key=="hitfiltercommands":
+            vallist=val.split(';')
+            for iv in range(0,len(vallist)):
+               keepdrop_det_pair=vallist[iv].split('=')
+               if len(keepdrop_det_pair)==2:
+                  if (keepdrop_det_pair[0]=="keep" or keepdrop_det_pair[0]=="drop"):
+                     strcmd = keepdrop_det_pair[0]
+
+                     keepdrop_det_pair[1]=keepdrop_det_pair[1].replace('/',' ') # e.g. 'PIX/2' instead of 'PIX 2'
+                     keepdrop_det_pair[1]=keepdrop_det_pair[1].upper()
+
+                     strcmd = strcmd + " " + keepdrop_det_pair[1]
+                     if not hasattr(self,"hitfiltercommands"):
+                        self.hitfiltercommands=[]
+                     self.hitfiltercommands.append(strcmd)
+                  else:
+                     raise RuntimeError("Keep/drop command {} is not keep or drop.".format(keepdrop_det_pair[0]))
+               else:
+                  raise RuntimeError("Keep/drop-det. pair {} does not have size==2 or has a command other than keep or drop.".format(vallist[iv]))
+
+               vallist[iv]=vallist[iv].replace('/',' ') # e.g. 'PIX/2' instead of 'PIX 2'
+               vallist[iv]=vallist[iv].upper()
+
          # Get data type
          elif (key=="type" or key=="datatype" or key=="datagroup"):
             try:
