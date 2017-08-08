@@ -6,6 +6,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "HepPDT/ParticleID.hh"
+
 #include "G4Event.hh"
 
 #include "G4HEPEvtParticle.hh"
@@ -150,12 +152,17 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // 2:  particles are decayed by generator but need to be propagated by GEANT
       // 3:  particles are decayed by generator but do not need to be propagated by GEANT
       int status = (*pitr)->status();
-      if (status > 3 && isExotic(*pitr)) {
+      if (status > 3 && isExoticCharged(*pitr)) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
         // By setting the status to 2 for exotic particles, they will be checked:
         // if its decay vertex is outside the beampipe, it will be propagated by GEANT.
 	// Some Standard Model particles, e.g., K0, cannot be propagated by GEANT, 
 	// so do not change their status code.  
+	//
+	//// new change (Zhicai, 08Aug2017): for neutral exotic particles, we don't send them to Geant4, 
+	// and we only send their daughters to Geant4.
+	// See status summary of long-lived exotic simulation:
+	// https://indico.cern.ch/event/568875/contributions/2397935/attachments/1459125/2253274/Marshall_MC4BSM_2017.05.13.pdf
         status = 2;
       }
 
@@ -226,7 +233,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       double decay_length = 0.0;
       int status = (*pitr)->status();
 
-      if (status > 3 && isExotic(*pitr)) {
+      if (status > 3 && isExoticCharged(*pitr)) {
 	status = 2;
       }
 
@@ -511,13 +518,15 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector& p) const
   return flag;
 }
 
-bool Generator::isExotic(HepMC::GenParticle* p) const
+bool Generator::isExoticCharged(HepMC::GenParticle* p) const
 {
   int pdgid = abs(p->pdg_id());  
-  if ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
+  HepPDT::ParticleID pid(p->pdg_id());
+  int charge = pid.threeCharge();  
+  if ((charge!=0)&&((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
       pdgid == 17 || // 4th generation lepton 
       pdgid == 34 || // W-prime
-      pdgid == 37)   // charged Higgs
+      pdgid == 37))   // charged Higgs
     {
     return true;
   } 
