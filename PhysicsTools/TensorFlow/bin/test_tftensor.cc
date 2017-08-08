@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     catch (...) { catched = true; }
     test(catched, "scalar should not support pointer vector lookup");
 
-    scalar->fillValuesAtPos<float>((float)8., 0);
+    scalar->fillValuesAtPos<float>((float)8., -1, 0);
     test(*scalar->getPtr<float>() == 8., "scalar value should be 8");
 
     delete scalar;
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
     vector->setVector<double>(vec1New);
     test(*vec1[3] == 8., "vector pointer vector element 3 should be 8");
 
-    vector->fillValues<double>(0, 2);
+    vector->fillValues<double>(0, -1, 2);
     test(*vector->getPtr<double>(1) == 6., "vector value 1 should be 6");
     test(*vector->getPtr<double>(2) == 0., "vector value 2 should be 0");
     test(*vector->getPtr<double>(4) == 0., "vector value 4 should be 0");
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
     matrix->setVector<float>(1, 3, vec2New);
     test(*vec2[4] == 9., "matrix pointer vector element 3,4 should be 9");
 
-    matrix->fillValues<float>(0, 3, 4);
+    matrix->fillValues<float>(0, -1, 3, 4);
     test(*matrix->getPtr<float>(3, 3) == 8., "matrix value 3,3 should be 8");
     test(*matrix->getPtr<float>(3, 4) == 0., "matrix value 3,4 should be 0");
     test(*matrix->getPtr<float>(4, 7) == 0., "matrix value 4,7 should be 0");
@@ -278,10 +278,18 @@ int main(int argc, char* argv[])
     tensor3->setVector<float>(2, 3, 4, vec3New);
     test(*vec3[10] == 15., "tensor3 pointer vector element 3,4,10 should be 15");
 
-    tensor3->fillValues<float>(0, 3, 4, 6);
+    tensor3->fillValues<float>(123, -1, 3, 4, 6);
+    test(*tensor3->getPtr<float>(3, 4, 5) == 10., "tensor3 value 3,4,5 should be 10");
+    test(*tensor3->getPtr<float>(3, 4, 6) == 123., "tensor3 value 3,4,6 should be 123");
+    test(*tensor3->getPtr<float>(3, 4, 7) == 123., "tensor3 value 3,4,7 should be 123");
+    test(*tensor3->getPtr<float>(3, 4, 8) == 123., "tensor3 value 3,4,8 should be 123");
+    test(*tensor3->getPtr<float>(4, 7, 14) == 123., "tensor3 value 4,7,14 should be 123");
+    tensor3->fillValues<float>(0, 2, 3, 4, 6);
     test(*tensor3->getPtr<float>(3, 4, 5) == 10., "tensor3 value 3,4,5 should be 10");
     test(*tensor3->getPtr<float>(3, 4, 6) == 0., "tensor3 value 3,4,6 should be 0");
-    test(*tensor3->getPtr<float>(4, 7, 14) == 0., "tensor3 value 4,7,14 should be 0");
+    test(*tensor3->getPtr<float>(3, 4, 7) == 0., "tensor3 value 3,4,7 should be 0");
+    test(*tensor3->getPtr<float>(3, 4, 8) == 123., "tensor3 value 3,4,8 should be 123");
+    test(*tensor3->getPtr<float>(4, 7, 14) == 123., "tensor3 value 4,7,14 should be 123");
 
     delete tensor3;
 
