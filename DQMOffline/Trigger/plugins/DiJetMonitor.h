@@ -79,13 +79,7 @@ protected:
   void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax,int nbinsY, double ymin, double ymax );
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  bool isBarrel(double eta);
   bool dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id);
-
-  //void FillME(std::vector<MonitorElement*> v_me,std::vector<double>v_pt, std::vector<double> v_phi); //Fill Histograms 
-  //void AutoNullPtr(DiJetME* a_me,const int len_); //Fill Histograms 
-//  void bookMESub(DQMStore::IBooker &,JetME* a_me,const int len_,std::string h_Name ,std::string h_Title, std::string h_subOptName, std::string h_subOptTitle ); //Fill Histograms 
-  //void FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_, std::string denu); //Fill Histograms 
 
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet pset);
@@ -99,8 +93,7 @@ private:
   edm::EDGetTokenT<reco::CaloJetCollection>     calodijetToken_;// calojet
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
-  //edm::InputTag        jetSrc_; // test for Jet
-  edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_; // test for Jet
+  edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_;
 
   std::vector<double> dijetpT_variable_binning_;
   MEbinning           dijetpt_binning_;
@@ -129,8 +122,6 @@ private:
   double ptcut_;
   double etacut_;
   double phicut_;
-  bool isPFDiJetTrig;
-  bool isCaloDiJetTrig;
 
   std::vector<double> v_jetpt;
   std::vector<double> v_jeteta;
