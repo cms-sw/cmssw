@@ -1,5 +1,6 @@
 /*
  * TensorFlow tensor interface.
+ * Based on TensorFlow C API 1.1.
  *
  * Author:
  *   Marcel Rieger
@@ -277,6 +278,46 @@ public:
         setVectorAtPos<T>(axis, pos, v);
     }
 
+    // sets all elements to a constant value starting from a certain position
+    template <typename T>
+    void fillValuesAtPos(T v, Shape* pos);
+
+    // sets all elements of a rank 1 tensor to a constant value starting from a certain position
+    template <typename T>
+    inline void fillValues(T v, Shape i)
+    {
+        assertRank(1);
+        Shape pos[1] = { i };
+        fillValuesAtPos<T>(v, pos);
+    }
+
+    // sets all elements of a rank 2 tensor to a constant value starting from a certain position
+    template <typename T>
+    inline void fillValues(T v, Shape i, Shape j)
+    {
+        assertRank(2);
+        Shape pos[2] = { i, j };
+        fillValuesAtPos<T>(v, pos);
+    }
+
+    // sets all elements of a rank 3 tensor to a constant value starting from a certain position
+    template <typename T>
+    inline void fillValues(T v, Shape i, Shape j, Shape k)
+    {
+        assertRank(3);
+        Shape pos[3] = { i, j, k };
+        fillValuesAtPos<T>(v, pos);
+    }
+
+    // sets all elements of a rank 4 tensor to a constant value starting from a certain position
+    template <typename T>
+    inline void fillValues(T v, Shape i, Shape j, Shape k, Shape l)
+    {
+        assertRank(4);
+        Shape pos[4] = { i, j, k, l };
+        fillValuesAtPos<T>(v, pos);
+    }
+
 private:
     // the internal tensorflow tensor object
     TF_Tensor* tf_tensor;
@@ -367,6 +408,32 @@ void Tensor::setVectorAtPos(int axis, Shape* pos, std::vector<T>& v)
     for (int i = 0; i < len; i++)
     {
         *ptrs[i] = v[i];
+    }
+}
+
+template <typename T>
+void Tensor::fillValuesAtPos(T v, Shape* pos)
+{
+    // special treatment of scalars
+    if (getRank() == 0)
+    {
+        *getPtr<T>() = v;
+        return;
+    }
+
+    // get the number of elements to fill
+    int nElements = getShape(0) * prod[0] - getIndex(pos);
+
+    // set the values
+    // here we exploit that the values we want to set are stored contiguously in the memory, so it
+    // is most performant to get the first pointer and use pointer arithmetic to iterate
+    if (nElements > 0)
+    {
+        T* ptr = getPtrAtPos<T>(pos);
+        for (int i = 0; i < nElements; i++, ptr++)
+        {
+            *ptr = v;
+        }
     }
 }
 
