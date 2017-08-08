@@ -72,11 +72,12 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
 
     edm::Ref<std::vector<reco::GenJet> > slimmedGenJetRef;
 
-    for( edm::View<reco::GenJet>::const_iterator genJetsIt = genJets->begin(); genJetsIt != genJets->end(); ++genJetsIt){
-        slimmedGenJetRef = (*slimmedGenJetAssociation)[genJets->refAt(genJetsIt-(genJets->begin()))];
-
+    int i = -1;
+    for (auto const& genJet : *genJets){
+         i++;
+        slimmedGenJetRef = (*slimmedGenJetAssociation)[genJets->refAt(i)]; 
         if(!slimmedGenJetRef) continue;
-        (*jetFlavourInfos)[reco::JetBaseRef(slimmedGenJetRef)] = (*genJetFlavourInfos)[genJetsIt-(genJets->begin())].second;
+        (*jetFlavourInfos)[reco::JetBaseRef(slimmedGenJetRef)] = (*genJetFlavourInfos)[i].second;
     }
 
     iEvent.put(std::move(jetFlavourInfos));
