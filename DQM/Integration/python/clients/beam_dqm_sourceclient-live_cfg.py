@@ -338,10 +338,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         #pixel  track/vertices reco
         process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
         process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-        process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 6
+        process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
         process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
         process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
-        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
+        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
         process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
         process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2

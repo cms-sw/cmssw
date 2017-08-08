@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdexcept>
 
-unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) throw() {
+unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) {
 	// Clean up
 	nRecords = 0;
 	bzero(sp,sizeof(sp));
