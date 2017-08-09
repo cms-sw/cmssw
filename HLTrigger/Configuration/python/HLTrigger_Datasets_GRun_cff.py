@@ -575,6 +575,12 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring('H
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v11', 
     'HLT_Mu17_TrkIsoVVL_v9', 
     'HLT_Mu17_v9', 
+    'HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v1', 
+    'HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v1', 
+    'HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_v1', 
+    'HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_v1', 
+    'HLT_Mu19_TrkIsoVVL_v1', 
+    'HLT_Mu19_v1', 
     'HLT_Mu37_TkMu27_v1', 
     'HLT_Mu8_TrkIsoVVL_v9', 
     'HLT_Mu8_v9', 
@@ -677,6 +683,7 @@ streamPhysicsMuons_datasetSingleMuon_selector.triggerConditions = cms.vstring('H
     'HLT_IsoMu24_eta2p1_v11', 
     'HLT_IsoMu24_v9', 
     'HLT_IsoMu27_v12', 
+    'HLT_IsoMu30_v1', 
     'HLT_L1SingleMu18_v3', 
     'HLT_L1SingleMu25_v2', 
     'HLT_L2Mu10_v6', 
@@ -691,7 +698,38 @@ streamPhysicsMuons_datasetSingleMuon_selector.triggerConditions = cms.vstring('H
     'HLT_Mu3_PFJet40_v10', 
     'HLT_Mu50_IsoVVVL_PFHT450_v9', 
     'HLT_Mu50_v10', 
+    'HLT_Mu55_v1', 
     'HLT_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_v9', 
     'HLT_OldMu100_v2', 
     'HLT_TkMu100_v2')
+
+
+# stream PhysicsParkingScoutingMonitor
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector
+streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.l1tResults = cms.InputTag('')
+streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.throw      = cms.bool(False)
+streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.triggerConditions = cms.vstring('DST_CaloJet40_BTagScouting_v9', 
+    'DST_CaloJet40_CaloBTagScouting_v8', 
+    'DST_CaloJet40_CaloScouting_PFScouting_v9', 
+    'DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v3', 
+    'DST_DoubleMu3_noVtx_CaloScouting_v3', 
+    'DST_HT250_CaloBTagScouting_v6', 
+    'DST_HT250_CaloScouting_v7', 
+    'DST_HT410_BTagScouting_v10', 
+    'DST_HT410_PFScouting_v10', 
+    'DST_L1DoubleMu_BTagScouting_v10', 
+    'DST_L1DoubleMu_CaloScouting_PFScouting_v9', 
+    'DST_L1HTT_BTagScouting_v9', 
+    'DST_L1HTT_CaloBTagScouting_v8', 
+    'DST_L1HTT_CaloScouting_PFScouting_v9', 
+    'DST_ZeroBias_BTagScouting_v9', 
+    'DST_ZeroBias_CaloScouting_PFScouting_v8', 
+    'HLT_Ele115_CaloIdVT_GsfTrkIdT_v11', 
+    'HLT_Ele35_WPTight_Gsf_v6', 
+    'HLT_IsoMu27_v12', 
+    'HLT_Mu50_v10', 
+    'HLT_PFHT1050_v12', 
+    'HLT_Photon200_v11')
 
