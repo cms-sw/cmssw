@@ -137,8 +137,6 @@ def L1REPACK(process,sequence="Full"):
     for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi'):
         if hasattr(process,obj):
             delattr(process,obj)
-    if (hasattr(process,'StableParameters') and hasattr(process,'GlobalParameters')):
-        delattr(process,'GlobalParameters')
 
     return process
 
