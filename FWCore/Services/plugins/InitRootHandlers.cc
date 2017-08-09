@@ -149,9 +149,9 @@ namespace {
     kFatal
   };
 
-  static thread_local bool s_ignoreWarnings = false;
+  thread_local bool s_ignoreWarnings = false;
 
-  static bool s_ignoreEverything = false;
+  bool s_ignoreEverything = false;
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 

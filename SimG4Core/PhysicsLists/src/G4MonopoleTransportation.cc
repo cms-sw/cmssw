@@ -57,7 +57,7 @@ class G4VSensitiveDetector;
 // Constructor
 
 namespace {
-  static const G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
+  const G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
 }
 
 G4MonopoleTransportation::G4MonopoleTransportation(const G4Monopole* mpl,
