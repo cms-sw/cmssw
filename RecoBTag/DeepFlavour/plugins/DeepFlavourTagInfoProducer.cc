@@ -28,8 +28,6 @@
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
 #include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
 
-// conversion map from quality flags used in PV association and miniAOD one
-constexpr int qualityMap[8]  = {1,0,1,1,4,4,5,6};
 
 
 class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
@@ -260,8 +258,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto reco_ptr = pf_jet->getPFConstituent(i);
         // get PUPPI weight from value map
         float puppiw = (*puppi_value_map)[reco_ptr];
-        int quality = (*pvasq_value_map)[reco_ptr];
-        int pv_ass_quality = qualityMap[quality];
+        int pv_ass_quality = (*pvasq_value_map)[reco_ptr];
         deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
                                            pv_ass_quality, c_pf_features);
