@@ -345,10 +345,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
                                  ),
 )
 
-ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone()
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
-  ecalDrivenGsfElectronsFromMultiCl,
+ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
   gsfElectronCoresTag = 'ecalDrivenGsfElectronCoresFromMultiCl'
 )
+

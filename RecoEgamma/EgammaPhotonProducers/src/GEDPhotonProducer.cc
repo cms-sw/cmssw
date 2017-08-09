@@ -489,7 +489,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       hits = ecalEndcapHits;
       flags_ = flagsexclEE_;
       severitiesexcl_ = severitiesexclEE_;
-    } else if ( thedet == DetId::Forward )  {
+    } else if ( thedet == DetId::Forward || thedet == DetId::Hcal)  {
       preselCutValues = preselCutValuesEndcap_;
       hits = nullptr;
       flags_ = flagsexclEE_;
@@ -695,6 +695,14 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 	newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
 	newCandidate.setCandidateP4type(reco::Photon::regression2);
       }
+    } else {
+      math::XYZVector gamma_momentum = direction.unit() * scRef->energy();
+      math::XYZTLorentzVectorD p4(gamma_momentum.x(),
+                                  gamma_momentum.y(),
+                                  gamma_momentum.z(),
+                                  scRef->energy());
+      newCandidate.setP4(p4);
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;

@@ -75,9 +75,7 @@ photons = cms.EDProducer("PhotonProducer",
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
 
-photonsFromMultiCl = photons.clone()
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
-  photonsFromMultiCl,
+photonsFromMultiCl = photons.clone(
   photonCoreProducer = 'photonCoreFromMultiCl'
 )
+
