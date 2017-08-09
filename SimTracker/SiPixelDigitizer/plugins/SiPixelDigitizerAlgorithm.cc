@@ -184,6 +184,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // electrons to VCAL conversion needed in misscalibrate()
   electronsPerVCAL(conf.getParameter<double>("ElectronsPerVcal")),
   electronsPerVCAL_Offset(conf.getParameter<double>("ElectronsPerVcal_Offset")),
+  electronsPerVCAL_L1(conf.exists("ElectronsPerVcal_L1")?conf.getParameter<double>("ElectronsPerVcal_L1"):electronsPerVCAL),
+  electronsPerVCAL_L1_Offset(conf.exists("ElectronsPerVcal_L1_Offset")?conf.getParameter<double>("ElectronsPerVcal_L1_Offset"):electronsPerVCAL_Offset),
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   //theTofCut(conf.getUntrackedParameter<double>("TofCut",12.5)),
@@ -1287,7 +1289,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       if(doMissCalibrate) {
 	int row = ip.first;  // X in row
 	int col = ip.second; // Y is in col
-	adc = int(missCalibrate(detID, pixdet, col, row, signalInElectrons)); //full misscalib.
+	adc = int(missCalibrate(detID, tTopo, pixdet, col, row, signalInElectrons)); //full misscalib.
       } else { // Just do a simple electron->adc conversion
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
@@ -1662,7 +1664,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   //float offset  = RandGaussQ::shoot(0.,theOffsetSmearing);
   //float newAmp = amp * gain + offset;
   // More complex misscalibration
-float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const PixelGeomDetUnit* pixdet, int col,int row,
+float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopology *tTopo, const PixelGeomDetUnit* pixdet, int col,int row,
 				 const float signalInElectrons) const {
   // Central values
   //const float p0=0.00352, p1=0.868, p2=112., p3=113.; // pix(0,0,0)
@@ -1693,12 +1695,15 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const PixelGeomDe
     throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;
   }
 
-  //  const float electronsPerVCAL = 65.5; // our present VCAL calibration (feb 2009)
-  //  const float electronsPerVCAL_Offset = -414.0; // our present VCAL calibration (feb 2009)
   float newAmp = 0.; //Modified signal
 
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
+
+  // New gains/offsets are needed for phase1 L1
+  int layer = 0;
+  if (DetId(detID).subdetId()==1) layer = tTopo->pxbLayer(detID);
+  if (layer==1) signal = (signalInElectrons-electronsPerVCAL_L1_Offset)/electronsPerVCAL_L1;
 
   // Simulate the analog response with fixed parametrization
   newAmp = p3 + p2 * tanh(p0*signal - p1);

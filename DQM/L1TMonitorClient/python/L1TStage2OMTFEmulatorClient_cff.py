@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import ignoreBins
 
 # RegionalMuonCands
 l1tStage2OMTFEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
@@ -10,7 +11,7 @@ l1tStage2OMTFEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     ratioTitle = cms.untracked.string('Summary of mismatch rates between OMTF muons and OMTF emulator muons'),
     yAxisTitle = cms.untracked.string('# mismatch / # total'),
     binomialErr = cms.untracked.bool(True),
-    ignoreBin = cms.untracked.vint32(1)
+    ignoreBin = cms.untracked.vint32(ignoreBins)
 )
 
 # sequences

@@ -8,7 +8,7 @@ using namespace egHLT;
 
 TrigCodes* TrigCodes::makeCodes(std::vector<std::string>& filterNames)
 {
-  TrigCodes *p = new TrigCodes();
+  auto *p = new TrigCodes();
 
   for (size_t i=0;i<filterNames.size();i++) { 
     p->setCode(filterNames[i].c_str(),i);
@@ -33,9 +33,9 @@ void TrigCodes::setCode(const char* descript,TrigBitSet code)
 {
   bool found=false;
   for(size_t i=0;i<codeDefs_.size() && !found;i++){
-    if(codeDefs_[i].first.compare(descript)==0) found=true;
+    if(codeDefs_[i].first==descript) found=true;
   }
-  if(!found) codeDefs_.push_back(std::pair<std::string,TrigBitSet>(descript,code));
+  if(!found) codeDefs_.emplace_back(descript,code);
   //_codeDefs[descript] = code;
 }
 
@@ -50,11 +50,11 @@ TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
   TrigBitSet code; 
   char* codeKey = strtok(localDescript,":");
   //  std::map<std::string,int> ::const_iterator mapIt;
-  while(codeKey!=NULL){
+  while(codeKey!=nullptr){
     bool found=false;
 
     for(size_t i=0;i<codeDefs_.size() && !found;i++){
-      if(codeDefs_[i].first.compare(codeKey)==0){
+      if(codeDefs_[i].first==codeKey){
  	found=true;
  	code |= codeDefs_[i].second;
 
@@ -62,7 +62,7 @@ TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
     }
    
     //  if(!found)  edm::LogError("TrigCodes::TrigBitSetMap") <<"TrigCodes::TrigBitSetMap::getCode : Error, Key "<<codeKey<<" not found";
-    codeKey = strtok(NULL,":"); //getting new substring
+    codeKey = strtok(nullptr,":"); //getting new substring
     
   }
   return code;
@@ -76,10 +76,10 @@ bool TrigCodes::keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::
 void TrigCodes::getCodeName(TrigBitSet code,std::string& id)const
 {
   id.clear();
-  for(size_t i=0;i<codeDefs_.size();i++){ 
-    if((code&codeDefs_[i].second)==codeDefs_[i].second){
+  for(auto const & codeDef : codeDefs_){ 
+    if((code&codeDef.second)==codeDef.second){
       if(!id.empty()) id+=":";//seperating entries by a ':'
-      id+=codeDefs_[i].first;
+      id+=codeDef.first;
     }
     
   }
@@ -90,7 +90,7 @@ void TrigCodes::printCodes()
 {
   std::ostringstream msg;
   msg <<" trig bits defined: "<<std::endl;
-  for(size_t i=0;i<codeDefs_.size();i++) msg <<" key : "<<codeDefs_[i].first<<" bit "<<codeDefs_[i].second<<std::endl;
+  for(auto & codeDef : codeDefs_) msg <<" key : "<<codeDef.first<<" bit "<<codeDef.second<<std::endl;
   edm::LogInfo("TrigCodes") << msg.str();
  
 }

@@ -5,6 +5,17 @@
 
 #include <sstream> 
 
+RPCDetId CSCUpgradeMotherboardLUTGenerator::Helpers::getRPCfromCSC(const CSCDetId& csc_id)
+{
+  const int region(csc_id.zendcap());
+  const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
+  const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
+  const int csc_trig_chid((3*(csc_trig_sect-1)+csc_trig_id)%18 +1);
+  const int rpc_trig_sect((csc_trig_chid-1)/3+1);
+  const int rpc_trig_subsect((csc_trig_chid-1)%3+1);
+  return RPCDetId(region,1,csc_id.station(),rpc_trig_sect,1,rpc_trig_subsect,0);
+}
+
 void CSCUpgradeMotherboardLUTGenerator::generateLUTs(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
 {
   if (theStation==1) generateLUTsME11(theEndcap, theSector, theSubsector, theTrigChamber);
@@ -196,7 +207,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   const CSCLayer* keyLayer(cscChamber->layer(3));
 
   // RPC trigger geometry
-  const RPCDetId rpc_id(getRPCfromCSC(csc_id));
+  const RPCDetId& rpc_id(CSCUpgradeMotherboardLUTGenerator::Helpers::getRPCfromCSC(csc_id));
   const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
   const RPCRoll* randRoll(rpcChamber->roll(2));
 

@@ -62,7 +62,7 @@
        bool runOnEndJob_;
 
     private:
-       enum trendPlots { offline,fpix,bpix };
+       enum trendPlots { offline,fpix,bpix,layer1,layer2,layer3,layer4,ring1,ring2 };
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool firstLumi;

@@ -31,7 +31,7 @@ set InputGenSimPRef3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = $InputLHCRawGRun2 # no phase-1 data yet, try with 2016 data...
+set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root
 set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
@@ -49,8 +49,8 @@ set BASE2RD  = auto:run2_data
 
 set NNPPMC = 100
 set NNPPRD = 100
-set NNHIMC = 25
-set NNHIRD = 25
+set NNPRMC = 20
+set NNPRRD = 20
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
@@ -87,7 +87,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
-    set NNHI   = $NNHIRD
+    set NNPR   = $NNPRRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
@@ -95,7 +95,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
-    set NNHI   = $NNHIMC
+    set NNPR   = $NNPRMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
@@ -107,7 +107,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v21 2e34v22 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -174,16 +174,28 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == GRun2016 ) then
+    else if ( $table == 2e34v21 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:GRun2016
-      set GTAG = ${BASE2}_GRun2016
-      set RTAG = ${BASE2RD}_GRun2016
+      set XHLT = HLT:2e34v21
+      set GTAG = ${BASE2}_2e34v21
+      set RTAG = ${BASE2RD}_2e34v21
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp2016
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+    else if ( $table == 2e34v22 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:2e34v22
+      set GTAG = ${BASE2}_2e34v22
+      set RTAG = ${BASE2RD}_2e34v22
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
@@ -203,7 +215,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
       set RTAG = ${BASE2RD}_HIon
-      set NN   = $NNHI
+      set NN   = $NNPP
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon1
       set InputLHCRaw = $InputLHCRawHIon1
@@ -227,7 +239,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:PRef
       set GTAG = ${BASE2}_PRef
       set RTAG = ${BASE2RD}_PRef
-      set NN   = $NNPP
+      set NN   = $NNPR
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3

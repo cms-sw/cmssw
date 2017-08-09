@@ -10,40 +10,21 @@
 
 
 using namespace std;
+using namespace edm;
 
-BlockFormatter::BlockFormatter() {
-}
+BlockFormatter::BlockFormatter(EcalDigiToRaw* base) : 
+ debug_(base -> GetDebug()),
+ doBarrel_(base -> GetDoBarrel()),
+ doEndCap_(base -> GetDoEndCap()),
+ plistDCCId_(base -> GetListDCCId()),
+ doTCC_(base -> GetDoTCC()),
+ doSR_(base -> GetDoSR()),
+ doTower_(base -> GetDoTower())
+{}
 
-BlockFormatter::~BlockFormatter() {
-}
+void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number_, int bx, int lv1) const {
 
-
-void BlockFormatter::SetParam(EcalDigiToRaw* base) {
-
- pcounter_ = (base -> GetCounter());
- debug_   = base -> GetDebug();
- porbit_number_ = (base -> GetOrbit());
- plv1_ = (base -> GetLV1());
- pbx_  = (base -> GetBX());
- prunnumber_ = (base -> GetRunNumber());
- doBarrel_ = base -> GetDoBarrel();
- doEndCap_ = base -> GetDoEndCap();
- plistDCCId_ = base -> GetListDCCId();
- doTCC_ = base -> GetDoTCC();
- doSR_ = base -> GetDoSR();
- doTower_ = base -> GetDoTower();
-
-}
-
-
-void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
-
- int run_number = *prunnumber_;
- int orbit_number_ = *porbit_number_;
- int bx = *pbx_;
- int lv1 = *plv1_;
-
- if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
+ if (debug_) LogInfo("EcalDigiToRaw: ") << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
 
  for (int idcc=1; idcc <= 54; idcc++) {
@@ -106,9 +87,9 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
 
 
 
-void BlockFormatter::print(FEDRawData& rawdata) {
+void BlockFormatter::print(FEDRawData& rawdata) const{
         int size = rawdata.size();
-        cout << "Print RawData  size " << dec << size << endl;
+        LogInfo("EcalDigiToRaw: ") << "Print RawData  size " << dec << size << endl;
         unsigned char* pData = rawdata.data();
 
         int n = size/8;
@@ -122,8 +103,8 @@ void BlockFormatter::print(FEDRawData& rawdata) {
 
 
 
-void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
-				map<int, map<int,int> >* FEDorder ) {
+void BlockFormatter::CleanUp(FEDRawDataCollection& productRawData,
+				map<int, map<int,int> >& FEDorder ) {
 
 
  for (int id=0; id < 36 + 18; id++) {
@@ -131,7 +112,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
         if ( (! doEndCap_) && (id <= 8 || id >= 45)) continue;
 
         int FEDid = FEDNumbering::MINECALFEDID + id +1;
-        FEDRawData& rawdata = productRawData -> FEDData(FEDid);
+        FEDRawData& rawdata = productRawData.FEDData(FEDid);
 
         // ---- if raw need not be made for a given fed, set its size to empty and return 
         if ( find( (*plistDCCId_).begin(), (*plistDCCId_).end(), (id+1) ) == (*plistDCCId_).end() )
@@ -164,11 +145,11 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
 	
   	// cout << " in BlockFormatter::CleanUp. FEDid = " << FEDid << " event_length*8 " << dec << event_length*8 << endl;
 
-	map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
+	map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
 
         bool FED_has_data = true;
-        if (fen == FEDorder->end()) FED_has_data = false;
-        if (debug_ && (! FED_has_data)) cout << " FEDid is not in FEDorder ! " << endl;
+        if (fen == FEDorder.end()) FED_has_data = false;
+        if (debug_ && (! FED_has_data)) LogInfo("EcalDigiToRaw: ") << " FEDid is not in FEDorder ! " << endl;
         if ( ! FED_has_data) {
                 int ch_status = 7;
                 for (int iFE=1; iFE <= 68; iFE++) {
@@ -199,7 +180,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
 }
 
 
-void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) {
+void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) const {
 
 
  for (int id=0; id < 36 + 18; id++) {
@@ -211,7 +192,7 @@ void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) {
         int FEDid = FEDNumbering::MINECALFEDID + id;
         FEDRawData& rawdata = productRawData -> FEDData(FEDid);
         if (rawdata.size() > 0)
-	cout << "Size of FED id " << dec << FEDid << " is : " << dec << rawdata.size() << endl;
+	LogInfo("EcalDigiToRaw: ") << "Size of FED id " << dec << FEDid << " is : " << dec << rawdata.size() << endl;
 
  }
 }

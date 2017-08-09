@@ -26,7 +26,7 @@
 class HeavyIonUCCDQM: public DQMEDAnalyzer{
 public:
 	HeavyIonUCCDQM(const edm::ParameterSet& ps);
-	virtual ~HeavyIonUCCDQM();
+	~HeavyIonUCCDQM() override;
 
 protected:
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

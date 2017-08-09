@@ -428,7 +428,7 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
                     olist[il++]=EEDetId( jx + kx*xout, jy + ky*yout, kz ) ;
                  }
               }
-              ptrVec->push_back( &olist ) ;
+              ptrVec->emplace_back( &olist ) ;
           }
           bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
           if(!exchanged) delete ptrVec;

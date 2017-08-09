@@ -233,7 +233,7 @@ def findStalledModules(processingSteps, numStreams):
                     waitTime = time - streamTime[s]
         if trans == kFinished:
             if n != kSourceDelayedRead and n!=kSourceFindEvent:
-                del modulesOnStream[n]
+                modulesOnStream.pop(n, None)
             streamTime[s] = time
         if waitTime is not None:
             if waitTime > kStallThreshold:
@@ -263,7 +263,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
                     waitTime = time-streamTime[s]
         if trans == kFinished:
             if n != kSourceDelayedRead and n!=kSourceFindEvent:
-                del modulesActiveOnStream[n]
+                modulesActiveOnStream.pop(n, None)
             if n != kSourceFindEvent:
                 streamState[s] -=1
             streamTime[s] = time

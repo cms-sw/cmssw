@@ -832,22 +832,3 @@ DQMFileSaver::endJob(void)
 	  << " job in Offline mode.";
     }
 }
-
-void
-DQMFileSaver::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren)
-{
-  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
-  unsigned int digits = 0;
-  while (numberOfChildren != 0) {
-    ++digits;
-    numberOfChildren /= 10;
-  }
-  // protect against zero numberOfChildren
-  if (digits == 0) {
-    digits = 3;
-  }
-
-  char buffer[digits + 2];
-  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
-  child_ = std::string(buffer);
-}

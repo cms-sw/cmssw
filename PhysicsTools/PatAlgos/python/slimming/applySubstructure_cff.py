@@ -50,11 +50,25 @@ def applySubstructure( process, postfix="" ) :
 
 
 
-    #add AK8 from PUPPI
-    from RecoJets.JetProducers.ak8PFJetsPuppi_cfi import ak4PFJetsPuppi, ak8PFJetsPuppi
+    #add AK8 from PUPPI                                                                                                                                 
+    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsPuppi
+    from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi
     addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop 
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
+    addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
+    getattr(process,"ak8PFJetsPuppi").doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+
+
+    #add AK8 from PUPPI
+    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsPuppi
+    from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents, ak8PFJetsCHSConstituents
+    
+    #from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents, ak8PFJetsCHSConstituents
+    addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
+    addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(), process, task )
+    addToProcessAndTask('ak8PFJetsCHSConstituents', ak8PFJetsCHSConstituents.clone(), process, task )
+    addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
     getattr(process,"ak8PFJetsPuppi").doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 

@@ -5,35 +5,21 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
-  range_min = 0, range_max = 300e3, range_nbins = 150,
+  range_min = 0, range_max = 150e3, range_nbins = 100,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
-    Specification().groupBy("PXForward/PXDisk").saveAll(),
-    StandardSpecification2DProfile,#what is below is only for the timing client
-
+    StandardSpecifications1D,    
+    StandardSpecification2DProfile,
+    
+    #what is below is only for the timing client    
     Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock")
          .groupBy("PXBarrel", "EXTEND_Y")
          .save(),
     Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock")
-          .groupBy("PXForward", "EXTEND_Y")
-          .save(),
-    
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save(),
+         .groupBy("PXForward", "EXTEND_Y")
+         .save(),
 
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXDisk", "EXTEND_X")
-                   .save(),
-
-    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
-    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save(),
-
-    
     Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
                    .groupBy("PXForward/PXDisk", "EXTEND_Y")
                    .save(),
@@ -48,6 +34,19 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
   title = "Total Cluster Size (OnTrack)",
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
+
+  specs = VPSet(
+        StandardSpecifications1D,    
+        StandardSpecification2DProfile
+  )
+)
+
+SiPixelPhase1TrackClustersOnTrackShape = DefaultHistoTrack.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
+  name = "shapeFilter",
+  title = "Shape filter (OnTrack)",
+  range_min = 0, range_max = 2, range_nbins = 2,
+  xlabel = "shapeFilter",
 
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").saveAll(),
@@ -70,9 +69,10 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
   )
 )
 
+
 SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   name = "clusters_ontrack",
-  title = "Clusters_onTrack",
+  title = "Clusters_onTrack (valid hits)",
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "clusters",
   dimensions = 0,
@@ -148,6 +148,7 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   )
 )
 
+
 SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHistoTrack.clone(
   name = "clusterposition_zphi_ontrack",
   title = "Cluster_onTrack Positions",
@@ -173,26 +174,6 @@ SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHistoTrack.clone(
   )
 )
 
-SiPixelPhase1TrackClustersOffTrackCharge = \
-  SiPixelPhase1TrackClustersOnTrackCharge.clone(topFolderName = "PixelPhase1/OffTrack", 
-  enabled = False,
-  title = "Cluster Charge")
-SiPixelPhase1TrackClustersOffTrackSize = \
-  SiPixelPhase1TrackClustersOnTrackSize.clone(topFolderName = "PixelPhase1/OffTrack",
-  enabled = False)
-
-SiPixelPhase1TrackClustersOffTrackNClusters = \
-  SiPixelPhase1TrackClustersOnTrackNClusters.clone(topFolderName = "PixelPhase1/OffTrack",
-  enabled = False)
-
-SiPixelPhase1TrackClustersOffTrackPositionB = \
-  SiPixelPhase1TrackClustersOnTrackPositionB.clone(topFolderName = "PixelPhase1/OffTrack",
-  enabled = False)
-
-SiPixelPhase1TrackClustersOffTrackPositionF = \
-  SiPixelPhase1TrackClustersOnTrackPositionF.clone(topFolderName = "PixelPhase1/OffTrack",
-  enabled = False)
-
 SiPixelPhase1TrackClustersNTracks = DefaultHistoTrack.clone(
   name = "ntracks",
   title = "Number of Tracks",
@@ -213,26 +194,159 @@ SiPixelPhase1TrackClustersNTracksInVolume = DefaultHistoTrack.clone(
   specs = VPSet(
     Specification().groupBy("").save()
   )
+)
+
+SiPixelPhase1ClustersSizeVsEtaOnTrackOuter = DefaultHistoTrack.clone(
+  name = "sizeyvseta_on_track_outer",
+  title = "Cluster Size along Beamline vs. Track #eta (OnTrack) outer ladders",
+  xlabel = "Track #eta",
+  ylabel = "length [pixels]",
+  range_min = -3.2, range_max  = 3.2, range_nbins   = 64,
+  range_y_min =  0, range_y_max = 30, range_y_nbins = 30,
+  dimensions = 2,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+
+SiPixelPhase1ClustersSizeVsEtaOnTrackInner = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
+  name = "sizeyvseta_on_track_inner",
+  title = "Cluster Size along Beamline vs. Track #eta (OnTrack) inner ladders",
+)
+
+
+SiPixelPhase1TrackClustersOnTrackSizeYOuter = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
+  name = "sizey_on_track_outer",
+  title = "Cluster Size along Beamline vs. prediction (OnTrack) outer ladders",
+  xlabel = "prediction",
+  ylabel = "length [pixels]",
+  range_min = 0, range_max  = 30, range_nbins   = 60
+)
+
+SiPixelPhase1TrackClustersOnTrackSizeYInner = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizey_on_track_inner",
+  title = "Cluster Size along Beamline vs. prediction (OnTrack) inner ladders",
+)
+
+SiPixelPhase1TrackClustersOnTrackSizeYF = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizey_on_track_forward",
+  title = "Cluster Size ortogonal to Beamline vs. prediction (OnTrack) forward",
+  range_y_min =  0, range_y_max = 10, range_y_nbins = 10,
+  range_min = 0, range_max  = 10, range_nbins   = 20,
+  specs = VPSet(
+    Specification().groupBy("PXForward/PXDisk").save(),
+  )
+)
+
+
+SiPixelPhase1TrackClustersOnTrackSizeXOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizex_on_track_outer",
+  title = "Cluster Size along radial vs. prediction (OnTrack) outer ladders",
+  range_min = 0, range_max  = 8, range_nbins   = 16,
+  range_y_min =  0, range_y_max = 8, range_y_nbins = 8
 
 )
 
+SiPixelPhase1TrackClustersOnTrackSizeXInner = SiPixelPhase1TrackClustersOnTrackSizeXOuter.clone(
+  name = "sizex_on_track_inner",
+  title = "Cluster Size along radial vs. prediction (OnTrack) inner ladders",
+)
+
+SiPixelPhase1TrackClustersOnTrackSizeXF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
+  name = "sizex_on_track_forward",
+  title = "Cluster Size radial vs. prediction (OnTrack) forward",
+)
+
+
+
+SiPixelPhase1TrackClustersOnTrackSizeXYOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizexy_on_track_outer",
+  title = "Cluster Size x vs y (OnTrack) outer ladders",
+  xlabel = "y size",
+  ylabel = "x size",
+  range_min = 0, range_max  = 20, range_nbins   = 20,
+  range_y_min = 0, range_y_max = 10, range_y_nbins = 10 
+)
+
+SiPixelPhase1TrackClustersOnTrackSizeXYInner = SiPixelPhase1TrackClustersOnTrackSizeXYOuter.clone(
+ name = "sizexy_on_track_inner",
+ title = "Cluster Size x vs y (OnTrack) inner ladders"
+)
+
+SiPixelPhase1TrackClustersOnTrackSizeXYF = SiPixelPhase1TrackClustersOnTrackSizeYF.clone(
+  name = "sizexy_on_track_forward",
+  title = "Cluster Size x vs y (OnTrack) forward",
+  xlabel = "y size",
+  ylabel = "x size",
+  range_min = 0, range_max  = 10, range_nbins   = 10,
+  range_y_min = 0, range_y_max = 10, range_y_nbins = 10
+
+)
+
+SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
+  name = "chargeOuter",
+  title = "Corrected Cluster Charge (OnTrack) outer ladders",
+  range_min = 0, range_max = 150e3, range_nbins = 150,
+  xlabel = "Charge (electrons)",
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+  
+SiPixelPhase1TrackClustersOnTrackChargeInner = SiPixelPhase1TrackClustersOnTrackChargeOuter.clone(
+  name = "chargeInner",
+  title = "Corrected Cluster Charge (OnTrack) inner ladders"
+)  
+
+SiPixelPhase1TrackClustersOnTrackShapeOuter = DefaultHistoTrack.clone(
+  topFolderName = "PixelPhase1/ClusterShape",
+  name = "shapeFilterOuter",
+  title = "Shape filter (OnTrack) Outer Ladders",
+  range_min = 0, range_max = 2, range_nbins = 2,
+  xlabel = "shapeFilter",
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+
+SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackShapeOuter.clone(
+  name = "shapeFilterInner",
+  title = "Shape filter (OnTrack) Inner Ladders",
+)
+
+# copy this in the enum
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
+  SiPixelPhase1TrackClustersOnTrackShape,
   SiPixelPhase1TrackClustersOnTrackNClusters,
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
 
-  SiPixelPhase1TrackClustersOffTrackCharge,
-  SiPixelPhase1TrackClustersOffTrackSize,
-  SiPixelPhase1TrackClustersOffTrackNClusters,
-  SiPixelPhase1TrackClustersOffTrackPositionB,
-  SiPixelPhase1TrackClustersOffTrackPositionF,
-
   SiPixelPhase1TrackClustersNTracks,
   SiPixelPhase1TrackClustersNTracksInVolume,
-)
 
+  SiPixelPhase1ClustersSizeVsEtaOnTrackOuter,
+  SiPixelPhase1ClustersSizeVsEtaOnTrackInner,
+  SiPixelPhase1TrackClustersOnTrackChargeOuter,
+  SiPixelPhase1TrackClustersOnTrackChargeInner,
+
+  SiPixelPhase1TrackClustersOnTrackShapeOuter,
+  SiPixelPhase1TrackClustersOnTrackShapeInner,
+
+  SiPixelPhase1TrackClustersOnTrackSizeXOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeXInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXF,
+  SiPixelPhase1TrackClustersOnTrackSizeYOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeYF,
+
+  SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeXYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXYF
+)
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
@@ -245,3 +359,5 @@ SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
+
+

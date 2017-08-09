@@ -56,11 +56,11 @@ process.source.minEventsPerLumi=100
 #process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings

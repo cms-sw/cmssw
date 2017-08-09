@@ -99,7 +99,7 @@ DTDAQInfo::~DTDAQInfo() {}
 
     // the range of DT feds
     const int FEDIDmin = FEDNumbering::MINDTFEDID;
-    const int FEDIDMax = FEDNumbering::MAXDTFEDID;
+    const int FEDIDMax = 774; //FEDNumbering::MAXDTFEDID; Monitoring only real used FEDs
 
     // loop on all active feds
     for(vector<int>::const_iterator fed = fedInIDs.begin();

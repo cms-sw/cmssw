@@ -203,6 +203,10 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     CombinationsInCond cond1Comb;
     CombinationsInCond cond2Comb;
 
+    int cond0bx(0);
+    int cond1bx(0);
+    int cond2bx(0);
+
     switch (cond0Categ) {
         case CondMuon: {
             corrMuon = static_cast<const MuonTemplate*>(m_gtCond0);
@@ -213,6 +217,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond0Comb = (muCondition.getCombinationsInCond());
+            cond0bx = bxEval + (corrMuon->condRelativeBx());
+
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
             if (m_verbosity ) {
@@ -233,6 +239,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
+            cond0bx = bxEval + (corrCalo->condRelativeBx());
+
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
             if (m_verbosity) {
@@ -252,6 +260,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
+            cond0bx = bxEval + (corrEnergySum->condRelativeBx());
+
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity ) {
@@ -290,6 +300,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond1Comb = (muCondition.getCombinationsInCond());
+            cond1bx = bxEval + (corrMuon->condRelativeBx());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
             if (m_verbosity) {
@@ -309,6 +320,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
+            cond1bx = bxEval + (corrCalo->condRelativeBx());
+
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
             if (m_verbosity ) {
@@ -329,6 +342,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
+            cond1bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -369,6 +383,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond2Comb = (muCondition.getCombinationsInCond());
+            cond2bx = bxEval + (corrMuon->condRelativeBx());
             cndObjTypeVec[2] = (corrMuon->objectType())[0];
 
             if (m_verbosity) {
@@ -388,6 +403,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond2Comb = (caloCondition.getCombinationsInCond());
+            cond2bx = bxEval + (corrCalo->condRelativeBx());
             cndObjTypeVec[2] = (corrCalo->objectType())[0];
 
             if (m_verbosity ) {
@@ -408,6 +424,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond2Comb = (eSumCondition.getCombinationsInCond());
+            cond2bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[2] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -552,10 +569,10 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
         case CondMuon: {
           lutObj0 = "MU";
           candMuVec = m_uGtB->getCandL1Mu();
-          phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
-          etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
-          etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
-          chrg0     =  (candMuVec->at(bxEval,obj0Index))->hwCharge();
+          phiIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
+          etaIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwEta();
+          etIndex0  =  (candMuVec->at(cond0bx,obj0Index))->hwPt();
+          chrg0     =  (candMuVec->at(cond0bx,obj0Index))->hwCharge();
           int etaBin0 = etaIndex0;
           if(etaBin0<0) etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0; //twos complement
           //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
@@ -587,9 +604,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               case gtEG: {
                 lutObj0 = "EG";
                 candCaloVec = m_uGtB->getCandL1EG();
-                phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-                etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-                etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+                phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+                etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+                etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
                 etaBin0   = etaIndex0;
                 if(etaBin0<0) etaBin0 = m_gtScales->getEGScales().etaBins.size() + etaBin0;
                 //		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
@@ -615,9 +632,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               case gtJet: {
                 lutObj0 = "JET";
                 candCaloVec = m_uGtB->getCandL1Jet();
-                phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-                etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-                etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+                phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+                etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+                etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
                 etaBin0 = etaIndex0;
                 if(etaBin0<0) etaBin0 = m_gtScales->getJETScales().etaBins.size() + etaBin0;
 
@@ -641,9 +658,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 break;
               case gtTau: {
                 candCaloVec = m_uGtB->getCandL1Tau();
-                phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-                etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-                etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+                phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+                etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+                etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
                 etaBin0 = etaIndex0;
                 if(etaBin0<0) etaBin0 = m_gtScales->getTAUScales().etaBins.size() + etaBin0;
 
@@ -746,11 +763,11 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
             candEtSumVec = m_uGtB->getCandL1EtSum();
 
-            for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-              if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
-                etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt();
+            for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond0bx); iEtSum++) {
+              if( (candEtSumVec->at(cond0bx,iEtSum))->getType() == type ) {
+                phiIndex0 =  (candEtSumVec->at(cond0bx,iEtSum))->hwPhi();
+                etaIndex0 =  (candEtSumVec->at(cond0bx,iEtSum))->hwEta();
+                etIndex0  =  (candEtSumVec->at(cond0bx,iEtSum))->hwPt();
 
                 //  Get the floating point numbers
                 if(cndObjTypeVec[0] == gtETM ) {
@@ -853,8 +870,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
               lutObj2 = "MU";
               candMuVec = m_uGtB->getCandL1Mu();
-              phiIndex2 =  (candMuVec->at(bxEval,obj2Index))->hwPhi(); //(*candMuVec)[obj2Index]->phiIndex();
-              etaIndex2 =  (candMuVec->at(bxEval,obj2Index))->hwEta();
+              phiIndex2 =  (candMuVec->at(cond2bx,obj2Index))->hwPhi(); //(*candMuVec)[obj2Index]->phiIndex();
+              etaIndex2 =  (candMuVec->at(cond2bx,obj2Index))->hwEta();
               int etaBin2 = etaIndex2;
               if(etaBin2<0) etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2; //twos complement
               //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
@@ -877,8 +894,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 case gtEG: {
                   lutObj2 = "EG";
                   candCaloVec = m_uGtB->getCandL1EG();
-                  phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                  etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                  phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                  etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                   if(etaBin2<0) etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
                   //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
 
@@ -893,8 +910,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 case gtJet: {
                   lutObj2 = "JET";
                   candCaloVec = m_uGtB->getCandL1Jet();
-                  phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                  etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                  phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                  etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                   etaBin2 = etaIndex2;
                   if(etaBin2<0) etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
 
@@ -909,8 +926,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 case gtTau: {
 
                   candCaloVec = m_uGtB->getCandL1Tau();
-                  phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                  etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                  phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                  etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                   if(etaBin2<0) etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
 
                   // Determine Floating Pt numbers for floating point caluclation
@@ -995,10 +1012,10 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
               candEtSumVec = m_uGtB->getCandL1EtSum();
 
-              for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-                if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                  phiIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                  etaIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
+              for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond2bx); iEtSum++) {
+                if( (candEtSumVec->at(cond2bx,iEtSum))->getType() == type ) {
+                  phiIndex2 =  (candEtSumVec->at(cond2bx,iEtSum))->hwPhi();
+                  etaIndex2 =  (candEtSumVec->at(cond2bx,iEtSum))->hwEta();
 
                   //  Get the floating point numbers
                   if(cndObjTypeVec[2] == gtETM ) {
@@ -1208,7 +1225,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               //If we are dealing with the same object type avoid the two legs
               // either being the same object
               if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-                obj0Index == obj1Index ) {
+		  obj0Index == obj1Index &&
+		  cond0bx == cond1bx) {
 
                 LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
                 continue;
@@ -1218,10 +1236,10 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               case CondMuon: {
                 lutObj1 = "MU";
                 candMuVec = m_uGtB->getCandL1Mu();
-                phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
-                etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
-                etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
-                chrg1     =  (candMuVec->at(bxEval,obj1Index))->hwCharge();
+                phiIndex1 =  (candMuVec->at(cond1bx,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
+                etaIndex1 =  (candMuVec->at(cond1bx,obj1Index))->hwEta();
+                etIndex1  =  (candMuVec->at(cond1bx,obj1Index))->hwPt();
+                chrg1     =  (candMuVec->at(cond1bx,obj1Index))->hwCharge();
                 etaBin1 = etaIndex1;
                 if(etaBin1<0) etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;
                 //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
@@ -1252,9 +1270,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                   case gtEG: {
 
                     candCaloVec = m_uGtB->getCandL1EG();
-                    phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-                    etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-                    etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+                    phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+                    etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+                    etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
                     etaBin1   =   etaIndex1;
                     if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
 
@@ -1279,9 +1297,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
                   case gtJet: {
                     candCaloVec = m_uGtB->getCandL1Jet();
-                    phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-                    etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-                    etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+                    phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+                    etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+                    etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
                     etaBin1 = etaIndex1;
                     if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
                     etBin1 = etIndex1;
@@ -1297,8 +1315,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                     std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex1);
                     phi1Phy = 0.5*(binEdges.second + binEdges.first);
                     binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
-                    eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-                    
+                    eta1Phy = 0.5*(binEdges.second + binEdges.first);
+
                     binEdges = m_gtScales->getJETScales().etBins.at(etBin1);
                     et1Phy = 0.5*(binEdges.second + binEdges.first);
                     lutObj1 = "JET";
@@ -1307,9 +1325,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
                   case gtTau: {
                     candCaloVec = m_uGtB->getCandL1Tau();
-                    phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-                    etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-                    etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+                    phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+                    etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+                    etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
                     etaBin1 = etaIndex1;
                     if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
                     etBin1 = etIndex1;
@@ -1416,12 +1434,12 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
                 candEtSumVec = m_uGtB->getCandL1EtSum();
 
-                LogDebug("L1TGlobal") << "obj " << lutObj1 << " Vector Size " << candEtSumVec->size(bxEval) << std::endl;
-                for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-                  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                    phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                    etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
-                    etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt();
+                LogDebug("L1TGlobal") << "obj " << lutObj1 << " Vector Size " << candEtSumVec->size(cond1bx) << std::endl;
+                for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond1bx); iEtSum++) {
+                  if( (candEtSumVec->at(cond1bx,iEtSum))->getType() == type ) {
+                    phiIndex1 =  (candEtSumVec->at(cond1bx,iEtSum))->hwPhi();
+                    etaIndex1 =  (candEtSumVec->at(cond1bx,iEtSum))->hwEta();
+                    etIndex1  =  (candEtSumVec->at(cond1bx,iEtSum))->hwPt();
 
                     // Determine Floating Pt numbers for floating point caluclation
 
@@ -1518,8 +1536,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 case CondMuon: {
                   lutObj2 = "MU";
                   candMuVec = m_uGtB->getCandL1Mu();
-                  phiIndex2 =  (candMuVec->at(bxEval,obj2Index))->hwPhi(); //(*candMuVec)[obj2Index]->phiIndex();
-                  etaIndex2 =  (candMuVec->at(bxEval,obj2Index))->hwEta();
+                  phiIndex2 =  (candMuVec->at(cond2bx,obj2Index))->hwPhi(); //(*candMuVec)[obj2Index]->phiIndex();
+                  etaIndex2 =  (candMuVec->at(cond2bx,obj2Index))->hwEta();
                 	int etaBin2 = etaIndex2;
                 	if(etaBin2<0) etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2; //twos complement
                   //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
@@ -1542,8 +1560,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                     case gtEG: {
                       lutObj2 = "EG";
                       candCaloVec = m_uGtB->getCandL1EG();
-                      phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                      etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                      phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                      etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                       if(etaBin2<0) etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
                       //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
 
@@ -1558,8 +1576,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                     case gtJet: {
                       lutObj2 = "JET";
                       candCaloVec = m_uGtB->getCandL1Jet();
-                      phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                      etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                      phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                      etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                       etaBin2 = etaIndex2;
                       if(etaBin2<0) etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
                       // Determine Floating Pt numbers for floating point caluclation
@@ -1571,8 +1589,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                       break;
                     case gtTau: {
                       candCaloVec = m_uGtB->getCandL1Tau();
-                      phiIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwPhi();
-                      etaIndex2 =  (candCaloVec->at(bxEval,obj2Index))->hwEta();
+                      phiIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwPhi();
+                      etaIndex2 =  (candCaloVec->at(cond2bx,obj2Index))->hwEta();
                       if(etaBin2<0) etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
 
                       // Determine Floating Pt numbers for floating point caluclation
@@ -1656,10 +1674,10 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
                   candEtSumVec = m_uGtB->getCandL1EtSum();
 
-                  for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-                    if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                      phiIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                      etaIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
+                  for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond2bx); iEtSum++) {
+                    if( (candEtSumVec->at(cond2bx,iEtSum))->getType() == type ) {
+                      phiIndex2 =  (candEtSumVec->at(cond2bx,iEtSum))->hwPhi();
+                      etaIndex2 =  (candEtSumVec->at(cond2bx,iEtSum))->hwEta();
 
                       //  Get the floating point numbers
                       if(cndObjTypeVec[2] == gtETM ) {
@@ -2105,10 +2123,14 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             long long cosDeltaPhiLUT = m_gtScales->getLUT_DeltaPhi_Cos(lutName,deltaPhiFW);
             unsigned int precCosLUT = m_gtScales->getPrec_DeltaPhi_Cos(lutName);
 
-            long long coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
-            unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
-            if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
-            if (corrPar.corrCutType & 0x10) coshDeltaEtaLUT=1*pow(10,precCosLUT);
+	    long long coshDeltaEtaLUT;
+	    if (corrPar.corrCutType & 0x10) {
+	      coshDeltaEtaLUT=1*pow(10,precCosLUT);
+	    }else{
+	      coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
+	      unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
+	      if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+	    }
 
             std::string lutName = lutObj0;
             lutName += "-ET";

@@ -21,7 +21,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Alignment/SurveyAnalysis/plugins/CreateSurveyRcds.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CLHEP/Random/RandGauss.h"
 
 // Database

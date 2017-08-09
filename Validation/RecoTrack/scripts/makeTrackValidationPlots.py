@@ -20,7 +20,7 @@ class LimitTrackAlgo:
         return True
 
 def limitRelVal(algo, quality):
-    return quality in ["", "highPurity"]
+    return quality in ["", "highPurity", "ByOriginalAlgo", "highPurityByOriginalAlgo"]
 
 def main(opts):
     sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
@@ -47,6 +47,7 @@ def main(opts):
             "fromPVAllTP": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
+            "bhadron": limitProcessing,
         }
     }
     if opts.limit_relval:
@@ -57,7 +58,7 @@ def main(opts):
             "fromPV": ignore,
             "fromPVAllTP": ignore,
             "seeding": ignore,
-            "building": ignore,
+            "bhadron": limitRelVal,
         }
 
     trk = [trackingPlots.plotter]

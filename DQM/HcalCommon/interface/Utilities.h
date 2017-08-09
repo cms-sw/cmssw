@@ -18,6 +18,49 @@ namespace hcaldqm
 	namespace utilities
 	{
 		/*
+		 * adc2fC lookup from conditions
+		 * fC values are stored in CaloSamples tool
+		 */
+		template<class Digi>
+		CaloSamples loadADC2fCDB(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId did, const Digi& digi) {
+			CaloSamples calo_samples;
+			const HcalQIECoder* channelCoder = conditions->getHcalCoder(did);
+			const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+			HcalCoderDb coder(*channelCoder, *shape);
+			coder.adc2fC(digi, calo_samples);
+			return calo_samples;
+		}
+
+		// Get pedestal-subtracted charge
+		template<class Digi> 
+		double adc2fCDBMinusPedestal(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int n) {
+			HcalCalibrations calibrations = conditions->getHcalCalibrations(did);
+			int capid = digi[n].capid();
+			return calo_samples[n] - calibrations.pedestal(capid);
+		}
+
+		template<class Digi>
+		double aveTSDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
+			double sumQ = 0;
+			double sumQT = 0;
+			for (unsigned int i = i_start; i <+ i_end; ++i) {
+				double q = adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
+				sumQ += q;
+				sumQT += (i+1)*q;
+			}
+			return (sumQ > 0 ? sumQT/sumQ-1 : GARBAGE_VALUE);
+		}
+
+		template<class Digi>
+		double sumQDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
+			double sumQ = 0;
+			for (unsigned int i = i_start; i <+ i_end; ++i) {
+				sumQ += adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
+			}
+			return sumQ;
+		}
+
+		/*
 		 *	Some useful functions for QIE10/11 Data Frames
 		 */
 		template<typename FRAME>

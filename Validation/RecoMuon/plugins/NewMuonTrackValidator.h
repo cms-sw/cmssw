@@ -25,6 +25,7 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
     useME0_ = pset.getParameter< bool >("useME0");
     edm::ParameterSet tpset = pset.getParameter<edm::ParameterSet>("muonTPSelector");
     tpSelector = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                          tpset.getParameter<double>("ptMax"),
 					  tpset.getParameter<double>("minRapidity"),
 					  tpset.getParameter<double>("maxRapidity"),
 					  tpset.getParameter<double>("tip"),

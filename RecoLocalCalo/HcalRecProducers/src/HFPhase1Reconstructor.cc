@@ -297,8 +297,8 @@ HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<bool>("setNoiseFlags");
     desc.add<bool>("useChannelQualityFromDB");
     desc.add<bool>("checkChannelQualityForDepth3and4");
+    desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription());
 
-    add_param_set(algorithm);
     add_param_set(S9S1stat);
     add_param_set(S8S1stat);
     add_param_set(PETstat);

@@ -69,6 +69,8 @@ namespace edm {
   class PreallocationConfiguration;
   class ModuleRegistry;
   class TriggerResultInserter;
+  class PathStatusInserter;
+  class EndPathStatusInserter;
   
   class GlobalSchedule {
   public:
@@ -78,6 +80,8 @@ namespace edm {
     typedef std::vector<Worker*> Workers;
 
     GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+                   std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
                    std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
@@ -164,7 +168,8 @@ namespace edm {
     WorkerManager                         workerManager_;
     std::shared_ptr<ActivityRegistry>     actReg_; // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<WorkerPtr>       results_inserter_;
-
+    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
 
     ProcessContext const*                 processContext_;
   };

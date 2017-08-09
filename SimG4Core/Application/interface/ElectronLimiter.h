@@ -43,7 +43,7 @@ private:
 
   const G4ParticleDefinition* particle;
 
-  G4bool minStepLimit;
+  G4double minStepLimit;
 
   G4bool rangeCheckFlag;
   G4bool fieldCheckFlag;

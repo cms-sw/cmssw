@@ -1,15 +1,15 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
-#include <DataFormats/Math/interface/normalizedPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 #include <cmath>
 #include <tuple>
 #include <set>
-#include "boost/container/flat_set.hpp"
 
 // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
 // 1st index: WG number
@@ -379,6 +379,12 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const CSCDetId me1bId(cscChamberME1b->id());
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
+
+  const int region((theEndcap == 1) ? 1: -1);
+  const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
+  const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+  // check if the GEM chamber is really there 
+  if (!gemChamber) runME11ILT_ = false;
 
   if (runME11ILT_){
       

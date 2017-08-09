@@ -52,8 +52,8 @@ phase2_hgcal.toModify( theDigitizers,
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( theDigitizers, castor = None )
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing

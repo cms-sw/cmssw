@@ -20,11 +20,6 @@ namespace {
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
 
   constexpr std::float_t idx_to_thickness = std::float_t(100.0);
-  // define layer offsets
-  // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_X/DataFormats/ForwardDetId/interface/ForwardSubdetector.h
-  // (EE) HGCEE=3, (FH) HGCHEF=4, BH is HcalEndcap = 2 encoded with HcalDetId
-  const unsigned int fhOffset = 28; // number of EE layers
-  const unsigned int bhOffset = fhOffset + 12; // number of EE+FH layers
 
   template<typename DDD>
   inline void check_ddd(const DDD* ddd) {
@@ -64,10 +59,19 @@ void RecHitTools::getEvent(const edm::Event& ev) {
 }
 
 void RecHitTools::getEventSetup(const edm::EventSetup& es) {
+
   edm::ESHandle<CaloGeometry> geom;
   es.get<CaloGeometryRecord>().get(geom);
 
   geom_ = geom.product();
+  auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+  fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
+  unsigned int wmaxEE = 1 + (geomEE->topology().dddConstants()).waferMax();
+  auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+  bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+  unsigned int wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
+  maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
+
 }
 
 GlobalPoint RecHitTools::getPosition(const DetId& id) const {
@@ -124,6 +128,39 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   return size;
 }
 
+unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
+
+  int layer;
+  switch (type) {
+    case(ForwardSubdetector::HGCEE): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+      break;
+    }
+    case (ForwardSubdetector::HGCHEF): {
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer       = (geomFH->topology().dddConstants()).layers(true);
+      break;
+    } 
+    case (ForwardSubdetector::HGCHEB): {
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
+      break;
+    } 
+    case (ForwardSubdetector::ForwardEmpty): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer      += (geomFH->topology().dddConstants()).layers(true);
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
+      break;
+    }
+    default: layer = 0;
+  }
+  return (unsigned int)(layer);
+}
+
 unsigned int RecHitTools::getLayer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
   if( id.det() == DetId::Forward) {
@@ -139,9 +176,9 @@ unsigned int RecHitTools::getLayer(const DetId& id) const {
 unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
   unsigned int layer = getLayer(id);
   if( id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
-    layer += fhOffset;
+    layer += fhOffset_;
   } else if( id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-    layer += bhOffset;
+    layer += bhOffset_;
   }
   return layer;
 }

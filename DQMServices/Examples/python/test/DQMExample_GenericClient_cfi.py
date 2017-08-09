@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-DQMExample_GenericClient = DQMEDHarvester("DQMGenericClient",
+DQMExampleGenericClient = DQMEDHarvester("DQMGenericClient",
                                           subDirs = cms.untracked.vstring("Physics/TopTest"),
                                           efficiency = cms.vstring(
                                               "myEfficiencyEta 'Efficiency vs Eta' EleEta_leading_HLT_matched EleEta_leading",

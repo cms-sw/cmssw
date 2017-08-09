@@ -15,16 +15,17 @@
 #include<cstdio>
 #include<sstream>
 #include<algorithm>
+#include <utility>
 
 namespace {
   // Used as a helper only in this file
   class HLTPath {
   public:
-    HLTPath(const std::string& name):
-      name_(name)
+    HLTPath(std::string  name):
+      name_(std::move(name))
     {}
 
-    typedef HLTTauDQMPath::FilterIndex FilterIndex;
+    using FilterIndex = HLTTauDQMPath::FilterIndex;
     typedef std::tuple<typename std::tuple_element<0, FilterIndex>::type,
                        typename std::tuple_element<1, FilterIndex>::type,
                        typename std::tuple_element<2, FilterIndex>::type,
@@ -43,7 +44,7 @@ namespace {
       // Ignore all "Selector"s, for ref-analysis keep only those with saveTags=True
       // Also record HLT2(Electron|Muon)(PF)?Tau module names
       LogTrace("HLTTauDQMOffline") << "Path " << name_ << ", list of all filters (preceded by the module index in the path)";
-      for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
+      for(auto iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         if(HLTCP.moduleEDMType(*iLabel) != "EDFilter")
           continue;
         const std::string type = HLTCP.moduleType(*iLabel);
@@ -72,7 +73,7 @@ namespace {
           return std::get<kModuleIndex>(a) < idxb;
         };
 
-        std::vector<FilterIndexSave>::iterator found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
+        auto found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
         if(found == allInterestingFilters_.end() || std::get<kModuleIndex>(*found) != idx1)
           allInterestingFilters_.emplace(found, input1, type, idx1, HLTCP.saveTags(input1));
         found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx2, func);
@@ -348,10 +349,10 @@ namespace {
 }
 
 
-HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP):
-  hltProcess_(hltProcess),
+HLTTauDQMPath::HLTTauDQMPath(std::string  pathName, std::string  hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP):
+  hltProcess_(std::move(hltProcess)),
   doRefAnalysis_(doRefAnalysis),
-  pathName_(pathName),
+  pathName_(std::move(pathName)),
   pathIndex_(HLTCP.triggerIndex(pathName_)),
   lastFilterBeforeL2TauIndex_(0), lastL2TauFilterIndex_(0),
   lastFilterBeforeL3TauIndex_(0), lastL3TauFilterIndex_(0),
@@ -388,8 +389,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
   filterLevel_.reserve(filterIndices_.size());
-  for(size_t i=0; i<filterIndices_.size(); ++i) {
-    const std::string& filterName = std::get<kName>(filterIndices_[i]);
+  for(auto & filterIndice : filterIndices_) {
+    const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
@@ -531,7 +532,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   isValid_ = true;
 }
 
-HLTTauDQMPath::~HLTTauDQMPath() {}
+HLTTauDQMPath::~HLTTauDQMPath() = default;
 
 
 bool HLTTauDQMPath::fired(const edm::TriggerResults& triggerResults) const {

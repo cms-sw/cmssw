@@ -32,26 +32,26 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::~Stage2Layer2EtSumAlgorithmFirmware
 void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
                                                                std::vector<l1t::EtSum> & etsums) {
 
-  uint32_t ntowers(0);
+  unsigned int ntowers(0);
   math::XYZTLorentzVector p4;
   
   int nTT4 = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
 				    params_->egPUSParam(1),
 				    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
-  uint compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
+  unsigned int compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
 
 
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
-    int32_t ex(0), ey(0), et(0);
-    int32_t exHF(0), eyHF(0), etHF(0);
-    int32_t etem(0);
-    uint32_t mb0(0), mb1(0);
+    int ex(0), ey(0), et(0);
+    int exHF(0), eyHF(0), etHF(0);
+    int etem(0);
+    unsigned int mb0(0), mb1(0);
 
-    bool ecalSat(0), hcalSat(0);
+    bool ettSat(0), ettHFSat(0), ecalEtSat(0), metSat(0), metHFSat(0);
 
-    for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
+    for (unsigned absieta=1; absieta<=(unsigned int)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
       
@@ -61,7 +61,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
       if(!params_->etSumBypassMetPUS()){
 	if(params_->etSumMetPUSType() == "LUT"){
-	  uint towEtMetLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  unsigned int towEtMetLUTAddr = (compNTT4<<6) | (abs(ieta));
 	  if(abs(ieta)<13) towEtMetLUTAddr = abs(ieta);
 	  towEtMetThresh_ = params_->etSumMetPUSLUT()->data(towEtMetLUTAddr);
 	} else {
@@ -74,7 +74,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       
       if(!params_->etSumBypassEttPUS()){
 	if(params_->etSumEttPUSType() == "LUT"){
-	  uint towEtSumEtLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  unsigned int towEtSumEtLUTAddr = (compNTT4<<6) | (abs(ieta));
 	  if(abs(ieta)<13) towEtSumEtLUTAddr = abs(ieta);
 	  towEtSumEtThresh_ = params_->etSumEttPUSLUT()->data(towEtSumEtLUTAddr);
 	} else {
@@ -87,7 +87,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       
       if(!params_->etSumBypassEcalSumPUS()){
 	if(params_->etSumEcalSumPUSType() == "LUT"){
-	  uint towEtEcalSumLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  unsigned int towEtEcalSumLUTAddr = (compNTT4<<6) | (abs(ieta));
 	  if(abs(ieta)<13) towEtEcalSumLUTAddr = abs(ieta);
 	  towEtEcalSumThresh_ = params_->etSumEcalSumPUSLUT()->data(towEtEcalSumLUTAddr);
 	} else {
@@ -98,54 +98,54 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	}
       }
       
-      int32_t ringEx(0), ringEy(0), ringEt(0);
-      int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
-      int32_t ringEtEm(0);
-      uint32_t ringMB0(0), ringMB1(0);
-      uint32_t ringNtowers(0);
+      int ringEx(0), ringEy(0), ringEt(0);
+      int ringExHF(0), ringEyHF(0), ringEtHF(0);
+      int ringEtEm(0);
+      unsigned int ringMB0(0), ringMB1(0);
+      unsigned int ringNtowers(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 
         l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
 
-	//ecal, hcal and tower saturation check
-	if(tower.hwPt()==509) hcalSat=true;
-	if(tower.hwPt()==510) ecalSat=true;
-	if(tower.hwPt()==511){
-	  hcalSat=true;
-	  ecalSat=true;
-	}
-
 
 	// MET without HF
 
-	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_)) {
+	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_) && !metSat) {
 
 	  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
 	  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
 	  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
 	  // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
-	  ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
-	  ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) metSat=true;
+	  ringEx += (int) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	  ringEy += (int) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 
 	// MET *with* HF
-	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_)) {
-	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
-	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_) && !metHFSat) {
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) metHFSat=true;
+	  ringExHF += (int) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	  ringEyHF += (int) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 
 	// scalar sum
-	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_) && !ettSat){
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ettSat=true;
 	  ringEt += tower.hwPt();
+	}
   
 	// scalar sum including HF
-	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_) && !ettHFSat) {
+	  if(tower.hwPt() == CaloTools::kSatHcal || tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ettHFSat=true;
 	  ringEtHF += tower.hwPt();
-		
+	}
+	
         // scalar sum (EM)
-        if (tower.hwPt()>towEtEcalSumThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_)
+        if (tower.hwPt()>towEtEcalSumThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_) && !ecalEtSat){
+	  if(tower.hwPt() == CaloTools::kSatEcal || tower.hwPt() == CaloTools::kSatTower) ecalEtSat=true;
           ringEtEm += tower.hwEtEm();
+	}
 
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
@@ -179,17 +179,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     // saturate energy sums if saturated TP/tower
 
-    if(ecalSat) etem = 0xffff;
-
-    if(ecalSat || hcalSat){
-      et = 0xffff;
+    if(ecalEtSat) etem = 0xffff;
+    if(ettSat) et = 0xffff;
+    if(ettHFSat) etHF = 0xffff;
+    if(metSat){ 
       ex = 0x7fffffff;
       ey = 0x7fffffff;
-      etHF = 0xffff;
+    }
+    if(metHFSat){
       exHF = 0x7fffffff;
       eyHF = 0x7fffffff;
     }
-
+    
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
     l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);

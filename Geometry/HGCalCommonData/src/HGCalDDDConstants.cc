@@ -75,6 +75,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
     
   }  
   
+  int wminT(9999999), wmaxT(0), kount1(0), kount2(0);
   for (unsigned int i=0; i<getTrFormN(); ++i) {
     int lay0 = getTrForm(i).lay;
     int wmin(9999999), wmax(0), kount(0);
@@ -85,6 +86,10 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 	++kount;
       }
     }
+    if (wminT  > wmin)  wminT = wmin;
+    if (wmaxT  < wmax)  wmaxT = wmax;
+    if (kount1 < kount) kount1= kount;
+    kount2 += kount;
 #ifdef EDM_ML_DEBUG
     int lay1 = getIndex(lay0,true).first;
     std::cout << "Index " << i << " Layer " << lay0 << ":" << lay1 
@@ -93,6 +98,11 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
     HGCWaferParam a1{ {wmin,wmax,kount} };
     waferLayer_[lay0] = a1;
   }
+  waferMax_ = std::array<int,4>{ {wminT,wmaxT,kount1,kount2} };
+#ifdef EDM_ML_DEBUG
+  std::cout << "Overall wafer statistics: " << wminT << ":" << wmaxT << ":"
+	    << kount1 << ":" << kount2 << std::endl;
+#endif
 }
 
 HGCalDDDConstants::~HGCalDDDConstants() {}
@@ -244,7 +254,7 @@ std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
 
   std::vector<HGCalParameters::hgtrap> mytrs;
   for (unsigned int k=0; k<hgpar_->moduleLayR_.size(); ++k) 
-    mytrs.push_back(hgpar_->getModule(k,true));
+    mytrs.emplace_back(hgpar_->getModule(k,true));
   return mytrs;
 }
 
@@ -252,7 +262,7 @@ std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 
   std::vector<HGCalParameters::hgtrform> mytrs;
   for (unsigned int k=0; k<hgpar_->trformIndex_.size(); ++k) 
-    mytrs.push_back(hgpar_->getTrForm(k));
+    mytrs.emplace_back(hgpar_->getTrForm(k));
   return mytrs;
 }
 
@@ -541,7 +551,7 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
 	if (waferInLayer(k,i)) {
 	  unsigned int cell = (hgpar_->waferTypeT_[k]==1) ? 
 	    (hgpar_->cellFineX_.size()) : (hgpar_->cellCoarseX_.size());
-	  ncell.push_back((int)(cell));
+	  ncell.emplace_back((int)(cell));
 	}
       }
     }
@@ -558,7 +568,7 @@ std::vector<int> HGCalDDDConstants::numberCellsSquare(float h, float bl,
   int   kymax = floor((2*h)/cellSize);
   std::vector<int> ncell;
   for (int iky=0; iky<kymax; ++iky)
-    ncell.push_back(floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize)));
+    ncell.emplace_back(floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize)));
   return ncell;
 }
 

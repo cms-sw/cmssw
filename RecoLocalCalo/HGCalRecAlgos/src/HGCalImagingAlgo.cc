@@ -167,20 +167,39 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
   float y = 0.;
   float z = 0.;
   unsigned int v_size = v.size();
+  unsigned int maxEnergyIndex = 0;
+  float maxEnergyValue = 0;
+  bool haloOnlyCluster = true;
 
+  // loop over hits in cluster candidate building up weight for
+  // energy-weighted position calculation and determining the maximum
+  // energy hit in case this is a halo-only cluster
   for (unsigned int i = 0; i < v_size; i++){
     if(!v[i].data.isHalo){
+      haloOnlyCluster = false;
       total_weight += v[i].data.weight;
       x += v[i].data.x*v[i].data.weight;
       y += v[i].data.y*v[i].data.weight;
       z += v[i].data.z*v[i].data.weight;
     }
+    else {
+      if (v[i].data.weight > maxEnergyValue) {
+        maxEnergyValue = v[i].data.weight;
+        maxEnergyIndex = i;
+      }
+    }
   }
 
-  if (total_weight != 0) {
-  return math::XYZPoint( x/total_weight,
+  if (!haloOnlyCluster) {
+    if (total_weight != 0) {
+      return math::XYZPoint( x/total_weight,
 			 y/total_weight,
 			 z/total_weight );
+    }
+  }
+  else if (v_size > 0) {
+    // return position of hit with maximum energy
+    return math::XYZPoint(v[maxEnergyIndex].data.x, v[maxEnergyIndex].data.y, v[maxEnergyIndex].data.z);
   }
   return math::XYZPoint(0, 0, 0);
 }
@@ -366,9 +385,8 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   //flag points in cluster with density < rho_b as halo points, then fill the cluster vector
   for(unsigned int i = 0; i < nd_size; ++i){
     int ci = nd[i].data.clusterIndex;
-    if(ci!=-1 && nd[i].data.rho < rho_b[ci])
-      nd[i].data.isHalo = true;
-    if(nd[i].data.clusterIndex!=-1){
+    if(ci!=-1) {
+      if (nd[i].data.rho <= rho_b[ci]) nd[i].data.isHalo = true;
       current_v[ci+cluster_offset].push_back(nd[i]);
       if (verbosity < pINFO)
 	  {

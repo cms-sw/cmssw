@@ -25,11 +25,9 @@ class Eras (object):
                  'Run2_2017_trackingLowPU',
                  'Run2_2018',
                  'Run3',
-                 'Phase2C1',
-                 'Phase2C2',
-                 'Phase2C1_timing',
-                 'Phase2C2_timing',
-                 'Phase2C2_timing_layer']
+                 'Phase2',
+                 'Phase2_timing',
+                 'Phase2_timing_layer']
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
                            'run2_50ns_specific', 'run2_HI_specific',
@@ -37,13 +35,14 @@ class Eras (object):
                            'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger',
                            'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017',
-                           'run3_HB',
-                           'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
+                           'run3_HB', 'run3_common',
+                           'phase1Pixel', 'run3_GEM', 'run2_GEM_2017', 'run2_GEM_2017_MCTest',
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_timing_layer','phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1QuadProp', 'ctpps_2016', 'trackingPhase2PU140',
-                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy']
+                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy',
+                           'hcalHardcodeConditions', 'hcalSkipPacker']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
 

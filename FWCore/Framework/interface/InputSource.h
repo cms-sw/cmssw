@@ -46,7 +46,6 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
@@ -72,9 +71,6 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class ThinnedAssociationsHelper;
-  namespace multicore {
-    class MessageReceiverForSource;
-  }
 
   class InputSource : private ProductRegistryHelper {
   public:
@@ -146,10 +142,6 @@ namespace edm {
     /// Skip the number of events specified.
     /// Offset may be negative.
     void skipEvents(int offset);
-
-    /// Skips the correct number of events if this is a forked process
-    /// returns false if we are out of events
-    bool skipForForking();
 
     bool goToEvent(EventID const& eventID);
 
@@ -235,10 +227,6 @@ namespace edm {
 
     /// Called by framework at end of run
     void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
-
-    /// Called by the framework before forking the process
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -425,8 +413,6 @@ namespace edm {
     virtual void endJob();
     virtual std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
-    virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
@@ -457,8 +443,6 @@ namespace edm {
     mutable std::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     std::string statusFileName_;
 
-    //used when process has been forked
-    edm::propagate_const<std::shared_ptr<edm::multicore::MessageReceiverForSource>> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
   };
 }

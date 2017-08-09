@@ -4,10 +4,10 @@
 //  constructors and destructor
 // -----------------------------
 
-NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) : 
+NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , jetToken_             ( consumes<reco::CaloJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
-  , muonToken_             ( consumes<reco::TrackCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
+  , jetToken_             ( consumes<reco::CaloJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
+  , muonToken_             ( consumes<reco::TrackCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
   , jetE_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEBinning") )
   , jetE_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetEPSet")    ) )
   , jetEta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetEtaPSet")    ) )
@@ -56,12 +56,10 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
   muonPhiNoBPTX_.denominator = nullptr;
   muonPhiVsLS_.numerator   = nullptr;
   muonPhiVsBX_.numerator   = nullptr;
-  
+
 }
 
-NoBPTXMonitor::~NoBPTXMonitor()
-{
-}
+NoBPTXMonitor::~NoBPTXMonitor() = default;
 
 NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet & pset)
 {
@@ -81,7 +79,7 @@ NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(const edm::ParameterS
       };
 }
 
-void NoBPTXMonitor::setNoBPTXTitle(NoBPTXME& me, std::string titleX, std::string titleY, bool bookDen)
+void NoBPTXMonitor::setNoBPTXTitle(NoBPTXME& me, const std::string& titleX, const std::string& titleY, bool bookDen)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -130,9 +128,9 @@ void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker &ibooker, NoBPTXME& me, const s
 
 void NoBPTXMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
-				 edm::EventSetup const & iSetup) 
-{  
-  
+				 edm::EventSetup const & iSetup)
+{
+
   std::string histname, histtitle;
   bool bookDen;
 
@@ -283,11 +281,11 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   double muonPhi = -999;
   if(muons.size()>0){
     muonPt = muons[0].pt();
-    muonPt = muons[0].eta();
-    muonPt = muons[0].phi();
+    muonEta = muons[0].eta();
+    muonPhi = muons[0].phi();
   }
 
-  // filling histograms (denominator)  
+  // filling histograms (denominator)
   jetENoBPTX_.denominator -> Fill(jetE);
   jetENoBPTX_variableBinning_.denominator -> Fill(jetE);
   jetEVsLS_.denominator -> Fill(ls, jetE);
@@ -298,7 +296,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   muonEtaNoBPTX_.denominator -> Fill(muonEta);
   muonPhiNoBPTX_.denominator -> Fill(muonPhi);
 
-  // filling histograms (numerator)  
+  // filling histograms (numerator)
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   jetENoBPTX_.numerator -> Fill(jetE);
   jetENoBPTX_variableBinning_.numerator -> Fill(jetE);

@@ -103,6 +103,11 @@ void
 AlignmentProducerBase::startProcessing()
 {
   if (isDuringLoop_) return;
+
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::startProcessing"
+    << "Begin";
+
   if (!isAlgoInitialized_) {
     throw cms::Exception("LogicError")
       << "@SUB=AlignmentProducerBase::startProcessing\n"
@@ -435,6 +440,10 @@ void
 AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
                                               bool update)
 {
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
+    << "Bwgin";
+
   auto isTrueUpdate = update && isAlgoInitialized_;
 
   // Retrieve tracker topology from geometry
@@ -474,6 +483,10 @@ AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   }
   startProcessing();            // needed if derived class is non-EDLooper-based
                                 // has no effect, if called during loop
+
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
+    << "End";
 }
 
 

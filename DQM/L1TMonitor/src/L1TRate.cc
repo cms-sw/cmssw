@@ -24,8 +24,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
 #include "TList.h"
 
 using namespace edm;

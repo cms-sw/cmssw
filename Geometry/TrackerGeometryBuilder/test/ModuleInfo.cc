@@ -62,7 +62,7 @@
 class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo( const edm::ParameterSet& );
-  ~ModuleInfo();
+  ~ModuleInfo() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -185,17 +185,17 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "************************ List of modules with positions ************************" << std::endl;
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
   std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
-  for(unsigned int i=0; i<modules.size();i++){
-    unsigned int rawid = modules[i]->geographicalID().rawId();
+  for(auto & module : modules){
+    unsigned int rawid = module->geographicalID().rawId();
     DetId id(rawid);
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
-      if (gdei->geographicalId() == modules[i]->geographicalId()) break;
+      if (gdei->geographicalId() == module->geographicalId()) break;
     }
 
     if (gdei == gdeEnd) throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"; //THIS never happens!
 
-    GeometricDet::NavRange detPos = modules[i]->navpos();
+    GeometricDet::NavRange detPos = module->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
@@ -203,11 +203,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       Output << "\t nav type = " << detPos;
     } 
     Output << std::endl;
-    int subdetid = modules[i]->geographicalID().subdetId();
+    int subdetid = module->geographicalID().subdetId();
     double volume = gdei->volume() / 1000; // mm3->cm3
     double density = gdei->density() / density_units;
     double weight = gdei->weight() / density_units / 1000.; // [kg], hence the factor 1000;
-    double thickness = modules[i]->bounds()->thickness() * 10000; // cm-->um
+    double thickness = module->bounds()->thickness() * 10000; // cm-->um
     double activeSurface = volume / ( thickness / 10000 ); // cm2 (thickness in um)
 
     volume_total+=volume;
@@ -222,7 +222,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_pxb+=volume;
 	weight_pxb+=weight;
 	activeSurface_pxb+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "PixelBarrelActiveFull") pxb_fullN++;
 	if(name == "PixelBarrelActiveHalf") pxb_halfN++;
 	unsigned int theLayer  = tTopo->pxbLayer(id);
@@ -246,7 +246,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_pxf+=volume;
 	weight_pxf+=weight;
 	activeSurface_pxf+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "PixelForwardActive1x2") pxf_1x2N++;
 	if(name == "PixelForwardActive1x5") pxf_1x5N++;
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
@@ -275,7 +275,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tib+=volume;
 	weight_tib+=weight;
 	activeSurface_tib+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TIBActiveRphi0") tib_L12_rphiN++;
 	if(name == "TIBActiveSter0") tib_L12_sterN++;
 	if(name == "TIBActiveRphi2") tib_L34_rphiN++;
@@ -294,7 +294,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
@@ -305,7 +305,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tid+=volume;
 	weight_tid+=weight;
 	activeSurface_tid+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TIDModule0RphiActive")   tid_r1_rphiN++;
 	if(name == "TIDModule0StereoActive") tid_r1_sterN++;
 	if(name == "TIDModule1RphiActive")   tid_r2_rphiN++;
@@ -324,7 +324,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
@@ -335,7 +335,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tob+=volume;
 	weight_tob+=weight;
 	activeSurface_tob+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TOBActiveRphi0") tob_L12_rphiN++;
 	if(name == "TOBActiveSter0") tob_L12_sterN++;
 	if(name == "TOBActiveRphi2") tob_L34_rphiN++;
@@ -353,7 +353,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	break;
       }
       
@@ -364,7 +364,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tec+=volume;
 	weight_tec+=weight;
 	activeSurface_tec+=activeSurface;
-	std::string name = modules[i]->name().name();
+	std::string name = module->name().name();
 	if(name == "TECModule0RphiActive")   tec_r1_rphiN++;
 	if(name == "TECModule0StereoActive") tec_r1_sterN++;
 	if(name == "TECModule1RphiActive")   tec_r2_rphiN++;
@@ -389,7 +389,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t" << module->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (tTopo->tecSide(id) == 1 ) ? -1 : 1;
@@ -433,12 +433,12 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	else {
 	  out_module = tTopo->tecModule(id);
 	}
-	double out_x = modules[i]->translation().X();
-	double out_y = modules[i]->translation().Y();
-	double out_z = modules[i]->translation().Z();
-	double out_r = sqrt(modules[i]->translation().X()*modules[i]->translation().X() + 
-			    modules[i]->translation().Y()*modules[i]->translation().Y());
-	double out_phi_rad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
+	double out_x = module->translation().X();
+	double out_y = module->translation().Y();
+	double out_z = module->translation().Z();
+	double out_r = sqrt(module->translation().X()*module->translation().X() + 
+			    module->translation().Y()*module->translation().Y());
+	double out_phi_rad = atan2(module->translation().Y(),module->translation().X());
 	TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal
 		  << " " << out_ring << " " << out_module << " " << out_sensor
 		  << " " << out_x << " " << out_y << " " << out_z << " " << out_r << " " << out_phi_rad << std::endl;
@@ -450,7 +450,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
     
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(modules[i]->geographicalID());
+    const GeomDet* geomdet = pDD->idToDet(module->geographicalID());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1,0,0);
     LocalVector yLocal(0,1,0);
@@ -469,14 +469,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << "thickness "      << std::fixed << std::setprecision(0) << thickness << " um \t"
 	   << " active area "   << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation().X()
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Y()
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Z()
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << module->translation().X()
+	   << ","        << std::fixed << std::setprecision(4) << module->translation().Y()
+	   << ","        << std::fixed << std::setprecision(4) << module->translation().Z()
 	   << ")" << std::endl;
     //
-    double polarRadius = std::sqrt(modules[i]->translation().X()*modules[i]->translation().X()+modules[i]->translation().Y()*modules[i]->translation().Y());
-    double phiDeg = atan2(modules[i]->translation().Y(),modules[i]->translation().X()) * 360. / 6.283185307;
-    double phiRad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
+    double polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
+    double phiDeg = atan2(module->translation().Y(),module->translation().X()) * 360. / 6.283185307;
+    double phiRad = atan2(module->translation().Y(),module->translation().X());
     //
     Output << "\t\t polar radius " 
 	   << std::fixed << std::setprecision(4) << polarRadius
@@ -487,7 +487,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << std::endl;
     // active area versors (rotation matrix)
     DD3Vector x,y,z;
-    modules[i]->rotation().GetComponents(x,y,z);
+    module->rotation().GetComponents(x,y,z);
     Output << "\tActive Area Rotation Matrix" << std::endl;
     Output << "\t z = n = (" << std::fixed << std::setprecision(4) << z.X()
 	   << ","            << std::fixed << std::setprecision(4) << z.Y()
@@ -520,9 +520,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       NumberingOutput << " " << detPos;
     }
     NumberingOutput << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().Y() << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation().Z() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().X() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().Y() << " "
+		    << std::fixed << std::setprecision(4) << module->translation().Z() << " "
 		    << std::endl;
     //
   }

@@ -968,10 +968,10 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
     InetAddress myaddr = inet->sockname();
     p->peeraddr = StringFormat("%1:%2")
 		  .arg(peeraddr.hostname())
-		  .arg(peeraddr.port());
+		  .arg(peeraddr.port()).value();
     localaddr = StringFormat("%1:%2")
 		.arg(myaddr.hostname())
-		.arg(myaddr.port());
+		.arg(myaddr.port()).value();
   }
   else if (LocalSocket *local = dynamic_cast<LocalSocket *>(s))
   {
@@ -1349,7 +1349,7 @@ DQMNet::run(void)
 	  InetAddress myaddr = ((InetSocket *) s)->sockname();
 	  p->peeraddr = StringFormat("%1:%2")
 			.arg(peeraddr.hostname())
-			.arg(peeraddr.port());
+			.arg(peeraddr.port()).value();
 	  p->mask = IORead|IOWrite|IOUrgent;
 	  p->update = ap->update;
 	  p->automatic = ap;

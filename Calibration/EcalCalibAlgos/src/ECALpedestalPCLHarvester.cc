@@ -26,6 +26,7 @@ ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
     nSigma_  = ps.getParameter<double>("nSigma");
     thresholdAnomalies_ = ps.getParameter<double>("thresholdAnomalies"); 
     dqmDir_         = ps.getParameter<std::string>("dqmDir");
+    labelG6G1_      = ps.getParameter<std::string>("labelG6G1");
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
@@ -36,14 +37,15 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
 
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
-        std::string hname = dqmDir_+"/eb_" + std::to_string(i);
+        std::string hname = dqmDir_+"/EB/"+std::to_string(int(i/100))+"/eb_" + std::to_string(i);
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
 
         DetId id = EBDetId::detIdFromDenseIndex(i);
         EcalPedestal ped;
-        EcalPedestal oldped=* currentPedestals_->find(id.rawId());
+        EcalPedestal oldped =* currentPedestals_->find(id.rawId());
+        EcalPedestal g6g1ped=* g6g1Pedestals_->find(id.rawId());
 
         ped.mean_x12=mean;
         ped.rms_x12=rms;
@@ -55,11 +57,12 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
             ped.rms_x12=oldped.rms_x12;
 
         }
-
-        ped.mean_x6=oldped.mean_x6;
-        ped.rms_x6=oldped.rms_x6;
-        ped.mean_x1=oldped.mean_x1;
-        ped.rms_x1=oldped.rms_x1;
+        
+        // copy g6 and g1 from the corressponding record
+        ped.mean_x6= g6g1ped.mean_x6;
+        ped.rms_x6 = g6g1ped.rms_x6;
+        ped.mean_x1= g6g1ped.mean_x1;
+        ped.rms_x1 = g6g1ped.rms_x1;
 
         pedestals.setValue(id.rawId(),ped);
     }
@@ -67,7 +70,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
 
-        std::string hname = dqmDir_+"/ee_" + std::to_string(i);
+        std::string hname = dqmDir_+"/EE/"+std::to_string(int(i/100))+"/ee_" + std::to_string(i);
      
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
@@ -75,8 +78,9 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
         DetId id = EEDetId::detIdFromDenseIndex(i);
         EcalPedestal ped;
-        EcalPedestal oldped= *currentPedestals_->find(id.rawId());
-
+        EcalPedestal oldped = *currentPedestals_->find(id.rawId());
+        EcalPedestal g6g1ped= *g6g1Pedestals_->find(id.rawId());
+                
         ped.mean_x12=mean;
         ped.rms_x12=rms;
 
@@ -86,14 +90,18 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
             ped.rms_x12=oldped.rms_x12;
         }
 
-        ped.mean_x6=oldped.mean_x6;
-        ped.rms_x6=oldped.rms_x6;
-        ped.mean_x1=oldped.mean_x1;
-        ped.rms_x1=oldped.rms_x1;
+        // copy g6 and g1 pedestals from corresponding record
+        ped.mean_x6= g6g1ped.mean_x6;
+        ped.rms_x6 = g6g1ped.rms_x6;
+        ped.mean_x1= g6g1ped.mean_x1;
+        ped.rms_x1 = g6g1ped.rms_x1;
 
         pedestals.setValue(id.rawId(),ped);
     }
 
+
+
+    dqmPlots(pedestals, ibooker_);
 
     // check if there are large variations wrt exisiting pedstals
 
@@ -138,6 +146,10 @@ void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const
     isetup.get<EcalPedestalsRcd>().get(peds);
     currentPedestals_=peds.product();
 
+    edm::ESHandle<EcalPedestals> g6g1peds;
+    isetup.get<EcalPedestalsRcd>().get(labelG6G1_,g6g1peds);
+    g6g1Pedestals_=peds.product();
+
 }
 
 bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
@@ -151,6 +163,17 @@ bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
     if ( res != chStatusToExclude_.end() ) return false;
 
     return true;
+}
+
+bool ECALpedestalPCLHarvester::isGood(const DetId& id){
+    
+    EcalChannelStatusMap::const_iterator dbstatusPtr;
+    dbstatusPtr = channelStatus_->getMap().find(id.rawId());
+    if (dbstatusPtr == channelStatus_->getMap().end())
+        edm::LogError("Invalid DetId supplied");
+    EcalChannelStatusCode::Code  dbstatus = dbstatusPtr->getStatusCode();
+    if (dbstatus ==0 ) return true;
+    return false;
 }
 
 
@@ -186,5 +209,78 @@ bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedesta
 
     return false;
 
+
+}
+
+
+
+
+void  ECALpedestalPCLHarvester::dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker){
+
+     ibooker.cd();
+     ibooker.setCurrentFolder(dqmDir_+"/Summary");
+
+     MonitorElement * pmeb = ibooker.book2D("meaneb","Pedestal Means",360, 1., 361., 171, -85., 86.);
+     MonitorElement * preb = ibooker.book2D("rmseb","Pedestal RMS",360, 1., 361., 171, -85., 86.);
+
+     MonitorElement * pmeep = ibooker.book2D("meaneep","Pedestal Means",100,1,101,100,1,101);
+     MonitorElement * preep = ibooker.book2D("rmseep","Pedestal RMS",100,1,101,100,1,101);
+
+     MonitorElement * pmeem = ibooker.book2D("meaneem","Pedestal Means",100,1,101,100,1,101);
+     MonitorElement * preem = ibooker.book2D("rmseem","Pedestal RMS",100,1,101,100,1,101);
+
+     MonitorElement * pmebd = ibooker.book2D("meanebdiff","Pedestal Means Diff",360, 1., 361., 171, -85., 86.);
+     MonitorElement * prebd = ibooker.book2D("rmsebdiff","Pedestal RMS Diff",360, 1., 361., 171, -85., 86.);
+
+     MonitorElement * pmeepd = ibooker.book2D("meaneepdiff","Pedestal Means Diff",100,1,101,100,1,101);
+     MonitorElement * preepd = ibooker.book2D("rmseepdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+
+     MonitorElement * pmeemd = ibooker.book2D("meaneemdiff","Pedestal Means Diff",100,1,101,100,1,101);
+     MonitorElement * preemd = ibooker.book2D("rmseemdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+
+     for (int hash =0; hash<EBDetId::kSizeForDenseIndexing;++hash){
+         
+         EBDetId di= EBDetId::detIdFromDenseIndex(hash); 
+         float mean= newpeds[di].mean_x12;
+         float rms = newpeds[di].rms_x12;
+         
+         float cmean = (*currentPedestals_)[di].mean_x12;
+         float crms  = (*currentPedestals_)[di].rms_x12;
+                  
+         if (!isGood(di) ) continue;   // only good channels are plotted
+ 
+         pmeb->Fill(di.iphi(),di.ieta(),mean);
+         preb->Fill(di.iphi(),di.ieta(),rms);
+         pmebd->Fill(di.iphi(),di.ieta(),std::abs(mean-cmean)/cmean);
+         prebd->Fill(di.iphi(),di.ieta(),std::abs(rms-crms)/crms);
+         
+     }
+
+     
+     for (int hash =0; hash<EEDetId::kSizeForDenseIndexing;++hash){
+         
+         EEDetId di= EEDetId::detIdFromDenseIndex(hash); 
+         float mean= newpeds[di].mean_x12;
+         float rms = newpeds[di].rms_x12;
+         float cmean = (*currentPedestals_)[di].mean_x12;
+         float crms  = (*currentPedestals_)[di].rms_x12;
+
+         if (!isGood(di) ) continue;   // only good channels are plotted
+         
+         if (di.zside() >0){
+             pmeep->Fill(di.ix(),di.iy(),mean);
+             preep->Fill(di.ix(),di.iy(),rms);
+             pmeepd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
+             preepd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
+         } else{
+             pmeem->Fill(di.ix(),di.iy(),mean);
+             preem->Fill(di.ix(),di.iy(),rms);
+             pmeemd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
+             preemd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
+         }
+         
+     }
+
+     
 
 }

@@ -18,7 +18,7 @@ class HcalGeometryTester : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryTester( const edm::ParameterSet& );
-  ~HcalGeometryTester( void ) {}
+  ~HcalGeometryTester( void ) override {}
     
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -124,8 +124,8 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
   if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   
   const std::vector<DetId>& ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
-    testClosestCell(HcalDetId(*i), g);
+  for (auto id : ids) {
+    testClosestCell(HcalDetId(id), g);
   }
 }
 
@@ -218,7 +218,7 @@ void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
        i++, ++counter) {
     HcalDetId hid=(*i);
     s << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
-    dins.push_back( topology.detId2denseId(*i));
+    dins.emplace_back( topology.detId2denseId(*i));
 	
     const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
     s << *cell << std::endl;

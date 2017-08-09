@@ -11,15 +11,15 @@ class DDPixPhase1FwdDiskAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDPixPhase1FwdDiskAlgo(); 
-  virtual ~DDPixPhase1FwdDiskAlgo();
+  ~DDPixPhase1FwdDiskAlgo() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 

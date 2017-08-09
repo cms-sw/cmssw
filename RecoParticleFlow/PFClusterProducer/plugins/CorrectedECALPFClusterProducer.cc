@@ -131,13 +131,16 @@ void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescript
     edm::ParameterSetDescription psd0;
     psd0.add<bool>("applyCrackCorrections",false);
     psd0.add<bool>("applyMVACorrections",false);
+    psd0.add<bool>("srfAwareCorrection",false);    
+    psd0.add<bool>("autoDetectBunchSpacing",true);
+    psd0.add<int>("bunchSpacing",25);
     psd0.add<double>("maxPtForMVAEvaluation",-99.);
     psd0.add<std::string>("algoName","PFClusterEMEnergyCorrector");
     psd0.add<edm::InputTag>("recHitsEBLabel",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
     psd0.add<edm::InputTag>("recHitsEELabel",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
     psd0.add<edm::InputTag>("verticesLabel",edm::InputTag("offlinePrimaryVertices"));
-    psd0.add<bool>("autoDetectBunchSpacing",true);
-    psd0.add<int>("bunchSpacing",25);
+    psd0.add<edm::InputTag>("ebSrFlagLabel",edm::InputTag("ecalDigis"));
+    psd0.add<edm::InputTag>("eeSrFlagLabel",edm::InputTag("ecalDigis"));
     desc.add<edm::ParameterSetDescription>("energyCorrector",psd0);
   }
   desc.add<edm::InputTag>("inputECAL",edm::InputTag("particleFlowClusterECALUncorrected"));

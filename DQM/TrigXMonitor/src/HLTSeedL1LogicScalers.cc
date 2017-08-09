@@ -91,7 +91,7 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
         totalSString >> temp_string;
 
         if (!l1Algos.empty()) {
-          if (temp_string.compare(l1Algos.back()) == 0) break;
+          if (temp_string == l1Algos.back()) break;
         }
         if (temp_string != "OR" && temp_string != "AND" &&
             temp_string != "NOT" && temp_string != "(" && temp_string != ")" &&

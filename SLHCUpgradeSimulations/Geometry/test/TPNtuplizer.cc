@@ -57,6 +57,7 @@ TPNtuplizer::TPNtuplizer(edm::ParameterSet const& conf) :
   tptree_(0)
 {
   tpSelector_ = TrackingParticleSelector(conf_.getParameter<double>("ptMinTP"),
+                                         conf_.getParameter<double>("ptMaxTP"),
                                          conf_.getParameter<double>("minRapidityTP"),
                                          conf_.getParameter<double>("maxRapidityTP"),
                                          conf_.getParameter<double>("tipTP"),

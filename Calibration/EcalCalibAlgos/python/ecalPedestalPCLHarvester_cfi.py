@@ -7,5 +7,6 @@ ECALpedestalPCLHarvester = DQMEDHarvester('ECALpedestalPCLHarvester',
                                           checkAnomalies  = cms.bool(False), # whether or not to avoid creating sqlite file in case of many changed pedestals
                                           nSigma          = cms.double(5.0), #  threshold in sigmas to define a pedestal as anomally changed
                                           thresholdAnomalies = cms.double(0.1),# threshold (fraction of changed pedestals) to avoid creation of sqlite file 
-                                          dqmDir      = cms.string('AlCaReco/EcalPedestalsPCL') 
+                                          dqmDir      = cms.string('AlCaReco/EcalPedestalsPCL'),
+                                          labelG6G1   = cms.string('HLT'), #use the HLT tag as source for G6 and G1 pedestals
                                           )

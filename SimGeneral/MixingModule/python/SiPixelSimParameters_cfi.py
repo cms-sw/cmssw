@@ -29,6 +29,11 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.BPix_SignalResponse_p1 = cms.double(0.711)
     digitizer.BPix_SignalResponse_p2 = cms.double(203.)
     digitizer.BPix_SignalResponse_p3 = cms.double(148.)
+    # gains and offsets are ints in the Clusterizer, so round to the same value
+    digitizer.ElectronsPerVcal           = cms.double(47)   # L2-4: 47  +- 4.7
+    digitizer.ElectronsPerVcal_L1        = cms.double(50)   # L1:   49.6 +- 2.6
+    digitizer.ElectronsPerVcal_Offset    = cms.double(-60)  # L2-4: -60 +- 130
+    digitizer.ElectronsPerVcal_L1_Offset = cms.double(-670) # L1:   -670 +- 220
 
 
 SiPixelSimBlock = cms.PSet(
@@ -59,7 +64,9 @@ SiPixelSimBlock = cms.PSet(
     BPix_SignalResponse_p2 = cms.double(97.4),
     BPix_SignalResponse_p3 = cms.double(126.5),
     ElectronsPerVcal = cms.double(65.5),
+    ElectronsPerVcal_L1 = cms.double(65.5),
     ElectronsPerVcal_Offset = cms.double(-414.0),
+    ElectronsPerVcal_L1_Offset = cms.double(-414.0),
     ElectronPerAdc = cms.double(135.0),
     TofUpperCut = cms.double(12.5),
     AdcFullScale = cms.int32(255),

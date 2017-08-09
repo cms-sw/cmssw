@@ -118,8 +118,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
       station->setName(name);
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri);
-	for (unsigned sch=0; sch<superChambers.size(); ++sch){
-	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(superChambers.at(sch));
+	for (auto sch : superChambers){
+	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(sch);
 	  const GEMDetId detId(superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  
@@ -218,11 +218,11 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   double ti = 0.4/cm;     // half thickness
   
   std::vector<float> pars;
-  pars.push_back(be); 
-  pars.push_back(te); 
-  pars.push_back(ap); 
-  pars.push_back(nStrips);
-  pars.push_back(nPads);
+  pars.emplace_back(be); 
+  pars.emplace_back(te); 
+  pars.emplace_back(ap); 
+  pars.emplace_back(nStrips);
+  pars.emplace_back(nPads);
   
   bool isOdd = detId.chamber()%2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(be, te, ap, ti), isOdd ));

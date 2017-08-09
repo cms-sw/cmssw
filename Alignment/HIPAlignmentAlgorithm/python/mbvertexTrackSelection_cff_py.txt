@@ -1,0 +1,64 @@
+import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
+
+strTBDConstrainer=None
+strtbdsel=""
+if hasattr(optpy,"TBDsel"):
+   strtbdsel=optpy.TBDsel
+if (hasattr(optpy, "TBDconstraint") and strtbdsel!=""):
+   strtbdconstr=optpy.TBDconstraint
+   if "momconstr" in strtbdconstr:
+      process.load("RecoTracker.TrackProducer.TwoBodyDecayMomConstraintProducer_cff")
+      process.TwoBodyDecayMomConstraint.src = "AlignmentTrackSelector"
+      if "y1ssel" in strtbdsel:
+         process.TwoBodyDecayMomConstraint.primaryMass = cms.double(9.46)
+         process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(0.05)
+      elif "zsel" in strtbdsel: # zsel
+         process.TwoBodyDecayMomConstraint.primaryMass = cms.double(91.1876)
+         process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(1.4)
+      process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
+      process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(99999.)
+      strTBDConstrainer="TwoBodyDecayMomConstraint,momentum"
+
+   elif "fullconstr" in strtbdconstr:
+      process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
+      process.TwoBodyDecayConstraint.src = "AlignmentTrackSelector"
+      if "y1ssel" in strtbdsel:
+         process.TwoBodyDecayConstraint.primaryMass = cms.double(9.46)
+         process.TwoBodyDecayConstraint.primaryWidth = cms.double(0.05)
+      elif "zsel" in strtbdsel: # zsel
+         process.TwoBodyDecayConstraint.primaryMass = cms.double(91.1876)
+         process.TwoBodyDecayConstraint.primaryWidth = cms.double(1.4)
+      process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
+      process.TwoBodyDecayConstraint.chi2Cut = cms.double(99999.)
+      strTBDConstrainer="TwoBodyDecayConstraint,trackParameters"
+
+process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
+   process,
+   strtrackcollname,
+   TTRHBuilder = strTTRHBuilder,
+   usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
+   openMassWindow = False,
+   cosmicsDecoMode = False,
+   cosmicsZeroTesla = False,
+   momentumConstraint = strTBDConstrainer, # Should be a momentum constraint object
+   cosmicTrackSplitting = False,
+   use_d0cut = True
+   )
+
+if strTBDConstrainer is not None:
+   process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.0 # Causes tiny bias in mass, but should not be very important
+   if "y1ssel" in strtbdsel:
+      process.AlignmentTrackSelector.ptMin   = 3.0
+      process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 9.2
+      process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 9.65
+   elif "zsel" in strtbdsel: # zsel
+      process.AlignmentTrackSelector.ptMin   = 15.0
+      process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 80.0
+      process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 100.0
+
+# OVerride some settings in track selection
+process.HighPurityTrackSelector.pMin   = 0.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = cms.int32(1)
+

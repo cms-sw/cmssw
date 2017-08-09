@@ -15,7 +15,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
  
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
@@ -53,7 +52,7 @@ class  TotemRPGeometryESModule : public edm::ESProducer
 {
   public:
     TotemRPGeometryESModule(const edm::ParameterSet &p);
-    virtual ~TotemRPGeometryESModule(); 
+    ~TotemRPGeometryESModule() override; 
 
     std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
@@ -104,8 +103,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
   newGD = new DetGeomDesc( *(idealGD.product()) );
   deque<const DetGeomDesc *> buffer;
   deque<DetGeomDesc *> bufferNew;
-  buffer.push_back(idealGD.product());
-  bufferNew.push_back(newGD);
+  buffer.emplace_back(idealGD.product());
+  bufferNew.emplace_back(newGD);
 
   while (buffer.size() > 0)
   {
@@ -115,8 +114,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     bufferNew.pop_front();
 
     // Is it sensor? If yes, apply full sensor alignments
-    if ( pD->name().name().compare( DDD_TOTEM_RP_DETECTOR_NAME) == 0
-      or pD->name().name().compare( DDD_CTPPS_DIAMONDS_DETECTOR_NAME ) == 0 )
+    if ( pD->name().name() == DDD_TOTEM_RP_DETECTOR_NAME
+      or pD->name().name() == DDD_CTPPS_DIAMONDS_DETECTOR_NAME )
     {
       unsigned int plId = pD->geographicalID();
 
@@ -143,13 +142,13 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     for (unsigned int i = 0; i < sD->components().size(); i++)
     {
       const DetGeomDesc *sDC = sD->components()[i];
-      buffer.push_back(sDC);
+      buffer.emplace_back(sDC);
     
       // create new node with the same information as in sDC and add it as a child of pD
       DetGeomDesc * cD = new DetGeomDesc(*sDC);
       pD->addComponent(cD);
 
-      bufferNew.push_back(cD);
+      bufferNew.emplace_back(cD);
     }
   }
 }

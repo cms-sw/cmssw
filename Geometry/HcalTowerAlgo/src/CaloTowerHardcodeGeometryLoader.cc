@@ -11,7 +11,7 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
+std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
 
   m_limits = limits;
   m_hcaltopo = hcaltopo;
@@ -43,7 +43,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
     makeCell(din, geom);
   }
   edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << m_limits->sizeForDenseIndexing() << " towers.";
-  return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
+  return std::unique_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
 void
@@ -120,12 +120,12 @@ CaloTowerHardcodeGeometryLoader::makeCell( uint32_t din,
   const double mysign ( !alongZ ? 1 : -1 ) ;
   std::vector<CCGFloat> hh ;
   hh.reserve(5) ;
-  hh.push_back( deta/2 ) ;
-  hh.push_back( dphi_half ) ;
-  hh.push_back( mysign*thickness/2. ) ;
+  hh.emplace_back( deta/2 ) ;
+  hh.emplace_back( dphi_half ) ;
+  hh.emplace_back( mysign*thickness/2. ) ;
 
-  hh.push_back( fabs( eta ) ) ;
-  hh.push_back( fabs( z ) ) ;
+  hh.emplace_back( fabs( eta ) ) ;
+  hh.emplace_back( fabs( z ) ) ;
 
 #ifdef DebugLog
   std::cout << "CaloTowerHardcodeGeometryLoader: x = " << x << ", y = " << y << ", z = " << z << ", thickness = " << thickness << std::endl;

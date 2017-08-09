@@ -83,28 +83,28 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
   // Make the new HcalDetIds and the cells
 
   std::vector<HcalDetId> hcalIds;
-  for (unsigned int i=0; i<hcalCells.size(); i++) {
-    int etaRing  = hcalCells[i].etaBin();
-    int iside    = hcalCells[i].zside();
-    int depthBin = hcalCells[i].depthSegment();
-    double dphi  = hcalCells[i].phiBinWidth();
-    std::vector<std::pair<int,double> > phis = hcalCells[i].phis();
+  for (auto & hcalCell : hcalCells) {
+    int etaRing  = hcalCell.etaBin();
+    int iside    = hcalCell.zside();
+    int depthBin = hcalCell.depthSegment();
+    double dphi  = hcalCell.phiBinWidth();
+    std::vector<std::pair<int,double> > phis = hcalCell.phis();
 #ifdef EDM_ML_DEBUG
     std::cout << "HcalDDDGeometryLoader: Subdet " << subdet << " side "
 	      << iside << " eta " << etaRing << " depth " << depthBin 
 	      << " with " << phis.size() << "modules:" << std::endl;
 #endif
     geom->increaseReserve(phis.size());
-    for (unsigned int k = 0; k < phis.size(); k++) {
+    for (auto & phi : phis) {
 #ifdef EDM_ML_DEBUG
       std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " 
 		<< iside*etaRing << " phi " << phis[k].first << "("
 		<< phis[k].second/CLHEP::deg << ", " << dphi/CLHEP::deg 
 		<< ") depth " << depthBin << std::endl;
 #endif
-      HcalDetId id(subdet, iside*etaRing, phis[k].first, depthBin);
-      hcalIds.push_back(id);
-      makeCell(id,hcalCells[i],phis[k].second,dphi,geom) ;
+      HcalDetId id(subdet, iside*etaRing, phi.first, depthBin);
+      hcalIds.emplace_back(id);
+      makeCell(id,hcalCell,phi.second,dphi,geom) ;
     }
   }
   
@@ -192,14 +192,14 @@ void HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
   hp.reserve(3) ;
   
   if (subdet==HcalForward) {
-    hp.push_back(deta/2.) ;
-    hp.push_back(dphi/2.) ;
-    hp.push_back(thickness/2.) ;
+    hp.emplace_back(deta/2.) ;
+    hp.emplace_back(dphi/2.) ;
+    hp.emplace_back(thickness/2.) ;
   } else { 
     const double sign ( isBarrel ? 1 : -1 ) ;
-    hp.push_back(deta/2.) ;
-    hp.push_back(dphi/2.) ;
-    hp.push_back(sign*thickness/2.) ;
+    hp.emplace_back(deta/2.) ;
+    hp.emplace_back(dphi/2.) ;
+    hp.emplace_back(sign*thickness/2.) ;
   }
   geom->newCellFast( point, point, point,
 		 CaloCellGeometry::getParmPtr( hp, 

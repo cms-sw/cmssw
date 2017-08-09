@@ -26,7 +26,8 @@ process.dqmSaver.tag = "CTPPS"
 process.source = cms.Source("NewEventStreamFileReader",
   fileNames = cms.untracked.vstring(
     #'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root'
-    '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0011_streamPhysics_StorageManager.dat',
+    #'/store/t0streamer/Data/Physics/000/294/737/run294737_ls0011_streamPhysics_StorageManager.dat',
+    '/store/t0streamer/Minidaq/A/000/295/626/run295626_ls0001_streamA_StorageManager.dat',
   )
 )
 

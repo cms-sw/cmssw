@@ -23,6 +23,22 @@
 
 using namespace dqm;
 
+namespace {
+  template <typename T, size_t N>
+  std::array<T, N+1> makeLogBins(const double min, const double max) {
+    const double minLog10 = std::log10(min);
+    const double maxLog10 = std::log10(max);
+    const double width = (maxLog10-minLog10)/N;
+    std::array<T, N+1> ret;
+    ret[0] = std::pow(10,minLog10);
+    const double mult = std::pow(10, width);
+    for(size_t i=1; i<= N; ++i) {
+      ret[i] = ret[i-1]*mult;
+    }
+    return ret;
+  }
+}
+
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) 
     : conf_( nullptr )
     , stateName_                       (iConfig.getParameter<std::string>("MeasurementState") )
@@ -209,23 +225,27 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 
     ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
     
-    int LUMIBin   = conf_->getParameter<int>("LUMIBin");
+    constexpr int LUMIBin   = 300;   // conf_->getParameter<int>("LUMIBin");
     float LUMIMin = conf_->getParameter<double>("LUMIMin");
     float LUMIMax = conf_->getParameter<double>("LUMIMax");
     
 
-    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
-    float MIN[]        = { 0.5,     0.5,  0., LUMIMin };
-    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
+    int NBINS[]        = { 60,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
+    float MIN[]        = { 0.5,     0.5,  LUMIMin, LUMIMin };
+    float MAX[]        = { 60.5, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
-    
+   
+    auto logBins = makeLogBins<float,LUMIBin>(LUMIMin,LUMIMax);
+ 
     int mon = -1;
     int nbins = -1;
     float min = -1.;
     float max = -1.;
+    bool logQ = false;
     std::string name = "";
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) {
+        logQ =  (i>1); 
 	mon = i;
 	nbins = NBINS[i];
 	min = MIN[i];
@@ -259,27 +279,14 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
           switch(cat) {
             case 0:
               hits_valid_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
+		  Key(det, sub_det, mon), logQ? 
+                  ibooker.book1D(title, title, nbins, &logBins[0]) :
 		  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 1:
-              hits_missing_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 2:
-              hits_inactive_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
-              break;
-            case 3:
-              hits_bad_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 4:
               hits_total_.insert(std::make_pair(
-		  Key(det, sub_det, mon),
+		  Key(det, sub_det, mon), logQ?	
+                  ibooker.book1D(title, title, nbins, &logBins[0]) :
                   ibooker.book1D(title, title, nbins, min, max)));
               break;
             default:
@@ -356,6 +363,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       histname = "NumberOfValidRecHitsPerTrack_";
       NumberOfValidRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of valid RecHits for each Track");
+
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfLostRecHitsPerTrack_";
@@ -1295,14 +1303,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
             case 1:
-              hits_missing_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
-              break;
-            case 2:
-              hits_inactive_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
-              break;
-            case 3:
-              hits_bad_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << hit_type << " ignored\n";

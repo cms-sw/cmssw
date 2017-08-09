@@ -20,8 +20,8 @@ namespace DDI {
                const std::vector<double> & z,
 	       const std::vector<double> & r);
     
-    double volume() const;
-    void stream(std::ostream &) const;
+    double volume() const override;
+    void stream(std::ostream &) const override;
   	       
   };		  
 }
