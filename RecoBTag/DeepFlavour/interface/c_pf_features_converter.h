@@ -2,8 +2,13 @@
 #define RecoSV_DeepFlavour_c_pf_features_converter_h
 
 #include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 namespace deep {
+
+  // conversion map from quality flags used in PV association and miniAOD one
+  constexpr int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+
 
   template <typename CandidateType, typename JetType,
             typename TrackInfoBuilderType,
@@ -155,7 +160,7 @@ namespace deep {
 
 
             //c_pf_features.dz = c_pf->dz();
-            c_pf_features.VTX_ass = (float) pv_ass_quality;
+            c_pf_features.VTX_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
             //c_pf_features.fromPV = c_pf->fromPV();
             c_pf_features.vertexChi2=c_pf->vertexChi2();
             c_pf_features.vertexNdof=c_pf->vertexNdof();
@@ -218,9 +223,15 @@ namespace deep {
 
             c_pf_features.charge = c_pf->charge();
             // c_pf_features.lostInnerHits = deep::catch_infs(c_pf->lostInnerHits(),2);
-            c_pf_features.chi2 = deep::catch_infs_and_bound(pseudo_track.normalizedChi2(),300,-1,300);
-            //for some reason this returns the quality enum not a mask.
-            c_pf_features.quality = pseudo_track.qualityMask();
+            c_pf_features.chi2 = deep::catch_infs_and_bound(std::floor(pseudo_track.normalizedChi2()),300,-1,300);
+
+            // conditions from PackedCandidate producer
+            auto isHighPurity = c_pf->trackRef().isNonnull() && pseudo_track.quality(reco::Track::highPurity);
+            if (isHighPurity) {
+              c_pf_features.quality = reco::TrackBase::highPurity;
+            } else {
+              c_pf_features.quality = reco::TrackBase::loose;
+            }
 
             c_pf_features.drminsv = deep::catch_infs_and_bound(drminpfcandsv,0,-0.4,0,-0.4);
 
