@@ -129,7 +129,8 @@ namespace {
 
 
     unsigned char qualMask = ~0;
-    if (m_minQuality!=reco::TrackBase::undefQuality) qualMask = 1<<m_minQuality; 
+    const bool acceptAll = m_minQuality==reco::TrackBase::undefQuality;
+    if (!acceptAll) qualMask = 1<<m_minQuality;
     
     
     // load tracks
@@ -147,7 +148,7 @@ namespace {
       edm::Handle<QualityMaskCollection> hqual;
       evt.getByToken(srcQuals[i], hqual);
       for (auto j=0U; j<size; ++j) {
-	if (! (qualMask&(* hqual)[j]) ) continue;
+	if (! (acceptAll || (qualMask&(* hqual)[j]) ) ) continue;
 	mvas[k]=(*hmva)[j];
 	quals[k] = (*hqual)[j];
 	tkInds[k]=j;
