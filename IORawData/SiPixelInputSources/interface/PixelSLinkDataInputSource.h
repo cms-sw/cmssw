@@ -49,6 +49,8 @@ private:
   virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
   virtual void produce(edm::Event& event);
   uint32_t synchronizeEvents();
+  bool is_header(unsigned long long value);
+  bool is_trailer(unsigned long long value);
 
   int m_fedid;
   uint32_t m_fileindex;
