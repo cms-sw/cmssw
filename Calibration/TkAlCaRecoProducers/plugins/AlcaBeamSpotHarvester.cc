@@ -77,7 +77,6 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
   std::ofstream outFile;
   outFile.open(outTxt.c_str());
 
-
   if(poolDbService.isAvailable() ) {
     for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
@@ -190,6 +189,9 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
 
   }
+
+  outFile.close();
+
 }
 
 //--------------------------------------------------------------------------------------------------
