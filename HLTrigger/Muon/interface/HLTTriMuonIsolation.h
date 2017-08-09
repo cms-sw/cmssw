@@ -20,14 +20,13 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-
 class HLTTriMuonIsolation : public edm::global::EDProducer<> {
     public:
         explicit HLTTriMuonIsolation(const edm::ParameterSet& iConfig);
         ~HLTTriMuonIsolation();
         virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-        
+
     private:
         const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> L3MuonsToken_        ;
         const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> AllMuonsToken_       ;
@@ -40,8 +39,14 @@ class HLTTriMuonIsolation : public edm::global::EDProducer<> {
         edm::Handle<reco::RecoChargedCandidateCollection> AllMuCands          ;
         edm::Handle<reco::TrackCollection>                IsoTracks           ;
 
-        static bool ptComparer(const reco::RecoChargedCandidate & mu_1, const reco::RecoChargedCandidate & mu_2) { return mu_1.pt() > mu_2.pt(); }
+        template<typename T>
+        static bool ptComparer(const T & cand_1, const T & cand_2) { return cand_1.pt() > cand_2.pt(); }
         
+        double ChAbsIsoCut_ = std::numeric_limits<double>::infinity();
+        double ChRelIsoCut_ = std::numeric_limits<double>::infinity();
+
+        const double TwiceMuonMass_ = 2. * 0.1056583715; // in GeV
+
         const double Muon1PtCut_      ;
         const double Muon2PtCut_      ;
         const double Muon3PtCut_      ;
@@ -91,7 +96,7 @@ HLTTriMuonIsolation::~HLTTriMuonIsolation(){ }
 
 void
 HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & iSetup) const
-{
+{    
     std::unique_ptr<reco::CompositeCandidateCollection> Taus        (new reco::CompositeCandidateCollection);
     std::unique_ptr<reco::CompositeCandidateCollection> SelectedTaus(new reco::CompositeCandidateCollection);
 
@@ -113,7 +118,7 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
     // Get iso tracks
     edm::Handle<reco::TrackCollection> IsoTracks;
     iEvent.getByToken(IsoTracksToken_, IsoTracks);
-          
+
     if (AllMuCands->size() >= 3 && L3MuCands->size() >= 2){
         // Create the 3-muon candidates
         // loop over L3/Trk muons and create all combinations
@@ -154,8 +159,14 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     daughters.push_back(*j);
                     daughters.push_back(*k);
                                                             
-                    std::sort(daughters.begin(), daughters.end(), ptComparer);
+                    std::sort(daughters.begin(), daughters.end(), ptComparer<reco::RecoChargedCandidate>);
 
+                    // Muon kinematic selections
+                    if (daughters[0].pt() < Muon1PtCut_) continue;
+                    if (daughters[1].pt() < Muon2PtCut_) continue;
+                    if (daughters[2].pt() < Muon3PtCut_) continue;
+
+                    // assign the tau its daughters
                     tau.addDaughter((daughters)[0], "Muon_1");
                     tau.addDaughter((daughters)[1], "Muon_2");
                     tau.addDaughter((daughters)[2], "Muon_3");
@@ -185,26 +196,32 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     }
                                   
                     if (!collimated) continue;
-                        
+                                            
+                    // Tau kinematic selections
+                    if (tau.pt()   < TriMuonPtCut_  ) continue;
+                    if (tau.mass() < MinTriMuonMass_) continue;
+                    if (tau.mass() > MaxTriMuonMass_) continue;
+                    if (std::abs(tau.eta()) > TriMuonEtaCut_ ) continue;
+
+                    // Tau charge selection 
+                    if ((std::abs(tau.charge()) != TriMuonAbsCharge_) & (TriMuonAbsCharge_ >= 0)) continue;
+ 
+                    // Sanity check against duplicates, di-muon masses must be > 2 * mass_mu
+                    if ( (tau.daughter(0)->p4() + tau.daughter(1)->p4()).mass() < TwiceMuonMass_) continue;
+                    if ( (tau.daughter(0)->p4() + tau.daughter(2)->p4()).mass() < TwiceMuonMass_) continue;
+                    if ( (tau.daughter(1)->p4() + tau.daughter(2)->p4()).mass() < TwiceMuonMass_) continue;
+                    
                     // a good tau, at last                      
                     Taus->push_back(tau);
                 }
             }
         }
 
-        // Loop over taus and further select
+        // Sort taus by pt
+        std::sort(Taus->begin(), Taus->end(), ptComparer<reco::CompositeCandidate>);
+
+        // Loop over taus and further select by isolation
         for (const auto & itau : *Taus){
-            if (         itau.pt()   < TriMuonPtCut_  ) continue;
-            if (         itau.mass() < MinTriMuonMass_) continue;
-            if (         itau.mass() > MaxTriMuonMass_) continue;
-            if (std::abs(itau.eta()) > TriMuonEtaCut_ ) continue;
-            if (itau.daughter(0)->pt() < Muon1PtCut_  ) continue;
-            if (itau.daughter(1)->pt() < Muon2PtCut_  ) continue;
-            if (itau.daughter(2)->pt() < Muon3PtCut_  ) continue;
-            if ((std::abs(itau.charge()) != TriMuonAbsCharge_) & (TriMuonAbsCharge_ >= 0)) continue;
-            if (std::abs(itau.daughter(0)->vz() - itau.vz()) > MaxDZ_) continue;
-            if (std::abs(itau.daughter(1)->vz() - itau.vz()) > MaxDZ_) continue;
-            if (std::abs(itau.daughter(2)->vz() - itau.vz()) > MaxDZ_) continue;
 
             // remove the candidate pt from the iso sum
             double sumPt = -itau.pt();
@@ -217,10 +234,12 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
             }
             
             // apply the isolation cut
-            if ((sumPt > (EnableAbsIso_ * ChargedAbsIsoCut_)) || 
-                (sumPt > (EnableRelIso_ * ChargedRelIsoCut_ * itau.pt()))) continue;
+            ChAbsIsoCut_ = EnableAbsIso_ ? ChargedAbsIsoCut_             : std::numeric_limits<double>::infinity();
+            ChRelIsoCut_ = EnableRelIso_ ? ChargedRelIsoCut_ * itau.pt() : std::numeric_limits<double>::infinity();
             
-            SelectedTaus->push_back(itau); 
+            if ( !( (sumPt < ChAbsIsoCut_)||(sumPt < ChRelIsoCut_) ) ) continue;
+            
+            SelectedTaus->push_back(itau);
         }
     }
             
