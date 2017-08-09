@@ -1,3 +1,4 @@
+import os
 import sys
 import math
 import copy
@@ -699,6 +700,12 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
         histos = histos_new
     return (histos, xbinlabels, ybinlabels)
 
+def _mergeBinLabelsX(histos):
+    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+
+def _mergeBinLabelsY(histos):
+    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+
 def _mergeBinLabels(labelsAll):
     labels_merged = labelsAll[0]
     for labels in labelsAll[1:]:
@@ -715,7 +722,7 @@ def _mergeBinLabels(labelsAll):
                 # pick the last addition of the bin
                 ind = labels_merged.index(lab)
                 if operation[ind] == "-" and operation[-1] == "+":
-                    label_merged.remove(lab)
+                    labels_merged.remove(lab)
                     del operation[ind] # to keep xbinlabels and operation indices in sync
                 elif operation[ind] == "+" and operation[-1] == "-":
                     del operation[-1] # to keep xbinlabels and operation indices in sync
@@ -728,8 +735,24 @@ def _mergeBinLabels(labelsAll):
         if len(labels_merged) == 0:
             labels_merged = labels
 
-
     return labels_merged
+
+def _th1IncludeOnlyBins(histos, xbinlabels):
+    histos_new = []
+    for h in histos:
+        h_new = h.Clone(h.GetName()+"_xbinlabels")
+        h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
+        for i, label in enumerate(xbinlabels):
+            bin = h.GetXaxis().FindFixBin(label)
+            if bin >= 0:
+                h_new.SetBinContent(i+1, h.GetBinContent(bin))
+                h_new.SetBinError(i+1, h.GetBinError(bin))
+            else:
+                h_new.SetBinContent(i+1, 0)
+                h_new.SetBinError(i+1, 0)
+        histos_new.append(h_new)
+    return histos_new
+
 
 class Subtract:
     """Class for subtracting two histograms"""
@@ -920,7 +943,7 @@ class CutEfficiency:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False, reorder=None):
         """Constructor.
 
         Arguments:
@@ -933,6 +956,7 @@ class AggregateBins:
         scale       -- Optional number for scaling the histogram (passed to ROOT.TH1.Scale())
         renameBin   -- Optional function (string -> string) to rename the bins of the input histogram
         originalOrder -- Boolean for using the order of bins in the histogram (default False)
+        reorder     -- Optional function to reorder the bins
 
         Mapping structure (mapping):
 
@@ -949,6 +973,9 @@ class AggregateBins:
         self._ignoreMissingBins = ignoreMissingBins
         self._minExistingBins = minExistingBins
         self._originalOrder = originalOrder
+        self._reorder = reorder
+        if self._originalOrder and self._reorder is not None:
+            raise Exception("reorder is not None and originalOrder is True, please set only one of them")
 
     def __str__(self):
         """String representation, returns the name"""
@@ -1003,6 +1030,10 @@ class AggregateBins:
                 tmpLab.append(binLabels[fromIndex])
             binValues = tmpVal
             binLabels = tmpLab
+        if self._reorder is not None:
+            order = self._reorder(tdirectory, binLabels)
+            binValues = [binValues[i] for i in order]
+            binLabels = [binLabels[i] for i in order]
 
         if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
             return None
@@ -1642,6 +1673,26 @@ def _copyStyle(src, dst):
     for prop in properties:
         getattr(dst, "Set"+prop)(getattr(src, "Get"+prop)())
 
+class PlotEmpty:
+    """Denotes an empty place in a group."""
+    def __init__(self):
+        pass
+
+    def getName(self):
+        return None
+
+    def drawRatioUncertainty(self):
+        return False
+
+    def create(self, *args, **kwargs):
+        pass
+
+    def isEmpty(self):
+        return True
+
+    def getNumberOfHistograms(self):
+        return 0
+
 class Plot:
     """Represents one plot, comparing one or more histograms."""
     def __init__(self, name, **kwargs):
@@ -1998,27 +2049,14 @@ class Plot:
         ybinlabels = None
         if xbinlabels is None:
             if histosHaveBinLabels:
-                xbinlabels = _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+                xbinlabels = _mergeBinLabelsX(histos)
                 if isinstance(histos[0], ROOT.TH2):
-                    ybinlabels = _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+                    ybinlabels = _mergeBinLabelsY(histos)
 
                 if len(histos) > 1: # don't bother if only one histogram
                     # doing this for TH2 is pending for use case, for now there is only 1 histogram/plot for TH2
-                    histos_new = []
-                    for h in histos:
-                        h_new = h.Clone(h.GetName()+"_xbinlabels")
-                        h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
-                        for i, label in enumerate(xbinlabels):
-                            bin = h.GetXaxis().FindFixBin(label)
-                            if bin >= 0:
-                                h_new.SetBinContent(i+1, h.GetBinContent(bin))
-                                h_new.SetBinError(i+1, h.GetBinError(bin))
-                            else:
-                                h_new.SetBinContent(i+1, 0)
-                                h_new.SetBinError(i+1, 0)
-                        histos_new.append(h_new)
-                    self._tmp_histos = histos_new # need to keep these in memory too ...
-                    histos = histos_new
+                    histos = _th1IncludeOnlyBins(histos, xbinlabels)
+                    self._tmp_histos = histos # need to keep these in memory too ...
 
         # Remove empty bins, but only if histograms have bin labels
         if self._removeEmptyBins and histosHaveBinLabels:
@@ -2283,7 +2321,7 @@ class PlotGroup(object):
         for plot in self._plots:
             plot.create(tdirectoryNEvents, requireAllHistograms)
 
-    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
+    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True, directory=""):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -2292,6 +2330,7 @@ class PlotGroup(object):
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
         ratio        -- Add ratio to the plot (default True)
+        directory     -- Directory where to save the file (default "")
         """
 
         if self._overrideLegendLabels is not None:
@@ -2307,7 +2346,7 @@ class PlotGroup(object):
             return []
 
         if separate:
-            return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
+            return self._drawSeparate(legendLabels, prefix, saveFormat, ratio, directory)
 
         cwidth = 500*self._ncols
         nrows = int((len(self._plots)+self._ncols-1)/self._ncols) # this should work also for odd n
@@ -2357,9 +2396,9 @@ class PlotGroup(object):
         legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
                                     denomUncertainty=(ratio and denomUnc))
 
-        return self._save(canvas, saveFormat, prefix=prefix)
+        return self._save(canvas, saveFormat, prefix=prefix, directory=directory)
 
-    def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio):
+    def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio, directory):
         """Internal method to do the drawing to separate files per Plot instead of a file per PlotGroup"""
         width = 500
         height = 500
@@ -2418,7 +2457,7 @@ class PlotGroup(object):
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True, directory=directory))
         return ret
 
     def _modifyPadForRatio(self, pad):
@@ -2441,13 +2480,14 @@ class PlotGroup(object):
         l.Draw()
         return l
 
-    def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False):
+    def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
         if prefix is not None:
             name = prefix+name
         if postfix is not None:
             name = name+postfix
+        name = os.path.join(directory, name)
 
         if not verbose: # silence saved file printout
             backup = ROOT.gErrorIgnoreLevel
@@ -2505,6 +2545,7 @@ class PlotFolder:
         onlyForPileup  -- Plots this folder only for pileup samples
         onlyForElectron -- Plots this folder only for electron samples
         onlyForConversion -- Plots this folder only for conversion samples
+        onlyForBHadron -- Plots this folder only for B-hadron samples
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
@@ -2515,6 +2556,7 @@ class PlotFolder:
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
         self._onlyForElectron = kwargs.pop("onlyForElectron", False)
         self._onlyForConversion = kwargs.pop("onlyForConversion", False)
+        self._onlyForBHadron = kwargs.pop("onlyForBHadron", False)
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
@@ -2535,6 +2577,9 @@ class PlotFolder:
 
     def onlyForConversion(self):
         return self._onlyForConversion
+
+    def onlyForBHadron(self):
+        return self._onlyForBHadron
 
     def getPurpose(self):
         return self._purpose
@@ -2583,7 +2628,7 @@ class PlotFolder:
                 continue
             pg.create(dirsNEvents, requireAllHistograms)
 
-    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
+    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True, directory=""):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
@@ -2591,11 +2636,12 @@ class PlotFolder:
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
         ratio    -- Add ratio to the plot (default True)
+        directory -- Directory where to save the file (default "")
         """
         ret = []
 
         for pg in self._plotGroups:
-            ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
+            ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio, directory=directory))
         return ret
 
 
@@ -2701,6 +2747,9 @@ class PlotterFolder:
 
     def onlyForConversion(self):
         return self._plotFolder.onlyForConversion()
+
+    def onlyForBHadron(self):
+        return self._plotFolder.onlyForBHadron()
 
     def getPossibleDQMFolders(self):
         return self._possibleDqmFolders
