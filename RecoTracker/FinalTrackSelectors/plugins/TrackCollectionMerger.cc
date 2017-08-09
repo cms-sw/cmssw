@@ -283,19 +283,16 @@ namespace {
       producer(srcColls[i],selId);
       assert(producer.selTracks_->size()==nsel);
       assert(tid.size()==nsel-isel);
-      if(doMerging) { // override these only if the merging was run
-        auto k=0U;
-        for (;isel<nsel;++isel) {
-          auto & otk = (*producer.selTracks_)[isel];
-          otk.setQualityMask((*pquals)[isel]);
+      auto k=0U;
+      for (;isel<nsel;++isel) {
+        auto & otk = (*producer.selTracks_)[isel];
+        otk.setQualityMask((*pquals)[isel]);       // needed also without merging
+        if(doMerging) {
           otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
           otk.setAlgoMask(algoMask[tid[k++]]);
         }
-        assert(tid.size()==k);
       }
-      else {
-        isel = nsel; // update the internal bookkeeping
-      }
+      if(doMerging) assert(tid.size()==k);
     }
 
     assert(producer.selTracks_->size()==pmvas->size());
