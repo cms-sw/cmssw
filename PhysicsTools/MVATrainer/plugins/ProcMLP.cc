@@ -72,7 +72,7 @@ class ProcMLP : public TrainProcessor {
 	double			limiter;
 };
 
-static ProcMLP::Registry registry("ProcMLP");
+ProcMLP::Registry registry("ProcMLP");
 
 ProcMLP::ProcMLP(const char *name, const AtomicId *id,
                  MVATrainer *trainer) :
