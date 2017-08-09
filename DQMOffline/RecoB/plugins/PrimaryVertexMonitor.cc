@@ -122,7 +122,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
 
   xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,vposx-0.1,vposx+0.1);
-  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposx-0.1,vposy+0.1);
+  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposy-0.1,vposy+0.1);
   zrec[1]     = iBooker.book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
   xDiff[1]    = iBooker.book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
   yDiff[1]    = iBooker.book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);
