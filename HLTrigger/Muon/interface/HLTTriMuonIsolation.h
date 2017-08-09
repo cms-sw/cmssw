@@ -42,9 +42,6 @@ class HLTTriMuonIsolation : public edm::global::EDProducer<> {
         template<typename T>
         static bool ptComparer(const T & cand_1, const T & cand_2) { return cand_1.pt() > cand_2.pt(); }
         
-        double ChAbsIsoCut_ = std::numeric_limits<double>::infinity();
-        double ChRelIsoCut_ = std::numeric_limits<double>::infinity();
-
         const double TwiceMuonMass_ = 2. * 0.1056583715; // in GeV
 
         const double Muon1PtCut_      ;
@@ -234,10 +231,10 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
             }
             
             // apply the isolation cut
-            ChAbsIsoCut_ = EnableAbsIso_ ? ChargedAbsIsoCut_             : std::numeric_limits<double>::infinity();
-            ChRelIsoCut_ = EnableRelIso_ ? ChargedRelIsoCut_ * itau.pt() : std::numeric_limits<double>::infinity();
+            double chAbsIsoCut = EnableAbsIso_ ? ChargedAbsIsoCut_             : std::numeric_limits<double>::infinity();
+            double chRelIsoCut = EnableRelIso_ ? ChargedRelIsoCut_ * itau.pt() : std::numeric_limits<double>::infinity();
             
-            if ( !( (sumPt < ChAbsIsoCut_)||(sumPt < ChRelIsoCut_) ) ) continue;
+            if ( !( (sumPt < chAbsIsoCut)||(sumPt < chRelIsoCut) ) ) continue;
             
             SelectedTaus->push_back(itau);
         }
