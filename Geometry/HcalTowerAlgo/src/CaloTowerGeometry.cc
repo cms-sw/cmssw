@@ -67,7 +67,7 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
 
    m_cellVec[ di ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
    addValidID( detId ) ;
-   m_dins.push_back( di );
+   m_dins.emplace_back( di );
 }
 
 const CaloCellGeometry* 
@@ -87,11 +87,9 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
   dinsVec.reserve(numberOfCellsForCorners());
    
-  for (ParVecVec::const_iterator ivv (parVecVec().begin()) ; 
-       ivv != parVecVec().end() ; ++ivv) {
-    const ParVec& pv ( *ivv ) ;
-    for (ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv) {
-      dVec.push_back( *iv ) ;
+  for (const auto & pv : parVecVec()) {
+    for (float iv : pv) {
+      dVec.emplace_back( iv ) ;
     }
   }
    
@@ -100,7 +98,7 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
     const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
        
     if (0 != ptr) {
-      dinsVec.push_back( i );
+      dinsVec.emplace_back( i );
 
       ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
 
@@ -110,9 +108,9 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
       }
 
       const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
-      tVec.push_back( tt.x() ) ;
-      tVec.push_back( tt.y() ) ;
-      tVec.push_back( tt.z() ) ;
+      tVec.emplace_back( tt.x() ) ;
+      tVec.emplace_back( tt.y() ) ;
+      tVec.emplace_back( tt.z() ) ;
       if (6 == numberOfTransformParms()) {
          const CLHEP::HepRotation rr ( tr.getRotation() ) ;
          const ROOT::Math::Transform3D rtr (rr.xx(), rr.xy(), rr.xz(), tt.x(),
@@ -120,9 +118,9 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
                                             rr.zx(), rr.zy(), rr.zz(), tt.z());
          ROOT::Math::EulerAngles ea ;
          rtr.GetRotation( ea ) ;
-         tVec.push_back( ea.Phi() ) ;
-         tVec.push_back( ea.Theta() ) ;
-         tVec.push_back( ea.Psi() ) ;
+         tVec.emplace_back( ea.Phi() ) ;
+         tVec.emplace_back( ea.Theta() ) ;
+         tVec.emplace_back( ea.Psi() ) ;
       }
 
       const CCGFloat* par ( ptr->param() ) ;
@@ -142,7 +140,7 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
       assert( 9999 != ishape ) ;
       
       const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_dins.size() ) ; 
-      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+      if( iVec.size() < nn ) iVec.emplace_back( ishape ) ;
     }
   }
 }

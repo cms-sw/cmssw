@@ -1,7 +1,6 @@
 #ifndef Geometry_TrackerGeometryBuilder_PixelGeomDetType_H
 #define Geometry_TrackerGeometryBuilder_PixelGeomDetType_H
 
-
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
@@ -12,7 +11,7 @@
 class PixelGeomDetType final: public GeomDetType {
 
 public:
-  typedef  PixelTopology        TopologyType;
+  using TopologyType = PixelTopology;
 
   PixelGeomDetType(TopologyType* t,std::string const& name, SubDetector& det) :
     GeomDetType(name,det),
@@ -25,12 +24,11 @@ public:
   // Access to topologies
   const  Topology& topology() const override { return *theTopology;}
 
-
   virtual const TopologyType& specificTopology() const  { return *theTopology;}
 
 private:
-  PixelGeomDetType& operator = ( const PixelGeomDetType& other );
-  PixelGeomDetType( const PixelGeomDetType& other );
+  PixelGeomDetType& operator = ( const PixelGeomDetType& other ) = delete;
+  PixelGeomDetType( const PixelGeomDetType& other ) = delete;
     
   TopologyType*    theTopology;
 };

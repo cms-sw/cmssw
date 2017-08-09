@@ -1,4 +1,16 @@
 PrimaryVertexValidationTemplate="""
+
+process.HighPurityTrackSelector.trackQualities = cms.vstring()
+process.HighPurityTrackSelector.pMin     = cms.double(0.)
+process.AlignmentTrackSelector.pMin      = cms.double(0.)
+process.AlignmentTrackSelector.ptMin     = cms.double(0.)
+process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
+process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
+process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
+process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)
+process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
+process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)
+
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
 
@@ -23,7 +35,7 @@ if isMC:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real dATA!"
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
      if ('.oO[lumilist]Oo.'):
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. "
           import FWCore.PythonUtilities.LumiList as LumiList
@@ -72,8 +84,8 @@ else:
 if isDA:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),  
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
+                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
                                            Debug = cms.bool(False),
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
@@ -96,16 +108,16 @@ if isDA:
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
-                                           
+
                                            ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
                                            TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
                                                                      TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
                                                                                                    Tmin = cms.double(2.0),           # end of vertex splitting
-                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
+                                                                                                   Tpurge = cms.double(2.0),         # cleaning
                                                                                                    Tstop = cms.double(0.5),          # end of annealing
                                                                                                    vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
                                                                                                    d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
+                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)
                                                                                                    zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
                                                                                                    uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
                                                                                                    )
@@ -118,8 +130,8 @@ if isDA:
 else:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."), 
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
+                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
                                            Debug = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            storeNtuple = cms.bool(False),
@@ -132,20 +144,20 @@ else:
                                            numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
                                            runControl = cms.untracked.bool(.oO[runControl]Oo.),
                                            runControlNumber = cms.untracked.vuint32(int(.oO[runboundary]Oo.)),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
-                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
+
+                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),
+                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20
+                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2
+                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         minPt = cms.double(0.0),                                    # better for softish events
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
-                                        
+
                                            TkClusParameters = cms.PSet(algorithm   = cms.string('gap'),
                                                                        TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2)  # 0.2 cm max separation betw. clusters
-                                                                                                      ) 
+                                                                                                      )
                                                                        )
                                            )
 
@@ -155,17 +167,15 @@ else:
 ####################################################################
 PVValidationPath="""
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     process.seqTrackselRefit*
                      process.PVValidation)
 """
 
 ####################################################################
 ####################################################################
 PVValidationScriptTemplate="""
-#!/bin/bash 
+#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
-eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 
 echo  -----------------------
 echo  Job started at `date`
@@ -198,21 +208,21 @@ fi
 
 .oO[CommandLine]Oo.
 
-ls -lh . 
+ls -lh .
 
-$eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
-cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C . 
+cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C .
 cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.C .
 cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
 
  if [[ .oO[pvvalidationreference]Oo. == *store* ]]; then xrdcp -f .oO[pvvalidationreference]Oo. PVValidation_reference.root; else ln -fs .oO[pvvalidationreference]Oo. ./PVValidation_reference.root; fi
- 
+
 root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVValidation_reference.root=Design simulation\\",true,true,\\"$theDate\\")"
 
 mkdir -p .oO[plotsdir]Oo.
@@ -221,10 +231,10 @@ for PngOutputFile in $(ls *png ); do
     rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
-for PdfOutputFile in $(ls *pdf ); do                                                                                                                                            
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                                
-    rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.                                                                                                                                    
-done 
+for PdfOutputFile in $(ls *pdf ); do
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
+    rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
+done
 
 mkdir .oO[plotsdir]Oo./Biases/
 mkdir .oO[plotsdir]Oo./Biases/dzPhi
@@ -256,7 +266,7 @@ mv .oO[plotsdir]Oo./dzEtaTrend*       .oO[plotsdir]Oo./dzVsEta
 mv .oO[plotsdir]Oo./dxyPhiTrend*      .oO[plotsdir]Oo./dxyVsPhi
 mv .oO[plotsdir]Oo./dzPhiTrend*       .oO[plotsdir]Oo./dzVsPhi
 
-wget https://raw.githubusercontent.com/mmusich/PVToolScripts/master/PolishedScripts/index.php 
+wget https://raw.githubusercontent.com/mmusich/PVToolScripts/master/PolishedScripts/index.php
 
 cp index.php .oO[plotsdir]Oo./Biases/
 cp index.php .oO[plotsdir]Oo./Biases/dzPhi
@@ -276,7 +286,7 @@ cp index.php .oO[plotsdir]Oo./dzVsPhiNorm
 
 echo  -----------------------
 echo  Job ended at `date`
-echo  -----------------------    
+echo  -----------------------
 
 """
 
@@ -289,10 +299,10 @@ PrimaryVertexPlotExecution="""
 rfcp .oO[plottingscriptpath]Oo. .
 root -x -b -q .oO[plottingscriptname]Oo.++
 
-for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
+for PdfOutputFile in $(ls *pdf ); do
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
     rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
-done 
+done
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
@@ -316,18 +326,18 @@ void TkAlPrimaryVertexValidationPlot()
 {
 
   // initialize the plot y-axis ranges
-  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,         // mean of dxy vs Phi        
-                      .oO[m_dzPhiMax]Oo.,          // mean of dz  vs Phi        
-                      .oO[m_dxyEtaMax]Oo.,         // mean of dxy vs Eta        
-                      .oO[m_dzEtaMax]Oo.,          // mean of dz  vs Eta        
-                      .oO[m_dxyPhiNormMax]Oo.,     // mean of dxy vs Phi (norm) 
-                      .oO[m_dzPhiNormMax]Oo.,      // mean of dz  vs Phi (norm) 
-                      .oO[m_dxyEtaNormMax]Oo.,     // mean of dxy vs Eta (norm) 
-                      .oO[m_dzEtaNormMax]Oo.,      // mean of dz  vs Eta (norm) 
-                      .oO[w_dxyPhiMax]Oo.,         // width of dxy vs Phi       
-                      .oO[w_dzPhiMax]Oo.,          // width of dz  vs Phi       
-                      .oO[w_dxyEtaMax]Oo.,         // width of dxy vs Eta       
-                      .oO[w_dzEtaMax]Oo.,          // width of dz  vs Eta       
+  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,         // mean of dxy vs Phi
+                      .oO[m_dzPhiMax]Oo.,          // mean of dz  vs Phi
+                      .oO[m_dxyEtaMax]Oo.,         // mean of dxy vs Eta
+                      .oO[m_dzEtaMax]Oo.,          // mean of dz  vs Eta
+                      .oO[m_dxyPhiNormMax]Oo.,     // mean of dxy vs Phi (norm)
+                      .oO[m_dzPhiNormMax]Oo.,      // mean of dz  vs Phi (norm)
+                      .oO[m_dxyEtaNormMax]Oo.,     // mean of dxy vs Eta (norm)
+                      .oO[m_dzEtaNormMax]Oo.,      // mean of dz  vs Eta (norm)
+                      .oO[w_dxyPhiMax]Oo.,         // width of dxy vs Phi
+                      .oO[w_dzPhiMax]Oo.,          // width of dz  vs Phi
+                      .oO[w_dxyEtaMax]Oo.,         // width of dxy vs Eta
+                      .oO[w_dzEtaMax]Oo.,          // width of dz  vs Eta
                       .oO[w_dxyPhiNormMax]Oo.,     // width of dxy vs Phi (norm)
                       .oO[w_dzPhiNormMax]Oo.,      // width of dz  vs Phi (norm)
                       .oO[w_dxyEtaNormMax]Oo.,     // width of dxy vs Eta (norm)

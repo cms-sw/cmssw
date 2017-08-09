@@ -113,7 +113,7 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
 
   // Chamber specific parameter (size) 
   vector<double> par;
-  par.push_back(DTChamberTag);
+  par.emplace_back(DTChamberTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -140,7 +140,7 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
 
   // Slayer specific parameter (size)
   vector<double> par;
-  par.push_back(DTSuperLayerTag);
+  par.emplace_back(DTSuperLayerTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -163,7 +163,7 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
 
   // Layer specific parameter (size)
   vector<double> par;
-  par.push_back(DTLayerTag);
+  par.emplace_back(DTLayerTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -178,9 +178,9 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   }
   vector<double> sensSize= extractParameters(fv);
   //int lastWire=fv.copyno();
-  par.push_back(firstWire);
-  par.push_back(WCounter);
-  par.push_back(sensSize[1]);
+  par.emplace_back(firstWire);
+  par.emplace_back(WCounter);
+  par.emplace_back(sensSize[1]);
   fv.parent();
 
   PosRotPair posRot(plane(fv));

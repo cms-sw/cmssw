@@ -100,7 +100,7 @@ TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::str
   std::string str( *it );
   str.erase( 0, ( *fit ).size());
   boost::trim( str );
-  list.push_back( clean( str ));
+  list.emplace_back( clean( str ));
 
   return *fit;
 }
@@ -109,9 +109,9 @@ std::string
 TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 {
   std::string str( "" );
-  for( std::list<std::string>::const_iterator it = list.begin(); it != list.end(); ++it )
+  for(const auto & it : list)
   {
-    str.append( *it );
+    str.append( it );
     str.append("|");
   }
 
@@ -123,7 +123,7 @@ TestCompareDDSpecsDumpFiles::fillAndSort( tokenizer::iterator start, tokenizer::
 {
   for( tokenizer::iterator it = start; it != end; ++it )
   {
-    list.push_back( clean( *it ));
+    list.emplace_back( clean( *it ));
   }     
   list.sort();
 

@@ -62,6 +62,7 @@ struct PVcut {
   double dz;
 };
 
+
 //
 // class declaration
 //
@@ -70,7 +71,7 @@ class TopMonitor : public DQMEDAnalyzer
 {
 public:
   TopMonitor( const edm::ParameterSet& );
-  ~TopMonitor();
+  ~TopMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -83,7 +84,7 @@ protected:
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setMETitle(METME& me, std::string titleX, std::string titleY);
+  void setMETitle(METME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
@@ -99,8 +100,8 @@ protected:
 
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet  (const edm::ParameterSet& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -123,6 +124,10 @@ private:
   MEbinning           DR_binning_;
   // Marina
   MEbinning           csv_binning_;
+  //george
+   MEbinning           invMass_mumu_binning_;
+   MEbinning           MHT_binning_;
+
 
   std::vector<double> met_variable_binning_;
   std::vector<double> HT_variable_binning_;
@@ -132,6 +137,9 @@ private:
   std::vector<double> jetEta_variable_binning_;
   std::vector<double> muEta_variable_binning_;
   std::vector<double> eleEta_variable_binning_;
+   //george
+  std::vector<double> invMass_mumu_variable_binning_;
+  std::vector<double> MHT_variable_binning_;
 
   std::vector<double> HT_variable_binning_2D_;
   std::vector<double> jetPt_variable_binning_2D_;
@@ -171,6 +179,11 @@ private:
   METME mu1Eta_mu2Eta_;
   METME elePt_muPt_;
   METME eleEta_muEta_;
+  //george
+  METME invMass_mumu_;
+  METME eventMHT_;  
+  METME invMass_mumu_variableBinning_;
+  METME eventMHT_variableBinning_;
 
   //BTV
   METME DeltaR_jet_Mu_;
@@ -220,6 +233,7 @@ private:
 
   METME eventHT_;
   METME eventHT_variableBinning_;
+  
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -229,6 +243,7 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
+  
   //Suvankar
   StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
   
@@ -238,6 +253,8 @@ unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
+  double bJetMuDeltaRmax_;
+  double bJetDeltaEtaMax_;
   double HTcut_;
   // Marina
   unsigned int nbjets_;
@@ -246,6 +263,18 @@ unsigned int njets_;
   //Suvankar
   PVcut  lepPVcuts_;
   bool usePVcuts_;
+
+  //george
+  double invMassUppercut_;
+  double invMassLowercut_;
+  bool opsign_;
+  StringCutObjectSelector<reco::PFJet,true   >    MHTdefinition_;
+  double MHTcut_;
+  double mll;
+  int   sign;
+  
+
+
   
 };
 

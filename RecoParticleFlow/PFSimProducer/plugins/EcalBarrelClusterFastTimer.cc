@@ -58,7 +58,7 @@ private:
 DEFINE_FWK_MODULE(EcalBarrelClusterFastTimer);
 
 namespace {
-  static const std::string resolution("Resolution");
+  const std::string resolution("Resolution");
 
   constexpr float cm_per_ns = 29.9792458;
 

@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"

@@ -23,7 +23,7 @@ bool GEMRegion::operator==(const GEMRegion& re) const {
 }
 
 void GEMRegion::add(GEMStation* st) {
-  stations_.push_back(st);
+  stations_.emplace_back(st);
 }
   
 std::vector<const GeomDet*> GEMRegion::components() const {

@@ -24,6 +24,6 @@ namespace fastmath_details {
 	}
       }
     };
-    static Initatan initAtan;
+    Initatan initAtan;
   }
 }

@@ -1,6 +1,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 //#define DebugLog
@@ -117,13 +117,13 @@ std::vector<DetId> CaloTowerTopology::east(const DetId& id) const {
     ieta=-1;
   } else if (ieta==firstHEDoublePhiRing_) { //currently double phi, going to single phi (positive eta) -> extra neighbor
     ieta--;
-    dd.push_back(CaloTowerDetId(ieta,iphi+1));    
+    dd.emplace_back(CaloTowerDetId(ieta,iphi+1));    
   } else if (ieta-1==-firstHEDoublePhiRing_) { //currently single phi, going to double phi (negative eta) -> change numbering
     if ((iphi%2)==0) iphi--;
     ieta--;
   } else if (ieta==firstHFQuadPhiRing_) { //currently quad phi, going to double phi (positive eta) -> extra neighbor
     ieta--;
-    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
+    dd.emplace_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
   } else if (ieta-1==-firstHFQuadPhiRing_) { //currently double phi, going to quad phi (negative eta) -> change numbering
     if (((iphi-1)%4)==0) {
       if (iphi==1) iphi=71;
@@ -134,7 +134,7 @@ std::vector<DetId> CaloTowerTopology::east(const DetId& id) const {
     ieta--;
   }
 
-  if (ieta>=-lastHFRing_) dd.push_back(CaloTowerDetId(ieta,iphi));
+  if (ieta>=-lastHFRing_) dd.emplace_back(CaloTowerDetId(ieta,iphi));
   return dd;
 }
 
@@ -150,13 +150,13 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
     ieta=1;
   } else if (ieta==-firstHEDoublePhiRing_) { //currently double phi, going to single phi (negative eta) -> extra neighbor
     ieta++;
-    dd.push_back(CaloTowerDetId(ieta,iphi+1));    
+    dd.emplace_back(CaloTowerDetId(ieta,iphi+1));    
   } else if (ieta+1==firstHEDoublePhiRing_) { //currently single phi, going to double phi (positive eta) -> change numbering
     if ((iphi%2)==0) iphi--;
     ieta++;
   } else if (ieta==-firstHFQuadPhiRing_) { //currently quad phi, going to double phi (negative eta) -> extra neighbor
     ieta++;
-    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));
+    dd.emplace_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));
   } else if (ieta+1==firstHFQuadPhiRing_) { //currently double phi, going to quad phi (positive eta) -> change numbering
     if (((iphi-1)%4)==0) {
       if (iphi==1) iphi=71;
@@ -167,7 +167,7 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
     ieta++;
   }
 
-  if (ieta<=lastHFRing_) dd.push_back(CaloTowerDetId(ieta,iphi));
+  if (ieta<=lastHFRing_) dd.emplace_back(CaloTowerDetId(ieta,iphi));
 
   return dd;
 }
@@ -186,7 +186,7 @@ std::vector<DetId> CaloTowerTopology::north(const DetId& id) const {
   }
 
   std::vector<DetId> dd;
-  dd.push_back(CaloTowerDetId(tid.ieta(),iphi_n));
+  dd.emplace_back(CaloTowerDetId(tid.ieta(),iphi_n));
   return dd;
 }
 
@@ -203,7 +203,7 @@ std::vector<DetId> CaloTowerTopology::south(const DetId& id) const {
   }
 
   std::vector<DetId> dd;
-  dd.push_back(CaloTowerDetId(tid.ieta(),iphi_s));
+  dd.emplace_back(CaloTowerDetId(tid.ieta(),iphi_s));
   return dd;
 }
 

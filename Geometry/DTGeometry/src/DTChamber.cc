@@ -39,7 +39,7 @@ bool DTChamber::operator==(const DTChamber& ch) const {
 }
 
 void DTChamber::add(DTSuperLayer* sl) {
-  theSLs.push_back(sl);
+  theSLs.emplace_back(sl);
 }
 
 std::vector<const GeomDet*> DTChamber::components() const {
@@ -69,9 +69,8 @@ const DTSuperLayer* DTChamber::superLayer(DTSuperLayerId id) const{
 
 
 const DTSuperLayer* DTChamber::superLayer(int isl) const {
-  for (std::vector<const DTSuperLayer*>::const_iterator i = theSLs.begin();
-       i!= theSLs.end(); ++i) {
-    if ((*i)->id().superLayer()==isl) return (*i);
+  for (auto theSL : theSLs) {
+    if (theSL->id().superLayer()==isl) return theSL;
   }
   return 0;
 }

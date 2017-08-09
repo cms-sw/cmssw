@@ -118,7 +118,7 @@ class ProcLikelihood : public VarProcessor {
 	unsigned int		nCategories;
 };
 
-static ProcLikelihood::Registry registry("ProcLikelihood");
+ProcLikelihood::Registry registry("ProcLikelihood");
 
 double ProcLikelihood::SplinePDF::eval(double value) const
 {

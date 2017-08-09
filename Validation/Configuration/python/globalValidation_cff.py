@@ -37,6 +37,7 @@ from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.L1T.L1Validator_cfi import *
+from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 
@@ -166,6 +167,11 @@ globalPrevalidationMuons = cms.Sequence(
 )
 
 globalValidationMuons = cms.Sequence()
+
+_phase_1_globalValidation = globalValidation.copy()
+_phase_1_globalValidation += siPixelPhase1OfflineDQM_sourceV
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith( globalValidation, _phase_1_globalValidation )
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid

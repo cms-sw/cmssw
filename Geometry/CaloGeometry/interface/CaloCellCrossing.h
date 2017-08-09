@@ -39,8 +39,8 @@ class CaloCellCrossing
 
    private:
 
-      CaloCellCrossing( const CaloCellCrossing& ) ;
-      CaloCellCrossing operator=( const CaloCellCrossing& ) ;
+      CaloCellCrossing( const CaloCellCrossing& ) = delete;
+      CaloCellCrossing operator=( const CaloCellCrossing& ) = delete;
 
       GlobalPoint  m_gp ;
       GlobalVector m_gv ;
