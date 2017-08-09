@@ -60,7 +60,7 @@ class ProcMatrix : public VarProcessor {
 	Matrix	matrix;
 };
 
-static ProcMatrix::Registry registry("ProcMatrix");
+ProcMatrix::Registry registry("ProcMatrix");
 
 ProcMatrix::ProcMatrix(const char *name,
                        const Calibration::ProcMatrix *calib,
