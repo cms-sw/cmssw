@@ -348,13 +348,14 @@ void StackingAction::PrepareNewEvent() {}
 
 void StackingAction::initPointer() 
 {
-  // Russian roulette
-  const G4RegionStore * rs = G4RegionStore::GetInstance();
-  std::vector<G4Region*>::const_iterator rcite;
-  std::vector<std::string>::const_iterator rd;
+  // prepare region vector
+  unsigned int num = maxTimeNames.size();
+  maxTimeRegions.resize(num, nullptr);
 
-  for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
-    const G4Region* reg = (*rcite);
+  // Russian roulette
+  std::vector<G4Region*> *rs = G4RegionStore::GetInstance();
+
+  for (auto & reg : *rs) {
     G4String rname = reg->GetName(); 
     if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {  
       regionEcal = reg; 
@@ -371,19 +372,15 @@ void StackingAction::initPointer()
     if ((gRusRoCastor < 1.0 || nRusRoCastor < 1.0) && rname == "CastorRegion") {  
       regionCastor = reg; 
     }
-    if ((nRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {  
+    if ((gRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {  
       regionWorld = reg; 
     }
 
     // time limits
-    unsigned int num = maxTimeNames.size();
-    maxTimeRegions.resize(num, 0);
-    if (num > 0) {
-      for (unsigned int i=0; i<num; i++) {
-	if (rname == (G4String)(maxTimeNames[i])) {
-	  maxTimeRegions[i] = reg;
-	  break;
-	}
+    for (unsigned int i=0; i<num; ++i) {
+      if (rname == (G4String)(maxTimeNames[i])) {
+	maxTimeRegions[i] = reg;
+	break;
       }
     }
     // 
@@ -408,8 +405,8 @@ void StackingAction::initPointer()
     if(rname == "BeamPipeOutside" || rname == "BeamPipeVacuum") {
       lowdensRegions.push_back(reg);
     }
-    for (rd = deadRegionNames.begin(); rd != deadRegionNames.end(); ++rd) {
-      if(rname == (G4String)(*rd)) {
+    for (auto & dead : deadRegionNames) {
+      if(rname == (G4String)(dead)) {
 	deadRegions.push_back(reg);
       }
     }
@@ -420,9 +417,8 @@ bool StackingAction::isThisRegion(const G4Region* reg,
 				  std::vector<const G4Region*>& regions) const
 {
   bool flag = false;
-  unsigned int nRegions = regions.size();
-  for(unsigned int i=0; i<nRegions; ++i) {
-    if(reg == regions[i]) {
+  for(auto & region : regions) {
+    if(reg == region) {
       flag = true;
       break;
     }
