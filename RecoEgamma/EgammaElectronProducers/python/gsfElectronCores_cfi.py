@@ -18,11 +18,8 @@ gsfElectronCores = cms.EDProducer("GsfElectronCoreProducer",
     pfSuperClusterTrackMap = cms.InputTag("pfElectronTranslator:pf")
 )
 
-ecalDrivenGsfElectronCoresFromMultiCl = ecalDrivenGsfElectronCores.clone()
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
-  ecalDrivenGsfElectronCoresFromMultiCl,
+ecalDrivenGsfElectronCoresFromMultiCl = ecalDrivenGsfElectronCores.clone(
   gsfTracks = 'electronGsfTracksFromMultiCl',
   useGsfPfRecTracks = False
 )
+

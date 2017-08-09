@@ -44,13 +44,6 @@ particleFlowClusterHGCal = cms.EDProducer(
     energyCorrector = cms.PSet()
     )
 
-particleFlowClusterHGCalFromMultiCl = cms.EDProducer(
-    "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
-    recHitCleaners = cms.VPSet(),
-    seedFinder = _passThruSeeds_HGCal,
-    initialClusteringStep = _hgcalMultiClusterMapper_HGCal,
-    pfClusterBuilder = cms.PSet(),
-    positionReCalc = _positionCalcPCA_HGCal,
-    energyCorrector = cms.PSet()
-    )
+particleFlowClusterHGCalFromMultiCl = particleFlowClusterHGCal.clone(
+    initialClusteringStep = _hgcalMultiClusterMapper_HGCal
+)

@@ -40,12 +40,6 @@ phase2_hgcal.toModify(
 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
-ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone()
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
-    ecalDrivenElectronSeedsFromMultiCl,
-    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCalFromMultiCl'),
-    SeedConfiguration = dict( allowHGCal = cms.bool(True) )
-)
+ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
+  endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCalFromMultiCl'))
 
