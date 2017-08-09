@@ -366,6 +366,9 @@ def miniAOD_customizeMC(process):
     process.patJetFlavourAssociation.rParam = 0.4
 
 def miniAOD_customizeOutput(out):
+    from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
+    out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
+    out.splitLevel = cms.untracked.int32(0)
     out.dropMetaData = cms.untracked.string('ALL')
     out.fastCloning= cms.untracked.bool(False)
     out.overrideInputFileSplitLevels = cms.untracked.bool(True)
@@ -374,7 +377,7 @@ def miniAOD_customizeOutput(out):
 def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
-    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi")
+    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
     task = getPatAlgosToolsTask(process)
     task.add(process.ctppsLocalTrackLiteProducer)
 

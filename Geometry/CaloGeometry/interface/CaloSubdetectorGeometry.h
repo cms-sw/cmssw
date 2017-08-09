@@ -126,8 +126,8 @@ private:
   CaloCellGeometry::CornersMgr* m_cmgr ;
 
   /// avoid copies
-  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
-  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
+  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) = delete;
+  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) = delete;
 
   bool               m_sortedIds ;
 

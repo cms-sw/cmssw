@@ -18,10 +18,10 @@ SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1RecHitsClustX = DefaultHistoTrack.clone(
-  name = "rechitsize_x",
-  title = "X size of RecHit clusters",
+  name = "clustersize_x",
+  title = "Cluster Size X (OnTrack)",
   range_min = 0, range_max = 50, range_nbins = 50,
-  xlabel = "RecHit X-Size",
+  xlabel = "size[pixels]",
   dimensions = 1,
   specs = VPSet(
     StandardSpecification2DProfile
@@ -29,9 +29,9 @@ SiPixelPhase1RecHitsClustX = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1RecHitsClustY = SiPixelPhase1RecHitsClustX.clone(
-  name = "rechitsize_y",
-  title = "Y size of RecHit clusters",
-  xlabel = "RecHit Y-Size"
+  name = "clustersize_y",
+  title = "Cluster Size Y (OnTrack)",
+  xlabel = "size[pixels]"
 )
 
 SiPixelPhase1RecHitsErrorX = DefaultHistoTrack.clone(
@@ -75,7 +75,23 @@ SiPixelPhase1RecHitsProb = DefaultHistoTrack.clone(
   range_min = -10, range_max = 1, range_nbins = 50,
   dimensions = 1,
   specs = VPSet(
-    StandardSpecifications1D
+
+        Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+        Specification().groupBy("PXForward/PXDisk").saveAll(),
+        StandardSpecification2DProfile,
+    
+        Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                       .reduce("MEAN")
+                       .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                       .save(),
+
+        Specification().groupBy("PXForward/PXDisk/Lumisection")
+                       .reduce("MEAN")
+                       .groupBy("PXForward/PXDisk", "EXTEND_X")
+                       .save(),
+
+        Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+        Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
   )
 )
 

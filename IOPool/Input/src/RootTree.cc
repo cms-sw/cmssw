@@ -56,8 +56,7 @@ namespace edm {
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
     enablePrefetching_(enablePrefetching),
-    //enableTriggerCache_(branchType_ == InEvent),
-    enableTriggerCache_(false), // Disable, for now. Using the trigger cache in the multithreaded environment causes the assert on line 331 to fire occasionally.
+    enableTriggerCache_(branchType_ == InEvent),
     rootDelayedReader_(new RootDelayedReader(*this, filePtr, inputType)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility
@@ -252,8 +251,11 @@ namespace edm {
 
       // Calculate the end of the next cluster; triggers in the next cluster
       // will use the triggerCache, not the rawTriggerCache.
+      //
+      // Guarantee that rawTriggerSwitchOverEntry_ is positive (non-zero) after completion
+      // of this if-block.
       TTree::TClusterIterator clusterIter = tree_->GetClusterIterator(entryNumber);
-      while (rawTriggerSwitchOverEntry_ < entryNumber) {
+      while ((rawTriggerSwitchOverEntry_ < entryNumber) || (rawTriggerSwitchOverEntry_ <= 0)) {
         rawTriggerSwitchOverEntry_ = clusterIter();
       }
 
@@ -280,32 +282,6 @@ namespace edm {
       filePtr_->SetCacheRead(0);
 
       return rawTriggerTreeCache_.get();
-    } else if (entryNumber_ < rawTriggerSwitchOverEntry_) {
-      // The raw trigger has fired and it contents are valid.
-      return rawTriggerTreeCache_.get();
-    } else if (rawTriggerSwitchOverEntry_ > 0) {
-      // The raw trigger has fired, but we are out of the cache.  Use the
-      // triggerCache instead.
-      if (!performedSwitchOver_) {
-        rawTriggerTreeCache_.reset();
-        performedSwitchOver_ = true;
-
-        // Train the triggerCache
-        tree_->SetCacheSize(static_cast<Long64_t>(5*1024*1024));
-        triggerTreeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
-        triggerTreeCache_->SetEnablePrefetching(false);
-        triggerTreeCache_->SetLearnEntries(0);
-        triggerTreeCache_->SetEntryRange(entryNumber, tree_->GetEntries());
-        for(std::unordered_set<TBranch*>::const_iterator it = triggerSet_.begin(), itEnd = triggerSet_.end();
-            it != itEnd;
-            it++)
-        {
-          triggerTreeCache_->AddBranch(*it, kTRUE);
-        }
-        triggerTreeCache_->StopLearningPhase();
-        filePtr_->SetCacheRead(0);
-      }
-      return triggerTreeCache_.get();
     } else if (entryNumber_ < rawTriggerSwitchOverEntry_) {
       // The raw trigger has fired and it contents are valid.
       return rawTriggerTreeCache_.get();

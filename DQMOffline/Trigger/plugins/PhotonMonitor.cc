@@ -67,9 +67,7 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   subphotonHoverEME_.denominator = nullptr;
   
 }
-PhotonMonitor::~PhotonMonitor()
-{
-}
+PhotonMonitor::~PhotonMonitor() = default;
 
 MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {

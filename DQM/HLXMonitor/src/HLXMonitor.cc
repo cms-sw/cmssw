@@ -80,7 +80,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
     if (XMAX <= 0) XMAX = 3564;
   }
 
-  if ((Style.compare("History") == 0) || (NBINS == 0)) {
+  if ((Style == "History") || (NBINS == 0)) {
     NBINS = (unsigned int)(XMAX - XMIN);
   }
 
@@ -254,12 +254,12 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
     }
   }
 
-  if (Style.compare("BX") == 0) {
+  if (Style == "BX") {
     OccXAxisTitle = "Bunch Crossing";
     OccYAxisTitle = "Tower Occupancy";
     EtXAxisTitle = "Bunch Crossing";
     EtYAxisTitle = "E_{T} Sum";
-  } else if (Style.compare("Distribution") == 0) {
+  } else if (Style == "Distribution") {
     OccXAxisTitle = "Tower Occupancy";
     OccYAxisTitle = "Count";
     EtXAxisTitle = "E_{T} Sum";
@@ -1146,7 +1146,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
           utotal2 += section.occupancy[iHLX].data[set2AboveIndex][iBX];
         }
 
-        if (Style.compare("BX") == 0) {
+        if (Style == "BX") {
           // Get the correct bin ...
           TH1F* Set1BelowHist = Set1Below[iWedge]->getTH1F();
           int iBin = Set1BelowHist->FindBin((float)iBX);
@@ -1199,7 +1199,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
           Set2Between[iWedge]->setBinContent(iBin, normOccSet2Between);
           Set2Above[iWedge]->setBinContent(iBin, normOccSet2Above);
           ETSum[iWedge]->setBinContent(iBin, normEt);
-        } else if (Style.compare("Dist") == 0) {
+        } else if (Style == "Dist") {
           Set1Below[iWedge]->Fill(normOccSet1Below);
           Set1Between[iWedge]->Fill(normOccSet1Between);
           Set1Above[iWedge]->Fill(normOccSet1Above);

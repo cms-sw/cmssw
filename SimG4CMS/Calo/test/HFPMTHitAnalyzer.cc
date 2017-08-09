@@ -41,7 +41,7 @@ HFPMTHitAnalyzer::~HFPMTHitAnalyzer() {}
 void HFPMTHitAnalyzer::beginJob() {
 
   event_no = 0;
-  char name[20], title[120], sub[10];
+  char name[20], title[120], sub[11];
 
   edm::Service<TFileService> fs;
   if ( !fs.isAvailable() )

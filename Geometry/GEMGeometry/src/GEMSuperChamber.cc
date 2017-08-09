@@ -18,7 +18,7 @@ bool GEMSuperChamber::operator==(const GEMSuperChamber& sch) const {
 }
 
 void GEMSuperChamber::add(GEMChamber* ch) {
-  chambers_.push_back(ch);
+  chambers_.emplace_back(ch);
 }
 
 std::vector<const GeomDet*> GEMSuperChamber::components() const {

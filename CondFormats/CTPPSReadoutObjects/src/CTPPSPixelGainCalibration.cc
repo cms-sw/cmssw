@@ -132,34 +132,12 @@ float CTPPSPixelGainCalibration::getPed(const int& col, const int& row ) const {
     throw cms::Exception("CorruptedData")
       << "[CTPPSPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }
-  // bool  isDead = false;
-  // bool  isNoisy= false;
+
   int   ipix   = col + row * nCols;
   float tmpped = getPed(ipix/*,isDead,isNoisy*/);
-  // if (isDead || isNoisy)
-  //   edm::LogWarning("CTPPSPixelGainCalibration")<<"Using noisy or dead pixel";
+
   return tmpped;
 }
-
-// float CTPPSPixelGainCalibration::getPed(const int& col, const int& row, bool& isDead, bool& isNoisy) const {
-//   int nCols=indexes.ncols;
-//   int nRows=indexes.nrows;
-//   if (col >= nCols || row >= nRows){
-//     throw cms::Exception("CorruptedData")
-//       << "[CTPPSPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
-//   }  
-//   int ipix = col + row * nCols;
-//   return   getPed(ipix,isDead,isNoisy);
-// }
-
-
-// float CTPPSPixelGainCalibration::getPed(const uint32_t ipix,bool& isDead, bool&isNoisy) const {
-//   if (v_pedestals[ipix] == -9999.0)
-//     isDead = true;  
-//   if (v_gains[ipix] == -9999.0)
-//     isNoisy = true;
-//   return v_pedestals[ipix];  
-// }
 
 
 float CTPPSPixelGainCalibration::getGain(const int& col, const int& row ) const {
@@ -169,30 +147,11 @@ float CTPPSPixelGainCalibration::getGain(const int& col, const int& row ) const 
     throw cms::Exception("CorruptedData")
       << "[CTPPSPixelGainCalibration::getGain] Pixel out of range: col " << col << " row " << row;
   }  
-  // bool  isDead  = false;
-  // bool  isNoisy = false;  
+
   int   ipix    = col + row * nCols;
-  float tmpgain = getGain(ipix/*,isDead,isNoisy*/);
-  // if (isDead || isNoisy)
-  //   edm::LogWarning("CTPPSPixelGainCalibration")<<"Using noisy or dead pixel";
+  float tmpgain = getGain(ipix);
+
   return tmpgain;
 }
 
-// float CTPPSPixelGainCalibration::getGain(const int& col, const int& row, bool& isDead, bool& isNoisy) const {
-//   int nCols=indexes.ncols;
-//   int nRows=indexes.nrows;
-//   if (col >= nCols || row >= nRows){
-//     throw cms::Exception("CorruptedData")
-//       << "[CTPPSPixelGainCalibration::getGain] Pixel out of range: col " << col << " row " << row;
-//   }  
-//   int ipix = col + row * nCols;
-//   return getGain(ipix,isDead,isNoisy);
-// }
 
-// float CTPPSPixelGainCalibration::getGain(const uint32_t ipix,bool& isDead, bool&isNoisy) const {
-//   if (v_pedestals[ipix] == -9999. )
-//      isDead = true;  
-//   if (v_gains[ipix] == -9999.)
-//      isNoisy = true;
-//   return v_gains[ipix];
-// }

@@ -9,7 +9,7 @@
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
     <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.60</PARAM>
+    <PARAM name="warning">0.50</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_MuonBXMeanAtBX0">
@@ -104,7 +104,7 @@
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
     <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.60</PARAM>
+    <PARAM name="warning">0.50</PARAM>
   </QTEST>
   <TestName activate="true">uGMTBMTFBXPeakAtBX0</TestName>
 
@@ -194,7 +194,7 @@
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
     <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.60</PARAM>
+    <PARAM name="warning">0.50</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_OMTFBXMeanAtBX0">
@@ -319,7 +319,7 @@
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
     <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.60</PARAM>
+    <PARAM name="warning">0.50</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_EMTFBXMeanAtBX0">

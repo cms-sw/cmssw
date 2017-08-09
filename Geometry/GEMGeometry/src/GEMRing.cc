@@ -20,7 +20,7 @@ bool GEMRing::operator==(const GEMRing& ri) const {
 }
 
 void GEMRing::add(GEMSuperChamber* sch) {
-  superChambers_.push_back(sch);
+  superChambers_.emplace_back(sch);
 }
   
 std::vector<const GeomDet*> GEMRing::components() const {

@@ -9,7 +9,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 
@@ -19,16 +19,13 @@
 
 
 
-class TCCBlockFormatter : public BlockFormatter {
- public :
+class TCCBlockFormatter : public BlockFormatter {	
+  public :
+    TCCBlockFormatter(EcalDigiToRaw* es) : BlockFormatter(es) {};
+    static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
+    void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const;
 
-	TCCBlockFormatter();
-	~TCCBlockFormatter();
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
-
- private :
-	bool AllTPsamples_;
+  private :
 
 };
 

@@ -545,6 +545,11 @@ PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCol
 if fastSim.isChosen():
     PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
+from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
+hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,
+    func=lambda outputCommands: outputCommands.append('keep *_simHcalDigis_*_*')
+)
+
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
 PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_mix_*_*')
@@ -802,10 +807,20 @@ RAWMINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 
-RAWMINIAODEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
-RAWMINIAODSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
+RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
 
 #
 #

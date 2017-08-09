@@ -29,7 +29,7 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, phase2_common",
+        "era" : "run2_common, run3_common, phase2_common",
     }    
 }
 
@@ -183,7 +183,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
     }
 }
 

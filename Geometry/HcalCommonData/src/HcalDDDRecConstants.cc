@@ -42,7 +42,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int eta,
     hcons.ldMap()->getLayerDepth(eta+1, layers);
     std::vector<int> depths;
     for (unsigned int lay=0; lay < layers.size(); ++lay) 
-      depths.push_back(layers[lay+1]);
+      depths.emplace_back(layers[lay+1]);
     return depths;
   }
 }
@@ -55,7 +55,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const int det, const int phi, con
   } else {
     std::vector<int> depths;
     for (unsigned int lay=0; lay < layers.size(); ++lay) 
-      depths.push_back(layers[lay+1]);
+      depths.emplace_back(layers[lay+1]);
     return depths;
   }
 }
@@ -76,10 +76,10 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       std::vector<std::pair<int,double> > phiUse;
       getLayerDepth(ieta,layers);
       if (subdet == subdetSp) {
-	for (unsigned k=0; k<phis.size(); ++k) {
-	  if (std::find(phiSp.begin(),phiSp.end(),(zside*phis[k].first)) ==
+	for (auto & phi : phis) {
+	  if (std::find(phiSp.begin(),phiSp.end(),(zside*phi.first)) ==
 	      phiSp.end()){
-	    phiUse.push_back(phis[k]);
+	    phiUse.emplace_back(phi);
 	  }
 	}
       } else {
@@ -94,10 +94,10 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       for (int iz=0; iz<2; ++iz) {
 	int zside = 2*iz - 1;
 	std::vector<std::pair<int,double> > phiUse;
-	for (unsigned i=0; i<phiSp.size(); ++i) {
-	  for (unsigned k=0; k<phis.size(); ++k) {
-	    if (phiSp[i] == zside*phis[k].first) {
-	      phiUse.push_back(phis[k]);
+	for (int i : phiSp) {
+	  for (auto & phi : phis) {
+	    if (i == zside*phi.first) {
+	      phiUse.emplace_back(phi);
 	      break;
 	    }
 	  }
@@ -226,9 +226,9 @@ HcalDDDRecConstants::getHFCellParameters() const {
       double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
       double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
       HcalDDDRecConstants::HFCellParameters cell1( ieta,1,iphi,dphi,nphi,rMin,rMax);
-      cells.push_back(cell1);
+      cells.emplace_back(cell1);
       HcalDDDRecConstants::HFCellParameters cell2(-ieta,1,iphi,dphi,nphi,rMin,rMax);
-      cells.push_back(cell2);
+      cells.emplace_back(cell2);
     }
   }
   if (maxDepth[2] > 2) {
@@ -241,7 +241,7 @@ HcalDDDRecConstants::getHFCellParameters() const {
 	double rMin = hcons.getRTableHF()[nEta-ind-1]/CLHEP::cm;
 	double rMax = hcons.getRTableHF()[nEta-ind]/CLHEP::cm;
 	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,1,rMin,rMax);
-	cells.push_back(cell1);
+	cells.emplace_back(cell1);
       }
     } else {
       for (unsigned int k=0; k<nEta; ++k) {
@@ -252,9 +252,9 @@ HcalDDDRecConstants::getHFCellParameters() const {
 	double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
 	double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
 	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,nphi,rMin,rMax);
-	cells.push_back(cell1);
+	cells.emplace_back(cell1);
 	HcalDDDRecConstants::HFCellParameters cell2(-ieta,3,iphi,dphi,nphi,rMin,rMax);
-	cells.push_back(cell2);
+	cells.emplace_back(cell2);
       }
     }
   }
@@ -367,7 +367,7 @@ HcalDDDRecConstants::getPhis(int subdet, int ieta) const {
   for (int ifi = 0; ifi < nphi; ++ifi) {
     double phi =-fioff + (ifi+0.5)*dphi;
     int iphi   = hcons.phiNumber(ifi+1,units);
-    phis.push_back(std::pair<int,double>(iphi,phi));
+    phis.emplace_back(std::pair<int,double>(iphi,phi));
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta 
@@ -385,10 +385,10 @@ int HcalDDDRecConstants::getPhiZOne(std::vector<std::pair<int,int>>& phiz) const
   int subdet = hcons.ldMap()->getSubdet();
   if (subdet > 0) {
     std::vector<int> phis = hcons.ldMap()->getPhis();
-    for (unsigned int k=0; k<phis.size(); ++k) {
-      int zside = (phis[k] > 0) ? 1 : -1;
-      int phi   = (phis[k] > 0) ? phis[k] : -phis[k];
-      phiz.push_back(std::pair<int,int>(phi,zside));
+    for (int k : phis) {
+      int zside = (k > 0) ? 1 : -1;
+      int phi   = (k > 0) ? k : -k;
+      phiz.emplace_back(std::pair<int,int>(phi,zside));
     }
   }
 #ifdef EDM_ML_DEBUG
@@ -442,17 +442,17 @@ HcalDDDRecConstants::getThickActive(const int type) const {
 #ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
-  for (unsigned int k=0; k<bins.size(); ++k) {
-    int    ieta  = bins[k].ieta;
-    int    zside = bins[k].zside;
-    int    stype = (bins[k].phis.size() > 4) ? 0 : 1;
-    double eta   = 0.5*(bins[k].etaMin+bins[k].etaMax);
+  for (auto & bin : bins) {
+    int    ieta  = bin.ieta;
+    int    zside = bin.zside;
+    int    stype = (bin.phis.size() > 4) ? 0 : 1;
+    double eta   = 0.5*(bin.etaMin+bin.etaMax);
     double theta = 2*atan(exp(-eta));
     double scale = 1.0/((type == 0) ? sin(theta) : cos(theta));
-    int    depth = bins[k].depthStart;
-    for (unsigned int i = 0; i < bins[k].layer.size(); ++i) {
+    int    depth = bin.depthStart;
+    for (unsigned int i = 0; i < bin.layer.size(); ++i) {
       double thick(0);
-      for (int j = bins[k].layer[i].first; j <= bins[k].layer[i].second; ++j) {
+      for (int j = bin.layer[i].first; j <= bin.layer[i].second; ++j) {
 	if (type == 0 || j > 1) {
 	  double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
 	  if (t > 0) thick += t;
@@ -460,7 +460,7 @@ HcalDDDRecConstants::getThickActive(const int type) const {
       }
       thick *= (2.*scale);
       HcalDDDRecConstants::HcalActiveLength active(ieta,depth,zside,stype,zside*eta,thick);
-      actives.push_back(active);
+      actives.emplace_back(active);
       ++depth;
 #ifdef EDM_ML_DEBUG
       kount++;
@@ -489,31 +489,31 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
       for (unsigned int il=0; il<etabin.layer.size(); ++il) {
 	HcalCellType cell(subdet, etabin.ieta, etabin.zside, 0,
 			  HcalCellType::HcalCell());
-	temp.push_back(cell);
-	count.push_back(0);
-	dmin.push_back(0);
-	dmax.push_back(0);
+	temp.emplace_back(cell);
+	count.emplace_back(0);
+	dmin.emplace_back(0);
+	dmax.emplace_back(0);
       }
       int ieta = etabin.ieta;
       for (int keta=etaSimValu[ieta-1].first; keta<=etaSimValu[ieta-1].second;
 	   ++keta) {
 	std::vector<HcalCellType> cellsm = hcons.HcalCellTypes(subdet,keta,-1);
 	for (unsigned int il=0; il<etabin.layer.size(); ++il) {
-	  for (unsigned int ic=0; ic<cellsm.size(); ++ic) {
-	    if (cellsm[ic].depthSegment() >= etabin.layer[il].first &&
-		cellsm[ic].depthSegment() <= etabin.layer[il].second &&
-		cellsm[ic].etaBin() == temp[il].etaBin() && 
-		cellsm[ic].zside()  == temp[il].zside()) {
+	  for (auto & ic : cellsm) {
+	    if (ic.depthSegment() >= etabin.layer[il].first &&
+		ic.depthSegment() <= etabin.layer[il].second &&
+		ic.etaBin() == temp[il].etaBin() && 
+		ic.zside()  == temp[il].zside()) {
 	      if (count[il] == 0) {
-		temp[il] = cellsm[ic];
-		dmin[il] = cellsm[ic].depthMin();
-		dmax[il] = cellsm[ic].depthMax();
+		temp[il] = ic;
+		dmin[il] = ic.depthMin();
+		dmax[il] = ic.depthMax();
 	      }
 	      ++count[il];
-	      if (cellsm[ic].depthMin() < dmin[il]) 
-		dmin[il] = cellsm[ic].depthMin();
-	      if (cellsm[ic].depthMax() > dmax[il]) 
-		dmax[il] = cellsm[ic].depthMax();
+	      if (ic.depthMin() < dmin[il]) 
+		dmin[il] = ic.depthMin();
+	      if (ic.depthMax() > dmax[il]) 
+		dmax[il] = ic.depthMax();
 	    }
 	  }
 	}
@@ -525,7 +525,7 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
 	double foff = (etabin.ieta <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
 	int unit    = hcons.unitPhi(etabin.dphi);
 	temp[il].setPhi(etabin.phis, missPhi, foff, etabin.dphi, unit);
-	cells.push_back(temp[il]);
+	cells.emplace_back(temp[il]);
       }
     }
 #ifdef EDM_ML_DEBUG
@@ -545,8 +545,8 @@ unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     unsigned int num = 0;
     std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
-    for (unsigned int i=0; i<cellTypes.size(); i++) {
-      num += (unsigned int)(cellTypes[i].nPhiBins());
+    for (auto & cellType : cellTypes) {
+      num += (unsigned int)(cellType.nPhiBins());
     }
 #ifdef EDM_ML_DEBUG
     edm::LogInfo ("HCalGeom") << "HcalDDDRecConstants:numberOfCells " 
@@ -565,8 +565,8 @@ unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
     int isub   = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
     unsigned int ncell(0);
-    for (unsigned int i=0; i<etabins.size(); ++i) {
-      ncell += ((etabins[i].phis.size())*(etabins[i].layer.size()));
+    for (auto & etabin : etabins) {
+      ncell += ((etabin.phis.size())*(etabin.layer.size()));
     }
     return ncell;
   } else if (subdet == HcalOuter) {
@@ -613,21 +613,21 @@ void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id,
   ids.clear();
   std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
   if (itr == detIdSpR_.end()) {
-    ids.push_back(id);
+    ids.emplace_back(id);
   } else {
-    for (unsigned k=0; k<itr->second.size(); ++k) {
-      HcalDetId hid(id.subdet(),id.ieta(),id.iphi(),(itr->second)[k].depth());
-      ids.push_back(hid);
+    for (auto k : itr->second) {
+      HcalDetId hid(id.subdet(),id.ieta(),id.iphi(),k.depth());
+      ids.emplace_back(hid);
     }
   }
 }
 
 void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
 					 std::vector<HcalDetId>& idsNew) const {
-  for (unsigned int k=0; k<idsOld.size(); ++k) {
-    std::map<HcalDetId,HcalDetId>::const_iterator itr = detIdSp_.find(idsOld[k]);
-    if (itr == detIdSp_.end()) idsNew.push_back(idsOld[k]);
-    else                       idsNew.push_back(itr->second);
+  for (auto k : idsOld) {
+    std::map<HcalDetId,HcalDetId>::const_iterator itr = detIdSp_.find(k);
+    if (itr == detIdSp_.end()) idsNew.emplace_back(k);
+    else                       idsNew.emplace_back(itr->second);
   }
 }
 
@@ -636,11 +636,11 @@ bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
   if (tobemerged) {
     std::map<HcalDetId,HcalDetId>::const_iterator itr;
     for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr) 
-      ids.push_back(itr->first);
+      ids.emplace_back(itr->first);
   } else{
     std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr;
     for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr) 
-      ids.push_back(itr->first);
+      ids.emplace_back(itr->first);
   }
   return (ids.size() > 0);
 }
@@ -688,9 +688,9 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
 	  int lmax0 = (lmax >= lmin) ? lmax : lmin;
 	  if (subdet == HcalEndcap && ieta+1 == hpar->noff[1] && 
 	      dep > hcons.getDepthEta29(phis[0].first,zside,0)) {
-	    etabin0.layer.push_back(std::pair<int,int>(lmin,lmax0));
+	    etabin0.layer.emplace_back(std::pair<int,int>(lmin,lmax0));
 	  } else {
-	    etabin.layer.push_back(std::pair<int,int>(lmin,lmax0));
+	    etabin.layer.emplace_back(std::pair<int,int>(lmin,lmax0));
 	  }
 	  lmin = itr->first;
 	  lmax = lmin-1;
@@ -708,9 +708,9 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
     }
     if (lmax >= lmin) {
       if (ieta+1 == hpar->noff[1]) {
-	etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
+	etabin0.layer.emplace_back(std::pair<int,int>(lmin,lmax));
 	etabin0.phis.insert(etabin0.phis.end(),phis.begin(),phis.end());
-	bins.push_back(etabin0);
+	bins.emplace_back(etabin0);
 #ifdef EDM_ML_DEBUG
 	std::cout << "etabin0: dStatrt " << etabin0.depthStart << " layers "
 		  << etabin0.layer.size() << ":" << lmin << ":" << lmax
@@ -722,13 +722,13 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
 #endif
       } else if (ieta == hpar->noff[1]) {
       } else {
-	etabin.layer.push_back(std::pair<int,int>(lmin,lmax));
+	etabin.layer.emplace_back(std::pair<int,int>(lmin,lmax));
 	if (dstart < 0) dstart = dep;
       }
     }
   }
   etabin.depthStart = dstart;
-  bins.push_back(etabin);
+  bins.emplace_back(etabin);
 #ifdef EDM_ML_DEBUG
   std::cout << "etabin: dStatrt " << etabin.depthStart << " layers "
 	    << etabin.layer.size() << ":" << lmin << ":" << lmax
@@ -756,7 +756,7 @@ void HcalDDDRecConstants::initialize(void) {
   iEtaMax     = hpar->etaMax;
   etaTable.clear(); ietaMap.clear(); etaSimValu.clear();
   int ieta(0), ietaHB(0), ietaHE(0), ietaHEM(0);
-  etaTable.push_back(hpar->etaTable[ieta]);
+  etaTable.emplace_back(hpar->etaTable[ieta]);
   for (int i=0; i<nEta; ++i) {
     int ef = ieta+1;
     ieta  += (hpar->etagroup[i]);
@@ -769,10 +769,10 @@ void HcalDDDRecConstants::initialize(void) {
 					  << " at index " << i 
 					  << " of etaTable from SimConstant";
     } else {
-      etaTable.push_back(hpar->etaTable[ieta]);
-      etaSimValu.push_back(std::pair<int,int>(ef,ieta));
+      etaTable.emplace_back(hpar->etaTable[ieta]);
+      etaSimValu.emplace_back(std::pair<int,int>(ef,ieta));
     }
-    for (int k=0; k<(hpar->etagroup[i]); ++k) ietaMap.push_back(i+1);
+    for (int k=0; k<(hpar->etagroup[i]); ++k) ietaMap.emplace_back(i+1);
     if (ieta <= hpar->etaMax[0]) ietaHB = i+1;
     if (ieta <= hpar->etaMin[1]) ietaHE = i+1;
     if (ieta <= hpar->etaMax[1]) ietaHEM= i+1;
@@ -783,12 +783,12 @@ void HcalDDDRecConstants::initialize(void) {
 
   // Then Phi bins
   nPhiBins.clear();
-  for (unsigned int k=0; k<4; ++k) nPhiBins.push_back(0);
+  for (unsigned int k=0; k<4; ++k) nPhiBins.emplace_back(0);
   ieta = 0;
   phibin.clear(); phiUnitS.clear();
   for (int i=0; i<nEta; ++i) {
     double dphi = (hpar->phigroup[i])*(hpar->phibin[ieta]);
-    phibin.push_back(dphi);
+    phibin.emplace_back(dphi);
     int    nphi = (int)((CLHEP::twopi + 0.001)/dphi);
     if (ieta <= iEtaMax[0]) {
       if (nphi > nPhiBins[0]) nPhiBins[3] = nPhiBins[0] = nphi;
@@ -800,10 +800,10 @@ void HcalDDDRecConstants::initialize(void) {
   }
   for (unsigned int i=1; i<hpar->etaTable.size(); ++i) {
     int unit = hcons.unitPhi(hpar->phibin[i-1]);
-    phiUnitS.push_back(unit);
+    phiUnitS.emplace_back(unit);
   }
-  for (unsigned int i=0; i<hpar->phitable.size(); ++i)  {
-    int  nphi = (int)((CLHEP::twopi + 0.001)/hpar->phitable[i]);
+  for (double i : hpar->phitable)  {
+    int  nphi = (int)((CLHEP::twopi + 0.001)/i);
     if (nphi > nPhiBins[2]) nPhiBins[2] = nphi;
   }
 #ifdef EDM_ML_DEBUG
@@ -861,7 +861,7 @@ void HcalDDDRecConstants::initialize(void) {
   nModule[0] = hpar->modHB[0];
   nHalves[0] = hpar->modHB[1];
   for (unsigned int i=0; i<hpar->rHB.size(); ++i) {
-    gconsHB.push_back(std::pair<double,double>(hpar->rHB[i]/CLHEP::cm,
+    gconsHB.emplace_back(std::pair<double,double>(hpar->rHB[i]/CLHEP::cm,
 					       hpar->drHB[i]/CLHEP::cm));
   }
 #ifdef EDM_ML_DEBUG
@@ -874,7 +874,7 @@ void HcalDDDRecConstants::initialize(void) {
   nModule[1] = hpar->modHE[0];
   nHalves[1] = hpar->modHE[1];
   for (unsigned int i=0; i<hpar->zHE.size(); ++i) {
-    gconsHE.push_back(std::pair<double,double>(hpar->zHE[i]/CLHEP::cm,
+    gconsHE.emplace_back(std::pair<double,double>(hpar->zHE[i]/CLHEP::cm,
 					       hpar->dzHE[i]/CLHEP::cm));
   }
 #ifdef EDM_ML_DEBUG
@@ -965,9 +965,9 @@ void HcalDDDRecConstants::initialize(void) {
 	  std::cout << "New Depth " << ndepth << " old Depth " << odepth 
 		    << " max " << maxlay << std::endl;
 #endif
-	  for (unsigned int k=0; k<phis.size(); ++k) {
-	    zside  = (phis[k] > 0) ? 1 : -1;
-	    phi    = (phis[k] > 0) ? phis[k] : -phis[k];
+	  for (int k : phis) {
+	    zside  = (k > 0) ? 1 : -1;
+	    phi    = (k > 0) ? k : -k;
 	    if (subdet == HcalEndcap && eta == hpar->noff[1] &&
 		ndepth > hcons.getDepthEta29M(0,true)) break;
 	    HcalDetId newId(subdet,zside*eta,phi,ndepth);
@@ -976,7 +976,7 @@ void HcalDDDRecConstants::initialize(void) {
 	    std::vector<HcalDetId> ids;
 	    std::map<HcalDetId,std::vector<HcalDetId>>::iterator itr = detIdSpR_.find(oldId);
 	    if (itr != detIdSpR_.end()) ids = itr->second;
-	    ids.push_back(newId);
+	    ids.emplace_back(newId);
 	    detIdSpR_[oldId] = ids;
 	  }
 	}

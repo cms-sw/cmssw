@@ -120,6 +120,10 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   MonitorElement* Vx_ZY;
   MonitorElement* Vx_XY;
 
+  MonitorElement* Vx_X_Fit;
+  MonitorElement* Vx_Y_Fit;
+  MonitorElement* Vx_Z_Fit;
+
   MonitorElement* Vx_X_Cum;
   MonitorElement* Vx_Y_Cum;
   MonitorElement* Vx_Z_Cum;
