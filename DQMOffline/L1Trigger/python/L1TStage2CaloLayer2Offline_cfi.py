@@ -71,6 +71,9 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     mhtEfficiencyBins=cms.vdouble(mhtEfficiencyBins),
     ettEfficiencyBins=cms.vdouble(ettEfficiencyBins),
     httEfficiencyBins=cms.vdouble(httEfficiencyBins),
+
+    recoHTTMaxEta=cms.double(2.5),
+    recoMHTMaxEta=cms.double(2.5),
 )
 
 l1tStage2CaloLayer2OfflineDQMEmu = l1tStage2CaloLayer2OfflineDQM.clone(

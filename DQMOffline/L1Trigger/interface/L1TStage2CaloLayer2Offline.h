@@ -123,6 +123,9 @@ private:
   std::vector<double> ettEfficiencyBins_;
   std::vector<double> httEfficiencyBins_;
 
+  double recoHTTMaxEta_;
+  double recoMHTMaxEta_;
+
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
   MonitorElement* h_nVertex_;
