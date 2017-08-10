@@ -2,7 +2,6 @@
  *
  * This is a part of CTPPS offline software
  * Authors:
- *   Leszek Grzanka
  *   Jan Kašpar
  *   Laurent Forthomme
  *
@@ -28,6 +27,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
@@ -45,7 +45,7 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSFastProtonSimulation( const edm::ParameterSet& );
-    ~CTPPSFastProtonSimulation();
+    ~CTPPSFastProtonSimulation() {}
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -63,17 +63,31 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const HepMC::GenParticle*, edm::DetSetVector<TotemRPRecHit>&, HepMC::FourVector& ) const;
-    bool produceHit( const CLHEP::Hep3Vector&, const CTPPSDetId&, TotemRPRecHit& ) const;
+    //void transportProtonTrack( const HepMC::GenParticle*, edm::DetSetVector<TotemRPRecHit>&, HepMC::FourVector& ) const;
+    void transportProtonTrack( const HepMC::GenParticle*, std::unordered_map<unsigned int, std::array<double,5> >&, std::unordered_map<unsigned int, std::array<double,5> >&, HepMC::FourVector& ) const;
+
+    //--- TOTEM strips simulation
+    void generateRecHits( const CTPPSDetId&, const std::array<double,5>&, const std::array<double,5>&, double, edm::DetSetVector<TotemRPRecHit>& ) const;
+    bool produceHit( const CLHEP::Hep3Vector&, TotemRPRecHit& ) const;
+
+    //--- scoring plane
+    bool produceTrack( const CTPPSDetId&, const std::array<double,5>& kin_tr, CTPPSLocalTrackLite&, double, double ) const;
 
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
 
     double sqrtS_;
+    edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
+
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
     bool checkApertures_;
     bool produceHitsRelativeToBeam_;
+
+    std::vector<edm::ParameterSet> detectorPackages_;
+
+    /// simulate the detectors smearing for the scoring plane?
+    bool simulateDetectorsResolution_;
 
     bool roundToPitch_;
     /// strip pitch in mm
@@ -81,16 +95,14 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
     /// size of insensitive margin at sensor's edge facing the beam, in mm
     double insensitiveMargin_;
 
-    edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
-    std::vector<edm::ParameterSet> detectorPackages_;
+    /// internal variable: v position of strip 0, in mm
+    double stripZeroPosition_;
+
+    bool produces_strips_rechits_, produces_scoring_plane_hits_;
+    CLHEP::HepRandomEngine* rnd_;
 
     std::vector<CTPPSPotInfo> pots_;
     std::unordered_map<unsigned int, std::vector<CTPPSDetId> > strips_list_;
-
-    CLHEP::HepRandomEngine* rnd_;
-
-    /// internal variable: v position of strip 0, in mm
-    double stripZeroPosition_;
 
     edm::ESHandle<TotemRPGeometry> geometry_;
 
@@ -100,27 +112,51 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 const bool CTPPSFastProtonSimulation::invertBeamCoordinatesSystem_ = true;
 
 CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& iConfig ) :
+  // input collection
   protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
   sqrtS_                      ( iConfig.getParameter<double>( "sqrtS" ) ),
+  opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
+  opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
+  // angular/translational parameters
   halfCrossingAngleSector45_  ( iConfig.getParameter<double>( "halfCrossingAngleSector45" ) ),
   halfCrossingAngleSector56_  ( iConfig.getParameter<double>( "halfCrossingAngleSector56" ) ),
   yOffsetSector45_            ( iConfig.getParameter<double>( "yOffsetSector45" ) ),
   yOffsetSector56_            ( iConfig.getParameter<double>( "yOffsetSector56" ) ),
+  // optics generation parameters
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
   produceHitsRelativeToBeam_  ( iConfig.getParameter<bool>( "produceHitsRelativeToBeam" ) ),
-  roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
-  pitch_                      ( iConfig.getParameter<double>( "pitch" ) ),
-  insensitiveMargin_          ( iConfig.getParameter<double>( "insensitiveMargin" ) ),
-  opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
-  opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
+  // RP parameters
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
+  // other
+  produces_strips_rechits_( false ), produces_scoring_plane_hits_( false ),
   rnd_( 0 )
 {
-  produces< edm::DetSetVector<TotemRPRecHit> >();
   produces<edm::HepMCProduct>( "smeared" );
 
-  // v position of strip 0
-  stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_-1)*RPTopology::pitch_ - RPTopology::y_width_/2.;
+  // check if the module needs to generate the TOTEM strips simulation
+  if ( iConfig.exists( "stripsRecHitsParams" ) ) {
+    // TOTEM strips simulation parameters
+    const edm::ParameterSet stripsRecHitsParams( iConfig.getParameter<edm::ParameterSet>( "stripsRecHitsParams" ) );
+    roundToPitch_ = stripsRecHitsParams.getParameter<bool>( "roundToPitch" );
+    pitch_ = stripsRecHitsParams.getParameter<double>( "pitch" );
+    insensitiveMargin_ = stripsRecHitsParams.getParameter<double>( "insensitiveMargin" );
+    stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + ( RPTopology::no_of_strips_-1 )*RPTopology::pitch_ - RPTopology::y_width_*0.5; // v position of strip 0
+
+    // define the output collection
+    produces<edm::DetSetVector<TotemRPRecHit> >();
+    produces_strips_rechits_ = true;
+  }
+
+  // check if the module needs to generate the scoring plane simulation
+  if ( iConfig.exists( "scoringPlaneParams" ) ) {
+    // scoring plane simulation parameters
+    const edm::ParameterSet scoringPlaneParams( iConfig.getParameter<edm::ParameterSet>( "scoringPlaneParams" ) );
+    simulateDetectorsResolution_ = scoringPlaneParams.getParameter<bool>( "simulateDetectorsResolution" );
+
+    // define the output collection
+    produces<std::vector<CTPPSLocalTrackLite> >( "scoringPlane" );
+    produces_scoring_plane_hits_ = true;
+  }
 
   auto f_in_optics_beam1 = std::make_unique<TFile>( opticsFileBeam1_.fullPath().c_str() ),
        f_in_optics_beam2 = std::make_unique<TFile>( opticsFileBeam2_.fullPath().c_str() );
@@ -140,9 +176,6 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   }
 }
 
-CTPPSFastProtonSimulation::~CTPPSFastProtonSimulation()
-{}
-
 void
 CTPPSFastProtonSimulation::beginRun( const edm::Run&, const edm::EventSetup& iSetup )
 {
@@ -151,7 +184,7 @@ CTPPSFastProtonSimulation::beginRun( const edm::Run&, const edm::EventSetup& iSe
 
   std::ostringstream os;
   for ( const auto& rp : pots_ ) {
-    std::vector<CTPPSDetId>& list = strips_list_[rp.detid.rawId()];
+    std::vector<CTPPSDetId>& list = strips_list_[rp.detid];
     os << "\npot " << rp.detid << ":";
     for ( TotemRPGeometry::mapType::const_iterator it=geometry_->beginDet(); it!=geometry_->endDet(); ++it ) {
       const CTPPSDetId detid( it->first );
@@ -169,15 +202,19 @@ CTPPSFastProtonSimulation::produce( edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<edm::HepMCProduct> hepmc_prod;
   iEvent.getByToken( protonsToken_, hepmc_prod );
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  rnd_ = &( rng->getEngine( iEvent.streamID() ) );
+
   // prepare outputs
-  std::unique_ptr< edm::DetSetVector<TotemRPRecHit> > pRecHits( new edm::DetSetVector<TotemRPRecHit>() );
+  std::unique_ptr<edm::DetSetVector<TotemRPRecHit> > pRecHits( new edm::DetSetVector<TotemRPRecHit>() );
+  std::unique_ptr<std::vector<CTPPSLocalTrackLite> > pLiteTrks( new std::vector<CTPPSLocalTrackLite>() );
+
   auto evt = new HepMC::GenEvent( *hepmc_prod->GetEvent() );
   std::unique_ptr<edm::HepMCProduct> pOutProd( new edm::HepMCProduct( evt ) );
 
   // loop over event vertices
   for ( auto it_vtx=evt->vertices_begin(); it_vtx!=evt->vertices_end(); ++it_vtx ) {
     auto vtx = *( it_vtx );
-    //const HepMC::FourVector& vertex = (*vtx)->position(); // in mm
 
     // loop over outgoing particles
     for ( auto it_part=vtx->particles_out_const_begin(); it_part!=vtx->particles_out_const_end(); ++it_part ) {
@@ -186,19 +223,42 @@ CTPPSFastProtonSimulation::produce( edm::Event& iEvent, const edm::EventSetup& i
       if ( part->pdg_id()!=2212 ) continue; // only transport stable protons
       if ( part->status()!=1 && part->status()<83 ) continue;
 
-      HepMC::FourVector out_vtx;
-      transportProtonTrack( part, *pRecHits, out_vtx );
+      HepMC::FourVector out_vtx = vtx->position(); // in mm
+      std::unordered_map<unsigned int,std::array<double,5> > m_kin_tr, m_kin_be;
+      transportProtonTrack( part, m_kin_tr, m_kin_be, out_vtx );
+      for ( const auto& rp : pots_ ) {
+        if ( m_kin_tr.find( rp.detid )==m_kin_tr.end() ) continue;
+
+        if ( produces_strips_rechits_ ) {
+          const double optics_z0 = rp.z_position*1.0e3; // in mm
+          generateRecHits( rp.detid, m_kin_tr[rp.detid], m_kin_be[rp.detid], optics_z0, *pRecHits );
+        }
+
+        if ( produces_scoring_plane_hits_ ) {
+          // produce lite local tracks for the scoring plane
+          CTPPSLocalTrackLite sp_track;
+          const double resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.;
+          if ( produceTrack( rp.detid, m_kin_tr[rp.detid], sp_track, resol, resol ) ) pLiteTrks->push_back( sp_track );
+        }
+      }
       vtx->set_position( out_vtx );
       //FIXME add an association map proton track <-> sim hits
     }
   }
 
-  iEvent.put( std::move( pRecHits ) );
   iEvent.put( std::move( pOutProd ), "smeared" );
+
+  if ( produces_strips_rechits_ ) {
+    iEvent.put( std::move( pRecHits ) );
+  }
+
+  if ( produces_scoring_plane_hits_ ) {
+    iEvent.put( std::move( pLiteTrks ), "scoringPlane" );
+  }
 }
 
 void
-CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_trk, edm::DetSetVector<TotemRPRecHit>& out_hits, HepMC::FourVector& smeared_vtx ) const
+CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_trk, std::unordered_map<unsigned int, std::array<double,5> >& kin_out_tr, std::unordered_map<unsigned int, std::array<double,5> >& kin_out_be, HepMC::FourVector& smeared_vtx ) const
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
@@ -216,15 +276,12 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   double vtx_x = -vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
 
   double half_cr_angle = 0.0, vtx_y_offset = 0.0;
-  int z_sign = 0;
   // CMS convention
   if ( mom.z()>0.0 ) { // sector 45
-    z_sign = -1;
     half_cr_angle = halfCrossingAngleSector45_;
     vtx_y_offset = yOffsetSector45_;
   }
   if ( mom.z()<0.0 ) { // sector 56
-    z_sign = +1;
     half_cr_angle = halfCrossingAngleSector56_;
     vtx_y_offset = yOffsetSector56_;
   }
@@ -238,85 +295,102 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     if ( rp.detid.arm()==0 && mom.z()<0.0 ) continue; // sector 45
     if ( rp.detid.arm()==1 && mom.z()>0.0 ) continue; // sector 56
 
-    // so far only works for strips
-    if ( rp.detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) continue;
-    if ( strips_list_.find( rp.detid.rawId() )==strips_list_.end() ) continue;
+    // transport proton to its corresponding RP
+    std::array<double,5> kin_in_tr = { { vtx_x, th_x * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } };
+    std::array<double,5> kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } };
 
-    const double optics_z0 = rp.z_position*1.0e3; // in mm
+    if ( !rp.approximator->Transport( kin_in_tr.data(), kin_out_tr[rp.detid].data(), checkApertures_, invertBeamCoordinatesSystem_ ) ) return;
+    // stop if proton not transportable
 
-    // retrieve the sensor from geometry
-    for ( const auto& detid : strips_list_.at( rp.detid.rawId() ) ) {
-
-      edm::DetSet<TotemRPRecHit>& hits = out_hits.find_or_insert( detid );
-
-      // get geometry
-      const double gl_oz = geometry_->LocalToGlobal( detid, CLHEP::Hep3Vector() ).z(); // in mm
-
-      // transport proton to its corresponding RP
-      std::array<double,5> kin_in_tr = { { vtx_x, th_x * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } }, kin_out_tr;
-
-      bool tr_proton_transported = rp.approximator->Transport( kin_in_tr.data(), kin_out_tr.data(), checkApertures_, invertBeamCoordinatesSystem_ );
-
-      // stop if proton not transportable
-      if ( !tr_proton_transported ) return;
-
-      const double a_x_tr = kin_out_tr[1]/( 1.-xi );
-      const double a_y_tr = kin_out_tr[3]/( 1.-xi );
-      const double b_x_tr = kin_out_tr[0];
-      const double b_y_tr = kin_out_tr[2];
-
-      //printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
-
-      // evaluate positions (in mm) of track and beam
-      const double de_z = ( gl_oz-optics_z0 ) * z_sign;
-
-      const double x_tr = a_x_tr * de_z + b_x_tr * 1.0e3;
-      const double y_tr = a_y_tr * de_z + b_y_tr * 1.0e3;
-
-      // global hit in coordinates "aligned to beam" (as in the RP alignment)
-      CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_oz );
-
-      if ( produceHitsRelativeToBeam_ ) {
-        std::array<double,5> kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } }, kin_out_be;
-
-        bool be_proton_transported = rp.approximator->Transport( kin_in_be.data(), kin_out_be.data(), checkApertures_, invertBeamCoordinatesSystem_ );
-
-        // stop if proton not transportable
-        if ( be_proton_transported ) {
-          const double a_x_be = kin_out_be[1];
-          const double a_y_be = kin_out_be[3];
-          const double b_x_be = kin_out_be[0];
-          const double b_y_be = kin_out_be[2];
-
-          //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
-
-          const double x_be = a_x_be * de_z + b_x_be * 1.0e3;
-          const double y_be = a_y_be * de_z + b_y_be * 1.0e3;
-
-          /*std::cout << detid << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) <<
-            " | track: x=" << x_tr << ", y=" << y_tr <<
-            " | beam: x=" << x_be << ", y=" << y_be <<
-            std::endl;*/
-
-          h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
-        }
-      }
-      //std::cout << detid << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr << std::endl;
-
-      TotemRPRecHit hit; // all coordinates in mm
-      if ( produceHit( h_glo, detid, hit ) ) hits.push_back( hit );
+    if ( produceHitsRelativeToBeam_ ) {
+      rp.approximator->Transport( kin_in_be.data(), kin_out_be[rp.detid].data(), checkApertures_, invertBeamCoordinatesSystem_ );
     }
   }
 }
 
-bool       
-CTPPSFastProtonSimulation::produceHit( const CLHEP::Hep3Vector& coord_global, const CTPPSDetId& detid, TotemRPRecHit& rechit ) const
+void
+CTPPSFastProtonSimulation::generateRecHits( const CTPPSDetId& detid, const std::array<double,5>& kin_tr, const std::array<double,5>& kin_be, double optics_z0, edm::DetSetVector<TotemRPRecHit>& out_hits ) const
 {
-  // transform hit global to local coordinates
-  const CLHEP::Hep3Vector h_loc = geometry_->GlobalToLocal( detid, coord_global );
+  if ( detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) return; // only works with strips
 
-  double u = h_loc.x();
-  double v = h_loc.y();
+  const double xi = -kin_tr[4];
+  const short z_sign = ( detid.arm()==0 ) ? -1 : +1;
+
+  // search for planes
+  if ( strips_list_.find( detid )==strips_list_.end() ) return;
+
+  // retrieve the sensor from geometry
+  for ( const auto& pl_id : strips_list_.at( detid ) ) {
+
+    edm::DetSet<TotemRPRecHit>& hits = out_hits.find_or_insert( pl_id );
+
+    // get geometry
+    const double gl_oz = geometry_->LocalToGlobal( pl_id, CLHEP::Hep3Vector() ).z(); // in mm
+
+    const double a_x_tr = kin_tr[1]/( 1.-xi );
+    const double a_y_tr = kin_tr[3]/( 1.-xi );
+    const double b_x_tr = kin_tr[0];
+    const double b_y_tr = kin_tr[2];
+
+    LogDebug("CTPPSFastProtonSimulation") << "track: ax=" << a_x_tr << ", bx=" << b_x_tr << ", ay=" << a_y_tr << ", by=" << b_y_tr;
+
+    // evaluate positions (in mm) of track and beam
+    const double de_z = ( gl_oz-optics_z0 ) * z_sign;
+
+    const double x_tr = a_x_tr * de_z + b_x_tr * 1.0e3;
+    const double y_tr = a_y_tr * de_z + b_y_tr * 1.0e3;
+
+    // global hit in coordinates "aligned to beam" (as in the RP alignment)
+    CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_oz );
+
+    if ( produceHitsRelativeToBeam_ ) {
+      const double a_x_be = kin_be[1];
+      const double a_y_be = kin_be[3];
+      const double b_x_be = kin_be[0];
+      const double b_y_be = kin_be[2];
+
+      //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
+
+      const double x_be = a_x_be * de_z + b_x_be * 1.0e3;
+      const double y_be = a_y_be * de_z + b_y_be * 1.0e3;
+
+      LogDebug("CTPPSFastProtonSimulation")
+        << pl_id << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0)
+        << " | track: x=" << x_tr << ", y=" << y_tr
+        << " | beam: x=" << x_be << ", y=" << y_be;
+
+      h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
+    }
+    LogDebug("CTPPSFastProtonSimulation") << pl_id << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr;
+
+    // transform hit global to local coordinates
+    const CLHEP::Hep3Vector h_loc = geometry_->GlobalToLocal( pl_id, h_glo );
+
+    TotemRPRecHit hit; // all coordinates in mm
+    if ( produceHit( h_loc, hit ) ) hits.push_back( hit );
+  }
+}
+
+bool
+CTPPSFastProtonSimulation::produceTrack( const CTPPSDetId& detid, const std::array<double,5>& kin_tr, CTPPSLocalTrackLite& local_track, double rp_resolution_x, double rp_resolution_y ) const
+{
+  // define track
+  local_track = CTPPSLocalTrackLite(
+    detid,
+    ( kin_tr[0] + CLHEP::RandGauss::shoot( rnd_ ) * rp_resolution_x )*1.0e3, // in m
+    rp_resolution_x * 1.0e3,
+    ( kin_tr[2] + CLHEP::RandGauss::shoot( rnd_ ) * rp_resolution_y )*1.0e3, // in m
+    rp_resolution_y * 1.0e3
+  );
+
+  return true;
+}
+
+bool
+CTPPSFastProtonSimulation::produceHit( const CLHEP::Hep3Vector& coord_local, TotemRPRecHit& rechit ) const
+{
+  double u = coord_local.x();
+  double v = coord_local.y();
 
   // is it within detector?
   if ( !RPTopology::IsHit( u, v, insensitiveMargin_ ) ) return false;
