@@ -1,0 +1,11 @@
+<use name="FWCore/PluginManager"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="CondFormats/CTPPSOpticsObjects"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="rootcore"/>
+<library name="ValidationCTPPSPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

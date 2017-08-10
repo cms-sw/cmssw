@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimCTPPS/OpticsParameterisation"/>
+
+<use name="Geometry/VeryForwardRPTopology"/> 
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+
+<use name="CommonTools/UtilAlgos"/> <!--FIXME-->
+
+<use name="rootcore"/>
+
+<flags EDM_PLUGIN="1"/>
