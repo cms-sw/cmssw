@@ -104,22 +104,23 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 }
 
 //__________DQM_base_class_______________________________________________
-L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps){
-    m_verbose = ps.getUntrackedParameter<bool>("verbose");
+L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
+    m_verbose(ps.getUntrackedParameter<bool>("verbose")),
+    m_HistFolder(ps.getUntrackedParameter<string>("histFolder")),
+    m_GmtPtCuts(ps.getUntrackedParameter< vector<int> >("gmtPtCuts")),
+    m_MuonInputTag(consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"))),
+    m_GmtInputTag(consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"))),
+    m_VtxInputTag(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"))),
+    m_BsInputTag(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("bsInputTag"))),
+    m_trigInputTag(consumes<trigger::TriggerEvent>(ps.getUntrackedParameter<InputTag>("trigInputTag"))),
+    m_trigProcess(ps.getUntrackedParameter<string>("trigProcess")),
+    m_trigProcess_token(consumes<edm::TriggerResults>(ps.getUntrackedParameter<InputTag>("trigProcess_token"))),
+    m_trigNames(ps.getUntrackedParameter<vector<string> >("triggerNames")),
+    m_effVsPtBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
+    m_effVsPhiBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
+    m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins"))
+{
     if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
-
-    // Initializing config params
-    m_HistFolder  = ps.getUntrackedParameter<string>("histFolder");
-    m_GmtPtCuts = ps.getUntrackedParameter< vector<int> >("gmtPtCuts");
-    m_MuonInputTag =  consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"));
-    m_GmtInputTag  =  consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"));
-    m_VtxInputTag =  consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"));
-    m_BsInputTag  =  consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("bsInputTag"));
-    m_trigInputTag = consumes<trigger::TriggerEvent>(ps.getUntrackedParameter<InputTag>("trigInputTag"));
-    m_trigProcess  = ps.getUntrackedParameter<string>("trigProcess");
-    m_trigProcess_token  = consumes<edm::TriggerResults>(ps.getUntrackedParameter<InputTag>("trigProcess_token"));
-    m_trigNames    = ps.getUntrackedParameter<vector<string> >("triggerNames");
-
     // CB do we need them from cfi?
     m_MaxMuonEta   = 2.4;
     m_MaxGmtMuonDR = 0.7;
@@ -335,76 +336,86 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptC
     string ptTag = ptCutToTag.str();
 
     ibooker.setCurrentFolder(m_HistFolder+"/numerators_and_denominators");
-    float xbins[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 55, 60, 65, 70, 80, 90, 100};
+
+    std::vector<float> effVsPtBins(m_effVsPtBins.begin(), m_effVsPtBins.end());
+    int nEffVsPtBins = effVsPtBins.size() - 1;
+    float* ptBinsArray = &(effVsPtBins[0]);
 
     string name1 = "EffvsPt_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
     string name2 = "EffvsPt_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
 
     name1 = "EffvsPt_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
     name2 = "EffvsPt_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
 
     name1 = "EffvsPt_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32, xbins);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
     name2 = "EffvsPt_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32, xbins);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
 
     name1 = "EffvsPt_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
     name2 = "EffvsPt_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),32,xbins);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
 
 ////////////////////////////////////////////////
 
+    std::vector<float> effVsPhiBins(m_effVsPhiBins.begin(), m_effVsPhiBins.end());
+    int nEffVsPhiBins = effVsPhiBins.size() - 1;
+    float* phiBinsArray = &(effVsPhiBins[0]);
+
+    std::vector<float> effVsEtaBins(m_effVsEtaBins.begin(), m_effVsEtaBins.end());
+    int nEffVsEtaBins = effVsEtaBins.size() - 1;
+    float* etaBinsArray = &(effVsEtaBins[0]);
+
     name1 = "EffvsPhi_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
     name2 = "EffvsPhi_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
 
     name1 = "EffvsEta_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
     name2 = "EffvsEta_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
 
 //////////////////////////////////////////////
 
     name1 = "EffvsPhi_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
     name2 = "EffvsPhi_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
 
     name1 = "EffvsEta_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
     name2 = "EffvsEta_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
 
 //////////////////////////////////////////////
 
     name1 = "EffvsPhi_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
     name2 = "EffvsPhi_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
 
     name1 = "EffvsEta_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
     name2 = "EffvsEta_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
 
 //////////////////////////////////////////////
 
     name1 = "EffvsPhi_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),24,-TMath::Pi(),TMath::Pi());
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
     name2 = "EffvsPhi_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
-
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
 
     name1 = "EffvsEta_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
     name2 = "EffvsEta_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),50,-2.5,2.5);
+    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
 }
 
 //_____________________________________________________________________
