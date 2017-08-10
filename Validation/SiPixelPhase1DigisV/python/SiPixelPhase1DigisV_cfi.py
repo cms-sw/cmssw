@@ -11,12 +11,13 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   range_nbins = 300,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save()
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
-SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
+SiPixelPhase1DigisNdigis = DefaultHisto.clone(
   name = "digis", # 'Count of' added automatically
   title = "Digis",
   xlabel = "Number of Digis",
@@ -46,8 +47,9 @@ SiPixelPhase1DigisRows = DefaultHisto.clone(
   range_nbins = 200,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save()
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -60,8 +62,9 @@ SiPixelPhase1DigisColumns = DefaultHisto.clone(
   range_nbins = 300,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save()
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
  )
 )
 
