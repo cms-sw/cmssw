@@ -251,7 +251,11 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/zdc.xml',
         'Geometry/ForwardCommonData/data/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
+<<<<<<< HEAD
         'Geometry/MuonCommonData/data/muonNumbering/2017/v1/muonNumbering.xml',
+=======
+        'Geometry/MuonCommonData/data/muonNumbering/2019/v2/muonNumbering.xml',
+>>>>>>> Get rid of some of the unwanted warnings in Geometry initializations
         'Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml',
         'Geometry/TrackerSimData/data/PhaseI/trackersens.xml',
         'Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml',
@@ -266,7 +270,10 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
         'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',
+<<<<<<< HEAD
         'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter17.xml',
+=======
+>>>>>>> Get rid of some of the unwanted warnings in Geometry initializations
         'Geometry/GEMGeometryBuilder/data/v4/GEMSpecs.xml',
         'Geometry/ForwardCommonData/data/brmsens.xml',
         'Geometry/ForwardSimData/data/zdcsens.xml',
