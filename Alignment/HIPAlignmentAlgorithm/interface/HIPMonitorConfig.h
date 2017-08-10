@@ -29,11 +29,12 @@ public:
   const int maxNEvents;
   const int maxTracksRcd;
   int nEvents;
+  int nTracks;
   int m_Ntracks;
   std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
   std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
 
-  HIPTrackMonitorVariables(int maxNEvents_=-1, int maxTracksRcd_=-1) : HIPMonitorVariables(), maxNEvents(maxNEvents_), maxTracksRcd(maxTracksRcd_), nEvents(0), m_Ntracks(0){}
+  HIPTrackMonitorVariables(int maxNEvents_=-1, int maxTracksRcd_=-1) : HIPMonitorVariables(), maxNEvents(maxNEvents_), maxTracksRcd(maxTracksRcd_), nEvents(0), nTracks(0), m_Ntracks(0){}
 
   void bookBranches();
   void fill();
@@ -41,7 +42,8 @@ public:
 protected:
 
   void resetPerEvent(){
-    // Do not reset m_Ntracks
+    // Do not reset nTracks
+    m_Ntracks=0;
     m_Pt.clear(); m_Eta.clear(); m_Phi.clear(); m_Chi2n.clear(); m_P.clear(); m_d0.clear(); m_dz.clear(); m_wt.clear();
     m_Nhits.clear(); m_nhPXB.clear(); m_nhPXF.clear(); m_nhTIB.clear(); m_nhTOB.clear(); m_nhTID.clear(); m_nhTEC.clear();
   }
