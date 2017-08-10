@@ -9,13 +9,16 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <vector>
 #include <algorithm>
 #include <numeric>
+
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 // Boost helpers
 #include <boost/iterator/transform_iterator.hpp>
@@ -162,25 +165,11 @@ template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     return max_cand;
   }
 
-std::vector<PFCandidatePtr> convertPtrVector(const std::vector<CandidatePtr>& cands) {
-  std::vector<PFCandidatePtr> newSignalPFCands;
-  for (auto& cand : cands) {
-    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
-    newSignalPFCands.push_back(newPtr);
-  }
-  return newSignalPFCands;
-}
+std::vector<PFCandidatePtr> convertPtrVectorToPF(const std::vector<CandidatePtr>& cands);
 
-std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands) {
-  std::vector<CandidatePtr> newSignalCands;
-  for (auto& cand : cands) {
-    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::Candidate> >();
-    newSignalCands.push_back(newPtr);
-  }
-  return newSignalCands;
-}
+std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands);
 
-math::XYZPoint atECALEntrance(const reco::Candidate* part);
+math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField);
 
 }}  // end namespace reco::tau
 #endif

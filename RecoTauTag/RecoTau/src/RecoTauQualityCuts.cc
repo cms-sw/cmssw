@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include <boost/bind.hpp>
 
@@ -12,10 +13,15 @@ namespace {
   // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
   // JAN FIXME - WE NEED TO SEE WHAT TO DO FOR MINIAOD
   const reco::TrackBaseRef getTrackRef(const Candidate& cand) 
-  {
-    if ( cand.trackRef().isNonnull() ) return reco::TrackBaseRef(cand.trackRef());
-    else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
-    else return reco::TrackBaseRef();
+  { 
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
+      else return reco::TrackBaseRef();
+    }
+    // JAN - FIXME: Add method for miniAOD PackedCandidate
+    return reco::TrackBaseRef();
   }
 
   // Translate GsfTrackRef to TrackBaseRef
@@ -410,17 +416,12 @@ bool RecoTauQualityCuts::filterCandByType(const reco::Candidate& cand) const {
 
 bool RecoTauQualityCuts::filterCand(const reco::Candidate& cand) const 
 {
-  auto trackRef = cand.trackRef();
+  auto trackRef = getTrackRef(cand);
   bool result = true;
-  if(trackRef.isNonnull()) {
+
+  if(trackRef.isNonnull())
     result = filterTrack_(trackRef);
-  }
-  else {
-    auto gsfTrackRef = cand.gsfTrackRef();
-    if(gsfTrackRef.isNonnull()) {
-      result = filterTrack_(gsfTrackRef);
-    }
-  }
+    
   if(result)
     result = filterCandByType(cand);
   return result;

@@ -1,7 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <TMath.h>
 
@@ -16,7 +16,7 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
   double SumNeutrals = 0.;
   if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ||
        chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron)   ) {
-    const reco::PFCandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
+    const reco::CandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
     assert(chargedPFCand.isNonnull());
     chargedHadronP     += chargedPFCand->p();
     chargedHadronPx     = chargedPFCand->px();
@@ -30,8 +30,8 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
     chargedHadronPy     = track->py();
     chargedHadronPz     = track->pz();
   } else assert(0);
-  const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
+  const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
+  for ( std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
 	neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
     SumNeutrals += (*neutralPFCand)->p();
   }

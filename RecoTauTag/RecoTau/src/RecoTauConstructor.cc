@@ -12,7 +12,7 @@
 
 namespace reco { namespace tau {
 
-RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, 
+RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, 
 				       bool copyGammasFromPiZeros,
 				       const StringObjectFunction<reco::PFTau>* signalConeSize,
 				       double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
@@ -55,7 +55,7 @@ RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PF
         new SortedListPtr::element_type);
   }
 
-  tau_->setjetRef(jet);
+  tau_->setjetRef(jet.castTo<reco::PFJetRef>());
 }
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCandidateRef& ref, bool skipAddToP4) {
@@ -111,17 +111,20 @@ void RecoTauConstructor::reserveTauChargedHadron(Region region, size_t size)
 
 namespace
 {
-  void checkOverlap(const PFCandidatePtr& neutral, const std::vector<PFCandidatePtr>& pfGammas, bool& isUnique)
+  void checkOverlap(const CandidatePtr& neutral, const std::vector<PFCandidatePtr>& pfGammas, bool& isUnique)
   {
     LogDebug("TauConstructorCheckOverlap") << " pfGammas: #entries = " << pfGammas.size();
     for ( std::vector<PFCandidatePtr>::const_iterator pfGamma = pfGammas.begin();
 	  pfGamma != pfGammas.end(); ++pfGamma ) {
       LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma->id() << ":" << pfGamma->key();
-      if ( (*pfGamma) == neutral ) isUnique = false;
+      // JAN - FIXME - double-check that id() equality is fine!
+      // lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key() ???
+      if ( (*pfGamma).refCore() == neutral.refCore() && (*pfGamma).key() == neutral.key() ) isUnique = false;
     }
   }
 
-  void checkOverlap(const PFCandidatePtr& neutral, const std::vector<reco::RecoTauPiZero>& piZeros, bool& isUnique)
+
+  void checkOverlap(const CandidatePtr& neutral, const std::vector<reco::RecoTauPiZero>& piZeros, bool& isUnique)
   {
     LogDebug("TauConstructorCheckOverlap") << " piZeros: #entries = " << piZeros.size();
     for ( std::vector<reco::RecoTauPiZero>::const_iterator piZero = piZeros.begin();
@@ -140,9 +143,9 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
 {
   LogDebug("TauConstructorAddChH") << " region = " << region << ": Pt = " << chargedHadron.pt() << ", eta = " << chargedHadron.eta() << ", phi = " << chargedHadron.phi();
   // CV: need to make sure that PFGammas merged with ChargedHadrons are not part of PiZeros
-  const std::vector<PFCandidatePtr>& neutrals = chargedHadron.getNeutralPFCandidates();
-  std::vector<PFCandidatePtr> neutrals_cleaned;
-  for ( std::vector<PFCandidatePtr>::const_iterator neutral = neutrals.begin();
+  const std::vector<CandidatePtr>& neutrals = chargedHadron.getNeutralPFCandidates();
+  std::vector<CandidatePtr> neutrals_cleaned;
+  for ( std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin();
 	neutral != neutrals.end(); ++neutral ) {
     LogDebug("TauConstructorAddChH") << "neutral = " << neutral->id() << ":" << neutral->key();
     bool isUnique = true;
@@ -164,25 +167,25 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
     tau_->signalTauChargedHadronCandidatesRestricted().push_back(chargedHadron_cleaned);
     p4_ += chargedHadron_cleaned.p4();
     if ( chargedHadron_cleaned.getChargedPFCandidate().isNonnull() ) {
-      addPFCand(kSignal, kChargedHadron, chargedHadron_cleaned.getChargedPFCandidate(), true);
+      addPFCand(kSignal, kChargedHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()), true);
     }
-    const std::vector<PFCandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-    for ( std::vector<PFCandidatePtr>::const_iterator neutral = neutrals.begin();
+    const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
+    for ( std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin();
 	  neutral != neutrals.end(); ++neutral ) {
-      if      ( (*neutral)->particleId() == reco::PFCandidate::gamma ) addPFCand(kSignal, kGamma, *neutral, true);
-      else if ( (*neutral)->particleId() == reco::PFCandidate::h0    ) addPFCand(kSignal, kNeutralHadron, *neutral, true);
+      if      ( std::abs((*neutral)->pdgId()) == 22 ) addPFCand(kSignal, kGamma, convertToPtr(*neutral), true);
+      else if ( std::abs((*neutral)->pdgId()) == 130 ) addPFCand(kSignal, kNeutralHadron, convertToPtr(*neutral), true);
     };
   } else {
     tau_->isolationTauChargedHadronCandidatesRestricted().push_back(chargedHadron_cleaned);
     if ( chargedHadron_cleaned.getChargedPFCandidate().isNonnull() ) {
-      if      ( chargedHadron_cleaned.getChargedPFCandidate()->particleId() == reco::PFCandidate::h  ) addPFCand(kIsolation, kChargedHadron, chargedHadron_cleaned.getChargedPFCandidate());
-      else if ( chargedHadron_cleaned.getChargedPFCandidate()->particleId() == reco::PFCandidate::h0 ) addPFCand(kIsolation, kNeutralHadron, chargedHadron_cleaned.getChargedPFCandidate());
+      if      ( std::abs(chargedHadron_cleaned.getChargedPFCandidate()->pdgId()) == 211  ) addPFCand(kIsolation, kChargedHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()));
+      else if ( std::abs(chargedHadron_cleaned.getChargedPFCandidate()->pdgId()) == 130 ) addPFCand(kIsolation, kNeutralHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()));
     }
-    const std::vector<PFCandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-    for ( std::vector<PFCandidatePtr>::const_iterator neutral = neutrals.begin();
+    const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
+    for ( std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin();
 	  neutral != neutrals.end(); ++neutral ) {
-      if      ( (*neutral)->particleId() == reco::PFCandidate::gamma ) addPFCand(kIsolation, kGamma, *neutral);
-      else if ( (*neutral)->particleId() == reco::PFCandidate::h0    ) addPFCand(kIsolation, kNeutralHadron, *neutral);
+      if      ( std::abs((*neutral)->pdgId()) == 22 ) addPFCand(kIsolation, kGamma, convertToPtr(*neutral));
+      else if ( std::abs((*neutral)->pdgId()) == 130 ) addPFCand(kIsolation, kNeutralHadron, convertToPtr(*neutral));
     };
   }
 }

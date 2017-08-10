@@ -132,10 +132,10 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
         newSignalPFGammas.push_back(ptr);
     }
 
-    tau.setsignalPFCands(convertPtrVector(newSignalPFCands));
-    tau.setsignalPFCands(convertPtrVector(newSignalPFGammas));
-    tau.setisolationPFGammaCands(convertPtrVector(newIsolationPFGammas));
-    tau.setisolationPFCands(convertPtrVector(newIsolationPFCands));
+    tau.setsignalPFCands(convertPtrVectorToPF(newSignalPFCands));
+    tau.setsignalPFCands(convertPtrVectorToPF(newSignalPFGammas));
+    tau.setisolationPFGammaCands(convertPtrVectorToPF(newIsolationPFGammas));
+    tau.setisolationPFCands(convertPtrVectorToPF(newIsolationPFCands));
   }
 }
 }}  // end namespace reco::tau

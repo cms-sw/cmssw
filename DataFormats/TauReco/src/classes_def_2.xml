@@ -283,7 +283,8 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="14">
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="15">
+   <version ClassVersion="15" checksum="2213708860"/>
    <version ClassVersion="14" checksum="3665832588"/>
    <version ClassVersion="13" checksum="591384956"/>
    <version ClassVersion="12" checksum="2480143236" />

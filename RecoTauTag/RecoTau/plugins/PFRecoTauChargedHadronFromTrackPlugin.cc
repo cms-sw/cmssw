@@ -117,13 +117,13 @@ void PFRecoTauChargedHadronFromTrackPlugin::beginEvent()
 
 namespace
 {
-  struct PFCandidate_withDistance 
+  struct Candidate_withDistance 
   {
-    reco::PFCandidatePtr pfCandidate_;
+    reco::CandidatePtr pfCandidate_;
     double distance_;
   };
 
-  bool isSmallerDistance(const PFCandidate_withDistance& cand1, const PFCandidate_withDistance& cand2)
+  bool isSmallerDistance(const Candidate_withDistance& cand1, const Candidate_withDistance& cand2)
   {
     return (cand1.distance_ < cand2.distance_);
   }
@@ -210,22 +210,21 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
       chargedHadron->positionAtECALEntrance_ = math::XYZPointF(0.,0.,0.);
     }
 
-    std::vector<PFCandidate_withDistance> neutralJetConstituents_withDistance;
-    std::vector<reco::PFCandidatePtr> jetConstituents = jet.getPFConstituents();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
-      if ( !(jetConstituentType == reco::PFCandidate::h0 || jetConstituentType == reco::PFCandidate::gamma) ) continue;
-      double dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
+    std::vector<Candidate_withDistance> neutralJetConstituents_withDistance;
+    std::vector<reco::CandidatePtr> jetConstituents = jet.daughterPtrVector();
+    for ( const auto& jetConstituent : jetConstituents ) {
+      int pdgId = jetConstituent->pdgId();
+      if ( !(pdgId == 130 || pdgId == 22) ) continue;
+      double dR = deltaR(atECALEntrance(&*jetConstituent, magneticFieldStrength_.z()), chargedHadron->positionAtECALEntrance_);
       double dRmerge = -1.;      
-      if      ( jetConstituentType == reco::PFCandidate::h0    ) dRmerge = dRmergeNeutralHadron_;
-      else if ( jetConstituentType == reco::PFCandidate::gamma ) dRmerge = dRmergePhoton_;
+      if      ( pdgId == 130 ) dRmerge = dRmergeNeutralHadron_;
+      else if ( pdgId == 22 ) dRmerge = dRmergePhoton_;
       if ( dR < dRmerge ) {
-	PFCandidate_withDistance jetConstituent_withDistance;
-	jetConstituent_withDistance.pfCandidate_ = (*jetConstituent);
+	Candidate_withDistance jetConstituent_withDistance;
+	jetConstituent_withDistance.pfCandidate_ = jetConstituent;
 	jetConstituent_withDistance.distance_ = dR;
 	neutralJetConstituents_withDistance.push_back(jetConstituent_withDistance);
-	chargedHadron->addDaughter(*jetConstituent);
+	chargedHadron->addDaughter(jetConstituent);
       }
     }
     std::sort(neutralJetConstituents_withDistance.begin(), neutralJetConstituents_withDistance.end(), isSmallerDistance);
@@ -233,7 +232,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     const double caloResolutionCoeff = 1.0; // CV: approximate ECAL + HCAL calorimeter resolution for hadrons by 100%*sqrt(E)
     double resolutionTrackP = track->p()*(track->ptError()/track->pt());
     double neutralEnSum = 0.;
-    for ( std::vector<PFCandidate_withDistance>::const_iterator nextNeutral = neutralJetConstituents_withDistance.begin();
+    for ( std::vector<Candidate_withDistance>::const_iterator nextNeutral = neutralJetConstituents_withDistance.begin();
 	  nextNeutral != neutralJetConstituents_withDistance.end(); ++nextNeutral ) {
       double nextNeutralEn = nextNeutral->pfCandidate_->energy();      
       double resolutionCaloEn = caloResolutionCoeff*sqrt(neutralEnSum + nextNeutralEn);
