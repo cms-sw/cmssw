@@ -492,6 +492,7 @@ bool HIPAlignmentAlgorithm::processHit1D(
   double hitwt
   ){
   static const unsigned int hitDim = 1;
+  if (hitwt==0.) return false;
 
   // get trajectory impact point
   LocalPoint alvec = tsos.localPosition();
@@ -591,6 +592,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
   double hitwt
   ){
   static const unsigned int hitDim = 2;
+  if (hitwt==0.) return false;
 
   // get trajectory impact point
   LocalPoint alvec = tsos.localPosition();
@@ -762,7 +764,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       theMonitorConfig.trackmonitorvars.m_d0.push_back(d0);
       theMonitorConfig.trackmonitorvars.m_dz.push_back(dz);
       theMonitorConfig.trackmonitorvars.m_wt.push_back(ihitwt);
-      theMonitorConfig.trackmonitorvars.m_Ntracks++;
     }
 
     std::vector<const TransientTrackingRecHit*> hitvec;
@@ -884,10 +885,11 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         double mom_z = tsos.localDirection().z();
         double sin_theta = TMath::Abs(mom_z) / sqrt(pow(mom_x, 2)+pow(mom_y, 2)+pow(mom_z, 2));
         double angle = TMath::ASin(sin_theta);
+        double alihitwt=ihitwt;
 
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
-        if (IsCollision){ if (angle>col_cut)ihitwt=0; }
-        else{ if (angle<cos_cut)ihitwt=0; }
+        if (IsCollision){ if (angle>col_cut)alihitwt=0; }
+        else{ if (angle<cos_cut)alihitwt=0; }
 
         // Fill hit monitor variables
         theMonitorConfig.hitmonitorvars.m_angle = angle;
@@ -910,31 +912,29 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 bool probXYQgood;
                 if (alispecifics->usePixelProbXYOrProbQ) probXYQgood = (probXYgood || probQgood);
                 else probXYQgood = (probXYgood && probQgood);
-                if (!probXYQgood) ihitwt=0;
+                if (!probXYQgood) alihitwt=0;
               }
             }
           }
         }
 
-        theMonitorConfig.hitmonitorvars.m_hitwt = ihitwt;
-        if (ihitwt!=0.){
-          bool hitProcessed=false;
-          switch (nhitDim){
-          case 1:
-            hitProcessed=processHit1D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
-            break;
-          case 2:
-            hitProcessed=processHit2D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
-            break;
-          default:
-            edm::LogError("HIPAlignmentAlgorithm")
-              << "ERROR in <HIPAlignmentAlgorithm::run>: Number of hit dimensions = "
-              << nhitDim << " is not supported!"
-              << std::endl;
-            break;
-          }
-          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=nullptr && hitProcessed) theHitMonitorTree->Fill();
+        theMonitorConfig.hitmonitorvars.m_hitwt = alihitwt;
+        bool hitProcessed=false;
+        switch (nhitDim){
+        case 1:
+          hitProcessed=processHit1D(alidet, ali, alispecifics, tsos, *ihit, alihitwt);
+          break;
+        case 2:
+          hitProcessed=processHit2D(alidet, ali, alispecifics, tsos, *ihit, alihitwt);
+          break;
+        default:
+          edm::LogError("HIPAlignmentAlgorithm")
+            << "ERROR in <HIPAlignmentAlgorithm::run>: Number of hit dimensions = "
+            << nhitDim << " is not supported!"
+            << std::endl;
+          break;
         }
+        if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && hitProcessed) theMonitorConfig.hitmonitorvars.fill();
       }
 
       itsos++;

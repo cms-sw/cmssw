@@ -72,14 +72,14 @@ void HIPTrackMonitorVariables::fill(){
   if (maxNEvents>=0 && nEvents>=maxNEvents) return;
 
   bool doFill=false;
-  int OldSize = m_Ntracks-(int)m_Pt.size();
-  if (m_Ntracks==OldSize) return;
+  m_Ntracks=m_Pt.size();
+  if (m_Ntracks==0) return;
 
   if (maxTracksRcd<0) doFill=true;
-  else if (OldSize<maxTracksRcd){
-    if (m_Ntracks<maxTracksRcd) doFill=true;
+  else if (nTracks<maxTracksRcd){
+    if ((nTracks+m_Ntracks)<maxTracksRcd) doFill=true;
     else{
-      int NewSize = maxTracksRcd-OldSize;
+      int NewSize = maxTracksRcd - nTracks;
       if ((int)m_Pt.size()<NewSize) NewSize=m_Pt.size();
 
       // Do not touch m_Ntracks, just resize these vectors
@@ -88,10 +88,19 @@ void HIPTrackMonitorVariables::fill(){
       doFill=true;
     }
   }
+  else{
+    // Record only m_Ntracks
+    int tmpNtracks = m_Ntracks;
+    resetPerEvent();
+    m_Ntracks=tmpNtracks;
+
+    doFill=true;
+  }
 
   if (doFill){
     tree->Fill();
     nEvents++;
+    nTracks+=m_Ntracks;
   }
 
   resetPerEvent();
