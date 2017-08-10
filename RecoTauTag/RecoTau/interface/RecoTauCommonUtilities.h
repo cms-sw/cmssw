@@ -53,12 +53,22 @@ filterPFCandidates(const Iterator& begin, const Iterator& end,
 }
 
 /// Extract pfCandidates of a given particle Id from a PFJet.  If sort is true,
-/// candidates will be sorted by descending PT
+/// candidates will be sorted by descending PT. Internall translates to pdgId
 std::vector<CandidatePtr> pfCandidates(const Jet& jet,
-                                         int pdgId, bool sort=true);
+                                         int particleId, bool sort=true);
 
 /// Extract pfCandidates of a that match a list of particle Ids from a PFJet
 std::vector<CandidatePtr> pfCandidates(const Jet& jet,
+                                         const std::vector<int>& particleIds,
+                                         bool sort=true);
+
+/// Extract pfCandidates of a given PDG Id from a PFJet.  If sort is true,
+/// candidates will be sorted by descending PT
+std::vector<CandidatePtr> pfCandidatesByPdgId(const Jet& jet,
+                                         int pdgId, bool sort=true);
+
+/// Extract pfCandidates of a that match a list of PDG Ids from a PFJet
+std::vector<CandidatePtr> pfCandidatesByPdgId(const Jet& jet,
                                          const std::vector<int>& pdgIds,
                                          bool sort=true);
 

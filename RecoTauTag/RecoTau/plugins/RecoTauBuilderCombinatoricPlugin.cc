@@ -207,8 +207,8 @@ RecoTauBuilderCombinatoricPlugin::operator()(
   }
 
   CandPtrs pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
-  CandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidates(*jet, 130));
-  CandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidates(*jet, 22));
+  CandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 130));
+  CandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 22));
 
   /// Apply quality cuts to the regional junk around the jet.  Note that the
   /// particle contents of the junk is exclusive to the jet content.

@@ -15,6 +15,22 @@ typedef CandPtrs::iterator CandIter;
 
 namespace reco { namespace tau {
 
+namespace {
+  // Re-implemented from PFCandidate.cc
+  int translateTypeToAbsPdgId(int type) {
+    switch( type ) {
+    case reco::PFCandidate::h:     return 211; // pi+
+    case reco::PFCandidate::e:     return 11;
+    case reco::PFCandidate::mu:    return 13;
+    case reco::PFCandidate::gamma: return 22;
+    case reco::PFCandidate::h0:    return 130; // K_L0
+    case reco::PFCandidate::h_HF:         return 1; // dummy pdg code 
+    case reco::PFCandidate::egamma_HF:    return 2;  // dummy pdg code
+    case reco::PFCandidate::X: 
+    default:    return 0;  
+    }
+  }
+}
 std::vector<CandidatePtr>
 flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator& piZerosBegin, const std::vector<RecoTauPiZero>::const_iterator& piZerosEnd) {
   std::vector<CandidatePtr> output;
@@ -35,6 +51,20 @@ flattenPiZeros(const std::vector<RecoTauPiZero>& piZeros) {
 }
 
 std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
+    int particleId, bool sort) {
+  return pfCandidatesByPdgId(jet, translateTypeToAbsPdgId(particleId), sort);
+}
+
+std::vector<CandidatePtr> pfCandidates(const Jet& jet,
+                                         const std::vector<int>& particleIds,
+                                         bool sort) {
+  std::vector<int> pdgIds;
+  for (auto particleId : particleIds)
+    pdgIds.push_back(translateTypeToAbsPdgId(particleId));
+  return pfCandidatesByPdgId(jet, pdgIds, sort);
+}
+
+std::vector<reco::CandidatePtr> pfCandidatesByPdgId(const reco::Jet& jet,
     int pdgId, bool sort) {
   CandPtrs pfCands = jet.daughterPtrVector();
   CandPtrs selectedPFCands = filterPFCandidates(
@@ -42,7 +72,7 @@ std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
   return selectedPFCands;
 }
 
-std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
+std::vector<reco::CandidatePtr> pfCandidatesByPdgId(const reco::Jet& jet,
     const std::vector<int>& pdgIds, bool sort) {
   const CandPtrs& pfCands = jet.daughterPtrVector();
   CandPtrs output;

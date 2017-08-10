@@ -73,7 +73,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 
   double minStripEt_;
 
-  std::vector<int> inputPdgIds_;  // type of candidates to clusterize
+  std::vector<int> inputParticleIds_;  // type of candidates to clusterize
   double etaAssociationDistance_; // size of strip clustering window in eta direction
   double phiAssociationDistance_; // size of strip clustering window in phi direction
 
@@ -118,7 +118,7 @@ RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& ps
   qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
-  inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
+  inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
   etaAssociationDistance_ = pset.getParameter<double>("stripEtaAssociationDistance");
   phiAssociationDistance_ = pset.getParameter<double>("stripPhiAssociationDistance");
 
@@ -208,7 +208,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 
   // Get the candidates passing our quality cuts
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-  CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputParticleIds_));
 
   // Convert to stl::list to allow fast deletions
   CandPtrs seedCands;

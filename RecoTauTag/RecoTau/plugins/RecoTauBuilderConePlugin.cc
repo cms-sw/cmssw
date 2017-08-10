@@ -211,7 +211,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // Get the PF Charged hadrons + quality cuts
   CandPtrs pfchs;
   if (!usePFLeptonsAsChargedHadrons_) {
-    pfchs = qcuts_.filterCandRefs(pfCandidates(*jet, 211));
+    pfchs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 211));
   } else {
     // Check if we want to include electrons in muons in "charged hadron"
     // collection.  This is the preferred behavior, as the PF lepton selections
@@ -224,10 +224,10 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Get the PF gammas
   CandPtrs pfGammas = qcuts_.filterCandRefs(
-      pfCandidates(*jet, 22));
+      pfCandidatesByPdgId(*jet, 22));
   // Neutral hadrons
   CandPtrs pfnhs = qcuts_.filterCandRefs(
-      pfCandidates(*jet, 130));
+      pfCandidatesByPdgId(*jet, 130));
 
   // All the extra junk
   CandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
