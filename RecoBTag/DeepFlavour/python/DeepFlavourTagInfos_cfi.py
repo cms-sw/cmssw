@@ -7,6 +7,6 @@ pfDeepFlavourTagInfos = cms.EDProducer(
   secondary_vertices = cms.InputTag("inclusiveCandidateSecondaryVertices"),
   shallow_tag_infos = cms.InputTag('pfDeepCSVTagInfos'),
   puppi_value_map = cms.InputTag('puppi'),
-  pvasq_value_map = cms.InputTag('primaryVertexAssociation','original'),
+  vertexAssociator = cms.InputTag('primaryVertexAssociation','original'),
   jet_radius = cms.double(0.4)
 )
