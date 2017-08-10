@@ -52,7 +52,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -89,7 +89,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -147,7 +147,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -211,7 +211,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -270,14 +270,14 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
       std::string titleMap = "SiStrip APV Gain average per module (payload : "+std::get<1>(iov)+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
       
       std::vector<uint32_t> detid;
@@ -298,7 +298,7 @@ namespace {
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName.c_str());
+      tmap->save(true,0,0,fileName);
 
       return true;
     }
@@ -313,7 +313,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
@@ -362,10 +362,10 @@ namespace {
       std::string gainType = totalG1DefaultAPVs==0 ? "G2 value (=1)" : "G1 value (=690./640.)";
 
       std::string titleMap = "# of APVs/module w/ default "+gainType+" (payload : "+std::get<1>(iov)+")";
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
 
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName.c_str());
+      tmap->save(true,0,0,fileName);
 
       return true;
     }
@@ -380,7 +380,7 @@ namespace {
       setSingleIov( false );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
 
@@ -403,7 +403,7 @@ namespace {
       titleMap+=")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
       std::map<uint32_t,float> lastmap,firstmap;
@@ -451,7 +451,7 @@ namespace {
       auto range = SiStripPI::getTheRange(cachedRatio);
 
       std::string fileName(m_imageFileName);
-      tmap->save(true,range.first,range.second,fileName.c_str());
+      tmap->save(true,range.first,range.second,fileName);
 
       return true;
     }
@@ -466,7 +466,7 @@ namespace {
       setSingleIov( false );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
 
@@ -489,7 +489,7 @@ namespace {
       titleMap+=")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
       std::map<std::pair<uint32_t,int>,float> lastmap,firstmap;
@@ -557,7 +557,7 @@ namespace {
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,range.first,range.second,fileName.c_str());
+      tmap->save(true,range.first,range.second,fileName);
 
       return true;
     }
@@ -572,14 +572,14 @@ namespace {
       setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
       std::string titleMap = "SiStrip APV Gain maximum per module (payload : "+std::get<1>(iov)+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
       
       std::vector<uint32_t> detid;
@@ -602,7 +602,7 @@ namespace {
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName.c_str());
+      tmap->save(true,0,0,fileName);
 
       return true;
     }
@@ -617,14 +617,14 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
       std::string titleMap = "SiStrip APV Gain minumum per module (payload : "+std::get<1>(iov)+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
       
       std::vector<uint32_t> detid;
@@ -646,7 +646,7 @@ namespace {
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName.c_str());
+      tmap->save(true,0,0,fileName);
 
       return true;
     }
@@ -660,9 +660,9 @@ namespace {
   class SiStripApvGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Strip APV gain value"){}
-    virtual ~SiStripApvGainByRunMeans() = default;
+    ~SiStripApvGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -689,9 +689,9 @@ namespace {
   class SiStripApvTIBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTIBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Barrel APV gain value"){}
-    virtual ~SiStripApvTIBGainByRunMeans() = default;
+    ~SiStripApvTIBGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -723,9 +723,9 @@ namespace {
   class SiStripApvTOBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTOBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Outer Barrel gain value"){}
-    virtual ~SiStripApvTOBGainByRunMeans() = default;
+    ~SiStripApvTOBGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -757,9 +757,9 @@ namespace {
   class SiStripApvTIDGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTIDGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Disks APV gain value"){}
-    virtual ~SiStripApvTIDGainByRunMeans() = default;
+    ~SiStripApvTIDGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -790,9 +790,9 @@ namespace {
   class SiStripApvTECGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTECGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average in TEC","average Tracker Endcaps APV gain value"){}
-    virtual ~SiStripApvTECGainByRunMeans() = default;
+    ~SiStripApvTECGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -829,7 +829,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -871,7 +871,7 @@ namespace {
       setSingleIov( false );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
        
@@ -938,8 +938,8 @@ namespace {
       std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = std::shared_ptr<TH1F>(new TH1F(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.));
-	scatters[part] = std::shared_ptr<TH2F>(new TH2F(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8));
+	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.);
+	scatters[part] = std::make_shared<TH2F>(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
       }
       
       // now loop on the cached maps
@@ -1046,7 +1046,7 @@ namespace {
       setSingleIov( false );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
        
@@ -1215,7 +1215,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 

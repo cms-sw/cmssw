@@ -49,7 +49,6 @@ namespace {
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleVOff"));
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of VOff modules (HV or LV), payload : "+std::get<1>(iov);
-
       tmap->setTitle(titleMap);
 
       std::vector<uint32_t> detid;
@@ -62,7 +61,6 @@ namespace {
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-
       tmap->save(true,0,0,fileName);
 
       return true;
@@ -78,7 +76,6 @@ namespace {
       setSingleIov( true );
     }
 
-
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload( std::get<1>(iov) );
@@ -86,7 +83,6 @@ namespace {
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleHVOff"));
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of HV Off modules, payload : "+std::get<1>(iov);
-
       tmap->setTitle(titleMap);
 
       std::vector<uint32_t> detid;
@@ -114,7 +110,6 @@ namespace {
       setSingleIov( true );
     }
 
-
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload( std::get<1>(iov) );
@@ -122,7 +117,6 @@ namespace {
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleLVOff"));
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of LV Off modules, payload : "+std::get<1>(iov);
-
       tmap->setTitle(titleMap);
 
       std::vector<uint32_t> detid;
@@ -135,7 +129,6 @@ namespace {
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-
       tmap->save(true,0,0,fileName);
 
       return true;
