@@ -144,6 +144,21 @@ void DrawStatBox(std::map<std::string,TH1F*> histos, std::map<std::string,int> c
 }
 
 /*--------------------------------------------------------------------*/
+std::pair<float,float> getExtrema(TH1 *h1,TH1 *h2)
+/*--------------------------------------------------------------------*/
+{
+  float theMax(-9999.);
+  float theMin(9999.);
+  theMax =  h1->GetMaximum() > h2->GetMaximum() ?  h1->GetMaximum() :  h2->GetMaximum();
+  theMin =  h1->GetMinimum() < h2->GetMaximum() ?  h1->GetMinimum() :  h2->GetMinimum();
+
+  auto result = std::make_pair(theMin*0.95,theMax*1.05);
+  return result;
+
+}
+
+
+/*--------------------------------------------------------------------*/
 void makeNicePlotStyle(TH1 *hist)
 /*--------------------------------------------------------------------*/
 { 
