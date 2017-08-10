@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 class HGCalTriggerGeometryESProducer : public edm::ESProducer 
@@ -16,7 +18,7 @@ class HGCalTriggerGeometryESProducer : public edm::ESProducer
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
-        ReturnType produce(const IdealGeometryRecord&);
+        ReturnType produce(const CaloGeometryRecord&);
 
     private:
         edm::ParameterSet geometry_config_;
@@ -43,22 +45,14 @@ HGCalTriggerGeometryESProducer::
 
 HGCalTriggerGeometryESProducer::ReturnType
 HGCalTriggerGeometryESProducer::
-produce(const IdealGeometryRecord& iRecord)
+produce(const CaloGeometryRecord& iRecord)
 {
     //using namespace edm::es;
     ReturnType geometry(HGCalTriggerGeometryFactory::get()->create(geometry_name_,geometry_config_));
     geometry->reset();
-    HGCalTriggerGeometryBase::es_info info;
-    const std::string& ee_sd_name = geometry->eeSDName();
-    const std::string& fh_sd_name = geometry->fhSDName();
-    const std::string& bh_sd_name = geometry->bhSDName();
-    iRecord.get(ee_sd_name, info.geom_ee);
-    iRecord.get(fh_sd_name, info.geom_fh);
-    iRecord.get(bh_sd_name, info.geom_bh);
-    iRecord.get(ee_sd_name, info.topo_ee);
-    iRecord.get(fh_sd_name, info.topo_fh);
-    iRecord.get(bh_sd_name, info.topo_bh);
-    geometry->initialize(info);
+    edm::ESHandle<CaloGeometry> calo_geometry;
+    iRecord.get(calo_geometry);
+    geometry->initialize(calo_geometry);
     return geometry;
 
 }
