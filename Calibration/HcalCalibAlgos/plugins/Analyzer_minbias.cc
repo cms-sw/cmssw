@@ -665,14 +665,10 @@ namespace cms{
       //	
       DetId id = (*hbheItr).detid();
       HcalDetId hid=HcalDetId(id);
-      // theGeometry->getGeometry(detId)->getPosition()).eta()
-
-      //         edm::LogInfo("AnalyzerMB")<<hid.ieta()<<" "<<hid.iphi()<<" "<<hid.depth()<<" "<<(pG->getGeometry(id)->getPosition()).eta()<<" "<<(pG->getGeometry(id)->getPosition()).phi()
-      //                      <<" "<<(pG->getGeometry(id)->getPosition()).perp()<<" "<<(pG->getGeometry(id)->getPosition()).z();
  	 
       if(fabs(energyhit) > 40. ) continue;
  
-      int mysu = ((hid).rawId()>>25)&0x7;
+      int mysu = hid.subdetId();
       if( hid.ieta() > 0 ) {
 	theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
 	theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
