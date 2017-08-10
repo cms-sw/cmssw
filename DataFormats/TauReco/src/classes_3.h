@@ -31,6 +31,7 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -82,6 +83,9 @@ namespace DataFormats_TauReco {
     std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;
 
+    std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >                              jetBasePiZeroAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >                jetBasePiZeroAssoc_v;
+
     std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;
     
     reco::PFJetChargedHadronAssociationBase                     jetChHAssoc_b;
@@ -93,6 +97,9 @@ namespace DataFormats_TauReco {
 
     std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetChHAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetChHAssoc_v;
+
+    std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetBaseChHAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetBaseChHAssoc_v;
 
     std::vector<std::vector<reco::PFRecoTauChargedHadron> >                jetChHAssoc_v_v;
 

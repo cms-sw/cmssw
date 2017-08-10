@@ -72,6 +72,9 @@
   <class name="std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >" />
 
+  <class name="std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >"/>
+  <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >" />
+
   <class name="reco::PFJetChargedHadronAssociationBase">
     <field name="transientVector_" transient="true"/>
   </class>
@@ -89,6 +92,9 @@
 
   <class name="std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
+
+  <class name="std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
 
   <class name="reco::PFTauDecayModeAssociation">
     <field name="transientVector_" transient="true"/>
