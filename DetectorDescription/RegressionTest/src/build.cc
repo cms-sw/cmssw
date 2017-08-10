@@ -213,7 +213,7 @@ void output(string filename)
        << "  " << exv.logicalPart().solid() << endl
        << "  " << exv.translation() << endl;
     os << "  " << ra.Axis() << ra.Angle()/deg << endl;
-    tvec.push_back(exv.translation());   
+    tvec.emplace_back(exv.translation());   
     loop = exv.next();
   }
   

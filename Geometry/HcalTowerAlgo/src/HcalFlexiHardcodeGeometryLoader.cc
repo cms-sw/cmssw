@@ -172,7 +172,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
   std::cout << "HcalFlexiHardcodeGeometryLoader:HE with " << gconsHE.size()
 	    << " cells" << std::endl;
 #endif
-  if (gconsHE.size() > 0) {
+  if (!gconsHE.empty()) {
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = hcons.getEtaBins(1);
 
 #ifdef EDM_ML_DEBUG

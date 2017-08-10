@@ -81,7 +81,7 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
   DDXMLAttribute atts = getAttributeSet();
   std::string tName = atts.find("name")->second;
 
-  if (tTextToParse.size() == 0)
+  if (tTextToParse.empty())
   {
     errorOut("No std::string to parse!");
   }
