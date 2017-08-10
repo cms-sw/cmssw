@@ -14,6 +14,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalBadLaserChannels.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
 #include <array>
@@ -92,10 +93,10 @@ void HcalLaserTest::analyze(edm::Event const& iEvent,
   iEvent.getByToken(inputTokenHF_,    hf_digi);
 
   // Count digis in good, bad RBXes.  ('bad' RBXes see no laser signal)
-  double badrbxfracHBHE(0), goodrbxfracHBHE(0), goodrbxfracHF(0);
-  int NbadHBHE = 72*3;             // 3 bad RBXes, 72 channels each
-  int NgoodHBHE= 2592*2-NbadHBHE;  // remaining HBHE channels are 'good'
-  int NgoodHF  = 864*4;
+  double badrbxfracHBHE(0), goodrbxfracHBHE(0), rbxfracHF(0);
+  int NbadHBHE  = HcalBadLaserChannels::badChannelsHBHE();
+  int NgoodHBHE = 2592*2-NbadHBHE;  // remaining HBHE channels are 'good'
+  int NallHF    = 864*4;
   int eventType = 0;
   int laserType = 0;
 
@@ -121,27 +122,21 @@ void HcalLaserTest::analyze(edm::Event const& iEvent,
   for (HBHEDigiCollection::const_iterator hbhe = hbhe_digi->begin();  
        hbhe != hbhe_digi->end(); ++ hbhe){
     const HBHEDataFrame digi = (const HBHEDataFrame)(*hbhe);
-    HcalDetId myid=(HcalDetId)digi.id();
-    bool isbad(false); 
 
-    bool passCut(false);
     int  maxdigiHB(0);
     for (int i=0; i<digi.size(); i++) 
-      if(digi.sample(i).adc() > maxdigiHB) maxdigiHB = digi.sample(i).adc();
-    if (maxdigiHB > minADCHBHE_) passCut = true;
+      if (digi.sample(i).adc() > maxdigiHB) maxdigiHB = digi.sample(i).adc();
+    bool passCut = (maxdigiHB > minADCHBHE_);
 
-    if ( myid.subdet()==HcalBarrel && myid.ieta()<0 ) {
-      if      (myid.iphi()>=15 && myid.iphi()<=18) isbad=true;
-      else if (myid.iphi()>=27 && myid.iphi()<=34) isbad=true;
-    }
+    HcalDetId myid  = (HcalDetId)digi.id();
+    bool      isbad = HcalBadLaserChannels::badChannelHBHE(myid);
 
     if (isbad) h_hb2_->Fill(maxdigiHB);
     else       h_hb1_->Fill(maxdigiHB);
 
     if (passCut) {
-      if (isbad) { 
-	badrbxfracHBHE += 1.;
-      } else goodrbxfracHBHE += 1.;
+      if (isbad) badrbxfracHBHE  += 1.;
+      else       goodrbxfracHBHE += 1.;
     }
   }
   goodrbxfracHBHE /= NgoodHBHE;
@@ -160,23 +155,21 @@ void HcalLaserTest::analyze(edm::Event const& iEvent,
     if (maxdigiHF > minADCHF_) passCut = true;
     h_hf1_->Fill(maxdigiHF);
 
-    if (passCut) {
-      goodrbxfracHF += 1.;
-    }
+    if (passCut) rbxfracHF += 1.;
   }
-  goodrbxfracHF /= NgoodHF;
-  h_hf2_->Fill(goodrbxfracHF);
+  rbxfracHF /= NallHF;
+  h_hf2_->Fill(rbxfracHF);
 
   if (testMode_) 
     edm::LogWarning("HcalLaserTest") 
       << "******************************************************************\n"
       << "goodrbxfracHBHE: " << goodrbxfracHBHE << " badrbxfracHBHE: " 
       << badrbxfracHBHE << " Size " << hbhe_digi->size() << "\n"
-      << "goodrbxfracHF:   " << goodrbxfracHF   << " Size " << hf_digi->size()
+      << "rbxfracHF:   " << rbxfracHF   << " Size " << hf_digi->size()
       << "\n******************************************************************";
   
   if (((goodrbxfracHBHE-badrbxfracHBHE) < minFracDiffHBHELaser_) ||
-      (goodrbxfracHF < minFracHFLaser_)) {
+      (rbxfracHF < minFracHFLaser_)) {
   } else {
     passedEventsByType_.at(laserType)++;
   }
