@@ -37,7 +37,7 @@ namespace {
     bool dodet = fv.firstChild();
     while(dodet) {
       auto const& lp = fv.logicalPart();
-      returnValue.push_back(lp.name().name());
+      returnValue.emplace_back(lp.name().name());
       dodet = fv.next();
     }
     return returnValue;
@@ -72,7 +72,7 @@ void testDDFilter::checkFilters() {
             {
         DDValue val{"Volume","Outer",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
 
         DDSpecifics ds{"OuterVolume", {"//Outer.*"}, values}; 
         }
@@ -86,7 +86,7 @@ void testDDFilter::checkFilters() {
       {
         DDValue val{"Volume","Middle",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
 
         DDSpecifics ds{"MiddleVolume", {"//Middle.*"}, values}; 
         } 
@@ -102,7 +102,7 @@ void testDDFilter::checkFilters() {
       {
         DDValue val{"Volume","Inner",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
 
         DDSpecifics ds{"InnerVolume", {"//Inner.*"}, values}; 
       }
@@ -122,10 +122,10 @@ void testDDFilter::checkFilters() {
       {
         DDValue val{"Volume","EMinus",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
         {
           DDValue val{"Side","-",0};
-          values.push_back(DDsvalues_Content_type(val,val));
+          values.emplace_back(DDsvalues_Content_type(val,val));
         }
         DDSpecifics ds{"EMinusVolume", {"//End[0]"}, values}; 
       } 
@@ -135,10 +135,10 @@ void testDDFilter::checkFilters() {
       {
         DDValue val{"Volume","EPlus",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
         {
           DDValue val{"Side","+",0};
-          values.push_back(DDsvalues_Content_type(val,val));
+          values.emplace_back(DDsvalues_Content_type(val,val));
         }
 
         DDSpecifics ds{"EPlusVolume", {"//End[1]"}, values}; 
@@ -147,7 +147,7 @@ void testDDFilter::checkFilters() {
       {
         DDValue val{"Endcap","",0};
         DDsvalues_type values;
-        values.push_back(DDsvalues_Content_type(val,val));
+        values.emplace_back(DDsvalues_Content_type(val,val));
 
         DDSpecifics ds{"Endcap", {"//End.*"}, values}; 
       }

@@ -80,7 +80,7 @@ class DetGeomDesc
 		void deleteComponents(); 									/// deletes just the first daughters
 		void deepDeleteComponents();  								///traverses the treee and deletes all nodes.
 		bool isLeaf() const 
-			{ return (_container.size() == 0); }
+			{ return (_container.empty()); }
 		
 		/// geometry information
 		DDRotationMatrix	rotation() const {return _rot;}

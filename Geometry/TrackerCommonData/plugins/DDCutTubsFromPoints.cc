@@ -46,7 +46,7 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
     Section s = {phis[i], z_ls[i], z_ts[i] };
     sections.emplace_back(s);
   }
-  assert(sections.size() > 0);
+  assert(!sections.empty());
 
   solidOutput = DDName(sArgs["SolidName"]);
   

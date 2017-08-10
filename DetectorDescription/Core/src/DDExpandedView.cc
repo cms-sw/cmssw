@@ -38,7 +38,7 @@ DDExpandedView::DDExpandedView( const DDCompactView & cpv )
 		      0);
   
   // starting point for position calculations, == root of expanded view
-  history_.push_back(expn);		      		      
+  history_.emplace_back(expn);		      		      
 }
 
 DDExpandedView::~DDExpandedView() { }  
@@ -86,7 +86,7 @@ int DDExpandedView::copyno() const
 bool DDExpandedView::nextSibling() 
 {
   bool result(false);
-  if (scope_.size() && history_.back() == scope_.back()) {
+  if (!scope_.empty() && history_.back() == scope_.back()) {
    ; // no-next-sibling, if current node is the root of the scope!
   } 
   else {
@@ -156,7 +156,7 @@ bool DDExpandedView::firstChild()
       DDExpandedNode expn(curr.first, curr.second,
                           newTrans, newRot, 0);
     
-      history_.push_back(expn);			
+      history_.emplace_back(expn);			
       result = true;                     
     } // if firstChild 
   } // if depthNotReached
@@ -174,7 +174,7 @@ bool DDExpandedView::parent()
   bool scopeRoot(false);
   
   // check for a scope
-  if (scope_.size()) {
+  if (!scope_.empty()) {
     if (scope_.back() == history_.back()) { 
       // the current node is the root of the scope
       scopeRoot = true;
@@ -263,7 +263,7 @@ void
 DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
   const auto & specs = logicalPart().attachedSpecifics();
-  if( specs.size())
+  if( !specs.empty())
   {
     result.reserve(specs.size());
     for( const auto& it : specs ) {
@@ -272,7 +272,7 @@ DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
       const DDGeoHistory & hist = geoHistory();
       
       if (DDCompareEqual(hist, psel)()) 
-	result.push_back( it.second );
+	result.emplace_back( it.second );
     }
   }  
 }
@@ -408,7 +408,7 @@ bool DDExpandedView::descend(const DDGeoHistory & sc)
   */	   
   const DDExpandedNode & curNode = history_.back();
   
-  if (sc.size()) {
+  if (!sc.empty()) {
     if (curNode==sc[cur]) {
       bool res(false);
       while(cur+1 < mxx && firstChild()) {

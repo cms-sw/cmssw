@@ -42,7 +42,7 @@ DDSpecificsFilter::~DDSpecificsFilter() {}
 void DDSpecificsFilter::setCriteria(const DDValue & nameVal, // name & value of a variable 
                                     DDCompOp op)
 {
-  criteria_.push_back(SpecificCriterion(nameVal,op));
+  criteria_.emplace_back(SpecificCriterion(nameVal,op));
  }		   
 
 bool DDSpecificsFilter::accept(const DDExpandedView & node) const

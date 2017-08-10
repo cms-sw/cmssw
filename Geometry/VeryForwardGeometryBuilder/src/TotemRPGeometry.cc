@@ -22,7 +22,7 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
   // all detectors to 'theMap'
   deque<const DetGeomDesc *> buffer;
   buffer.emplace_back(gD);
-  while (buffer.size() > 0)
+  while (!buffer.empty())
   {
     const DetGeomDesc *d = buffer.front();
     buffer.pop_front();

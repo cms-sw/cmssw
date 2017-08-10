@@ -939,7 +939,7 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
     if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_];
     break;
   case(HcalForward): 
-    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1];
+    if (!etaTableHF.empty()) eta=etaTableHF[etaTableHF.size()-1];
     break;
   default: eta=0;
   }

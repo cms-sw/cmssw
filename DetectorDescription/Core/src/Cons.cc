@@ -19,13 +19,13 @@ DDI::Cons::Cons(double zhalf,
 	 double deltaPhi)
  : Solid(ddcons)	  
 {
-  p_.push_back(zhalf);
-  p_.push_back(rInMinusZ);
-  p_.push_back(rOutMinusZ);
-  p_.push_back(rInPlusZ);
-  p_.push_back(rOutPlusZ);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
+  p_.emplace_back(zhalf);
+  p_.emplace_back(rInMinusZ);
+  p_.emplace_back(rOutMinusZ);
+  p_.emplace_back(rInPlusZ);
+  p_.emplace_back(rOutPlusZ);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
 
 }	 
 
