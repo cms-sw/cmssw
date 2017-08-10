@@ -168,6 +168,7 @@ streamPhysicsEGamma_datasetSingleElectron_selector.triggerConditions = cms.vstri
     'HLT_Ele300_CaloIdVT_GsfTrkIdT_v10', 
     'HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned_v7', 
     'HLT_Ele32_WPTight_Gsf_L1DoubleEG_v6', 
+    'HLT_Ele32_WPTight_Gsf_v13', 
     'HLT_Ele35_WPTight_Gsf_L1EGMT_v2', 
     'HLT_Ele35_WPTight_Gsf_v6', 
     'HLT_Ele38_WPTight_Gsf_v6', 
@@ -599,10 +600,10 @@ streamPhysicsMuons_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vst
     'HLT_DoubleMu3_Trk_Tau3mu_NoL1Mass_v3', 
     'HLT_DoubleMu3_Trk_Tau3mu_v8', 
     'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v11', 
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1_v1', 
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_v1', 
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_Charge1_v1', 
-    'HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v1')
+    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_v1', 
+    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_v1', 
+    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_Charge1_v1', 
+    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsMuons_datasetMuOnia_selector
 streamPhysicsMuons_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
