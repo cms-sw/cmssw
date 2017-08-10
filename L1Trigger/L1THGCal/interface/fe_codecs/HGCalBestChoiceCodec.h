@@ -25,7 +25,7 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
 
         void setDataPayloadImpl(const HGCEEDigiCollection& ee,
                 const HGCHEDigiCollection& fh,
-                const HGCHEDigiCollection& bh );
+                const HGCBHDigiCollection& bh );
 
         void setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi);
 
