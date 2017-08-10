@@ -324,7 +324,12 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      float G1default = 690./640.;
+      /*
+	the defaul G1 value comes from the ratio of DefaultTickHeight/GainNormalizationFactor
+	as defined in the default of the O2O producer: OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc
+       */
+
+      float G1default = 690./640.;  
       float G2default = 1.;
 
       int totalG1DefaultAPVs=0;
@@ -443,7 +448,7 @@ namespace {
       }
     
       //=========================
-      auto range = getTheRange(cachedRatio);
+      auto range = SiStripPI::getTheRange(cachedRatio);
 
       std::string fileName(m_imageFileName);
       tmap->save(true,range.first,range.second,fileName.c_str());
@@ -547,7 +552,7 @@ namespace {
       }
 
       // get the range of the TrackerMap (saturate at +/-2 std deviations)
-      auto range = getTheRange(cachedRatio);
+      auto range = SiStripPI::getTheRange(cachedRatio);
       
       //=========================
       
@@ -843,7 +848,7 @@ namespace {
 	  }
 	  std::map<unsigned int, SiStripDetSummary::Values> map = summaryGain.getCounts();
 
-	  // myPrintSummary(map);
+	  //SiStripPI::printSummary(map);
 
 	  std::stringstream ss;
 	  ss << "Summary of gain values:" << std::endl;
@@ -977,7 +982,7 @@ namespace {
       canvas.cd(1)->SetRightMargin(0.08);
 
       for (const auto &part : parts){
-	makeNicePlotStyle(ratios[part].get());
+	SiStripPI::makeNicePlotStyle(ratios[part].get());
 	ratios[part]->SetStats(false);
 	ratios[part]->SetLineWidth(2);
 	ratios[part]->SetLineColor(colormap[part]);
@@ -989,7 +994,7 @@ namespace {
       }
 
       legend.Draw("same");
-      DrawStatBox(ratios,colormap,parts);
+      SiStripPI::drawStatBox(ratios,colormap,parts);
        
       auto legend2 = TLegend(0.60,0.8,0.92,0.95);
       legend2.SetTextSize(0.05);
@@ -999,7 +1004,7 @@ namespace {
       canvas.cd(2)->SetRightMargin(0.08);
 
       for (const auto &part : parts){
-	makeNicePlotStyle(scatters[part].get());
+	SiStripPI::makeNicePlotStyle(scatters[part].get());
 	scatters[part]->SetStats(false);
 	scatters[part]->SetMarkerColor(colormap[part]);
 	scatters[part]->SetMarkerStyle(markermap[part]);
@@ -1132,7 +1137,7 @@ namespace {
 
 	hlast->SetBinContent(iBin,mean);	
 	hlast->SetBinError(iBin,mean/10000.);
-	hlast->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	hlast->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
 	hlast->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
@@ -1157,11 +1162,11 @@ namespace {
 
 	hfirst->SetBinContent(iBin,mean);
 	hfirst->SetBinError(iBin,mean/10000.);
-	hfirst->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	hfirst->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
 	hfirst->GetXaxis()->LabelsOption("v");	
       }
 
-      auto extrema = getExtrema(hfirst.get(),hlast.get());
+      auto extrema = SiStripPI::getExtrema(hfirst.get(),hlast.get());
       hlast->GetYaxis()->SetRangeUser(extrema.first,extrema.second);
 
       hlast->SetMarkerStyle(20);
@@ -1274,7 +1279,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
