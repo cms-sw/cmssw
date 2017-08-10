@@ -161,7 +161,7 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
     float z_tmp = 0.0;
 
     // ignore layers with no digis
-    if (p.second.size()==0) continue;
+    if (p.second.empty()) continue;
 
     // loop on all matching digis in this layer
     for (const auto& hit: p.second) {
@@ -175,9 +175,9 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
       const float gpphi = csc_gp.phi();
 
       // normalize phi values according to first one
-      if (phis_.size()>0 and gpphi>0 and phis_[0]<0 and  (gpphi-phis_[0])>M_PI)
+      if (!phis_.empty() and gpphi>0 and phis_[0]<0 and  (gpphi-phis_[0])>M_PI)
         phi_tmp += (gpphi-2*M_PI);
-      else if (phis_.size()>0 and gpphi<0 and phis_[0]>0 and (gpphi-phis_[0])<-M_PI)
+      else if (!phis_.empty() and gpphi<0 and phis_[0]>0 and (gpphi-phis_[0])<-M_PI)
         phi_tmp += (gpphi+2*M_PI);
       else
         phi_tmp += (csc_gp.phi());
@@ -238,7 +238,7 @@ void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTD
   float alpha = -99., beta = 0.;
   // do a fit to the comparator digis
   calculateSlopeIntercept(alpha, beta);
-  if (phis_ .size() <= 2 or std::abs(alpha)>=99){
+  if (phis_.size() <= 2 or std::abs(alpha)>=99){
     alpha = csc_gp.phi();
     beta = 0.0;
   }
