@@ -703,6 +703,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                   scRef->energy());
       newCandidate.setP4(p4);
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+      // Make it an EE photon
+      reco::Photon::FiducialFlags fiducialFlags;
+      fiducialFlags.isEE = true;
+      newCandidate.setFiducialVolumeFlags(fiducialFlags);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
