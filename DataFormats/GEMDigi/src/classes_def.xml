@@ -64,8 +64,17 @@
 <class name="MuonDigiCollection<ME0DetId,ME0PadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigi> >" splitLevel="0"/> 
 
-<class name="ME0TriggerDigi" ClassVersion="10">
+<class name="ME0PadDigiCluster" ClassVersion="10">
+ <version ClassVersion="10" checksum="3867685231"/>
+</class>
+<class name="std::vector<ME0PadDigiCluster>"/>
+<class name="std::map<ME0DetId,std::vector<ME0PadDigiCluster> >"/>
+<class name="MuonDigiCollection<ME0DetId,ME0PadDigiCluster>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigiCluster> >" splitLevel="0"/> 
+
+<class name="ME0TriggerDigi" ClassVersion="11">
  <version ClassVersion="10" checksum="2020160691"/>
+ <version ClassVersion="11" checksum="4080659697"/>
 </class>
 <class name="std::vector<ME0TriggerDigi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0TriggerDigi> >"/>

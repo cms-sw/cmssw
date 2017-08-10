@@ -19,7 +19,7 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser \
 from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
 
 from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation \
-    import GenericValidation
+    import GenericValidation, ParallelValidation, ValidationWithComparison, ValidationWithPlots
 from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison \
     import GeometryComparison
 from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation \
@@ -242,64 +242,12 @@ class ValidationJob:
     def getValidation( self ):
         return self.validation
 
+    @property
+    def needsproxy(self):
+        return self.validation.needsproxy and not self.__preexisting and not self.__commandLineOptions.dryRun
+
 
 ####################--- Functions ---############################
-def createOfflineParJobsMergeScript(offlineValidationList, outFilePath):
-    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
-    
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.mergeOfflineParJobsTemplate ,repMap ) )
-    theFile.close()
-
-def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlotFile):
-    config = offlineValidationList[0].config
-    repMap = PlottingOptions(config, "offline")
-    repMap[ "resultPlotFile" ] = resultPlotFile
-    repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in offlineValidationList:
-        repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
-
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
-    theFile.close()
-    
-def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
-    config = trackSplittingValidationList[0].config
-    repMap = PlottingOptions(config, "split")
-    repMap[ "trackSplitPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in trackSplittingValidationList:
-        repMap[ "trackSplitPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "trackSplitPlotInstantiation" ] )
-    
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
-    theFile.close()
-
-def createPrimaryVertexPlotScript(PrimaryVertexValidationList, outFilePath):
-    repMap = PrimaryVertexValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
-    repMap[ "PrimaryVertexPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in PrimaryVertexValidationList:
-        repMap[ "PrimaryVertexPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "PrimaryVertexPlotInstantiation" ] )
-
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.PrimaryVertexPlotTemplate ,repMap ) )
-    theFile.close()
-
-def createMergeZmumuPlotsScript(zMuMuValidationList, outFilePath):
-    config = zMuMuValidationList[0].config
-    repMap = PlottingOptions(config, "zmumu")
-    repMap[ "mergeZmumuPlotsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in zMuMuValidationList:
-        repMap[ "mergeZmumuPlotsInstantiation" ] = validation.appendToExtendedValidation( repMap[ "mergeZmumuPlotsInstantiation" ] )
-
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.mergeZmumuPlotsTemplate ,repMap ) )
-    theFile.close()
-
 def createMergeScript( path, validations ):
     if(len(validations) == 0):
         raise AllInOneError("Cowardly refusing to merge nothing!")
@@ -309,10 +257,7 @@ def createMergeScript( path, validations ):
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":"",
-            "RunTrackSplitPlot":"",
-            "MergeZmumuPlots":"",
-            "RunPrimaryVertexPlot":"",
+            "RunValidationPlots":"",
             "CMSSW_BASE": os.environ["CMSSW_BASE"],
             "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
             "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
@@ -321,124 +266,64 @@ def createMergeScript( path, validations ):
     comparisonLists = {} # directory of lists containing the validations that are comparable
     for validation in validations:
         for referenceName in validation.filesToCompare:
-            validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
-            validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
-            validationName = validationName.split("Preexisting")[-1]
-            if validationName in comparisonLists:
-                comparisonLists[ validationName ].append( validation )
+            validationtype = type(validation)
+            if isinstance(validationtype, PreexistingValidation):
+                #find the actual validationtype
+                for parentclass in validationtype.mro():
+                    if not issubclass(parentclass, PreexistingValidation):
+                        validationtype = parentclass
+                        break
+            key = (validationtype, referenceName)
+            if key in comparisonLists:
+                comparisonLists[key].append(validation)
             else:
-                comparisonLists[ validationName ] = [ validation ]
-   
+                comparisonLists[key] = [validation]
+
     # introduced to merge individual validation outputs separately
     #  -> avoids problems with merge script
-    repMap["haddLoop"] = "mergeRetCode=0\n"
+    repMap["doMerge"] = "mergeRetCode=0\n"
     repMap["rmUnmerged"] = ("if [[ mergeRetCode -eq 0 ]]; then\n"
                             "    echo -e \\n\"Merging succeeded, removing original files.\"\n")
-    repMap["copyMergeScripts"] = ""
+    repMap["beforeMerge"] = ""
     repMap["mergeParallelFilePrefixes"] = ""
 
     anythingToMerge = []
     
-    for validationType in comparisonLists:
-        for validation in comparisonLists[validationType]:
-            if isinstance(validation, PreexistingValidation) or validation.NJobs == 1:
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        for validation in validations:
+            if (isinstance(validation, PreexistingValidation)
+              or validation.NJobs == 1
+              or not isinstance(validation, ParallelValidation)):
                 continue
             if validationType not in anythingToMerge:
                 anythingToMerge += [validationType]
-                repMap["haddLoop"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType
-            repMap["haddLoop"] = validation.appendToMerge(repMap["haddLoop"])
-            repMap["haddLoop"] += "tmpMergeRetCode=${?}\n"
-            repMap["haddLoop"] += ("if [[ tmpMergeRetCode -eq 0 ]]; then "
-                                   "xrdcp -f "
-                                   +validation.getRepMap()["finalOutputFile"]
-                                   +" root://eoscms//eos/cms"
-                                   +validation.getRepMap()["finalResultFile"]
-                                   +"; fi\n")
-            repMap["haddLoop"] += ("if [[ ${tmpMergeRetCode} -gt ${mergeRetCode} ]]; then "
-                                   "mergeRetCode=${tmpMergeRetCode}; fi\n")
+                repMap["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType.valType
+                repMap["beforeMerge"] += validationType.doInitMerge()
+            repMap["doMerge"] += validation.doMerge()
             for f in validation.getRepMap()["outputFiles"]:
                 longName = os.path.join("/store/caf/user/$USER/",
-                                        validation.getRepMap()["eosdir"], f)
-                repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
+                                         validation.getRepMap()["eosdir"], f)
+                repMap["rmUnmerged"] += "    eos rm "+longName+"\n"
     repMap["rmUnmerged"] += ("else\n"
                              "    echo -e \\n\"WARNING: Merging failed, unmerged"
                              " files won't be deleted.\\n"
                              "(Ignore this warning if merging was done earlier)\"\n"
                              "fi\n")
 
-    if "OfflineValidation" in anythingToMerge:
-        repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
-        
-        createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
-                                         repMap["mergeOfflineParJobsScriptPath"] )
-        repMap["copyMergeScripts"] += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
-                                       "rfcp %s .\n" % repMap["mergeOfflineParJobsScriptPath"])
-        repMap_offline = repMap.copy()
-        repMap_offline.update(PlottingOptions(config, "offline"))
-        repMap["copyMergeScripts"] = \
-            replaceByMap(repMap["copyMergeScripts"], repMap_offline)
-
     if anythingToMerge:
-        # DownloadData is the section which merges output files from parallel jobs
-        # it uses the file TkAlOfflineJobsMerge.C
         repMap["DownloadData"] += replaceByMap( configTemplates.mergeParallelResults, repMap )
     else:
         repMap["DownloadData"] = ""
 
-    if "OfflineValidation" in comparisonLists:
-        repMap["extendedValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
-        createExtendedValidationScript(comparisonLists["OfflineValidation"],
-                                       repMap["extendedValScriptPath"],
-                                       "OfflineValidation")
-        repMap_offline = repMap.copy()
-        repMap_offline.update(PlottingOptions(config, "offline"))
-        repMap["RunExtendedOfflineValidation"] = \
-            replaceByMap(configTemplates.extendedValidationExecution, repMap_offline)
-
-    if "TrackSplittingValidation" in comparisonLists:
-        repMap["trackSplitPlotScriptPath"] = \
-            os.path.join(path, "TkAlTrackSplitPlot.C")
-        createTrackSplitPlotScript(comparisonLists["TrackSplittingValidation"],
-                                       repMap["trackSplitPlotScriptPath"] )
-        repMap_split = repMap.copy()
-        repMap_split.update(PlottingOptions(config, "split"))
-        repMap["RunTrackSplitPlot"] = \
-            replaceByMap(configTemplates.trackSplitPlotExecution, repMap_split)
-
-    if "ZMuMuValidation" in comparisonLists:
-        repMap["mergeZmumuPlotsScriptPath"] = \
-            os.path.join(path, "TkAlMergeZmumuPlots.C")
-        createMergeZmumuPlotsScript(comparisonLists["ZMuMuValidation"],
-                                       repMap["mergeZmumuPlotsScriptPath"] )
-        repMap_zMuMu = repMap.copy()
-        repMap_zMuMu.update(PlottingOptions(config, "zmumu"))
-        repMap["MergeZmumuPlots"] = \
-            replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap_zMuMu)
-
-    if "PrimaryVertexValidation" in comparisonLists:
-        repMap["PrimaryVertexPlotScriptPath"] = \
-            os.path.join(path, "TkAlPrimaryVertexValidationPlot.C")
-
-        createPrimaryVertexPlotScript(comparisonLists["PrimaryVertexValidation"],
-                                      repMap["PrimaryVertexPlotScriptPath"] )
-        repMap_PVVal = repMap.copy()
-        repMap_PVVal.update(PlottingOptions(config,"primaryvertex"))
-        repMap["RunPrimaryVertexPlot"] = \
-            replaceByMap(configTemplates.PrimaryVertexPlotExecution, repMap_PVVal)
+    repMap["RunValidationPlots"] = ""
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        if issubclass(validationType, ValidationWithPlots):
+            repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    if "OfflineValidation" in comparisonLists:
-        compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
-        compareStringsPlain = [ val.getCompareStrings("OfflineValidation", plain=True) for val in comparisonLists["OfflineValidation"] ]
-            
-        repMap_offline = repMap.copy()
-        repMap_offline.update(PlottingOptions(config, "offline"))
-        repMap_offline.update({"validationId": "OfflineValidation",
-                               "compareStrings": " , ".join(compareStrings),
-                               "compareStringsPlain": " ".join(compareStringsPlain) })
-                               
-        repMap["CompareAlignments"] += \
-            replaceByMap(configTemplates.compareAlignmentsExecution, repMap_offline)
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        if issubclass(validationType, ValidationWithComparison):
+            repMap["CompareAlignments"] += validationType.doComparison(validations)
                 
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
@@ -493,7 +378,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    
+
     options.config = [ os.path.abspath( iniFile ) for iniFile in \
                        options.config.split( "," ) ]
     config = BetterConfigParser()
@@ -568,6 +453,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     general = config.getGeneral()
     config.set("internals","workdir",os.path.join(general["workdir"],options.Name) )
+    config.set("internals","scriptsdir",outPath)
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
     config.set("general","eosdir",os.path.join("AlignmentValidation", general["eosdir"], options.Name) )
@@ -584,6 +470,15 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
     config.write( backupConfigFile )
 
+    #copy proxy, if there is one
+    try:
+        proxyexists = int(getCommandOutput2("voms-proxy-info --timeleft")) > 10
+    except RuntimeError:
+        proxyexists = False
+
+    if proxyexists:
+        shutil.copyfile(getCommandOutput2("voms-proxy-info --path").strip(), os.path.join(outPath, ".user_proxy"))
+
     validations = []
     for validation in config.items("validation"):
         alignmentList = [validation[1]]
@@ -592,6 +487,9 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         validations.extend(validationsToAdd)
     jobs = [ ValidationJob( validation, config, options) \
                  for validation in validations ]
+    for job in jobs:
+        if job.needsproxy and not proxyexists:
+            raise AllInOneError("At least one job needs a grid proxy, please init one.")
     map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 

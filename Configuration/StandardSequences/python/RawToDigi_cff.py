@@ -76,12 +76,8 @@ muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
-
-# until we have hcal raw data for phase 2...
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 # Remove siPixelDigis until we have phase1 pixel digis

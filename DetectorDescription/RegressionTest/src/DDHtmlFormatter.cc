@@ -10,10 +10,10 @@ namespace std { } using namespace std;
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -254,7 +254,7 @@ bool DDHtmlLpDetails::details(ostream & os, const DDName & nm)
         const vector<DDPartSelection> & ps = it->selection();
 	 vector<DDPartSelection>::const_iterator pit(ps.begin()), ped(ps.end());
 	 for (; pit != ped; ++pit) {
-	   if (pit->size()) {
+	   if (!pit->empty()) {
 	     lp_sp_t::instance()[pit->back().lp_].insert(*it);
 	   }
 	 }

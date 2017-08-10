@@ -157,10 +157,12 @@ using namespace edm;
 
 void TotemRPDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
 {
-  ibooker.setCurrentFolder("CTPPS/TrackingStrip");
+  ibooker.setCurrentFolder("CTPPS");
 
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
+
+  ibooker.setCurrentFolder("CTPPS/TrackingStrip");
 
   h_trackCorr_hor = ibooker.book2D("track correlation RP-210-hor", "rp, 210, hor", 4, -0.5, 3.5, 4, -0.5, 3.5);
   TH2F *hist = h_trackCorr_hor->getTH2F();

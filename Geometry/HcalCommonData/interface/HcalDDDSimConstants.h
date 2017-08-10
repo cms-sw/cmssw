@@ -53,6 +53,7 @@ public:
   const std::vector<HcalDetId> & getIdHF2QIE() const {return idHF2QIE;}
   double                    getLayer0Wt(const int det, const int phi, 
 					const int zside) const;
+  int                       getFrontLayer(const int det, const int eta) const;
   int                       getLayerFront(const int det, const int eta, 
 					  const int phi, const int zside,
 					  const int depth) const;
@@ -127,6 +128,8 @@ private:
   double              dlShort;  // Diference of length between long and short
   int                 depthEta16[2]; // depth index of ieta=16 for HBmax, HEMin
   int                 depthEta29[2]; // maximum depth index for ieta=29
+  int                 layFHB[2]; // first layers in HB (normal, special 16)
+  int                 layFHE[3]; // first layers in HE (normal, special 16, 18)
   bool                isBH_;         // if HE is BH
   std::vector<HcalDetId> idHF2QIE;   // DetId's of HF modules with 2 QIE's
   std::pair<int,int>  depthMaxDf_, depthMaxSp_; // (subdet,maximum depth) default,special

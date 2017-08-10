@@ -18,73 +18,73 @@ public:
 		   ForwardSubdetector subdet, int type);
 
   /// virtual destructor
-  virtual ~FastTimeTopology() { }  
+  ~FastTimeTopology() override { }  
 
   /// move the Topology north (increment iy)  
-  virtual DetId  goNorth(const DetId& id) const {
+  DetId  goNorth(const DetId& id) const override {
     return offsetBy(id,0,+1);
   }
-  virtual std::vector<DetId> north(const DetId& id) const { 
+  std::vector<DetId> north(const DetId& id) const override { 
     DetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology south (decrement iy)
-  virtual DetId goSouth(const DetId& id) const {
+  DetId goSouth(const DetId& id) const override {
     return offsetBy(id,0,-1);
   }
-  virtual std::vector<DetId> south(const DetId& id) const { 
+  std::vector<DetId> south(const DetId& id) const override { 
     DetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology east (positive ix)
-  virtual DetId  goEast(const DetId& id) const {
+  DetId  goEast(const DetId& id) const override {
     return offsetBy(id,+1,0);
   }
-  virtual std::vector<DetId> east(const DetId& id) const { 
+  std::vector<DetId> east(const DetId& id) const override { 
     DetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology west (negative ix)
-  virtual DetId goWest(const DetId& id) const {
+  DetId goWest(const DetId& id) const override {
     return offsetBy(id,-1,0);
   }
-  virtual std::vector<DetId> west(const DetId& id) const { 
+  std::vector<DetId> west(const DetId& id) const override { 
     DetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> up(const DetId& id) const {
+  std::vector<DetId> up(const DetId& id) const override {
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> down(const DetId& id) const {
+  std::vector<DetId> down(const DetId& id) const override {
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
 
   ///Dense indexing
-  virtual uint32_t detId2denseId(const DetId& id) const;
-  virtual DetId    denseId2detId(uint32_t denseId) const;
+  uint32_t detId2denseId(const DetId& id) const override;
+  DetId    denseId2detId(uint32_t denseId) const override;
   virtual uint32_t detId2denseGeomId(const DetId& id) const;
 
   ///Is this a valid cell id
-  virtual bool valid(const DetId& id) const;
+  bool valid(const DetId& id) const override;
   bool validHashIndex(uint32_t ix) const {return (ix < kSizeForDenseIndexing);}
 
   unsigned int totalModules() const {return kSizeForDenseIndexing;}

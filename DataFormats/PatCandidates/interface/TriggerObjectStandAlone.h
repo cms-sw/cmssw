@@ -23,6 +23,8 @@
 
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/EventBase.h"
 namespace edm { class TriggerNames; }
 
 namespace pat {
@@ -33,8 +35,10 @@ namespace pat {
       /// Keeping the old names of the data members for backward compatibility,
       /// although they refer only to HLT objects.
 
-      /// Vector of labels of all HLT filters or names od L1 conditions the trigger objects has been used in
+      /// Vector of labels of all HLT filters or names of L1 conditions the trigger objects has been used in
       std::vector< std::string > filterLabels_;
+      std::vector< uint16_t >    filterLabelIndices_; 
+
       /// Vector of names of all HLT paths or L1 algorithms the trigger objects has been used in
       std::vector< std::string > pathNames_;  
       std::vector< uint16_t >    pathIndices_; 
@@ -48,6 +52,8 @@ namespace pat {
       /// An element is true, if the corresponding path succeeded and the trigger object was used in an L3 filter (HLT only)
       /// The vector is empty for data (size 0), if the according information is not available.
       std::vector< bool > pathL3FilterAccepted_;
+
+      edm::ParameterSetID  psetId_;
 
       /// Constants
 
@@ -63,7 +69,7 @@ namespace pat {
       /// Adds a new HLT path or L1 algorithm name
       void addPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted );
       /// Gets all HLT filter labels or L1 condition names
-      const std::vector< std::string > & filtersOrConditions() const { return filterLabels_; };
+      const std::vector< std::string > & filtersOrConditions() const { checkIfFiltersAreUnpacked(); return filterLabels_; };
       /// Gets all HLT path or L1 algorithm names
       std::vector< std::string > pathsOrAlgorithms( bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const;
       /// Checks, if a certain HLT filter label or L1 condition name is assigned
@@ -76,6 +82,8 @@ namespace pat {
 
       /// Check if trigger names have been packed by calling packPathNames() and not yet unpacked
       bool checkIfPathsAreUnpacked(bool throwIfPacked=true) const ;
+      /// Check if trigger names have been packed by calling packFilterLabels() and not yet unpacked
+      bool checkIfFiltersAreUnpacked(bool  throwIfPacked=true) const ;
 
     public:
 
@@ -92,11 +100,16 @@ namespace pat {
       /// Constructors from Lorentz-vectors and (optional) PDG ID
       TriggerObjectStandAlone( const reco::Particle::LorentzVector & vec, int id = 0 );
       TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
+      TriggerObjectStandAlone( const TriggerObjectStandAlone& ) = default;
 
       /// Destructor
       virtual ~TriggerObjectStandAlone() {};
 
       /// Methods
+
+      TriggerObjectStandAlone copy() const {
+        return *this;
+      }
 
       /// Adds a new HLT filter label
       void addFilterLabel( const std::string & filterLabel ) { addFilterOrCondition( filterLabel ); };
@@ -147,10 +160,30 @@ namespace pat {
       /// Calls 'hasCollection(...)' (method override)
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
 
+      ///set the psetid of the trigger process
+      void setPSetID(const edm::ParameterSetID &psetId){psetId_=psetId;}
+      
+      const edm::ParameterSetID &psetID() const {return psetId_;}
+
+
+      void packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res);
       ///  pack trigger names into indices 
       void packPathNames(const edm::TriggerNames &names) ;
       ///  unpack trigger names into indices 
       void unpackPathNames(const edm::TriggerNames &names) ;
+      ///  pack filter labels into indices; note that the labels must be sorted!
+      void packFilterLabels(const std::vector<std::string> &labels)  ;
+      ///  unpack filter labels from indices
+      void unpackFilterLabels(const std::vector<std::string> &labels)  ;
+      ///  unpack filter labels from indices
+      void unpackFilterLabels(const edm::EventBase & event,const edm::TriggerResults &res)  ;
+      /// unpack both filter labels and trigger names
+      void unpackNamesAndLabels(const edm::EventBase & event,const edm::TriggerResults &res);
+
+      /// reduce the precision on the 4-vector
+      void packP4();
+
+      std::vector<std::string> const* allLabels(edm::ParameterSetID const& psetid,const edm::EventBase & event,const edm::TriggerResults &res) const ;
 
   };
 

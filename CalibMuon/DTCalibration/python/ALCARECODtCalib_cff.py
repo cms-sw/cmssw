@@ -10,7 +10,7 @@ ALCARECODtCalibHLTFilter = copy.deepcopy(hltHighLevel)
 #ALCARECODtCalibHLTFilter.andOr = True ## choose logical OR between Triggerbits
 #ALCARECODtCalibHLTFilter.HLTPaths = ['HLT_L1MuOpen*', 'HLT_L1Mu*']
 ALCARECODtCalibHLTFilter.throw = False ## dont throw on unknown path names
-ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibMu'
+ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'DtCalib'
 
 import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi as dt4DSegmentsCfiRef
 dt4DSegmentsNoWire = dt4DSegmentsCfiRef.dt4DSegments.clone()

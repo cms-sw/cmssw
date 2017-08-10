@@ -128,7 +128,7 @@ The `VPSet` alone will not do anything. Add it to the configuration of your plug
             histograms = SiPixelPhase1DigisConf,
             geometry = SiPixelPhase1Geometry
     )
-    SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+    SiPixelPhase1DigisHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
             histograms = SiPixelPhase1DigisConf,
             geometry = SiPixelPhase1Geometry
     )

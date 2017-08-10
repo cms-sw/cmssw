@@ -77,8 +77,8 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
 //   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
-  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
-  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",50,-0.5,49.5);
+  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",80,-0.5,79.5);
+  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",80,-0.5,79.5);
 
   // to be configured each year...
   auto vposx = conf_.getParameter<double>("Xpos");
@@ -122,7 +122,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
 
   xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,vposx-0.1,vposx+0.1);
-  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposx-0.1,vposy+0.1);
+  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposy-0.1,vposy+0.1);
   zrec[1]     = iBooker.book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
   xDiff[1]    = iBooker.book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
   yDiff[1]    = iBooker.book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);

@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -1108,12 +1108,12 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv)
       std::vector<double> cri;
       std::vector<double> cro;
       std::vector<double> czz;
-      czz.push_back( vecSpmZPts()[1] ) ;
-      cri.push_back( vecSpmRMin()[0] ) ;
-      cro.push_back( vecSpmRMin()[0] + 25*mm ) ;
-      czz.push_back( vecSpmZPts()[2] ) ;
-      cri.push_back( vecSpmRMin()[2] ) ;
-      cro.push_back( vecSpmRMin()[2] + 10*mm ) ;
+      czz.emplace_back( vecSpmZPts()[1] ) ;
+      cri.emplace_back( vecSpmRMin()[0] ) ;
+      cro.emplace_back( vecSpmRMin()[0] + 25*mm ) ;
+      czz.emplace_back( vecSpmZPts()[2] ) ;
+      cri.emplace_back( vecSpmRMin()[2] ) ;
+      cro.emplace_back( vecSpmRMin()[2] + 10*mm ) ;
       const DDSolid clyrSolid ( DDSolidFactory::polycone( clyrName, -9.5*deg,  19*deg, czz,cri,cro) ) ;
       const DDLogicalPart clyrLog ( clyrName, ddmat(vecIlyMat()[4]), clyrSolid ) ;
       cpv.position( clyrLog, spmLog, copyOne, DDTranslation(0,0,0), DDRotation() ) ;

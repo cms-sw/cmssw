@@ -19,9 +19,8 @@ from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
-                           #*ewkMuDQM # FIXME: broken after PR #14312
-                           #*ewkElecDQM
-                           #*ewkMuLumiMonitorDQM
+                           *ewkMuDQM
+                           *ewkElecDQM
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM
                            *topSingleElectronMediumDQM	
@@ -42,10 +41,10 @@ phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
     ewkElecDQM,          # Excessive printouts because 2017 doesn't have HLT yet
     ewkMuLumiMonitorDQM, # Excessive printouts because 2017 doesn't have HLT yet
 ]))
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 dqmPhysicspA  =  dqmPhysics.copy()
 dqmPhysicspA += CentralitypADQM
-eras.pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
+pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)

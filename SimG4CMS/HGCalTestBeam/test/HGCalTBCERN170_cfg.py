@@ -103,20 +103,22 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
-process.HGCalTBAnalyzer.DoDigis   = False
-process.HGCalTBAnalyzer.DoRecHits = False
-process.HGCalTBAnalyzer.UseFH     = True
-process.HGCalTBAnalyzer.UseBH     = True
-process.HGCalTBAnalyzer.UseBeam   = True
-process.HGCalTBAnalyzer.ZFrontEE  = 1110.0
-process.HGCalTBAnalyzer.ZFrontFH  = 1148.3
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
-			LVNames = cms.untracked.vstring('HGCalEE','HGCalHE','HGCalAH')
+			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'CMSE'),
+			MotherName = cms.string('CMSE'),
 			),
 		type = cms.string('HGCPassive'),
 		)
 				       )
+process.HGCalTBAnalyzer.DoDigis     = False
+process.HGCalTBAnalyzer.DoRecHits   = False
+process.HGCalTBAnalyzer.UseFH       = True
+process.HGCalTBAnalyzer.UseBH       = True
+process.HGCalTBAnalyzer.UseBeam     = True
+process.HGCalTBAnalyzer.ZFrontEE    = 1110.0
+process.HGCalTBAnalyzer.ZFrontFH    = 1148.3
+process.HGCalTBAnalyzer.DoPassive   = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

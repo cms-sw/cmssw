@@ -42,6 +42,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 
 using namespace std;
 
@@ -55,7 +56,9 @@ using namespace std;
 
 L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id) : 
                 m_sp(sp), m_id(id), 
-                m_addArray(), m_TSphi(), m_ptAssMethod(NODEF) {
+                m_addArray(), m_TSphi(), m_ptAssMethod(NODEF),
+                nbit_phi(12),nbit_phib(10)
+ {
 
   m_TSphi.reserve(4);  // a track candidate can consist of max 4 TS 
   reset();
@@ -146,8 +149,8 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 
   c.get< L1MuDTPhiLutRcd >().get( thePhiLUTs );
 
-  int sh_phi  = 12 - L1MuDTTFConfig::getNbitsPhiPhi();
-  int sh_phib = 10 - L1MuDTTFConfig::getNbitsPhiPhib();
+  int sh_phi  = 12 - m_sp.tf().config()->getNbitsPhiPhi();
+  int sh_phib = 10 - m_sp.tf().config()->getNbitsPhiPhib();
 
   const L1MuDTTrackSegPhi* second = getTSphi(2);  // track segment at station 2
   const L1MuDTTrackSegPhi* first  = getTSphi(1);  // track segment at station 1
@@ -531,13 +534,11 @@ int L1MuDTAssignmentUnit::phiDiff(int stat1, int stat2) const {
 //
 void L1MuDTAssignmentUnit::setPrecision() {
 
-  nbit_phi  = L1MuDTTFConfig::getNbitsPtaPhi();
-  nbit_phib = L1MuDTTFConfig::getNbitsPtaPhib();
+  nbit_phi  = m_sp.tf().config()->getNbitsPtaPhi();
+  nbit_phib = m_sp.tf().config()->getNbitsPtaPhib();
 
 }
 
 
 // static data members
 
-unsigned short int L1MuDTAssignmentUnit::nbit_phi  = 12;
-unsigned short int L1MuDTAssignmentUnit::nbit_phib = 10;

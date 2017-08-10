@@ -6,13 +6,18 @@
 #include <memory>
 #include <sstream>
 
+#include "TH2D.h"
+#include "TCanvas.h"
+#include "TLine.h"
+#include "TLatex.h"
+
 namespace {
 
   class BasicPayload_data0 : public cond::payloadInspector::HistoryPlot<cond::BasicPayload,float> {
   public:
     BasicPayload_data0() : cond::payloadInspector::HistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
     }
-
+    virtual ~BasicPayload_data0() = default;
     float getFromPayload( cond::BasicPayload& payload ){
       return payload.m_data0;
     }
@@ -22,7 +27,7 @@ namespace {
   public:
     BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Run-based Trend", "data0"){
     }
-
+    virtual ~BasicPayload_data1() = default;
     float getFromPayload( cond::BasicPayload& payload ){
       return payload.m_data0;
     }
@@ -32,6 +37,7 @@ namespace {
   public:
     BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Time-based Trend", "data0"){
     }
+    virtual ~BasicPayload_data2() = default;
 
     float getFromPayload( cond::BasicPayload& payload ){
       return payload.m_data0;
@@ -42,6 +48,7 @@ namespace {
   public:
     BasicPayload_data3() : cond::payloadInspector::ScatterPlot<cond::BasicPayload,float,float>( "Example Scatter", "data0","data1"){
     }
+    virtual ~BasicPayload_data3() = default;
 
     std::tuple<float,float> getFromPayload( cond::BasicPayload& payload ){
       return std::make_tuple(payload.m_data0,payload.m_data1);
@@ -53,6 +60,7 @@ namespace {
     BasicPayload_data4() : cond::payloadInspector::Histogram1D<cond::BasicPayload>( "Example Histo1d", "x",10,0,10){
       Base::setSingleIov( true );
     }
+    virtual ~BasicPayload_data4() = default;
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
@@ -72,6 +80,7 @@ namespace {
     BasicPayload_data5() : cond::payloadInspector::Histogram2D<cond::BasicPayload>( "Example Histo2d", "x",10,0,10,"y",10,0,10){
       Base::setSingleIov( true );
     }
+    virtual ~BasicPayload_data5() = default;
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
@@ -87,6 +96,86 @@ namespace {
     }
   };
 
+  class BasicPayload_data6 : public cond::payloadInspector::PlotImage<cond::BasicPayload> {
+  public:
+    BasicPayload_data6() : cond::payloadInspector::PlotImage<cond::BasicPayload>( "Example delivery picture" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      auto iov = iovs.front();
+      std::shared_ptr<cond::BasicPayload> payload = fetchPayload( std::get<1>(iov) );
+  
+      double xmax(100.),ymax(100.);
+
+      TH2D h2D("h2D","Example",100,0.,xmax,100,0.,ymax);
+
+      if( payload.get() ){
+	if(payload->m_vec.size()==10000){
+          for( size_t i=0;i<100;i++ )
+	    for( size_t j=0;j<100;j++ ) {
+              h2D.Fill(i,j,payload->m_vec[i*100+j]);
+	    }
+          h2D.SetStats(0);
+	}
+      }
+         
+      TCanvas c("c","",10,10,900,500);
+      c.cd();
+      c.SetLogz();
+      h2D.SetNdivisions(18, "X");
+      h2D.GetXaxis()->SetTickLength(0.00);
+      h2D.GetYaxis()->SetTickLength(0.00);
+      h2D.GetXaxis()->SetTitle("iphi");
+      h2D.GetYaxis()->SetTitle("ieta");
+      h2D.Draw("col");
+
+      //======= drawing lines ========
+      ///// this is quite specific to the line style they need
+
+      TLine l;
+      l.SetLineStyle(2);
+      l.DrawLine(0., ymax/2., xmax, ymax/2.);
+      for(int m = 0; m < int(xmax); m+=10) {
+	l.DrawLine(m, 0., m, 100.);
+      }
+
+      c.RedrawAxis();
+
+      //========== writing text in the canvas==============
+      //// This is again quite specific part. I just tried to emulate what is there in DQM for EB. 
+
+      TLatex Tl;
+      TLatex Tll;
+      Tl.SetTextAlign(23);
+      Tl.SetTextSize(0.04);
+
+      Tll.SetTextAlign(23);
+      Tll.SetTextSize(0.04);
+
+      int j = 0;
+      for(int i = 1; i <=10; i++){
+	std::string s = "+" + std::to_string(i);
+	char const *pchar = s.c_str();
+	j+=10;
+	Tl.DrawLatex(j-5,int(ymax)/1.33,pchar);
+      }
+
+      int z = 0;
+      for(int g = -10; g <0; g++){
+	std::string ss = std::to_string(g);
+	char const *pchar1 = ss.c_str();
+	z+= 10;
+	Tll.DrawLatex(z-5,int(ymax)/4,pchar1);
+      }
+      //=========================
+      
+      std::string fileName(m_imageFileName);
+      c.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
 
 }
 
@@ -97,4 +186,5 @@ PAYLOAD_INSPECTOR_MODULE( BasicPayload ){
   PAYLOAD_INSPECTOR_CLASS( BasicPayload_data3 );
   PAYLOAD_INSPECTOR_CLASS( BasicPayload_data4 );
   PAYLOAD_INSPECTOR_CLASS( BasicPayload_data5 );
+  PAYLOAD_INSPECTOR_CLASS( BasicPayload_data6 );
 }

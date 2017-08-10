@@ -6,13 +6,13 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
 
     # Change the following to True in order to use the channel
     # status from the DB
-    useChannelQualityFromDB = cms.bool(False),
+    useChannelQualityFromDB = cms.bool(True),
 
     # Change the following to True when the status becomes
     # available in the DB for both anodes. If this parameter
     # is set to False then it is assumed that the status of
     # both anodes is given by the channel at depth 1 and 2.
-    checkChannelQualityForDepth3and4 = cms.bool(False),
+    checkChannelQualityForDepth3and4 = cms.bool(True),
 
     # Configure the reconstruction algorithm
     algorithm = cms.PSet(
@@ -52,6 +52,14 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         triseIfNoTDC = cms.double(-100.0),
         tfallIfNoTDC = cms.double(-101.0),
 
+        # Charge limits for special TDC values. If the anode charge is
+        # below such a limit, the anode will participate in the energy
+        # reconstruction even if its TDC undershoots/overshoots. These
+        # global limits are in addition to those per channel limits in
+        # the database (effectively, the larger limit is used).
+        minChargeForUndershoot = cms.double(-10000.0),
+        minChargeForOvershoot = cms.double(-10000.0),
+
         # Do not construct rechits with problems
         rejectAllFailures = cms.bool(True)
     ),
@@ -60,7 +68,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     algoConfigClass = cms.string("HFPhase1PMTParams"),
 
     # Turn on/off the noise cleanup algorithms
-    setNoiseFlags = cms.bool(False),
+    setNoiseFlags = cms.bool(True),
 
     # Parameters for the S9S1 test.
     #

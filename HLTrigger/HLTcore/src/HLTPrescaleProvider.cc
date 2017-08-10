@@ -160,7 +160,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
     result.first=1;
   } else if (nL1TSeedModules==1) {
-    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
+    //    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
     const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
     bool l1error(!l1tGlobalUtil_.getPrescaleByName(l1tname,result.first));
     if (l1error) {
@@ -282,7 +282,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
     result.first.clear();
   } else if (nL1TSeedModules==1) {
-    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
+    //    l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
     std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
     GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
     const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
@@ -343,4 +343,10 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
  }
 
   return result;
+}
+
+bool HLTPrescaleProvider::rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const {
+
+  return hltConfigProvider_.moduleType(hltConfigProvider_.moduleLabel(i,triggerResults.index(i)))=="HLTPrescaler";
+
 }

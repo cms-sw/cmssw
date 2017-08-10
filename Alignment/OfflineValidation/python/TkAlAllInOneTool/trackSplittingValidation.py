@@ -1,42 +1,40 @@
 import os
 import configTemplates
-from genericValidation import GenericValidationData
+from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap
+from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config,
-                 configBaseName = "TkAlTrackSplitting", scriptBaseName = "TkAlTrackSplitting", crabCfgBaseName = "TkAlTrackSplitting",
-                 resultBaseName = "TrackSplitting", outputBaseName = "TrackSplitting"):
-        mandatories = ["trackcollection"]
-        defaults = {}
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = False
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "split", addMandatories = mandatories, addDefaults = defaults)
+class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlotsSummary, ValidationForPresentation):
+    configBaseName = "TkAlTrackSplitting"
+    scriptBaseName = "TkAlTrackSplitting"
+    crabCfgBaseName = "TkAlTrackSplitting"
+    resultBaseName = "TrackSplitting"
+    outputBaseName = "TrackSplitting"
+    mandatories = {"trackcollection"}
+    valType = "split"
 
-    def createConfiguration(self, path ):
-        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
-                                     self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
-        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["finalResultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+    @property
+    def ValidationTemplate(self):
+        return configTemplates.TrackSplittingTemplate
+
+    @property
+    def ValidationSequence(self):
+        return configTemplates.TrackSplittingSequence
+
+    @property
+    def ProcessName(self):
+        return "splitter"
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path)
+        return super(TrackSplittingValidation, self).createScript(path)
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(TrackSplittingValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
-        repMap = GenericValidationData.getRepMap(self)
+        repMap = super(TrackSplittingValidation, self).getRepMap(alignment)
         if repMap["subdetector"] == "none":
             subdetselection = ""
         else:
@@ -51,58 +49,47 @@ class TrackSplittingValidation(GenericValidationData):
         #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap
 
-
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
+    def appendToPlots(self):
         """
         if no argument or "" is passed a string with an instantiation is
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
         comparestring = self.getCompareStrings("TrackSplittingValidation")
-        if validationsSoFar != "":
-            validationsSoFar += ',"\n              "'
-        validationsSoFar += comparestring
-        return validationsSoFar
+        return '              "{},"'.format(comparestring)
 
-    def appendToMerge( self, validationsSoFar = "" ):
-        """
-        if no argument or "" is passed a string with an instantiation is returned,
-        else the validation is appended to the list
-        """
+    def appendToMerge(self):
         repMap = self.getRepMap()
 
         parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
 
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
-        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
-        return validationsSoFar
+        return "hadd -f %s %s" % (mergedoutputfile, parameters)
 
-    def validsubdets(self):
-        filename = os.path.join(self.cmssw, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
-        if not os.path.isfile(filename):
-            filename = os.path.join(self.cmsswreleasebase, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
-        with open(filename) as f:
-            trackselector = f.read()
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlTrackSplitPlot.C"
 
-        minhitspersubdet = trackselector.split("minHitsPerSubDet")[1].split("(",1)[1]
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.trackSplitPlotTemplate
 
-        parenthesesdepth = 0
-        i = 0
-        for character in minhitspersubdet:
-            if character == "(":
-                parenthesesdepth += 1
-            if character == ")":
-                parenthesesdepth -= 1
-            if parenthesesdepth < 0:
-                break
-            i += 1
-        minhitspersubdet = minhitspersubdet[0:i]
+    @classmethod
+    def plotsdirname(cls):
+        return "TrackSplittingPlots"
 
-        results = minhitspersubdet.split(",")
-        empty = []
-        for i in range(len(results)):
-            results[i] = results[i].split("=")[0].strip().replace("in", "", 1)
+    @classmethod
+    def presentationsubsections(cls):
+        return [
+            SubsectionTrackSplitting('hist.*eps$', 'Track splitting'),
+#           Uncomment and edit to highlight one or more profiles
+#            SubsectionOnePage("profile.phi_org.Delta_phi.*.eps", "modulation"),
+        ]
 
-        results.append("none")
+class SubsectionTrackSplitting(SubsectionFromList):
+    pageidentifiers = (
+                       ("hist[.]Delta_pt", "$p_T$"),
+                       ("hist[.]Delta_(eta|phi)", "Angles"),
+                       ("hist[.]Delta_d(xy|z)", "Vertex"),
+                      )
 
-        return [a for a in results if a]

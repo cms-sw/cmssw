@@ -10,7 +10,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 hiRegitMuPixelLessStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
     MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
     MuonTrackingRegionBuilder = dict(
-        vertexCollection = "hiSelectedVertex",
+        vertexCollection = "hiSelectedPixelVertex",
         UseVertex     = True,
         Phi_fixed     = True,
         Eta_fixed     = True,
@@ -92,7 +92,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuPixelLessStepTracks',
-    vertices            = cms.InputTag("hiSelectedVertex"),
+    vertices            = cms.InputTag("hiSelectedPixelVertex"),
     useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
@@ -113,6 +113,29 @@ hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
             preFilterName = 'hiRegitMuPixelLessStepTight',
             min_nhits = cms.uint32(8),
             useMVA = cms.bool(True),
+            minMVA = cms.double(-0.09)
+            ),
+        ) #end of vpset
+)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuPixelLessStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuPixelLessStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuPixelLessStepLoose',
+           min_nhits = cms.uint32(8)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuPixelLessStepTight',
+            preFilterName = 'hiRegitMuPixelLessStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.2)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuPixelLessStep',
+            preFilterName = 'hiRegitMuPixelLessStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
             minMVA = cms.double(-0.09)
             ),
         ) #end of vpset

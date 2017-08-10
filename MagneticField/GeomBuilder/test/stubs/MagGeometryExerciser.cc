@@ -42,9 +42,12 @@ void MagGeometryExerciser::testFindVolume(int ntry){
     testFindVolume(GlobalPoint(0,0,0));
   }
 
-  GlobalPointProvider p(0.,900., -Geom::pi(), Geom::pi(), -2000, 2000);
+  float maxZ = 2000.;
+  if (theGeometry->geometryVersion>=160812) maxZ=2400.;
 
-  cout << "Random points:" << endl;
+  GlobalPointProvider p(0.,900., -Geom::pi(), Geom::pi(), -maxZ, maxZ);
+
+  cout << "Random points: (|Z| < " << maxZ << ")" << endl;
   int success = 0;
   for (int i = 0; i<ntry; ++i) {
     if (testFindVolume(p.getPoint())) {
@@ -126,7 +129,11 @@ void MagGeometryExerciser::testInside(int ntry, float tolerance) {
 
 
   // Full CMS
-  GlobalPointProvider p(0,900,-Geom::pi(),Geom::pi(),-1999.9,1999.9);
+
+  float maxZ = 1999.9;
+  if (theGeometry->geometryVersion>=160812) maxZ=2399.9;
+
+  GlobalPointProvider p(0,900,-Geom::pi(),Geom::pi(),-maxZ,maxZ);
 
   // Zoom of one sector
   //  GlobalPointProvider p(350.,900.,-0.27,0.27,-1999.9,1999.9);

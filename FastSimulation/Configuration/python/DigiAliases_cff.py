@@ -83,11 +83,21 @@ def loadDigiAliases(premix=False):
 
     hcalDigis = cms.EDAlias(
         **{"simHcalDigis" if nopremix else "DMHcalDigis" :
-               cms.VPSet(
+            cms.VPSet(
                 cms.PSet(type = cms.string("HBHEDataFramesSorted")),
                 cms.PSet(type = cms.string("HFDataFramesSorted")),
-                cms.PSet(type = cms.string("HODataFramesSorted"))
+                cms.PSet(type = cms.string("HODataFramesSorted")),
+                cms.PSet(
+                    type = cms.string('QIE10DataFrameHcalDataFrameContainer'),
+                    fromProductInstance = cms.string('HFQIE10DigiCollection'),
+                    toProductInstance = cms.string('')
+                ),
+                cms.PSet(
+                    type = cms.string('QIE11DataFrameHcalDataFrameContainer'),
+                    fromProductInstance = cms.string('HBHEQIE11DigiCollection'),
+                    toProductInstance = cms.string('')
                 )
+            )
            }
           )
 

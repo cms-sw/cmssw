@@ -46,7 +46,7 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
         private:
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+                void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) override;
 	public:	
 		edm::ParameterSetDescription getAlgoDescription() override;
         private:

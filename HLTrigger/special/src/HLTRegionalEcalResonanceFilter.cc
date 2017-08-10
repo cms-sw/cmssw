@@ -3,10 +3,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"  // to use math::XYZVector
+#include "DataFormats/Math/interface/deltaPhi.h" // use already existing deltaPhi function to return deltaPhi in [-pi, pi]
 
 using namespace std;
 using namespace edm;
-
 
 HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::ParameterSet& iConfig)
 {
@@ -32,12 +32,14 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
     selePtPairBarrel_region1_ = barrelSelection.getParameter<double> ("selePtPairBarrel_region1");   
     seleS4S9GammaBarrel_region1_ = barrelSelection.getParameter<double> ("seleS4S9GammaBarrel_region1");  
     seleIsoBarrel_region1_ = barrelSelection.getParameter<double> ("seleIsoBarrel_region1");  
+    seleNxtalBarrel_region1_ = barrelSelection.getParameter<uint32_t> ("seleNxtalBarrel_region1");  
 
     // EB region 2
     selePtGammaBarrel_region2_ = barrelSelection.getParameter<double> ("selePtGammaBarrel_region2");  
     selePtPairBarrel_region2_ = barrelSelection.getParameter<double> ("selePtPairBarrel_region2");   
     seleS4S9GammaBarrel_region2_ = barrelSelection.getParameter<double> ("seleS4S9GammaBarrel_region2");  
     seleIsoBarrel_region2_ = barrelSelection.getParameter<double> ("seleIsoBarrel_region2");  
+    seleNxtalBarrel_region2_ = barrelSelection.getParameter<uint32_t> ("seleNxtalBarrel_region2");  
 
     // other
     seleS9S25Gamma_ = barrelSelection.getParameter<double> ("seleS9S25Gamma");  
@@ -85,6 +87,7 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
     selePtPairEndCap_region1_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region1");   
     seleS4S9GammaEndCap_region1_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region1");  
     seleIsoEndCap_region1_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region1");  
+    seleNxtalEndCap_region1_ = endcapSelection.getParameter<uint32_t> ("seleNxtalEndCap_region1");  
     
     // EE region 2
     region2_EndCap_ = endcapSelection.getParameter<double> ("region2_EndCap"); //eta dividing between region 2 and region 3
@@ -92,6 +95,7 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
     selePtPairEndCap_region2_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region2");   
     seleS4S9GammaEndCap_region2_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region2");  
     seleIsoEndCap_region2_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region2");  
+    seleNxtalEndCap_region2_ = endcapSelection.getParameter<uint32_t> ("seleNxtalEndCap_region2");  
 
     // EE region 3 (available but not yet used)
     selePtGammaEndCap_region3_ = endcapSelection.getParameter<double> ("selePtGammaEndCap_region3");  
@@ -99,6 +103,7 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
     selePtPairMaxEndCap_region3_ = endcapSelection.getParameter<double> ("selePtPairMaxEndCap_region3");
     seleS4S9GammaEndCap_region3_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region3");  
     seleIsoEndCap_region3_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region3");  
+    seleNxtalEndCap_region3_ = endcapSelection.getParameter<uint32_t> ("seleNxtalEndCap_region3");  
 
     seleS9S25GammaEndCap_ = endcapSelection.getParameter<double> ("seleS9S25GammaEndCap");  
 
@@ -189,12 +194,14 @@ HLTRegionalEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions&
   barrelSelection.add<double>("selePtGammaBarrel_region1", 1.0);
   barrelSelection.add<double>("selePtPairBarrel_region1", 2.0);
   barrelSelection.add<double>("seleIsoBarrel_region1", 0.5);  
+  barrelSelection.add<uint32_t>("seleNxtalBarrel_region1", 6);  
   barrelSelection.add<double>("seleS4S9GammaBarrel_region1", 0.83);
   
   //EB region 2
   barrelSelection.add<double>("selePtGammaBarrel_region2", 1.0);
   barrelSelection.add<double>("selePtPairBarrel_region2", 2.0);
   barrelSelection.add<double>("seleIsoBarrel_region2", 0.5);  
+  barrelSelection.add<uint32_t>("seleNxtalBarrel_region2", 6);  
   barrelSelection.add<double>("seleS4S9GammaBarrel_region2", 0.83);
 
   //EB Isolation configuration
@@ -235,6 +242,7 @@ HLTRegionalEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions&
   endcapSelection.add<double>("selePtPairEndCap_region1", 3.0);
   endcapSelection.add<double>("seleS4S9GammaEndCap_region1", 0.9);
   endcapSelection.add<double>("seleIsoEndCap_region1", 0.5);
+  endcapSelection.add<uint32_t>("seleNxtalEndCap_region1", 6);
 
   // EE region 2
   endcapSelection.add<double>("region2_EndCap", 2.5); // eta division between endcap region 2 and 3
@@ -242,6 +250,7 @@ HLTRegionalEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions&
   endcapSelection.add<double>("selePtPairEndCap_region2", 2.0);
   endcapSelection.add<double>("seleS4S9GammaEndCap_region2", 0.9);
   endcapSelection.add<double>("seleIsoEndCap_region2", 0.5);
+  endcapSelection.add<uint32_t>("seleNxtalEndCap_region2", 6);
 
   // EE region 3
   endcapSelection.add<double>("selePtGammaEndCap_region3", 0.3);
@@ -249,6 +258,7 @@ HLTRegionalEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions&
   endcapSelection.add<double>("selePtPairMaxEndCap_region3", 2.5);
   endcapSelection.add<double>("seleS4S9GammaEndCap_region3", 0.9);
   endcapSelection.add<double>("seleIsoEndCap_region3", 0.5);
+  endcapSelection.add<uint32_t>("seleNxtalEndCap_region3", 6);
 
   // other
   endcapSelection.add<double>("seleS9S25GammaEndCap", 0.);
@@ -288,7 +298,6 @@ HLTRegionalEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions&
 // ------------ method called to produce the data  ------------
 bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   
   //Create empty output collections
   std::unique_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
   //Create empty output collections
@@ -713,7 +722,7 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
       float Iso = 0;
       for( auto it_bc3 = clusterCollection->begin(); it_bc3 != clusterCollection->end();it_bc3++){
 	if( it_bc3->seed() == it_bc->seed() || it_bc3->seed() == it_bc2->seed()) continue; 
-	float drcl = GetDeltaR(eta_pair,it_bc3->eta(),phi_pair,it_bc3->phi()); 
+	float drcl = std::hypot(eta_pair - it_bc3->eta(), deltaPhi(phi_pair, it_bc3->phi())); 
 	float dretacl = fabs( eta_pair - it_bc3->eta()); 
 	if( drcl > isoBeltdrCut ||  dretacl > isoBeltdetaCut ) continue; 
 	float pt3 = it_bc3->energy()*sin(it_bc3->position().theta()) ; 
@@ -721,6 +730,40 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
 	Iso += pt3; 
 	int ind3 = int(it_bc3 - clusterCollection->begin());  /// remember which Iso cluster used 
 	IsoClus.push_back( ind3);
+      }
+      
+      //-------------------------------------
+      // Region Based Nxtal Cut: Nxtal of the clusters
+      //-------------------------------------
+
+      uint32_t Nxtal_pho1 = it_bc->size();
+      uint32_t Nxtal_pho2 = it_bc2->size();
+
+      // BARREL
+      if(  detector == EcalBarrel ){
+	//EB region 1
+	if(etapair <= region1_Barrel_){ //EB region 1
+	  if(Nxtal_pho1 < seleNxtalBarrel_region1_ || Nxtal_pho2 < seleNxtalBarrel_region1_) continue; 
+	}
+	//EB region 2
+	else{ 	  
+	  if(Nxtal_pho1 < seleNxtalBarrel_region2_ || Nxtal_pho2 < seleNxtalBarrel_region2_) continue; 
+	}
+      }
+      // ENDCAP
+      else{
+	//EE region 1
+	if(etapair <= region1_EndCap_){
+	  if(Nxtal_pho1 < seleNxtalEndCap_region1_ || Nxtal_pho2 < seleNxtalEndCap_region1_) continue; 
+	}
+	//EE region 2
+	else if( etapair <= region2_EndCap_){
+	  if(Nxtal_pho1 < seleNxtalEndCap_region2_ || Nxtal_pho2 < seleNxtalEndCap_region2_) continue; 
+	}
+	//EE region 3
+	else{
+	  if(Nxtal_pho1 < seleNxtalEndCap_region3_ || Nxtal_pho2 < seleNxtalEndCap_region3_) continue; 
+	}
       }
 
       //-------------------------------------
@@ -1074,26 +1117,6 @@ bool HLTRegionalEcalResonanceFilter::checkStatusOfEcalRecHit(const EcalChannelSt
   }
   
   return true; 
-}
-
-
-float HLTRegionalEcalResonanceFilter::DeltaPhi(float phi1, float phi2){
-
-  float diff = fabs(phi2 - phi1);
-  
-  while (diff >acos(-1)) diff -= 2*acos(-1);
-  while (diff <= -acos(-1)) diff += 2*acos(-1);
-  
-  return diff; 
-
-}
-
-
-float HLTRegionalEcalResonanceFilter::GetDeltaR(float eta1, float eta2, float phi1, float phi2){
-  
-  return sqrt( (eta1-eta2)*(eta1-eta2) 
-	       + DeltaPhi(phi1, phi2)*DeltaPhi(phi1, phi2) );
-  
 }
 
 

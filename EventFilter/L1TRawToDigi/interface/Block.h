@@ -74,7 +74,7 @@ namespace l1t {
    class Payload {
       public:
          Payload(const uint32_t * data, const uint32_t * end) : data_(data), end_(end), algo_(0), infra_(0) {};
-
+         virtual ~Payload() {};
          virtual unsigned getAlgorithmFWVersion() const { return algo_; };
          virtual unsigned getInfrastructureFWVersion() const { return infra_; };
          virtual unsigned getHeaderSize() const = 0;

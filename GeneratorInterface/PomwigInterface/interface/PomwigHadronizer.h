@@ -22,7 +22,7 @@ namespace gen
   {
     public:
         PomwigHadronizer(const edm::ParameterSet &params);
-        ~PomwigHadronizer();
+        virtual ~PomwigHadronizer();
 
         bool readSettings( int );
 	bool initializeForInternalPartons();

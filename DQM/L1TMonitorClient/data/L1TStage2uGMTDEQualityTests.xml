@@ -1,0 +1,35 @@
+<TESTSCONFIGURATION>
+
+  <!-- uGMT Data vs Emulator -->
+
+  <!-- Mismatch Summary QTest -->
+
+  <QTEST name="uGMTDE_MismatchRatioMax0">
+    <TYPE>ContentsYRange</TYPE>	
+    <PARAM name="ymin">0.00</PARAM>
+    <PARAM name="ymax">0.00</PARAM>
+    <PARAM name="error">0.95</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+    <PARAM name="useEmptyBins">1</PARAM>
+  </QTEST>
+  
+  <LINK name="L1TEMU/L1TdeStage2uGMT/data_vs_emulator_comparison/mismatchRatio">
+      <TestName activate="true">uGMTDE_MismatchRatioMax0</TestName>
+  </LINK>
+
+  <!-- Intermediate Muons QTest -->
+
+  <QTEST name="InterMuonsDE_MismatchRatioMax0">
+    <TYPE>ContentsYRange</TYPE>	
+    <PARAM name="ymin">0.00</PARAM>
+    <PARAM name="ymax">0.00</PARAM>
+    <PARAM name="error">0.95</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+    <PARAM name="useEmptyBins">1</PARAM>
+  </QTEST>
+  
+  <LINK name="L1TEMU/L1TdeStage2uGMT/intermediate_muons/*/data_vs_emulator_comparison/mismatchRatio">
+      <TestName activate="true">InterMuonsDE_MismatchRatioMax0</TestName>
+  </LINK>
+
+</TESTSCONFIGURATION>

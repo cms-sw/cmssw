@@ -8,8 +8,19 @@ L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
       muonColl1Title(ps.getUntrackedParameter<std::string>("muonCollection1Title")),
       muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title")),
       summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle")),
+      ignoreBin(ps.getUntrackedParameter<std::vector<int>>("ignoreBin")),
       verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
+  // First include all bins
+  for (unsigned int i = 1; i <= RIDX; i++) {
+    incBin[i] = true;
+  }
+  // Then check the list of bins to ignore
+  for (const auto& i : ignoreBin) {
+    if (i > 0 && i <= RIDX) {
+      incBin[i] = false;
+    }
+  }
 }
 
 L1TStage2MuonComp::~L1TStage2MuonComp() {}
@@ -22,6 +33,7 @@ void L1TStage2MuonComp::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<std::string>("muonCollection1Title", "Muon collection 1")->setComment("Histogram title for first collection.");
   desc.addUntracked<std::string>("muonCollection2Title", "Muon collection 2")->setComment("Histogram title for second collection.");
   desc.addUntracked<std::string>("summaryTitle", "Summary")->setComment("Title of summary histogram.");
+  desc.addUntracked<std::vector<int>>("ignoreBin", std::vector<int>())->setComment("List of bins to ignore");
   desc.addUntracked<bool>("verbose", false);
   descriptions.add("l1tStage2MuonComp", desc);
 }
@@ -52,6 +64,43 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   summary->setBinLabel(QUALBAD, "quality mismatch", 1);
   summary->setBinLabel(ISOBAD, "iso mismatch", 1);
   summary->setBinLabel(IDXBAD, "index mismatch", 1);
+
+  errorSummaryNum = ibooker.book1D("errorSummaryNum", summaryTitle.c_str(), 13, 1, 14); // range to match bin numbering
+  errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
+  errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
+  errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
+  errorSummaryNum->setBinLabel(RPT, "p_{T} mismatch", 1);
+  errorSummaryNum->setBinLabel(RETA, "#eta mismatch", 1);
+  errorSummaryNum->setBinLabel(RPHI, "#phi mismatch", 1);
+  errorSummaryNum->setBinLabel(RETAATVTX, "#eta at vertex mismatch", 1);
+  errorSummaryNum->setBinLabel(RPHIATVTX, "#phi at vertex mismatch", 1);
+  errorSummaryNum->setBinLabel(RCHARGE, "charge mismatch", 1);
+  errorSummaryNum->setBinLabel(RCHARGEVAL, "charge valid mismatch", 1);
+  errorSummaryNum->setBinLabel(RQUAL, "quality mismatch", 1);
+  errorSummaryNum->setBinLabel(RISO, "iso mismatch", 1);
+  errorSummaryNum->setBinLabel(RIDX, "index mismatch", 1);
+
+  // Change the label for those bins that will be ignored
+  for (unsigned int i = 1; i <= RIDX; i++) {
+    if (incBin[i]==false) {
+      errorSummaryNum->setBinLabel(i, "Ignored", 1);
+    }
+  }
+
+  errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 13, 1, 14); // range to match bin numbering
+  errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
+  errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
+  errorSummaryDen->setBinLabel(RMUON, "# muons", 1);
+  errorSummaryDen->setBinLabel(RPT, "# muons", 1);
+  errorSummaryDen->setBinLabel(RETA, "# muons", 1);
+  errorSummaryDen->setBinLabel(RPHI, "# muons", 1);
+  errorSummaryDen->setBinLabel(RETAATVTX, "# muons", 1);
+  errorSummaryDen->setBinLabel(RPHIATVTX, "# muons", 1);
+  errorSummaryDen->setBinLabel(RCHARGE, "# muons", 1);
+  errorSummaryDen->setBinLabel(RCHARGEVAL, "# muons", 1);
+  errorSummaryDen->setBinLabel(RQUAL, "# muons", 1);
+  errorSummaryDen->setBinLabel(RISO, "# muons", 1);
+  errorSummaryDen->setBinLabel(RIDX, "# muons", 1);
 
   muColl1BxRange = ibooker.book1D("muColl1BxRange", (muonColl1Title+" mismatching BX range").c_str(), 5, -2.5, 2.5);
   muColl1BxRange->setAxisTitle("BX range", 1);
@@ -113,10 +162,12 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
+  errorSummaryDen->Fill(RBXRANGE);
   int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX() + 1;
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
+    if (incBin[RBXRANGE]) errorSummaryNum->Fill(RBXRANGE);
     int bx;
     for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
         muColl1BxRange->Fill(bx);
@@ -135,9 +186,11 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     l1t::MuonBxCollection::const_iterator muonIt1;
     l1t::MuonBxCollection::const_iterator muonIt2;
 
+    errorSummaryDen->Fill(RNMUON);
     // check number of muons
     if (muonBxColl1->size(iBx) != muonBxColl2->size(iBx)) {
       summary->Fill(NMUONBAD);
+      if (incBin[RNMUON]) errorSummaryNum->Fill(RNMUON);
       muColl1nMu->Fill(muonBxColl1->size(iBx));
       muColl2nMu->Fill(muonBxColl2->size(iBx));
 
@@ -178,50 +231,99 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     muonIt2 = muonBxColl2->begin(iBx);
     while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
       summary->Fill(MUONALL);
+      for (int i = RMUON; i <= RIDX; ++i) {
+        errorSummaryDen->Fill(i);
+      }
 
-      bool muonMismatch = false;
+      bool muonMismatch = false;    // All muon mismatches
+      bool muonSelMismatch = false; // Muon mismatches excluding ignored bins
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
         summary->Fill(PTBAD);
+        if (incBin[RPT]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RPT);
+        }
       }
       if (muonIt1->hwEta() != muonIt2->hwEta()) {
         muonMismatch = true;
         summary->Fill(ETABAD);
+        if (incBin[RETA]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RETA);
+        }
       }
       if (muonIt1->hwPhi() != muonIt2->hwPhi()) {
         muonMismatch = true;
         summary->Fill(PHIBAD);
+        if (incBin[RPHI]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RPHI);
+        }
       }
       if (muonIt1->hwEtaAtVtx() != muonIt2->hwEtaAtVtx()) {
         muonMismatch = true;
         summary->Fill(ETAATVTXBAD);
+        if (incBin[RETAATVTX]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RETAATVTX);
+        }
       }
       if (muonIt1->hwPhiAtVtx() != muonIt2->hwPhiAtVtx()) {
         muonMismatch = true;
         summary->Fill(PHIATVTXBAD);
+        if (incBin[RPHIATVTX]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RPHIATVTX);
+        }
       }
       if (muonIt1->hwCharge() != muonIt2->hwCharge()) {
         muonMismatch = true;
         summary->Fill(CHARGEBAD);
+        if (incBin[RCHARGE]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RCHARGE);
+        }
       }
       if (muonIt1->hwChargeValid() != muonIt2->hwChargeValid()) {
         muonMismatch = true;
         summary->Fill(CHARGEVALBAD);
+        if (incBin[RCHARGEVAL]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RCHARGEVAL);
+        }
       }
       if (muonIt1->hwQual() != muonIt2->hwQual()) {
         muonMismatch = true;
         summary->Fill(QUALBAD);
+        if (incBin[RQUAL]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RQUAL);
+        }
       }
       if (muonIt1->hwIso() != muonIt2->hwIso()) {
         muonMismatch = true;
         summary->Fill(ISOBAD);
+        if (incBin[RISO]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RISO);
+        }
       }
       if (muonIt1->tfMuonIndex() != muonIt2->tfMuonIndex()) {
         muonMismatch = true;
         summary->Fill(IDXBAD);
+        if (incBin[RIDX]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RIDX);
+        }
+      }
+
+      if (incBin[RMUON] && muonSelMismatch) {
+        errorSummaryNum->Fill(RMUON);
       }
 
       if (muonMismatch) {
+
         muColl1hwPt->Fill(muonIt1->hwPt());
         muColl1hwEta->Fill(muonIt1->hwEta());
         muColl1hwPhi->Fill(muonIt1->hwPhi());

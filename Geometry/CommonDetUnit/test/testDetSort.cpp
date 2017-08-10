@@ -22,12 +22,12 @@ class MyDet : public GeomDet {
     GeomDet(new BoundPlane(pos,RotationType(),new RectangularPlaneBounds(0,0,0))){}
   
   virtual DetId geographicalId() const {return DetId();}
-  virtual std::vector< const GeomDet*> components() const {
+  std::vector< const GeomDet*> components() const override {
     return std::vector< const GeomDet*>();
   }
 
   /// Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
 
 };  
 
@@ -55,10 +55,10 @@ int main() {
 
   // Fill the vector to be sorted
   vector<MyDet> v;
-  v.push_back(MyDet(PositionType(2,1,1)));
-  v.push_back(MyDet(PositionType(1,1,2)));
-  v.push_back(MyDet(PositionType(1,2,3)));
-  v.push_back(MyDet(PositionType(2,2,4)));
+  v.emplace_back(MyDet(PositionType(2,1,1)));
+  v.emplace_back(MyDet(PositionType(1,1,2)));
+  v.emplace_back(MyDet(PositionType(1,2,3)));
+  v.emplace_back(MyDet(PositionType(2,2,4)));
 
 
   cout << "Original  vector: " << endl;
@@ -88,7 +88,7 @@ int main() {
 
   vector<const MyDet*> vp;
   for (vector<MyDet>::const_iterator i=v.begin(); i!=v.end(); i++){
-    vp.push_back(&(*i));
+    vp.emplace_back(&(*i));
   }
 
   cout << "Sort in R       : " << endl;

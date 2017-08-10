@@ -44,8 +44,8 @@ inline bool
 acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::vector<std::string>& triggerPaths)
 {
   bool passed=false;
-  for(unsigned int j=0; j<triggerPaths.size(); ++j){
-    if(acceptHLT(event, triggerTable, triggerPaths[j])){
+  for(const auto & triggerPath : triggerPaths){
+    if(acceptHLT(event, triggerTable, triggerPath)){
       passed=true;
       break;
     }
@@ -74,7 +74,7 @@ class CalculateHLT {
   /// default constructor
   CalculateHLT(int maxNJets, double wMass);
   /// default destructor
-  ~CalculateHLT(){};
+  ~CalculateHLT()= default;;
      
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
@@ -175,6 +175,7 @@ class CalculateHLT {
 */
 class SelectionStepHLTBase {
   public:
+    virtual ~SelectionStepHLTBase() = default;
     virtual bool select(const edm::Event& event) {
       return false;
     };
@@ -191,12 +192,12 @@ public:
   /// default constructor
   SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  virtual ~SelectionStepHLT(){};
+  ~SelectionStepHLT() override = default;
 
   /// apply selection
-  virtual bool select(const edm::Event& event);
+  bool select(const edm::Event& event) override;
   /// apply selection override for jets
-  virtual bool select(const edm::Event& event, const edm::EventSetup& setup); 
+  bool select(const edm::Event& event, const edm::EventSetup& setup) override; 
   bool selectVertex(const edm::Event& event);
 private:
   /// input collection
@@ -238,7 +239,7 @@ template <typename Object>
 SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
   src_( iC.consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>( "src"   ))),
   select_( cfg.getParameter<std::string>("select")),
-  jetIDSelect_(0)
+  jetIDSelect_(nullptr)
 {
   // construct min/max if the corresponding params
   // exist otherwise they are initialized with -1

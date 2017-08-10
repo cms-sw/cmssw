@@ -19,6 +19,8 @@ from DQM.L1TMonitorClient.L1TStage2QualityTests_cff import *
 # L1 event info DQM client 
 from DQM.L1TMonitorClient.L1TStage2EventInfoClient_cfi import *
 
+# uGMT client
+from DQM.L1TMonitorClient.L1TStage2uGMTClient_cff import *
 
 #
 # define sequences 
@@ -26,7 +28,8 @@ from DQM.L1TMonitorClient.L1TStage2EventInfoClient_cfi import *
 
 # L1T monitor client sequence (system clients and quality tests)
 l1TStage2Clients = cms.Sequence(
-                        l1tStage2EventInfoClient 
+                        l1tStage2EventInfoClient
+                      + l1tStage2uGMTClient
                         )
 
 l1tStage2MonitorClient = cms.Sequence(

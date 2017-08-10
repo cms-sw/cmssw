@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
+segmentTest = DQMEDHarvester("DTSegmentAnalysisTest",
                              detailedAnalysis = cms.untracked.bool(False),
                              #Perform basic diagnostic in endLumi/EndRun
                              runOnline = cms.untracked.bool(True),

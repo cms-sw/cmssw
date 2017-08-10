@@ -34,7 +34,7 @@ hiPixelAdaptiveVertexPreSplitting = hiPixelAdaptiveVertex.clone(
   TrackLabel = cms.InputTag("hiSelectedProtoTracksPreSplitting")
 )
 hiBestAdaptiveVertexPreSplitting = hiBestAdaptiveVertex.clone( src = cms.InputTag("hiPixelAdaptiveVertexPreSplitting") ) 
-hiSelectedVertexPreSplitting = hiSelectedVertex.clone( 
+hiSelectedVertexPreSplitting = hiSelectedPixelVertex.clone( 
   adaptiveVertexCollection = cms.InputTag("hiBestAdaptiveVertexPreSplitting"),
   medianVertexCollection = cms.InputTag("hiPixelMedianVertexPreSplitting")
 )

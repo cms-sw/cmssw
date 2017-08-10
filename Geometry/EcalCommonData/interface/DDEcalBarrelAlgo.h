@@ -4,9 +4,9 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -31,14 +31,14 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
 
       //Constructor and Destructor
       DDEcalBarrelAlgo();
-      virtual ~DDEcalBarrelAlgo();
+      ~DDEcalBarrelAlgo() override;
 
       void initialize(const DDNumericArguments      & nArgs,
 		      const DDVectorArguments       & vArgs,
 		      const DDMapArguments          & mArgs,
 		      const DDStringArguments       & sArgs,
-		      const DDStringVectorArguments & vsArgs);
-      void execute(DDCompactView& cpv);
+		      const DDStringVectorArguments & vsArgs) override;
+      void execute(DDCompactView& cpv) override;
 
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;

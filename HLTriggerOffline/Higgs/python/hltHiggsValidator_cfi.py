@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
+    analysis       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","MSSMHbbmu","VBFHToInv"),
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection 
@@ -195,20 +195,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),  
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
-            "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
-            "HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v",
-            "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
-        ),
-        recPhotonLabel  = cms.string("photons"),
-        # -- Analysis specific cuts
-        minCandidates = cms.uint32(2), 
-        ),
-    # seperate directory because it needs a different relval    
-    HggControlPaths = cms.PSet( 
-        hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_v",
-        ),
+            "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+            "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+            "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v",
+            "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v",
+            "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v",
+            "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v",
+            ),
         recPhotonLabel  = cms.string("photons"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2), 
@@ -406,30 +399,34 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         minCandidates = cms.uint32(1),
         ),
-
+ 
     MSSMHbb  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v",
-            "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v",
-            "HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_v",
-            "HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_v",
-            "HLT_DoubleJetsC100_SingleBTagCSV_p026_v",
-            "HLT_DoubleJetsC100_SingleBTagCSV_p014_v",
-            "HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_v",
-            "HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v",
-
-	    # old csv version
-            "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
-            "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
-            "HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
-            "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
-
+            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v",
+            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v",
+            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(3),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.941, 0.941 , 0.00, 0, 0, 0, 100, 100, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 100., 100., 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+ 
+    MSSMHbbmu  = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets40MaxDeta1p6_v1",
+            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets54MaxDeta1p6_v1",
+            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6_v1",
+            ),
+        recMuonLabel  = cms.string("muons"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(3),
+        Mu_genCut     = cms.string("pt > 12 && abs(eta) < 2.3 && abs(pdgId) == 13 && status == 1"),
+        Mu_recCut     = cms.string("pt > 12 && abs(eta) < 2.3 && isGlobalMuon"),
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 30.0, 30.0, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
         
     VBFHToInv  = cms.PSet( 

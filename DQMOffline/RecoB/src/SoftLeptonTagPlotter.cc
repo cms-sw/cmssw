@@ -12,7 +12,7 @@ static const string ordinal[9] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7t
 
 SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
 					   const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-					   const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook) :
+					   unsigned int mc, bool wf, DQMStore::IBooker & ibook) :
   BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc), willFinalize_(wf)
 {
   const std::string softLepDir(theExtensionString.substr(1));
@@ -20,91 +20,63 @@ SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
   if(willFinalize_) return;
   
   for (int i = 0; i < s_leptons; i++) {
-    std::ostringstream s("");
-    s << ordinal[i] << " lepton ";
-    m_leptonId[i] = new FlavourHistograms<double> (
-						   s.str() + "id",
+    std::string s;
+    s += ordinal[i] + " lepton ";
+    m_leptonId.push_back(std::make_unique<FlavourHistograms<double>>(
+						   s + "id",
 						   "Lepton identification discriminaint",
-						   60, -0.1, 1.1, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_leptonPt[i] = new FlavourHistograms<double> (
-						   s.str() + "pT",
+						   60, -0.1, 1.1, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_leptonPt.push_back(std::make_unique<FlavourHistograms<double>>(
+						   s + "pT",
 						   "Lepton transverse moementum",
-						   100, 0.0, 20.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_sip2dsig[i] = new FlavourHistograms<double> (
-        s.str() + "sip2dsig",
+						   100, 0.0, 20.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_sip2dsig.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "sip2dsig",
         "Lepton signed 2D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_sip3dsig[i] = new FlavourHistograms<double> (
-        s.str() + "sip3dsig",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_sip3dsig.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "sip3dsig",
         "Lepton signed 3D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_sip2d[i] = new FlavourHistograms<double> (
-        s.str() + "sip2d",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_sip2d.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "sip2d",
         "Lepton signed 2D impact parameter",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_sip3d[i] = new FlavourHistograms<double> (
-        s.str() + "sip3d",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_sip3d.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "sip3d",
         "Lepton signed 3D impact parameter",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_ptRel[i] = new FlavourHistograms<double> (
-        s.str() +  "pT rel",
-        "Lepton transverse moementum relative to jet axis",
-        100, 0.0, 10.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_p0Par[i] = new FlavourHistograms<double> (
-        s.str() + "p0 par",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_ptRel.push_back(std::make_unique<FlavourHistograms<double>>(
+        s +  "pT rel",
+        "Lepton transverse momentum relative to jet axis",
+        100, 0.0, 10.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_p0Par.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "p0 par",
         "Lepton moementum along jet axis in the B rest frame",
-        100, 0.0, 10.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_etaRel[i] = new FlavourHistograms<double> (
-        s.str() + "eta rel",
+        100, 0.0, 10.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_etaRel.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "eta rel",
         "Lepton pseudorapidity relative to jet axis",
-        100, -5.0, 25.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_deltaR[i] = new FlavourHistograms<double> (
-        s.str() + "delta R",
+        100, -5.0, 25.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_deltaR.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "delta R",
         "Lepton pseudoangular distance from jet axis",
-        100, 0.0, 0.6, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_ratio[i] = new FlavourHistograms<double> (
-        s.str() + "energy ratio",
+        100, 0.0, 0.6, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_ratio.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "energy ratio",
         "Ratio of lepton momentum to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
-    m_ratioRel[i] = new FlavourHistograms<double> (
-        s.str() + "parallel energy ratio",
+        100, 0.0, 2.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_ratioRel.push_back(std::make_unique<FlavourHistograms<double>>(
+        s + "parallel energy ratio",
         "Ratio of lepton momentum along the jet axis to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
+        100, 0.0, 2.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
   }
 }
 
-SoftLeptonTagPlotter::~SoftLeptonTagPlotter ()
+SoftLeptonTagPlotter::~SoftLeptonTagPlotter() {}
+
+void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/)
 {
-  if(willFinalize_) return;
-
-  for (int i = 0; i != s_leptons; ++i) {
-    delete m_leptonId[i];
-    delete m_leptonPt[i];
-    delete m_sip2dsig[i];
-    delete m_sip3dsig[i];
-    delete m_sip2d[i];
-    delete m_sip3d[i];
-    delete m_ptRel[i];
-    delete m_p0Par[i];
-    delete m_etaRel[i];
-    delete m_deltaR[i];
-    delete m_ratio[i];
-    delete m_ratioRel[i];
-  }
-}
-
-void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo, const double & jec, 
-    const int & jetFlavour )
-{
-  analyzeTag(baseTagInfo,jetFlavour,1.);
-}
-
-void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
-				       const double & jec, 
-				       const int & jetFlavour,
-				       const float & w)
-{
-
   const reco::SoftLeptonTagInfo * tagInfo = 
 	dynamic_cast<const reco::SoftLeptonTagInfo *>(baseTagInfo);
 
@@ -117,18 +89,18 @@ void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
 
   for (int i = 0; i != n_leptons && i != s_leptons; ++i) {
     const reco::SoftLeptonProperties& properties = tagInfo->properties(i);
-    m_leptonPt[i]->fill( jetFlavour, tagInfo->lepton(i)->pt() ,w);
-    m_leptonId[i]->fill( jetFlavour, properties.quality() ,w);
-    m_sip2dsig[i]->fill(    jetFlavour, properties.sip2dsig ,w);
-    m_sip3dsig[i]->fill(    jetFlavour, properties.sip3dsig ,w);
-    m_sip2d[i]->fill(    jetFlavour, properties.sip2d ,w);
-    m_sip3d[i]->fill(    jetFlavour, properties.sip3d ,w);
-    m_ptRel[i]->fill(    jetFlavour, properties.ptRel ,w);
-    m_p0Par[i]->fill(    jetFlavour, properties.p0Par ,w);
-    m_etaRel[i]->fill(   jetFlavour, properties.etaRel ,w);
-    m_deltaR[i]->fill(   jetFlavour, properties.deltaR ,w);
-    m_ratio[i]->fill(    jetFlavour, properties.ratio ,w);
-    m_ratioRel[i]->fill( jetFlavour, properties.ratioRel ,w);
+    m_leptonPt[i]->fill(jetFlavour, tagInfo->lepton(i)->pt(), w);
+    m_leptonId[i]->fill(jetFlavour, properties.quality(), w);
+    m_sip2dsig[i]->fill(jetFlavour, properties.sip2dsig, w);
+    m_sip3dsig[i]->fill(jetFlavour, properties.sip3dsig, w);
+    m_sip2d[i]->fill(jetFlavour, properties.sip2d, w);
+    m_sip3d[i]->fill(jetFlavour, properties.sip3d, w);
+    m_ptRel[i]->fill(jetFlavour, properties.ptRel, w);
+    m_p0Par[i]->fill(jetFlavour, properties.p0Par, w);
+    m_etaRel[i]->fill(jetFlavour, properties.etaRel, w);
+    m_deltaR[i]->fill(jetFlavour, properties.deltaR, w);
+    m_ratio[i]->fill(jetFlavour, properties.ratio, w);
+    m_ratioRel[i]->fill(jetFlavour, properties.ratioRel, w);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 class DDRotation;
 
@@ -15,6 +15,9 @@ std::ostream & operator<<(std::ostream &, const DDRotation &);
 */
 DDRotation DDrot(const DDName & name,
                  DDRotationMatrix * rot);
+
+std::unique_ptr<DDRotation> DDrotPtr(const DDName & name,
+				     DDRotationMatrix * rot);
 
 //! Definition of a uniquely identifiable rotation matrix named by DDName \a name in the GEANT3 style
 /** DDrot() returns a reference-object DDRotation representing the rotation matrix.
@@ -65,6 +68,7 @@ class DDRotation : public DDBase<DDName,DDRotationMatrix*>
 {
   friend std::ostream & operator<<(std::ostream &, const DDRotation &);
   friend DDRotation DDrot(const DDName &, DDRotationMatrix *);
+  friend std::unique_ptr<DDRotation> DDrotPtr(const DDName &, DDRotationMatrix *);
   friend DDRotation DDrotReflect(const DDName&,double,double,double,double,double,double);
   friend DDRotation DDanonymousRot(DDRotationMatrix*);
 public:

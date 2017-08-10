@@ -37,10 +37,9 @@
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/Mask.h"
-#include "L1Trigger/L1TCommon/interface/Setting.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 
 using namespace std;
 using namespace edm;
@@ -119,6 +118,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   edm::FileInPath f1_mask_veto("L1Trigger/L1TGlobal/data/Luminosity/" + menuDir + "/" + vetomaskFileName);
   std::string m_vetomaskFile = f1_mask_veto.fullPath();
 
+
   // XML payloads
   std::string xmlPayload_prescale;
   std::string xmlPayload_mask_algobx;
@@ -149,43 +149,48 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
         xmlPayload_prescale.append( tmp );
     }
 
-    XmlConfigReader xmlReader_prescale;
-    l1t::TrigSystem ts_prescale;
-    ts_prescale.addProcRole("uGtProcessor", "uGtProcessor");
+    l1t::XmlConfigParser xmlReader_prescale;
+    l1t::TriggerSystem ts_prescale;
+    ts_prescale.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
 
     // run the parser 
     xmlReader_prescale.readDOMFromString( xmlPayload_prescale ); // initialize it
     xmlReader_prescale.readRootElement( ts_prescale, "uGT" ); // extract all of the relevant context
     ts_prescale.setConfigured();
 
-    std::map<string, l1t::Setting> settings_prescale = ts_prescale.getSettings("uGtProcessor");
-    std::vector<l1t::TableRow> tRow_prescale = settings_prescale["prescales"].getTableRows();
+    const std::map<std::string, l1t::Parameter> &settings_prescale = ts_prescale.getParameters("uGtProcessor");
+    std::map<std::string,unsigned int> prescaleColumns = settings_prescale.at("prescales").getColumnIndices();
 
-    unsigned int numColumns_prescale = 0;
-    if( tRow_prescale.size()>0 ){
-      std::vector<std::string> firstRow_prescale = tRow_prescale[0].getRow();
-      numColumns_prescale = firstRow_prescale.size() - 1;
-    }
+    unsigned int numColumns_prescale = prescaleColumns.size();
     
-    if (numColumns_prescale > 0) {
-      // set all prescales to 1 (unprescaled) by default
-      const int inputDefaultPrescale = 1;
-      for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet)
-	prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
+    int NumPrescaleSets = numColumns_prescale - 1;
+///  there may be "missing" rows/bits in the xml description meaning that triggers are not unused, so go for max
+    std::vector<unsigned int> algoBits = settings_prescale.at("prescales").getTableColumn<unsigned int>("algo/prescale-index");
+    int NumAlgos_prescale = *std::max_element(algoBits.begin(), algoBits.end()) + 1;
 
-      for (auto & row : tRow_prescale) {
-	unsigned int algoBit = row.getRowValue<unsigned int>("algo/prescale-index");
-	for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet) {
-	  int prescale = row.getRowValue<unsigned int>(std::to_string(iSet));
-	  prescales[iSet][algoBit] = prescale;
-	}
+    if( NumPrescaleSets > 0 ){
+      // Fill default prescale set
+      for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+        prescales.push_back(std::vector<int>());
+        for( int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
+          int inputDefaultPrescale = 0; // only prescales that are set in the block below are used
+          prescales[iSet].push_back(inputDefaultPrescale);
+        }
+      }
+
+      for(auto &col : prescaleColumns){
+        if( col.second<1 ) continue; // we don't care for the algorithms' indicies in 0th column
+        int iSet = col.second - 1;
+        std::vector<unsigned int> prescalesForSet = settings_prescale.at("prescales").getTableColumn<unsigned int>(col.first.c_str());
+        for(unsigned int row=0; row<prescalesForSet.size(); row++){
+          unsigned int prescale = prescalesForSet[row];
+          unsigned int algoBit  = algoBits[row];
+          prescales[iSet][algoBit] = prescale;
+        }
       }
     }
-
   }
   input_prescale.close();
-
-
 
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,24 +213,24 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
         xmlPayload_mask_finor.append( tmp );
     }
 
-    XmlConfigReader xmlReader_mask_finor;
-    l1t::TrigSystem ts_mask_finor;
-    ts_mask_finor.addProcRole("uGtProcessor", "uGtProcessor");
-
+    l1t::XmlConfigParser xmlReader_mask_finor;
+    l1t::TriggerSystem ts_mask_finor;
+    ts_mask_finor.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
+  
     // run the parser 
     xmlReader_mask_finor.readDOMFromString( xmlPayload_mask_finor ); // initialize it
     xmlReader_mask_finor.readRootElement( ts_mask_finor, "uGT" ); // extract all of the relevant context
     ts_mask_finor.setConfigured();
-
-    std::map<string, l1t::Setting> settings_mask_finor = ts_mask_finor.getSettings("uGtProcessor");
-
-    std::vector<l1t::TableRow> tRow_mask_finor = settings_mask_finor["finorMask"].getTableRows();
-
-    for (auto & row : tRow_mask_finor) {
-      unsigned int algoBit = row.getRowValue<unsigned int>("algo");
-      unsigned int mask    = row.getRowValue<unsigned int>("mask");
-      if (algoBit < m_numberPhysTriggers)
-        triggerMasks[algoBit] = mask;
+  
+    const std::map<std::string, l1t::Parameter>& settings_mask_finor = ts_mask_finor.getParameters("uGtProcessor");
+  
+    std::vector<unsigned int> algo_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("algo");
+    std::vector<unsigned int> mask_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("mask");
+  
+    for(unsigned int row=0; row<algo_mask_finor.size(); row++){
+      unsigned int algoBit = algo_mask_finor[row];
+      unsigned int mask    = mask_mask_finor[row];
+      if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
     }
   }
   input_mask_finor.close();
@@ -252,22 +257,23 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
         xmlPayload_mask_veto.append( tmp );
     }
 
-    XmlConfigReader xmlReader_mask_veto;
-    l1t::TrigSystem ts_mask_veto;
-    ts_mask_veto.addProcRole("uGtProcessor", "uGtProcessor");
-
+    l1t::XmlConfigParser xmlReader_mask_veto;
+    l1t::TriggerSystem ts_mask_veto;
+    ts_mask_veto.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
+  
     // run the parser 
     xmlReader_mask_veto.readDOMFromString( xmlPayload_mask_veto ); // initialize it
     xmlReader_mask_veto.readRootElement( ts_mask_veto, "uGT" ); // extract all of the relevant context
     ts_mask_veto.setConfigured();
-
-    std::map<string, l1t::Setting> settings_mask_veto = ts_mask_veto.getSettings("uGtProcessor");
-    std::vector<l1t::TableRow> tRow_mask_veto = settings_mask_veto["vetoMask"].getTableRows();
-
-    for(auto & row : tRow_mask_veto){
-      unsigned int algoBit = row.getRowValue<unsigned int>("algo");
-      unsigned int veto    = row.getRowValue<unsigned int>("veto");
-      if (algoBit < m_numberPhysTriggers) triggerVetoMasks[algoBit] = int(veto);
+  
+    const std::map<std::string, l1t::Parameter>& settings_mask_veto = ts_mask_veto.getParameters("uGtProcessor");
+    std::vector<unsigned int> algo_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("algo");
+    std::vector<unsigned int> veto_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("veto");
+  
+    for(unsigned int row=0; row<algo_mask_veto.size(); row++){
+      unsigned int algoBit = algo_mask_veto[row];
+      unsigned int veto    = veto_mask_veto[row];
+      if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
     }
   }
   input_mask_veto.close();
@@ -289,37 +295,28 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
         xmlPayload_mask_algobx.append( tmp );
     }
 
-    XmlConfigReader xmlReader_mask_algobx;
-    l1t::TrigSystem ts_mask_algobx;
-    ts_mask_algobx.addProcRole("uGtProcessor", "uGtProcessor");
+    l1t::XmlConfigParser xmlReader_mask_algobx;
+    l1t::TriggerSystem ts_mask_algobx;
+    ts_mask_algobx.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
 
     // run the parser 
     xmlReader_mask_algobx.readDOMFromString( xmlPayload_mask_algobx ); // initialize it
     xmlReader_mask_algobx.readRootElement( ts_mask_algobx, "uGT" ); // extract all of the relevant context
     ts_mask_algobx.setConfigured();
 
-    std::map<string, l1t::Setting> settings_mask_algobx = ts_mask_algobx.getSettings("uGtProcessor");
-    std::vector<l1t::TableRow> tRow_mask_algobx = settings_mask_algobx["algorithmBxMask"].getTableRows();
+    const std::map<std::string, l1t::Parameter>& settings_mask_algobx = ts_mask_algobx.getParameters("uGtProcessor");
+    std::map<std::string,unsigned int> mask_algobx_columns = settings_mask_algobx.at("algorithmBxMask").getColumnIndices();
+    std::vector<unsigned int> bunches = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>("bx/algo");
 
-    unsigned int numCol_mask_algobx = 0;
-    if( tRow_mask_algobx.size()>0 ){
-      std::vector<std::string> firstRow_mask_algobx = tRow_mask_algobx[0].getRow();
-      numCol_mask_algobx = firstRow_mask_algobx.size();
-    }
-    
+    unsigned int numCol_mask_algobx = mask_algobx_columns.size();
+
     int NumAlgoBitsInMask = numCol_mask_algobx - 1;
-    if( NumAlgoBitsInMask > 0 ){
-      for(auto & row : tRow_mask_algobx){
-	int bx = row.getRowValue<unsigned int>("bx/algo");
-	std::vector<int> maskedBits;
-	for( int iBit=0; iBit<NumAlgoBitsInMask; iBit++ ){
-	  unsigned int maskBit = row.getRowValue<unsigned int>(std::to_string(iBit));
-	  if( int(maskBit)!=m_bx_mask_default ) maskedBits.push_back(iBit);
-	}
-	if( maskedBits.size()>0 ) triggerAlgoBxMaskAlgoTrig[bx] = maskedBits;
+    for( int iBit=0; iBit<NumAlgoBitsInMask; iBit++ ){
+      std::vector<unsigned int> algo = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>(std::to_string(iBit).c_str());
+      for(unsigned int bx=0; bx<bunches.size(); bx++){
+          if( algo[bx]!=unsigned(m_bx_mask_default) ) triggerAlgoBxMaskAlgoTrig[ bunches[bx] ].push_back(iBit);
       }
     }
-
   }
   input_mask_algobx.close();
 
@@ -399,7 +396,9 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
 
   // write the condition format to the event setup via the helper:
   using namespace edm::es;
-  std::shared_ptr<L1TGlobalPrescalesVetos> pMenu(data_.getWriteInstance());
+  // Return copy so that we don't give away our owned pointer to framework
+  auto pMenu = std::make_shared<L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
+
   return pMenu;
 }
 

@@ -50,6 +50,8 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
   iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(estimatorName, estimatorhandle);
   ESHandle<MeasurementTracker> measurementhandle;
   iRecord.getRecord<CkfComponentsRecord>().get(measurementTrackerName, measurementhandle);
+  ESHandle<TrackerTopology> trackerTopologyHandle;
+  iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackerTopologyRcd>().get(trackerTopologyHandle);
  
   if (mode == "Grouped"){
 	std::string propagatorOppositeName = conf_.getParameter<std::string>("propagatorOpposite");  
@@ -62,7 +64,8 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
 							 propagatorOppositehandle.product(), debug);
   } 
   else {
-	collector_ = std::make_shared<SimpleDAFHitCollector>(measurementhandle.product(),
+	collector_ = std::make_shared<SimpleDAFHitCollector>(trackerTopologyHandle.product(),
+                                                             measurementhandle.product(),
                                                              mrhuhandle.product(),
                                                              estimatorhandle.product(),
                                                              propagatorhandle.product(), debug);

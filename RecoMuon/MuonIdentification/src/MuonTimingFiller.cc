@@ -179,31 +179,31 @@ MuonTimingFiller::fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq
 void 
 MuonTimingFiller::fillRPCTime( const reco::Muon& muon, reco::MuonTime &rpcTime, edm::Event& iEvent ) {
 
-  int nrpc=0;
-  double trpc=0,trpc2=0,trpcerr=0;
+  double trpc=0,trpc2=0;
 
   reco::TrackRef staTrack = muon.standAloneMuon();
   if (staTrack.isNull()) return;
 
-  std::vector<const RPCRecHit*> rpcHits = theMatcher_->matchRPC(*staTrack,iEvent);
-  for (std::vector<const RPCRecHit*>::const_iterator hitRPC = rpcHits.begin(); hitRPC != rpcHits.end(); hitRPC++) {
-    nrpc++;
-    trpc+=(*hitRPC)->BunchX();
-    trpc2+=(*hitRPC)->BunchX()*(*hitRPC)->BunchX();
+  const std::vector<const RPCRecHit*> rpcHits = theMatcher_->matchRPC(*staTrack,iEvent);
+  const int nrpc = rpcHits.size();
+  for ( const auto& hitRPC : rpcHits ) {
+    const double time = hitRPC->timeError() < 0 ? hitRPC->BunchX()*25. : hitRPC->time();
+    trpc += time;
+    trpc2 += time*time;
   }
 
   if (nrpc==0) return;
   
-  trpc2=trpc2/(double)nrpc*25.*25.;
-  trpc=trpc/(double)nrpc*25.;
-  trpcerr=sqrt(trpc2-trpc*trpc);
+  trpc2 = trpc2/nrpc;
+  trpc = trpc/nrpc;
+  const double trpcerr = sqrt(std::max(0., trpc2-trpc*trpc));
 
   rpcTime.timeAtIpInOut=trpc;
   rpcTime.timeAtIpInOutErr=trpcerr;
   rpcTime.nDof=nrpc;
 
   // currently unused
-  rpcTime.timeAtIpOutIn=0.;  
+  rpcTime.timeAtIpOutIn=0.;
   rpcTime.timeAtIpOutInErr=0.;
 }
 

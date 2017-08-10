@@ -33,27 +33,27 @@ class DDLTestDoc : public DDLDocumentProvider
 public:
 
   DDLTestDoc( void );
-  virtual ~DDLTestDoc();
+  ~DDLTestDoc() override;
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList( void ) const;
+  const std::vector < std::string >&  getFileList( void ) const override;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList( void ) const;
+  const std::vector < std::string >&  getURLList( void ) const override;
 
   /// Print out the list of files.
-  virtual void dumpFileList( void ) const;
+  void dumpFileList( void ) const override;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation( void ) const;
+  bool doValidation( void ) const override;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation( void ) const;
+  std::string getSchemaLocation( void ) const override;
 
   /// ReadConfig
-  virtual int readConfig( const std::string& filename );
+  int readConfig( const std::string& filename ) override;
 
-  void push_back( std::string fileName, std::string url = std::string( "./" ));
+  void emplace_back( std::string fileName, std::string url = std::string( "./" ));
 
   void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
@@ -94,10 +94,10 @@ DDLTestDoc::getURLList( void ) const
 }
 
 void
-DDLTestDoc::push_back( std::string fileName, std::string url ) 
+DDLTestDoc::emplace_back( std::string fileName, std::string url ) 
 {
-  fnames_.push_back(fileName);
-  urls_.push_back(url);
+  fnames_.emplace_back(fileName);
+  urls_.emplace_back(url);
 }
 
 void
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
          DDLTestDoc dp;
          while (fname != "q") {
             std::cout << "about to try to process the file " << fname << std::endl;
-            dp.push_back(fname);
+            dp.emplace_back(fname);
             myP.parse(dp);
             std::cout << "next file name:" ;
             std::cin >> fname;

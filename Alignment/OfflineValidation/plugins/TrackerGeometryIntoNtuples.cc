@@ -55,15 +55,14 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // To access kinks and bows 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -166,7 +165,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+	edm::LogInfo("beginJob") << "Begin Job";
 	
 	//accessing the initial geometry
 	edm::ESHandle<GeometricDet> theGeometricDet;

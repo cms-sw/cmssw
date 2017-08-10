@@ -4,7 +4,7 @@
  */
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <algorithm>
 #include <iostream>
@@ -14,8 +14,7 @@ DTGeometry::DTGeometry() {}
 DTGeometry::~DTGeometry(){
   // delete all the chambers (which will delete the SL which will delete the
   // layers)
-  for (auto ich=theChambers.begin();
-       ich!=theChambers.end(); ++ich) delete (*ich);
+  for (auto & theChamber : theChambers) delete theChamber;
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
@@ -25,23 +24,23 @@ const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
 
 
 void DTGeometry::add(DTChamber* ch) {
-  theDets.push_back(ch);
-  theChambers.push_back(ch);
+  theDets.emplace_back(ch);
+  theChambers.emplace_back(ch);
   theMap.insert(DTDetMap::value_type(ch->geographicalId(),ch));
 }
 
 
 void DTGeometry::add(DTSuperLayer* sl) {
-  theDets.push_back(sl);
-  theSuperLayers.push_back(sl);
+  theDets.emplace_back(sl);
+  theSuperLayers.emplace_back(sl);
   theMap.insert(DTDetMap::value_type(sl->geographicalId(),sl));
 }
 
 
 void DTGeometry::add(DTLayer* l) {
-  theDetUnits.push_back(l);
-  theDets.push_back(l);
-  theLayers.push_back(l); 
+  theDetUnits.emplace_back(l);
+  theDets.emplace_back(l);
+  theLayers.emplace_back(l); 
   theMap.insert(DTDetMap::value_type(l->geographicalId(),l));
 }
 

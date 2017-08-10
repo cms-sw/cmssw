@@ -89,7 +89,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
-      ~FakeCaloAlignmentEP() {}
+      ~FakeCaloAlignmentEP() override {}
 
 //-------------------------------------------------------------------
  
@@ -102,7 +102,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EBDetId id ( EcalBarrelGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
+	    vtr.emplace_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
 					     Trl(0,0,0) ) , 
 					   Rot(),
 					   id              ) ) ;
@@ -126,7 +126,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EEDetId id (  EcalEndcapGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id              ) ) ;
 	 }
@@ -149,7 +149,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -172,7 +172,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromBarrelAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -195,7 +195,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromEndcapAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -218,7 +218,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromOuterAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -241,7 +241,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromForwardAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -264,7 +264,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalZDCDetId id ( HcalZDCDetId::EM, false, 1 ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -287,7 +287,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalCastorDetId id ( HcalCastorDetId::EM, false, 1, 1 ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }

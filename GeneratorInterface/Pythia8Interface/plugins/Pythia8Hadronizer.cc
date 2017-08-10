@@ -32,6 +32,7 @@ using namespace Pythia8;
 
 // Resonance scale hook
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
@@ -114,6 +115,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     // Reweight user hooks
     //
     std::auto_ptr<UserHooks> fReweightUserHook;
+    std::auto_ptr<UserHooks> fReweightEmpUserHook;
     std::auto_ptr<UserHooks> fReweightRapUserHook;  
     std::auto_ptr<UserHooks> fReweightPtHatRapUserHook;
         
@@ -130,6 +132,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     
     // Resonance scale hook
     std::auto_ptr<PowhegResHook> fPowhegResHook;
+    std::auto_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
     
     //resonance decay filter hook
     std::auto_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
@@ -154,6 +157,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     int nISRveto;
     int nFSRveto;
+    int nFSRvetoBB4L;
     
 };
 
@@ -164,7 +168,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
-  nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0)
+  nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0), nFSRvetoBB4L(0)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -207,7 +211,24 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   // Reweight user hook
   //
   if( params.exists( "reweightGen" ) )
-    fReweightUserHook.reset(new PtHatReweightUserHook());
+  {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGen";
+    edm::ParameterSet rgParams =
+       params.getParameter<edm::ParameterSet>("reweightGen");
+    fReweightUserHook.reset(
+       new PtHatReweightUserHook(rgParams.getParameter<double>("pTRef"),
+                                 rgParams.getParameter<double>("power"))
+       );
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGen";
+  }
+  if( params.exists( "reweightGenEmp" ) )
+  {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenEmp";
+    edm::ParameterSet rgeParams =
+       params.getParameter<edm::ParameterSet>("reweightGenEmp");
+    fReweightEmpUserHook.reset(new PtHatEmpReweightUserHook());
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenEmp";
+  }
   if( params.exists( "reweightGenRap" ) )
   {
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenRap";
@@ -329,6 +350,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   fMultiUserHook.reset(new MultiUserHook);
   
   if(fReweightUserHook.get()) fMultiUserHook->addHook(fReweightUserHook.get());
+  if(fReweightEmpUserHook.get()) fMultiUserHook->addHook(fReweightEmpUserHook.get());
   if(fReweightRapUserHook.get()) fMultiUserHook->addHook(fReweightRapUserHook.get());
   if(fReweightPtHatRapUserHook.get()) fMultiUserHook->addHook(fReweightPtHatRapUserHook.get());
   if(fJetMatchingHook.get()) fMultiUserHook->addHook(fJetMatchingHook.get());
@@ -356,9 +378,16 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
+  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
+  if (PowhegBB4L) {
+    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
+    fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+  }
+  
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
-  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process")=="void");
   
   if (internalMatching && internalMerging) {
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -448,6 +477,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   fMultiUserHook.reset(new MultiUserHook);
   
   if(fReweightUserHook.get()) fMultiUserHook->addHook(fReweightUserHook.get());
+  if(fReweightEmpUserHook.get()) fMultiUserHook->addHook(fReweightEmpUserHook.get());
   if(fReweightRapUserHook.get()) fMultiUserHook->addHook(fReweightRapUserHook.get());
   if(fReweightPtHatRapUserHook.get()) fMultiUserHook->addHook(fReweightPtHatRapUserHook.get());
   if(fJetMatchingHook.get()) fMultiUserHook->addHook(fJetMatchingHook.get());
@@ -474,10 +504,17 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     fPowhegResHook.reset(new PowhegResHook());
     fMultiUserHook->addHook(fPowhegResHook.get());
   }
+
+  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
+  if (PowhegBB4L) {
+    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
+    fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+  }
   
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
-  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process")=="void");
   
   if (internalMatching && internalMerging) {
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -592,6 +629,11 @@ void Pythia8Hadronizer::statistics()
       << "Number of FSR vetoed = " << nFSRveto;
   }
 
+  if(fPowhegHooksBB4L.get()) {
+    edm::LogInfo("Pythia8Interface") << "\n"
+      << "BB4L: Number of FSR vetoed = " << nFSRvetoBB4L;
+  }
+
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
   double err  = fMasterGen->info.sigmaErr(); // cross section err in mb
@@ -656,6 +698,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   if (fEmissionVetoHook.get()) {
     nISRveto += fEmissionVetoHook->getNISRveto();
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+  if (fPowhegHooksBB4L.get()) {
+    nFSRvetoBB4L += fPowhegHooksBB4L->getNFSRveto();
   }
   
   //fill additional weights for systematic uncertainties

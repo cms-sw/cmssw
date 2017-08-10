@@ -9,7 +9,7 @@
 
 namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -239,67 +239,67 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   int module = 0;
   // Layer 0 (Nose)
   if (modules > 0) {
-    zminBlock.push_back(ziL0Nose);
-    zmaxBlock.push_back(zminBlock[module] + layerT[0] + 0.5*dzStep);
-    rinBlock1.push_back(zminBlock[module] * tan(angTop));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angTop));
-    routBlock1.push_back((zminBlock[module] - z1Beam) * slope);
-    routBlock2.push_back((zmaxBlock[module] - z1Beam) * slope);
+    zminBlock.emplace_back(ziL0Nose);
+    zmaxBlock.emplace_back(zminBlock[module] + layerT[0] + 0.5*dzStep);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angTop));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angTop));
+    routBlock1.emplace_back((zminBlock[module] - z1Beam) * slope);
+    routBlock2.emplace_back((zmaxBlock[module] - z1Beam) * slope);
     module++;
   }
 
   // Layer 0 (Body)
   if (modules > 1) {
-    zminBlock.push_back(ziL0Body);
-    zmaxBlock.push_back(zminBlock[module] + layerT[0] + 0.5*dzStep);
-    rinBlock1.push_back(zminBlock[module] * tan(angBot));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angBot));
-    routBlock1.push_back(zminBlock[module] * tan(angTop));
-    routBlock2.push_back(zmaxBlock[module] * tan(angTop));
+    zminBlock.emplace_back(ziL0Body);
+    zmaxBlock.emplace_back(zminBlock[module] + layerT[0] + 0.5*dzStep);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angBot));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angBot));
+    routBlock1.emplace_back(zminBlock[module] * tan(angTop));
+    routBlock2.emplace_back(zmaxBlock[module] * tan(angTop));
     module++;
   }
 
   // Hac1
   if (modules > 2) {
-    zminBlock.push_back(ziNose);
-    zmaxBlock.push_back(ziBody);
-    rinBlock1.push_back(zminBlock[module] * tan(angTop));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angTop));
-    routBlock1.push_back((zminBlock[module] - z1Beam) * slope);
-    routBlock2.push_back((zmaxBlock[module] - z1Beam) * slope);
+    zminBlock.emplace_back(ziNose);
+    zmaxBlock.emplace_back(ziBody);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angTop));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angTop));
+    routBlock1.emplace_back((zminBlock[module] - z1Beam) * slope);
+    routBlock2.emplace_back((zmaxBlock[module] - z1Beam) * slope);
     module++;
   }
 
   // Hac2
   if (modules > 3) {
-    zminBlock.push_back(ziBody);
-    zmaxBlock.push_back(zminBlock[module] + layerN[3]*dzStep);
-    rinBlock1.push_back(zminBlock[module] * tan(angBot));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angBot));
-    routBlock1.push_back((zmaxBlock[module-1] - z1Beam) * slope);
-    routBlock2.push_back(rout);
+    zminBlock.emplace_back(ziBody);
+    zmaxBlock.emplace_back(zminBlock[module] + layerN[3]*dzStep);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angBot));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angBot));
+    routBlock1.emplace_back((zmaxBlock[module-1] - z1Beam) * slope);
+    routBlock2.emplace_back(rout);
     module++;
   }
 
   // Hac3
   if (modules > 4) {
-    zminBlock.push_back(zmaxBlock[module-1]);
-    zmaxBlock.push_back(zminBlock[module] + layerN[4]*dzStep);
-    rinBlock1.push_back(zminBlock[module] * tan(angBot));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angBot));
-    routBlock1.push_back(rout);
-    routBlock2.push_back(rout);
+    zminBlock.emplace_back(zmaxBlock[module-1]);
+    zmaxBlock.emplace_back(zminBlock[module] + layerN[4]*dzStep);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angBot));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angBot));
+    routBlock1.emplace_back(rout);
+    routBlock2.emplace_back(rout);
     module++;
   }
 
   // Hac4
   if (modules > 5) {
-    zminBlock.push_back(zmaxBlock[module-1]);
-    zmaxBlock.push_back(zminBlock[module] + layerN[5]*dzStep);
-    rinBlock1.push_back(zminBlock[module] * tan(angBot));
-    rinBlock2.push_back(zmaxBlock[module] * tan(angBot));
-    routBlock1.push_back(rout);
-    routBlock2.push_back(roDip);
+    zminBlock.emplace_back(zmaxBlock[module-1]);
+    zmaxBlock.emplace_back(zminBlock[module] + layerN[5]*dzStep);
+    rinBlock1.emplace_back(zminBlock[module] * tan(angBot));
+    rinBlock2.emplace_back(zmaxBlock[module] * tan(angBot));
+    routBlock1.emplace_back(rout);
+    routBlock2.emplace_back(roDip);
     module++;
   }
 
@@ -382,35 +382,35 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
   vector<double> pgonZ, pgonRmin, pgonRmax;
   if (proto) {
     double zf = getZiBody() + getZShiftHac2();
-    pgonZ.push_back(zf - getDzShift()); 
-    pgonRmin.push_back(zf * tan(getAngBot())); 
-    pgonRmax.push_back((zf - getZ1Beam())*getSlope()); 
+    pgonZ.emplace_back(zf - getDzShift()); 
+    pgonRmin.emplace_back(zf * tan(getAngBot())); 
+    pgonRmax.emplace_back((zf - getZ1Beam())*getSlope()); 
   } else {
-    pgonZ.push_back(getZFront()   - getDzShift()); 
-    pgonRmin.push_back(getZFront()   * tan(getAngTop())); 
-    pgonRmax.push_back((getZFront()   - getZ1Beam())*getSlope()); 
-    pgonZ.push_back(getZiL0Body() - getDzShift()); 
-    pgonRmin.push_back(getZiL0Body() * tan(getAngTop())); 
-    pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
-    pgonZ.push_back(getZiL0Body() - getDzShift()); 
-    pgonRmin.push_back(getZiL0Body() * tan(getAngBot())); 
-    pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
+    pgonZ.emplace_back(getZFront()   - getDzShift()); 
+    pgonRmin.emplace_back(getZFront()   * tan(getAngTop())); 
+    pgonRmax.emplace_back((getZFront()   - getZ1Beam())*getSlope()); 
+    pgonZ.emplace_back(getZiL0Body() - getDzShift()); 
+    pgonRmin.emplace_back(getZiL0Body() * tan(getAngTop())); 
+    pgonRmax.emplace_back((getZiL0Body() - getZ1Beam())*getSlope()); 
+    pgonZ.emplace_back(getZiL0Body() - getDzShift()); 
+    pgonRmin.emplace_back(getZiL0Body() * tan(getAngBot())); 
+    pgonRmax.emplace_back((getZiL0Body() - getZ1Beam())*getSlope()); 
   }
-  pgonZ.push_back(getZiKink()   - getDzShift()); 
-  pgonRmin.push_back(getRinKink()); 
-  pgonRmax.push_back(getRout()); 
-  pgonZ.push_back(getZiDip()    - getDzShift()); 
-  pgonRmin.push_back(getRinDip()); 
-  pgonRmax.push_back(getRout()); 
-  pgonZ.push_back(getZiDip()    - getDzShift() + delz); 
-  pgonRmin.push_back(getRinDip()); 
-  pgonRmax.push_back(getRoutDip()); 
-  pgonZ.push_back(getZEnd()     - getDzShift()); 
-  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
-  pgonRmax.push_back(getRoutDip()); 
-  pgonZ.push_back(getZEnd()); 
-  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
-  pgonRmax.push_back(getRoutDip()); 
+  pgonZ.emplace_back(getZiKink()   - getDzShift()); 
+  pgonRmin.emplace_back(getRinKink()); 
+  pgonRmax.emplace_back(getRout()); 
+  pgonZ.emplace_back(getZiDip()    - getDzShift()); 
+  pgonRmin.emplace_back(getRinDip()); 
+  pgonRmax.emplace_back(getRout()); 
+  pgonZ.emplace_back(getZiDip()    - getDzShift() + delz); 
+  pgonRmin.emplace_back(getRinDip()); 
+  pgonRmax.emplace_back(getRoutDip()); 
+  pgonZ.emplace_back(getZEnd()     - getDzShift()); 
+  pgonRmin.emplace_back(getZEnd() * tan(getAngBot())); 
+  pgonRmax.emplace_back(getRoutDip()); 
+  pgonZ.emplace_back(getZEnd()); 
+  pgonRmin.emplace_back(getZEnd() * tan(getAngBot())); 
+  pgonRmax.emplace_back(getRoutDip()); 
 
   string name("Null");
   DDSolid solid;
@@ -461,9 +461,9 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
   name  = idName + "Front";
   vector<double> pgonZMod, pgonRminMod, pgonRmaxMod;
   for (unsigned int i=0; i < (pgonZ.size()-1); i++) {
-    pgonZMod.push_back(pgonZ[i] + getDzShift()); 
-    pgonRminMod.push_back(pgonRmin[i]); 
-    pgonRmaxMod.push_back(pgonRmax[i]); 
+    pgonZMod.emplace_back(pgonZ[i] + getDzShift()); 
+    pgonRminMod.emplace_back(pgonRmin[i]); 
+    pgonRmaxMod.emplace_back(pgonRmax[i]); 
   }
   solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace),
 				    getNsectortot(), -alpha, dphi, pgonZMod,
@@ -554,12 +554,12 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
   //Backward half
   name  = idName + "Back";
   vector<double> pgonZBack, pgonRminBack, pgonRmaxBack;
-  pgonZBack.push_back(getZEnd() - getDzShift()); 
-  pgonRminBack.push_back(pgonZBack[0]*tan(getAngBot()) + getDrEnd()); 
-  pgonRmaxBack.push_back(getRoutDip()); 
-  pgonZBack.push_back(getZEnd()); 
-  pgonRminBack.push_back(pgonZBack[1]*tan(getAngBot()) + getDrEnd()); 
-  pgonRmaxBack.push_back(getRoutDip()); 
+  pgonZBack.emplace_back(getZEnd() - getDzShift()); 
+  pgonRminBack.emplace_back(pgonZBack[0]*tan(getAngBot()) + getDrEnd()); 
+  pgonRmaxBack.emplace_back(getRoutDip()); 
+  pgonZBack.emplace_back(getZEnd()); 
+  pgonRminBack.emplace_back(pgonZBack[1]*tan(getAngBot()) + getDrEnd()); 
+  pgonRmaxBack.emplace_back(getRoutDip()); 
   solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace),
 				    getNsectortot(), -alpha, dphi, pgonZBack,
 				    pgonRminBack, pgonRmaxBack);
@@ -615,28 +615,28 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView
       vector<double> pgonZ, pgonRmin, pgonRmax;
       if (nsec == 3) {
 	double zf = getZminBlock(i) + getZShiftHac2();
-	pgonZ.push_back(zf);
-	pgonRmin.push_back(zf*tan(getAngBot())); 
-	pgonRmax.push_back((zf-getZ1Beam())*getSlope());
-	pgonZ.push_back(getZiKink());  
-	pgonRmin.push_back(getRinKink()); 
-	pgonRmax.push_back(getRout());
+	pgonZ.emplace_back(zf);
+	pgonRmin.emplace_back(zf*tan(getAngBot())); 
+	pgonRmax.emplace_back((zf-getZ1Beam())*getSlope());
+	pgonZ.emplace_back(getZiKink());  
+	pgonRmin.emplace_back(getRinKink()); 
+	pgonRmax.emplace_back(getRout());
       } else {
-	pgonZ.push_back(getZminBlock(i));
-	pgonRmin.push_back(getRinBlock1(i)); 
-	pgonRmax.push_back(getRoutBlock1(i));
+	pgonZ.emplace_back(getZminBlock(i));
+	pgonRmin.emplace_back(getRinBlock1(i)); 
+	pgonRmax.emplace_back(getRoutBlock1(i));
       }
       if (nsec == 4) {
-	pgonZ.push_back(getZiDip());
-	pgonRmin.push_back(getRinDip());
-	pgonRmax.push_back(getRout());
-	pgonZ.push_back(pgonZ[1] + deltaz);
-	pgonRmin.push_back(pgonRmin[1]); 
-	pgonRmax.push_back(getRoutDip());
+	pgonZ.emplace_back(getZiDip());
+	pgonRmin.emplace_back(getRinDip());
+	pgonRmax.emplace_back(getRout());
+	pgonZ.emplace_back(pgonZ[1] + deltaz);
+	pgonRmin.emplace_back(pgonRmin[1]); 
+	pgonRmax.emplace_back(getRoutDip());
       }
-      pgonZ.push_back(getZmaxBlock(i));
-      pgonRmin.push_back(getRinBlock2(i)); 
-      pgonRmax.push_back(getRoutBlock2(i));
+      pgonZ.emplace_back(getZmaxBlock(i));
+      pgonRmin.emplace_back(getRinBlock2(i)); 
+      pgonRmax.emplace_back(getRoutBlock2(i));
 
       //Solid & volume
       DDSolid solid;

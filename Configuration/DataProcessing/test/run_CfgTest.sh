@@ -53,3 +53,7 @@ done
 runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario AlCaTestEnable --global-tag GLOBALTAG --lfn /store/whatever --alcareco PromptCalibProdEcalPedestals "
 runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario AlCaTestEnable --lfn=/store/whatever --global-tag GLOBALTAG --skims PromptCalibProdEcalPedestals"
 runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario AlCaTestEnable --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG --workflows=EcalPedestals"
+
+runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario ppEra_Run2_2017_trackingOnly --global-tag GLOBALTAG  --lfn /store/whatever  --alcarecos=TkAlMinBias"
+runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario ppEra_Run2_2017_trackingOnly --lfn /store/whatever --global-tag GLOBALTAG --skims TkAlMinBias"
+runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario ppEra_Run2_2017_trackingOnly --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG"

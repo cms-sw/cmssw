@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-NEWpostProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
+NEWpostProcessorRecoMuon = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc"),
     #efficiencies and fractions
     efficiency = cms.vstring("EffP   'Efficiency vs p'     P   SimP  ",
@@ -33,29 +34,29 @@ NEWpostProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 )
 
 # for each type monitored
-NEWpostProcessorRecoMuon_Glb = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_Glb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Glb")
+NEWpostProcessorRecoMuonGlb = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonGlb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Glb")
 
-NEWpostProcessorRecoMuon_Trk = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_Trk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Trk")
+NEWpostProcessorRecoMuonTrk = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonTrk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Trk")
 
-NEWpostProcessorRecoMuon_Sta = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_Sta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Sta")
+NEWpostProcessorRecoMuonSta = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonSta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Sta")
 
-NEWpostProcessorRecoMuon_Tgt = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_Tgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Tgt")
+NEWpostProcessorRecoMuonTgt = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonTgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_Tgt")
 
-NEWpostProcessorRecoMuon_GlbPF = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_GlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_GlbPF")
+NEWpostProcessorRecoMuonGlbPF = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonGlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_GlbPF")
 
-NEWpostProcessorRecoMuon_TrkPF = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_TrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_TrkPF")
+NEWpostProcessorRecoMuonTrkPF = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonTrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_TrkPF")
 
-NEWpostProcessorRecoMuon_StaPF = NEWpostProcessorRecoMuon.clone()
-NEWpostProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_StaPF")
+NEWpostProcessorRecoMuonStaPF = NEWpostProcessorRecoMuon.clone()
+NEWpostProcessorRecoMuonStaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_StaPF")
 
 #not sure about this one, which types are monitored
-NEWpostProcessorRecoMuonComp = cms.EDAnalyzer(
+NEWpostProcessorRecoMuonComp = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -72,7 +73,7 @@ NEWpostProcessorRecoMuonComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-NEWpostProcessorRecoMuonCompPF = cms.EDAnalyzer(
+NEWpostProcessorRecoMuonCompPF = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -85,12 +86,12 @@ NEWpostProcessorRecoMuonCompPF = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-NEWpostProcessorsRecoMuonValidator_seq = cms.Sequence( NEWpostProcessorRecoMuon_Glb 
-                                                    * NEWpostProcessorRecoMuon_Trk 
-                                                    * NEWpostProcessorRecoMuon_Sta 
-                                                    * NEWpostProcessorRecoMuon_Tgt 
-                                                    * NEWpostProcessorRecoMuon_GlbPF 
-                                                    * NEWpostProcessorRecoMuon_TrkPF 
-                                                    * NEWpostProcessorRecoMuon_StaPF 
+NEWpostProcessorsRecoMuonValidator_seq = cms.Sequence( NEWpostProcessorRecoMuonGlb 
+                                                    * NEWpostProcessorRecoMuonTrk 
+                                                    * NEWpostProcessorRecoMuonSta 
+                                                    * NEWpostProcessorRecoMuonTgt 
+                                                    * NEWpostProcessorRecoMuonGlbPF 
+                                                    * NEWpostProcessorRecoMuonTrkPF 
+                                                    * NEWpostProcessorRecoMuonStaPF 
                                                     * NEWpostProcessorRecoMuonComp 
                                                     * NEWpostProcessorRecoMuonCompPF )

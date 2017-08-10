@@ -4,6 +4,12 @@ import FWCore.ParameterSet.Config as cms
 #AlCaReco filtering for HCAL pedestal:
 #------------------------------------------------
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+hcalCalibPedestalHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    eventSetupPathsKey='HcalCalPedestal',
+    throw = False #dont throw except on unknown path name 
+)
+
 import EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi
 hcalCalibPedestal = EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi.hcalCalibTypeFilter.clone(
     #  InputLabel = cms.string('rawDataCollector'),
@@ -63,17 +69,17 @@ horecoPedestal.firstSample = cms.int32(0)
 horecoPedestal.samplesToAdd = cms.int32(4)
 horecoPedestal.dropZSmarkedPassed = cms.bool(False)
 
-hcalLocalRecoSequencePedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
+seqALCARECOHcalCalPedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
 
-seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
-                                          hcalDigiAlCaPedestal*
-                                          qie10Digis*
-                                          gtDigisAlCaPedestal*
-                                          hcalLocalRecoSequencePedestal)
+seqALCARECOHcalCalPedestalDigi = cms.Sequence(hcalCalibPedestalHLT*
+                                              hcalCalibPedestal*
+                                              hcalDigiAlCaPedestal*
+                                              qie10Digis*
+                                              gtDigisAlCaPedestal)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoPedestal = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaPedestal"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
@@ -105,7 +111,8 @@ hbheplan1Pedestal = RecoLocalCalo.HcalRecProducers.hbheplan1_cfi.hbheplan1.clone
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hbherecoPedestal,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 
 _plan1_seqALCARECOHcalCalPedestal = _phase1_seqALCARECOHcalCalPedestal.copy()

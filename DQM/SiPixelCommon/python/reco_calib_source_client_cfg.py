@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("SIPIXELDQM")
 process.load("IORawData.SiPixelInputSources.PixelSLinkDataInputSource_cfi")
@@ -47,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
+process.sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     StaticUpdateFrequency = cms.untracked.int32(10),
     OutputFilePath = cms.untracked.string('.'),
 )

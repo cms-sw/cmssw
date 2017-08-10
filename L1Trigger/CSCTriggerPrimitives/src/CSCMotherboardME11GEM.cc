@@ -1,15 +1,15 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
-#include <DataFormats/Math/interface/normalizedPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 #include <cmath>
 #include <tuple>
 #include <set>
-#include "boost/container/flat_set.hpp"
 
 // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
 // 1st index: WG number
@@ -380,6 +380,12 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
+  const int region((theEndcap == 1) ? 1: -1);
+  const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
+  const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+  // check if the GEM chamber is really there 
+  if (!gemChamber) runME11ILT_ = false;
+
   if (runME11ILT_){
       
     // check for GEM geometry
@@ -397,8 +403,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
 
     const bool isEven(me1bId.chamber()%2==0);
     const int region((theEndcap == 1) ? 1: -1);
-    const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
-    const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+    const GEMDetId gem_id(region, 1, theStation, 0, me1bId.chamber(), 0);
+    const GEMSuperChamber* gemChamber(gem_g->superChamber(gem_id));
 
     // initialize depending on whether even or odd     
     maxDeltaBXPad_ = isEven ? maxDeltaBXPadEven_ : maxDeltaBXPadOdd_;
@@ -430,7 +436,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     // pick any roll
-    auto randRoll(gemChamber->etaPartition(2));
+    auto randRoll(gemChamber->chamber(1)->etaPartition(2));
 
     // ME1a
     auto nStripsME1a(keyLayerGeometryME1a->numberOfStrips());
@@ -921,7 +927,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   
   bool first = true;
   unsigned int n1b=0, n1a=0;
-  for (auto p : readoutLCTs1b())
+  for (const auto& p : readoutLCTs1b())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
@@ -936,7 +942,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         std::cout << "1b LCT "<<n1b<<"  " << p <<std::endl;
     }
   
-  for (auto p : readoutLCTs1a())
+  for (const auto& p : readoutLCTs1a())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
@@ -1424,7 +1430,7 @@ void CSCMotherboardME11GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
     deltas.clear();
 
     if (hasCoPads){
-      for (auto p : copads) {
+      for (const auto& p : copads) {
         const GEMDetId detId(p.first);
         const int rollN(detId.roll());
         const int padN((p.second).pad());
@@ -1465,7 +1471,7 @@ void CSCMotherboardME11GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
 
     // if no copads were found, do the same with pads...
     if (hasPads){
-      for (auto p : pads) {
+      for (const auto& p : pads) {
         const GEMDetId detId(p.first);
         const int rollN(detId.roll());
         const int padN((p.second).pad());
@@ -1852,7 +1858,7 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){
-      for (auto pad : in_pads){
+      for (const auto& pad : in_pads){
         auto roll_id(GEMDetId(pad.first));
         std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6;
         if (isPadInOverlap(roll_id.roll())) std::cout << " (in overlap)" << std::endl;
@@ -1867,8 +1873,8 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
 void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
   auto superChamber(gem_g->superChamber(id));
-  for (auto ch : superChamber->chambers()) {
-    for (auto roll : ch->etaPartitions()) {
+  for (const auto& ch : superChamber->chambers()) {
+    for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
@@ -1883,7 +1889,7 @@ void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
 
 void CSCMotherboardME11GEM::retrieveGEMCoPads()
 {
-  for (auto copad: gemCoPadV){
+  for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.first()));  
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.second()));  
@@ -1892,7 +1898,7 @@ void CSCMotherboardME11GEM::retrieveGEMCoPads()
 
 bool CSCMotherboardME11GEM::isPadInOverlap(int roll)
 {
-  for (auto& p : cscWgToGemRoll_) {
+  for (const auto& p : cscWgToGemRoll_) {
     // overlap region are WGs 10-15
     if ((p.first < 10) or (p.first > 15)) continue;
     if (((p.second).first <= roll) and (roll <= (p.second).second)) return true;
@@ -1927,7 +1933,10 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   const int highPad(mymap[clct.getKeyStrip()].second);
   const bool debug(false);
   if (debug) std::cout << "lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
-  for (auto p: pads){
+  for (const auto& p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll((p.second).pad());
     if (debug) std::cout << "padRoll " << padRoll << std::endl;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
@@ -1948,7 +1957,10 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
   const bool debug(false);
   if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", rolls " << alctRoll.first << " " << alctRoll.second << std::endl;
-  for (auto p: pads){
+  for (const auto& p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
     // only pads in overlap are good for ME1A
@@ -1979,9 +1991,9 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   const bool debug(false);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
   // Check if the pads overlap
-  for (auto p : padsAlct){
+  for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;
-    for (auto q: padsClct){
+    for (const auto& q: padsClct){
       if (debug) std::cout<< "++Candidate CLCT: " << q.first << " " << q.second << std::endl;
       // look for exactly the same pads
       if ((p.first != q.first) or GEMPadDigi(p.second) != q.second) continue;

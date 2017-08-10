@@ -27,9 +27,8 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 
    const DetIds& ids ( 0 == di ? sg->getValidDetIds( det, subdet ) : *di ) ;
 //------------------------------------------------------------
-   for( DetIds::const_iterator id ( ids.begin() ) ; id != ids.end() ; ++id )
+   for(auto dId : ids)
    {
-      const DetId dId ( *id ) ;
       unsigned int found ( 0 ) ;
       const CaloCellGeometry& cg ( *sg->getGeometry( dId ) ) ;
       const CaloCellGeometry::CornersVec& gc ( cg.getCorners() ) ;
@@ -89,16 +88,16 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			if( 0 == found )
 			{
 			   ++found ;
-			   m_detId.push_back( dId ) ;
-			   m_ctr .push_back( GlobalPoint( ctr.x(), ctr.y(), ctr.z() ) ) ;
-			   m_entr.push_back( GlobalPoint(  pt.x(),  pt.y(),  pt.z() ) ) ;
+			   m_detId.emplace_back( dId ) ;
+			   m_ctr .emplace_back( GlobalPoint( ctr.x(), ctr.y(), ctr.z() ) ) ;
+			   m_entr.emplace_back( GlobalPoint(  pt.x(),  pt.y(),  pt.z() ) ) ;
 			}
 			else
 			{
 			   if( 1 == found )
 			   {
 			      ++found ;
-			      m_exit.push_back( GlobalPoint( pt.x(), pt.y(), pt.z() ) ) ;
+			      m_exit.emplace_back( GlobalPoint( pt.x(), pt.y(), pt.z() ) ) ;
 			   } 
 			   else
 			   {
@@ -127,7 +126,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 	 }
       }
       assert( 2 >= found ) ;
-      if( 1 == found ) m_exit.push_back( m_entr.back() ) ;
+      if( 1 == found ) m_exit.emplace_back( m_entr.back() ) ;
    }
 //------------------------------------------------------------
    assert( m_detId.size() == m_entr.size() &&
@@ -137,7 +136,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
    m_len.reserve( m_entr.size() ) ;
    for( unsigned int i ( 0 ) ; i != m_entr.size() ; ++i )
    {
-      m_len.push_back( ( m_exit[i] - m_entr[i] ).mag() ) ;
+      m_len.emplace_back( ( m_exit[i] - m_entr[i] ).mag() ) ;
    }
 }
 

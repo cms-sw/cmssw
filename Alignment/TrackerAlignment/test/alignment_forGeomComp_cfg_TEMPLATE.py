@@ -60,8 +60,8 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBModule,111111',
-        'TrackerTPEModule,111111',
+        "PixelHalfBarrelDets,111111",
+        "PXECDets,111111",
         #  'TrackerTIBModuleUnit,101111',
         #  'TrackerTIDModuleUnit,101111',
         'TrackerTOBModuleUnit,101111',

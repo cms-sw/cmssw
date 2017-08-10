@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-gemDigiHarvesting = cms.EDAnalyzer("MuonGEMDigisHarvestor",
+gemDigiHarvesting = DQMEDHarvester("MuonGEMDigisHarvestor",
   dbePath = cms.string("MuonGEMDigisV/GEMDigisTask/"),
   compareDBEPath = cms.string("MuonGEMHitsV/GEMHitsTask/"),
   dbeHistPrefix = cms.string("copad_dcEta"),

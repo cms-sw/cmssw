@@ -41,7 +41,7 @@ public:
   
   FlatTrd( const FlatTrd& tr, const Pt3D& local) ;
 
-  virtual ~FlatTrd() ;
+  ~FlatTrd() override ;
   
   virtual const GlobalPoint& getPosition() const { return m_global; }
   GlobalPoint getPosition( const Pt3D& local ) const;
@@ -55,7 +55,7 @@ public:
   // Return phiAxis azimuthal angle of axis of the crystal
   CCGFloat getPhiAxis() const ;
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
+  void vocalCorners( Pt3DVec&        vec ,
                              const CCGFloat* pv  ,
                              Pt3D&           ref  ) const override;
   
@@ -69,11 +69,11 @@ public:
                             const CCGFloat* pv  ,
                             Pt3D&           ref  ) ;
   
-  virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
+  void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
 
 private:
 
-  virtual void initCorners(CornersVec& ) override;
+  void initCorners(CornersVec& ) override;
   
   GlobalVector makeAxis( void );
   

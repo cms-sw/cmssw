@@ -4,7 +4,7 @@
  */
 
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 ME0Geometry::ME0Geometry(){}
 ME0Geometry::~ME0Geometry(){}  
@@ -77,12 +77,12 @@ const ME0Chamber* ME0Geometry::chamber(ME0DetId id) const{
 
 void
 ME0Geometry::add(ME0EtaPartition* etaPartition){
-  allEtaPartitions.push_back(etaPartition);
-  theEtaPartitions.push_back(etaPartition);
-  theEtaPartitionIds.push_back(etaPartition->geographicalId());
-  theDets.push_back(etaPartition);
-  theDetIds.push_back(etaPartition->geographicalId());
-  theEtaPartitionTypes.push_back(&etaPartition->type());
+  allEtaPartitions.emplace_back(etaPartition);
+  theEtaPartitions.emplace_back(etaPartition);
+  theEtaPartitionIds.emplace_back(etaPartition->geographicalId());
+  theDets.emplace_back(etaPartition);
+  theDetIds.emplace_back(etaPartition->geographicalId());
+  theEtaPartitionTypes.emplace_back(&etaPartition->type());
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }
@@ -90,12 +90,12 @@ ME0Geometry::add(ME0EtaPartition* etaPartition){
 
 void
 ME0Geometry::add(ME0Layer* layer){
-  allLayers.push_back(layer);
-  // theLayers.push_back(layer);                      ??? what would this be fore?
-  // theLayerIds.push_back(layer->geographicalId());  ??? what would this be fore?
-  theDets.push_back(layer);
-  theDetIds.push_back(layer->geographicalId());
-  theEtaPartitionTypes.push_back(&layer->type());
+  allLayers.emplace_back(layer);
+  // theLayers.emplace_back(layer);                      ??? what would this be fore?
+  // theLayerIds.emplace_back(layer->geographicalId());  ??? what would this be fore?
+  theDets.emplace_back(layer);
+  theDetIds.emplace_back(layer->geographicalId());
+  theEtaPartitionTypes.emplace_back(&layer->type());
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(layer->geographicalId(),layer));
 }
@@ -103,9 +103,9 @@ ME0Geometry::add(ME0Layer* layer){
 
 void
 ME0Geometry::add(ME0Chamber* chamber){
-  allChambers.push_back(chamber);
-  theDets.push_back(chamber);
-  theDetIds.push_back(chamber->geographicalId());
+  allChambers.emplace_back(chamber);
+  theDets.emplace_back(chamber);
+  theDetIds.emplace_back(chamber->geographicalId());
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }

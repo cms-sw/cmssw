@@ -67,7 +67,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<library   file="stubs/TestGlobalProducers.cc,stubs/TestGlobalAnalyzers.cc,stubs/TestGlobalFilters.cc" name="TestGlobalModules">
+<library   file="stubs/TestGlobalProducers.cc,stubs/TestGlobalAnalyzers.cc,stubs/TestGlobalFilters.cc,stubs/TestGetPathStatus.cc" name="TestGlobalModules">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>

@@ -1,10 +1,11 @@
 # post-processors for reco Muon track validation in FullSim and FastSim
 #
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from Validation.RecoMuon.NewPostProcessor_RecoMuonValidator_cff import *
 
-NEWpostProcessorMuonTrack = cms.EDAnalyzer("DQMGenericClient",
+NEWpostProcessorMuonTrack = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/*"),
     efficiency = cms.vstring(
         "effic_vs_eta 'Efficiency vs #eta' num_assoSimToReco_eta num_simul_eta",
@@ -76,7 +77,7 @@ NEWpostProcessorMuonTrack = cms.EDAnalyzer("DQMGenericClient",
 )
 
 
-NEWpostProcessorMuonTrackComp = cms.EDAnalyzer("DQMGenericClient",
+NEWpostProcessorMuonTrackComp = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' globalMuons/effic_vs_eta probeTrks/effic_vs_eta",

@@ -78,6 +78,8 @@ public:
   void initFrameConversion();
   void initFrameConversionPhase1();
   //void initFrameConversion(const TrackerTopology *tt, bool phase1=false);
+  // Frame conversion compatible with CMSSW_9_0_X Monte Carlo samples
+  void initFrameConversionPhase1_CMSSW_9_0_X();
 
 private:
   uint32_t theDetUnit;

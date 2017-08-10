@@ -109,9 +109,15 @@ caloStage2Params.jetCalibrationParams  = jetCalibParamsVector
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
-caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1)
-caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
-caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30.)
+caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  26,  28,  28, 28)
+caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.)
+
+caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+
 
 # Layer 1 LUT specification
 #

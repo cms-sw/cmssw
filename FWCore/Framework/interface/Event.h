@@ -75,7 +75,7 @@ namespace edm {
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
 
     // AUX functions are defined in EventBase
-    EventAuxiliary const& eventAuxiliary() const {return aux_;}
+    EventAuxiliary const& eventAuxiliary() const override {return aux_;}
 
     ///\return The id for the particular Stream processing the Event
     StreamID streamID() const {
@@ -215,12 +215,15 @@ namespace edm {
     getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
 
     virtual ProcessHistory const&
-    processHistory() const;
+    processHistory() const override;
+
+    virtual edm::ParameterSet const*
+    parameterSet(edm::ParameterSetID const& psID) const override;
 
     size_t size() const;
 
-    virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
-    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
+    virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
@@ -242,10 +245,10 @@ namespace edm {
     makeProductID(BranchDescription const& desc) const;
 
     //override used by EventBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
     //override used by EventBase class
-    virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const;
+    virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any

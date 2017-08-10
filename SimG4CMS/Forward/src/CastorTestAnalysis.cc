@@ -9,13 +9,12 @@
 // Original Author: P. Katsas
 //         Created: 02/2007 
 //
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-//#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
 #include <cmath>

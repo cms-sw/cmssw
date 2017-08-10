@@ -7,7 +7,7 @@
 
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "boost/spirit/include/classic.hpp"
@@ -94,7 +94,7 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
 		   ? true : false);
   std::string tTextToParse = getText();
 
-  if (tTextToParse.size() == 0) {
+  if (tTextToParse.empty()) {
     errorOut(" EMPTY STRING ");
   }
   
@@ -165,14 +165,14 @@ DDLVector::do_makeDouble( char const* str, char const* end )
 {
   std::string ts(str, end);
   double td = myRegistry_->evaluator().eval(pNameSpace, ts);
-  pVector.push_back(td);
+  pVector.emplace_back(td);
 }
 
 void
 DDLVector::do_makeString( char const* str, char const* end )
 {
   std::string ts(str, end);
-  pStrVector.push_back(ts);
+  pStrVector.emplace_back(ts);
 }
 
 void

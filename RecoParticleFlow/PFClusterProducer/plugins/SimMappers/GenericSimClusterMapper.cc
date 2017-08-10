@@ -43,7 +43,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     reco::PFCluster& back = output.back();
     edm::Ref<std::vector<reco::PFRecHit> > seed;    
     double energy = 0.0, highest_energy = 0.0;
-    auto hitsAndFractions = std::move( sc.hits_and_fractions() );
+    auto hitsAndFractions = sc.hits_and_fractions() ;
     for( const auto& hAndF : hitsAndFractions ) {
       auto itr = detIdToIndex.find(hAndF.first);
       if( itr == detIdToIndex.end() ) continue; // hit wasn't saved in reco

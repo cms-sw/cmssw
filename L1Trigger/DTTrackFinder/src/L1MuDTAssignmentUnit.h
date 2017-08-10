@@ -73,7 +73,7 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     void QuaAU();
 
     /// set precision of phi and phib 
-    static void setPrecision();
+    void setPrecision();
 
   private:
 
@@ -84,10 +84,10 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     const L1MuDTTrackSegPhi* getTSphi(int station) const;
     
     /// convert sector Id to 8 bit code (= sector center)
-    static int convertSector(int);
+    int convertSector(int);
     
     /// determine charge
-    static int getCharge(PtAssMethod);
+    int getCharge(PtAssMethod);
     
     /// determine pt assignment method
     PtAssMethod getPtMethod() const;
@@ -109,8 +109,8 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
 
     edm::ESHandle< L1MuDTPhiLut > thePhiLUTs;  ///< phi-assignment look-up tables
     edm::ESHandle< L1MuDTPtaLut > thePtaLUTs;  ///< pt-assignment look-up tables
-    static unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
-    static unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
+    unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
+    unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
 
 };
 

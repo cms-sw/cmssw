@@ -2,6 +2,7 @@
 #ifndef TrackCategories_h
 #define TrackCategories_h
 
+#include <ostream>
 #include <vector>
 
 class TrackCategories

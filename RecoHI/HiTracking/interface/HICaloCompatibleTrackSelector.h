@@ -33,7 +33,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"

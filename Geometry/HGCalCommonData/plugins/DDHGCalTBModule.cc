@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -44,7 +44,7 @@ void DDHGCalTBModule::initialize(const DDNumericArguments & nArgs,
   names_        = vsArgs["VolumeNames"];
   thick_        = vArgs["Thickness"];
   for (unsigned int i=0; i<materials_.size(); ++i) {
-    copyNumber_.push_back(1);
+    copyNumber_.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalTBModule: " << materials_.size()

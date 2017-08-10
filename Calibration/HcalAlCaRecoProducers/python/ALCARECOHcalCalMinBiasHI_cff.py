@@ -26,18 +26,19 @@ hfrecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+seqALCARECOHcalCalMinBiasDigi = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB)
+seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoMBNZS = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(True),
     forceSOI = cms.int32(1)
 )
 hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
@@ -79,7 +80,8 @@ hbheplan1Noise = RecoLocalCalo.HcalRecProducers.hbheplan1_cfi.hbheplan1.clone(
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hbherecoNoise,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 
 _plan1_seqALCARECOHcalCalMinBias = _phase1_seqALCARECOHcalCalMinBias.copy()

@@ -1,5 +1,6 @@
 import os
 import ROOT
+import sys
 from TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
@@ -138,4 +139,90 @@ def parsestyle(style):
     except (AttributeError, ValueError):
         pass
 
-    raise AllInOneError("style has to be an integer, a ROOT constant (kDashed, kStar, ...)!")
+    raise AllInOneError("style has to be an integer or a ROOT constant (kDashed, kStar, ...)!")
+
+def recursivesubclasses(cls):
+    result = [cls]
+    for subcls in cls.__subclasses__():
+        result += recursivesubclasses(subcls)
+    return result
+
+def cache(function):
+    cache = {}
+    def newfunction(*args, **kwargs):
+        try:
+            return cache[args, tuple(sorted(kwargs.iteritems()))]
+        except TypeError:
+            print args, tuple(sorted(kwargs.iteritems()))
+            raise
+        except KeyError:
+            cache[args, tuple(sorted(kwargs.iteritems()))] = function(*args, **kwargs)
+            return newfunction(*args, **kwargs)
+    newfunction.__name__ = function.__name__
+    return newfunction
+
+def boolfromstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool
+    """
+    #try as a string, not case sensitive
+    if string.lower() == "true": return True
+    if string.lower() == "false": return False
+    #try as a number
+    try:
+        return str(bool(int(string)))
+    except ValueError:
+        pass
+    #out of options
+    raise ValueError("{} has to be true or false!".format(name))
+    
+
+def pythonboolstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool string for a python template
+    """
+    return str(boolfromstring(string, name))
+
+def cppboolstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool string for a C++ template
+    """
+    return pythonboolstring(string, name).lower()
+
+def conddb(*args):
+    """
+    Wrapper for conddb, so that you can run
+    conddb("--db", "myfile.db", "listTags"),
+    like from the command line, without explicitly
+    dealing with all the functions in CondCore/Utilities.
+    getcommandoutput2(conddb ...) doesn't work, it imports
+    the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
+    """
+    from tempfile import NamedTemporaryFile
+
+    with open(getCommandOutput2("which conddb").strip()) as f:
+        conddb = f.read()
+
+    def sysexit(number):
+        if number != 0:
+            raise AllInOneError("conddb exited with status {}".format(number))
+    namespace = {"sysexit": sysexit, "conddboutput": ""}
+
+    conddb = conddb.replace("sys.exit", "sysexit")
+
+    bkpargv = sys.argv
+    sys.argv[1:] = args
+    bkpstdout = sys.stdout
+    with NamedTemporaryFile(bufsize=0) as sys.stdout:
+        exec conddb in namespace
+        namespace["main"]()
+        with open(sys.stdout.name) as f:
+            result = f.read()
+
+    sys.argv[:] = bkpargv
+    sys.stdout = bkpstdout
+
+    return result

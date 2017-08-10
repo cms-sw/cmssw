@@ -3,12 +3,14 @@
 
 /** \class ME0TriggerBuilder
  *
- * \author Sven Dildick, TAMU.
+ * Builds ME0 trigger objects from ME0 pad clusters
+ *
+ * \author Sven Dildick (TAMU)
  *
  */
 
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ME0Motherboard;
@@ -26,9 +28,9 @@ class ME0TriggerBuilder
 
   ~ME0TriggerBuilder();
 
-  /** Build Triggers in each chamber and fill them into output collections. */
-  void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
-  
+  /** Build Triggers from clusters in each chamber and fill them into output collections. */
+  void build(const ME0PadDigiClusterCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
+
   /** set geometry for the matching needs */
   void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
 

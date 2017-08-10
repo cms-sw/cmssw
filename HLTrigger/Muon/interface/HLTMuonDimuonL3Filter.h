@@ -13,8 +13,15 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -30,13 +37,18 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
 
    private:
       static bool triggeredByLevel2(reco::TrackRef const & track, std::vector<reco::RecoChargedCandidateRef> const & vcands);
-
-      edm::InputTag                    beamspotTag_ ;
-      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
-      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
-      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
-      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // tokenidentifying product contains muons passing the previous level
+      bool applyMuonSelection(const reco::RecoChargedCandidateRef&, const reco::BeamSpot&) const;
+      bool applyDiMuonSelection(const reco::RecoChargedCandidateRef&, const reco::RecoChargedCandidateRef&, const reco::BeamSpot&, const edm::ESHandle<MagneticField>&) const;
+      const edm::InputTag                    beamspotTag_ ;
+      const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      const edm::InputTag                                          candTag_;   		// input tag identifying product contains muons
+      const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_;		// token identifying product contains muons
+      const edm::InputTag                                          previousCandTag_;	// input tag identifying product contains muons passing the previous level
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;	// tokenidentifying product contains muons passing the previous level
+      const edm::InputTag                                          l1CandTag_;		// input tag identifying product contains muons passing the L1 level
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> l1CandToken_;	// token identifying product contains muons passing the L1 level
+      const edm::InputTag                                          recoMuTag_;		// input tag identifying reco muons
+      const edm::EDGetTokenT<reco::MuonCollection>                 recoMuToken_;	// token identifying product contains reco muons
       bool   previousCandIsL2_;
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       int    min_N_;            // minimum number of muons to fire the trigger
@@ -62,6 +74,9 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
       const edm::InputTag theL3LinksLabel;					//Needed to iterL3
       const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;	//Needed to iterL3
+      const double L1MatchingdR_;
+      const bool matchPreviousCand_;
+      const double MuMass2_;
 };
 
 #endif //HLTMuonDimuonFilter_h

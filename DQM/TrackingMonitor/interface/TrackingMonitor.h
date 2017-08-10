@@ -39,7 +39,9 @@ Monitoring source for general quantities related to tracks.
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class TrackAnalyzer;
+namespace dqm {
+  class TrackAnalyzer;
+}
 class TrackBuildingAnalyzer;
 class VertexMonitor;
 class GetLumi;
@@ -49,6 +51,9 @@ class GenericTriggerEventFlag;
 class TrackingMonitor : public DQMEDAnalyzer 
 {
     public:
+        using MVACollection = std::vector<float>;
+        using QualityMaskCollection = std::vector<unsigned char>;
+
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor();
         virtual void beginJob(void);
@@ -73,7 +78,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
 	//        DQMStore * dqmStore_;
 
-        edm::ParameterSet conf_;
+        edm::ParameterSetID confID_;
 
         // the track analyzer
         edm::InputTag bsSrc_;
@@ -93,11 +98,14 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
 
+	std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
+	edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
+
 	std::string Quality_;
 	std::string AlgoName_;
 
 
-        TrackAnalyzer * theTrackAnalyzer;
+        dqm::TrackAnalyzer * theTrackAnalyzer;
         TrackBuildingAnalyzer  * theTrackBuildingAnalyzer;
 	std::vector<VertexMonitor*> theVertexMonitor;
 	GetLumi*                    theLumiDetails_;
@@ -179,6 +187,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doGeneralPropertiesPlots_;
 	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
+	bool doMVAPlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;

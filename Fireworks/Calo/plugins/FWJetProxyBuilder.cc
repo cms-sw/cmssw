@@ -27,6 +27,7 @@
 #include "Fireworks/Calo/interface/scaleMarker.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 
 namespace fireworks {
 
@@ -41,6 +42,7 @@ struct jetScaleMarker : public  scaleMarker {
 static const std::string kJetLabelsRhoPhiOn("Draw Labels in RhoPhi View");
 static const std::string kJetLabelsRhoZOn("Draw Labels in RhoZ View");
 static const std::string kJetOffset("Label Offset");
+static const std::string kJetApexBeamSpot("Place Apex In BeamSpot");
 
 
 class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
@@ -60,6 +62,7 @@ public:
       iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
       iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
       iItem->getConfig()->assertParam(kJetOffset, 2.1, 1.0, 5.0);
+      iItem->getConfig()->assertParam(kJetApexBeamSpot, false);
       }
    }
 
@@ -112,10 +115,15 @@ FWJetProxyBuilder::requestCommon()
       {
          TEveJetCone* cone = fireworks::makeEveJetCone(modelData(i), context());
 
-         m_common->AddElement(cone);
+         if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
+         {
+            FWBeamSpot* bs = context().getBeamSpot();
+            cone->SetApex(TEveVector(bs->x0(), bs->y0(), bs->z0()));
+         }
          cone->SetFillColor(item()->defaultDisplayProperties().color());
          cone->SetLineColor(item()->defaultDisplayProperties().color());
-
+         
+         m_common->AddElement(cone);
       }
    }
    return m_common;
@@ -131,8 +139,10 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
 
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
    setupAddElement( *coneIt, &oItemHolder );
-   (*coneIt)->SetMainTransparency(TMath::Min(100, 80 + dp.transparency() / 5)); 
+   (*coneIt)->SetMainTransparency(TMath::Min(100, 80 + dp.transparency() / 5));
 
+   TEveVector p1;
+   TEveVector p2;
 
    // scale markers in projected views
    if (FWViewType::isProjected(type))
@@ -160,17 +170,27 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
             r = r_ecal/sin(theta);
          }
 
-         markers.m_ls->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-         markers.m_ls->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-                                0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+         p1.Set( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
+         p2.Set( 0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
       }
       else
       {
          float ecalR = context().caloR1() + 4;
-         markers.m_ls->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
-         markers.m_ls->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+         p1.Set(ecalR*cos(phi), ecalR*sin(phi), 0);
+         p2.Set((ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
       }
-
+      
+      if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
+      {
+         FWBeamSpot* bs = context().getBeamSpot();
+         TEveVector bsOff(bs->x0(), bs->y0(), bs->z0());
+         p1 += bsOff;
+         p2 += bsOff;
+      }
+   
+      markers.m_ls->SetScaleCenter(p1.fX, p1.fY, p1.fZ);
+      markers.m_ls->AddLine(p1, p2);
+      
       markers.m_ls->SetLineWidth(4);  
       markers.m_ls->SetLineColor(dp.color());
       FWViewEnergyScale* caloScale = vc->getEnergyScale();    
@@ -183,7 +203,6 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
          markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());         
          setTextPos(markers, vc, type);
       }
-
 
       markers.m_ls->SetMarkerColor(markers.m_ls->GetMainColor());
       setupAddElement( markers.m_ls, &oItemHolder );

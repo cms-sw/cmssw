@@ -54,7 +54,7 @@ public:
   double ptMinMCElectron_;
   double ptMinMCMuon_;
   std::vector<int> m_PDG_;
-  double etaMax;
+  double etaMin,etaMax,phiMin,phiMax;
 
 };
 

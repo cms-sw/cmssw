@@ -56,13 +56,14 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global bmtfDigis, emtfStage2Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(bmtfDigis + emtfStage2Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import twinMuxStage2Digis
+    L1TRawToDigi_Stage2 = cms.Sequence(twinMuxStage2Digis * bmtfDigis + emtfStage2Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:
@@ -70,7 +71,6 @@ def unpack_stage2():
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-    sys.stderr.write("L1TRawToDigi Sequence configured for Run1 (Legacy) trigger. \n")
     unpack_legacy()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Legacy);
 
@@ -78,7 +78,6 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    sys.stderr.write("L1TRawToDigi Sequence configured for Stage-1 (2015) trigger. \n")
     unpack_stage1()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1)
 
@@ -86,7 +85,6 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger:  fow now, unpack Stage 1 and Stage 2 (in case both available)
 #
 if stage2L1Trigger.isChosen():
-    sys.stderr.write("L1TRawToDigi Sequence configured for Stage-2 (2016) trigger. \n")
     unpack_stage1()
     unpack_stage2()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1+L1TRawToDigi_Stage2)

@@ -58,7 +58,6 @@ std::shared_ptr<MeasurementTracker>
 MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
 
-
   // ========= SiPixelQuality related tasks =============
   const SiPixelQuality    *ptr_pixelQuality = 0;
   const SiPixelFedCabling *ptr_pixelCabling = 0;
@@ -125,6 +124,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
   edm::ESHandle<StripClusterParameterEstimator> stripCPE;
   edm::ESHandle<SiStripRecHitMatcher>           hitMatcher;
+  edm::ESHandle<TrackerTopology>                trackerTopology;
   edm::ESHandle<TrackerGeometry>                trackerGeom;
   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > phase2TrackerCPE;
@@ -132,6 +132,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TkPixelCPERecord>().get(pixelCPEName,pixelCPE);
   iRecord.getRecord<TkStripCPERecord>().get(stripCPEName,stripCPE);
   iRecord.getRecord<TkStripCPERecord>().get(matcherName,hitMatcher);
+  iRecord.getRecord<TrackerTopologyRcd>().get(trackerTopology);
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
 
@@ -141,6 +142,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 							          pixelCPE.product(),
 							          stripCPE.product(),
 							          hitMatcher.product(),
+							          trackerTopology.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),
 							          ptr_stripQuality,
@@ -156,6 +158,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 							          pixelCPE.product(),
 							          stripCPE.product(),
 							          hitMatcher.product(),
+							          trackerTopology.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),
 							          ptr_stripQuality,

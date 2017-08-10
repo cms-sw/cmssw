@@ -45,7 +45,7 @@ class TrackerTopology;
 class Phase2TrackerDigitizerAlgorithm  {
  public:
   Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, const edm::ParameterSet& conf_specific, CLHEP::HepRandomEngine&);
-  ~Phase2TrackerDigitizerAlgorithm();
+  virtual ~Phase2TrackerDigitizerAlgorithm(); 
 
   // initialization that cannot be done in the constructor
   virtual void init(const edm::EventSetup& es) = 0;

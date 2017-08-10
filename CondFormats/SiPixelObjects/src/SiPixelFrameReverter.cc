@@ -24,10 +24,10 @@ using namespace std;
 using namespace sipixelobjects;
 
 SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const SiPixelFedCabling* map) 
-  : map_(map)
+  : map_(map), DetToFedMap(map->det2PathMap()) 
 { 
   // Build map
-  buildStructure(iSetup);
+  // buildStructure(iSetup);
 }
 
 

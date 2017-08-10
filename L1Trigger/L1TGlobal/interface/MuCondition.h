@@ -10,6 +10,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *   
+ *          Vladimir Rekovic - extend for indexing
  */
 
 // system include files
@@ -107,7 +108,7 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool checkObjectParameter(const int iCondition,
-        const l1t::Muon& cand) const;
+        const l1t::Muon& cand, const unsigned int index) const;
 
 private:
 

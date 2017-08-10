@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_CaloHT200 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
@@ -66,7 +67,7 @@ SUSY_HLT_CaloHT400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 )
 
 
-SUSY_HLT_CaloHT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToCaloHToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring(
   "HLT/SUSYBSM/HLT_HT200_v",
   "HLT/SUSYBSM/HLT_HT250_v",

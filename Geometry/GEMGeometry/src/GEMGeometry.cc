@@ -4,7 +4,7 @@
  */
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 GEMGeometry::GEMGeometry(){}
 
@@ -102,45 +102,45 @@ const GEMEtaPartition* GEMGeometry::etaPartition(GEMDetId id) const{
 
 void
 GEMGeometry::add(GEMRegion* region){
-  allRegions.push_back(region);
+  allRegions.emplace_back(region);
 }
 
 void
 GEMGeometry::add(GEMStation* station){
-  allStations.push_back(station);
+  allStations.emplace_back(station);
 }
 
 void
 GEMGeometry::add(GEMRing* ring){
-  allRings.push_back(ring);
+  allRings.emplace_back(ring);
 }
 
 void
 GEMGeometry::add(GEMSuperChamber* superChamber){
-  allSuperChambers.push_back(superChamber);
-  theDets.push_back(superChamber);
-  theDetIds.push_back(superChamber->geographicalId());
+  allSuperChambers.emplace_back(superChamber);
+  theDets.emplace_back(superChamber);
+  theDetIds.emplace_back(superChamber->geographicalId());
   theMap.insert(std::pair<DetId,GeomDet*>
   		(superChamber->geographicalId(),superChamber));
 }
 
 void
 GEMGeometry::add(GEMEtaPartition* etaPartition){
-  theDets.push_back(etaPartition);
-  allEtaPartitions.push_back(etaPartition);
-  theEtaPartitions.push_back(etaPartition);
-  theEtaPartitionIds.push_back(etaPartition->geographicalId());
-  theDetIds.push_back(etaPartition->geographicalId());
-  theEtaPartitionTypes.push_back(&etaPartition->type());
+  theDets.emplace_back(etaPartition);
+  allEtaPartitions.emplace_back(etaPartition);
+  theEtaPartitions.emplace_back(etaPartition);
+  theEtaPartitionIds.emplace_back(etaPartition->geographicalId());
+  theDetIds.emplace_back(etaPartition->geographicalId());
+  theEtaPartitionTypes.emplace_back(&etaPartition->type());
   theMap.insert(std::pair<DetId,const GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 
 void
 GEMGeometry::add(GEMChamber* chamber){
-  allChambers.push_back(chamber);
-  theDets.push_back(chamber);
-  theDetIds.push_back(chamber->geographicalId());
+  allChambers.emplace_back(chamber);
+  theDets.emplace_back(chamber);
+  theDetIds.emplace_back(chamber->geographicalId());
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }

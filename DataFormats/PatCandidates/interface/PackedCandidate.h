@@ -33,9 +33,8 @@ namespace pat {
     typedef math::XYZVector Vector;
 
     typedef unsigned int index;
-
     /// default constructor
-    PackedCandidate() :
+    PackedCandidate() : 
       packedPt_(0), packedEta_(0),
       packedPhi_(0), packedM_(0),
       packedDxy_(0), packedDz_(0), packedDPhi_(0), packedDEta_(0),packedDTrkPt_(0),
@@ -48,7 +47,7 @@ namespace pat {
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), deta_(0), dtrkpt_(0),track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
-      m_(nullptr), packedHits_(0), packedLayers_(0), normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0) { }
+      m_(nullptr), packedHits_(0), packedLayers_(0), normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0),firstHit_(0) { }
 
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
@@ -60,7 +59,7 @@ namespace pat {
       dphi_(0), deta_(0), dtrkpt_(0),
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
       pvRefKey_(pvRefKey),m_(nullptr), packedHits_(0), packedLayers_(0),
-      normalizedChi2_(0),covarianceVersion_(0), covarianceSchema_(0) {
+      normalizedChi2_(0),covarianceVersion_(0), covarianceSchema_(0),firstHit_(0) {
       packBoth();
     }
 
@@ -77,7 +76,7 @@ namespace pat {
       dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId),
       qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
-      m_(nullptr),packedHits_(0), packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0) {
+      m_(nullptr),packedHits_(0), packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0),firstHit_(0) {
       packBoth();
     }
 
@@ -94,7 +93,7 @@ namespace pat {
       dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId), qualityFlags_(0),
       pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
-      m_(nullptr),packedHits_(0),packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0)  {
+      m_(nullptr),packedHits_(0),packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0),firstHit_(0)  {
       packBoth();
     }
 
@@ -119,7 +118,7 @@ namespace pat {
       pvRefProd_(iOther.pvRefProd_),pvRefKey_(iOther.pvRefKey_),
       m_(iOther.m_? new reco::TrackBase::CovarianceMatrix(*iOther.m_) : nullptr),
       packedHits_(iOther.packedHits_),packedLayers_(iOther.packedLayers_),  normalizedChi2_(iOther.normalizedChi2_),
-      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_)  {
+      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_),firstHit_(iOther.firstHit_)  {
       }
 
     PackedCandidate( PackedCandidate&& iOther) :
@@ -142,7 +141,7 @@ namespace pat {
       pvRefProd_(std::move(iOther.pvRefProd_)),pvRefKey_(iOther.pvRefKey_),
       m_( iOther.m_.exchange(nullptr)),
       packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_),normalizedChi2_(iOther.normalizedChi2_),
-      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_) {
+      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_),firstHit_(iOther.firstHit_)  {
       }
 
 
@@ -217,6 +216,7 @@ namespace pat {
       normalizedChi2_=iOther.normalizedChi2_;
       covarianceVersion_=iOther.covarianceVersion_;
       covarianceSchema_=iOther.covarianceSchema_;
+      firstHit_=iOther.firstHit_;
       return *this;
     }
 
@@ -258,6 +258,7 @@ namespace pat {
       normalizedChi2_=iOther.normalizedChi2_;
       covarianceVersion_=iOther.covarianceVersion_;
       covarianceSchema_=iOther.covarianceSchema_;
+      firstHit_=iOther.firstHit_;
       return *this;
     }
 
@@ -500,7 +501,7 @@ namespace pat {
         return nullptr;
     }
     /// Return true if a bestTrack can be extracted from this Candidate
-    bool hasTrackDetails() {return  (packedHits_!=0 || packedLayers_ !=0); }
+    bool hasTrackDetails() const {return  (packedHits_!=0 || packedLayers_ !=0); }
       
 
     /// true if the track had the highPurity quality bit
@@ -523,6 +524,13 @@ namespace pat {
         lost++; // shift so it's 0 .. 3 instead of (-1) .. 2
         qualityFlags_ = (qualityFlags_ & ~lostInnerHitsMask) | ((lost << lostInnerHitsShift) & lostInnerHitsMask); 
     }
+
+    /// Set first hit from HitPattern
+    void setFirstHit(uint16_t pattern) {
+	firstHit_=pattern;
+    }
+    /// Return first hit from HitPattern for tracks with high level details
+    uint16_t firstHit() const { return	firstHit_;}
 
     void setMuonID(bool isStandAlone, bool isGlobal) {
         int16_t muonFlags = isStandAlone | (2*isGlobal);
@@ -716,6 +724,8 @@ namespace pat {
         lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
         muonFlagsMask = 0x0600, muonFlagsShift=9
     };
+  public:
+    uint16_t firstHit_;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

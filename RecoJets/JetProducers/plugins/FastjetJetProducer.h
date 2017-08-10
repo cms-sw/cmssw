@@ -2,6 +2,8 @@
 #define RecoJets_JetProducers_plugins_FastjetJetProducer_h
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -49,6 +51,8 @@ public:
   //
   explicit FastjetJetProducer(const edm::ParameterSet& iConfig);
   virtual ~FastjetJetProducer();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc);
 
   virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 

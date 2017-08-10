@@ -36,25 +36,25 @@ HcalDDDGeometry::fillDetIds() const
       const DetId id ( baseIds[i] );
       if( id.subdetId() == HcalBarrel )
       { 
-	 m_hbIds.push_back( id ) ;
+	 m_hbIds.emplace_back( id ) ;
       }
       else
       {
 	 if( id.subdetId() == HcalEndcap )
 	 { 
-	    m_heIds.push_back( id ) ;
+	    m_heIds.emplace_back( id ) ;
 	 }
 	 else
 	 {
 	    if( id.subdetId() == HcalOuter )
 	    { 
-	       m_hoIds.push_back( id ) ;
+	       m_hoIds.emplace_back( id ) ;
 	    }
 	    else
 	    {
 	       if( id.subdetId() == HcalForward )
 	       { 
-		  m_hfIds.push_back( id ) ;
+		  m_hfIds.emplace_back( id ) ;
 	       }
 	    }
 	 }
@@ -101,26 +101,26 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 		       << " radius " << radius;
   HcalDetId bestId;
   if (abseta <= etaMax_) {
-    for (unsigned int i=0; i<hcalCells_.size(); i++) {
-      if (abseta >=hcalCells_[i].etaMin() && abseta <=hcalCells_[i].etaMax()) {
-	HcalSubdetector bc = hcalCells_[i].detType();
-	int etaring = hcalCells_[i].etaBin();
+    for (const auto & hcalCell : hcalCells_) {
+      if (abseta >=hcalCell.etaMin() && abseta <=hcalCell.etaMax()) {
+	HcalSubdetector bc = hcalCell.detType();
+	int etaring = hcalCell.etaBin();
 	int phibin  = 0;
-	if (hcalCells_[i].unitPhi() == 4) {
+	if (hcalCell.unitPhi() == 4) {
 	  // rings 40 and 41 are offset wrt the other phi numbering
 	  //  1        1         1         2
 	  //  ------------------------------
 	  //  72       36        36        1
-	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset()+
-				     0.5*hcalCells_[i].phiBinWidth())/
-				    hcalCells_[i].phiBinWidth());
-	  if (phibin == 0) phibin = hcalCells_[i].nPhiBins();
+	  phibin = static_cast<int>((phi+hcalCell.phiOffset()+
+				     0.5*hcalCell.phiBinWidth())/
+				    hcalCell.phiBinWidth());
+	  if (phibin == 0) phibin = hcalCell.nPhiBins();
 	  phibin = phibin*4 - 1; 
 	} else {
-	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset())/
-				    hcalCells_[i].phiBinWidth()) + 1;
+	  phibin = static_cast<int>((phi+hcalCell.phiOffset())/
+				    hcalCell.phiBinWidth()) + 1;
 	  // convert to the convention of numbering 1,3,5, in 36 phi bins
-	  phibin = (phibin-1)*(hcalCells_[i].unitPhi()) + 1;
+	  phibin = (phibin-1)*(hcalCell.unitPhi()) + 1;
 	}
 
 	int dbin   = 1;
@@ -130,9 +130,9 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 	  break;
 	} else {
 	  double rz = z;
-	  if (hcalCells_[i].depthType()) rz = radius;
-	  if (rz < hcalCells_[i].depthMax()) {
-	    dbin   = hcalCells_[i].depthSegment();
+	  if (hcalCell.depthType()) rz = radius;
+	  if (rz < hcalCell.depthMax()) {
+	    dbin   = hcalCell.depthSegment();
 	    bestId = HcalDetId(bc, etabin, phibin, dbin);
 	    break;
 	  }
@@ -151,8 +151,8 @@ HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());
-  for (unsigned int i=0; i<cells.size(); i++) {
-    if (cells[i].etaMax() > etaMax_ ) etaMax_ = cells[i].etaMax();
+  for (const auto & cell : cells) {
+    if (cell.etaMax() > etaMax_ ) etaMax_ = cell.etaMax();
   }
 
   LogDebug("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size()
@@ -217,7 +217,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
               const DetId&       detId   )
 {
   newCellImpl(f1,f2,f3,parm,detId);
-  m_validIds.push_back(detId);
+  m_validIds.emplace_back(detId);
 }
 
 const CaloCellGeometry* 

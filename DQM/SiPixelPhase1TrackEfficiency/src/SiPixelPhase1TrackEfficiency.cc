@@ -19,13 +19,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 { 
   tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
   vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryvertices"));
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+
 }
 
 void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -40,8 +42,10 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   iEvent.getByToken( vtxToken_, vertices);
 
   if (!vertices.isValid()) return;
+
   histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
-  if (vertices->size() == 0) return;
+
+  if (applyVertexCut_ &&  vertices->size() == 0) return;
 
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 
@@ -53,11 +57,14 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
   for (auto const & track : *tracks) {
 
+    //this cut is needed to be consisten with residuals calculation
+    if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue; 
+
     bool isBpixtrack = false, isFpixtrack = false;
     int nStripHits = 0;
 
     // first, look at the full track to see whether it is good
-    auto const & trajParams = track.extra()->trajParams();
+    // auto const & trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for(unsigned int h=0;h<track.recHitsSize();h++){
       
@@ -91,11 +98,16 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
+      bool isHitInactive = hit->getType()==TrackingRecHit::inactive;
 
+      /*
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
       const PixelTopology& topol = geomdetunit->specificTopology();
+
+      // this commented part is useful if one wants ROC level maps of hits, however the local position may fall out of a ROC and the ROC maps will look very strange (with no white cross)
       LocalPoint lp;
+
       if (pixhit) {
         lp = pixhit->localPosition();
       } else {
@@ -105,19 +117,24 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       MeasurementPoint mp = topol.measurementPosition(lp);
       int row = (int) mp.x();
       int col = (int) mp.y();
+      */
 
       if (isHitValid)   {
-        histo[VALID].fill(id, &iEvent, col, row);
-        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+        histo[VALID].fill(id, &iEvent);
+        histo[EFFICIENCY].fill(1, id, &iEvent);
       }
       if (isHitMissing) {
-        histo[MISSING].fill(id, &iEvent, col, row);
-        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+        histo[MISSING].fill(id, &iEvent);
+        histo[EFFICIENCY].fill(0, id, &iEvent);
+      }
+      if (isHitInactive)   {
+        histo[INACTIVE].fill(id, &iEvent);
       }
     }
   }
-histo[VALID  ].executePerEventHarvesting(&iEvent);
-histo[MISSING].executePerEventHarvesting(&iEvent);
+  histo[VALID   ].executePerEventHarvesting(&iEvent);
+  histo[MISSING ].executePerEventHarvesting(&iEvent);
+  histo[INACTIVE].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);

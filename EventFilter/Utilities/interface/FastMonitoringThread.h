@@ -146,7 +146,7 @@ namespace evf{
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
-      m_thread = boost::shared_ptr<std::thread>(new std::thread(fp,cp));
+      m_thread = std::make_shared<std::thread>(fp,cp);
     }
     void stop(){
       assert(m_thread);
@@ -157,7 +157,7 @@ namespace evf{
   private:
 
     std::atomic<bool> m_stoprequest;
-    boost::shared_ptr<std::thread> m_thread;
+    std::shared_ptr<std::thread> m_thread;
     MonitorData m_data;
     std::mutex monlock_;
 

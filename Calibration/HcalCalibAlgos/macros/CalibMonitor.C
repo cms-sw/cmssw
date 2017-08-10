@@ -2,8 +2,8 @@
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
-//                  corrFileName, flag, numb, dataMC, useGen, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside);
+//                  corrFileName, flag, numb, dataMC, useGen, scale,
+//                  etalo, etahi, runlo, runhi, phimin, phimax, zside);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -30,17 +30,20 @@
 //                               (usually a 4 character string; default="")
 //   corrFileName (std::string)= name of the text file having the correction
 //                               factors to be used (default="", no corr.)
-//   flag (int)                = 3 digit integer (hdo) with specific control
-//                               information (h = 0/1/2 for not creating/
-//                               creating in output/creating in append mode
-//                               the output text file; d = 0/1/2/3 produces 
-//                               3 standard (0,1,2) or extended (3) set of 
-//                               histograms; o = 0/1 for loose/tight 
-//                               selection). Default = 0
+//   flag (int)                = 4 digit integer (thdo) with specific control
+//                               information (t=0/1 for doing or not the PU
+//                               correction; h = 0/1/2 for not creating/
+//                               creating in recreate mode/creating in append 
+//                               mode the output text file; d = 0/1/2/3 
+//                               produces 3 standard (0,1,2) or extended (3) 
+//                               set of histograms; o = 0/1/2 for tight/loose/
+//                               flexible selection). Default = 0
 //   numb   (int)              = number of eta bins (42 for -21:21)
 //   dataMC (bool)             = true/false for data/MC (default true)
-//   useGen (bool)             = false/true to use generator level momentum
+//   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
+//   scale (double)            = energy scale if correction factor to be used
+//                               (default = 1.0)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number (def -1)
 //   runhi  (int)              = higher value of run number (def 9999999)
@@ -87,6 +90,7 @@ public :
   Int_t                      t_Event;
   Int_t                      t_DataType;
   Int_t                      t_ieta;
+  Int_t                      t_iphi;
   Double_t                   t_EventWeight;
   Int_t                      t_nVtx;
   Int_t                      t_nTrk;
@@ -107,6 +111,7 @@ public :
   Double_t                   t_eHcal10;
   Double_t                   t_eHcal30;
   Double_t                   t_hmaxNearP;
+  Double_t                   t_rhoh;
   Bool_t                     t_selectTk;
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
@@ -125,6 +130,7 @@ public :
   TBranch                   *b_t_Event;         //!
   TBranch                   *b_t_DataType;      //!
   TBranch                   *b_t_ieta;          //!
+  TBranch                   *b_t_iphi;          //!
   TBranch                   *b_t_EventWeight;   //!
   TBranch                   *b_t_nVtx;          //!
   TBranch                   *b_t_nTrk;          //!
@@ -145,6 +151,7 @@ public :
   TBranch                   *b_t_eHcal10;       //!
   TBranch                   *b_t_eHcal30;       //!
   TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_rhoh;          //!
   TBranch                   *b_t_selectTk;      //!
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
@@ -174,8 +181,8 @@ public :
 	       std::string dupFileName, std::string outTxtFileName, 
 	       std::string prefix="", std::string corrFileName="",
 	       int flag=0, int numb=42, bool datMC=true, bool useGen=false,
-	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999,
-	       int phimin=1, int phimax=72, int zside=1);
+	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
+	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -196,16 +203,16 @@ private:
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
   int                       flag_, numb_, flexibleSelect_;
-  bool                      dataMC_, useGen_, corrE_;
+  bool                      dataMC_, useGen_, corrPU_, corrE_;
   int                       plotType_, etalo_, etahi_, runlo_, runhi_;
   int                       phimin_, phimax_, zside_;
-  double                    log2by16_;
+  double                    scale_, log2by18_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
-  std::vector<int>          nvx_;
+  std::vector<int>          nvx_, ietas_;
   TH1D                     *h_p[5], *h_eta[5];
   std::vector<TH1D*>        h_eta0, h_eta1, h_eta2, h_eta3, h_eta4;
-  std::vector<TH1D*>        h_dL1,  h_vtx, h_etaF[npbin];
+  std::vector<TH1D*>        h_dL1,  h_vtx, h_etaF[npbin], h_etaB[npbin];
   std::vector<TProfile*>    h_etaX[npbin];
   std::vector<TH1D*>        h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::map<std::pair<int,int>,double> cfactors_;
@@ -215,7 +222,7 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 			   std::string dupFileName, std::string outTxtFileName,
 			   std::string prefix, std::string corrFileName,
 			   int flag, int numb, bool dataMC, bool useGen, 
-			   int etalo, int etahi, int runlo,
+			   double scale, int etalo, int etahi, int runlo,
 			   int runhi, int phimin, int phimax,
 			   int zside) : fname_(fname), dirnm_(dirnm),
 					prefix_(prefix), 
@@ -225,20 +232,22 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 					etalo_(etalo), etahi_(etahi), 
 					runlo_(runlo), runhi_(runhi),
 					phimin_(phimin), phimax_(phimax),
-					zside_(zside) {
+					zside_(zside), scale_(scale) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
   plotType_        = ((flag_/10)%10);
   if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
-  log2by16_        = std::log(2.5)/16.0;
+  corrPU_          = (((flag_/1000) %10) > 0);
+  log2by18_        = std::log(2.5)/18.0;
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir 
-	    << " flags " << flexibleSelect_ << "|" << plotType_ << " cons "
-	    << log2by16_ << " eta range " << etalo_ << ":" << etahi_ 
-	    << " run range " << runlo_ << ":" << runhi_ << std::endl;
+	    << " flags " << flexibleSelect_ << "|" << plotType_ << "|"
+	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
+	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
+	    << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
   std::cout << "CalibMonitor:Tree " << tree << std::endl;
   Init(tree,dupFileName);
@@ -299,6 +308,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
   fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
   fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
@@ -319,6 +329,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
   fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
@@ -384,6 +395,8 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   int npvtx[6]  = {0, 7,10, 13, 16,100};
   for (int i=0; i<6; ++i)  nvx_.push_back(npvtx[i]);
   double dl1s[9]= {0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
+  int ietas[4] = {0, 13, 18, 25};
+  for (int i=0; i<4; ++i)  ietas_.push_back(ietas[i]);
 
   char        name[20], title[200];
   std::string titl[5] = {"All tracks", "Good quality tracks", "Selected tracks",
@@ -457,6 +470,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
 	kk = h_etaR[k].size()-1;
 	h_etaR[k][kk]->Sumw2();
       }
+      for (unsigned int j=1; j<ietas_.size(); ++j) {
+	sprintf (name, "%setaB%d%d", prefix_.c_str(), k, j);
+	sprintf (title,"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",titl[4].c_str(),ipbin[k],ipbin[k+1],ietas_[j-1],ietas_[j]);
+	h_etaB[k].push_back(new TH1D(name,title,100,0.,5.));
+	unsigned int kk = h_etaB[k].size()-1;
+	h_etaB[k][kk]->Sumw2();
+      }
       for (unsigned int j=0; j<dl1_.size(); ++j) {
 	sprintf (name, "%sdl1R%d%d", prefix_.c_str(), k, j);
 	if (j == 0) {
@@ -504,6 +524,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       kk = h_etaR[npbin-1].size()-1;
       h_etaR[npbin-1][kk]->Sumw2();
     }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      sprintf (name, "%setaB%d%d", prefix_.c_str(), kp, j);
+      sprintf (title,"E/p for %s (All momentum |#eta| %d:%d)",titl[4].c_str(),ietas_[j-1],ietas_[j]);
+      h_etaB[npbin-1].push_back(new TH1D(name,title,100,0.,5.));
+      unsigned int kk = h_etaB[npbin-1].size()-1;
+      h_etaB[npbin-1][kk]->Sumw2();
+    }
     for (unsigned int j=0; j<dl1_.size(); ++j) {
       sprintf (name, "%sdl1R%d%d", prefix_.c_str(), kp, j);
       if (j == 0) {
@@ -527,6 +554,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       h_etaF[kp50].push_back(new TH1D(name,title,100,0.,5.));
       unsigned int kk = h_etaF[kp50].size()-1;
       h_etaF[kp50][kk]->Sumw2();
+    }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      sprintf (name, "%setaB%d%d", prefix_.c_str(), kp50, j);
+      sprintf (title,"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",titl[4].c_str(),ipbin[kp50],ipbin[kp50+1],ietas_[j-1],ietas_[j]);
+      h_etaB[kp50].push_back(new TH1D(name,title,100,0.,5.));
+      unsigned int kk = h_etaB[kp50].size()-1;
+      h_etaB[kp50][kk]->Sumw2();
     }
   }
 }
@@ -625,7 +659,7 @@ void CalibMonitor::Loop() {
     }
 
     // if (Cut(ientry) < 0) continue;
-    int kp(-1), jp(-1);
+    int kp(-1), jp(-1), jp1(-1);
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     for (unsigned int k=1; k<ps_.size(); ++k ) {
       if (pmom >= ps_[k-1] && pmom < ps_[k]) {
@@ -651,9 +685,14 @@ void CalibMonitor::Loop() {
 	jp = j; break;
       }
     }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      if (std::abs(t_ieta) > ietas_[j-1] && std::abs(t_ieta) < ietas_[j]) {
+	jp1 = j-1; break;
+      }
+    }
     if (debug) std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" 
-			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp 
-			 << std::endl;
+			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
+			 << jp1 << std::endl;
     if (plotType_ <= 1) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
@@ -741,6 +780,7 @@ void CalibMonitor::Loop() {
 	    if (debug) std::cout << "kp " << kp << h_etaF[kp].size() << std::endl;
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
+	    if (jp1 >= 0) h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
 	  }
 	}
 	if (pmom > 20.0) {
@@ -753,6 +793,7 @@ void CalibMonitor::Loop() {
 	    h_dL1R[kp1][kd1]->Fill(rat,t_EventWeight);
 	    if (jp > 0) h_etaR[kp1][jp]->Fill(rat,t_EventWeight);
 	    h_etaR[kp1][0]->Fill(rat,t_EventWeight);
+	    if (jp1 >= 0) h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
 	  }
 	}
       }
@@ -779,24 +820,28 @@ void CalibMonitor::Loop() {
 				<< kounts[k-1] << std::endl;
 }
 
-bool CalibMonitor::GoodTrack(double& eHcal, double &cut, bool debug) {
+bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
 
   bool select(true);
   double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
+  double cut(cuti);
   if (debug) std::cout << "GoodTrack input " << eHcal << ":" << cut;
   if (flexibleSelect_ > 1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 8.0*exp(eta*log2by16_);
-    double a1(-0.35), a2(-0.65);
-    if (std::abs(t_ieta) == 25) {
-      a2 = -0.30;
-    } else if (std::abs(t_ieta) > 25) {
-      a1 = -0.45; a2 = -0.10;
-    }
+    cut        = 8.0*exp(eta*log2by18_);
+  }
+  if (corrPU_ && pmom > 0) {
     double ediff = (t_eHcal30-t_eHcal10);
-    double fac   = (pmom > 0) ? (1.0 + a1*(t_eHcal/pmom)*(ediff/pmom)*
-				 (1+a2*(ediff/pmom))) : 1.0;
-    eHcal *= fac;
+    if (ediff >  0.02*pmom) {
+      double a1(-0.35), a2(-0.65);
+      if (std::abs(t_ieta) == 25) {
+	a2 = -0.30;
+      } else if (std::abs(t_ieta) > 25) {
+	a1 = -0.45; a2 = -0.10;
+      }
+      double fac = (1.0+a1*(t_eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+      eHcal *= fac;
+    }
   }
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
 	    (t_eMipDR < 1.0));
@@ -913,7 +958,7 @@ bool CalibMonitor::ReadCorrFactor(std::string &fname) {
 	  int   ieta  = std::atoi (items[1].c_str());
 	  int   depth = std::atoi (items[2].c_str());
 	  float corrf = std::atof (items[3].c_str());
-	  cfactors_[std::pair<int,int>(ieta,depth)] = corrf;
+	  cfactors_[std::pair<int,int>(ieta,depth)] = scale_*corrf;
 	}
       }
       fInput.close();
@@ -999,6 +1044,12 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
 	}
       }
     }
+    for (unsigned int j=0; j<ietas_.size(); ++j) {
+      if (h_etaB[k].size() > j && h_etaB[k][j] != 0) {
+	TH1D* hist = (TH1D*)h_etaB[k][j]->Clone();
+	hist->Write();
+      }
+    }
     if (all && (plotType_ <= 1) && ((k+1) < ps_.size())) {
       if (h_eta0[k] != 0) {TH1D* h1 = (TH1D*)h_eta0[k]->Clone(); h1->Write();}
       if (h_eta1[k] != 0) {TH1D* h2 = (TH1D*)h_eta1[k]->Clone(); h2->Write();}
@@ -1022,6 +1073,8 @@ public :
   Int_t                      t_Tracks;
   Int_t                      t_TracksProp;
   Int_t                      t_TracksSaved;
+  Bool_t                     t_TrigPass;
+  Bool_t                     t_TrigPassSel;
   std::vector<int>          *t_ietaAll;
   std::vector<int>          *t_ietaGood;
 
@@ -1029,6 +1082,8 @@ public :
   TBranch                   *b_t_Tracks;        //!
   TBranch                   *b_t_TracksProp;    //!
   TBranch                   *b_t_TracksSaved;   //!
+  TBranch                   *b_t_TrigPass;      //!
+  TBranch                   *b_t_TrigPassSel;   //!
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
@@ -1093,6 +1148,9 @@ void GetEntries::Init(TTree *tree) {
   // (once per file to be processed).
 
   // Set branch addresses and branch pointers
+  // Set object pointer
+  t_ietaAll      = 0;
+  t_ietaGood     = 0;
   if (!tree) return;
   fChain = tree;
   fCurrent = -1;
@@ -1100,6 +1158,8 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_Tracks",      &t_Tracks,      &b_t_Tracks);
   fChain->SetBranchAddress("t_TracksProp",  &t_TracksProp,  &b_t_TracksProp);
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
+  fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
+  fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
   if (!ifOld_) {
     fChain->SetBranchAddress("t_ietaAll",     &t_ietaAll,     &b_t_ietaAll);
     fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
@@ -1165,8 +1225,8 @@ void GetEntries::Loop() {
   if (fChain == 0) return;
 
   Long64_t nentries = fChain->GetEntriesFast();
-  
   Long64_t nbytes = 0, nb = 0;
+  int      kount(0), selected(0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -1175,6 +1235,10 @@ void GetEntries::Loop() {
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
+    if (t_TrigPass) { 
+      ++kount;
+      if (t_TrigPassSel) ++selected;
+    }
     if (!ifOld_) {
       for (unsigned int k=0; k<t_ietaAll->size(); ++k)
 	h_eta[0]->Fill((*t_ietaAll)[k]);
@@ -1187,7 +1251,7 @@ void GetEntries::Loop() {
     for (int i=1; i<=h_eff->GetNbinsX(); ++i) {
       double rat(0), drat(0);
       if (h_eta[0]->GetBinContent(i) > ymaxk) ymaxk = h_eta[0]->GetBinContent(i);
-      if (h_eta[1]->GetBinContent(i) > 0) {
+      if ((h_eta[1]->GetBinContent(i) > 0)&&(h_eta[0]->GetBinContent(i) > 0)) {
 	rat = h_eta[1]->GetBinContent(i)/h_eta[0]->GetBinContent(i);
 	drat= rat*std::sqrt(pow((h_eta[1]->GetBinError(i)/h_eta[1]->GetBinContent(i)),2) +
 			    pow((h_eta[0]->GetBinError(i)/h_eta[0]->GetBinContent(i)),2));
@@ -1196,6 +1260,8 @@ void GetEntries::Loop() {
       h_eff->SetBinError(i,drat);
     }
   }
+  std::cout << "===== " << kount << " events passed trigger of which " 
+	    << selected << " events get selected =====\n" << std::endl;
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(1110);       gStyle->SetOptTitle(0);
@@ -1206,7 +1272,7 @@ void GetEntries::Loop() {
   pad1->SetTopMargin(0.10);
   pad1->SetFillColor(kWhite);
   std::string titl1[3] = {"Reconstructed", "Propagated", "Saved"};
-  TLegend  *legend1 = new TLegend(0.55, 0.54, 0.90, 0.63);
+  TLegend  *legend1 = new TLegend(0.11, 0.80, 0.50, 0.89);
   legend1->SetFillColor(kWhite);
   double ymax(0), xmax(0);
   for (int k=0; k<3; ++k) {
@@ -1267,7 +1333,7 @@ void GetEntries::Loop() {
     pad2->SetFillColor(kWhite);
     pad2->SetLogy();
     std::string titl2[2] = {"All Tracks", "Selected Tracks"};
-    TLegend  *legend2 = new TLegend(0.55, 0.28, 0.90, 0.35);
+    TLegend  *legend2 = new TLegend(0.11, 0.82, 0.50, 0.89);
     legend2->SetFillColor(kWhite);
     i2    = (int)(0.001*ymaxk) + 1;
     ymax  = 1000.0*i2;
@@ -1285,15 +1351,16 @@ void GetEntries::Loop() {
       else        h_eta[k]->Draw("hist sames");
     }
     pad2->Update();
-    double ymin = 0.10;
+    ymax = 0.90;
+//  double ymin = 0.10;
     for (int k=0; k<2; ++k) {
       TPaveStats* st1 = (TPaveStats*)h_eta[k]->GetListOfFunctions()->FindObject("stats");
       if (st1 != NULL) {
 	st1->SetLineColor(color[k]);
 	st1->SetTextColor(color[k]);
-	st1->SetY1NDC(ymin); st1->SetY2NDC(ymin+0.09);
+	st1->SetY1NDC(ymax-0.09); st1->SetY2NDC(ymax);
 	st1->SetX1NDC(0.55); st1->SetX2NDC(0.90);
-	ymin += 0.09;
+	ymax -= 0.09;
       }
     }
     pad2->Modified();

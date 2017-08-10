@@ -61,8 +61,7 @@ namespace FSQ {
 class BaseHandler {
     public:
         BaseHandler();
-        ~BaseHandler(){
-        }
+        virtual ~BaseHandler()  = default;
         BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
               m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
          {
@@ -70,9 +69,9 @@ class BaseHandler {
               std::vector<std::string> strs;
               std::string triggerSelection = iConfig.getParameter<std::string>("triggerSelection");
               boost::split(strs, triggerSelection, boost::is_any_of("\t ,`!@#$%^&*()~/\\"));
-              for (size_t iToken = 0; iToken < strs.size();++iToken ){
-                    if (strs.at(iToken).find("HLT_")==0){
-                        m_usedPaths.insert(strs.at(iToken));
+              for (auto & str : strs){
+                    if (str.find("HLT_")==0){
+                        m_usedPaths.insert(str);
                     }
               }
 
@@ -148,12 +147,12 @@ class HandlerTemplate: public BaseHandler {
              m_singleObjectDrawables = iConfig.getParameter<  std::vector< edm::ParameterSet > >("singleObjectDrawables");
              m_isSetup = false;
         }
-
-        void book(DQMStore::IBooker & booker){
+        ~HandlerTemplate() override = default;
+        void book(DQMStore::IBooker & booker) override{
             if(!m_isSetup){
                 booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
-                std::vector< std::vector< edm::ParameterSet > * > todo(2, (std::vector< edm::ParameterSet > * )0);
+                std::vector< std::vector< edm::ParameterSet > * > todo(2, (std::vector< edm::ParameterSet > * )nullptr);
                 todo[CombinedObjectPlotter]=&m_combinedObjectDrawables;
                 todo[SingleObjectPlotter]=&m_singleObjectDrawables;
                 for (size_t ti =0; ti<todo.size();++ti){
@@ -166,11 +165,11 @@ class HandlerTemplate: public BaseHandler {
                         m_histos[histoName] =  booker.book1D(histoName, histoName, bins, rangeLow, rangeHigh);
                         m_plotterType[histoName] = ti;
                         if (ti == CombinedObjectPlotter){
-                            StringObjectFunction<std::vector<TOutputCandidateType> > * func 
+                            auto * func 
                                     = new StringObjectFunction<std::vector<TOutputCandidateType> >(expression);
                             m_plottersCombinedObject[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > >(func);
                         } else {
-                            StringObjectFunction< TInputCandidateType>  * func 
+                            auto  * func 
                                     = new StringObjectFunction< TInputCandidateType> (expression);
                             m_plottersSingleObject[histoName] =  std::shared_ptr<StringObjectFunction<TInputCandidateType> > (func);
                         }
@@ -178,7 +177,7 @@ class HandlerTemplate: public BaseHandler {
                 }
             }
         }
-        void getAndStoreTokens(edm::ConsumesCollector && iC){
+        void getAndStoreTokens(edm::ConsumesCollector && iC) override{
                 edm::EDGetTokenT<std::vector<TInputCandidateType>  > tok =  iC.consumes<std::vector<TInputCandidateType> > (m_input);
                 m_tokens[m_input.encode()] = edm::EDGetToken(tok);
         }
@@ -266,11 +265,11 @@ class HandlerTemplate: public BaseHandler {
                 //pathIndex = i;
                 ++numPathMatches;
                 std::vector<std::string > moduleLabels = hltConfig.moduleLabels(i);
-                for (size_t iMod = 0; iMod <moduleLabels.size(); ++iMod){
-                    if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
-                        filtersForThisPath.push_back(moduleLabels.at(iMod));
-                        if ( moduleLabels.at(iMod).find(m_filterPartialName)!= std::string::npos  ){
-                            filterFullName = moduleLabels.at(iMod);
+                for (auto & moduleLabel : moduleLabels){
+                    if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabel)) {
+                        filtersForThisPath.push_back(moduleLabel);
+                        if ( moduleLabel.find(m_filterPartialName)!= std::string::npos  ){
+                            filterFullName = moduleLabel;
                             ++numFilterMatches;
                         }
                     }
@@ -299,11 +298,11 @@ class HandlerTemplate: public BaseHandler {
                      const trigger::TriggerEvent& trgEvent,
                      const edm::TriggerResults & triggerResults, 
                      const edm::TriggerNames  & triggerNames,
-                     float weight)
+                     float weight) override
         {
             size_t found = 0;
             for (size_t i = 0; i<triggerNames.size(); ++i){
-                std::set<std::string>::iterator itUsedPaths = m_usedPaths.begin();
+                auto itUsedPaths = m_usedPaths.begin();
                 for(; itUsedPaths != m_usedPaths.end(); ++itUsedPaths){ 
                     if (triggerNames.triggerName(i).find(*itUsedPaths)!= std::string::npos ){
                         ++found;
@@ -336,7 +335,7 @@ class HandlerTemplate: public BaseHandler {
             if (!triggerResults.accept(indexNum)) return;*/
 
             std::vector<TOutputCandidateType> cands;
-            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
+            getFilteredCands((TInputCandidateType *)nullptr, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
 
             if (cands.size()==0) return;
 
@@ -451,11 +450,11 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+   for (auto const & i : *hIn) {
+        bool preselection = m_singleObjectSelection(i.p4());
         if (preselection){
-            fillSingleObjectPlots(hIn->at(i).p4(), weight);
-            cands.push_back(hIn->at(i).p4());
+            fillSingleObjectPlots(i.p4(), weight);
+            cands.push_back(i.p4());
         }
    }
 }
@@ -562,13 +561,13 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
       return;
    }
 
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        if (!m_singleObjectSelection(hIn->at(i))) continue;
+   for (auto const & i : *hIn) {
+        if (!m_singleObjectSelection(i)) continue;
         dxy=0.0, dz=0.0, dxysigma=0.0, dzsigma=0.0;
-        dxy = -1.*hIn->at(i).dxy(vtxPoint);
-        dz = hIn->at(i).dz(vtxPoint);
-        dxysigma = sqrt(hIn->at(i).dxyError()*hIn->at(i).dxyError()+vxErr*vyErr);
-        dzsigma = sqrt(hIn->at(i).dzError()*hIn->at(i).dzError()+vzErr*vzErr);
+        dxy = -1.*i.dxy(vtxPoint);
+        dz = i.dz(vtxPoint);
+        dxysigma = sqrt(i.dxyError()*i.dxyError()+vxErr*vyErr);
+        dzsigma = sqrt(i.dzError()*i.dzError()+vzErr*vzErr);
         
         if(fabs(dz)>lMaxDZ)continue; // TODO...
         if(fabs(dz/dzsigma)>lMaxDZ2dzsigma)continue;
@@ -618,10 +617,10 @@ void HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC>::getFilteredCands(
       return;  
     }
 
-    for (size_t i = 0; i<hIn->size(); ++i) {
-         double scale = pfcorrector->correction(hIn->at(i));
-         reco::PFJet newPFJet(scale*hIn->at(i).p4(), hIn->at(i).vertex(), 
-                              hIn->at(i).getSpecific(),  hIn->at(i).getJetConstituents());
+    for (auto const & i : *hIn) {
+         double scale = pfcorrector->correction(i);
+         reco::PFJet newPFJet(scale*i.p4(), i.vertex(), 
+                              i.getSpecific(),  i.getJetConstituents());
          
          bool preselection = m_singleObjectSelection(newPFJet);
          if (preselection){
@@ -662,10 +661,10 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+   for (auto const & i : *hIn) {
+        bool preselection = m_singleObjectSelection(i.p4());
         if (preselection){
-            fillSingleObjectPlots(hIn->at(i).p4(), weight);
+            fillSingleObjectPlots(i.p4(), weight);
             cands.at(0)+=1;
         }
    }
@@ -693,7 +692,7 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 
     // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
     //      objects are saved in cands variable
-    std::string process = trgEvent.usedProcessName(); // broken?
+    const std::string& process = trgEvent.usedProcessName(); // broken?
     edm::InputTag hltTag(filterFullName ,"", process);
     
     const int hltIndex = trgEvent.filterIndex(hltTag);
@@ -705,7 +704,7 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
     const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
     const trigger::Keys & khlt = trgEvent.filterKeys(hltIndex);
 
-    trigger::Keys::const_iterator kj = khlt.begin();
+    auto kj = khlt.begin();
 
     for(;kj != khlt.end(); ++kj){
         bool preselection = m_singleObjectSelection(toc[*kj]);
@@ -752,58 +751,56 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
 
   std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
-  for (size_t i = 0; i < todo.size(); ++i) {
-        edm::ParameterSet pset = todo.at(i);
+  for (auto pset : todo) {
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
-            m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::HLTHandler>(pset, m_eventCache));
         }
         else if (type == "RecoCandidateCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateCounter>(new FSQ::RecoCandidateCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoCandidateCounter>(pset, m_eventCache));
         }
         else if (type == "RecoTrackCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounter>(new FSQ::RecoTrackCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackCounter>(pset, m_eventCache));
         }
         else if (type == "RecoTrackCounterWithVertexConstraint") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounterWithVertexConstraint>
-                    (new FSQ::RecoTrackCounterWithVertexConstraint(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackCounterWithVertexConstraint>
+                    (pset, m_eventCache));
         }
         else if (type == "FromRecoCandidate") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoCandidateHandler>(pset, m_eventCache));
         }
         else if (type == "RecoPFJet") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPFJetHandler>(pset, m_eventCache));
         }
         else if (type == "RecoPFJetWithJEC") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetWithJECHandler>(new FSQ::RecoPFJetWithJECHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPFJetWithJECHandler>(pset, m_eventCache));
         }
         else if (type == "RecoTrack") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoPhoton") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPhotonHandler>(new FSQ::RecoPhotonHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPhotonHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoMuon") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoMuonHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoGenParticleCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleCounter>(new FSQ::RecoGenParticleCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoGenParticleCounter>(pset, m_eventCache));
         }
         else if (type == "RecoGenParticleHandler") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleHandler>(new FSQ::RecoGenParticleHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoGenParticleHandler>(pset, m_eventCache));
         } 
         else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
   }
-  for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->getAndStoreTokens(consumesCollector());
+  for (auto & m_handler : m_handlers) {
+        m_handler->getAndStoreTokens(consumesCollector());
   }
 
 }
 
-FSQDiJetAve::~FSQDiJetAve()
-{}
+FSQDiJetAve::~FSQDiJetAve() = default;
 
 void
 FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -848,8 +845,8 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     weight = hGW->weight();
   }
 
-  for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
+  for (auto & m_handler : m_handlers) {
+        m_handler->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
   }
 
 }
@@ -866,8 +863,8 @@ FSQDiJetAve::dqmBeginRun(edm::Run const& run, edm::EventSetup const& c)
 
 }
 void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & c){
-    for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->book(booker);
+    for (auto & m_handler : m_handlers) {
+        m_handler->book(booker);
     }
 }
 //*/

@@ -54,6 +54,7 @@ triggerOfflineDQMSource.remove(higgsMonitorHLT)
 triggerOfflineDQMSource.remove(smpMonitorHLT)
 triggerOfflineDQMSource.remove(topMonitorHLT)
 triggerOfflineDQMSource.remove(btagMonitorHLT)
+triggerOfflineDQMSource.remove(egammaMonitorHLT)
 
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
@@ -85,10 +86,10 @@ hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
 hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 
 
-globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+globalAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 pvMonitor.vertexLabel = cms.InputTag("hiSelectedVertex")
 

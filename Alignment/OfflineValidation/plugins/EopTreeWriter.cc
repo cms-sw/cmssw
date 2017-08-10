@@ -46,7 +46,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

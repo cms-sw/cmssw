@@ -27,7 +27,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
@@ -172,7 +172,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     float occupancy = 1.0;
     if (nRows*nColumns > 0) occupancy = nDigi*1.0/(nRows*nColumns);
     if (geomDet) {
-      GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(0.0,0.0))) ;
+      GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(nRows/2.0,nColumns/2.0))) ;
       XYOccupancyMap->Fill(gp.x()*10., gp.y()*10, occupancy);
       RZOccupancyMap->Fill(gp.z()*10., std::hypot(gp.x(),gp.y())*10., occupancy);  
       local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
@@ -180,7 +180,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     local_mes.DigiOccupancyP->Fill(occupancy);
   }
   // Fill histograms after loop over digis are complete
-  for (auto & ilayer : layerMEs) {
+  for ( auto& ilayer : layerMEs) {
     DigiMEs& local_mes = ilayer.second;
     local_mes.TotalNumberOfDigisPerLayer->Fill(local_mes.nDigiPerLayer);
     local_mes.NumberOfHitDetectorsPerLayer->Fill(local_mes.nHitDetsPerLayer);
@@ -284,7 +284,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     }
   }
   // Fill histograms after loop over digis are complete
-  for (auto & ilayer : layerMEs) {
+  for (auto& ilayer : layerMEs) {
     DigiMEs& local_mes = ilayer.second;
     local_mes.TotalNumberOfDigisPerLayer->Fill(local_mes.nDigiPerLayer);
     local_mes.NumberOfHitDetectorsPerLayer->Fill(local_mes.nHitDetsPerLayer);
@@ -339,7 +339,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 					 ParametersOcc.getParameter<double>("xmax"));
 
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
-  std::cout << " booking RZ Position " << " R = " << Parameters.getParameter<double>("ymax") << " Z " << Parameters.getParameter<double>("xmin") << " " << Parameters.getParameter<double>("xmax") << std::endl;
   RZPositionMap = ibooker.book2D("DigiRPosVsZPos","DigiRPosVsZPos",
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
@@ -401,6 +400,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
     local_mes.nHitDetsPerLayer = 0;
 
     edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
+    edm::ParameterSet EtaParameters =  config_.getParameter<edm::ParameterSet>("EtaH");
     HistoName.str("");
     HistoName << "NumberOfDigisPerDet_" << fname2.str();
     local_mes.NumberOfDigisPerDet = ibooker.book1D(HistoName.str(), HistoName.str(),
@@ -417,8 +417,9 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "DigiOccupancyVsEtaP_" << fname2.str();
-    local_mes.EtaOccupancyProfP = ibooker.bookProfile(HistoName.str(), HistoName.str(),
-            45,-4.5,4.5,Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
+    local_mes.EtaOccupancyProfP = ibooker.bookProfile(HistoName.str(), HistoName.str(), 
+	  EtaParameters.getParameter<int32_t>("Nbins"),EtaParameters.getParameter<double>("xmin"),EtaParameters.getParameter<double>("xmax"),
+          Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
 
     Parameters =  config_.getParameter<edm::ParameterSet>("PositionOfDigisH");
     HistoName.str("");
@@ -484,7 +485,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
       HistoName.str("");
       HistoName << "DigiOccupancyVsEtaS_" << fname2.str();
       local_mes.EtaOccupancyProfS = ibooker.bookProfile(HistoName.str(), HistoName.str(),
-	    45,-4.5,4.5,Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
+        EtaParameters.getParameter<int32_t>("Nbins"),EtaParameters.getParameter<double>("xmin"),EtaParameters.getParameter<double>("xmax"),
+           Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
 
       HistoName.str("");
       HistoName << "FractionOfOverThresholdDigis_" << fname2.str();
@@ -493,9 +495,9 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
       edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
       HistoName.str("");
       HistoName << "FractionOfOverThresholdDigisVaEta_" << fname2.str();
-      local_mes.FractionOfOvTBitsVsEta= ibooker.bookProfile(HistoName.str(), HistoName.str(), 45, -4.5, 4.5, 
-							 Parameters.getParameter<double>("xmin"),
-							 Parameters.getParameter<double>("xmax"),"");
+      local_mes.FractionOfOvTBitsVsEta= ibooker.bookProfile(HistoName.str(), HistoName.str(), 	
+							    EtaParameters.getParameter<int32_t>("Nbins"),EtaParameters.getParameter<double>("xmin"),EtaParameters.getParameter<double>("xmax"),
+             Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
     } else {
 
       Parameters =  config_.getParameter<edm::ParameterSet>("DigiChargeH");

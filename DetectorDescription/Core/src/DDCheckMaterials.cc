@@ -3,7 +3,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -105,7 +105,7 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
 	DDMaterial tmat(i.first); 
 
 	if (DDCheckMaterial(tmat,error)) {
-	   errors.push_back(error);
+	   errors.emplace_back(error);
 	}	      
    }
 

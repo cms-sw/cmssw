@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   name = "rechits",
   title = "RecHits",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "rechits",
   dimensions = 0,
   specs = VPSet(
@@ -17,10 +18,10 @@ SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1RecHitsClustX = DefaultHistoTrack.clone(
-  name = "rechitsize_x",
-  title = "X size of RecHit clusters",
-  range_min = 0, range_max = 10, range_nbins = 10,
-  xlabel = "RecHit X-Size",
+  name = "clustersize_x",
+  title = "Cluster Size X (OnTrack)",
+  range_min = 0, range_max = 50, range_nbins = 50,
+  xlabel = "size[pixels]",
   dimensions = 1,
   specs = VPSet(
     StandardSpecification2DProfile
@@ -28,9 +29,9 @@ SiPixelPhase1RecHitsClustX = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1RecHitsClustY = SiPixelPhase1RecHitsClustX.clone(
-  name = "rechitsize_y",
-  title = "Y size of RecHit clusters",
-  xlabel = "RecHit Y-Size"
+  name = "clustersize_y",
+  title = "Cluster Size Y (OnTrack)",
+  xlabel = "size[pixels]"
 )
 
 SiPixelPhase1RecHitsErrorX = DefaultHistoTrack.clone(
@@ -74,7 +75,23 @@ SiPixelPhase1RecHitsProb = DefaultHistoTrack.clone(
   range_min = -10, range_max = 1, range_nbins = 50,
   dimensions = 1,
   specs = VPSet(
-    StandardSpecifications1D
+
+        Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+        Specification().groupBy("PXForward/PXDisk").saveAll(),
+        StandardSpecification2DProfile,
+    
+        Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                       .reduce("MEAN")
+                       .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                       .save(),
+
+        Specification().groupBy("PXForward/PXDisk/Lumisection")
+                       .reduce("MEAN")
+                       .groupBy("PXForward/PXDisk", "EXTEND_X")
+                       .save(),
+
+        Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+        Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
   )
 )
 
@@ -97,7 +114,7 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
 
 )
 
-SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )

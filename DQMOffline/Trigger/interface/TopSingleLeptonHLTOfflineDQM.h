@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -50,12 +51,12 @@ namespace HLTOfflineDQMTopSingleLepton {
       /// default contructor
       MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
       /// default destructor
-      ~MonitorSingleLepton(){};
+      ~MonitorSingleLepton()= default;;
 
       /// book histograms in subdirectory _directory_
       void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
-      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
+      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths);
 
     private:
       /// deduce monitorPath from label, the label is expected
@@ -66,18 +67,18 @@ namespace HLTOfflineDQMTopSingleLepton {
       std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
 
       /// set configurable labels for trigger monitoring histograms
-      void triggerBinLabels(std::string channel, const std::vector<std::string>& labels);
+      void triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels);
       /// fill trigger monitoring histograms
-      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const;
+      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const;
 
       /// check if histogram was booked
-      bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+      bool booked(const std::string& histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
       /// fill histogram if it had been booked before
-      void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+      void fill(const std::string& histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
+      void fill(const std::string& histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
+      void fill(const std::string& histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
     private:
       std::string folder_;
@@ -117,24 +118,24 @@ namespace HLTOfflineDQMTopSingleLepton {
       /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
       int eidPattern_;
       /// extra isolation criterion on electron
-      StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+      std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecIso_;
       /// extra selection on electrons
-      StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecSelect_;
 
       /// extra selection on primary vertices; meant to investigate the pile-up effect
-      StringCutObjectSelector<reco::Vertex>* pvSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::Vertex>> pvSelect_;
 
       /// extra isolation criterion on muon
-      StringCutObjectSelector<reco::Muon>* muonIso_;
+      std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonIso_;
       /// extra selection on muons
-      StringCutObjectSelector<reco::Muon>* muonSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonSelect_;
 
       /// jetCorrector
       std::string jetCorrector_;
       /// jetID as an extra selection type 
       edm::EDGetTokenT< reco::JetIDValueMap > jetIDLabel_;
       /// extra jetID selection on calo jets
-      StringCutObjectSelector<reco::JetID>* jetIDSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::JetID>> jetIDSelect_;
       /// extra selection on jets (here given as std::string as it depends
       /// on the the jet type, which selections are valid and which not)
       std::string jetSelect_;
@@ -166,7 +167,7 @@ namespace HLTOfflineDQMTopSingleLepton {
   };
 
   inline void 
-    MonitorSingleLepton::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
+    MonitorSingleLepton::triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels)
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
@@ -174,7 +175,7 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
   inline void 
-    MonitorSingleLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
@@ -231,15 +232,10 @@ class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
-    /// default destructor
-    ~TopSingleLeptonHLTOfflineDQM(){
-      if( vertexSelect_ ) delete vertexSelect_;
-      if( beamspotSelect_ ) delete beamspotSelect_;
-    };
 
     /// do this during the event loop
-    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
     void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:
@@ -258,12 +254,12 @@ class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     /// primary vertex 
     edm::EDGetTokenT< std::vector<reco::Vertex> > vertex_;
     /// string cut selector
-    StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::Vertex>> vertexSelect_;
 
     /// beamspot 
     edm::EDGetTokenT< reco::BeamSpot > beamspot_;
     /// string cut selector
-    StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::BeamSpot>> beamspotSelect_;
 
     HLTConfigProvider hltConfig_;
 
@@ -277,9 +273,9 @@ class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     /// the configuration of the selection for the SelectionStep class, 
     /// MonitoringEnsemble keeps an instance of the MonitorSingleLepton class to 
     /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, HLTOfflineDQMTopSingleLepton::MonitorSingleLepton*> > selection_; 
+    std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<HLTOfflineDQMTopSingleLepton::MonitorSingleLepton>> > selection_; 
 
-    std::map<std::string, SelectionStepHLTBase*> selectmap_;
+    std::map<std::string, std::unique_ptr<SelectionStepHLTBase>> selectmap_;
 };
 
 #endif

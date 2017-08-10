@@ -57,13 +57,20 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
                                       0x000001FF,
                                       0x00000000),
     # mask for outputs (pt==0 defines empty muon)
-    maskCapId2 = cms.untracked.vint32(0x0003FC00,
+    maskCapId2 = cms.untracked.vint32(0x0007FC00,
                                       0x00000000,
-                                      0x0003FC00,
+                                      0x0007FC00,
                                       0x00000000,
-                                      0x0003FC00,
+                                      0x0007FC00,
                                       0x00000000),
-    # no masks defined for caption IDs 0 and 3-11
+    # mask for validation event outputs (pt==0 defines empty muon)
+    maskCapId3 = cms.untracked.vint32(0x0007FC00,
+                                      0x00000000,
+                                      0x0007FC00,
+                                      0x00000000,
+                                      0x0007FC00,
+                                      0x00000000),
+    # no masks defined for caption IDs 0 and 4-11
     maxFEDReadoutSize = cms.untracked.int32(9000),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts"),
     verbose = cms.untracked.bool(False),
@@ -72,6 +79,9 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
 # ZS of validation events (to be used after fat event filter)
 l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
 l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
+
+# List of bins to ignore
+ignoreBins = [1]
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
 # only muons that do not match are filled in the histograms
@@ -83,6 +93,7 @@ l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
     regionalMuonCollection1Title = cms.untracked.string("BMTF output data"),
     regionalMuonCollection2Title = cms.untracked.string("uGMT input data from BMTF"),
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF output muons and uGMT input muons from BMTF"),
+    ignoreBin = cms.untracked.vint32(ignoreBins),
     verbose = cms.untracked.bool(False),
 )
 

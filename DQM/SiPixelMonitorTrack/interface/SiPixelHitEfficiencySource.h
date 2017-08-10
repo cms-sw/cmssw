@@ -39,7 +39,9 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
   public:

@@ -11,7 +11,7 @@ class HLTrigReport;
 class HLTrigReportService {
 
  public:
-
+  virtual ~HLTrigReportService() = default;
   virtual void registerModule(const HLTrigReport *)=0;
 
   virtual void setDatasetNames(const std::vector<std::string>&)=0 ;

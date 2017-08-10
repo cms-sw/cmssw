@@ -40,7 +40,7 @@ class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResourc
 public:
 
   explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
-  ~CaloGeometryAnalyzer();
+  ~CaloGeometryAnalyzer() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -244,18 +244,17 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		   << " items in Base but not in Overload"
 		   << std::endl ;
 
-	 for( DetSet::const_iterator iS ( inBaseNotOver.begin() ) ;
-	      iS != inBaseNotOver.end() ; ++iS )
+	 for(const auto & iS : inBaseNotOver)
 	 {
 	    std::cout<<"getCells Test dR="
 		     <<dR
 		     << ", gp=" << gp 
 		     << ": cell in base but not overload = " ;
-	    if( iS->det() == DetId::Ecal &&
-		iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
-	    if( iS->det() == DetId::Ecal &&
-		iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
-	    if( iS->det() == DetId::Hcal ) std::cout << HcalDetId( *iS ) ;
+	    if( iS.det() == DetId::Ecal &&
+		iS.subdetId() == EcalBarrel ) std::cout << EBDetId( iS ) ;
+	    if( iS.det() == DetId::Ecal &&
+		iS.subdetId() == EcalEndcap ) std::cout << EEDetId( iS ) ;
+	    if( iS.det() == DetId::Hcal ) std::cout << HcalDetId( iS ) ;
 	    std::cout<< std::endl ;
 	 }
       }
@@ -283,18 +282,17 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		   << " items in Overload but not in Base"
 		   << std::endl ;
 
-	 for( DetSet::const_iterator iS ( inOverNotBase.begin() ) ;
-	      iS != inOverNotBase.end() ; ++iS )
+	 for(const auto & iS : inOverNotBase)
 	 {
 	    std::cout<<"getCells Test dR="
 		     <<dR
 		     << ", gp=" << gp 
 		     << ": cell in overload but not base = " ;
-	    if( iS->det() == DetId::Ecal &&
-		iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
-	    if( iS->det() == DetId::Ecal &&
-		iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
-	    if( iS->det() == DetId::Hcal ) std::cout << HcalDetId( *iS ) ;
+	    if( iS.det() == DetId::Ecal &&
+		iS.subdetId() == EcalBarrel ) std::cout << EBDetId( iS ) ;
+	    if( iS.det() == DetId::Ecal &&
+		iS.subdetId() == EcalEndcap ) std::cout << EEDetId( iS ) ;
+	    if( iS.det() == DetId::Hcal ) std::cout << HcalDetId( iS ) ;
 	    std::cout << std::endl ;
 	 }
       }
@@ -621,14 +619,14 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
     }
     assert( ids == ids2 ) ;
 
-    for( std::vector<DetId>::const_iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
+    for(const auto & i : ids) 
     {
 	++n;
-	const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
+	const CaloCellGeometry* cell ( geom->getGeometry(i) ) ;
 
-	assert( cg.present( *i ) ) ;
+	assert( cg.present( i ) ) ;
 
-	ctrcor( *i,
+	ctrcor( i,
 		*cell,
 		fCtr,
 		fCor,
@@ -636,9 +634,9 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
 		oldCor,
 		histi ) ;
 
-	const DetId      id ( *i ) ;
+	const DetId      id ( i ) ;
 
-	const HcalDetId hcId ( *i ) ;
+	const HcalDetId hcId ( i ) ;
 
 	const GlobalPoint pos ( cell->getPosition() ) ; 
 	const double posmag ( pos.mag() ) ;
@@ -678,7 +676,7 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
 
 	assert( i1 == i2 ) ;
 
-	f << "  // " << HcalDetId(*i) << std::endl;
+	f << "  // " << HcalDetId(i) << std::endl;
 	    
 	const GlobalPoint gp ( cell->getPosition() ) ;
 	f << "  // Checking getClosestCell for position " 
@@ -688,12 +686,12 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
 	const HcalDetId closestCell ( geom->getClosestCell( gp ) ) ;
 
 	f << "  // Return position is " << closestCell << std::endl;
-	if( closestCell != HcalDetId(*i) )
+	if( closestCell != HcalDetId(i) )
 	{
 	    const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
 					    geom->getGeometry( closestCell )->getPosition().eta(),
 					    geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 
-	    if( rr> 1.e-5 ) std::cout<<"For "<<HcalDetId(*i)<<" closest is "<<closestCell
+	    if( rr> 1.e-5 ) std::cout<<"For "<<HcalDetId(i)<<" closest is "<<closestCell
 				     << " HCAL dR=" << rr <<std::endl ;
 	}
 	// test getCells against base class version every so often
@@ -772,14 +770,14 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    assert( ids == ids2 ) ;
 
-   for( std::vector<DetId>::const_iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
+   for(const auto & i : ids) 
    {
       ++n;
-      const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
+      const CaloCellGeometry* cell ( geom->getGeometry(i) ) ;
 
-      assert( cg.present( *i ) ) ;
+      assert( cg.present( i ) ) ;
 
-      ctrcor( *i,
+      ctrcor( i,
 	      *cell,
 	      fCtr,
 	      fCor,
@@ -787,7 +785,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	      oldCor,
 	      histi ) ;
 
-      const DetId      id ( *i ) ;
+      const DetId      id ( i ) ;
 
       const CaloGenericDetId cid ( id ) ;
 
@@ -845,7 +843,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       {
 	 if (subdetn == EcalBarrel )
 	 {
-	    f << "  // " << EBDetId(*i) << std::endl;
+	    f << "  // " << EBDetId(i) << std::endl;
 	    
 	    const GlobalPoint gp ( dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) ) ;
 
@@ -864,7 +862,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    EBDetId closestCell ( geom->getClosestCell( gp ) ) ;
 
 	    f << "  // Return position is " << closestCell << std::endl;
-	    assert( closestCell == EBDetId(*i) );
+	    assert( closestCell == EBDetId(i) );
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%100 )
 	    {
@@ -874,7 +872,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	       cmpset( geom, gp, 45*deg ) ;
 	    }
 
-	    ovrTst( cg, geom, EBDetId(*i) , fOvr ) ;
+	    ovrTst( cg, geom, EBDetId(i) , fOvr ) ;
 
 	    const unsigned int i1 ( EcalBarrelGeometry::alignmentTransformIndexLocal( ebid ) ) ;
 
@@ -886,7 +884,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 }
 	 if (subdetn == EcalEndcap)
 	 {
-	    const EEDetId did ( *i ) ;
+	    const EEDetId did ( i ) ;
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
@@ -984,11 +982,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    assert( ccMM == didMM ||
 		    !geom->getGeometry(didMM)->inside( pointMM ) ) ;
 
-	    ovrTst( cg, geom, EEDetId(*i) , fOvr ) ;
+	    ovrTst( cg, geom, EEDetId(i) , fOvr ) ;
 	 }
 	 if (subdetn == EcalPreshower) 
 	 {
-	    const ESDetId esid ( *i ) ;
+	    const ESDetId esid ( i ) ;
 
 	    f << "  // " << esid << std::endl;
 	    f << "  // Checking getClosestCell for position " << cell->getPosition() << " in plane " << esid.plane() << std::endl;
@@ -1013,7 +1011,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       }
       else if (det == DetId::Hcal)
       {
-	 const HcalDetId hcId ( *i ) ;
+	 const HcalDetId hcId ( i ) ;
 
 	 const unsigned int i1 ( HcalGeometry::alignmentTransformIndexLocal( hcId ) ) ;
 
@@ -1023,7 +1021,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	 assert( i1 == i2 ) ;
 
-	 f << "  // " << HcalDetId(*i) << std::endl;
+	 f << "  // " << HcalDetId(i) << std::endl;
 	    
 	 const GlobalPoint gp ( cell->getPosition() ) ;
 
@@ -1034,12 +1032,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 const HcalDetId closestCell ( geom->getClosestCell( gp ) ) ;
 
 	 f << "  // Return position is " << closestCell << std::endl;
-	 if( closestCell != HcalDetId(*i) )
+	 if( closestCell != HcalDetId(i) )
 	 {
 	    const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
 					    geom->getGeometry( closestCell )->getPosition().eta(),
 					    geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 
-	    if( rr> 1.e-5 ) std::cout<<"For "<<HcalDetId(*i)<<" closest is "<<closestCell
+	    if( rr> 1.e-5 ) std::cout<<"For "<<HcalDetId(i)<<" closest is "<<closestCell
 				     << " HCAL dR=" << rr <<std::endl ;
 	 }
 	 // test getCells against base class version every so often
@@ -1055,7 +1053,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       else if (det == DetId::Calo &&
 	       subdetn == HcalCastorDetId::SubdetectorId )
       {
-	 f << "  // " << HcalCastorDetId(*i) << std::endl;
+	 f << "  // " << HcalCastorDetId(i) << std::endl;
 	    
 	 const GlobalPoint gp ( cell->getPosition().x(),
 				cell->getPosition().y(),
@@ -1070,12 +1068,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 if( closestCell != DetId(0) )
 	 {
 	    f << "  // Return position is " << HcalCastorDetId(closestCell) << std::endl;
-	    if( closestCell != HcalCastorDetId(*i) )
+	    if( closestCell != HcalCastorDetId(i) )
 	    {
 	       const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
 					       geom->getGeometry( closestCell )->getPosition().eta(),
 					       geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 
-	       if( rr> 1.e-5 ) std::cout<<"For "<<HcalCastorDetId(*i)<<" closest is "<<HcalCastorDetId(closestCell)
+	       if( rr> 1.e-5 ) std::cout<<"For "<<HcalCastorDetId(i)<<" closest is "<<HcalCastorDetId(closestCell)
 					<< " dR=" << rr <<std::endl ;
 	    }
 	 }
@@ -1092,8 +1090,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       else if (det == DetId::Calo &&
 	       subdetn == HcalZDCDetId::SubdetectorId )
       {
-	 f << "  // " << HcalZDCDetId(*i) << std::endl;
-	 const double sign ( HcalZDCDetId(*i).zside() ) ;
+	 f << "  // " << HcalZDCDetId(i) << std::endl;
+	 const double sign ( HcalZDCDetId(i).zside() ) ;
 	 const GlobalPoint gp ( cell->getPosition().x(),
 				cell->getPosition().y(),
 				cell->getPosition().z() + sign*0.1 ) ;
@@ -1107,12 +1105,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 if( closestCell != DetId(0) )
 	 {
 	    f << "  // Return position is " << HcalZDCDetId(closestCell) << std::endl;
-	    if( closestCell != HcalZDCDetId(*i) )
+	    if( closestCell != HcalZDCDetId(i) )
 	    {
 	       const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
 					       geom->getGeometry( closestCell )->getPosition().eta(),
 					       geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 
-	       if( rr> 1.e-5 ) std::cout<<"For "<<HcalZDCDetId(*i)<<" closest is "<<HcalZDCDetId(closestCell)
+	       if( rr> 1.e-5 ) std::cout<<"For "<<HcalZDCDetId(i)<<" closest is "<<HcalZDCDetId(closestCell)
 					<< " dR=" << rr <<std::endl ;
 	    }
 	 }

@@ -51,6 +51,10 @@ TProfile* prof_x0_str_COL_new;
 TProfile* prof_x0_str_ELE_new;
 TProfile* prof_x0_str_OTH_new;
 TProfile* prof_x0_str_AIR_new;
+
+TProfile2D* prof2d_x0_det_total_old;
+TProfile2D* prof2d_x0_det_total_new;
+
 //
 unsigned int iFirst = 1;
 unsigned int iLast  = 9;
@@ -606,8 +610,8 @@ void create2DPlots(TString plot) {
   prof2d_x0_det_total_new = (TProfile2D*)theDetectorFile_new->Get(Form("%u", plotNumber));
   
   // histos
-  TH2D* hist_x0_total_old = (TH2D*)prof2d_x0_det_total_old->ProjectionXY();
-  TH2D* hist_x0_total_new = (TH2D*)prof2d_x0_det_total_new->ProjectionXY();
+  TH2D* hist2d_x0_total_old = (TH2D*)prof2d_x0_det_total_old->ProjectionXY();
+  TH2D* hist2d_x0_total_new = (TH2D*)prof2d_x0_det_total_new->ProjectionXY();
   //
   
   int isega = 1;
@@ -668,8 +672,8 @@ void create2DPlots(TString plot) {
       prof2d_x0_det_total_old = (TProfile2D*)subDetectorFile_old->Get(Form("%u", plotNumber));
       prof2d_x0_det_total_new = (TProfile2D*)subDetectorFile_new->Get(Form("%u", plotNumber));
       // add to summary histogram
-      hist_x0_total_old->Add( (TH2D*)prof2d_x0_det_total_old->ProjectionXY("B"), +1.000 );
-      hist_x0_total_new->Add( (TH2D*)prof2d_x0_det_total_new->ProjectionXY("B"), +1.000 );
+      hist2d_x0_total_old->Add( (TH2D*)prof2d_x0_det_total_old->ProjectionXY("B"), +1.000 );
+      hist2d_x0_total_new->Add( (TH2D*)prof2d_x0_det_total_new->ProjectionXY("B"), +1.000 );
     }
   }
   //
@@ -680,10 +684,10 @@ void create2DPlots(TString plot) {
   //
   
   // Create "null" histo
-  Double_t minX = 1.03*hist_x0_total_new->GetXaxis()->GetXmin();
-  Double_t maxX = 1.03*hist_x0_total_new->GetXaxis()->GetXmax();
-  Double_t minY = 1.03*hist_x0_total_new->GetYaxis()->GetXmin();
-  Double_t maxY = 1.03*hist_x0_total_new->GetYaxis()->GetXmax();
+  Double_t minX = 1.03*hist2d_x0_total_new->GetXaxis()->GetXmin();
+  Double_t maxX = 1.03*hist2d_x0_total_new->GetXaxis()->GetXmax();
+  Double_t minY = 1.03*hist2d_x0_total_new->GetYaxis()->GetXmin();
+  Double_t maxY = 1.03*hist2d_x0_total_new->GetYaxis()->GetXmax();
 
   //  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
   TH2F *frame = new TH2F("frame","",10,minX,maxX,10,minY,maxY); 
@@ -694,15 +698,15 @@ void create2DPlots(TString plot) {
 
   // Ratio
   if (iRebin){
-    hist_x0_total_old->Rebin2D();
-    hist_x0_total_new->Rebin2D();
+    hist2d_x0_total_old->Rebin2D();
+    hist2d_x0_total_new->Rebin2D();
   }
-  TH2D* histo_ratio = new TH2D(*hist_x0_total_new);
+  TH2D* histo_ratio = new TH2D(*hist2d_x0_total_new);
   //  TString hist2dTitle = Form( "Material Budget Ratio (New/Old) (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
   TString hist2dTitle(quotaName+" "+theDetector+" Ratio vs. Reference;"+abscissaName+";"+ordinateName+";"+quotaName);
   frame->SetTitle(hist2dTitle);
   frame->SetTitleOffset(0.5,"Y");
-  histo_ratio->Divide(hist_x0_total_old);
+  histo_ratio->Divide(hist2d_x0_total_old);
   //
   
   //Set minimum and maximum

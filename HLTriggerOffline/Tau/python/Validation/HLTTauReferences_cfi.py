@@ -7,7 +7,10 @@ TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               ptMinMuon     = cms.untracked.double(15),
                               ptMinElectron = cms.untracked.double(15),
                               BosonID       = cms.untracked.vint32(23,24,25,32,33,34,35,36,37),
-                              EtaMax        = cms.untracked.double(2.5)
+                              EtaMin        = cms.untracked.double(-2.5),
+                              EtaMax        = cms.untracked.double(2.5),
+                              PhiMin        = cms.untracked.double(-3.15),
+                              PhiMax        = cms.untracked.double(3.15)
 )
 
 
@@ -22,6 +25,10 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                    ),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(15.0),
+                                   etaMin = cms.untracked.double(-2.5),
+                                   etaMax = cms.untracked.double(2.5),
+                                   phiMin = cms.untracked.double(-3.15),
+                                   phiMax = cms.untracked.double(3.15),
                                    PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                                    ),
                                 Electrons = cms.untracked.PSet(
@@ -65,7 +72,10 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                           METCollection = cms.untracked.InputTag("caloMet"),
                                           ptMin = cms.untracked.double(15.0)
                                 ),
-                                EtaMax = cms.untracked.double(2.5)
+                                EtaMin = cms.untracked.double(-2.5),
+                                EtaMax = cms.untracked.double(2.5),
+                                PhiMin = cms.untracked.double(-3.15),
+                                PhiMax = cms.untracked.double(3.15)
 )
 
 
@@ -83,12 +93,3 @@ TauRefCombiner = cms.EDProducer("HLTTauRefCombiner",
 
 
 hltTauRef = cms.Sequence(TauMCProducer*TauRelvalRefProducer*TauRefCombiner)
-
-
-
-
-
-
-
-
-                              

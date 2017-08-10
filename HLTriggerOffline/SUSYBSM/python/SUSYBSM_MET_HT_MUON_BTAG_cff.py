@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_MET_HT_MUON_BTAG = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
@@ -23,7 +24,7 @@ SUSY_HLT_MET_HT_MUON_BTAG = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 )
 
 
-SUSY_HLT_MET_HT_MUON_BTAG_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMEToHToMUONoBTAGoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu6_PFHT200_PFMET80_BTagCSV_p067_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

@@ -9,7 +9,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -21,6 +21,7 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
@@ -33,11 +34,13 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
   PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-      srFlagToken_ = iC.consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-      elecMap_ = 0;
+      auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
+      if (not srF.label().empty())
+	srFlagToken_ = iC.consumes<EESrFlagCollection>(srF);
+      elecMap_ = nullptr;
     }
 
-  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
     beginEvent(iEvent,iSetup);
  
@@ -46,7 +49,11 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
-    iEvent.getByToken(srFlagToken_,srFlagHandle_);
+    bool useSrF = false;
+    if (not srFlagToken_.isUninitialized()){
+      iEvent.getByToken(srFlagToken_,srFlagHandle_);
+      useSrF = true;
+    }
 
     // get the ecal geometry
     const CaloSubdetectorGeometry *gTmp = 
@@ -60,7 +67,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
       auto energy = erh.energy();
       auto time = erh.time();
 
-      bool hi = isHighInterest(detid);
+      bool hi = (useSrF ? isHighInterest(detid) : true);
         
       const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
   
@@ -96,7 +103,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     }
   }
 
-  void init(const edm::EventSetup &es) {
+  void init(const edm::EventSetup &es) override {
       
     edm::ESHandle< EcalElectronicsMapping > ecalmapping;
     es.get< EcalMappingRcd >().get(ecalmapping);
@@ -109,7 +116,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 
   bool isHighInterest(const EEDetId& detid) {
     bool result=false;
-    EESrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+    auto srf = srFlagHandle_->find(readOutUnitOf(detid));
     if(srf==srFlagHandle_->end()) return false;
     else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
     return result;

@@ -103,6 +103,11 @@ void
 AlignmentProducerBase::startProcessing()
 {
   if (isDuringLoop_) return;
+
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::startProcessing"
+    << "Begin";
+
   if (!isAlgoInitialized_) {
     throw cms::Exception("LogicError")
       << "@SUB=AlignmentProducerBase::startProcessing\n"
@@ -167,15 +172,16 @@ AlignmentProducerBase::processEvent(const edm::Event& event,
 
   initBeamSpot(event); // must happen every event and before incrementing 'nevent_'
 
+  ++nevent_;  // must happen before the check below;
+              // otherwise subsequent checks fail for "EmptySource"
+
   if (!alignmentAlgo_->processesEvents()) {
-    edm::LogWarning("BadConfig")
+    edm::LogInfo("Alignment")
       << "@SUB=AlignmentProducerBase::processEvent"
       << "Skipping event. The current configuration of the alignment algorithm "
       << "does not need to process any events.";
     return false;
   }
-
-  ++nevent_;
 
   // reading in survey records
   readInSurveyRcds(setup);
@@ -434,6 +440,10 @@ void
 AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
                                               bool update)
 {
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
+    << "Bwgin";
+
   auto isTrueUpdate = update && isAlgoInitialized_;
 
   // Retrieve tracker topology from geometry
@@ -473,6 +483,10 @@ AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   }
   startProcessing();            // needed if derived class is non-EDLooper-based
                                 // has no effect, if called during loop
+
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
+    << "End";
 }
 
 
@@ -904,11 +918,6 @@ AlignmentProducerBase::addSurveyInfo(Alignable* ali)
 bool
 AlignmentProducerBase::finish()
 {
-  if (isDuringLoop_) {
-    throw cms::Exception("LogicError")
-      << "@SUB=AlignmentProducerBase::finish\n"
-      << "Trying to finish before terminating event processing.";
-  }
 
   for (const auto& monitor: monitors_) monitor->endOfJob();
 

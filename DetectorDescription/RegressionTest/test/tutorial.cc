@@ -15,8 +15,8 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
@@ -30,15 +30,13 @@
 #include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
@@ -50,9 +48,9 @@ namespace {
     GroupFilter(std::vector< DDSpecificsFilter* >& filters):
       filters_(filters) {}
 
-    bool accept(const DDExpandedView &cv ) const override final {
+    bool accept(const DDExpandedView &cv ) const final {
       bool returnValue = true;
-      for(auto f: filters_) {
+      for(const auto & f : filters_) {
         returnValue = returnValue and f->accept(cv);
         if(not returnValue) {
           break;
@@ -72,14 +70,14 @@ DDTranslation calc(const DDGeoHistory & aHist)
   std::vector<DDRotationMatrix> vr;
   std::vector<DDTranslation> vt;
   DDRotationMatrix r;
-  vr.push_back(r);
+  vr.emplace_back(r);
   
   if (h.size()>1) {
-    vt.push_back(h[1].posdata()->translation());
+    vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.push_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
-      vt.push_back(h[i+1].posdata()->translation());
+      vr.emplace_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
+      vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
   
@@ -357,7 +355,7 @@ void tutorial()
       std::cin >> flog;
       if(flog=="end") 
 	break;
-      vecF.push_back(f);
+      vecF.emplace_back(f);
       while (moreFilterCriteria) {
 	std::cout << " logic   = ";
 	std::cin >> ls;
@@ -372,7 +370,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = ExprEvalSingleton::instance().eval("",v);
+	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;
@@ -383,15 +381,6 @@ void tutorial()
       }//<- moreFilterCriteria
     }//<- morFilters
    
-    DDScope scope;
-    DDQuery query(ccv);
-    std::vector<DDSpecificsFilter*>::size_type loop=0;
-    for(; loop < vecF.size(); ++loop) {
-      DDFilter * filter = vecF[loop];  
-      const DDFilter & fi = *filter;
-      query.addFilter( fi );
-    }  
-    std::cout << "The Scope is now: " << std::endl << scope << std::endl;
     std::string ans;
     ans = "";
     DDCompactView aaaaa;
@@ -426,7 +415,7 @@ void tutorial()
 	  for (; i<s; ++i) {
 	    int k;
 	    std::cin >> k;
-	    n.push_back(k);
+	    n.emplace_back(k);
 	  }
 	  std::cout << "input=" << n << std::endl;
 	  if (e.goTo(n)) {
@@ -460,20 +449,6 @@ void tutorial()
 	}
       }  
     }
-    std::cout << "exec a query based on the filter(s) (y/n) ?";
-    std::cin >> ans;
-    if (ans=="y") {
-      const std::vector<DDExpandedNode> & res = query.exec();  
-      std::cout << "the query results in " << res.size() << " nodes." << std::endl;
-      if (res.size()) {
-	std::cout << " the first node is:" << std::endl
-		  << "  " << res[0] << " transl=" << res[0].absTranslation() << std::endl;
-	std::cout << " the last node is:" << std::endl
-		  << "  " << res.back() << " transl=" << res.back().absTranslation() << std::endl << std::endl;	   
-      }
-    
-    }
-  
     std::cout << "iterate the FilteredView (y/n)";
     std::cin >> ans;
     DDCompactView compactview;
@@ -529,10 +504,10 @@ void tutorial()
 	case 's':
 	  fv.print();
 	  std::cout << std::endl <<"specifics sets = " << v.size() << ":" << std::endl;
-	  for (spectype::size_type o=0;o<v.size();++o) {
-	    std::cout << *(v[o].first) 
+	  for (const auto & o : v) {
+	    std::cout << *(o.first) 
 		      << " = " 
-		      << *(v[o].second) 
+		      << *(o.second) 
 		      << std::endl;// << std::endl;
 	  }
 	  std::cout << std::endl;
@@ -540,8 +515,8 @@ void tutorial()
 	  std::cout << merged << std::endl;
 	 
 	  std::cout << "specifics only at logicalPart:" << std::endl;
-	  for (std::vector<const DDsvalues_type *>::size_type o=0;o<only.size();++o) {
-	    std::cout << *(only[o]) << std::endl;
+	  for (const auto & o : only) {
+	    std::cout << *o << std::endl;
 	  }
 	  std::cout << std::endl;	 
 	  std::cout << "translation: " << fv.translation() << std::endl;
@@ -592,12 +567,6 @@ void tutorial()
     //std::cout << fv.history().back() << std::endl;
     std::cout << "Nodes: " << cc << std::endl;
     std::cout << "Using navigation the filtered-view has " << fv_count << " nodes." << std::endl;
-   
-    loop=0;
-    for(; loop<vecF.size(); ++loop) {
-      delete vecF[loop]; // delete the filters
-      vecF[loop]=0;
-    } 
   }
 
   /*
@@ -622,7 +591,7 @@ void tutorial()
     // ask each expanded-not for its specifics 
     // std::vector<..>.size() will be 0 if there are no specifics
     std::vector<const DDsvalues_type *>  spec = ex.specifics();
-    if (spec.size()) {
+    if (!spec.empty()) {
       std::cout << spec.size() << " different specific-data sets found for " << std::endl; 
       dumpHistory(ex.geoHistory(),true) ;    
       std::cout << std::endl;

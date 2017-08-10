@@ -123,3 +123,15 @@ def _appendHGCalDigis(obj):
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(L1TriggerFEVTDEBUG, func=_appendHGCalDigis)
+
+# adding ME0 pseudo trigger stubs
+def _appendME0PseudoStubs(obj):
+    l1ME0PseudoStubs = [
+        'keep *_simMuonME0PseudoReDigisCoarse__*',
+        'keep *_me0RecHitsCoarse__*',
+        'keep *_me0TriggerPseudoDigis__*',
+        ]
+    obj.outputCommands += l1ME0PseudoStubs
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendME0PseudoStubs)

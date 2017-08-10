@@ -289,7 +289,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
  
   //! do it only if needed
   if(theRemoveOtherVetos && ! theVetoCuts.selectAll){
-    if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){ 
+    if (theBeamlineOption == "BeamSpotFromEvent"){ 
       //pick beamSpot 
       reco::BeamSpot beamSpot; 
       edm::Handle<reco::BeamSpot> beamSpotH; 

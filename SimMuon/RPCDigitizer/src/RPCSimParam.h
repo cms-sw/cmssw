@@ -8,7 +8,7 @@
  *  \author Marcello Maggi -- INFN Bari
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 
 class RPCGeometry;

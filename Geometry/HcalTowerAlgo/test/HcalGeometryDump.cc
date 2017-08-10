@@ -14,7 +14,7 @@ class HcalGeometryDump : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryDump( const edm::ParameterSet& );
-  ~HcalGeometryDump( void );
+  ~HcalGeometryDump( void ) override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -57,11 +57,10 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 
   for (int subdet=1; subdet<= 4; ++subdet) {
     std::vector<unsigned int> detIds;
-    for (std::vector<DetId>::const_iterator i = ids.begin();  i != ids.end();
-	 ++i)  {
-      DetId hid = (*i);
+    for (auto id : ids)  {
+      DetId hid = id;
       if (hid.subdetId() == subdet) {
-	detIds.push_back(hid.rawId());
+	detIds.emplace_back(hid.rawId());
       }
     }
     std::cout << detIds.size() << " valid Ids for subdetector " << subdet

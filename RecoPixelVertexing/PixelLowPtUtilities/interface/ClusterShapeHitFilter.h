@@ -10,7 +10,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
@@ -135,6 +135,7 @@ struct StripLimits {
 namespace edm { class EventSetup; }
 
 class TrackerGeometry;
+class TrackerTopology;
 class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
@@ -158,7 +159,8 @@ class ClusterShapeHitFilter
 
   struct PixelData {
     const PixelGeomDetUnit * det;
-    unsigned int part;
+    unsigned short part;
+    unsigned short layer;
     std::pair<float,float> drift;
     std::pair<float,float> cotangent;
 
@@ -175,10 +177,12 @@ class ClusterShapeHitFilter
   typedef TrajectoryFilter::Record Record;
 
   ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
+                        const TrackerTopology * theTkTopol_,
                         const MagneticField          * theMagneticField_,
                         const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle    * theSiStripLorentzAngle_,
-                        const std::string            * use_PixelShapeFile_);
+                        const std::string            & pixelShapeFile_,
+                        const std::string            & pixelShapeFileL1_);
  
   ~ClusterShapeHitFilter();
 
@@ -254,7 +258,11 @@ class ClusterShapeHitFilter
 
  private:
   // for testing purposes only
-  ClusterShapeHitFilter(){}
+  ClusterShapeHitFilter(std::string const& f1,std::string const& f2) {
+     loadPixelLimits(f1,pixelLimits);
+     loadPixelLimits(f2,pixelLimitsL1);
+      loadStripLimits();
+  }
 
   const PixelData & getpd(const SiPixelRecHit   & recHit, PixelData const * pd=nullptr) const{
     if (pd) return *pd;
@@ -266,7 +274,7 @@ class ClusterShapeHitFilter
 
   const StripData & getsd(DetId id) const {return stripData.find(id)->second;}
 
-  void loadPixelLimits();
+  void loadPixelLimits(std::string const & file, PixelLimits *plim);
   void loadStripLimits();
   void fillPixelData();
   void fillStripData();
@@ -281,17 +289,17 @@ class ClusterShapeHitFilter
   bool isNormalOriented(const GeomDetUnit * geomDet) const;
 
   const TrackerGeometry * theTracker;
+  const TrackerTopology * theTkTopol;
   const MagneticField * theMagneticField;
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
 
-  const std::string * PixelShapeFile;
-
   std::unordered_map<unsigned int, PixelData> pixelData;
   std::unordered_map<unsigned int, StripData> stripData;
 
   PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
+  PixelLimits pixelLimitsL1[PixelKeys::N+1]; // for BPIX1
 
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
@@ -304,4 +312,3 @@ class ClusterShapeHitFilter
 };
 
 #endif
-

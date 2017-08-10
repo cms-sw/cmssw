@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
@@ -269,7 +270,7 @@ hltSiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         triggerflag = hltSiPixelPhase1ClustersTriggers,
 )
 
-hltSiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+hltSiPixelPhase1ClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1ClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )

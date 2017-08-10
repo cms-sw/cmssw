@@ -32,6 +32,8 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
  private:  
 
   enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, PHIBAD, ETAATVTXBAD, PHIATVTXBAD, CHARGEBAD, CHARGEVALBAD, QUALBAD, ISOBAD, IDXBAD};
+  enum ratioVariables {RBXRANGE=1, RNMUON, RMUON, RPT, RETA, RPHI, RETAATVTX, RPHIATVTX, RCHARGE, RCHARGEVAL, RQUAL, RISO, RIDX};
+  bool incBin[RIDX+1];
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken2;
@@ -39,9 +41,12 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   std::string muonColl1Title;
   std::string muonColl2Title;
   std::string summaryTitle;
+  std::vector<int> ignoreBin;
   bool verbose;
 
   MonitorElement* summary;
+  MonitorElement* errorSummaryNum;
+  MonitorElement* errorSummaryDen;
 
   MonitorElement* muColl1BxRange;
   MonitorElement* muColl1nMu;

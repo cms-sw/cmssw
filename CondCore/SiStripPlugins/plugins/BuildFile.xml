@@ -7,9 +7,18 @@
   <use   name="boost_python"/>
 </library>
 
-<library   file="SiStrip*_PayloadInspector.cc" name="SiStrip_PayloadInspector">
+<library   file="SiStripDetVOff_PayloadInspector.cc" name="SiStripDetVOff_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripApvGain_PayloadInspector.cc" name="SiStripApvGain_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
   <use   name="boost_python"/>
 </library>

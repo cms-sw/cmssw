@@ -16,7 +16,7 @@
 class  HcalParametersESModule : public edm::ESProducer {
 public:
   HcalParametersESModule( const edm::ParameterSet & );
-  ~HcalParametersESModule( void );
+  ~HcalParametersESModule( void ) override;
   
   typedef std::shared_ptr<HcalParameters> ReturnType;
 

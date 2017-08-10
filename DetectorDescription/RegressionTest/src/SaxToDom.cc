@@ -10,7 +10,7 @@ using namespace std;
 XERCES_CPP_NAMESPACE_USE
 
 SaxToDom::SaxToDom() 
-{ parent_.push_back(NodeName("TinyDom")); }
+{ parent_.emplace_back(NodeName("TinyDom")); }
 
 SaxToDom::~SaxToDom() 
 { }
@@ -29,7 +29,7 @@ void SaxToDom::startElement( const XMLCh* const uri,
 {
   char * strx = XMLString::transcode(name); // element-name
   NodeName nm(strx); // as a temp.string
-  //parent_.push_back(nm);
+  //parent_.emplace_back(nm);
   AttList al; // map of attributes -> values
   for (unsigned int i = 0; i < atts.getLength(); ++i) {
     char* aname = XMLString::transcode(atts.getLocalName(i));
@@ -44,7 +44,7 @@ void SaxToDom::startElement( const XMLCh* const uri,
   dom_.addEdge(parent_.back(), nm , al);
   //cout << "add from=" << parent_.back().str() << " to=" << nm.str() << endl;
   // set the parent_ to the actual node
-  parent_.push_back(nm);
+  parent_.emplace_back(nm);
   XMLString::release(&strx);
 }
 

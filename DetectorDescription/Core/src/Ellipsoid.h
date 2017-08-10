@@ -21,18 +21,18 @@ namespace DDI {
 	      )
       : Solid(ddellipsoid)
       { 
-	p_.push_back(xSemiAxis);
-	p_.push_back(ySemiAxis);
-	p_.push_back(zSemiAxis);
-	p_.push_back(zBottomCut);
-	p_.push_back(zTopCut);
+	p_.emplace_back(xSemiAxis);
+	p_.emplace_back(ySemiAxis);
+	p_.emplace_back(zSemiAxis);
+	p_.emplace_back(zBottomCut);
+	p_.emplace_back(zTopCut);
       }  
-      ~Ellipsoid() { }
+      ~Ellipsoid() override { }
       
       /// Not as flexible and possibly less accurate than G4 volume.
-      double volume() const ;
+      double volume() const override ;
       double halfVol (double dz, double maxz) const;
-      void stream(std::ostream & os) const;
+      void stream(std::ostream & os) const override;
   };
   
 }

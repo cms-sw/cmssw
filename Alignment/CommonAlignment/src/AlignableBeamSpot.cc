@@ -12,9 +12,6 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
 #include "Alignment/CommonAlignment/interface/AlignableBeamSpot.h"
 
 #include "FWCore/Utilities/interface/Exception.h"

@@ -74,8 +74,15 @@ namespace {
     class RawChargeFromSample
     {
     public:
-        inline RawChargeFromSample(const HcalDbService& cond,
-                                   const HcalDetId id) {}
+        inline RawChargeFromSample(const int sipmQTSShift,
+                                   const int sipmQNTStoSum,
+                                   const bool saveEffectivePedestal,
+                                   const HcalDbService& cond,
+                                   const HcalDetId id,
+                                   const CaloSamples& cs,
+                                   const int soi,
+                                   const DFrame& frame,
+                                   const int maxTS) {}
 
         inline double getRawCharge(const double decodedCharge,
                                    const double pedestal) const
@@ -86,8 +93,15 @@ namespace {
     class RawChargeFromSample<QIE11DataFrame>
     {
     public:
-        inline RawChargeFromSample(const HcalDbService& cond,
-                                   const HcalDetId id)
+        inline RawChargeFromSample(const int sipmQTSShift,
+                                   const int sipmQNTStoSum,
+                                   const bool saveEffectivePedestal,
+                                   const HcalDbService& cond,
+                                   const HcalDetId id,
+                                   const CaloSamples& cs,
+                                   const int soi,
+                                   const QIE11DataFrame& frame,
+                                   const int maxTS)
             : siPMParameter_(*cond.getHcalSiPMParameter(id)),
               fcByPE_(siPMParameter_.getFCByPE()),
               corr_(cond.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter_.getType()))
@@ -96,39 +110,46 @@ namespace {
                 throw cms::Exception("HBHEPhase1BadDB")
                     << "Invalid fC/PE conversion factor for SiPM " << id
                     << std::endl;
+
+            const HcalCalibrations& calib = cond.getHcalCalibrations(id);
+            const double darkCurrent = siPMParameter_.getDarkCurrent();
+            const double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter_.getType());
+            const int firstTS = std::max(soi + sipmQTSShift, 0);
+            const int lastTS = std::min(firstTS + sipmQNTStoSum, maxTS);
+            double sipmQ = 0.0;
+
+            for (int ts = firstTS; ts < lastTS; ++ts)
+            {
+                const double pedestal = calib.pedestal(frame[ts].capid()) +
+                    (saveEffectivePedestal ? darkCurrent * 25. / (1. - lambda) : 0.);
+                sipmQ += (cs[ts] - pedestal);
+            }
+
+            const double effectivePixelsFired = sipmQ/fcByPE_;
+            factor_ = corr_.getRecoCorrectionFactor(effectivePixelsFired);
         }
 
         inline double getRawCharge(const double decodedCharge,
                                    const double pedestal) const
         {
-            const double sipmQ = decodedCharge - pedestal;
-            const double nPixelsFired = sipmQ/fcByPE_;
-            return sipmQ*corr_.getRecoCorrectionFactor(nPixelsFired) + pedestal;
-        }
+            return (decodedCharge - pedestal)*factor_ + pedestal;
+
+            // Old version of TS-by-TS corrections looked as follows:
+            // const double sipmQ = decodedCharge - pedestal;
+            // const double nPixelsFired = sipmQ/fcByPE_;
+            // return sipmQ*corr_.getRecoCorrectionFactor(nPixelsFired) + pedestal;
+       }
 
     private:
         const HcalSiPMParameter& siPMParameter_;
         double fcByPE_;
         HcalSiPMnonlinearity corr_;
+        double factor_;
     };
 
     float getTDCTimeFromSample(const QIE11DataFrame::Sample& s)
     {
-        // Conversion from TDC to ns for the QIE11 chip
-        static const float qie11_tdc_to_ns = 0.5f;
-
-        // TDC values produced in case the pulse is always above/below
-        // the discriminator
-        static const int qie11_tdc_code_overshoot = 62;
-        static const int qie11_tdc_code_undershoot = 63;
-
-        const int tdc = s.tdc();
-        float t = qie11_tdc_to_ns*tdc;
-        if (tdc == qie11_tdc_code_overshoot)
-            t = HcalSpecialTimes::UNKNOWN_T_OVERSHOOT;
-        else if (tdc == qie11_tdc_code_undershoot)
-            t = HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT;
-        return t;
+        return HcalSpecialTimes::getTDCTime(s.tdc());
     }
 
     float getTDCTimeFromSample(const HcalQIESample&)
@@ -285,6 +306,8 @@ private:
     bool tsFromDB_;
     bool recoParamsFromDB_;
     bool saveEffectivePedestal_;
+    int sipmQTSShift_;
+    int sipmQNTStoSum_;
 
     // Parameters for turning status bit setters on/off
     bool setNegativeFlagsQIE8_;
@@ -347,6 +370,8 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
       saveEffectivePedestal_(conf.getParameter<bool>("saveEffectivePedestal")),
+      sipmQTSShift_(conf.getParameter<int>("sipmQTSShift")),
+      sipmQNTStoSum_(conf.getParameter<int>("sipmQNTStoSum")),
       setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
       setNegativeFlagsQIE11_(conf.getParameter<bool>("setNegativeFlagsQIE11")),
       setNoiseFlagsQIE8_(conf.getParameter<bool>("setNoiseFlagsQIE8")),
@@ -461,7 +486,6 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
         const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
         const HcalCoderDb coder(*channelCoder, *shape);
-        const RawChargeFromSample<DFrame> rcfs(cond, cell);
 
         // needed for the dark current in the M2
         const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
@@ -477,6 +501,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const int nRead = cs.size();
         const int maxTS = std::min(nRead, static_cast<int>(HBHEChannelInfo::MAXSAMPLES));
         const int soi = tsFromDB_ ? param_ts->firstSample() : frame.presamples();
+        const RawChargeFromSample<DFrame> rcfs(sipmQTSShift_, sipmQNTStoSum_, saveEffectivePedestal_,
+                                               cond, cell, cs, soi, frame, maxTS);
         int soiCapid = 4;
 
         // Go over time slices and fill the samples
@@ -741,7 +767,9 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
-    desc.add<bool>("saveEffectivePedestal",false);
+    desc.add<bool>("saveEffectivePedestal", false);
+    desc.add<int>("sipmQTSShift", 0);
+    desc.add<int>("sipmQNTStoSum", 3);
     desc.add<bool>("setNegativeFlagsQIE8");
     desc.add<bool>("setNegativeFlagsQIE11");
     desc.add<bool>("setNoiseFlagsQIE8");

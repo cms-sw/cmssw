@@ -122,7 +122,7 @@ CaloSubdetectorGeometry::getCellSet( const GlobalPoint& r, double dR ) const {
   // stupid implementation not to be really used...
   DetIdSet ids = getCells(r, dR);
   CellSet cells; cells.reserve(ids.size());
-  for ( auto id : ids) cells.push_back(getGeometry(id));
+  for ( auto id : ids) cells.emplace_back(getGeometry(id));
   return cells;
 }
 
@@ -154,12 +154,11 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
 
-   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
+   for(const auto & pv : parVecVec())
    {
-      const ParVec& pv ( *ivv ) ;
-      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
+      for(float iv : pv)
       {
-	 dVec.push_back( *iv ) ;
+	 dVec.emplace_back( iv ) ;
       }
    }
 
@@ -177,9 +176,9 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
       }
 
       const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
-      tVec.push_back( tt.x() ) ;
-      tVec.push_back( tt.y() ) ;
-      tVec.push_back( tt.z() ) ;
+      tVec.emplace_back( tt.x() ) ;
+      tVec.emplace_back( tt.y() ) ;
+      tVec.emplace_back( tt.z() ) ;
       if( 6 == numberOfTransformParms() )
       {
 	 const CLHEP::HepRotation rr ( tr.getRotation() ) ;
@@ -188,9 +187,9 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 					     rr.zx(), rr.zy(), rr.zz(), tt.z()  ) ;
 	 ROOT::Math::EulerAngles ea ;
 	 rtr.GetRotation( ea ) ;
-	 tVec.push_back( ea.Phi() ) ;
-	 tVec.push_back( ea.Theta() ) ;
-	 tVec.push_back( ea.Psi() ) ;
+	 tVec.emplace_back( ea.Phi() ) ;
+	 tVec.emplace_back( ea.Theta() ) ;
+	 tVec.emplace_back( ea.Psi() ) ;
       }
 
       const CCGFloat* par ( ptr->param() ) ;
@@ -213,7 +212,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
       assert( 9999 != ishape ) ;
 
       const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_validIds.size() ) ; 
-      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+      if( iVec.size() < nn ) iVec.emplace_back( ishape ) ;
    }
 }
 

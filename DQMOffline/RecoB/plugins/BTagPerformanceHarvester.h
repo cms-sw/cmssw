@@ -15,7 +15,7 @@
  *
  */
 
-class BTagPerformanceHarvester : public DQMEDHarvester {
+class BTagPerformanceHarvester: public DQMEDHarvester {
    public:
       explicit BTagPerformanceHarvester(const edm::ParameterSet& pSet);
       ~BTagPerformanceHarvester();
@@ -30,16 +30,15 @@ class BTagPerformanceHarvester : public DQMEDHarvester {
       std::string psBaseName, epsBaseName;
       std::vector<std::string> tiDataFormatType;
 
-      std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
-      std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
-      std::vector< std::vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
+      std::vector< std::vector<std::shared_ptr<JetTagPlotter>> > binJetTagPlotters;
+      std::vector< std::vector<std::unique_ptr<TagCorrelationPlotter>> > binTagCorrelationPlotters;
+      std::vector< std::vector<std::unique_ptr<BaseTagInfoPlotter>> > binTagInfoPlotters;
       std::vector<edm::InputTag> jetTagInputTags;
       std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
       std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
       // Contains plots for each bin of rapidity and pt.
-      std::vector< std::vector<BTagDifferentialPlot*> > differentialPlots;
+      std::vector< std::vector<std::unique_ptr<BTagDifferentialPlot>> > differentialPlots;
       std::vector<edm::ParameterSet> moduleConfig;
-      std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
       
       std::string flavPlots_;
       unsigned int mcPlots_;

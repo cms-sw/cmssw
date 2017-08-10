@@ -415,17 +415,13 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    // set tfMuonIndex and iso to 0 like in the FW
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), 0, 0, 0, true, 0, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
       outMu.setCharge(0);
     }
-    // set the coordinates at the vertex to be the same as coordinates at muon station
-    outMu.setHwEtaAtVtx(outMu.hwEta());
-    outMu.setHwPhiAtVtx(outMu.hwPhi());
-    outMu.setEtaAtVtx(outMu.eta());
-    outMu.setPhiAtVtx(outMu.phi());
 
     out->push_back(bx, outMu);
   }

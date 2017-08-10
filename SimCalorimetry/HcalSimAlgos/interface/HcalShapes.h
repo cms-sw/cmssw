@@ -9,6 +9,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
+#include <vector>
 #include <map>
 class CaloVShape;
 class DetId;
@@ -25,30 +26,20 @@ public:
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
-  virtual const CaloVShape * shape(const DetId & detId) const;
+  virtual const CaloVShape * shape(const DetId & detId, bool precise=false) const;
 
 private:
+  typedef std::map<int, const CaloVShape *> ShapeMap;
   // hardcoded, if we can't figure it out from the DB
-  const CaloVShape * defaultShape(const DetId & detId) const;
+  const CaloVShape * defaultShape(const DetId & detId, bool precise=false) const;
+  const ShapeMap& getShapeMap(bool precise) const;
   HcalMCParams * theMCParams;
   const HcalTopology * theTopology;
-  typedef std::map<int, const CaloVShape *> ShapeMap;
   ShapeMap theShapes;
+  ShapeMap theShapesPrecise;
   ZDCShape theZDCShape;
   //   list of vShapes.
-  HcalShape theHcalShape101;
-  HcalShape theHcalShape102;
-  HcalShape theHcalShape103;
-  HcalShape theHcalShape104;
-  HcalShape theHcalShape105;
-  HcalShape theHcalShape123;
-  HcalShape theHcalShape124;
-  HcalShape theHcalShape125;
-  HcalShape theHcalShape201;
-  HcalShape theHcalShape202;
-  HcalShape theHcalShape203;
-  HcalShape theHcalShape301;
-  HcalShape theHcalShape401;
+  std::vector<HcalShape> theHcalShapes;
 
 };
 

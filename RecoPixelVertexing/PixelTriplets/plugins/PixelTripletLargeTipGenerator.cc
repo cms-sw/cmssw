@@ -411,6 +411,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, Or
 
 	if (theMaxElement!=0 && result.size() >= theMaxElement) {
 	  result.clear();
+	  if(tripletLastLayerIndex) tripletLastLayerIndex->clear();
 	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	  return;
 	}

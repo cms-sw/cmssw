@@ -37,7 +37,7 @@ class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
-  ~OutputDDToDDL();
+  ~OutputDDToDDL() override;
 
   void beginJob() override {}
   void beginRun( edm::Run const& iEvent, edm::EventSetup const& ) override;
@@ -150,7 +150,7 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
     addToMatStore( ddLP.material(), matStore );
     addToSolStore( ddLP.solid(), solStore, rotStore );
     ++i;
-    if( git->size()) {
+    if( !git->empty()) {
       // ask for children of ddLP  
       DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
       DDCompactView::graph_type::edge_list::const_iterator cend = git->end();

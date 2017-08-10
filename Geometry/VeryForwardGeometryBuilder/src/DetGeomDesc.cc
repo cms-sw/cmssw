@@ -121,8 +121,8 @@ DetGeomDesc::Container DetGeomDesc::components()
 DetGeomDesc::ConstContainer DetGeomDesc::components() const
 {
 	ConstContainer _temp;
-	for (Container::const_iterator it = _container.begin(); it != _container.end(); it++) {
-		_temp.push_back(*it);
+	for (auto it : _container) {
+		_temp.emplace_back(it);
 	}
 	return _temp;
 }
@@ -133,11 +133,10 @@ DetGeomDesc::ConstContainer DetGeomDesc::deepComponents() const
 {
   ConstContainer _temp;
   if (isLeaf())
-    _temp.push_back(const_cast<DetGeomDesc*>(this));
+    _temp.emplace_back(const_cast<DetGeomDesc*>(this));
   else {
-    for (Container::const_iterator it = _container.begin();
-	 it != _container.end(); it++){
-      ConstContainer _temp2 =  (**it).deepComponents();
+    for (auto it : _container){
+      ConstContainer _temp2 =  (*it).deepComponents();
       copy(_temp2.begin(), _temp2.end(), back_inserter(_temp));
     }
   }
@@ -149,8 +148,8 @@ DetGeomDesc::ConstContainer DetGeomDesc::deepComponents() const
 
 void DetGeomDesc::addComponents(Container cont)
 {
-	for( Container::iterator ig = cont.begin(); ig != cont.end();ig++) {
-		_container.push_back(*ig);
+	for(auto & ig : cont) {
+		_container.emplace_back(ig);
 	}
 }
 
@@ -158,7 +157,7 @@ void DetGeomDesc::addComponents(Container cont)
 
 void DetGeomDesc::addComponent(DetGeomDesc* det)
 {
-	_container.push_back(det);
+	_container.emplace_back(det);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -172,9 +171,9 @@ void DetGeomDesc::deleteComponents()
 
 void DetGeomDesc::deepDeleteComponents()
 {
-	for (Container::iterator it = _container.begin(); it != _container.end(); it++) {
-		( const_cast<DetGeomDesc*>(*it) )->deepDeleteComponents();
-		delete (*it);
+	for (auto & it : _container) {
+		( const_cast<DetGeomDesc*>(it) )->deepDeleteComponents();
+		delete it;
 	}
 	clearComponents();  
 }

@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "DDXMLElement.h"
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
 
 class DDCompactView;

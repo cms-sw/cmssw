@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdio>
 #include <sstream>
+#include <memory>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
@@ -201,7 +202,7 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       HcalDbASCIIIO::dumpId (fOutput, *channel);
-      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
+      sprintf (buffer, " %10.7f %10.7f %10.7f %10.7f %10X\n",
 	       values[0], values[1], values[2], values[3], channel->rawId ());
       fOutput << buffer;
     }
@@ -1292,7 +1293,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput) {
+  HcalElectronicsMapAddons::Helper fObjectHelper;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -1318,7 +1321,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 	continue;
       }
     }
-    //    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
     int slot = atoi (items [2].c_str());
     int top = 1;
@@ -1345,31 +1347,26 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 
     // first, handle undefined cases
     if (items [8] == "NA") { // undefined channel
-      fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
+      fObjectHelper.mapEId2chId (elId, DetId (HcalDetId::Undefined));
     } else if (items [8] == "NT") { // undefined trigger channel
-      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+      fObjectHelper.mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     } else {
       HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
-      if (converter.isHcalDetId ()) { 
-	fObject->mapEId2chId (elId, converter.getId ());
+      if (converter.isHcalDetId() or converter.isHcalCalibDetId() or converter.isHcalZDCDetId()) { 
+        fObjectHelper.mapEId2chId (elId, converter.getId ());
       }
       else if (converter.isHcalTrigTowerDetId ()) {
-	fObject->mapEId2tId (elId, converter.getId ());
-      }
-      else if (converter.isHcalCalibDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
-      }
-      else if (converter.isHcalZDCDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
+        fObjectHelper.mapEId2tId (elId, converter.getId ());
       }
       else {
-	edm::LogWarning("Format Error") << "HcalElectronicsMap-> Unknown subdetector: " 
+        edm::LogWarning("Format Error") << "HcalElectronicsMap-> Unknown subdetector: " 
 		  << items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
       }
     }
   }
-  fObject->sort ();
-  return true;
+  auto fObject = std::make_unique<HcalElectronicsMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
@@ -1632,8 +1629,10 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
 // Format of the ASCII file:
 // line# Ring Slice Subchannel Subdetector Eta Phi Depth
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
+namespace HcalDbASCIIIO {
+template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput) {
   char buffer [1024];
+  HcalDcsMapAddons::Helper fObjectHelper;
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
@@ -1645,55 +1644,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
 	continue;
       }
     }
-    //    std::cout << "HcalDcsMap-> processing line: " << buffer << std::endl;
-    //int ring = atoi (items [1].c_str());
     int ring = atoi(items[1].c_str());
     unsigned int slice = atoi (items [2].c_str());
     unsigned int subchannel = atoi (items [3].c_str());
     HcalDcsDetId::DcsType type = HcalDcsDetId::DCSUNKNOWN;
-//    if(items[4].find("HV")!=std::string::npos){
-//      type = HcalDcsDetId::HV;
-//    }
-//    else if (items[4].find("BV")!=std::string::npos){
-//      type = HcalDcsDetId::BV;
-//    }
-//    else if (items[4].find("CATH")!=std::string::npos){
-//      type = HcalDcsDetId::CATH;
-//    }
-//    else if (items[4].find("DYN7")!=std::string::npos){
-//      type = HcalDcsDetId::DYN7;
-//    }
-//    else if (items[4].find("DYN8")!=std::string::npos){
-//      type = HcalDcsDetId::DYN8;
-//    }
-//    else if (items[4].find("RM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::RM_TEMP;
-//    }
-//    else if (items[4].find("CCM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::CCM_TEMP;
-//    }
-//    else if (items[4].find("CALIB_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::CALIB_TEMP;
-//    }
-//    else if (items[4].find("LVTTM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::LVTTM_TEMP;
-//    }
-//    else if (items[4].find("TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::TEMP;
-//    }
-//    else if (items[4].find("QPLL_LOCK")!=std::string::npos){
-//      type = HcalDcsDetId::QPLL_LOCK;
-//    }
-//    else if (items[4].find("STATUS")!=std::string::npos){
-//      type = HcalDcsDetId::STATUS;
-//    }
-//    else if (items[4].find("DCS_MAX")!=std::string::npos){
-//      type = HcalDcsDetId::DCS_MAX;
-//    }
-//    else{
-//      edm::LogError("MapFormat") << "HcalDcsMap-> Unknown DCS Type, line is not accepted: " << items[4];
-//      continue;
-//    }
     HcalOtherSubdetector subdet = HcalOtherEmpty;
     if (items[4].find("CALIB")!=std::string::npos){
       subdet = HcalCalibration;
@@ -1728,10 +1682,11 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
 					      << items [7] << std::endl; 
       continue;
     }
-    fObject->mapGeomId2DcsId(id, dcsId);
+    fObjectHelper.mapGeomId2DcsId(id, dcsId);
   }
-  fObject->sort ();
-  return true;
+  auto fObject = std::make_unique<HcalDcsMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 // Format of the ASCII file:
@@ -1836,8 +1791,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput) {
   char buffer [1024];
+  HcalFrontEndMapAddons::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
@@ -1848,14 +1805,14 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
       continue;
     }
     ++good;
-    //    std::cout << "HcalFrontEndMap-> processing line: " << buffer << std::endl;
     DetId id = HcalDbASCIIIO::getId (items);
     int   rm = atoi (items [5].c_str());
-    fObject->loadObject (id, rm, items[4]);
+    fObjectHelper.loadObject (id, rm, items[4]);
   }
-  fObject->sort ();
   edm::LogInfo("MapFormat") << "HcalFrontEndMap:: processed " << good << " records in " << all << " record" << std::endl;
-  return true;
+  auto fObject = std::make_unique<HcalFrontEndMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject) {
@@ -1930,8 +1887,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters&
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput) {
   char buffer [1024];
+  HcalSiPMCharacteristicsAddons::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
@@ -1951,11 +1910,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fO
     float cTalk  = atof (items [5].c_str());
     int   auxi1  = atoi (items [6].c_str());
     float auxi2  = atof (items [7].c_str());
-    fObject->loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
+    fObjectHelper.loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
   }
-  fObject->sort ();
   edm::LogInfo("MapFormat") << "HcalSiPMCharacteristics:: processed " << good << " records in " << all << " record" << std::endl;
-  return true;
+  auto fObject = std::make_unique<HcalSiPMCharacteristics>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject) {

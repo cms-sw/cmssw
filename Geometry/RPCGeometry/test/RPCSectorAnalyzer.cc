@@ -32,7 +32,7 @@ class RPCSectorAnalyzer : public edm::one::EDAnalyzer<> {
  public: 
   RPCSectorAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCSectorAnalyzer();
+  ~RPCSectorAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -87,31 +87,30 @@ RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
   
   
-  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
+    if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
       
       
       //RPCDetId detId=ch->id();
       
       std::vector< const RPCRoll*> rolls = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rolls.begin();
-	  r != rolls.end(); ++r){
+      for(auto & roll : rolls){
 	
-	if((*r)->id().region() == -1 &&
-	   (*r)->id().station() > 0)// &&
+	if(roll->id().region() == -1 &&
+	   roll->id().station() > 0)// &&
 	  // (*r)->id().sector() == 8)
 	  {
-	    std::cout<<"RPCDetId = "<<(*r)->id()<<std::endl;
-	    RPCGeomServ geosvc((*r)->id()); 
+	    std::cout<<"RPCDetId = "<<roll->id()<<std::endl;
+	    RPCGeomServ geosvc(roll->id()); 
 	    LocalPoint centre(0.,0.,0.);
-	    GlobalPoint gc = (*r)->toGlobal(centre);
-	    double phifirs = double((*r)->toGlobal((*r)->centreOfStrip(1)).phi())*radToDeg;
+	    GlobalPoint gc = roll->toGlobal(centre);
+	    double phifirs = double(roll->toGlobal(roll->centreOfStrip(1)).phi())*radToDeg;
 	    if (phifirs<0) phifirs=360.+phifirs;
-	    double philast = double((*r)->toGlobal((*r)->centreOfStrip((*r)->nstrips())).phi())*radToDeg;
+	    double philast = double(roll->toGlobal(roll->centreOfStrip(roll->nstrips())).phi())*radToDeg;
 	    if (philast<0) philast=360.+philast;
 	    double deltaphi = philast-phifirs;
 	    if (abs(deltaphi)>180.){
@@ -126,7 +125,7 @@ RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
 	    std::cout <<" Position "<<gc<<" phi="<<double(gc.phi())*radToDeg
 		      <<" strip 1 "
 		      <<phifirs
-		      <<" strip "<<(*r)->nstrips()<<" "
+		      <<" strip "<<roll->nstrips()<<" "
 		      <<philast
 		      <<std::endl;
 	    std::cout <<geosvc.name()<<" "<<"Anticlockwise ? ";

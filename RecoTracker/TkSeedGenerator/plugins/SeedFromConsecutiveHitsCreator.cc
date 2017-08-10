@@ -65,38 +65,34 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
   GlobalTrajectoryParameters kine;
   if (!initialKinematic(kine, hits)) return;
 
-  float sin2Theta = kine.momentum().perp2()/kine.momentum().mag2();
+  auto sin2Theta = kine.momentum().perp2()/kine.momentum().mag2();
 
   CurvilinearTrajectoryError error = initialError(sin2Theta);
   FreeTrajectoryState fts(kine, error);
+
   if(region->direction().x()!=0 && forceKinematicWithRegionDirection_) // a direction was given, check if it is an etaPhi region
   {
      const RectangularEtaPhiTrackingRegion * etaPhiRegion =  dynamic_cast<const RectangularEtaPhiTrackingRegion *>(region);
      if(etaPhiRegion) {  
-
 	//the following completely reset the kinematics, perhaps it makes no sense and newKine=kine would do better 
    	GlobalVector direction=region->direction()/region->direction().mag();
    	GlobalVector momentum=direction*fts.momentum().mag();
    	GlobalPoint position=region->origin()+5*direction;  
    	GlobalTrajectoryParameters newKine(position,momentum,fts.charge(),&fts.parameters().magneticField());
 
-  	GlobalError vertexErr( sqr(region->originRBound()), 0, sqr(region->originRBound()),
-                   0, 0, sqr(region->originZBound()));
-
-  	float ptMin = region->ptMin();
-  	AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
-
-  	float minC00 = 0.4;
+  	auto ptMin = region->ptMin();
+  	CurvilinearTrajectoryError newError; //zeroed
+        auto & C = newError.matrix();
+  	constexpr float minC00 = 0.4f;
   	C[0][0] = std::max(sin2Theta/sqr(ptMin), minC00);
-  	float zErr = vertexErr.czz();
-  	float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
-        float deltaEta = (etaPhiRegion->etaRange().first-etaPhiRegion->etaRange().second)/2.;
-        float deltaPhi = (etaPhiRegion->phiMargin().right()+etaPhiRegion->phiMargin().left())/2.;
-	C[1][1] = deltaEta*deltaEta*4; //2 sigma of what given in input
-  	C[2][2] = deltaPhi*deltaPhi*4;
+  	auto zErr = sqr(region->originZBound());
+  	auto transverseErr = sqr(region->originRBound()); // assume equal cxx cyy
+        auto twiceDeltaLambda =  std::atan(etaPhiRegion->tanLambdaRange().first)-std::atan(etaPhiRegion->tanLambdaRange().second);
+        auto twiceDeltaPhi = etaPhiRegion->phiMargin().right()+etaPhiRegion->phiMargin().left();
+	C[1][1] = twiceDeltaLambda*twiceDeltaLambda; //2 sigma of what given in input
+  	C[2][2] = twiceDeltaPhi*twiceDeltaPhi;
   	C[3][3] = transverseErr;
-  	C[4][4] = zErr*sin2Theta + transverseErr*(1-sin2Theta);
-   	CurvilinearTrajectoryError newError(C);
+  	C[4][4] = zErr*sin2Theta + transverseErr*(1.f-sin2Theta);
   	fts =  FreeTrajectoryState(newKine,newError);
     }
   }
@@ -120,7 +116,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
     kine = helix.stateAtVertex();
   } else {
     GlobalVector initMomentum(tth2->globalPosition() - vertexPos);
-    initMomentum *= (100./initMomentum.perp()); 
+    initMomentum *= (100.f/initMomentum.perp()); 
     kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
   } 
 
@@ -140,21 +136,23 @@ SeedFromConsecutiveHitsCreator::initialError(float sin2Theta) const
 {
   // Set initial uncertainty on track parameters, using only P.V. constraint and no hit
   // information.
-  AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
+  CurvilinearTrajectoryError newError;  // zeroed
+  auto & C = newError.matrix();
 
 // FIXME: minC00. Prevent apriori uncertainty in 1/P from being too small, 
 // to avoid instabilities.
 // N.B. This parameter needs optimising ...
   // Probably OK based on quick study: KS 22/11/12.
-  float sin2th = sin2Theta;
-  float minC00 = sqr(theMinOneOverPtError);
+  auto sin2th = sin2Theta;
+  auto minC00 = sqr(theMinOneOverPtError);
   C[0][0] = std::max(sin2th/sqr(region->ptMin()), minC00);
-  float zErr = sqr(region->originZBound());
-  float transverseErr = sqr(theOriginTransverseErrorMultiplier*region->originRBound());
+  auto zErr = sqr(region->originZBound());
+  auto transverseErr = sqr(theOriginTransverseErrorMultiplier*region->originRBound());
+  C[1][1] = C[2][2] = 1.;  // no good reason. no bad reason....
   C[3][3] = transverseErr;
   C[4][4] = zErr*sin2th + transverseErr*(1.f-sin2th);
 
-  return CurvilinearTrajectoryError(C);
+  return newError;
 }
 
 void SeedFromConsecutiveHitsCreator::buildSeed(

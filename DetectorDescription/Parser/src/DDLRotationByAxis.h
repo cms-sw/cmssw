@@ -4,7 +4,7 @@
 #include <string>
 
 #include "DDXMLElement.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 class DDCompactView;
 class DDLElementRegistry;

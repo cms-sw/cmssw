@@ -156,7 +156,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "generatorSmeared"
-        HepMCProductLabel = cms.string('generatorSmeared'),
+        HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
         MinPCut = cms.double(0.04), ## the cut is in GeV 
@@ -278,8 +278,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TestBeam        = cms.untracked.bool(False),
         NullNumbering   = cms.untracked.bool(False),
         StoreRadLength  = cms.untracked.bool(False),
-        AgeingWithSlopeLY  = cms.untracked.bool(False)
-    ),
+        ScaleRadLength  = cms.untracked.double(1.0),
+        StoreLayerTimeSim = cms.untracked.bool(False),
+        AgeingWithSlopeLY = cms.untracked.bool(False)
+        ),
     HCalSD = cms.PSet(
         common_UseLuminosity,
         UseBirkLaw                = cms.bool(True),
@@ -408,6 +410,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
+        StoreAllG4Hits   = cms.bool(False),
         RejectMouseBite  = cms.bool(False),
         RotatedWafer     = cms.bool(False),
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),

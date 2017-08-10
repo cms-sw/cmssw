@@ -55,7 +55,7 @@ class RequestManager : boost::noncopyable {
 public:
     static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
-    ~RequestManager() = default;
+    virtual ~RequestManager() = default;
 
     /**
      * Interface for handling a client request.

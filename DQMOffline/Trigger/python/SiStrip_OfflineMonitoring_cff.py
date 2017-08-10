@@ -138,7 +138,7 @@ hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('M
 hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
 hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
 #hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter4Merged") # scenario 0
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter2Merged") # scenario 1
+hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltTracksMerged") # hltIter2Merged # scenario 1
 #hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBuilderAngleAndTemplate')
 hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
 
@@ -151,7 +151,6 @@ HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClusters
 HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
 HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
-HLTSiStripMonitorTrack.Digi_On           = cms.bool(False)
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack

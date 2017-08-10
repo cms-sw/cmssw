@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("Demo")
 
@@ -59,7 +60,7 @@ process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
 # JetMET Certification Module 
 #-----------------------------
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
-process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+process.dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
 #
 #--- Always define reference root file by process.DQMStore.referenceFileName
                               refFileName    = cms.untracked.string(""),

@@ -30,5 +30,6 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 # , hltPrescaleTable = cms.string( "hltPrescaleRecorder" )  # only the label!
 # , addPathModuleLabels = cms.bool( False )                 # setting this "True" stores the names of all modules as strings (~10kB/ev.); possibly superseded by 'onlyStandAlone' = True
 # , exludeCollections = cms.vstring()
+, packTriggerLabels = cms.bool(False)
 )
 

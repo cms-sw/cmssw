@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 
 DDStrVector::DDStrVector() : DDBase<DDName,std::vector<std::string>*>() { }
 
