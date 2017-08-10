@@ -171,9 +171,11 @@ namespace {
 	}
       } // loop over detIds
       
-      std::cout<<"there are "<< totalG2DefaultAPVs << " APVs with default G2 value (=1)"
-	       <<" and " << totalG1DefaultAPVs <<" APVs with default G1 value (=690./640.)" << std::endl;
-      
+      /*
+	std::cout<<"there are "<< totalG2DefaultAPVs << " APVs with default G2 value (=1)"
+	<<" and " << totalG1DefaultAPVs <<" APVs with default G1 value (=690./640.)" << std::endl;
+      */      
+
       //=========================
 
       std::string gainType = totalG1DefaultAPVs==0 ? "G2 value (=1)" : "G1 value (=690./640.)";
@@ -744,8 +746,8 @@ namespace {
       TCanvas canvas("Payload comparison","payload comparison",1400,1000); 
       canvas.Divide(2,1);
 
-      std::map<std::string,TH1F*> ratios;
-      std::map<std::string,TH2F*> scatters;
+      std::map<std::string,std::shared_ptr<TH1F>> ratios;
+      std::map<std::string,std::shared_ptr<TH2F>> scatters;
       std::map<std::string,int> colormap;
       std::map<std::string,int> markermap;
       colormap["TIB"] = kRed;       markermap["TIB"] = kFullCircle;           
@@ -756,8 +758,8 @@ namespace {
       std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = new TH1F(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.);
-	scatters[part] = new TH2F(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
+	ratios[part]   = std::shared_ptr<TH1F>(new TH1F(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.));
+	scatters[part] = std::shared_ptr<TH2F>(new TH2F(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8));
       }
       
       // now loop on the cached maps
@@ -800,7 +802,7 @@ namespace {
       canvas.cd(1)->SetRightMargin(0.08);
 
       for (const auto &part : parts){
-	makeNicePlotStyle(ratios[part]);
+	makeNicePlotStyle(ratios[part].get());
 	ratios[part]->SetStats(false);
 	ratios[part]->SetLineWidth(2);
 	ratios[part]->SetLineColor(colormap[part]);
@@ -808,7 +810,7 @@ namespace {
 	  ratios[part]->Draw();
 	else
 	  ratios[part]->Draw("same");
-	legend.AddEntry(ratios[part],part.c_str(),"L");
+	legend.AddEntry(ratios[part].get(),part.c_str(),"L");
       }
 
       legend.Draw("same");
@@ -822,7 +824,7 @@ namespace {
       canvas.cd(2)->SetRightMargin(0.08);
 
       for (const auto &part : parts){
-	makeNicePlotStyle(scatters[part]);
+	makeNicePlotStyle(scatters[part].get());
 	scatters[part]->SetStats(false);
 	scatters[part]->SetMarkerColor(colormap[part]);
 	scatters[part]->SetMarkerStyle(markermap[part]);
@@ -1122,9 +1124,10 @@ namespace {
 	l.Draw("same");
       }
       
-      TLegend legend = TLegend(0.60,0.8,0.95,0.9);
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
       legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
       legend.AddEntry(h1.get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"PL");
+      legend.SetTextSize(0.025);
       legend.Draw("same");
 
       std::string fileName(m_imageFileName);

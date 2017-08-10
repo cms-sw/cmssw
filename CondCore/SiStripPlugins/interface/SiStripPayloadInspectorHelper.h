@@ -37,8 +37,9 @@ namespace sistrippayloadinspector {
   };
 };
 
-//**************************************//
+/*--------------------------------------------------------------------*/
 const char * regionType(int index)
+/*--------------------------------------------------------------------*/
 {
 
   auto region = static_cast<std::underlying_type_t<sistrippayloadinspector::TrackerRegion> >(index);
@@ -87,9 +88,10 @@ const char * regionType(int index)
   }
 }
 
-//**************************************//
-std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
-  
+/*--------------------------------------------------------------------*/
+std::pair<float,float> getTheRange(std::map<uint32_t,float> values)
+/*--------------------------------------------------------------------*/
+{
   float sum = std::accumulate(std::begin(values), 
 			      std::end(values), 
 			      0.0,
@@ -113,8 +115,9 @@ std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
 }
 
 
-//**************************************//
-void DrawStatBox(std::map<std::string,TH1F*> histos, std::map<std::string,int> colormap, std::vector<std::string> legend, double X=0.15, double Y=0.93, double W=0.15, double H=0.10)
+/*--------------------------------------------------------------------*/
+void DrawStatBox(std::map<std::string,std::shared_ptr<TH1F>> histos, std::map<std::string,int> colormap, std::vector<std::string> legend, double X=0.15, double Y=0.93, double W=0.15, double H=0.10)
+/*--------------------------------------------------------------------*/
 {  
   char   buffer[255];
    
@@ -122,7 +125,7 @@ void DrawStatBox(std::map<std::string,TH1F*> histos, std::map<std::string,int> c
    for ( const auto &element : legend ){
      TPaveText* stat = new TPaveText(X,Y-(i*H), X+W, Y-(i+1)*H, "NDC");
      i++;
-     TH1F* Histo = (TH1F*)histos[element];
+     auto Histo = histos[element];
      sprintf(buffer,"Entries : %i\n",(int)Histo->GetEntries());
      stat->AddText(buffer);
      
@@ -179,8 +182,10 @@ void makeNicePlotStyle(TH1 *hist)
 }
 
 
-//**************************************//
-void myPrintSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map){
+/*--------------------------------------------------------------------*/
+void myPrintSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map)
+/*--------------------------------------------------------------------*/
+{
   for (const auto &element : map){
     int count   = element.second.count;
     double mean = (element.second.mean)/count;
