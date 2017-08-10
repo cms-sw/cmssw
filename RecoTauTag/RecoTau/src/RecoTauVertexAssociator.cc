@@ -15,11 +15,25 @@
 
 namespace reco { namespace tau {
 
+namespace {
+  inline const reco::TrackBaseRef getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
+      else return reco::TrackBaseRef();
+    }
+    // JAN - FIXME: Add method for miniAOD PackedCandidate
+    return reco::TrackBaseRef();
+  }
+}
+
 // Get the highest pt track in a jet.
 // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
 reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const
 {
-  std::vector<PFCandidatePtr> chargedPFCands = pfChargedCands(jet, true);
+  std::vector<CandidatePtr> chargedPFCands = pfChargedCands(jet, true);
   if ( verbosity_ >= 1 ) {
     std::cout << "<RecoTauVertexAssociator::getLeadTrack>:" << std::endl;
     std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
@@ -31,7 +45,7 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const
     return reco::TrackBaseRef();
   }
 
-  std::vector<PFCandidatePtr> selectedPFCands;
+  std::vector<CandidatePtr> selectedPFCands;
   if ( vxTrkFiltering_ ) {
     selectedPFCands = qcuts_->filterCandRefs(chargedPFCands);
   } else { 
@@ -41,18 +55,15 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const
     std::cout << " num. selectedPFCands = " << selectedPFCands.size() << std::endl;
   }
 
-  PFCandidatePtr leadPFCand;
+  CandidatePtr leadPFCand;
   if ( !selectedPFCands.empty() ) {
     double leadTrackPt = 0.;
     if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadPFCand=selectedPFCands[0];}
     else
     {
-      for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
+      for ( std::vector<CandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
   	  pfCand != selectedPFCands.end(); ++pfCand ) {
-        const reco::Track* track = nullptr;
-        if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
-        else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
-        if ( !track ) continue;
+        const reco::TrackBaseRef& track = getTrack(**pfCand);
         double trackPt = 0.;
         if ( leadingTrkOrPFCandOption_ == kLeadTrack ) {
   	  //double trackPt = track->pt();
@@ -79,13 +90,8 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const
   if ( verbosity_ >= 1 ) {
     std::cout << "leadPFCand: Pt = " << leadPFCand->pt() << ", eta = " << leadPFCand->eta() << ", phi = " << leadPFCand->phi() << std::endl;
   }
-  
-  if ( leadPFCand->trackRef().isNonnull() ) {
-    return reco::TrackBaseRef(leadPFCand->trackRef());
-  } else if ( leadPFCand->gsfTrackRef().isNonnull() ) {
-    return reco::TrackBaseRef(leadPFCand->gsfTrackRef());
-  } 
-  return reco::TrackBaseRef();
+  const reco::TrackBaseRef& track = getTrack(*leadPFCand);
+  return track;
 }
 
 namespace {
@@ -248,7 +254,7 @@ RecoTauVertexAssociator::associatedVertex(const PFTau& tau, bool useJet) const
     }
   }
   // MB: use vertex associated to a given jet if explicitely requested or in case of missing leading track
-  reco::JetRef jetRef = tau.jetRef();
+  reco::PFJetRef jetRef = tau.jetRef();
   // FIXME workaround for HLT which does not use updated data format
   if ( jetRef.isNull() ) jetRef = tau.pfTauTagInfoRef()->pfjetRef();
   return associatedVertex(*jetRef);

@@ -25,10 +25,15 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+
 
 #include <memory>
 
@@ -73,6 +78,8 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   double minMergeGammaEt_;
   double minMergeChargedHadronPt_;
 
+  double bField_;
+
   int verbosity_;
 };
 
@@ -115,6 +122,10 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::~PFRecoTauChargedHadronFromPFCandid
 void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent() 
 {
   vertexAssociator_.setEvent(*evt());
+  
+  edm::ESHandle<MagneticField> pSetup;
+  evtSetup()->get<IdealMagneticFieldRecord>().get(pSetup);
+  bField_ = pSetup->inTesla(GlobalPoint(0,0,0)).z();
 }
 
 namespace
@@ -199,7 +210,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     
       
     }
-    chargedHadron->positionAtECALEntrance_ = atECALEntrance(&**cand);
+    chargedHadron->positionAtECALEntrance_ = atECALEntrance(&**cand, bField_);
     chargedHadron->chargedPFCandidate_ = (*cand);
     chargedHadron->addDaughter(*cand);
     
@@ -218,7 +229,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
         int jetConstituentPdgId = std::abs((*jetConstituent)->pdgId());
 	if ( !(jetConstituentPdgId == 130 || jetConstituentPdgId == 22) ) continue;
 
-	double dR = deltaR(atECALEntrance(&**jetConstituent), atECALEntrance(&*chargedHadron));
+	double dR = deltaR(atECALEntrance(&**jetConstituent, bField_), atECALEntrance(&*chargedHadron, bField_));
 	double dRmerge = -1.;      
 	int minBlockElementMatches = 1000;
 	int maxUnmatchedBlockElements = 0;

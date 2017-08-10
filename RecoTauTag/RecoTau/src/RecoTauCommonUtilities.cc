@@ -1,10 +1,12 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/CandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include <algorithm>
 
@@ -34,7 +36,7 @@ flattenPiZeros(const std::vector<RecoTauPiZero>& piZeros) {
 
 std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
     int pdgId, bool sort) {
-  CandPtrs pfCands = jet.getPFConstituents();
+  CandPtrs pfCands = jet.daughterPtrVector();
   CandPtrs selectedPFCands = filterPFCandidates(
       pfCands.begin(), pfCands.end(), pdgId, sort);
   return selectedPFCands;
@@ -42,7 +44,7 @@ std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
 
 std::vector<reco::CandidatePtr> pfCandidates(const reco::Jet& jet,
     const std::vector<int>& pdgIds, bool sort) {
-  CandPtrs&& pfCands = jet.getPFConstituents();
+  const CandPtrs& pfCands = jet.daughterPtrVector();
   CandPtrs output;
   // Get each desired candidate type, unsorted for now
   for(std::vector<int>::const_iterator pdgId = pdgIds.begin();
@@ -60,7 +62,7 @@ std::vector<reco::CandidatePtr> pfGammas(const reco::Jet& jet, bool sort) {
 
 std::vector<reco::CandidatePtr> pfChargedCands(const reco::Jet& jet,
                                                  bool sort) {
-  CandPtrs&& pfCands = jet.getPFConstituents();
+  const CandPtrs& pfCands = jet.daughterPtrVector();
   CandPtrs output;
   CandPtrs&& mus = filterPFCandidates(pfCands.begin(), pfCands.end(), 13, false);
   CandPtrs&& es = filterPFCandidates(pfCands.begin(), pfCands.end(), 11, false);
@@ -73,12 +75,30 @@ std::vector<reco::CandidatePtr> pfChargedCands(const reco::Jet& jet,
   return output;
 }
 
-math::XYZPoint atECALEntrance(const reco::Candidate* part) {
-  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate>(part);
+std::vector<PFCandidatePtr> convertPtrVectorToPF(const std::vector<CandidatePtr>& cands) {
+  std::vector<PFCandidatePtr> newSignalPFCands;
+  for (auto& cand : cands) {
+    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
+    newSignalPFCands.push_back(newPtr);
+  }
+  return std::move(newSignalPFCands);
+}
+
+std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands) {
+  std::vector<CandidatePtr> newSignalCands;
+  for (auto& cand : cands) {
+    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::Candidate> >();
+    newSignalCands.push_back(newPtr);
+  }
+  return std::move(newSignalCands);
+}
+
+math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField) {
+  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(part);
   if (pfCand)
     return pfCand->positionAtECALEntrance();
 
-  math::XYZPoint pos;
+  math::XYZPointF pos;
   BaseParticlePropagator theParticle =
     BaseParticlePropagator(RawParticle(math::XYZTLorentzVector(part->px(),
                      part->py(),
@@ -88,11 +108,11 @@ math::XYZPoint atECALEntrance(const reco::Candidate* part) {
                      part->vertex().y(),
                      part->vertex().z(),
                      0.)), 
-         0.,0.,bField_);
+         0.,0.,bField);
   theParticle.setCharge(part->charge());
   theParticle.propagateToEcalEntrance(false);
   if(theParticle.getSuccess()!=0){
-    pos = math::XYZPoint(theParticle.vertex());
+    pos = math::XYZPointF(theParticle.vertex());
   }
   return pos;
 }

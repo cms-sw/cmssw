@@ -2,7 +2,7 @@
 #define DataFormats_TauReco_PFRecoTauChargedHadron_h
 
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/Point3D.h"

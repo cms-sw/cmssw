@@ -58,9 +58,10 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::JetPiZeroAssociation" ClassVersion="11">
+  <class name="reco::JetPiZeroAssociation" ClassVersion="12">
    <version ClassVersion="10" checksum="3488813045"/>
    <version ClassVersion="11" checksum="2107652063"/>
+   <version ClassVersion="12" checksum="2981210128"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
@@ -75,9 +76,10 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="11">
+  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="12">
    <version ClassVersion="10" checksum="3498827707"/>
    <version ClassVersion="11" checksum="269001295"/>
+   <version ClassVersion="12" checksum="1002363278"/>
 <!--     <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>
