@@ -44,7 +44,8 @@ HLTMuonL2FromL1TPreFilter::HLTMuonL2FromL1TPreFilter(const edm::ParameterSet& iC
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
   min_DxySig_(iConfig.getParameter<double> ("MinDxySig")),
   minPt_( iConfig.getParameter<double>("MinPt") ),
-  nSigmaPt_( iConfig.getParameter<double>("NSigmaPt") )
+  nSigmaPt_( iConfig.getParameter<double>("NSigmaPt") ),
+  matchPreviousCand_( iConfig.getParameter<bool>("MatchToPreviousCand") )
 {
   using namespace std;
 
@@ -125,6 +126,7 @@ HLTMuonL2FromL1TPreFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("MinDxySig",-1.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
+  desc.add<bool>("MatchToPreviousCand",true);
   descriptions.add("hltMuonL2FromL1TPreFilter",desc);
 }
 
@@ -169,7 +171,7 @@ bool HLTMuonL2FromL1TPreFilter::hltFilter(edm::Event& iEvent, const edm::EventSe
     TrackRef mu = cand->get<TrackRef>();
 
     // check if this muon passed previous level
-    if(!mapL2ToL1.isTriggeredByL1(mu)) continue;
+    if(matchPreviousCand_ && !mapL2ToL1.isTriggeredByL1(mu)) continue;
 
     // eta cut
     if(std::abs(mu->eta()) > maxEta_) continue;

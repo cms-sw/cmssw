@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -83,7 +83,7 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
       rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, phi, 
 		  90*CLHEP::deg, (90*CLHEP::deg+phi), 0,  0);
     }
-    rotation.push_back(rot);
+    rotation.emplace_back(rot);
   }
 
   // Create the solids and logical parts
@@ -102,7 +102,7 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
 			 << " rEnd " << r0-dEnd << ":" << r0+dEnd << " Phi " 
 			 << -0.5*dPhi/CLHEP::deg << ":" << 0.5*dPhi/CLHEP::deg;
     DDLogicalPart log(DDName(name, idNameSpace), matter, solid);
-    logs.push_back(log);
+    logs.emplace_back(log);
   }
 
   // Now posiiton them

@@ -30,7 +30,7 @@ namespace {
       }
    };
    typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
-   [[cms::thread_safe]] static TriggerNamesMap triggerNamesMap;
+   [[cms::thread_safe]] TriggerNamesMap triggerNamesMap;
 }
 
 namespace edm
@@ -42,6 +42,11 @@ namespace edm
 
    EventBase::~EventBase()
    {
+   }
+
+   edm::ParameterSet const*
+   EventBase::parameterSetForID_(edm::ParameterSetID const& iPSID) {
+      return edm::pset::Registry::instance()->getMapped(iPSID);
    }
 
    TriggerNames const*

@@ -1,4 +1,3 @@
-
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
@@ -16,6 +15,9 @@ from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
 from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
+# HCAL
+from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
+from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -52,6 +54,7 @@ hltvalidation = cms.Sequence(
     +b2gHLTriggerValidation
     +SMPValidationSequence
     +hltbtagValidationSequence
+    +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
     )
 
 # some hlt collections have no direct fastsim equivalent

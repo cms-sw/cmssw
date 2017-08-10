@@ -9,7 +9,7 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
-                 record = cms.string('L1TCaloStage2ParamsRcd'),
+                 record = cms.string('L1TCaloParamsRcd'),
                  tag = cms.string("L1TCaloParamsPrototype_Stage2v0_hlt")
             )
        )
@@ -18,6 +18,7 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
 L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
     forceGeneration = cms.bool(False),
-    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
+    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
+    exclusiveLayer = cms.uint32(0)
 )
 

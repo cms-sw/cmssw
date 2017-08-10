@@ -35,6 +35,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
 
+// local headers
+#include "memory_usage.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +56,11 @@ namespace {
     return boost::chrono::duration_cast<boost::chrono::duration<double, boost::milli>>(duration).count();;
   }
 
+  // convert from bytes to kilobytes, rounding down
+  uint64_t kB(uint64_t bytes)
+  {
+    return bytes / 1024;
+  }
 } // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,19 +71,25 @@ namespace {
 
 FastTimerService::Resources::Resources() :
   time_thread(boost::chrono::nanoseconds::zero()),
-  time_real(boost::chrono::nanoseconds::zero())
+  time_real(boost::chrono::nanoseconds::zero()),
+  allocated(0UL),
+  deallocated(0UL)
 { }
 
 void
 FastTimerService::Resources::reset() {
   time_thread = boost::chrono::nanoseconds::zero();
   time_real   = boost::chrono::nanoseconds::zero();
+  allocated   = 0UL;
+  deallocated = 0UL;
 }
 
 FastTimerService::Resources &
 FastTimerService::Resources::operator+=(Resources const& other) {
   time_thread += other.time_thread;
   time_real   += other.time_real;
+  allocated   += other.allocated;
+  deallocated += other.deallocated;
   return *this;
 }
 
@@ -248,6 +261,8 @@ FastTimerService::Measurement::measure() {
   #endif // DEBUG_THREAD_CONCURRENCY
   time_thread = boost::chrono::thread_clock::now();
   time_real   = boost::chrono::high_resolution_clock::now();
+  allocated   = memory_usage::allocated();
+  deallocated = memory_usage::deallocated();
 }
 
 void
@@ -257,10 +272,16 @@ FastTimerService::Measurement::measure_and_store(Resources & store) {
   #endif // DEBUG_THREAD_CONCURRENCY
   auto new_time_thread = boost::chrono::thread_clock::now();
   auto new_time_real   = boost::chrono::high_resolution_clock::now();
+  auto new_allocated   = memory_usage::allocated();
+  auto new_deallocated = memory_usage::deallocated();
   store.time_thread = new_time_thread - time_thread;
   store.time_real   = new_time_real   - time_real;
+  store.allocated   = new_allocated   - allocated;
+  store.deallocated = new_deallocated - deallocated;
   time_thread = new_time_thread;
   time_real   = new_time_real;
+  allocated   = new_allocated;
+  deallocated = new_deallocated;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -269,7 +290,11 @@ FastTimerService::PlotsPerElement::PlotsPerElement() :
   time_thread_(nullptr),
   time_thread_byls_(nullptr),
   time_real_(nullptr),
-  time_real_byls_(nullptr)
+  time_real_byls_(nullptr),
+  allocated_(nullptr),
+  allocated_byls_(nullptr),
+  deallocated_(nullptr),
+  deallocated_byls_(nullptr)
 {
 }
 
@@ -281,6 +306,10 @@ FastTimerService::PlotsPerElement::reset()
   time_thread_byls_ = nullptr;
   time_real_        = nullptr;
   time_real_byls_   = nullptr;
+  allocated_        = nullptr;
+  allocated_byls_   = nullptr;
+  deallocated_      = nullptr;
+  deallocated_byls_ = nullptr;
 }
 
 void
@@ -288,31 +317,53 @@ FastTimerService::PlotsPerElement::book(
     DQMStore::IBooker & booker,
     std::string const& name,
     std::string const& title,
-    double range,
-    double resolution,
+    PlotRanges const& ranges,
     unsigned int lumisections,
     bool byls)
 {
-  int bins = (int) std::ceil(range / resolution);
-  std::string y_title = (boost::format("events / %.1f ms") % resolution).str();
+  int time_bins = (int) std::ceil(ranges.time_range   / ranges.time_resolution);
+  int mem_bins  = (int) std::ceil(ranges.memory_range / ranges.memory_resolution);
+  std::string y_title_ms = (boost::format("events / %.1f ms") % ranges.time_resolution).str();
+  std::string y_title_kB = (boost::format("events / %.1f kB") % ranges.memory_resolution).str();
 
   time_thread_ = booker.book1D(
       name + " time_thread",
       title + " processing time (cpu)",
-      bins, 0., range
+      time_bins, 0., ranges.time_range
       )->getTH1F();
   time_thread_->StatOverflows(true);
   time_thread_->SetXTitle("processing time [ms]");
-  time_thread_->SetYTitle(y_title.c_str());
+  time_thread_->SetYTitle(y_title_ms.c_str());
 
   time_real_ = booker.book1D(
       name + " time_real",
       title + " processing time (real)",
-      bins, 0., range
+      time_bins, 0., ranges.time_range
       )->getTH1F();
   time_real_->StatOverflows(true);
   time_real_->SetXTitle("processing time [ms]");
-  time_real_->SetYTitle(y_title.c_str());
+  time_real_->SetYTitle(y_title_ms.c_str());
+
+  if (memory_usage::is_available())
+  {
+    allocated_ = booker.book1D(
+        name + " allocated",
+        title + " allocated memory",
+        mem_bins, 0., ranges.memory_range
+        )->getTH1F();
+    allocated_->StatOverflows(true);
+    allocated_->SetXTitle("memory [kB]");
+    allocated_->SetYTitle(y_title_kB.c_str());
+
+    deallocated_ = booker.book1D(
+        name + " deallocated",
+        title + " deallocated memory",
+        mem_bins, 0., ranges.memory_range
+        )->getTH1F();
+    deallocated_->StatOverflows(true);
+    deallocated_->SetXTitle("memory [kB]");
+    deallocated_->SetYTitle(y_title_kB.c_str());
+  }
 
   if (not byls)
     return;
@@ -321,7 +372,7 @@ FastTimerService::PlotsPerElement::book(
       name + " time_thread_byls",
       title + " processing time (cpu) vs. lumisection",
       lumisections, 0.5, lumisections + 0.5,
-      bins, 0., std::numeric_limits<double>::infinity(),
+      time_bins, 0., std::numeric_limits<double>::infinity(),
       " ")->getTProfile();
   time_thread_byls_->StatOverflows(true);
   time_thread_byls_->SetXTitle("lumisection");
@@ -331,11 +382,34 @@ FastTimerService::PlotsPerElement::book(
       name + " time_real_byls",
       title + " processing time (real) vs. lumisection",
       lumisections, 0.5, lumisections + 0.5,
-      bins, 0., std::numeric_limits<double>::infinity(),
+      time_bins, 0., std::numeric_limits<double>::infinity(),
       " ")->getTProfile();
   time_real_byls_->StatOverflows(true);
   time_real_byls_->SetXTitle("lumisection");
   time_real_byls_->SetYTitle("processing time [ms]");
+
+  if (memory_usage::is_available())
+  {
+    allocated_byls_ = booker.bookProfile(
+        name + " allocated_byls",
+        title + " allocated memory vs. lumisection",
+        lumisections, 0.5, lumisections + 0.5,
+        mem_bins, 0., std::numeric_limits<double>::infinity(),
+        " ")->getTProfile();
+    allocated_byls_->StatOverflows(true);
+    allocated_byls_->SetXTitle("lumisection");
+    allocated_byls_->SetYTitle("memory [kB]");
+
+    deallocated_byls_ = booker.bookProfile(
+        name + " deallocated_byls",
+        title + " deallocated memory vs. lumisection",
+        lumisections, 0.5, lumisections + 0.5,
+        mem_bins, 0., std::numeric_limits<double>::infinity(),
+        " ")->getTProfile();
+    deallocated_byls_->StatOverflows(true);
+    deallocated_byls_->SetXTitle("lumisection");
+    deallocated_byls_->SetYTitle("memory [kB]");
+  }
 }
 
 void
@@ -352,6 +426,18 @@ FastTimerService::PlotsPerElement::fill(Resources const& data, unsigned int lumi
 
   if (time_real_byls_)
     time_real_byls_->Fill(lumisection, ms(data.time_real));
+
+  if (allocated_)
+    allocated_->Fill(kB(data.allocated));
+
+  if (allocated_byls_)
+    allocated_byls_->Fill(lumisection, kB(data.allocated));
+
+  if (deallocated_)
+    deallocated_->Fill(kB(data.deallocated));
+
+  if (deallocated_byls_)
+    deallocated_byls_->Fill(lumisection, kB(data.deallocated));
 }
 
 void
@@ -375,6 +461,22 @@ FastTimerService::PlotsPerElement::fill_fraction(Resources const& data, Resource
 
   if (time_real_byls_)
     time_real_byls_->Fill(lumisection, total, fraction);
+
+  total     = kB(data.allocated);
+  fraction  = (total > 0.) ? (kB(part.allocated) / total) : 0.;
+  if (allocated_)
+    allocated_->Fill(total, fraction);
+
+  if (allocated_byls_)
+    allocated_byls_->Fill(lumisection, total, fraction);
+
+  total     = kB(data.deallocated);
+  fraction  = (total > 0.) ? (kB(part.deallocated) / total) : 0.;
+  if (deallocated_)
+    deallocated_->Fill(total, fraction);
+
+  if (deallocated_byls_)
+    deallocated_byls_->Fill(lumisection, total, fraction);
 }
 
 
@@ -382,7 +484,9 @@ FastTimerService::PlotsPerPath::PlotsPerPath() :
   total_(),
   module_counter_(nullptr),
   module_time_thread_total_(nullptr),
-  module_time_real_total_(nullptr)
+  module_time_real_total_(nullptr),
+  module_allocated_total_(nullptr),
+  module_deallocated_total_(nullptr)
 {
 }
 
@@ -394,22 +498,25 @@ FastTimerService::PlotsPerPath::reset()
   module_counter_            = nullptr;
   module_time_thread_total_  = nullptr;
   module_time_real_total_    = nullptr;
+  module_allocated_total_    = nullptr;
+  module_deallocated_total_  = nullptr;
 }
 
 void
 FastTimerService::PlotsPerPath::book(
     DQMStore::IBooker & booker,
+    std::string const & prefixDir,
     ProcessCallGraph const& job,
     ProcessCallGraph::PathType const& path,
-    double range,
-    double resolution,
+    PlotRanges const& ranges,
     unsigned int lumisections,
     bool byls)
 {
   const std::string basedir = booker.pwd();
-  booker.setCurrentFolder(basedir + "/path " + path.name_);
+  //  booker.setCurrentFolder(basedir + "/path " + path.name_);
+  booker.setCurrentFolder(basedir + "/" + prefixDir + path.name_);
 
-  total_.book(booker, "path", path.name_, range, resolution, lumisections, byls);
+  total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 
   unsigned int bins = path.modules_and_dependencies_.size();
   module_counter_ = booker.book1DD(
@@ -417,7 +524,7 @@ FastTimerService::PlotsPerPath::book(
       "module counter",
       bins + 1, -0.5, bins + 0.5
       )->getTH1D();
-  module_counter_->SetYTitle("processing time [ms]");
+  module_counter_->SetYTitle("events");
   module_time_thread_total_ = booker.book1DD(
       "module_time_thread_total",
       "total module time (cpu)",
@@ -430,12 +537,32 @@ FastTimerService::PlotsPerPath::book(
       bins, -0.5, bins - 0.5
       )->getTH1D();
   module_time_real_total_->SetYTitle("processing time [ms]");
+  if (memory_usage::is_available())
+  {
+    module_allocated_total_ = booker.book1DD(
+        "module_allocated_total",
+        "total allocated memory",
+        bins, -0.5, bins - 0.5
+        )->getTH1D();
+    module_allocated_total_->SetYTitle("memory [kB]");
+    module_deallocated_total_ = booker.book1DD(
+        "module_deallocated_total",
+        "total deallocated memory",
+        bins, -0.5, bins - 0.5
+        )->getTH1D();
+    module_deallocated_total_->SetYTitle("memory [kB]");
+  }
   for (unsigned int bin: boost::irange(0u, bins)) {
     auto const& module = job[path.modules_and_dependencies_[bin]];
     std::string const& label = module.scheduled_ ? module.module_.moduleLabel() : module.module_.moduleLabel() + " (unscheduled)";
     module_counter_          ->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
     module_time_thread_total_->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
     module_time_real_total_  ->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
+    if (memory_usage::is_available())
+    {
+      module_allocated_total_  ->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
+      module_deallocated_total_->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
+    }
   }
   module_counter_->GetXaxis()->SetBinLabel(bins + 1, "");
 
@@ -451,11 +578,22 @@ FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& descripti
   // fill the modules that actually ran and the total time spent in each od them
   for (unsigned int i = 0; i < path.last; ++i) {
     auto const& module = data.modules[description.modules_and_dependencies_[i]];
-    module_counter_->Fill(i);
-    module_time_thread_total_->Fill(i, ms(module.total.time_thread));
-    module_time_real_total_->Fill(i, ms(module.total.time_real));
+    if (module_counter_)
+      module_counter_->Fill(i);
+
+    if (module_time_thread_total_)
+      module_time_thread_total_->Fill(i, ms(module.total.time_thread));
+
+    if (module_time_real_total_)
+      module_time_real_total_->Fill(i, ms(module.total.time_real));
+
+    if (module_allocated_total_)
+      module_allocated_total_->Fill(i, kB(module.total.allocated));
+
+    if (module_deallocated_total_)
+      module_deallocated_total_->Fill(i, kB(module.total.deallocated));
   }
-  if (path.status)
+  if (module_counter_ and path.status)
     module_counter_->Fill(path.last);
 }
 
@@ -482,40 +620,38 @@ FastTimerService::PlotsPerProcess::book(
     DQMStore::IBooker & booker,
     ProcessCallGraph const& job,
     ProcessCallGraph::ProcessType const& process,
-    double event_range,
-    double event_resolution,
-    double path_range,
-    double path_resolution,
+    PlotRanges const& event_ranges,
+    PlotRanges const& path_ranges,
     unsigned int lumisections,
+    bool bypath,
     bool byls)
 {
   const std::string basedir = booker.pwd();
   event_.book(booker,
       "process " + process.name_, "process " + process.name_,
-      event_range,
-      event_resolution,
+      event_ranges,
       lumisections,
       byls);
-  booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
-  for (unsigned int id: boost::irange(0ul, paths_.size()))
-  {
-    paths_[id].book(booker,
-        job, process.paths_[id],
-        path_range,
-        path_resolution,
-        lumisections,
-        byls);
+  if (bypath) {
+    booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
+    for (unsigned int id: boost::irange(0ul, paths_.size()))
+    {
+      paths_[id].book(booker,"path ",
+          job, process.paths_[id],
+          path_ranges,
+          lumisections,
+          byls);
+    }
+    for (unsigned int id: boost::irange(0ul, endpaths_.size()))
+    {
+      endpaths_[id].book(booker,"endpath ",
+          job, process.endPaths_[id],
+          path_ranges,
+          lumisections,
+          byls);
+    }
+    booker.setCurrentFolder(basedir);
   }
-  for (unsigned int id: boost::irange(0ul, endpaths_.size()))
-  {
-    endpaths_[id].book(booker,
-        job, process.endPaths_[id],
-        path_range,
-        path_resolution,
-        lumisections,
-        byls);
-  }
-  booker.setCurrentFolder(basedir);
 }
 
 void
@@ -561,14 +697,12 @@ FastTimerService::PlotsPerJob::book(
     DQMStore::IBooker & booker,
     ProcessCallGraph const& job,
     std::vector<GroupOfModules> const& groups,
-    double event_range,
-    double event_resolution,
-    double path_range,
-    double path_resolution,
-    double module_range,
-    double module_resolution,
+    PlotRanges const& event_ranges,
+    PlotRanges const& path_ranges,
+    PlotRanges const& module_ranges,
     unsigned int lumisections,
     bool bymodule,
+    bool bypath,
     bool byls)
 {
   const std::string basedir = booker.pwd();
@@ -576,15 +710,13 @@ FastTimerService::PlotsPerJob::book(
   // event summary plots
   event_.book(booker,
       "event", "Event",
-      event_range,
-      event_resolution,
+      event_ranges,
       lumisections,
       byls);
 
   modules_[job.source().id()].book(booker,
       "source", "Source",
-      module_range,
-      module_resolution,
+      module_ranges,
       lumisections,
       byls);
 
@@ -593,8 +725,7 @@ FastTimerService::PlotsPerJob::book(
     auto const & label = groups[group].label;
     highlight_[group].book(booker,
         "highlight " + label, "Highlight " + label,
-        event_range,
-        event_resolution,
+        event_ranges,
         lumisections,
         byls);
   }
@@ -604,11 +735,10 @@ FastTimerService::PlotsPerJob::book(
     auto const& process = job.processDescription(pid);
     processes_[pid].book(booker,
         job, process,
-        event_range,
-        event_resolution,
-        path_range,
-        path_resolution,
+        event_ranges,
+        path_ranges,
         lumisections,
+        bypath,
         byls);
 
     if (bymodule) {
@@ -618,8 +748,7 @@ FastTimerService::PlotsPerJob::book(
         auto const& module_name = job.module(id).moduleLabel();
         modules_[id].book(booker,
             module_name, module_name,
-            module_range,
-            module_resolution,
+            module_ranges,
             lumisections,
             byls);
       }
@@ -663,14 +792,21 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   module_id_(                   edm::ModuleDescription::invalidID() ),
   enable_dqm_(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
   enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+  enable_dqm_bypath_(           config.getUntrackedParameter<bool>(     "enableDQMbyPath"          ) ),
   enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
   enable_dqm_bynproc_(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
-  dqm_eventtime_range_(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
-  dqm_eventtime_resolution_(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),            // ms
-  dqm_pathtime_range_(          config.getUntrackedParameter<double>(   "dqmPathTimeRange"         ) ),            // ms
-  dqm_pathtime_resolution_(     config.getUntrackedParameter<double>(   "dqmPathTimeResolution"    ) ),            // ms
-  dqm_moduletime_range_(        config.getUntrackedParameter<double>(   "dqmModuleTimeRange"       ) ),            // ms
-  dqm_moduletime_resolution_(   config.getUntrackedParameter<double>(   "dqmModuleTimeResolution"  ) ),            // ms
+  dqm_event_ranges_(          { config.getUntrackedParameter<double>(   "dqmTimeRange"             ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmTimeResolution"        ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmMemoryRange"           ),              // kB
+                                config.getUntrackedParameter<double>(   "dqmMemoryResolution"      ) } ),          // kB
+  dqm_path_ranges_(           { config.getUntrackedParameter<double>(   "dqmPathTimeRange"         ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmPathTimeResolution"    ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmPathMemoryRange"       ),              // kB
+                                config.getUntrackedParameter<double>(   "dqmPathMemoryResolution"  ) } ),          // kB
+  dqm_module_ranges_(         { config.getUntrackedParameter<double>(   "dqmModuleTimeRange"       ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmModuleTimeResolution"  ),              // ms
+                                config.getUntrackedParameter<double>(   "dqmModuleMemoryRange"     ),              // kB
+                                config.getUntrackedParameter<double>(   "dqmModuleMemoryResolution") } ),          // kB
   dqm_lumisections_range_(      config.getUntrackedParameter<unsigned int>( "dqmLumiSectionsRange" ) ),
   dqm_path_(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // highlight configuration
@@ -914,14 +1050,12 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
         booker.setCurrentFolder(dqm_path_);
         stream_plots_[sid].book(booker, callgraph_,
             highlight_modules_,
-            dqm_eventtime_range_,
-            dqm_eventtime_resolution_,
-            dqm_pathtime_range_,
-            dqm_pathtime_resolution_,
-            dqm_moduletime_range_,
-            dqm_moduletime_resolution_,
+            dqm_event_ranges_,
+            dqm_path_ranges_,
+            dqm_module_ranges_,
             dqm_lumisections_range_,
             enable_dqm_bymodule_,
+            enable_dqm_bypath_,
             enable_dqm_byls_);
       };
 
@@ -1152,62 +1286,8 @@ FastTimerService::postEndJob()
 }
 
 
-
 template <typename T>
-void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
-{
-  out << "FastReport --------------------------- Event Summary ---------------------------\n";
-  out << "FastReport       CPU time      Real time  Modules\n";
-  auto const& source_d = callgraph_.source();
-  auto const& source   = data.modules[source_d.id()];
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int m: proc_d.modules_) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
-    }
-  }
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
-  out << '\n';
-  out << "FastReport       CPU time      Real time  Processes and Paths\n";
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const& name = proc_d.paths_[p].name_;
-      auto const& path = proc.paths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
-    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const& name = proc_d.endPaths_[p].name_;
-      auto const& path = proc.endpaths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
-  }
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
-  out << '\n';
-  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
-    out << "FastReport       CPU time      Real time  Highlighted modules\n";
-    for (unsigned int m: highlight_modules_[group].modules) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
-    }
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(data.highlight[group].time_thread) % ms(data.highlight[group].time_real) % highlight_modules_[group].label;
-    out << '\n';
-  }
-}
-
-template <typename T>
-void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const
+void FastTimerService::printHeader(T& out, std::string const & label) const
 {
   out << "FastReport ";
   if (label.size() < 60)
@@ -1218,88 +1298,161 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     for (unsigned int i = (59-label.size()) / 2; i > 0; --i)
       out << '-';
   out << '\n';
-  out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Modules\n";
+}
+
+template <typename T>
+void FastTimerService::printEventHeader(T& out, std::string const & label) const
+{
+  out << "FastReport       CPU time      Real time      Allocated    Deallocated  " << label << "\n";
+  //      FastReport  ######.### ms  ######.### ms  +######### kB  -######### kB  ...
+}
+
+template <typename T>
+void FastTimerService::printEventLine(T& out, Resources const& data, std::string const & label) const
+{
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %+10d kB  %+10d kB  %s\n") 
+    % ms(data.time_thread)
+    % ms(data.time_real)
+    % kB(data.allocated)
+    % kB(data.deallocated)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
+{
+  printHeader(out, "Event");
+  printEventHeader(out, "Modules");
   auto const& source_d = callgraph_.source();
   auto const& source   = data.modules[source_d.id()];
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %s\n")
-    % (ms(source.total.time_thread) / data.events) % (ms(source.total.time_thread) / source.events)
-    % (ms(source.total.time_real) / data.events)   % (ms(source.total.time_real) / source.events)
-    % source_d.moduleLabel();
+  printEventLine(out, source.total, source_d.moduleLabel());
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
     auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
-      % (ms(proc.total.time_thread) / data.events)
-      % (ms(proc.total.time_real) / data.events)
-      % proc_d.name_;
+    printEventLine(out, proc.total, "process " + proc_d.name_);
     for (unsigned int m: proc_d.modules_) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
-        % (ms(module.total.time_thread) / data.events) % (ms(module.total.time_thread) / module.events)
-        % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
-        % module_d.moduleLabel();
+      printEventLine(out, module.total, "  " + module_d.moduleLabel());
     }
   }
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
-    % (ms(data.total.time_thread) / data.events)
-    % (ms(data.total.time_real) / data.events);
+  printEventLine(out, data.total, "total");
   out << '\n';
-  out << "FastReport       CPU time                     Real time                 Processes and Paths\n";
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
-    % (ms(source.total.time_thread) / data.events)
-    % (ms(source.total.time_real) / data.events)
-    % source_d.moduleLabel();
+  printEventHeader(out, "Processes and Paths");
+  printEventLine(out, source.total, source_d.moduleLabel());
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
     auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
-      % (ms(proc.total.time_thread) / data.events)
-      % (ms(proc.total.time_real) / data.events)
-      % proc_d.name_;
+    printEventLine(out, proc.total, "process " + proc_d.name_);
     for (unsigned int p = 0; p < proc.paths.size(); ++p) {
       auto const& name = proc_d.paths_[p].name_;
       auto const& path = proc.paths[p];
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
-       % (ms(path.active.time_thread) / data.events)
-       % (ms(path.active.time_real) / data.events)
-       % name;
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
-       % (ms(path.total.time_thread) / data.events)
-       % (ms(path.total.time_real) / data.events)
-       % name;
+      printEventLine(out, path.active, name + " (only scheduled modules)");
+      printEventLine(out, path.total,  name + " (including dependencies)");
     }
     for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
       auto const& name = proc_d.endPaths_[p].name_;
       auto const& path = proc.endpaths[p];
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
-       % (ms(path.active.time_thread) / data.events)
-       % (ms(path.active.time_real) / data.events)
-       % name;
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
-       % (ms(path.total.time_thread) / data.events)
-       % (ms(path.total.time_real) / data.events)
-       % name;
+      printEventLine(out, path.active, name + " (only scheduled modules)");
+      printEventLine(out, path.total,  name + " (including dependencies)");
     }
   }
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
-       % (ms(data.total.time_thread) / data.events)
-       % (ms(data.total.time_real) / data.events);
+  printEventLine(out, data.total, "total");
   out << '\n';
   for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
-    out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Highlighted modules\n";
+    printEventHeader(out, "Highlighted modules");
     for (unsigned int m: highlight_modules_[group].modules) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
-        % (ms(module.total.time_thread) / data.events) % (ms(module.total.time_thread) / module.events)
-        % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
-        % module_d.moduleLabel();
+      printEventLine(out, module.total, "  " + module_d.moduleLabel());
     }
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
-      % (ms(data.highlight[group].time_thread) / data.events)
-      % (ms(data.highlight[group].time_real) / data.events)
-      % highlight_modules_[group].label;
+    printEventLine(out, data.highlight[group], highlight_modules_[group].label);
+    out << '\n';
+  }
+}
+
+template <typename T>
+void FastTimerService::printSummaryHeader(T& out, std::string const& label, bool detailed) const
+{
+  if (detailed)
+    out << "FastReport   CPU time avg.      when run  Real time avg.      when run     Alloc, avg.      when run   Dealloc. avg.      when run  " << label;
+    //      FastReport  ######.### ms  ######.### ms  ######.### ms  ######.### ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
+  else
+    out << "FastReport   CPU time avg.                Real time avg.                   Alloc, avg.                 Dealloc. avg.                " << label;
+    //      FastReport  ######.### ms                 ######.### ms                 +######### kB                 -######### kB                 ...
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const
+{
+  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %+10d kB                 %+10d kB                   %s\n")
+    % (events ? ms(data.time_thread) / events : 0)
+    % (events ? ms(data.time_real)   / events : 0)
+    % (events ? kB(data.allocated)   / events : 0)
+    % (events ? kB(data.deallocated) / events : 0)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const
+{
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n")
+    % (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0)
+    % (events ? ms(data.time_real)   / events : 0) % (active ? ms(data.time_real)   / active : 0)
+    % (events ? kB(data.allocated)   / events : 0) % (active ? kB(data.allocated)   / active : 0)
+    % (events ? kB(data.deallocated) / events : 0) % (active ? kB(data.deallocated) / active : 0)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const
+{
+  printHeader(out, label);
+  printSummaryHeader(out, "Modules", true);
+  auto const& source_d = callgraph_.source();
+  auto const& source   = data.modules[source_d.id()];
+  printSummaryLine(out, source.total, data.events, source.events, source_d.moduleLabel());
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+    for (unsigned int m: proc_d.modules_) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      printSummaryLine(out, module.total, data.events, module.events, module_d.moduleLabel());
+    }
+  }
+  printSummaryLine(out, data.total, data.events, "total");
+  out << '\n';
+  printSummaryHeader(out, "Processes and Paths", false);
+  printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+      auto const& name = proc_d.paths_[p].name_;
+      auto const& path = proc.paths[p];
+      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
+      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+    }
+    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+      auto const& name = proc_d.endPaths_[p].name_;
+      auto const& path = proc.endpaths[p];
+      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
+      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+    }
+  }
+  printSummaryLine(out, data.total, data.events, "total");
+  out << '\n';
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
+    printSummaryHeader(out, "Highlighted modules", true);
+    for (unsigned int m: highlight_modules_[group].modules) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      printSummaryLine(out, module.total, data.events, module.events, module_d.moduleLabel());
+    }
+    printSummaryLine(out, data.highlight[group], data.events, highlight_modules_[group].label);
     out << '\n';
   }
 }
@@ -1605,14 +1758,21 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<bool>(        "printJobSummary",          true);
   desc.addUntracked<bool>(        "enableDQM",                true);
   desc.addUntracked<bool>(        "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(        "enableDQMbyPath",          false);
   desc.addUntracked<bool>(        "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(        "enableDQMbyProcesses",     false);
   desc.addUntracked<double>(      "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>(      "dqmTimeResolution",           5. );   // ms
+  desc.addUntracked<double>(      "dqmMemoryRange",        1000000. );   // kB
+  desc.addUntracked<double>(      "dqmMemoryResolution",      5000. );   // kB
   desc.addUntracked<double>(      "dqmPathTimeRange",          100. );   // ms
   desc.addUntracked<double>(      "dqmPathTimeResolution",       0.5);   // ms
+  desc.addUntracked<double>(      "dqmPathMemoryRange",    1000000. );   // kB
+  desc.addUntracked<double>(      "dqmPathMemoryResolution",  5000. );   // kB
   desc.addUntracked<double>(      "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>(      "dqmModuleTimeResolution",     0.2);   // ms
+  desc.addUntracked<double>(      "dqmModuleMemoryRange",   100000. );   // kB
+  desc.addUntracked<double>(      "dqmModuleMemoryResolution", 500. );   // kB
   desc.addUntracked<unsigned>(    "dqmLumiSectionsRange",     2500  );   // ~ 16 hours
   desc.addUntracked<std::string>( "dqmPath",                  "HLT/TimerService");
 

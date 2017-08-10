@@ -15,12 +15,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #endif
 
 
@@ -173,20 +167,22 @@ void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM )
       DetId hitId = itrajmeas->recHit()->geographicalId();
 
       if(hitId.det() == DetId::Tracker) {
-        if (hitId.subdetId() == StripSubdetector::TIB )
-          LogTrace("MultiRecHitCollector") << "  I am TIB " << TIBDetId(hitId).layer();
-        else if (hitId.subdetId() == StripSubdetector::TOB )
-          LogTrace("MultiRecHitCollector") << "  I am TOB " << TOBDetId(hitId).layer();
-        else if (hitId.subdetId() == StripSubdetector::TEC )
-          LogTrace("MultiRecHitCollector") << "  I am TEC " << TECDetId(hitId).wheel();
-        else if (hitId.subdetId() == StripSubdetector::TID )
-          LogTrace("MultiRecHitCollector") << "  I am TID " << TIDDetId(hitId).wheel();
-        else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
-          LogTrace("MultiRecHitCollector") << "  I am PixBar " << PXBDetId(hitId).layer();
-        else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-          LogTrace("MultiRecHitCollector") << "  I am PixFwd " << PXFDetId(hitId).disk();
-        else
-          LogTrace("MultiRecHitCollector") << "  UNKNOWN TRACKER HIT TYPE ";
+        switch (hitId.subdetid()) {
+          case StripSubdetector::TIB:
+            LogTrace("MultiRecHitCollector") << "  I am TIB " << theTopology->tibLayer(hitId); break;
+          case StripSubdetector::TOB:
+            LogTrace("MultiRecHitCollector") << "  I am TOB " << theTopology->tobLayer(hitId); break;
+          case StripSubdetector::TEC:
+            LogTrace("MultiRecHitCollector") << "  I am TEC " << theTopology->tecWheel(hitId); break;
+          case StripSubdetector::TID:
+            LogTrace("MultiRecHitCollector") << "  I am TID " << theTopology->tidWheel(hitId); break;
+          case PixelSubdetector::PixelBarrel:
+            LogTrace("MultiRecHitCollector") << "  I am PixBar " << theTopology->pxbLayer(hitId); break;
+          case PixelSubdetector::PixelEndcap:
+            LogTrace("MultiRecHitCollector") << "  I am PixFwd " << theTopology->pxfDisk(hitId); break;
+          default:
+            LogTrace("MultiRecHitCollector") << "  UNKNOWN TRACKER HIT TYPE "; break;
+        }
       }
       else if(hitId.det() == DetId::Muon) {
         if(hitId.subdetId() == MuonSubdetId::DT) 

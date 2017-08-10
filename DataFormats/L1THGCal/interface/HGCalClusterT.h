@@ -34,7 +34,12 @@ namespace l1t
         seedMipPt_(0){}
 
       HGCalClusterT( const edm::Ptr<C>& c ):
-        valid_(true)
+        valid_(true),
+        detId_( c->detId() ),
+        centre_(0., 0., 0.),
+        centreProj_(0., 0., 0.),
+        mipPt_(0.),
+        seedMipPt_(0.)
       {
         addConstituent(c);
       }

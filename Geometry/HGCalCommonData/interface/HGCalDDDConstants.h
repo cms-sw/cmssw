@@ -24,8 +24,6 @@ class HGCalDDDConstants {
 
 public:
 
-  typedef std::array<std::vector<int32_t>, 2> simrecovecs;  
-  
   HGCalDDDConstants(const HGCalParameters* hp, const std::string name);
   ~HGCalDDDConstants();
 
@@ -39,7 +37,7 @@ public:
   std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
   std::pair<int,int>  findCellSquare(int cell, float h, float bl, float tl, 
 				     float alpha, float cellSize) const;
-  HGCalGeometryMode   geomMode() const {return mode_;}
+  HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   bool                isValidCell(int layindex, int wafer, int cell) const;
   unsigned int        layers(bool reco) const;
@@ -75,8 +73,12 @@ public:
 					int& wafer, int& icell, 
 					int& celltyp) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
+  int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
+  int                 waferMax() const {return waferMax_[1];}
+  int                 waferMin() const {return waferMax_[0];}
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
   int                 wafers() const;
+  int                 wafers(int layer, int type) const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
   // wafer transverse thickness classification (2 = coarse, 1 = fine)
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
@@ -102,13 +104,17 @@ private:
 			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
 
-  const HGCalParameters* hgpar_;
-  constexpr static double tan30deg_ = 0.5773502693;
-  double                 rmax_, hexside_;
-  HGCalGeometryMode      mode_;
-  int32_t                tot_wafers_, modHalf_;
-  std::array<uint32_t,2> tot_layers_;
-  simrecovecs            max_modules_layer_; 
+  typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
+  typedef std::array<int,3>                   HGCWaferParam;
+  const HGCalParameters*          hgpar_;
+  constexpr static double         tan30deg_ = 0.5773502693;
+  double                          rmax_, hexside_;
+  HGCalGeometryMode::GeometryMode mode_;
+  int32_t                         tot_wafers_, modHalf_;
+  std::array<uint32_t,2>          tot_layers_;
+  Simrecovecs                     max_modules_layer_;
+  std::map<int,HGCWaferParam>     waferLayer_;
+  std::array<int,4>               waferMax_;
 };
 
 #endif

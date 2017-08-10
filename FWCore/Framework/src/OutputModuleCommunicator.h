@@ -45,8 +45,6 @@ namespace edm {
     ///\return true if output module wishes to close its file
     virtual bool shouldWeCloseFile() const = 0;
     
-    virtual void openNewFileIfNeeded() = 0;
-    
     ///\return true if no event filtering is applied to OutputModule
     virtual bool wantAllEvents() const = 0;
     

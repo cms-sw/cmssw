@@ -1,17 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# Magntic field
-# Geometry (all CMS)
-# Tracker Geometry Builder
-# Tracker Numbering Builder
-# Reco geometry 
-#from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-# for Transient rechits?
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-#-ap   include "CalibTracker/Configuration/data/SiPixelLorentzAngle/SiPixelLorentzAngle_Fake.cff"
-# include "RecoTracker/TransientTrackingRecHit/data/TransientTrackingRecHitBuilderWithoutRefit.cfi"
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi
 myTTRHBuilderWithoutAngle = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone(
@@ -23,56 +14,65 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi impor
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
-from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks
+from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
+from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import globalTrackingRegion as _globalTrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+
+# SEEDING LAYERS
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSeedLayers, initialStepHitDoublets, _initialStepCAHitQuadruplets
 
 # TrackingRegion
-pixelTracksTrackingRegions = _globalTrackingRegionFromBeamSpot.clone()
-trackingPhase2PU140.toModify(pixelTracksTrackingRegions, RegionPSet = dict(originRadius =  0.02))
+pixelTracksTrackingRegions = _globalTrackingRegion.clone()
+trackingLowPU.toReplaceWith(pixelTracksTrackingRegions, _globalTrackingRegionFromBeamSpot.clone())
 
-# Hit ntuplets
-pixelTracksHitDoublets = _hitPairEDProducer.clone(
-    clusterCheck = "",
-    seedingLayers = "PixelLayerTriplets",
-    trackingRegions = "pixelTracksTrackingRegions",
-    maxElement = 0,
-    produceIntermediateHitDoublets = True,
+
+# Pixel Quadruplets Tracking
+pixelTracksSeedLayers = initialStepSeedLayers.clone(
+    BPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
+    FPix = dict(HitProducer = "siPixelRecHitsPreSplitting")
 )
-_seedingLayers = dict(seedingLayers = "PixelLayerTripletsPreSplitting")
-trackingLowPU.toModify(pixelTracksHitDoublets, **_seedingLayers)
-trackingPhase2PU140.toModify(pixelTracksHitDoublets, **_seedingLayers)
 
+pixelTracksHitDoublets = initialStepHitDoublets.clone(
+    clusterCheck = "",
+    seedingLayers = "pixelTracksSeedLayers",
+    trackingRegions = "pixelTracksTrackingRegions"
+)
+
+pixelTracksHitQuadruplets = _initialStepCAHitQuadruplets.clone(
+    doublets = "pixelTracksHitDoublets",
+    SeedComparitorPSet = dict(clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting')
+)
+
+# for trackingLowPU
 pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "pixelTracksHitDoublets",
     produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(
+        clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
+    )
 )
-_SeedComparitorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
-trackingLowPU.toModify(pixelTracksHitTriplets, **_SeedComparitorPSet)
-trackingPhase2PU140.toModify(pixelTracksHitTriplets, maxElement=0, **_SeedComparitorPSet)
 
-pixelTracksHitQuadruplets = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "pixelTracksHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
+pixelTracks = _pixelTracks.clone(
+    SeedingHitSets = "pixelTracksHitQuadruplets"
 )
+trackingLowPU.toModify(pixelTracks, SeedingHitSets = "pixelTracksHitTriplets")
 
 pixelTracksSequence = cms.Sequence(
     pixelTracksTrackingRegions +
-    pixelTracksHitDoublets +
-    pixelTracksHitTriplets +
     pixelFitterByHelixProjections +
     pixelTrackFilterByKinematics +
+    pixelTracksSeedLayers +
+    pixelTracksHitDoublets +
+    pixelTracksHitQuadruplets +
     pixelTracks
 )
-_pixelTracksSequence_quad = pixelTracksSequence.copy()
-_pixelTracksSequence_quad.replace(pixelTracksHitTriplets, pixelTracksHitTriplets+pixelTracksHitQuadruplets)
-trackingPhase2PU140.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_quad)
+_pixelTracksSequence_lowPU = pixelTracksSequence.copy()
+_pixelTracksSequence_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
+trackingLowPU.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_lowPU)

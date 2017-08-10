@@ -33,7 +33,7 @@ class RPCRadiiAnalyzer : public edm::one::EDAnalyzer<> {
  public: 
   RPCRadiiAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCRadiiAnalyzer();
+  ~RPCRadiiAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -88,34 +88,33 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
   
   
-  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
+    if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
       
       
       //RPCDetId detId=ch->id();
       
       std::vector< const RPCRoll*> rolls = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rolls.begin();
-	  r != rolls.end(); ++r){
+      for(auto & roll : rolls){
 	
-	if((*r)->id().region() == -1 &&
-	   (*r)->id().station() > 0)// &&
+	if(roll->id().region() == -1 &&
+	   roll->id().station() > 0)// &&
 	   //	   (*r)->id().ring() == 2)
 	  {
 	    //	    std::cout<<"RPCDetId = "<<(*r)->id()<<std::endl;
-	    RPCGeomServ geosvc((*r)->id()); 
+	    RPCGeomServ geosvc(roll->id()); 
 	    LocalPoint centre(0.,0.,0.);
-	    GlobalPoint gc = (*r)->toGlobal(centre);
+	    GlobalPoint gc = roll->toGlobal(centre);
 	    double phic = double(gc.phi())*radToDeg;
 	    double radii = double(gc.perp());
 	    std::cout <<geosvc.name()<<" phi="<<phic
 		      <<" r="<<radii
-		      <<" detName "<<(*r)->specs()->detName()
-		      <<" s="<<(*r)->id().sector()<<" subs="<<(*r)->id().subsector()
+		      <<" detName "<<roll->specs()->detName()
+		      <<" s="<<roll->id().sector()<<" subs="<<roll->id().subsector()
 		      <<std::endl;
 	  }
       }

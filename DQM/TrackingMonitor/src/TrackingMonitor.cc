@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
@@ -20,6 +21,7 @@
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -38,8 +40,8 @@
 // ----------------------------------------------------------------------------------//
 
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) 
-    : conf_ ( iConfig )
-    , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(conf_) )
+    : confID_ ( iConfig.id() )
+    , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(iConfig) )
     , NumberOfTracks(NULL)
     , NumberOfMeanRecHitsPerTrack(NULL)
     , NumberOfMeanLayersPerTrack(NULL)
@@ -84,64 +86,74 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfTracks_lumiFlag(NULL)
 				//    , NumberOfGoodTracks_lumiFlag(NULL)
 
-    , builderName              ( conf_.getParameter<std::string>("TTRHBuilder"))
-    , doTrackerSpecific_       ( conf_.getParameter<bool>("doTrackerSpecific") )
-    , doLumiAnalysis           ( conf_.getParameter<bool>("doLumiAnalysis"))
-    , doProfilesVsLS_          ( conf_.getParameter<bool>("doProfilesVsLS"))
-    , doAllPlots               ( conf_.getParameter<bool>("doAllPlots"))
-    , doGeneralPropertiesPlots_( conf_.getParameter<bool>("doGeneralPropertiesPlots"))
-    , doHitPropertiesPlots_    ( conf_.getParameter<bool>("doHitPropertiesPlots"))
-    , doPUmonitoring_          ( conf_.getParameter<bool>("doPUmonitoring") )
+    , builderName              ( iConfig.getParameter<std::string>("TTRHBuilder"))
+    , doTrackerSpecific_       ( iConfig.getParameter<bool>("doTrackerSpecific") )
+    , doLumiAnalysis           ( iConfig.getParameter<bool>("doLumiAnalysis"))
+    , doProfilesVsLS_          ( iConfig.getParameter<bool>("doProfilesVsLS"))
+    , doAllPlots               ( iConfig.getParameter<bool>("doAllPlots"))
+    , doGeneralPropertiesPlots_( iConfig.getParameter<bool>("doGeneralPropertiesPlots"))
+    , doHitPropertiesPlots_    ( iConfig.getParameter<bool>("doHitPropertiesPlots"))
+    , doPUmonitoring_          ( iConfig.getParameter<bool>("doPUmonitoring") )
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this))
-    , numSelection_       (conf_.getParameter<std::string>("numCut"))
-    , denSelection_       (conf_.getParameter<std::string>("denCut"))
-    , pvNDOF_             ( conf_.getParameter<int> ("pvNDOF") )
+    , numSelection_       (iConfig.getParameter<std::string>("numCut"))
+    , denSelection_       (iConfig.getParameter<std::string>("denCut"))
+    , pvNDOF_             ( iConfig.getParameter<int> ("pvNDOF") )
 {
 
   edm::ConsumesCollector c{ consumesCollector() };
-  theTrackAnalyzer = new TrackAnalyzer( conf_,c );
+  theTrackAnalyzer = new dqm::TrackAnalyzer( iConfig,c );
 
   // input tags for collections from the configuration
-  bsSrc_ = conf_.getParameter<edm::InputTag>("beamSpot");
-  pvSrc_ = conf_.getParameter<edm::InputTag>("primaryVertex");
+  bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");
+  pvSrc_ = iConfig.getParameter<edm::InputTag>("primaryVertex");
   bsSrcToken_ = consumes<reco::BeamSpot>(bsSrc_);
   pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
 
-  lumiscalersToken_ = consumes<LumiScalersCollection>(conf_.getParameter<edm::InputTag>("scal") );
+  lumiscalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scal") );
 
-  edm::InputTag alltrackProducer = conf_.getParameter<edm::InputTag>("allTrackProducer");
-  edm::InputTag trackProducer    = conf_.getParameter<edm::InputTag>("TrackProducer");
-  edm::InputTag tcProducer       = conf_.getParameter<edm::InputTag>("TCProducer");
-  edm::InputTag seedProducer     = conf_.getParameter<edm::InputTag>("SeedProducer");
+  edm::InputTag alltrackProducer = iConfig.getParameter<edm::InputTag>("allTrackProducer");
+  edm::InputTag trackProducer    = iConfig.getParameter<edm::InputTag>("TrackProducer");
+  edm::InputTag tcProducer       = iConfig.getParameter<edm::InputTag>("TCProducer");
+  edm::InputTag seedProducer     = iConfig.getParameter<edm::InputTag>("SeedProducer");
   allTrackToken_       = consumes<edm::View<reco::Track> >(alltrackProducer);
   trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
 
-  edm::InputTag stripClusterInputTag_ = conf_.getParameter<edm::InputTag>("stripCluster");
-  edm::InputTag pixelClusterInputTag_ = conf_.getParameter<edm::InputTag>("pixelCluster");
+  doMVAPlots = iConfig.getParameter<bool>("doMVAPlots");
+  if(doMVAPlots) {
+    mvaQualityTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<std::string> >("MVAProducers"),
+                                              [&](const std::string& tag) {
+                                                return std::make_tuple(consumes<MVACollection>(edm::InputTag(tag, "MVAValues")),
+                                                                       consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
+                                              });
+    mvaTrackToken_ = consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackProducerForMVA"));
+  }
+
+  edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
+  edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
   stripClustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> > (stripClusterInputTag_);
   pixelClustersToken_ = mayConsume<edmNew::DetSetVector<SiPixelCluster> > (pixelClusterInputTag_);
 
   doFractionPlot_ = true;
   if (alltrackProducer.label()==trackProducer.label()) doFractionPlot_ = false;
   
-  Quality_  = conf_.getParameter<std::string>("Quality");
-  AlgoName_ = conf_.getParameter<std::string>("AlgoName");
+  Quality_  = iConfig.getParameter<std::string>("Quality");
+  AlgoName_ = iConfig.getParameter<std::string>("AlgoName");
   
   // get flag from the configuration
-  doPlotsVsBXlumi_   = conf_.getParameter<bool>("doPlotsVsBXlumi");   
+  doPlotsVsBXlumi_   = iConfig.getParameter<bool>("doPlotsVsBXlumi");   
   if ( doPlotsVsBXlumi_ )
       theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
-  doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
-  doPlotsVsLUMI_     = conf_.getParameter<bool>("doPlotsVsLUMI");
-  doPlotsVsBX_       = conf_.getParameter<bool>("doPlotsVsBX");
+  doPlotsVsGoodPVtx_ = iConfig.getParameter<bool>("doPlotsVsGoodPVtx");
+  doPlotsVsLUMI_     = iConfig.getParameter<bool>("doPlotsVsLUMI");
+  doPlotsVsBX_       = iConfig.getParameter<bool>("doPlotsVsBX");
 
   if ( doPUmonitoring_ ) {
     
-    std::vector<edm::InputTag> primaryVertexInputTags    = conf_.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
-    std::vector<edm::InputTag> selPrimaryVertexInputTags = conf_.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
-    std::vector<std::string>   pvLabels                  = conf_.getParameter<std::vector<std::string> >  ("pvLabels");
+    std::vector<edm::InputTag> primaryVertexInputTags    = iConfig.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
+    std::vector<edm::InputTag> selPrimaryVertexInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
+    std::vector<std::string>   pvLabels                  = iConfig.getParameter<std::vector<std::string> >  ("pvLabels");
      
     if (primaryVertexInputTags.size()==pvLabels.size() and primaryVertexInputTags.size()==selPrimaryVertexInputTags.size()) {
       for (size_t i=0; i<primaryVertexInputTags.size(); i++) {
@@ -149,7 +161,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
  	edm::InputTag iSelPVinputTag = selPrimaryVertexInputTags[i];
  	std::string   iPVlabel       = pvLabels[i];
 	
- 	theVertexMonitor.push_back(new VertexMonitor(conf_,iPVinputTag,iSelPVinputTag,iPVlabel,c) );
+ 	theVertexMonitor.push_back(new VertexMonitor(iConfig,iPVinputTag,iSelPVinputTag,iPVlabel,c) );
       }
     }
   }
@@ -179,9 +191,11 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::EventSetup const & iSetup) 
 {
    // parameters from the configuration
-   std::string Quality      = conf_.getParameter<std::string>("Quality");
-   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
-   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
+   auto const* conf = edm::pset::Registry::instance()->getMapped(confID_);
+   assert(conf != nullptr);
+   std::string Quality      = conf->getParameter<std::string>("Quality");
+   std::string AlgoName     = conf->getParameter<std::string>("AlgoName");
+   std::string MEFolderName = conf->getParameter<std::string>("FolderName"); 
 
    // test for the Quality veriable validity
    if( Quality_ != "") {
@@ -195,31 +209,31 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    std::string CategoryName = Quality_ != "" ? AlgoName_ + "_" + Quality_ : AlgoName_;
 
    // get binning from the configuration
-   int    TKNoBin     = conf_.getParameter<int>(   "TkSizeBin");
-   double TKNoMin     = conf_.getParameter<double>("TkSizeMin");
-   double TKNoMax     = conf_.getParameter<double>("TkSizeMax");
+   int    TKNoBin     = conf->getParameter<int>(   "TkSizeBin");
+   double TKNoMin     = conf->getParameter<double>("TkSizeMin");
+   double TKNoMax     = conf->getParameter<double>("TkSizeMax");
 
-   int    TCNoBin     = conf_.getParameter<int>(   "TCSizeBin");
-   double TCNoMin     = conf_.getParameter<double>("TCSizeMin");
-   double TCNoMax     = conf_.getParameter<double>("TCSizeMax");
+   int    TCNoBin     = conf->getParameter<int>(   "TCSizeBin");
+   double TCNoMin     = conf->getParameter<double>("TCSizeMin");
+   double TCNoMax     = conf->getParameter<double>("TCSizeMax");
 
-   int    TKNoSeedBin = conf_.getParameter<int>(   "TkSeedSizeBin");
-   double TKNoSeedMin = conf_.getParameter<double>("TkSeedSizeMin");
-   double TKNoSeedMax = conf_.getParameter<double>("TkSeedSizeMax");
+   int    TKNoSeedBin = conf->getParameter<int>(   "TkSeedSizeBin");
+   double TKNoSeedMin = conf->getParameter<double>("TkSeedSizeMin");
+   double TKNoSeedMax = conf->getParameter<double>("TkSeedSizeMax");
 
-   int    MeanHitBin  = conf_.getParameter<int>(   "MeanHitBin");
-   double MeanHitMin  = conf_.getParameter<double>("MeanHitMin");
-   double MeanHitMax  = conf_.getParameter<double>("MeanHitMax");
+   int    MeanHitBin  = conf->getParameter<int>(   "MeanHitBin");
+   double MeanHitMin  = conf->getParameter<double>("MeanHitMin");
+   double MeanHitMax  = conf->getParameter<double>("MeanHitMax");
 
-   int    MeanLayBin  = conf_.getParameter<int>(   "MeanLayBin");
-   double MeanLayMin  = conf_.getParameter<double>("MeanLayMin");
-   double MeanLayMax  = conf_.getParameter<double>("MeanLayMax");
+   int    MeanLayBin  = conf->getParameter<int>(   "MeanLayBin");
+   double MeanLayMin  = conf->getParameter<double>("MeanLayMin");
+   double MeanLayMax  = conf->getParameter<double>("MeanLayMax");
 
-   int LSBin = conf_.getParameter<int>(   "LSBin");
-   int LSMin = conf_.getParameter<double>("LSMin");
-   int LSMax = conf_.getParameter<double>("LSMax");
+   int LSBin = conf->getParameter<int>(   "LSBin");
+   int LSMin = conf->getParameter<double>("LSMin");
+   int LSMax = conf->getParameter<double>("LSMax");
 
-   std::string StateName = conf_.getParameter<std::string>("MeasurementState");
+   std::string StateName = conf->getParameter<std::string>("MeasurementState");
    if (
        StateName != "OuterSurface" &&
        StateName != "InnerSurface" &&
@@ -301,8 +315,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      NumberEventsOfVsLS->setAxisTitle("#Lumi section",1);
      NumberEventsOfVsLS->setAxisTitle("Number of events",2);
   
-     double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
-     double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
+     double GoodPVtxMin   = conf->getParameter<double>("GoodPVtxMin");
+     double GoodPVtxMax   = conf->getParameter<double>("GoodPVtxMax");
 
      histname = "NumberOfGoodPVtxVsLS_" + CategoryName;
      NumberOfGoodPVtxVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,GoodPVtxMin,GoodPVtxMax,"");
@@ -381,9 +395,9 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      if ( doPlotsVsGoodPVtx_ ) {
       ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
       // get binning from the configuration
-       int    GoodPVtxBin   = conf_.getParameter<int>("GoodPVtxBin");
-       double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
-       double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
+       int    GoodPVtxBin   = conf->getParameter<int>("GoodPVtxBin");
+       double GoodPVtxMin   = conf->getParameter<double>("GoodPVtxMin");
+       double GoodPVtxMax   = conf->getParameter<double>("GoodPVtxMax");
     
        histname = "NumberOfTracksVsGoodPVtx";
        NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
@@ -423,16 +437,16 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Mean number of vertices",2);
 
-       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
-       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       double NClusPxMin = conf->getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf->getParameter<double>("NClusPxMax");
        histname = "NumberOfPixelClustersVsGoodPVtx";
        NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusPxMin,NClusPxMax,"");
        NumberOfPixelClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Mean number of pixel clusters",2);
        
-       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
-       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       double NClusStrMin = conf->getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf->getParameter<double>("NClusStrMax");
        histname = "NumberOfStripClustersVsGoodPVtx";
        NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusStrMin,NClusStrMax,"");
        NumberOfStripClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
@@ -444,9 +458,9 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
      if ( doPlotsVsLUMI_ || doAllPlots ) {
        ibooker.setCurrentFolder(MEFolderName+"/LUMIanalysis");
-       int LUMIBin = conf_.getParameter<int>("LUMIBin");
-       float LUMIMin = conf_.getParameter<double>("LUMIMin");
-       float LUMIMax = conf_.getParameter<double>("LUMIMax");
+       int LUMIBin = conf->getParameter<int>("LUMIBin");
+       float LUMIMin = conf->getParameter<double>("LUMIMin");
+       float LUMIMax = conf->getParameter<double>("LUMIMax");
        
        histname = "NumberEventsVsLUMI";
        NumberEventsOfVsLUMI = ibooker.book1D(histname,histname,LUMIBin,LUMIMin,LUMIMax);
@@ -474,8 +488,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices",2);
 
-       double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
-       double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
+       double GoodPVtxMin   = conf->getParameter<double>("GoodPVtxMin");
+       double GoodPVtxMax   = conf->getParameter<double>("GoodPVtxMax");
        
        histname = "NumberOfGoodPVtxVsLUMI";
        NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,GoodPVtxMax,"");
@@ -489,16 +503,16 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
 
-       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
-       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       double NClusPxMin = conf->getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf->getParameter<double>("NClusPxMax");
        histname = "NumberOfPixelClustersVsGoodPVtx";
        NumberOfPixelClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusPxMin,NClusPxMax,"");
        NumberOfPixelClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters",2);
        
-       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
-       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       double NClusStrMin = conf->getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf->getParameter<double>("NClusStrMax");
        histname = "NumberOfStripClustersVsLUMI";
        NumberOfStripClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusStrMin,NClusStrMax,"");
        NumberOfStripClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
@@ -511,7 +525,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      if ( doPlotsVsBXlumi_ ) {
        ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
        // get binning from the configuration
-       edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
+       edm::ParameterSet BXlumiParameters = conf->getParameter<edm::ParameterSet>("BXlumiSetup");
        int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
        double BXlumiMin   = BXlumiParameters.getParameter<double>("BXlumiMin");
        double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
@@ -525,22 +539,22 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      }
    
 
-     theTrackAnalyzer->initHisto(ibooker, iSetup);
+     theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
 
    // book the Seed Property histograms
    // ---------------------------------------------------------------------------------//
 
    ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
 
-   doAllSeedPlots      = conf_.getParameter<bool>("doSeedParameterHistos");
-   doSeedNumberPlot    = conf_.getParameter<bool>("doSeedNumberHisto");
-   doSeedLumiAnalysis_ = conf_.getParameter<bool>("doSeedLumiAnalysis");
-   doSeedVsClusterPlot = conf_.getParameter<bool>("doSeedVsClusterHisto");
+   doAllSeedPlots      = conf->getParameter<bool>("doSeedParameterHistos");
+   doSeedNumberPlot    = conf->getParameter<bool>("doSeedNumberHisto");
+   doSeedLumiAnalysis_ = conf->getParameter<bool>("doSeedLumiAnalysis");
+   doSeedVsClusterPlot = conf->getParameter<bool>("doSeedVsClusterHisto");
    //    if (doAllPlots) doAllSeedPlots=true;
 
-   runTrackBuildingAnalyzerForSeed=(doAllSeedPlots || conf_.getParameter<bool>("doSeedPTHisto") ||conf_.getParameter<bool>("doSeedETAHisto") || conf_.getParameter<bool>("doSeedPHIHisto") || conf_.getParameter<bool>("doSeedPHIVsETAHisto") || conf_.getParameter<bool>("doSeedThetaHisto") || conf_.getParameter<bool>("doSeedQHisto") || conf_.getParameter<bool>("doSeedDxyHisto") || conf_.getParameter<bool>("doSeedDzHisto") || conf_.getParameter<bool>("doSeedNRecHitsHisto") || conf_.getParameter<bool>("doSeedNVsPhiProf")|| conf_.getParameter<bool>("doSeedNVsEtaProf"));
+   runTrackBuildingAnalyzerForSeed=(doAllSeedPlots || conf->getParameter<bool>("doSeedPTHisto") ||conf->getParameter<bool>("doSeedETAHisto") || conf->getParameter<bool>("doSeedPHIHisto") || conf->getParameter<bool>("doSeedPHIVsETAHisto") || conf->getParameter<bool>("doSeedThetaHisto") || conf->getParameter<bool>("doSeedQHisto") || conf->getParameter<bool>("doSeedDxyHisto") || conf->getParameter<bool>("doSeedDzHisto") || conf->getParameter<bool>("doSeedNRecHitsHisto") || conf->getParameter<bool>("doSeedNVsPhiProf")|| conf->getParameter<bool>("doSeedNVsEtaProf"));
 
-   edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
+   edm::InputTag seedProducer   = conf->getParameter<edm::InputTag>("SeedProducer");
 
    if (doAllSeedPlots || doSeedNumberPlot){
      ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
@@ -562,18 +576,18 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    if (doAllSeedPlots || doSeedVsClusterPlot){
      ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
 
-     ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
+     ClusterLabels=  conf->getParameter<std::vector<std::string> >("ClusterLabels");
   
      std::vector<double> histoMin,histoMax;
      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms 
   
-     int    NClusPxBin = conf_.getParameter<int>(   "NClusPxBin");
-     double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
-     double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+     int    NClusPxBin = conf->getParameter<int>(   "NClusPxBin");
+     double NClusPxMin = conf->getParameter<double>("NClusPxMin");
+     double NClusPxMax = conf->getParameter<double>("NClusPxMax");
   
-     int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
-     double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
-     double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+     int    NClusStrBin = conf->getParameter<int>(   "NClusStrBin");
+     double NClusStrMin = conf->getParameter<double>("NClusStrMin");
+     double NClusStrMax = conf->getParameter<double>("NClusStrMax");
   
      setMaxMinBin(histoMin,histoMax,histoBin,NClusStrMin,NClusStrMax,NClusStrBin,NClusPxMin,NClusPxMax,NClusPxBin);
   
@@ -587,13 +601,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      }
    }
   
-   doTkCandPlots=conf_.getParameter<bool>("doTrackCandHistos");
+   doTkCandPlots=conf->getParameter<bool>("doTrackCandHistos");
   //    if (doAllPlots) doTkCandPlots=true;
   
   if (doTkCandPlots){
     ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
     
-    edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
+    edm::InputTag tcProducer     = conf->getParameter<edm::InputTag>("TCProducer");
     
     histname = "NumberOfTrackCandidates_"+ tcProducer.label() + "_"+ CategoryName;
     NumberOfTrackCandidates = ibooker.book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
@@ -601,7 +615,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
   }
   
-  theTrackBuildingAnalyzer->initHisto(ibooker);
+  theTrackBuildingAnalyzer->initHisto(ibooker,*conf);
   
   
   if (doLumiAnalysis) {
@@ -616,22 +630,22 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
   if (doTrackerSpecific_ || doAllPlots) {
     
-    ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
+    ClusterLabels=  conf->getParameter<std::vector<std::string> >("ClusterLabels");
     
     std::vector<double> histoMin,histoMax;
     std::vector<int> histoBin; //these vectors are for max min and nbins in histograms 
     
-    int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
-    double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
-    double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+    int    NClusStrBin = conf->getParameter<int>(   "NClusStrBin");
+    double NClusStrMin = conf->getParameter<double>("NClusStrMin");
+    double NClusStrMax = conf->getParameter<double>("NClusStrMax");
     
-    int    NClusPxBin = conf_.getParameter<int>(   "NClusPxBin");
-    double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
-    double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+    int    NClusPxBin = conf->getParameter<int>(   "NClusPxBin");
+    double NClusPxMin = conf->getParameter<double>("NClusPxMin");
+    double NClusPxMax = conf->getParameter<double>("NClusPxMax");
     
-    int    NTrk2DBin     = conf_.getParameter<int>(   "NTrk2DBin");
-    double NTrk2DMin     = conf_.getParameter<double>("NTrk2DMin");
-    double NTrk2DMax     = conf_.getParameter<double>("NTrk2DMax");
+    int    NTrk2DBin     = conf->getParameter<int>(   "NTrk2DBin");
+    double NTrk2DMin     = conf->getParameter<double>("NTrk2DMin");
+    double NTrk2DMax     = conf->getParameter<double>("NTrk2DMax");
     
     setMaxMinBin(histoMin,histoMax,histoBin,
 		 NClusStrMin,NClusStrMax,NClusStrBin,
@@ -648,7 +662,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										      NTrk2DBin,NTrk2DMin,NTrk2DMax
 										      )));
       std::string title = "Number of " + ClusterLabels[i] + " Clusters";
-      if(ClusterLabels[i].compare("Tot")==0)
+      if(ClusterLabels[i]=="Tot")
 	title = "# of Clusters in (Pixel+Strip) Detectors";
       NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
       NumberOfTrkVsClusters[i]->setAxisTitle("Number of Tracks", 2);
@@ -849,6 +863,26 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	} else {
 	  edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 	}
+
+	if(doMVAPlots) {
+	  // Get MVA and quality mask collections
+	  std::vector<const MVACollection *> mvaCollections;
+	  std::vector<const QualityMaskCollection *> qualityMaskCollections;
+
+	  edm::Handle<edm::View<reco::Track> > htracks;
+	  iEvent.getByToken(mvaTrackToken_, htracks);
+
+	  edm::Handle<MVACollection> hmva;
+	  edm::Handle<QualityMaskCollection> hqual;
+	  for(const auto& tokenTpl: mvaQualityTokens_) {
+	    iEvent.getByToken(std::get<0>(tokenTpl), hmva);
+	    iEvent.getByToken(std::get<1>(tokenTpl), hqual);
+
+	    mvaCollections.push_back(hmva.product());
+	    qualityMaskCollections.push_back(hqual.product());
+	  }
+	  theTrackBuildingAnalyzer->analyze(*htracks, mvaCollections, qualityMaskCollections);
+	}
       }
       
       //plots for trajectory seeds
@@ -962,11 +996,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  setNclus(iEvent,NClus);
 	  for (uint  i=0; i< ClusterLabels.size(); i++){
 	    if ( doPlotsVsLUMI_ || doAllPlots )	{
-	      if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
-	      if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
 	    }
-	    if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
-	    if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
 	  }
 	
 	if ( doPlotsVsBXlumi_ ) {
@@ -997,9 +1031,9 @@ void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<d
 
   for (uint i=0; i<ClusterLabels.size(); ++i) {
 
-    if     (ClusterLabels[i].compare("Pix")==0  ) {arrayMin[i]=pmin; arrayMax[i]=pmax;      arrayBin[i]=pbin;}
-    else if(ClusterLabels[i].compare("Strip")==0) {arrayMin[i]=smin; arrayMax[i]=smax;      arrayBin[i]=sbin;}
-    else if(ClusterLabels[i].compare("Tot")==0  ) {arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
+    if     (ClusterLabels[i]=="Pix"  ) {arrayMin[i]=pmin; arrayMax[i]=pmax;      arrayBin[i]=pbin;}
+    else if(ClusterLabels[i]=="Strip") {arrayMin[i]=smin; arrayMax[i]=smax;      arrayBin[i]=sbin;}
+    else if(ClusterLabels[i]=="Tot"  ) {arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
     else {edm::LogWarning("TrackingMonitor")  << "Cluster Label " << ClusterLabels[i] << " not defined, using strip parameters "; 
       arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
 
@@ -1026,9 +1060,9 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
   arrayNclus.resize(ClusterLabels.size());
   for (uint i=0; i<ClusterLabels.size(); ++i){
     
-    if     (ClusterLabels[i].compare("Pix")==0  ) arrayNclus[i]=ncluster_pix ;
-    else if(ClusterLabels[i].compare("Strip")==0) arrayNclus[i]=ncluster_strip;
-    else if(ClusterLabels[i].compare("Tot")==0  ) arrayNclus[i]=ncluster_pix+ncluster_strip;
+    if     (ClusterLabels[i]=="Pix"  ) arrayNclus[i]=ncluster_pix ;
+    else if(ClusterLabels[i]=="Strip") arrayNclus[i]=ncluster_strip;
+    else if(ClusterLabels[i]=="Tot"  ) arrayNclus[i]=ncluster_pix+ncluster_strip;
     else {edm::LogWarning("TrackingMonitor") << "Cluster Label " << ClusterLabels[i] << " not defined using stri parametrs ";
       arrayNclus[i]=ncluster_strip ;}
   }

@@ -12,6 +12,9 @@
 #include "SimG4CMS/Forward/interface/BscSD.h"
 #include "SimG4CMS/Forward/interface/BHMSD.h"
 #include "SimG4CMS/Forward/interface/Bcm1fSD.h"
+
+#include "SimG4CMS/Forward/plugins/SimG4FluxProducer.h"
+
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -38,3 +41,4 @@ DEFINE_SIMWATCHER (ZdcTestAnalysis);
 DEFINE_SIMWATCHER (DoCastorAnalysis);
 DEFINE_SIMWATCHER (TotemTestGem);
 DEFINE_SIMWATCHER (BscTest);
+DEFINE_SIMWATCHER (SimG4FluxProducer);

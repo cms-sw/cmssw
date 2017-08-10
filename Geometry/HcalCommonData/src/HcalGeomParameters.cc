@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -31,17 +31,17 @@ HcalGeomParameters::~HcalGeomParameters() {
 
 void HcalGeomParameters::getConstRHO( std::vector<double>& rHO ) const {
 
-  rHO.push_back(rminHO);
-  for (int i=0; i<4; ++i) rHO.push_back(etaHO[i]);
+  rHO.emplace_back(rminHO);
+  for (double i : etaHO) rHO.emplace_back(i);
 }
 
 std::vector<int> HcalGeomParameters::getModHalfHBHE(const int type) const {
 
   std::vector<int> modHalf;
   if (type == 0) {
-    modHalf.push_back(nmodHB); modHalf.push_back(nzHB);
+    modHalf.emplace_back(nmodHB); modHalf.emplace_back(nzHB);
   } else {
-    modHalf.push_back(nmodHE); modHalf.push_back(nzHE);
+    modHalf.emplace_back(nmodHE); modHalf.emplace_back(nzHE);
   }
   return modHalf;
 }
@@ -134,19 +134,19 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	}
 	if (lay < 17) {
 	  bool found = false;
-	  for (unsigned int k=0; k<rxb.size(); k++) {
-	    if (std::abs(rxb[k]-t.Rho()) < 0.01) {
+	  for (double k : rxb) {
+	    if (std::abs(k-t.Rho()) < 0.01) {
 	      found = true;
 	      break;
 	    }
 	  }
 	  if (!found) {
-	    rxb.push_back(t.Rho());
-	    php.rhoxHB.push_back(t.Rho()*std::cos(t.phi()));
-	    php.zxHB.push_back(std::abs(t.z()));
-	    php.dyHB.push_back(2.*dy);
-	    php.dxHB.push_back(2.*dz);
-	    php.layHB.push_back(lay);
+	    rxb.emplace_back(t.Rho());
+	    php.rhoxHB.emplace_back(t.Rho()*std::cos(t.phi()));
+	    php.zxHB.emplace_back(std::abs(t.z()));
+	    php.dyHB.emplace_back(2.*dy);
+	    php.dxHB.emplace_back(2.*dz);
+	    php.layHB.emplace_back(lay);
 	  }
 	}
       }
@@ -154,9 +154,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	int iz = copy[nsiz-5];
 	int fi = copy[nsiz-4];
 	unsigned int it1 = find(iz, izb);
-	if (it1 == izb.size())  izb.push_back(iz);
+	if (it1 == izb.size())  izb.emplace_back(iz);
 	unsigned int it2 = find(fi, phib);
-	if (it2 == phib.size()) phib.push_back(fi);
+	if (it2 == phib.size()) phib.emplace_back(fi);
       }
       if (lay == 18) {
 	int ifi=-1, ich=-1;
@@ -189,8 +189,8 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	    }
 	  }
 	  if (sok) {
-	    php.zHO.push_back(z1);
-	    php.zHO.push_back(z2);
+	    php.zHO.emplace_back(z1);
+	    php.zHO.emplace_back(z2);
 	  }
 #ifdef EDM_ML_DEBUG
 	  std::cout << "Detector " << idet << " Lay " << lay << " fi " << ifi 
@@ -215,30 +215,30 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	rmaxHE[lay] += routHE;
 #endif
 	bool found = false;
-	for (unsigned int k=0; k<php.zxHE.size(); k++) {
-	  if (std::abs(php.zxHE[k]-std::abs(t.z())) < 0.01) {
+	for (double k : php.zxHE) {
+	  if (std::abs(k-std::abs(t.z())) < 0.01) {
 	    found = true;
 	    break;
 	  }
 	}
 	if (!found) {
-	  php.zxHE.push_back(std::abs(t.z()));
-	  php.rhoxHE.push_back(t.Rho()*std::cos(t.phi()));
-	  php.dyHE.push_back(dy*std::cos(t.phi()));
+	  php.zxHE.emplace_back(std::abs(t.z()));
+	  php.rhoxHE.emplace_back(t.Rho()*std::cos(t.phi()));
+	  php.dyHE.emplace_back(dy*std::cos(t.phi()));
 	  dx1 -= 0.5*(t.rho()-dy)*std::cos(t.phi())*std::tan(10*CLHEP::deg);
 	  dx2 -= 0.5*(t.rho()+dy)*std::cos(t.phi())*std::tan(10*CLHEP::deg);
-	  php.dx1HE.push_back(-dx1);
-	  php.dx2HE.push_back(-dx2);
-	  php.layHE.push_back(lay);
+	  php.dx1HE.emplace_back(-dx1);
+	  php.dx2HE.emplace_back(-dx2);
+	  php.layHE.emplace_back(lay);
 	}
       }
       if (copy[nsiz-1] == 21 || copy[nsiz-1] == 71) {
 	int iz = copy[nsiz-7];
 	int fi = copy[nsiz-5];
 	unsigned int it1 = find(iz, ize);
-	if (it1 == ize.size())  ize.push_back(iz);
+	if (it1 == ize.size())  ize.emplace_back(iz);
 	unsigned int it2 = find(fi, phie);
-	if (it2 == phie.size()) phie.push_back(fi);
+	if (it2 == phie.size()) phie.emplace_back(fi);
       }
     } else if (idet == 5) {
       // HF

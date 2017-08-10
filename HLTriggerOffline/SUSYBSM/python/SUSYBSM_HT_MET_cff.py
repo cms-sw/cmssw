@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_HT350_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
@@ -13,7 +14,7 @@ SUSY_HLT_HT350_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT350_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToHT350oMET100oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT350_PFMET100_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -35,7 +36,7 @@ SUSY_HLT_HT300_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT300_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToHT300oMET100oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_PFMET100_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -57,7 +58,7 @@ SUSY_HLT_HT300_MET110 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT300_MET110_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToHT300oMET110oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_PFMET110_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -71,7 +72,7 @@ SUSY_HLT_HT_MET = cms.Sequence(SUSY_HLT_HT350_MET100 +
                                 SUSY_HLT_HT300_MET110
 )
 
-SUSY_HLT_HT_MET_POSTPROCESSING = cms.Sequence(SUSY_HLT_HT350_MET100_POSTPROCESSING +
-                              SUSY_HLT_HT300_MET100_POSTPROCESSING +
-                              SUSY_HLT_HT300_MET110_POSTPROCESSING
+SUSY_HLT_HT_MET_POSTPROCESSING = cms.Sequence(SUSYoHLToHT350oMET100oPOSTPROCESSING +
+                              SUSYoHLToHT300oMET100oPOSTPROCESSING +
+                              SUSYoHLToHT300oMET110oPOSTPROCESSING
 )

@@ -6,8 +6,8 @@
 
 L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
     : daqToken(consumes<l1t::EMTFDaqOutCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      hitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      trackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+      hitToken(consumes<l1t::EMTFHit2016Collection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+      trackToken(consumes<l1t::EMTFTrack2016Collection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       muonToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
@@ -204,10 +204,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   // Hits (LCTs)
-  edm::Handle<l1t::EMTFHitCollection> HitCollection;
+  edm::Handle<l1t::EMTFHit2016Collection> HitCollection;
   e.getByToken(hitToken, HitCollection);
 
-  for (std::vector<l1t::EMTFHit>::const_iterator Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
+  for (std::vector<l1t::EMTFHit2016>::const_iterator Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
     int endcap = Hit->Endcap();
     int sector = Hit->Sector();
     int station = Hit->Station();
@@ -266,7 +266,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   // Tracks
-  edm::Handle<l1t::EMTFTrackCollection> TrackCollection;
+  edm::Handle<l1t::EMTFTrack2016Collection> TrackCollection;
   e.getByToken(trackToken, TrackCollection);
 
   int nTracks = TrackCollection->size();
@@ -277,7 +277,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfnTracks->Fill(10);
   }
 
-  for (std::vector<l1t::EMTFTrack>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
+  for (std::vector<l1t::EMTFTrack2016>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
     int endcap = Track->Endcap();
     int sector = Track->Sector();
     float eta = Track->Eta();

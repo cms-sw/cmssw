@@ -10,7 +10,7 @@
 namespace std{} using namespace std;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -55,7 +55,7 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   zoff        = vArgs["ZOff"];
   int i = 0;
   for (i = 0; i < rzones; i++) {
-    ttheta.push_back(tan(theta[i])); //*deg already done in XML
+    ttheta.emplace_back(tan(theta[i])); //*deg already done in XML
   }
   if (rzones > 3)
     rmax[2] = (zoff[3] - zoff[2]) / ttheta[2];
@@ -231,85 +231,85 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   double rmid4  = getRmax(2);
 
   vector<double> pgonZ;
-  pgonZ.push_back( -zmax); 
-  pgonZ.push_back( -zstep5); 
-  pgonZ.push_back( -zstep5); 
-  pgonZ.push_back( -zstep4); 
-  pgonZ.push_back( -zstep3); 
-  pgonZ.push_back( -zstep2); 
-  pgonZ.push_back( -zstep1); 
-  pgonZ.push_back(       0); 
-  pgonZ.push_back(  zstep1); 
-  pgonZ.push_back(  zstep2); 
-  pgonZ.push_back(  zstep3); 
-  pgonZ.push_back(  zstep4); 
-  pgonZ.push_back(  zstep5); 
-  pgonZ.push_back(  zstep5); 
-  pgonZ.push_back(    zmax);
+  pgonZ.emplace_back( -zmax); 
+  pgonZ.emplace_back( -zstep5); 
+  pgonZ.emplace_back( -zstep5); 
+  pgonZ.emplace_back( -zstep4); 
+  pgonZ.emplace_back( -zstep3); 
+  pgonZ.emplace_back( -zstep2); 
+  pgonZ.emplace_back( -zstep1); 
+  pgonZ.emplace_back(       0); 
+  pgonZ.emplace_back(  zstep1); 
+  pgonZ.emplace_back(  zstep2); 
+  pgonZ.emplace_back(  zstep3); 
+  pgonZ.emplace_back(  zstep4); 
+  pgonZ.emplace_back(  zstep5); 
+  pgonZ.emplace_back(  zstep5); 
+  pgonZ.emplace_back(    zmax);
 
   vector<double> pgonRmin;
-  pgonRmin.push_back(   rmid4); 
-  pgonRmin.push_back(   rmid3); 
-  pgonRmin.push_back(   rmid3); 
-  pgonRmin.push_back(   rmid2); 
-  pgonRmin.push_back(   rmid1); 
-  pgonRmin.push_back(   rmid1); 
-  pgonRmin.push_back(     rin); 
-  pgonRmin.push_back(     rin); 
-  pgonRmin.push_back(     rin); 
-  pgonRmin.push_back(   rmid1); 
-  pgonRmin.push_back(   rmid1); 
-  pgonRmin.push_back(   rmid2); 
-  pgonRmin.push_back(   rmid3); 
-  pgonRmin.push_back(   rmid3); 
-  pgonRmin.push_back(   rmid4);
+  pgonRmin.emplace_back(   rmid4); 
+  pgonRmin.emplace_back(   rmid3); 
+  pgonRmin.emplace_back(   rmid3); 
+  pgonRmin.emplace_back(   rmid2); 
+  pgonRmin.emplace_back(   rmid1); 
+  pgonRmin.emplace_back(   rmid1); 
+  pgonRmin.emplace_back(     rin); 
+  pgonRmin.emplace_back(     rin); 
+  pgonRmin.emplace_back(     rin); 
+  pgonRmin.emplace_back(   rmid1); 
+  pgonRmin.emplace_back(   rmid1); 
+  pgonRmin.emplace_back(   rmid2); 
+  pgonRmin.emplace_back(   rmid3); 
+  pgonRmin.emplace_back(   rmid3); 
+  pgonRmin.emplace_back(   rmid4);
 
   vector<double> pgonRmax;
-  pgonRmax.push_back(   rout1); 
-  pgonRmax.push_back(   rout1); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(    rout); 
-  pgonRmax.push_back(   rout1);
-  pgonRmax.push_back(   rout1);
+  pgonRmax.emplace_back(   rout1); 
+  pgonRmax.emplace_back(   rout1); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(    rout); 
+  pgonRmax.emplace_back(   rout1);
+  pgonRmax.emplace_back(   rout1);
 
   vector<double> pgonZHalf;
-  pgonZHalf.push_back(       0); 
-  pgonZHalf.push_back(  zstep1); 
-  pgonZHalf.push_back(  zstep2); 
-  pgonZHalf.push_back(  zstep3); 
-  pgonZHalf.push_back(  zstep4); 
-  pgonZHalf.push_back(  zstep5); 
-  pgonZHalf.push_back(  zstep5); 
-  pgonZHalf.push_back(    zmax);
+  pgonZHalf.emplace_back(       0); 
+  pgonZHalf.emplace_back(  zstep1); 
+  pgonZHalf.emplace_back(  zstep2); 
+  pgonZHalf.emplace_back(  zstep3); 
+  pgonZHalf.emplace_back(  zstep4); 
+  pgonZHalf.emplace_back(  zstep5); 
+  pgonZHalf.emplace_back(  zstep5); 
+  pgonZHalf.emplace_back(    zmax);
 
   vector<double> pgonRminHalf;
-  pgonRminHalf.push_back(     rin); 
-  pgonRminHalf.push_back(     rin); 
-  pgonRminHalf.push_back(   rmid1); 
-  pgonRminHalf.push_back(   rmid1); 
-  pgonRminHalf.push_back(   rmid2); 
-  pgonRminHalf.push_back(   rmid3); 
-  pgonRminHalf.push_back(   rmid3); 
-  pgonRminHalf.push_back(   rmid4);
+  pgonRminHalf.emplace_back(     rin); 
+  pgonRminHalf.emplace_back(     rin); 
+  pgonRminHalf.emplace_back(   rmid1); 
+  pgonRminHalf.emplace_back(   rmid1); 
+  pgonRminHalf.emplace_back(   rmid2); 
+  pgonRminHalf.emplace_back(   rmid3); 
+  pgonRminHalf.emplace_back(   rmid3); 
+  pgonRminHalf.emplace_back(   rmid4);
 
   vector<double> pgonRmaxHalf;
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(    rout); 
-  pgonRmaxHalf.push_back(   rout1);
-  pgonRmaxHalf.push_back(   rout1);
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(    rout); 
+  pgonRmaxHalf.emplace_back(   rout1);
+  pgonRmaxHalf.emplace_back(   rout1);
 
   string name("Null");
   DDSolid solid;
@@ -465,49 +465,49 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView
     int    nsec=2;
     vector<double> pgonZ, pgonRmin, pgonRmax;
     // index 0
-    pgonZ.push_back(0);
-    pgonRmin.push_back(rin); 
-    pgonRmax.push_back(rout);
+    pgonZ.emplace_back(0);
+    pgonRmin.emplace_back(rin); 
+    pgonRmax.emplace_back(rout);
     // index 1
-    pgonZ.push_back(zout);  
-    pgonRmin.push_back(rin); 
-    pgonRmax.push_back(rout);
+    pgonZ.emplace_back(zout);  
+    pgonRmin.emplace_back(rin); 
+    pgonRmax.emplace_back(rout);
     if (in == out) {
       if (in <= 3) {
 	//index 2
-	pgonZ.push_back(getZoff(in) + rout*getTanTheta(in));
-	pgonRmin.push_back(pgonRmax[1]);
-	pgonRmax.push_back(pgonRmax[1]);
+	pgonZ.emplace_back(getZoff(in) + rout*getTanTheta(in));
+	pgonRmin.emplace_back(pgonRmax[1]);
+	pgonRmax.emplace_back(pgonRmax[1]);
 	nsec++;
       }
     } else {
       if (in == 3) {
 	//redo index 1, add index 2
 	pgonZ[1]    =(getZoff(out) + getRmax(out)*getTanTheta(out));
-	pgonZ.push_back(pgonZ[1] + deltaz);
-	pgonRmin.push_back(pgonRmin[1]); 
-	pgonRmax.push_back(getRmax(in));
+	pgonZ.emplace_back(pgonZ[1] + deltaz);
+	pgonRmin.emplace_back(pgonRmin[1]); 
+	pgonRmax.emplace_back(getRmax(in));
 	//index 3 
-	pgonZ.push_back(getZoff(in) + getRmax(in)*getTanTheta(in));
-	pgonRmin.push_back(pgonRmin[2]); 
-	pgonRmax.push_back(pgonRmax[2]);
+	pgonZ.emplace_back(getZoff(in) + getRmax(in)*getTanTheta(in));
+	pgonRmin.emplace_back(pgonRmin[2]); 
+	pgonRmax.emplace_back(pgonRmax[2]);
         nsec       += 2;
       } else {
 	//index 2
-	pgonZ.push_back(getZoff(in) + getRmax(in)*getTanTheta(in));
-	pgonRmin.push_back(getRmax(in)); 
-	pgonRmax.push_back(pgonRmax[1]); 
+	pgonZ.emplace_back(getZoff(in) + getRmax(in)*getTanTheta(in));
+	pgonRmin.emplace_back(getRmax(in)); 
+	pgonRmax.emplace_back(pgonRmax[1]); 
 	nsec++;
 	if (in == 0) {
-	  pgonZ.push_back(getZoff(out) + getRmax(in)*getTanTheta(out));
-          pgonRmin.push_back(pgonRmin[2]); 
-	  pgonRmax.push_back(pgonRmax[2]);
+	  pgonZ.emplace_back(getZoff(out) + getRmax(in)*getTanTheta(out));
+          pgonRmin.emplace_back(pgonRmin[2]); 
+	  pgonRmax.emplace_back(pgonRmax[2]);
 	  nsec++;
 	}
 	if (in <= 1) {
-	  pgonZ.push_back(getZoff(out) + rout*getTanTheta(out));
-	  pgonRmin.push_back(rout);
-	  pgonRmax.push_back(rout);
+	  pgonZ.emplace_back(getZoff(out) + rout*getTanTheta(out));
+	  pgonRmin.emplace_back(rout);
+	  pgonRmax.emplace_back(rout);
 	  nsec++;
 	}
       }
@@ -667,17 +667,17 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
   }
   vector<double> pgonZ, pgonRmin, pgonRmax;
   // index 0
-  pgonZ.push_back(0.0);     
-  pgonRmin.push_back(rsi); 
-  pgonRmax.push_back(rsi+getSideT(k));
+  pgonZ.emplace_back(0.0);     
+  pgonRmin.emplace_back(rsi); 
+  pgonRmax.emplace_back(rsi+getSideT(k));
   // index 1
-  pgonZ.push_back(getZoff(in) + rsi*getTanTheta(in));  
-  pgonRmin.push_back(rsi); 
-  pgonRmax.push_back(pgonRmax[0]);
+  pgonZ.emplace_back(getZoff(in) + rsi*getTanTheta(in));  
+  pgonRmin.emplace_back(rsi); 
+  pgonRmax.emplace_back(pgonRmax[0]);
   // index 2
-  pgonZ.push_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
-  pgonRmin.push_back(pgonRmax[1]);
-  pgonRmax.push_back(pgonRmax[1]);
+  pgonZ.emplace_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
+  pgonRmin.emplace_back(pgonRmax[1]);
+  pgonRmax.emplace_back(pgonRmax[1]);
   DDSolid solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
 					    -alpha, 2*alpha, pgonZ, pgonRmin, 
 					    pgonRmax);
@@ -752,17 +752,17 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
     }
     vector<double> pgonZ, pgonRmin, pgonRmax;
     // index 0
-    pgonZ.push_back(0.0);     
-    pgonRmin.push_back(rsi); 
-    pgonRmax.push_back(rsi+getAbsorbT(k));
+    pgonZ.emplace_back(0.0);     
+    pgonRmin.emplace_back(rsi); 
+    pgonRmax.emplace_back(rsi+getAbsorbT(k));
     // index 1
-    pgonZ.push_back(getZoff(in) + rsi*getTanTheta(in));  
-    pgonRmin.push_back(rsi); 
-    pgonRmax.push_back(pgonRmax[0]);
+    pgonZ.emplace_back(getZoff(in) + rsi*getTanTheta(in));  
+    pgonRmin.emplace_back(rsi); 
+    pgonRmax.emplace_back(pgonRmax[0]);
     // index 2
-    pgonZ.push_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
-    pgonRmin.push_back(pgonRmax[1]);
-    pgonRmax.push_back(pgonRmax[1]);
+    pgonZ.emplace_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
+    pgonRmin.emplace_back(pgonRmax[1]);
+    pgonRmax.emplace_back(pgonRmax[1]);
     solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha, 
 				      2*alpha, pgonZ, pgonRmin, pgonRmax);
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 

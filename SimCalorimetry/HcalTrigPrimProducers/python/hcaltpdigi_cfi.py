@@ -60,4 +60,5 @@ run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
                       numberOfSamplesHF = cms.int32(2),
                       numberOfPresamplesHF = cms.int32(1)
 )
+run2_HF_2017.toModify(hfTPScaleShift, NCT=cms.int32(2))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))

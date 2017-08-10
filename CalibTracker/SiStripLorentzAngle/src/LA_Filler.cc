@@ -4,6 +4,7 @@
 #include <cmath>
 #include <boost/lexical_cast.hpp>
 
+
 void LA_Filler_Fitter::
 fill(TTree* tree, Book& book) const {
   TTREE_FOREACH_ENTRY(tree) {
@@ -74,22 +75,25 @@ granularity(const SiStripDetId detid, const float tthetaL, const Long64_t TFE_in
   gran += subdetLabel(detid);
   if(byLayer_)  gran *= layerLabel(detid);
   if(byModule_) gran *= moduleLabel(detid);
-  if(localYbin_) gran += (localy < 0 ? "_yM":"_yP") + boost::lexical_cast<std::string>(abs((int)(localy/localYbin_+(localy<0?-1:0))));
-  if(stripsPerBin_) gran += "_strip"+boost::lexical_cast<std::string>((unsigned)((0.5+((apvstrip/64)?(127-apvstrip):apvstrip)/stripsPerBin_)*stripsPerBin_) );
+  if(localYbin_) gran += (localy < 0 ? "_yM":"_yP") + std::to_string(abs((int)(localy/localYbin_+(localy<0?-1:0))));
+  if(stripsPerBin_) gran += "_strip"+std::to_string((unsigned)((0.5+((apvstrip/64)?(127-apvstrip):apvstrip)/stripsPerBin_)*stripsPerBin_) );
   if(ensembleBins_) {
-    gran+= "_ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
+    gran+= "_ensembleBin"+std::to_string((int)(ensembleBins_*(tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
     gran+= "";
-    if(ensembleSize_) gran*= "_sample"+boost::lexical_cast<std::string>(TFE_index % ensembleSize_);
+    if(ensembleSize_) gran*= "_sample"+std::to_string(TFE_index % ensembleSize_);
   }
   return gran;
 }
 
 std::string LA_Filler_Fitter::
-subdetLabel(const SiStripDetId detid) { return detid.subDetector()==SiStripDetId::TOB? "TOB" : "TIB";}
+subdetLabel(const SiStripDetId detid) { return detid.subDetector()==SiStripDetId::TOB ? "TOB" : "TIB";}
 std::string LA_Filler_Fitter::
-moduleLabel(const SiStripDetId detid) { return subdetLabel(detid) + "_module"+boost::lexical_cast<std::string>(detid());}
+moduleLabel(const SiStripDetId detid) { return subdetLabel(detid) + "_module"+std::to_string(detid());}
 std::string LA_Filler_Fitter::
-layerLabel(const SiStripDetId detid) {
-  unsigned layer = detid.subDetector() == SiStripDetId::TOB ? TOBDetId(detid()).layer() : TIBDetId(detid()).layer();
-  return subdetLabel(detid)+"_layer"+boost::lexical_cast<std::string>(layer)+(detid.stereo()?"s":"a");
+layerLabel(const SiStripDetId detid) const {
+  const bool isTIB = detid.subdetId() == StripSubdetector::TIB;
+  unsigned layer = isTIB ? tTopo_->tibLayer(detid) : tTopo_->tobLayer(detid);
+  bool stereo = isTIB ? tTopo_->tibStereo(detid) : tTopo_->tobStereo(detid);
+  
+  return subdetLabel(detid)+"_layer"+std::to_string(layer)+(stereo?"s":"a");
 }

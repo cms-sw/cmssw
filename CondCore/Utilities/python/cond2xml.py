@@ -50,9 +50,10 @@ namespace { // Avoid cluttering the global namespace.
       // now we have the object in memory, convert it to xml in a string and return it
      
       std::ostringstream outBuffer;
-      boost::archive::xml_oarchive xmlResult( outBuffer );
-      xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
-
+      {
+        boost::archive::xml_oarchive xmlResult( outBuffer );
+        xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
+      } 
       return outBuffer.str();
   }
 
@@ -69,37 +70,10 @@ BOOST_PYTHON_MODULE(%(mdName)s)
 
 buildFileTemplate = """
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -Os"/>
-<use   name="boost"/>
+<use   name="CondCore/Utilities"/>
 <use   name="boost_python"/>
 <use   name="boost_iostreams"/>
 <use   name="boost_serialization"/>
-<use   name="boost_program_options"/>
-<use   name="CondCore/CondDB"/>
-<use   name="CondFormats/HLTObjects"/>
-<use   name="CondFormats/Alignment"/>
-<use   name="CondFormats/BeamSpotObjects"/>
-<use   name="CondFormats/CastorObjects"/>
-<use   name="CondFormats/HIObjects"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="CondFormats/DTObjects"/>
-<use   name="CondFormats/ESObjects"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="CondFormats/Luminosity"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CondFormats/JetMETObjects"/>
-<use   name="CondFormats/L1TObjects"/>
-<use   name="CondFormats/PhysicsToolsObjects"/>
-<use   name="CondFormats/GeometryObjects"/>
-<use   name="CondFormats/RecoMuonObjects"/>
-<use   name="CondFormats/RPCObjects"/>
-<use   name="CondFormats/RunInfo"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/BTauObjects"/>
-<use   name="CondFormats/MFObjects"/>
-<use   name="CondFormats/PCLConfig"/>
 <export>
   <lib   name="1"/>
 </export>

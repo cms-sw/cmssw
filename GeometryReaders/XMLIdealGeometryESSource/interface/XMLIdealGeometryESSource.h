@@ -18,16 +18,16 @@ class XMLIdealGeometryESSource : public edm::ESProducer,
 {
 public:
     XMLIdealGeometryESSource(const edm::ParameterSet & p);
-    virtual ~XMLIdealGeometryESSource(); 
+    ~XMLIdealGeometryESSource() override; 
     std::unique_ptr<DDCompactView> produceGeom(const IdealGeometryRecord &);
     std::unique_ptr<DDCompactView> produceMagField(const IdealMagneticFieldRecord &);
     std::unique_ptr<DDCompactView> produce();
 protected:
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-				const edm::IOVSyncValue &,edm::ValidityInterval &);
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+				const edm::IOVSyncValue &,edm::ValidityInterval &) override;
 private:
-    XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
-    const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
+    XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
+    const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &) = delete;
     std::string rootNodeName_;
     bool userNS_;
     GeometryConfiguration geoConfig_;

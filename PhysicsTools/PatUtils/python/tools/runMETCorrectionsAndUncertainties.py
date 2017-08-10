@@ -1462,11 +1462,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
-            process.load("RecoJets.JetProducers.ak4PFJets_cfi")
-            task.add(process.ak4PFJets)
-            
+            #process.load("RecoJets.JetProducers.ak4PFJets_cfi")
+            #task.add(process.ak4PFJets)
+            from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
             #if chs:
-            addToProcessAndTask(jetColName, getattr(process,"ak4PFJets").clone(), process, task)
+            addToProcessAndTask(jetColName, ak4PFJets.clone(), process, task)
             getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
             

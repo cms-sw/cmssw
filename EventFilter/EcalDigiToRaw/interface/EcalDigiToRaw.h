@@ -27,11 +27,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
@@ -47,31 +47,22 @@
 // class decleration
 //
 
-class EcalDigiToRaw : public edm::EDProducer {
+class EcalDigiToRaw : public edm::global::EDProducer<> {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
-       virtual ~EcalDigiToRaw();
+       virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
-      void beginJob();
-      void produce(edm::Event& e, const edm::EventSetup& c);
-      void endJob() ;
+       typedef long long Word64;
+       typedef unsigned int Word32;
 
-      typedef long long Word64;
-      typedef unsigned int Word32;
+       bool GetDebug() const {return debug_ ;}
+       bool GetDoBarrel() const {return doBarrel_ ;}
+	bool GetDoEndCap() const {return doEndCap_ ;}
+	bool GetDoSR() const {return doSR_ ;}
+	bool GetDoTower() const{return doTower_ ;}
+	bool GetDoTCC() const {return doTCC_ ;}
 
-    	int* GetCounter() {return &counter_ ;}
-	bool GetDebug() {return debug_ ;}
-	int* GetOrbit() {return &orbit_number_ ;}
-	int* GetBX() {return &bx_ ;}
-	int* GetLV1() {return &lv1_ ;}
-	int* GetRunNumber() {return &runnumber_ ;}
-	bool GetDoBarrel() {return doBarrel_ ;}
-	bool GetDoEndCap() {return doEndCap_ ;}
-	bool GetDoSR() {return doSR_ ;}
-	bool GetDoTower() {return doTower_ ;}
-	bool GetDoTCC() {return doTCC_ ;}
-
-        std::vector<int32_t>* GetListDCCId() {return &listDCCId_ ;}
+        const std::vector<int32_t>* GetListDCCId() const {return &listDCCId_ ;}
     
 	static const int BXMAX = 2808;
 
@@ -81,36 +72,29 @@ class EcalDigiToRaw : public edm::EDProducer {
 
       // ----------member data ---------------------------
 
-        int  counter_;
-	int orbit_number_;
-	bool debug_;
-	int runnumber_;
-	int bx_;
-	int lv1_;
+	const bool doTCC_;
+	const bool doSR_;
+	const bool doTower_;
 
-	bool doTCC_;
-	bool doSR_;
-	bool doTower_;
+	const bool doBarrel_;
+	const bool doEndCap_;
 
-	edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
-	edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
-	edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
-	edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
-	edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
-
-	bool doBarrel_;
-	bool doEndCap_;
-
-        std::vector<int32_t> listDCCId_;
+        const std::vector<int32_t> listDCCId_;
     
-	std::string label_;
-	std::string instanceNameEB_;
-	std::string instanceNameEE_;
+	const std::string label_;
+	const std::string instanceNameEB_;
+	const std::string instanceNameEE_;
 
-        TowerBlockFormatter* Towerblockformatter_;
-        TCCBlockFormatter*   TCCblockformatter_;
-	BlockFormatter*	     Headerblockformatter_;
-	SRBlockFormatter*    SRblockformatter_;
+	const edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
+	const edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
+	const edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
+	const edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
+	const edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
+	const bool debug_;
+        const std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
+        const std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
+	const std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
+	const std::unique_ptr<SRBlockFormatter>    SRblockformatter_;
 
 
 };

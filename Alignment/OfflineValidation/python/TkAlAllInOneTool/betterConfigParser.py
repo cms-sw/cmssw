@@ -132,7 +132,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self.sections():
             if "compare:" in section:
                 self.checkInput(section,
-                                knownSimpleOptions = ["levels", "dbOutput","moduleList","modulesToPlot","useDefaultRange","plotOnlyGlobal","plotPng",
+                                knownSimpleOptions = ["levels", "dbOutput","moduleList","modulesToPlot","useDefaultRange","plotOnlyGlobal","plotPng","makeProfilePlots",
                                                       "dx_min","dx_max","dy_min","dy_max","dz_min","dz_max","dr_min","dr_max","rdphi_min","rdphi_max",
                                                       "dalpha_min","dalpha_max","dbeta_min","dbeta_max","dgamma_min","dgamma_max",
                                                       "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor", "jobid"])
@@ -155,8 +155,12 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             self.add_section(internal_section)
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
+        if not self.has_option(internal_section, "scriptsdir"):
+            self.set(internal_section, "scriptsdir", None)
+            #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
 
         general["workdir"] = self.get(internal_section, "workdir")
+        general["scriptsdir"] = self.get(internal_section, "scriptsdir")
         for folder in "workdir", "datadir", "logdir", "eosdir":
             general[folder] = os.path.expandvars(general[folder])
 

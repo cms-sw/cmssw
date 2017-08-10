@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
@@ -236,6 +237,8 @@ private:
   public:
     boost::chrono::nanoseconds time_thread;
     boost::chrono::nanoseconds time_real;
+    uint64_t                   allocated;
+    uint64_t                   deallocated;
   };
 
   struct ResourcesPerModule {
@@ -307,6 +310,17 @@ private:
     #endif // DEBUG_THREAD_CONCURRENCY
     boost::chrono::thread_clock::time_point          time_thread;
     boost::chrono::high_resolution_clock::time_point time_real;
+    uint64_t                                         allocated;
+    uint64_t                                         deallocated;
+  };
+
+
+  // plot ranges and resolution
+  struct PlotRanges {
+    double time_range;
+    double time_resolution;
+    double memory_range;
+    double memory_resolution;
   };
 
   // plots associated to each module or other element (path, process, etc)
@@ -314,7 +328,7 @@ private:
   public:
     PlotsPerElement();
     void reset();
-    void book(DQMStore::IBooker &, std::string const& name, std::string const& title, double range, double resolution, unsigned int lumisections, bool byls);
+    void book(DQMStore::IBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
@@ -324,6 +338,10 @@ private:
     TProfile *  time_thread_byls_;
     TH1F *      time_real_;
     TProfile *  time_real_byls_;
+    TH1F *      allocated_;
+    TProfile *  allocated_byls_;
+    TH1F *      deallocated_;
+    TProfile *  deallocated_byls_;
   };
 
   // plots associated to each path or endpath
@@ -331,7 +349,7 @@ private:
   public:
     PlotsPerPath();
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, double range, double resolution, unsigned int lumisections, bool byls);
+    void book(DQMStore::IBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
   private:
@@ -348,6 +366,8 @@ private:
     // resources spent in each module and their dependencies
     TH1D * module_time_thread_total_;
     TH1D * module_time_real_total_;
+    TH1D * module_allocated_total_;
+    TH1D * module_deallocated_total_;
   };
 
   class PlotsPerProcess {
@@ -355,8 +375,8 @@ private:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
     void reset();
     void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
-        double event_range, double event_resolution, double path_range, double path_resolution,
-        unsigned int lumisections, bool byls);
+        PlotRanges const& event_ranges, PlotRanges const& path_ranges,
+        unsigned int lumisections, bool bypath, bool byls);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
 
   private:
@@ -372,9 +392,9 @@ private:
     PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
     void reset();
     void book(DQMStore::IBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
-        double event_range, double event_resolution, double path_range, double path_resolution,
-        double module_range, double module_resolution, unsigned int lumisections,
-        bool bymodule, bool byls);
+        PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
+        PlotRanges const&  module_ranges, unsigned int lumisections,
+        bool bymodule, bool bypath, bool byls);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
 
   private:
@@ -429,15 +449,13 @@ private:
 
   bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
   const bool                    enable_dqm_bymodule_;
+  const bool                    enable_dqm_bypath_;
   const bool                    enable_dqm_byls_;
   const bool                    enable_dqm_bynproc_;
 
-  const double                  dqm_eventtime_range_;
-  const double                  dqm_eventtime_resolution_;
-  const double                  dqm_pathtime_range_;
-  const double                  dqm_pathtime_resolution_;
-  const double                  dqm_moduletime_range_;
-  const double                  dqm_moduletime_resolution_;
+  const PlotRanges              dqm_event_ranges_;
+  const PlotRanges              dqm_path_ranges_;
+  const PlotRanges              dqm_module_ranges_;
   const unsigned int            dqm_lumisections_range_;
   std::string                   dqm_path_;
 
@@ -450,7 +468,25 @@ private:
 
   // print the resource usage summary for en event, a run, or the while job
   template <typename T>
+  void printHeader(T& out, std::string const & label) const;
+
+  template <typename T>
+  void printEventHeader(T& out, std::string const & label) const;
+
+  template <typename T>
+  void printEventLine(T& out, Resources const& data, std::string const & label) const;
+
+  template <typename T>
   void printEvent(T& out, ResourcesPerJob const&) const;
+
+  template <typename T>
+  void printSummaryHeader(T& out, std::string const & label, bool detaile) const;
+
+  template <typename T>
+  void printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const;
+
+  template <typename T>
+  void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;

@@ -6,9 +6,9 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -53,7 +53,7 @@ DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
   char buf[64];
   snprintf(buf, 64, "%s%i", baseName, countBlank++);
   prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
-  //  std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 
@@ -79,7 +79,7 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
   char buf[64];
   snprintf(buf, 64, "DdNoNa%i", countNN++);
   prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
-  //  std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 // void DDRotation::clear()
@@ -91,6 +91,12 @@ DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
    return DDRotation(ddname, rot);
+}
+
+std::unique_ptr<DDRotation> DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
+{
+   // memory of rot goes sto DDRotationImpl!!
+  return std::make_unique<DDRotation>(ddname, rot);
 }
  
 // makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.

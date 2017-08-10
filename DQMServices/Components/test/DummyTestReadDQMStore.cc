@@ -21,6 +21,7 @@
 namespace {
 class ReaderBase {
  public:
+  virtual ~ReaderBase()  = default;
   virtual void read() = 0;
   virtual void reset() = 0;
 };

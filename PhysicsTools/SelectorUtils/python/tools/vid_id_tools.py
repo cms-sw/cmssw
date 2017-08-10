@@ -14,13 +14,12 @@ def setupVIDSelection(vidproducer,cutflow):
     if not hasattr(cutflow,'cutFlow'):
         raise Exception('InvalidVIDCutFlow', 'The cutflow configuration provided is malformed and does not have a specific cutflow!')
     cutflow_md5 = central_id_registry.getMD5FromName(cutflow.idName)
-    isPOGApproved = cms.untracked.bool(False)
+    isPOGApproved = False
     if hasattr(cutflow,'isPOGApproved'):
-        isPOGApproved = cutflow.isPOGApproved
-        del cutflow.isPOGApproved
+        isPOGApproved = cutflow.isPOGApproved.value()
     vidproducer.physicsObjectIDs.append(
         cms.PSet( idDefinition = cutflow,
-                  isPOGApproved = isPOGApproved,
+                  isPOGApproved = cms.untracked.bool(isPOGApproved),
                   idMD5 = cms.string(cutflow_md5) )
     )    
 #    sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))
@@ -56,9 +55,7 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
             setupFunction(process,item,patProducer,addUserData,task)
 
 # Supported data formats defined via "enum"
-class DataFormat:
-    AOD     = 1
-    MiniAOD = 2
+from PhysicsTools.SelectorUtils.tools.DataFormat import DataFormat
 
 ####
 # Electrons
@@ -159,7 +156,9 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
 def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
-    process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    from RecoEgamma.PhotonIdentification.egmPhotonIDs_cff import  loadEgmIdSequence
+    # Set up the ID task and sequence appropriate for this data format
+    loadEgmIdSequence(process,dataFormat)
     if task is not None:
         task.add(process.egmPhotonIDTask)
     #*always* reset to an empty configuration
@@ -177,7 +176,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
+#    sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True,task=None):
     if not hasattr(process,'egmPhotonIDs'):

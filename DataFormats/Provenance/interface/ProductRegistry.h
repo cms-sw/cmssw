@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/array.hpp"
+#include <array>
 #include <memory>
 
 #include <iosfwd>
@@ -137,8 +137,8 @@ namespace edm {
       std::shared_ptr<ProductResolverIndexHelper>& runProductLookup() {return get_underlying_safe(runProductLookup_);}
 
       bool frozen_;
-      // Is at least one (run), (lumi), (event) product produced this process?
-      boost::array<bool, NumBranchTypes> productProduced_;
+      // Is at least one (run), (lumi), (event) persistent product produced this process?
+      std::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
       edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> eventProductLookup_;

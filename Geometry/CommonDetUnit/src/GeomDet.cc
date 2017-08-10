@@ -37,7 +37,7 @@ bool GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape)
   return ape.valid();
 }
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -60,19 +60,19 @@ void GeomDet::setSurfaceDeformation(const SurfaceDeformation * /*deformation*/)
 
 namespace {
 struct DummyTopology final : public Topology {
-  virtual LocalPoint localPosition( const MeasurementPoint& ) const { return LocalPoint();}
-  virtual LocalError
-  localError( const MeasurementPoint&, const MeasurementError& ) const { return LocalError();}
-  virtual MeasurementPoint measurementPosition( const LocalPoint&) const { return MeasurementPoint();}
-  virtual MeasurementError
-  measurementError( const LocalPoint&, const LocalError& ) const { return MeasurementError();}
-  virtual int channel( const LocalPoint& p) const { return -1;}
+  LocalPoint localPosition( const MeasurementPoint& ) const override { return LocalPoint();}
+  LocalError
+  localError( const MeasurementPoint&, const MeasurementError& ) const override { return LocalError();}
+  MeasurementPoint measurementPosition( const LocalPoint&) const override { return MeasurementPoint();}
+  MeasurementError
+  measurementError( const LocalPoint&, const LocalError& ) const override { return MeasurementError();}
+  int channel( const LocalPoint& p) const override { return -1;}
 };
   const DummyTopology dummyTopology{};
 
 struct DummyGeomDetType final : public GeomDetType {
    DummyGeomDetType() : GeomDetType("", GeomDetEnumerators::invalidDet){}
-   const Topology& topology() const { return dummyTopology;}
+   const Topology& topology() const override { return dummyTopology;}
 };
   const DummyGeomDetType dummyGeomDetType{};
 }

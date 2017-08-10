@@ -2,6 +2,7 @@
 #define __SpikeAndDoubleSpikeCleaner_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 
 #include <unordered_map>
 
@@ -23,7 +24,7 @@ class SpikeAndDoubleSpikeCleaner : public RecHitTopologicalCleanerBase {
   SpikeAndDoubleSpikeCleaner& operator=(const SpikeAndDoubleSpikeCleaner&) = delete;
 
   void clean( const edm::Handle<reco::PFRecHitCollection>& input,
-	      std::vector<bool>& mask );
+	      std::vector<bool>& mask ) override;
 
  private:
   const std::unordered_map<std::string,int> _layerMap;

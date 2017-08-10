@@ -138,16 +138,6 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void
-    EDProducerBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    EDProducerBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
-    }
-    
     void EDProducerBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDProducerBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}

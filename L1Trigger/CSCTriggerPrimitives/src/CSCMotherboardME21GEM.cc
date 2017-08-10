@@ -1,12 +1,12 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include <iomanip> 
-#include "boost/container/flat_set.hpp"
 
 const double CSCMotherboardME21GEM::lut_wg_eta_odd[112][2] = {
 { 0,2.441},{ 1,2.435},{ 2,2.425},{ 3,2.414},{ 4,2.404},{ 5,2.394},{ 6,2.384},{ 7,2.374},
@@ -204,8 +204,8 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
     const bool isEven(csc_id.chamber()%2==0);
-    const GEMDetId gem_id_long(region, 1, 2, 1, csc_id.chamber(), 0);
-    const GEMChamber* gemChamberLong(gem_g->chamber(gem_id_long));
+    const GEMDetId gem_id_long(region, 1, 2, 0, csc_id.chamber(), 0);
+    const GEMSuperChamber* gemChamberLong(gem_g->superChamber(gem_id_long));
     
     // LUT<roll,<etaMin,etaMax> >    
     gemRollToEtaLimits_ = createGEMRollEtaLUT();
@@ -230,7 +230,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
 
-    auto randRoll(gemChamberLong->etaPartition(2));
+    auto randRoll(gemChamberLong->chamber(1)->etaPartition(2));
     auto nStrips(keyLayerGeometry->numberOfStrips());
     for (float i = 0; i< nStrips; i = i+0.5){
       const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
@@ -530,7 +530,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   
   bool first = true;
   unsigned int n=0;
-  for (auto p : readoutLCTs()) {
+  for (const auto& p : readoutLCTs()) {
     if (debug_gem_matching and first){
       std::cout << "========================================================================" << std::endl;
       std::cout << "Counting the final LCTs" << std::endl;
@@ -977,8 +977,8 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
 void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
   auto superChamber(gem_g->superChamber(id));
-  for (auto ch : superChamber->chambers()) {
-    for (auto roll : ch->etaPartitions()) {
+  for (const auto& ch : superChamber->chambers()) {
+    for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
@@ -994,7 +994,7 @@ void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
 
 void CSCMotherboardME21GEM::retrieveGEMCoPads()
 {
-  for (auto copad: gemCoPadV){
+  for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.first()));  
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.second()));  
@@ -1021,7 +1021,10 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){
-      for (auto pad : in_pads){
+      for (const auto& pad : in_pads){
+	if (DetId(pad.first).subdetId() != MuonSubdetId::GEM or DetId(pad.first).det() != DetId::Muon) {
+	  continue;
+	}
         auto roll_id(GEMDetId(pad.first));
         std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6 << std::endl;
       }
@@ -1045,8 +1048,10 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   const int highPad(cscHsToGemPad_[clct.getKeyStrip()].second);
   const bool debug(false);
   if (debug) std::cout << "lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
-  for (auto p: pads){
-    if (debug) std::cout<<"DetId"<<GEMDetId(p.first)<<"   "<< p.second<<std::endl;
+  for (const auto& p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll((p.second).pad());
     int pad_bx = (p.second).bx()+lct_central_bx;
     if (debug) std::cout << "padRoll " << padRoll << std::endl;
@@ -1077,10 +1082,13 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
 
   const bool debug(false);
   if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << std::endl;
-  for (auto alctRoll : Rolls)
+  for (const auto& alctRoll : Rolls)
   {
   if (debug) std::cout <<"roll " << alctRoll << std::endl;
-  for (auto p: pads){
+  for (const auto& p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll(GEMDetId(p.first).roll());
     int pad_bx = (p.second).bx()+lct_central_bx;
     if (debug) std::cout<<"Detid "<< GEMDetId(p.first) <<"  "<< p.second<<std::endl;
@@ -1109,9 +1117,9 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   const bool debug(false);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
   // Check if the pads overlap
-  for (auto p : padsAlct){
+  for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;
-    for (auto q: padsClct){
+    for (const auto& q: padsClct){
       if (debug) std::cout<< "++Candidate CLCT: " << q.first << " " << q.second << std::endl;
       // look for exactly the same pads
       if ((p.first != q.first) or p.second != q.second) continue;

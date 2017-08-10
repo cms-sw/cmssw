@@ -10,7 +10,6 @@ and manipulate Unix-style signal handling.
 
 #include <signal.h>
 #include <atomic>
-#include "boost/thread/thread.hpp"
 
 namespace edm {
 

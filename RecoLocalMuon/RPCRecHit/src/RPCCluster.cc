@@ -26,11 +26,11 @@ int RPCCluster::bx() const { return bunchx; }
 
 bool RPCCluster::hasTime() const { return nTime > 0; }
 float RPCCluster::time() const { return hasTime() ? sumTime/nTime : 0; }
-float RPCCluster::timeRMS() const { return hasTime() ? sqrt((sumTime2*nTime - sumTime*sumTime)/nTime) : -1; }
+float RPCCluster::timeRMS() const { return hasTime() ? sqrt(max(0.F, sumTime2*nTime - sumTime*sumTime))/nTime : -1; }
 
 bool RPCCluster::hasY() const { return nY > 0; }
 float RPCCluster::y() const { return hasY() ? sumY/nY : 0; }
-float RPCCluster::yRMS() const { return hasY() ? sqrt((sumY2*nY - sumY*sumY)/nY) : -1; }
+float RPCCluster::yRMS() const { return hasY() ? sqrt(max(0.F, sumY2*nY - sumY*sumY))/nY : -1; }
 
 bool RPCCluster::isAdjacent(const RPCCluster& cl) const
 {

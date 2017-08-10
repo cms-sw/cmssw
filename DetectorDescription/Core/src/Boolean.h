@@ -1,7 +1,7 @@
 #ifndef DETECTOR_DESCRIPTION_CORE_DDI_BOOLEAN_H
 #define DETECTOR_DESCRIPTION_CORE_DDI_BOOLEAN_H
 
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"

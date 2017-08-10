@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -47,7 +48,7 @@ namespace HLTOfflineDQMTopDiLepton {
     public:
       /// make clear which LorentzVector to use
       /// for jet, electrons and muon buffering
-      typedef reco::LeafCandidate::LorentzVector LorentzVector;
+      using LorentzVector = reco::LeafCandidate::LorentzVector;
       /// different decay channels
       enum DecayChannel{ NONE, DIMUON, DIELEC, ELECMU };
 
@@ -55,12 +56,12 @@ namespace HLTOfflineDQMTopDiLepton {
       /// default contructor
       MonitorDiLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
       /// default destructor
-      ~MonitorDiLepton(){};
+      ~MonitorDiLepton()= default;;
 
       /// book histograms in subdirectory _directory_
       void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
-      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
+      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths);
 
     private:
       /// deduce monitorPath from label, the label is expected
@@ -71,20 +72,20 @@ namespace HLTOfflineDQMTopDiLepton {
       std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
 
       /// set labels for event logging histograms
-      void loggerBinLabels(std::string hist);
+      void loggerBinLabels(const std::string& hist);
       /// set configurable labels for trigger monitoring histograms
-      void triggerBinLabels(std::string channel, const std::vector<std::string>& labels);
+      void triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels);
       /// fill trigger monitoring histograms
-      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const;
+      void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const;
 
       /// check if histogram was booked
-      bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+      bool booked(const std::string& histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
       /// fill histogram if it had been booked before
-      void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+      void fill(const std::string& histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
+      void fill(const std::string& histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
+      void fill(const std::string& histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
     private:
       std::string folder_;
@@ -126,21 +127,21 @@ namespace HLTOfflineDQMTopDiLepton {
       /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
       int eidPattern_;
       /// extra isolation criterion on electron
-      StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+      std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecIso_;
       /// extra selection on electrons
-      StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecSelect_;
 
       /// extra isolation criterion on muon
-      StringCutObjectSelector<reco::Muon>* muonIso_;
+      std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonIso_;
       /// extra selection on muons
-      StringCutObjectSelector<reco::Muon>* muonSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonSelect_;
 
       /// jetCorrector
       std::string jetCorrector_;
       /// jetID as an extra selection type 
       edm::EDGetTokenT< reco::JetIDValueMap > jetIDLabel_;
       /// extra jetID selection on calo jets
-      StringCutObjectSelector<reco::JetID>* jetIDSelect_;
+      std::unique_ptr<StringCutObjectSelector<reco::JetID>> jetIDSelect_;
       /// extra selection on jets (here given as std::string as it depends
       /// on the the jet type, which selections are valid and which not)
       std::string jetSelect_;
@@ -161,7 +162,7 @@ namespace HLTOfflineDQMTopDiLepton {
   };
 
   inline void 
-    MonitorDiLepton::loggerBinLabels(std::string hist)
+    MonitorDiLepton::loggerBinLabels(const std::string& hist)
     {
       // set axes titles for selected events
       hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
@@ -188,7 +189,7 @@ namespace HLTOfflineDQMTopDiLepton {
     }
 
   inline void 
-    MonitorDiLepton::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
+    MonitorDiLepton::triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels)
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
@@ -196,7 +197,7 @@ namespace HLTOfflineDQMTopDiLepton {
     }
 
   inline void 
-    MonitorDiLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
+    MonitorDiLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
@@ -253,15 +254,10 @@ class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
-    /// default destructor
-    ~TopDiLeptonHLTOfflineDQM(){ 
-      if( beamspotSelect_ ) delete beamspotSelect_; 
-      if( vertexSelect_ ) delete vertexSelect_;
-    }
 
     /// do this during the event loop
-    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
     void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:
@@ -280,11 +276,11 @@ class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     /// primary vertex 
     edm::EDGetTokenT< std::vector<reco::Vertex> > vertex_;
     /// string cut selector
-    StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::Vertex>> vertexSelect_;
     /// beamspot 
     edm::EDGetTokenT< reco::BeamSpot > beamspot_;
     /// string cut selector
-    StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::BeamSpot>> beamspotSelect_;
 
     HLTConfigProvider hltConfig_;
 
@@ -296,9 +292,9 @@ class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     /// the configuration of the selection for the SelectionStep class, 
     /// MonitoringEnsemble keeps an instance of the MonitorDiLepton class to 
     /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, HLTOfflineDQMTopDiLepton::MonitorDiLepton*> > selection_;
+    std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<HLTOfflineDQMTopDiLepton::MonitorDiLepton>> > selection_;
 
-    std::map<std::string, SelectionStepHLTBase*> selectmap_;
+    std::map<std::string, std::unique_ptr<SelectionStepHLTBase>> selectmap_;
 };
 
 #endif

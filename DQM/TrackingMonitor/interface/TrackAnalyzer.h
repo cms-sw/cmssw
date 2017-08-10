@@ -32,15 +32,16 @@ Monitoring source for general quantities related to tracks.
 class DQMStore;
 
 class BeamSpot;
+namespace dqm {
 class TrackAnalyzer 
 {
     public:
         TrackAnalyzer(const edm::ParameterSet&);
-	TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
-        virtual ~TrackAnalyzer();
-        virtual void initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup &);
+        TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
+        ~TrackAnalyzer();
+        void initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup &, const edm::ParameterSet&);
 
-        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
+        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
         void doSoftReset  (DQMStore * dqmStore_);
         void doReset      ();
@@ -79,7 +80,9 @@ class TrackAnalyzer
 	edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
 	float lumi_factor_per_bx_;
 	
-        edm::ParameterSet conf_;
+        edm::ParameterSet const* conf_;
+
+        std::string stateName_;
 
         bool doTrackerSpecific_;
         bool doAllPlots_;
@@ -461,4 +464,5 @@ class TrackAnalyzer
 
         std::string histname;  //for naming the histograms according to algorithm used
 };
+}
 #endif

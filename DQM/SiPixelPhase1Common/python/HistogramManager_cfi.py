@@ -27,6 +27,9 @@ SiPixelPhase1Geometry = cms.PSet(
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
 
+  # lumiblock -  for coarse temporal splitting 
+  lumiblock = cms.int32(10),       # Number of LS to include in a block
+
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
   # there are lots of geometry assuptions in the code.
 )
@@ -37,7 +40,7 @@ PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
 PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
-OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(True)) #switch to overlay digi/clusters curves for timing scan
+OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(False)) #switch to overlay digi/clusters curves for timing scan
 
 # Default histogram configuration. This is _not_ used automatically, but you
 # can import and pass this (or clones of it) in the plugin config.
@@ -296,7 +299,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel/PXLayer/Event")
+    Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
@@ -309,7 +312,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Event")
+    Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
@@ -325,6 +328,7 @@ StandardSpecificationTrend_Num = [
 
 
 StandardSpecification2DProfile_Num = [
+
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")

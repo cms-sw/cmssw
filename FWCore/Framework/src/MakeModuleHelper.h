@@ -19,11 +19,13 @@
 //
 
 // system include files
-
+#include <memory>
 // user include files
 
 // forward declarations
 namespace edm {
+  class ParameterSet;
+
   template<typename Base>
   class MakeModuleHelper
   {

@@ -75,13 +75,18 @@ SiPixelPhase1Summary::~SiPixelPhase1Summary()
 void SiPixelPhase1Summary::beginRun(edm::Run const& run, edm::EventSetup const& eSetup){
 }
 
-void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){
+void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const edm::LuminosityBlock & lumiSeg, edm::EventSetup const& c){
   if (firstLumi){
     bookSummaries(iBooker);
+    bookTrendPlots(iBooker);
     firstLumi = false;
   }
 
-  if (runOnEndLumi_) fillSummaries(iBooker,iGetter);
+  if (runOnEndLumi_){
+    fillSummaries(iBooker,iGetter);
+    int lumiSec = lumiSeg.id().luminosityBlock();
+    fillTrendPlots(iBooker,iGetter,lumiSec);
+  }
 
   //  iBooker.cd();
 
@@ -92,7 +97,15 @@ void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
 {
-  if (runOnEndJob_) fillSummaries(iBooker,iGetter);
+  if (firstLumi){ //Book the plots in the (maybe possible?) case that they aren't booked in the dqmEndLuminosityBlock method
+    bookSummaries(iBooker);
+    bookTrendPlots(iBooker);
+    firstLumi = false;
+  }
+  if (runOnEndJob_){
+    fillSummaries(iBooker,iGetter);
+    if (!runOnEndLumi_) fillTrendPlots(iBooker,iGetter); //If we're filling these plots at the end lumi step, it doesn't really make sense to also do them at the end job
+  }
 
 }
 
@@ -100,28 +113,77 @@ void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
 // Used to book the summary plots
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
-  iBooker.setCurrentFolder("PixelPhase1/Summary");
+
+  iBooker.cd();
 
   std::vector<std::string> xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"}; // why not having a global variable !?!?!?! 
-  std::vector<std::string> yAxisLabels_ = {"1","2","3","4"}; // why not having a global variable ?!?!?!!?
-    
+  std::vector<std::string> yAxisLabels_ = {"1","2","3","4"}; // why not having a global variable ?!?!?!!? - I originally did, but was told not to by David Lange!
+  
+  iBooker.setCurrentFolder("PixelPhase1/Summary");
+  //Book the summary plots for the variables as described in the config file  
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
     summaryMap_[name] = iBooker.book2D("pixel"+name+"Summary","Pixel "+name+" Summary",12,0,12,4,0,4);
+  }
+  //Now book the overall summary map
+  iBooker.setCurrentFolder("PixelPhase1/EventInfo");
+  summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",12,0,12,4,0,4);
+  reportSummary = iBooker.bookFloat("reportSummary");
+
+  //Now set up axis and bin labels
+  for (auto summaryMapEntry: summaryMap_){
+    auto summaryMap = summaryMapEntry.second;
     for (unsigned int i = 0; i < xAxisLabels_.size(); i++){
-      summaryMap_[name]->setBinLabel(i+1, xAxisLabels_[i],1);
+      summaryMap->setBinLabel(i+1, xAxisLabels_[i],1);
     }
     for (unsigned int i = 0; i < yAxisLabels_.size(); i++){
-      summaryMap_[name]->setBinLabel(i+1,yAxisLabels_[i],2);
+      summaryMap->setBinLabel(i+1,yAxisLabels_[i],2);
     }
-    summaryMap_[name]->setAxisTitle("Subdetector",1);
-    summaryMap_[name]->setAxisTitle("Layer/disk",2);
+    summaryMap->setAxisTitle("Subdetector",1);
+    summaryMap->setAxisTitle("Layer/disk",2);
     for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
       for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
-	summaryMap_[name]->Fill(i,j,-1.);
+	summaryMap->Fill(i,j,-1.);
       }
     }
   }
+  reportSummary->Fill(-1.);
+  //Reset the iBooker
+  iBooker.setCurrentFolder("PixelPhase1/");
+}
+
+//------------------------------------------------------------------
+// Used to book the trend plots
+//------------------------------------------------------------------
+void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
+  //We need different plots depending on if we're online (runOnEndLumi) or offline (!runOnEndLumi)
+  iBooker.setCurrentFolder("PixelPhase1/");
+  std::vector<string> binAxisLabels = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Ring 1", "Ring 2"};
+  if (runOnEndLumi_){
+    std::vector<trendPlots> histoOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+    std::vector<string> varName ={"Layer_1","Layer_2","Layer_3","Layer_4","Ring_1","Ring_2"};
+    for (unsigned int i = 0; i < histoOrder.size(); i++){
+      string varNameStr = "deadRocTrend"+varName[i];
+      string varTitle = binAxisLabels[i]+" dead ROC trend";
+      deadROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);  
+      varNameStr = "ineffRocTrend"+varName[i];
+      varTitle = binAxisLabels[i]+" inefficient ROC trend";
+      ineffROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);
+      deadROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
+      ineffROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
+    }
+  }
+  else {
+    deadROCTrends_[offline] = iBooker.book1D("deadRocTotal","N dead ROCs",6,0,6);
+    ineffROCTrends_[offline] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",6,0,6); 
+    deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
+    ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
+    for (unsigned int i = 1; i <= binAxisLabels.size(); i++){
+      deadROCTrends_[offline]->setBinLabel(i,binAxisLabels[i-1]);
+      ineffROCTrends_[offline]->setBinLabel(i,binAxisLabels[i-1]);
+    }
+  }
+  
 }
 
 //------------------------------------------------------------------
@@ -131,7 +193,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
   //Firstly, we will fill the regular summary maps.
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
-    if (name == "Grand") continue;
     std::ostringstream histNameStream;
     std::string histName;
 
@@ -152,26 +213,111 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	  continue; // Ignore non-existing MEs, as this can cause the whole thing to crash
 	}
 
-	if (me->hasError()) {
-	  //If there is an error, fill with 0
-	  summaryMap_[name]->setBinContent(i+1,j+1,0);
-	} //Do we want to include warnings here?
-	else if (me->hasWarning()){
-	  summaryMap_[name]->setBinContent(i+1,j+1,0.5);
+	if (summaryMap_[name]==nullptr){
+	  edm::LogWarning("SiPixelPhase1Summary") << "Summary map " << name << " is not available !!";
+	  continue; // Based on reported errors it seems possible that we're trying to access a non-existant summary map, so if the map doesn't exist but we're trying to access it here we'll skip it instead.
 	}
-	else summaryMap_[name]->setBinContent(i+1,j+1,1);
+	if ((me->getQReports()).size()!=0) summaryMap_[name]->setBinContent(i+1,j+1,(me->getQReports())[0]->getQTresult());
+	else summaryMap_[name]->setBinContent(i+1,j+1,-1);
       }  
     }    
   }
+  //Sum of non-negative bins for the reportSummary
+  float sumOfNonNegBins = 0.;
   //Now we will use the other summary maps to create the overall map.
   for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
+    if (summaryMap_["Grand"]==nullptr){
+      edm::LogWarning("SiPixelPhase1Summary") << "Grand summary does not exist!";
+      break;
+    }
     for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
       summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
       for (auto const mapInfo: summaryPlotName_){ //Check summary maps
 	auto name = mapInfo.first;
-	if (name == "Grand") continue;
-	if (summaryMap_[name]->getBinContent(i+1,j+1) < 0.9 && summaryMap_["Grand"]->getBinContent(i+1,j+1) > summaryMap_[name]->getBinContent(i+1,j+1)) summaryMap_["Grand"]->setBinContent(i+1,j+1,summaryMap_[name]->getBinContent(i+1,j+1)); // This could be changed to include warnings if we want?
+	if (summaryMap_[name]==nullptr){
+	  edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";
+	  continue;
+	}
+	if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > summaryMap_[name]->getBinContent(i+1,j+1)) summaryMap_["Grand"]->setBinContent(i+1,j+1,summaryMap_[name]->getBinContent(i+1,j+1));
       }
+      if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > -0.1) sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i+1,j+1);
+    }
+  }
+  reportSummary->Fill(sumOfNonNegBins/40.); // The average of the 40 useful bins in the summary map.
+
+}
+
+//------------------------------------------------------------------
+// Fill the trend plots
+//------------------------------------------------------------------
+void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, int lumiSec){
+
+  // If we're running in online mode and the lumi section is not modulo 10, return. Offline running always uses lumiSec=0, so it will pass this test.
+  if (lumiSec%10 != 0) return;
+
+  std::string histName;
+  
+
+  //Find the total number of filled bins and hi efficiency bins
+  std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+  std::vector<int> nFilledROCs(trendOrder.size(),0);
+  std::vector<int> hiEffROCs(trendOrder.size(),0);
+  std::vector<int> nRocsPerTrend = {1536,3584,5632,8192,4224,6528};
+  std::vector<string> trendNames = {};
+
+  for (auto it : {1,2,3,4}) {
+    histName = "PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" + std::to_string(it);
+    trendNames.push_back(histName);
+  }
+  for (auto it : {1,2}) {
+    histName = "PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" + std::to_string(it);
+    trendNames.push_back(histName);
+  }
+  //Loop over layers. This will also do the rings, but we'll skip the ring calculation for 
+  for (unsigned int trendIt = 0; trendIt < trendOrder.size(); trendIt++){
+    iGetter.cd();
+    histName = "PixelPhase1/Phase1_MechanicalView/" + trendNames[trendIt];
+    MonitorElement * tempLayerME = iGetter.get(histName);
+    if (tempLayerME==nullptr) continue;
+    float lowEffValue = 0.25 * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
+    for (int i=1; i<=tempLayerME->getTH1()->GetXaxis()->GetNbins(); i++){
+      for (int j=1; j<=tempLayerME->getTH1()->GetYaxis()->GetNbins(); j++){
+	if (tempLayerME->getBinContent(i,j) > 0.) nFilledROCs[trendIt]++;
+	if (tempLayerME->getBinContent(i,j) > lowEffValue) hiEffROCs[trendIt]++;
+      }
+    }
+    if (runOnEndLumi_) {
+      tempLayerME->Reset(); //If we're doing online monitoring, reset the digi maps.
+    }
+  } // Close layers/ring loop
+  
+  if (!runOnEndLumi_) { //offline
+    for (unsigned int i = 0; i < trendOrder.size(); i++){
+      deadROCTrends_[offline]->setBinContent(i+1,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[offline]->setBinContent(i+1,nFilledROCs[i]-hiEffROCs[i]);
+    }
+  }
+  else { //online
+    for (unsigned int i = 0; i < trendOrder.size(); i++){
+      deadROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nFilledROCs[i]-hiEffROCs[i]);
+    }
+  }
+
+  if (!runOnEndLumi_) return; // The following only occurs in the online
+  //Reset some MEs every 10LS here
+  for (auto it : {1,2,3,4}) { //PXBarrel
+    histName = "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" +std::to_string(it);
+    MonitorElement * toReset = iGetter.get(histName);
+    if (toReset!=nullptr) {
+      toReset->Reset();
+    }
+  }
+  for (auto it : {-3,-2,-1,1,2,3}){ //PXForward
+    histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::to_string(it);
+    MonitorElement * toReset = iGetter.get(histName);
+    if (toReset!=nullptr) {
+      toReset->Reset();
     }
   }
 

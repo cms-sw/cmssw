@@ -46,7 +46,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
       
@@ -66,7 +66,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& rh,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) {
+  void associateNeighbours(reco::PFRecHit& rh,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) override {
 
 
 

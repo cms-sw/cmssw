@@ -61,7 +61,7 @@ class ProcMLP : public VarProcessor {
 	unsigned int		maxTmp;
 };
 
-static ProcMLP::Registry registry("ProcMLP");
+ProcMLP::Registry registry("ProcMLP");
 
 ProcMLP::Layer::Layer(const Calibration::ProcMLP::Layer &calib) :
 	inputs(calib.first.front().second.size()),

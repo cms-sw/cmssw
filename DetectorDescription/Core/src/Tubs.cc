@@ -18,11 +18,11 @@ DDI::Tubs::Tubs(double zhalf,
 	        double deltaPhi)
  : Solid(ddtubs)
 {
-  p_.push_back(zhalf);
-  p_.push_back(rIn);
-  p_.push_back(rOut);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
+  p_.emplace_back(zhalf);
+  p_.emplace_back(rIn);
+  p_.emplace_back(rOut);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
 }
 
 

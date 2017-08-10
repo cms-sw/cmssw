@@ -5,6 +5,8 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -78,6 +80,8 @@ protected:
 public:
   explicit VirtualJetProducer(const edm::ParameterSet& iConfig);
   virtual ~VirtualJetProducer();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc);
   
   // typedefs
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
@@ -145,6 +149,8 @@ protected:
   template< typename T>
   void writeCompoundJets(  edm::Event & iEvent, edm::EventSetup const& iSetup);
 
+  template< typename T>
+    void writeJetsWithConstituents(  edm::Event & iEvent, edm::EventSetup const& iSetup);
 
   // This method copies the constituents from the fjConstituents method
   // to an output of CandidatePtr's. 
@@ -178,7 +184,12 @@ protected:
   bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
   bool                  doFastJetNonUniform_;       // choice of eta-dependent PU calculation
   double                voronoiRfact_;              // negative to calculate rho using active area (ghosts); otherwise calculates Voronoi area with this effective scale factor
-  
+
+  double                rhoEtaMax_;                 // Eta range of jets to be considered for Rho calculation; Should be at most (jet acceptance - jet radius)
+  double                ghostEtaMax_;               // default Ghost_EtaMax should be 5
+  int                   activeAreaRepeats_;         // default Active_Area_Repeats 1
+  double                ghostArea_;                 // default GhostArea 0.01
+
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   std::string           puSubtractorName_;
@@ -201,6 +212,7 @@ protected:
 
   std::string                     jetCollInstanceName_;       // instance name for output jet collection
   bool                            writeCompound_;    // write compound jets (i.e. jets of jets)
+  bool                            writeJetsWithConst_;    // write jets with constituents
   boost::shared_ptr<PileUpSubtractor>  subtractor_;
 
   bool                            useDeterministicSeed_; // If desired, use a deterministic seed to fastjet

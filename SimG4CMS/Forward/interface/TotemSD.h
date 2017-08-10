@@ -38,6 +38,7 @@
 #include <string>
 
 class TrackingSlaveSD;
+class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
 		public Observer<const BeginOfEvent*>,

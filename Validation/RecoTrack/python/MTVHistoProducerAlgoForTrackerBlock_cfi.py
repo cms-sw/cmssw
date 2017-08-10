@@ -65,9 +65,10 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     nintDeDx = cms.int32(40),
     #
     # TP originating vertical position
-    minVertpos = cms.double(0),
-    maxVertpos = cms.double(60),
-    nintVertpos = cms.int32(60),
+    minVertpos = cms.double(1e-2),
+    maxVertpos = cms.double(100),
+    nintVertpos = cms.int32(40),
+    useLogVertpos = cms.untracked.bool(True),
     #
     # TP originating z position
     minZpos = cms.double(-30),

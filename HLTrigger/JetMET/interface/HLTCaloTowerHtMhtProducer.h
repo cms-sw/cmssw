@@ -21,7 +21,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h" 
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 namespace edm {
     class ConfigurationDescriptions;

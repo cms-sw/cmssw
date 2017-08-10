@@ -39,7 +39,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 
 
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
 
       reco::PFRecHitCollection tmpOut;
@@ -218,8 +218,8 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 
     class DetIDSorter {
     public:
-      DetIDSorter() {}
-      ~DetIDSorter() {}
+      DetIDSorter() = default;
+      ~DetIDSorter() = default;
 
       bool operator()(const reco::PFRecHit& a,
 		     const reco::PFRecHit& b) {

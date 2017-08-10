@@ -1,9 +1,0 @@
-<use   name="DataFormats/Common"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/Phase2ITPixelCluster"/>
-<use   name="boost_serialization"/>
-<use   name="CalibTracker/SiPixelESProducers"/>
-<library   file="*.cc" name="RecoLocalTrackerPhase2ITPixelClusterizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

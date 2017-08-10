@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_Mu10_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu10",
                                  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
@@ -29,7 +30,7 @@ SUSY_HLT_Mu10_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu10",
                                  
                                  )
 
-SUSY_HLT_Mu10_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMu10oVBFoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                 subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu10_v"),
                                                 verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                 resolution     = cms.vstring(""),
@@ -70,7 +71,7 @@ SUSY_HLT_Mu8_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu8",
                                  
                                  )
 
-SUSY_HLT_Mu8_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMu8oVBFoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                 subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu8_v"),
                                                 verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                 resolution     = cms.vstring(""),
@@ -86,6 +87,6 @@ SUSY_HLT_Mu_VBF = cms.Sequence( SUSY_HLT_Mu10_VBF +
                                 SUSY_HLT_Mu8_VBF
                                 )
 
-SUSY_HLT_Mu_VBF_POSTPROCESSING = cms.Sequence( SUSY_HLT_Mu10_VBF_POSTPROCESSING +
-                                               SUSY_HLT_Mu8_VBF_POSTPROCESSING
+SUSY_HLT_Mu_VBF_POSTPROCESSING = cms.Sequence( SUSYoHLToMu10oVBFoPOSTPROCESSING +
+                                               SUSYoHLToMu8oVBFoPOSTPROCESSING
                                                )

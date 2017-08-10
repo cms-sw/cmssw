@@ -45,14 +45,14 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
-#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTQualPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 
 class L1MuBMTrackSegEta;
 class L1MuBMTrackFinder;
 class L1MuBMTrack;
-class L1MuDTEtaPatternLut;
-class L1MuDTQualPatternLut;
+class L1MuBMTEtaPatternLut;
+class L1MuBMTQualPatternLut;
 class L1MuDTTFMasks;
 
 //              ---------------------
@@ -133,8 +133,8 @@ class L1MuBMEtaProcessor {
     //edm::ESHandle< L1MuDTTFMasks >        msks;
     edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
     L1MuDTTFMasks       msks;
-    L1MuDTEtaPatternLut   theEtaPatternLUT;  // ETF look-up table
-    L1MuDTQualPatternLut  theQualPatternLUT; // EMU look-up tables
+    L1MuBMTEtaPatternLut   theEtaPatternLUT;  // ETF look-up table
+    L1MuBMTQualPatternLut  theQualPatternLUT; // EMU look-up tables
 
     edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
 

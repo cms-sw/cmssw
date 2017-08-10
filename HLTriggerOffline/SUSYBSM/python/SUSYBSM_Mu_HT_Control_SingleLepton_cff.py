@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
 SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
@@ -42,7 +43,7 @@ SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                      csvThreshold = cms.untracked.double(-1.0)
                                                      )
 
-SUSY_HLT_Mu_HT_Control_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSYoHLToMuHToControlSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                     subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT350_v'),
                                                                     efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",

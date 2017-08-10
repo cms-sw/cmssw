@@ -3,7 +3,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"

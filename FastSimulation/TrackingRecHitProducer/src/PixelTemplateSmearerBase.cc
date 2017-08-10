@@ -15,7 +15,7 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"

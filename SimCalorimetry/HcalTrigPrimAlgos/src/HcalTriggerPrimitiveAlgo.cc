@@ -197,6 +197,10 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
 {
+   HcalDetId detId = frame.detid();
+   // prevent QIE10 calibration channels from entering TP emulation
+   if(detId.subdet() != HcalForward) return;
+
    auto ids = theTrigTowerGeometry->towerIds(frame.id());
    for (const auto& id: ids) {
       if (id.version() == 0) {
@@ -228,6 +232,9 @@ void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 {
    HcalDetId detId(frame.id());
+   // prevent QIE11 calibration channels from entering TP emulation
+   if(detId.subdet() != HcalEndcap && detId.subdet() != HcalBarrel) return;
+
    std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    assert(ids.size() == 1 || ids.size() == 2);
    IntegerCaloSamples samples1(ids[0], int(frame.samples()));
@@ -239,10 +246,10 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
    incoder_->lookupMSB(frame, msb);
 
    if(ids.size() == 2) {
-      // make a second trigprim for the other one, and split the energy
+      // make a second trigprim for the other one, and share the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
       for(int i = 0; i < samples1.size(); ++i) {
-         samples1[i] = uint32_t(samples1[i]*0.5);
+         samples1[i] = uint32_t(samples1[i]);
          samples2[i] = samples1[i];
       }
       samples2.setPresamples(frame.presamples());
@@ -355,12 +362,17 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
    auto& msb = fgUpgradeMap_[samples.id()];
    IntegerCaloSamples sum(samples.id(), samples.size());
 
+   HcalDetId detId(samples.id());
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    //slide algo window
    for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin) {
       int algosumvalue = 0;
       for(unsigned int i = 0; i < weights_.size(); i++) {
-         //add up value * scale factor
-         algosumvalue += int(samples[ibin+i] * weights_[i]);
+	//add up value * scale factor
+	// In addition, divide by two in the 10 degree phi segmentation region
+	// to mimic 5 degree segmentation for the trigger
+	if(ids.size()==2) algosumvalue += int(samples[ibin+i] * 0.5 * weights_[i]);
+	else algosumvalue += int(samples[ibin+i] * weights_[i]);
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
@@ -522,6 +534,9 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
 bool
 HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
 {
+   // channels with invalid data should not contribute to the sum
+   if(digi.linkError() || ts>=digi.samples() || !digi[ts].ok()) return false;
+
    auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
    if (mask)
       return false;
@@ -549,6 +564,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     const int shift = samples.presamples() - numberOfPresamplesHF_;
     assert(shift >= 0);
     assert((shift + numberOfSamplesHF_) <= samples.size());
+    assert(hf_lumi_shift>=2);
 
     // Try to find the HFDetails from the map corresponding to our samples
     const HcalTrigTowerDetId detId(samples.id());
@@ -594,25 +610,20 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // For details of the energy handling, see:
-               // https://cms-docdb.cern.ch/cgi-bin/DocDB/ShowDocument?docid=12306
-               //
-               // If a channel for one fiber is invalid, use the value of the
-               // other channel (by doubling the sum) to calculate the
-               // energy in the fiber
-               if (long_fiber_count == 1)
-                  long_fiber_val *= 2;
-               if (short_fiber_count == 1)
-                  short_fiber_val *= 2;
+		// For details of the energy handling, see:
+		// https://cms-docdb.cern.ch/cgi-bin/DocDB/ShowDocument?docid=12306
+		// If both readouts are valid, average of the two energies is taken
+		// division by 2 is compensated by adjusting the total scale shift in the end
+		if (long_fiber_count == 2) long_fiber_val >>=1;
+		if (short_fiber_count == 2) short_fiber_val >>=1;
+		
+		auto sum = long_fiber_val + short_fiber_val;
+		// Similar to above, if both channels are valid, 
+		// average of the two energies is calculated
+		// division by 2 here is also compensated by adjusting the total scale shift in the end
+		if (long_fiber_count > 0 and short_fiber_count > 0) sum >>=1;
 
-               auto sum = long_fiber_val + short_fiber_val;
-               // Similar to above, if a fiber is invalid (i.e., both
-               // channels for the fiber invalid), substitute the value of
-               // the other fiber by doubling the sum.
-               if (long_fiber_count == 0 or short_fiber_count == 0)
-                  sum *= 2;
-
-               output[ibin] += sum;
+		output[ibin] += sum;
             }
 
             for (const auto& detail: details) {
@@ -634,7 +645,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamplesHF_; ++bin) {
-       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]}) >> hf_lumi_shift;
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin] >> (hf_lumi_shift-2)});
     }
     std::vector<int> finegrain_converted;
     for (const auto& fg: finegrain)
@@ -724,8 +735,6 @@ HcalTriggerPrimitiveAlgo::validUpgradeFG(const HcalTrigTowerDetId& id, int depth
    if (depth > LAST_FINEGRAIN_DEPTH)
       return false;
    if (id.ietaAbs() > LAST_FINEGRAIN_TOWER)
-      return false;
-   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
       return false;
    return true;
 }

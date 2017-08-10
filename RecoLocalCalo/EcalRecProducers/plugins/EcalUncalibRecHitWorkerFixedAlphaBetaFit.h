@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitFixedAlphaBetaAlgo.h"
 
@@ -20,7 +20,7 @@ namespace edm {
         class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
         public:
                 EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& ); 

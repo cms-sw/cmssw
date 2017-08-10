@@ -21,9 +21,19 @@ static const bool useL1EventSetup( true );
 static const bool useL1GtTriggerMenuLite( false );
 
 
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC):
+  GenericTriggerEventFlag(config,iC,false)
+{
+  if ( config.exists( "andOrL1" ) ) {
+    if (stage2_){
+      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC));
+    }
+  }
+}
+
 /// To be called from the ED module's c'tor
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
-  : watchDB_( 0 )
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, bool stage1Valid )
+  : watchDB_() 
   , hltConfigInit_( false )
   , andOr_( false )
   , dbLabel_( "" )
@@ -114,19 +124,14 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_ = false;
     else {
       if ( config.exists( "dbLabel" ) ) dbLabel_ = config.getParameter< std::string >( "dbLabel" );
-      watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd >;
+      watchDB_ = std::make_unique<edm::ESWatcher< AlCaRecoTriggerBitsRcd > >();
     }
   }
-
-}
-
-
-/// To be called from d'tors by 'delete'
-GenericTriggerEventFlag::~GenericTriggerEventFlag()
-{
-
-  if ( on_ ) delete watchDB_;
-
+  //check to see we arent trying to setup legacy / stage-1 from a constructor call 
+  //that does not support it
+  if ( config.exists( "andOrL1" ) && stage2_ == false ){ //stage-1 setup
+    if( stage1Valid==false ) throw cms::Exception("ConfigError") <<" Error when constructing GenericTriggerEventFlag, legacy/stage-1 is requested but the constructor called is stage2 only";
+  }
 }
 
 

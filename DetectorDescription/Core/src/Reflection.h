@@ -11,8 +11,8 @@ namespace DDI {
   {
   public:
     Reflection(const DDSolid & s);
-    double volume() const;
-    void stream(std::ostream &) const;
+    double volume() const override;
+    void stream(std::ostream &) const override;
     const DDSolid & solid() const { return s_; } 
   private:
     DDSolid s_;  

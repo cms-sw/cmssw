@@ -1,46 +1,70 @@
+from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re
 import json
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
-from helperFunctions import replaceByMap, addIndex, getCommandOutput2
-from plottingOptions import PlottingOptions
+from helperFunctions import replaceByMap, addIndex, getCommandOutput2, boolfromstring, pythonboolstring
 from TkAlExceptions import AllInOneError
 
+class ValidationMetaClass(ABCMeta):
+    sets = ["mandatories", "optionals", "needpackages"]
+    dicts = ["defaults"]
+    def __new__(cls, clsname, bases, dct):
+        for setname in cls.sets:
+            if setname not in dct: dct[setname] = set()
+            dct[setname] = set.union(dct[setname], *(getattr(base, setname) for base in bases if hasattr(base, setname)))
 
-class GenericValidation:
+        for dictname in cls.dicts:
+            if dictname not in dct: dct[dictname] = {}
+            for base in bases:
+                if not hasattr(base, dictname): continue
+                newdict = getattr(base, dictname)
+                for key in set(newdict) & set(dct[dictname]):
+                    if newdict[key] != dct[dictname][key]:
+                        raise ValueError("Inconsistent values of defaults[{}]: {}, {}".format(key, newdict[key], dct[dictname][key]))
+                dct[dictname].update(newdict)
+
+        for setname in cls.sets:      #e.g. removemandatories, used in preexistingvalidation
+                                      #use with caution
+            if "remove"+setname not in dct: dct["remove"+setname] = set()
+            dct["remove"+setname] = set.union(dct["remove"+setname], *(getattr(base, "remove"+setname) for base in bases if hasattr(base, "remove"+setname)))
+
+            dct[setname] -= dct["remove"+setname]
+
+        return super(ValidationMetaClass, cls).__new__(cls, clsname, bases, dct)
+
+class GenericValidation(object):
+    __metaclass__ = ValidationMetaClass
     defaultReferenceName = "DEFAULT"
-    def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
+    mandatories = set()
+    defaults = {
+                "cmssw":        os.environ['CMSSW_BASE'],
+                "parallelJobs": "1",
+                "jobid":        "",
+                "needsproxy":   "false",
+               }
+    needpackages = {"Alignment/OfflineValidation"}
+    optionals = {"jobmode"}
+
+    def __init__(self, valName, alignment, config):
         import random
         self.name = valName
-        self.valType = valType
         self.alignmentToValidate = alignment
         self.general = config.getGeneral()
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
         self.configFiles = []
-        self.filesToCompare = {}
         self.config = config
         self.jobid = ""
 
-        defaults = {
-                    "jobmode":      self.general["jobmode"],
-                    "cmssw":        os.environ['CMSSW_BASE'],
-                    "parallelJobs": "1",
-                    "jobid":        "",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        needpackages = ["Alignment/OfflineValidation"]
-        needpackages += addneedpackages
-        theUpdate = config.getResultingSection(valType+":"+self.name,
-                                               defaultDict = defaults,
-                                               demandPars = mandatories)
+        theUpdate = config.getResultingSection(self.valType+":"+self.name,
+                                               defaultDict = self.defaults,
+                                               demandPars = self.mandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
         self.NJobs = int(self.general["parallelJobs"])
+        self.needsproxy = boolfromstring(self.general["needsproxy"], "needsproxy")
 
         # limit maximum number of parallel jobs to 40
         # (each output file is approximately 20MB)
@@ -49,6 +73,9 @@ class GenericValidation:
             msg = ("Maximum allowed number of parallel jobs "
                    +str(maximumNumberJobs)+" exceeded!!!")
             raise AllInOneError(msg)
+        if self.NJobs > 1 and not isinstance(self, ParallelValidation):
+            raise AllInOneError("Parallel jobs not implemented for {}!\n"
+                                "Please set parallelJobs = 1.".format(type(self).__name__))
 
         self.jobid = self.general["jobid"]
         if self.jobid:
@@ -82,7 +109,7 @@ class GenericValidation:
             self.cmsswreleasebase = commandoutput[2]
 
         self.packages = {}
-        for package in needpackages:
+        for package in self.needpackages:
             for placetolook in self.cmssw, self.cmsswreleasebase:
                 pkgpath = os.path.join(placetolook, "src", package)
                 if os.path.exists(pkgpath):
@@ -98,13 +125,14 @@ class GenericValidation:
             except ValueError:
                 raise AllInOneError("AutoAlternates needs to be true or false, not %s" % config.get("alternateTemplates","AutoAlternates"))
 
-        knownOpts = defaults.keys()+mandatories
+        knownOpts = set(self.defaults.keys())|self.mandatories|self.optionals
         ignoreOpts = []
-        config.checkInput(valType+":"+self.name,
+        config.checkInput(self.valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
 
     def getRepMap(self, alignment = None):
+        from plottingOptions import PlottingOptions
         if alignment == None:
             alignment = self.alignmentToValidate
         try:
@@ -112,7 +140,7 @@ class GenericValidation:
         except KeyError:
             result = {}
         result.update(alignment.getRepMap())
-        result.update( self.general )
+        result.update(self.general)
         result.update({
                 "workdir": os.path.join(self.general["workdir"],
                                         self.randomWorkdirPart),
@@ -131,9 +159,13 @@ class GenericValidation:
         result.update(self.packages)
         return result
 
+    @abstractproperty
+    def filesToCompare(self):
+        pass
+
     def getCompareStrings( self, requestId = None, plain = False ):
         result = {}
-        repMap = self.alignmentToValidate.getRepMap()
+        repMap = self.getRepMap().copy()
         for validationId in self.filesToCompare:
             repMap["file"] = self.filesToCompare[ validationId ]
             if repMap["file"].startswith( "/castor/" ):
@@ -148,7 +180,7 @@ class GenericValidation:
             return result
         else:
             if not "." in requestId:
-                requestId += ".%s"%GenericValidation.defaultReferenceName
+                requestId += ".%s"%self.defaultReferenceName
             if not requestId.split(".")[-1] in result:
                 msg = ("could not find %s in reference Objects!"
                        %requestId.split(".")[-1])
@@ -179,8 +211,8 @@ class GenericValidation:
         return result
 
     def createConfiguration(self, fileContents, path, schedule = None, repMap = None, repMaps = None):
-        self.configFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path, repMap = repMap, repMaps = repMaps)
+        self.configFiles = self.createFiles(fileContents,
+                                            path, repMap = repMap, repMaps = repMaps)
         if not schedule == None:
             schedule = [os.path.join( path, cfgName) for cfgName in schedule]
             for cfgName in schedule:
@@ -197,8 +229,8 @@ class GenericValidation:
         return self.configFiles
 
     def createScript(self, fileContents, path, downloadFiles=[], repMap = None, repMaps = None):
-        self.scriptFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path, repMap = repMap, repMaps = repMaps)
+        self.scriptFiles = self.createFiles(fileContents,
+                                            path, repMap = repMap, repMaps = repMaps)
         for script in self.scriptFiles:
             for scriptwithindex in addIndex(script, self.NJobs):
                 os.chmod(scriptwithindex,0o755)
@@ -209,8 +241,7 @@ class GenericValidation:
             msg =  ("jobmode 'crab' not supported for parallel validation."
                     " Please set parallelJobs = 1.")
             raise AllInOneError(msg)
-        self.crabConfigFiles = GenericValidation.createFiles(self, fileContents,
-                                                             path)
+        self.crabConfigFiles = self.createFiles(fileContents, path)
         return self.crabConfigFiles
 
 
@@ -219,9 +250,22 @@ class GenericValidationData(GenericValidation):
     Subclass of `GenericValidation` which is the base for validations using
     datasets.
     """
+    needParentFiles = False
+    mandatories = {"dataset", "maxevents"}
+    defaults = {
+                "runRange": "",
+                "firstRun": "",
+                "lastRun": "",
+                "begin": "",
+                "end": "",
+                "JSON": "",
+                "dasinstance": "prod/global",
+                "ttrhbuilder":"WithAngleAndTemplate",
+                "usepixelqualityflag": "True",
+               }
+    optionals = {"magneticfield"}
     
-    def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
+    def __init__(self, valName, alignment, config):
         """
         This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
@@ -231,26 +275,9 @@ class GenericValidationData(GenericValidation):
         - `alignment`: `Alignment` instance to validate
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
-        - `valType`: String which specifies the type of validation
-        - `addDefaults`: Dictionary which contains default values for individual
-                         validations in addition to the general default values
-        - `addMandatories`: List which contains mandatory parameters for
-                            individual validations in addition to the general
-                            mandatory parameters
         """
 
-        defaults = {"runRange": "",
-                    "firstRun": "",
-                    "lastRun": "",
-                    "begin": "",
-                    "end": "",
-                    "JSON": ""
-                    }
-        defaults.update(addDefaults)
-        mandatories = [ "dataset", "maxevents" ]
-        mandatories += addMandatories
-        needpackages = addneedpackages
-        GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories, needpackages)
+        super(GenericValidationData, self).__init__(valName, alignment, config)
 
         # if maxevents is not specified, cannot calculate number of events for
         # each parallel job, and therefore running only a single job
@@ -272,10 +299,12 @@ class GenericValidationData(GenericValidation):
                        "This is allowed, but make sure it's not a mistake") % self.general["dataset"]
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw] = {False: None, True: None}
 
+        Bfield = self.general.get("magneticfield", None)
         if globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] is None:
             dataset = Dataset(
                 self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst,
-                cmssw = self.cmssw, cmsswrelease = self.cmsswreleasebase )
+                cmssw = self.cmssw, cmsswrelease = self.cmsswreleasebase, magneticfield = Bfield,
+                dasinstance = self.general["dasinstance"])
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] = dataset
             if tryPredefinedFirst and not dataset.predefined():                              #No point finding the data twice in that case
                 globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][False] = dataset
@@ -298,7 +327,7 @@ class GenericValidationData(GenericValidation):
                     end = self.general["end"],
                     parent = self.needParentFiles )
             except AllInOneError as e:
-                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg = "In section [%s:%s]: "%(self.valType, self.name)
                 msg += str(e)
                 raise AllInOneError(msg)
         else:
@@ -307,7 +336,7 @@ class GenericValidationData(GenericValidation):
                        "(in your case: '%s')."%( self.dataset.name() ))
                 raise AllInOneError( msg )
             try:
-                theUpdate = config.getResultingSection(valType+":"+self.name,
+                theUpdate = config.getResultingSection(self.valType+":"+self.name,
                                                        demandPars = ["parallelJobs"])
             except AllInOneError as e:
                 msg = str(e)[:-1]+" when using 'jobmode: crab'."
@@ -354,12 +383,14 @@ class GenericValidationData(GenericValidation):
                     end = self.general["end"],
                     crab = True )
             except AllInOneError as e:
-                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg = "In section [%s:%s]: "%(self.valType, self.name)
                 msg += str( e )
                 raise AllInOneError( msg )
 
+        self.general["usepixelqualityflag"] = pythonboolstring(self.general["usepixelqualityflag"], "usepixelqualityflag")
+
     def getRepMap(self, alignment = None):
-        result = GenericValidation.getRepMap(self, alignment)
+        result = super(GenericValidationData, self).getRepMap(alignment)
         outputfile = os.path.expandvars(replaceByMap(
                            "%s_%s_.oO[name]Oo..root" % (self.outputBaseName, self.name)
                                  , result))
@@ -372,9 +403,41 @@ class GenericValidationData(GenericValidation):
                 "finalResultFile": resultfile,
                 "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
                 "outputFiles": addIndex(outputfile, self.NJobs),
-                "finalOutputFile": outputfile
+                "finalOutputFile": outputfile,
+                "ProcessName": self.ProcessName,
+                "Bookkeeping": self.Bookkeeping,
+                "LoadBasicModules": self.LoadBasicModules,
+                "TrackSelectionRefitting": self.TrackSelectionRefitting,
+                "ValidationConfig": self.ValidationTemplate,
+                "FileOutputTemplate": self.FileOutputTemplate,
+                "DefinePath": self.DefinePath,
                 })
         return result
+
+    @property
+    def cfgName(self):
+        return "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
+                                   self.alignmentToValidate.name )
+    @abstractproperty
+    def ProcessName(self):
+        pass
+
+    @property
+    def cfgTemplate(self):
+        return configTemplates.cfgTemplate
+
+    @abstractproperty
+    def ValidationTemplate(self):
+        pass
+
+    @property
+    def filesToCompare(self):
+        return {self.defaultReferenceName: self.getRepMap()["finalResultFile"]}
+
+    def createConfiguration(self, path ):
+        repMap = self.getRepMap()
+        cfgs = {self.cfgName: self.cfgTemplate}
+        super(GenericValidationData, self).createConfiguration(cfgs, path, repMap=repMap)
 
     def createScript(self, path, template = configTemplates.scriptTemplate, downloadFiles=[], repMap = None, repMaps = None):
         scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
@@ -387,8 +450,8 @@ class GenericValidationData(GenericValidation):
                                                       "postProcess":""
                                                      }
         scripts = {scriptName: template}
-        return GenericValidation.createScript(self, scripts, path, downloadFiles = downloadFiles,
-                                              repMap = repMap, repMaps = repMaps)
+        return super(GenericValidationData, self).createScript(scripts, path, downloadFiles = downloadFiles,
+                                                               repMap = repMap, repMaps = repMaps)
 
     def createCrabCfg(self, path, crabCfgBaseName):
         """
@@ -420,4 +483,303 @@ class GenericValidationData(GenericValidation):
             raise AllInOneError("Unknown data type!  Can't run in crab mode")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
-        return GenericValidation.createCrabCfg( self, crabCfg, path )
+        return super(GenericValidationData, self).createCrabCfg( crabCfg, path )
+
+    @property
+    def Bookkeeping(self):
+        return configTemplates.Bookkeeping
+    @property
+    def LoadBasicModules(self):
+        return configTemplates.LoadBasicModules
+    @abstractproperty
+    def TrackSelectionRefitting(self):
+        pass
+    @property
+    def FileOutputTemplate(self):
+        return configTemplates.FileOutputTemplate
+    @abstractproperty
+    def DefinePath(self):
+        pass
+
+class GenericValidationData_CTSR(GenericValidationData):
+    #common track selection and refitting
+    defaults = {
+        "momentumconstraint": "None",
+        "openmasswindow": "False",
+        "cosmicsdecomode": "True",
+        "removetrackhitfiltercommands": "",
+        "appendtrackhitfiltercommands": "",
+    }
+    def getRepMap(self, alignment=None):
+        result = super(GenericValidationData_CTSR, self).getRepMap(alignment)
+
+        from trackSplittingValidation import TrackSplittingValidation
+        result.update({
+            "ValidationSequence": self.ValidationSequence,
+            "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
+            "cosmics0T": str(self.cosmics0T),
+            "use_d0cut": str(self.use_d0cut),
+        })
+
+        commands = []
+        for removeorappend in "remove", "append":
+            optionname = removeorappend + "trackhitfiltercommands"
+            if result[optionname]:
+                for command in result[optionname].split(","):
+                    command = command.strip()
+                    commands.append('process.TrackerTrackHitFilter.commands.{}("{}")'.format(removeorappend, command))
+        result["trackhitfiltercommands"] = "\n".join(commands)
+
+        return result
+    @property
+    def use_d0cut(self):
+        return "Cosmics" not in self.general["trackcollection"]  #use it for collisions only
+    @property
+    def TrackSelectionRefitting(self):
+        return configTemplates.CommonTrackSelectionRefitting
+    @property
+    def DefinePath(self):
+        return configTemplates.DefinePath_CommonSelectionRefitting
+    @abstractproperty
+    def ValidationSequence(self):
+        pass
+    @property
+    def cosmics0T(self):
+        if "Cosmics" not in self.general["trackcollection"]: return False
+        Bfield = self.dataset.magneticFieldForRun()
+        if Bfield < 0.5: return True
+        if isinstance(Bfield, str):
+            if "unknown " in Bfield:
+                msg = Bfield.replace("unknown ","",1)
+            elif Bfield == "unknown":
+                msg = "Can't get the B field for %s." % self.dataset.name()
+            else:
+                msg = "B field = {}???".format(Bfield)
+            raise AllInOneError(msg + "\n"
+                                "To use this dataset, specify magneticfield = [value] in your .ini config file.")
+        return False
+
+class ParallelValidation(GenericValidation):
+    @classmethod
+    def initMerge(cls):
+        return ""
+    @abstractmethod
+    def appendToMerge(self):
+        pass
+
+    @classmethod
+    def doInitMerge(cls):
+        from plottingOptions import PlottingOptions
+        result = cls.initMerge()
+        result = replaceByMap(result, PlottingOptions(None, cls))
+        if result and result[-1] != "\n": result += "\n"
+        return result
+    def doMerge(self):
+        result = self.appendToMerge()
+        if result[-1] != "\n": result += "\n"
+        result += ("if [[ tmpMergeRetCode -eq 0 ]]; then\n"
+                   "  xrdcp -f .oO[finalOutputFile]Oo. root://eoscms//eos/cms.oO[finalResultFile]Oo.\n"
+                   "fi\n"
+                   "if [[ ${tmpMergeRetCode} -gt ${mergeRetCode} ]]; then\n"
+                   "  mergeRetCode=${tmpMergeRetCode}\n"
+                   "fi\n")
+        result = replaceByMap(result, self.getRepMap())
+        return result
+
+class ValidationWithPlots(GenericValidation):
+    @classmethod
+    def runPlots(cls, validations):
+        return ("rfcp .oO[plottingscriptpath]Oo. .\n"
+                "root -x -b -q .oO[plottingscriptname]Oo.++")
+    @abstractmethod
+    def appendToPlots(self):
+        pass
+    @abstractmethod
+    def plottingscriptname(cls):
+        """override with a classmethod"""
+    @abstractmethod
+    def plottingscripttemplate(cls):
+        """override with a classmethod"""
+    @abstractmethod
+    def plotsdirname(cls):
+        """override with a classmethod"""
+
+    @classmethod
+    def doRunPlots(cls, validations):
+        from plottingOptions import PlottingOptions
+        cls.createPlottingScript(validations)
+        result = cls.runPlots(validations)
+        result = replaceByMap(result, PlottingOptions(None, cls))
+        if result and result[-1] != "\n": result += "\n"
+        return result
+    @classmethod
+    def createPlottingScript(cls, validations):
+        from plottingOptions import PlottingOptions
+        repmap = PlottingOptions(None, cls).copy()
+        filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
+        repmap["PlottingInstantiation"] = "\n".join(
+                                                    replaceByMap(v.appendToPlots(), v.getRepMap()).rstrip("\n")
+                                                         for v in validations
+                                                   )
+        plottingscript = replaceByMap(cls.plottingscripttemplate(), repmap)
+        with open(filename, 'w') as f:
+            f.write(plottingscript)
+
+class ValidationWithPlotsSummaryBase(ValidationWithPlots):
+    class SummaryItem(object):
+        def __init__(self, name, values, format=None, latexname=None, latexformat=None):
+            """
+            name:        name of the summary item, goes on top of the column
+            values:      value for each alignment (in order of rows)
+            format:      python format string (default: {:.3g}, meaning up to 3 significant digits)
+            latexname:   name in latex form, e.g. if name=sigma you might want latexname=\sigma (default: name)
+            latexformat: format for latex (default: format)
+            """
+            if format is None: format = "{:.3g}"
+            if latexname is None: latexname = name
+            if latexformat is None: latexformat = format
+
+            self.__name = name
+            self.__values = values
+            self.__format = format
+            self.__latexname = latexname
+            self.__latexformat = latexformat
+
+        def name(self, latex=False):
+            if latex:
+                return self.__latexname
+            else:
+                return self.__name
+
+        def format(self, value, latex=False):
+            if latex:
+                fmt = self.__latexformat
+            else:
+                fmt = self.__format
+            if re.match(".*[{][^}]*[fg][}].*", fmt):
+                value = float(value)
+            return fmt.format(value)
+
+        def values(self, latex=False):
+            result = [self.format(v, latex=latex) for v in self.__values]
+            return result
+
+        def value(self, i, latex):
+            return self.values(latex)[i]
+
+    @abstractmethod
+    def getsummaryitems(cls, folder):
+        """override with a classmethod that returns a list of SummaryItems
+           based on the plots saved in folder"""
+
+    __summaryitems = None
+    __lastfolder = None
+
+    @classmethod
+    def summaryitemsstring(cls, folder=None, latex=False, transpose=True):
+        if folder is None: folder = cls.plotsdirname()
+        if folder.startswith( "/castor/" ):
+            folder = "rfio:%(file)s"%repMap
+        elif folder.startswith( "/store/" ):
+            folder = "root://eoscms.cern.ch//eos/cms%(file)s"%repMap
+
+        if cls.__summaryitems is None or cls.__lastfolder != folder:
+            cls.__lastfolder = folder
+            cls.__summaryitems = cls.getsummaryitems(folder)
+
+        summaryitems = cls.__summaryitems
+
+        if not summaryitems:
+            raise AllInOneError("No summary items!")
+        size = {len(_.values(latex)) for _ in summaryitems}
+        if len(size) != 1:
+            raise AllInOneError("Some summary items have different numbers of values\n{}".format(size))
+        size = size.pop()
+
+        if transpose:
+            columnwidths = ([max(len(_.name(latex)) for _ in summaryitems)]
+                          + [max(len(_.value(i, latex)) for _ in summaryitems) for i in range(size)])
+        else:
+            columnwidths = [max(len(entry) for entry in [_.name(latex)] + _.values(latex)) for _ in summaryitems]
+
+        if latex:
+            join = " & "
+        else:
+            join = " "
+        row = join.join("{{:{}}}".format(width) for width in columnwidths)
+
+        if transpose:
+            rows = [row.format(*[_.name(latex)]+_.values(latex)) for _ in summaryitems]
+        else:
+            rows = []
+            rows.append(row.format(*(_.name for _ in summaryitems)))
+            for i in range(size):
+                rows.append(row.format(*(_.value(i, latex) for _ in summaryitems)))
+
+        if latex:
+            join = " \\\\\n"
+        else:
+            join = "\n"
+        result = join.join(rows)
+        if latex:
+            result = (r"\begin{{tabular}}{{{}}}".format("|" + "|".join("c"*(len(columnwidths))) + "|") + "\n"
+                         + result + "\n"
+                         + r"\end{tabular}")
+        return result
+
+    @classmethod
+    def printsummaryitems(cls, *args, **kwargs):
+        print cls.summaryitemsstring(*args, **kwargs)
+    @classmethod
+    def writesummaryitems(cls, filename, *args, **kwargs):
+        with open(filename, "w") as f:
+            f.write(cls.summaryitemsstring(*args, **kwargs)+"\n")
+
+class ValidationWithPlotsSummary(ValidationWithPlotsSummaryBase):
+    @classmethod
+    def getsummaryitems(cls, folder):
+        result = []
+        with open(os.path.join(folder, "{}Summary.txt".format(cls.__name__))) as f:
+            for line in f:
+                split = line.rstrip("\n").split("\t")
+                kwargs = {}
+                for thing in split[:]:
+                    if thing.startswith("format="):
+                        kwargs["format"] = thing.replace("format=", "", 1)
+                        split.remove(thing)
+                    if thing.startswith("latexname="):
+                        kwargs["latexname"] = thing.replace("latexname=", "", 1)
+                        split.remove(thing)
+                    if thing.startswith("latexformat="):
+                        kwargs["latexformat"] = thing.replace("latexformat=", "", 1)
+                        split.remove(thing)
+
+                name = split[0]
+                values = split[1:]
+                result.append(cls.SummaryItem(name, values, **kwargs))
+        return result
+
+class ValidationWithComparison(GenericValidation):
+    @classmethod
+    def doComparison(cls, validations):
+        from plottingOptions import PlottingOptions
+        repmap = PlottingOptions(None, cls).copy()
+        repmap["compareStrings"] = " , ".join(v.getCompareStrings("OfflineValidation") for v in validations)
+        repmap["compareStringsPlain"] = " , ".join(v.getCompareStrings("OfflineValidation", True) for v in validations)
+        comparison = replaceByMap(cls.comparisontemplate(), repmap)
+        return comparison
+
+    @classmethod
+    def comparisontemplate(cls):
+        return configTemplates.compareAlignmentsExecution
+    @classmethod
+    def comparealignmentspath(cls):
+        return ".oO[Alignment/OfflineValidation]Oo./scripts/.oO[compareAlignmentsName]Oo."
+    @abstractmethod
+    def comparealignmentsname(cls):
+        """classmethod"""
+
+class ValidationForPresentation(ValidationWithPlots):
+    @abstractmethod
+    def presentationsubsections(cls):
+        """classmethod"""

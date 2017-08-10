@@ -31,7 +31,7 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
     }
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       for (unsigned int i=0;i<qualityTests_.size();++i) {
 	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
@@ -46,9 +46,8 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       const CaloGeometry* geom = geoHandle.product();
 
       unsigned skipped_rechits = 0;
-      for (unsigned int i=0;i<rechits.size();++i) {
-	const HGCRecHit& hgrh = rechits[i];
-	const DET detid(hgrh.detid());
+      for (const auto & hgrh : rechits) {
+		const DET detid(hgrh.detid());
 	
 	if( subdet != detid.subdetId() ) {
 	  throw cms::Exception("IncorrectHGCSubdetector")

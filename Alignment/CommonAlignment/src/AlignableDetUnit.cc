@@ -1,6 +1,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"

@@ -31,6 +31,7 @@ _reco.hcalLocalRecoSequence.remove(_reco.zdcreco)
 _reco.localreco.remove(_reco.totemRPLocalReconstruction)
 _reco.localreco.remove(_reco.ctppsDiamondLocalReconstruction)
 _reco.localreco.remove(_reco.ctppsLocalTrackLiteProducer)
+_reco.localreco.remove(_reco.ctppsPixelLocalReconstruction)
 
 ##########################################
 # Calo rechits
@@ -55,7 +56,7 @@ _mod2del.append(_reco.trackingGlobalReco)
 _mod2del.extend(_reco.recopixelvertexing.expandAndClone()._seq._collection)
 _mod2del.append(_reco.MeasurementTrackerEventPreSplitting)
 # actually we want to keep a few modules that we need to run (again) after mixing) 
-for _entry in [_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.trackExtrapolator]:
+for _entry in [_reco.firstStepPrimaryVerticesUnsorted,_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.initialStepTrackRefsForJets,_reco.trackExtrapolator]:
     while _entry in _mod2del:
         _mod2del.remove(_entry)
 
@@ -64,15 +65,16 @@ _reco.localreco.remove(_reco.trackerlocalreco)
 _reco.globalreco.remove(_reco.siPixelClusterShapeCachePreSplitting)
 _reco.globalreco.remove(_reco.trackingGlobalReco)
 
-# we need a replacment for the firstStepPrimaryVertices
+# we need a replacment for the firstStepPrimaryVerticesUnsorted
 # that includes tracker information of signal and pile up
 # after mixing there is no such thing as initialStepTracks,
-# so we replace the input collection for firstStepPrimaryVertices with generalTracks
-_reco.firstStepPrimaryVertices.TrackLabel = "generalTracks"
+# so we replace the input collection for firstStepPrimaryVerticesUnsorted with generalTracks
+_reco.firstStepPrimaryVerticesUnsorted.TrackLabel = "generalTracks"
+_reco.initialStepTrackRefsForJets.src = "generalTracks"
 
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
 #for _entry in reversed([trackExtrapolator,caloTowerForTrk,firstStepPrimaryVertices,ak4CaloJetsForTrk])
-_reco.globalreco.insert(0,_reco.trackExtrapolator+_reco.caloTowerForTrk+_reco.firstStepPrimaryVertices+_reco.ak4CaloJetsForTrk)
+_reco.globalreco.insert(0,_reco.trackExtrapolator+_reco.caloTowerForTrk+_reco.firstStepPrimaryVerticesUnsorted+_reco.ak4CaloJetsForTrk+_reco.initialStepTrackRefsForJets+_reco.firstStepPrimaryVertices)
 
 # FastSim doesn't use Runge Kute for propagation
 # the following propagators are not used in FastSim, but just to be sure...

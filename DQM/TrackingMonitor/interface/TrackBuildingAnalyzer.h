@@ -19,6 +19,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -28,16 +29,16 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-
-class DQMStore;
-
 class TrackBuildingAnalyzer 
 {
     public:
+        using MVACollection = std::vector<float>;
+        using QualityMaskCollection = std::vector<unsigned char>;
+
         TrackBuildingAnalyzer(const edm::ParameterSet&);
-        virtual ~TrackBuildingAnalyzer();
-        virtual void initHisto(DQMStore::IBooker & ibooker);
-        virtual void analyze
+        ~TrackBuildingAnalyzer();
+        void initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet&);
+        void analyze
         (
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
@@ -46,7 +47,7 @@ class TrackBuildingAnalyzer
             const edm::ESHandle<MagneticField>& theMF,
             const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
         );
-        virtual void analyze
+        void analyze
         (
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
@@ -55,6 +56,12 @@ class TrackBuildingAnalyzer
             const edm::ESHandle<MagneticField>& theMF,
             const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
         );
+        void analyze
+        (
+            const edm::View<reco::Track>& trackCollection,
+            const std::vector<const MVACollection *>& mvaCollections,
+            const std::vector<const QualityMaskCollection *>& qualityMaskCollections
+        );
 
     private:
 
@@ -62,8 +69,6 @@ class TrackBuildingAnalyzer
         void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
 
         // ----------member data ---------------------------
-
-        edm::ParameterSet conf_;
 
         // Track Seeds
         MonitorElement* SeedPt;
@@ -94,6 +99,13 @@ class TrackBuildingAnalyzer
 	MonitorElement* stoppingSource;
 	MonitorElement* stoppingSourceVSeta;
 	MonitorElement* stoppingSourceVSphi;
+
+	std::vector<MonitorElement *> trackMVAs;
+	std::vector<MonitorElement *> trackMVAsHP;
+	std::vector<MonitorElement *> trackMVAsVsPtProfile;
+	std::vector<MonitorElement *> trackMVAsHPVsPtProfile;
+	std::vector<MonitorElement *> trackMVAsVsEtaProfile;
+	std::vector<MonitorElement *> trackMVAsHPVsEtaProfile;
 	
         std::string histname;  //for naming the histograms according to algorithm used
 
@@ -114,5 +126,6 @@ class TrackBuildingAnalyzer
 	bool doProfPHI;
 	bool doProfETA;
 	bool doStopSource;
+	bool doMVAPlots;
 };
 #endif

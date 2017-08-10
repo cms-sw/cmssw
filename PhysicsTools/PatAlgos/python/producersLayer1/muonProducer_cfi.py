@@ -92,7 +92,16 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     # ecal PF energy
     embedPfEcalEnergy = cms.bool(True),
-    addPuppiIsolation = cms.bool(False)
+    addPuppiIsolation = cms.bool(False),
+
+    # Compute and store Mini-Isolation.
+    # Implemention and a description of parameters can be found in:
+    # PhysicsTools/PatUtils/src/PFIsolation.cc
+    # only works in miniaod, so set to True in miniAOD_tools.py
+    computeMiniIso = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
+
 )
 
 

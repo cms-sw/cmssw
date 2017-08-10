@@ -40,7 +40,7 @@ class FastTimeNumberingInitialization : public edm::ESProducer {
 
 public:
   FastTimeNumberingInitialization(const edm::ParameterSet&);
-  ~FastTimeNumberingInitialization();
+  ~FastTimeNumberingInitialization() override;
 
   typedef std::shared_ptr<FastTimeDDDConstants> ReturnType;
 

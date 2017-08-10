@@ -1,7 +1,16 @@
 #ifndef L1Trigger_ME0TriggerPrimitives_ME0Motherboard_h
 #define L1Trigger_ME0TriggerPrimitives_ME0Motherboard_h
 
+/** \class ME0TriggerBuilder
+ *
+ * Does pattern recognition of ME0 pads to build ME0 triggers
+ *
+ * \author Sven Dildick (TAMU)
+ *
+ */
+
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,6 +35,9 @@ class ME0Motherboard
   /** Run function for normal usage. */
   void run(const ME0PadDigiCollection*);
 
+  /** Build Triggers from single pads in each chamber and fill them into output collections. */
+  void run(const ME0PadDigiClusterCollection*);
+  
   /** Returns vector of Triggers in the read-out time window, if any. */
   std::vector<ME0TriggerDigi> readoutTriggers();
 
@@ -34,6 +46,9 @@ class ME0Motherboard
 
   /** Clears Triggers. */
   void clear();
+
+  // declusterizes the clusters into single pad digis
+  void declusterize(const ME0PadDigiClusterCollection*, ME0PadDigiCollection&);
 
  private:
 

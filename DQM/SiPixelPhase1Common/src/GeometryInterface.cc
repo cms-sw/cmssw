@@ -335,6 +335,7 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     },
     1, iConfig.getParameter<int>("max_lumisection")
   );
+  
   int onlineblock = iConfig.getParameter<int>("onlineblock");
   int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
   addExtractor(intern("OnlineBlock"),
@@ -346,6 +347,18 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     // but the strange range allows the RenderPlugin to know the block size.
     onlineblock, onlineblock+n_onlineblocks-1
   );
+  
+  int lumiblock = iConfig.getParameter<int>("lumiblock");
+  addExtractor(intern("LumiBlock"),
+    [lumiblock] (InterestingQuantities const& iq) {
+      if(!iq.sourceEvent) return UNDEFINED;
+      // The '-1' is for making 1-10 the same block rather than 0-9
+      // The '+0.5' makes the block span an integer range rather n.5-m.5 
+      return Value( ((iq.sourceEvent->luminosityBlock()-1)/lumiblock) + 0.5  );
+    },
+    -0.5, iConfig.getParameter<int>("max_lumisection")/lumiblock
+  );
+ 
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;

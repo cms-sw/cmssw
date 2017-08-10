@@ -122,10 +122,10 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
-    if(moduleLabel_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
-      << "' contains an underscore ('_'), which is illegal in a module label.\n";
-    }
+    // Module labels of non-persistent products are allowed to contain
+    // underscores. For module labels of persistent products, the module
+    // label is checked for underscores in the function initFromDictionary
+    // after we determine whether the product is persistent or not.
 
     if(productInstanceName_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
@@ -200,7 +200,18 @@ namespace edm {
       // Set transient if persistent == "false".
       setTransient(true);
       return;
+    } else {
+      // Module labels of persistent products cannot contain underscores,
+      // but for non-persistent products it is allowed because path names
+      // are used as module labels for path status products and there
+      // are many path names that include underscores.
+      char const underscore('_');
+      if(moduleLabel_.find(underscore) != std::string::npos) {
+        throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
+        << "' contains an underscore ('_'), which is illegal in a module label.\n";
+      }
     }
+
     if (wp && wp->HasKey("splitLevel")) {
       setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), 0, 0));
       if (splitLevel() < 0) {

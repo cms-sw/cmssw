@@ -47,10 +47,10 @@
     20.0*deg
   </Vector>
   <Vector name="layerGroupSimEta1" type="numeric" nEntries="19">
-    1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4
+    1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4
   </Vector>
   <Vector name="layerGroupSimEta16" type="numeric" nEntries="19">
-    1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+    1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
   </Vector>
   <Vector name="layerGroupSimEta17" type="numeric" nEntries="19">
     2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
@@ -80,8 +80,9 @@
     22.0*cm, 165.0*cm, 30.0*cm, 0.0*cm, 1115.0*cm, 0.375*cm,
     1137.0*cm
   </Vector>
-  <Vector name="noff" type="numeric" nEntries="19">
-    15,103, 4, 10, 5, 2, 4, 18, 19, 11, 12, 13, 14,  3,  4, 53,  4,  0,  1
+  <Vector name="noff" type="numeric" nEntries="31">
+    15,103, 4, 10, 5, 2, 4, 18, 19, 11, 12, 13, 14,  3,  4, 53,  4,  0,  1,
+    0,   0, 0,  0, 0,10, 5,  0,  1,  7,  7,  7
   </Vector>
   <Vector name="Layer0Wt" type="numeric" nEntries="2">
     1.2, 1.2

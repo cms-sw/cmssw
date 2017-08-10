@@ -84,6 +84,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -99,12 +100,15 @@ namespace edm {
   class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
+  class ExceptionToActionTable;
   class OutputModuleCommunicator;
   class ProcessContext;
   class UnscheduledCallProducer;
   class WorkerInPath;
   class ModuleRegistry;
   class TriggerResultInserter;
+  class PathStatusInserter;
+  class EndPathStatusInserter;
   class PreallocationConfiguration;
   class WaitingTaskHolder;
 
@@ -155,9 +159,11 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+                   std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
                    std::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
-                   service::TriggerNamesService& tns,
+                   service::TriggerNamesService const& tns,
                    PreallocationConfiguration const& prealloc,
                    ProductRegistry& pregistry,
                    BranchIDListHelper& branchIDListHelper,
@@ -172,7 +178,8 @@ namespace edm {
 
     void processOneEventAsync(WaitingTaskHolder iTask,
                               EventPrincipal& ep,
-                              EventSetup const& es);
+                              EventSetup const& es,
+                              std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
     void processOneStream(typename T::MyPrincipal& principal,
@@ -200,14 +207,6 @@ namespace edm {
 
     ///adds to oLabelsToFill the labels for all paths in the process
     void availablePaths(std::vector<std::string>& oLabelsToFill) const;
-
-    ///adds to oLabelsToFill the labels for all trigger paths in the process
-    ///this is different from availablePaths because it includes the
-    ///empty paths so matches the entries in TriggerResults exactly.
-    void triggerPaths(std::vector<std::string>& oLabelsToFill) const;
-
-    ///adds to oLabelsToFill the labels for all end paths in the process
-    void endPaths(std::vector<std::string>& oLabelsToFill) const;
 
     ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
     void modulesInPath(std::string const& iPathLabel,
@@ -316,18 +315,19 @@ namespace edm {
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      std::string const& name, bool ignoreFilters, PathWorkers& out,
-                     vstring* labelsOnPaths);
+                     std::vector<std::string> const& endPathNames);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
                       int bitpos, std::string const& name, TrigResPtr,
-                      vstring* labelsOnTriggerPaths);
+                      std::vector<std::string> const& endPathNames);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                     int bitpos, std::string const& name);
+                     int bitpos, std::string const& name,
+                     std::vector<std::string> const& endPathNames);
 
     void addToAllWorkers(Worker* w);
     
@@ -340,19 +340,24 @@ namespace edm {
     TrigResConstPtr results() const {return get_underlying_safe(results_);}
     TrigResPtr& results() {return get_underlying_safe(results_);}
 
+    void makePathStatusInserters(
+      std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+      std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
+      ExceptionToActionTable const& actions);
+
     WorkerManager            workerManager_;
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
-
-    vstring                  trig_name_list_;
-    vstring                  end_path_name_list_;
 
     edm::propagate_const<TrigResPtr> results_;
 
     edm::propagate_const<WorkerPtr> results_inserter_;
+    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
+
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;
-    vstring                  empty_trig_path_names_;
+    std::vector<int>         empty_end_paths_;
 
     //For each branch that has been marked for early deletion
     // keep track of how many modules are left that read this data but have

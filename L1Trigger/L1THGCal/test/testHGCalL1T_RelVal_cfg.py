@@ -3,7 +3,7 @@ from Configuration.StandardSequences.Eras import eras
 
 
 
-process = cms.Process('DIGI',eras.Phase2C2)
+process = cms.Process('DIGI',eras.Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -11,9 +11,9 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_0_pre1/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v9_D4TPU140-v1/00000/0C61C40F-7A1A-E711-94D2-0CC47A4C8E16.root') )
+       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/92X_upgrade2023_realistic_v1_2023D17noPU-v1/00000/002E1FCB-8168-E711-BD97-0CC47A4C8EA8.root') )
 
 process.options = cms.untracked.PSet(
 
@@ -45,30 +45,6 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring(
-        'keep *_*_HGCHitsEE_*',
-        'keep *_*_HGCHitsHEback_*',
-        'keep *_*_HGCHitsHEfront_*',
-        'keep *_mix_*_*',
-        'keep *_genParticles_*_*',
-        'keep *_hgcalTriggerPrimitiveDigiProducer_*_*'
-    ),
-    fileName = cms.untracked.string('file:test.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
-)
-
-# Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
     fileName = cms.string("ntuple.root")
@@ -78,31 +54,13 @@ process.TFileService = cms.Service(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
+
+# load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-# Remove best choice selection
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits = cms.uint32(7)
-
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters.cellLSB = cms.double(
-        process.hgcalTriggerPrimitiveDigiProducer.FECodec.linLSB.value() * 
-        2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
-)
-
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
-                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
-                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters,
-                              C2d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters,
-                              C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
-                              )
-
-
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
-
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-
+# Change to V7 trigger geometry for older samples
+#  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
+#  process = custom_geometry_ZoltanSplit_V7(process)
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')

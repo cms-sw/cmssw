@@ -35,6 +35,7 @@ void SiPixelCoordinates::init(edm::EventSetup const& iSetup) {
   edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle;
   iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapHandle);
   cablingMap_ = cablingMapHandle.product();
+  fedid_ = cablingMap_->det2fedMap();
 
   // Get TrackerTopology
   edm::ESHandle<TrackerTopology> trackerTopologyHandle;

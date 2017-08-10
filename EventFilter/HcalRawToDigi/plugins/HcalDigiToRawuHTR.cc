@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,54 +38,44 @@
 
 using namespace std;
 
-class HcalDigiToRawuHTR : public edm::stream::EDProducer<> {
+class HcalDigiToRawuHTR : public edm::global::EDProducer<> {
 public:
   explicit HcalDigiToRawuHTR(const edm::ParameterSet&);
   ~HcalDigiToRawuHTR();
 
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  void getData(const edm::Event&, const edm::EventSetup&);
-
   int _verbosity;
   std::string electronicsMapLabel_;
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
-  edm::Handle<QIE10DigiCollection> qie10DigiCollection;
   edm::EDGetTokenT<HcalDataFrameContainer<QIE11DataFrame> > tok_QIE11DigiCollection_;
-  edm::Handle<QIE11DigiCollection> qie11DigiCollection;
   edm::EDGetTokenT<HBHEDigiCollection> tok_HBHEDigiCollection_;
-  edm::Handle<HBHEDigiCollection> hbheDigiCollection;
   edm::EDGetTokenT<HFDigiCollection> tok_HFDigiCollection_;
-  edm::Handle<HFDigiCollection> hfDigiCollection;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
-  edm::Handle<HcalTrigPrimDigiCollection> tpDigiCollection;
 
-  edm::InputTag qie10Tag_, qie11Tag_, hbheqie8Tag_, hfqie8Tag_, trigTag_;
+  bool premix_;
 };
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig) :
   _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
   electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
-  qie10Tag_(iConfig.getParameter<edm::InputTag>("QIE10")),
-  qie11Tag_(iConfig.getParameter<edm::InputTag>("QIE11")),
-  hbheqie8Tag_(iConfig.getParameter<edm::InputTag>("HBHEqie8")),
-  hfqie8Tag_(iConfig.getParameter<edm::InputTag>("HFqie8")),
-  trigTag_(iConfig.getParameter<edm::InputTag>("TP"))
+  tok_QIE10DigiCollection_(consumes<HcalDataFrameContainer<QIE10DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE10"))),
+  tok_QIE11DigiCollection_(consumes<HcalDataFrameContainer<QIE11DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE11"))),
+  tok_HBHEDigiCollection_(consumes<HBHEDigiCollection >(iConfig.getParameter<edm::InputTag>("HBHEqie8"))),
+  tok_HFDigiCollection_(consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("HFqie8"))),
+  tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
+  premix_(iConfig.getParameter<bool>("premix"))
 {
   produces<FEDRawDataCollection>("");
-  tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(qie10Tag_);
-  tok_QIE11DigiCollection_ = consumes<HcalDataFrameContainer<QIE11DataFrame> >(qie11Tag_);
-  tok_HBHEDigiCollection_ = consumes<HBHEDigiCollection >(hbheqie8Tag_);
-  tok_HFDigiCollection_ = consumes<HFDigiCollection>(hfqie8Tag_);
-  tok_TPDigiCollection_ = consumes<HcalTrigPrimDigiCollection>(trigTag_);
 }
 
 HcalDigiToRawuHTR::~HcalDigiToRawuHTR(){}
 
-void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   using namespace edm;
 
@@ -98,6 +88,11 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   //
   //  Extracting All the Collections containing useful Info
+  edm::Handle<QIE10DigiCollection> qie10DigiCollection;
+  edm::Handle<QIE11DigiCollection> qie11DigiCollection;
+  edm::Handle<HBHEDigiCollection> hbheDigiCollection;
+  edm::Handle<HFDigiCollection> hfDigiCollection;
+  edm::Handle<HcalTrigPrimDigiCollection> tpDigiCollection;
   iEvent.getByToken(tok_QIE10DigiCollection_,qie10DigiCollection);
   iEvent.getByToken(tok_QIE11DigiCollection_,qie11DigiCollection);
   iEvent.getByToken(tok_HBHEDigiCollection_,hbheDigiCollection);
@@ -174,7 +169,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex , presamples );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,premix_,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -195,7 +190,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex , presamples );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,premix_,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -280,6 +275,7 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("HBHEqie8", edm::InputTag("simHcalDigis"));
   desc.add<edm::InputTag>("HFqie8", edm::InputTag("simHcalDigis"));
   desc.add<edm::InputTag>("TP", edm::InputTag("simHcalTriggerPrimitiveDigis"));
+  desc.add<bool>("premix", false);
   descriptions.add("hcalDigiToRawuHTR",desc);
   descriptions.addDefault(desc);
 }

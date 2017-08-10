@@ -10,7 +10,6 @@ import sys
 #
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage2L1Trigger.isChosen()):
-    sys.stderr.write("L1TGlobal Sequence configured for Legacy trigger (Run1 and Run 2015). \n")
 #
 # -  Global Trigger emulator
 #
@@ -33,6 +32,5 @@ if stage2L1Trigger.isChosen():
 #
 # -  Global Trigger emulator
 #
-    sys.stderr.write("L1TGlobal Sequence configured for Stage-2 (2016) trigger. \n")
     from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
     SimL1TGlobal = cms.Sequence(simGtStage2Digis)

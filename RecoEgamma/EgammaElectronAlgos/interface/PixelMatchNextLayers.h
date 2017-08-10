@@ -18,6 +18,7 @@
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"

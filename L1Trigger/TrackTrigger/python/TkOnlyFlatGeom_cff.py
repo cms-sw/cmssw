@@ -5,7 +5,7 @@
 # This script is used for processing fast stub building in the tracker only geometry
 # See the available scripts in the test directory
 # Based on the following geom script:
-# https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/Geometry/CMSCommonData/python/cmsExtendedGeometry2023D10XML_cfi.py
+# https://github.com/cms-sw/cmssw/blob/CMSSW_9_2_X/Geometry/CMSCommonData/python/cmsExtendedGeometry2023D10XML_cfi.py
 #
 # S.Viret (viret_at_ipnl.in2p3.fr): 04/07/16
 #
@@ -30,16 +30,16 @@ trackerGeometry.applyAlignment = cms.bool(False)
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
-        'Geometry/CMSCommonData/data/materials.xml',
+       'Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
-        'Geometry/CMSCommonData/data/PostLS2/cms.xml',             
+        'Geometry/CMSCommonData/data/cms/2019/v1/cms.xml',
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',   
         'Geometry/CMSCommonData/data/mgnt.xml',
-        'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
-        'Geometry/CMSCommonData/data/PostLS2/cmsBeam.xml',
+        'Geometry/CMSCommonData/data/beampipe/2023/v1/beampipe.xml',
+        'Geometry/CMSCommonData/data/cmsBeam/2023/v1/cmsBeam.xml',
         'Geometry/CMSCommonData/data/cavern.xml',
         'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',

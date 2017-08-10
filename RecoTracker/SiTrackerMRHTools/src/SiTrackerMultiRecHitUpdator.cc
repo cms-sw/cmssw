@@ -2,6 +2,7 @@
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "RecoTracker/SiTrackerMRHTools/interface/GenericProjectedRecHit2D.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
@@ -10,9 +11,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

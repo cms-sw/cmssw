@@ -11,7 +11,7 @@
  *   based on RecoMuon/L2MuonSeedGenerator
  *
  *
- *   \author  D. Olivito
+ *   \author  S. Folgueras
  */
 //
 //--------------------------------------------------
@@ -53,12 +53,11 @@ class HLTL1MuonNoL2Selector : public edm::global::EDProducer<> {
   const double theL1MinPt_;
   const double theL1MaxEta_;
   const unsigned theL1MinQuality_;
+  bool centralBxOnly_;
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muCollToken_;
   edm::InputTag                                          theL2CandTag_;   
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theL2CandToken_;
-  edm::InputTag                                          theL1CandTag_; 
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CandToken_; 
   edm::InputTag             seedMapTag_;
   edm::EDGetTokenT<SeedMap> seedMapToken_;
   

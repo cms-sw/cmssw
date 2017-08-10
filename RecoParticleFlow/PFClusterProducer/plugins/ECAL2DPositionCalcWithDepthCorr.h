@@ -24,12 +24,12 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
     _param_W0(conf.getParameter<double>("W0")),
     _param_X0(conf.getParameter<double>("X0")),
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
-    _ebGeom(NULL),
-    _eeGeom(NULL),
-    _esGeom(NULL),
+    _ebGeom(nullptr),
+    _eeGeom(nullptr),
+    _esGeom(nullptr),
     _esPlus(false),
     _esMinus(false) {
-        _timeResolutionCalc.reset(NULL);
+        _timeResolutionCalc.reset(nullptr);
     if( conf.exists("timeResolutionCalc") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalc");
@@ -39,10 +39,10 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;
   ECAL2DPositionCalcWithDepthCorr& operator=(const ECAL2DPositionCalcWithDepthCorr&) = delete;
 
-  void update(const edm::EventSetup& es);
+  void update(const edm::EventSetup& es) override;
 
-  void calculateAndSetPosition(reco::PFCluster&);
-  void calculateAndSetPositions(reco::PFClusterCollection&);
+  void calculateAndSetPosition(reco::PFCluster&) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&) override;
 
  private:  
   const double _param_T0_EB;

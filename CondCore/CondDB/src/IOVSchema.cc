@@ -226,10 +226,15 @@ namespace cond {
 	q1.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       }
       q1.addCondition<SINCE>( end, "<=");
+      q1.addOrderClause<SINCE>();
+      q1.addOrderClause<INSERTION_TIME>( false );
+      size_t initialSize = iovs.size();
       for( auto row: q1 ){
-        iovs.push_back( row );
+	// starting from the second iov in the array, skip the rows with older timestamp
+	if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
+	iovs.push_back( row );
       }
-      return iovs.size();
+      return iovs.size()-initialSize;
     }
 
     void IOV::Table::insertOne( const std::string& tag, 

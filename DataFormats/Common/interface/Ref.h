@@ -121,6 +121,7 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "boost/utility/enable_if.hpp"
 
 #include <vector>
+#include <type_traits>
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
@@ -165,7 +166,7 @@ namespace edm {
     typedef T const element_type; //used for generic programming
     typedef F finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
-    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type key_type;
+    typedef typename std::remove_cv<typename std::remove_reference<argument_type>::type>::type key_type;
     /// C is the type of the collection
     /// T is the type of a member the collection
 

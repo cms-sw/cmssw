@@ -24,8 +24,8 @@ CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::Parameter
   sigma_               ( iConfig.getParameter<double>( "sigma" ) ),
   startFromX_          ( iConfig.getParameter<double>( "startFromX" ) ),
   stopAtX_             ( iConfig.getParameter<double>( "stopAtX" ) ),
-  yPosition_           ( iConfig.getParameter<double>( "yPosition" ) ),
-  yWidth_              ( iConfig.getParameter<double>( "yWidth" ) ),
+  yPositionInitial_    ( iConfig.getParameter<double>( "yPosition" ) ),
+  yWidthInitial_       ( iConfig.getParameter<double>( "yWidth" ) ),
   hit_f_( "hit_TF1_CTPPS", iConfig.getParameter<std::string>( "pixelEfficiencyFunction" ).c_str(), startFromX_, stopAtX_ )
 {
   if (sigma_==0.0) {
@@ -45,6 +45,8 @@ CTPPSDiamondTrackRecognition::clear()
 {
   hitParametersVectorMap_.clear();
   mhMap_.clear();
+  yPosition_ = yPositionInitial_;
+  yWidth_ = yWidthInitial_;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -56,7 +58,7 @@ CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
   hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
 
   // Check vertical coordinates
-  if ( yPosition_ == 0.0 and yWidth_ == 0.0 ) {
+  if ( yPosition_ == yPositionInitial_ and yWidth_ == yWidthInitial_ ) {
     yPosition_ = recHit.getY();
     yWidth_ = recHit.getYWidth();
   }

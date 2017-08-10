@@ -48,7 +48,7 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 {
 
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? std::string(""): nameProcess_ ) ), this);
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );
@@ -68,7 +68,9 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
 
   callWhenNewProductsRegistered( [ this, &iConfig ]( BranchDescription const& bd ) {
-    triggerResultsGetter_( bd );
+    if(not ( this->autoProcessName_ and bd.processName()==this->moduleDescription().processName()) ) {
+      triggerResultsGetter_( bd );
+    }
   } );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {

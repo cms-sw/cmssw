@@ -18,6 +18,8 @@
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
@@ -166,6 +168,7 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+  edm::Ptr<pat::PackedCandidate> ptr_PackedCandidate;
 
   edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
   edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;

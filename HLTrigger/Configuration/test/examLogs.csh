@@ -7,7 +7,7 @@ foreach gtag ( MC DATA )
   echo
   echo $gtag
 
-  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v21 2e34v22 )
 
     echo
     set name = ${table}_${gtag}

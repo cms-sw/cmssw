@@ -6,12 +6,18 @@ import FWCore.ParameterSet.Config as cms
 
 # Stage 2 L1 Trigger Quality tests
 from DQM.L1TMonitorClient.L1TStage2CaloLayer1QualityTests_cfi import *
+from DQM.L1TMonitorClient.L1TStage2uGMTQualityTests_cfi import *
+from DQM.L1TMonitorClient.L1TStage2BMTFQualityTests_cfi import *
+from DQM.L1TMonitorClient.L1TStage2EMTFQualityTests_cfi import *
 
 # L1 objects quality tests
 
 # sequence for L1 systems
 l1TriggerSystemQualityTests = cms.Sequence(
-                                l1TStage2CaloLayer1QualityTests
+                                l1TStage2CaloLayer1QualityTests +
+                                l1TStage2uGMTQualityTests +
+                                l1TStage2BMTFQualityTests +
+                                l1TStage2EMTFQualityTests
                                 )
 
 # sequence for L1 objects

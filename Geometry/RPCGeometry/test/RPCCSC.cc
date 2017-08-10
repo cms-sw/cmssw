@@ -82,7 +82,7 @@ class RPCCSC : public edm::one::EDAnalyzer<>
 {
 public:
   explicit RPCCSC(const edm::ParameterSet&);
-  ~RPCCSC();
+  ~RPCCSC() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -198,9 +198,9 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
   // Now check binding
   const CSCGeometry::ChamberContainer& cscChambers = cscGeometry->chambers();
-  for(auto CSCChamberIter = cscChambers.begin(); CSCChamberIter != cscChambers.end(); CSCChamberIter++){   
+  for(auto cscChamber : cscChambers){   
     
-    CSCDetId CSCId = (*CSCChamberIter)->id();
+    CSCDetId CSCId = cscChamber->id();
 
     int cscEndCap = CSCId.endcap();
     int cscStation = CSCId.station();
@@ -220,8 +220,8 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
     std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
     if(CSCId.ring()!=1) std::cout<<"CSC for"<<CSCId<<" "<<rollsForThisCSC.size()<<" rolls."<<std::endl;
 
-    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
-      const RPCRoll* rollasociated = rpcGeometry->roll(*iteraRoll);
+    for (auto iteraRoll : rollsForThisCSC){
+      const RPCRoll* rollasociated = rpcGeometry->roll(iteraRoll);
       RPCDetId rpcId = rollasociated->id();
       RPCGeomServ rpcsrv(rpcId);
 

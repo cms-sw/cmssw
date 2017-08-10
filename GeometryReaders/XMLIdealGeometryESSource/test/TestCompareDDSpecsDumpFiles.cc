@@ -20,16 +20,19 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 class TestCompareDDSpecsDumpFiles
-  : public edm::EDAnalyzer
+  : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TestCompareDDSpecsDumpFiles( const edm::ParameterSet& );
-  ~TestCompareDDSpecsDumpFiles( void );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  ~TestCompareDDSpecsDumpFiles( void ) override;
+  
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -97,7 +100,7 @@ TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::str
   std::string str( *it );
   str.erase( 0, ( *fit ).size());
   boost::trim( str );
-  list.push_back( clean( str ));
+  list.emplace_back( clean( str ));
 
   return *fit;
 }
@@ -106,9 +109,9 @@ std::string
 TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 {
   std::string str( "" );
-  for( std::list<std::string>::const_iterator it = list.begin(); it != list.end(); ++it )
+  for(const auto & it : list)
   {
-    str.append( *it );
+    str.append( it );
     str.append("|");
   }
 
@@ -120,7 +123,7 @@ TestCompareDDSpecsDumpFiles::fillAndSort( tokenizer::iterator start, tokenizer::
 {
   for( tokenizer::iterator it = start; it != end; ++it )
   {
-    list.push_back( clean( *it ));
+    list.emplace_back( clean( *it ));
   }     
   list.sort();
 

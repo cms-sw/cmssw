@@ -44,7 +44,20 @@ def customisePostEra_Run2_2016(process):
     return process
 
 def customisePostEra_Run2_2017(process):
-    _hcalCustoms25ns(process)
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos,"HFDigiTime")
+    return process
+
+def customisePostEra_Run2_2017_express_trackingOnly(process):
+    customisePostEra_Run2_2017(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
+    return process
+
+def customisePostEra_Run2_2017_harvesting_trackingOnly(process):
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
     return process
 
 
@@ -183,4 +196,3 @@ def customiseRun2CommonHI(process):
     # process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
 
     return process
-

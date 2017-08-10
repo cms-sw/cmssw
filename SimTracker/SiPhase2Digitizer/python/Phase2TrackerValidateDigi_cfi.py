@@ -23,8 +23,10 @@ digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
     SimTrackSource = cms.InputTag("g4SimHits"),
     SimVertexSource = cms.InputTag("g4SimHits"),
     GeometryType = cms.string('idealForDigi'),
-    PtCutOff      = cms.double(10.0),                           
+    PtCutOff      = cms.double(9.5),                           
     EtaCutOff      = cms.double(3.5),                           
+    TOFLowerCutOff = cms.double(-12.5),
+    TOFUpperCutOff = cms.double(12.5),
     TrackPtH = cms.PSet(
         Nbins  = cms.int32(50),
         xmin   = cms.double(0.0),
@@ -80,32 +82,32 @@ digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
         Nxbins = cms.int32(45),
         xmin   = cms.double(-4.5),
         xmax   = cms.double(4.5),
-        Nybins = cms.int32(200),
+        Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(40.)
+        ymax   = cms.double(50.)
     ),
    TOFPhiMapH = cms.PSet(
         Nxbins = cms.int32(64),
         xmin   = cms.double(-3.2),
         xmax   = cms.double(3.2),
-        Nybins = cms.int32(200),
+        Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(40.)
+        ymax   = cms.double(50.)
     ),
    TOFZMapH = cms.PSet(
         Nxbins = cms.int32(3000),
         xmin   = cms.double(-300.),
         xmax   = cms.double(300.),
-        Nybins = cms.int32(200),
+        Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(40.)
+        ymax   = cms.double(50.)
     ),
     TOFRMapH = cms.PSet(
         Nxbins = cms.int32(1200),
         xmin   = cms.double(0.),
         xmax   = cms.double(120.),
-        Nybins = cms.int32(200),
+        Nybins = cms.int32(100),
         ymin   = cms.double(0.),
-        ymax   = cms.double(40.)
+        ymax   = cms.double(50.)
     )
 )

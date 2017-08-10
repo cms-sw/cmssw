@@ -1,7 +1,3 @@
-
-//
-//
-
 /**
   \class    pat::OutsideInMuonSeeder MuonReSeeder.h "MuonAnalysis/MuonAssociators/interface/MuonReSeeder.h"
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them
@@ -41,7 +37,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-class OutsideInMuonSeeder : public edm::stream::EDProducer<> {
+class OutsideInMuonSeeder final : public edm::stream::EDProducer<> {
     public:
       explicit OutsideInMuonSeeder(const edm::ParameterSet & iConfig);
       virtual ~OutsideInMuonSeeder() { }
@@ -56,25 +52,26 @@ class OutsideInMuonSeeder : public edm::stream::EDProducer<> {
       StringCutObjectSelector<reco::Muon> selector_;
 
       /// How many layers to try
-      int layersToTry_;
+      const int layersToTry_;
 
       /// How many hits to try on same layer
-      int hitsToTry_;
+      const int hitsToTry_;
 
       /// Do inside-out
-      bool fromVertex_;
+      const bool fromVertex_;
 
       /// How much to rescale errors from STA
-      double errorRescaling_;
+      const double errorRescaling_;
 
-      std::string trackerPropagatorName_;
-      std::string muonPropagatorName_;
+      const std::string trackerPropagatorName_;
+      const std::string muonPropagatorName_;
       edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
-      std::string measurementTrackerName_;
-      std::string estimatorName_;
-      std::string updatorName_;
+      const std::string measurementTrackerName_;
+      const std::string estimatorName_;
+      const std::string updatorName_;
 
-      double minEtaForTEC_, maxEtaForTOB_;
+      float const minEtaForTEC_;
+      float const maxEtaForTOB_;
 
       edm::ESHandle<MagneticField>          magfield_;
       edm::ESHandle<Propagator>             muonPropagator_;
@@ -84,10 +81,7 @@ class OutsideInMuonSeeder : public edm::stream::EDProducer<> {
       edm::ESHandle<TrajectoryStateUpdator>         updator_;
 
       /// Dump deug information
-      bool debug_;
-
-      /// Surface used to make a TSOS at the PCA to the beamline
-      Plane::PlanePointer dummyPlane_;
+      const bool debug_;
 
       int doLayer(const GeometricSearchDet &layer,
                   const TrajectoryStateOnSurface &state,
@@ -110,13 +104,12 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet & iConfig) :
     muonPropagatorName_(iConfig.getParameter<std::string>("muonPropagator")),
     measurementTrackerTag_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"))),
     estimatorName_(iConfig.getParameter<std::string>("hitCollector")),
+    updatorName_("KFUpdator"),
     minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
     maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
-    debug_(iConfig.getUntrackedParameter<bool>("debug",false)),
-    dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType()))
+    debug_(iConfig.getUntrackedParameter<bool>("debug",false))
 {
     produces<std::vector<TrajectorySeed> >();
-    updatorName_ = "KFUpdator";
 }
 
 void
@@ -143,8 +136,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     auto out = std::make_unique<std::vector<TrajectorySeed>>();
 
-    for (View<reco::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-        const reco::Muon &mu = *it;
+    for (auto const & mu : *src) {
         if (mu.outerTrack().isNull() || !selector_(mu)) continue;
         if (debug_ && mu.innerTrack().isNonnull()) doDebug(*mu.innerTrack());
 
@@ -159,14 +151,10 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (debug_) LogDebug("OutsideInMuonSeeder") << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
         const reco::Track &tk = *mu.outerTrack();
 
-        TrajectoryStateOnSurface state;
-        if (fromVertex_) {
-            FreeTrajectoryState fstate = trajectoryStateTransform::initialFreeState(tk, magfield_.product());
-            dummyPlane_->move(fstate.position() - dummyPlane_->position());
-            state = TrajectoryStateOnSurface(fstate, *dummyPlane_);
-        } else {
-            state = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_.product());
-        }
+        TrajectoryStateOnSurface state = fromVertex_ ?
+           TrajectoryStateOnSurface(trajectoryStateTransform::initialFreeState(tk, magfield_.product())) :
+           trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_.product());
+
         if (std::abs(tk.eta()) < maxEtaForTOB_) {
             std::vector< BarrelDetLayer const* > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
             int found = 0;

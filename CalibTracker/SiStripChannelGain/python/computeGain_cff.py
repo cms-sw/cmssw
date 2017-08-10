@@ -14,6 +14,8 @@ SiStripCalib = cms.EDAnalyzer(
     harvestingMode      = cms.untracked.bool(False),
     calibrationMode     = cms.untracked.string('StdBunch'),
     DQMdir              = cms.untracked.string('AlCaReco/SiStripGains'),
+    ChargeHisto         = cms.untracked.vstring('TIB','TIB_layer_1','TOB','TOB_layer_1','TIDminus','TIDplus','TECminus','TECplus'),
+
 
     Validation          = cms.untracked.bool(False),
     OldGainRemoving     = cms.untracked.bool(False),
@@ -29,7 +31,7 @@ SiStripCalib = cms.EDAnalyzer(
     saveSummary         = cms.untracked.bool(False),
 
     GoodFracForTagProd  = cms.untracked.double(0.98),
-    NClustersForTagProd = cms.untracked.double(1E8),
+    NClustersForTagProd = cms.untracked.double(8E8),
     
 
     SinceAppendMode         = cms.bool(True),

@@ -173,7 +173,8 @@ firstStepPrimaryVerticesPreSplitting.TrackLabel = cms.InputTag("initialStepTrack
 firstStepPrimaryVerticesPreSplitting.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
 
 #Jet Core emulation to identify jet-tracks
-from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk, jetsForCoreTracking
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk
+from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import jetsForCoreTracking
 initialStepTrackRefsForJetsPreSplitting = initialStepTrackRefsForJets.clone(
     src = 'initialStepTracksPreSplitting')
 caloTowerForTrkPreSplitting = caloTowerForTrk.clone()

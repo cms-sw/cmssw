@@ -22,7 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <array>
 // user include files
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
@@ -50,7 +50,7 @@ namespace edm {
   {
     
   public:
-    EDConsumerBase() : frozen_(false) {}
+    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
     virtual ~EDConsumerBase() noexcept(false);
     
     // disallow copying
@@ -88,6 +88,9 @@ namespace edm {
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
+
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ConsumesInfo> consumesInfo() const;
 
@@ -187,6 +190,7 @@ namespace edm {
     std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
     bool frozen_;
+    bool containsCurrentProcessAlias_;
   };
 }
 

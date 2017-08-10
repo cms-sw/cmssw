@@ -14,11 +14,18 @@ _passThruSeeds_HGCal = cms.PSet(
 
 # initial step clusterizer
 _simClusterMapper_HGCal = cms.PSet(
-    algoName = cms.string("GenericSimClusterMapper"),
+    algoName = cms.string("RealisticSimClusterMapper"),
+    exclusiveFraction = cms.double(0.6),
+    invisibleFraction = cms.double(0.6),
+    maxDistanceFilter = cms.bool(True),
+    #filtering out hits outside a cylinder of 10cm radius, built around the center of gravity per each layer
+    maxDistance =  cms.double(10.0),
+    useMCFractionsForExclEnergy = cms.bool(False),    
     thresholdsByDetector = cms.VPSet(
     ),
     simClusterSrc = cms.InputTag("mix:MergedCaloTruth")
 )
+
 
 #position calculations
 _positionCalcPCA_HGCal = cms.PSet(

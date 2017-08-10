@@ -79,11 +79,13 @@ namespace edm {
     void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
 
     void doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
     void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
 
     void doBeginStream(unsigned int);
@@ -131,13 +133,6 @@ namespace edm {
       for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
     }
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded() {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->openNewOutputFilesIfNeeded();
-      for_all(subProcesses_, [](auto& subProcess) { subProcess.openNewOutputFilesIfNeeded(); });
-    }
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb) {
       ServiceRegistry::Operate operate(serviceToken_);
@@ -169,18 +164,6 @@ namespace edm {
         }
       }
       return false;
-    }
-
-    void preForkReleaseResources() {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->preForkReleaseResources();
-      for_all(subProcesses_, [](auto& subProcess){ subProcess.preForkReleaseResources(); });
-    }
-
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->postForkReacquireResources(iChildIndex, iNumberOfChildren);
-      for_all(subProcesses_, [iChildIndex, iNumberOfChildren](auto& subProcess){ subProcess.postForkReacquireResources(iChildIndex, iNumberOfChildren); });
     }
 
     /// Return a vector allowing const access to all the ModuleDescriptions for this SubProcess

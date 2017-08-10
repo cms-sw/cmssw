@@ -61,7 +61,7 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMMessageLoggerClientSeq )
 
 
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackingForDisplacedJetMonitorClientHLT) 
 HLTMonitoringClientPA= cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
@@ -78,8 +78,6 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
 
-from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
-
 DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  DQMMessageLoggerClientSeq *
                                  dqmDcsInfoClient *
@@ -92,7 +90,7 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  alcaBeamMonitorClient *
                                  runTauEff *
                                  dqmFastTimerServiceClient *
-                                 DQMHarvestL1Trigger
+                                 l1TriggerDqmOfflineClient
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *

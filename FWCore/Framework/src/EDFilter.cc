@@ -105,16 +105,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDFilter::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDFilter::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-  
   void
   EDFilter::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;

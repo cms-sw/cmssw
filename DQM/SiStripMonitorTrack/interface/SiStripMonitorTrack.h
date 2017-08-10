@@ -91,34 +91,59 @@ private:
   MonitorElement * bookMETrend(DQMStore::IBooker & , const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es);
-  void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::Event&ev, const edm::EventSetup& es);
-  void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::Event& ev, const edm::EventSetup& es);
-  void trajectoryStudy(const reco::Track& track, const edm::Event& ev, const edm::EventSetup& es, bool track_ok);
+
+  void trackStudyFromTrack(
+    edm::Handle<reco::TrackCollection >   trackCollectionHandle,
+    const edm::DetSetVector<SiStripDigi>& digilist,
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es);
+  void trackStudyFromTrajectory(
+    edm::Handle<reco::TrackCollection >   trackCollectionHandle,
+    const edm::DetSetVector<SiStripDigi>& digilist,
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es);
+  void trajectoryStudy(
+    const reco::Track&                    track,
+    const edm::DetSetVector<SiStripDigi>& digilist,
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es,
+    bool                                  track_ok);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   bool trackFilter(const reco::Track& track);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   void hitStudy(
-    const edm::Event&      ev,
-    const edm::EventSetup& es,
-		const ProjectedSiStripRecHit2D* projhit,
-		const SiStripMatchedRecHit2D*   matchedhit,
-		const SiStripRecHit2D*          hit2D,
-		const SiStripRecHit1D*          hit1D,
-		      LocalVector               localMomentum,
-		const bool                      track_ok);
+    const edm::Event&                      ev,
+    const edm::EventSetup&                 es,
+    const edm::DetSetVector<SiStripDigi>&  digilist,
+	  const ProjectedSiStripRecHit2D*        projhit,
+	  const SiStripMatchedRecHit2D*          matchedhit,
+	  const SiStripRecHit2D*                 hit2D,
+	  const SiStripRecHit1D*                 hit1D,
+	 	      LocalVector                      localMomentum,
+	  const bool                             track_ok);
   bool clusterInfos(
     SiStripClusterInfo* cluster,
-    const uint32_t detid,
-    enum ClusterFlags flags,
-    bool track_ok,
-    LocalVector LV,
-    const Det2MEs& MEs ,
-    const TrackerTopology* tTopo,
-    const SiStripGain*     stripGain,
-    const SiStripQuality*  stripQuality,
+    const uint32_t                        detid,
+    enum ClusterFlags                     flags,
+    bool                                  track_ok,
+    LocalVector                           LV,
+    const Det2MEs&                        MEs ,
+    const TrackerTopology*                tTopo,
+    const SiStripGain*                    stripGain,
+    const SiStripQuality*                 stripQuality,
     const edm::DetSetVector<SiStripDigi>& digilist
   );
-  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::Event&, const edm::EventSetup&, bool ok);
+  template <class T> void RecHitInfo(
+    const T*                              tkrecHit,
+          LocalVector                     LV,
+    const edm::DetSetVector<SiStripDigi>& digilist,
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es,
+    bool ok
+  );
+
+  bool fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es);
+  void return2DME(MonitorElement* input, int binx, int biny, double value);
 
   // fill monitorables
 //  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, const uint32_t detid, const LocalVector LV);
@@ -247,7 +272,6 @@ private:
   bool ring_flag;
   bool TkHistoMap_On_;
   bool clchCMoriginTkHmap_On_;
-  bool Digi_On_;
 
   std::string TrackProducer_;
   std::string TrackLabel_;
@@ -267,5 +291,19 @@ private:
   SiStripDCSStatus* dcsStatus_;
   GenericTriggerEventFlag* genTriggerEventFlag_;
   SiStripFolderOrganizer folderOrganizer_;
+
+
+  // control view plots
+  MonitorElement* ClusterStoNCorr_OnTrack_TIBTID = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_TOB    = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_TECM   = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_TECP   = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECCratevsFECSlot = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB    = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM   = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP   = 0;
+
+
 };
 #endif

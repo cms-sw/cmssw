@@ -8,7 +8,7 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -378,12 +378,12 @@ DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
   DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string( copyNo ),
 		  div_.parent().ddname().ns());
   std::vector<double> newRmin, newRmax, newZ;
-  newZ.push_back( zvec[ copyNo ] - posi );
-  newZ.push_back( zvec[ copyNo + 1 ] - posi );
-  newRmin.push_back( rminvec[ copyNo ]);
-  newRmin.push_back( rminvec[ copyNo + 1 ]);
-  newRmax.push_back( rmaxvec[ copyNo ]);
-  newRmax.push_back( rmaxvec[ copyNo + 1 ]);
+  newZ.emplace_back( zvec[ copyNo ] - posi );
+  newZ.emplace_back( zvec[ copyNo + 1 ] - posi );
+  newRmin.emplace_back( rminvec[ copyNo ]);
+  newRmin.emplace_back( rminvec[ copyNo + 1 ]);
+  newRmax.emplace_back( rmaxvec[ copyNo ]);
+  newRmax.emplace_back( rmaxvec[ copyNo + 1 ]);
 
   DDSolid dsol = DDSolidFactory::polyhedra( solname,
 					    msol.sides(),

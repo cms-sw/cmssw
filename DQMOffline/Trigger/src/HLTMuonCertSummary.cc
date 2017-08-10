@@ -60,12 +60,12 @@ class HLTMuonCertSummary : public DQMEDHarvester {
 
    public:
       explicit HLTMuonCertSummary(const edm::ParameterSet& pset);
-      ~HLTMuonCertSummary();
+      ~HLTMuonCertSummary() override;
 
 
-      virtual void beginJob() override;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+      void beginJob() override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
 
 
@@ -95,10 +95,7 @@ HLTMuonCertSummary::HLTMuonCertSummary(const edm::ParameterSet& pset)
 
 
 
-HLTMuonCertSummary::~HLTMuonCertSummary()
-{
-
-}
+HLTMuonCertSummary::~HLTMuonCertSummary() = default;
 
 
 
@@ -181,12 +178,12 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
   CertificationSummaryMapTH2->GetYaxis()->SetBinLabel(1,"HLT_Mu5_allMuons");
 
 
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
   
   // to do:  what do we want in certification contents?
   //  iBooker.setCurrentFolder("Egamma/EventInfo/CertificationContents/"); 
@@ -195,17 +192,17 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
   //   //looping over histograms to be tested
   if(verbose_) LogInfo ("HLTMuonVal")  << "\n>>> looping over histograms to be tested <<<\n\n";
   
-  for(std::vector<string>::iterator it=histoNameVector.begin();it!=histoNameVector.end();++it){
+  for(auto & it : histoNameVector){
 
-    string HistoName = (*it);
+    string HistoName = it;
     if(verbose_) LogInfo ("HLTMuonVal")  << ">>> " << HistoName;        
     
 
-    MonitorElement * TestHist=0;
+    MonitorElement * TestHist=nullptr;
 
     TestHist = iGetter.get(HistoName);
 
-    bool validMe = TestHist!=0;
+    bool validMe = TestHist!=nullptr;
     if(verbose_)  LogInfo ("HLTMuonVal")  << " is valid? " << validMe << "\n";
     if(!validMe) continue;
 

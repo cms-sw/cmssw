@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
@@ -137,12 +138,12 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 
 hltSiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters   = cms.InputTag("hltSiPixelClusters"),
-        tracks     = cms.InputTag("hltIter2Merged"),
+        tracks     = cms.InputTag("hltTracksMerged"), #hltIter2Merged"
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
 
-hltSiPixelPhase1TrackClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+hltSiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )

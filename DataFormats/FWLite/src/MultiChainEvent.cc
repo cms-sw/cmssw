@@ -477,6 +477,14 @@ MultiChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults)
   return edm::TriggerResultsByName(&triggerResults, names);
 }
 
+edm::ParameterSet const*
+MultiChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  auto pset = event1_->parameterSet(psID);
+  if(nullptr ==pset) {
+      pset = event2_->parameterSet(psID);
+  }
+  return pset;
+}
 //
 // static member functions
 //

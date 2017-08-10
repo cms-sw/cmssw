@@ -4,7 +4,7 @@
 #include <string>
 #include <array>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Box.h"
 #include "DetectorDescription/Core/src/Cons.h"
@@ -77,7 +77,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     solid = new DDI::Cons(0,0,0,0,0,0,0);
     break;
   case ddpseudotrap:
-    solid = new DDI::PseudoTrap(0,0,0,0,0,0,0);
+    solid = new DDI::PseudoTrap(0,0,0,0,0,0,false);
     break;
   case ddshapeless:
     solid = new DDI::Shapeless();
@@ -98,7 +98,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     solid = new DDI::Polycone(0,0,dummy,dummy,dummy);
     break;			
   case ddtrunctubs:
-    solid = new DDI::TruncTubs(0,0,0,0,0,0,0,0);
+    solid = new DDI::TruncTubs(0,0,0,0,0,0,0,false);
     break;
   case ddtorus:
     solid = new DDI::Torus(0,0,0,0,0);
@@ -123,6 +123,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     break;
   case ddextrudedpolygon:
     solid = new DDI::ExtrudedPolygon( dummy, dummy, dummy, dummy, dummy, dummy );
+    break;
   default:
     throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
   }

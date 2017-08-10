@@ -1,4 +1,3 @@
-<use   name="boost"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/GEMDigi"/>
 <use   name="FWCore/Framework"/>
@@ -25,5 +24,11 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="GEMDigiSimLinkReader.cc" name="GEMDigiSimLinkReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="ME0DigiSimLinkReader.cc" name="ME0DigiSimLinkReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="ME0DigiReader.cc" name="ME0DigiReader">
   <flags   EDM_PLUGIN="1"/>
 </library>

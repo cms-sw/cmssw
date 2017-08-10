@@ -35,7 +35,7 @@ class OutputMagneticFieldDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRu
 {
 public:
   explicit OutputMagneticFieldDDToDDL( const edm::ParameterSet& iConfig );
-  ~OutputMagneticFieldDDToDDL( void );
+  ~OutputMagneticFieldDDToDDL( void ) override;
   
   void beginJob() override {}
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
@@ -162,7 +162,7 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
     addToMatStore( ddLP.material(), matStore );
     addToSolStore( ddLP.solid(), solStore, rotStore );
     ++i;
-    if( git->size()) 
+    if( !git->empty()) 
     {
       // ask for children of ddLP  
       DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();

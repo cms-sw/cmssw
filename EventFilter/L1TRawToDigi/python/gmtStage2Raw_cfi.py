@@ -13,7 +13,7 @@ gmtStage2Raw = cms.EDProducer(
     ImdInputLabelOMTFNeg = cms.InputTag("simGmtStage2Digis", "imdMuonsOMTFNeg"),
     ImdInputLabelOMTFPos = cms.InputTag("simGmtStage2Digis", "imdMuonsOMTFPos"),
     FedId = cms.int32(1402),
-    FWId = cms.uint32(0x5000000), # FIXME: Set correct FW version for switch to 2017 muon RAW format (planned to be v5.0.0)
+    FWId = cms.uint32(0x4010000), # FW version in GMT with vtx-etrapolation
     lenSlinkHeader = cms.untracked.int32(8),
     lenSlinkTrailer = cms.untracked.int32(8)
 )

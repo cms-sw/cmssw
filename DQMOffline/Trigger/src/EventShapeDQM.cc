@@ -16,10 +16,7 @@ EventShapeDQM::EventShapeDQM(const edm::ParameterSet& ps)
 	EPlvl_ = ps.getParameter<int>("EPlvl");
 }
 
-EventShapeDQM::~EventShapeDQM()
-{
-
-}
+EventShapeDQM::~EventShapeDQM() = default;
 
 
 void EventShapeDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)

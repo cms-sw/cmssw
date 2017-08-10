@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -41,7 +41,7 @@ void DDAHcalModuleAlgo::initialize(const DDNumericArguments & nArgs,
   names         = vsArgs["VolumeNames"];
   thick         = vArgs["Thickness"];
   for (unsigned int i=0; i<materials.size(); ++i) {
-    copyNumber.push_back(1);
+    copyNumber.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "DDAHcalModuleAlgo: " << materials.size()

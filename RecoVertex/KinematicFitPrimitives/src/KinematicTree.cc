@@ -165,8 +165,8 @@ void KinematicTree::movePointerToTheTop() const
 {
  if(isEmpty()) throw VertexException("KinematicTree::movePointerToTheTop; tree is empty!");
  delete treeWalker;
- treeWalker = new graphwalker<RefCountedKinematicVertex,
-                              RefCountedKinematicParticle>(treeGraph);
+ treeWalker = new math::GraphWalker<RefCountedKinematicVertex,
+                                         RefCountedKinematicParticle>(treeGraph);
 //now pointer is a pair: fake vertex and 
 //icoming 0 pointer to the particle
 //moving it to decayed particle
@@ -213,9 +213,9 @@ RefCountedKinematicVertex KinematicTree::currentProductionVertex() const
 //very unprobable case. This efectively means that user is
 //already out of the tree. Moving back to the top
  delete treeWalker;
- treeWalker = new graphwalker<RefCountedKinematicVertex,
-                              RefCountedKinematicParticle>
-                                              (treeGraph);
+ treeWalker = new math::GraphWalker<RefCountedKinematicVertex,
+                                         RefCountedKinematicParticle>
+                                         (treeGraph);
  res = treeWalker->current().first;					      
 //now pointer is a pair: fake vertex and 
 //icoming 0 pointer to the particle

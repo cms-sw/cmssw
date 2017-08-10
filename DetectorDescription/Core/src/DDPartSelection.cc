@@ -1,4 +1,4 @@
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
@@ -47,19 +47,19 @@ struct DDSelLevelFtor
   void operator() (char const* /*first*/, char const* /*last*/) const {
    if(c_.path()){
     if (c_.isCopyNoValid_ && c_.isChild_) {
-      c_.path()->push_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddchildposp));
+      c_.path()->emplace_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddchildposp));
       //edm::LogInfo("DDPartSelection")  << namespace_ << name_ << copyNo_ << ' ' << ddchildposp << std::endl;
     } else
     if (c_.isCopyNoValid_ && !c_.isChild_) {
-      c_.path()->push_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddanyposp));
+      c_.path()->emplace_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddanyposp));
       //      edm::LogInfo("DDPartSelection")  << namespace_ << name_ << copyNo_ << ' ' << ddanyposp << std::endl;
     } else
     if (!c_.isCopyNoValid_ && c_.isChild_) {
-      c_.path()->push_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddchildlogp));
+      c_.path()->emplace_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddchildlogp));
       //      edm::LogInfo("DDPartSelection")  << namespace_ << name_ << copyNo_ << ' ' << ddchildlogp << std::endl;
     } else
     if (!c_.isCopyNoValid_ && !c_.isChild_) {
-      c_.path()->push_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddanylogp));
+      c_.path()->emplace_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddanylogp));
       //      edm::LogInfo("DDPartSelection")  << namespace_ << name_ << copyNo_ << ' ' << ddanylogp << std::endl;
     } 
     c_.namespace_="";
@@ -272,4 +272,4 @@ std::ostream & operator<<(std::ostream & os, const std::vector<DDPartSelection> 
 template class DDI::Singleton<DDSelLevelFtor>;
 //template class DDI::Singleton<DDI::Store<DDName, DDSelLevelCollector> >;
 template class DDI::Singleton<DDSelLevelCollector>;
-#include <DetectorDescription/Base/interface/Singleton.icc>
+#include <DetectorDescription/Core/interface/Singleton.icc>

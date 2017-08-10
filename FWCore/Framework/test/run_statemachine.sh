@@ -40,6 +40,15 @@ pushd ${LOCAL_TMP_DIR}
 
   done
 
+#testing exceptions
+  for i in 20 21 22 23
+  do
+
+    ${exe} -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
+    diff ${reference_output}${i}.txt ${output}${i}.txt || die "comparing ${output}${i}.txt" $?
+
+  done
+
 popd
 
 exit 0

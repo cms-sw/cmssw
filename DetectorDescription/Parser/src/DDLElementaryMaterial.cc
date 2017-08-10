@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLMaterial.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"

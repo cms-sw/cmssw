@@ -2,7 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_EZMGRFL_H 1
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 template < class T >
 class EZMgrFL
@@ -42,7 +42,7 @@ class EZMgrFL
 	 }
 	 for( size_type  i ( 0 ) ; i != m_subSize ; ++i )
 	 {
-	    m_vec.push_back( t ) ;
+	    m_vec.emplace_back( t ) ;
 	 }
 	 return ( m_vec.end() - m_subSize ) ;
       }
@@ -54,9 +54,9 @@ class EZMgrFL
 
    private:
 
-      EZMgrFL() ; //stop
-      EZMgrFL( const EZMgrFL& ) ; //stop
-      EZMgrFL& operator=( const EZMgrFL& ) ; //stop
+      EZMgrFL() = delete;
+      EZMgrFL( const EZMgrFL& ) = delete;
+      EZMgrFL& operator=( const EZMgrFL& ) = delete;
 
       const size_type m_vecSize ;
       const size_type m_subSize ;

@@ -602,9 +602,7 @@ std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronics
   const HcalTopology* topo=&(*htopo);
 
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  auto result = std::make_unique<HcalElectronicsMap>();
-  dbHardcode.makeHardcodeMap(*result,cells);
-  return result;
+  return dbHardcode.makeHardcodeMap(cells);
 }
 
 std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
@@ -704,9 +702,7 @@ std::unique_ptr<HcalDcsValues> HcalHardcodeCalibrations::produceDcsValues (const
 std::unique_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
 
-  auto result = std::make_unique<HcalDcsMap>();
-  dbHardcode.makeHardcodeDcsMap(*result);
-  return result;
+  return dbHardcode.makeHardcodeDcsMap();
 }
 
 std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (const HcalRecoParamsRcd& rec) {
@@ -836,9 +832,7 @@ std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (c
   const HcalTopology* topo=&(*htopo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
 
-  auto result = std::make_unique<HcalFrontEndMap>();
-  dbHardcode.makeHardcodeFrontEndMap(*result, cells);
-  return result;
+  return dbHardcode.makeHardcodeFrontEndMap(cells);
 }
 
 
@@ -860,9 +854,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
 std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
 
-  auto result = std::make_unique<HcalSiPMCharacteristics>();
-  dbHardcode.makeHardcodeSiPMCharacteristics(*result);
-  return result;
+  return dbHardcode.makeHardcodeSiPMCharacteristics();
 }
 
 

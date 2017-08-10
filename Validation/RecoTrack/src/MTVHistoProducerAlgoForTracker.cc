@@ -48,6 +48,12 @@ namespace {
     }
   }
 
+  void setBinLabelsAlgo(MonitorElement *h, int axis=1) {
+    for(size_t i=0; i<reco::TrackBase::algoSize; ++i) {
+      h->setBinLabel(i+1, reco::TrackBase::algoName(static_cast<reco::TrackBase::TrackAlgorithm>(i)), axis);
+    }
+  }
+
   void fillMVAHistos(std::vector<MonitorElement *>& h_mva,
                      std::vector<MonitorElement *>& h_mvacut,
                      std::vector<MonitorElement *>& h_mva_hp,
@@ -64,6 +70,23 @@ namespace {
       if(i>=1 && i<=selectsHP) {
         fillPlotNoFlow(h_mva_hp[i], mvas[i]);
         h_mvacut_hp[i]->Fill(mvas[i]);
+      }
+    }
+  }
+
+  void fillMVAHistos(double xval,
+                     std::vector<MonitorElement *>& h_mva,
+                     std::vector<MonitorElement *>& h_mva_hp,
+                     const std::vector<float>& mvas,
+                     unsigned int selectsLoose, unsigned int selectsHP) {
+    // Fill MVA1 histos with all tracks, MVA2 histos only with tracks
+    // not selected by MVA1, etc.
+    for(size_t i=0; i<mvas.size(); ++i) {
+      if(i<=selectsLoose) {
+        h_mva[i]->Fill(xval, mvas[i]);
+      }
+      if(i>=1 && i<=selectsHP) {
+        h_mva_hp[i]->Fill(xval, mvas[i]);
       }
     }
   }
@@ -122,6 +145,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minVertpos  = pset.getParameter<double>("minVertpos");
   maxVertpos  = pset.getParameter<double>("maxVertpos");
   nintVertpos = pset.getParameter<int>("nintVertpos");
+  useLogVertpos = pset.getUntrackedParameter<bool>("useLogVertpos");
 
   //parameters for _vs_ProductionVertexZPosition plots
   minZpos  = pset.getParameter<double>("minZpos");
@@ -278,6 +302,17 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
       minPt=log10(0.1);
     }
   }
+  if(useLogVertpos) {
+    maxVertpos = std::log10(maxVertpos);
+    if(minVertpos > 0) {
+      minVertpos = std::log10(minVertpos);
+    }
+    else {
+      edm::LogWarning("MultiTrackValidator")
+	<< "minVertpos = " << minVertpos << " <= 0 out of range while requesting log scale.  Using minVertpos = 0.1.";
+      minVertpos = -1;
+    }
+  }
 
 }
 
@@ -327,7 +362,7 @@ void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   }
 }
 
-void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook){
+void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook, bool doResolutionPlots) {
   h_assoceta.push_back( ibook.book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
   h_simuleta.push_back( ibook.book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
 
@@ -376,12 +411,24 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
   h_simul_simpvz.push_back( ibook.book1D("num_simul_simpvz", "N of simulated tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
   h_assoc_simpvz.push_back( ibook.book1D("num_assoc(simToReco)_simpvz", "N of associated tracks (simToReco) vs. sim PV z", nintPVz, minPVz, maxPVz) );
 
-  nrecHit_vs_nsimHit_sim2rec.push_back( ibook.book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
-						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
+  nrecHit_vs_nsimHit_sim2rec.push_back( doResolutionPlots ? ibook.book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
+                                                                         nintHit,minHit,maxHit, nintHit,minHit,maxHit )
+                                        : nullptr);
+
+  // TODO: use the dynamic track algo priority order also here
+  constexpr auto nalgos = reco::TrackBase::algoSize;
+  h_duplicates_oriAlgo_vs_oriAlgo.push_back( ibook.book2D("duplicates_oriAlgo_vs_oriAlgo", "Duplicate tracks: originalAlgo vs originalAlgo",
+                                                          nalgos,0,nalgos, nalgos,0,nalgos) );
+  setBinLabelsAlgo(h_duplicates_oriAlgo_vs_oriAlgo.back(), 1);
+  setBinLabelsAlgo(h_duplicates_oriAlgo_vs_oriAlgo.back(), 2);
 
   if(useLogPt){
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
+  }
+  if(useLogVertpos) {
+    BinLogX(h_assocvertpos.back()->getTH1F());
+    BinLogX(h_simulvertpos.back()->getTH1F());
   }
 }
 
@@ -421,7 +468,7 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackPVAssociationHistos(DQMStore::I
   h_simul2_dzpvsigcut_pt.back()->getTH1()->Sumw2();
 }
 
-void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
+void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook, bool doResolutionPlots) {
   h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks", nintTracks, minTracks, maxTracks) );
   h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks", nintTracks, minTracks, maxTracks) );
   h_charge.push_back( ibook.book1D("charge","charge",3,-1.5,1.5) );
@@ -548,13 +595,23 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
 
   /////////////////////////////////
 
-  h_eta.push_back( ibook.book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
-  h_pt.push_back( ibook.book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
-  h_pullTheta.push_back( ibook.book1D("pullTheta","pull of #theta parameter",250,-25,25) );
-  h_pullPhi.push_back( ibook.book1D("pullPhi","pull of #phi parameter",250,-25,25) );
-  h_pullDxy.push_back( ibook.book1D("pullDxy","pull of dxy parameter",250,-25,25) );
-  h_pullDz.push_back( ibook.book1D("pullDz","pull of dz parameter",250,-25,25) );
-  h_pullQoverp.push_back( ibook.book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
+  auto bookResolutionPlots1D = [&](std::vector<MonitorElement*>& vec, auto&&... params) {
+    vec.push_back( doResolutionPlots ? ibook.book1D(std::forward<decltype(params)>(params)...) : nullptr );
+  };
+  auto bookResolutionPlots2D = [&](std::vector<MonitorElement*>& vec, auto&&... params) {
+    vec.push_back( doResolutionPlots ? ibook.book2D(std::forward<decltype(params)>(params)...) : nullptr );
+  };
+  auto bookResolutionPlotsProfile2D = [&](std::vector<MonitorElement*>& vec, auto&&... params) {
+    vec.push_back( doResolutionPlots ? ibook.bookProfile2D(std::forward<decltype(params)>(params)...) : nullptr );
+  };
+
+  bookResolutionPlots1D(h_eta, "eta", "pseudorapidity residue", 1000, -0.1, 0.1);
+  bookResolutionPlots1D(h_pt, "pullPt", "pull of p_{t}", 100, -10, 10 );
+  bookResolutionPlots1D(h_pullTheta, "pullTheta","pull of #theta parameter",250,-25,25);
+  bookResolutionPlots1D(h_pullPhi, "pullPhi","pull of #phi parameter",250,-25,25);
+  bookResolutionPlots1D(h_pullDxy, "pullDxy","pull of dxy parameter",250,-25,25);
+  bookResolutionPlots1D(h_pullDz, "pullDz","pull of dz parameter",250,-25,25);
+  bookResolutionPlots1D(h_pullQoverp, "pullQoverp","pull of qoverp parameter",250,-25,25);
 
   /* TO BE FIXED -----------
   if (associators[ww]=="TrackAssociatorByChi2"){
@@ -572,8 +629,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   // use the standard error of the mean as the errors in the profile
   chi2_vs_nhits.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",nintHit,minHit,maxHit, 100,0,10, " ") );
 
-  etares_vs_eta.push_back( ibook.book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
-  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","Number of selected reco tracks vs. number of selected sim tracks;TrackingParticles;Reco tracks", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks) );
+  bookResolutionPlots2D(etares_vs_eta, "etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1);
+  bookResolutionPlots2D(nrec_vs_nsim, "nrec_vs_nsim","Number of selected reco tracks vs. number of selected sim tracks;TrackingParticles;Reco tracks", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks);
 
   chi2_vs_eta.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20, " " ));
   chi2_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20, " " ) );
@@ -609,78 +666,84 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
   // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
 
-  ptres_vs_eta.push_back(ibook.book2D("ptres_vs_eta","ptres_vs_eta",
-				      nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+  bookResolutionPlots2D(ptres_vs_eta, "ptres_vs_eta","ptres_vs_eta",
+                                      nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax);
 
-  ptres_vs_phi.push_back( ibook.book2D("ptres_vs_phi","p_{t} res vs #phi",
-				       nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+  bookResolutionPlots2D(ptres_vs_phi, "ptres_vs_phi","p_{t} res vs #phi",
+                                      nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax);
 
-  ptres_vs_pt.push_back(ibook.book2D("ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+  bookResolutionPlots2D(ptres_vs_pt, "ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax);
 
-  cotThetares_vs_eta.push_back(ibook.book2D("cotThetares_vs_eta","cotThetares_vs_eta",
-					    nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
+  bookResolutionPlots2D(cotThetares_vs_eta, "cotThetares_vs_eta","cotThetares_vs_eta",
+                                            nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax);
+
+  bookResolutionPlots2D(cotThetares_vs_pt, "cotThetares_vs_pt","cotThetares_vs_pt",
+                                           nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax);
 
 
-  cotThetares_vs_pt.push_back(ibook.book2D("cotThetares_vs_pt","cotThetares_vs_pt",
-					   nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
+  bookResolutionPlots2D(phires_vs_eta, "phires_vs_eta","phires_vs_eta",
+                                       nintEta,minEta,maxEta, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax);
 
+  bookResolutionPlots2D(phires_vs_pt, "phires_vs_pt","phires_vs_pt",
+                                      nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax);
 
-  phires_vs_eta.push_back(ibook.book2D("phires_vs_eta","phires_vs_eta",
-				       nintEta,minEta,maxEta, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
+  bookResolutionPlots2D(phires_vs_phi, "phires_vs_phi","#phi res vs #phi",
+                                       nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax);
 
-  phires_vs_pt.push_back(ibook.book2D("phires_vs_pt","phires_vs_pt",
-				      nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
+  bookResolutionPlots2D(dxyres_vs_eta, "dxyres_vs_eta","dxyres_vs_eta",
+                                       nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax);
 
-  phires_vs_phi.push_back(ibook.book2D("phires_vs_phi","#phi res vs #phi",
-				       nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
+  bookResolutionPlots2D(dxyres_vs_pt, "dxyres_vs_pt","dxyres_vs_pt",
+                                      nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax);
 
-  dxyres_vs_eta.push_back(ibook.book2D("dxyres_vs_eta","dxyres_vs_eta",
-				       nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
+  bookResolutionPlots2D(dzres_vs_eta, "dzres_vs_eta","dzres_vs_eta",
+                                      nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax);
 
-  dxyres_vs_pt.push_back( ibook.book2D("dxyres_vs_pt","dxyres_vs_pt",
-				       nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
+  bookResolutionPlots2D(dzres_vs_pt, "dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax);
 
-  dzres_vs_eta.push_back(ibook.book2D("dzres_vs_eta","dzres_vs_eta",
-				      nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-
-  dzres_vs_pt.push_back(ibook.book2D("dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-
-  ptmean_vs_eta_phi.push_back(ibook.bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
-						  nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,1000,0,1000));
-  phimean_vs_eta_phi.push_back(ibook.bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",
-						   nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,nintPhi,minPhi,maxPhi));
+  bookResolutionPlotsProfile2D(ptmean_vs_eta_phi, "ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
+                                                  nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,1000,0,1000);
+  bookResolutionPlotsProfile2D(phimean_vs_eta_phi, "phimean_vs_eta_phi","mean #phi vs #eta and #phi",
+                                                   nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,nintPhi,minPhi,maxPhi);
 
   //pulls of track params vs eta: to be used with fitslicesytool
-  dxypull_vs_eta.push_back(ibook.book2D("dxypull_vs_eta","dxypull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  ptpull_vs_eta.push_back(ibook.book2D("ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  dzpull_vs_eta.push_back(ibook.book2D("dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  phipull_vs_eta.push_back(ibook.book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  thetapull_vs_eta.push_back(ibook.book2D("thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  bookResolutionPlots2D(dxypull_vs_eta, "dxypull_vs_eta","dxypull_vs_eta",nintEta,minEta,maxEta,100,-10,10);
+  bookResolutionPlots2D(ptpull_vs_eta, "ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10);
+  bookResolutionPlots2D(dzpull_vs_eta, "dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10);
+  bookResolutionPlots2D(phipull_vs_eta, "phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10);
+  bookResolutionPlots2D(thetapull_vs_eta, "thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10);
 
   //      h_ptshiftetamean.push_back( ibook.book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
 
 
   //pulls of track params vs phi
-  ptpull_vs_phi.push_back(ibook.book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
-  phipull_vs_phi.push_back(ibook.book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
-  thetapull_vs_phi.push_back(ibook.book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
+  bookResolutionPlots2D(ptpull_vs_phi, "ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10);
+  bookResolutionPlots2D(phipull_vs_phi, "phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10);
+  bookResolutionPlots2D(thetapull_vs_phi, "thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10);
 
 
-  nrecHit_vs_nsimHit_rec2sim.push_back( ibook.book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
-						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
+  bookResolutionPlots2D(nrecHit_vs_nsimHit_rec2sim, "nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)", nintHit,minHit,maxHit, nintHit,minHit,maxHit);
 
   if(useLogPt){
-    BinLogX(dzres_vs_pt.back()->getTH2F());
-    BinLogX(dxyres_vs_pt.back()->getTH2F());
-    BinLogX(phires_vs_pt.back()->getTH2F());
-    BinLogX(cotThetares_vs_pt.back()->getTH2F());
-    BinLogX(ptres_vs_pt.back()->getTH2F());
+    if(doResolutionPlots) {
+      BinLogX(dzres_vs_pt.back()->getTH2F());
+      BinLogX(dxyres_vs_pt.back()->getTH2F());
+      BinLogX(phires_vs_pt.back()->getTH2F());
+      BinLogX(cotThetares_vs_pt.back()->getTH2F());
+      BinLogX(ptres_vs_pt.back()->getTH2F());
+    }
     BinLogX(h_looperpT.back()->getTH1F());
     if(!doSeedPlots_) BinLogX(h_misidpT.back()->getTH1F());
     BinLogX(h_recopT.back()->getTH1F());
     BinLogX(h_reco2pT.back()->getTH1F());
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_pileuppT.back()->getTH1F());
+  }
+  if(useLogVertpos) {
+    BinLogX(h_loopervertpos.back()->getTH1F());
+    BinLogX(h_recovertpos.back()->getTH1F());
+    BinLogX(h_assoc2vertpos.back()->getTH1F());
+    BinLogX(h_pileupvertpos.back()->getTH1F());
   }
 }
 
@@ -771,6 +834,15 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
   h_assoc2_mvacut_hp.emplace_back();
   h_simul2_mvacut_hp.emplace_back();
 
+  h_assoc2_mva_vs_pt.emplace_back();
+  h_fake_mva_vs_pt.emplace_back();
+  h_assoc2_mva_vs_pt_hp.emplace_back();
+  h_fake_mva_vs_pt_hp.emplace_back();
+  h_assoc2_mva_vs_eta.emplace_back();
+  h_fake_mva_vs_eta.emplace_back();
+  h_assoc2_mva_vs_eta_hp.emplace_back();
+  h_fake_mva_vs_eta_hp.emplace_back();
+
   for(size_t i=1; i <= nMVAs; ++i) {
     auto istr = std::to_string(i);
     std::string pfix;
@@ -783,6 +855,11 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
       h_assoc_mvacut_hp.back().push_back(nullptr);
       h_assoc2_mvacut_hp.back().push_back(nullptr);
       h_simul2_mvacut_hp.back().push_back(nullptr);
+
+      h_assoc2_mva_vs_pt_hp.back().push_back(nullptr);
+      h_fake_mva_vs_pt_hp.back().push_back(nullptr);
+      h_assoc2_mva_vs_eta_hp.back().push_back(nullptr);
+      h_fake_mva_vs_eta_hp.back().push_back(nullptr);
     }
     else {
       pfix = " (not loose-selected)";
@@ -795,6 +872,11 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
       h_assoc_mvacut_hp.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut_hp", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
       h_assoc2_mvacut_hp.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut_hp", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
       h_simul2_mvacut_hp.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut_hp", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+
+      h_assoc2_mva_vs_pt_hp.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_pT_hp", "MVA"+istr+" of associated tracks (recoToSim) vs. track p_{T}"+pfix2, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+      h_fake_mva_vs_pt_hp.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"pT_hp", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track p_{T}"+pfix2, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+      h_assoc2_mva_vs_eta_hp.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_eta_hp", "MVA"+istr+" of associated tracks (recoToSim) vs. track #eta"+pfix2, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+      h_fake_mva_vs_eta_hp.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"eta_hp", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track #eta"+pfix2, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
     }
 
     h_reco_mva.back().push_back(ibook.book1D("num_reco_mva"+istr, "N of reco track vs MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
@@ -804,6 +886,20 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
     h_assoc_mvacut.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
     h_assoc2_mvacut.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
     h_simul2_mvacut.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+
+    h_assoc2_mva_vs_pt.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_pT", "MVA"+istr+" of associated tracks (recoToSim) vs. track p_{T}"+pfix, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+    h_fake_mva_vs_pt.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"_pT", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track p_{T}"+pfix, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+    h_assoc2_mva_vs_eta.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_eta", "MVA"+istr+" of associated tracks (recoToSim) vs. track #eta"+pfix, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+    h_fake_mva_vs_eta.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"_eta", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track #eta"+pfix, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+
+    if(useLogPt){
+      BinLogX(h_assoc2_mva_vs_pt.back().back()->getTProfile());
+      BinLogX(h_fake_mva_vs_pt.back().back()->getTProfile());
+      if(i > 1) {
+        BinLogX(h_assoc2_mva_vs_pt_hp.back().back()->getTProfile());
+        BinLogX(h_fake_mva_vs_pt_hp.back().back()->getTProfile());
+      }
+    }
   }
 }
 
@@ -833,6 +929,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 double dR,
 									 const math::XYZPoint *pvPosition,
                                                                          const TrackingVertex::LorentzVector *simPVPosition,
+                                                                         const math::XYZPoint& bsPosition,
                                                                          const std::vector<float>& mvas,
                                                                          unsigned int selectsLoose, unsigned int selectsHP) {
   bool isMatched = track;
@@ -840,8 +937,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto phi = momentumTP.phi();
   const auto pt = getPt(sqrt(momentumTP.perp2()));
   const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
-  const auto vertxy = sqrt(vertexTP.perp2());
-  const auto vertz = vertexTP.z();
+
+  const auto vertexTPwrtBS = vertexTP - bsPosition;
+  const auto vertxy = std::sqrt(vertexTPwrtBS.perp2());
+  const auto vertz = vertexTPwrtBS.z();
 
   //efficiency vs. cut on MVA
   //
@@ -880,7 +979,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       fillPlotNoFlow(h_assoclayer[count], nSimLayers);
       fillPlotNoFlow(h_assocpixellayer[count], nSimPixelLayers);
       fillPlotNoFlow(h_assoc3Dlayer[count], nSim3DLayers);
-      nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
+      if(nrecHit_vs_nsimHit_sim2rec[count]) nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
     fillPlotNoFlow(h_simulpu[count], numVertices);
@@ -955,6 +1054,12 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
 }
 
+void MTVHistoProducerAlgoForTracker::fill_duplicate_histos(int count,
+                                                           const reco::Track& track1,
+                                                           const reco::Track& track2) {
+  h_duplicates_oriAlgo_vs_oriAlgo[count]->Fill(track1.originalAlgo(), track2.originalAlgo());
+}
+
 void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int numSimTracks){
   h_tracksSIM->Fill(numSimTracks);
 }
@@ -1005,8 +1110,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto nlayers = track.hitPattern().trackerLayersWithMeasurement();
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
   const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-  const auto vertxy = std::sqrt(track.referencePoint().perp2());
-  const auto vertz = track.referencePoint().z();
+  const auto refPointWrtBS = track.referencePoint() - bsPosition;
+  const auto vertxy = std::sqrt(refPointWrtBS.perp2());
+  const auto vertz = refPointWrtBS.z();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
   const auto chi2 = track.normalizedChi2();
   const bool fillSeedingLayerSets = !seedingLayerSetNames.empty();
@@ -1092,8 +1198,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
 
     fillMVAHistos(h_assoc2_mva[count], h_assoc2_mvacut[count], h_assoc2_mva_hp[count], h_assoc2_mvacut_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(pt, h_assoc2_mva_vs_pt[count], h_assoc2_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(eta, h_assoc2_mva_vs_eta[count], h_assoc2_mva_vs_eta_hp[count], mvas, selectsLoose, selectsHP);
 
-    nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
+    if(nrecHit_vs_nsimHit_rec2sim[count]) nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
     h_assocSharedHit[count]->Fill( sharedHits);
 
@@ -1176,6 +1284,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileuppu[count], numVertices);
     }
   }
+  else { // !isMatched
+    fillMVAHistos(pt, h_fake_mva_vs_pt[count], h_fake_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(eta, h_fake_mva_vs_eta[count], h_fake_mva_vs_eta_hp[count], mvas, selectsLoose, selectsHP);
+  }
 }
 
 
@@ -1229,7 +1341,7 @@ void MTVHistoProducerAlgoForTracker::fill_trackBased_histos(int count, int assTr
 
    	h_tracks[count]->Fill(assTracks);
    	h_fakes[count]->Fill(numRecoTracks-assTracks);
-   	nrec_vs_nsim[count]->Fill(numSimTracksSelected, numRecoTracksSelected);
+        if(nrec_vs_nsim[count]) nrec_vs_nsim[count]->Fill(numSimTracksSelected, numRecoTracksSelected);
 
 }
 
@@ -1516,7 +1628,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
     if(isMatched) {
       fillPlotNoFlow(h_assochit[count],(int)nSimHits);
-      nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
+      if(nrecHit_vs_nsimHit_sim2rec[count]) nrecHit_vs_nsimHit_sim2rec[count]->Fill(track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
     fillPlotNoFlow(h_simulpu[count],numVertices);

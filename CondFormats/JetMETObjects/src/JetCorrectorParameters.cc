@@ -57,9 +57,9 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
       else if (ss == "Correction")
         mIsResponse = false;
       else if (ss == "Resolution")
-	mIsResponse = false;
+        mIsResponse = false;
       else if (ss.find("PAR")==0)
-	mIsResponse = false;
+        mIsResponse = false;
       else
         {
           std::stringstream sserr;
@@ -83,7 +83,7 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
       if (tokens.size() < 3)
         {
           std::stringstream sserr;
-	  sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
+          sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
           handleError("JetCorrectorParameters::Record",sserr.str());
         }
       for(unsigned i=0;i<mNvar;i++)
@@ -95,12 +95,22 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
       if (nParam != tokens.size()-(2*mNvar+1))
         {
           std::stringstream sserr;
-	  sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
+          sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
           handleError("JetCorrectorParameters::Record",sserr.str());
         }
       for (unsigned i = (2*mNvar+1); i < tokens.size(); ++i)
         mParameters.push_back(getFloat(tokens[i]));
     }
+}
+std::ostream& operator<<(std::ostream& out, const JetCorrectorParameters::Record& fBin)
+{
+  for(unsigned j=0;j<fBin.nVar();j++)
+    out<<fBin.xMin(j)<<" "<<fBin.xMax(j)<<" ";
+  out<<fBin.nParameters()<<" ";
+  for(unsigned j=0;j<fBin.nParameters();j++)
+    out<<fBin.parameter(j)<<" ";
+  out<<std::endl;
+  return out;
 }
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters constructor ---------------------------------
@@ -447,8 +457,8 @@ JetCorrectorParametersCollection::findL7Parton( key_type k ){
     return l7Partons_[k / 1000 - 1];
 }
 
-void JetCorrectorParametersCollection::getSections( std::string inputFile,
-						    std::vector<std::string> & outputs )
+void JetCorrectorParametersCollection::getSections(std::string inputFile,
+                                                   std::vector<std::string> & outputs )
 {
   outputs.clear();
   std::ifstream input( inputFile.c_str() );
@@ -459,7 +469,7 @@ void JetCorrectorParametersCollection::getSections( std::string inputFile,
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);
       if ( tok != "" ) {
-	outputs.push_back( tok );
+        outputs.push_back( tok );
       }
     }
   }
@@ -509,7 +519,7 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
     if ( k == i->first ) return i->second;
   }
   throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k)
-				       << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
+                                       << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
 }
 
 // Get a list of valid keys. These will contain hashed keys
@@ -517,15 +527,15 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
 void JetCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) const {
   keys.clear();
   for ( collection_type::const_iterator ibegin = corrections_.begin(),
-	  iend = corrections_.end(), i = ibegin; i != iend; ++i ) {
+        iend = corrections_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
   for ( collection_type::const_iterator ibegin = correctionsL5_.begin(),
-	  iend = correctionsL5_.end(), i = ibegin; i != iend; ++i ) {
+        iend = correctionsL5_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
   for ( collection_type::const_iterator ibegin = correctionsL7_.begin(),
-	  iend = correctionsL7_.end(), i = ibegin; i != iend; ++i ) {
+        iend = correctionsL7_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
 }

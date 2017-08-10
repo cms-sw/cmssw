@@ -16,15 +16,15 @@ namespace DDI {
     EllipticalTube(double xSemiAxis, double ySemiAxis, double zHeight)
      : Solid(ddellipticaltube)
     { 
-      p_.push_back(xSemiAxis);
-      p_.push_back(ySemiAxis);
-      p_.push_back(zHeight);
+      p_.emplace_back(xSemiAxis);
+      p_.emplace_back(ySemiAxis);
+      p_.emplace_back(zHeight);
     }  
-    ~EllipticalTube() { }
+    ~EllipticalTube() override { }
 
     /// Not as flexible and possibly less accurate than G4 volume.
-    double volume() const ;
-    void stream(std::ostream & os) const;
+    double volume() const override ;
+    void stream(std::ostream & os) const override;
   };
 
 }

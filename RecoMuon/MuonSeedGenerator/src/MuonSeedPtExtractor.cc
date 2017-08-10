@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "TMath.h"
 #include <sstream>
@@ -251,6 +252,14 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       os << cscId.station() << ring;
       combination = "SME_"+os.str();
     }
+    else if(innerHit->isME0())
+    {
+      ME0DetId me0Id(detId_inner);
+      std::ostringstream os;
+      int ring = 1;//me0Id.ring(); me0 only in ring 1
+      os << me0Id.station() << ring;
+      combination = "SME_"+os.str();
+    }
     else
     {
       throw cms::Exception("MuonSeedPtExtractor") << "Bad hit DetId";
@@ -372,6 +381,9 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
     result = cscID.station();
     if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
        result = 0;
+  }
+  else if( hit->isME0() ){
+    result = 0;
   }
   else if(hit->isRPC()){
   }

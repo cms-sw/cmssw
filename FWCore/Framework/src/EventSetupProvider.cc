@@ -13,7 +13,6 @@
 //
 
 // system include files
-#include "boost/bind.hpp"
 #include <algorithm>
 #include <cassert>
 
@@ -248,8 +247,8 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                std::shared_ptr<DataProxyProvider> proxyProv = 
                   itRecordProvider->second->proxyProvider(*itProxyProv);
                const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey);
-               if(std::find_if(keyedProxies.begin(), keyedProxies.end(), 
-                                boost::bind(std::equal_to<DataKey>(), datumKey, boost::bind(&DataProxyProvider::KeyedProxies::value_type::first,_1))) ==
+               if(std::find_if(keyedProxies.begin(), keyedProxies.end(),
+                               [&datumKey](auto const& kp) { return kp.first == datumKey;}) ==
                    keyedProxies.end()){
                   throw cms::Exception("ESPreferWrongData")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
                   itInfo->first.label_<<"\" specifies the data item \n"
@@ -434,9 +433,9 @@ EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& i
   dependents.erase(std::unique(dependents.begin(),dependents.end()), dependents.end());
   
   itFind->second->resetProxies();
-  for_all(dependents,
-                boost::bind(&EventSetupRecordProvider::resetProxies,
-                            _1));
+  for(auto& d: dependents) {
+    d->resetProxies();
+  }
 }
 
 void 
@@ -763,36 +762,20 @@ EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
    return eventSetup_;
 }
 
-namespace {
-   struct InsertAll : public std::unary_function< const std::set<ComponentDescription>&, void>{
-      
-      typedef std::set<ComponentDescription> Set;
-      Set* container_;
-      InsertAll(Set& iSet) : container_(&iSet) {}
-      void operator()(const Set& iSet) {
-         container_->insert(iSet.begin(), iSet.end());
-      }
-   };
-}
-std::set<ComponentDescription> 
+std::set<ComponentDescription>
 EventSetupProvider::proxyProviderDescriptions() const
 {
-   using boost::bind;
    typedef std::set<ComponentDescription> Set;
    Set descriptions;
 
-   for_all(providers_,
-                 bind(InsertAll(descriptions),
-                      bind(&EventSetupRecordProvider::proxyProviderDescriptions,
-                           bind(&Providers::value_type::second,_1))));
+   for(auto const& p: providers_) {
+     auto const& d = p.second->proxyProviderDescriptions();
+     descriptions.insert(d.begin(),d.end());
+   }
    if(dataProviders_.get()) {
-      for(std::vector<std::shared_ptr<DataProxyProvider> >::const_iterator it = dataProviders_->begin(),
-          itEnd = dataProviders_->end();
-          it != itEnd;
-          ++it) {
-         descriptions.insert((*it)->description());
-      }
-         
+     for(auto const& p: *dataProviders_) {
+       descriptions.insert(p->description());
+     }
    }
                        
    return descriptions;

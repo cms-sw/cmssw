@@ -32,12 +32,12 @@ GlobalTrackingGeometry* GlobalTrackingGeometryBuilder::build(const TrackerGeomet
     
     std::vector<const TrackingGeometry*> tkGeometries;
     
-    tkGeometries.push_back(tk);
-    tkGeometries.push_back(dt);
-    tkGeometries.push_back(csc);
-    tkGeometries.push_back(rpc);
-    tkGeometries.push_back(gem);
-    tkGeometries.push_back(me0);
+    tkGeometries.emplace_back(tk);
+    tkGeometries.emplace_back(dt);
+    tkGeometries.emplace_back(csc);
+    tkGeometries.emplace_back(rpc);
+    tkGeometries.emplace_back(gem);
+    tkGeometries.emplace_back(me0);
     
     
     return new GlobalTrackingGeometry(tkGeometries);

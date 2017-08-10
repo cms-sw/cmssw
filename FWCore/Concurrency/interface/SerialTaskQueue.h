@@ -70,6 +70,8 @@ namespace edm {
       m_pauseCount{0}
       {  }
       
+      ~SerialTaskQueue();
+      
       // ---------- const member functions ---------------------
       /// Checks to see if the queue has been paused.
       /**\return true if the queue is paused

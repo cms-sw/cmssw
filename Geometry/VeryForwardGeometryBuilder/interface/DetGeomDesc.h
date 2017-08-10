@@ -10,8 +10,8 @@
 #define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -80,7 +80,7 @@ class DetGeomDesc
 		void deleteComponents(); 									/// deletes just the first daughters
 		void deepDeleteComponents();  								///traverses the treee and deletes all nodes.
 		bool isLeaf() const 
-			{ return (_container.size() == 0); }
+			{ return (_container.empty()); }
 		
 		/// geometry information
 		DDRotationMatrix	rotation() const {return _rot;}

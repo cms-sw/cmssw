@@ -19,12 +19,13 @@
 //
 
 // system include files
-
+#include <memory>
 // user include files
-
+#include "FWCore/Framework/interface/stream/dummy_helpers.h"
 // forward declarations
 
 namespace edm {
+  class ParameterSet;
   namespace stream {
     namespace impl {
       template<typename T, typename G>

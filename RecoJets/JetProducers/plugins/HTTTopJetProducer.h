@@ -49,6 +49,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -90,6 +92,7 @@ namespace cms
 						const edm::EventSetup& iSetup,
 						edm::OrphanHandle<reco::BasicJetCollection> & oh);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     std::auto_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;

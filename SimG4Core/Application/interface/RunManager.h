@@ -107,6 +107,7 @@ private:
   G4RunManagerKernel * m_kernel;
     
   Generator * m_generator;
+
   edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     

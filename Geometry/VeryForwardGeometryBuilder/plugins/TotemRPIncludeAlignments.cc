@@ -35,7 +35,7 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
 {
   public:
     TotemRPIncludeAlignments(const edm::ParameterSet &p);
-    virtual ~TotemRPIncludeAlignments(); 
+    ~TotemRPIncludeAlignments() override; 
 
     std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
     std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
@@ -46,7 +46,7 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     RPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
     RPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
 
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&);
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
     /// merges an array of sequences to one
     RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>) const;
@@ -92,17 +92,17 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
   // find interval boundaries
   map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
 
-  for (vector<RPAlignmentCorrectionsDataSequence>::const_iterator fit = files.begin(); fit != files.end(); ++fit)
+  for (const auto & file : files)
   {
-    for (RPAlignmentCorrectionsDataSequence::const_iterator iit = fit->begin(); iit != fit->end(); ++iit)
+    for (RPAlignmentCorrectionsDataSequence::const_iterator iit = file.begin(); iit != file.end(); ++iit)
     {
       const TimeValidityInterval &tvi = iit->first;
       const RPAlignmentCorrectionsData *corr = & iit->second;
 
-      bounds[tvi.first].push_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
+      bounds[tvi.first].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
 
       TimeValue_t delta = (tvi.last != TimeValidityInterval::EndOfTime()) ? (1ULL << 32) : 0;  // input resolution is 1s
-      bounds[tvi.last + delta].push_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
+      bounds[tvi.last + delta].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
     }
   }
   
@@ -112,10 +112,10 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
   //  bool gap_found = false;
   for (map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit = bounds.begin(); tit != bounds.end(); ++tit)
   {
-    for (vector< pair<bool, const RPAlignmentCorrectionsData*> >::const_iterator cit = tit->second.begin(); cit != tit->second.end(); ++cit)
+    for (const auto & cit : tit->second)
     {
-      bool add = cit->first;
-      const RPAlignmentCorrectionsData *corr = cit->second;
+      bool add = cit.first;
+      const RPAlignmentCorrectionsData *corr = cit.second;
 
       if (add)
         accumulator.insert(corr);
@@ -140,8 +140,8 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
       );
     }
 
-    for (set<const RPAlignmentCorrectionsData*>::iterator sit = accumulator.begin(); sit != accumulator.end(); ++sit)
-      result[tvi].AddCorrections(*(*sit));
+    for (auto sit : accumulator)
+      result[tvi].AddCorrections(*sit);
   }
 
   return result;
@@ -155,8 +155,8 @@ void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentC
     printf(">> TotemRPIncludeAlignments::PrepareSequence(%s)\n", label.c_str());
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
-  for (unsigned int i = 0; i < files.size(); i++)
-    sequences.push_back(RPAlignmentCorrectionsDataSequence(files[i]));
+  for (const auto & file : files)
+    sequences.emplace_back(RPAlignmentCorrectionsDataSequence(file));
 
   seq = Merge(sequences);
 }
@@ -229,12 +229,12 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   bool next_exists = false;
   TimeValue_t t = iosv.time().value(), next_start = TimeValidityInterval::EndOfTime();
 
-  for (RPAlignmentCorrectionsDataSequence::iterator it = seq->begin(); it != seq->end(); ++it)
+  for (auto & it : *seq)
   {
-    if (it->first.first <= t && it->first.last >= t)
+    if (it.first.first <= t && it.first.last >= t)
     {
-      valInt = ValidityInterval(IOVSyncValue(Timestamp(it->first.first)), IOVSyncValue(Timestamp(it->first.last)));
-      *corr = it->second;
+      valInt = ValidityInterval(IOVSyncValue(Timestamp(it.first.first)), IOVSyncValue(Timestamp(it.first.last)));
+      *corr = it.second;
 
       if (verbosity)
       {
@@ -246,10 +246,10 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
       return;
     }
 
-    if (t <= it->first.first)
+    if (t <= it.first.first)
     {
       next_exists = true;
-      next_start = min(next_start, it->first.first);
+      next_start = min(next_start, it.first.first);
     }
   }
     

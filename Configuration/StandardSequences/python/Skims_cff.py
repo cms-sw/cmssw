@@ -23,6 +23,16 @@ def documentSkims():
     print 'possible cmsDriver options for skimming:'
     print 'SKIM:'+'+'.join(listOfOptions)
 
+def getSkimDataTier(skimname):
+    import Configuration.StandardSequences.Skims_cff as Skims
+
+    for skim in Skims.__dict__:
+        skimstream = getattr(Skims,skim)
+        if (not isinstance(skimstream,cms.FilteredStream)): continue
+
+        if skimname == skimstream['name']:
+            return skimstream['dataTier']
+    return None
 
 ### DPG skims ###
 from DPGAnalysis.Skims.Skims_DPG_cff import *

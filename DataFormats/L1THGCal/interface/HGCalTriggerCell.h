@@ -35,6 +35,9 @@ namespace l1t
             uint32_t detId() const {return detid_.rawId();}
             const GlobalPoint& position() const {return position_;}
             
+            int subdetId() const {                
+                return detid_.subdetId();               
+            }
             int zside() const {                
                 return detid_.zside();               
             }

@@ -6,7 +6,7 @@
 
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,10 +46,10 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
       DDName pName = myRealParent->getDDName(nmspace);
       std::string tn = pName.name() + std::string("Rotation");
       std::vector<std::string> names;
-      names.push_back("name");
+      names.emplace_back("name");
 
       std::vector<std::string> values;
-      values.push_back(tn);
+      values.emplace_back(tn);
 
       clear();
       loadAttributes(name, names, values, nmspace, cpv);

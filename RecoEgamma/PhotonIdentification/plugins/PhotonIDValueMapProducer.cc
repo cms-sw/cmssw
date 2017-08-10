@@ -68,7 +68,8 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
 				       const U& pfCandidates,
 				       const edm::Handle<reco::VertexCollection> vertices,
 				       bool isAOD,
-				       float dRmax, float dxyMax, float dzMax);
+				       float dRmax, float dxyMax, float dzMax,
+				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
 
   // Some helper functions that are needed to access info in
   // AOD vs miniAOD
@@ -115,6 +116,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   constexpr static char phoNeutralHadronIsolation_[] = "phoNeutralHadronIsolation";
   constexpr static char phoPhotonIsolation_[] = "phoPhotonIsolation";
   constexpr static char phoWorstChargedIsolation_[] = "phoWorstChargedIsolation";
+  constexpr static char phoWorstChargedIsolationWithConeVeto_[] = "phoWorstChargedIsolationWithConeVeto";
 
 };
 
@@ -131,6 +133,7 @@ constexpr char PhotonIDValueMapProducer::phoChargedIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoNeutralHadronIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoPhotonIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolation_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVeto_[];
 
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iConfig) {
 
@@ -193,6 +196,7 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   produces<edm::ValueMap<float> >(phoNeutralHadronIsolation_);  
   produces<edm::ValueMap<float> >(phoPhotonIsolation_);  
   produces<edm::ValueMap<float> >(phoWorstChargedIsolation_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVeto_);  
 
 }
 
@@ -287,6 +291,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<float> phoNeutralHadronIsolation;
   std::vector<float> phoPhotonIsolation;
   std::vector<float> phoWorstChargedIsolation;
+  std::vector<float> phoWorstChargedIsolationWithConeVeto;
   
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
   for (unsigned idxpho = 0; idxpho < src->size(); ++idxpho) {
@@ -396,10 +401,28 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     phoNeutralHadronIsolation.push_back( neutralHadronIsoSum );
     phoPhotonIsolation       .push_back( photonIsoSum        );
 
+    // Worst isolation computed with no vetos or ptMin cut, as in
+    // Run 1 Hgg code.
+    float dRvetoBarrel = 0.0;
+    float dRvetoEndcap = 0.0;
+    float ptMin = 0.0;
     float worstChargedIso =
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, coneSizeDR, dxyMax, dzMax);
+				     isAOD, coneSizeDR, dxyMax, dzMax,
+				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolation .push_back( worstChargedIso );
+
+    // Worst isolation computed with cone vetos and a ptMin cut, as in 
+    // Run 2 Hgg code.
+    dRvetoBarrel = 0.02;
+    dRvetoEndcap = 0.02;
+    ptMin = 0.1;
+    float worstChargedIsoWithConeVeto =
+      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
+				     isAOD, coneSizeDR, dxyMax, dzMax,
+				     dRvetoBarrel, dRvetoEndcap, ptMin);
+    phoWorstChargedIsolationWithConeVeto .push_back( worstChargedIsoWithConeVeto );
+
     
 
   }
@@ -412,11 +435,12 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoFull5x5E2x5Max, phoFull5x5E2x5Max_);  
   writeValueMap(iEvent, src, phoFull5x5E5x5   , phoFull5x5E5x5_);  
   writeValueMap(iEvent, src, phoESEffSigmaRR  , phoESEffSigmaRR_);  
-  // Isolations
+  // IsolationsOB
   writeValueMap(iEvent, src, phoChargedIsolation, phoChargedIsolation_);  
   writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  
   writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
   writeValueMap(iEvent, src, phoWorstChargedIsolation, phoWorstChargedIsolation_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVeto, phoWorstChargedIsolationWithConeVeto_);  
 }
 
 void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,
@@ -448,17 +472,13 @@ float PhotonIDValueMapProducer
 ::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
 				 const edm::Handle<reco::VertexCollection> vertices,
 				 bool isAOD,
-				 float dRmax, float dxyMax, float dzMax){
+				 float dRmax, float dxyMax, float dzMax,
+				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
+
 
   float worstIsolation = 999;
   std::vector<float> allIsolations;
 
-  // Constants below: there are no vetos and no min pt requirement,
-  // just like in the original H->gamma gamma code.
-  const float dRvetoBarrel = 0.0;
-  const float dRvetoEndcap = 0.0;
-  const float ptMin = 0.0;
-  
   float dRveto;
   if (photon->isEB())
     dRveto = dRvetoBarrel;

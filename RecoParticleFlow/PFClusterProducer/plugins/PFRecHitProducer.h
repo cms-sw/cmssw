@@ -21,14 +21,14 @@
 class PFRecHitProducer final : public edm::stream::EDProducer<> {
    public:
       explicit PFRecHitProducer(const edm::ParameterSet& iConfig);
-      ~PFRecHitProducer();
+      ~PFRecHitProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup &) override;
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup &) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup &) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup &) override;
       std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
       std::unique_ptr<PFRecHitNavigatorBase> navigator_;
       bool init_;

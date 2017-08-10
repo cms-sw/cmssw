@@ -7,9 +7,7 @@ autoHLT = {
   'fake2'      : 'Fake2',
   'relval50ns' : 'Fake',
   'relval25ns' : 'Fake1',
-  'frozen2016' : 'GRun2016',
-  'relval2016' : 'GRun2016',
-  'frozen2017' : 'GRun',
-  'relval2017' : 'GRun',
+  'relval2016' : 'Fake2',
+  'relval2017' : '2e34v21',
   'test'       : 'GRun',
 }

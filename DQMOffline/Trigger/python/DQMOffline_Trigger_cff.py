@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# online trigger objects monitoring
+from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
+
 # lumi
 from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
-
+# Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -33,6 +37,9 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
@@ -54,9 +61,10 @@ from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
+
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
-
+# SUS
 from DQMOffline.Trigger.SusyMonitoring_cff import *
 # B2G
 from DQMOffline.Trigger.B2GMonitoring_cff import *
@@ -66,16 +74,18 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
-
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 # BPH
 from DQMOffline.Trigger.BPHMonitor_cff import *
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
+from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
+
 offlineHLTSource = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
+    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
@@ -89,6 +99,7 @@ offlineHLTSource = cms.Sequence(
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
     hotlineDQMSequence *
+    egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
@@ -96,7 +107,9 @@ offlineHLTSource = cms.Sequence(
     smpMonitorHLT *
     topMonitorHLT *
     btagMonitorHLT *
-    bphMonitorHLT
+    bphMonitorHLT *
+    hltObjectsMonitor *
+    jetmetMonitorHLT
     )
 
 # offline DQM for the HLTMonitoring stream
@@ -111,6 +124,7 @@ OfflineHLTMonitoring = cms.Sequence(
     sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
+    trackingMonitorHLTDisplacedJet* #DisplacedJet Tracking 
     egmTrackingMonitorHLT * # egm tracking
     vertexingMonitorHLT # vertexing
     )

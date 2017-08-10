@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -57,7 +58,7 @@ GEMDigiReader::GEMDigiReader(const edm::ParameterSet& pset) :
 
 void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
-  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+  LogDebug("GEMDigiReader") << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   edm::ESHandle<GEMGeometry> pDD;
   eventSetup.get<MuonGeometryRecord>().get( pDD );
@@ -80,26 +81,26 @@ void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     //     if(id.rawId() != 637567293) continue;
 
     // GEMDetId print-out
-    cout<<"--------------"<<endl;
-    cout<<"id: "<<id.rawId()<<" number of strips "<<roll->nstrips()<<endl;
+    LogDebug("GEMDigiReader")<<"--------------"<<endl;
+    LogDebug("GEMDigiReader")<<"id: "<<id.rawId()<<" number of strips "<<roll->nstrips()<<endl;
 
     // Loop over the digis of this DetUnit
     const GEMDigiCollection::Range& range = (*detUnitIt).second;
     for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
     {
-      cout<<" digi "<<*digiIt<<endl;
+      LogDebug("GEMDigiReader")<<" digi "<<*digiIt<<endl;
       if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() )
       {
-        cout <<" XXXXXXXXXXXXX Problemt with "<<id<<"  a digi has strip# = "<<digiIt->strip()<<endl;
+        LogDebug("GEMDigiReader") <<" XXXXXXXXXXXXX Problemt with "<<id<<"  a digi has strip# = "<<digiIt->strip()<<endl;
       } 
       for(const auto& simHit: *simHits)
       {
         GEMDetId rpcId(simHit.detUnitId());
         if (rpcId == id && abs(simHit.particleType()) == 13)
         {
-          cout<<"entry: "<< simHit.entryPoint()<<endl
-              <<"exit: "<< simHit.exitPoint()<<endl
-              <<"TOF: "<< simHit.timeOfFlight()<<endl;
+          LogDebug("GEMDigiReader")<<"entry: "<< simHit.entryPoint()<<endl
+				   <<"exit: "<< simHit.exitPoint()<<endl
+				   <<"TOF: "<< simHit.timeOfFlight()<<endl;
         }
       }
     }// for digis in layer
@@ -115,13 +116,13 @@ void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
       int strip = link_iter->channel();
       int trkid = link_iter->SimTrackId();
       int bx = link_iter->eventId().bunchCrossing();
-      cout<<"DetUnit: "<<GEMDetId(detid)<<"  Event ID: "<<ev<<"  trkId: "<<trkid<<"  Strip: "<<strip<<"  Bx: "<<bx<<"  frac: "<<frac<<endl;
+      LogDebug("GEMDigiReader")<<"DetUnit: "<<GEMDetId(detid)<<"  Event ID: "<<ev<<"  trkId: "<<trkid<<"  Strip: "<<strip<<"  Bx: "<<bx<<"  frac: "<<frac<<endl;
     }
   }
 
-  cout<<"--------------"<<endl;
+  LogDebug("GEMDigiReader")<<"--------------"<<endl;
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMDigiReader);
 

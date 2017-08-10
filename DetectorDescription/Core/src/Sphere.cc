@@ -18,12 +18,12 @@ DDI::Sphere::Sphere(double innerRadius,
 		    double deltaTheta)
  : Solid(ddsphere)	  
 {
-  p_.push_back(innerRadius);
-  p_.push_back(outerRadius);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
-  p_.push_back(startTheta);
-  p_.push_back(deltaTheta);
+  p_.emplace_back(innerRadius);
+  p_.emplace_back(outerRadius);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
+  p_.emplace_back(startTheta);
+  p_.emplace_back(deltaTheta);
 }	 
 
 
