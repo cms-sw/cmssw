@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_9_2_0/PRef/V114 (CMSSW_9_2_8)
+# /dev/CMSSW_9_2_0/PRef/V117 (CMSSW_9_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V114')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V117')
 )
 
 process.transferSystem = cms.PSet( 
@@ -7762,8 +7762,8 @@ process.hltPixelTracksTrackingRegionsForTriplets = cms.EDProducer( "PointSeededT
       nSigmaZBeamSpot = cms.double( 3.0 ),
       ptMin = cms.double( 0.8 ),
       points = cms.PSet( 
-        phi = cms.vdouble( 2.0, 0.25 ),
-        eta = cms.vdouble( 1.8, -1.8 )
+        phi = cms.vdouble( 1.8, -3.2 ),
+        eta = cms.vdouble( 2.1, -0.8 )
       ),
       mode = cms.string( "BeamSpotFixed" ),
       searchOpt = cms.bool( False ),
@@ -7771,8 +7771,8 @@ process.hltPixelTracksTrackingRegionsForTriplets = cms.EDProducer( "PointSeededT
       originRadius = cms.double( 0.1 ),
       measurementTrackerName = cms.InputTag( "hltDoubletRecoveryMaskedMeasurementTrackerEvent" ),
       precise = cms.bool( True ),
-      deltaEta = cms.double( 0.8 ),
-      deltaPhi = cms.double( 0.5 )
+      deltaEta = cms.double( 0.4 ),
+      deltaPhi = cms.double( 0.4 )
     )
 )
 process.hltPixelLayerTripletsWithClustersRemoval = cms.EDProducer( "SeedingLayersEDProducer",
@@ -7825,7 +7825,7 @@ process.hltPixelLayerTripletsWithClustersRemoval = cms.EDProducer( "SeedingLayer
 )
 process.hltPixelTracksHitDoubletsForTriplets = cms.EDProducer( "HitPairEDProducer",
     trackingRegions = cms.InputTag( "hltPixelTracksTrackingRegionsForTriplets" ),
-    layerPairs = cms.vuint32( 0 ),
+    layerPairs = cms.vuint32( 0, 1 ),
     clusterCheck = cms.InputTag( "" ),
     produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),

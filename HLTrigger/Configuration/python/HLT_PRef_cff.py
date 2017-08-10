@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/PRef --type PRef
 
-# /dev/CMSSW_9_2_0/PRef/V114 (CMSSW_9_2_8)
+# /dev/CMSSW_9_2_0/PRef/V117 (CMSSW_9_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V114')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V117')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -7463,8 +7463,8 @@ fragment.hltPixelTracksTrackingRegionsForTriplets = cms.EDProducer( "PointSeeded
       nSigmaZBeamSpot = cms.double( 3.0 ),
       ptMin = cms.double( 0.8 ),
       points = cms.PSet( 
-        phi = cms.vdouble( 2.0, 0.25 ),
-        eta = cms.vdouble( 1.8, -1.8 )
+        phi = cms.vdouble( 1.8, -3.2 ),
+        eta = cms.vdouble( 2.1, -0.8 )
       ),
       mode = cms.string( "BeamSpotFixed" ),
       searchOpt = cms.bool( False ),
@@ -7472,8 +7472,8 @@ fragment.hltPixelTracksTrackingRegionsForTriplets = cms.EDProducer( "PointSeeded
       originRadius = cms.double( 0.1 ),
       measurementTrackerName = cms.InputTag( "hltDoubletRecoveryMaskedMeasurementTrackerEvent" ),
       precise = cms.bool( True ),
-      deltaEta = cms.double( 0.8 ),
-      deltaPhi = cms.double( 0.5 )
+      deltaEta = cms.double( 0.4 ),
+      deltaPhi = cms.double( 0.4 )
     )
 )
 fragment.hltPixelLayerTripletsWithClustersRemoval = cms.EDProducer( "SeedingLayersEDProducer",
@@ -7526,7 +7526,7 @@ fragment.hltPixelLayerTripletsWithClustersRemoval = cms.EDProducer( "SeedingLaye
 )
 fragment.hltPixelTracksHitDoubletsForTriplets = cms.EDProducer( "HitPairEDProducer",
     trackingRegions = cms.InputTag( "hltPixelTracksTrackingRegionsForTriplets" ),
-    layerPairs = cms.vuint32( 0 ),
+    layerPairs = cms.vuint32( 0, 1 ),
     clusterCheck = cms.InputTag( "" ),
     produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
