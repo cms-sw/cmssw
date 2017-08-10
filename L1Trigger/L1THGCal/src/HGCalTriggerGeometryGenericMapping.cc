@@ -124,3 +124,10 @@ HGCalTriggerGeometryGenericMapping::
 validTriggerCell(const unsigned trigger_cell_det_id) const {
   return (trigger_cells_.find(trigger_cell_det_id)!=trigger_cells_.end());
 }
+
+bool 
+HGCalTriggerGeometryGenericMapping::
+disconnectedModule(const unsigned module_id) const {
+  return false;
+}
+
