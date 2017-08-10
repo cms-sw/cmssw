@@ -148,6 +148,12 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
 
+    if(dcol<0||dcol>=26||pxid<2||pxid>161){
+      edm::LogError("CTPPSPixelDataFormatter")<< " unphysical dcol and/or pxid "  << " nllink=" << nlink 
+					      << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
+      continue;
+    }
+
     std::pair<int,int> rocPixel;
     std::pair<int,int> modPixel;
 
