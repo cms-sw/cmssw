@@ -551,7 +551,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
     dmin = 1; dmax = maxLayer_+1; indx = 1; nz = nzHE;
     break;
   case HcalForward:
-    dmin = 1; dmax = (idHF2QIE.size() > 0) ? 2 : maxDepth[2]; indx = 2; nz = 2;
+    dmin = 1; dmax = (!idHF2QIE.empty()) ? 2 : maxDepth[2]; indx = 2; nz = 2;
     break;
   case HcalOuter:
     dmin = 4; dmax = 4; indx = 0; nz = nzHB;
@@ -608,7 +608,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 	  temp2.setPhi(phis,phiMiss2,fioff,dphi,unit);
 	  cellTypes.emplace_back(temp2);
 	  // For HF look at extra cells
-	  if ((subdet == HcalForward) && (idHF2QIE.size() > 0)) {
+	  if ((subdet == HcalForward) && (!idHF2QIE.empty())) {
 	    HcalCellType temp3(subdet, eta, zside+2, depth, temp1,
 			       shift, gain, hsize);
 	    std::vector<int> phiMiss3;
@@ -638,7 +638,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 
 int HcalDDDSimConstants::maxHFDepth(const int eta, const int iphi) const {
   int mxdepth = maxDepth[2];
-  if (idHF2QIE.size() > 0) {
+  if (!idHF2QIE.empty()) {
     bool ok(false);
     for (auto k : idHF2QIE) {
       if ((eta == k.ieta()) && (iphi == k.iphi())) {

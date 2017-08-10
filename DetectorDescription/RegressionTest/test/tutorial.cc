@@ -70,14 +70,14 @@ DDTranslation calc(const DDGeoHistory & aHist)
   std::vector<DDRotationMatrix> vr;
   std::vector<DDTranslation> vt;
   DDRotationMatrix r;
-  vr.push_back(r);
+  vr.emplace_back(r);
   
   if (h.size()>1) {
-    vt.push_back(h[1].posdata()->translation());
+    vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.push_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
-      vt.push_back(h[i+1].posdata()->translation());
+      vr.emplace_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
+      vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
   
@@ -355,7 +355,7 @@ void tutorial()
       std::cin >> flog;
       if(flog=="end") 
 	break;
-      vecF.push_back(f);
+      vecF.emplace_back(f);
       while (moreFilterCriteria) {
 	std::cout << " logic   = ";
 	std::cin >> ls;
@@ -415,7 +415,7 @@ void tutorial()
 	  for (; i<s; ++i) {
 	    int k;
 	    std::cin >> k;
-	    n.push_back(k);
+	    n.emplace_back(k);
 	  }
 	  std::cout << "input=" << n << std::endl;
 	  if (e.goTo(n)) {
@@ -591,7 +591,7 @@ void tutorial()
     // ask each expanded-not for its specifics 
     // std::vector<..>.size() will be 0 if there are no specifics
     std::vector<const DDsvalues_type *>  spec = ex.specifics();
-    if (spec.size()) {
+    if (!spec.empty()) {
       std::cout << spec.size() << " different specific-data sets found for " << std::endl; 
       dumpHistory(ex.geoHistory(),true) ;    
       std::cout << std::endl;

@@ -71,7 +71,7 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
 	  }
 	}
 	php.fillModule(mytr,false);
-	if (php.layer_.size() == 0) php.nSectors_ = 1;
+	if (php.layer_.empty()) php.nSectors_ = 1;
 	php.layer_.emplace_back(lay);
       } else if (std::find(php.layer_.begin(),php.layer_.end(),lay) == 
 		 php.layer_.begin()) {
@@ -420,8 +420,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     }
   }
   
-  if (((cellsf.size()+cellsc.size())==0) || (wafers.size()==0) || 
-      (layers.size()==0)) {
+  if (((cellsf.size()+cellsc.size())==0) || (wafers.empty()) || 
+      (layers.empty())) {
     edm::LogError("HGCalGeom") << "HGCalGeomParameters : number of cells "
 			       << cellsf.size() << ":" << cellsc.size()
 			       << " wafers " << wafers.size() << " layers "

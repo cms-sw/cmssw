@@ -60,7 +60,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
       
   // negative rings 
-  if(ringsNeg.size() != 0){
+  if(!ringsNeg.empty()){
     std::sort(ringsNeg.begin(),ringsNeg.end(),LessZ());  
     uint32_t  totalringsNeg = ringsNeg.size();
   
@@ -74,7 +74,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
 
   // rods 
-  if(rods.size() != 0){
+  if(!rods.empty()){
     TrackerStablePhiSort(rods.begin(), rods.end(), ExtractPhi());
     uint32_t  totalrods = rods.size();
   
@@ -88,7 +88,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
 
   // positive rings 
-  if(ringsPos.size() != 0){
+  if(!ringsPos.empty()){
     std::sort(ringsPos.begin(),ringsPos.end(),LessZ());  
     uint32_t  totalringsPos = ringsPos.size();
   

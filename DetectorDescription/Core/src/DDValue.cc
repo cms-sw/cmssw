@@ -62,8 +62,8 @@ DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v )
   vecPair_.reset(new vecpair_type( false, std::make_pair( svec, dvec )));
   for(; it != v.end(); ++it )
   {
-    vecPair_->second.first.push_back( it->first );
-    vecPair_->second.second.push_back( it->second );
+    vecPair_->second.first.emplace_back( it->first );
+    vecPair_->second.second.emplace_back( it->second );
   }
 }
 
@@ -122,7 +122,7 @@ DDValue::Names DDValue::initializeNames() {
   // this allows us to check the value of the held std::atomic
   // as the object is being added to the container
   DDValue::Names names{};
-  names.push_back(StringHolder(std::string{}));
+  names.emplace_back(StringHolder(std::string{}));
   return names;
 }
 

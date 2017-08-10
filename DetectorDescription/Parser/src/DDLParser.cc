@@ -158,14 +158,14 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   { 
     std::string ts = urlList[fileIndex];
     std::string tf = fileList[fileIndex];
-    if ( ts.size() > 0 ) {
+    if ( !ts.empty() ) {
       if ( ts[ts.size() - 1] == '/') {
-	fullFileName.push_back( ts + tf );
+	fullFileName.emplace_back( ts + tf );
       } else {
-	fullFileName.push_back( ts + "/" + tf );
+	fullFileName.emplace_back( ts + "/" + tf );
       }
     } else {
-      fullFileName.push_back( tf );
+      fullFileName.emplace_back( tf );
     }
   }
 
