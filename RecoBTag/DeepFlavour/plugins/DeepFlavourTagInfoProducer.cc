@@ -261,7 +261,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         int pv_ass_quality = (*pvasq_value_map)[reco_ptr];
         deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
-                                           pv_ass_quality, c_pf_features);
+                                           pv_ass_quality, pv, c_pf_features);
         }
       }
     } else {
