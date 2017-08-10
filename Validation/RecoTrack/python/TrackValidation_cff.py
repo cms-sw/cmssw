@@ -192,10 +192,7 @@ def _getSeedingLayers(seedProducers):
     for seedName in seedProducers:
         seedProd = getattr(_iterativeTk_cff, seedName)
         if hasattr(seedProd, "OrderedHitsFactoryPSet"):
-            if hasattr(seedProd, "SeedMergerPSet"):
-                seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
-            else:
-                seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         elif hasattr(seedProd, "seedingHitSets"):
             seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
         else:

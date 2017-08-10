@@ -9,7 +9,6 @@ namespace edm { class Event; class EventSetup; }
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegionProducer;
-class QuadrupletSeedMerger;
 
 class dso_hidden SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDProducer<> {
 public:
@@ -23,7 +22,6 @@ private:
   std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   ClusterChecker theClusterCheck;
-  std::unique_ptr<QuadrupletSeedMerger> theMerger_;
 
   std::string moduleName;
 
