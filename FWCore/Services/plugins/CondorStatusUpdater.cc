@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -335,6 +336,21 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
         m_rate = ema_coeff*static_cast<float>(m_events-m_lastEventCount)/static_cast<float>(sinceLastUpdate) + (1.0-ema_coeff)*m_rate;
         m_lastEventCount = m_events;
         updateChirp("EventRate", m_rate);
+    }
+
+    // If Xrootd was used, pull the statistics from there.
+    edm::Service<XrdAdaptor::XrdStatisticsService> xrdsvc;
+    if (xrdsvc.isAvailable()) {
+        for (auto const &iter : xrdsvc->condorUpdate()) {
+            std::string site = iter.first;
+            site.erase(std::remove_if(site.begin(), site.end(),
+                       [](char x){return !isalnum(x) && (x != '_');}),
+                       site.end());
+            auto & iostats = iter.second;
+            updateChirp("IOSite_" + site + "_ReadBytes", iostats.bytesRead);
+            updateChirp("IOSite_" + site + "_ReadTimeMS",
+                        std::chrono::duration_cast<std::chrono::milliseconds>(iostats.transferTime).count());
+        }
     }
 
     // Update storage account information
