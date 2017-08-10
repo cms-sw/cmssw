@@ -105,10 +105,10 @@ namespace {
 	    
 	    int subid = DetId(d).subdetId();
 	    int layer(-1); 
-	    if(subid!=3 && subid!=5) continue;
-	    if(subid==3){
+	    if(subid!=StripSubdetector::TIB && subid!=StripSubdetector::TOB) continue;
+	    if(subid==StripSubdetector::TIB){
 	      layer = tTopo.tibLayer(d);
-	    } else if(subid==5){
+	    } else if(subid==StripSubdetector::TOB){
 	      // layers of TOB start at 5th bin
 	      layer = tTopo.tobLayer(d);
 	      layer+=4;
@@ -164,17 +164,14 @@ namespace {
 	    int disk=-1;
 	    int side=-1;
 	    int subid = DetId(d).subdetId();
-	    if(subid!=4 && subid!=6) continue;
+	    if(subid!=StripSubdetector::TID && subid!=StripSubdetector::TEC) continue;
 	    	    
-	    if(subid==4){
-
+	    if(subid==StripSubdetector::TID){
 	      side = tTopo.tidSide(d);
 	      disk = tTopo.tidWheel(d); 
 	    } else {
-
 	      side = tTopo.tecSide(d);
 	      disk = tTopo.tecWheel(d);
-	      
 	      // disks of TEC start at 4th bin
 	      disk+=3;
 	    }
@@ -231,16 +228,14 @@ namespace {
 	    int disk=-1;
 	    int side=-1;
 	    int subid = DetId(d).subdetId();
-	    if(subid!=4 && subid!=6) continue;
+	    if(subid!=StripSubdetector::TID && subid!=StripSubdetector::TEC) continue;
 
-	    if(subid==4){
+	    if(subid==StripSubdetector::TID){
 	      side = tTopo.tidSide(d);
 	      disk = tTopo.tidWheel(d);; 
 	    } else {
-	      
 	      side = tTopo.tecSide(d);
 	      disk = tTopo.tecWheel(d); 
-	      
 	      // disks of TEC start at 4th bin
 	      disk+=3;
 	    }
@@ -349,12 +344,6 @@ namespace {
 	if(countDefaults>0.){
 	  tmap->fill(d,countDefaults);
 
-	  /*
-	    std::cout<<"sumOfGains/countDefaults = "<<sumOfGains/countDefaults<<std::endl;
-	    std::cout<<"std::fmod((sumOfGains/countDefaults),G1default) = "<<std::fmod((sumOfGains/countDefaults),G1default)<<std::endl;
-	    std::cout<<"std::fmod((sumOfGains/countDefaults),G2default) = "<<std::fmod((sumOfGains/countDefaults),G2default)<<std::endl;
-	  */
-
 	  if( std::fmod((sumOfGains/countDefaults),G1default)==0.){
 	    totalG1DefaultAPVs+=countDefaults;
 	  } else if ( std::fmod((sumOfGains/countDefaults),G2default)==0.){
@@ -363,11 +352,6 @@ namespace {
 	}
       } // loop over detIds
       
-      /*
-	std::cout<<"there are "<< totalG2DefaultAPVs << " APVs with default G2 value (=1)"
-	<<" and " << totalG1DefaultAPVs <<" APVs with default G1 value (=690./640.)" << std::endl;
-      */      
-
       //=========================
 
       std::string gainType = totalG1DefaultAPVs==0 ? "G2 value (=1)" : "G1 value (=690./640.)";
@@ -859,9 +843,8 @@ namespace {
 	  }
 	  std::map<unsigned int, SiStripDetSummary::Values> map = summaryGain.getCounts();
 
-	  //	  myPrintSummary(map);
+	  // myPrintSummary(map);
 
-	  //std::cout<<"map size: "<<map.size()<< std::endl;
 	  std::stringstream ss;
 	  ss << "Summary of gain values:" << std::endl;
 	  summaryGain.print(ss, true);
