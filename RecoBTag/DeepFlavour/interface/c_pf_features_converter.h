@@ -129,13 +129,15 @@ namespace deep {
 
   template <typename CandidateType, typename JetType,
             typename TrackInfoBuilderType,
-            typename ChargedCandidateFeaturesType>
+            typename ChargedCandidateFeaturesType,
+            typename VertexType>
   void c_pf_reco_features_converter(const CandidateType * c_pf,
-                                     const JetType & jet,
-                                     const TrackInfoBuilderType & track_info,
-                                     const float & drminpfcandsv, const float & puppiw,
-                                     const int & pv_ass_quality,
-                                     ChargedCandidateFeaturesType & c_pf_features) {
+                                    const JetType & jet,
+                                    const TrackInfoBuilderType & track_info,
+                                    const float & drminpfcandsv, const float & puppiw,
+                                    const int & pv_ass_quality,
+                                    const VertexType & pv, 
+                                    ChargedCandidateFeaturesType & c_pf_features) {
 
             // track_info has to be built before passing as parameter
 
@@ -168,6 +170,11 @@ namespace deep {
 
             //c_pf_features.dz = c_pf->dz();
             c_pf_features.VTX_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
+            if (c_pf->trackRef().isNonnull() && 
+                pv.trackWeight(c_pf->trackRef()) > 0.5 &&
+                pv_ass_quality == 7) {
+              c_pf_features.VTX_ass = (float) pat::PackedCandidate::UsedInFitTight;
+            }
             //c_pf_features.fromPV = c_pf->fromPV();
             c_pf_features.vertexChi2=c_pf->vertexChi2();
             c_pf_features.vertexNdof=c_pf->vertexNdof();
