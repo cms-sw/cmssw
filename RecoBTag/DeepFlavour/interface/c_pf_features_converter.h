@@ -171,7 +171,7 @@ namespace deep {
             //c_pf_features.dz = c_pf->dz();
             c_pf_features.VTX_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
             if (c_pf->trackRef().isNonnull() && 
-                pv.trackWeight(c_pf->trackRef()) > 0.5 &&
+                pv->trackWeight(c_pf->trackRef()) > 0.5 &&
                 pv_ass_quality == 7) {
               c_pf_features.VTX_ass = (float) pat::PackedCandidate::UsedInFitTight;
             }
