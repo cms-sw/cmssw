@@ -57,6 +57,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<ShallowTagInfoCollection> shallow_tag_info_token_;
     edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
     edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
+    edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
 
     bool use_puppi_value_map_;
     bool use_pvasq_value_map_;
@@ -80,9 +81,10 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
     use_puppi_value_map_ = true;
   }
 
-  const auto & pvasq_value_map_tag = iConfig.getParameter<edm::InputTag>("pvasq_value_map");
-  if (!pvasq_value_map_tag.label().empty()) {
-    pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvasq_value_map_tag);
+  const auto & pvas_tag = iConfig.getParameter<edm::InputTag>("vertexAssociator");
+  if (!pvas_tag.label().empty()) {
+    pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
+    pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
     use_pvasq_value_map_ = true;
   }
 
@@ -122,8 +124,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
 
   edm::Handle<edm::ValueMap<int>> pvasq_value_map;
+  edm::Handle<edm::Association<VertexCollection>> pvas;
   if (use_pvasq_value_map_) { 
     iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map);
+    iEvent.getByToken(pvas_token_, pvas);
   }
 
   edm::ESHandle<TransientTrackBuilder> track_builder; 
@@ -259,9 +263,21 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         // get PUPPI weight from value map
         float puppiw = (*puppi_value_map)[reco_ptr];
         int pv_ass_quality = (*pvasq_value_map)[reco_ptr];
+        // getting the PV as PackedCandidatesProducer
+        // but using not the slimmed but original vertices
+        auto ctrack = reco_cand->bestTrack();
+        int pvi=-1;
+        float dist=1e99;
+        for(size_t ii=0;ii<vtxs->size();ii++){
+          float dz=std::abs(ctrack->dz(((*vtxs)[ii]).position()));
+          if(dz<dist) {pvi=ii;dist=dz; }
+        }
+        auto PV = reco::VertexRef(vtxs, pvi);
+        const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
+        if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
         deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
-                                           pv_ass_quality, pv, c_pf_features);
+                                           pv_ass_quality, PV_orig, c_pf_features);
         }
       }
     } else {
