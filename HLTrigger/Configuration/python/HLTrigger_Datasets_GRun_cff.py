@@ -3,6 +3,34 @@
 import FWCore.ParameterSet.Config as cms
 
 
+# stream Parking
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParking_datasetParkingHT_selector
+streamParking_datasetParkingHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParking_datasetParkingHT_selector.l1tResults = cms.InputTag('')
+streamParking_datasetParkingHT_selector.throw      = cms.bool(False)
+streamParking_datasetParkingHT_selector.triggerConditions = cms.vstring('DST_CaloJet40_BTagScouting_v9', 
+    'DST_CaloJet40_CaloBTagScouting_v8', 
+    'DST_CaloJet40_CaloScouting_PFScouting_v9', 
+    'DST_HT250_CaloBTagScouting_v6', 
+    'DST_HT250_CaloScouting_v7', 
+    'DST_HT410_BTagScouting_v10', 
+    'DST_HT410_PFScouting_v10', 
+    'DST_L1HTT_BTagScouting_v9', 
+    'DST_L1HTT_CaloBTagScouting_v8', 
+    'DST_L1HTT_CaloScouting_PFScouting_v9', 
+    'DST_ZeroBias_BTagScouting_v9', 
+    'DST_ZeroBias_CaloScouting_PFScouting_v8')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParking_datasetParkingMuon_selector
+streamParking_datasetParkingMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParking_datasetParkingMuon_selector.l1tResults = cms.InputTag('')
+streamParking_datasetParkingMuon_selector.throw      = cms.bool(False)
+streamParking_datasetParkingMuon_selector.triggerConditions = cms.vstring('DST_DoubleMu3_noVtx_CaloScouting_v3', 
+    'DST_L1DoubleMu_BTagScouting_v10', 
+    'DST_L1DoubleMu_CaloScouting_PFScouting_v9')
+
+
 # stream PhysicsCommissioning
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetCommissioning_selector
