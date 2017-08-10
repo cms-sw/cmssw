@@ -8,6 +8,8 @@
 
 //#include "Calibration/HcalCalibAlgos/plugins/CommonUsefulStuff.h"
 #include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace std;
 
@@ -348,7 +350,13 @@ void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPos
       
   for (vector<TCell>::iterator it=selectCells.begin(); it!=selectCells.end(); ++it) {
 
-    const GlobalPoint recHitPoint = theCaloGeometry->getPosition(it->id());
+    GlobalPoint recHitPoint;
+    DetId id = it->id(); 
+    if (id.det() == DetId::Hcal) {
+      recHitPoint = ((HcalGeometry*)(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
+    } else {
+      recHitPoint = GlobalPoint(theCaloGeometry->getPosition(id));
+    }
 
     if (getDistInPlaneSimple(hitPositionHcal, recHitPoint)<= maxConeDist) 
       filteredCells.push_back(*it);
