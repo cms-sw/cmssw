@@ -2276,7 +2276,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
     for (int i_strip = 0; i_strip < nStrips; i_strip++) {
       // If there is a hit, simulate digital one-shot persistence starting
       // in the bx of the initial hit.  Fill this into pulse[][].
-      if (time[i_layer][i_strip].size() > 0) {
+      if (!time[i_layer][i_strip].empty()) {
 	std::vector<int> bx_times = time[i_layer][i_strip];
 	for (unsigned int i = 0; i < bx_times.size(); i++) {
 	  // Check that min and max times are within the allowed range.
@@ -3095,14 +3095,14 @@ void CSCCathodeLCTProcessor::testPatterns() {
 //      x    a hit not involved in pattern
 //      _    empty strip
 //      o    a hit was there, but no pattern was found
-    if (numLayersHit > 3 || results.size() > 0) {
+    if (numLayersHit > 3 || !results.empty()) {
       std::cout<<"Input "<<possibleHits<<"/"<< 65536 <<" # Found Patterns "<<results.size()<<std::endl<<" ";
       for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
 	if ((isTMB07  && layer != CSCConstants::KEY_CLCT_LAYER - 1) ||
 	    (!isTMB07 && layer != CSCConstants::KEY_CLCT_LAYER_PRE_TMB07 - 1)) {
 	  for (int strip = 9; strip < 12; strip++) {
 	    if (!stripsHit[layer][strip].empty()) {
-	      if (results.size() > 0) {
+	      if (!results.empty()) {
 	        int thePatternStrip = strip - (results[0].getKeyStrip() - 2) + 3*layer;
 		if ((isTMB07 && layer>=CSCConstants::KEY_CLCT_LAYER) ||
 		    (!isTMB07 && layer>=CSCConstants::KEY_CLCT_LAYER_PRE_TMB07))
