@@ -2,46 +2,13 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-SiPixelPhase1HitsTofEta = DefaultHisto.clone(
-  name = "tof_eta",
-  title = "Time of flight vs #eta",
-  range_min = -4.0, range_max = 4.0, range_nbins = 5000,
-  range_y_min = -100, range_y_max = 100, range_y_nbins = 200,
-  xlabel = "#eta", ylabel = "Time of flight",
-  topFolderName = "PixelPhase1V/Hits",
-  dimensions = 2,
-  specs = VPSet(
-    Specification().groupBy("").save(),
-  )
-)
-
-SiPixelPhase1HitsTofPhi = SiPixelPhase1HitsTofEta.clone(
-  name = "tof_phi",
-  title = "Time of flight vs #phi",
-  range_min = -3.5, range_max = 3.5, range_nbins = 5000,
-  xlabel = "#phi",
-  dimensions = 2,
-  specs = VPSet(
-    Specification().groupBy("").save(),
-  )
-)  
-
-SiPixelPhase1HitsTofR = SiPixelPhase1HitsTofEta.clone(
+SiPixelPhase1HitsTofR = DefaultHisto.clone(
   name = "tof_r",
   title = "Time of flight vs r",
-  range_min = 0, range_max = 60, range_nbins = 5000,
-  xlabel = "r",
-  dimensions = 2,
-  specs = VPSet(
-    Specification().groupBy("").save(),
-  )
-)
-
-SiPixelPhase1HitsTofZ = SiPixelPhase1HitsTofEta.clone(
-  name = "tof_z",
-  title = "Time of flight vs z",
-  range_min = -60, range_max = 60, range_nbins = 5000,
-  xlabel = "z",
+  range_min = 0, range_max = 60, range_nbins = 2500,
+  range_y_min = 0.0, range_y_max = 100.0, range_y_nbins = 100,
+  xlabel = "r", ylabel = "Time of flight",
+  topFolderName = "PixelPhase1V/Hits",
   dimensions = 2,
   specs = VPSet(
     Specification().groupBy("").save(),
@@ -56,8 +23,9 @@ SiPixelPhase1HitsEnergyLoss = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/Hits",
   specs = VPSet(
-   Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-   Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -69,8 +37,9 @@ SiPixelPhase1HitsEntryExitX = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/Hits",
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -96,8 +65,9 @@ SiPixelPhase1HitsPosX = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/Hits",
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -141,10 +111,7 @@ SiPixelPhase1HitsEfficiencyTrack = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1HitsConf = cms.VPSet(
-  SiPixelPhase1HitsTofEta,
-  SiPixelPhase1HitsTofPhi,
   SiPixelPhase1HitsTofR,
-  SiPixelPhase1HitsTofZ,
   SiPixelPhase1HitsEnergyLoss,
   SiPixelPhase1HitsEntryExitX,
   SiPixelPhase1HitsEntryExitY,

@@ -14,6 +14,7 @@ SiPixelPhase1RecHitsInTimeEvents = DefaultHisto.clone(
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -29,6 +30,7 @@ SiPixelPhase1RecHitsOutTimeEvents = DefaultHisto.clone(
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -43,6 +45,7 @@ SiPixelPhase1RecHitsNSimHits = DefaultHisto.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -58,8 +61,7 @@ SiPixelPhase1RecHitsPosX = DefaultHisto.clone(
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -80,8 +82,9 @@ SiPixelPhase1RecHitsResX = DefaultHisto.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -102,6 +105,7 @@ SiPixelPhase1RecHitsErrorX = DefaultHisto.clone(
     Specification().groupBy("").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
+    StandardSpecification2DProfile,
   )
 )
 
@@ -121,8 +125,7 @@ SiPixelPhase1RecHitsPullX = DefaultHisto.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
-    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
-    Specification().groupBy("PXForward/PXDisk/PXModuleName").save(),
+    StandardSpecification2DProfile,
   )
 )
 
