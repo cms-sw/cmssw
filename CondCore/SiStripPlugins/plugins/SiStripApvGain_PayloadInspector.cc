@@ -130,8 +130,6 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
-      std::cout<<"payload hash: "<<std::get<1>(iov)<<std::endl;
-
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
 
       tmap->setPalette(1);
@@ -909,8 +907,8 @@ namespace {
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
 
-      auto hfirst = std::unique_ptr<TH1F>(new TH1F("byPartition1","SiStrip first Gain average by partition;; average SiStrip Gain",firstmap.size(),0.,firstmap.size()));
-      auto hlast  = std::unique_ptr<TH1F>(new TH1F("byPartition2","SiStrip last Gain average by partition;; average SiStrip Gain",lastmap.size(),0.,lastmap.size()));
+      auto hfirst = std::unique_ptr<TH1F>(new TH1F("byPartition1","SiStrip APV Gain average by partition;; average SiStrip Gain",firstmap.size(),0.,firstmap.size()));
+      auto hlast  = std::unique_ptr<TH1F>(new TH1F("byPartition2","SiStrip APV Gain average by partition;; average SiStrip Gain",lastmap.size(),0.,lastmap.size()));
       
       hfirst->SetStats(false);
       hlast->SetStats(false);
@@ -955,12 +953,12 @@ namespace {
 	    break;
 	  }
 
-	hlast->SetBinContent(iBin,mean);
+	hlast->SetBinContent(iBin,mean);	
+	hlast->SetBinError(iBin,mean/10000.);
 	hlast->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
 	hlast->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
-	  std::cout<<"detector has changed from "<<currentDetector<<" to "<<detector<<std::endl;
 	  boundaries.push_back(iBin);
 	  currentDetector=detector;
 	}
@@ -981,20 +979,24 @@ namespace {
 	  rms = sqrt(rms);
 
 	hfirst->SetBinContent(iBin,mean);
+	hfirst->SetBinError(iBin,mean/10000.);
 	hfirst->GetXaxis()->SetBinLabel(iBin,regionType(element.first));
 	hfirst->GetXaxis()->LabelsOption("v");	
       }
 
+      auto extrema = getExtrema(hfirst.get(),hlast.get());
+      hlast->GetYaxis()->SetRangeUser(extrema.first,extrema.second);
+
       hlast->SetMarkerStyle(20);
       hlast->SetMarkerSize(1);
-      hlast->Draw("HIST");
+      hlast->Draw("E1");
       hlast->Draw("Psame");
 
       hfirst->SetMarkerStyle(18);
       hfirst->SetMarkerSize(1);
       hfirst->SetLineColor(kBlue);
       hfirst->SetMarkerColor(kBlue);
-      hfirst->Draw("HISTsame");
+      hfirst->Draw("E1same");
       hfirst->Draw("Psame");
 
       canvas.Update();
@@ -1035,7 +1037,6 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
 
-      
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
@@ -1100,7 +1101,6 @@ namespace {
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
-	  std::cout<<"detector has changed from "<<currentDetector<<" to "<<detector<<std::endl;
 	  boundaries.push_back(iBin);
 	  currentDetector=detector;
 	}
@@ -1122,6 +1122,11 @@ namespace {
 	l.Draw("same");
       }
       
+      TLegend legend = TLegend(0.60,0.8,0.95,0.9);
+      legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(h1.get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"PL");
+      legend.Draw("same");
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
