@@ -1132,13 +1132,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByQuality(enum 
             }
         }
       else {
-        if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
+        if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1A)
           LCTs_final.push_back(*LCTs1a.begin());
-        else if (LCTs1a.size() and LCTs1b.size() and me==ME1B)
+        else if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1B)
           LCTs_final.push_back(*LCTs1b.begin());
-        else if (LCTs1a.size() and LCTs1b.empty() and me==ME1A)
+        else if (!LCTs1a.empty() and LCTs1b.empty() and me==ME1A)
           LCTs_final.insert(LCTs_final.end(), LCTs1a.begin(), LCTs1a.end());
-        else if (LCTs1b.size() and LCTs1a.empty() and me==ME1B)
+        else if (!LCTs1b.empty() and LCTs1a.empty() and me==ME1B)
           LCTs_final.insert(LCTs_final.end(), LCTs1b.begin(), LCTs1b.end());
       }
     }
