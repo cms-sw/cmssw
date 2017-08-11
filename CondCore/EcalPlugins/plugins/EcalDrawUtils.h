@@ -54,6 +54,8 @@ void DrawEB(TH2F* ebmap, float min, float max) {
     TLine* l = new TLine;
     l->SetLineWidth(1);
 
+    endc->SetXTitle("ix");
+    endc->SetYTitle("iy");
     endc->SetMaximum(max);
     endc->SetMinimum(min);
     endc->Draw("colz1");

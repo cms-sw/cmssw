@@ -247,7 +247,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Gain Ratios, IOV %i - %i", run[0], run[1]));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal Gain Ratios, IOV %i - %i", run[1], run[0]));
 
       float xmi[3] = {0.0 , 0.22, 0.78};
       float xma[3] = {0.22, 0.78, 1.00};
