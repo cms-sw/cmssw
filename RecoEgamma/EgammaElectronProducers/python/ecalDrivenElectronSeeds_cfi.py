@@ -34,12 +34,12 @@ ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     ecalDrivenElectronSeeds,
-    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCal'),
-    SeedConfiguration = dict( allowHGCal = cms.bool(True) )
+    endcapSuperClusters = 'particleFlowSuperClusterHGCal',
+    SeedConfiguration = dict( allowHGCal = True )
 )
 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
 ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
-  endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCalFromMultiCl'))
+  endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')
 

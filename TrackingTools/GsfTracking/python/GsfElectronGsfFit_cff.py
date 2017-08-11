@@ -11,11 +11,7 @@ electronGsfTracks.Fitter = 'GsfElectronFittingSmoother'
 electronGsfTracks.TTRHBuilder = 'WithTrackAngle'
 electronGsfTracks.TrajectoryInEvent = False
 
-electronGsfTracksFromMultiCl = electronGsfTracks.clone()
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
-  electronGsfTracksFromMultiCl,
+electronGsfTracksFromMultiCl = electronGsfTracks.clone(
   src = 'electronCkfTrackCandidatesFromMultiCl'
 )
 
