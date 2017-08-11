@@ -257,49 +257,51 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
   // In some cases, the IO layers above us (particularly, if lazy-download is
   // enabled) will emit very large reads.  We break this up into multiple
   // reads in order to avoid hitting timeouts.
-  std::vector<IOPosBuffer> requests;
-  requests.reserve(n/XRD_CL_MAX_READ_SIZE);
-  while (n) {
-    IOSize chunk = std::min(n, static_cast<IOSize>(XRD_CL_MAX_READ_SIZE));
-    requests.emplace_back(pos, into, chunk);
-    into = static_cast<char*>(into) + chunk;
-    n -= chunk;
-    pos += chunk;
-  }
-
-  std::vector<std::pair<std::future<IOSize>, IOSize>> futures;
-  futures.reserve(requests.size());
-  futures.emplace_back(m_requestmanager->handle(requests[0].data(), requests[0].size(), requests[0].offset()),
-                       requests[0].size());
-  for (unsigned idx = 0; idx < requests.size(); idx++) {
-    if (idx + 1 < requests.size()) {
-      futures.emplace_back(m_requestmanager->handle(requests[idx+1].data(),
-                                                    requests[idx+1].size(),
-                                                    requests[idx+1].offset()),
-                           requests[idx+1].size());
-    }
-    if (futures[idx].first.valid()) {
-      futures[idx].first.wait();
-    }
-  }
-
-  IOSize bytesRead = 0;
+  std::future<IOSize> prev_future, cur_future;
+  IOSize bytesRead = 0, prev_future_expected = 0, cur_future_expected = 0;
   bool readReturnedShort = false;
-  for (auto &future : futures) {
-    // Future throws an exception on failure.
-    IOSize result = future.first.get();
-    bytesRead += result;
-    if (readReturnedShort && (bytesRead != 0)) {
+
+  // Check the status of a read operation; updates bytesRead and
+  // readReturnedShort.
+  auto check_read = [&](std::future<IOSize> &future, IOSize expected) {
+    if (!future.valid()) {
+      return;
+    }
+    IOSize result = future.get();
+    if (readReturnedShort && (result != 0)) {
       edm::Exception ex(edm::errors::FileReadError);
       ex << "XrdFile::read(name='" << m_name << "', n=" << n
          << ") remote server returned non-zero length read after EOF.";
       ex.addContext("Calling XrdFile::read()");
       addConnection(ex);
       throw ex;
-    } else if (result != future.second) {
-      readReturnedShort = true;
+    } else if (result != expected) {
+        readReturnedShort = true;
     }
+    bytesRead += result;
+  };
+
+  while (n) {
+    IOSize chunk = std::min(n, static_cast<IOSize>(XRD_CL_MAX_READ_SIZE));
+
+    // Save prior read state; issue new read.
+    prev_future = std::move(cur_future);
+    prev_future_expected = cur_future_expected;
+    cur_future = m_requestmanager->handle(into, chunk, pos);
+    cur_future_expected = chunk;
+
+    // Wait for the prior read; update bytesRead.
+    check_read(prev_future, prev_future_expected);
+
+    // Update counters.
+    into = static_cast<char*>(into) + chunk;
+    n -= chunk;
+    pos += chunk;
   }
+
+  // Wait for the last read to finish.
+  check_read(cur_future, cur_future_expected);
+
   return bytesRead;
 }
 
