@@ -28,16 +28,16 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
     buffer.pop_front();
 
     // check if it is a sensor
-    if ( d->name().name().compare( DDD_TOTEM_RP_SENSOR_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_DIAMONDS_SEGMENT_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_PIXELS_SENSOR_NAME ) == 0 ) {
+    if ( d->name().name() == DDD_TOTEM_RP_SENSOR_NAME
+      || d->name().name() == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
+      || d->name().name() == DDD_CTPPS_PIXELS_SENSOR_NAME ) {
 	  addSensor(d->geographicalID(), d);
     }
 
     // check if it is a RP
-    if ( d->name().name().compare( DDD_TOTEM_RP_RP_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_PIXELS_RP_NAME ) == 0
-      || d->name().name().compare( DDD_CTPPS_DIAMONDS_RP_NAME ) == 0 ) {
+    if ( d->name().name() == DDD_TOTEM_RP_RP_NAME
+      || d->name().name() == DDD_CTPPS_PIXELS_RP_NAME
+      || d->name().name() == DDD_CTPPS_DIAMONDS_RP_NAME ) {
       addRP( d->geographicalID(), d );
     }
     

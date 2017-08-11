@@ -38,7 +38,7 @@ class TotemRPUVPatternFinder : public edm::stream::EDProducer<>
   public:
     TotemRPUVPatternFinder(const edm::ParameterSet& conf);
 
-    virtual ~TotemRPUVPatternFinder();
+    ~TotemRPUVPatternFinder() override;
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
     static void fillDescriptions( edm::ConfigurationDescriptions& );

@@ -43,7 +43,7 @@ class CTPPSGeometryInfo : public edm::one::EDAnalyzer<>
     edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry;
     edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     static void PrintDetId(const CTPPSDetId &id, bool printDetails = true);
 

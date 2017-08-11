@@ -74,7 +74,7 @@ class FastLineRecognition
       double z;                 ///< z position with respect to z0
       double w;                 ///< weight
       bool usable;              ///< whether the point can still be used
-      Point(unsigned int _d=0, const TotemRPRecHit* _hit=NULL, double _h=0., double _z=0., double _w=0.) :
+      Point(unsigned int _d=0, const TotemRPRecHit* _hit=nullptr, double _h=0., double _z=0., double _w=0.) :
         detId(_d), hit(_hit), h(_h), z(_z), w(_w), usable(true) {}
     };
     

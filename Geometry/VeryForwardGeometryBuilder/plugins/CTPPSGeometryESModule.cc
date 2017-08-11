@@ -48,7 +48,7 @@ class CTPPSGeometryESModule : public edm::ESProducer
 {
   public:
     CTPPSGeometryESModule( const edm::ParameterSet& );
-    virtual ~CTPPSGeometryESModule() {}
+    ~CTPPSGeometryESModule() override {}
 
     std::unique_ptr<DetGeomDesc> produceIdealGD( const IdealGeometryRecord& );
 
@@ -306,7 +306,7 @@ CTPPSGeometryESModule::produceRealGD( const VeryForwardRealGeometryRecord& iReco
         << ">> CTPPSGeometryESModule::produceRealGD > Real geometry: No alignments applied.";
   }
 
-  DetGeomDesc* newGD = NULL;
+  DetGeomDesc* newGD = nullptr;
   applyAlignments( idealGD, alignments, newGD );
   return std::unique_ptr<DetGeomDesc>( newGD );
 }
@@ -337,7 +337,7 @@ CTPPSGeometryESModule::produceMisalignedGD( const VeryForwardMisalignedGeometryR
         << ">> CTPPSGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.";
   }
 
-  DetGeomDesc* newGD = NULL;
+  DetGeomDesc* newGD = nullptr;
   applyAlignments( idealGD, alignments, newGD );
   return std::unique_ptr<DetGeomDesc>( newGD );
 }

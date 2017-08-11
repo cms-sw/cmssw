@@ -36,7 +36,7 @@ class TotemRPLocalTrackFitter : public edm::stream::EDProducer<>
   public:
     explicit TotemRPLocalTrackFitter(const edm::ParameterSet& conf);
 
-    virtual ~TotemRPLocalTrackFitter() {}
+    ~TotemRPLocalTrackFitter() override {}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
     static void fillDescriptions( edm::ConfigurationDescriptions& );
