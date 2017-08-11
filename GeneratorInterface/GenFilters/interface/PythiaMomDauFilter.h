@@ -20,9 +20,7 @@
 //
 //
 
-namespace edm {
-    class HepMCProduct;
-}
+
 // system include files
 #include <memory>
 
@@ -35,6 +33,13 @@ namespace edm {
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+      class HepMCProduct;
+}
+
+namespace HepMC {
+   class FourVector;
+}
 
 //
 // class decleration
@@ -50,9 +55,11 @@ class PythiaMomDauFilter : public edm::EDFilter {
    private:
       // ----------memeber function----------------------
 
+       HepMC::FourVector zboost(const HepMC::FourVector&);
+
       // ----------member data ---------------------------
       
-       edm::EDGetTokenT<edm::HepMCProduct> label_;
+      edm::EDGetTokenT<edm::HepMCProduct> label_;
        std::vector<int> dauIDs;
        std::vector<int> desIDs;
        int particleID;
@@ -68,6 +75,7 @@ class PythiaMomDauFilter : public edm::EDFilter {
        double mom_maxptcut;
        double mom_minetacut;
        double mom_maxetacut;
+       double betaBoost;
 };
 #define PYCOMP pycomp_
 extern "C" {
