@@ -28,21 +28,25 @@ namespace edm {
       // it was registered in.  Fixes issue #15524.
       TDirectory::TContext contextEraser;
 
-      std::string label;
+      StorageAccount::OpenLabel label;
       switch (inputType) {
         case InputType::Primary:
-          label = "primary";
+          label = StorageAccount::OpenLabel::Primary;
           break;
         case InputType::SecondaryFile:
-          label = "secondaryfile";
+          label = StorageAccount::OpenLabel::SecondaryFile;
           break;
         case InputType::SecondarySource:
-          label = "secondarysource";
+          label = StorageAccount::OpenLabel::SecondarySource;
+          break;
+        default:
+          label = StorageAccount::OpenLabel::None;
+          assert(true);
       }
       // Sets a label for statistics collection; it is a thread-local that is unset when the
       // `token` object falls out of scope.  Only used if the plugin selected by TFile
       // is from CMSSW.
-      auto token = StorageAccount::setLabel(label);
+      auto token = StorageAccount::setContextLabel(label);
       file_ = std::unique_ptr<TFile>(TFile::Open(fileName)); // propagate_const<T> has no reset() function
     }
     std::exception_ptr e = edm::threadLocalException::getException();

@@ -89,7 +89,7 @@ static StorageAccount::Counter *s_statsXWrite = 0;
 static inline StorageAccount::Counter &
 storageCounter(StorageAccount::Counter *&c, StorageAccount::Operation operation)
 {
-  static const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+  static const auto token = StorageAccount::tokenForStorageClassNameUsingContext("tstoragefile");
   if (! c) c = &StorageAccount::counter(token, operation);
   return *c;
 }

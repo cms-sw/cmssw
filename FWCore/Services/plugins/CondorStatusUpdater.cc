@@ -344,8 +344,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     {
       // Given there is some cost to reporting empty numbers, only push forward the secondary source info
       // if one file was actually opened via such a source.
-      auto label = StorageAccount::setLabel("secondarysource");
-      const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+      const auto token = StorageAccount::tokenForStorageClassName("tstoragefile", StorageAccount::OpenLabel::SecondarySource);
       auto &operations = stats[token.value()];
       StorageAccount::Counter &counts = operations[static_cast<int>(StorageAccount::Operation::open)];
       if (counts.amount) {
@@ -365,7 +364,8 @@ CondorStatusService::updateStorageImpl(const StorageAccount::StorageStats &)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
-    const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+      // Depending where it is invoked from updateImpl, the context may be different...
+    const auto token = StorageAccount::tokenForStorageClassNameUsingContext("tstoragefile");
     for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
@@ -396,8 +396,9 @@ CondorStatusService::updateStorageImpl(const StorageAccount::StorageStats &)
             }
         }
     }
-    std::string label = StorageAccount::getLabel();
-    if (label == "secondarysource") {
+    StorageAccount::OpenLabel olabel = StorageAccount::getContextLabel();
+    std::string label;
+    if (olabel == StorageAccount::OpenLabel::SecondarySource) {
       label = "Secondary";
     }
     updateChirp(label + "ReadOps", readOps);
