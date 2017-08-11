@@ -154,6 +154,13 @@ public:
     
   };
 
+  enum class OpenLabel {
+    None,
+    Primary,
+    SecondaryFile,
+    SecondarySource
+  };
+
   /**
    * The `OpenLabelToken` provides callers of TFile::Open the ability to
    * retrieve a separate set of statistics in the FrameworkJobReport (and
@@ -177,27 +184,32 @@ public:
   public:
     OpenLabelToken(OpenLabelToken const&) = delete;
     OpenLabelToken(OpenLabelToken &&) = default;
-    ~OpenLabelToken() {m_label = "";}
+    ~OpenLabelToken() {s_label = m_original_label;}
 
   private:
-    OpenLabelToken(const std::string &label) {
-      m_label = label;
+    OpenLabelToken(OpenLabel label) {
+      m_original_label = s_label;
+      s_label = label;
     }
 
-    static const std::string &getLabel() {return m_label;}
+    static const OpenLabel &getContextLabel() {return s_label;}
 
-    static thread_local std::string m_label;
+    static thread_local OpenLabel s_label;
+    OpenLabel m_original_label;
   };
 
-  static OpenLabelToken setLabel(const std::string &label) {return OpenLabelToken(label);}
-  static const std::string &getLabel() {return OpenLabelToken::getLabel();}
+  static OpenLabelToken setContextLabel(OpenLabel label) {return OpenLabelToken(label);}
+  static const OpenLabel getContextLabel() {return OpenLabelToken::getContextLabel();}
 
   typedef tbb::concurrent_unordered_map<int, Counter> OperationStats;
   typedef tbb::concurrent_unordered_map<int, OperationStats > StorageStats;
 
   static char const* operationName(Operation operation);
-  static StorageClassToken tokenForStorageClassName( std::string const& iName);
-  static const std::pair<std::string, std::string>& nameForToken( StorageClassToken);
+  static StorageClassToken tokenForStorageClassNameUsingContext(std::string const& iName) {
+    return tokenForStorageClassName(iName, getContextLabel());
+  }
+  static StorageClassToken tokenForStorageClassName(std::string const& iName, OpenLabel iLabel);
+  static const std::pair<OpenLabel, std::string>& nameForToken( StorageClassToken);
   
   static StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);

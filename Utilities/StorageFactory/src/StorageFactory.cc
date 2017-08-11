@@ -177,7 +177,7 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting) {
-        auto token = StorageAccount::tokenForStorageClassName(protocol);
+        auto token = StorageAccount::tokenForStorageClassNameUsingContext(protocol);
         stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::open)));
     }
     try
@@ -218,7 +218,7 @@ StorageFactory::stagein (const std::string &url) const
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting) {
-      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      auto token = StorageAccount::tokenForStorageClassNameUsingContext(protocol);
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::stagein)));
     }
     try
@@ -246,7 +246,7 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */) const
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting) {
-      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      auto token = StorageAccount::tokenForStorageClassNameUsingContext(protocol);
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::check)));
     }
     try

@@ -3,7 +3,7 @@
 StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
                                           std::unique_ptr<Storage> baseStorage)
   : m_baseStorage (std::move(baseStorage)),
-    m_token(StorageAccount::tokenForStorageClassName(storageClass)),
+    m_token(StorageAccount::tokenForStorageClassNameUsingContext(storageClass)),
     m_statsRead (StorageAccount::counter (m_token, StorageAccount::Operation::read)),
     m_statsReadV (StorageAccount::counter (m_token, StorageAccount::Operation::readv)),
     m_statsWrite (StorageAccount::counter (m_token, StorageAccount::Operation::write)),

@@ -31,9 +31,16 @@ namespace {
     "writeViaCache",
     "writev"
   };
-  
+
+  char const * const kLabelNames[] = {
+    "",
+    "primary",
+    "secondaryfile",
+    "secondarysource"
+  };
+
   //Storage class names to the value of the token to which they are assigned
-  tbb::concurrent_unordered_map<std::pair<std::string, std::string>, int> s_nameToToken;
+  tbb::concurrent_unordered_map<std::pair<StorageAccount::OpenLabel, std::string>, int> s_nameToToken;
   std::atomic<int> s_nextTokenValue{0};
 
 }
@@ -42,7 +49,7 @@ StorageAccount::StorageStats StorageAccount::m_stats;
 
 const std::array<StorageAccount::Operation, 2> StorageAccount::allOperations{ {Operation::check, Operation::close} };
 
-thread_local std::string StorageAccount::OpenLabelToken::m_label;
+thread_local StorageAccount::OpenLabel StorageAccount::OpenLabelToken::s_label{OpenLabel::None};
 
 static std::string i2str(int i) {
   std::ostringstream t;
@@ -63,8 +70,7 @@ void StorageAccount::aggregateStatistics() {
     protocols.insert(item.first.second);
   }
   for (auto const &protocol : protocols) {
-    StorageAccount::setLabel("");
-    auto token = tokenForStorageClassName(protocol);
+    auto token = tokenForStorageClassName(protocol, OpenLabel::None);
     OperationStats protocol_stats;
     for (auto &item : m_stats) {
       if (item.first == token.value()) {
@@ -86,8 +92,8 @@ inline char const* StorageAccount::operationName(Operation operation) {
   return kOperationNames[static_cast<int>(operation)];
 }
 
-StorageAccount::StorageClassToken StorageAccount::tokenForStorageClassName( std::string const & iName) {
-  auto token_info = std::make_pair(StorageAccount::getLabel(), iName);
+StorageAccount::StorageClassToken StorageAccount::tokenForStorageClassName(std::string const & iName, OpenLabel iLabel) {
+  auto token_info = std::make_pair(iLabel, iName);
   auto itFound = s_nameToToken.find(token_info);
   if( itFound != s_nameToToken.end()) {
     return StorageClassToken(itFound->second);
@@ -99,7 +105,7 @@ StorageAccount::StorageClassToken StorageAccount::tokenForStorageClassName( std:
   return StorageClassToken(value);
 }
 
-const std::pair<std::string, std::string> &StorageAccount::nameForToken( StorageClassToken iToken) {
+const std::pair<StorageAccount::OpenLabel, std::string> &StorageAccount::nameForToken( StorageClassToken iToken) {
   for( auto it = s_nameToToken.begin(), itEnd = s_nameToToken.end(); it != itEnd; ++it) {
     if (it->second == iToken.value()) {
       return it->first;
@@ -120,7 +126,7 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
     auto const& opStats = m_stats[i->second];
     for (auto j = opStats.begin (); j != opStats.end (); ++j, first = false) {
-      if (!i->first.first.empty()) continue;
+      if (i->first.first != OpenLabel::None) continue;
       os << (first ? "" : "; ")
          << (i->first.second) << '/'
          << kOperationNames[j->first] << '='
@@ -145,10 +151,11 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
     auto const& opStats = m_stats[i->second];
     for (auto j = opStats.begin(); j != opStats.end(); ++j) {
       std::ostringstream os;
-      if (i->first.first.empty()) {
+      if (i->first.first == OpenLabel::None) {
         os << "Timing-" << i->first.second << "-" << kOperationNames[j->first] << "-";
       } else {
-        os << "Timing-" << i->first.first << "-" << i->first.second << "-" << kOperationNames[j->first] << "-";
+        os << "Timing-" << kLabelNames[static_cast<int>(i->first.first)]
+           << "-" << i->first.second << "-" << kOperationNames[j->first] << "-";
       }
       summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
       summary.insert(std::make_pair(os.str() + "numSuccessfulOperations", i2str(j->second.successes)));
