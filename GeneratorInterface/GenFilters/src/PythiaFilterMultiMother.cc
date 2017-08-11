@@ -124,7 +124,7 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
 
 }
 
-HepMC::FourVector MCParticlePairFilter::zboost(const HepMC::FourVector& mom) {
+HepMC::FourVector PythiaFilterMultiMother::zboost(const HepMC::FourVector& mom) {
    //Boost this Lorentz vector (from TLorentzVector::Boost)
    double b2 = betaBoost*betaBoost;
    double gamma = 1.0 / sqrt(1.0 - b2);
