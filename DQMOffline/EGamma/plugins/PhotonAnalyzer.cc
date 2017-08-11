@@ -1057,7 +1057,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  DPhiTracksAtVtx = phiTk1-phiTk2;
 	  DPhiTracksAtVtx = phiNormalization( DPhiTracksAtVtx );
 
-	  if (aConv->bcMatchingWithTracks().size() > 0 && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
+    if (!aConv->bcMatchingWithTracks().empty() && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
 	    float recoPhi1 = aConv->ecalImpactPosition()[0].phi();
 	    float recoPhi2 = aConv->ecalImpactPosition()[1].phi();
 	    float recoEta1 = aConv->ecalImpactPosition()[0].eta();
@@ -1119,11 +1119,11 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  else if(aPho->isEE() && aPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}
 	  else {h_invMassPhotonsEEndcapEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
 	  
- 	  if(conversions.size()!=0 && conversions[0]->nTracks() >= 2){
-	    if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+     if(!conversions.empty() && conversions[0]->nTracks() >= 2){
+      if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	    else h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	  }
-	  else if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+    else if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	  else h_invMassZeroWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	}
       }

@@ -13,13 +13,13 @@ class PFClusterFromHGCalMultiCluster : public InitialClusteringStepBase {
     clusterToken_ = sumes.consumes<std::vector<reco::HGCalMultiCluster> >(
         conf.getParameter<edm::InputTag>("clusterSrc"));
   }
-  virtual ~PFClusterFromHGCalMultiCluster() {}
+  ~PFClusterFromHGCalMultiCluster() override {}
   PFClusterFromHGCalMultiCluster(const PFClusterFromHGCalMultiCluster&) =
       delete;
   PFClusterFromHGCalMultiCluster& operator=(
       const PFClusterFromHGCalMultiCluster&) = delete;
 
-  virtual void updateEvent(const edm::Event&) override final;
+  void updateEvent(const edm::Event&) final;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&, const std::vector<bool>&,
