@@ -22,6 +22,10 @@ namespace {
   constexpr int m_DCOL_bits = 5;
   constexpr int m_PXID_bits = 8;
   constexpr int m_ADC_bits  = 8;
+  constexpr int min_Dcol = 0;
+  constexpr int max_Dcol = 25;
+  constexpr int min_Pixid = 2;
+  constexpr int max_Pixid = 161;
 }
 
 CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping)  :  theWordCounter(0), mapping_(mapping)
@@ -147,6 +151,12 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
+
+    if(dcol<min_Dcol || dcol>max_Dcol || pxid<min_Pixid || pxid>max_Pixid){
+      edm::LogError("CTPPSPixelDataFormatter")<< " unphysical dcol and/or pxid "  << " nllink=" << nlink 
+					      << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
+      continue;
+    }
 
     std::pair<int,int> rocPixel;
     std::pair<int,int> modPixel;
