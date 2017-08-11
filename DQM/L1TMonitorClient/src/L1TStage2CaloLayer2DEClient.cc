@@ -257,7 +257,7 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     // double totalJets = 0, goodJets = 0, jetPosOff = 0, jetEtOff = 0;
 
     // by default show 100% agreement (for edge case when no objects are found)
-    double goodRatio = 1, posOffRatio = 1, etOffRatio = 1;
+    double goodRatio = 1, posOffRatio = 0, etOffRatio = 0;
 
     // hist = jetSummary_->getTH1F();
     // newHist = jetSummary->getTH1F();
@@ -284,8 +284,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     //   totalIsoEgs = 0, goodIsoEgs = 0, isoEgPosOff = 0, isoEgEtOff = 0;
 
     // by default show 100% agreement (for edge case when no objects are found)
-    double goodEgRatio = 1, egPosOffRatio = 1, egEtOffRatio = 1,
-       goodIsoEgRatio = 1, isoEgPosOffRatio = 1, isoEgEtOffRatio = 1;
+    double goodEgRatio = 1, egPosOffRatio = 0, egEtOffRatio = 0,
+       goodIsoEgRatio = 1, isoEgPosOffRatio = 0, isoEgEtOffRatio = 0;
 
     // hist = egSummary_->getTH1F();
     // newHist = egSummary->getTH1F();
@@ -327,8 +327,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     //   totalIsoTaus = 0, goodIsoTaus = 0, isoTauPosOff = 0, isoTauEtOff = 0;
 
     // by default show 100% agreement (for edge case when no objects are found)
-    double goodTauRatio = 1, tauPosOffRatio = 1, tauEtOffRatio = 1,
-      goodIsoTauRatio = 1, isoTauPosOffRatio= 1, isoTauEtOffRatio = 1;
+    double goodTauRatio = 1, tauPosOffRatio = 0, tauEtOffRatio = 0,
+      goodIsoTauRatio = 1, isoTauPosOffRatio= 0, isoTauEtOffRatio = 0;
 
     // hist = tauSummary_->getTH1F();
     // newHist = tauSummary->getTH1F();
