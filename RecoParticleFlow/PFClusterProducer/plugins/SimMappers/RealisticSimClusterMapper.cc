@@ -31,6 +31,7 @@ bool isEGamma(int pdgId)
     pdgId = std::abs(pdgId);
     return (pdgId == 11) or (pdgId == 22);
 }
+
 inline
 bool isHadron(int pdgId)
 {
@@ -38,11 +39,7 @@ bool isHadron(int pdgId)
     return (pdgId > 100 and pdgId < 900) or
            (pdgId > 1000 and pdgId < 9000);
 }
-
-
 }
-
-
 
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
@@ -52,7 +49,6 @@ void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 void RealisticSimClusterMapper::update(const edm::EventSetup& es)
 {
     rhtools_.getEventSetup(es);
-
 }
 
 void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
@@ -153,7 +149,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 }
             }
         }
-        if (back.hitsAndFractions().size() != 0)
+        if (!back.hitsAndFractions().empty())
         {
             back.setSeed(seed->detId());
             back.setEnergy(realisticClusters[ic].getEnergy());
