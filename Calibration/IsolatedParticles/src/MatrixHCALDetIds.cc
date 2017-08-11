@@ -3,6 +3,7 @@
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "Calibration/IsolatedParticles/interface/DebugInfo.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include<algorithm>
 #include<iostream>
@@ -50,7 +51,7 @@ namespace spr{
 				   bool debug) {
  
     HcalDetId   hcdet = HcalDetId(det);
-    GlobalPoint core  = geo->getPosition(hcdet);
+    GlobalPoint core  = ((HcalGeometry*)(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
     std::vector<DetId> dets, vdetx;
     dets.push_back(det);
     int ietaphi = (int)(dR/15.0)+1;
@@ -58,7 +59,7 @@ namespace spr{
 						  ietaphi, includeHO, debug);
     for (unsigned int i=0; i<vdets.size(); ++i) {
       HcalDetId   hcdet  = HcalDetId(vdets[i]);
-      GlobalPoint rpoint = geo->getPosition(hcdet);
+      GlobalPoint rpoint = ((HcalGeometry*)(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
 	vdetx.push_back(vdets[i]);
       }
