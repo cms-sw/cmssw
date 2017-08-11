@@ -34,12 +34,12 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondRecHitProducer( const edm::ParameterSet& );
-    ~CTPPSDiamondRecHitProducer();
+    ~CTPPSDiamondRecHitProducer() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 

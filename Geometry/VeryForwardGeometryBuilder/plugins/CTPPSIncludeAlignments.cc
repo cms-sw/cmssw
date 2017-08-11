@@ -32,7 +32,7 @@ class  CTPPSIncludeAlignments : public edm::ESProducer, public edm::EventSetupRe
 {
   public:
     CTPPSIncludeAlignments(const edm::ParameterSet &p);
-    virtual ~CTPPSIncludeAlignments(); 
+    ~CTPPSIncludeAlignments() override;
 
     std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
     std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
@@ -198,8 +198,8 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
   }
 
   // determine what sequence and corrections should be used
-  RPAlignmentCorrectionsDataSequence *seq = NULL;
-  RPAlignmentCorrectionsData *corr = NULL;
+  RPAlignmentCorrectionsDataSequence *seq = nullptr;
+  RPAlignmentCorrectionsData *corr = nullptr;
 
   if (strcmp(key.name(), "RPMeasuredAlignmentRecord") == 0)
   {
@@ -219,7 +219,7 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
     corr = &acMisaligned;
   }
 
-  if (seq == NULL)
+  if (seq == nullptr)
     throw cms::Exception("CTPPSIncludeAlignments::setIntervalFor") << "Unknown record " << key.name();
 
   // find the corresponding time interval
