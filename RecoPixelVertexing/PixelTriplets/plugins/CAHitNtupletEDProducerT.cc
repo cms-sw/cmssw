@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
@@ -43,7 +42,7 @@ private:
 template <typename T_Generator>
 CAHitNtupletEDProducerT<T_Generator>::CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig):
   doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
-  generator_(iConfig, consumesCollector(), false)
+  generator_(iConfig, consumesCollector())
 {
   produces<RegionsSeedingHitSets>();
 }
@@ -79,7 +78,7 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
   generator_.initEvent(iEvent, iSetup);
 
   LogDebug("CAHitNtupletEDProducer") << "Creating ntuplets for " << regionDoublets.regionSize() << " regions, and " << regionDoublets.layerPairsSize() << " layer pairs";
-  std::vector<typename T_Generator::ResultType> ntuplets;
+  std::vector<OrderedHitSeeds> ntuplets;
   ntuplets.resize(regionDoublets.regionSize());
   for(auto& ntuplet : ntuplets)  ntuplet.reserve(localRA_.upper()); 
    
