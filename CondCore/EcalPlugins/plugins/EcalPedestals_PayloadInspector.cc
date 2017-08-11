@@ -18,7 +18,7 @@
 #include <sstream>
 
 namespace {
-  enum {kEBChannels = 61200, kEEChannels = 14648, kGains = 3};
+  enum {kEBChannels = 61200, kEEChannels = 14648, kGains = 3, kRMS = 5};
   enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360};   // barrel lower and upper bounds on eta and phi
   enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100};         // endcaps lower and upper bounds on x and y
 
@@ -142,13 +142,21 @@ namespace {
       TH2F** barrel_r = new TH2F*[kGains];
       TH2F** endc_p_r = new TH2F*[kGains];
       TH2F** endc_m_r = new TH2F*[kGains];
-      for (int gainId = 0; gainId < kGains; gainId++) {
-	barrel_m[gainId] = new TH2F(Form("EBm%i", gainId),Form("mean %i EB", gainValues[gainId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
-	endc_p_m[gainId] = new TH2F(Form("EE+m%i",gainId),Form("mean %i EE+",gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	endc_m_m[gainId] = new TH2F(Form("EE-m%i",gainId),Form("mean %i EE-",gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	barrel_r[gainId] = new TH2F(Form("EBr%i", gainId),Form("rms %i EB",  gainValues[gainId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
-	endc_p_r[gainId] = new TH2F(Form("EE+r%i",gainId),Form("rms %i EE+", gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	endc_m_r[gainId] = new TH2F(Form("EE-r%i",gainId),Form("rms %i EE-", gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+      double EBmean[kGains], EBrms[kGains], EEmean[kGains], EErms[kGains], pEBmin[kGains], pEBmax[kGains], pEEmin[kGains], pEEmax[kGains];
+      int EBtot[kGains], EEtot[kGains];
+      for (int gId = 0; gId < kGains; gId++) {
+	barrel_m[gId] = new TH2F(Form("EBm%i", gId),Form("mean %i EB", gainValues[gId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
+	endc_p_m[gId] = new TH2F(Form("EE+m%i",gId),Form("mean %i EE+",gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	endc_m_m[gId] = new TH2F(Form("EE-m%i",gId),Form("mean %i EE-",gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	barrel_r[gId] = new TH2F(Form("EBr%i", gId),Form("rms %i EB",  gainValues[gId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
+	endc_p_r[gId] = new TH2F(Form("EE+r%i",gId),Form("rms %i EE+", gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	endc_m_r[gId] = new TH2F(Form("EE-r%i",gId),Form("rms %i EE-", gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	EBmean[gId] = 0.;
+	EBrms[gId] = 0.;
+	EEmean[gId] = 0.;
+	EErms[gId] = 0.;
+	EBtot[gId] = 0;
+	EEtot[gId] = 0;
       }
       auto iov = iovs.front();
       std::shared_ptr<EcalPedestals> payload = fetchPayload( std::get<1>(iov) );
@@ -164,11 +172,32 @@ namespace {
 	  if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	  else eta  = eta + 0.5;         //  -84.5 to -0.5
 	  barrel_m[0]->Fill(phi, eta, (*payload)[rawid].mean_x12);
-	  barrel_r[0]->Fill(phi, eta, (*payload)[rawid].rms_x12);
+	  Double_t val =(*payload)[rawid].rms_x12;
+	  barrel_r[0]->Fill(phi, eta, val);
+	  if(val < 10) {
+	    EBmean[0] = EBmean[0] + val;
+	    EBrms[0] = EBrms[0] + val * val;
+	    EBtot[0]++;
+	  }
+	  //	  else std::cout << " gain 12 chan " << cellid << " val " << val << std::endl;
 	  barrel_m[1]->Fill(phi, eta, (*payload)[rawid].mean_x6);
-	  barrel_r[1]->Fill(phi, eta, (*payload)[rawid].rms_x6);
+	  val =(*payload)[rawid].rms_x6;
+	  barrel_r[1]->Fill(phi, eta, val);
+	  if(val < 10) {
+	    EBmean[1] = EBmean[1] + val;
+	    EBrms[1] = EBrms[1] + val * val;
+	    EBtot[1]++;
+	  }
+	  //	  else std::cout << " gain 6 chan " << cellid << " val " << val << std::endl;
 	  barrel_m[2]->Fill(phi, eta, (*payload)[rawid].mean_x1);
-	  barrel_r[2]->Fill(phi, eta, (*payload)[rawid].rms_x1);
+	  val =(*payload)[rawid].rms_x1;
+	  barrel_r[2]->Fill(phi, eta, val);
+	  if(val < 10) {
+	    EBmean[2] = EBmean[2] + val;
+	    EBrms[2] = EBrms[2] + val * val;
+	    EBtot[2]++;
+	  }
+	  //	  else std::cout << " gain 1 chan " << cellid << " val " << val << std::endl;
 	}  // loop over cellid
 	if (!payload->endcapItems().size()) return false;
 
@@ -182,19 +211,55 @@ namespace {
 		if (payload->find(rawid) == payload->end()) continue;
 		if (iz == 1) {
 		  endc_p_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12);
-		  endc_p_r[0]->Fill(ix, iy, (*payload)[rawid].rms_x12);
+		  Double_t val = (*payload)[rawid].rms_x12;
+		  endc_p_r[0]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[0] = EEmean[0] + val;
+		    EErms[0] = EErms[0] + val * val;
+		    EEtot[0]++;
+		  }
 		  endc_p_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6);
-		  endc_p_r[1]->Fill(ix, iy, (*payload)[rawid].rms_x6);
+		  val = (*payload)[rawid].rms_x6;
+		  endc_p_r[1]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[1] = EEmean[1] + val;
+		    EErms[1] = EErms[1] + val * val;
+		    EEtot[1]++;
+		  }
 		  endc_p_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1);
-		  endc_p_r[2]->Fill(ix, iy, (*payload)[rawid].rms_x1);
+		  val = (*payload)[rawid].rms_x1;
+		  endc_p_r[2]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[2] = EEmean[2] + val;
+		    EErms[2] = EErms[2] + val * val;
+		    EEtot[2]++;
+		  }
 		}
 		else { 
 		  endc_m_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12);
-		  endc_m_r[0]->Fill(ix, iy, (*payload)[rawid].rms_x12);
+		  Double_t val = (*payload)[rawid].rms_x12;
+		  endc_m_r[0]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[0] = EEmean[0] + val;
+		    EErms[0] = EErms[0] + val * val;
+		    EEtot[0]++;
+		  }
 		  endc_m_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6);
-		  endc_m_r[1]->Fill(ix, iy, (*payload)[rawid].rms_x6);
+		  val = (*payload)[rawid].rms_x6;
+		  endc_m_r[1]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[1] = EEmean[1] + val;
+		    EErms[1] = EErms[1] + val * val;
+		    EEtot[1]++;
+		  }
 		  endc_m_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1);
-		  endc_m_r[2]->Fill(ix, iy, (*payload)[rawid].rms_x1);
+		  val = (*payload)[rawid].rms_x1;
+		  endc_m_r[2]->Fill(ix, iy, val);
+		  if(val < 10) {
+		    EEmean[2] = EEmean[2] + val;
+		    EErms[2] = EErms[2] + val * val;
+		    EEtot[2]++;
+		  }
 		}
 	      }  // validDetId 
       }   // if payload.get()
@@ -212,15 +277,39 @@ namespace {
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad*** pad = new TPad**[6];
-      for (int gId = 0; gId < 6; gId++) {
-	pad[gId] = new TPad*[3];
-	for (int obj = 0; obj < 3; obj++) {
-	  float yma = 0.94- (0.16 * gId);
-	  float ymi = yma - 0.14;
-	  pad[gId][obj] = new TPad(Form("p_%i_%i", obj, gId),Form("p_%i_%i", obj, gId),
-				   xmi[obj], ymi, xma[obj], yma);
-	  pad[gId][obj]->Draw();
+      int view = 0;
+      for (int gId = 0; gId < kGains; gId++) {
+	for (int val = 0; val < 2; val++) {      //  mean and sigma
+	  pad[view] = new TPad*[3];
+	  for (int obj = 0; obj < 3; obj++) {
+	    float yma = 0.94- (0.16 * view);
+	    float ymi = yma - 0.14;
+	    pad[view][obj] = new TPad(Form("p_%i_%i", obj, view),Form("p_%i_%i", obj, view),
+				      xmi[obj], ymi, xma[obj], yma);
+	    pad[view][obj]->Draw();
+	  }
+	  view++;
 	}
+	double vt =(double)EBtot[gId];
+	EBmean[gId] = EBmean[gId] / vt;
+	EBrms[gId] = (EBrms[gId] / vt) - (EBmean[gId] * EBmean[gId]);
+	EBrms[gId] = sqrt(EBrms[gId]);
+	if(EBrms[gId] == 0.) EBrms[gId] = 0.001;
+	pEBmin[gId] = EBmean[gId] - kRMS * EBrms[gId];
+	pEBmax[gId] = EBmean[gId] + kRMS * EBrms[gId];
+	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId] 
+		  << " max " << pEBmax[gId] << std::endl;
+	if(pEBmin[gId] < 0.) pEBmin[gId] = 0.;
+	vt =(double)EEtot[gId];
+	EEmean[gId] = EEmean[gId] / vt;
+	EErms[gId] =  (EErms[gId] / vt) -(EEmean[gId] * EEmean[gId]);
+	EErms[gId] = sqrt(EErms[gId]);
+	if(EErms[gId] == 0.) EErms[gId] = 0.001;
+	pEEmin[gId] = EEmean[gId] - kRMS * EErms[gId];
+	pEEmax[gId] = EEmean[gId] + kRMS * EErms[gId];
+	//	std::cout << " mean " << EEmean[gId] << " rms " << EErms[gId] << " entries " << EEtot[gId] << " min " << pEEmin[gId] 
+	//		  << " max " << pEEmax[gId] << std::endl;
+	if(pEEmin[gId] < 0.) pEEmin[gId] = 0.;
       }
       float bmin[kGains] ={0.7, 0.5, 0.4};
       float bmax[kGains] ={2.2, 1.3, 0.7};
@@ -232,15 +321,15 @@ namespace {
 	pad[gId][0]->cd();
 	DrawEE(endc_m_m[gId], 175., 225.);
 	pad[gId + kGains][0]->cd();
-	DrawEE(endc_m_r[gId], emin[gId], emax[gId]);
+	DrawEE(endc_m_r[gId], pEEmin[gId], pEEmax[gId]);
 	pad[gId][1]->cd();
 	DrawEB(barrel_m[gId], 175., 225.);
 	pad[gId + kGains][1]->cd();
-	DrawEB(barrel_r[gId], bmin[gId], bmax[gId]);
+	DrawEB(barrel_r[gId], pEBmin[gId], pEBmax[gId]);
 	pad[gId][2]->cd();
 	DrawEE(endc_p_m[gId], 175., 225.);
 	pad[gId + kGains][2]->cd();
-	DrawEE(endc_p_r[gId], emin[gId], emax[gId]);
+	DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
       canvas.SaveAs("ecalped.png");
       return true;
@@ -265,13 +354,21 @@ namespace {
       TH2F** barrel_r = new TH2F*[kGains];
       TH2F** endc_p_r = new TH2F*[kGains];
       TH2F** endc_m_r = new TH2F*[kGains];
-      for (int gainId = 0; gainId < kGains; gainId++) {
-	barrel_m[gainId] = new TH2F(Form("EBm%i", gainId),Form("mean %i EB", gainValues[gainId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
-	endc_p_m[gainId] = new TH2F(Form("EE+m%i",gainId),Form("mean %i EE+",gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	endc_m_m[gainId] = new TH2F(Form("EE-m%i",gainId),Form("mean %i EE-",gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	barrel_r[gainId] = new TH2F(Form("EBr%i", gainId),Form("rms %i EB",  gainValues[gainId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
-	endc_p_r[gainId] = new TH2F(Form("EE+r%i",gainId),Form("rms %i EE+", gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-	endc_m_r[gainId] = new TH2F(Form("EE-r%i",gainId),Form("rms %i EE-", gainValues[gainId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+      double EBmean[kGains], EBrms[kGains], EEmean[kGains], EErms[kGains], pEBmin[kGains], pEBmax[kGains], pEEmin[kGains], pEEmax[kGains];
+      int EBtot[kGains], EEtot[kGains];
+      for (int gId = 0; gId < kGains; gId++) {
+	barrel_m[gId] = new TH2F(Form("EBm%i", gId),Form("mean %i EB", gainValues[gId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
+	endc_p_m[gId] = new TH2F(Form("EE+m%i",gId),Form("mean %i EE+",gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	endc_m_m[gId] = new TH2F(Form("EE-m%i",gId),Form("mean %i EE-",gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	barrel_r[gId] = new TH2F(Form("EBr%i", gId),Form("rms %i EB",  gainValues[gId]), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
+	endc_p_r[gId] = new TH2F(Form("EE+r%i",gId),Form("rms %i EE+", gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	endc_m_r[gId] = new TH2F(Form("EE-r%i",gId),Form("rms %i EE-", gainValues[gId]), IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+	EBmean[gId] = 0.;
+	EBrms[gId] = 0.;
+	EEmean[gId] = 0.;
+	EErms[gId] = 0.;
+	EBtot[gId] = 0;
+	EEtot[gId] = 0;
       }
       unsigned int run[2], irun = 0;
       //      unsigned int irun = 0;
@@ -301,12 +398,33 @@ namespace {
 	      Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
 	      if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	      else eta  = eta + 0.5;         //  -84.5 to -0.5
-	      barrel_m[0]->Fill(phi, eta, meanEB[0][cellid] - (*payload)[rawid].mean_x12);
-	      barrel_r[0]->Fill(phi, eta, rmsEB[0][cellid] - (*payload)[rawid].rms_x12);
-	      barrel_m[1]->Fill(phi, eta, meanEB[1][cellid] - (*payload)[rawid].mean_x6);
-	      barrel_r[1]->Fill(phi, eta, rmsEB[1][cellid] - (*payload)[rawid].rms_x6);
-	      barrel_m[2]->Fill(phi, eta, meanEB[2][cellid] - (*payload)[rawid].mean_x1);
-	      barrel_r[2]->Fill(phi, eta, rmsEB[2][cellid] - (*payload)[rawid].rms_x1);
+	      barrel_m[0]->Fill(phi, eta, (*payload)[rawid].mean_x12 - meanEB[0][cellid]);
+	      double diff = (*payload)[rawid].rms_x12 - rmsEB[0][cellid];
+	      barrel_r[0]->Fill(phi, eta, diff);
+	      if(abs(diff) < 1.) {
+		EBmean[0] = EBmean[0] + diff;
+		EBrms[0] = EBrms[0] + diff * diff;
+		EBtot[0]++;
+	      }
+	      //	      else std::cout << " gain 12 chan " << cellid << " diff " << diff << std::endl;
+	      barrel_m[1]->Fill(phi, eta,(*payload)[rawid].mean_x6 -  meanEB[1][cellid]);
+	      diff = (*payload)[rawid].rms_x6 - rmsEB[1][cellid];
+	      barrel_r[1]->Fill(phi, eta, diff);
+	      if(abs(diff) < 1.) {
+		EBmean[1] = EBmean[1] + diff;
+		EBrms[1] = EBrms[1] + diff * diff;
+		EBtot[1]++;
+	      }
+	      //	      else std::cout << " gain 6 chan " << cellid << " diff " << diff << std::endl;
+	      barrel_m[2]->Fill(phi, eta, (*payload)[rawid].mean_x1 - meanEB[2][cellid]);
+	      diff = (*payload)[rawid].rms_x1 - rmsEB[2][cellid];
+	      barrel_r[2]->Fill(phi, eta, diff);
+	      if(abs(diff) < 1.) {
+		EBmean[2] = EBmean[2] + diff;
+		EBrms[2] = EBrms[2] + diff * diff;
+		EBtot[2]++;
+	      }
+	      //	      else std::cout << " gain 1 chan " << cellid << " diff " << diff << std::endl;
 	    }
 	  }  // loop over cellid
 
@@ -327,26 +445,68 @@ namespace {
 		    rmsEE[1][index] =   (*payload)[rawid].rms_x6;
 		    meanEE[2][index] =  (*payload)[rawid].mean_x1;
 		    rmsEE[2][index] = (*payload)[rawid].rms_x1;
-		  }
+		  } // fist run
 		  else {
 		    if (iz == 1) {
-		      endc_p_m[0]->Fill(ix, iy, meanEE[0][index] - (*payload)[rawid].mean_x12);
+		      endc_p_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
+		      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
 		      endc_p_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-		      endc_p_m[1]->Fill(ix, iy, meanEE[1][index] - (*payload)[rawid].mean_x6);
-		      endc_p_r[1]->Fill(ix, iy, rmsEE[1][index] - (*payload)[rawid].rms_x6);
-		      endc_p_m[2]->Fill(ix, iy, meanEE[2][index] - (*payload)[rawid].mean_x1);
-		      endc_p_r[2]->Fill(ix, iy, rmsEE[2][index] - (*payload)[rawid].rms_x1);
-		    }
+		      if(abs(diff) < 1.) {
+			EEmean[0] = EEmean[0] + diff;
+			EErms[0] = EErms[0] + diff * diff;
+			EEtot[0]++;
+		      }
+		      //		      else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
+		      endc_p_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
+		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
+		      endc_p_r[1]->Fill(ix, iy, diff);
+		      if(abs(diff) < 1.) {
+			EEmean[1] = EEmean[1] + diff;
+			EErms[1] = EErms[1] + diff * diff;
+			EEtot[1]++;
+		      }
+		      //		      else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
+		      endc_p_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
+		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
+		      endc_p_r[2]->Fill(ix, iy, diff);
+		      if(abs(diff) < 1.) {
+			EEmean[2] = EEmean[2] + diff;
+			EErms[2] = EErms[2] + diff * diff;
+			EEtot[2]++;
+		      }
+		      //		      else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
+		    }// EE+
 		    else { 
-		      endc_m_m[0]->Fill(ix, iy, meanEE[0][index] - (*payload)[rawid].mean_x12);
+		      endc_m_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
+		      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
 		      endc_m_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-		      endc_m_m[1]->Fill(ix, iy, meanEE[1][index] - (*payload)[rawid].mean_x6);
-		      endc_m_r[1]->Fill(ix, iy, rmsEE[1][index] - (*payload)[rawid].rms_x6);
-		      endc_m_m[2]->Fill(ix, iy, meanEE[2][index] - (*payload)[rawid].mean_x1);
-		      endc_m_r[2]->Fill(ix, iy, rmsEE[2][index] - (*payload)[rawid].rms_x1);
-		    }
-		  }
-		} // validDetId
+		      if(abs(diff) < 1.) {
+			EEmean[0] = EEmean[0] + diff;
+			EErms[0] = EErms[0] + diff * diff;
+			EEtot[0]++;
+		      }
+		      //		      else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
+		      endc_m_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
+		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
+		      endc_m_r[1]->Fill(ix, iy, diff);
+		      if(abs(diff) < 1.) {
+			EEmean[1] = EEmean[1] + diff;
+			EErms[1] = EErms[1] + diff * diff;
+			EEtot[1]++;
+		      }
+		      //		      else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
+		      endc_m_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
+		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
+		      endc_m_r[2]->Fill(ix, iy, diff);
+		      if(abs(diff) < 1.) {
+			EEmean[2] = EEmean[2] + diff;
+			EErms[2] = EErms[2] + diff * diff;
+			EEtot[2]++;
+		      }
+		      //		      else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
+		    }// EE-
+		  } // second run
+		}  // validDetId
 	      }   //   loop over ix
 	    }    //  loop over iy
 	  }     //  loop over iz
@@ -362,40 +522,58 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Pedestals, IOV %i vs %i", run[1], run[0]));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal Pedestals, IOV %i - %i", run[1], run[0]));
 
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad*** pad = new TPad**[6];
-      for (int gId = 0; gId < 6; gId++) {
-	pad[gId] = new TPad*[3];
-	for (int obj = 0; obj < 3; obj++) {
-	  float yma = 0.94- (0.16 * gId);
-	  float ymi = yma - 0.14;
-	  pad[gId][obj] = new TPad(Form("p_%i_%i", obj, gId),Form("p_%i_%i", obj, gId),
-				   xmi[obj], ymi, xma[obj], yma);
-	  pad[gId][obj]->Draw();
+      int view = 0;
+      for (int gId = 0; gId < kGains; gId++) {
+	for (int val = 0; val < 2; val++) {      //  mean and sigma
+	  pad[view] = new TPad*[3];
+	  for (int obj = 0; obj < 3; obj++) {
+	    float yma = 0.94- (0.16 * view);
+	    float ymi = yma - 0.14;
+	    pad[view][obj] = new TPad(Form("p_%i_%i", obj, view),Form("p_%i_%i", obj, view),
+				     xmi[obj], ymi, xma[obj], yma);
+	    pad[view][obj]->Draw();
+	  }
+	  view++;
 	}
+	double vt =(double)EBtot[gId];
+	EBmean[gId] = EBmean[gId] / vt;
+	EBrms[gId] = (EBrms[gId] / vt) - (EBmean[gId] * EBmean[gId]);
+	EBrms[gId] = sqrt(EBrms[gId]);
+	if(EBrms[gId] == 0.) EBrms[gId] = 0.001;
+	pEBmin[gId] = EBmean[gId] - kRMS * EBrms[gId];
+	pEBmax[gId] = EBmean[gId] + kRMS * EBrms[gId];
+	//	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId] 
+	//		  << " max " << pEBmax[gId] << std::endl;
+	vt =(double)EEtot[gId];
+	EEmean[gId] = EEmean[gId] / vt;
+	EErms[gId] =  (EErms[gId] / vt) -(EEmean[gId] * EEmean[gId]);
+	EErms[gId] = sqrt(EErms[gId]);
+	if(EErms[gId] == 0.) EErms[gId] = 0.001;
+	pEEmin[gId] = EEmean[gId] - kRMS * EErms[gId];
+	pEEmax[gId] = EEmean[gId] + kRMS * EErms[gId];
+	//	std::cout << " mean " << EEmean[gId] << " rms " << EErms[gId] << " entries " << EEtot[gId] << " min " << pEEmin[gId] 
+	//		  << " max " << pEEmax[gId] << std::endl;
       }
-      float bmin[kGains] ={-0.1, -0.1, -0.1};
-      float bmax[kGains] ={ 0.1,  0.1,  0.1};
-      float emin[kGains] ={-0.1, -0.1, -0.1};
-      float emax[kGains] ={ 0.1,  0.1,  0.1};
       for (int gId = 0; gId < kGains; gId++) {
 	pad[gId][0]->cd();
 	DrawEE(endc_m_m[gId], -2., 2.);
 	pad[gId + kGains][0]->cd();
-	DrawEE(endc_m_r[gId], emin[gId], emax[gId]);
+	DrawEE(endc_m_r[gId], pEEmin[gId], pEEmax[gId]);
 	pad[gId][1]->cd();
 	DrawEB(barrel_m[gId], -2., 2.);
 	pad[gId + kGains][1]->cd();
-	DrawEB(barrel_r[gId], bmin[gId], bmax[gId]);
+	DrawEB(barrel_r[gId], pEBmin[gId], pEBmax[gId]);
 	pad[gId][2]->cd();
 	DrawEE(endc_p_m[gId], -2., 2.);
 	pad[gId + kGains][2]->cd();
-	DrawEE(endc_p_r[gId], emin[gId], emax[gId]);
+	DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
-      canvas.SaveAs("ecalpeddiff.png");
+      canvas.SaveAs("ecalpedDiff.png");
       return true;
     }// fill method
   };   // class EcalPedestalsDiff

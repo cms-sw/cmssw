@@ -206,10 +206,10 @@ namespace {
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       float pEBmin, pEEmin, pEBmax, pEEmax;
-	pEBmin = 10.;
-	pEEmin = 10.;
-	pEBmax = -10.;
-	pEEmax = -10.;
+      pEBmin = 10.;
+      pEEmin = 10.;
+      pEBmax = -10.;
+      pEEmax = -10.;
 
       unsigned int run[2], irun = 0;
       float pEB[kEBChannels], pEE[kEEChannels];

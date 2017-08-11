@@ -128,7 +128,11 @@ namespace {
 
       auto iov = iovs.front();
       std::shared_ptr<EcalLaserAPDPNRatios> payload = fetchPayload( std::get<1>(iov) );
-      unsigned int run = std::get<0>(iov);
+      unsigned long IOV = std::get<0>(iov);
+      int run = 0;
+      if(IOV < 4294967296) run = std::get<0>(iov);
+      else   // time type IOV
+	run = IOV >> 32;
       if( payload.get() ){
 	// looping over the EB channels, via the dense-index, mapped into EBDetId's
 	for(int cellid = 0; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {    // loop on EB cells
@@ -180,7 +184,17 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i", run));
+      if(IOV < 4294967296)
+	t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i", run));
+      else {   // time type IOV
+	time_t t = run;
+	char buf[256];
+	struct tm lt;
+	localtime_r(&t, &lt);
+	strftime(buf, sizeof(buf), "%F %R:%S", &lt);
+	buf[sizeof(buf)-1] = 0;
+	t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %s", buf));
+      }
 
       float xmi[3] = {0.0 , 0.26, 0.74};
       float xma[3] = {0.26, 0.74, 1.00};
@@ -246,11 +260,15 @@ namespace {
 	pEBmax[i] = -10.;
 	pEEmax[i] = -10.;
       }
-      unsigned int run[2], irun = 0;
+      unsigned int run[2] = {0, 0}, irun = 0;
+      unsigned long IOV = 0;
       float pEB[3][kEBChannels], pEE[3][kEEChannels];
       for ( auto const & iov: iovs) {
 	std::shared_ptr<EcalLaserAPDPNRatios> payload = fetchPayload( std::get<1>(iov) );
-	run[irun] = std::get<0>(iov);
+	IOV = std::get<0>(iov);
+	if(IOV < 4294967296) run[irun] = std::get<0>(iov);
+	else   // time type IOV
+	  run[irun] = IOV >> 32;
 	if( payload.get() ){
 	// looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = 0; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {    // loop on EB cells
@@ -324,7 +342,24 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i - %i", run[1], run[0]));
+      if(IOV < 4294967296) {
+	t1.SetTextSize(0.05);
+	t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i - %i", run[1], run[0]));
+      }
+      else {   // time type IOV
+	time_t t = run[0];
+	char buf0[256], buf1[256];
+	struct tm lt;
+	localtime_r(&t, &lt);
+	strftime(buf0, sizeof(buf0), "%F %R:%S", &lt);
+	buf0[sizeof(buf0)-1] = 0;
+	t = run[1];
+	localtime_r(&t, &lt);
+	strftime(buf1, sizeof(buf1), "%F %R:%S", &lt);
+	buf1[sizeof(buf1)-1] = 0;
+	t1.SetTextSize(0.015);
+	t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %s - %s", buf1, buf0));
+      }
 
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
