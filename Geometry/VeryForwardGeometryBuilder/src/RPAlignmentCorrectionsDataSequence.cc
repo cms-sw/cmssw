@@ -85,7 +85,7 @@ RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
 
   if ( !parser )
     throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (parser = NULL).";
-  
+
   DOMDocument* xmlDoc = parser->getDocument();
 
   if ( !xmlDoc )
@@ -94,18 +94,19 @@ RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
   if ( !elementRoot )
     throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "File `" << fn << "' is empty.";
-  
+
   // extract useful information form the DOM tree
   DOMNodeList* children = elementRoot->getChildNodes();
   for ( unsigned int i = 0; i < children->getLength(); i++ ) {
     DOMNode* node = children->item( i );
     if ( node->getNodeType() != DOMNode::ELEMENT_NODE ) continue;
-   
+    const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
     // check node type
     unsigned char nodeType = 0;
-    if      ( cms::xerces::toString( node->getNodeName() ).compare( "TimeInterval" ) == 0 ) nodeType = 1;
-    else if ( cms::xerces::toString( node->getNodeName() ).compare( "det"          ) == 0 ) nodeType = 2;
-    else if ( cms::xerces::toString( node->getNodeName() ).compare( "rp"           ) == 0 ) nodeType = 3;
+    if      ( node_name == "TimeInterval" ) nodeType = 1;
+    else if ( node_name == "det"          ) nodeType = 2;
+    else if ( node_name == "rp"           ) nodeType = 3;
 
     if ( nodeType==0 )
       throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Unknown node `" << cms::xerces::toString( node->getNodeName() ) << "'.";
@@ -125,15 +126,17 @@ RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
     DOMNamedNodeMap* attrs = node->getAttributes();
     for ( unsigned int j = 0; j < attrs->getLength(); j++ ) {
       const DOMNode* attr = attrs->item( j );
- 
-      if ( cms::xerces::toString( attr->getNodeName() ).compare( "first" ) == 0 ) {
+      const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
+      if ( node_name == "first" ) {
         first_set = true;
         first = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
       }
-      else if ( cms::xerces::toString( attr->getNodeName() ).compare( "last" ) == 0 ) {
+      else if ( node_name == "last" ) {
         last_set = true;
         last = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
-      } else
+      }
+      else
         edm::LogProblem("RPAlignmentCorrectionsDataSequence") << ">> RPAlignmentCorrectionsDataSequence::LoadXMLFile > Warning: unknown attribute `"
           << cms::xerces::toString( attr->getNodeName() ) << "'.";
     }
@@ -143,7 +146,7 @@ RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
       throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "TimeInterval tag must have `first' and `last' attributes set.";
 
     TimeValidityInterval tvi( first, last );
-    
+
     // process data
     RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::getCorrectionsData( node );
 
