@@ -17,6 +17,8 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/IntermediateHitTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 
+#include <numeric>
+
 namespace hitTripletEDProducerT { class ImplBase; }
 
 template <typename T_HitTripletGenerator>
