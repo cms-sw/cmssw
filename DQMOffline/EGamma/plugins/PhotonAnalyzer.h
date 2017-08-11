@@ -102,9 +102,9 @@ class PhotonAnalyzer : public DQMEDAnalyzer
 {
  public:
   explicit PhotonAnalyzer( const edm::ParameterSet& );
-  virtual ~PhotonAnalyzer();
+  ~PhotonAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;      
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
  
  private:
   void bookHistogramsForHistogramCounts(DQMStore::IBooker &);

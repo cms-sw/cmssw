@@ -200,8 +200,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     thePhotonMIPHaloTagger_->setup(mipVariableSet,consumesCollector());
     
   }else{
-    thePhotonIsolationCalculator_=0;
-    thePhotonMIPHaloTagger_=0;
+    thePhotonIsolationCalculator_=nullptr;
+    thePhotonMIPHaloTagger_=nullptr;
   }
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);
@@ -563,7 +563,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //// energy determination -- Default to create the candidate. Afterwards corrections are applied
     double photonEnergy=1.;
     math::XYZPoint vtx(0.,0.,0.);
-    if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+    if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
     //math::XYZVector momentum = direction.unit() * photonEnergy ;

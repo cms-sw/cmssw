@@ -54,7 +54,7 @@ void PFClusterFromHGCalMultiCluster::buildClusters(
       output.pop_back();
       continue;
     }
-    if (back.hitsAndFractions().size() != 0) {
+    if (!back.hitsAndFractions().empty()) {
       back.setSeed(seed);
       back.setEnergy(energy);
       back.setCorrectedEnergy(energy);
