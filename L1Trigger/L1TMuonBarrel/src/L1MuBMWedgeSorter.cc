@@ -33,7 +33,7 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEtaProcessor.h"
 

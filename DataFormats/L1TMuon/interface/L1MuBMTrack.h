@@ -35,11 +35,11 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackAssParam.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
 
 //              ---------------------
 //              -- Class Interface --

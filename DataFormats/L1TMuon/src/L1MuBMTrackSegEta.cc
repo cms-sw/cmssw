@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 
 using namespace std;
 

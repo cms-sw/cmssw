@@ -38,7 +38,7 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 using namespace std;

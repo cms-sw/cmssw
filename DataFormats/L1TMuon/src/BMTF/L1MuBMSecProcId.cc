@@ -15,7 +15,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 
 //---------------
 // C++ Headers --

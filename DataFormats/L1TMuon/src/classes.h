@@ -17,9 +17,6 @@
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMAddressArray.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
 
 #include <vector>
 
