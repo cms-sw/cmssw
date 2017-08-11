@@ -37,8 +37,8 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
 
 #include <iostream>
 #include <iomanip>

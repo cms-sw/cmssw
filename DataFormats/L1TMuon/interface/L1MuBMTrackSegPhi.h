@@ -28,7 +28,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 
 //              ---------------------
 //              -- Class Interface --

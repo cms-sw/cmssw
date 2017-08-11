@@ -30,7 +30,7 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1TMuon/interface/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 //------------------------------------

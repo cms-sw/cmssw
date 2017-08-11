@@ -31,7 +31,7 @@
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
-#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 using namespace std;
