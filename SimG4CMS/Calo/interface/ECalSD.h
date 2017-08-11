@@ -57,7 +57,7 @@ private:
   bool                              isEE;
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight, storeTrack, storeRL, storeLayerTimeSim;
-  bool                              useBirk, useBirkL3;
+  bool                              useBirk, useBirkL3, ignoreDepCorr;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY, scaleRL;
   std::string                       crystalMat, depth1Name, depth2Name;
