@@ -162,7 +162,7 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFE
 phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [
   'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
   'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
-  'keep recoPFClusters_particleFlowClusterHGCal*__*',
+  'keep recoPFClusters_particleFlowClusterHGCal__*',
   'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
   'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
   'keep recoPFBlocks_simPFProducer_*_*',
@@ -172,7 +172,8 @@ phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRE
 phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [
 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
 'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
-'keep recoPFClusters_particleFlowClusterHGCal*__*',
+'keep recoPFClusters_particleFlowClusterHGCal__*',
+'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
 'keep recoSuperClusters_simPFProducer_*_*' ] )
 
 #timing

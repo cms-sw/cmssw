@@ -10,7 +10,7 @@ class PFClusterFromHGCalMultiCluster : public InitialClusteringStepBase {
   PFClusterFromHGCalMultiCluster(const edm::ParameterSet& conf,
                                  edm::ConsumesCollector& sumes)
       : InitialClusteringStepBase(conf, sumes) {
-    _clusterToken = sumes.consumes<std::vector<reco::HGCalMultiCluster> >(
+    clusterToken_ = sumes.consumes<std::vector<reco::HGCalMultiCluster> >(
         conf.getParameter<edm::InputTag>("clusterSrc"));
   }
   virtual ~PFClusterFromHGCalMultiCluster() {}
@@ -26,8 +26,8 @@ class PFClusterFromHGCalMultiCluster : public InitialClusteringStepBase {
                      reco::PFClusterCollection&) override;
 
  private:
-  edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster> > _clusterToken;
-  edm::Handle<std::vector<reco::HGCalMultiCluster> > _clusterH;
+  edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster> > clusterToken_;
+  edm::Handle<std::vector<reco::HGCalMultiCluster> > clusterH_;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, PFClusterFromHGCalMultiCluster,
