@@ -2,6 +2,7 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <iostream>
 
 namespace spr {
@@ -92,7 +93,8 @@ namespace spr {
     for (HBHERecHitCollection::const_iterator j=hits->begin(); 
 	 j!=hits->end(); j++) {   
       DetId detId(j->id());
-      const GlobalPoint rechitPoint = geo->getPosition(detId);
+      const GlobalPoint rechitPoint = 
+	((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) hit.push_back(j);
     }  
     return hit;
@@ -105,7 +107,9 @@ namespace spr {
     edm::PCaloHitContainer::const_iterator ihit;
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
       DetId detId(ihit->id());
-      const GlobalPoint rechitPoint = geo->getPosition(detId);
+      const GlobalPoint rechitPoint = (detId.det() == DetId::Hcal) ? 
+	((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : 
+	geo->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) {
 	hit.push_back(ihit);
       }
