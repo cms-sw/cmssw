@@ -20,16 +20,16 @@
   <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
-  <class name="l1t::HGCalCluster" ClassVersion="11">
-    <version ClassVersion="11" checksum="2528894839"/>
+  <class name="l1t::HGCalCluster" ClassVersion="12">
+    <version ClassVersion="12" checksum="354623225"/>
   </class>
   <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
-  <class name="l1t::HGCalMulticluster" ClassVersion="11">
-    <version ClassVersion="11" checksum="375680319"/>
+  <class name="l1t::HGCalMulticluster" ClassVersion="12">
+    <version ClassVersion="12" checksum="1508179045"/>
   </class>
   <class name="std::vector<l1t::HGCalMulticluster>" />
   <class name="l1t::HGCalMulticlusterBxCollection"/>

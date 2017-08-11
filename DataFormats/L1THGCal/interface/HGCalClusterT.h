@@ -31,7 +31,7 @@ namespace l1t
         centre_(0, 0, 0),
         centreProj_(0., 0., 0.),
         mipPt_(0),
-        sigmaEtaEtadMipPt_(0){}
+        seedMipPt_(0){}
 
       HGCalClusterT( const edm::Ptr<C>& c ):
         valid_(true),
@@ -39,7 +39,7 @@ namespace l1t
         centre_(0., 0., 0.),
         centreProj_(0., 0., 0.),
         mipPt_(0.),
-        sigmaEtaEtadMipPt_(0.)
+        seedMipPt_(0.)
       {
         addConstituent(c);
       }
@@ -56,7 +56,7 @@ namespace l1t
         if( constituents_.empty() )
         { 
           detId_ = HGCalDetId(c->detId());
-          sigmaEtaEtadMipPt_ = c->mipPt();
+          seedMipPt_ = c->mipPt();
         }
 
         /* update cluster positions */
@@ -92,7 +92,7 @@ namespace l1t
       void setValid(bool valid) { valid_ = valid;}
       
       double mipPt() const { return mipPt_; }
-      double sigmaEtaEtadMipPt() const { return sigmaEtaEtadMipPt_; }
+      double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
 
@@ -177,7 +177,7 @@ namespace l1t
       GlobalPoint centreProj_; // centre projected onto the first HGCal layer
 
       double mipPt_;
-      double sigmaEtaEtadMipPt_;
+      double seedMipPt_;
 
       //shower shape
 
