@@ -153,7 +153,7 @@ bool HLTDisplacedmumumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
 	    if(tkRef == vertextkRef3) {cand3 = cand; iFoundRefs++;}
 	  }
-	  if(iFoundRefs != 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl;
+	  if(iFoundRefs < 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl;
 
           // calculate two-track transverse momentum
           math::XYZVector pperp(cand1->px() + cand2->px() + cand3->px(),
