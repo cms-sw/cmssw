@@ -10,6 +10,7 @@ Holder for an input TFile.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "Utilities/StorageFactory/interface/StorageAccount.h"
 
 #include <exception>
 #include <iomanip>
@@ -27,6 +28,25 @@ namespace edm {
       // it was registered in.  Fixes issue #15524.
       TDirectory::TContext contextEraser;
 
+      StorageAccount::OpenLabel label;
+      switch (inputType) {
+        case InputType::Primary:
+          label = StorageAccount::OpenLabel::Primary;
+          break;
+        case InputType::SecondaryFile:
+          label = StorageAccount::OpenLabel::SecondaryFile;
+          break;
+        case InputType::SecondarySource:
+          label = StorageAccount::OpenLabel::SecondarySource;
+          break;
+        default:
+          label = StorageAccount::OpenLabel::None;
+          assert(true);
+      }
+      // Sets a label for statistics collection; it is a thread-local that is unset when the
+      // `token` object falls out of scope.  Only used if the plugin selected by TFile
+      // is from CMSSW.
+      auto token = StorageAccount::setContextLabel(label);
       file_ = std::unique_ptr<TFile>(TFile::Open(fileName)); // propagate_const<T> has no reset() function
     }
     std::exception_ptr e = edm::threadLocalException::getException();
