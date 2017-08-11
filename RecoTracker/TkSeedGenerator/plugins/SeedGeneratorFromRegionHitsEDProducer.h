@@ -14,9 +14,9 @@ class dso_hidden SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDP
 public:
 
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);
-  ~SeedGeneratorFromRegionHitsEDProducer();
+  ~SeedGeneratorFromRegionHitsEDProducer() override;
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
