@@ -33,10 +33,10 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
 
   for(auto & eleMonElem : eleMonElems_){
     if(doHEP_){
-           monElemFuncs.initStdEleHistsHEP(eleMonElem->monElems(),filterName,histname+"_passFilter"+eleMonElem->name(),bins);
-    }else{  
-           monElemFuncs.initStdEleHists(eleMonElem->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElem->name(),bins);
-          }
+                monElemFuncs.initStdEleHistsHEP(eleMonElem->monElems(),filterName,histname+"_passFilter"+eleMonElem->name(),bins);
+             }else{  
+                   monElemFuncs.initStdEleHists(eleMonElem->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElem->name(),bins);
+                  }
   }
   if(monHLTFailedEle){
     eleFailMonElems_.push_back(new MonElemContainer<OffEle>());
@@ -47,11 +47,11 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
   }
   for(size_t i=0;i<eleFailMonElems_.size();i++){
     if(doHEP_){
-           monElemFuncs.initStdEleHistsHEP(eleMonElems_[i]->monElems(),filterName,histname+"_passFilter"+eleMonElems_[i]->name(),bins);
-    }else{  
-    monElemFuncs.initStdEleHists(eleFailMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
-        }
- }
+               monElemFuncs.initStdEleHistsHEP(eleMonElems_[i]->monElems(),filterName,histname+"_passFilter"+eleMonElems_[i]->name(),bins);
+              }else{  
+                    monElemFuncs.initStdEleHists(eleFailMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
+                   }
+  }
  
   int effProbeCutCode = masks.probeEle;
   int effTagCutCode = masks.stdEle;
@@ -71,7 +71,8 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
       //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
     }
   }
- if(!doHEP_){
+ if(!doHEP_)
+ {
   typedef MonElemManager<ParticlePair<OffEle>,float >  DiEleMon;
   diEleMassBothME_ = new DiEleMon(monElemFuncs.getIB(), filterName_+"_diEle_bothPassFilter_mass",
 				  filterName_+"_diEle_bothPassFilter Mass;M_{ee} (GeV/c^{2})",
@@ -94,12 +95,13 @@ EleHLTFilterMon::~EleHLTFilterMon()
   for(auto & eleMonElem : eleMonElems_) delete eleMonElem;
   for(auto & eleFailMonElem : eleFailMonElems_) delete eleFailMonElem;
   for(auto & eleEffHist : eleEffHists_) delete eleEffHist;
-  if(!doHEP_){ 
+  if(!doHEP_)
+  { 
   delete diEleMassBothME_;
   delete diEleMassOnlyOneME_;  
   delete diEleMassBothHighME_;
   delete diEleMassOnlyOneHighME_;
-    }
+  }
 }
 
 void EleHLTFilterMon::fill(const OffEvt& evt,float weight)
@@ -119,7 +121,8 @@ void EleHLTFilterMon::fill(const OffEvt& evt,float weight)
       for(size_t ele2Nr=ele1Nr+1;ele2Nr<evt.eles().size();ele2Nr++){
 	const OffEle& ele1 = evt.eles()[ele1Nr];
 	const OffEle& ele2 = evt.eles()[ele2Nr];
-       if(!doHEP_){
+       if(!doHEP_)
+       {
 	if((ele1.trigBits()&ele2.trigBits()&filterBit_)==filterBit_) {
 	  diEleMassBothME_->fill(ParticlePair<OffEle>(ele1,ele2),weight);
 	  diEleMassBothHighME_->fill(ParticlePair<OffEle>(ele1,ele2),weight);
@@ -129,7 +132,7 @@ void EleHLTFilterMon::fill(const OffEvt& evt,float weight)
 	  diEleMassOnlyOneHighME_->fill(ParticlePair<OffEle>(ele1,ele2),weight);
 	}
 	
-	}
+       }
       }//end inner ele loop
     }//end outer ele loop
   }//end check if filter is present
