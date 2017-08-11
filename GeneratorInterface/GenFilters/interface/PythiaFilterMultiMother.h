@@ -22,6 +22,10 @@ namespace edm {
   class HepMCProduct;
 }
 
+namespace HepMC {
+   class FourVector;
+}
+
 class PythiaFilterMultiMother : public edm::EDFilter {
    public:
       explicit PythiaFilterMultiMother(const edm::ParameterSet&);
@@ -30,7 +34,10 @@ class PythiaFilterMultiMother : public edm::EDFilter {
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
-      // ----------member data ---------------------------
+     // ----------member function ----------------------- 
+     HepMC::FourVector zboost(const HepMC::FourVector&);
+
+     // ----------member data ---------------------------
 
        edm::EDGetTokenT<edm::HepMCProduct> token_;
        int particleID;
@@ -50,5 +57,7 @@ class PythiaFilterMultiMother : public edm::EDFilter {
        int status;
        std::vector<int> motherIDs;
        int processID;
+
+       double betaBoost;
 };
 #endif

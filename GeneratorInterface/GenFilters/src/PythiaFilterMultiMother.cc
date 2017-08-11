@@ -23,7 +23,8 @@ minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
 maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
 status(iConfig.getUntrackedParameter("Status", 0)),
 motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
-processID(iConfig.getUntrackedParameter("ProcessID", 0))
+processID(iConfig.getUntrackedParameter("ProcessID", 0)),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //now do what ever initialization is needed
 
@@ -57,20 +58,20 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
 
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	   p != myGenEvent->particles_end(); ++p ) {
-
-       rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
+       HepMC::FourVector mom = zboost((*p)->momentum());
+       rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
 
        if ( abs((*p)->pdg_id()) == particleID
-	    && (*p)->momentum().rho() > minpcut
-	    && (*p)->momentum().rho() < maxpcut
-	    && (*p)->momentum().perp() > minptcut
-	    && (*p)->momentum().perp() < maxptcut
-	    && (*p)->momentum().eta() > minetacut
-	    && (*p)->momentum().eta() < maxetacut
+	    && mom.rho() > minpcut
+	    && mom.rho() < maxpcut
+	    && mom.perp() > minptcut
+	    && mom.perp() < maxptcut
+	    && mom.eta() > minetacut
+	    && mom.eta() < maxetacut
 	    && rapidity > minrapcut
 	    && rapidity < maxrapcut
-	    && (*p)->momentum().phi() > minphicut
-	    && (*p)->momentum().phi() < maxphicut ) {
+	    && mom.phi() > minphicut
+	    && mom.phi() < maxphicut ) {
 
 
 	 for(std::vector<int>::const_iterator motherID = motherIDs.begin(); motherID != motherIDs.end(); ++motherID) {
@@ -121,4 +122,14 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
    if (accepted){
    return true; } else {return false;}
 
+}
+
+HepMC::FourVector MCParticlePairFilter::zboost(const HepMC::FourVector& mom) {
+   //Boost this Lorentz vector (from TLorentzVector::Boost)
+   double b2 = betaBoost*betaBoost;
+   double gamma = 1.0 / sqrt(1.0 - b2);
+   double bp = betaBoost*mom.pz();
+   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+
+   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }

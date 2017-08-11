@@ -37,6 +37,10 @@ namespace edm {
       class HepMCProduct;
 }
 
+namespace HepMC {
+   class FourVector;
+}
+
 //
 // class decleration
 //
@@ -50,6 +54,8 @@ class PythiaMomDauFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------memeber function----------------------
+
+       HepMC::FourVector zboost(const HepMC::FourVector&);
 
       // ----------member data ---------------------------
       
@@ -69,6 +75,7 @@ class PythiaMomDauFilter : public edm::EDFilter {
        double mom_maxptcut;
        double mom_minetacut;
        double mom_maxetacut;
+       double betaBoost;
 };
 #define PYCOMP pycomp_
 extern "C" {
