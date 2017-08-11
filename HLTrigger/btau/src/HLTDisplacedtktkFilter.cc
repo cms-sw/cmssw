@@ -151,7 +151,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
 	  }
 	  
-	  if(iFoundRefs != 2){
+	  if(iFoundRefs < 2){
             edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the Jpsi vertex must have exactly two tracks by definition."  << std::endl;
             return false;
           } 	
