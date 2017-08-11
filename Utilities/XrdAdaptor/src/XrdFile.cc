@@ -258,6 +258,7 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
   // enabled) will emit very large reads.  We break this up into multiple
   // reads in order to avoid hitting timeouts.
   std::vector<IOPosBuffer> requests;
+  requests.reserve(n/XRD_CL_MAX_READ_SIZE);
   while (n) {
     IOSize chunk = std::min(n, static_cast<IOSize>(XRD_CL_MAX_READ_SIZE));
     requests.emplace_back(pos, into, chunk);
@@ -266,7 +267,8 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
     pos += chunk;
   }
 
-  std::vector<std::pair<std::future<IOSize>, IOSize>> futures; futures.reserve(requests.size());
+  std::vector<std::pair<std::future<IOSize>, IOSize>> futures;
+  futures.reserve(requests.size());
   futures.emplace_back(m_requestmanager->handle(requests[0].data(), requests[0].size(), requests[0].offset()),
                        requests[0].size());
   for (unsigned idx = 0; idx < requests.size(); idx++) {
