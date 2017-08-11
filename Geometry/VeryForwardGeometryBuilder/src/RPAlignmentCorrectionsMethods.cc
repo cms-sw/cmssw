@@ -49,19 +49,19 @@ RPAlignmentCorrectionsData
 RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
 {
   RPAlignmentCorrectionsData result;
-  
+
   DOMNodeList *children = root->getChildNodes();
   for ( unsigned int i = 0; i < children->getLength(); i++ ) {
     DOMNode *node = children->item( i );
-    if ( node->getNodeType() != DOMNode::ELEMENT_NODE )
-      continue;
-   
+    if ( node->getNodeType() != DOMNode::ELEMENT_NODE ) continue;
+    const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
     // check node type
     unsigned char nodeType = 0;
-    if ( cms::xerces::toString( node->getNodeName() ).compare( "det" ) == 0 ) nodeType = 1;
-    if ( cms::xerces::toString( node->getNodeName() ).compare( "rp"  ) == 0 ) nodeType = 2;
+    if      ( node_name == "det" ) nodeType = 1;
+    else if ( node_name == "rp"  ) nodeType = 2;
 
-    if ( !nodeType )
+    if ( nodeType == 0 )
       throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << cms::xerces::toString( node->getNodeName() ) << "'.";
 
     // check children
@@ -80,21 +80,22 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
     DOMNamedNodeMap* attr = node->getAttributes();
     for ( unsigned int j = 0; j < attr->getLength(); j++ ) {
       DOMNode *a = attr->item( j );
- 
-      if ( cms::xerces::toString( a->getNodeName() ).compare( "id" ) == 0 ) {
+      const std::string node_name = cms::xerces::toString( a->getNodeName() );
+
+      if ( node_name == "id" ) {
         id = cms::xerces::toUInt( a->getNodeValue() );
         idSet = true;
       }
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_r"    ) == 0 ) sh_r    = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_r_e"  ) == 0 ) sh_r_e  = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_x"    ) == 0 ) sh_x    = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_x_e"  ) == 0 ) sh_x_e  = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_y"    ) == 0 ) sh_y    = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_y_e"  ) == 0 ) sh_y_e  = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_z"    ) == 0 ) sh_z    = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "sh_z_e"  ) == 0 ) sh_z_e  = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "rot_z"   ) == 0 ) rot_z   = cms::xerces::toDouble( a->getNodeValue() );
-      else if ( cms::xerces::toString( a->getNodeName() ).compare( "rot_z_e" ) == 0 ) rot_z_e = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_r"    ) sh_r    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_r_e"  ) sh_r_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_x"    ) sh_x    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_x_e"  ) sh_x_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_y"    ) sh_y    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_y_e"  ) sh_y_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_z"    ) sh_z    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_z_e"  ) sh_z_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "rot_z"   ) rot_z   = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "rot_z_e" ) rot_z_e = cms::xerces::toDouble( a->getNodeValue() );
       else
         edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: unknown attribute `"
           << cms::xerces::toString( a->getNodeName() ) << "'.";
