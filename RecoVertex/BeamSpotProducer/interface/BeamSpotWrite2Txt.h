@@ -17,15 +17,8 @@ namespace beamspot {
       std::time_t    reftime[2]        ;
   };
  
-  void dumpBeamSpotTxt(std::string const& fileName, bool append, BeamSpotContainer const& bsContainer){
+  void dumpBeamSpotTxt(std::ofstream & outFile, BeamSpotContainer const& bsContainer){
 
-    std::ofstream outFile;
-  
-    if (!append)
-      outFile.open(fileName.c_str());
-    else
-      outFile.open(fileName.c_str(), std::ios::app);
-  
     outFile << "Runnumber "            << bsContainer.run                                                 << std::endl;
     outFile << "BeginTimeOfFit "       << bsContainer.beginTimeOfFit << " "   << bsContainer.reftime[0]   << std::endl;
     outFile << "EndTimeOfFit "         << bsContainer.endTimeOfFit   << " "   << bsContainer.reftime[1]   << std::endl;
@@ -51,8 +44,7 @@ namespace beamspot {
     outFile << "EmittanceX "           << bsContainer.beamspot.emittanceX()                               << std::endl;
     outFile << "EmittanceY "           << bsContainer.beamspot.emittanceY()                               << std::endl;
     outFile << "BetaStar "             << bsContainer.beamspot.betaStar()                                 << std::endl;
-  
-    outFile.close();
+
   }
 
 } // end namespace beamspot
