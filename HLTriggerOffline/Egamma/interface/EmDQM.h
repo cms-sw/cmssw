@@ -39,7 +39,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -71,7 +71,7 @@ public:
   explicit EmDQM(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~EmDQM();
+  ~EmDQM() override;
 
   // Operations
 
