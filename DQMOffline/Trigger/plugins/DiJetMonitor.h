@@ -18,6 +18,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 //DataFormats
@@ -46,74 +48,47 @@ class GenericTriggerEventFlag;
 // class declaration
 //
 
-class DiJetMonitor : public DQMEDAnalyzer 
+class DiJetMonitor : public DQMEDAnalyzer  ,  public TriggerDQMBase
 {
 public:
-  struct MEbinning {
-    unsigned int nbins;
-    double xmin;
-    double xmax;
-  };
-
-  struct JetME {
-    MonitorElement* numerator = nullptr;
-    MonitorElement* denominator= nullptr;
-  };
-
   DiJetMonitor( const edm::ParameterSet& );
-  ~DiJetMonitor();
+  virtual ~DiJetMonitor() noexcept(true) {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, unsigned int nbins, double xmin, double xmax);
-  void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX);
-  void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY);
-  void setMETitle(JetME& me, std::string titleX, std::string titleY);
-  void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbins, double xmin, double xmax);
-  void bookME(DQMStore::IBooker &, MonitorElement* me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax,int nbinsY, double ymin, double ymax );
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   bool dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id);
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
 
   std::string folderName_;
   std::string histoSuffix_;
 
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       pfdijetToken_;// pfjet
-  edm::EDGetTokenT<reco::CaloJetCollection>     calodijetToken_;// calojet
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_;
+  edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_; // test for Jet
 
   std::vector<double> dijetpT_variable_binning_;
   MEbinning           dijetpt_binning_;
   MEbinning           dijetptThr_binning_;
   MEbinning           ls_binning_;
 
-
-   JetME jetpt1ME_;
-   JetME jetpt2ME_;
-   JetME jetptAvgaME_;
-   JetME jetptAvgaThrME_;
-   JetME jetptAvgbME_;
-   JetME jetptTagME_;
-   JetME jetptPrbME_;
-   JetME jetptAsyME_;
-   JetME jetetaPrbME_;
-   JetME jetetaTagME_;
-   JetME jetphiPrbME_;
-   JetME jetAsyEtaME_;
-   JetME jetEtaPhiME_;
+  ObjME jetpt1ME_;
+  ObjME jetpt2ME_;
+  ObjME jetptAvgaME_;
+  ObjME jetptAvgaThrME_;
+  ObjME jetptAvgbME_;
+  ObjME jetptTagME_;
+  ObjME jetptPrbME_;
+  ObjME jetptAsyME_;
+  ObjME jetetaPrbME_;
+  ObjME jetetaTagME_;
+  ObjME jetphiPrbME_;
+  ObjME jetAsyEtaME_;
+  ObjME jetEtaPhiME_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
