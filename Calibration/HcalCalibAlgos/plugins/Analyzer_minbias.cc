@@ -41,6 +41,8 @@
 //
 namespace cms{
   Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig) {
+
+    usesResource(TFileService::kSharedResource);
     // get name of output file with histogramms
     fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile"); 
     // get names of modules, producing object collections
@@ -89,9 +91,8 @@ namespace cms{
 
   void Analyzer_minbias::beginJob() {
    
-    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
-   
-    myTree = new TTree("RecJet","RecJet Tree");
+//  hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
+    myTree = fs->make<TTree>("RecJet","RecJet Tree");
     myTree->Branch("mydet",  &mydet, "mydet/I");
     myTree->Branch("mysubd",  &mysubd, "mysubd/I");
     myTree->Branch("depth",  &depth, "depth/I");
@@ -128,8 +129,8 @@ namespace cms{
     nevent = 0;
     // Size of collections
 
-    hHBHEsize_vs_run = new TH2F("hHBHEsize_vs_run","hHBHEsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
-    hHFsize_vs_run = new TH2F("hHFsize_vs_run","hHFsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
+    hHBHEsize_vs_run = fs->make<TH2F>("hHBHEsize_vs_run","hHBHEsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
+    hHFsize_vs_run = fs->make<TH2F>("hHFsize_vs_run","hHFsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
    
     for(int i=1;i<73;i++){
       for(int j=1;j<43;j++){
@@ -147,30 +148,30 @@ namespace cms{
 	//      edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j;
 	if( j < 30 ) {
 	  // first order moment
-	  hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
-	  hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
+	  hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
+	  hCalo2[i][j] = fs->make<TH1F>(str1, "h1", 320, -10., 10.);
 	  
 	  // second order moment
-	  hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 20.);
-	  hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 20.);
+	  hCalo1mom2[i][j] = fs->make<TH1F>(str10, "h10", 320, 0., 20.);
+	  hCalo2mom2[i][j] = fs->make<TH1F>(str11, "h11", 320, 0., 20.);
 	} else {
 	  // HF
 	  // first order moment
 	  //   edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j<<" "<<k;
 	  if(j < 40) {
-	    hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
-	    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
+	    hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
+	    hCalo2[i][j] = fs->make<TH1F>(str1, "h1", 320, -10., 10.);
 	    //
 	    // second order moment
-	    hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 40.);
-	    hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 40.);
+	    hCalo1mom2[i][j] = fs->make<TH1F>(str10, "h10", 320, 0., 40.);
+	    hCalo2mom2[i][j] = fs->make<TH1F>(str11, "h11", 320, 0., 40.);
 	  } else {
-	    hCalo1[i][j] = new TH1F(str0,"h0" , 320, -10., 10.);
-	    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
+	    hCalo1[i][j] = fs->make<TH1F>(str0,"h0" , 320, -10., 10.);
+	    hCalo2[i][j] = fs->make<TH1F>(str1, "h1", 320, -10., 10.);
 
 	    // second order moment
-	    hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 120.);
-	    hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 120.);
+	    hCalo1mom2[i][j] = fs->make<TH1F>(str10, "h10", 320, 0., 120.);
+	    hCalo2mom2[i][j] = fs->make<TH1F>(str11, "h11", 320, 0., 120.);
 
 	  }
 	} // HE/HF boundary
@@ -179,10 +180,10 @@ namespace cms{
     } // i
 
 
-    hbheNoiseE = new TH1F("hbheNoiseE","hbheNoiseE", 320, -10., 10.);
-    hfNoiseE = new TH1F("hfNoiseE","hfNoiseE", 320, -10., 10.);
-    hbheSignalE = new TH1F("hbheSignalE","hbheSignalE", 320, -10., 10.);
-    hfSignalE = new TH1F("hfSignalE","hfSignalE", 320, -10., 10.);
+    hbheNoiseE  = fs->make<TH1F>("hbheNoiseE","hbheNoiseE", 320, -10., 10.);
+    hfNoiseE    = fs->make<TH1F>("hfNoiseE","hfNoiseE", 320, -10., 10.);
+    hbheSignalE = fs->make<TH1F>("hbheSignalE","hbheSignalE", 320, -10., 10.);
+    hfSignalE   = fs->make<TH1F>("hfSignalE","hfSignalE", 320, -10., 10.);
     
 
     edm::LogInfo("AnalyzerMB")<<" After ordering Histos ";
@@ -296,14 +297,11 @@ namespace cms{
    
     edm::LogInfo("AnalyzerMB")<<" Number of cells "<<ii; 
       
-    hOutputFile->Write();   
-
-    hOutputFile->cd();
-   
-    myTree->Write();
-   
-    hHBHEsize_vs_run->Write() ;
-    hHFsize_vs_run->Write() ;
+//  hOutputFile->Write();   
+//  hOutputFile->cd();
+//  myTree->Write();
+//  hHBHEsize_vs_run->Write() ;
+//  hHFsize_vs_run->Write() ;
 
     for(int i=1;i<73;i++){
       for(int j=1;j<43;j++){
@@ -314,13 +312,11 @@ namespace cms{
       }
     }
 
-    hbheNoiseE->Write() ;
-    hfNoiseE->Write() ;
-    hbheSignalE->Write() ;
-    hfSignalE->Write() ;
-   
-    
-    hOutputFile->Close() ;
+//  hbheNoiseE->Write() ;
+//  hfNoiseE->Write() ;
+//  hbheSignalE->Write() ;
+//  hfSignalE->Write() ;
+//  hOutputFile->Close() ;
    
     edm::LogInfo("AnalyzerMB")<<" File is closed ";
    
