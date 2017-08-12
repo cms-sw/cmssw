@@ -28,14 +28,11 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
-
-
-
 
 EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf)
 {
@@ -69,19 +66,18 @@ EcalIsolatedParticleCandidateProducer::~EcalIsolatedParticleCandidateProducer()
 
 // ------------ method called to produce the data  ------------
 void 
-EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+EcalIsolatedParticleCandidateProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
 //  std::cout<<"get tau"<<std::endl;
 
   edm::Handle<l1extra::L1JetParticleCollection> l1Taus;
   iEvent.getByToken(tok_l1tau_,l1Taus);
-
+  
 //  std::cout<<"get geom"<<std::endl;
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  const CaloGeometry* geo = pG.product();
 
 //  std::cout<<" get ec rechit"<<std::endl;
 
