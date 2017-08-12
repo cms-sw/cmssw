@@ -130,7 +130,7 @@ class L1TGlobalPrescaler : public edm::one::EDFilter<> {
 public:
   L1TGlobalPrescaler(edm::ParameterSet const& config);
 
-  virtual bool filter(edm::Event& event, edm::EventSetup const& setup) override;
+  bool filter(edm::Event& event, edm::EventSetup const& setup) override;
 
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
