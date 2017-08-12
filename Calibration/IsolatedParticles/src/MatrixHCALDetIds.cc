@@ -411,7 +411,7 @@ namespace spr{
       HcalDetId vdet = dets[i1];
       for (int idepth = 0; idepth < 3; idepth++) {
         std::vector<DetId> vUpDetId = topology->up(vdet);
-        if (vUpDetId.size() != 0) {
+        if (!vUpDetId.empty()) {
           if (includeHO || vUpDetId[0].subdetId() != (int)(HcalOuter)) {
             int n = std::count(vdets.begin(),vdets.end(),vUpDetId[0]);
             if (n == 0) {
