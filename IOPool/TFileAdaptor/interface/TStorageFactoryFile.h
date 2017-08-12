@@ -6,8 +6,9 @@
 
 # include "TFile.h"
 
-# include "Utilities/StorageFactory/interface/IOPosBuffer.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "Utilities/StorageFactory/interface/StorageAccount.h"
 
 
 class Storage;
@@ -58,6 +59,7 @@ private:
   TStorageFactoryFile(void);
 
   edm::propagate_const<std::unique_ptr<Storage>> storage_; //< Real underlying storage
+  StorageAccount::StorageClassToken token_; //< Token for accounting purposes.
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

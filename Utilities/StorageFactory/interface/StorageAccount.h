@@ -11,7 +11,9 @@
 
 class StorageAccount {
 public:
-  
+
+  // NOTE: if you add any new items to this enum, additionally add them to
+  // the static `allOperations`, initialized in StorageAccount.cc.  
   enum class Operation {
     check,
     close,
@@ -36,7 +38,7 @@ public:
     writeViaCache,
     writev
   };
-  static const std::array<Operation, 2> allOperations;
+  static const std::array<Operation, 22> allOperations;
   
   struct Counter {
     Counter():

@@ -47,7 +47,30 @@ namespace {
 
 StorageAccount::StorageStats StorageAccount::m_stats;
 
-const std::array<StorageAccount::Operation, 2> StorageAccount::allOperations{ {Operation::check, Operation::close} };
+const std::array<StorageAccount::Operation, 22> StorageAccount::allOperations{ {
+  Operation::check,
+  Operation::close,
+  Operation::construct,
+  Operation::destruct,
+  Operation::flush,
+  Operation::open,
+  Operation::position,
+  Operation::prefetch,
+  Operation::read,
+  Operation::readActual,
+  Operation::readAsync,
+  Operation::readPrefetchToCache,
+  Operation::readViaCache,
+  Operation::readv,
+  Operation::resize,
+  Operation::seek,
+  Operation::stagein,
+  Operation::stat,
+  Operation::write,
+  Operation::writeActual,
+  Operation::writeViaCache,
+  Operation::writev
+} };
 
 thread_local StorageAccount::OpenLabel StorageAccount::OpenLabelToken::s_label{OpenLabel::None};
 
@@ -127,6 +150,7 @@ StorageAccount::summaryText (bool banner /*=false*/) {
     auto const& opStats = m_stats[i->second];
     for (auto j = opStats.begin (); j != opStats.end (); ++j, first = false) {
       if (i->first.first != OpenLabel::None) continue;
+      if (j->second.attempts == 0) continue;
       os << (first ? "" : "; ")
          << (i->first.second) << '/'
          << kOperationNames[j->first] << '='
@@ -151,6 +175,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
     auto const& opStats = m_stats[i->second];
     for (auto j = opStats.begin(); j != opStats.end(); ++j) {
       std::ostringstream os;
+      if (j->second.attempts == 0) continue;
       if (i->first.first == OpenLabel::None) {
         os << "Timing-" << i->first.second << "-" << kOperationNames[j->first] << "-";
       } else {
