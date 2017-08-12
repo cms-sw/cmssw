@@ -191,7 +191,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedHits=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackHits=weightedNumberOfTrackHits(*pTrack);
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pTrack->recHitsBegin(), pTrack->recHitsEnd());
 
 			if( numberOfSharedHits == 0.0 ) continue; // No point in continuing if there was no association
 
@@ -203,7 +203,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 
 			double quality;
 			if( absoluteNumberOfHits_ ) quality = numberOfSharedHits;
-			else if( numberOfValidTrackHits != 0.0 ) quality = numberOfSharedHits / numberOfValidTrackHits;
+			else if( numberOfValidTrackClusters != 0.0 ) quality = numberOfSharedHits / numberOfValidTrackClusters;
 			else quality=0;
 			if( quality > cutRecoToSim_ && !(threeHitTracksAreSpecial_ && pTrack->numberOfValidHits() == 3 && numberOfSharedHits < 3.0) )
 			{
@@ -240,7 +240,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedHits=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackHits=weightedNumberOfTrackHits(*pTrack);
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pTrack->recHitsBegin(), pTrack->recHitsEnd());
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
 			if( numberOfSharedHits==0.0 ) continue; // No point in continuing if there was no association
@@ -260,11 +260,11 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 				numberOfSharedHits -= getDoubleCount( hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
 			}
 
-			double purity = numberOfSharedHits/numberOfValidTrackHits;
+			double purity = numberOfSharedHits/numberOfValidTrackClusters;
 			double quality;
 			if( absoluteNumberOfHits_ ) quality = numberOfSharedHits;
 			else if( simToRecoDenominator_==denomsim && numberOfSimulatedHits != 0 ) quality = numberOfSharedHits/static_cast<double>(numberOfSimulatedHits);
-			else if( simToRecoDenominator_==denomreco && numberOfValidTrackHits != 0 ) quality=purity;
+			else if( simToRecoDenominator_==denomreco && numberOfValidTrackClusters != 0 ) quality=purity;
 			else quality=0;
 
 			if( quality>qualitySimToReco_ && !( threeHitTracksAreSpecial_ && numberOfSimulatedHits==3 && numberOfSharedHits<3.0 ) && ( absoluteNumberOfHits_ || (purity>puritySimToReco_) ) )
@@ -610,7 +610,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedHits=iTrackingParticleQualityPair->second;
-                        double numberOfValidTrackHits=weightedNumberOfTrackHits(*pSeed);
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pSeed->recHits().first, pSeed->recHits().second);
 
 			if( numberOfSharedHits == 0.0 ) continue; // No point in continuing if there was no association
 
@@ -623,7 +623,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 
 			double quality;
 			if( absoluteNumberOfHits_ ) quality = numberOfSharedHits;
-			else if( numberOfValidTrackHits != 0.0 ) quality = numberOfSharedHits / numberOfValidTrackHits;
+			else if( numberOfValidTrackClusters != 0.0 ) quality = numberOfSharedHits / numberOfValidTrackClusters;
 			else quality=0;
 
 			if( quality > cutRecoToSim_ && !(threeHitTracksAreSpecial_ && pSeed->nHits() == 3 && numberOfSharedHits < 3.0) )
@@ -669,7 +669,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedHits=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackHits=weightedNumberOfTrackHits(*pSeed);
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pSeed->recHits().first, pSeed->recHits().second);
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
 			if( numberOfSharedHits == 0.0 ) continue; // No point in continuing if there was no association
@@ -690,12 +690,12 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 				numberOfSimulatedHits=trackingParticleRef->numberOfTrackerHits();
 			}
 
-			double purity = numberOfSharedHits / numberOfValidTrackHits;
+			double purity = numberOfSharedHits / numberOfValidTrackClusters;
 			double quality;
 			if( absoluteNumberOfHits_ ) quality = numberOfSharedHits;
 			else if( simToRecoDenominator_ == denomsim && numberOfSimulatedHits != 0 ) quality= numberOfSharedHits
 					/ static_cast<double>( numberOfSimulatedHits );
-			else if( simToRecoDenominator_ == denomreco && numberOfValidTrackHits != 0.0 ) quality=purity;
+			else if( simToRecoDenominator_ == denomreco && numberOfValidTrackClusters != 0.0 ) quality=purity;
 			else quality=0;
 
 			if( quality > qualitySimToReco_ && !(threeHitTracksAreSpecial_ && numberOfSimulatedHits == 3 && numberOfSharedHits < 3.0)
@@ -711,19 +711,21 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 	return returnValue;
 }
 
-double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackHits(const reco::Track& track) const {
-  const reco::HitPattern& p = track.hitPattern();
-  const auto pixelHits = p.numberOfValidPixelHits();
-  const auto otherHits = p.numberOfValidHits() - pixelHits;
-  return pixelHits*pixelHitWeight_ + otherHits;
-}
+template<typename iter> double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(iter begin, iter end) const {
+  LogDebug("QuickTrackAssociatorByHitsImpl") << "QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters ";
+  double weightedClusters = 0.0;
+  for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
 
-double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackHits(const TrajectorySeed& seed) const {
-  double sum = 0.0;
-  for(auto iHit=seed.recHits().first; iHit!=seed.recHits().second; ++iHit) {
-    const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+    const auto subdetId = getHitFromIter(iRecHit)->geographicalId().subdetId();
     const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
-    sum += weight;
+    LogTrace("QuickTrackAssociatorByHitsImpl") << "  detId: " << getHitFromIter(iRecHit)->geographicalId().rawId();
+    LogTrace("QuickTrackAssociatorByHitsImpl") << "  weight: " << weight;
+    std::vector < OmniClusterRef > oClusters=getMatchedClusters( iRecHit, iRecHit + 1 );  //only for the cluster being checked
+    for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it ) {
+      weightedClusters += weight;
+    }
   }
-  return sum;
+  LogTrace("QuickTrackAssociatorByHitsImpl") << "  total weighted clusters: " << weightedClusters;
+
+  return weightedClusters;
 }

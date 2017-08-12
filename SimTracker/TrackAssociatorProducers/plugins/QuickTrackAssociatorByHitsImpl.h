@@ -177,8 +177,8 @@ public:
     return &(*iter);
   }
   
-  double weightedNumberOfTrackHits(const reco::Track& track) const;
-  double weightedNumberOfTrackHits(const TrajectorySeed& seed) const;
+  template<typename iter> double weightedNumberOfTrackClusters(iter begin, iter end) const ;
+
 
   /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *
