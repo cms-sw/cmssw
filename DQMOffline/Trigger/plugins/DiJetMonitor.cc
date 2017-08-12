@@ -15,113 +15,19 @@ DiJetMonitor::DiJetMonitor( const edm::ParameterSet& iConfig ):
 num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
 ,den_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
 {
-  folderName_            = iConfig.getParameter<std::string>("FolderName"); 
-  dijetSrc_  = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
-  dijetpT_variable_binning_  = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
-  dijetpt_binning_           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
+  folderName_              = iConfig.getParameter<std::string>("FolderName"); 
+  dijetSrc_                = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
+  dijetpT_variable_binning_= iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
+  dijetpt_binning_         = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
   dijetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPtThrPSet")    );
-  ls_binning_            = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
+  ls_binning_              = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
 
 
   ptcut_      = iConfig.getParameter<double>("ptcut" ); 
   etacut_      = iConfig.getParameter<double>("etacut" ); // for DiJet Offline selection 
   phicut_      = iConfig.getParameter<double>("delphicut" ); // for DiJet Offline selection
 
-      jetpt1ME_.numerator = nullptr;
-      jetpt2ME_.numerator = nullptr;
-   jetptAvgaME_.numerator = nullptr;
-jetptAvgaThrME_.numerator = nullptr;
-   jetptAvgbME_.numerator = nullptr;
-    jetptTagME_.numerator = nullptr;
-    jetptPrbME_.numerator = nullptr;
-    jetptAsyME_.numerator = nullptr;
-   jetetaPrbME_.numerator = nullptr;
-   jetetaTagME_.numerator = nullptr;
-   jetphiPrbME_.numerator = nullptr;
-   jetAsyEtaME_.numerator = nullptr;
-   jetEtaPhiME_.numerator = nullptr;
-  
-      jetpt1ME_.denominator = nullptr;
-      jetpt2ME_.denominator = nullptr;
-   jetptAvgaME_.denominator = nullptr;
-jetptAvgaThrME_.denominator = nullptr;
-   jetptAvgbME_.denominator = nullptr;
-    jetptTagME_.denominator = nullptr;
-    jetptPrbME_.denominator = nullptr;
-    jetptAsyME_.denominator = nullptr;
-   jetetaPrbME_.denominator = nullptr;
-   jetetaTagME_.denominator = nullptr;
-   jetphiPrbME_.denominator = nullptr;
-   jetAsyEtaME_.denominator = nullptr;
-   jetEtaPhiME_.denominator = nullptr;
 }
-
-
-
-DiJetMonitor::~DiJetMonitor()
-{
-}
-
-DiJetMonitor::MEbinning DiJetMonitor::getHistoPSet(edm::ParameterSet pset)
-{
-  return DiJetMonitor::MEbinning{
-    pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-      };
-}
-
-DiJetMonitor::MEbinning DiJetMonitor::getHistoLSPSet(edm::ParameterSet pset)
-{
-  return DiJetMonitor::MEbinning{
-    pset.getParameter<unsigned int>("nbins"),
-      0.,
-      double(pset.getParameter<unsigned int>("nbins"))
-      };
-}
-void DiJetMonitor::setMETitle(JetME& me, std::string titleX, std::string titleY)
-{
-  me.numerator->setAxisTitle(titleX,1);
-  me.numerator->setAxisTitle(titleY,2);
-  me.denominator->setAxisTitle(titleX,1);
-  me.denominator->setAxisTitle(titleY,2);
-}
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, unsigned int nbins, double min, double max)
-{
-  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
-  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
-}
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binning)
-{
-  int nbins = binning.size()-1;
-  std::vector<float> fbinning(binning.begin(),binning.end());
-  float* arr = &fbinning[0];
-  me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
-  me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
-}
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
-{
-  me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
-{
-  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void DiJetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY)
-{
-  int nbinsX = binningX.size()-1;
-  std::vector<float> fbinningX(binningX.begin(),binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size()-1;
-  std::vector<float> fbinningY(binningY.begin(),binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
-}
-
 
 void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
@@ -270,7 +176,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
      jetpt2ME_.numerator -> Fill(pt_2);
   jetptAvgbME_.numerator -> Fill(pt_avg_b);
 
-    
     if(tag_id == 0 && probe_id == 1) {
       double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
       double pt_avg = (pt_1 + pt_2)*0.5;
@@ -302,18 +207,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 
 }
 
-void DiJetMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>   ( "nbins");
-  pset.add<double>( "xmin" );
-  pset.add<double>( "xmax" );
-}
-
-void DiJetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>   ( "nbins", 2500);
-}
-
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
@@ -339,7 +232,6 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   genericTriggerEventPSet.add<bool>("andOrHlt", true);
   genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
   genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths",{});
-//  genericTriggerEventPSet.add<std::string>("hltDBKey","");
   genericTriggerEventPSet.add<bool>("errorReplyHlt",false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel",1);
 
@@ -366,12 +258,12 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
 //---- Additional DiJet offline selection------
 bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
-  bool passeta; //check that one of the jets in the barrel
+  bool passeta = false; //check that one of the jets in the barrel
   if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ ) 
     passeta=true;
   
   float delta_phi_1_2= (phi_1 - phi_2);
-  bool other_cuts;//check that jets are back to back
+  bool other_cuts = false;//check that jets are back to back
   if (abs(delta_phi_1_2) >= phicut_)
     other_cuts=true;
 
