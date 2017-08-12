@@ -211,7 +211,7 @@ public:
   static StorageClassToken tokenForStorageClassName(std::string const& iName, OpenLabel iLabel);
   static const std::pair<OpenLabel, std::string>& nameForToken( StorageClassToken);
   
-  static StorageStats& summary(void);
+  static const StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
   static Counter&            counter (StorageClassToken token,

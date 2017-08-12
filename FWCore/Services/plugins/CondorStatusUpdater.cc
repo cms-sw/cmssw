@@ -339,24 +339,25 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     }
 
     // Update storage account information
-    auto &stats = StorageAccount::summary();
+    auto const& stats = StorageAccount::summary();
     updateStorageImpl(stats);
     {
       // Given there is some cost to reporting empty numbers, only push forward the secondary source info
       // if one file was actually opened via such a source.
       const auto token = StorageAccount::tokenForStorageClassName("tstoragefile", StorageAccount::OpenLabel::SecondarySource);
-      auto &operations = stats[token.value()];
-      StorageAccount::Counter &counts = operations[static_cast<int>(StorageAccount::Operation::open)];
-      if (counts.amount) {
-        updateStorageImpl(stats);
+      auto operations = stats.find(token.value());
+      if (operations != stats.end()) {
+        const StorageAccount::Counter &counts = operations->second[static_cast<int>(StorageAccount::Operation::open)];
+        if (counts.amount.load()) {
+          updateStorageImpl(stats);
+        }
       }
     }
 }
 
 void
-CondorStatusService::updateStorageImpl(const StorageAccount::StorageStats &)
+CondorStatusService::updateStorageImpl(const StorageAccount::StorageStats &stats)
 {
-    auto const& stats = StorageAccount::summary();
     uint64_t readOps = 0;
     uint64_t readVOps = 0;
     uint64_t readSegs = 0;

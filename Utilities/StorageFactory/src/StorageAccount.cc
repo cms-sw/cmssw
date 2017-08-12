@@ -167,7 +167,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   }
 }
 
-StorageAccount::StorageStats&
+const StorageAccount::StorageStats&
 StorageAccount::summary (void) {
   aggregateStatistics();
   return m_stats;
