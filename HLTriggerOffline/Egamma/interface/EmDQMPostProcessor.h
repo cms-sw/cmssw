@@ -8,7 +8,7 @@
 class EmDQMPostProcessor : public DQMEDHarvester {
  public:
   EmDQMPostProcessor(const edm::ParameterSet& pset);
-  ~EmDQMPostProcessor() {};
+  ~EmDQMPostProcessor() override{};
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 

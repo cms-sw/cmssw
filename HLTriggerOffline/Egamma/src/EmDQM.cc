@@ -441,7 +441,7 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
          total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
          total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
          for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
-            total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+            total->setBinLabel(u+1,theHLTCollectionLabels[u].label());
          }
       }
     
@@ -451,7 +451,7 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
       totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
       for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
-         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label());
       }
     
       MonitorElement* tmphisto;
@@ -912,7 +912,7 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
   if (dqm->theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
     std::vector<edm::Ref<T> > isocands;
     triggerObj->getObjects(triggerObj->filterIndex(dqm->theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
-    if (isocands.size()>0) 
+    if (!isocands.empty()) 
       {
         for (unsigned int i=0; i < isocands.size(); i++)
           recoecalcands.push_back(isocands[i]);
@@ -920,7 +920,7 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
   } // END of if theHLTOutputTypes == 82
   
 
-  if (recoecalcands.size() < 1){ // stop if no object passed the previous filter
+  if (recoecalcands.empty()){ // stop if no object passed the previous filter
     accepted = false;
     return;
   }
@@ -1647,7 +1647,7 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt)
     //}
 
     // If the size of the isoNames vector is not greater than zero, abort
-    assert(isoNames.back().size()>0);
+    assert(!isoNames.back().empty());
     if (isoNames.back().at(0).label()=="none") {
       plotiso.push_back(false);
     } else {

@@ -15,9 +15,9 @@ namespace egHLT {
       hep17_(iBooker, name+"_hep17","hep "+title,nrBins,min,max,varFunc),
       hem17_(iBooker, name+"_hem17","hem "+title,nrBins,min,max,varFunc){}
     
-    ~MonElemMgrHEP(){}
+    ~MonElemMgrHEP() override{}
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
     
   };
   

@@ -5,10 +5,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #include <TEfficiency.h>
 
@@ -141,7 +141,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       }
 
       TH1F* basehist = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + baseName);
-      if (basehist == NULL)
+      if (basehist == nullptr)
 	{
 	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (ibooker.pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
           pop = true;
@@ -339,7 +339,7 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
 
   // Check if histograms actually exist
 
-  if(num ==nullptr || denom == nullptr) return 0;
+  if(num ==nullptr || denom == nullptr) return nullptr;
 
   MonitorElement* meOut = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2);
   meOut->setEfficiencyFlag();
@@ -377,7 +377,7 @@ TH2F* EmDQMPostProcessor::dividehistos2D(DQMStore::IBooker & ibooker, DQMStore::
     edm::LogWarning("EmDQMPostProcessor") << "2D denominator histogram " << denomName << " does not exist";
 
   // Check if histograms actually exist
-  if(num == nullptr || denom == nullptr) return 0;
+  if(num == nullptr || denom == nullptr) return nullptr;
 
   MonitorElement* meOut = ibooker.book2D(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXmin(),num->GetYaxis()->GetXmax());
   TH2F* out= meOut->getTH2F();
@@ -397,7 +397,7 @@ TH1F *EmDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IG
   if (monElement != nullptr)
     return monElement->getTH1F();
   else
-    return NULL;
+    return nullptr;
 }
 //----------------------------------------------------------------------
 TH2F *EmDQMPostProcessor::get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath){
@@ -405,7 +405,7 @@ TH2F *EmDQMPostProcessor::get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::
   if (monElement != nullptr)
     return monElement->getTH2F();
   else
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------
