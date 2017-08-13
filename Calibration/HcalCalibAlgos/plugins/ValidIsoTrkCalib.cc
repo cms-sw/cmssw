@@ -73,9 +73,9 @@ public:
 
 private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 
     
@@ -308,7 +308,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //cout<<"Hello World. TrackCollectionSize: "<< isoPixelTracks->size()<<endl;
 
-if (isoPixelTracks->size()==0) return;
+  if (isoPixelTracks->empty()) return;
   
 
 for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)

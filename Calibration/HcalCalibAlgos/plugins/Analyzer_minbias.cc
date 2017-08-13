@@ -429,7 +429,7 @@ namespace cms{
     }
     */
 
-    const HcalRespCorrs* myRecalib=0;
+    const HcalRespCorrs* myRecalib=nullptr;
     if( theRecalib ) {
       // Radek:   
       edm::ESHandle <HcalRespCorrs> recalibCorrs;
