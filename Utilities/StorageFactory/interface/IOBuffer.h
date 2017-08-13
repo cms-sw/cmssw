@@ -22,7 +22,7 @@ private:
 /** Construct a null I/O buffer.  */
 inline
 IOBuffer::IOBuffer (void)
-  : m_data (0),
+  : m_data (nullptr),
     m_length (0)
 {}
 

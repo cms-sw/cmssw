@@ -60,7 +60,7 @@ public:
   std::unique_ptr<Storage>	open (const std::string &url,
 	    	      int mode = IOFlags::OpenRead) const;
   bool		check (const std::string &url,
-	    	       IOOffset *size = 0) const;
+	    	       IOOffset *size = nullptr) const;
 
   std::unique_ptr<Storage>	wrapNonLocalFile (std::unique_ptr<Storage> s,
 				  const std::string &proto,
