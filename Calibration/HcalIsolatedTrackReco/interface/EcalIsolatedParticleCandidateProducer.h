@@ -22,9 +22,9 @@ public:
   ~EcalIsolatedParticleCandidateProducer();
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void beginJob() override;
+  void endJob() override;
 
   double InConeSize_;
   double OutConeSize_;
