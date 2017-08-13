@@ -122,7 +122,6 @@ public:
 
 
 private:
-  // FIXME use this
   static constexpr const char* streamName_ = "streamHLTRates";
 
   static void writeJsdFile(HLTriggerJSONMonitoringData::run const&);
@@ -166,8 +165,8 @@ HLTriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
 
   // set the DAQ parameters
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
-    rundata->streamDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
-    rundata->streamMergeType   = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamHLTRates", evf::MergeTypeJSNDATA);
+    rundata->streamDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamName_);
+    rundata->streamMergeType   = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamName_, evf::MergeTypeJSNDATA);
     rundata->baseRunDir        = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   } else {
     rundata->streamDestination = "";
