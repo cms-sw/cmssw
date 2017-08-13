@@ -7,12 +7,12 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 # producer for photons
 #
-photons = cms.EDProducer("GEDPhotonProducer",
-    photonProducer = cms.InputTag("photonCore"),
-    reconstructionStep = cms.string("tmp"),
-    outputPhotonCollection = cms.string(""),
-    pfEgammaCandidates = cms.InputTag(""),
-    valueMapPhotons = cms.string(""),
+photons = cms.EDProducer("PhotonProducer",
+    photonCoreProducer = cms.InputTag("photonCore"),
+#    reconstructionStep = cms.string("tmp"),
+#    outputPhotonCollection = cms.string(""),
+#    pfEgammaCandidates = cms.InputTag(""),
+#    valueMapPhotons = cms.string(""),
     #   photonCollection = cms.string(''),
     regressionWeightsFromDB =   cms.bool(True),                    
     energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
@@ -35,7 +35,7 @@ photons = cms.EDProducer("GEDPhotonProducer",
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+#    preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     hcalTowers = cms.InputTag("towerMaker"),
     runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),                       
@@ -80,7 +80,13 @@ photons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
 
-photonsFromMultiCl = photons.clone(
-  photonProducer = 'photonCoreFromMultiCl'
-)
-
+photonsFromMultiCl = photons.clone()
+# Change underlying C++ type, as ugly as it could be, and add required
+# configuration parameters
+photonsFromMultiCl._TypedParameterizable__type = 'GEDPhotonProducer'
+photonsFromMultiCl.photonProducer = cms.InputTag("photonCoreFromMultiCl")
+photonsFromMultiCl.reconstructionStep = cms.string("tmp")
+photonsFromMultiCl.outputPhotonCollection = cms.string("")
+photonsFromMultiCl.pfEgammaCandidates = cms.InputTag("")
+photonsFromMultiCl.valueMapPhotons = cms.string("")
+photonsFromMultiCl.preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES")
