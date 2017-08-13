@@ -301,7 +301,7 @@ void sumSmallDepths(vector<TCell> &selectCells) {
   // if the list is empty there is nothing to manipulate
   // leave the original vector unchanged
 
-  if (manipulatedCells.size()<1) {
+  if (manipulatedCells.empty()) {
     newCells.clear();    
     return;
   }
