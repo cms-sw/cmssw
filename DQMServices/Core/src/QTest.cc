@@ -45,7 +45,7 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject() || !me->getRefRootObject()) 
     return -1;
-  TH1* h=0; //initialize histogram pointer
+  locking_ptr<TH1> h;   // initialize histogram pointer
   TH1* ref_=0;
   
   if (verbose_>1) 
@@ -166,7 +166,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
     return -1;
   if (!me->getRootObject() || !me->getRefRootObject()) 
     return -1;
-  TH1* h=0;
+  locking_ptr<TH1> h;
   TH1* ref_=0;
  
   if (verbose_>1) 
@@ -298,7 +298,7 @@ float Comp2Ref2DChi2::runTest(const MonitorElement *me)
   if (minEntries_ != 0 && me->getEntries() < minEntries_)
     return -1;
 
-  TH2* h=0;
+  locking_ptr<TH2> h;
   TH2* ref_=0;
  
   if (verbose_>1) 
@@ -399,7 +399,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     return -1;
   if (!me->getRootObject() || !me->getRefRootObject()) 
     return -1;
-  TH1* h=0;
+  locking_ptr<TH1> h;
   TH1* ref_=0;
 
   if (verbose_>1) 
@@ -583,7 +583,7 @@ float ContentsXRange::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject()) 
     return -1;
-  TH1* h=0; 
+  locking_ptr<TH1> h; 
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -653,7 +653,7 @@ float ContentsYRange::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject()) 
     return -1;
-  TH1* h=0; 
+  locking_ptr<TH1> h; 
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -731,8 +731,8 @@ float DeadChannel::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject()) 
     return -1;
-  TH1* h1=0;
-  TH2* h2=0;//initialize histogram pointers
+  locking_ptr<TH1> h1;
+  locking_ptr<TH2> h2;  // initialize histogram pointers
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -779,7 +779,7 @@ float DeadChannel::runTest(const MonitorElement*me)
   int fail = 0; // number of failed channels
 
   //--------- do the quality test for 1D histo ---------------//
-  if (h1 != NULL)  
+  if (h1)  
   {
     if (!rangeInitialized_ || !h1->GetXaxis() ) 
       return 1; // all bins are accepted if no initialization
@@ -807,7 +807,7 @@ float DeadChannel::runTest(const MonitorElement*me)
   //----------------------------------------------------------//
  
   //--------- do the quality test for 2D -------------------//
-  else if (h2 !=NULL )
+  else if (h2)
   {
     int ncx = h2->GetXaxis()->GetNbins(); // get X bins
     int ncy = h2->GetYaxis()->GetNbins(); // get Y bins
@@ -852,7 +852,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
     return -1;
   if (!me->getRootObject()) 
     return -1; 
-  TH1* h=0;//initialize histogram pointer
+  locking_ptr<TH1> h;   // initialize histogram pointer
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -941,7 +941,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
 
 // get average for bin under consideration
 // (see description of method setNumNeighbors)
-double NoisyChannel::getAverage(int bin, const TH1 *h) const
+double NoisyChannel::getAverage(int bin, locking_ptr<TH1> const& h) const
 {
   /// do NOT use underflow bin
   int first = 1;
@@ -977,7 +977,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject()) 
     return -1;
-  TH1* h=0; //initialize histogram pointer
+  locking_ptr<TH1> h;   // initialize histogram pointer
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -1251,7 +1251,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
     return -1;
   if (!me->getRootObject()) 
     return -1;
-  TH1* h=0;
+  locking_ptr<TH1> h;
    
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -1370,7 +1370,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
     return -1;
   if (!me->getRootObject())
     return -1;
-  TH1* h=0;
+  locking_ptr<TH1> h;
 
   if (verbose_>1){
     std::cout << "QTest:" << getAlgoName() << "::runTest called on "
@@ -1498,8 +1498,8 @@ float CompareLastFilledBin::runTest(const MonitorElement *me){
     return -1;
   if (!me->getRootObject())
     return -1;
-  TH1* h1=0;
-  TH2* h2=0;
+  locking_ptr<TH1> h1;
+  locking_ptr<TH2> h2;
   if (verbose_>1){
     std::cout << "QTest:" << getAlgoName() << "::runTest called on "
               << me-> getFullname() << "\n";
@@ -1525,13 +1525,13 @@ float CompareLastFilledBin::runTest(const MonitorElement *me){
   float lastBinVal; 
 
   //--------- do the quality test for 1D histo ---------------// 
-  if (h1 != NULL) 
+  if (h1) 
   { 
     lastBinX = h1->FindLastBinAbove(_average,1);
     lastBinVal = h1->GetBinContent(lastBinX);
     if (h1->GetEntries() == 0 || lastBinVal < 0) return 1;
   } 
-  else if (h2 != NULL) 
+  else if (h2) 
   {   
     
     lastBinX = h2->FindLastBinAbove(_average,1);
@@ -1559,7 +1559,7 @@ float CheckVariance::runTest(const MonitorElement*me)
     return -1;
   if (!me->getRootObject())
     return -1;
-  TH1* h=0;
+  locking_ptr<TH1> h;
 
   if (verbose_>1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on "

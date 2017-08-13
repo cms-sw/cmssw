@@ -1,5 +1,5 @@
 #ifndef DQMSERVICES_CORE_MONITOR_ELEMENT_H
-# define DQMSERVICES_CORE_MONITOR_ELEMENT_H
+#define DQMSERVICES_CORE_MONITOR_ELEMENT_H
 
 # include "DQMServices/Core/interface/DQMNet.h"
 # include "DQMServices/Core/interface/QReport.h"
@@ -23,6 +23,9 @@
 # include <iomanip>
 # include <cassert>
 # include <stdint.h>
+
+#include <mutex>
+#include "locking_ptr.h"
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1
@@ -72,6 +75,9 @@ private:
   TH1                   *reference_; //< Current ROOT reference object.
   TH1                   *refvalue_;  //< Soft reference if any.
   std::vector<QReport>  qreports_;   //< QReports associated to this object.
+
+  mutable
+  std::recursive_mutex  mutex_;      //< Avoid concurrent access to the underlying ROOT objects.
 
   MonitorElement *initialise(Kind kind);
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
@@ -335,17 +341,17 @@ private:
   void updateQReportStats(void);
 
 public:
-  TObject *getRootObject(void) const;
-  TH1 *getTH1(void) const;
-  TH1F *getTH1F(void) const;
-  TH1S *getTH1S(void) const;
-  TH1D *getTH1D(void) const;
-  TH2F *getTH2F(void) const;
-  TH2S *getTH2S(void) const;
-  TH2D *getTH2D(void) const;
-  TH3F *getTH3F(void) const;
-  TProfile *getTProfile(void) const;
-  TProfile2D *getTProfile2D(void) const;
+  locking_ptr<TObject> getRootObject(void) const;
+  locking_ptr<TH1> getTH1(void) const;
+  locking_ptr<TH1F> getTH1F(void) const;
+  locking_ptr<TH1S> getTH1S(void) const;
+  locking_ptr<TH1D> getTH1D(void) const;
+  locking_ptr<TH2F> getTH2F(void) const;
+  locking_ptr<TH2S> getTH2S(void) const;
+  locking_ptr<TH2D> getTH2D(void) const;
+  locking_ptr<TH3F> getTH3F(void) const;
+  locking_ptr<TProfile> getTProfile(void) const;
+  locking_ptr<TProfile2D> getTProfile2D(void) const;
 
   TObject *getRefRootObject(void) const;
   TH1 *getRefTH1(void) const;

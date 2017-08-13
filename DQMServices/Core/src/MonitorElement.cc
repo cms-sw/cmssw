@@ -68,6 +68,7 @@ MonitorElement *
 MonitorElement::initialise(Kind kind, TH1 *rootobj)
 {
   initialise(kind);
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   switch (kind)
   {
   case DQM_KIND_TH1F:
@@ -200,6 +201,9 @@ MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag
 MonitorElement::MonitorElement(const MonitorElement &x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
+  std::lock_guard<std::recursive_mutex> lock1(mutex_);
+  std::lock_guard<std::recursive_mutex> lock2(x.mutex_);
+
   if (x.object_)
     object_ = static_cast<TH1 *>(x.object_->Clone());
 
@@ -210,6 +214,9 @@ MonitorElement::MonitorElement(const MonitorElement &x)
 MonitorElement::MonitorElement(MonitorElement &&o)
   : MonitorElement::MonitorElement(o, MonitorElementNoCloneTag())
 {
+  std::lock_guard<std::recursive_mutex> lock1(mutex_);
+  std::lock_guard<std::recursive_mutex> lock2(o.mutex_);
+
   object_ = o.object_;
   refvalue_ = o.refvalue_;
 
@@ -266,6 +273,7 @@ MonitorElement::Fill(std::string &value)
 void
 MonitorElement::Fill(double x)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   update();
   if (kind() == DQM_KIND_INT)
     scalar_.num = static_cast<int64_t>(x);
@@ -288,6 +296,7 @@ MonitorElement::Fill(double x)
 void
 MonitorElement::doFill(int64_t x)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   update();
   if (kind() == DQM_KIND_INT)
     scalar_.num = static_cast<int64_t>(x);
@@ -310,6 +319,7 @@ MonitorElement::doFill(int64_t x)
 void
 MonitorElement::Fill(double x, double yw)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   update();
   if (kind() == DQM_KIND_TH1F)
     accessRootObject(__PRETTY_FUNCTION__, 1)
@@ -342,6 +352,7 @@ MonitorElement::Fill(double x, double yw)
 void
 MonitorElement::ShiftFillLast(double y, double ye, int xscale)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   update();
   if (kind() == DQM_KIND_TH1F
       || kind() == DQM_KIND_TH1S
@@ -1022,6 +1033,7 @@ MonitorElement::getAxis(const char *func, int axis) const
 void
 MonitorElement::softReset(void)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   update();
 
   // Create the reference object the first time this is called.
@@ -1162,6 +1174,8 @@ MonitorElement::softReset(void)
 void
 MonitorElement::disableSoftReset(void)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
   if (refvalue_)
   {
     if (kind() == DQM_KIND_TH1F
@@ -1447,90 +1461,90 @@ MonitorElement::updateQReportStats(void)
 }
 
 // -------------------------------------------------------------------
-TObject *
+locking_ptr<TObject>
 MonitorElement::getRootObject(void) const
 {
   const_cast<MonitorElement *>(this)->update();
-  return object_;
+  return make_locking(object_, mutex_);
 }
 
-TH1 *
+locking_ptr<TH1>
 MonitorElement::getTH1(void) const
 {
   const_cast<MonitorElement *>(this)->update();
-  return accessRootObject(__PRETTY_FUNCTION__, 0);
+  return make_locking(accessRootObject(__PRETTY_FUNCTION__, 0), mutex_);
 }
 
-TH1F *
+locking_ptr<TH1F>
 MonitorElement::getTH1F(void) const
 {
   assert(kind() == DQM_KIND_TH1F);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH1F *>(accessRootObject(__PRETTY_FUNCTION__, 1));
+  return make_locking(static_cast<TH1F *>(accessRootObject(__PRETTY_FUNCTION__, 1)), mutex_);
 }
 
-TH1S *
+locking_ptr<TH1S>
 MonitorElement::getTH1S(void) const
 {
   assert(kind() == DQM_KIND_TH1S);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH1S *>(accessRootObject(__PRETTY_FUNCTION__, 1));
+  return make_locking(static_cast<TH1S *>(accessRootObject(__PRETTY_FUNCTION__, 1)), mutex_);
 }
 
-TH1D *
+locking_ptr<TH1D>
 MonitorElement::getTH1D(void) const
 {
   assert(kind() == DQM_KIND_TH1D);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH1D *>(accessRootObject(__PRETTY_FUNCTION__, 1));
+  return make_locking(static_cast<TH1D *>(accessRootObject(__PRETTY_FUNCTION__, 1)), mutex_);
 }
 
-TH2F *
+locking_ptr<TH2F>
 MonitorElement::getTH2F(void) const
 {
   assert(kind() == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+  return make_locking(static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2)), mutex_);
 }
 
-TH2S *
+locking_ptr<TH2S>
 MonitorElement::getTH2S(void) const
 {
   assert(kind() == DQM_KIND_TH2S);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+  return make_locking(static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2)), mutex_);
 }
 
-TH2D *
+locking_ptr<TH2D>
 MonitorElement::getTH2D(void) const
 {
   assert(kind() == DQM_KIND_TH2D);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+  return make_locking(static_cast<TH2D *>(accessRootObject(__PRETTY_FUNCTION__, 2)), mutex_);
 }
 
-TH3F *
+locking_ptr<TH3F>
 MonitorElement::getTH3F(void) const
 {
   assert(kind() == DQM_KIND_TH3F);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 3));
+  return make_locking(static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 3)), mutex_);
 }
 
-TProfile *
+locking_ptr<TProfile>
 MonitorElement::getTProfile(void) const
 {
   assert(kind() == DQM_KIND_TPROFILE);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1));
+  return make_locking(static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1)), mutex_);
 }
 
-TProfile2D *
+locking_ptr<TProfile2D>
 MonitorElement::getTProfile2D(void) const
 {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
-  return static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+  return make_locking(static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2)), mutex_);
 }
 
 // -------------------------------------------------------------------

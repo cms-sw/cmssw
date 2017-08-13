@@ -405,14 +405,14 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
 	{
 	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
 	    TList list;
-	    list.Add(i->getTH1());
+	    list.Add(i->getTH1().operator->().operator->());
 	    if( -1 == me->getTH1()->Merge(&list)) {
 	      std::cout << "mergeAndResetMEsRunSummaryCache: Failed to merge DQM element "<<me->getFullname();
 	    }
 	  }
 	  else {
             if (i->getTH1()->GetEntries())
-	      me->getTH1()->Add(i->getTH1());
+	      me->getTH1()->Add(i->getTH1().operator->().operator->());
           }
 	}
     } else {
@@ -475,14 +475,14 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
 	{
 	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
 	    TList list;
-	    list.Add(i->getTH1());
+	    list.Add(i->getTH1().operator->().operator->());
 	    if( -1 == me->getTH1()->Merge(&list)) {
 	      std::cout << "mergeAndResetMEsLuminositySummaryCache: Failed to merge DQM element "<<me->getFullname();
 	    }
 	  }
 	  else {
             if (i->getTH1()->GetEntries())
-	      me->getTH1()->Add(i->getTH1());
+	      me->getTH1()->Add(i->getTH1().operator->().operator->());
           }
 	}
     } else {
@@ -1652,8 +1652,8 @@ DQMStore::collateProfile(MonitorElement *me, TProfile *h, unsigned verbose)
 {
   if (checkBinningMatches(me,h,verbose))
   {
-    TProfile *meh = me->getTProfile();
-    me->addProfiles(h, meh, meh, 1, 1);
+    auto meh = me->getTProfile();
+    me->addProfiles(h, meh.operator->().operator->(), meh.operator->().operator->(), 1, 1);
   }
 }
 
@@ -1662,8 +1662,8 @@ DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h, unsigned verbose)
 {
   if (checkBinningMatches(me,h,verbose))
   {
-    TProfile2D *meh = me->getTProfile2D();
-    me->addProfiles(h, meh, meh, 1, 1);
+    auto meh = me->getTProfile2D();
+    me->addProfiles(h, meh.operator->().operator->(), meh.operator->().operator->(), 1, 1);
   }
 }
 
