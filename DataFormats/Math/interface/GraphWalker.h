@@ -62,7 +62,7 @@ public:
   const Graph<N,E> & graph_;
 
  private:
-  GraphWalker();
+  GraphWalker() = delete;
 };
 
 template<class N, class E>
