@@ -1,7 +1,7 @@
 #ifndef Utilities_XrdAdaptor_QualityMetric_h
 #define Utilities_XrdAdaptor_QualityMetric_h
 
-#include <time.h>
+#include <ctime>
 
 #include <mutex>
 #include <memory>

@@ -445,8 +445,8 @@ CondorStatusService::updateChirpImpl(const std::string &key_suffix, const std::s
     argv.push_back(set_job_attr.c_str());
     argv.push_back(key.c_str());
     argv.push_back(value.c_str());
-    argv.push_back(NULL);
-    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, NULL, const_cast<char* const*>(&argv[0]), environ);
+    argv.push_back(nullptr);
+    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, nullptr, const_cast<char* const*>(&argv[0]), environ);
     close(devnull_fd);
     posix_spawn_file_actions_destroy(&file_actions);
     if (status)
