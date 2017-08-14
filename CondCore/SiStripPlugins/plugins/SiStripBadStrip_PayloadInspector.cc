@@ -386,6 +386,120 @@ namespace {
     } // payload
   };
 
+  /************************************************
+    Plot BadStrip by region 
+  *************************************************/
+
+  class SiStripBadStripByRegion : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  public:
+    SiStripBadStripByRegion() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip By Region" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripBadStrip> payload = fetchPayload( std::get<1>(iov) );
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      SiStripDetSummary summaryBadStrips;
+      int totalBadStrips =0;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload->getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload->decode(*badStrip).range;
+	}
+	totalBadStrips+=badStrips;
+	summaryBadStrips.add(d,badStrips);
+      }
+      std::map<unsigned int, SiStripDetSummary::Values> mapBadStrips = summaryBadStrips.getCounts();
+
+      //=========================
+      
+      TCanvas canvas("BadStrip Partion summary","SiStripBadStrip region summary",1200,1000); 
+      canvas.cd();
+      auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion","SiStrip Bad Strip summary by region;; n. bad strips",mapBadStrips.size(),0.,mapBadStrips.size()));
+      h_BadStrips->SetStats(false);
+
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.12);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : mapBadStrips){
+	iBin++;
+	int countBadStrips = (element.second.mean);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	h_BadStrips->SetBinContent(iBin,countBadStrips);
+	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_BadStrips->GetXaxis()->LabelsOption("v");
+
+	if(detector!=currentDetector) {
+	  boundaries.push_back(iBin);
+	  currentDetector=detector;
+	}
+      }
+
+      h_BadStrips->SetMarkerStyle(21);
+      h_BadStrips->SetMarkerSize(1);
+      h_BadStrips->SetLineColor(kBlue);
+      h_BadStrips->SetLineStyle(9);
+      h_BadStrips->SetMarkerColor(kBlue);
+      h_BadStrips->GetYaxis()->SetRangeUser(0.,h_BadStrips->GetMaximum()*1.30);
+      h_BadStrips->Draw("HISTsame");
+      h_BadStrips->Draw("TEXTsame");
+      
+      canvas.Update();
+      canvas.cd();
+
+      for (const auto & line : boundaries){
+	TLine l = TLine(h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymin(),h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l.SetLineWidth(1);
+	l.SetLineStyle(9);
+	l.SetLineColor(2);
+	l.Draw();
+      }
+      
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(h_BadStrips.get(),("IOV: "+std::to_string(std::get<0>(iov))+" bad strips:"+std::to_string(totalBadStrips)).c_str(),"PL");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -398,4 +512,5 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip){
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTOBFractionByRun); 
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIDFractionByRun); 
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTECFractionByRun); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegion);
 }
