@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-electronEfficiencyThresholds = [36, 68, 128, 176]
+electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
 electronEfficiencyBins = []
-electronEfficiencyBins.extend(list(xrange(0, 120, 10)))
-electronEfficiencyBins.extend(list(xrange(120, 180, 20)))
-electronEfficiencyBins.extend(list(xrange(180, 300, 40)))
-electronEfficiencyBins.extend(list(xrange(300, 400, 100)))
+electronEfficiencyBins.extend(list(xrange(2, 42, 2)))
+electronEfficiencyBins.extend(list(xrange(42, 45, 3)))
+electronEfficiencyBins.extend(list(xrange(45, 50, 5)))
+electronEfficiencyBins.extend(list(xrange(50, 70, 10)))
+electronEfficiencyBins.extend(list(xrange(70, 100, 30)))
+print electronEfficiencyBins
 
 # just copy for now
 photonEfficiencyThresholds = electronEfficiencyThresholds
@@ -35,7 +37,7 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
-    
+
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
 )
