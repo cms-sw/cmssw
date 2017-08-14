@@ -49,6 +49,7 @@ ignore = lambda algo, quality: False # ignore everything
 # produced for it
 limitSubFolders = {
     "":            limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
+    "tpPtLess09":  limit,  # Efficiency for TrackingParticles with pT < 0.9 GeV
     "allTPEffic":  ignore, # Efficiency with all TrackingParticles
     "fromPV":      limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
     "fromPVAllTP": limit,  # Tracks from PV, all TrackingParticles for fakes
