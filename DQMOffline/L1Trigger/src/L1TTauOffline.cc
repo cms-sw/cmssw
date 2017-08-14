@@ -262,11 +262,11 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	      h_L1TauEtavsTauEta_->Fill(phi,tauL1tPairsIt->l1tEta());
 
 	      if(fabs(eta)<1.5) h_resolutionTauET_EB_->Fill((l1tPt-pt)/pt);
-	      else h_L1TauETvsTauET_EE_->Fill((l1tPt-pt)/pt);
+	      else h_resolutionTauET_EE_->Fill((l1tPt-pt)/pt);
 	      h_resolutionTauET_EB_EE_->Fill((l1tPt-pt)/pt);
 
 	      if(fabs(eta)<1.5) h_resolutionTauPhi_EB_->Fill(tauL1tPairsIt->l1tPhi()-phi);
-	      else h_L1TauPhivsTauPhi_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
+	      else h_resolutionTauPhi_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
 	      h_resolutionTauPhi_EB_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
 	      
 	      h_resolutionTauEta_->Fill(tauL1tPairsIt->l1tEta()-eta);
