@@ -42,8 +42,6 @@
 
 class GenericTriggerEventFlag;
 
-
-
 //
 // class declaration
 //
