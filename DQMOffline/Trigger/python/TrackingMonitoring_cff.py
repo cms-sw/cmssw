@@ -60,8 +60,8 @@ iter2MergedTracksMonitoringHLT.allTrackProducer = 'hltIter2Merged'
 
 iterHLTTracksMonitoringHLT = trackingMonHLT.clone()
 iterHLTTracksMonitoringHLT.FolderName       = 'HLT/Tracking/tracks'
-iterHLTTracksMonitoringHLT.TrackProducer    = 'hltTracksMerged'
-iterHLTTracksMonitoringHLT.allTrackProducer = 'hltTracksMerged'
+iterHLTTracksMonitoringHLT.TrackProducer    = 'hltMergedTracks'
+iterHLTTracksMonitoringHLT.allTrackProducer = 'hltMergedTracks'
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone()
 iter3TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter3Merged'
