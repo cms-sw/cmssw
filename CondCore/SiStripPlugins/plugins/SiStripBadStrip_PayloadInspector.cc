@@ -168,6 +168,47 @@ namespace {
     }
   };
 
+  /************************************************
+    time history histogram of bad components fraction
+  *************************************************/
+
+  class SiStripBadStripFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip,float> {
+  public:
+    SiStripBadStripFractionByRun() : cond::payloadInspector::HistoryPlot<SiStripBadStrip,float>( "SiStrip Bad Strip fraction per run","Bad Strip fraction [%]"){}
+    ~SiStripBadStripFractionByRun() override = default;
+
+    float getFromPayload( SiStripBadStrip& payload ) override{
+     
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      std::map<uint32_t,int> badStripsPerDetId;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload.getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload.decode(*badStrip).range;
+	}
+	badStripsPerDetId[d] = badStrips;
+      } // loop over detIds 
+      
+      float numerator(0.),denominator(0.);
+      std::vector<uint32_t> all_detids=reader->getAllDetIds();
+      for (const auto & det : all_detids) {
+	denominator+=128.*reader->getNumberOfApvsAndStripLength(det).first;
+	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
+      }
+      
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total strip, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+
+      return (numerator/denominator)*100.;
+      
+    } // payload
+  };
 
 } // close namespace
 
@@ -176,4 +217,5 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip){
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadModuleTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionByRun);
 }
