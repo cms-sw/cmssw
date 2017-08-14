@@ -172,6 +172,7 @@ class CalorimetryManager{
   bool initialized_;
 
   std::vector<FSimTrack> muonSimTracks;
+  std::vector<FSimTrack> savedMuonSimTracks;
   MaterialEffects* theMuonEcalEffects; // material effects for muons in ECAL
   MaterialEffects* theMuonHcalEffects; // material effects for muons in HCAL
 

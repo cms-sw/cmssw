@@ -155,6 +155,7 @@ void CalorimetryManager::clean()
   HMapping_.clear();
   ESMapping_.clear();
   muonSimTracks.clear();
+  savedMuonSimTracks.clear();
 }
 
 CalorimetryManager::~CalorimetryManager()
@@ -874,11 +875,14 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   // Backward compatibility behaviour
   if(!theMuonHcalEffects) 
     {
+      savedMuonSimTracks.push_back(myTrack);
+
       if(myTrack.onHcal() || myTrack.onVFcal() ) 
 	reconstructHCAL(myTrack, random);
       
       return;
     }
+
   
   if(debug_)
     LogInfo("FastCalorimetry") << "CalorimetryManager::MuonMipSimulation - track param."
@@ -1073,7 +1077,6 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   } // else just leave tracker surface position and momentum...  
   
   muonSimTracks.push_back(muonTrack);
-  
   
   // no need to change below this line
   std::map<CaloHitID,float>::const_iterator mapitr;
@@ -1435,10 +1438,12 @@ void CalorimetryManager::loadMuonSimTracks(edm::SimTrackContainer &muons) const
 
 void CalorimetryManager::harvestMuonSimTracks(edm::SimTrackContainer &c) const
 {
-  c.reserve(c.size()+muonSimTracks.size());
+  c.reserve(muonSimTracks.size()+savedMuonSimTracks.size());
   for(unsigned i=0; i<muonSimTracks.size(); i++) {
-    c.push_back(muonSimTracks[i]);
-    std::cout<<"harvestMuonSimTracks: "<<muonSimTracks[i].type()<<std::endl;
+    if(muonSimTracks[i].momentum().perp2() > 1.0 && fabs(muonSimTracks[i].momentum().eta()) < 3.0)  c.push_back(muonSimTracks[i]);
+  }
+  for(unsigned i=0; i<savedMuonSimTracks.size(); i++) {
+    if(savedMuonSimTracks[i].momentum().perp2() > 1.0 && fabs(savedMuonSimTracks[i].momentum().eta()) < 3.0)  c.push_back(savedMuonSimTracks[i]);
   }
 }
 

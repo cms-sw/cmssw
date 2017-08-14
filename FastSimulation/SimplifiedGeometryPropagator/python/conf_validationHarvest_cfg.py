@@ -25,6 +25,7 @@ process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring('file:gen_muGen.root'),
     inputCommands = cms.untracked.vstring('keep *', 
+        'drop *_genParticles_*_*', 
         'drop *_genParticlesForJets_*_*', 
         'drop *_kt4GenJets_*_*', 
         'drop *_kt6GenJets_*_*', 
@@ -41,6 +42,10 @@ process.source = cms.Source("PoolSource",
         'drop *_genMetTrue_*_*', 
         'drop *_genMetIC5GenJs_*_*'),
     secondaryFileNames = cms.untracked.vstring()
+)
+
+process.options = cms.untracked.PSet(
+
 )
 
 # configure random number generator for simhit production
@@ -94,7 +99,9 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('FastSimulation.Configuration.Reconstruction_AftMix_cff')
+process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
+process.load('FastSimulation.Configuration.DQMOfflineMC_cff')
 
 
 # use new TrackerSimHitProducer
@@ -194,11 +201,6 @@ process.FEVTDEBUGHLTEventContent.outputCommands.extend([
         'keep *_fastSimProducer_*_*'
     ])
 
-#process.FEVTDEBUGHLTEventContent.outputCommands.append(
-#        'keep *',
-#    )
-
-
 # Output definition
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
@@ -216,11 +218,10 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('dqm_muGun_validation.root'),
+    fileName = cms.untracked.string('dqm_muGun_validationHarvest.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
-
 
 # Path and EndPath definitions
 process.psim.replace(process.famosSimHits, process.fastSimProducer)
@@ -233,7 +234,11 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.validation_step = cms.EndPath(process.tracksValidationTrackingOnly)
+process.eventinterpretaion_step = cms.Path(process.EIsequence)
+process.prevalidation_step = cms.Path(process.prevalidation)
+process.validation_step = cms.EndPath(process.validation)
+process.dqmoffline_step = cms.EndPath(process.DQMOffline)
+process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOffline)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
@@ -242,7 +247,9 @@ process.content_step = cms.Path(process.content)
 
 # Schedule definition
 #process.schedule = cms.Schedule(process.simulation_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
-process.schedule = cms.Schedule(process.simulation_step,process.reconstruction_befmix_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.L1Reco_step,process.reconstruction_step,process.validation_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
+process.schedule = cms.Schedule(process.simulation_step,process.reconstruction_befmix_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.dqmofflineOnPAT_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
 
 # debugging options
 # debug messages will only be printed for packages compiled with following command
@@ -256,3 +263,8 @@ process.schedule = cms.Schedule(process.simulation_step,process.reconstruction_b
 #        ),
 #    debugModules = cms.untracked.vstring('fastSimProducer')
 #    )
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
