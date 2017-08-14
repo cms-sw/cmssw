@@ -92,8 +92,10 @@ namespace pat {
 
       /// pflow specific
       const bool          useParticleFlow_;
+      const bool          usePfCandidateMultiMap_;
       const edm::EDGetTokenT<reco::PFCandidateCollection> pfElecToken_;
       const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > pfCandidateMapToken_;
+      const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > pfCandidateMultiMapToken_;
       const bool          embedPFCandidate_;
 
       /// mva input variables
