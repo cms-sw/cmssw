@@ -605,6 +605,12 @@ private:
                             std::vector<std::pair<int, int> >& monoStereoClusterList
                             );
 
+  size_t addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
+                            const TransientTrackingRecHitBuilder& theTTRHBuilder,
+                            const TrackerTopology& tTopo,
+                            std::vector<std::pair<int, int> >& monoStereoClusterList
+                            );
+
   void fillPhase2OTHits(const edm::Event& iEvent,
                         const ClusterTPAssociation& clusterToTPMap,
                         const TrackingParticleRefKeyToIndex& tpKeyToIndex,
@@ -624,7 +630,8 @@ private:
                  const ClusterTPAssociation& clusterToTPMap,
                  const TransientTrackingRecHitBuilder& theTTRHBuilder,
                  const MagneticField& theMF,
-                 const std::vector<std::pair<int, int> >& monoStereoClusterList,
+                 const TrackerTopology& tTopo,
+                 std::vector<std::pair<int, int> >& monoStereoClusterList,
                  const std::set<edm::ProductID>& hitProductIds,
                  std::map<edm::ProductID, size_t>& seedToCollIndex
                  );
@@ -2169,7 +2176,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //seeds
   if(includeSeeds_) {
-    fillSeeds(iEvent, tpCollection, tpKeyToIndex, bs, associatorByHits, clusterToTPMap, *theTTRHBuilder, mf, monoStereoClusterList, hitProductIds, seedCollToOffset);
+    fillSeeds(iEvent, tpCollection, tpKeyToIndex, bs, associatorByHits, clusterToTPMap, *theTTRHBuilder, mf, tTopo, monoStereoClusterList, hitProductIds, seedCollToOffset);
   }
 
   //tracks
@@ -2598,6 +2605,42 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   fill(*stereoHits, "stripStereoHit");
 }
 
+
+size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
+                                          const TransientTrackingRecHitBuilder& theTTRHBuilder,
+                                          const TrackerTopology& tTopo,
+                                          std::vector<std::pair<int, int> >& monoStereoClusterList
+                                          ) {
+  TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
+  const auto hitId = hit.geographicalId();
+  const int lay = tTopo.layer(hitId);
+  monoStereoClusterList.emplace_back(hit.monoHit().cluster().key(),hit.stereoHit().cluster().key());
+  glu_isBarrel .push_back( (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB) );
+  glu_detId    .push_back( tTopo, hitId );
+  glu_monoIdx  .push_back( hit.monoHit().cluster().key() );
+  glu_stereoIdx.push_back( hit.stereoHit().cluster().key() );
+  glu_seeIdx   .emplace_back(); // filled in fillSeeds
+  glu_x        .push_back( ttrh->globalPosition().x() );
+  glu_y        .push_back( ttrh->globalPosition().y() );
+  glu_z        .push_back( ttrh->globalPosition().z() );
+  glu_xx       .push_back( ttrh->globalPositionError().cxx() );
+  glu_xy       .push_back( ttrh->globalPositionError().cyx() );
+  glu_yy       .push_back( ttrh->globalPositionError().cyy() );
+  glu_yz       .push_back( ttrh->globalPositionError().czy() );
+  glu_zz       .push_back( ttrh->globalPositionError().czz() );
+  glu_zx       .push_back( ttrh->globalPositionError().czx() );
+  glu_radL     .push_back( ttrh->surface()->mediumProperties().radLen() );
+  glu_bbxi     .push_back( ttrh->surface()->mediumProperties().xi() );
+  LogTrace("TrackingNtuple") << "stripMatchedHit"
+                             << " cluster0=" << hit.stereoHit().cluster().key()
+                             << " cluster1=" << hit.monoHit().cluster().key()
+                             << " subdId=" << hitId.subdetId()
+                             << " lay=" << lay
+                             << " rawId=" << hitId.rawId()
+                             << " pos =" << ttrh->globalPosition();
+  return glu_isBarrel.size()-1;
+}
+
 void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
                                           const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                           const TrackerTopology& tTopo,
@@ -2606,34 +2649,8 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it!=matchedHits->end(); it++ ) {
-    const DetId hitId = it->detId();
     for (auto hit = it->begin(); hit!=it->end(); hit++ ) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
-      const int lay = tTopo.layer(hitId);
-      monoStereoClusterList.emplace_back(hit->monoHit().cluster().key(),hit->stereoHit().cluster().key());
-      glu_isBarrel .push_back( (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB) );
-      glu_detId    .push_back( tTopo, hitId );
-      glu_monoIdx  .push_back( hit->monoHit().cluster().key() );
-      glu_stereoIdx.push_back( hit->stereoHit().cluster().key() );
-      glu_seeIdx   .emplace_back(); // filled in fillSeeds
-      glu_x        .push_back( ttrh->globalPosition().x() );
-      glu_y        .push_back( ttrh->globalPosition().y() );
-      glu_z        .push_back( ttrh->globalPosition().z() );
-      glu_xx       .push_back( ttrh->globalPositionError().cxx() );
-      glu_xy       .push_back( ttrh->globalPositionError().cyx() );
-      glu_yy       .push_back( ttrh->globalPositionError().cyy() );
-      glu_yz       .push_back( ttrh->globalPositionError().czy() );
-      glu_zz       .push_back( ttrh->globalPositionError().czz() );
-      glu_zx       .push_back( ttrh->globalPositionError().czx() );
-      glu_radL     .push_back( ttrh->surface()->mediumProperties().radLen() );
-      glu_bbxi     .push_back( ttrh->surface()->mediumProperties().xi() );
-      LogTrace("TrackingNtuple") << "stripMatchedHit"
-                                 << " cluster0=" << hit->stereoHit().cluster().key()
-                                 << " cluster1=" << hit->monoHit().cluster().key()
-                                 << " subdId=" << hitId.subdetId()
-                                 << " lay=" << lay
-                                 << " rawId=" << hitId.rawId()
-                                 << " pos =" << ttrh->globalPosition();
+      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, monoStereoClusterList);
     }
   }
 }
@@ -2712,7 +2729,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                const ClusterTPAssociation& clusterToTPMap,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const MagneticField& theMF,
-                               const std::vector<std::pair<int, int> >& monoStereoClusterList,
+                               const TrackerTopology& tTopo,
+                               std::vector<std::pair<int, int> >& monoStereoClusterList,
                                const std::set<edm::ProductID>& hitProductIds,
                                std::map<edm::ProductID, size_t>& seedCollToOffset
                                ) {
@@ -2887,8 +2905,19 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	    int monoIdx = matchedHit->monoClusterRef().key();
 	    int stereoIdx = matchedHit->stereoClusterRef().key();
 
-            std::vector<std::pair<int,int> >::const_iterator pos = find( monoStereoClusterList.begin(), monoStereoClusterList.end(), std::make_pair(monoIdx,stereoIdx) );
-            const auto gluedIndex = std::distance(monoStereoClusterList.begin(), pos);
+            std::vector<std::pair<int,int> >::iterator pos = find( monoStereoClusterList.begin(), monoStereoClusterList.end(), std::make_pair(monoIdx,stereoIdx) );
+            size_t gluedIndex = -1;
+            if(pos != monoStereoClusterList.end()) {
+              gluedIndex = std::distance(monoStereoClusterList.begin(), pos);
+            }
+            else {
+              // We can encounter glued hits not in the input
+              // SiStripMatchedRecHit2DCollection, e.g. via muon
+              // outside-in seeds (or anything taking hits from
+              // MeasurementTrackerEvent). So let's add them here.
+              gluedIndex = addStripMatchedHit(*matchedHit, theTTRHBuilder, tTopo, monoStereoClusterList);
+            }
+
             if(includeAllHits_) glu_seeIdx[gluedIndex].push_back(seedIndex);
             hitIdx.push_back( gluedIndex );
             hitType.push_back( static_cast<int>(HitType::Glued) );
