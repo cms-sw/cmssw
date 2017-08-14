@@ -289,6 +289,7 @@ namespace {
 
       auto extrema = SiStripPI::getExtrema(h_LV.get(),h_HV.get());
       h_HV->GetYaxis()->SetRangeUser(extrema.first,extrema.second);
+      h_LV->GetYaxis()->SetRangeUser(extrema.first,extrema.second);
 
       h_HV->SetMarkerStyle(20);
       h_HV->SetMarkerSize(1);
@@ -313,7 +314,7 @@ namespace {
 	l.SetLineWidth(1);
 	l.SetLineStyle(9);
 	l.SetLineColor(2);
-	l.Draw("same");
+	l.Draw();
       }
       
       TLegend legend = TLegend(0.45,0.80,0.90,0.9);

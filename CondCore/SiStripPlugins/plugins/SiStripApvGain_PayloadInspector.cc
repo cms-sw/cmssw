@@ -652,7 +652,6 @@ namespace {
     }
   };
 
-
   /************************************************
     time history histogram of SiStripApvGains 
   *************************************************/
@@ -1193,7 +1192,7 @@ namespace {
       }
       
       TLegend legend = TLegend(0.70,0.8,0.95,0.9);
-      legend.SetHeader("Comparison","C"); // option "C" allows to center the header
+      legend.SetHeader("Gain Comparison","C"); // option "C" allows to center the header
       legend.AddEntry(hfirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
       legend.AddEntry(hlast.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
       legend.Draw("same");
