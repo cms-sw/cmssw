@@ -186,8 +186,8 @@ namespace SiStripPI {
   {
     for (const auto &element : map){
       int count   = element.second.count;
-      double mean = (element.second.mean)/count;
-      double rms  = (element.second.rms)/count - mean*mean;
+      double mean = count>0 ? (element.second.mean)/count : 0. ;
+      double rms  = count>0 ? (element.second.rms)/count - mean*mean : 0.;
       if(rms <= 0)
 	rms = 0;
       else
