@@ -259,13 +259,11 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 //---- Additional DiJet offline selection------
 bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
   bool passeta = false; //check that one of the jets in the barrel
-  if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ ) 
-    passeta=true;
+  if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ )  passeta=true;
   
   float delta_phi_1_2= (phi_1 - phi_2);
   bool other_cuts = false;//check that jets are back to back
-  if (abs(delta_phi_1_2) >= phicut_)
-    other_cuts=true;
+  if (abs(delta_phi_1_2) >= phicut_) other_cuts=true;
 
    if(fabs(eta_1)<etacut_ && fabs(eta_2)>etacut_) {
     tag_id = 0; 
