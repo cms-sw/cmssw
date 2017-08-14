@@ -8,7 +8,6 @@ class HcalBadLaserChannels {
 
 public:
   HcalBadLaserChannels() {}
-  ~HcalBadLaserChannels() {}
 
   static int badChannelsHBHE () { return 72*3; }
   static int badChannelsHF()    { return 0; }

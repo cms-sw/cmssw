@@ -52,18 +52,15 @@
 #include <iostream>
 #include <fstream>
 
-class record {
-public:
+struct record {
   record(int ser=0, int ent=0, int r=0, int ev=0, int ie=0, double p=0) :
     serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {}
-  virtual ~record() {}
 
   int    serial_, entry_, run_, event_, ieta_;
   double p_;
 };
 
-class recordLess {
-public:
+struct recordLess {
   bool operator() (const record& a, const record& b) {
     return ((a.run_ < b.run_) || 
 	    ((a.run_ == b.run_) && (a.event_ <  b.event_)) ||
@@ -456,11 +453,20 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	(records[k].event_ == records[k-1].event_) &&
 	(records[k].ieta_ == records[k-1].ieta_) &&
 	(fabs(records[k].p_-records[k-1].p_) < 0.0001)) {
-      // This is a duplicate event
+      // This is a duplicate event - reject the one with larger serial #
+      if (records[k].entry_ < records[k-1].entry_) {
+	record swap = records[k-1];
+	records[k-1]= records[k];
+	records[k]  = swap;
+      }
       if (debug)
-	std::cout << "[" << records[k].serial_ << ":"  << records[k].entry_ 
-		  << "] " << records[k].run_ << ":" << records[k].event_ << " " 
-		  << records[k].ieta_ << " " << records[k].p_ << std::endl;
+	std::cout << "Serial " << records[k-1].serial_ << ":"  
+		  << records[k].serial_ << " Entry "  
+		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
+		  << records[k-1].run_ << ":"  << records[k].run_ << " Event "
+		  << records[k-1].event_ << " " << records[k].event_ << " Eta "
+		  << records[k-1].ieta_ << " " << records[k].ieta_ << " p "
+		  << records[k-1].p_ << ":" << records[k].p_ << std::endl;
       file << records[k].entry_ << std::endl;
       duplicate++;
       if (records[k].p_ >= 40.0 && records[k].p_ <= 60.0) dupl40++;
