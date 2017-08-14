@@ -4,6 +4,7 @@
 // enabled by: process.siPixelDigis.UseQualityInfo = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
 // Jan 2016 Tamas Almos Vami (Tav) (Wigner RCP) -- Cabling Map label option
+// Jul 2017 Viktor Veszpremi -- added PixelFEDChannel
 
 #include "SiPixelRawToDigi.h"
 
@@ -31,6 +32,7 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -67,6 +69,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     produces< edm::DetSetVector<SiPixelRawDataError> >();
     produces<DetIdCollection>();
     produces<DetIdCollection>("UserErrorModules");
+    produces<edmNew::DetSetVector<PixelFEDChannel> >();
   }
 
   // regions
@@ -191,6 +194,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   auto errorcollection = std::make_unique<edm::DetSetVector<SiPixelRawDataError>>();
   auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
   auto usererror_detidcollection = std::make_unique<DetIdCollection>();
+  auto disabled_channelcollection = std::make_unique<edmNew::DetSetVector<PixelFEDChannel> >();
 
   //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
   PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
@@ -241,30 +245,58 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  // in the configurable error list in the job option cfi.
 	  // Code needs to be here, because there can be a set of errors for each 
 	  // entry in the for loop over PixelDataFormatter::Errors
-	  if(!tkerrorlist.empty() || !usererrorlist.empty()){
-	    DetId errorDetId(errordetid);
-	    edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
-            for(; itPixelError!=errorDetSet.end(); ++itPixelError){
-              // fill list of detIds to be turned off by tracking
-              if(!tkerrorlist.empty()) {
-	        std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), itPixelError->getType());
-	        if(it_find != tkerrorlist.end()){
-		  tkerror_detidcollection->push_back(errordetid);
-	        }
+	  edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
+	  std::vector<PixelFEDChannel> disabledChannelsDetSet;
+
+	  for(; itPixelError!=errorDetSet.end(); ++itPixelError){
+	    // For the time being, we extend the error handling functionality with ErrorType 25
+	    // In the future, we should sort out how the usage of tkerrorlist can be generalized
+	    if (itPixelError->getType()==25) {
+	      assert(itPixelError->getFedId()==fedId);
+	      const sipixelobjects::PixelFEDCabling* fed = cabling_->fed(fedId);
+	      if (fed) {
+		cms_uint32_t linkId = (itPixelError->getWord32() >> formatter.LINK_shift) & formatter.LINK_mask;
+		const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
+		if (link) {
+		  // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
+		  // in contrast, the ROC-in-channel numbering is determined by hardware --> better to use the "offline" scheme
+		  PixelFEDChannel ch = {fed->id(), linkId, 25, 0};
+		  for (unsigned int iRoc=1; iRoc<=link->numberOfROCs(); iRoc++) {
+		    const sipixelobjects::PixelROC * roc = link->roc(iRoc);
+		    if (roc->idInDetUnit()<ch.roc_first) ch.roc_first=roc->idInDetUnit();
+		    if (roc->idInDetUnit()>ch.roc_last) ch.roc_last=roc->idInDetUnit();
+		  }
+		  disabledChannelsDetSet.push_back(ch);
+		}
 	      }
-              // fill list of detIds with errors to be studied
-              if(!usererrorlist.empty()) {
-	        std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), itPixelError->getType());
-	        if(it_find != usererrorlist.end()){
-		  usererror_detidcollection->push_back(errordetid);
-	        }
+	    } else {
+	      // fill list of detIds to be turned off by tracking
+	      if(!tkerrorlist.empty()) {
+		std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), itPixelError->getType());
+		if(it_find != tkerrorlist.end()){
+		  tkerror_detidcollection->push_back(errordetid);
+		}
 	      }
 	    }
+
+	    // fill list of detIds with errors to be studied
+	    if(!usererrorlist.empty()) {
+	      std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), itPixelError->getType());
+	      if(it_find != usererrorlist.end()){
+		usererror_detidcollection->push_back(errordetid);
+	      }
+	    }
+
+	  } // loop on DetSet of errors
+
+	  if (disabledChannelsDetSet.size()>0) {
+	    disabled_channelcollection->insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
 	  }
-	}
-      }
-    }
-  }
+
+	} // if error assigned to a real DetId
+      } // loop on errors in event for this FED
+    } // if errors to be included in the event
+  } // loop on FED data to be unpacked
 
   if(includeErrors) {
     edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(dummydetid);
@@ -289,5 +321,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     ev.put(std::move(errorcollection));
     ev.put(std::move(tkerror_detidcollection));
     ev.put(std::move(usererror_detidcollection), "UserErrorModules");
+    ev.put(std::move(disabled_channelcollection));
   }
 }

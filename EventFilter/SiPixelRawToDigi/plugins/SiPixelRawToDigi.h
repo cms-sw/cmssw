@@ -22,6 +22,7 @@ class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
 class PixelUnpackingRegions;
+class PixelDisabledFEDChannel;
 
 class SiPixelRawToDigi : public edm::stream::EDProducer<> {
 public:

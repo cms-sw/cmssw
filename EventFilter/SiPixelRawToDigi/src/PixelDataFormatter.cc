@@ -183,7 +183,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
       if unlikely(!rocp) {
