@@ -118,7 +118,7 @@ void FWFileEntry::openFile(bool checkVersion)
    if (FWTTreeCache::IsLogging())
      printf("FWFileEntry::openFile enabling FWTTreeCache for file class '%s'.", m_file->ClassName());
 
-   auto tc = new FWTTreeCache(m_eventTree, 50*1024*1024);
+   auto tc = new FWTTreeCache(m_eventTree, FWTTreeCache::GetDefaultCacheSize());
    m_file->SetCacheRead(tc, m_eventTree);
    gEnv->SetValue("TFile.AsyncReading", 1);
    tc->SetEnablePrefetching(true);
