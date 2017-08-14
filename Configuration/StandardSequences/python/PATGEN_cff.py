@@ -10,7 +10,8 @@ patGENTask = cms.Task(
     genParticlesForJets,
     genParticlesForJetsNoNu,
     ak4GenJetsNoNu,
-    slimmedGenJets
+    slimmedGenJets,
+    slimmedGenJetsAK8
 )
 
 miniGEN=cms.Sequence()
