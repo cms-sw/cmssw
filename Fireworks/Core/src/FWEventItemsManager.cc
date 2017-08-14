@@ -214,8 +214,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 
    if (keyValues == 0) return;
 
-   std::list<FWEventItem*> newItems;
-   
+   std::vector<FWEventItem*> newItems;
+   newItems.reserve(keyValues->size());
+
    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
         it != keyValues->end();
         ++it)

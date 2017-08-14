@@ -11,6 +11,7 @@ class FWTTreeCache : public TTreeCache
    std::set<std::string> m_branch_set;
    bool                  m_silent_low_level = false;
 
+   static int            s_default_size;
    static bool           s_logging;
 
 protected:
@@ -46,6 +47,8 @@ public:
    static void LoggingOn();
    static void LoggingOff();
    static bool IsLogging();
+   static void SetDefaultCacheSize(int def_size);
+   static int  GetDefaultCacheSize();
 
    Int_t AddBranchTopLevel (const char* bname);
    Int_t DropBranchTopLevel(const char* bname);

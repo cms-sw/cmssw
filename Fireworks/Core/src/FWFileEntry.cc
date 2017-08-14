@@ -114,34 +114,26 @@ void FWFileEntry::openFile(bool checkVersion)
       throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
 
-   // Initialize caching if we are accessing a remote file
-   //if (strcmp(m_file->ClassName(), "TNetXNGFile") == 0)
-   {
-     if (FWTTreeCache::IsLogging())
-       printf("FWFileEntry::openFile enabling FWTTreeCache for file class '%s'.", m_file->ClassName());
+   // Initialize caching, this helps also in the case of local file.
+   if (FWTTreeCache::IsLogging())
+     printf("FWFileEntry::openFile enabling FWTTreeCache for file class '%s'.", m_file->ClassName());
 
-     auto tc = new FWTTreeCache(m_eventTree, 50*1024*1024);
-     m_file->SetCacheRead(tc, m_eventTree);
-     gEnv->SetValue("TFile.AsyncReading", 1);
-     tc->SetEnablePrefetching(true);
-     tc->SetLearnEntries(20);
-     tc->SetLearnPrefill(TTreeCache::kAllBranches);
-     tc->StartLearningPhase();
+   auto tc = new FWTTreeCache(m_eventTree, 50*1024*1024);
+   m_file->SetCacheRead(tc, m_eventTree);
+   gEnv->SetValue("TFile.AsyncReading", 1);
+   tc->SetEnablePrefetching(true);
+   tc->SetLearnEntries(20);
+   tc->SetLearnPrefill(TTreeCache::kAllBranches);
+   tc->StartLearningPhase();
 
-     // load event, set DataGetterHelper callback for branch access
-     m_event = new fwlite::Event(m_file, false, [tc](TBranch* b){ tc->BranchAccessCallIn(b); });
+   // load event, set DataGetterHelper callback for branch access
+   m_event = new fwlite::Event(m_file, false, [tc](TBranch* b){ tc->BranchAccessCallIn(b); });
 
-     // Connect to collection add/remove signals
-     FWEventItemsManager* eiMng = (FWEventItemsManager*) FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
-     eiMng->newItem_     .connect(boost::bind(&FWFileEntry::NewEventItemCallIn, this, _1));
-     eiMng->removingItem_.connect(boost::bind(&FWFileEntry::RemovingEventItemCallIn, this, _1));
-     // no need to connect to goingToClearItems_ ... individual removes are emitted.
-   }
-   if(false)//else
-   {
-     // load event
-     m_event = new fwlite::Event(m_file);
-   }
+   // Connect to collection add/remove signals
+   FWEventItemsManager* eiMng = (FWEventItemsManager*) FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
+   eiMng->newItem_     .connect(boost::bind(&FWFileEntry::NewEventItemCallIn, this, _1));
+   eiMng->removingItem_.connect(boost::bind(&FWFileEntry::RemovingEventItemCallIn, this, _1));
+   // no need to connect to goingToClearItems_ ... individual removes are emitted.
 
    if (m_event->size() == 0)
          throw std::runtime_error("fwlite::Event size == 0");
@@ -348,6 +340,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    auto prevCache  = m_file->GetCacheRead(m_eventTree);
 
    auto interCache = new TTreeCache(m_eventTree, 10*1024*1024);
+   // Do not disconnect the cache, it will be reattached after filtering.
    m_file->SetCacheRead(interCache, m_eventTree, TFile::kDoNotDisconnect);
    interCache->SetEnablePrefetching(true);
    for (auto & b : branch_names)

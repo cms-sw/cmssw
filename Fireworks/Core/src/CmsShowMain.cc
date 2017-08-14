@@ -91,6 +91,7 @@ static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
 static const char* const kLogLevelCommandOpt   = "log";
 static const char* const kLogTreeCacheOpt      = "log-tree-cache";
+static const char* const kSizeTreeCacheOpt     = "tree-cache-size";
 static const char* const kEveOpt               = "eve";
 static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
@@ -185,10 +186,13 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
  po::options_description debugdesc("Debug");
    debugdesc.add_options()
    (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
-   (kLogTreeCacheOpt,                                  "Log tree cache operations and status")
    (kEveCommandOpt,                                    "Show TEveBrowser to help debug problems")
    (kEnableFPE,                                        "Enable detection of floating-point exceptions");
 
+ po::options_description tcachedesc("TreeCache");
+ tcachedesc.add_options()
+    (kLogTreeCacheOpt,                                 "Log tree cache operations and status")
+    (kSizeTreeCacheOpt, po::value<int>(),              "Set size of TTreeCache for data access in MB (default is 50)");
 
  po::options_description rnrdesc("Appearance");
  rnrdesc.add_options()
@@ -199,11 +203,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    p.add(kInputFilesOpt, -1);
 
 
- po::options_description hiddendesc("hidden");
- hiddendesc.add_options();
+   po::options_description hiddendesc("hidden");
+   hiddendesc.add_options();
 
    po::options_description all("");
- all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc);
+   all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc).add(tcachedesc);
 
 
    int newArgc = argc;
@@ -235,7 +239,16 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
 
    if(vm.count(kLogTreeCacheOpt)) {
+      fwLog(fwlog::kInfo) << "Enabling logging of TTreCache operations." << std::endl;
       FWTTreeCache::LoggingOn();
+   }
+
+   if(vm.count(kSizeTreeCacheOpt)) {
+      int ds = vm[kSizeTreeCacheOpt].as<int>();
+      if (ds < 0)    throw std::runtime_error("tree-cache-size should be non negative");
+      if (ds > 8192) throw std::runtime_error("tree-cache-size should be smaller than 8 GB");
+      fwLog(fwlog::kInfo) << "Setting default TTreeCache size to " << ds << " MB." << std::endl;
+      FWTTreeCache::SetDefaultCacheSize(ds * 1024 * 1024);
    }
 
    if(vm.count(kPlainRootCommandOpt)) {

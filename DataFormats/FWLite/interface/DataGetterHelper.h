@@ -115,7 +115,10 @@ namespace fwlite {
             edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
             std::shared_ptr<edm::EDProductGetter const> getter_;
             mutable bool tcTrained_;
+            /// Use internal TTreeCache.
             const   bool tcUse_;
+            /// Branch-access-function gets called whenever a branch data is accessed.
+            /// This can be used for management of TTreeCache on the user side.
             std::function<void (TBranch*)> branchAccFoo_;
     };
 
