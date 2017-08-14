@@ -49,7 +49,7 @@ class CaloSD : public SensitiveCaloDetector,
 
 public:    
   
-  CaloSD(G4String  aSDname, const DDCompactView & cpv,
+  CaloSD(std::string aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);
@@ -65,7 +65,7 @@ public:
   virtual void     DrawAll();
   virtual void     PrintAll();
 
-  void             fillHits(edm::PCaloHitContainer&,std::string n);
+  void             fillHits(edm::PCaloHitContainer&, std::string&);
 
 protected:
 
@@ -116,7 +116,7 @@ protected:
 
   CaloHitID                       currentID, previousID; 
   G4Track*                        theTrack;
-  G4TouchableHistory*             theTouchableHistory;
+  G4LogicalVolume*                theLogicalVolume;
 
   G4StepPoint*                    preStepPoint; 
   float                           edepositEM, edepositHAD;

@@ -15,7 +15,7 @@ SensitiveDetector::SensitiveDetector(std::string & iname,
                                      const DDCompactView & cpv,
                                      const SensitiveDetectorCatalog & clg,
                                      edm::ParameterSet const & p) :
-  G4VSensitiveDetector(iname), name(iname) {}
+  G4VSensitiveDetector((G4String)iname), name(iname) {}
 
 SensitiveDetector::~SensitiveDetector() {}
 
