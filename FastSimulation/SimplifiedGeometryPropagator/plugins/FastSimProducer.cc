@@ -347,30 +347,40 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // -----------------------------
 	// Calorimetry Manager
 	// -----------------------------
-
-    for(auto myFSimTrack : myFSimTracks)
+    if(simulateCalorimetry)
     {
-    	myCalorimetry->reconstructTrack(myFSimTrack, _randomEngine.get());
-    }
+	    for(auto myFSimTrack : myFSimTracks)
+	    {
+	    	myCalorimetry->reconstructTrack(myFSimTrack, _randomEngine.get());
+	    }
+	}
 
     // store calohits
 	std::unique_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
 	std::unique_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
 	std::unique_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
 	std::unique_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
-	myCalorimetry->loadFromEcalBarrel(*p4);
-	myCalorimetry->loadFromEcalEndcap(*p5);
-	myCalorimetry->loadFromPreshower(*p6);
-	myCalorimetry->loadFromHcal(*p7);
+	// store muonTracks
+	std::unique_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
+
+	if(simulateCalorimetry)
+    {
+		myCalorimetry->loadFromEcalBarrel(*p4);
+		myCalorimetry->loadFromEcalEndcap(*p5);
+		myCalorimetry->loadFromPreshower(*p6);
+		myCalorimetry->loadFromHcal(*p7);
+		if(simulateMuons){
+			myCalorimetry->harvestMuonSimTracks(*m1);
+		}
+	}	
 	iEvent.put(std::move(p4),"EcalHitsEB");
 	iEvent.put(std::move(p5),"EcalHitsEE");
 	iEvent.put(std::move(p6),"EcalHitsES");
 	iEvent.put(std::move(p7),"HcalHits");
+	iEvent.put(std::move(m1),"MuonSimTracks");
 
-	// store muonTracks
-	std::unique_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
-	myCalorimetry->harvestMuonSimTracks(*m1);
-	if(simulateMuons) iEvent.put(std::move(m1),"MuonSimTracks");
+	
+	
 
 
 	// -----------------------------
