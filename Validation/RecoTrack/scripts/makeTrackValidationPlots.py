@@ -45,6 +45,7 @@ def main(opts):
             "allTPEffic": limitProcessing,
             "fromPV": limitProcessing,
             "fromPVAllTP": limitProcessing,
+            "tpPtLess09": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
         }
@@ -56,6 +57,7 @@ def main(opts):
             "allTPEffic": ignore,
             "fromPV": ignore,
             "fromPVAllTP": ignore,
+            "tpPtLess09": limitRelVal,
             "seeding": ignore,
         }
 
