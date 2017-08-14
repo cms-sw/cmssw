@@ -99,7 +99,6 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
   bookTauHistos(ibooker);
  
   for ( auto trigNamesIt = triggerPath_.begin() ; trigNamesIt!=triggerPath_.end() ; trigNamesIt++){
-    
 
     std::string tNameTmp = (*trigNamesIt); 
     std::string tNamePattern = "";
@@ -119,9 +118,7 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
 	m_trigIndices.push_back(tIndex);
       }
     }
-        
   }
-   
 }
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
@@ -223,7 +220,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   l1tContainer.reserve(l1tCands->size()+1);
 
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
-     l1tContainer.push_back(*tau);
+    l1tContainer.push_back(*tau);
   } 
      
   for(auto tauL1tPairsIt=m_TauL1tPairs.begin(); tauL1tPairsIt!=m_TauL1tPairs.end(); ++tauL1tPairsIt) {
@@ -237,70 +234,62 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
     int counter = 0;
 
-    for (auto threshold : tauEfficiencyThresholds_) 
-      {
-	std::string str_threshold = std::to_string(threshold);
-      
-	int l1tPtCut = threshold;
-	bool l1tAboveCut = (l1tPt >= l1tPtCut);
+    for (auto threshold : tauEfficiencyThresholds_) {
+      std::string str_threshold = std::to_string(threshold);
 
-	stringstream ptCutToTag; ptCutToTag << l1tPtCut;
-	string ptTag = ptCutToTag.str();
+      int l1tPtCut = threshold;
+      bool l1tAboveCut = (l1tPt >= l1tPtCut);
 
-	if (fabs(eta) < m_MaxTauEta) {
+      stringstream ptCutToTag; ptCutToTag << l1tPtCut;
+      string ptTag = ptCutToTag.str();
 
-	  if(counter==0)
-	    {
-	      if(fabs(eta)<1.5) h_L1TauETvsTauET_EB_->Fill(pt,l1tPt);
-	      else h_L1TauETvsTauET_EE_->Fill(pt,l1tPt);
-	      h_L1TauETvsTauET_EB_EE_->Fill(pt,l1tPt);
-	      
-	      if(fabs(eta)<1.5) h_L1TauPhivsTauPhi_EB_->Fill(phi,tauL1tPairsIt->l1tPhi());
-	      else h_L1TauPhivsTauPhi_EE_->Fill(phi,tauL1tPairsIt->l1tPhi());
-	      h_L1TauPhivsTauPhi_EB_EE_->Fill(phi,tauL1tPairsIt->l1tPhi());
-	      
-	      h_L1TauEtavsTauEta_->Fill(phi,tauL1tPairsIt->l1tEta());
+      if (fabs(eta) < m_MaxTauEta) {
+        if(counter==0) {
+          if(fabs(eta)<1.5) {
+            h_L1TauETvsTauET_EB_->Fill(pt,l1tPt);
+            h_L1TauPhivsTauPhi_EB_->Fill(phi,tauL1tPairsIt->l1tPhi());
+            h_resolutionTauET_EB_->Fill((l1tPt-pt)/pt);
+            h_resolutionTauPhi_EB_->Fill(tauL1tPairsIt->l1tPhi()-phi);
+          } else {
+            h_L1TauETvsTauET_EE_->Fill(pt,l1tPt);
+            h_L1TauPhivsTauPhi_EE_->Fill(phi,tauL1tPairsIt->l1tPhi());
+            h_resolutionTauET_EE_->Fill((l1tPt-pt)/pt);
+            h_resolutionTauPhi_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
+          }
+          h_L1TauETvsTauET_EB_EE_->Fill(pt,l1tPt);
+          h_L1TauPhivsTauPhi_EB_EE_->Fill(phi,tauL1tPairsIt->l1tPhi());
+          h_L1TauEtavsTauEta_->Fill(eta,tauL1tPairsIt->l1tEta());
+          h_resolutionTauET_EB_EE_->Fill((l1tPt-pt)/pt);
+          h_resolutionTauPhi_EB_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
+          h_resolutionTauEta_->Fill(tauL1tPairsIt->l1tEta()-eta);
 
-	      if(fabs(eta)<1.5) h_resolutionTauET_EB_->Fill((l1tPt-pt)/pt);
-	      else h_L1TauETvsTauET_EE_->Fill((l1tPt-pt)/pt);
-	      h_resolutionTauET_EB_EE_->Fill((l1tPt-pt)/pt);
+          ++counter;
+        }
 
-	      if(fabs(eta)<1.5) h_resolutionTauPhi_EB_->Fill(tauL1tPairsIt->l1tPhi()-phi);
-	      else h_L1TauPhivsTauPhi_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
-	      h_resolutionTauPhi_EB_EE_->Fill(tauL1tPairsIt->l1tPhi()-phi);
-	      
-	      h_resolutionTauEta_->Fill(tauL1tPairsIt->l1tEta()-eta);
+        if(fabs(eta)<1.5) {
+          h_efficiencyNonIsoTauET_EB_total_[threshold]->Fill(pt);
+          h_efficiencyIsoTauET_EB_total_[threshold]->Fill(pt);
+        } else {
+          h_efficiencyNonIsoTauET_EE_total_[threshold]->Fill(pt);
+          h_efficiencyIsoTauET_EE_total_[threshold]->Fill(pt);
+        }
+        h_efficiencyNonIsoTauET_EB_EE_total_[threshold]->Fill(pt);
+        h_efficiencyIsoTauET_EB_EE_total_[threshold]->Fill(pt);
 
-	      counter++;
-	    }
+        if(l1tAboveCut) {
+          if(fabs(eta)<1.5) h_efficiencyNonIsoTauET_EB_pass_[threshold]->Fill(pt);
+          else h_efficiencyNonIsoTauET_EE_pass_[threshold]->Fill(pt);
+          h_efficiencyNonIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
 
-	  if(fabs(eta)<1.5) h_efficiencyNonIsoTauET_EB_total_[threshold]->Fill(pt);
-	  else h_efficiencyNonIsoTauET_EE_total_[threshold]->Fill(pt);
-	  h_efficiencyNonIsoTauET_EB_EE_total_[threshold]->Fill(pt);
-
-	  if(fabs(eta)<1.5) h_efficiencyIsoTauET_EB_total_[threshold]->Fill(pt);
-	  else h_efficiencyIsoTauET_EE_total_[threshold]->Fill(pt);
-	  h_efficiencyIsoTauET_EB_EE_total_[threshold]->Fill(pt);	  
-
-	  if(l1tAboveCut)
-	    {
-
-	      if(fabs(eta)<1.5) h_efficiencyNonIsoTauET_EB_pass_[threshold]->Fill(pt);
-	      else h_efficiencyNonIsoTauET_EE_pass_[threshold]->Fill(pt);
-	      h_efficiencyNonIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
-
-	      if(tauL1tPairsIt->l1tIso()>0.5)
-		{
-		  if(fabs(eta)<1.5) h_efficiencyIsoTauET_EB_pass_[threshold]->Fill(pt);
-		  else h_efficiencyIsoTauET_EE_pass_[threshold]->Fill(pt);
-		  h_efficiencyIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
-		}
-
-	    }	
-	}
+          if(tauL1tPairsIt->l1tIso()>0.5) {
+            if(fabs(eta)<1.5) h_efficiencyIsoTauET_EB_pass_[threshold]->Fill(pt);
+            else h_efficiencyIsoTauET_EE_pass_[threshold]->Fill(pt);
+            h_efficiencyIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
+          }
+        }
       }
+    }
   }//loop over tau-L1 pairs
- 
 }
 
 //
@@ -492,7 +481,6 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
 	
         double dRtmp = deltaR((*muon),trigObject);
         if (dRtmp < matchDeltaR) matchDeltaR = dRtmp;
-	
       }
     }
   }
