@@ -38,7 +38,7 @@ PixelROC const * SiPixelFrameConverter::toRoc(int link, int roc) const {
     stm << "Map shows no fed="<<theFedId
         <<", link="<< link
         <<", roc="<< roc;
-    LogDebug("SiPixelFrameConverter") << stm.str();
+    edm::LogWarning("SiPixelFrameConverter") << stm.str();
   }
   return rocp;
 }
