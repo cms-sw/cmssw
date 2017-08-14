@@ -182,7 +182,7 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double recoETMHFPhi(caloETMHFs->front().phi());
   double recoMHT(0);
   double recoMHTPhi(0);
-  double recoETT(0);
+  double recoETT(caloMETs->front().sumEt());
   double recoHTT(0);
 
   TVector2 mht(0., 0.);
@@ -200,7 +200,6 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
       mht -= jetVec;
     }
   }
-  recoETT = recoHTT;
   recoMHT = mht.Mod();
   // phi in cms is defined between -pi and pi
   recoMHTPhi = TVector2::Phi_mpi_pi(mht.Phi());
