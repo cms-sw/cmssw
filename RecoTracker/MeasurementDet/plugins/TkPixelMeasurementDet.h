@@ -78,6 +78,10 @@ public:
   /** \brief Clear the list of bad ROCs */
   void clearBadRocPositions() { badRocPositions_.clear(); }
 
+  const PxMeasurementDetSet::BadFEDChannelPositions* getBadFEDChannelPositions(const MeasurementTrackerEvent & data) const {
+    return data.pixelData().getBadFEDChannelPositions(index());
+  }
+
   int index() const { return index_; }
   void setIndex(int i) { index_ = i; }
 
