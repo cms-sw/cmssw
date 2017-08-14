@@ -201,8 +201,9 @@ MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag
 MonitorElement::MonitorElement(const MonitorElement &x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  std::lock_guard<std::recursive_mutex> lock1(mutex_);
-  std::lock_guard<std::recursive_mutex> lock2(x.mutex_);
+  std::lock(mutex_, x.mutex_);
+  std::lock_guard<std::recursive_mutex> lock1(mutex_, std::adopt_lock);
+  std::lock_guard<std::recursive_mutex> lock2(x.mutex_, std::adopt_lock);
 
   if (x.object_)
     object_ = static_cast<TH1 *>(x.object_->Clone());
@@ -211,17 +212,18 @@ MonitorElement::MonitorElement(const MonitorElement &x)
     refvalue_ = static_cast<TH1 *>(x.refvalue_->Clone());
 }
 
-MonitorElement::MonitorElement(MonitorElement &&o)
-  : MonitorElement::MonitorElement(o, MonitorElementNoCloneTag())
+MonitorElement::MonitorElement(MonitorElement &&x)
+  : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  std::lock_guard<std::recursive_mutex> lock1(mutex_);
-  std::lock_guard<std::recursive_mutex> lock2(o.mutex_);
+  std::lock(mutex_, x.mutex_);
+  std::lock_guard<std::recursive_mutex> lock1(mutex_, std::adopt_lock);
+  std::lock_guard<std::recursive_mutex> lock2(x.mutex_, std::adopt_lock);
 
-  object_ = o.object_;
-  refvalue_ = o.refvalue_;
+  object_ = x.object_;
+  refvalue_ = x.refvalue_;
 
-  o.object_ = nullptr;
-  o.refvalue_ = nullptr;
+  x.object_ = nullptr;
+  x.refvalue_ = nullptr;
 }
 
 MonitorElement::~MonitorElement(void)
