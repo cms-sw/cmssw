@@ -29,7 +29,7 @@ inline
 bool isEGamma(int pdgId)
 {
     pdgId = std::abs(pdgId);
-    return (pdgId == 11) or (pdgId == 22);
+    return (pdgId == 11) or (pdgId == 22) or (pdgId == 111);
 }
 
 inline
