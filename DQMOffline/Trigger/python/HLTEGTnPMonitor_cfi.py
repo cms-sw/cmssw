@@ -49,7 +49,10 @@ hcalPhi17Cut = cms.PSet(
     allowedRanges=cms.vstring("-0.87:-0.52"),
     )
 
-
+muonEtaCut=cms.PSet(
+    rangeVar=cms.string("eta"),
+    allowedRanges=cms.vstring("-2.4:2.4")
+    )
 tagAndProbeConfigEle27WPTight = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     tagColl = cms.InputTag("gedGsfElectrons"),
@@ -65,7 +68,7 @@ tagAndProbeConfigEle27WPTight = cms.PSet(
         ),
     #it is intended that these are the filters of the triggers listed for sampleTrigRequirements
     tagFilters = cms.vstring("hltEle27WPTightGsfTrackIsoFilter",
-                             "hltEle32noerWPTightGsfTrackIsoFilter"
+                             "hltEle32WPTightGsfTrackIsoFilter"
                              "hltEle35noerWPTightGsfTrackIsoFilter"
                              "hltEle38noerWPTightGsfTrackIsoFilter"
                              "hltEle27L1DoubleEGWPTightGsfTrackIsoFilter",
@@ -127,6 +130,62 @@ tagAndProbeElePhoHighEtaConfigEle27WPTightHEM17 = tagAndProbeElePhoHighEtaConfig
         ecalEndcapPosHighEtaCut,
         hcalPhi17Cut,
 ))
+
+
+tagAndProbeMuonEleConfigIsoMu = cms.PSet(
+    trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    tagColl = cms.InputTag("muons"),
+    probeColl = cms.InputTag("gedGsfElectrons"),
+    tagVIDCuts = cms.InputTag("egmDQMSelectedMuons"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    sampleTrigRequirements = cms.PSet(
+        hltInputTag = cms.InputTag("TriggerResults","","HLT"),
+        hltPaths = cms.vstring("HLT_IsoMu27_v*")
+                               
+        ),
+    #it is intended that these are the filters of the triggers listed for sampleTrigRequirements
+    tagFilters = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"),
+    tagFiltersORed = cms.bool(True),
+    tagRangeCuts = cms.VPSet(muonEtaCut),
+    probeFilters = cms.vstring(),
+    probeFiltersORed = cms.bool(False),
+    probeRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
+    minTagProbeDR = cms.double(0.4),
+    minMass = cms.double(-1),
+    maxMass = cms.double(-1),
+    requireOpSign = cms.bool(False),
+    )
+
+tagAndProbeMuonEleConfigIsoMuHEP17 = tagAndProbeMuonEleConfigIsoMu.clone(
+    probeRangeCuts = cms.VPSet(
+        hcalPosEtaCut,
+        hcalPhi17Cut,
+        )
+    )
+tagAndProbeMuonEleConfigIsoMuHEM17 = tagAndProbeMuonEleConfigIsoMu.clone(
+    probeRangeCuts = cms.VPSet(
+        hcalNegEtaCut,
+        hcalPhi17Cut,
+        )
+    )
+
+tagAndProbeMuonPhoConfigIsoMu = tagAndProbeMuonEleConfigIsoMu.clone(
+    probeColl=cms.InputTag("gedPhotons"),
+    probeVIDCuts=cms.InputTag("cutBasedPhotonID-Spring16-V2p2-loose"),
+)
+tagAndProbeMuonPhoConfigIsoMuHEP17 = tagAndProbeMuonPhoConfigIsoMu.clone(
+    probeRangeCuts = cms.VPSet(
+        hcalPosEtaCut,
+        hcalPhi17Cut,
+        )
+    )
+tagAndProbeMuonPhoConfigIsoMuHEM17 = tagAndProbeMuonPhoConfigIsoMu.clone(
+    probeRangeCuts = cms.VPSet(
+        hcalNegEtaCut,
+        hcalPhi17Cut,
+        )
+    )
+
 
 egammaStdHistConfigs = cms.VPSet(
     cms.PSet(
@@ -298,7 +357,7 @@ egammaStdFiltersToMonitor= cms.VPSet(
     cms.PSet(
         folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele32_WPTight_Gsf"),
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("35:99999")),),
-        filterName = cms.string("hltEle32noerWPTightGsfTrackIsoFilter"),
+        filterName = cms.string("hltEle32WPTightGsfTrackIsoFilter"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
         ),
@@ -685,6 +744,63 @@ egammaPhoFiltersToMonitor= cms.VPSet(
         ), 
 
 ) 
+
+
+egammaMuPhoFiltersToMonitor= cms.VPSet(
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Mu12_DoublePhoton20"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("25:99999")),),
+        filterName = cms.string("hltMu12DiEG20HEUnseededFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltL3fL1sMu12Diphoton20L1f0L2f8QL3Filtered12"),
+        ), 
+)
+
+egammaMuEleFiltersToMonitor= cms.VPSet(
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Mu12_DoublePhoton20"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("25:99999")),),
+        filterName = cms.string("hltMu12DiEG20HEUnseededFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltL3fL1sMu12Diphoton20L1f0L2f8QL3Filtered12"),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Mu37_Ele27_CaloIdL_MW"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
+        filterName = cms.string("hltEle27CaloIdLMWPMS2UnseededFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered37Q"),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Mu27_Ele37_CaloIdL_MW"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("42:99999")),),
+        filterName = cms.string("hltEle37CaloIdLMWPMS2UnseededFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered27Q"),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_DoubleEle33_CaloIdL_MW"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("40:99999")),),
+        filterName = cms.string("hltEle33CaloIdLMWPMS2Filter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele32_WPTight_Gsf"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("35:99999")),),
+        filterName = cms.string("hltEle32WPTightGsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele32_WPTight_Gsf_L1DoubleEG"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("35:99999")),),
+        filterName = cms.string("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+)
+
 egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
@@ -707,7 +823,7 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         ),
            
         )
-                                         )
+)
 
 egHLTElePhoHighEtaDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
                                                        tagAndProbeCollections = cms.VPSet(
@@ -756,6 +872,53 @@ egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSour
         )
 )
 
+egHLTMuonEleDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuEleTagAndProbeOfflineSource",
+                                                 tagAndProbeCollections = cms.VPSet(
+        cms.PSet( 
+            tagAndProbeMuonEleConfigIsoMu,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagEleProbe_"),
+            filterConfigs = egammaMuEleFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeMuonEleConfigIsoMuHEM17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagEleProbe-HEM17_"),
+            filterConfigs = egammaMuEleFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeMuonPhoConfigIsoMuHEP17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagEleProbe-HEP17_"),
+            filterConfigs = egammaMuEleFiltersToMonitor,
+        ),
+           
+        )
+)
+egHLTMuonPhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuPhoTagAndProbeOfflineSource",
+                                                 tagAndProbeCollections = cms.VPSet(
+        cms.PSet( 
+            tagAndProbeMuonPhoConfigIsoMu,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagPhoProbe_"),
+            filterConfigs = egammaMuPhoFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeMuonPhoConfigIsoMuHEM17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagPhoProbe-HEM17_"),
+            filterConfigs = egammaMuPhoFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeMuonPhoConfigIsoMuHEP17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("muonIsoMuTagPhoProbe-HEP17_"),
+            filterConfigs = egammaMuPhoFiltersToMonitor,
+        ),
+           
+        )
+)
+
 
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
@@ -791,3 +954,11 @@ for id_module_name in my_id_modules:
             setupVIDSelection(egmPhotonIDsForDQM,item)
 egmPhotonIDSequenceForDQM = cms.Sequence(photonIDValueMapProducer*
                                          egmPhotonIDsForDQM)
+
+egmDQMSelectedMuons = cms.EDProducer("HLTDQMMuonSelector",
+                                     objs=cms.InputTag("muons"),
+                                     vertices=cms.InputTag("offlinePrimaryVertices"),
+                                     selection=cms.string("pt > 20"),
+                                     muonSelectionType=cms.string("tight")
+                                     )
+egmMuonIDSequenceForDQM = cms.Sequence(egmDQMSelectedMuons)
