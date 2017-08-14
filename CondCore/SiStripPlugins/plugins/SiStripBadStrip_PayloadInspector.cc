@@ -203,7 +203,183 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total strip, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+
+      return (numerator/denominator)*100.;
+      
+    } // payload
+  };
+
+   /************************************************
+    time history histogram of bad components fraction (TIB)
+  *************************************************/
+
+  class SiStripBadStripTIBFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip,float> {
+  public:
+    SiStripBadStripTIBFractionByRun() : cond::payloadInspector::HistoryPlot<SiStripBadStrip,float>( "SiStrip Inner Barrel Bad Strip fraction per run","TIB Bad Strip fraction [%]"){}
+    ~SiStripBadStripTIBFractionByRun() override = default;
+
+    float getFromPayload( SiStripBadStrip& payload ) override{
+     
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      std::map<uint32_t,int> badStripsPerDetId;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload.getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload.decode(*badStrip).range;
+	}
+	badStripsPerDetId[d] = badStrips;
+      } // loop over detIds 
+      
+      float numerator(0.),denominator(0.);
+      std::vector<uint32_t> all_detids=reader->getAllDetIds();
+      for (const auto & det : all_detids) {
+	int subid = DetId(det).subdetId();
+	if(subid != StripSubdetector::TIB) continue;
+	denominator+=128.*reader->getNumberOfApvsAndStripLength(det).first;
+	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
+      }
+      
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TIB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+
+      return (numerator/denominator)*100.;
+      
+    } // payload
+  };
+
+   /************************************************
+    time history histogram of bad components fraction (TOB)
+  *************************************************/
+
+  class SiStripBadStripTOBFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip,float> {
+  public:
+    SiStripBadStripTOBFractionByRun() : cond::payloadInspector::HistoryPlot<SiStripBadStrip,float>( "SiStrip Outer Barrel Bad Strip fraction per run","TOB Bad Strip fraction [%]"){}
+    ~SiStripBadStripTOBFractionByRun() override = default;
+
+    float getFromPayload( SiStripBadStrip& payload ) override{
+     
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      std::map<uint32_t,int> badStripsPerDetId;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload.getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload.decode(*badStrip).range;
+	}
+	badStripsPerDetId[d] = badStrips;
+      } // loop over detIds 
+      
+      float numerator(0.),denominator(0.);
+      std::vector<uint32_t> all_detids=reader->getAllDetIds();
+      for (const auto & det : all_detids) {
+	int subid = DetId(det).subdetId();
+	if(subid != StripSubdetector::TOB) continue;	
+	denominator+=128.*reader->getNumberOfApvsAndStripLength(det).first;
+	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
+      }
+      
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TOB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+
+      return (numerator/denominator)*100.;
+      
+    } // payload
+  };
+
+   /************************************************
+    time history histogram of bad components fraction (TID)
+   *************************************************/
+
+  class SiStripBadStripTIDFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip,float> {
+  public:
+    SiStripBadStripTIDFractionByRun() : cond::payloadInspector::HistoryPlot<SiStripBadStrip,float>( "SiStrip Inner Disks Bad Strip fraction per run","TID Bad Strip fraction [%]"){}
+    ~SiStripBadStripTIDFractionByRun() override = default;
+
+    float getFromPayload( SiStripBadStrip& payload ) override{
+     
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      std::map<uint32_t,int> badStripsPerDetId;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload.getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload.decode(*badStrip).range;
+	}
+	badStripsPerDetId[d] = badStrips;
+      } // loop over detIds 
+      
+      float numerator(0.),denominator(0.);
+      std::vector<uint32_t> all_detids=reader->getAllDetIds();
+      for (const auto & det : all_detids) {
+	int subid = DetId(det).subdetId();
+	if(subid != StripSubdetector::TID) continue;
+	denominator+=128.*reader->getNumberOfApvsAndStripLength(det).first;
+	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
+      }
+      
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TID strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
+
+      return (numerator/denominator)*100.;
+      
+    } // payload
+  };
+
+  /************************************************
+    time history histogram of bad components fraction (TEC)
+   *************************************************/
+
+  class SiStripBadStripTECFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip,float> {
+  public:
+    SiStripBadStripTECFractionByRun() : cond::payloadInspector::HistoryPlot<SiStripBadStrip,float>( "SiStrip Endcaps Bad Strip fraction per run","TEC Bad Strip fraction [%]"){}
+    ~SiStripBadStripTECFractionByRun() override = default;
+
+    float getFromPayload( SiStripBadStrip& payload ) override{
+     
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      std::map<uint32_t,int> badStripsPerDetId;
+
+      for (const auto & d : detid) {
+	SiStripBadStrip::Range range=payload.getRange(d);
+	int badStrips(0);
+	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
+	  badStrips+= payload.decode(*badStrip).range;
+	}
+	badStripsPerDetId[d] = badStrips;
+      } // loop over detIds 
+      
+      float numerator(0.),denominator(0.);
+      std::vector<uint32_t> all_detids=reader->getAllDetIds();
+      for (const auto & det : all_detids) {
+	int subid = DetId(det).subdetId();
+	if(subid != StripSubdetector::TEC) continue;
+	denominator+=128.*reader->getNumberOfApvsAndStripLength(det).first;
+	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
+      }
+      
+      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TEC strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
 
       return (numerator/denominator)*100.;
       
@@ -218,4 +394,8 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip){
   PAYLOAD_INSPECTOR_CLASS(SiStripBadModuleTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionByRun);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIBFractionByRun); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTOBFractionByRun); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIDFractionByRun); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTECFractionByRun); 
 }
