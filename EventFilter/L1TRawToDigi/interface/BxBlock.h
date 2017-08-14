@@ -11,8 +11,8 @@ namespace l1t {
          BxBlockHeader() : id_(0), totalBx_(0), flags_(0) {};
          BxBlockHeader(unsigned int id, unsigned int totalBx, unsigned int flags=0) : id_(id), totalBx_(totalBx), flags_(flags) {};
          // Create a BX header: everything is contained in the raw uint32
-         BxBlockHeader(const uint32_t raw) : id_((raw >> id_shift) & id_mask)
-                                      , totalBx_((raw >> totalBx_shift) & totalBx_mask)
+         BxBlockHeader(const uint32_t raw) : id_(((raw >> id_shift) & id_mask) / n_words)
+                                      , totalBx_(((raw >> totalBx_shift) & totalBx_mask) / n_words)
                                       , flags_((raw >> flags_shift) & flags_mask) {};
 
          bool operator<(const BxBlockHeader& o) const { return getBx() < o.getBx(); };
@@ -22,11 +22,12 @@ namespace l1t {
          inline unsigned int getTotalBx() const { return totalBx_; };
          inline unsigned int getFlags() const { return flags_; };
 
-         inline uint32_t raw() const { return ((id_ & id_mask) << id_shift)
-                                     | ((totalBx_ & totalBx_mask) << totalBx_shift)
+         inline uint32_t raw() const { return (((id_ & id_mask) << id_shift) * n_words)
+                                     | (((totalBx_ & totalBx_mask) << totalBx_shift) * n_words)
                                      | ((flags_ & flags_mask) << flags_shift); };
 
       private:
+         static const unsigned int n_words = 6; // every link transmits 6 32 bit words per bx
          static const unsigned int id_shift = 24;
          static const unsigned int id_mask = 0xff;
          static const unsigned int totalBx_shift = 16;
