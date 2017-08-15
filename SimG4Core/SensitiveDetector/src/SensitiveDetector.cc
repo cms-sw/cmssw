@@ -29,13 +29,14 @@ void SensitiveDetector::Register()
 
 void SensitiveDetector::AssignSD(const std::string & vname)
 {
-  G4LogicalVolume* v = G4LogicalVolumeStore::GetInstance()->GetVolume(vname, true);
+  G4LogicalVolume* v = 
+    G4LogicalVolumeStore::GetInstance()->GetVolume((G4String)vname, true);
   if (v) { v->SetSensitiveDetector(this); }
 }
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent * eventHC) {}
 
-Local3DPoint SensitiveDetector::InitialStepPosition(G4Step * step, coordinates cc)
+Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step * step, coordinates cc)
 {
   G4StepPoint * preStepPoint = step->GetPreStepPoint();
   return (cc == WorldCoordinates) ? ConvertToLocal3DPoint(preStepPoint->GetPosition())
@@ -43,7 +44,7 @@ Local3DPoint SensitiveDetector::InitialStepPosition(G4Step * step, coordinates c
                             ->GetTopTransform().TransformPoint(preStepPoint->GetPosition()));
 }
 
-Local3DPoint SensitiveDetector::FinalStepPosition(G4Step * step, coordinates cc)
+Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinates cc)
 {
   // transformation is defined pre-step
   G4StepPoint * preStepPoint = step->GetPreStepPoint();
@@ -80,3 +81,10 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
   }
   return;
 }
+
+std::vector<std::string> SensitiveDetector::getNames()
+{
+  std::vector<std::string> temp;
+  temp.push_back(name);
+  return std::move(temp);
+}  

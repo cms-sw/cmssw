@@ -33,14 +33,14 @@ public:
 
   ECalSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
-  virtual ~ECalSD();
-  virtual double                    getEnergyDeposit(G4Step*);
+  ~ECalSD() override;
+  double                    getEnergyDeposit(G4Step*) override;
   virtual uint16_t                  getRadiationLength(G4Step *);
   virtual uint16_t                  getLayerIDForTimeSim(G4Step *);
-  virtual uint32_t                  setDetUnitId(G4Step*);
+  uint32_t                  setDetUnitId(G4Step*) override ;
   void                              setNumberingScheme(EcalNumberingScheme*);
-  virtual int                       getTrackID(G4Track*);
-  virtual uint16_t                  getDepth(G4Step*);
+  int                       getTrackID(G4Track*) override;
+  uint16_t                  getDepth(G4Step*) override;
 
 private:    
   void                              initMap(const G4String&, const DDCompactView &);

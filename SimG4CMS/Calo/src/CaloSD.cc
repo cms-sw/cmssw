@@ -374,7 +374,7 @@ CaloG4Hit* CaloSD::createNewHit() {
 #endif  
   
   CaloG4Hit* aHit;
-  if (reusehit.size() > 0) {
+  if (!reusehit.empty()) {
     aHit = reusehit[0];
     aHit->setEM(0.);
     aHit->setHadr(0.);
@@ -413,7 +413,7 @@ CaloG4Hit* CaloSD::createNewHit() {
     edm::LogInfo("CaloSim") << "CaloSD : TrackwithHistory pointer for " 
 			    << currentID.trackID() << " is " << trkh;
 #endif
-    if (trkh != NULL) {
+    if (trkh != nullptr) {
       etrack = sqrt(trkh->momentum().Mag2());
       if (etrack >= energyCut) {
         trkh->save();
@@ -503,7 +503,7 @@ void CaloSD::update(const EndOfTrack * trk) {
   if (trkI) lastTrackID = trkI->getIDonCaloSurface();
   if (id == lastTrackID) {
     const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
-    if (trksForThisEvent != NULL) {
+    if (trksForThisEvent != nullptr) {
       int it = (int)(trksForThisEvent->size()) - 1;
       if (it >= 0) {
         TrackWithHistory * trkH = (*trksForThisEvent)[it];
@@ -680,7 +680,7 @@ void CaloSD::cleanHitCollection() {
 #endif
   
   selIndex.reserve(theHC->entries()-cleanIndex);
-  if ( reusehit.size() == 0 ) reusehit.reserve(theHC->entries()-cleanIndex); 
+  if ( reusehit.empty() ) reusehit.reserve(theHC->entries()-cleanIndex); 
 
   // if no map used, merge before hits to have the save situation as a map
   if ( !useMap ) {
