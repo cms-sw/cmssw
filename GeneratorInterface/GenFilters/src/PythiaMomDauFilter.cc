@@ -69,7 +69,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      
   if( (*p)->pdg_id() != particleID ) continue ;
   HepMC::FourVector mom = zboost((*p)->momentum());
-  if( mom.perp() >  mom_minptcut  && mom.perp() <  mom_maxptcut  && mom.eta()  >  mom_minetacut &&  mom.eta()  <  mom_maxetacut ){ 
+  if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  && mom.eta()  >  mom_minetacut &&  mom.eta()  <  mom_maxetacut ){ 
    mom_accepted = true;
    ndauac = 0;
    ndau   = 0;
@@ -89,7 +89,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         for( unsigned int i=0; i<desIDs.size(); ++i) {
          if( (*des)->pdg_id() != desIDs[i] ) continue ;
          HepMC::FourVector dau_i = zboost((*des)->momentum());
-         if( dau_i.perp() >  minptcut  && dau_i.perp() <  maxptcut  && dau_i.eta()  >  minetacut &&  dau_i.eta()  <  maxetacut ) {
+         if( (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  && dau_i.eta()  >  minetacut &&  dau_i.eta()  <  maxetacut ) {
           ++ndesac;
           break;
 	  } 
@@ -114,7 +114,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
        
        if( (*p)->pdg_id() != -particleID ) continue ;
        HepMC::FourVector mom = zboost((*p)->momentum());
-       if( mom.perp() >  mom_minptcut  && mom.perp() <  mom_maxptcut  &&  mom.eta()  >  mom_minetacut && mom.eta()  <  mom_maxetacut ){ 
+       if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  &&  mom.eta()  >  mom_minetacut && mom.eta()  <  mom_maxetacut ){ 
        mom_accepted = true;
        ndauac = 0;
        ndau = 0;
@@ -146,7 +146,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     if( has_antipart == 0 ) IDanti = desIDs[i];
 	     if( (*des)->pdg_id() != IDanti ) continue ;
              HepMC::FourVector dau_i = zboost((*des)->momentum());
-	     if(   dau_i.perp() >  minptcut  && dau_i.perp() <  maxptcut  &&  dau_i.eta()  >  minetacut && dau_i.eta()  <  maxetacut ) {
+	     if(   (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  &&  dau_i.eta()  >  minetacut && dau_i.eta()  <  maxetacut ) {
 	       ++ndesac;
 	       break;
 	     } 

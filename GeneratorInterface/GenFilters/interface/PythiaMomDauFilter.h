@@ -33,6 +33,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "HepMC/SimpleVector.h"
+
 namespace edm {
       class HepMCProduct;
 }
