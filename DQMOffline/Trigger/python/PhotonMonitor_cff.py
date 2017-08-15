@@ -53,6 +53,34 @@ Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.FolderName = cms.string('HLT
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_v*","HLT_PFHT350MinPFJet15_v*")
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v*")
 
+from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
+
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_VBFmonitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50/',
+    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_v*"]
+    ),
+    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_v*"]
+    ),
+    jetSelection = "pt > 20 & abs(eta) < 5.0",
+    jetId = "tight",
+    njets = 2,
+    doMETHistos = False,
+    doHTHistos = False
+)
+
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_METmonitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50/',
+    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_v*"]
+    ),
+    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_v*"]
+    ),
+    doJetHistos = False,
+    doHTHistos = False
+)
 
 exoHLTPhotonmonitoring = cms.Sequence(
     SinglePhoton300_monitoring
@@ -65,7 +93,8 @@ exoHLTPhotonmonitoring = cms.Sequence(
     + SinglePhoton90_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton120_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton165_R9Id90_HE10_IsoM_monitoring
-    
+    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_VBFmonitoring
+    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_METmonitoring
 )
 
 
