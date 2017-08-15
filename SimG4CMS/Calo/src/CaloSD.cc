@@ -289,14 +289,14 @@ G4ThreeVector CaloSD::setToLocal(const G4ThreeVector& global, const G4VTouchable
 
   G4ThreeVector localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   
-  return localPoint;  
+  return std::move(localPoint);  
 }
 
 G4ThreeVector CaloSD::setToGlobal(const G4ThreeVector& local, const G4VTouchable* touch) {
 
   G4ThreeVector globalPoint = touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
   
-  return globalPoint;  
+  return std::move(globalPoint);  
 }
 
 G4bool CaloSD::hitExists() {
@@ -538,7 +538,6 @@ void CaloSD::update(const ::EndOfEvent * ) {
                           << " hits recorded with " << wrong 
                           << " track IDs not given properly and "
                           << totalHits-count << " hits not passing cuts";
-  summarize();
 
   tkMap.erase (tkMap.begin(), tkMap.end());
 }
@@ -649,8 +648,6 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 #endif
   return ok;
 }
-
-void CaloSD::summarize() {}
 
 void CaloSD::update(const BeginOfTrack * trk) {
   int primary = -1;

@@ -10,7 +10,6 @@
 
 #include "G4VSensitiveDetector.hh"
 
-#include <boost/cstdint.hpp>
 #include <string>
 
 class G4Step;
