@@ -98,7 +98,6 @@ private:
 
   void             storeHit(CaloG4Hit*);
   bool             saveHit(CaloG4Hit*);
-  void             summarize();
   void             cleanHitCollection();
 
 protected:
