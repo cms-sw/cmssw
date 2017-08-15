@@ -8,6 +8,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     useParticleFlow  =  cms.bool( False ),
     pfElectronSource = cms.InputTag("particleFlow"),
     pfCandidateMap = cms.InputTag("particleFlow:electrons"),
+    usePfCandidateMultiMap = cms.bool( False ),
 
     # collections for mva input variables
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
