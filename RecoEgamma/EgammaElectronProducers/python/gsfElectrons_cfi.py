@@ -345,4 +345,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
                                  ),
 )
 
+ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
+  gsfElectronCoresTag = 'ecalDrivenGsfElectronCoresFromMultiCl'
+)
 

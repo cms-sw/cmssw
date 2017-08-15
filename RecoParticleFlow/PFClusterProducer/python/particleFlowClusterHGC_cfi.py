@@ -33,6 +33,13 @@ _positionCalcPCA_HGCal = cms.PSet(
         minFractionInCalc = cms.double(1e-9)
 )
 
+_hgcalMultiClusterMapper_HGCal = cms.PSet(
+    algoName = cms.string("PFClusterFromHGCalMultiCluster"),
+    thresholdsByDetector = cms.VPSet(
+    ),
+    clusterSrc = cms.InputTag("hgcalLayerClusters")
+)
+
 particleFlowClusterHGCal = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
@@ -43,3 +50,7 @@ particleFlowClusterHGCal = cms.EDProducer(
     positionReCalc = _positionCalcPCA_HGCal,
     energyCorrector = cms.PSet()
     )
+
+particleFlowClusterHGCalFromMultiCl = particleFlowClusterHGCal.clone(
+    initialClusteringStep = _hgcalMultiClusterMapper_HGCal
+)
