@@ -39,13 +39,13 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
 	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  // set to -1 for ieta 0 (no crystal)
 	  for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
 
@@ -79,12 +79,12 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
 	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // set to -1 everywhwere
 	  for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
@@ -120,7 +120,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -129,7 +129,7 @@ namespace {
       std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
       unsigned int run = std::get<0>(iov);
       if( payload.get() ){
-	if (!payload->barrelItems().size()) return false;
+	if (payload->barrelItems().empty()) return false;
 	for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
 	  uint32_t rawid = EBDetId::unhashIndex(cellid);
 	  EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
@@ -142,7 +142,7 @@ namespace {
 	  barrel->Fill(phi, eta, weight);
 	}// loop over cellid
 
-	if (!payload->endcapItems().size()) return false;
+	if (payload->endcapItems().empty()) return false;
 	// looping over the EE channels
 	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	  for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)
@@ -201,7 +201,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -217,7 +217,7 @@ namespace {
 	std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
 	run[irun] = std::get<0>(iov);
 	if( payload.get() ){
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
 	    uint32_t rawid = EBDetId::unhashIndex(cellid);
 	    EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
@@ -237,7 +237,7 @@ namespace {
 	    }
 	  }// loop over cellid
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)

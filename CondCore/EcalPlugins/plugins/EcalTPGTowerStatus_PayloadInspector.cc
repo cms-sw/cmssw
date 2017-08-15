@@ -31,7 +31,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel = new TH2F("EB","EB TPG Tower Status", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       int EBstat = 0, EEstat = 0;
 
@@ -84,7 +84,7 @@ namespace {
       t1.DrawLatex(0.5, 0.02, Form("EE : %i tower(s)", EEstat));
       //      canvas.cd();
       pad[0]->cd();
-      //      barrel->SetStats(0);
+      //      barrel->SetStats(false);
       barrel->Draw("col");
       TLine* l = new TLine(0., 0., 0., 0.);
       l->SetLineWidth(1);
@@ -111,7 +111,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel = new TH2F("EB","EB difference", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       //      int EBstat[2] = {0, 0};
       int EBstat = 0, EEstat = 0;
@@ -208,7 +208,7 @@ namespace {
       t1.DrawLatex(0.5, 0.02, Form("EE : %i tower(s)", EEstat));
 
       pad[0]->cd();
-      //      barrel->SetStats(0);
+      //      barrel->SetStats(false);
       barrel->Draw("col");
       TLine* l = new TLine(0., 0., 0., 0.);
       l->SetLineWidth(1);

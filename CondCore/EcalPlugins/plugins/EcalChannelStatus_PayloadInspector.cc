@@ -32,7 +32,7 @@ namespace {
     EcalChannelStatusEBMap() : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Barrel channel status") {
       setSingleIov( true );
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       TH2F *ebmap = new TH2F("ebmap","",MAX_IPHI, 0, MAX_IPHI, 2*MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F *ebmap_coarse = new TH2F("ebmap_coarse","",MAX_IPHI/20, 0, MAX_IPHI, 2,-MAX_IETA, MAX_IETA);
@@ -44,7 +44,7 @@ namespace {
       run = std::get<0>(iov);
       if( payload.get() ){
 	// looping over the EB channels, via the dense-index, mapped into EBDetId's
-	if (!payload->barrelItems().size()) return false;
+	if (payload->barrelItems().empty()) return false;
 	for(int cellid = EBDetId::MIN_HASH;
 	    cellid < EBDetId::kSizeForDenseIndexing;
 	    ++cellid) {
@@ -137,7 +137,7 @@ namespace {
     EcalChannelStatusEEMap() : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Barrel channel status") {
       setSingleIov( true );
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       //      TH2F *eemap = new TH2F("eemap","", 2*IX_MAX, IX_MIN, 2*IX_MAX+1, IY_MAX, IY_MIN, IY_MAX+IY_MIN);
       TH2F *eemap = new TH2F("eemap","", 2*IX_MAX, 0, 2*IX_MAX, IY_MAX, 0, IY_MAX);
@@ -149,7 +149,7 @@ namespace {
       std::shared_ptr<EcalChannelStatus> payload = fetchPayload( std::get<1>(iov) );
       run = std::get<0>(iov);
       if( payload.get() ){
-	if (!payload->endcapItems().size()) return false;
+	if (payload->endcapItems().empty()) return false;
 
 	// looping over the EE channels
 	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -276,7 +276,7 @@ namespace {
     EcalChannelStatusEBDiff() : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Barrel channel status difference") {
       setSingleIov(false);
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       TH2F *ebmap = new TH2F("ebmap","",MAX_IPHI, 0, MAX_IPHI, 2*MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F *ebmap_coarse = new TH2F("ebmap_coarse","",MAX_IPHI/20, 0, MAX_IPHI, 2,-MAX_IETA, MAX_IETA);
@@ -286,9 +286,9 @@ namespace {
 	std::shared_ptr<EcalChannelStatus> payload = fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
-	    run[irun] = std::get<0>(iov);
-	    for(int cellid = EBDetId::MIN_HASH;
+	  if (payload->barrelItems().empty()) return false;
+	  run[irun] = std::get<0>(iov);
+	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
 	    uint32_t rawid = EBDetId::unhashIndex(cellid);  
@@ -389,7 +389,7 @@ namespace {
     EcalChannelStatusEEDiff() : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Endcaps channel status difference") {
       setSingleIov( true );
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       TH2F *eemap = new TH2F("eemap","", 2*IX_MAX, 0, 2*IX_MAX, IY_MAX, 0, IY_MAX);
       TH2F *eemap_coarse = new TH2F("eemap_coarse","", 2, 0, 2*IX_MAX, 1, 0, IY_MAX);
@@ -400,7 +400,7 @@ namespace {
 	std::shared_ptr<EcalChannelStatus> payload = fetchPayload( std::get<1>(iov) );
 	run[irun] = std::get<0>(iov);
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1

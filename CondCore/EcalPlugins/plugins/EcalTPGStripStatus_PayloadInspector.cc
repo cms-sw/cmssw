@@ -30,7 +30,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* endc_p = new TH2F("EE+","EE+ TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-","EE- TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       int EEstat[2] = {0, 0};
@@ -166,7 +166,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* endc_p = new TH2F("EE+","EE+ TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-","EE- TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       int EEstat[2][2] = {{0, 0}, {0, 0}};

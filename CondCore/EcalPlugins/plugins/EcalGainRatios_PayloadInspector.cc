@@ -32,7 +32,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel_12O6 = new TH2F("EB_12O6","EB gain 12/6",MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p_12O6 = new TH2F("EE+_12O6","EE+ gain 12/6",IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m_12O6 = new TH2F("EE-_12O6","EE- gain 12/6",IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -114,22 +114,22 @@ namespace {
       float min12O6 = 1.8, max12O6 = 2.1, min6O1 = 5.3, max6O1 = 6.3;
       pad[0][0]->cd();
       DrawEE(endc_m_12O6, min12O6, max12O6);
-      endc_m_12O6->SetStats(0);
+      endc_m_12O6->SetStats(false);
       pad[0][1]->cd();
       DrawEB(barrel_12O6, min12O6, max12O6);
-      barrel_12O6->SetStats(0);
+      barrel_12O6->SetStats(false);
       pad[0][2]->cd();
       DrawEE(endc_p_12O6, min12O6, max12O6);
-      endc_p_12O6->SetStats(0);
+      endc_p_12O6->SetStats(false);
       pad[1][0]->cd();
       DrawEE(endc_m_6O1, min6O1, max6O1);
-      endc_m_6O1->SetStats(0);
+      endc_m_6O1->SetStats(false);
       pad[1][1]->cd();
       DrawEB(barrel_6O1, min6O1, max6O1);
-      barrel_6O1->SetStats(0);
+      barrel_6O1->SetStats(false);
       pad[1][2]->cd();
       DrawEE(endc_p_6O1, min6O1, max6O1);
-      endc_p_6O1->SetStats(0);
+      endc_p_6O1->SetStats(false);
 
       gStyle->SetOptStat(111110);
       pad1[0]->cd();
@@ -172,7 +172,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F* barrel_12O6 = new TH2F("EB_12O6","EB gain 12/6 difference",MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p_12O6 = new TH2F("EE+_12O6","EE+ gain 12/6 difference",IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m_12O6 = new TH2F("EE-_12O6","EE- gain 12/6 difference",IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -274,22 +274,22 @@ namespace {
       float min12O6 = -0.1, max12O6 = 0.1, min6O1 = -0.1, max6O1 = 0.1;
       pad[0][0]->cd();
       DrawEE(endc_m_12O6, min12O6, max12O6);
-      endc_m_12O6->SetStats(0);
+      endc_m_12O6->SetStats(false);
       pad[0][1]->cd();
       DrawEB(barrel_12O6, min12O6, max12O6);
-      barrel_12O6->SetStats(0);
+      barrel_12O6->SetStats(false);
       pad[0][2]->cd();
       DrawEE(endc_p_12O6, min12O6, max12O6);
-      endc_p_12O6->SetStats(0);
+      endc_p_12O6->SetStats(false);
       pad[1][0]->cd();
       DrawEE(endc_m_6O1, min6O1, max6O1);
-      endc_m_6O1->SetStats(0);
+      endc_m_6O1->SetStats(false);
       pad[1][1]->cd();
       DrawEB(barrel_6O1, min6O1, max6O1);
-      barrel_6O1->SetStats(0);
+      barrel_6O1->SetStats(false);
       pad[1][2]->cd();
       DrawEE(endc_p_6O1, min6O1, max6O1);
-      endc_p_6O1->SetStats(0);
+      endc_p_6O1->SetStats(false);
 
       gStyle->SetOptStat(111110);
       pad1[0]->cd();

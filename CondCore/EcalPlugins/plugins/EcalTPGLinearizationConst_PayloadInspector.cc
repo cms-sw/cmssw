@@ -33,7 +33,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
       TH2F** endc_m_m = new TH2F*[kGains];
@@ -195,7 +195,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
       TH2F** endc_m_m = new TH2F*[kGains];

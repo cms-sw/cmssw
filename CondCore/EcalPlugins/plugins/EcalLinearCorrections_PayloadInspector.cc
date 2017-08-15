@@ -30,7 +30,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel = new TH2F*[kValues];
       TH2F** endc_p = new TH2F*[kValues];
       TH2F** endc_m = new TH2F*[kValues];
@@ -179,7 +179,7 @@ namespace {
 	DrawEE(endc_m[valId], pEEmin[valId], pEEmax[valId]);
 	pad[valId][1]->cd();
 	DrawEB(barrel[valId], pEBmin[valId], pEBmax[valId]);
-	barrel[valId]->SetStats(0);
+	barrel[valId]->SetStats(false);
 	pad[valId][2]->cd();
 	DrawEE(endc_p[valId], pEEmin[valId], pEEmax[valId]);
       }
@@ -198,7 +198,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel = new TH2F*[kValues];
       TH2F** endc_p = new TH2F*[kValues];
       TH2F** endc_m = new TH2F*[kValues];
@@ -382,7 +382,7 @@ namespace {
 	DrawEE(endc_m[valId], pEEmin[valId], pEEmax[valId]);
 	pad[valId][1]->cd();
 	DrawEB(barrel[valId], pEBmin[valId], pEBmax[valId]);
-	barrel[valId]->SetStats(0);
+	barrel[valId]->SetStats(false);
 	pad[valId][2]->cd();
 	DrawEE(endc_p[valId], pEEmin[valId], pEEmax[valId]);
       }
