@@ -14,9 +14,7 @@ hltBPHmonitoring.Upsilon = cms.int32(0)
 hltBPHmonitoring.Jpsi = cms.int32(0)
 hltBPHmonitoring.seagull = cms.int32(0)
 hltBPHmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 ( 76  ),
-  xmin  = cms.double(   -0.5),
-  xmax  = cms.double(75.5),
+    edges = cms.vdouble(-0.5, 0, 2, 4, 8, 10, 12, 14, 16, 18, 20, 22, 25, 30, 35, 40, 50, 70),
 )
 hltBPHmonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.int32 (  64  ),
