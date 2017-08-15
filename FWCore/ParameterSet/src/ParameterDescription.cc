@@ -27,16 +27,18 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& value,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
   ParameterDescription<ParameterSetDescription>::
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& value,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
@@ -176,8 +178,9 @@ namespace edm {
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& psetDesc,
                        bool isTracked,
-                       std::vector<ParameterSet> const& vPset) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+                       std::vector<ParameterSet> const& vPset,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(vPset),
       partOfDefaultOfVPSet_(false) {
@@ -187,8 +190,9 @@ namespace edm {
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& psetDesc,
                        bool isTracked,
-                       std::vector<ParameterSet> const& vPset) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+                       std::vector<ParameterSet> const& vPset,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(vPset),
       partOfDefaultOfVPSet_(false) {
@@ -197,8 +201,9 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& psetDesc,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(),
       partOfDefaultOfVPSet_(false) {
@@ -207,8 +212,9 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& psetDesc,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(),
       partOfDefaultOfVPSet_(false) {
