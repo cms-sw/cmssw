@@ -95,8 +95,8 @@ edm::ParameterSetDescription fillDescriptionForParseHFPhase1AlgoDescription()
     desc.add<double>("timeShift", 0.0);
     desc.add<double>("triseIfNoTDC", -100.0);
     desc.add<double>("tfallIfNoTDC", -101.0);
-    desc.add<double>("minChargeForUndershoot", -10000.f);
-    desc.add<double>("minChargeForOvershoot", -10000.f);
+    desc.add<double>("minChargeForUndershoot", 1.0e10);
+    desc.add<double>("minChargeForOvershoot", 1.0e10);
 
     desc.ifValue(edm::ParameterDescription<std::string>("Class", "HFSimpleTimeCheck", true),
                  "HFSimpleTimeCheck" >> edm::ParameterDescription<bool>("rejectAllFailures", false, true) or
