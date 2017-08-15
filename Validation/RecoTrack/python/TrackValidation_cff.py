@@ -477,7 +477,17 @@ trackValidatorConversion = trackValidator.clone(
     calculateDrSingleCollection = False,
 )
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import convLayerPairs as _convLayerPairs
-trackValidatorConversion.histoProducerAlgoBlock.seedingLayerSets = _convLayerPairs.layerList.value()
+def _uniqueFirstLayers(layerList):
+    firstLayers = [layerSet.split("+")[0] for layerSet in layerList]
+    ret = []
+    for l in firstLayers:
+        if not l in ret:
+            ret.append(l)
+    return ret
+# PhotonConversionTrajectorySeedProducerFromSingleLeg keeps only the
+# first hit of the pairs in the seed, bookkeeping those is the best we
+# can do without major further development
+trackValidatorConversion.histoProducerAlgoBlock.seedingLayerSets = _uniqueFirstLayers(_convLayerPairs.layerList.value())
 # relax lip and tip
 for n in ["Eta", "Phi", "Pt", "VTXR", "VTXZ"]:
     pset = getattr(trackValidatorConversion.histoProducerAlgoBlock, "TpSelectorForEfficiencyVs"+n)
