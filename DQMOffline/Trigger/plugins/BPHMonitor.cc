@@ -51,7 +51,8 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , minprob     ( iConfig.getParameter<double>("minprob" )     )
   , mincos     ( iConfig.getParameter<double>("mincos" )     )
   , minDS     ( iConfig.getParameter<double>("minDS" )     )
-  , hltInputTag_ (mayConsume<trigger::TriggerEvent>( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag"))) 
+  , hltTrigResTag_ (mayConsume<edm::TriggerResults>( iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag")))
+  , hltInputTag_ (mayConsume<trigger::TriggerEvent>( iConfig.getParameter<edm::InputTag>("hltTriggerSummaryAOD")))
   , hltpaths_num     ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
   , hltpaths_den     ( iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
   , trSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
@@ -128,7 +129,7 @@ BPHMonitor::~BPHMonitor()
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning BPHMonitor::getHistoPSet(const edm::ParameterSet& pset)
+MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -137,7 +138,7 @@ MEbinning BPHMonitor::getHistoPSet(const edm::ParameterSet& pset)
       };
 }
 
-MEbinning BPHMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
+MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -146,7 +147,7 @@ MEbinning BPHMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
       };
 }
 
-void BPHMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
+void BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -349,12 +350,14 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
 
-
   edm::Handle<reco::TrackCollection> trHandle;
   iEvent.getByToken( trToken_, trHandle );
 
   edm::Handle<reco::PhotonCollection> phHandle;
   iEvent.getByToken( phToken_, phHandle );
+
+
+  edm::Handle<edm::TriggerResults> handleTriggerTrigRes; 
 
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
   edm::ESHandle<MagneticField> bFieldHandle;
@@ -366,12 +369,12 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     const std::string & hltpath = hltpaths_num[0]; 
     std::vector<reco::Muon> tagMuons;
     for ( auto const & m : *muoHandle ) {//applying tag selection 
-      if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+      if(false && !matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
       if ( muoSelection_ref( m ) ) tagMuons.push_back(m);
     }
     for (int i = 0; i<int(tagMuons.size());i++){
       for ( auto const & m : *muoHandle ) { 
-        if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+        if(false && !matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
         if ((tagMuons[i].pt() == m.pt()))continue;//not the same  
         if ((tagMuons[i].p4()+m.p4()).M() >minmass_&& (tagMuons[i].p4()+m.p4()).M() <maxmass_){//near to J/psi mass
           muPhi_.denominator->Fill(m.phi());
@@ -395,12 +398,12 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (handleTriggerEvent->sizeFilters()== 0)return;
     const std::string & hltpath = hltpaths_den[0]; 
     for (auto const & m : *muoHandle ) {
-      if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+      if(false && !matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
       if(!muoSelection_ref(m))continue;   
       for (auto const & m1 : *muoHandle ) {
         if (m1.pt() == m.pt())continue;
         if(!muoSelection_ref(m1))continue;   
-        if(!matchToTrigger(hltpath,m1, handleTriggerEvent)) continue;
+        if(false && !matchToTrigger(hltpath,m1, handleTriggerEvent)) continue;
         if (enum_<10){
           if (!DMSelection_ref(m1.p4() + m.p4()))continue;
           if (m.charge()*m1.charge()>0 )continue;
@@ -518,7 +521,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
           }
           for (auto const & m2 : *muoHandle) {//triple muon paths
-            if(!matchToTrigger(hltpath,m2, handleTriggerEvent)) continue;
+            if(false && !matchToTrigger(hltpath,m2, handleTriggerEvent)) continue;
             if (m2.pt() == m.pt())continue;
             mu1Phi_.denominator->Fill(m.phi());
             mu1Eta_.denominator->Fill(m.eta());
@@ -564,7 +567,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           for (auto const & t : *trHandle) {
       
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
               reco::Track itrk1       = t ;                                                
               
               if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
@@ -625,7 +628,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         if (trHandle.isValid()){
           for (auto const & t : *trHandle) {
             if(!trSelection_ref(t))continue;
-            if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+            if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
             reco::Track itrk1       = t ;                                                
             if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
             if((reco::deltaR(t,m) <= 0.001)) continue;
@@ -676,10 +679,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       ////////////////////////
         for (auto const & t : *trHandle) {
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
           for (auto const & t1 : *trHandle) {
             if(!trSelection_ref(t1))continue;
-            if(!matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
+            if(false && !matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
             reco::Track itrk1       = t ;                                                
             reco::Track itrk2       = t1 ;                                                
             if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
@@ -738,7 +741,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         } 
       /////////////////////////
       }
-
     }
     break;
     } 
@@ -748,7 +750,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
    if (enum_ == 7){//photons
    const std::string & hltpath = hltpaths_den[0];
    for (auto const & p : *phHandle) {
-      if(!matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+
+      if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+
         phPhi_.denominator->Fill(p.phi());
         phEta_.denominator->Fill(p.eta());
         phPt_.denominator ->Fill(p.pt());
@@ -759,19 +763,18 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 /////////
 //filling numerator hists
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
   iEvent.getByToken( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
   const std::string & hltpath1 = hltpaths_num[0]; 
   for (auto const & m : *muoHandle ) {
-    if(!matchToTrigger(hltpath1,m, handleTriggerEvent)) continue;
+    if(false && !matchToTrigger(hltpath1,m, handleTriggerEvent)) continue;
     if(!muoSelection_ref(m))continue;   
     for (auto const & m1 : *muoHandle ) {
       if (seagull_ && ((m.charge()* deltaPhi(m.phi(), m1.phi())) > 0.) )continue;
       if (m.charge()*m1.charge()>0 )continue;
       if (m1.pt() == m.pt())continue;
       if(!muoSelection_ref(m1))continue;   
-      if(!matchToTrigger(hltpath1,m1, handleTriggerEvent)) continue;
+      if(false && !matchToTrigger(hltpath1,m1, handleTriggerEvent)) continue;
       if (!DMSelection_ref(m1.p4() + m.p4()))continue;
       iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
       const reco::BeamSpot& vertexBeamSpot = *beamSpot;
@@ -886,7 +889,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
         }
         for (auto const & m2 : *muoHandle) {//triple muon paths
-          if(!matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
           if (m2.pt() == m.pt())continue;
           mu1Phi_.numerator->Fill(m.phi());
           mu1Eta_.numerator->Fill(m.eta());
@@ -924,7 +927,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
         for (auto const & t : *trHandle) {
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
           if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
           if((reco::deltaR(t,m) <= 0.001)) continue;
@@ -978,7 +981,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
         for (auto const & t : *trHandle) {
           if(!trSelection_ref(t))continue;
-          if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
           if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
           if((reco::deltaR(t,m) <= 0.001)) continue;
@@ -1029,10 +1032,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (trHandle.isValid()){
       for (auto const & t : *trHandle) {
         if(!trSelection_ref(t))continue;
-        if(!matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+        if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
         for (auto const & t1 : *trHandle) {
           if(!trSelection_ref(t1))continue;
-          if(!matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
+          if(false && !matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
           reco::Track itrk1       = t ;                                                
           reco::Track itrk2       = t1 ;                                                
           if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
@@ -1100,12 +1103,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (enum_ == 7){//photons
     const std::string &hltpath = hltpaths_num[0];
       for (auto const & p : *phHandle) {
-        if(!matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+        if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.numerator->Fill(p.phi());
         phEta_.numerator->Fill(p.eta());
         phPt_.numerator ->Fill(p.pt());
       }
-
     }
   }
 }
@@ -1134,6 +1136,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "offlinePVs",     edm::InputTag("offlinePrimaryVertices") );
   desc.add<edm::InputTag>( "beamSpot",edm::InputTag("offlineBeamSpot") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  desc.add<edm::InputTag>( "hltTriggerSummaryAOD",    edm::InputTag("hltTriggerSummaryAOD","","HLT") );
   desc.add<std::string>("muoSelection", "abs(eta)<1.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
   desc.add<std::string>("muoSelection_ref", "isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
   desc.add<std::string>("muoSelection_tag",  "isGlobalMuon && isPFMuon && isTrackerMuon && abs(eta) < 2.4 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && globalTrack.normalizedChi2 < 10");//tight selection for tag muon
@@ -1164,7 +1167,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
   genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi") );
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("hltTriggerSummaryAOD","","HLT") );
+  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
   genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions",{});
   genericTriggerEventPSet.add<bool>("andOrDcs", false);
   genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
@@ -1246,7 +1249,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
     return matchedToTrigger;
 }
-else return false;
+else {cout<<theTriggerName<<"\t\tNo HLT filters"<<endl; return false;}
 }
 
 
