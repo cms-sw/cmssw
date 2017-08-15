@@ -23,7 +23,7 @@ public:
 private:
 
   enum class MuonSelectionType {
-    Tight,Medium,Loose,Soft,HighPt
+    Tight,Medium,Loose,Soft,HighPt,None
   };
   
   static MuonSelectionType convertToEnum(const std::string& val);
@@ -92,7 +92,8 @@ HLTDQMMuonSelector::MuonSelectionType HLTDQMMuonSelector::convertToEnum(const st
     {"medium",MuonSelectionType::Medium},
     {"loose",MuonSelectionType::Loose},
     {"soft",MuonSelectionType::Soft},
-    {"highpt",MuonSelectionType::HighPt}
+    {"highpt",MuonSelectionType::HighPt},
+    {"none",MuonSelectionType::None}
   };
   for(const auto& strEnumPair : strsToEnums){
     if(val==strEnumPair.first) return strEnumPair.second;
@@ -115,6 +116,8 @@ bool HLTDQMMuonSelector::passMuonSel(const reco::Muon& muon,const reco::Vertex& 
     return muon::isSoftMuon(muon,vertex);
   case MuonSelectionType::HighPt:
     return muon::isHighPtMuon(muon,vertex);
+  case MuonSelectionType::None:
+    return true;
   default:
     edm::LogError("HLTDQMMuonSelector")<<" inconsistent code, an option has been added to MuonSelectionType without updating HLTDQMMuonSelector::passMuonSel";
     return false;
