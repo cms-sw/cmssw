@@ -47,7 +47,6 @@ from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *
 from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
-from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
 l1TdeRCT.rctSourceData = 'gctDigis'
 
 # DQM Offline Step 2 cfi/cff imports
@@ -267,11 +266,9 @@ l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCalo
 l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
-
-from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
-l1tTauOfflineDQMEmu.stage2CaloLayer2TaySource=cms.InputTag("valCaloStage2Layer2Digis")
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import *
 
+from Configuration.StandardSequences.Eras import eras
 from DQM.L1TMonitor.L1TStage2_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 
@@ -320,8 +317,7 @@ Stage2l1TriggerOffline = cms.Sequence(
                                 Stage2l1TriggerOnline *
                                 dqmEnvL1TriggerReco *
                                 l1tStage2CaloLayer2OfflineDQM *
-                                l1tEGammaOfflineDQM *
-                                l1tTauOfflineDQM
+                                l1tEGammaOfflineDQM
 
                                 )
 
@@ -338,8 +334,7 @@ Stage2l1TriggerEmulatorOnline = cms.Sequence(
 Stage2l1TriggerEmulatorOffline = cms.Sequence(
                                 Stage2l1TriggerEmulatorOnline +
                                 l1tStage2CaloLayer2OfflineDQMEmu +
-                                l1tEGammaOfflineDQMEmu +
-                                l1tTauOfflineDQMEmu
+                                l1tEGammaOfflineDQMEmu
                                 )
 
 #
