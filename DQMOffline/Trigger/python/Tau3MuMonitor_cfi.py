@@ -31,7 +31,7 @@ hltTau3Mumonitoring.histoPSet.massPSet = cms.PSet(
   xmax  = cms.double(  3. ),
 )
 
-hltTau3Mumonitoring.taus = cms.InputTag("hltTauPt10MuPts511Mass1p2to2p3Iso", "Taus") # 3-muon candidates
+hltTau3Mumonitoring.taus = cms.InputTag("hltTauPt15MuPts711Mass1p3to2p1Iso", "Taus") # 3-muon candidates
 
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOr          = cms.bool( False ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOrHlt       = cms.bool( True  ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L114
