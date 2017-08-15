@@ -32,7 +32,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<Alignments> payload = fetchPayload( std::get<1>(iov) );
       unsigned int run = std::get<0>(iov);
@@ -111,7 +111,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       unsigned int run[2], irun = 0;
       float val[6][36];
       TH2F* align = new TH2F("","", 1, 0., 1., 1, 0., 1.);   // pseudo creation

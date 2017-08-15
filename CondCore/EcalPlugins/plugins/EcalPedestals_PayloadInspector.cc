@@ -31,7 +31,7 @@ namespace {
     EcalPedestalsHist() : cond::payloadInspector::PlotImage<EcalPedestals>( "ECAL pedestal map") {
       setSingleIov(true);
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       uint32_t gainValues[kGains] = {12, 6, 1};
       TH1F** barrel_m = new TH1F*[kGains];
       TH1F** endcap_m = new TH1F*[kGains];
@@ -52,7 +52,7 @@ namespace {
       unsigned int run = std::get<0>(iov);
       if( payload.get() ){
 	// looping over the EB channels, via the dense-index, mapped into EBDetId's
-	if (!payload->barrelItems().size()) return false;
+	if (payload->barrelItems().empty()) return false;
 	for(int cellid = EBDetId::MIN_HASH;
 	    cellid < EBDetId::kSizeForDenseIndexing;
 	    ++cellid) {
@@ -65,7 +65,7 @@ namespace {
 	  barrel_m[2]->Fill((*payload)[rawid].mean_x1);
 	  barrel_r[2]->Fill((*payload)[rawid].rms_x1);
 	}  // loop over cellid
-	if (!payload->endcapItems().size()) return false;
+	if (payload->endcapItems().empty()) return false;
 
 	// looping over the EE channels
 	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -134,7 +134,7 @@ namespace {
     EcalPedestalsPlot() : cond::payloadInspector::PlotImage<EcalPedestals>( "ECAL pedestal map") {
       setSingleIov(true);
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       uint32_t gainValues[kGains] = {12, 6, 1};
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
@@ -163,7 +163,7 @@ namespace {
       unsigned int run = std::get<0>(iov);
       if( payload.get() ){
 	// looping over the EB channels, via the dense-index, mapped into EBDetId's
-	if (!payload->barrelItems().size()) return false;
+	if (payload->barrelItems().empty()) return false;
 	for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {    // loop on EE cells
 	  uint32_t rawid = EBDetId::unhashIndex(cellid);  
 	  if (payload->find(rawid) == payload->end()) continue;
@@ -199,7 +199,7 @@ namespace {
 	  }
 	  //	  else std::cout << " gain 1 chan " << cellid << " val " << val << std::endl;
 	}  // loop over cellid
-	if (!payload->endcapItems().size()) return false;
+	if (payload->endcapItems().empty()) return false;
 
 	// looping over the EE channels
 	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -346,7 +346,7 @@ namespace {
     EcalPedestalsDiff() : cond::payloadInspector::PlotImage<EcalPedestals>("ECAL Barrel channel status difference") {
       setSingleIov(false);
     }
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       uint32_t gainValues[kGains] = {12, 6, 1};
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
@@ -378,7 +378,7 @@ namespace {
 	run[irun] = std::get<0>(iov);
 	//	std::cout << "run " << irun << " : " << run[irun] << std::endl;
 	if( payload.get() ){
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -428,7 +428,7 @@ namespace {
 	    }
 	  }  // loop over cellid
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2) {   // -1 or +1
 	    for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++) {
@@ -593,13 +593,13 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -633,12 +633,12 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -668,12 +668,12 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -704,12 +704,12 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -745,11 +745,12 @@ namespace {
        Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
+ 
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -784,11 +785,11 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -823,13 +824,13 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -861,12 +862,12 @@ namespace {
     "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI+MIN_IPHI, "ieta", 2*MAX_IETA+1, -1*MAX_IETA, MAX_IETA+1) {										Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -894,12 +895,12 @@ namespace {
     "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI+MIN_IPHI, "ieta", 2*MAX_IETA+1, -1*MAX_IETA, MAX_IETA+1) {								      Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -929,12 +930,12 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -969,11 +970,11 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -1007,11 +1008,11 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1

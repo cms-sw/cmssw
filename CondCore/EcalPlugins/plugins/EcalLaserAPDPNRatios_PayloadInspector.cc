@@ -42,7 +42,7 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
 	std::shared_ptr<EcalLaserAPDPNRatios> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -75,7 +75,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
 	std::shared_ptr<EcalLaserAPDPNRatios> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -112,7 +112,7 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel = new TH2F*[3];
       TH2F** endc_p = new TH2F*[3];
       TH2F** endc_m = new TH2F*[3];
@@ -244,7 +244,7 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       TH2F** barrel = new TH2F*[3];
       TH2F** endc_p = new TH2F*[3];
       TH2F** endc_m = new TH2F*[3];
