@@ -18,14 +18,14 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
   , pt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
-  , d0_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("d0PSet")     ) )
-  , z0_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("z0PSet")     ) )
-  , dR_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dRPSet")     ) )
-  , mass_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("massPSet")     ) )
-  , dca_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dcaPSet")     ) )
-  , ds_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dsPSet")     ) )
-  , cos_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("cosPSet")     ) )
-  , prob_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("probPSet")     ) )
+  , d0_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("d0PSet")     ) )
+  , z0_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("z0PSet")     ) )
+  , dR_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dRPSet")     ) )
+  , mass_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("massPSet")     ) )
+  , dca_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dcaPSet")     ) )
+  , ds_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dsPSet")     ) )
+  , cos_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("cosPSet")     ) )
+  , prob_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("probPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
@@ -138,14 +138,14 @@ MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
-{
-  return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
-      0.,
-      double(pset.getParameter<int32_t>("nbins"))
-      };
-}
+// MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
+// {
+//   return MEbinning{
+//     pset.getParameter<int32_t>("nbins"),
+//       0.,
+//       double(pset.getParameter<int32_t>("nbins"))
+//       };
+// }
 
 void BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
 {
@@ -201,7 +201,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bool Ph_; if (enum_==7) Ph_ = true;
   if (tnp_) istnp = "Tag_and_Probe/"; else istnp = "";
   std::string currentFolder = folderName_ + istnp;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
   if (trOrMu_) trMuPh = "tr";else if (Ph_) trMuPh = "ph";else trMuPh = "mu";
 
   if (enum_==7 || enum_==1 || enum_==9 || enum_==10){  
@@ -304,7 +304,7 @@ else{
 
   histname ="DiMuDS"; histtitle ="DiMuDS";
   bookME(ibooker,DiMuDS_,histname,histtitle, ds_binning_.nbins, ds_binning_.xmin, ds_binning_.xmax);
-  setMETitle(DiMuDS_,"DiMu_#ds","events / 0.1 rad");
+  setMETitle(DiMuDS_,"DiMu_#ds","events / ");
 
 
   histname ="DiMuDCA"; histtitle ="DiMuDCA";

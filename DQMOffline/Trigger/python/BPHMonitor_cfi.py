@@ -14,9 +14,9 @@ hltBPHmonitoring.Upsilon = cms.int32(0)
 hltBPHmonitoring.Jpsi = cms.int32(0)
 hltBPHmonitoring.seagull = cms.int32(0)
 hltBPHmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 ( 76  ),
   xmin  = cms.double(   -0.5),
-  xmax  = cms.double(200),
+  xmax  = cms.double(75.5),
 )
 hltBPHmonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.int32 (  64  ),
@@ -29,12 +29,12 @@ hltBPHmonitoring.histoPSet.etaPSet = cms.PSet(
   xmax  = cms.double(2.4),
 )
 hltBPHmonitoring.histoPSet.d0PSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 ( 50   ),
   xmin  = cms.double(   -5.),
   xmax  = cms.double(5),
 )
 hltBPHmonitoring.histoPSet.z0PSet = cms.PSet(
-  nbins = cms.int32 (  300 ),
+  nbins = cms.int32 (  60 ),
   xmin  = cms.double(   -15),
   xmax  = cms.double(15),
 )
@@ -42,33 +42,33 @@ hltBPHmonitoring.histoPSet.z0PSet = cms.PSet(
 hltBPHmonitoring.histoPSet.dRPSet = cms.PSet(
   nbins = cms.int32 (  20 ),
   xmin  = cms.double(   0),
-  xmax  = cms.double(20),
+  xmax  = cms.double(2.0),
 )
 
 hltBPHmonitoring.histoPSet.massPSet = cms.PSet(
-  nbins = cms.int32 ( 200 ),
-  xmin  = cms.double(  2),
-  xmax  = cms.double(4.),
+  nbins = cms.int32 ( 30 ),
+  xmin  = cms.double(  0),
+  xmax  = cms.double(30.0),
 )
 hltBPHmonitoring.histoPSet.dcaPSet = cms.PSet(
   nbins = cms.int32 ( 40 ),
   xmin  = cms.double(  0),
-  xmax  = cms.double(4.),
+  xmax  = cms.double(2.),
 )
 
 hltBPHmonitoring.histoPSet.dsPSet = cms.PSet(
-  nbins = cms.int32 ( 10),
+  nbins = cms.int32 ( 50),
   xmin  = cms.double(  0),
-  xmax  = cms.double(100),
+  xmax  = cms.double( 50),
 )
 
 hltBPHmonitoring.histoPSet.cosPSet = cms.PSet(
   nbins = cms.int32 ( 20),
-  xmin  = cms.double(  -1),
+  xmin  = cms.double(  0.8),
   xmax  = cms.double(1),
 )
 hltBPHmonitoring.histoPSet.probPSet = cms.PSet(
-  nbins = cms.int32 ( 10),
+  nbins = cms.int32 ( 40),
   xmin  = cms.double(  0),
   xmax  = cms.double(1),
 )
