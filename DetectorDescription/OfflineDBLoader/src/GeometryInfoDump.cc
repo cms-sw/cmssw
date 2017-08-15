@@ -1,12 +1,6 @@
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
-#include <cassert>
-#include <fstream>
-#include <map>
-#include <set>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -14,6 +8,12 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <cassert>
+#include <fstream>
+#include <map>
+#include <set>
+#include <vector>
 
 GeometryInfoDump::GeometryInfoDump () { }
 

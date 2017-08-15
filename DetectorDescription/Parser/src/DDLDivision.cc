@@ -1,10 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLDivision.h"
-
-#include <stddef.h>
-#include <map>
-#include <ostream>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -21,6 +15,11 @@
 #include "DetectorDescription/Parser/src/DDDividedTubs.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cstddef>
+#include <map>
+#include <ostream>
+#include <utility>
 
 class DDCompactView;
 

@@ -9,6 +9,7 @@
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/util/XMLUni.hpp>
+
 #include <iostream>
 
 class DDCompactView;

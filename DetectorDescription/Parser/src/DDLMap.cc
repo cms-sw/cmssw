@@ -1,10 +1,9 @@
 #include "DetectorDescription/Parser/src/DDLMap.h"
-
-#include <stddef.h>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+
+#include <cstddef>
+#include <utility>
 
 class DDCompactView;
 
