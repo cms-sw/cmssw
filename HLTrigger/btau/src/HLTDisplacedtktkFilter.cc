@@ -152,7 +152,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  }
 	  
 	  if(iFoundRefs < 2){
-            edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the Jpsi vertex must have exactly two tracks by definition."  << std::endl;
+            edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the tracks matched with the Jpsi vertex tracks should be at least two by definition."  << std::endl;
             return false;
           } 	
           // calculate two-track transverse momentum
