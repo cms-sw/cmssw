@@ -18,84 +18,11 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
 #include <memory>
-#include <stdlib.h>
-#include <malloc.h>
-
-template <typename T, std::size_t N = 16>
-class AlignmentAllocator {
-public:
-  typedef T value_type;
-  typedef std::size_t size_type;
-  typedef std::ptrdiff_t difference_type;
-
-  typedef T * pointer;
-  typedef const T * const_pointer;
-
-  typedef T & reference;
-  typedef const T & const_reference;
-
-  public:
-  inline AlignmentAllocator () throw () { }
-
-  template <typename T2>
-  inline AlignmentAllocator (const AlignmentAllocator<T2, N> &) throw () { }
-
-  inline ~AlignmentAllocator () throw () { }
-
-  inline pointer adress (reference r) {
-    return &r;
-  }
-
-  inline const_pointer adress (const_reference r) const {
-    return &r;
-  }
-
-  inline pointer allocate (size_type n) {
-    void * p = nullptr;
-    posix_memalign(&p,N,n*sizeof(value_type));
-    return (pointer)p;
-  }
-
-  inline void deallocate (pointer p, size_type) {
-    free(p);
-  }
-
-  inline void construct (pointer p, const value_type & wert) {
-     new (p) value_type (wert);
-  }
-
-  inline void destroy (pointer p) {
-    p->~value_type ();
-  }
-
-  inline size_type max_size () const throw () {
-    return size_type (-1) / sizeof (value_type);
-  }
-
-  template <typename T2>
-  struct rebind {
-    typedef AlignmentAllocator<T2, N> other;
-  };
-
-  bool operator!=(const AlignmentAllocator<T,N>& other) const  {
-    return !(*this == other);
-  }
-
-  // Returns true if and only if storage allocated from *this
-  // can be deallocated from other, and vice versa.
-  // Always returns true for stateless allocators.
-  bool operator==(const AlignmentAllocator<T,N>& other) const {
-    return true;
-  }
-};
-
 
 class DAClusterizerInZT_vect  final : public TrackClusterizerInZ {
 
 public:
-  template<typename T> 
-  using AlignedVector = std::vector<T, AlignmentAllocator<T, 16> >;
-
+  
   // Internal data structure to 
   struct track_t {
     
@@ -132,39 +59,39 @@ public:
       _pi = &pi.front();
     }
     
-    double * __restrict__ _z __attribute__ ((aligned (16))); // z-coordinate at point of closest approach to the beamline
-    double * __restrict__ _t __attribute__ ((aligned (16))); // t-coordinate at point of closest approach to the beamline
-    double * __restrict__ _dz2 __attribute__ ((aligned (16))); // square of the error of z(pca)
-    double * __restrict__ _dt2 __attribute__ ((aligned (16))); // square of the error of t(pca)
-    double * __restrict__ _errsum __attribute__ ((aligned (16))); // sum of squares of the pca errors
+    double * __restrict__ _z; // z-coordinate at point of closest approach to the beamline
+    double * __restrict__ _t; // t-coordinate at point of closest approach to the beamline
+    double * __restrict__ _dz2; // square of the error of z(pca)
+    double * __restrict__ _dt2; // square of the error of t(pca)
+    double * __restrict__ _errsum; // sum of squares of the pca errors
     
-    double * __restrict__  _Z_sum __attribute__ ((aligned (16))); // Z[i]   for DA clustering
-    double * __restrict__  _pi __attribute__ ((aligned (16))); // track weight
+    double * __restrict__  _Z_sum; // Z[i]   for DA clustering
+    double * __restrict__  _pi; // track weight
     
-    AlignedVector<double> z; // z-coordinate at point of closest approach to the beamline
-    AlignedVector<double> t; // t-coordinate at point of closest approach to the beamline
-    AlignedVector<double> dz2; // square of the error of z(pca)
-    AlignedVector<double> dt2; // square of the error of t(pca)
-    AlignedVector<double> errsum; // sum of squares of the pca errors    
-    AlignedVector<double> Z_sum; // Z[i]   for DA clustering
-    AlignedVector<double> pi; // track weight
+    std::vector<double> z; // z-coordinate at point of closest approach to the beamline
+    std::vector<double> t; // t-coordinate at point of closest approach to the beamline
+    std::vector<double> dz2; // square of the error of z(pca)
+    std::vector<double> dt2; // square of the error of t(pca)
+    std::vector<double> errsum; // sum of squares of the pca errors    
+    std::vector<double> Z_sum; // Z[i]   for DA clustering
+    std::vector<double> pi; // track weight
 
     std::vector< const reco::TransientTrack* > tt; // a pointer to the Transient Track
   };
   
   struct vertex_t {
-    AlignedVector<double> z; //           z coordinate
-    AlignedVector<double> t; //           t coordinate
-    AlignedVector<double> pk; //           vertex weight for "constrained" clustering
+    std::vector<double> z; //           z coordinate
+    std::vector<double> t; //           t coordinate
+    std::vector<double> pk; //           vertex weight for "constrained" clustering
     
     // --- temporary numbers, used during update
-    AlignedVector<double> ei_cache;
-    AlignedVector<double> ei;
-    AlignedVector<double> sw;
-    AlignedVector<double> swz;
-    AlignedVector<double> swt;
-    AlignedVector<double> se;
-    AlignedVector<double> swE;
+    std::vector<double> ei_cache;
+    std::vector<double> ei;
+    std::vector<double> sw;
+    std::vector<double> swz;
+    std::vector<double> swt;
+    std::vector<double> se;
+    std::vector<double> swE;
     
     
     unsigned int GetSize() const
@@ -250,17 +177,17 @@ public:
       
     }
     
-    double * __restrict__ _z __attribute__ ((aligned (16)));
-    double * __restrict__ _t __attribute__ ((aligned (16)));
-    double * __restrict__ _pk __attribute__ ((aligned (16)));
+    double * __restrict__ _z;
+    double * __restrict__ _t;
+    double * __restrict__ _pk;
     
-    double * __restrict__ _ei_cache __attribute__ ((aligned (16)));
-    double * __restrict__ _ei __attribute__ ((aligned (16)));
-    double * __restrict__ _sw __attribute__ ((aligned (16)));
-    double * __restrict__ _swz __attribute__ ((aligned (16)));
-    double * __restrict__ _swt __attribute__ ((aligned (16)));
-    double * __restrict__ _se __attribute__ ((aligned (16)));
-    double * __restrict__ _swE __attribute__ ((aligned (16)));
+    double * __restrict__ _ei_cache;
+    double * __restrict__ _ei;
+    double * __restrict__ _sw;
+    double * __restrict__ _swz;
+    double * __restrict__ _swt;
+    double * __restrict__ _se;
+    double * __restrict__ _swE;
     
   };
   
