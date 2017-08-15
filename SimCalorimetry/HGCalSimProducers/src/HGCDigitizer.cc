@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <boost/foreach.hpp>
+#include "FWCore/Utilities/interface/transform.h"
 
 using namespace hgc_digi;
 
@@ -91,6 +92,26 @@ namespace {
     
     return result;
   }  
+
+  float getCCE(const HGCalGeometry* geom,
+	       const DetId& detid,
+	       const std::vector<float>&cces) {
+    if( !cces.size() ) return 1.f;
+    const auto& topo     = geom->topology();
+    const auto& dddConst = topo.dddConstants();
+    uint32_t id(detid.rawId());
+    HGCalDetId hid(id);
+    int wafer = HGCalDetId(id).wafer();
+    int waferTypeL = dddConst.waferTypeL(wafer);  
+    return cces[waferTypeL-1];
+  }
+
+  float getCCE(const HcalGeometry* geom,
+	       const DetId& id,
+	       const std::vector<float>&cces) {
+    return 1.f;
+  }
+
 }
 
 //
@@ -114,6 +135,17 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   std::unordered_set<DetId>().swap(validIds_);
   
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits",hitCollection_));
+  const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
+  
+  if( myCfg_.existsAs<std::vector<double> >( "chargeCollectionEfficiencies" ) ) {
+    cce_.clear();
+    const auto& temp = myCfg_.getParameter<std::vector<double> >("chargeCollectionEfficiencies");
+    for( double cce : temp ) {
+      cce_.push_back(cce);
+    }
+  } else {
+    std::vector<float>().swap(cce_);
+  }
   
   if(hitCollection_.find("HitsEE")!=std::string::npos) { 
     mySubDet_=ForwardSubdetector::HGCEE;  
@@ -322,8 +354,10 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
     const float toa    = std::get<2>(hitRefs[i]);
     const PCaloHit &hit=hits->at( hitidx );     
-    const float charge = hit.energy()*1e6*keV2fC;
+    const float charge = hit.energy()*1e6*keV2fC*getCCE(geom,id,cce_);
       
+    
+
     //distance to the center of the detector
     const float dist2center( getPositionDistance(geom,id) );
       

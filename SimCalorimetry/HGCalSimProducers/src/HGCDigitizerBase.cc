@@ -53,8 +53,8 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
   if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
   else                          keV2fC_   = 1.0;
 
-  if( ps.existsAs<std::vector<double> >( "chargeCollectionEfficiencies" ) ) {
-    cce_ = ps.getParameter<std::vector<double> >("chargeCollectionEfficiencies");
+  if( myCfg_.existsAs<std::vector<double> >( "chargeCollectionEfficiencies" ) ) {
+    cce_ = myCfg_.getParameter<std::vector<double> >("chargeCollectionEfficiencies");
   } else {
     std::vector<double>().swap(cce_);
   }
@@ -108,7 +108,6 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
     
     for(size_t i=0; i<cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
-      if( cce_.size() ) rawCharge *= cce_[cell.thickness-1];
       
       //time of arrival
       toa[i]=cell.hit_info[1][i];

@@ -114,6 +114,8 @@ private :
   //average occupancies
   std::array<double,3> averageOccupancies_;
   uint32_t nEvents_;
+
+  std::vector<float> cce_;
 };
 
 
