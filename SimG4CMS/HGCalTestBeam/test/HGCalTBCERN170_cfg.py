@@ -105,7 +105,7 @@ process.HGCalTBAnalyzer.UseFH       = True
 process.HGCalTBAnalyzer.UseBH       = True
 process.HGCalTBAnalyzer.UseBeam     = True
 process.HGCalTBAnalyzer.ZFrontEE    = 1110.0
-process.HGCalTBAnalyzer.ZFrontFH    = 1148.3
+process.HGCalTBAnalyzer.ZFrontFH    = 1172.3
 process.HGCalTBAnalyzer.DoPassive   = True
 
 # Path and EndPath definitions
