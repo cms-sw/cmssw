@@ -35,7 +35,7 @@ hltTau3Mumonitoring.taus = cms.InputTag("hltTauPt15MuPts711Mass1p3to2p1Iso", "Ta
 
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOr          = cms.bool( False ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOrHlt       = cms.bool( True  ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L114
-hltTau3Mumonitoring.GenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_Tau3Mu_Mu5_Mu1_TkMu1_Tau10_v*")
+hltTau3Mumonitoring.GenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_v*")
 # determine the DCS partitions to be active https://github.com/cms-sw/cmssw/blob/b767924e38a6b75340e6e120ece95b648bd11d2d/DataFormats/Scalers/interface/DcsStatus.h#L35
 # RPC (12) + DT (13-15) + CSC (16-17) + TRK (24-27) + PIX (28-29)
 hltTau3Mumonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32(12, 13, 14, 15, 16, 17, 24, 25, 26, 27, 28, 29) 
