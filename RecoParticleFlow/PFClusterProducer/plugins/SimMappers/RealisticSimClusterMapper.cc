@@ -25,19 +25,26 @@
 #endif
 
 namespace {
+
+inline
+bool isPi0(int pdgId)
+{
+    return pdgId == 111;
+}
+
 inline
 bool isEGamma(int pdgId)
 {
     pdgId = std::abs(pdgId);
-    return (pdgId == 11) or (pdgId == 22) or (pdgId == 111);
+    return (pdgId == 11) or (pdgId == 22);
 }
 
 inline
 bool isHadron(int pdgId)
 {
     pdgId = std::abs(pdgId) % 10000;
-    return (pdgId > 100 and pdgId < 900) or
-           (pdgId > 1000 and pdgId < 9000);
+    return ((pdgId > 100 and pdgId < 900) or
+           (pdgId > 1000 and pdgId < 9000));
 }
 }
 
@@ -115,7 +122,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             auto abseta = std::abs(simClusters[ic].eta());
             if ((abseta >= calibMinEta_) and (abseta <= calibMaxEta_)) //protecting range
             {
-                if (isEGamma(pdgId) and !egammaCalib_.empty())
+                if ((isEGamma(pdgId) or isPi0(pdgId)) and !egammaCalib_.empty())
                 {
                     unsigned int etabin = std::floor(
                             ((abseta - calibMinEta_) * egammaCalib_.size())
@@ -123,7 +130,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
 
                     energyCorrection = egammaCalib_[etabin];
                 }
-                else if (isHadron(pdgId) && !hadronCalib_.empty()) // this function is expensive.. should we treat as hadron everything which is not egamma?
+                else if (isHadron(pdgId) and !(isPi0(pdgId)) and !hadronCalib_.empty()) // this function is expensive.. should we treat as hadron everything which is not egamma?
                 {
                     unsigned int etabin = std::floor(
                             ((abseta - calibMinEta_) * hadronCalib_.size())
