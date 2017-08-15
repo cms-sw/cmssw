@@ -47,9 +47,9 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  hcalConstants(0), numberingFromDDD(0), numberingScheme(0), showerLibrary(0), 
-  hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
-  m_HFDarkening(nullptr), hcalTestNS_(0), depth_(1) {
+  hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), showerLibrary(nullptr), 
+  hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), showerBundle(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
+  m_HFDarkening(nullptr), hcalTestNS_(nullptr), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
@@ -147,7 +147,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
 			    << " elements";
     for (unsigned int i=0; i < hfNames.size(); ++i) {
       G4String namv = hfNames[i];
-      lv            = 0;
+      lv            = nullptr;
       for(lvcite=lvs->begin(); lvcite!=lvs->end(); lvcite++) 
 	if((*lvcite)->GetName()==namv) {
 	  lv = (*lvcite);
@@ -170,7 +170,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
                             << " = " << value << ":";
     for (unsigned int i=0; i<fibreNames.size(); ++i) {
       G4String namv = fibreNames[i];
-      lv            = 0;
+      lv            = nullptr;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) {
         if ((*lvcite)->GetName() == namv) {
           lv = (*lvcite);
@@ -192,7 +192,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
 			    << " entries";
     for (unsigned int i=0; i<pmtNames.size(); ++i)  {
       G4String namv = pmtNames[i];
-      lv            = 0;
+      lv            = nullptr;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) 
         if ((*lvcite)->GetName() == namv) {
 	  lv = (*lvcite);
@@ -202,7 +202,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
     }
-    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, p);
+    if (!pmtNames.empty()) showerPMT = new HFShowerPMT (name, cpv, p);
   
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
@@ -214,7 +214,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
                             << " entries";
     for (unsigned int i=0; i<fibreNames.size(); ++i) {
       G4String namv = fibreNames[i];
-      lv            = 0;
+      lv            = nullptr;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
         if ((*lvcite)->GetName() == namv) {
 	  lv = (*lvcite);
@@ -235,7 +235,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
 			    << " entries";
     for (unsigned int i=0; i<fibreNames.size(); ++i) {
       G4String namv = fibreNames[i];
-      lv            = 0;
+      lv            = nullptr;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) 
 	if ((*lvcite)->GetName() == namv) {
 	  lv = (*lvcite);
@@ -245,7 +245,7 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i]
                               << " LV " << fibre2LV[i];
     }
-    if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
+    if (!fibre1LV.empty() || !fibre2LV.empty()) 
       showerBundle = new HFShowerFibreBundle (name, cpv, p);
   }
 
@@ -295,8 +295,8 @@ HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
   
   if (useLayerWt) readWeightFromFile(file);
 
-  for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
-  hzvem = hzvhad = 0;
+  for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = nullptr;
+  hzvem = hzvhad = nullptr;
 
   if (agingFlagHF) m_HFDarkening.reset(new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock")));
 #ifdef plotDebug
@@ -544,7 +544,7 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4ThreeVector hitPoint    = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPoint    = preStepPoint->GetPosition();
 
   int depth = (touch->GetReplicaNumber(0))%10 + 1;
   int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
@@ -554,7 +554,7 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 }
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
@@ -862,7 +862,7 @@ void HCalSD::hitForFibre (G4Step* aStep, double weight) { // if not ParamShower
 			  << " of " << preStepPoint->GetKineticEnergy()/GeV 
 			  << " GeV in detector type " << det;
 #endif
-  if (hits.size() > 0) {
+  if (!hits.empty()) {
     for (unsigned int i=0; i<hits.size(); ++i) {
       G4ThreeVector hitPoint = hits[i].position;
       if (isItinFidVolume (hitPoint)) {
@@ -1161,24 +1161,24 @@ void HCalSD::plotProfile(const G4Step* aStep,const G4ThreeVector& global, double
                       << " Local " << local << " depth " << depth << " ID " 
 		      << id << " EDEP " << edep << " Time " << time;
 #endif
-  if (hit_[idx]  != 0) hit_[idx]->Fill(edep);
-  if (time_[idx] != 0) time_[idx]->Fill(time,edep);
-  if (dist_[idx] != 0) dist_[idx]->Fill(depth,edep);
+  if (hit_[idx]  != nullptr) hit_[idx]->Fill(edep);
+  if (time_[idx] != nullptr) time_[idx]->Fill(time,edep);
+  if (dist_[idx] != nullptr) dist_[idx]->Fill(depth,edep);
   int jd = 2*idx + id - 7;
   if (jd >= 0 && jd < 4) {
     jd += 5;
-    if (hit_[jd]  != 0) hit_[jd]->Fill(edep);
-    if (time_[jd] != 0) time_[jd]->Fill(time,edep);
-    if (dist_[jd] != 0) dist_[jd]->Fill(depth,edep);
+    if (hit_[jd]  != nullptr) hit_[jd]->Fill(edep);
+    if (time_[jd] != nullptr) time_[jd]->Fill(time,edep);
+    if (dist_[jd] != nullptr) dist_[jd]->Fill(depth,edep);
   }
 }
 
 void HCalSD::plotHF(const G4ThreeVector& hitPoint, bool emType) {
   double zv  = std::abs(hitPoint.z()) - gpar[4];
   if (emType) {
-    if (hzvem  != 0) hzvem->Fill(zv);
+    if (hzvem  != nullptr) hzvem->Fill(zv);
   } else {
-    if (hzvhad != 0) hzvhad->Fill(zv);
+    if (hzvhad != nullptr) hzvhad->Fill(zv);
   }
 }
 
