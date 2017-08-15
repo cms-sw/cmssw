@@ -131,6 +131,12 @@ BPHMonitor::~BPHMonitor()
 
 MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
 {
+  // Due to the setup of the fillDescription only one of the
+  // two cases is possible at this point.
+  if (pset.existsAs<std::vector<double>>("edges")) {
+    return MEbinning{pset.getParameter<std::vector<double>>("edges")};
+  }
+
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
       pset.getParameter<double>("xmin"),
@@ -192,6 +198,18 @@ void BPHMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& hist
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
 
+void BPHMonitor::bookME(DQMStore::IBooker &ibooker, METME &me, std::string &histname, std::string &histtitle, /*const*/ MEbinning& binning)
+{
+  // If the vector in the binning is filled use the bins defined there
+  // otherwise use a linear binning between min and max
+  if (binning.edges.empty()) {
+    this->bookME(ibooker, me, histname, histtitle, binning.nbins, binning.xmin, binning.xmax);
+  } else {
+    this->bookME(ibooker, me, histname, histtitle, binning.edges);
+  }
+}
+
+
 void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
 				 edm::EventSetup const & iSetup) 
@@ -206,128 +224,128 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
   if (enum_==7 || enum_==1 || enum_==9 || enum_==10){  
    histname = trMuPh+"Pt"; histtitle = trMuPh+"_P_{t}";
-   bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+   bookME(ibooker,muPt_,histname,histtitle, pt_binning_);
    setMETitle(muPt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
    histname =trMuPh+"Phi"; histtitle =trMuPh+"Phi";
-   bookME(ibooker,muPhi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+   bookME(ibooker,muPhi_,histname,histtitle, phi_binning_);
    setMETitle(muPhi_,trMuPh+"_#phi","events / 0.1 rad");
 
    histname =trMuPh+"Eta"; histtitle = trMuPh+"_Eta";
-   bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+   bookME(ibooker,muEta_,histname,histtitle, eta_binning_);
    setMETitle(muEta_,trMuPh+"_#eta","events/ ");
   }
   else if(enum_==11){
   trMuPh = "tr";
   histname = trMuPh+"1Pt"; histtitle = trMuPh+"1_P_{t}";
-  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
   setMETitle(mu1Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
   histname =trMuPh+"1Phi"; histtitle =trMuPh+"1Phi";
-  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
   setMETitle(mu1Phi_,trMuPh+"_#phi","events / 0.1 rad");
   
   histname =trMuPh+"1Eta"; histtitle = trMuPh+"1_Eta";
-  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
   setMETitle(mu1Eta_,trMuPh+"_#eta","events/ ");
 
   histname = trMuPh+"2Pt"; histtitle = trMuPh+"2_P_{t}";
-  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
   setMETitle(mu2Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
   histname =trMuPh+"2Phi"; histtitle =trMuPh+"2Phi";
-  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
   setMETitle(mu2Phi_,trMuPh+"_#phi","events / 0.1 rad");
 
   histname =trMuPh+"2Eta"; histtitle = trMuPh+"2_Eta";
-  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
   setMETitle(mu2Eta_,trMuPh+"_#eta","events/ ");
 
 }
 
 else{
   histname ="mu1Eta"; histtitle = "mu1Eta";
-  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
   setMETitle(mu1Eta_,"mu1#eta","events/ ");
 
   histname = "mu1Pt"; histtitle = "mu1_P_{t}";
-  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
   setMETitle(mu1Pt_,"mu1_Pt[GeV]","events/1GeV");
 
   histname ="mu1Phi"; histtitle ="mu1Phi";
-  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
   setMETitle(mu1Phi_,"mu1_#phi","events / 0.1 rad");
 
   histname ="mu2Eta"; histtitle = "mu2Eta";
-  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
   setMETitle(mu2Eta_,"mu2#eta","events/ ");
 
   histname = "mu2Pt"; histtitle = "mu2_P_{t}";
-  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
   setMETitle(mu2Pt_,"mu2_Pt[GeV]","events/1GeV");
 
   histname ="mu2Phi"; histtitle ="mu2Phi";
-  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
   setMETitle(mu2Phi_,"mu2_#phi","events / 0.1 rad");
 
   histname ="mu3Eta"; histtitle = "mu3Eta";
-  bookME(ibooker,mu3Eta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,mu3Eta_,histname,histtitle, eta_binning_);
   setMETitle(mu3Eta_,"mu3#eta","events/ ");
 
   histname = "mu3Pt"; histtitle = "mu3_P_{t}";
-  bookME(ibooker,mu3Pt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,mu3Pt_,histname,histtitle, pt_binning_);
   setMETitle(mu3Pt_,"mu3_Pt[GeV]","events/1GeV");
 
   histname ="mu3Phi"; histtitle ="mu3Phi";
-  bookME(ibooker,mu3Phi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,mu3Phi_,histname,histtitle, phi_binning_);
   setMETitle(mu3Phi_,"mu3_#phi","events / 0.1 rad");
 
   histname ="DiMuEta"; histtitle = "DiMuEta";
-  bookME(ibooker,DiMuEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  bookME(ibooker,DiMuEta_,histname,histtitle, eta_binning_);
   setMETitle(DiMuEta_,"DiMu#eta","events/ ");
 
   histname = "DiMuPt"; histtitle = "DiMu_P_{t}";
-  bookME(ibooker,DiMuPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  bookME(ibooker,DiMuPt_,histname,histtitle, pt_binning_);
   setMETitle(DiMuPt_,"DiMu_Pt[GeV]","events/1GeV");
 
   histname ="DiMuPhi"; histtitle ="DiMuPhi";
-  bookME(ibooker,DiMuPhi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  bookME(ibooker,DiMuPhi_,histname,histtitle, phi_binning_);
   setMETitle(DiMuPhi_,"DiMu_#phi","events / 0.1 rad");
 
   histname ="DiMuPVcos"; histtitle ="DiMuPVcos";
-  bookME(ibooker,DiMuPVcos_,histname,histtitle, cos_binning_.nbins, cos_binning_.xmin, cos_binning_.xmax);
+  bookME(ibooker,DiMuPVcos_,histname,histtitle, cos_binning_);
   setMETitle(DiMuPVcos_,"DiMu_#cosPV","events / ");
 
   histname ="DiMuProb"; histtitle ="DiMuProb";
-  bookME(ibooker,DiMuProb_,histname,histtitle, prob_binning_.nbins, prob_binning_.xmin, prob_binning_.xmax);
+  bookME(ibooker,DiMuProb_,histname,histtitle, prob_binning_);
   setMETitle(DiMuProb_,"DiMu_#prob","events / ");
 
   histname ="DiMuDS"; histtitle ="DiMuDS";
-  bookME(ibooker,DiMuDS_,histname,histtitle, ds_binning_.nbins, ds_binning_.xmin, ds_binning_.xmax);
+  bookME(ibooker,DiMuDS_,histname,histtitle, ds_binning_);
   setMETitle(DiMuDS_,"DiMu_#ds","events / ");
 
 
   histname ="DiMuDCA"; histtitle ="DiMuDCA";
-  bookME(ibooker,DiMuDCA_,histname,histtitle, dca_binning_.nbins, dca_binning_.xmin, dca_binning_.xmax);
+  bookME(ibooker,DiMuDCA_,histname,histtitle, dca_binning_);
   setMETitle(DiMuDCA_,"DiMu_#dca","events / ");
 
   histname ="DiMuMass"; histtitle ="DiMuMass";
-  bookME(ibooker,DiMuMass_,histname,histtitle, mass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
+  bookME(ibooker,DiMuMass_,histname,histtitle, mass_binning_);
   setMETitle(DiMuMass_,"DiMu_#mass","events / ");
 
   histname ="DiMudR"; histtitle ="DiMudR";
-  bookME(ibooker,DiMudR_,histname,histtitle, dR_binning_.nbins, dR_binning_.xmin, dR_binning_.xmax);
+  bookME(ibooker,DiMudR_,histname,histtitle, dR_binning_);
   setMETitle(DiMudR_,"DiMu_#dR","events / ");
 
 }
 
 if (trOrMu_) {
   histname =trMuPh+ "_d0"; histtitle =trMuPh+ "_d0";
-  bookME(ibooker,mud0_,histname,histtitle, d0_binning_.nbins,d0_binning_.xmin, d0_binning_.xmax);
+  bookME(ibooker,mud0_,histname,histtitle, d0_binning_);
   setMETitle(mud0_,trMuPh+"_d0","events/bin ");
 
   histname = trMuPh+"_z0"; histtitle =trMuPh+"_z0";
-  bookME(ibooker,muz0_,histname,histtitle, z0_binning_.nbins,z0_binning_.xmin, z0_binning_.xmax);
+  bookME(ibooker,muz0_,histname,histtitle, z0_binning_);
   setMETitle(muz0_,trMuPh+"_z0","events/bin ");
 }
 
@@ -1032,8 +1050,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         for (auto const & t1 : *trHandle) {
           if(!trSelection_ref(t1))continue;
           if(false && !matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
-          reco::Track itrk1       = t ;                                                
-          reco::Track itrk2       = t1 ;                                                
+          reco::Track itrk1       = t ;
+          reco::Track itrk2       = t1 ;
           if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
           if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
           if((reco::deltaR(t,m) <= 0.001)) continue;
@@ -1113,9 +1131,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 void BPHMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
-  pset.add<double>( "xmin" );
-  pset.add<double>( "xmax" );
+  pset.addNode((edm::ParameterDescription<int>("nbins", true) and
+                edm::ParameterDescription<double>("xmin", true) and
+                edm::ParameterDescription<double>("xmax", true)) xor
+               edm::ParameterDescription<std::vector<double>>("edges", true));
 }
 
 void BPHMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)

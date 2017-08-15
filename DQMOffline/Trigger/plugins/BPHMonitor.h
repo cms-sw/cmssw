@@ -48,9 +48,12 @@
 class GenericTriggerEventFlag;
 
 struct MEbinning {
+  MEbinning(int n, double min, double max) : nbins(n), xmin(min), xmax(max) {}
+  MEbinning(std::vector<double> e) : edges(std::move(e)) {}
   int nbins;
   double xmin;
   double xmax;
+  std::vector<double> edges;
 };
 
 struct  METME{
@@ -79,6 +82,8 @@ protected:
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, double& ymin, double& ymax);
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, int& nbinsY, double& ymin, double& ymax);
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY);
+  void bookME(DQMStore::IBooker &, METME& me, std::string &histname, std::string &histtitle, /*const*/ MEbinning& binning);
+
   void setMETitle(METME& me, std::string titleX, std::string titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
