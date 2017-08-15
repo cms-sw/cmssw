@@ -38,10 +38,6 @@ namespace edm {
   class HepMCProduct;
 }
 
-namespace HepMC {
-   class FourVector;
-}
-
 class PythiaFilter : public edm::EDFilter {
    public:
       explicit PythiaFilter(const edm::ParameterSet&);
