@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_9_3_0_pre1_phase1'
+RefRelease='CMSSW_9_4_0_pre2_phase1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_9_3_0_pre2_phase1'
+NewRelease='CMSSW_9_4_0_pre3_phase1'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples_run1 = [
@@ -47,7 +47,7 @@ startupsamples = common + [
     Sample('RelValSingleMuPt10', midfix="UP15"),
     Sample('RelValSingleMuPt100', midfix="UP15")
 ]
-if "CMSSW_9_1" in NewRelease or "CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease:
+if "CMSSW_9_1" in NewRelease or "CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease or "CMSSW_9_4" in NewRelease:
     startupsamples = [] # no phase0 in 91X
 #startupsamples = []
 #startupsamples = startupsamples_run1
