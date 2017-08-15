@@ -1,13 +1,3 @@
-namespace std { } using namespace std;
-#include <sys/stat.h>
-#include <fstream>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -23,15 +13,22 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-//***** to get the typedef below to work properly...
-//**** to get rid of compile errors about ambiguous delete of Stores
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
-//*****
+
+#include <fstream>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
+using namespace std;
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
 {
@@ -90,8 +87,6 @@ void DDNsGenerator::doit()
   os_ << f.ulEnd() << endl;
   os_ << f.footer() << endl;
 } 
-
-//=============================================================================================================
 
 DDHtmlDetails::DDHtmlDetails(const string & cat, const string & txt) : cat_(cat), txt_(txt) { }
 
