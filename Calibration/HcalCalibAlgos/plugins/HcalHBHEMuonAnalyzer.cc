@@ -67,7 +67,6 @@ class HcalHBHEMuonAnalyzer :  public edm::one::EDAnalyzer<edm::one::WatchRuns,ed
 
 public:
   explicit HcalHBHEMuonAnalyzer(const edm::ParameterSet&);
-  ~HcalHBHEMuonAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -136,7 +135,7 @@ private:
   unsigned int              runNumber_, eventNumber_ , lumiNumber_, bxNumber_;
 };
 
-HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc(0) {
+HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc(nullptr) {
   
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
@@ -182,11 +181,6 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
 				   << "\n            " << labelHBHERecHit_
 				   << "\n            " << edm::InputTag(modnam,labelMuon_,procnm);
   }
-}
-
-HcalHBHEMuonAnalyzer::~HcalHBHEMuonAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
