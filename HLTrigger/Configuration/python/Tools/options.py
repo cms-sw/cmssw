@@ -110,7 +110,6 @@ class HLTProcessOptions(object):
     self.name       = 'HLTX'      # (*) if set, override the process name
     self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon', 'PRef' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
-    self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
     self.l1         = None        # (*) if set, override the L1 menu
     self.l1Xml      = None        # (*) if set, override the L1 menu Xml

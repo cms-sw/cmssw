@@ -168,7 +168,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     auto rls = chids.find(chid);
     if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
-    rls->second.push_back(r);
+    rls->second.emplace_back(r);
 
     doSubDets = fview.nextSibling(); // go to next layer
   }

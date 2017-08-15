@@ -1176,12 +1176,12 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv)
       std::vector<double> cri;
       std::vector<double> cro;
       std::vector<double> czz;
-      czz.push_back( vecSpmZPts()[1] ) ;
-      cri.push_back( vecSpmRMin()[0] ) ;
-      cro.push_back( vecSpmRMin()[0] + 25*mm ) ;
-      czz.push_back( vecSpmZPts()[2] ) ;
-      cri.push_back( vecSpmRMin()[2] ) ;
-      cro.push_back( vecSpmRMin()[2] + 10*mm ) ;
+      czz.emplace_back( vecSpmZPts()[1] ) ;
+      cri.emplace_back( vecSpmRMin()[0] ) ;
+      cro.emplace_back( vecSpmRMin()[0] + 25*mm ) ;
+      czz.emplace_back( vecSpmZPts()[2] ) ;
+      cri.emplace_back( vecSpmRMin()[2] ) ;
+      cro.emplace_back( vecSpmRMin()[2] + 10*mm ) ;
       const DDSolid clyrSolid ( DDSolidFactory::polycone( clyrName, -9.5*deg,  19*deg, czz,cri,cro) ) ;
       const DDLogicalPart clyrLog ( clyrName, ddmat(vecIlyMat()[4]), clyrSolid ) ;
       cpv.position( clyrLog, spmLog, copyOne, DDTranslation(0,0,0), DDRotation() ) ;

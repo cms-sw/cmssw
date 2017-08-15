@@ -31,6 +31,16 @@ def customiseFor19824(process) :
          producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
     return process
 
+# Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
+def customiseFor19989(process):
+    if hasattr(process,'StableParametersRcdSource'):
+        delattr(process,'StableParametersRcdSource')
+    if hasattr(process,'StableParameters'):
+        delattr(process,'StableParameters')
+    if not hasattr(process,'GlobalParameters'):
+        from L1Trigger.L1TGlobal.GlobalParameters_cff import GlobalParameters
+        process.GlobalParameters = GlobalParameters
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -40,5 +50,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseFor19029(process)
     process = customiseFor19824(process)
+    process = customiseFor19989(process)
 
     return process

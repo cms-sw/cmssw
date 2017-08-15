@@ -5,6 +5,7 @@
 #include "SimGeneral/CaloAnalysis/plugins/CaloTruthAccumulator.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -30,6 +31,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -146,7 +148,10 @@ void CaloTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup con
     auto hitsAndEnergies = sc.hits_and_fractions();
     sc.clearHitsAndFractions();
     for( auto& hAndE : hitsAndEnergies ) {
-      const float fraction = hAndE.second/m_detIdToTotalSimEnergy[hAndE.first];
+      const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
+      float fraction = 0.;
+      if(totalenergy>0) fraction = hAndE.second/totalenergy;
+      else edm::LogWarning("CaloTruthAccumulator") << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
       sc.addRecHitAndFraction(hAndE.first,fraction);
     }
   }
@@ -426,13 +431,8 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<std::pair<
       DetId id(0);
       const uint32_t simId = simHit.id();
       if( isHcal ) {
-	int subdet, z, depth0, eta0, phi0, lay;
-	HcalTestNumbering::unpackHcalIndex(simId, subdet, z, depth0, eta0, phi0, lay);
-	int sign = (z==0) ? (-1):(1);
-	HcalDDDRecConstants::HcalID tempid = hcddd_->getHCID(subdet, sign*eta0, phi0, lay, depth0);
-	if (subdet==int(HcalEndcap)) {
-	  id = HcalDetId(HcalEndcap,sign*tempid.eta,tempid.phi,tempid.depth);    
-	}
+        HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
+        if(hid.subdet()==HcalEndcap) id = hid;
       } else {
 	int subdet, layer, cell, sec, subsec, zp;
 	HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 

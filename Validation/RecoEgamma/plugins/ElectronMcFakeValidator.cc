@@ -1061,8 +1061,8 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
         h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
         h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
         h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-        if (bestGsfElectron.classification() < 100)  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
-        if (bestGsfElectron.classification() >= 100)  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
+        if ( bestGsfElectron.isEB() )  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
+        if ( bestGsfElectron.isEE() )  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
         h1_scl_Eta_->Fill(sclRef->eta());
         h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         h1_scl_Phi_->Fill(sclRef->phi());

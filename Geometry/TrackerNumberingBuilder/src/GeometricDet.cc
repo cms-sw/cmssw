@@ -228,38 +228,38 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   
   if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
     _params.reserve(11);
-    _params.push_back(onePGD._params0);
-    _params.push_back(onePGD._params1);
-    _params.push_back(onePGD._params2);
-    _params.push_back(onePGD._params3);
-    _params.push_back(onePGD._params4);
-    _params.push_back(onePGD._params5);
-    _params.push_back(onePGD._params6);
-    _params.push_back(onePGD._params7);
-    _params.push_back(onePGD._params8);
-    _params.push_back(onePGD._params9);
-    _params.push_back(onePGD._params10);
+    _params.emplace_back(onePGD._params0);
+    _params.emplace_back(onePGD._params1);
+    _params.emplace_back(onePGD._params2);
+    _params.emplace_back(onePGD._params3);
+    _params.emplace_back(onePGD._params4);
+    _params.emplace_back(onePGD._params5);
+    _params.emplace_back(onePGD._params6);
+    _params.emplace_back(onePGD._params7);
+    _params.emplace_back(onePGD._params8);
+    _params.emplace_back(onePGD._params9);
+    _params.emplace_back(onePGD._params10);
   }
  
   _ddd.reserve(onePGD._numnt);
-  _ddd.push_back(onePGD._nt0);
-  _ddd.push_back(onePGD._nt1);
-  _ddd.push_back(onePGD._nt2);
-  _ddd.push_back(onePGD._nt3);
+  _ddd.emplace_back(onePGD._nt0);
+  _ddd.emplace_back(onePGD._nt1);
+  _ddd.emplace_back(onePGD._nt2);
+  _ddd.emplace_back(onePGD._nt3);
   if ( onePGD._numnt > 4 ) {
-    _ddd.push_back(onePGD._nt4);
+    _ddd.emplace_back(onePGD._nt4);
     if ( onePGD._numnt > 5 ) {
-      _ddd.push_back(onePGD._nt5);
+      _ddd.emplace_back(onePGD._nt5);
       if ( onePGD._numnt > 6 ) {
-	_ddd.push_back(onePGD._nt6);
+	_ddd.emplace_back(onePGD._nt6);
 	if ( onePGD._numnt > 7 ) {
-	  _ddd.push_back(onePGD._nt7);
+	  _ddd.emplace_back(onePGD._nt7);
 	  if ( onePGD._numnt > 8 ) {
-	    _ddd.push_back(onePGD._nt8);
+	    _ddd.emplace_back(onePGD._nt8);
 	    if ( onePGD._numnt > 9 ) {
-	      _ddd.push_back(onePGD._nt9);
+	      _ddd.emplace_back(onePGD._nt9);
 	      if ( onePGD._numnt > 10 ) {
-		_ddd.push_back(onePGD._nt10);
+		_ddd.emplace_back(onePGD._nt10);
 	      }}}}}}
   }
  
@@ -278,7 +278,7 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
 void GeometricDet::deepComponents(ConstGeometricDetContainer & cont) const {
   //std::cout << "const deepComponents2" << std::endl;
   if (isLeaf())
-    cont.push_back(this);
+    cont.emplace_back(this);
   else 
     std::for_each(_container.begin(),_container.end(), 
 		  [&](const GeometricDet* iDet) {
@@ -301,7 +301,7 @@ void GeometricDet::addComponents(ConstGeometricDetContainer const & cont){
 
 void GeometricDet::addComponent(GeometricDet* det){
   //std::cout << "deepComponent" << std::endl;
-  _container.push_back(det);
+  _container.emplace_back(det);
 }
 
 namespace {

@@ -8,6 +8,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -124,11 +125,10 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* engine ) const
 {
-  //  std::cout << "*** " << hit.depth() << std::endl;
-   assert( 1 == hit.depth() ||
-	   2 == hit.depth()    ) ;
+  int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+  assert( 1 == iddepth || 2 == iddepth ) ;
 
-   double npe ( hit.energy()*( 2 == hit.depth() ?
+   double npe ( hit.energy()*( 2 == iddepth ?
 			       apdParameters()->simToPELow() :
 			       apdParameters()->simToPEHigh() ) ) ;
 
@@ -229,7 +229,8 @@ void
 EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
-    if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
+    int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+    if ( 0 == iddepth ) // for now take only nonAPD hits
      {
        if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
      }
@@ -270,7 +271,8 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engin
 	  ( 0 == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 
-	if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
+	int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
+	if( 0 == iddepth ) // for now take only nonAPD hits
 	  {
 	    if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
 	  }
