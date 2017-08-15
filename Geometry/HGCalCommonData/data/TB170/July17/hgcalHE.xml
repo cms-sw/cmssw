@@ -35,20 +35,20 @@
       26.9*mm, 10.0*mm, 30.0*mm, 38.0*mm, 42.0*mm, 46.9*mm, 48.9*mm, 58.9*mm, 
       78.0*mm, 63.0*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="5"> 
-      10, 11, 13, 11, 4 </Vector>
+      10, 11, 14, 11, 4 </Vector>
     <Vector name="LayerThick" type="numeric" nEntries="5"> 
-      137.11*mm, 176.01*mm, 229.01*mm, 188.01*mm, 140.90*mm</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="49"> 
+      137.11*mm, 176.01*mm, 239.01*mm, 188.01*mm, 140.90*mm</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="50"> 
       7, 14, 0,  3, 2, 5, 4, 4, 4, 1,
       11, 0, 0,  0, 3, 2, 5, 4, 4, 4, 1,
-      6,  0, 7, 15, 0, 0, 3, 2, 5, 4, 4, 4, 1,
+      6,  0, 7, 15, 7, 0, 0, 3, 2, 5, 4, 4, 4, 1,
       13, 0, 0,  0, 3, 2, 5, 4, 4, 4, 1, 
       12, 0, 10, 7
     </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="49">
+    <Vector name="LayerSense" type="numeric" nEntries="50">
       0, 0, 0, 0, 4, 3, 1, 1, 1, 2,
       0, 0, 0, 0, 0, 4, 3, 1, 1, 1, 2, 
-      0, 0, 0, 0, 0, 0, 0, 4, 3, 1, 1, 1, 2, 
+      0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 1, 1, 1, 2, 
       0, 0, 0, 0, 0, 4, 3, 1, 1, 1, 2,
       0, 0, 0, 0
     </Vector>
