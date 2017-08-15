@@ -89,7 +89,7 @@ protected:
 
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  // static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
 
   std::string folderName_;
   std::string histoSuffix_;
