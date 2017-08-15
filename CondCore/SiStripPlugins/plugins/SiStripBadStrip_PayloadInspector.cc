@@ -204,7 +204,7 @@ namespace {
       }
       
       std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
-
+      delete reader;
       return (numerator/denominator)*100.;
       
     } // payload
@@ -249,6 +249,7 @@ namespace {
       
       std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TIB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
 
+      delete reader;
       return (numerator/denominator)*100.;
       
     } // payload
@@ -293,6 +294,7 @@ namespace {
       
       std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TOB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
 
+      delete reader;
       return (numerator/denominator)*100.;
       
     } // payload
@@ -337,6 +339,7 @@ namespace {
       
       std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TID strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
 
+      delete reader;
       return (numerator/denominator)*100.;
       
     } // payload
@@ -381,6 +384,7 @@ namespace {
       
       std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TEC strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
 
+      delete reader;
       return (numerator/denominator)*100.;
       
     } // payload
@@ -473,6 +477,7 @@ namespace {
       h_BadStrips->SetLineStyle(9);
       h_BadStrips->SetMarkerColor(kBlue);
       h_BadStrips->GetYaxis()->SetRangeUser(0.,h_BadStrips->GetMaximum()*1.30);
+      h_BadStrips->GetYaxis()->SetTitleOffset(1.7);
       h_BadStrips->Draw("HISTsame");
       h_BadStrips->Draw("TEXTsame");
       
@@ -489,7 +494,7 @@ namespace {
       
       TLegend legend = TLegend(0.52,0.82,0.95,0.9);
       legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
-      legend.AddEntry(h_BadStrips.get(),("IOV: "+std::to_string(std::get<0>(iov))+" bad strips:"+std::to_string(totalBadStrips)).c_str(),"PL");
+      legend.AddEntry(h_BadStrips.get(),("IOV: "+std::to_string(std::get<0>(iov))+"| n. of bad strips:"+std::to_string(totalBadStrips)).c_str(),"PL");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
