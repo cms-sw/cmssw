@@ -14,17 +14,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "HepMC/SimpleVector.h"
-
 //
 // class decleration
 //
 namespace edm {
   class HepMCProduct;
-}
-
-namespace HepMC {
-   class FourVector;
 }
 
 class PythiaFilterMultiMother : public edm::EDFilter {
@@ -35,9 +29,6 @@ class PythiaFilterMultiMother : public edm::EDFilter {
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
-     // ----------member function ----------------------- 
-     HepMC::FourVector zboost(const HepMC::FourVector&);
-
      // ----------member data ---------------------------
 
        edm::EDGetTokenT<edm::HepMCProduct> token_;

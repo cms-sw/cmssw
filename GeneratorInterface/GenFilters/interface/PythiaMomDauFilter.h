@@ -33,14 +33,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "HepMC/SimpleVector.h"
-
 namespace edm {
       class HepMCProduct;
-}
-
-namespace HepMC {
-   class FourVector;
 }
 
 //
@@ -55,10 +49,6 @@ class PythiaMomDauFilter : public edm::EDFilter {
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
-      // ----------memeber function----------------------
-
-       HepMC::FourVector zboost(const HepMC::FourVector&);
-
       // ----------member data ---------------------------
       
       edm::EDGetTokenT<edm::HepMCProduct> label_;
