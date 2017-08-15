@@ -32,7 +32,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
       ESDetId nextId= goNorth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==ESDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -45,7 +45,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
       ESDetId nextId= goSouth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==ESDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -58,7 +58,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
     ESDetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==ESDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
 
@@ -71,7 +71,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
     ESDetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==ESDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return vNeighborsDetId;
   }
   
@@ -83,7 +83,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
     ESDetId nextId=goUp(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==ESDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return  vNeighborsDetId;
   }
   
@@ -95,7 +95,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
     ESDetId nextId=goDown(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==ESDetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
     return  vNeighborsDetId;
   }
 

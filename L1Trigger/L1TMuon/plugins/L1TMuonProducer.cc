@@ -416,7 +416,7 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
     // set tfMuonIndex and iso to 0 like in the FW
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, 0, 0, true, 0, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), 0, 0, 0, true, 0, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {

@@ -80,7 +80,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     DimVec::const_iterator dsrc( dvec.begin() + ivec[indx]*nPerShape );
 
     for( unsigned int j ( 0 ) ; j != nPerShape ; ++j ) {
-      dims.push_back( *dsrc ) ;
+      dims.emplace_back( *dsrc ) ;
       ++dsrc ;
     }
 
@@ -235,7 +235,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
     DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
 
     for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )  {
-      dims.push_back( *dsrc ) ;
+      dims.emplace_back( *dsrc ) ;
       ++dsrc ;
     }
 

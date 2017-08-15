@@ -94,11 +94,11 @@ void TestEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
 
       std::vector<DetId> eeDetIds;
-      eeDetIds.push_back(EEDetId(1,50,1,EEDetId::XYMODE));
-      eeDetIds.push_back(EEDetId(25,50,1,EEDetId::XYMODE));
-      eeDetIds.push_back(EEDetId(50,1,1,EEDetId::XYMODE));
-      eeDetIds.push_back(EEDetId(50,25,1,EEDetId::XYMODE));
-      eeDetIds.push_back(EEDetId(3,60,1,EEDetId::XYMODE));
+      eeDetIds.emplace_back(EEDetId(1,50,1,EEDetId::XYMODE));
+      eeDetIds.emplace_back(EEDetId(25,50,1,EEDetId::XYMODE));
+      eeDetIds.emplace_back(EEDetId(50,1,1,EEDetId::XYMODE));
+      eeDetIds.emplace_back(EEDetId(50,25,1,EEDetId::XYMODE));
+      eeDetIds.emplace_back(EEDetId(3,60,1,EEDetId::XYMODE));
       for (const auto & eeDetId : eeDetIds)
 	{
 
@@ -159,10 +159,10 @@ void TestEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       h->GetYaxis()->CenterTitle(true);  
       const CaloSubdetectorTopology* topology=ct.getSubdetectorTopology(det,subdetn);
       std::vector<DetId> ebDetIds;
-      ebDetIds.push_back(EBDetId(1,1));
-      ebDetIds.push_back(EBDetId(30,30));
-      ebDetIds.push_back(EBDetId(-1,120));
-      ebDetIds.push_back(EBDetId(85,1));
+      ebDetIds.emplace_back(EBDetId(1,1));
+      ebDetIds.emplace_back(EBDetId(30,30));
+      ebDetIds.emplace_back(EBDetId(-1,120));
+      ebDetIds.emplace_back(EBDetId(85,1));
       for (const auto & ebDetId : ebDetIds)
 	{
 	  EBDetId myId(ebDetId);

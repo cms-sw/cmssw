@@ -77,41 +77,47 @@ void makePlots(std::string fname="runWithGun_Fix.root",
   }
 }
 
-void comparePlots(std::string fname="elec10", int mom=10, bool save=false) {
+std::vector<TCanvas*> comparePlots(std::string dirname="EcalSimHitStudy", 
+				   std::string text="All", int mom=10, 
+				   bool ratio=false, std::string fname="elec", 
+				   bool save=false) {
 
+  std::vector<TCanvas*> tcvs;
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
-  gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(1100);       gStyle->SetOptFit(0);
+  gStyle->SetOptTitle(0);         gStyle->SetOptFit(0);
+  if (ratio) gStyle->SetOptStat(0);
+  else       gStyle->SetOptStat(1100);
 
   std::string tags[2]   = {"Old", "New"};
   int  color[2]         = {2,4};
   int  marker[2]        = {20,21};
   int  style[2]         = {1,2};
-  int  rebin[16]        = {20,20,20,20, 2, 2, 2, 2, 2, 2,10,10,10,10,10,10};
+  int  rebin[16]        = {50,50,50,50, 2, 2, 2, 2, 2, 2,20,20,20,20,20,20};
   int  type[16]         = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int  edgex[16]        = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0};
   std::string name1[16] = {"Etot0",    "Etot1",    "EtotG0",   "EtotG1",
-			 "r1by250",  "r1by251",  "r1by90",   "r1by91", 
-			 "r9by250",  "r9by251",	 "sEtaEta0", "sEtaEta1",
-			 "sEtaPhi0", "sEtaPhi1", "sPhiPhi0", "sPhiPhi1"};
-  char name[100];
-  TFile *file[2];
+			   "r1by250",  "r1by251",  "r1by90",   "r1by91", 
+			   "r9by250",  "r9by251",  "sEtaEta0", "sEtaEta1",
+			   "sEtaPhi0", "sEtaPhi1", "sPhiPhi0", "sPhiPhi1"};
+  char        name[100];
+  TFile      *file[2];
+  TDirectory *dir[2];
   for (int i=0; i<2; ++i) {
     sprintf (name, "%s%d%s.root", fname.c_str(), mom, tags[i].c_str());
     file[i] = new TFile(name);
+    dir[i]  = (TDirectory*)file[i]->FindObjectAny(dirname.c_str());
   }
   for (int k=0; k<16; ++k) {
     TH1D* hist[2];
     sprintf (name, "%s", name1[k].c_str());
     for (int i=0; i<2; ++i) {
-      hist[i] = (TH1D*)file[i]->FindObjectAny(name);
+      hist[i] = (TH1D*)dir[i]->FindObjectAny(name);
       if (hist[i] != 0) {
-	if (rebin[k] > 1) hist[i]->Rebin(rebin[k]);
 	hist[i]->GetXaxis()->SetLabelOffset(0.005);
-	hist[i]->GetXaxis()->SetTitleOffset(1.40);
+	hist[i]->GetXaxis()->SetTitleOffset(1.00);
 	hist[i]->GetYaxis()->SetLabelOffset(0.005);
-	hist[i]->GetYaxis()->SetTitleOffset(1.40);
+	hist[i]->GetYaxis()->SetTitleOffset(1.20);
 	hist[i]->SetMarkerStyle(marker[i]);
 	hist[i]->SetMarkerColor(color[i]);
 	hist[i]->SetLineColor(color[i]);
@@ -120,37 +126,111 @@ void comparePlots(std::string fname="elec10", int mom=10, bool save=false) {
       }
     }
     if (hist[0] != 0 && hist[1] != 0) {
+      double ytop(0.90), dy(0.05);
       double xmin = (edgex[k] == 0) ? 0.65 : 0.11;
-      TLegend *legend = new TLegend(xmin, 0.70, xmin+0.25, 0.79);
+      double xmin1= (edgex[k] == 0) ? 0.55 : 0.11;
+      double ymax = ratio ? (ytop - 0.01) : (ytop - 2*dy - 0.01);
+      double ymin = ratio ? (ymax - 0.045) : (ymax - 0.09);
+      TLegend *legend = new TLegend(xmin1, ymin, xmin1+0.35, ymax);
       legend->SetFillColor(kWhite);
-      sprintf (name, "c_%sE%d", name1[k].c_str(),mom);
+      if (ratio) {
+	sprintf (name, "c_R%sE%d%s", name1[k].c_str(), mom, text.c_str());
+      } else {
+	sprintf (name, "c_%sE%d%s", name1[k].c_str(), mom, text.c_str());
+      }
       TCanvas *pad = new TCanvas(name, name, 700, 500);
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
       if (type[k] != 0) pad->SetLogy();
-      double ytop(0.90), dy(0.05);
-      for (int i=0; i<2; ++i) {
-	if (i == 0) hist[i]->Draw("hist");
-	else        hist[i]->Draw("sameshist");
-	pad->Update();
-	sprintf (name, "%d GeV Electron (%s)", mom, tags[i].c_str());
-	legend->AddEntry(hist[i],name,"lp");
-	TPaveStats* st1 = (TPaveStats*)hist[i]->GetListOfFunctions()->FindObject("stats");
-	if (st1 != NULL) {
-	  st1->SetLineColor(color[i]); st1->SetTextColor(color[i]);
-	  st1->SetY1NDC(ytop-dy); st1->SetY2NDC(ytop);
-	  st1->SetX1NDC(xmin); st1->SetX2NDC(xmin+0.25);
-	  ytop -= dy;
+      if (ratio) {
+	int nbin  = hist[0]->GetNbinsX();
+	int nbinR = nbin/rebin[k];
+	double xlow = hist[0]->GetXaxis()->GetBinLowEdge(1);
+	double xhigh= hist[0]->GetXaxis()->GetBinLowEdge(nbin) + hist[0]->GetXaxis()->GetBinWidth(nbin);;
+	sprintf (name, "%sRatio", name1[k].c_str());
+	TH1D* histr = new TH1D(name, hist[0]->GetTitle(), nbinR, xlow, xhigh);
+	sprintf (name, "Ratio (%s/%s)", tags[0].c_str(), tags[1].c_str());
+	histr->GetXaxis()->SetTitle(hist[0]->GetXaxis()->GetTitle());
+	histr->GetYaxis()->SetTitle(name);
+	histr->GetXaxis()->SetLabelOffset(0.005);
+	histr->GetXaxis()->SetTitleOffset(1.00);
+	histr->GetYaxis()->SetLabelOffset(0.005);
+	histr->GetYaxis()->SetTitleOffset(1.20);
+	histr->GetYaxis()->SetRangeUser(0.0,2.0);
+	histr->SetMarkerStyle(marker[0]);
+	histr->SetMarkerColor(color[0]);
+	histr->SetLineColor(color[0]);
+	histr->SetLineStyle(style[0]);
+	for (int j=0; j<nbinR; ++j) {
+	  double tnum(0), tden(0), rnum(0), rden(0);
+	  for (int i=0; i<rebin[k]; ++i) {
+	    int ib = j*rebin[k] + i + 1;
+	    tnum += hist[0]->GetBinContent(ib);
+	    tden += hist[1]->GetBinContent(ib);
+	    rnum += ((hist[0]->GetBinError(ib))*(hist[0]->GetBinError(ib)));
+	    rden += ((hist[1]->GetBinError(ib))*(hist[1]->GetBinError(ib)));
+	  }
+	  if (tden > 0 && tnum > 0) {
+	    double rat = tnum/tden;
+	    double err = rat*sqrt((rnum/(tnum*tnum))+(rden/(tden*tden)));
+	    histr->SetBinContent(j+1,rat);
+	    histr->SetBinError(j+1,err);
+	  }
 	}
+	histr->Draw();
+	sprintf (name, "%d GeV Electron (%s)",mom,text.c_str());
+	legend->AddEntry(histr,name,"lp");
+	pad->Update();
+	TLine* line = new TLine(xlow,1.0,xhigh,1.0);
+	line->SetLineColor(color[1]);
+	line->SetLineWidth(2);
+	line->SetLineStyle(2);
+	line->Draw("same");
+	pad->Update();
+      } else {
+	double mean[2], error[2];
+	for (int i=0; i<2; ++i) {
+	  if (rebin[k] > 1) hist[i]->Rebin(rebin[k]);
+	  if (i == 0) hist[i]->Draw("hist");
+	  else        hist[i]->Draw("sameshist");
+	  pad->Update();
+	  sprintf (name, "%d GeV Electron (%s %s)",mom,text.c_str(),tags[i].c_str());
+	  legend->AddEntry(hist[i],name,"lp");
+	  TPaveStats* st1 = (TPaveStats*)hist[i]->GetListOfFunctions()->FindObject("stats");
+	  if (st1 != NULL) {
+	    st1->SetLineColor(color[i]); st1->SetTextColor(color[i]);
+	    st1->SetY1NDC(ytop-dy); st1->SetY2NDC(ytop);
+	    st1->SetX1NDC(xmin); st1->SetX2NDC(xmin+0.25);
+	    ytop -= dy;
+	  }
+	  double entries = hist[i]->GetEntries();
+	  mean[i]  = hist[i]->GetMean();
+	  error[i] = (hist[i]->GetRMS())/sqrt(entries);
+	  std::cout << text << ":" << hist[i]->GetName() << " V " << tags[i] 
+		    << " Mean " << mean[i] << " RMS " << hist[i]->GetRMS() 
+		    << " Error " << error[i] << std::endl;
+	}
+	double diff = 0.5*(mean[0]-mean[1])/(mean[0]+mean[1]);
+	double ddiff= (sqrt((mean[0]*error[1])*(mean[0]*error[1])+
+			    (mean[1]*error[0])*(mean[1]*error[0]))/
+		       ((mean[0]*mean[0])+(mean[1]*mean[1])));
+	double sign = std::abs(diff)/ddiff;
+	std::cout << "Difference " << diff << " +- " << ddiff 
+		  << " Significance " << sign << std::endl;
 	pad->Modified();
 	pad->Update();
       }
+      if (ratio) {
+      }
       legend->Draw("same");
+      pad->Modified();
       pad->Update();
+      tcvs.push_back(pad);
       if (save) {
 	sprintf (name, "%s.pdf", pad->GetName());
 	pad->Print(name);
       }
     }
   }
+  return tcvs;
 }
