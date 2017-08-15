@@ -471,37 +471,54 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 
     if (m_verbose) cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
     m_ProbeMuons.clear();
+    std::vector<const reco::Muon*>  tagMuonsInHist;
+
+    tagMuonsInHist.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
 //    vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
 
     for (; probeCandIt!=tightMuonsEnd; ++probeCandIt) {
-        bool tagHasTrig = false;
+        bool isProbe = false;
         vector<const reco::Muon*>::const_iterator tagCandIt  = m_TightMuons.begin();
         float deltar = 0.;
 
         for (; tagCandIt!=tightMuonsEnd; ++tagCandIt) {
+            bool tagMuonAlreadyInHist = false;
+            bool tagHasTrig = false;
             float eta = (*tagCandIt)->eta();
             float phi = (*tagCandIt)->phi();
             float pt  = (*tagCandIt)->pt();
             float dEta = eta - (*probeCandIt)->eta();
             float dPhi = phi - (*probeCandIt)->phi();
-
             deltar = sqrt(dEta*dEta + dPhi*dPhi);
 
             if ( (*tagCandIt) == (*probeCandIt) || (deltar<0.7) ) continue; // CB has a little bias for closed-by muons     
-                tagHasTrig |= matchHlt(trigEvent,(*tagCandIt));
+            tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (*tagCandIt)->pt()>m_TagPtCut;
+            isProbe |= tagHasTrig;
             if (tagHasTrig) {
-                m_EfficiencyHistos[0]["TagMuonEta_Histo"]->Fill(eta);
-                m_EfficiencyHistos[0]["TagMuonPhi_Histo"]->Fill(phi);
-                m_EfficiencyHistos[0]["TagMuonPt_Histo"]->Fill(pt);
-             }
+                if (std::distance(m_TightMuons.begin(), m_TightMuons.end()) > 2 ) {
+                    for (vector<const reco::Muon*>::const_iterator tagMuonsInHistIt = tagMuonsInHist.begin(); tagMuonsInHistIt!=tagMuonsInHist.end(); ++tagMuonsInHistIt) {
+                        if ( (*tagCandIt) == (*tagMuonsInHistIt) )  {
+                            tagMuonAlreadyInHist = true;
+                           break;
+                        }
+                    }
+                    if (tagMuonAlreadyInHist == false) tagMuonsInHist.push_back((*tagCandIt));
+                }
+                if (tagMuonAlreadyInHist == false) {
+                    m_EfficiencyHistos[0]["TagMuonEta_Histo"]->Fill(eta);
+                    m_EfficiencyHistos[0]["TagMuonPhi_Histo"]->Fill(phi);
+                    m_EfficiencyHistos[0]["TagMuonPt_Histo"]->Fill(pt);
+                }
+            }
         }
-        if (tagHasTrig) m_ProbeMuons.push_back((*probeCandIt));
+        if (isProbe) m_ProbeMuons.push_back((*probeCandIt));
     }
     m_ControlHistos["NProbesVsTight"]->Fill(m_TightMuons.size(),m_ProbeMuons.size());
 }
+
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
