@@ -162,6 +162,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         bool  m_verbose;
         std::string m_HistFolder;
         std::vector<int> m_GmtPtCuts;
+        double m_TagPtCut;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
         edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;
         edm::EDGetTokenT<reco::VertexCollection> m_VtxInputTag;
