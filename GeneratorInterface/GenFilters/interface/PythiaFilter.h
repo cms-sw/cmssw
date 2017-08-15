@@ -31,6 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "HepMC/SimpleVector.h"
 
 //
 // class decleration

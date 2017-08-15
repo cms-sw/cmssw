@@ -64,14 +64,14 @@ bool PythiaFilterMultiMother::filter(edm::Event& iEvent, const edm::EventSetup& 
        if ( abs((*p)->pdg_id()) == particleID
 	    && mom.rho() > minpcut
 	    && mom.rho() < maxpcut
-	    && mom.perp() > minptcut
-	    && mom.perp() < maxptcut
+	    && (*p)->momentum().perp() > minptcut
+	    && (*p)->momentum().perp() < maxptcut
 	    && mom.eta() > minetacut
 	    && mom.eta() < maxetacut
 	    && rapidity > minrapcut
 	    && rapidity < maxrapcut
-	    && mom.phi() > minphicut
-	    && mom.phi() < maxphicut ) {
+	    && (*p)->momentum().phi() > minphicut
+	    && (*p)->momentum().phi() < maxphicut ) {
 
 
 	 for(std::vector<int>::const_iterator motherID = motherIDs.begin(); motherID != motherIDs.end(); ++motherID) {
