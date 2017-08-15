@@ -1,4 +1,4 @@
-#include <iostream>
+1;4205;0c#include <iostream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -146,7 +146,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
 	  }
-	  if(iFoundRefs < 2) throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl;
+	  if(iFoundRefs < 2) throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the muons matched with the Jpsi vertex tracks should be at least two by definition."  << std::endl;
 	
           // calculate two-track transverse momentum
           math::XYZVector pperp(cand1->px() + cand2->px(),
