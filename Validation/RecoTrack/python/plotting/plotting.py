@@ -1180,7 +1180,7 @@ class ROC:
 _plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34, 33]
 
-def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
+def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
     """Function to draw a frame
 
     Arguments:
@@ -1188,6 +1188,7 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
     bounds -- List or 4-tuple for (xmin, ymin, xmax, ymax)
 
     Keyword arguments:
+    zmax            -- Maximum Z, needed for TH2 histograms
     xbinlabels      -- Optional list of strings for x axis bin labels
     xbinlabelsize   -- Optional number for the x axis bin label size
     xbinlabeloption -- Optional string for the x axis bin options (passed to ROOT.TH1.LabelsOption())
@@ -1206,6 +1207,7 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
         else:
             ybins = len(ybinlabels)
             frame = ROOT.TH2F("hframe"+suffix, "", nbins,bounds[0],bounds[2], ybins,bounds[1],bounds[3])
+            frame.SetMaximum(zmax)
 
         frame.SetBit(ROOT.TH1.kNoStats)
         frame.SetBit(ROOT.kCanDelete)
@@ -1232,9 +1234,9 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
 
 class Frame:
     """Class for creating and managing a frame for a simple, one-pad plot"""
-    def __init__(self, pad, bounds, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None):
+    def __init__(self, pad, bounds, zmax, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None):
         self._pad = pad
-        self._frame = _drawFrame(pad, bounds, xbinlabels, xbinlabelsize, xbinlabeloption, ybinlabels)
+        self._frame = _drawFrame(pad, bounds, zmax, xbinlabels, xbinlabelsize, xbinlabeloption, ybinlabels)
 
         yoffsetFactor = 1
         xoffsetFactor = 1
@@ -1305,15 +1307,15 @@ class Frame:
 
 class FrameRatio:
     """Class for creating and managing a frame for a ratio plot with two subpads"""
-    def __init__(self, pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ratioYTitle=_ratioYTitle):
+    def __init__(self, pad, bounds, zmax, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ratioYTitle=_ratioYTitle):
         self._parentPad = pad
         self._pad = pad.cd(1)
         if xbinlabels is not None:
-            self._frame = _drawFrame(self._pad, bounds, [""]*len(xbinlabels))
+            self._frame = _drawFrame(self._pad, bounds, zmax, [""]*len(xbinlabels))
         else:
-            self._frame = _drawFrame(self._pad, bounds)
+            self._frame = _drawFrame(self._pad, bounds, zmax)
         self._padRatio = pad.cd(2)
-        self._frameRatio = _drawFrame(self._padRatio, ratioBounds, xbinlabels, xbinlabelsize, xbinlabeloption)
+        self._frameRatio = _drawFrame(self._padRatio, ratioBounds, zmax, xbinlabels, xbinlabelsize, xbinlabeloption)
 
         self._frame.GetXaxis().SetLabelSize(0)
         self._frame.GetXaxis().SetTitleSize(0)
@@ -2080,6 +2082,9 @@ class Plot:
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
+        zmax = None
+        if isinstance(histos[0], ROOT.TH2):
+            zmax = max([h.GetMaximum() for h in histos])
 
         # need to keep these in memory
         self._mainAdditional = []
@@ -2128,9 +2133,9 @@ class Plot:
         else:
             if ratio:
                 ratioBounds = (bounds[0], ratioBoundsY[0], bounds[2], ratioBoundsY[1])
-                frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+                frame = FrameRatio(pad, bounds, zmax, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
             else:
-                frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption, ybinlabels=ybinlabels)
+                frame = Frame(pad, bounds, zmax, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption, ybinlabels=ybinlabels)
 
         # Set log and grid
         frame.setLogx(self._xlog)
