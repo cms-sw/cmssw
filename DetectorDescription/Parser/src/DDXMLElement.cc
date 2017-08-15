@@ -1,6 +1,5 @@
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include <ext/alloc_traits.h>
 #include <iostream>
 #include <memory>
 #include <utility>
