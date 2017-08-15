@@ -4,7 +4,10 @@ import FWCore.ParameterSet.Config as cms
 
 etBinsStd=cms.vdouble(5,10,12.5,15,17.5,20,22.5,25,30,35,40,45,50,60,80,100,150,200,250,300,350,400)
 scEtaBinsStd = cms.vdouble(-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.566,-1.4442,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4442,1.566,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5)
+scEtaBinsHEP17 = cms.vdouble(1.3,1.4442,1.566,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5)
+scEtaBinsHEM17 = cms.vdouble(-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.566,-1.4442,-1.3)
 phiBinsStd = cms.vdouble(-3.32,-2.97,-2.62,-2.27,-1.92,-1.57,-1.22,-0.87,-0.52,-0.18,0.18,0.52,0.87,1.22,1.57,1.92,2.27,2.62,2.97,3.32)
+phiBinsHE17 = cms.vdouble(-0.87,-0.80,-0.73,-0.66,-0.59,-0.52)
 
 etRangeCut= cms.PSet(
     rangeVar=cms.string("et"),
@@ -234,6 +237,53 @@ egammaStdHistConfigs = cms.VPSet(
         ),
     
     )
+
+egammaHEP17HistConfigs = cms.VPSet(
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("et"),
+        nameSuffex=cms.string("_vsEt"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=etBinsStd,
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("scEta"),
+        nameSuffex=cms.string("_vsSCEta"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=scEtaBinsHEP17,
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("phi"),
+        nameSuffex=cms.string("_vsPhi"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=phiBinsHE17,
+    )
+)
+egammaHEM17HistConfigs = cms.VPSet(
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("et"),
+        nameSuffex=cms.string("_vsEt"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=etBinsStd,
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("scEta"),
+        nameSuffex=cms.string("_vsSCEta"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=scEtaBinsHEM17,
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("phi"),
+        nameSuffex=cms.string("_vsPhi"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=phiBinsHE17,
+    )
+)
 egammaHighEtaHistConfigs = cms.VPSet(
     cms.PSet(
         histType=cms.string("1D"),
@@ -811,13 +861,13 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEM17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEM17HistConfigs,
             baseHistName = cms.string("eleWPTightTag-HEM17_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEP17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEP17HistConfigs,
             baseHistName = cms.string("eleWPTightTag-HEP17_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
@@ -858,13 +908,13 @@ egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSour
         ),
         cms.PSet(
             tagAndProbeElePhoConfigEle27WPTightHEM17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEM17HistConfigs,
             baseHistName = cms.string("eleWPTightTagPhoProbe-HEM17_"),
             filterConfigs = egammaPhoFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeElePhoConfigEle27WPTightHEP17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEM17HistConfigs,
             baseHistName = cms.string("eleWPTightTagPhoProbe-HEP17_"),
             filterConfigs = egammaPhoFiltersToMonitor,
         ),
@@ -882,13 +932,13 @@ egHLTMuonEleDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuEleTagAndProbeOfflineSour
         ),
         cms.PSet(
             tagAndProbeMuonEleConfigIsoMuHEM17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEM17HistConfigs,
             baseHistName = cms.string("muonIsoMuTagEleProbe-HEM17_"),
             filterConfigs = egammaMuEleFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeMuonPhoConfigIsoMuHEP17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEP17HistConfigs,
             baseHistName = cms.string("muonIsoMuTagEleProbe-HEP17_"),
             filterConfigs = egammaMuEleFiltersToMonitor,
         ),
@@ -905,13 +955,13 @@ egHLTMuonPhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuPhoTagAndProbeOfflineSour
         ),
         cms.PSet(
             tagAndProbeMuonPhoConfigIsoMuHEM17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEM17HistConfigs,
             baseHistName = cms.string("muonIsoMuTagPhoProbe-HEM17_"),
             filterConfigs = egammaMuPhoFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeMuonPhoConfigIsoMuHEP17,
-            histConfigs = egammaStdHistConfigs,
+            histConfigs = egammaHEP17HistConfigs,
             baseHistName = cms.string("muonIsoMuTagPhoProbe-HEP17_"),
             filterConfigs = egammaMuPhoFiltersToMonitor,
         ),
