@@ -66,7 +66,7 @@ class BPHMonitor : public DQMEDAnalyzer
 {
 public:
   BPHMonitor( const edm::ParameterSet& );
-  ~BPHMonitor() override;
+  ~BPHMonitor();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -79,7 +79,7 @@ protected:
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, double& ymin, double& ymax);
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, int& nbinsY, double& ymin, double& ymax);
   void bookME(DQMStore::IBooker &, METME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY);
-  void setMETitle(METME& me, const std::string& titleX, const std::string& titleY);
+  void setMETitle(METME& me, std::string titleX, std::string titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   template <typename T>
@@ -88,8 +88,8 @@ protected:
 
 
 private:
-  static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
-  static MEbinning getHistoLSPSet  (const edm::ParameterSet& pset);
+  static MEbinning getHistoPSet    (edm::ParameterSet pset);
+  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -176,9 +176,8 @@ private:
   double minprob;
   double mincos;
   double minDS;
+  edm::EDGetTokenT<edm::TriggerResults>  hltTrigResTag_;
   edm::EDGetTokenT<trigger::TriggerEvent>  hltInputTag_;
-  //edm::EDGetTokenT<edm::TriggerResults>  hltInputTag_;
-  //edm::InputTag  hltInputTag_;
   std::vector<std::string> hltpaths_num;
   std::vector<std::string> hltpaths_den;
   StringCutObjectSelector<reco::Track,true>        trSelection_;

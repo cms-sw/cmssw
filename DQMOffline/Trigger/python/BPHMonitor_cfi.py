@@ -78,7 +78,7 @@ hltBPHmonitoring.offlinePVs      = cms.InputTag("offlinePrimaryVertices") # PVs
 hltBPHmonitoring.beamSpot = cms.InputTag("offlineBeamSpot") # 
 hltBPHmonitoring.muons     = cms.InputTag("muons") # 
 hltBPHmonitoring.photons     = cms.InputTag("photons") # 
-
+hltBPHmonitoring.hltTriggerSummaryAOD   = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 #hltBPHmonitoring.DMSelection_ref = cms.string("")
 #hltBPHmonitoring.muoSelection_ref = cms.string("")
 #hltBPHmonitoring.muoSelection_ = cms.string("")
@@ -88,24 +88,23 @@ hltBPHmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltBPHmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("BPHDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 hltBPHmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltBPHmonitoring.numGenericTriggerEventPSet.andOrL1      = cms.bool(True)# True:=OR; False:=AND
-hltBPHmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "hltTriggerSummaryAOD","","HLT")
-#hltBPHmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "hltTriggerSummaryRAW")
+hltBPHmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT")
 hltBPHmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_Dimuon0_Jpsi_L1_NoOS_v*") # HLT_ZeroBias_v*
-hltBPHmonitoring.numGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
-hltBPHmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("diMu10")
+#hltBPHmonitoring.numGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
+#hltBPHmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("diMu10")
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyL1 = cms.bool( True )
 hltBPHmonitoring.numGenericTriggerEventPSet.l1BeforeMask = cms.bool( True )
-hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
+hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
 
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+#hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 #hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi_v*" )#reference
-hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
-hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel
+#hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
+#hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
+hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
 
