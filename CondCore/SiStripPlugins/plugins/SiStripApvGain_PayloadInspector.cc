@@ -500,13 +500,12 @@ namespace {
       // cache the last IOV
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=last_payload->getRange(d);
-	float Gain=0;
 	float nAPV=0;
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPV+=1;
-	  Gain+=last_payload->getApvGain(it,range);
+	  float Gain=last_payload->getApvGain(it,range);
 	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
-	  lastmap[index]=(Gain/nAPV);
+	  lastmap[index]=Gain;
 	} // loop over APVs
       } // loop over detIds
       
@@ -517,13 +516,12 @@ namespace {
       // cache the first IOV
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=first_payload->getRange(d);
-	float Gain=0;
 	float nAPV=0;
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPV+=1;
-	  Gain+=first_payload->getApvGain(it,range);
+	  float Gain=first_payload->getApvGain(it,range);
 	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
-	  firstmap[index]=(Gain/nAPV);
+	  firstmap[index]=Gain;
 	} // loop over APVs
       } // loop over detIds
       
