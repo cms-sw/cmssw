@@ -11,7 +11,8 @@ DDLShapelessSolid::DDLShapelessSolid( DDLElementRegistry* myreg )
 {}
 
 void
-DDLShapelessSolid::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLShapelessSolid::preProcessElement( const std::string& name, const std::string& nmspace,
+				      DDCompactView& cpv )
 {
   myRegistry_->getElement("rSolid")->clear();
 }
