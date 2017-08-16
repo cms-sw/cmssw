@@ -99,7 +99,7 @@ DDLDivision::processElement( const std::string& name, const std::string& nmspace
 DDDividedGeometryObject*
 DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
 {
-  DDDividedGeometryObject* dg = NULL;
+  DDDividedGeometryObject* dg = nullptr;
 
   switch (div.parent().solid().shape()) 
   {
