@@ -25,6 +25,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "RecoTracker/DeDx/interface/GenericTruncatedAverageDeDxEstimator.h"
 
 //
 // class declaration
@@ -53,11 +54,16 @@ private:
 
   const unsigned int minTrackHits;
   const float        minTrackPt;
+  const float        minTrackPtPrescale;
   const float        maxTrackEta;
 
   const std::string                       m_calibrationPath;
   const bool                              useCalibration;
   const bool                              shapetest;
+
+  const unsigned int lowPtTracksPrescalePass, lowPtTracksPrescaleFail;
+  GenericTruncatedAverageDeDxEstimator lowPtTracksEstimator;
+  const float lowPtTracksDeDxThreshold;
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;

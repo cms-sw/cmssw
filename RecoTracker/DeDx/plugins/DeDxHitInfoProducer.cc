@@ -31,13 +31,19 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig):
    MeVperADCStrip    ( iConfig.getParameter<double>  ("MeVperADCStrip") ),
    minTrackHits      ( iConfig.getParameter<unsigned>("minTrackHits")   ),
    minTrackPt        ( iConfig.getParameter<double>  ("minTrackPt"  )   ),
+   minTrackPtPrescale( iConfig.getParameter<double>  ("minTrackPtPrescale") ),
    maxTrackEta       ( iConfig.getParameter<double>  ("maxTrackEta" )   ),
    m_calibrationPath ( iConfig.getParameter<string>  ("calibrationPath")),
    useCalibration    ( iConfig.getParameter<bool>    ("useCalibration") ),
-   shapetest         ( iConfig.getParameter<bool>    ("shapeTest")      )
+   shapetest         ( iConfig.getParameter<bool>    ("shapeTest")      ),
+   lowPtTracksPrescalePass( iConfig.getParameter<uint32_t>("lowPtTracksPrescalePass") ),
+   lowPtTracksPrescaleFail( iConfig.getParameter<uint32_t>("lowPtTracksPrescaleFail") ),
+   lowPtTracksEstimator(iConfig.getParameter<edm::ParameterSet>("lowPtTracksEstimatorParameters")),
+   lowPtTracksDeDxThreshold(iConfig.getParameter<double>("lowPtTracksDeDxThreshold"))
 {
    produces<reco::DeDxHitInfoCollection >();
    produces<reco::DeDxHitInfoAss >();
+   produces<edm::ValueMap<int> >("prescale");
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 
@@ -70,13 +76,26 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // creates the output collection
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
-  std::vector<int> indices;
-
+  std::vector<int> indices; std::vector<int> prescales;
+  unsigned int lowPtTracksCountPass = lowPtTracksPrescalePass > 1 ? ((iEvent.id().event() + iEvent.id().luminosityBlock()) % lowPtTracksPrescalePass) : 0;
+  unsigned int lowPtTracksCountFail = lowPtTracksPrescaleFail > 1 ? ((iEvent.id().event() + iEvent.id().luminosityBlock()) % lowPtTracksPrescaleFail) : 0;
   for(unsigned int j=0;j<trackCollection.size();j++){            
      const reco::Track& track = trackCollection[j];
 
      //track selection
-     if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
+     bool passPt = (track.pt() >= minTrackPt), passLowDeDx = false, passHighDeDx = false, pass = passPt;
+     if (!pass && (track.pt() >= minTrackPtPrescale)) {
+        if (lowPtTracksPrescalePass > 0) {
+            passHighDeDx = (lowPtTracksCountPass++ == 0);
+            if (lowPtTracksCountPass == lowPtTracksPrescalePass) lowPtTracksCountPass = 0;
+        } 
+        if (lowPtTracksPrescaleFail > 0) {
+            passLowDeDx = (lowPtTracksCountFail++ == 0);
+            if (lowPtTracksCountFail == lowPtTracksPrescaleFail) lowPtTracksCountFail = 0;
+        }
+        pass = passHighDeDx || passLowDeDx;
+     }
+     if(!pass || std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
         indices.push_back(-1);
         continue;
      }
@@ -94,6 +113,36 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
            processHit(recHit, track.p(), cosine, hitDeDxInfo, trajParams[h].position());
      }
 
+     if (!passPt) {
+        std::vector<DeDxHit> hits; hits.reserve(hitDeDxInfo.size());
+        for (unsigned int i = 0, n = hitDeDxInfo.size(); i < n; ++i) {
+           if (hitDeDxInfo.detId(i).subdetId() <= 2) {
+               hits.push_back( DeDxHit(hitDeDxInfo.charge(i)/hitDeDxInfo.pathlength(i) * MeVperADCPixel, 0,0,0) );
+           } else {
+               if (shapetest && !DeDxTools::shapeSelection(*hitDeDxInfo.stripCluster(i))) continue;
+               hits.push_back( DeDxHit(hitDeDxInfo.charge(i)/hitDeDxInfo.pathlength(i) * MeVperADCStrip, 0,0,0) );
+           }
+        }
+        std::sort(hits.begin(), hits.end(), std::less<DeDxHit>());
+        if (lowPtTracksEstimator.dedx(hits).first < lowPtTracksDeDxThreshold) {
+            if (passLowDeDx) {
+                prescales.push_back(lowPtTracksPrescaleFail);
+            } else {
+                indices.push_back(-1);
+                continue;
+            }
+        } else {
+            if (passHighDeDx) {
+                prescales.push_back(lowPtTracksPrescalePass);
+            } else {
+                indices.push_back(-1);
+                continue;
+            }
+
+        }
+     } else {
+        prescales.push_back(1);
+     }
      indices.push_back(resultdedxHitColl->size());
      resultdedxHitColl->push_back(hitDeDxInfo);
   }
@@ -108,6 +157,12 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   filler.insert(trackCollectionHandle, indices.begin(), indices.end()); 
   filler.fill();
   iEvent.put(std::move(dedxMatch));
+
+  auto dedxPrescale = std::make_unique<edm::ValueMap<int>>();
+  edm::ValueMap<int>::Filler pfiller(*dedxPrescale);
+  pfiller.insert(dedxHitCollHandle, prescales.begin(), prescales.end());
+  pfiller.fill();
+  iEvent.put(std::move(dedxPrescale), "prescale");
 }
 
 void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos){
