@@ -6,7 +6,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
 #pseudo towers for noise suppression background subtraction
 PFTowers = cms.EDProducer("ParticleTowerProducer",
-                          src = cms.InputTag("particleFlowTmp"),
+                          src = cms.InputTag("particleFlow"),
                           useHF = cms.bool(False)
                           )
 
@@ -20,7 +20,7 @@ ak5PFJets = cms.EDProducer(
     jetAlgorithm = cms.string("AntiKt"),
     rParam       = cms.double(0.5)
     )
-ak5PFJets.src = cms.InputTag('particleFlowTmp')
+ak5PFJets.src = cms.InputTag('particleFlow')
 
 akPu5PFJets = ak5PFJets.clone(
     jetType = cms.string('BasicJet'),
@@ -48,7 +48,7 @@ kt4PFJetsForRho = cms.EDProducer(
     jetAlgorithm = cms.string("Kt"),
     rParam       = cms.double(0.4)
 )
-kt4PFJetsForRho.src = cms.InputTag('particleFlowTmp')
+kt4PFJetsForRho.src = cms.InputTag('particleFlow')
 kt4PFJetsForRho.doAreaFastjet = cms.bool(True)
 kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
 kt4PFJetsForRho.GhostArea     = cms.double(0.005)
@@ -78,7 +78,7 @@ akCs4PFJets = cms.EDProducer(
     writeJetsWithConst = cms.bool(True),
     jetCollInstanceName = cms.string("pfParticlesCs")
 )
-akCs4PFJets.src           = cms.InputTag('particleFlowTmp')
+akCs4PFJets.src           = cms.InputTag('particleFlow')
 akCs4PFJets.doAreaFastjet = cms.bool(True)
 akCs4PFJets.jetPtMin      = cms.double(0.0)
 akCs4PFJets.useExplicitGhosts = cms.bool(True)

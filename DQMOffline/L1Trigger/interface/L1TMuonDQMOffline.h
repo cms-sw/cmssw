@@ -138,7 +138,6 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         void getProbeMuons(edm::Handle<edm::TriggerResults> & trigResults,edm::Handle<trigger::TriggerEvent> & trigEvent);
 
     private:
-        bool  m_verbose;
         HLTConfigProvider m_hltConfig;
 
         edm::ESHandle<MagneticField> m_BField;
@@ -160,6 +159,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         BXVector<l1t::Muon>  m_L1tL1tMuons;
 
         // config params
+        bool  m_verbose;
         std::string m_HistFolder;
         std::vector<int> m_GmtPtCuts;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
@@ -170,6 +170,10 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         std::string m_trigProcess;
         edm::EDGetTokenT<edm::TriggerResults> m_trigProcess_token;
         std::vector<std::string> m_trigNames;
+        std::vector<double> m_effVsPtBins;
+        std::vector<double> m_effVsPhiBins;
+        std::vector<double> m_effVsEtaBins;
+
         std::vector<int> m_trigIndices;
 
         float m_MaxMuonEta;

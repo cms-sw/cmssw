@@ -117,13 +117,13 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     Bounds* bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
     std::vector<float> pars;
-    pars.push_back(be); 
-    pars.push_back(te); 
-    pars.push_back(ap);
+    pars.emplace_back(be); 
+    pars.emplace_back(te); 
+    pars.emplace_back(ap);
     float nStrips = -999.;
     float nPads = -999.;
-    pars.push_back(nStrips);
-    pars.push_back(nPads);
+    pars.emplace_back(nStrips);
+    pars.emplace_back(nPads);
 
     LogDebug("ME0GeometryBuilderFromDDD") 
       << "ME0 " << name << " par " << be << " " << te << " " << ap << " " << dpar[0];
@@ -181,7 +181,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     if (layerNumber < oldLayerNumber || i == partitions.size()) {
 
       // don't forget the last partition for the last chamber
-      if (i == partitions.size()) vDetId.push_back(detId);
+      if (i == partitions.size()) vDetId.emplace_back(detId);
 
       ME0DetId fId(vDetId.front());
       ME0DetId chamberId(fId.chamberId());
@@ -205,7 +205,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       geometry->add(ch);
       vDetId.clear();
     }
-    vDetId.push_back(detId);
+    vDetId.emplace_back(detId);
     oldLayerNumber = layerNumber;
   }
   

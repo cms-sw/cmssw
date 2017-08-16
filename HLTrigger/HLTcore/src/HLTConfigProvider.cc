@@ -19,6 +19,9 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+
 #include <regex> 
 
 
@@ -77,14 +80,18 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
 	 }	 
        }
      }
-     LogInfo("HLTConfigProvider")
-       << "Auto-discovered processName: '" << processName_ << "'" << endl;
+     if (processName_=="*") {
+       LogError("HLTConfigProvider")
+	 << "Auto-discovery of processName failed!" << endl;
+       clear();
+       return;
+     } else {
+       LogInfo("HLTConfigProvider")
+	 << "Auto-discovered processName: '" << processName_ << "'" << endl;
+     }
    }
-   if (processName_=="*") {
-     LogError("HLTConfigProvider")
-       << "Auto-discovery of processName failed!" << endl;
-     clear();
-     return;
+   if (processName_=="@currentProcess") {
+     processName_ = edm::Service<edm::service::TriggerNamesService>()->getProcessName();
    }
 
    /// Check uniqueness (uniqueness should [soon] be enforced by Fw)

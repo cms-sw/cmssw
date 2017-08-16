@@ -20,10 +20,7 @@ namespace reco {
 
 class SiPixelPhase1HitsV : public SiPixelPhase1Base {
   enum {
-    TOF_ETA,
-    TOF_PHI,
     TOF_R,
-    TOF_Z,
     ELOSS,
     ENTRY_EXIT_X,
     ENTRY_EXIT_Y,

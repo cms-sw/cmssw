@@ -36,8 +36,8 @@ if fastSim.isChosen():
     delattr(theDigitizersMixPreMix,"pixel")
     delattr(theDigitizersMixPreMix,"strip")
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( theDigitizersMixPreMix, castor = None )
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( theDigitizersMixPreMix, castor = None )
     
 theDigitizersMixPreMixValid = cms.PSet(
     theDigitizersMixPreMix,

@@ -89,8 +89,7 @@ namespace {
       return default_value;
   }
 
-
-}
+} // anonymous
 
 // ############################################################################
 
@@ -100,6 +99,7 @@ namespace {
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -107,11 +107,30 @@ namespace {
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 
+
+namespace {
+
+  template <typename T, std::size_t N, typename S>
+  std::array<T, N>
+  getParameterArray(edm::ParameterSet const & config, S const & name)
+  {
+    std::vector<T> values = config.getParameter<std::vector<T>>(name);
+    if (values.size() != N)
+      throw edm::Exception(edm::errors::Configuration)
+        << "Parameter \"" << name << "\" should have " << N << " elements.\n"
+        << "The number of elements in the configuration is incorrect.";
+    std::array<T, N> ret;
+    std::copy(values.begin(), values.end(), ret.begin());
+    return ret;
+  }
+
+} // anonymous
+
 class L1TGlobalPrescaler : public edm::one::EDFilter<> {
 public:
   L1TGlobalPrescaler(edm::ParameterSet const& config);
 
-  virtual bool filter(edm::Event& event, edm::EventSetup const& setup) override;
+  bool filter(edm::Event& event, edm::EventSetup const& setup) override;
 
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -151,7 +170,7 @@ L1TGlobalPrescaler::L1TGlobalPrescaler(edm::ParameterSet const& config) :
   m_mode( get_enum_value(s_modes, config.getParameter<std::string>("mode").c_str(), Mode::Invalid) ),
   m_l1tResultsToken( consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("l1tResults")) ),
   m_l1tPrescales( m_mode == Mode::ApplyPrescaleValues or m_mode == Mode::ApplyPrescaleRatios ?
-      make_array<double, GlobalAlgBlk::maxPhysicsTriggers>(config.getParameter<std::vector<double>>("l1tPrescales")) :
+      getParameterArray<double, GlobalAlgBlk::maxPhysicsTriggers>(config, "l1tPrescales") :
       std::array<double, GlobalAlgBlk::maxPhysicsTriggers>() ),
   m_l1tPrescaleColumn( m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios ?
       config.getParameter<uint32_t>("l1tPrescaleColumn") : 0 ),
@@ -205,12 +224,21 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     auto const & prescales = prescaleTable[index];
     unsigned long i = 0;
     for (; i < std::min(prescales.size(), (unsigned long) GlobalAlgBlk::maxPhysicsTriggers); ++i)
-      if (prescales[i] == 0)
-        // if the trigger was disabled, keep it disabled
+      if (m_l1tPrescales[i] == 0) {
+        // if the trigger is requested to be disabled, just do it
         m_prescales[i] = 0.;
-      else
+      } else if (prescales[i] == 0) {
+        // othersie, if the trigger was originally disabled, warn the user and keep it that way
+        m_prescales[i] = 0.;
+        edm::LogWarning("L1TGlobalPrescaler") << "Request to enable the trigger " << i << " which was originally disabled\nIt will be kept disabled.";
+      } else if (m_l1tPrescales[i] < prescales[i]) {
         // if the target prescale is lower than the original prescale, keep the trigger unprescaled
-        m_prescales[i] = m_l1tPrescales[i] < prescales[i] ? 1. : (double) m_l1tPrescales[i] / prescales[i];
+        m_prescales[i] = 1.;
+        edm::LogWarning("L1TGlobalPrescaler") << "Request to prescale the trigger " << i << " less than it was originally prescaled\nNo further prescale will be applied.";
+      } else {
+        // apply the ratio of the new and old prescales
+        m_prescales[i] = (double) m_l1tPrescales[i] / prescales[i];
+      }
     for (; i < (unsigned long) GlobalAlgBlk::maxPhysicsTriggers; ++i)
       // disable the triggers not included in the prescale table
       m_prescales[i] = 0.;

@@ -75,6 +75,10 @@ HGCalRecHit = cms.EDProducer(
     HGCHEF_fCPerMIP = HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
     HGCHEB_keV2DIGI = hgchebackDigitizer.digiCfg.keV2MIP,
     HGCHEB_isSiFE   = HGCalUncalibRecHit.HGCHEBConfig.isSiFE,
+    # don't produce rechit if detid is a ghost one
+    rangeMask = cms.uint32(4294442496),
+    rangeMatch = cms.uint32(1161838592),
+
 
     # EM Scale calibrations
     layerWeights = dEdX_weights,

@@ -85,7 +85,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   //should i keep this? partsels = myPartSelector->getVectorAttribute("path");
   //otherise I have to do this block...
   for (i = 0; i < myPartSelector->size(); ++i)
-    partsels.push_back((myPartSelector->getAttributeSet(i).find("path"))->second);
+    partsels.emplace_back((myPartSelector->getAttributeSet(i).find("path"))->second);
   DDsvalues_type svt;
 
   // boolean flag to indicate whether the std::vector<DDValuePair> has been evaluated 
@@ -152,7 +152,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     }
       
     DDValuePair vp(atts.find("value")->second, tval);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(isEvaluated,vvp);
   }
 
@@ -166,7 +166,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
       vvp = itv->second.second;
 
     DDValuePair vp(atts.find("value")->second, 0.0);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(false,vvp);
   }
   
@@ -180,7 +180,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
       vvp = itv->second.second;
     double tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
     DDValuePair vp(atts.find("value")->second, tval);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(true,vvp);
   }
   
@@ -190,7 +190,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     DDValue val(it->first, it->second.second);
     bool isEvaluated = it->second.first;
     val.setEvalState(isEvaluated);
-    svt.push_back(DDsvalues_Content_type(val,val));      
+    svt.emplace_back(DDsvalues_Content_type(val,val));      
   }
   std::sort(svt.begin(),svt.end());
 

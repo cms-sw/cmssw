@@ -61,13 +61,13 @@
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
-  static std::atomic<int> thread_counter{ 0 };
+  std::atomic<int> thread_counter{ 0 };
 
   int get_new_thread_index() { 
     return thread_counter++;
   }
 
-  static thread_local int s_thread_index = get_new_thread_index();
+  thread_local int s_thread_index = get_new_thread_index();
 
   int getThreadIndex() { return s_thread_index; }
 

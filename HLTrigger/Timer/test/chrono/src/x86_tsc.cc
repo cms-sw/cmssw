@@ -152,7 +152,7 @@ uint64_t serialising_rdtsc_unimplemented(void)
 
 namespace {
 
-  static inline constexpr
+  inline constexpr
   unsigned int _(const char b[4]) {
     return * (unsigned int *)(b);
   }

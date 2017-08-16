@@ -14,8 +14,8 @@ GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : 
   for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end();
       rit != ritEnd; ++rit ) {
     edm::FileInPath fp(*rit);
-    files_.push_back(fp.fullPath());
-    emptyStrings_.push_back("");
+    files_.emplace_back(fp.fullPath());
+    emptyStrings_.emplace_back("");
   }
 }
 

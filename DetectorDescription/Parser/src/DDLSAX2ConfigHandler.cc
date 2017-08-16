@@ -45,8 +45,8 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
     std::string name = toString(attrs.getValue(uStr("name").ptr()));
     std::string url = toString(attrs.getValue(uStr("url").ptr()));
 
-    files_.push_back(name);
-    urls_.push_back(url);
+    files_.emplace_back(name);
+    urls_.emplace_back(url);
   }
   else if( XMLString::equals( qname, uStr("Root").ptr()))
   {

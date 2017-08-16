@@ -86,7 +86,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
 		  << "]: " << etabins[i].layer[k].first-1 << ":"
 		  << etabins[i].layer[k].second << std::endl;
 #endif
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, rmin, rmax, etabin.etaMin, etabin.etaMax));
+	result.emplace_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, rmin, rmax, etabin.etaMin, etabin.etaMax));
       }
       depth++;
     }
@@ -117,7 +117,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
       for (int j=0; j < nPhi; ++j) {
 	double phi = (j+0.5)*dphi;
 	// eta, depth, phi, phi0, deltaPhi, rMin, rMax, etaMin, etaMax
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iside*(i+1), 4, j+1, phi, dphi, rmin, HORMAX, etamin[i], etamax[i]));
+	result.emplace_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iside*(i+1), 4, j+1, phi, dphi, rmin, HORMAX, etamin[i], etamax[i]));
       }
     }
   }
@@ -142,11 +142,11 @@ void HcalFlexiHardcodeGeometryLoader::fillHBHO (HcalGeometry* fGeometry, const s
     GlobalPoint refPoint (x,y,z); // center of the cell's face
     std::vector<CCGFloat> cellParams;
     cellParams.reserve (5);
-    cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
-    cellParams.push_back (0.5 * param.dphi);                    // dphi_half
-    cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
-    cellParams.push_back ( fabs( refPoint.eta() ) ) ;
-    cellParams.push_back ( fabs( refPoint.z() ) ) ;
+    cellParams.emplace_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
+    cellParams.emplace_back (0.5 * param.dphi);                    // dphi_half
+    cellParams.emplace_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
+    cellParams.emplace_back ( fabs( refPoint.eta() ) ) ;
+    cellParams.emplace_back ( fabs( refPoint.z() ) ) ;
 #ifdef EDM_ML_DEBUG
     std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid 
 	      << " " << hid.rawId() << " " << std::hex << hid.rawId() 
@@ -172,7 +172,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
   std::cout << "HcalFlexiHardcodeGeometryLoader:HE with " << gconsHE.size()
 	    << " cells" << std::endl;
 #endif
-  if (gconsHE.size() > 0) {
+  if (!gconsHE.empty()) {
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = hcons.getEtaBins(1);
 
 #ifdef EDM_ML_DEBUG
@@ -219,7 +219,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 		    << " layer[" << k << "]: " << etabins[i].layer[k].first-1 
 		    << ":" << etabins[i].layer[k].second-1 << std::endl;
 #endif
-	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, zmin, zmax, etabin.etaMin, etabin.etaMax));
+	  result.emplace_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, zmin, zmax, etabin.etaMin, etabin.etaMax));
 	}
 	depth++;
       }
@@ -262,7 +262,7 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcod
 	double dphi = (40.0*DEGREE2RAD)/nPhis[i];
 	double phi0 = (j+0.5)*dphi;
 	// ieta, depth, iphi, phi0, deltaPhi, zMin, zMax, etaMin, etaMax
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HECellParameters(ieta, depth, iphi, phi0, dphi, zval[4*i+k+1], zval[4*i+k+2], etas[i], etas[i+1]));
+	result.emplace_back (HcalFlexiHardcodeGeometryLoader::HECellParameters(ieta, depth, iphi, phi0, dphi, zval[4*i+k+1], zval[4*i+k+2], etas[i], etas[i+1]));
       }
     }
   }
@@ -281,9 +281,9 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HFCellParameters> HcalFlexiHardcod
   result.reserve (nCells);
   for (unsigned int i = 0; i < nCells; ++i) {
     HcalFlexiHardcodeGeometryLoader::HFCellParameters cell1(cells[i].ieta,cells[i].depth,cells[i].firstPhi,cells[i].stepPhi,cells[i].nPhi,5*cells[i].stepPhi,HFZMIN1,HFZMAX,cells[i].rMin,cells[i].rMax);
-    result.push_back (cell1);
+    result.emplace_back (cell1);
     HcalFlexiHardcodeGeometryLoader::HFCellParameters cell2(cells[i].ieta,1+cells[i].depth,cells[i].firstPhi,cells[i].stepPhi,cells[i].nPhi,5*cells[i].stepPhi,HFZMIN2,HFZMAX,cells[i].rMin,cells[i].rMax);
-    result.push_back (cell2);
+    result.emplace_back (cell2);
   }
   return result;
 }
@@ -304,11 +304,11 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (HcalGeometry* fGeometry, const std
     GlobalPoint refPoint (x,y,z); // center of the cell's face
     std::vector<CCGFloat> cellParams;
     cellParams.reserve (5);
-    cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); //deta_half
-    cellParams.push_back (0.5 * param.dphi);  // dphi_half
-    cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
-    cellParams.push_back ( fabs( refPoint.eta() ) ) ;
-    cellParams.push_back ( fabs( refPoint.z() ) ) ;
+    cellParams.emplace_back (0.5 * (param.etaMax - param.etaMin)); //deta_half
+    cellParams.emplace_back (0.5 * param.dphi);  // dphi_half
+    cellParams.emplace_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
+    cellParams.emplace_back ( fabs( refPoint.eta() ) ) ;
+    cellParams.emplace_back ( fabs( refPoint.z() ) ) ;
 #ifdef EDM_ML_DEBUG
     std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << " "
 	      << hid.rawId() << " " << std::hex << hid.rawId() << std::dec
@@ -346,11 +346,11 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (HcalGeometry* fGeometry, const std
       GlobalPoint refPoint (x,y,z); // center of the cell's face
       std::vector<CCGFloat> cellParams;
       cellParams.reserve (5);
-      cellParams.push_back (0.5 * ( iEta - oEta )); // deta_half
-      cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
-      cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
-      cellParams.push_back ( fabs( refPoint.eta()));
-      cellParams.push_back ( fabs( refPoint.z() ) ) ;
+      cellParams.emplace_back (0.5 * ( iEta - oEta )); // deta_half
+      cellParams.emplace_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
+      cellParams.emplace_back (0.5 * (param.zMax - param.zMin)); // dz_half
+      cellParams.emplace_back ( fabs( refPoint.eta()));
+      cellParams.emplace_back ( fabs( refPoint.z() ) ) ;
 #ifdef EDM_ML_DEBUG
       std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << " " 
 		<< hid.rawId() << " " << std::hex << hid.rawId() << std::dec 

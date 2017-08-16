@@ -122,7 +122,6 @@ CommonEventContent = cms.PSet(
 LHEEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -134,7 +133,6 @@ RAWEventContent = cms.PSet(
         'keep  FEDRawDataCollection_rawDataCollector_*_*',
         'keep  FEDRawDataCollection_source_*_*'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -144,17 +142,15 @@ RAWEventContent = cms.PSet(
 RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
-# RAWRECO Data Tiere definition
+# RAWRECO Data Tier definition
 #
 #
 RAWRECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
     )
 #
 #
@@ -163,7 +159,7 @@ RAWRECOEventContent = cms.PSet(
 #
 AODEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
@@ -186,7 +182,7 @@ RAWSIMEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(9),
+    compressionLevel=cms.untracked.int32(9)
 )
 #
 #
@@ -196,7 +192,6 @@ RAWSIMEventContent = cms.PSet(
 RAWSIMHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -206,7 +201,6 @@ RAWSIMHLTEventContent = cms.PSet(
 RAWRECOSIMHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -216,7 +210,6 @@ RAWRECOSIMHLTEventContent = cms.PSet(
 RAWRECODEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -226,7 +219,6 @@ RAWRECODEBUGHLTEventContent = cms.PSet(
 RECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -236,7 +228,6 @@ RECOSIMEventContent = cms.PSet(
 GENRAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -245,9 +236,9 @@ GENRAWEventContent = cms.PSet(
 #
 AODSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
+    compressionLevel=cms.untracked.int32(4),
 )
 #
 #
@@ -257,12 +248,10 @@ AODSIMEventContent = cms.PSet(
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 FEVTHLTALLEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -273,7 +262,6 @@ FEVTHLTALLEventContent = cms.PSet(
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -283,7 +271,6 @@ FEVTSIMEventContent = cms.PSet(
 RAWDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -293,7 +280,6 @@ RAWDEBUGEventContent = cms.PSet(
 RAWDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -303,7 +289,6 @@ RAWDEBUGHLTEventContent = cms.PSet(
 FEVTDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 
@@ -315,7 +300,6 @@ FEVTDEBUGEventContent = cms.PSet(
 FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(10*1024*1024)
 )
 
 #
@@ -326,7 +310,6 @@ FEVTDEBUGHLTEventContent = cms.PSet(
 RECODEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 
@@ -339,7 +322,6 @@ HLTDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -379,20 +361,17 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep EEDigiCollection_ecalDigis_*_*',
                                                'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
         splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
 
 PREMIXEventContent = cms.PSet(
         outputCommands = cms.untracked.vstring('drop *'),
         splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
 
 MIXINGMODULEEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
                                            'keep *_cfWriter_*_*'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
     )
 
 # PREMIXRAW Data Tier definition
@@ -401,7 +380,6 @@ MIXINGMODULEEventContent = cms.PSet(
 PREMIXRAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -416,12 +394,10 @@ REPACKRAWEventContent = cms.PSet(
       'keep FEDRawDataCollection_rawDataRepacker_*_*',
       'keep FEDRawDataCollection_virginRawDataRepacker_*_*'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
     )
 REPACKRAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
@@ -771,17 +747,21 @@ REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 
 
 ########### and mini AOD
+#
+# MiniAOD is a bit special: the files tend to be so small that letting
+# ROOT automatically determine when to flush is a surprisingly big overhead.
+#
 
 MINIAODEventContent= cms.PSet(    
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
 
 MINIAODSIMEventContent= cms.PSet(    
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
@@ -795,14 +775,14 @@ MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 
 RAWMINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
 
 RAWMINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
@@ -830,7 +810,7 @@ RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
 #
 RAWAODSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )

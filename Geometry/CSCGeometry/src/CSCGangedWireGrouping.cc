@@ -23,9 +23,9 @@ CSCGangedWireGrouping::CSCGangedWireGrouping(
       // an identical number of wires
       countGroups += igs;
       for ( int ic = 0; ic != igs; ++ic ) {
-        theFirstWireOfEachWireGroup.push_back( firstWire );
+        theFirstWireOfEachWireGroup.emplace_back( firstWire );
         int wiresInGroup= wiresInConsecutiveGroups[countConsecutive];
-        theNumberOfWiresPerWireGroup.push_back( wiresInGroup );
+        theNumberOfWiresPerWireGroup.emplace_back( wiresInGroup );
         firstWire += wiresInGroup; // ready for next group
       }
     }
