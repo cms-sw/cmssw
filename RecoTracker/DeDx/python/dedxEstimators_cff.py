@@ -39,6 +39,13 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
 
 dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
 
+dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
+        UseStrip = True, UsePixel = True,
+        estimator = 'genericTruncated',
+        fraction  = 0.15, # Drop the lowest 15% of hits
+        exponent  = -2.0, # Harmonic02
+)
+
 dedxTruncated40 = dedxHarmonic2.clone()
 dedxTruncated40.estimator =  cms.string('truncated')
 
@@ -60,4 +67,4 @@ dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
 dedxDiscrimASmi         = dedxHarmonic2.clone()
 dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
-doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxHitInfo)
+doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxPixelAndStripHarmonic2T085 + dedxHitInfo)
