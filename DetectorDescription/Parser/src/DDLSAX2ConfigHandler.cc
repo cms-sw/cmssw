@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
+
 #include <string>
 #include <vector>
 

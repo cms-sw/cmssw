@@ -13,6 +13,7 @@
 #include "DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -20,7 +21,6 @@
 #include <ostream>
 #include <set>
 #include <string>
-#include <stddef.h>
 #include <utility>
 #include <vector>
 

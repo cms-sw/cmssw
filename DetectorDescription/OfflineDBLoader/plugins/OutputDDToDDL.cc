@@ -15,6 +15,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -22,7 +23,6 @@
 #include <ostream>
 #include <set>
 #include <string>
-#include <stddef.h>
 #include <utility>
 #include <vector>
 
