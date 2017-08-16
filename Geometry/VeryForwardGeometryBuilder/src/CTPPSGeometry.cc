@@ -10,17 +10,17 @@
 
 //----------------------------------------------------------------------------------------------------
 
-char
+void
 CTPPSGeometry::build( const DetGeomDesc* gD )
 {
   // reset
-  theMap.clear();
-  theRomanPotMap.clear();
-  stationsInArm.clear();
-  rpsInStation.clear();
-  detsInRP.clear();
+  sensors_map_.clear();
+  rps_map_.clear();
+  stations_in_arm_.clear();
+  rps_in_station_.clear();
+  dets_in_rp_.clear();
 
-  // propagate through the GeometricalDet structure and add all detectors to 'theMap'
+  // propagate through the GeometricalDet structure and add all detectors to 'sensors_map_'
   std::deque<const DetGeomDesc *> buffer;
   buffer.emplace_back(gD);
   while ( !buffer.empty() ) {
@@ -46,40 +46,38 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
   }
 
   // build sets
-  for ( const auto& it : theMap ) {
+  for ( const auto& it : sensors_map_ ) {
     const CTPPSDetId detId( it.first );
     const CTPPSDetId rpId = detId.getRPId();
     const CTPPSDetId stId = detId.getStationId();
     const CTPPSDetId armId = detId.getArmId();
 
-    stationsInArm[armId].insert( armId );
-    rpsInStation[stId].insert( rpId );
-    detsInRP[rpId].insert( detId );
+    stations_in_arm_[armId].insert( armId );
+    rps_in_station_[stId].insert( rpId );
+    dets_in_rp_[rpId].insert( detId );
   }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-char
+bool
 CTPPSGeometry::addSensor( unsigned int id, const DetGeomDesc*& gD )
 {
-  if ( theMap.find( id ) != theMap.end() ) return 1;
+  if ( sensors_map_.find( id ) != sensors_map_.end() ) return false;
 
-  theMap[id] = gD;
-  return 0;
+  sensors_map_[id] = gD;
+  return true;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-char
+bool
 CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD )
 {
-  if ( theRomanPotMap.find(id) != theRomanPotMap.end() ) return 1;
+  if ( rps_map_.find( id ) != rps_map_.end() ) return false;
 
-  theRomanPotMap[id] = const_cast<DetGeomDesc*>( gD );
-  return 0;
+  rps_map_[id] = const_cast<DetGeomDesc*>( gD );
+  return true;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -87,8 +85,8 @@ CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD )
 const DetGeomDesc*
 CTPPSGeometry::getSensor( unsigned int id ) const
 {
-  auto it = theMap.find( id );
-  if ( it == theMap.end() )
+  auto it = sensors_map_.find( id );
+  if ( it == sensors_map_.end() )
     throw cms::Exception("CTPPSGeometry") << "Not found detector with ID " << id << ", i.e. "
       << CTPPSDetId( id );
 
@@ -100,8 +98,8 @@ CTPPSGeometry::getSensor( unsigned int id ) const
 const DetGeomDesc*
 CTPPSGeometry::getRP( unsigned int id ) const
 {
-  auto it = theRomanPotMap.find( id );
-  if ( it == theRomanPotMap.end() )
+  auto it = rps_map_.find( id );
+  if ( it == rps_map_.end() )
     throw cms::Exception("CTPPSGeometry") << "Not found RP device with ID " << id << ", i.e. "
       << CTPPSDetId( id );
 
@@ -112,8 +110,8 @@ CTPPSGeometry::getRP( unsigned int id ) const
 const std::set<unsigned int>&
 CTPPSGeometry::getStationsInArm( unsigned int id ) const
 {
-  auto it = stationsInArm.find( id );
-  if ( it == stationsInArm.end() )
+  auto it = stations_in_arm_.find( id );
+  if ( it == stations_in_arm_.end() )
     throw cms::Exception("CTPPSGeometry") << "Arm with ID " << id << " not found.";
   return it->second;
 }
@@ -123,8 +121,8 @@ CTPPSGeometry::getStationsInArm( unsigned int id ) const
 const std::set<unsigned int>&
 CTPPSGeometry::getRPsInStation( unsigned int id ) const
 {
-  auto it = rpsInStation.find( id );
-  if ( it == rpsInStation.end() )
+  auto it = rps_in_station_.find( id );
+  if ( it == rps_in_station_.end() )
     throw cms::Exception("CTPPSGeometry") << "Station with ID " << id << " not found.";
   return it->second;
 }
@@ -134,8 +132,8 @@ CTPPSGeometry::getRPsInStation( unsigned int id ) const
 const std::set<unsigned int>&
 CTPPSGeometry::getSensorsInRP( unsigned int id ) const
 {
-  auto it = detsInRP.find( id );
-  if ( it == detsInRP.end() )
+  auto it = dets_in_rp_.find( id );
+  if ( it == dets_in_rp_.end() )
     throw cms::Exception("CTPPSGeometry") << "RP with ID " << id << " not found.";
   return it->second;
 }
