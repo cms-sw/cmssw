@@ -1,4 +1,3 @@
-namespace std { } using namespace std;
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -14,6 +13,8 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+
+using namespace std;
 
 void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t sto)
 {

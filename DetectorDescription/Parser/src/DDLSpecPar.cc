@@ -1,11 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
-
-#include <stddef.h>
-#include <algorithm>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
@@ -15,6 +8,12 @@
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 

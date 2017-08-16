@@ -1,10 +1,8 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
-
-#include <utility>
-
 #include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 
+#include <utility>
 
 TinyDomTest::TinyDomTest(const TinyDom & d) 
  : dom_(d) 

@@ -1,15 +1,14 @@
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
-
-#include <stddef.h>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <cstddef>
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 

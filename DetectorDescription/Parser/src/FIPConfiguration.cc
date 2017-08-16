@@ -1,8 +1,8 @@
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 
-#include <ext/alloc_traits.h>
-#include <stddef.h>
+#include <cstddef>
 #include <iostream>
+#include <memory>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

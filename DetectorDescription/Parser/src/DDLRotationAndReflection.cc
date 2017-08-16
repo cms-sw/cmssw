@@ -1,10 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
-
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <utility>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -16,6 +10,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
+
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <utility>
 
 class DDCompactView;
 
