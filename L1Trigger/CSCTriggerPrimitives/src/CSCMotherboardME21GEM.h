@@ -23,7 +23,7 @@ class GEMSuperChamber;
 
 class CSCMotherboardME21GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
+  typedef std::pair<unsigned int, GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
@@ -64,6 +64,14 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
                             bool isCopad = false, bool first = true);
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCCLCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false);
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCCLCTDigi&,
+                            const CSCALCTDigi& aLCT, const CSCALCTDigi&,
+                            const GEMPadsBX& pads = GEMPadsBX(),
                             bool isCopad = false, bool first = true);
 
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
@@ -145,18 +153,18 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
-  bool debug_gem_dphi;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
   int maxDeltaPadPad_;
   int maxDeltaPadPadEven_;
   int maxDeltaPadPadOdd_;
-  int maxDeltaWg_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
   int maxDeltaPadCoPad_;
+  int maxDeltaPadCoPadEven_;
+  int maxDeltaPadCoPadOdd_;
 
   bool doLCTGhostBustingWithGEMs_;
 
