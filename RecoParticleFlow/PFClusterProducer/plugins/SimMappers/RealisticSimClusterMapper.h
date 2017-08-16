@@ -20,16 +20,21 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
     exclusiveFraction_(conf.getParameter<double>("exclusiveFraction")),
     maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
     maxDistance_(conf.getParameter<double>("maxDistance")),
-    useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy"))
+    useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
+    calibMinEta_(conf.getParameter<double>("calibMinEta")),
+    calibMaxEta_(conf.getParameter<double>("calibMaxEta"))
     {
       simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
+      hadronCalib_ = conf.getParameter < std::vector<double> > ("hadronCalib");
+      egammaCalib_ = conf.getParameter < std::vector<double> > ("egammaCalib");
     }
-  virtual ~RealisticSimClusterMapper() {}
+
+  ~RealisticSimClusterMapper() override {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;
   RealisticSimClusterMapper& operator=(const RealisticSimClusterMapper&) = delete;
 
-  virtual void updateEvent(const edm::Event&) override final;
-  virtual void update(const edm::EventSetup&) override final;
+  void updateEvent(const edm::Event&) final;
+  void update(const edm::EventSetup&) final;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 		     const std::vector<bool>&,
@@ -43,6 +48,11 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
   const bool maxDistanceFilter_ = false;
   const float maxDistance_ = 10.f;
   const bool useMCFractionsForExclEnergy_ = false;
+  const float calibMinEta_ = 1.4;
+  const float calibMaxEta_ = 3.0;
+  std::vector<double> hadronCalib_;
+  std::vector<double> egammaCalib_;
+
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
   edm::Handle<SimClusterCollection> simClusterH_;
   

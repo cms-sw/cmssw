@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
-
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "RealisticHitToClusterAssociator.h"
@@ -25,6 +24,30 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
+namespace {
+
+inline
+bool isPi0(int pdgId)
+{
+    return pdgId == 111;
+}
+
+inline
+bool isEGamma(int pdgId)
+{
+    pdgId = std::abs(pdgId);
+    return (pdgId == 11) or (pdgId == 22);
+}
+
+inline
+bool isHadron(int pdgId)
+{
+    pdgId = std::abs(pdgId) % 10000;
+    return ((pdgId > 100 and pdgId < 900) or
+           (pdgId > 1000 and pdgId < 9000));
+}
+}
+
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
     ev.getByToken(simClusterToken_, simClusterH_);
@@ -33,7 +56,6 @@ void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 void RealisticSimClusterMapper::update(const edm::EventSetup& es)
 {
     rhtools_.getEventSetup(es);
-
 }
 
 void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
@@ -93,8 +115,30 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         output.emplace_back();
         reco::PFCluster& back = output.back();
         edm::Ref < std::vector<reco::PFRecHit> > seed;
+        float energyCorrection = 1.f;
         if (realisticClusters[ic].isVisible())
         {
+            int pdgId = simClusters[ic].pdgId();
+            auto abseta = std::abs(simClusters[ic].eta());
+            if ((abseta >= calibMinEta_) and (abseta <= calibMaxEta_)) //protecting range
+            {
+                if ((isEGamma(pdgId) or isPi0(pdgId)) and !egammaCalib_.empty())
+                {
+                    unsigned int etabin = std::floor(
+                            ((abseta - calibMinEta_) * egammaCalib_.size())
+                                    / (calibMaxEta_ - calibMinEta_));
+
+                    energyCorrection = egammaCalib_[etabin];
+                }
+                else if (isHadron(pdgId) and !(isPi0(pdgId)) and !hadronCalib_.empty()) // this function is expensive.. should we treat as hadron everything which is not egamma?
+                {
+                    unsigned int etabin = std::floor(
+                            ((abseta - calibMinEta_) * hadronCalib_.size())
+                                    / (calibMaxEta_ - calibMinEta_));
+                    energyCorrection = hadronCalib_[etabin];
+                }
+
+            }
             const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
@@ -112,11 +156,11 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 }
             }
         }
-        if (back.hitsAndFractions().size() != 0)
+        if (!back.hitsAndFractions().empty())
         {
             back.setSeed(seed->detId());
             back.setEnergy(realisticClusters[ic].getEnergy());
-            back.setCorrectedEnergy(realisticClusters[ic].getEnergy());
+            back.setCorrectedEnergy(energyCorrection*realisticClusters[ic].getEnergy()); //applying energy correction
         }
         else
         {
