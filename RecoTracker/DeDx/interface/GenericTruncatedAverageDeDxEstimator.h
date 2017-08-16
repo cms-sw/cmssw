@@ -15,12 +15,17 @@ public:
  }
 
  virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
-    int nTrunc = int( Hits.size()*m_fraction);
+    int first = 0, last = Hits.size();
+    if (m_fraction > 0) { // truncate high charge ones
+       last -= int(Hits.size()*m_fraction); 
+    } else {
+       first += int(Hits.size()*(-m_fraction)); 
+    }
     double sumdedx = 0;
-    for(size_t i=0;i + nTrunc <  Hits.size() ; i++){
+    for(int i = first; i < last; i++){
        sumdedx+=pow(Hits[i].charge(),m_expo);
     } 
-   double avrdedx = (Hits.size()) ? pow(sumdedx/(Hits.size()-nTrunc),1.0/m_expo) :0.0;
+   double avrdedx = (last-first) ? pow(sumdedx/(last-first),1.0/m_expo) :0.0;
    return  std::make_pair(avrdedx,-1);
  } 
 
