@@ -21,18 +21,18 @@
 
 // #define DebugLog
 
-CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
+CaloSD::CaloSD(const std::string& iname, const DDCompactView & cpv,
         const SensitiveDetectorCatalog & clg,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 
-  SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), theTrack(nullptr), theTouchableHistory(nullptr),
+  SensitiveCaloDetector(iname, cpv, clg, p),
+  G4VGFlashSensitiveDetector(), theTrack(nullptr), theLogicalVolume(nullptr),
   preStepPoint(nullptr), eminHit(0.0), eminHitD(0.0), m_trackManager(manager), 
   currentHit(nullptr), runInit(false), timeSlice(timeSliceUnit), 
   ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), meanResponse(nullptr) {
 
   //Add Hcal Sentitive Detector Names
-  collectionName.insert(name);
+  collectionName.insert((G4String)iname);
 
   // initialisation
   incidentEnergy = edepositEM = edepositHAD = 0.0f;
@@ -61,7 +61,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 
   SetVerboseLevel(verbn);
   for (unsigned int k=0; k<hcn.size(); ++k) {
-    if (name == (G4String)(hcn[k])) {
+    if (iname == hcn[k]) {
       if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
       if (k < eminHitX.size()) eminHitD= eminHitX[k]*MeV;
       if (k < tmaxHits.size()) tmaxHit = tmaxHits[k]*ns;
@@ -72,15 +72,11 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 #ifdef DebugLog
   LogDebug("CaloSim") << "***************************************************" 
                       << "\n"
-                      << "*                                                 *" 
-                      << "\n"
                       << "* Constructing a CaloSD  with name " << GetName()
-                      << "\n"
-                      << "*                                                 *" 
                       << "\n"
                       << "***************************************************";
 #endif
-  slave      = new CaloSlaveSD(name);
+  slave      = new CaloSlaveSD(iname);
   currentID  = CaloHitID(timeSlice, ignoreTrackID);
   previousID = CaloHitID(timeSlice, ignoreTrackID);
   
@@ -92,7 +88,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
+  const std::vector<std::string>& lvNames = clg.logicalNames(iname);
   this->Register();
   for (std::vector<std::string>::const_iterator it=lvNames.begin(); it !=lvNames.end(); ++it) {
     this->AssignSD(*it);
@@ -121,10 +117,9 @@ CaloSD::~CaloSD() {
   delete meanResponse;
 }
 
-bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * tHistory) {
+bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
   
   NaNTrap(aStep);
-  theTouchableHistory = tHistory;
   if(getStepInfo(aStep) && !hitExists() && edepositEM+edepositHAD>0.f) {
     currentHit = createNewHit();
   }
@@ -241,14 +236,15 @@ void CaloSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void CaloSD::fillHits(edm::PCaloHitContainer& cont, std::string& hitname) {
+  if (slave->name() == hitname) { cont = slave->hits(); }
   slave->Clean();
 }
 
 bool CaloSD::getStepInfo(G4Step* aStep) {  
 
   preStepPoint = aStep->GetPreStepPoint(); 
+  theLogicalVolume = preStepPoint->GetPhysicalVolume()->GetLogicalVolume();
   theTrack     = aStep->GetTrack();   
   
   unsigned int unitID= setDetUnitId(aStep);
@@ -293,14 +289,14 @@ G4ThreeVector CaloSD::setToLocal(const G4ThreeVector& global, const G4VTouchable
 
   G4ThreeVector localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   
-  return localPoint;  
+  return std::move(localPoint);  
 }
 
 G4ThreeVector CaloSD::setToGlobal(const G4ThreeVector& local, const G4VTouchable* touch) {
 
   G4ThreeVector globalPoint = touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
   
-  return globalPoint;  
+  return std::move(globalPoint);  
 }
 
 G4bool CaloSD::hitExists() {
@@ -378,7 +374,7 @@ CaloG4Hit* CaloSD::createNewHit() {
 #endif  
   
   CaloG4Hit* aHit;
-  if (reusehit.size() > 0) {
+  if (!reusehit.empty()) {
     aHit = reusehit[0];
     aHit->setEM(0.);
     aHit->setHadr(0.);
@@ -417,7 +413,7 @@ CaloG4Hit* CaloSD::createNewHit() {
     edm::LogInfo("CaloSim") << "CaloSD : TrackwithHistory pointer for " 
 			    << currentID.trackID() << " is " << trkh;
 #endif
-    if (trkh != NULL) {
+    if (trkh != nullptr) {
       etrack = sqrt(trkh->momentum().Mag2());
       if (etrack >= energyCut) {
         trkh->save();
@@ -507,7 +503,7 @@ void CaloSD::update(const EndOfTrack * trk) {
   if (trkI) lastTrackID = trkI->getIDonCaloSurface();
   if (id == lastTrackID) {
     const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
-    if (trksForThisEvent != NULL) {
+    if (trksForThisEvent != nullptr) {
       int it = (int)(trksForThisEvent->size()) - 1;
       if (it >= 0) {
         TrackWithHistory * trkH = (*trksForThisEvent)[it];
@@ -542,7 +538,6 @@ void CaloSD::update(const ::EndOfEvent * ) {
                           << " hits recorded with " << wrong 
                           << " track IDs not given properly and "
                           << totalHits-count << " hits not passing cuts";
-  summarize();
 
   tkMap.erase (tkMap.begin(), tkMap.end());
 }
@@ -654,8 +649,6 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   return ok;
 }
 
-void CaloSD::summarize() {}
-
 void CaloSD::update(const BeginOfTrack * trk) {
   int primary = -1;
   TrackInformation * trkInfo = (TrackInformation *)((*trk)()->GetUserInformation());
@@ -687,7 +680,7 @@ void CaloSD::cleanHitCollection() {
 #endif
   
   selIndex.reserve(theHC->entries()-cleanIndex);
-  if ( reusehit.size() == 0 ) reusehit.reserve(theHC->entries()-cleanIndex); 
+  if ( reusehit.empty() ) reusehit.reserve(theHC->entries()-cleanIndex); 
 
   // if no map used, merge before hits to have the save situation as a map
   if ( !useMap ) {
