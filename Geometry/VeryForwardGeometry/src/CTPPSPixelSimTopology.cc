@@ -6,12 +6,10 @@ CTPPSPixelSimTopology::CTPPSPixelSimTopology()
   active_edge_y_ = simY_width_*0.5 - phys_active_edge_dist_;
 }
 
-std::vector<CTPPSPixelSimTopology::PixelInfo>
-CTPPSPixelSimTopology::getPixelsInvolved( double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y )
+CTPPSPixelSimTopology::PixelInfo
+CTPPSPixelSimTopology::getPixelsInvolved( double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y ) const
 {
-  relevantPixels_.clear();
   //hit position wrt the bottom left corner of the sensor (-8.3, -12.2) in sensor view, rocs behind
-
   hit_pos_x = x + simX_width_/2.;
   hit_pos_y = y + simY_width_/2.;
   if( !( hit_pos_x*hit_pos_y > 0 ) )
@@ -24,7 +22,5 @@ CTPPSPixelSimTopology::getPixelsInvolved( double x, double y, double sigma, doub
   double low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y;
   pixelRange( interested_row, interested_col, low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y );
 
-  relevantPixels_.emplace_back( low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y, hit_factor, interested_row, interested_col );
-
-  return relevantPixels_;
+  return CTPPSPixelSimTopology::PixelInfo( low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y, hit_factor, interested_row, interested_col );
 }
