@@ -84,7 +84,5 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
 
 std::vector<std::string> SensitiveDetector::getNames()
 {
-  std::vector<std::string> temp;
-  temp.push_back(name);
-  return std::move(temp);
+  return std::vector<std::string>(1, name);
 }  
