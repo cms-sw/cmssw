@@ -17,10 +17,10 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     calibrationPath    = cms.string("file:Gains.root"),
     shapeTest          = cms.bool(True),
 
-    lowPtTracksPrescalePass = cms.uint32(50),   # prescale factor for low pt tracks above the dEdx cut
+    lowPtTracksPrescalePass = cms.uint32(100),   # prescale factor for low pt tracks above the dEdx cut
     lowPtTracksPrescaleFail = cms.uint32(2000), # prescale factor for low pt tracks below the dEdx cut
     lowPtTracksEstimatorParameters = cms.PSet( # generalized truncated average
-        fraction = cms.double(0.15),
+        fraction = cms.double(-0.15), # negative = throw away the 15% with lowest charge
         exponent = cms.double(-2.0),
     ),
     lowPtTracksDeDxThreshold = cms.double(3.5), # threshold on tracks
@@ -51,7 +51,7 @@ dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
 dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
         UseStrip = True, UsePixel = True,
         estimator = 'genericTruncated',
-        fraction  = 0.15, # Drop the lowest 15% of hits
+        fraction  = -0.15, # Drop the lowest 15% of hits
         exponent  = -2.0, # Harmonic02
 )
 
