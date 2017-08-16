@@ -100,7 +100,8 @@ namespace edm {
 
     ParameterDescription(std::string const& iLabel,
                          T const& value,
-                         bool isTracked) :
+                         bool isTracked,
+                         Comment const& iComment = Comment()) :
       // WARNING: the toEnum function is intentionally undefined if the template
       // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
       // are handled by full template specializations below.  In the first case.
@@ -109,13 +110,14 @@ namespace edm {
       // Note that this template parameter is most often passed through from
       // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
       // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
       value_(value) {
     }
 
     ParameterDescription(char const* iLabel,
                          T const& value,
-                         bool isTracked) :
+                         bool isTracked,
+                         Comment const& iComment = Comment()) :
       // WARNING: the toEnum function is intentionally undefined if the template
       // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
       // are handled by full template specializations below.  In the first case.
@@ -124,12 +126,13 @@ namespace edm {
       // Note that this template parameter is most often passed through from
       // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
       // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
       value_(value) {
     }
 
     ParameterDescription(std::string const& iLabel,
-                         bool isTracked) :
+                         bool isTracked,
+                         Comment const& iComment = Comment()) :
       // WARNING: the toEnum function is intentionally undefined if the template
       // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
       // are handled by full template specializations below.  In the first case.
@@ -138,12 +141,13 @@ namespace edm {
       // Note that this template parameter is most often passed through from
       // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
       // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
       value_() {
     }
 
     ParameterDescription(char const* iLabel,
-                         bool isTracked) :
+                         bool isTracked,
+                         Comment const& iComment = Comment()) :
       // WARNING: the toEnum function is intentionally undefined if the template
       // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
       // are handled by full template specializations below.  In the first case.
@@ -152,7 +156,7 @@ namespace edm {
       // Note that this template parameter is most often passed through from
       // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
       // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
       value_() {
     }
 
@@ -206,11 +210,13 @@ namespace edm {
 
     ParameterDescription(std::string const& iLabel,
                          ParameterSetDescription const& value,
-                         bool isTracked);
+                         bool isTracked,
+                         Comment const& iComment = Comment());
 
     ParameterDescription(char const* iLabel,
                          ParameterSetDescription const& value,
-                         bool isTracked);
+                         bool isTracked,
+                         Comment const& iComment = Comment());
 
     virtual ~ParameterDescription();
 
@@ -258,20 +264,24 @@ namespace edm {
     ParameterDescription(std::string const& iLabel,
                          ParameterSetDescription const& psetDesc,
                          bool isTracked,
-                         std::vector<ParameterSet> const& vPset);
+                         std::vector<ParameterSet> const& vPset,
+                         Comment const& iComment = Comment());
 
     ParameterDescription(char const* iLabel,
                          ParameterSetDescription const& psetDesc,
                          bool isTracked,
-                         std::vector<ParameterSet> const& vPset);
+                         std::vector<ParameterSet> const& vPset,
+                         Comment const& iComment = Comment());
 
     ParameterDescription(std::string const& iLabel,
                          ParameterSetDescription const& psetDesc,
-                         bool isTracked);
+                         bool isTracked,
+                         Comment const& iComment = Comment());
 
     ParameterDescription(char const* iLabel,
                          ParameterSetDescription const& psetDesc,
-                         bool isTracked);
+                         bool isTracked,
+                         Comment const& iComment = Comment());
 
     virtual ~ParameterDescription();
 
