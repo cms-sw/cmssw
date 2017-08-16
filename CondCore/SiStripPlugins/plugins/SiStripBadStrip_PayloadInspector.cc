@@ -475,12 +475,15 @@ namespace {
       canvas.Update();
       canvas.cd();
 
+      TLine l[boundaries.size()];
+      unsigned int i=0;
       for (const auto & line : boundaries){
-	TLine l = TLine(h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymin(),h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymax());
-	l.SetLineWidth(1);
-	l.SetLineStyle(9);
-	l.SetLineColor(2);
-	l.Draw();
+        l[i] = TLine(h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymin(),h_BadStrips->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
       }
       
       TLegend legend = TLegend(0.52,0.82,0.95,0.9);
