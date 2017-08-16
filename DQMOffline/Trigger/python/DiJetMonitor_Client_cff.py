@@ -8,8 +8,7 @@ dijetEfficiency = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring(
         "effic_dijetptAvgThr       'Jet Pt turnON;            DiJet_Pt_Avg [GeV]; efficiency'     jetptAvgAThr_numerator    jetptAvgAThr_denominator",
         "effic_dijetphiPrb         'Jet efficiency vs #phi_probe; DiJet_Phi_probe #phi [rad]; efficiency'     jetphiPrb_numerator       jetphiPrb_denominator",
-        "effic_dijetetaPrb         'Jet efficiency vs #eta_probe; DiJet_Eta_probe #eta; efficiency'           jetetaPrb_numerator       jetetaPrb_denominator",
-        "effic_dijetetaTag         'Jet efficiency vs #eta_tag; DiJet_Eta_tag #eta; efficiency'           jetetaTag_numerator       jetetaTag_denominator"
+        "effic_dijetetaPrb         'Jet efficiency vs #eta_probe; DiJet_Eta_probe #eta; efficiency'           jetetaPrb_numerator       jetetaPrb_denominator"
     )
   
 )
