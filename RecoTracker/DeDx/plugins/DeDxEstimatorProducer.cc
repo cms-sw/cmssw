@@ -57,6 +57,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    if     (estimatorName == "median")              m_estimator = new MedianDeDxEstimator(iConfig);
    else if(estimatorName == "generic")             m_estimator = new GenericAverageDeDxEstimator  (iConfig);
    else if(estimatorName == "truncated")           m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
+   else if(estimatorName == "genericTruncated")    m_estimator = new GenericTruncatedAverageDeDxEstimator(iConfig);
    else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);
    else if(estimatorName == "productDiscrim")      m_estimator = new ProductDeDxDiscriminator(iConfig);
    else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);

@@ -26,6 +26,7 @@
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/GenericTruncatedAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/ProductDeDxDiscriminator.h"
