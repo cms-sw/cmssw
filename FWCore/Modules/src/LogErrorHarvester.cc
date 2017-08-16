@@ -69,8 +69,8 @@ namespace edm {
                                    excludedModules, includeModules](edm::BranchDescription const& iBD) 
     {
       if((iBD.branchType() == edm::InEvent and moduleDescription().processName() == iBD.processName()) and 
-         ( (not includeModules.empty() and
-            includeModules.end() != includeModules.find(iBD.moduleLabel())) or
+         ( (includeModules.empty() or
+            includeModules.end() != includeModules.find(iBD.moduleLabel())) and
            (iBD.unwrappedTypeID() != endPathStatusType and
             iBD.unwrappedTypeID() != pathStatusType and
             iBD.unwrappedTypeID() != triggerResultsType))) {
