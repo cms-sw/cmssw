@@ -136,7 +136,7 @@ DDLParser::parseOneFile( const std::string& fullname )
 void
 DDLParser::parse( const std::vector<unsigned char>& ablob, unsigned int bsize )
 {
-  char* dummy(0);
+  char* dummy(nullptr);
   MemBufInputSource  mbis( &*ablob.begin(), bsize, dummy );
   SAX2Parser_->parse(mbis);
 }
