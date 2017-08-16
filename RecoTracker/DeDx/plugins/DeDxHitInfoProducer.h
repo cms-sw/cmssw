@@ -61,6 +61,8 @@ private:
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;
+
+  edm::ESHandle<TrackerGeometry> tkGeom;
 };
 
 #endif
