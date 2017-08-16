@@ -348,8 +348,8 @@ int HcalDDDSimConstants::getLastLayer(const int det, const int eta) const {
     else                              lay = layBHB[0];
   } else {
     if      (eta == 16 || eta == -16) lay = layBHE[1];
-    else if (eta == 17 || eta == -17 || 
-	     eta == 18 || eta == -18) lay = layBHE[2];
+    else if (eta == 17 || eta == -17) lay = layBHE[2];
+    else if (eta == 18 || eta == -18) lay = layBHE[3];
     else                              lay = layBHE[0];
   }
   return lay;
@@ -880,7 +880,7 @@ void HcalDDDSimConstants::initialize( void ) {
   layFHB[0] = 0;  layFHB[1] = 1;
   layBHB[0] = 16; layBHB[1] = 15; layBHB[2] = 8;
   layFHE[0] = 1;  layFHE[1] = 4;  layFHE[2] = 0;
-  layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14;
+  layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14; layBHE[3] = 16;
   depthMaxSp_ = std::pair<int,int>(0,0);
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
@@ -928,9 +928,9 @@ void HcalDDDSimConstants::initialize( void ) {
 	  for (int i=0; i<2; ++i) layFHB[i] = hpar->noff[noffm+i+1];
 	  for (int i=0; i<3; ++i) layFHE[i] = hpar->noff[noffm+i+3];
 	}
-	if (ndnext > 10 && (int)(hpar->noff.size()) >= noffm+ndnext) {
+	if (ndnext > 11 && (int)(hpar->noff.size()) >= noffm+ndnext) {
 	  for (int i=0; i<3; ++i) layBHB[i] = hpar->noff[noffm+i+6];
-	  for (int i=0; i<3; ++i) layBHE[i] = hpar->noff[noffm+i+9];
+	  for (int i=0; i<4; ++i) layBHE[i] = hpar->noff[noffm+i+9];
 	}
       }
     }
@@ -941,7 +941,8 @@ void HcalDDDSimConstants::initialize( void ) {
 	    << ":" << layFHE[2] << std::endl;
   std::cout << "Last Layer Definition for HB: " << layBHB[0] << ":" 
 	    << layBHB[1] << ":" << layBHB[2] << " and for HE: " << layBHE[0] 
-	    << ":" << layBHE[1] << ":" << layBHE[2] << std::endl;
+	    << ":" << layBHE[1] << ":" << layBHE[2] << ":" << layBHE[3]
+	    << std::endl;
 #endif
   if (depthMaxSp_.first == 0) {
     depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);

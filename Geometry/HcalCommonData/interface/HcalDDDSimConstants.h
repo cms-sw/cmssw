@@ -132,7 +132,7 @@ private:
   int                 layFHB[2]; // first layers in HB (normal, special 16)
   int                 layFHE[3]; // first layers in HE (normal, special 16, 18)
   int                 layBHB[3]; // last layers in HB (normal, special 15, 16)
-  int                 layBHE[3]; // last layers in HE (normal, special 16, 17|18)
+  int                 layBHE[4]; // last layers in HE (normal, special 16, 17, 18)
   bool                isBH_;         // if HE is BH
   std::vector<HcalDetId> idHF2QIE;   // DetId's of HF modules with 2 QIE's
   std::pair<int,int>  depthMaxDf_, depthMaxSp_; // (subdet,maximum depth) default,special
