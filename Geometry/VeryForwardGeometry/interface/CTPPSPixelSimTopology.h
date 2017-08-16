@@ -50,9 +50,9 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
     CTPPSPixelSimTopology();
     ~CTPPSPixelSimTopology() {}
 
-    std::vector<PixelInfo> getPixelsInvolved( double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y );
+    PixelInfo getPixelsInvolved( double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y ) const;
 
-    inline void pixelRange( unsigned int arow, unsigned int acol, double& lower_x, double& higher_x, double& lower_y, double& higher_y ) {
+    inline void pixelRange( unsigned int arow, unsigned int acol, double& lower_x, double& higher_x, double& lower_y, double& higher_y ) const {
       // x and y in the system  of Geant4 SIMULATION
       arow = 159 - arow;
       if ( arow > 159 || acol > 155 )
@@ -129,8 +129,6 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
     }
 
   private:
-    std::vector<PixelInfo> relevantPixels_;
-
     double active_edge_x_;
     double active_edge_y_;
     
