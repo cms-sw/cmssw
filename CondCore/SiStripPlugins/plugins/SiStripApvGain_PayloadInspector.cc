@@ -1181,12 +1181,15 @@ namespace {
       canvas.Update();
       canvas.cd();
 
+      TLine l[boundaries.size()];
+      unsigned int i=0;
       for (const auto & line : boundaries){
-	TLine l = TLine(hfirst->GetBinLowEdge(line),canvas.cd()->GetUymin(),hfirst->GetBinLowEdge(line),canvas.cd()->GetUymax());
-	l.SetLineWidth(1);
-	l.SetLineStyle(9);
-	l.SetLineColor(2);
-	l.Draw("same");
+	l[i] = TLine(hfirst->GetBinLowEdge(line),canvas.cd()->GetUymin(),hfirst->GetBinLowEdge(line),canvas.cd()->GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
       }
       
       TLegend legend = TLegend(0.70,0.8,0.95,0.9);
@@ -1289,16 +1292,18 @@ namespace {
       h1->SetMarkerSize(1);
       h1->Draw("HIST");
       h1->Draw("Psame");
-
+	    
       canvas.Update();
-      canvas.cd();
-
+      
+      TLine l[boundaries.size()];
+      unsigned int i=0;
       for (const auto & line : boundaries){
-	TLine l = TLine(h1->GetBinLowEdge(line),canvas.cd()->GetUymin(),h1->GetBinLowEdge(line),canvas.cd()->GetUymax());
-	l.SetLineWidth(1);
-	l.SetLineStyle(9);
-	l.SetLineColor(2);
-	l.Draw("same");
+	l[i] = TLine(h1->GetBinLowEdge(line),canvas.GetUymin(),h1->GetBinLowEdge(line),canvas.GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
       }
       
       TLegend legend = TLegend(0.52,0.82,0.95,0.9);
