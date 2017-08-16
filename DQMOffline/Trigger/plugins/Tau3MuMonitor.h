@@ -38,7 +38,7 @@ class Tau3MuMonitor : public DQMEDAnalyzer
 {
   public:
     Tau3MuMonitor( const edm::ParameterSet& );
-    ~Tau3MuMonitor();
+    ~Tau3MuMonitor() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   

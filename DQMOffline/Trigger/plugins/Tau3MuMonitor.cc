@@ -45,7 +45,7 @@ void Tau3MuMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
   
   // tau 3 mu 1D pt
   histname = "tau1DPt"; 
