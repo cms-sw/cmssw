@@ -26,16 +26,13 @@
 
 
 /**
- * \ingroup TotemRPGeometry
- * \brief A class adding (mis)alignments to geometry (both real and misaligned).
- *
- * See schema of \ref TotemRPGeometry "TOTEM RP geometry classes"
+ * Loads alignment corrections to EventSetup.
  **/
-class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
+class  CTPPSIncludeAlignments : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
 {
   public:
-    TotemRPIncludeAlignments(const edm::ParameterSet &p);
-    ~TotemRPIncludeAlignments() override; 
+    CTPPSIncludeAlignments(const edm::ParameterSet &p);
+    ~CTPPSIncludeAlignments() override;
 
     std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
     std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
@@ -63,16 +60,16 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-TotemRPIncludeAlignments::TotemRPIncludeAlignments(const edm::ParameterSet &pSet) :
+CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
   verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 1))
 {
   PrepareSequence("Measured", acsMeasured, pSet.getParameter< vector<string> >("MeasuredFiles"));
   PrepareSequence("Real", acsReal, pSet.getParameter< vector<string> >("RealFiles"));
   PrepareSequence("Misaligned", acsMisaligned, pSet.getParameter< vector<string> >("MisalignedFiles"));
 
-  setWhatProduced(this, &TotemRPIncludeAlignments::produceMeasured);
-  setWhatProduced(this, &TotemRPIncludeAlignments::produceReal);
-  setWhatProduced(this, &TotemRPIncludeAlignments::produceMisaligned);
+  setWhatProduced(this, &CTPPSIncludeAlignments::produceMeasured);
+  setWhatProduced(this, &CTPPSIncludeAlignments::produceReal);
+  setWhatProduced(this, &CTPPSIncludeAlignments::produceMisaligned);
   
   findingRecord<RPMeasuredAlignmentRecord>();
   findingRecord<RPRealAlignmentRecord>();
@@ -81,13 +78,13 @@ TotemRPIncludeAlignments::TotemRPIncludeAlignments(const edm::ParameterSet &pSet
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPIncludeAlignments::~TotemRPIncludeAlignments()
+CTPPSIncludeAlignments::~CTPPSIncludeAlignments()
 {
 }
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence> files) const
+RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence> files) const
 {
   // find interval boundaries
   map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
@@ -141,7 +138,7 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
     }
 
     for (auto sit : accumulator)
-      result[tvi].AddCorrections(*sit);
+      result[tvi].addCorrections(*sit);
   }
 
   return result;
@@ -149,10 +146,10 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
+void CTPPSIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
 {
   if (verbosity)
-    printf(">> TotemRPIncludeAlignments::PrepareSequence(%s)\n", label.c_str());
+    printf(">> CTPPSIncludeAlignments::PrepareSequence(%s)\n", label.c_str());
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (const auto & file : files)
@@ -163,46 +160,46 @@ void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentC
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acMeasured);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acReal);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acMisaligned);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
     const IOVSyncValue& iosv, ValidityInterval& valInt) 
 {
   if (verbosity)
   {
-    LogVerbatim("TotemRPIncludeAlignments")
-      << ">> TotemRPIncludeAlignments::setIntervalFor(" << key.name() << ")";
+    LogVerbatim("CTPPSIncludeAlignments")
+      << ">> CTPPSIncludeAlignments::setIntervalFor(" << key.name() << ")";
 
     time_t unixTime = iosv.time().unixTime();
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-    LogVerbatim("TotemRPIncludeAlignments")
+    LogVerbatim("CTPPSIncludeAlignments")
       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
   // determine what sequence and corrections should be used
-  RPAlignmentCorrectionsDataSequence *seq = NULL;
-  RPAlignmentCorrectionsData *corr = NULL;
+  RPAlignmentCorrectionsDataSequence *seq = nullptr;
+  RPAlignmentCorrectionsData *corr = nullptr;
 
   if (strcmp(key.name(), "RPMeasuredAlignmentRecord") == 0)
   {
@@ -222,8 +219,8 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
     corr = &acMisaligned;
   }
 
-  if (seq == NULL)
-    throw cms::Exception("TotemRPIncludeAlignments::setIntervalFor") << "Unknown record " << key.name();
+  if (seq == nullptr)
+    throw cms::Exception("CTPPSIncludeAlignments::setIntervalFor") << "Unknown record " << key.name();
 
   // find the corresponding time interval
   bool next_exists = false;
@@ -238,7 +235,7 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
 
       if (verbosity)
       {
-        LogVerbatim("TotemRPIncludeAlignments")
+        LogVerbatim("CTPPSIncludeAlignments")
           << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
           << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
       }
@@ -263,10 +260,12 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   
   if (verbosity)
   {
-    LogVerbatim("TotemRPIncludeAlignments")
+    LogVerbatim("CTPPSIncludeAlignments")
       << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
       << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
   }
 }
 
-DEFINE_FWK_EVENTSETUP_SOURCE(TotemRPIncludeAlignments);
+//----------------------------------------------------------------------------------------------------
+
+DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSIncludeAlignments);
