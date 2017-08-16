@@ -51,13 +51,15 @@ namespace edm {
     ParameterDescriptionBase(std::string const& iLabel,
                              ParameterTypes iType,
                              bool isTracked,
-                             bool hasDefault
+                             bool hasDefault,
+                             Comment const& iComment
                             );
 
     ParameterDescriptionBase(char const* iLabel,
                              ParameterTypes iType,
                              bool isTracked,
-                             bool hasDefault
+                             bool hasDefault,
+                             Comment const& iComment
                             );
 
   private:
