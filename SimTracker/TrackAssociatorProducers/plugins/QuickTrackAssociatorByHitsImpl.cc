@@ -516,6 +516,12 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 	// This method is largely copied from the standard TrackAssociatorByHits. Once I've tested how much difference
 	// it makes I'll go through and comment it properly.
 
+	// FIXME: It may be that this piece is not fully correct for
+	// counting how many times a single *cluster* is matched to many
+	// SimTracks of a single TrackingParticle (see comments in
+	// getDoubleCount(ClusterTPAssociation) overload). To be verified
+	// some time.
+
 	double doubleCount=0.0;
 	std::vector < SimHitIdpr > SimTrackIdsDC;
 
@@ -552,16 +558,29 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 	// This code here was written by Subir Sarkar. I'm just splitting it off into a
 	// separate method. - Grimes 01/May/2014
 
+	// The point here is that the electron TrackingParticles may contain
+	// multiple SimTracks (from the bremsstrahling), and (historically)
+	// the each matched hit/cluster has been multiplied by "how many
+	// SimTracks from the TrackingParticle" it contains charge from.
+	// Here the amount of this double counting is calculated, so that it
+	// can be subtracted by the calling code.
+	//
+	// Note that recently (hence "historically" in the paragraph above)
+	// the ClusterTPAssociationProducer was changed to remove the
+	// duplicate cluster->TP associations (hence making this function
+	// obsolete), but there is more recent proof that there is some
+	// duplication left (to be investigated).
+
 	double doubleCount=0;
 	std::vector < SimHitIdpr > SimTrackIdsDC;
 
 	for( iter iHit=startIterator; iHit != endIterator; iHit++ )
 	{
-		int idcount=0;
-
 		std::vector < OmniClusterRef > oClusters=getMatchedClusters( iHit, iHit + 1 );  //only for the cluster being checked
 		for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
 		{
+                	int idcount=0;
+
 			auto range = clusterToTPList.equal_range(*it);
 			if( range.first != range.second )
 			{
@@ -574,13 +593,13 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 					}
 				}
 			}
-		}
 
-		if( idcount > 1 ) {
-                  const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
-                  const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
-                  doubleCount += weight*(idcount - 1);
-                }
+			if( idcount > 1 ) {
+                	  const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+                	  const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
+                	  doubleCount += weight*(idcount - 1);
+                	}
+		}
 	}
 
 	return doubleCount;
