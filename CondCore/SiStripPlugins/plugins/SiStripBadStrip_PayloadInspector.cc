@@ -203,7 +203,6 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
       delete reader;
       return (numerator/denominator)*100.;
       
@@ -247,8 +246,6 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TIB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
-
       delete reader;
       return (numerator/denominator)*100.;
       
@@ -292,8 +289,6 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TOB strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
-
       delete reader;
       return (numerator/denominator)*100.;
       
@@ -337,8 +332,6 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TID strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
-
       delete reader;
       return (numerator/denominator)*100.;
       
@@ -382,8 +375,6 @@ namespace {
 	if(badStripsPerDetId.count(det)!=0) numerator+= badStripsPerDetId[det];
       }
       
-      std::cout<<" there are "<<numerator<<" bad strips, out of:"<<denominator<<" total TEC strips, i.e. "<< (numerator/denominator)*100. <<" %" <<std::endl;
-
       delete reader;
       return (numerator/denominator)*100.;
       
