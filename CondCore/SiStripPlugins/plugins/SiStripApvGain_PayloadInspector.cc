@@ -140,7 +140,7 @@ namespace {
 
   class SiStripApvAbsoluteBarrelGainsByLayer : public cond::payloadInspector::Histogram2D<SiStripApvGain> {
     public:
-      SiStripApvAbsoluteBarrelGainsByLayer() : cond::payloadInspector::Histogram2D<SiStripApvGain>("SiStripApv Gains by Barrel layer", "Barrel layer (0-3: TIB), (4-9: TOB)", 10, 0, 10, "SiStripApv Gain", 200, 0.4, 1.6){
+      SiStripApvAbsoluteBarrelGainsByLayer() : cond::payloadInspector::Histogram2D<SiStripApvGain>("SiStripApv Gains by Barrel layer", "Barrel layer (0-3: TIB), (4-9: TOB)", 10, 0, 10, "SiStripApv Gain", 200, 0.0, 2.0){
           Base::setSingleIov(true);
       }
       
@@ -159,9 +159,11 @@ namespace {
               if (subid!=3 && subid!=5) continue;
 
               SiStripApvGain::Range range = payload->getRange(d);
-              for (int it=0;it<range.second-range.first;it++)
+              for (int it=0;it<range.second-range.first;it++){
+                  float gain = payload->getApvGain(it, range);
                   fillWithValue(static_cast<float>((subid == 5) ? tTopo.tobLayer(d)+4 : tTopo.tibLayer(d)),
-                                payload->getApvGain(it, range));
+                                (gain > 2.0)?2.0:gain);
+              }
             }//loop over detIds
           }// loop over payloads
         }// loop over iovs
@@ -307,7 +309,7 @@ namespace {
     SiStripApvAbsoluteEndcapMinusGainsByDisk() : cond::payloadInspector::Histogram2D<SiStripApvGain>(
             "SiStripApv Gains averages by Endcap (minus) disk",
             "Endcap (minus) disk (0-2: TID), (3-11: TEC)",12,0,12,
-            "SiStripApv Gain", 200, 0.4, 1.6){
+            "SiStripApv Gain", 200, 0.0, 2.0){
         Base::setSingleIov(true);
     }
 
@@ -334,9 +336,11 @@ namespace {
 
             if (side!=1) continue;
             SiStripApvGain::Range range = payload->getRange(d);
-            for (int it=0;it<range.second-range.first;it++)
-              fillWithValue((float) disk, payload->getApvGain(it, range));
-          }//detids
+            for (int it=0;it<range.second-range.first;it++){
+              float gain = payload->getApvGain(it, range);
+              fillWithValue((float) disk, (gain>2.0)?2.0:gain);
+            }// apvs
+          }// detids
         }
       }// iovs
       return true;
@@ -352,7 +356,7 @@ namespace {
     SiStripApvAbsoluteEndcapPlusGainsByDisk() : cond::payloadInspector::Histogram2D<SiStripApvGain>(
             "SiStripApv Gains averages by Endcap (plus) disk",
             "Endcap (plus) disk (0-2: TID), (3-11: TEC)",12,0,12,
-            "SiStripApv Gain", 200, 0.4, 1.6){
+            "SiStripApv Gain", 200, 0.0, 2.0){
         Base::setSingleIov(true);
     }
 
@@ -379,8 +383,10 @@ namespace {
 
             if (side!=2) continue;
             SiStripApvGain::Range range = payload->getRange(d);
-            for (int it=0;it<range.second-range.first;it++)
-              fillWithValue((float) disk, payload->getApvGain(it, range));
+            for (int it=0;it<range.second-range.first;it++){
+              float gain = payload->getApvGain(it, range);
+              fillWithValue((float) disk, (gain>2.0)?2.0:gain);
+            }//apvs
           }//detids
         }
       }// iovs
