@@ -145,7 +145,7 @@ namespace {
       }
       
 
-      bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs){
+      bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs) override{
         for (auto const& iov: iovs){
           std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload (std::get<1>(iov));
           if (payload.get()){
@@ -313,7 +313,7 @@ namespace {
         Base::setSingleIov(true);
     }
 
-    bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs){
+    bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs) override{
       for (auto const& iov: iovs) {
 	    std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	    if( payload.get() ){
@@ -360,7 +360,7 @@ namespace {
         Base::setSingleIov(true);
     }
 
-    bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs){
+    bool fill (const std::vector< std::tuple<cond::Time_t,cond::Hash> >& iovs) override{
       for (auto const& iov: iovs) {
 	    std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	    if( payload.get() ){
