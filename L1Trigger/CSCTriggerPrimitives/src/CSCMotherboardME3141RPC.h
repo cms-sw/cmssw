@@ -31,17 +31,17 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME3141RPC(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME3141RPC(unsigned endcap, unsigned station, unsigned sector,
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME3141RPC();
+  ~CSCMotherboardME3141RPC() override;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, 
-           const CSCComparatorDigiCollection* compdc, 
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc,
            const RPCDigiCollection* rpcDigis);
 
   /** labels for ME1a and ME1B */
@@ -62,11 +62,11 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
   int assignRPCRoll(double eta);
   void printRPCTriggerDigis(int minBX, int maxBx);
-  
-  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);  
-  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);  
-  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(), 
-			     bool first = true);  
+
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);
+  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(),
+			     bool first = true);
 
   unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
 
@@ -78,13 +78,13 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   void correlateLCTsRPC(CSCCLCTDigi bestCLCT,CSCCLCTDigi secondCLCT,
                         RPCDigi rpcDigi, int roll,
                         CSCCorrelatedLCTDigi& lct1,CSCCorrelatedLCTDigi& lct2);
- 
+
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
                         RPCDigi rpcPad,
                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
-  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const RPCDigisBX& digis = RPCDigisBX()); 
-  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCCLCTDigi& clct, const RPCDigi& rpc, int roll, 
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const RPCDigisBX& digis = RPCDigisBX());
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCCLCTDigi& clct, const RPCDigi& rpc, int roll,
                                         bool oldDataFormat);
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const RPCDigi& rpc, bool oldDataFormat);
 
@@ -97,7 +97,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> getLCTs();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
 
- private: 
+ private:
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
@@ -131,7 +131,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   // masterswitch
   bool runME3141ILT_;
 
-  // debug 
+  // debug
   bool debug_rpc_matching_;
   bool debug_luts_;
   bool debug_rpc_dphi;
@@ -144,7 +144,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   int maxDeltaWg_;
 
   bool useOldLCTDataFormat_;
-  
+
   // drop low quality stubs if they don't have RPCs
   bool dropLowQualityCLCTsNoRPCs_;
 
@@ -167,4 +167,4 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   RPCDigis rpcDigis_;
 };
 #endif
- 
+
