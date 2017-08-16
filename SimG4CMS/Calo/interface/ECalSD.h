@@ -31,7 +31,7 @@ class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  ECalSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   ~ECalSD() override;
   double                    getEnergyDeposit(G4Step*) override;

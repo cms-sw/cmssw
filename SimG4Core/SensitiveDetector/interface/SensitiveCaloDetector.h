@@ -10,7 +10,7 @@
 class SensitiveCaloDetector : public SensitiveDetector
 {
 public:
-  SensitiveCaloDetector(std::string & iname, const DDCompactView & cpv,
+  SensitiveCaloDetector(const std::string & iname, const DDCompactView & cpv,
 			const SensitiveDetectorCatalog & clg,
 			edm::ParameterSet const & p) :
   SensitiveDetector(iname,cpv,clg,p) {}

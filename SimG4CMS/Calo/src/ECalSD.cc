@@ -38,7 +38,7 @@ bool any(const std::vector<T> & v, const T &what) {
   return std::find(v.begin(), v.end(), what) != v.end();
 }
 
-ECalSD::ECalSD(std::string name, const DDCompactView & cpv,
+ECalSD::ECalSD(const std::string& name, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 

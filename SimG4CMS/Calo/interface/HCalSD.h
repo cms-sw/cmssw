@@ -37,7 +37,7 @@ class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HCalSD(std::string , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;

@@ -11,11 +11,11 @@
 
 #include "G4TouchableHistory.hh"
 
-SensitiveDetector::SensitiveDetector(std::string & iname, 
+SensitiveDetector::SensitiveDetector(const std::string & iname, 
                                      const DDCompactView & cpv,
                                      const SensitiveDetectorCatalog & clg,
                                      edm::ParameterSet const & p) :
-  G4VSensitiveDetector((G4String)iname), name(iname) {}
+  G4VSensitiveDetector(iname), name(iname) {}
 
 SensitiveDetector::~SensitiveDetector() {}
 
