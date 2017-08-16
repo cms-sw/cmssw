@@ -9,6 +9,7 @@
 
 #include "Validation/SiPixelPhase1HitsV/interface/SiPixelPhase1HitsV.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -66,10 +67,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     GlobalPoint gpos=det->toGlobal(it->localPosition());
 
     float tof = it->timeOfFlight();
-    float globalEta = gpos.eta();
-    float globalPhi = gpos.phi();
     float globalR = gpos.mag();
-    float globalZ = gpos.z();
 
     float energyLoss = it->energyLoss();
 
@@ -83,10 +81,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     float localPhi = it->localPosition().phi();
     float localEta = it->localPosition().eta();
 
-    histo[TOF_ETA].fill(globalEta, tof, id, &iEvent);
-    histo[TOF_PHI].fill(globalPhi, tof, id, &iEvent);
     histo[TOF_R].fill(globalR, tof, id, &iEvent);
-    histo[TOF_Z].fill(globalZ, tof, id, &iEvent);
     histo[ELOSS].fill(energyLoss, id, &iEvent);
     histo[ENTRY_EXIT_X].fill(entryExitX, id, &iEvent);
     histo[ENTRY_EXIT_Y].fill(entryExitY, id, &iEvent);
@@ -104,10 +99,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     GlobalPoint gpos=det->toGlobal(it->localPosition());
 
     float tof = it->timeOfFlight();
-    float globalEta = gpos.eta();
-    float globalPhi = gpos.phi();
     float globalR = gpos.mag();
-    float globalZ = gpos.z();
 
     float energyLoss = it->energyLoss();
 
@@ -121,10 +113,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     float localPhi = it->localPosition().phi();
     float localEta = it->localPosition().eta();
 
-    histo[TOF_ETA].fill(globalEta, tof, id, &iEvent);
-    histo[TOF_PHI].fill(globalPhi, tof, id, &iEvent);
     histo[TOF_R].fill(globalR, tof, id, &iEvent);
-    histo[TOF_Z].fill(globalZ, tof, id, &iEvent);
     histo[ELOSS].fill(energyLoss, id, &iEvent);
     histo[ENTRY_EXIT_X].fill(entryExitX, id, &iEvent);
     histo[ENTRY_EXIT_Y].fill(entryExitY, id, &iEvent);
@@ -143,10 +132,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     GlobalPoint gpos=det->toGlobal(it->localPosition());
 
     float tof = it->timeOfFlight();
-    float globalEta = gpos.eta();
-    float globalPhi = gpos.phi();
     float globalR = gpos.mag();
-    float globalZ = gpos.z();
 
     float energyLoss = it->energyLoss();
 
@@ -160,10 +146,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     float localPhi = it->localPosition().phi();
     float localEta = it->localPosition().eta();
 
-    histo[TOF_ETA].fill(globalEta, tof, id, &iEvent);
-    histo[TOF_PHI].fill(globalPhi, tof, id, &iEvent);
     histo[TOF_R].fill(globalR, tof, id, &iEvent);
-    histo[TOF_Z].fill(globalZ, tof, id, &iEvent);
     histo[ELOSS].fill(energyLoss, id, &iEvent);
     histo[ENTRY_EXIT_X].fill(entryExitX, id, &iEvent);
     histo[ENTRY_EXIT_Y].fill(entryExitY, id, &iEvent);
@@ -182,10 +165,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     GlobalPoint gpos=det->toGlobal(it->localPosition());
 
     float tof = it->timeOfFlight();
-    float globalEta = gpos.eta();
-    float globalPhi = gpos.phi();
     float globalR = gpos.mag();
-    float globalZ = gpos.z();
 
     float energyLoss = it->energyLoss();
 
@@ -199,10 +179,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
     float localPhi = it->localPosition().phi();
     float localEta = it->localPosition().eta();
 
-    histo[TOF_ETA].fill(globalEta, tof, id, &iEvent);
-    histo[TOF_PHI].fill(globalPhi, tof, id, &iEvent);
     histo[TOF_R].fill(globalR, tof, id, &iEvent);
-    histo[TOF_Z].fill(globalZ, tof, id, &iEvent);
     histo[ELOSS].fill(energyLoss, id, &iEvent);
     histo[ENTRY_EXIT_X].fill(entryExitX, id, &iEvent);
     histo[ENTRY_EXIT_Y].fill(entryExitY, id, &iEvent);
@@ -225,9 +202,10 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
   iEvent.getByToken(trackAssociatorByHitsToken_,theHitsAssociator);
-  if ( theHitsAssociator.isValid() ) {
-    associatorByHits = theHitsAssociator.product();
+  if ( ! theHitsAssociator.isValid() ) {
+    throw cms::Exception ("NO VALID HIT ASSOCIATOR");
   }
+  associatorByHits = theHitsAssociator.product();
 
   if ( TPCollectionH.isValid() && trackCollectionH.isValid() ) {
     reco::RecoToSimCollection p = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH);

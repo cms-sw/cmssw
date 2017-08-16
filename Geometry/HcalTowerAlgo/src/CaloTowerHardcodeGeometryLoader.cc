@@ -120,12 +120,12 @@ CaloTowerHardcodeGeometryLoader::makeCell( uint32_t din,
   const double mysign ( !alongZ ? 1 : -1 ) ;
   std::vector<CCGFloat> hh ;
   hh.reserve(5) ;
-  hh.push_back( deta/2 ) ;
-  hh.push_back( dphi_half ) ;
-  hh.push_back( mysign*thickness/2. ) ;
+  hh.emplace_back( deta/2 ) ;
+  hh.emplace_back( dphi_half ) ;
+  hh.emplace_back( mysign*thickness/2. ) ;
 
-  hh.push_back( fabs( eta ) ) ;
-  hh.push_back( fabs( z ) ) ;
+  hh.emplace_back( fabs( eta ) ) ;
+  hh.emplace_back( fabs( z ) ) ;
 
 #ifdef DebugLog
   std::cout << "CaloTowerHardcodeGeometryLoader: x = " << x << ", y = " << y << ", z = " << z << ", thickness = " << thickness << std::endl;

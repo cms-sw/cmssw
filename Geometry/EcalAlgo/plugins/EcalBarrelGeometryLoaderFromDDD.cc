@@ -35,7 +35,7 @@ EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
       const CCGFloat factor ( 1==i || 2==i || 6==i || 10==i ? 1 : 
 			      (CCGFloat)k_ScaleFromDDDtoGeant ) ;
 
-      pv.push_back( factor*vv[i] ) ;
+      pv.emplace_back( factor*vv[i] ) ;
    }
 
    std::vector<GlobalPoint> corners (8);
@@ -122,7 +122,7 @@ EcalBGL::fillNamedParams(const DDFilteredView&      _fv,
       if( DDfetch( &sv, valEtaB ) ) 
       {
 	 const std::vector<double>& ebvec = valEtaB.doubles();
-	 assert(ebvec.size() > 0);
+	 assert(!ebvec.empty());
 	 std::vector<int> EtaBaskets;
 	 EtaBaskets.resize(ebvec.size());
 	 for (unsigned i = 0; i<ebvec.size(); ++i) 
@@ -138,7 +138,7 @@ EcalBGL::fillNamedParams(const DDFilteredView&      _fv,
       if (DDfetch(&sv,valPhi)) 
       {
 	 const std::vector<double> & pvec = valPhi.doubles();
-	 assert(pvec.size() > 0);
+	 assert(!pvec.empty());
 	 geom->setBasketSizeInPhi((int)pvec[0]);
       }
       else

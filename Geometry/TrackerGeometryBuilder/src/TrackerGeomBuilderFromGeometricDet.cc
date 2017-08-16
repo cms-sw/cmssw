@@ -77,7 +77,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   std::vector<const GeometricDet*> & tec  = dets[5];  tec.reserve(comp.size());
 
   for(auto & i : comp)
-    dets[i->geographicalID().subdetId()-1].push_back(i);
+    dets[i->geographicalID().subdetId()-1].emplace_back(i);
   
   //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricDet must be empty !!
   // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like 
@@ -137,7 +137,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   // and finally the "empty" subdetectors (maybe it is not needed)
   for(unsigned int i=0;i<6;++i) {
     if(gdsubdetmap[i] == GeometricDet::unknown) {
-      if(dets[i].size()!=0) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
+      if(!dets[i].empty()) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
       buildSilicon(dets[i],tracker,GeomDetEnumerators::tkDetEnum[i+1], "barrel"); // "barrel" is used but it is irrelevant
     }
   }

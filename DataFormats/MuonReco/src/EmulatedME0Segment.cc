@@ -49,7 +49,7 @@ namespace{
 };
 
 namespace{
-  static const AlgebraicMatrix theProjectionMatrix = createStaticMatrix();
+  const AlgebraicMatrix theProjectionMatrix = createStaticMatrix();
 };
 
 AlgebraicMatrix EmulatedME0Segment::projectionMatrix() const {

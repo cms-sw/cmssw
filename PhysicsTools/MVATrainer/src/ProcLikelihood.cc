@@ -83,7 +83,7 @@ class ProcLikelihood : public TrainProcessor {
 	Iteration		iteration;
 };
 
-static ProcLikelihood::Registry registry("ProcLikelihood");
+ProcLikelihood::Registry registry("ProcLikelihood");
 
 ProcLikelihood::ProcLikelihood(const char *name, const AtomicId *id,
                                MVATrainer *trainer) :
@@ -414,7 +414,7 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
+void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
 		double hold = n > 0 ? values[0] : 0.0;
@@ -522,7 +522,7 @@ void ProcLikelihood::trainEnd()
 	}
 }
 
-static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
+void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 {
 	if (!elem ||
 	    std::strcmp(XMLSimpleStr(elem->getNodeName()), "pdf") != 0)
@@ -750,7 +750,7 @@ bool ProcLikelihood::load()
 	return true;
 }
 
-static DOMElement *xmlStorePDF(DOMDocument *doc,
+DOMElement *xmlStorePDF(DOMDocument *doc,
                                const ProcLikelihood::PDF &pdf)
 {
 	DOMElement *elem = doc->createElement(XMLUniStr("pdf"));

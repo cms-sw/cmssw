@@ -35,7 +35,7 @@ void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDs
 	      << s.first << "," << s.second << std::endl;
     return;
   }
-  specifics_.push_back(s);
+  specifics_.emplace_back(s);
   for( const auto& it : *s.second ) {
     unsigned int id = it.first;
     if ( id < hasDDValue_.size() ) {
@@ -78,7 +78,7 @@ void LogicalPart::specificsV(std::vector<const DDsvalues_type*> & result) const
   for( const auto& it : specifics_ ) {
     const DDPartSelection & ps = *(it.first);
     if (ps.size()==1 && ps[0].selectionType_==ddanylogp) {
-      result.push_back(it.second);
+      result.emplace_back(it.second);
     }
   }
 }

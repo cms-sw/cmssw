@@ -1,5 +1,5 @@
-#ifndef x_SaxToDom2_h
-#define x_SaxToDom2_h
+#ifndef DETECTOR_DESCRIPTION_REGRESSION_TEST_SAXTODOM2_H
+#define DETECTOR_DESCRIPTION_REGRESSION_TEST_SAXTODOM2_H
 
 #include <xercesc/util/XercesDefs.hpp>
 #include <map>
@@ -20,15 +20,14 @@ class SaxToDom2 : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
 
 public:
-  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
-  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
+  using Attributes = XERCES_CPP_NAMESPACE::Attributes;
+  using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
   SaxToDom2();
   ~SaxToDom2() override;
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs) override;
-  //void startElement(const XMLCh* const name, AttributeList& attributes);
-  void endElement(const XMLCh* const uri, 
-                            const XMLCh* const name, 
-			       const XMLCh* const qname) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* uri,
+		  const XMLCh* name, 
+		  const XMLCh* qname) override;
   const TinyDom2 & dom() const;
 
   // errors

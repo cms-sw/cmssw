@@ -79,7 +79,7 @@ CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section ,
 	   isector <= HcalCastorDetId::kNumberSectorsPerEnd ; ++isector ) 
       {
 	 const HcalCastorDetId id ( section, false, isector, imodule ) ;
-	 if( extTopology->valid( id ) )  castorIds.push_back( id ) ;
+	 if( extTopology->valid( id ) )  castorIds.emplace_back( id ) ;
       }
    }
 //   edm::LogInfo("CastorHardcodeGeometry") 
@@ -166,12 +166,12 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
    std::vector<CCGFloat> zz ;
    zz.reserve( CastorGeometry::k_NumberOfParametersPerShape ) ;
-   zz.push_back( dxl ) ;
-   zz.push_back( dxh ) ;
-   zz.push_back( dh ) ;
-   zz.push_back( dz ) ;
-   zz.push_back( an ) ;
-   zz.push_back( dR ) ;
+   zz.emplace_back( dxl ) ;
+   zz.emplace_back( dxh ) ;
+   zz.emplace_back( dh ) ;
+   zz.emplace_back( dz ) ;
+   zz.emplace_back( an ) ;
+   zz.emplace_back( dR ) ;
 
    geom->newCell( fc, fc, fc, 
 		  CaloCellGeometry::getParmPtr( zz, 

@@ -12,7 +12,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   //
   DetId myTmpId(id);
   std::vector<std::pair<Coordinate,DetId> > fringe;
-  fringe.push_back(std::pair<Coordinate,DetId>(Coordinate(0,0),myTmpId));
+  fringe.emplace_back(std::pair<Coordinate,DetId>(Coordinate(0,0),myTmpId));
   
   int halfWestEast = eastWestSize/2 ;
   int halfNorthSouth = northSouthSize/2 ;
@@ -20,7 +20,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   std::vector<CellInfo> visited_cells;
   visited_cells.resize(northSouthSize * eastWestSize);
   
-  while (fringe.size() > 0)
+  while (!fringe.empty())
     {
       std::pair<Coordinate,DetId> cur = fringe.back();
       fringe.pop_back();
@@ -56,13 +56,13 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
 
 	  if ( neighbourCells.size() == 1 )
 	    visited_cells[int_index].cell = neighbourCells[0];
-	  else if ( neighbourCells.size() == 0 )
+	  else if ( neighbourCells.empty() )
 	    visited_cells[int_index].cell = DetId(0);
 	  else
 	    throw cms::Exception("getWindowError") << "Not supported subdetector for getWindow method";
 	  
           if (!visited_cells[int_index].cell.null())
-            fringe.push_back(std::pair<Coordinate,DetId>(neighbour,visited_cells[int_index].cell));
+            fringe.emplace_back(std::pair<Coordinate,DetId>(neighbour,visited_cells[int_index].cell));
 		  
 	} // loop over all possible directions
     } // while some cells are left on the fringe
@@ -70,7 +70,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
   
   for (auto & visited_cell : visited_cells)
     if (!visited_cell.cell.null())
-      cellsInWindow.push_back(visited_cell.cell);
+      cellsInWindow.emplace_back(visited_cell.cell);
   
   return cellsInWindow;
 }

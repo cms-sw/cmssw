@@ -642,9 +642,8 @@ class ConfigBuilder(object):
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
                 if "MINIAOD" in streamType:
-                    output.dropMetaData = cms.untracked.string('ALL')
-                    output.fastCloning= cms.untracked.bool(False)
-                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
+                    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
+                    miniAOD_customizeOutput(output)
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)

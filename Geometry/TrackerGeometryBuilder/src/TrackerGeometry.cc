@@ -113,44 +113,44 @@ void TrackerGeometry::finalize() {
 }
 
 void TrackerGeometry::addType(GeomDetType const * p) {
-  theDetTypes.push_back(p);  // add to vector
+  theDetTypes.emplace_back(p);  // add to vector
 }
 
 void TrackerGeometry::addDetUnit(GeomDetUnit const * p) {
   // set index
   const_cast<GeomDetUnit *>(p)->setIndex(theDetUnits.size());
-  theDetUnits.push_back(p);  // add to vector
+  theDetUnits.emplace_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }
 
 void TrackerGeometry::addDetUnitId(DetId p){
-  theDetUnitIds.push_back(p);
+  theDetUnitIds.emplace_back(p);
 }
 
 void TrackerGeometry::addDet(GeomDet const * p) {
   // set index
   const_cast<GeomDet *>(p)->setGdetIndex(theDets.size());
-  theDets.push_back(p);  // add to vector
+  theDets.emplace_back(p);  // add to vector
   theMap.insert(std::make_pair(p->geographicalId().rawId(),p));
   DetId id(p->geographicalId());
   switch(id.subdetId()){
   case PixelSubdetector::PixelBarrel:
-    thePXBDets.push_back(p);
+    thePXBDets.emplace_back(p);
     break;
   case PixelSubdetector::PixelEndcap:
-    thePXFDets.push_back(p);
+    thePXFDets.emplace_back(p);
     break;
   case StripSubdetector::TIB:
-    theTIBDets.push_back(p);
+    theTIBDets.emplace_back(p);
     break;
   case StripSubdetector::TID:
-    theTIDDets.push_back(p);
+    theTIDDets.emplace_back(p);
     break;
   case StripSubdetector::TOB:
-    theTOBDets.push_back(p);
+    theTOBDets.emplace_back(p);
     break;
   case StripSubdetector::TEC:
-    theTECDets.push_back(p);
+    theTECDets.emplace_back(p);
     break;
   default:
     edm::LogError("TrackerGeometry")<<"ERROR - I was expecting a Tracker Subdetector, I got a "<<id.subdetId();
@@ -158,7 +158,7 @@ void TrackerGeometry::addDet(GeomDet const * p) {
 }
 
 void TrackerGeometry::addDetId(DetId p){
-  theDetIds.push_back(p);
+  theDetIds.emplace_back(p);
 }
 
 
@@ -256,11 +256,11 @@ void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
   float thickness = gd->bounds()->thickness();
   std::string nameTag;  
   TrackerGeometry::ModuleType mtype = moduleType(name);
-  if (theDetTypetList.size() == 0) {
-    theDetTypetList.push_back({std::make_tuple(detid, mtype, thickness)});
+  if (theDetTypetList.empty()) {
+    theDetTypetList.emplace_back(detid, mtype, thickness);
   } else {
     auto  & t = (*(theDetTypetList.end()-1));
-    if (std::get<1>(t) != mtype) theDetTypetList.push_back({std::make_tuple(detid, mtype, thickness)});
+    if (std::get<1>(t) != mtype) theDetTypetList.emplace_back(detid, mtype, thickness);
     else {
       if  ( detid > std::get<0>(t) ) std::get<0>(t) = detid;
     }

@@ -192,10 +192,7 @@ def _getSeedingLayers(seedProducers):
     for seedName in seedProducers:
         seedProd = getattr(_iterativeTk_cff, seedName)
         if hasattr(seedProd, "OrderedHitsFactoryPSet"):
-            if hasattr(seedProd, "SeedMergerPSet"):
-                seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
-            else:
-                seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         elif hasattr(seedProd, "seedingHitSets"):
             seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
         else:
@@ -651,6 +648,7 @@ tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidat
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
 trackValidatorsTrackingOnly += trackValidatorSeedingTrackingOnly
+trackValidatorsTrackingOnly += trackValidatorBuilding
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)

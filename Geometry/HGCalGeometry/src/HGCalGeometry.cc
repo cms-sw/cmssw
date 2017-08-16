@@ -85,11 +85,11 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     id.iCell  = cell;
     DetId idc = topology().encode(id);
     if (topology().valid(idc)) {
-      m_validIds.push_back(idc);
+      m_validIds.emplace_back(idc);
       if ((topology().dddConstants().geomMode() == HGCalGeometryMode::Square) &&
 	  (!m_halfType)) {
 	id.iSubSec = -id.iSubSec;
-	m_validIds.push_back( topology().encode(id));
+	m_validIds.emplace_back( topology().encode(id));
 	id.iSubSec = -id.iSubSec;
       }
     }
@@ -379,8 +379,8 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
     int layer = ((detId.subdetId() ==  ForwardSubdetector::HGCEE) ?
 		 (HGCEEDetId(detId).layer()) :
 		 (HGCHEDetId(detId).layer()));
-    dinsVector.push_back( topology().detId2denseGeomId( detId ));
-    iVector.push_back( layer );
+    dinsVector.emplace_back( topology().detId2denseGeomId( detId ));
+    iVector.emplace_back( layer );
     
     Tr3D tr;
     const CaloCellGeometry* ptr( cellGeomPtr( i ));
@@ -393,9 +393,9 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
       }
 
       const CLHEP::Hep3Vector tt( tr.getTranslation());
-      trVector.push_back( tt.x());
-      trVector.push_back( tt.y());
-      trVector.push_back( tt.z());
+      trVector.emplace_back( tt.x());
+      trVector.emplace_back( tt.y());
+      trVector.emplace_back( tt.z());
       if (6 == numberOfTransformParms()) {
 	const CLHEP::HepRotation rr( tr.getRotation());
 	const ROOT::Math::Transform3D rtr( rr.xx(), rr.xy(), rr.xz(), tt.x(),
@@ -403,9 +403,9 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 					   rr.zx(), rr.zy(), rr.zz(), tt.z());
 	ROOT::Math::EulerAngles ea;
 	rtr.GetRotation( ea );
-	trVector.push_back( ea.Phi());
-	trVector.push_back( ea.Theta());
-	trVector.push_back( ea.Psi());
+	trVector.emplace_back( ea.Phi());
+	trVector.emplace_back( ea.Theta());
+	trVector.emplace_back( ea.Psi());
       }
     }
   }

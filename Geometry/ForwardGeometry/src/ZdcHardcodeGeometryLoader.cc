@@ -60,9 +60,9 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
   int lastCell = extTopology->lastCell(section);
   for(int ichannel = firstCell; ichannel <= lastCell; ++ichannel) {
     id = HcalZDCDetId(section, true, ichannel);
-    if(extTopology->valid(id)) zdcIds.push_back(id);
+    if(extTopology->valid(id)) zdcIds.emplace_back(id);
     id = HcalZDCDetId(section, false, ichannel);
-    if(extTopology->valid(id)) zdcIds.push_back(id);
+    if(extTopology->valid(id)) zdcIds.emplace_back(id);
    }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
   if( geom->parMgr()     == 0 ) geom->allocatePar( 
@@ -182,10 +182,10 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
 
    std::vector<CCGFloat> zz ;
    zz.reserve( ZdcGeometry::k_NumberOfParametersPerShape ) ;
-   zz.push_back( an ) ;
-   zz.push_back( dx ) ;
-   zz.push_back( dy ) ;
-   zz.push_back( dz ) ;
+   zz.emplace_back( an ) ;
+   zz.emplace_back( dx ) ;
+   zz.emplace_back( dy ) ;
+   zz.emplace_back( dz ) ;
 
    geom->newCell( fc, fc, fc, 
 		  CaloCellGeometry::getParmPtr( zz, 

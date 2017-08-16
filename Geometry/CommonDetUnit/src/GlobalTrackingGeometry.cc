@@ -74,7 +74,7 @@ GlobalTrackingGeometry::detTypes( void ) const
         DetTypeContainer detTypes(theGeometrie->detTypes());
         if( detTypes.size() + ptr->size() < ptr->capacity()) ptr->resize( detTypes.size() + ptr->size());
         for(auto detType : detTypes)
-          ptr->push_back( detType );
+          ptr->emplace_back( detType );
        }
        DetTypeContainer* expect = nullptr;
        if(theDetTypes.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
@@ -95,7 +95,7 @@ GlobalTrackingGeometry::detUnits( void ) const
         DetUnitContainer detUnits(theGeometrie->detUnits());
         if( detUnits.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnits.size() + ptr->size());
         for(auto detUnit : detUnits)
-          ptr->push_back( detUnit );
+          ptr->emplace_back( detUnit );
        }
        DetUnitContainer* expect = nullptr;
        if(theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
@@ -116,7 +116,7 @@ GlobalTrackingGeometry::dets( void ) const
         DetContainer dets(theGeometrie->dets());
         if( dets.size() + ptr->size() < ptr->capacity()) ptr->resize( dets.size() + ptr->size());
         for(auto det : dets)
-          ptr->push_back( det );
+          ptr->emplace_back( det );
        }
        DetContainer* expect = nullptr;
        if(theDets.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
@@ -137,7 +137,7 @@ GlobalTrackingGeometry::detUnitIds( void ) const
         DetIdContainer detUnitIds(theGeometrie->detUnitIds());
         if( detUnitIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnitIds.size() + ptr->size());
         for(auto detUnitId : detUnitIds)
-          ptr->push_back( detUnitId );
+          ptr->emplace_back( detUnitId );
        }
        DetIdContainer* expect = nullptr;
        if(theDetUnitIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
@@ -158,7 +158,7 @@ GlobalTrackingGeometry::detIds( void ) const
         DetIdContainer detIds(theGeometrie->detIds());
         if( detIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detIds.size() + ptr->size());
         for(auto detId : detIds)
-          ptr->push_back( detId );
+          ptr->emplace_back( detId );
        }
        DetIdContainer* expect = nullptr;
        if(theDetIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {

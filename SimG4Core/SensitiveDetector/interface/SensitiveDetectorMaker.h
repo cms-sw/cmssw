@@ -42,10 +42,10 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,
-			std::auto_ptr<SensitiveTkDetector>& oTK,
-			std::auto_ptr<SensitiveCaloDetector>& oCalo) const
+			std::unique_ptr<SensitiveTkDetector>& oTK,
+			std::unique_ptr<SensitiveCaloDetector>& oCalo) const
       {
-	std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
+        auto returnValue  = std::make_unique<T>(iname, cpv, clg, p, m);
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
 	this->convertTo(returnValue.get(), oTK,oCalo);
