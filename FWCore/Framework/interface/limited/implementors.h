@@ -1,0 +1,299 @@
+#ifndef FWCore_Framework_limited_implementors_h
+#define FWCore_Framework_limited_implementors_h
+// -*- C++ -*-
+//
+// Package:     FWCore/Framework
+// Class  :     implementors
+// 
+/**\file implementors.h "FWCore/Framework/interface/limited/implementors.h"
+
+ Description: Base classes used to implement the interfaces for the edm::limited::* module  abilities
+
+ Usage:
+    <usage>
+
+*/
+//
+// Original Author:  Chris Jones
+//         Created:  Thu, 18 Jul 2013 11:52:34 GMT
+//
+
+// system include files
+#include <memory>
+#include <mutex>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+
+// forward declarations
+namespace edm {
+  
+  namespace limited {
+    namespace impl {
+      class EmptyType {};
+      
+      
+      template <typename T, typename C>
+      class StreamCacheHolder : public virtual T {
+      public:
+        StreamCacheHolder() = default;
+        StreamCacheHolder( StreamCacheHolder<T,C> const&) = delete;
+        StreamCacheHolder<T,C>& operator=(StreamCacheHolder<T,C> const&) = delete;
+        ~StreamCacheHolder() {
+          for(auto c: caches_){
+            delete c;
+          }
+        }
+      protected:
+        C * streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
+      private:
+        virtual void preallocStreams(unsigned int iNStreams) override final {
+          caches_.resize(iNStreams,static_cast<C*>(nullptr));
+        }
+        virtual void doBeginStream_(StreamID id) override final {
+          caches_[id.value()] = beginStream(id).release();
+        }
+        virtual void doEndStream_(StreamID id) override final {
+          endStream(id);
+          delete caches_[id.value()];
+          caches_[id.value()]=nullptr;
+        }
+        virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) override final {
+          streamBeginRun(id,rp,c);
+        }
+        virtual void doStreamEndRun_(StreamID id, Run const& rp, EventSetup const& c) override final {
+          streamEndRun(id,rp,c);
+        }
+        virtual void doStreamBeginLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c) override final {
+          streamBeginLuminosityBlock(id,lbp,c);
+        }
+        virtual void doStreamEndLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c) override final {
+          streamEndLuminosityBlock(id,lbp,c);
+        }
+
+        virtual std::unique_ptr<C> beginStream(edm::StreamID) const = 0;
+        virtual void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const  {}
+        virtual void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const {}
+        virtual void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const {}
+        virtual void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const {}
+        virtual void endStream(edm::StreamID) const {}
+
+        //When threaded we will have a container for N items whre N is # of streams
+        std::vector<C*> caches_;
+      };
+      
+      template <typename T, typename C>
+      class RunCacheHolder : public virtual T {
+      public:
+        RunCacheHolder() = default;
+        RunCacheHolder( RunCacheHolder<T,C> const&) = delete;
+        RunCacheHolder<T,C>& operator=(RunCacheHolder<T,C> const&) = delete;
+        ~RunCacheHolder() noexcept(false) {};
+      protected:
+        C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
+      private:
+        void doBeginRun_(Run const& rp, EventSetup const& c) override final {
+          cache_ = limitedBeginRun(rp,c);
+        }
+        void doEndRun_(Run const& rp, EventSetup const& c) override final {
+          limitedEndRun(rp,c);
+          cache_ = nullptr; // propagate_const<T> has no reset() function
+        }
+        
+        virtual std::shared_ptr<C> limitedBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual void limitedEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
+        //When threaded we will have a container for N items whre N is # of simultaneous runs
+        edm::propagate_const<std::shared_ptr<C>> cache_;
+      };
+      
+      template <typename T, typename C>
+      class LuminosityBlockCacheHolder : public virtual T {
+      public:
+        LuminosityBlockCacheHolder() = default;
+        LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<T,C> const&) = delete;
+        LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
+        ~LuminosityBlockCacheHolder() noexcept(false) {};
+      protected:
+        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return cache_.get(); }
+      private:
+        void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final {
+          cache_ = limitedBeginLuminosityBlock(rp,c);
+        }
+        void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final {
+          limitedEndLuminosityBlock(rp,c);
+          cache_.reset();
+        }
+        
+        virtual std::shared_ptr<C> limitedBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        virtual void limitedEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        //When threaded we will have a container for N items whre N is # of simultaneous runs
+        std::shared_ptr<C> cache_;
+      };
+      
+      template<typename T, typename C> class EndRunSummaryProducer;
+      
+      template <typename T, typename C>
+      class RunSummaryCacheHolder : public virtual T {
+      public:
+        RunSummaryCacheHolder() = default;
+        RunSummaryCacheHolder( RunSummaryCacheHolder<T,C> const&) = delete;
+        RunSummaryCacheHolder<T,C>& operator=(RunSummaryCacheHolder<T,C> const&) = delete;
+        ~RunSummaryCacheHolder() noexcept(false) {};
+      private:
+        friend class EndRunSummaryProducer<T,C>;
+        void doBeginRunSummary_(edm::Run const& rp, EventSetup const& c) override final {
+          cache_ = limitedBeginRunSummary(rp,c);
+        }
+        void doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c) override final {
+          //NOTE: in future this will need to be serialized
+          std::lock_guard<std::mutex> guard(mutex_);
+          streamEndRunSummary(id,rp,c,cache_.get());
+        }
+        void doEndRunSummary_(Run const& rp, EventSetup const& c) override final {
+          limitedEndRunSummary(rp,c,cache_.get());
+        }
+
+        virtual std::shared_ptr<C> limitedBeginRunSummary(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual void streamEndRunSummary(StreamID, edm::Run const&, edm::EventSetup const&, C*) const = 0;
+
+        virtual void limitedEndRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
+
+        //When threaded we will have a container for N items where N is # of simultaneous runs
+        std::shared_ptr<C> cache_;
+        std::mutex mutex_;
+      };
+
+      template<typename T, typename C> class EndLuminosityBlockSummaryProducer;
+
+      
+      template <typename T, typename C>
+      class LuminosityBlockSummaryCacheHolder : public virtual T {
+      public:
+        LuminosityBlockSummaryCacheHolder() = default;
+        LuminosityBlockSummaryCacheHolder( LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
+        LuminosityBlockSummaryCacheHolder<T,C>& operator=(LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
+        ~LuminosityBlockSummaryCacheHolder() noexcept(false) {};
+      private:
+        friend class EndLuminosityBlockSummaryProducer<T,C>;
+        
+        void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) override final {
+          cache_ = limitedBeginLuminosityBlockSummary(lb,c);
+        }
+
+        virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lb, EventSetup const& c) override final
+        {
+          std::lock_guard<std::mutex> guard(mutex_);
+          streamEndLuminosityBlockSummary(id,lb,c,cache_.get());
+        }
+        void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) override final {
+          limitedEndLuminosityBlockSummary(lb,c,cache_.get());
+        }
+
+        virtual std::shared_ptr<C> limitedBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        virtual void streamEndLuminosityBlockSummary(StreamID, edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
+        
+        virtual void limitedEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
+        
+        //When threaded we will have a container for N items where N is # of simultaneous Lumis
+        std::shared_ptr<C> cache_;
+        std::mutex mutex_;
+      };
+
+      
+      template <typename T>
+      class BeginRunProducer : public virtual T {
+      public:
+        BeginRunProducer() = default;
+        BeginRunProducer( BeginRunProducer const&) = delete;
+        BeginRunProducer& operator=(BeginRunProducer const&) = delete;
+        ~BeginRunProducer() noexcept(false) {};
+        
+      private:
+        void doBeginRunProduce_(Run& rp, EventSetup const& c) override final;
+        
+        virtual void limitedBeginRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
+      };
+      
+      template <typename T>
+      class EndRunProducer : public virtual T {
+      public:
+        EndRunProducer() = default;
+        EndRunProducer( EndRunProducer const&) = delete;
+        EndRunProducer& operator=(EndRunProducer const&) = delete;
+        ~EndRunProducer() noexcept(false) {};
+        
+      private:
+        
+        void doEndRunProduce_(Run& rp, EventSetup const& c) override final;
+        
+        virtual void limitedEndRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
+      };
+
+      template <typename T, typename C>
+      class EndRunSummaryProducer : public RunSummaryCacheHolder<T,C> {
+      public:
+        EndRunSummaryProducer() = default;
+        EndRunSummaryProducer( EndRunSummaryProducer const&) = delete;
+        EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
+        ~EndRunSummaryProducer() noexcept(false) {};
+        
+      private:
+        
+        void doEndRunProduce_(Run& rp, EventSetup const& c) override final {
+          limitedEndRunProduce(rp,c,RunSummaryCacheHolder<T,C>::cache_.get());
+        }
+        
+        virtual void limitedEndRunProduce(edm::Run&, edm::EventSetup const&, C const*) const = 0;
+      };
+
+      template <typename T>
+      class BeginLuminosityBlockProducer : public virtual T {
+      public:
+        BeginLuminosityBlockProducer() = default;
+        BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
+        BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
+        ~BeginLuminosityBlockProducer() noexcept(false) {};
+        
+      private:
+        void doBeginLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
+        virtual void limitedBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
+      };
+      
+      template <typename T>
+      class EndLuminosityBlockProducer : public virtual T {
+      public:
+        EndLuminosityBlockProducer() = default;
+        EndLuminosityBlockProducer( EndLuminosityBlockProducer const&) = delete;
+        EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
+        ~EndLuminosityBlockProducer() noexcept(false) {};
+        
+      private:
+        void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
+        virtual void limitedEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
+      };
+
+      template <typename T, typename S>
+      class EndLuminosityBlockSummaryProducer : public LuminosityBlockSummaryCacheHolder<T,S> {
+      public:
+        EndLuminosityBlockSummaryProducer() = default;
+        EndLuminosityBlockSummaryProducer( EndLuminosityBlockSummaryProducer const&) = delete;
+        EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) {};
+        
+      private:
+        void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final {
+          limitedEndLuminosityBlockProduce(lb,c,LuminosityBlockSummaryCacheHolder<T,S>::cache_.get());
+        }
+        
+        virtual void limitedEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+      };
+    }
+  }
+}
+
+
+#endif
