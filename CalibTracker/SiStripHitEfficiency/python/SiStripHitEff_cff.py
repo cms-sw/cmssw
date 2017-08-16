@@ -21,7 +21,7 @@ anEff = cms.EDAnalyzer("HitEff",
                        # do not cut on the total number of tracks
                        cutOnTracks = cms.untracked.bool(True),
                        # compatibility
-                       trackMultiplicity = cms.untracked.int(100)
+                       trackMultiplicity = cms.untracked.uint32(100)
                        )
 
 hiteff = cms.Sequence( anEff )
