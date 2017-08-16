@@ -87,6 +87,7 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  edm::EDGetTokenT<reco::PhotonCollection>      phoToken_;
 
   //objects to plot
   //add your own with corresponding switch
@@ -107,9 +108,11 @@ private:
   StringCutObjectSelector<reco::PFJet,true   >    htjetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
+  StringCutObjectSelector<reco::Photon,true>      phoSelection_;
   int njets_;
   int nelectrons_;
   int nmuons_;
+  int nphotons_;
 
 };
 
