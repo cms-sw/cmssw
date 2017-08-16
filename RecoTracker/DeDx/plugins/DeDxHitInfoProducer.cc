@@ -51,9 +51,8 @@ DeDxHitInfoProducer::~DeDxHitInfoProducer(){}
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxHitInfoProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
    if(useCalibration && calibGains.size()==0){
-      edm::ESHandle<TrackerGeometry> tkGeom;
-      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
 
       DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
@@ -120,36 +119,41 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float t
       auto const & clus = thit.firstClusterRef();
       if(!clus.isValid())return;
 
+
       if(clus.isPixel()){
           if(!usePixel) return;
 
-          auto& detUnit     = *(recHit->detUnit());
-          float pathLen     = detUnit.surface().bounds().thickness()/cosineAbs;
+          const auto * detUnit = recHit->detUnit();
+          if (detUnit == nullptr) detUnit = tkGeom->idToDet(thit.geographicalId());
+          float pathLen     = detUnit->surface().bounds().thickness()/cosineAbs;
           float chargeAbs   = clus.pixelCluster().charge();
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.pixelCluster() );
        }else if(clus.isStrip() && !thit.isMatched()){
           if(!useStrip) return;
 
-          auto& detUnit     = *(recHit->detUnit());
+          const auto * detUnit = recHit->detUnit();
+          if (detUnit == nullptr) detUnit = tkGeom->idToDet(thit.geographicalId());
           int   NSaturating = 0;
-          float pathLen     = detUnit.surface().bounds().thickness()/cosineAbs;
-          float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
+          float pathLen     = detUnit->surface().bounds().thickness()/cosineAbs;
+          float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, *detUnit, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.stripCluster() );
        }else if(clus.isStrip() && thit.isMatched()){
           if(!useStrip) return;
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
           if(!matchedHit)return;
 
-          auto& detUnitM     = *(matchedHit->monoHit().detUnit());
+          const auto * detUnitM = matchedHit->monoHit().detUnit();
+          if (detUnitM == nullptr) detUnitM = tkGeom->idToDet(matchedHit->monoHit().geographicalId());
           int   NSaturating = 0;
-          float pathLen     = detUnitM.surface().bounds().thickness()/cosineAbs;
-          float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
+          float pathLen     = detUnitM->surface().bounds().thickness()/cosineAbs;
+          float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, *detUnitM, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->monoHit().stripCluster() );
 
-          auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
+          const auto * detUnitS = matchedHit->stereoHit().detUnit();
+          if (detUnitS == nullptr) detUnitS = tkGeom->idToDet(matchedHit->stereoHit().geographicalId());
           NSaturating = 0;
-          pathLen     = detUnitS.surface().bounds().thickness()/cosineAbs;
-          chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
+          pathLen     = detUnitS->surface().bounds().thickness()/cosineAbs;
+          chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, *detUnitS, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->stereoHit().stripCluster() );          
        }
 }
