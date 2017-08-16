@@ -3,7 +3,7 @@
 // .L CalibSort.C+g
 //  CalibSort c1(fname, dirname, prefix, flag, mipCut);
 //  c1.Loop();
-//  findDuplicate(infile, outfile, mode debug)
+//  findDuplicate(infile, outfile, debug)
 //
 //        This will prepare a list of dupliate entries from combined
 //        data sets
@@ -25,8 +25,6 @@
 //                               information (created by CalibSort)
 //   outfile (std::string)     = name of the file containing the entry numbers
 //                               of duplicate events
-//   mode    (bool)            = algorithm type New=true/Old=false
-//                               (default = true)
 //   debug   (bool)            = true/false for getting or not debug printouts
 //                               (default = false)
 //////////////////////////////////////////////////////////////////////////////
@@ -336,12 +334,17 @@ void CalibSort::Loop() {
   }
   fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
 	  << " Prefix: " << prefix_ << "\n";
+  Int_t runLow(99999999), runHigh(0);
   Long64_t nbytes(0), nb(0), good(0);
   Long64_t nentries = fChain->GetEntriesFast();
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (t_Run > 200000 && t_Run < 800000) {
+      if (t_Run < runLow)  runLow  = t_Run;
+      if (t_Run > runHigh) runHigh = t_Run;
+    }
     double cut = (t_p > 20) ? 10.0 : 0.0;
     if ((flag_/10)%10 > 0) 
       std::cout << "Entry " << jentry << " p " << t_p << " Cuts " << t_qltyFlag
@@ -355,7 +358,8 @@ void CalibSort::Loop() {
   }
   fileout.close();
   std::cout << "Writes " << good << " events in the file events.txt from "
-	    << nentries << " entries" << std::endl;
+	    << nentries << " entries in run range " << runLow << ":"
+ 	    << runHigh << std::endl;
 }
 
 void readRecords(std::string fname, std::vector<record>& records, bool debug) {
@@ -385,51 +389,7 @@ void readRecords(std::string fname, std::vector<record>& records, bool debug) {
   }
 }
 
-void sortOld(std::vector<record>& records, bool debug) {
-  // First sort by run number
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if (records[d].run_ > records[d+1].run_) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
-  // Then sort by event number
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if ((records[d].run_ == records[d+1].run_) &&
-	  (records[d].event_ > records[d+1].event_)) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
-  // Finally by ieta
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if ((records[d].run_ == records[d+1].run_) &&
-	  (records[d].event_ == records[d+1].event_) &&
-	  (records[d].ieta_ > records[d+1].ieta_)) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
-  if (debug) {
-    for (unsigned int k=0; k<records.size(); ++k) {
-      std::cout << "[" << k << ":" << records[k].serial_ << ":" 
-		<< records[k].entry_ << "] " << records[k].run_ << ":" 
-		<< records[k].event_ << " " << records[k].ieta_ << " " 
-		<< records[k].p_ << std::endl;
-    }
-  }
-}
-
-void sortNew(std::vector<record>& records, bool debug) {
+void sort(std::vector<record>& records, bool debug) {
   // Use std::sort
   std::sort(records.begin(), records.end(), recordLess());
   if (debug) {
@@ -477,12 +437,10 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	    << " with p 40:60)" << std::endl;
 }
 
-void findDuplicate(std::string infile, std::string outfile, bool mode=true,
-		   bool debug=false) {
+void findDuplicate(std::string infile, std::string outfile, bool debug=false) {
 
   std::vector<record> records;
   readRecords(infile, records, debug);
-  if (mode) sortNew(records,debug);
-  else      sortOld(records, debug);
+  sort(records,debug);
   duplicate(outfile, records, debug);
 }
