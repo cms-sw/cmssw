@@ -21,7 +21,7 @@
 
 // #define DebugLog
 
-CaloSD::CaloSD(std::string iname, const DDCompactView & cpv,
+CaloSD::CaloSD(const std::string& iname, const DDCompactView & cpv,
         const SensitiveDetectorCatalog & clg,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 

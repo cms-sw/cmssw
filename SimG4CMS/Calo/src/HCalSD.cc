@@ -41,7 +41,7 @@
 //#define EDM_ML_DEBUG
 //#define plotDebug
 
-HCalSD::HCalSD(std::string name, const DDCompactView & cpv,
+HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
                const SensitiveDetectorCatalog & clg,
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,

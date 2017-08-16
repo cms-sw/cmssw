@@ -49,7 +49,7 @@ class CaloSD : public SensitiveCaloDetector,
 
 public:    
   
-  CaloSD(std::string aSDname, const DDCompactView & cpv,
+  CaloSD(const std::string& aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);

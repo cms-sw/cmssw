@@ -21,7 +21,7 @@ class DDCompactView;
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
-  explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
+  explicit SensitiveDetector(const std::string & iname, const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & ,
 			     edm::ParameterSet const & p);
   ~SensitiveDetector() override;
