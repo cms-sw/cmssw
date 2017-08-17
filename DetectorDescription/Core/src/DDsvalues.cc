@@ -2,7 +2,8 @@
 
 #include<iostream>
 
-void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =true */) {
+void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =true */)
+{
   if (target.empty()) {
     target = sv; 
     return;

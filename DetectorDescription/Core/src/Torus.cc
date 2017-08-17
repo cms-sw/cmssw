@@ -11,7 +11,6 @@
 
 using std::sqrt;
 
-
 DDI::Torus::Torus( double pRMin,
 		   double pRMax,
 		   double pRTor,

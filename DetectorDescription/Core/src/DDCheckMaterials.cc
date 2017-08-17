@@ -9,8 +9,8 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 namespace DDI {
-class Material;
-}  // namespace DDI
+  class Material;
+}
 
 // internal usage
 bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, int rlevel = 0)

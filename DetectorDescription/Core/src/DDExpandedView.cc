@@ -20,7 +20,7 @@ class DDPartSelection;
 */
 DDExpandedView::DDExpandedView( const DDCompactView & cpv )
   : walker_(0),
-    w2_(cpv.graph(),cpv.root()),
+    w2_( cpv.graph(), cpv.root()),
     trans_( DDTranslation()),
     rot_( DDRotationMatrix()),
     depth_( 0 ),

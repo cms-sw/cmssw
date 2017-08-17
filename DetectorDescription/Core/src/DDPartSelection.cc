@@ -29,10 +29,10 @@ struct DDSelLevelCollector
   }
 };
 
-
 void noNameSpace(char const * /*first*/, char const* /*last*/) {
   DDI::Singleton<DDSelLevelCollector>::instance().namespace_="";
 }
+
 /* Functor for the parser; it does not consume memory -
   pointers are only used to store references to memory
   managed elsewhere 
