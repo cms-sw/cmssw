@@ -5,9 +5,10 @@
  *
  * Note: Use the option USER_CXXFLAGS=-DEDM_ML_DEBUG with SCRAM in order to enable the debug messages
  *
- * March  9, 2017 : Initial version.
- * March 14, 2017 : Updated debug messages.
- *  July 27, 2017 : Removed extra loop initially inherited from GenParticleProducer. 
+ *  March  9, 2017 : Initial version.
+ *  March 14, 2017 : Updated debug messages.
+ *   July 27, 2017 : Removed extra loop initially inherited from GenParticleProducer. 
+ * August 17, 2017 : Replaced std::auto_ptr with std::unique_ptr. 
  *
  */
 
@@ -190,7 +191,7 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
 
    Handle<CrossingFrame<HepMCProduct> > cf;
    evt.getByToken(mixToken_,cf);
-   std::auto_ptr<MixCollection<HepMCProduct> > cfhepmcprod( new MixCollection<HepMCProduct>( cf.product() ) );
+   std::unique_ptr<MixCollection<HepMCProduct> > cfhepmcprod( new MixCollection<HepMCProduct>( cf.product() ) );
    npiles = cfhepmcprod->size();
 
    LogDebug("GenPUProtonProducer") << " Number of pile-up events : " << npiles << endl;
