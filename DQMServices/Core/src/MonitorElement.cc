@@ -201,9 +201,7 @@ MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag
 MonitorElement::MonitorElement(const MonitorElement &x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  std::lock(mutex_, x.mutex_);
-  std::lock_guard<LockType> lock1(mutex_, std::adopt_lock);
-  std::lock_guard<LockType> lock2(x.mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock(x.mutex_);
 
   if (x.object_)
     object_ = static_cast<TH1 *>(x.object_->Clone());
@@ -215,9 +213,7 @@ MonitorElement::MonitorElement(const MonitorElement &x)
 MonitorElement::MonitorElement(MonitorElement &&x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  std::lock(mutex_, x.mutex_);
-  std::lock_guard<LockType> lock1(mutex_, std::adopt_lock);
-  std::lock_guard<LockType> lock2(x.mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock(x.mutex_);
 
   object_ = x.object_;
   refvalue_ = x.refvalue_;
