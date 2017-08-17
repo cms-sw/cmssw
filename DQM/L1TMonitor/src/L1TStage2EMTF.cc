@@ -418,11 +418,11 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int cscid_offset = (sector - 1) * 9;
     
     int hist_index = 0;
-    hist_index = histIndexCSC.at( {station, ring} );
-    if (endcap > 0) hist_index = 19 - hist_index;
     if (ring == 4 && strip >= 128) strip -= 128;
     
     if (Hit->Is_CSC() == true) {
+      hist_index = histIndexCSC.at( {station, ring} );
+      if (endcap > 0) hist_index = 19 - hist_index;
       cscLCTBX->Fill(Hit->BX(), hist_index);
       if (Hit->Neighbor() == false) {
         cscLCTStrip[hist_index]->Fill(strip);
