@@ -150,8 +150,8 @@ void L1TStage2BMTF::analyze(const edm::Event & eve, const edm::EventSetup & eveS
             global_phi = 30-itMuon->hwPhi() + (itMuon->processor()-1)*30.;
           if(itMuon->hwPhi()*0.010902>30)
             global_phi = itMuon->hwPhi()-30 + (itMuon->processor()+1)*30.;*/
-      global_phi= itMuon->hwPhi() + itMuon->processor()*48.-15;
-      if (global_phi<0) global_phi=576+global_phi;
+          global_phi= itMuon->hwPhi() + itMuon->processor()*48.-15;
+          if (global_phi<0) global_phi=576+global_phi;
 
           bmtf_hwGlobalPhi->Fill(global_phi);
           bmtf_hwEta_hwGlobalPhi->Fill(itMuon->hwEta(), global_phi);
