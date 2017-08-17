@@ -33,7 +33,6 @@ protected:
       void getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const;
 
       std::string measurementTrackerLabel_;
-      const edm::ParameterSet& pset_;
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
       edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
       edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
@@ -46,6 +45,7 @@ protected:
       std::vector<edm::EDGetTokenT<DetIdCollection>>      theInactiveStripDetectorLabels;
 
       bool selfUpdateSkipClusters_;
+      bool switchOffPixelsIfEmpty_;
       bool isPhase2;
 };
 
