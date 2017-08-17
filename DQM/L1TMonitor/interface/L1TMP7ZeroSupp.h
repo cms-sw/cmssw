@@ -39,8 +39,8 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   void bookCapIdHistograms(DQMStore::IBooker&, const unsigned int&);
 
   // Add additional bins only before NBINLABELS
-  enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, NBINLABELS};
-  enum ratioBinlabels {REVTS=0, RBLKS, RBLKSFALSEPOS, RBLKSFALSENEG, RNBINLABELS};
+  enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, BXBLOCKS, ZSBXBLKSGOOD, ZSBXBLKSBAD, ZSBXBLKSBADFALSEPOS, ZSBXBLKSBADFALSENEG, NBINLABELS};
+  enum ratioBinlabels {REVTS=0, RBLKS, RBLKSFALSEPOS, RBLKSFALSENEG, RBXBLKS, RBXBLKSFALSEPOS, RBXBLKSFALSENEG, RNBINLABELS};
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken_;
   bool zsEnabled_;
@@ -54,7 +54,9 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   int amc13TrailerSize_;
   int amcHeaderSize_;
   int amcTrailerSize_;
+  int newZsFlagMask_;
   int zsFlagMask_;
+  int dataInvFlagMask_;
 
   int maxFedReadoutSize_;
 
