@@ -37,7 +37,8 @@ public:
 }
 
     void buildTrackInfo(const reco::Candidate * candidate ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
-        
+			TVector3 jetDir3(jetDir.x(),jetDir.y(),jetDir.z());
+
         // deal with PAT/AOD polymorphism to get track
         const reco::Track * track_ptr = nullptr;
         auto packed_candidate = dynamic_cast<const pat::PackedCandidate *>(candidate);
@@ -47,6 +48,33 @@ public:
         } else if (packed_candidate) {
           track_ptr = &(packed_candidate->pseudoTrack());
         }
+				if(!track_ptr) {
+					TVector3 trackMom3(
+						candidate->momentum().x(),
+						candidate->momentum().y(),
+						candidate->momentum().z()
+						);
+					trackMomentum_=candidate->p();
+					trackEta_= candidate->eta();
+					trackEtaRel_=reco::btau::etaRel(jetDir, candidate->momentum());
+					trackPtRel_=trackMom3.Perp(jetDir3);
+					trackPPar_=jetDir.Dot(candidate->momentum());
+					trackDeltaR_=reco::deltaR(candidate->momentum(), jetDir);
+					trackPtRatio_=trackMom3.Perp(jetDir3) / candidate->p();
+					trackPParRatio_=jetDir.Dot(candidate->momentum()) / candidate->p();
+					trackSip2dVal_=0.;
+
+					trackSip2dSig_=0.;
+					trackSip3dVal_=0.;
+
+
+					trackSip3dSig_=0.;
+					trackJetDistVal_=0.;
+					trackJetDistSig_=0.;
+					//std::cout << "best track " << pf_candidate->bestTrack() << " track ref: " << pf_candidate->trackRef().isNonnull() << std::endl;
+					return;
+					//throw cms::Exception("BadPointer") << "I found a bad pointer";
+				}
 
         reco::TransientTrack transientTrack;
         transientTrack=builder->build(*track_ptr);
@@ -56,8 +84,6 @@ public:
         math::XYZVector trackMom = track_ptr->momentum();
         double trackMag = std::sqrt(trackMom.Mag2());
         TVector3 trackMom3(trackMom.x(),trackMom.y(),trackMom.z());
-        TVector3 jetDir3(jetDir.x(),jetDir.y(),jetDir.z());
-
 
         trackMomentum_=std::sqrt(trackMom.Mag2());
         trackEta_= trackMom.Eta();

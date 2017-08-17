@@ -269,7 +269,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         int pvi=-1;
         float dist=1e99;
         for(size_t ii=0;ii<vtxs->size();ii++){
-          float dz=std::abs(ctrack->dz(((*vtxs)[ii]).position()));
+          float dz = (ctrack) ? std::abs(ctrack->dz(((*vtxs)[ii]).position())) : 0;
           if(dz<dist) {pvi=ii;dist=dz; }
         }
         auto PV = reco::VertexRef(vtxs, pvi);

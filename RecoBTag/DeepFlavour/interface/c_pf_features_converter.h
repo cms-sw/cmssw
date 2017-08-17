@@ -187,7 +187,7 @@ namespace deep {
 
             c_pf_features.puppiw = puppiw;
 
-            const auto & pseudo_track =  *c_pf->bestTrack();
+            const auto & pseudo_track =  (c_pf->bestTrack()) ? *c_pf->bestTrack() : reco::Track();
             auto cov_matrix = pseudo_track.covariance();
 
             c_pf_features.dptdpt =    deep::catch_infs_and_bound(cov_matrix[0][0],0,-1,1);
