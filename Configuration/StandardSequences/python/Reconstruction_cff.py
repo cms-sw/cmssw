@@ -131,6 +131,11 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 # "Export" Section
 reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
+#logErrorHarvester should only wait for items produced in the reconstruction sequence
+_modulesInReconstruction = list()
+reconstruction.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
+logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
+
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 
 #need a fully expanded sequence copy
