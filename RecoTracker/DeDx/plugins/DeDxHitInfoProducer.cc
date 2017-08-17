@@ -77,8 +77,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
   std::vector<int> indices; std::vector<int> prescales;
-  unsigned int lowPtTracksCountPass = lowPtTracksPrescalePass > 1 ? ((iEvent.id().event() + iEvent.id().luminosityBlock()) % lowPtTracksPrescalePass) : 0;
-  unsigned int lowPtTracksCountFail = lowPtTracksPrescaleFail > 1 ? ((iEvent.id().event() + iEvent.id().luminosityBlock()) % lowPtTracksPrescaleFail) : 0;
+  uint64_t state[2] = { iEvent.id().event(), iEvent.id().luminosityBlock() };
   for(unsigned int j=0;j<trackCollection.size();j++){            
      const reco::Track& track = trackCollection[j];
 
@@ -86,12 +85,10 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
      bool passPt = (track.pt() >= minTrackPt), passLowDeDx = false, passHighDeDx = false, pass = passPt;
      if (!pass && (track.pt() >= minTrackPtPrescale)) {
         if (lowPtTracksPrescalePass > 0) {
-            passHighDeDx = (lowPtTracksCountPass++ == 0);
-            if (lowPtTracksCountPass == lowPtTracksPrescalePass) lowPtTracksCountPass = 0;
+            passHighDeDx = ((xorshift128p(state) % lowPtTracksPrescalePass) == 0);
         } 
         if (lowPtTracksPrescaleFail > 0) {
-            passLowDeDx = (lowPtTracksCountFail++ == 0);
-            if (lowPtTracksCountFail == lowPtTracksPrescaleFail) lowPtTracksCountFail = 0;
+            passLowDeDx = ((xorshift128p(state) % lowPtTracksPrescaleFail) == 0);
         }
         pass = passHighDeDx || passLowDeDx;
      }

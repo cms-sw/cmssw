@@ -69,6 +69,15 @@ private:
   unsigned int m_off;
 
   edm::ESHandle<TrackerGeometry> tkGeom;
+
+  uint64_t xorshift128p(uint64_t state[2]) {
+      uint64_t x = state[0];
+      uint64_t const y = state[1];
+      state[0] = y;
+      x ^= x << 23; // a
+      state[1] = x ^ y ^ (x >> 17) ^ (y >> 26); // b, c
+      return state[1] + y;
+  }
 };
 
 #endif
