@@ -33,6 +33,9 @@ public:
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
   void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
   { 
+    toa = ( toa > kToAMask ? kToAMask : toa );
+    data = ( data > kDataMask ? kDataMask : data);
+
     value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
                ( (uint32_t)mode & kModeMask   ) << kModeShift   |
                ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
