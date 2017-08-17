@@ -153,7 +153,7 @@ bool HLTDisplacedmumumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
 	    if(tkRef == vertextkRef3) {cand3 = cand; iFoundRefs++;}
 	  }
-	  if(iFoundRefs != 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl;
+	  if(iFoundRefs < 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the muons matched with the Jpsi vertex tracks should be at least three by definition."  << std::endl;
 
           // calculate two-track transverse momentum
           math::XYZVector pperp(cand1->px() + cand2->px() + cand3->px(),
@@ -161,7 +161,7 @@ bool HLTDisplacedmumumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
         			  0.);
 
 
-	  reco::Vertex::Point vpoint=displacedVertex.position();
+	  const reco::Vertex::Point& vpoint=displacedVertex.position();
 	  //translate to global point, should be improved
 	  GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
 
