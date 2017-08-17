@@ -160,9 +160,9 @@ namespace edm {
       value_() {
     }
 
-    virtual ~ParameterDescription() { }
+    ~ParameterDescription() override { }
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new ParameterDescription(*this);
     }
 
@@ -170,28 +170,28 @@ namespace edm {
 
   private:
 
-    virtual bool exists_(ParameterSet const& pset) const {
+    bool exists_(ParameterSet const& pset) const override {
       return pset.existsAs<T>(label(), isTracked());
     }
 
-    virtual bool hasNestedContent_() const {
+    bool hasNestedContent_() const override {
       if (!hasDefault()) return false;
       return writeParameterValue::hasNestedContent(value_);
     }
 
-    virtual void writeCfi_(std::ostream& os, int indentation) const {
+    void writeCfi_(std::ostream& os, int indentation) const override {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::CFI);
     }
 
-    virtual void writeDoc_(std::ostream& os, int indentation) const {
+    void writeDoc_(std::ostream& os, int indentation) const override {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::DOC);
     }
 
-    virtual bool exists_(ParameterSet const& pset, bool isTracked) const {
+    bool exists_(ParameterSet const& pset, bool isTracked) const override {
       return pset.existsAs<T>(label(), isTracked);
     }
 
-    virtual void insertDefault_(ParameterSet& pset) const {
+    void insertDefault_(ParameterSet& pset) const override {
       if (isTracked()) {
         pset.addParameter(label(), value_);
       }
@@ -218,40 +218,40 @@ namespace edm {
                          bool isTracked,
                          Comment const& iComment = Comment());
 
-    virtual ~ParameterDescription();
+    ~ParameterDescription() override;
 
-    virtual ParameterSetDescription const* parameterSetDescription() const;
-    virtual ParameterSetDescription * parameterSetDescription();
+    ParameterSetDescription const* parameterSetDescription() const override;
+    ParameterSetDescription * parameterSetDescription() override;
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new ParameterDescription(*this);
     }
 
   private:
 
-    virtual void validate_(ParameterSet& pset,
-                           std::set<std::string>& validatedLabels,
-                           bool optional) const;
+    void validate_(ParameterSet& pset,
+                   std::set<std::string>& validatedLabels,
+                   bool optional) const override;
 
-    virtual void printDefault_(std::ostream& os,
-                                 bool writeToCfi,
-                                 DocFormatHelper& dfh) const;
+    void printDefault_(std::ostream& os,
+                       bool writeToCfi,
+                       DocFormatHelper& dfh) const override;
 
-    virtual bool hasNestedContent_() const;
+    bool hasNestedContent_() const override;
 
-    virtual void printNestedContent_(std::ostream& os,
-                                     bool optional,
-                                     DocFormatHelper& dfh) const;
+    void printNestedContent_(std::ostream& os,
+                             bool optional,
+                             DocFormatHelper& dfh) const override;
 
-    virtual bool exists_(ParameterSet const& pset) const;
+    bool exists_(ParameterSet const& pset) const override;
 
-    virtual void writeCfi_(std::ostream& os, int indentation) const;
+    void writeCfi_(std::ostream& os, int indentation) const override;
 
-    virtual void writeDoc_(std::ostream& os, int indentation) const;
+    void writeDoc_(std::ostream& os, int indentation) const override;
 
-    virtual bool exists_(ParameterSet const& pset, bool isTracked) const;
+    bool exists_(ParameterSet const& pset, bool isTracked) const override;
 
-    virtual void insertDefault_(ParameterSet& pset) const;
+    void insertDefault_(ParameterSet& pset) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
@@ -283,12 +283,12 @@ namespace edm {
                          bool isTracked,
                          Comment const& iComment = Comment());
 
-    virtual ~ParameterDescription();
+    ~ParameterDescription() override;
 
-    virtual ParameterSetDescription const* parameterSetDescription() const;
-    virtual ParameterSetDescription * parameterSetDescription();
+    ParameterSetDescription const* parameterSetDescription() const override;
+    ParameterSetDescription * parameterSetDescription() override;
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new ParameterDescription(*this);
     }
 
@@ -296,29 +296,29 @@ namespace edm {
 
   private:
 
-    virtual void validate_(ParameterSet& pset,
-                           std::set<std::string>& validatedLabels,
-                           bool optional) const;
+    void validate_(ParameterSet& pset,
+                   std::set<std::string>& validatedLabels,
+                   bool optional) const override;
 
-    virtual void printDefault_(std::ostream& os,
-                               bool writeToCfi,
-                               DocFormatHelper& dfh) const;
+    void printDefault_(std::ostream& os,
+                       bool writeToCfi,
+                       DocFormatHelper& dfh) const override;
 
-    virtual bool hasNestedContent_() const;
+    bool hasNestedContent_() const override;
 
-    virtual void printNestedContent_(std::ostream& os,
-                                     bool optional,
-                                     DocFormatHelper& dfh) const;
+    void printNestedContent_(std::ostream& os,
+                             bool optional,
+                             DocFormatHelper& dfh) const override;
 
-    virtual bool exists_(ParameterSet const& pset) const;
+    bool exists_(ParameterSet const& pset) const override;
 
-    virtual void writeCfi_(std::ostream& os, int indentation) const;
+    void writeCfi_(std::ostream& os, int indentation) const override;
 
-    virtual void writeDoc_(std::ostream& os, int indentation) const;
+    void writeDoc_(std::ostream& os, int indentation) const override;
 
-    virtual bool exists_(ParameterSet const& pset, bool isTracked) const;
+    bool exists_(ParameterSet const& pset, bool isTracked) const override;
 
-    virtual void insertDefault_(ParameterSet& pset) const;
+    void insertDefault_(ParameterSet& pset) const override;
 
     static void writeOneElementToCfi(ParameterSet const& pset,
                                      std::ostream& os,
