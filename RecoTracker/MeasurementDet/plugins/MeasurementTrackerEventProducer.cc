@@ -2,6 +2,8 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -19,8 +21,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
     std::vector<edm::InputTag> inactivePixelDetectorTags(iConfig.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels"));
     for (auto &t : inactivePixelDetectorTags) theInactivePixelDetectorLabels.push_back(consumes<DetIdCollection>(t));
 
-    if ( iConfig.exists("badPixelFEDChannelCollectionLabels") ) {
-      std::vector<edm::InputTag> badPixelFEDChannelCollectionTags(iConfig.getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollectionLabels"));
+    std::vector<edm::InputTag> badPixelFEDChannelCollectionTags = iConfig.getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollectionLabels");
+    if (!badPixelFEDChannelCollectionTags.empty()) {
       for (auto &t : badPixelFEDChannelCollectionTags) theBadPixelFEDChannelsLabels.push_back(consumes<PixelFEDChannelCollection>(t));
       pixelCablingMapLabel_ = iConfig.getParameter<std::string> ("pixelCablingMapLabel");
     }
@@ -29,12 +31,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
     for (auto &t : inactiveStripDetectorTags) theInactiveStripDetectorLabels.push_back(consumes<DetIdCollection>(t));
 
     //the measurement tracking is set to skip clusters, the other option is set from outside
-    selfUpdateSkipClusters_=iConfig.exists("skipClusters");
-    if (selfUpdateSkipClusters_)
-    {
-        edm::InputTag skip=iConfig.getParameter<edm::InputTag>("skipClusters");
-        if (skip==edm::InputTag("")) selfUpdateSkipClusters_=false;
-    }
+    edm::InputTag skip=iConfig.getParameter<edm::InputTag>("skipClusters");
+    selfUpdateSkipClusters_ = !( skip==edm::InputTag("") );
     LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
     isPhase2 = false;
 
@@ -46,13 +44,34 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         thePixelClusterLabel = consumes<edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag(pset_.getParameter<std::string>("pixelClusterProducer")));
         if (selfUpdateSkipClusters_) thePixelClusterMask = consumes<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>>(iConfig.getParameter<edm::InputTag>("skipClusters"));
     }
-    if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
+    if (pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer") != "") {
         thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
         isPhase2 = true;
     }
 
     produces<MeasurementTrackerEvent>();
 }
+
+void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("measurementTracker", "");
+  desc.add<edm::InputTag>("skipClusters", edm::InputTag());
+  desc.add<std::string>("pixelClusterProducer", "siPixelClusters");
+  desc.add<std::string>("stripClusterProducer", "siStripClusters");
+  desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
+
+  desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels", std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
+  desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels", std::vector<edm::InputTag>())->setComment("One or more PixelFEDChannelCollections of modules+ROCs to mask on the fly for a given event");
+  desc.add<std::string>("pixelCablingMapLabel", "");
+
+  desc.add<std::vector<edm::InputTag>>("inactiveStripDetectorLabels", std::vector<edm::InputTag>{{edm::InputTag("siStripDigis")}})->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
+
+  desc.add<bool>("switchOffPixelsIfEmpty", true)->setComment("let's keep it like this, for cosmics");
+
+  descriptions.add("measurementTrackerEventDefault",desc);
+}
+
 
 void
 MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSetup& iSetup)
