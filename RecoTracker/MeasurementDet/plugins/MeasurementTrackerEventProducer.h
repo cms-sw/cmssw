@@ -17,6 +17,8 @@ class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDP
 public:
       explicit MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MeasurementTrackerEventProducer() override {}
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 private:
       void produce(edm::Event&, const edm::EventSetup&) override;
 
