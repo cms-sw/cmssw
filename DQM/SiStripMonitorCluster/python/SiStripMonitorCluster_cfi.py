@@ -25,13 +25,13 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     StripDCSfilter = cms.PSet(),
 
     CreateTrendMEs = cms.bool(False),
-    TrendVsLS = cms.bool(False),
+    TrendVsLS = cms.bool(True),
 
     Trending = cms.PSet(
         Nbins = cms.int32(600),
         xmin = cms.double(0.0),
         xmax = cms.double(3600.),
-        xaxis = cms.string('Event Time in Seconds')
+        xaxis = cms.string('Event Time in LS')
     ),
 
     TrendingLS = cms.PSet(
