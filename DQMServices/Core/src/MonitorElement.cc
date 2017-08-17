@@ -68,7 +68,7 @@ MonitorElement *
 MonitorElement::initialise(Kind kind, TH1 *rootobj)
 {
   initialise(kind);
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   switch (kind)
   {
   case DQM_KIND_TH1F:
@@ -202,8 +202,8 @@ MonitorElement::MonitorElement(const MonitorElement &x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
   std::lock(mutex_, x.mutex_);
-  std::lock_guard<std::recursive_mutex> lock1(mutex_, std::adopt_lock);
-  std::lock_guard<std::recursive_mutex> lock2(x.mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock1(mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock2(x.mutex_, std::adopt_lock);
 
   if (x.object_)
     object_ = static_cast<TH1 *>(x.object_->Clone());
@@ -216,8 +216,8 @@ MonitorElement::MonitorElement(MonitorElement &&x)
   : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
   std::lock(mutex_, x.mutex_);
-  std::lock_guard<std::recursive_mutex> lock1(mutex_, std::adopt_lock);
-  std::lock_guard<std::recursive_mutex> lock2(x.mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock1(mutex_, std::adopt_lock);
+  std::lock_guard<LockType> lock2(x.mutex_, std::adopt_lock);
 
   object_ = x.object_;
   refvalue_ = x.refvalue_;
@@ -240,7 +240,7 @@ MonitorElement::CheckBinLabels(const TAxis* a1, const TAxis * a2)
   // check that axis have same labels
   THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
   THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
-  
+
   if (!l1 && !l2 )
     return true;
   if (!l1 ||  !l2 ) {
@@ -275,7 +275,7 @@ MonitorElement::Fill(std::string &value)
 void
 MonitorElement::Fill(double x)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   update();
   if (kind() == DQM_KIND_INT)
     scalar_.num = static_cast<int64_t>(x);
@@ -298,7 +298,7 @@ MonitorElement::Fill(double x)
 void
 MonitorElement::doFill(int64_t x)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   update();
   if (kind() == DQM_KIND_INT)
     scalar_.num = static_cast<int64_t>(x);
@@ -321,7 +321,7 @@ MonitorElement::doFill(int64_t x)
 void
 MonitorElement::Fill(double x, double yw)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   update();
   if (kind() == DQM_KIND_TH1F)
     accessRootObject(__PRETTY_FUNCTION__, 1)
@@ -354,7 +354,7 @@ MonitorElement::Fill(double x, double yw)
 void
 MonitorElement::ShiftFillLast(double y, double ye, int xscale)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   update();
   if (kind() == DQM_KIND_TH1F
       || kind() == DQM_KIND_TH1S
@@ -1035,7 +1035,7 @@ MonitorElement::getAxis(const char *func, int axis) const
 void
 MonitorElement::softReset(void)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
   update();
 
   // Create the reference object the first time this is called.
@@ -1176,7 +1176,7 @@ MonitorElement::softReset(void)
 void
 MonitorElement::disableSoftReset(void)
 {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::lock_guard<LockType> lock(mutex_);
 
   if (refvalue_)
   {

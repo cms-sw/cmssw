@@ -3,46 +3,15 @@
 
 #include <memory>
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 namespace detail {
-
-  class lock_base
-  {
-  public:
-    lock_base() = default;
-    virtual ~lock_base() = default;
-
-    virtual void lock() const = 0;
-    virtual void unlock() const = 0;
-  };
-
-  template <typename L>
-  class lock_impl : public lock_base
-  {
-  public:
-    lock_impl<L>(L & lock) :
-      lock_(lock)
-    { }
-
-    void lock() const final
-    {
-      lock_.lock();
-    }
-
-    void unlock() const final
-    {
-      lock_.unlock();
-    }
-
-  private:
-    L & lock_;
-  };
-
 
   template <typename T>
   class locking_ptr_impl
   {
   public:
-    locking_ptr_impl<T>(T * object, lock_base * lock) :
+    locking_ptr_impl<T>(T * object, MonitorElement::LockType * lock) :
       object_(object),
       lock_(lock)
     {
@@ -64,7 +33,7 @@ namespace detail {
 
   protected:
     T * object_;
-    lock_base * lock_;
+    MonitorElement::LockType * lock_;
   };
 
 } // detail
@@ -75,13 +44,12 @@ class locking_ptr
 public:
   locking_ptr<T>() :
     object_(nullptr),
-    lock_()
+    lock_(nullptr)
   { }
 
-  template <typename L>
-  locking_ptr<T>(T * object, L & lock) :
+  locking_ptr<T>(T * object, MonitorElement::LockType * lock) :
     object_(object),
-    lock_(std::make_shared<detail::lock_impl<L>>(lock))
+    lock_(lock)
   { }
 
   locking_ptr<T>(locking_ptr<T> const& other) :
@@ -99,20 +67,24 @@ public:
   { }
 
   detail::locking_ptr_impl<T> operator->() {
-    return detail::locking_ptr_impl<T>(object_, lock_.get());
+    return detail::locking_ptr_impl<T>(object_, lock_);
   }
 
   detail::locking_ptr_impl<const T> operator->() const {
-    return detail::locking_ptr_impl<const T>(object_, lock_.get());
+    return detail::locking_ptr_impl<const T>(object_, lock_);
   }
 
   explicit operator bool() const noexcept {
     return (object_ != nullptr);
   }
 
+  MonitorElement::LockType * mutex() const {
+    return * lock_;
+  }
+
 protected:
   T * object_;
-  std::shared_ptr<detail::lock_base> lock_;
+  MonitorElement::LockType * lock_;
 
 private:
   template <typename U>
@@ -120,16 +92,28 @@ private:
 };
 
 
-template <typename T, typename L>
-locking_ptr<T> make_locking(T * object, L & lock)
+template <typename T>
+locking_ptr<T> make_locking(T * object, MonitorElement::LockType * lock)
 {
   return locking_ptr<T>(object, lock);
 }
 
-template <typename T, typename L>
-const locking_ptr<const T> make_locking(const T * object, L & lock)
+template <typename T>
+const locking_ptr<const T> make_locking(const T * object, MonitorElement::LockType * lock)
 {
   return locking_ptr<const T>(object, lock);
+}
+
+template <typename T>
+locking_ptr<T> make_locking(T * object, MonitorElement::LockType & lock)
+{
+  return locking_ptr<T>(object, & lock);
+}
+
+template <typename T>
+const locking_ptr<const T> make_locking(const T * object, MonitorElement::LockType & lock)
+{
+  return locking_ptr<const T>(object, & lock);
 }
 
 

@@ -25,13 +25,15 @@
 # include <stdint.h>
 
 #include <mutex>
-#include "locking_ptr.h"
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1
 # endif
 
 class QCriterion;
+
+template <typename T>
+class locking_ptr;
 
 // tag for a special constructor, see below
 struct MonitorElementNoCloneTag {};
@@ -68,6 +70,8 @@ public:
 
   typedef std::vector<QReport>::const_iterator QReportIterator;
 
+  typedef std::recursive_mutex  LockType;
+
 private:
   DQMNet::CoreObject    data_;       //< Core object information.
   Scalar                scalar_;     //< Current scalar value.
@@ -77,7 +81,7 @@ private:
   std::vector<QReport>  qreports_;   //< QReports associated to this object.
 
   mutable
-  std::recursive_mutex  mutex_;      //< Avoid concurrent access to the underlying ROOT objects.
+  LockType              mutex_;      //< Avoid concurrent access to the underlying ROOT objects.
 
   MonitorElement *initialise(Kind kind);
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
@@ -399,5 +403,7 @@ public:
   const uint32_t streamId(void) const {return data_.streamId;}
   const uint32_t moduleId(void) const {return data_.moduleId;}
 };
+
+#include "locking_ptr.h"
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
