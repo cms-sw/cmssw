@@ -52,6 +52,15 @@ def customiseEarlyDelete(process):
             branchSet.add(branch)
     process.options.canDeleteEarly.extend(list(branchSet))
 
+    # LogErrorHarvester should not wait for deleted items
+    for prod in process.producers_().itervalues():
+        if prod.type_() == "LogErrorHarvester":
+            if not hasattr(prod,'excludeModules'):
+                prod.excludeModules = cms.untracked.vstring()
+            t = prod.excludeModules.value()
+            t.extend([b.split('_')[1] for b in branchSet])
+            prod.excludeModules = t
+
     # Find the consumers
     producers=[]
     branchesList=[]
