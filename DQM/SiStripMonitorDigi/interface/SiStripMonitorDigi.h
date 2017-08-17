@@ -208,6 +208,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   bool shotschargehistomapon;
   
   bool createTrendMEs;
+  bool m_trendVsLS;
 
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;

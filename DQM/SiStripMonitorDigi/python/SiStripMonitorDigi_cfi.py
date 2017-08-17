@@ -136,6 +136,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     TkHistoMapMedianChargeApvShots_On = cms.bool(False),
 
     CreateTrendMEs = cms.bool(False),
+    TrendVsLS = cms.bool(True),
                                     
     Trending = cms.PSet(
         Nbins = cms.int32(600),
