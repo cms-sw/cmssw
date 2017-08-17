@@ -50,14 +50,17 @@ operator<<(std::ostream & os, const DDSolid & solid)
   return os;
 }
 
-DDSolid::DDSolid() : DDBase<DDName,Solid*>() { }
+DDSolid::DDSolid()
+  : DDBase<DDName,Solid*>() { }
 
-DDSolid::DDSolid( const DDName & n ) : DDBase<DDName,Solid*>()
+DDSolid::DDSolid( const DDName & n )
+  : DDBase<DDName,Solid*>()
 {
   prep_ = StoreT::instance().create(n);
 }
 
-DDSolid::DDSolid(const DDName & n, Solid * s) : DDBase<DDName,Solid*>()
+DDSolid::DDSolid(const DDName & n, Solid * s)
+  : DDBase<DDName,Solid*>()
 {
   prep_ = StoreT::instance().create(n,s);
 }

@@ -14,6 +14,7 @@ void
 DD_NC( const DDName & n )
 {
   auto & ns = LPNAMES::instance()[n.name()];
+
   bool alreadyIn( false );
   for( const auto& p : ns )
   {

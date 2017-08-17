@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Specific.h"
 
-#include <assert.h>
+#include <cassert>
 #include <ext/alloc_traits.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDBase.h"
@@ -19,19 +19,19 @@ namespace DDI {
    Specific::Specific(const std::vector<std::string>& selections,
                       const DDsvalues_type & specs,
                       bool doRegex)
-   : specifics_(specs), 
-   partSelections_(0), 
-   valid_(false),
-   doRegex_(doRegex)			
+     : specifics_(specs), 
+       partSelections_(0), 
+       valid_(false),
+       doRegex_(doRegex)			
    {
-      for( const auto& it : selections ) {
-         createPartSelections( it );
-      }
+     for( const auto& it : selections ) {
+       createPartSelections( it );
+     }
    }
    
    Specific::Specific(const std::vector<DDPartSelection> & selections,
                       const DDsvalues_type & specs)
-   : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
+     : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
    { }		   
    
    void Specific::createPartSelections(const std::string & selString)
@@ -40,7 +40,10 @@ namespace DDI {
       std::vector<DDPartSelection> temp;
       DDTokenize2(selString,regv);
       
-      if (regv.empty()) throw cms::Exception("DDException") << "Could not evaluate the selection-std::string ->" << selString << "<-";
+      if (regv.empty()) throw cms::Exception("DDException")
+			  << "Could not evaluate the selection-std::string ->"
+			  << selString << "<-";
+      
       std::pair<bool,std::string> res;
       for( const auto& it : regv ) {
          std::vector<DDLogicalPart> lpv;

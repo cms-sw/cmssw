@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <iterator>
 #include <string>
 #include <utility>
