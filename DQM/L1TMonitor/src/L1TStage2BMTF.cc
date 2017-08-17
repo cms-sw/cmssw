@@ -126,36 +126,36 @@ void L1TStage2BMTF::analyze(const edm::Event & eve, const edm::EventSetup & eveS
   for(int itBX=bmtfMuon->getFirstBX(); itBX<=bmtfMuon->getLastBX(); ++itBX)
     {
       for(l1t::RegionalMuonCandBxCollection::const_iterator itMuon = bmtfMuon->begin(itBX); itMuon != bmtfMuon->end(itBX); ++itMuon)
-	{  
+        {  
 
-	  bmtf_hwEta->Fill(itMuon->hwEta());
-	  bmtf_hwLocalPhi->Fill(itMuon->hwPhi());
-	  bmtf_hwPt->Fill(itMuon->hwPt());
-	  bmtf_hwQual->Fill(itMuon->hwQual());
-	  bmtf_proc->Fill(itMuon->processor());
+          bmtf_hwEta->Fill(itMuon->hwEta());
+          bmtf_hwLocalPhi->Fill(itMuon->hwPhi());
+          bmtf_hwPt->Fill(itMuon->hwPt());
+          bmtf_hwQual->Fill(itMuon->hwQual());
+          bmtf_proc->Fill(itMuon->processor());
           if (fabs(bmtfMuon->getLastBX()-bmtfMuon->getFirstBX())>3){
             bmtf_wedge_bx->Fill(itMuon->processor(), itBX);  
-	    bmtf_hwEta_bx->Fill(itMuon->hwEta(), itBX);  
-	    bmtf_hwLocalPhi_bx->Fill(itMuon->hwPhi(), itBX);  
-	    bmtf_hwPt_bx->Fill(itMuon->hwPt(), itBX);   
-	    bmtf_hwQual_bx->Fill(itMuon->hwQual(), itBX);}
+            bmtf_hwEta_bx->Fill(itMuon->hwEta(), itBX);  
+            bmtf_hwLocalPhi_bx->Fill(itMuon->hwPhi(), itBX);  
+            bmtf_hwPt_bx->Fill(itMuon->hwPt(), itBX);   
+            bmtf_hwQual_bx->Fill(itMuon->hwQual(), itBX);}
  
-	  bmtf_hwEta_hwLocalPhi->Fill(itMuon->hwEta(),itMuon->hwPhi());
-	  bmtf_hwPt_hwEta->Fill(itMuon->hwPt(), itMuon->hwEta());
-	  bmtf_hwPt_hwLocalPhi->Fill(itMuon->hwPt(), itMuon->hwPhi());
+          bmtf_hwEta_hwLocalPhi->Fill(itMuon->hwEta(),itMuon->hwPhi());
+          bmtf_hwPt_hwEta->Fill(itMuon->hwPt(), itMuon->hwEta());
+          bmtf_hwPt_hwLocalPhi->Fill(itMuon->hwPt(), itMuon->hwPhi());
  
         /*if(itMuon->hwPhi()*0.010902>=0 && itMuon->hwPhi()*0.010902<=30)
-	    global_phi = itMuon->hwPhi() + itMuon->processor()*30.;
-	  if(itMuon->hwPhi()*0.010902<0)
-	    global_phi = 30-itMuon->hwPhi() + (itMuon->processor()-1)*30.;
-	  if(itMuon->hwPhi()*0.010902>30)
-	    global_phi = itMuon->hwPhi()-30 + (itMuon->processor()+1)*30.;*/
-	  global_phi= itMuon->hwPhi() + itMuon->processor()*48.-15;
-          if (global_phi<0) global_phi=576+global_phi;
+            global_phi = itMuon->hwPhi() + itMuon->processor()*30.;
+          if(itMuon->hwPhi()*0.010902<0)
+            global_phi = 30-itMuon->hwPhi() + (itMuon->processor()-1)*30.;
+          if(itMuon->hwPhi()*0.010902>30)
+            global_phi = itMuon->hwPhi()-30 + (itMuon->processor()+1)*30.;*/
+      global_phi= itMuon->hwPhi() + itMuon->processor()*48.-15;
+      if (global_phi<0) global_phi=576+global_phi;
 
-    	  bmtf_hwGlobalPhi->Fill(global_phi);
-	  bmtf_hwEta_hwGlobalPhi->Fill(itMuon->hwEta(), global_phi);
-	}
+          bmtf_hwGlobalPhi->Fill(global_phi);
+          bmtf_hwEta_hwGlobalPhi->Fill(itMuon->hwEta(), global_phi);
+        }
     }
 
       // for(L1MuDTChambThContainer::The_Container::const_iterator itMuon = bmtfMuonTwinMux1->getContainer()->begin(); itMuon != bmtfMuonTwinMux1->getContainer()->end(); ++itMuon)
