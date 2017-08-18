@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Polycone.h" 
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"

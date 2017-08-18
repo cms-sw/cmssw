@@ -19,8 +19,8 @@ class DDPartSelection;
    After construction the instance corresponds to the root of the geometrical tree.
 */
 DDExpandedView::DDExpandedView( const DDCompactView & cpv )
-  : walker_(0),
-    w2_(cpv.graph(),cpv.root()),
+  : walker_(nullptr),
+    w2_( cpv.graph(), cpv.root()),
     trans_( DDTranslation()),
     rot_( DDRotationMatrix()),
     depth_( 0 ),
