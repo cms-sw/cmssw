@@ -367,14 +367,13 @@ G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
   G4MultiUnion* munion = new G4MultiUnion( G4String( solid.name().name()));
   DDMultiUnionSolid ms( solid );
   std::vector<DDSolid> solids = ms.solids();
-  // FIXME: need to use G4GEOM_USE_USOLIDS
   if( ms ) {
     for( auto i : solids ) {
       G4VSolid* gs = DDG4SolidConverter().convert( solids[i]);
       G4RotationMatrix rotm = G4RotationMatrix();
       G4ThreeVector position1 = G4ThreeVector( 0., 0., 1. );
       G4Transform3D tr1 = G4Transform3D( rotm, position1 );
-      munion->AddNode( gs, tr1 );
+      munion->AddNode( *gs, tr1 );
     }
   }
   return munion;
