@@ -122,6 +122,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
         virtual void bookControlHistos(DQMStore::IBooker &);
         virtual void bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut);
+        virtual void bookResolutionHistos(DQMStore::IBooker &ibooker);
         virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
        //virtual void analyze (const edm::Event& e, const edm::EventSetup& c);
 
@@ -146,6 +147,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         // histos
         std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;
+        std::map<std::string, MonitorElement*> m_ResolutionHistos;        
         std::map<std::string, MonitorElement*> m_ControlHistos;
 
         // helper variables
