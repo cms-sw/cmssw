@@ -24,19 +24,19 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
  public:
 
   L1TMP7ZeroSupp(const edm::ParameterSet& ps);
-  virtual ~L1TMP7ZeroSupp();
+  ~L1TMP7ZeroSupp() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 
-  void bookCapIdHistograms(DQMStore::IBooker&, const unsigned int&);
+  void bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsigned int& id);
 
   // Add additional bins only before NBINLABELS
   enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, BXBLOCKS, ZSBXBLKSGOOD, ZSBXBLKSBAD, ZSBXBLKSBADFALSEPOS, ZSBXBLKSBADFALSENEG, NBINLABELS};
