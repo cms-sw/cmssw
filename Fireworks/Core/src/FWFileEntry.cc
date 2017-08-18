@@ -127,7 +127,7 @@ void FWFileEntry::openFile(bool checkVersion)
    tc->StartLearningPhase();
 
    // load event, set DataGetterHelper callback for branch access
-   m_event = new fwlite::Event(m_file, false, [tc](TBranch* b){ tc->BranchAccessCallIn(b); });
+   m_event = new fwlite::Event(m_file, false, [tc](TBranch const& b){ tc->BranchAccessCallIn(&b); });
 
    // Connect to collection add/remove signals
    FWEventItemsManager* eiMng = (FWEventItemsManager*) FWGUIManager::getGUIManager()->getContext()->eventItemsManager();

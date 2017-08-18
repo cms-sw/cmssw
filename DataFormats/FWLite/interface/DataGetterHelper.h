@@ -58,7 +58,7 @@ namespace fwlite {
                              std::shared_ptr<HistoryGetterBase> historyGetter,
                              std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
                              std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                             bool useCache = false, std::function<void (TBranch*)> baFoo = [](TBranch*){});
+                             bool useCache = false, std::function<void (TBranch const&)> baFunc = [](TBranch const&){});
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
@@ -119,7 +119,7 @@ namespace fwlite {
             const   bool tcUse_;
             /// Branch-access-function gets called whenever a branch data is accessed.
             /// This can be used for management of TTreeCache on the user side.
-            std::function<void (TBranch*)> branchAccFoo_;
+            std::function<void (TBranch const&)> branchAccessFunc_;
     };
 
 }

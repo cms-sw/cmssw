@@ -52,13 +52,13 @@ namespace fwlite {
                                        std::shared_ptr<HistoryGetterBase> historyGetter,
                                        std::shared_ptr<BranchMapReader> branchMap,
                                        std::shared_ptr<edm::EDProductGetter> getter,
-                                       bool useCache, std::function<void (TBranch*)> baFoo):
+                                       bool useCache, std::function<void (TBranch const&)> baFunc):
         branchMap_(branchMap),
         historyGetter_(historyGetter),
         getter_(getter),
         tcTrained_(false),
         tcUse_(useCache),
-        branchAccFoo_(baFoo)
+        branchAccessFunc_(baFunc)
     {
         if(nullptr == tree) {
             throw cms::Exception("NoTree")<<"The TTree pointer passed to the constructor was null";
@@ -145,7 +145,7 @@ namespace fwlite {
                 tree_->LoadTree(eventEntry);
             }
         }
-        branchAccFoo_(iData.branch_);
+        branchAccessFunc_(*iData.branch_);
         iData.branch_->GetEntry(eventEntry);
 
         iData.lastProduct_=eventEntry;

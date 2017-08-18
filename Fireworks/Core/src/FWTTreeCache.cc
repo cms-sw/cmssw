@@ -85,7 +85,7 @@ Int_t FWTTreeCache::DropBranchTopLevel(const char* bname)
    return ret;
 }
 
-void FWTTreeCache::BranchAccessCallIn(TBranch *b)
+void FWTTreeCache::BranchAccessCallIn(const TBranch *b)
 {
    if (s_logging)
       printf("FWTTreeCache::BranchAccessCallIn '%s'\n", b->GetName());

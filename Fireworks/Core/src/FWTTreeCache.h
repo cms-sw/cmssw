@@ -53,13 +53,13 @@ public:
    Int_t AddBranchTopLevel (const char* bname);
    Int_t DropBranchTopLevel(const char* bname);
 
-   void  BranchAccessCallIn(TBranch *b);
+   void  BranchAccessCallIn(const TBranch *b);
 
    // virtuals from TTreeCache, just wrappers for info printouts
-   Int_t AddBranch(TBranch *b, Bool_t subbranches = kFALSE);
-   Int_t AddBranch(const char *branch, Bool_t subbranches = kFALSE);
-   Int_t DropBranch(TBranch *b, Bool_t subbranches = kFALSE);
-   Int_t DropBranch(const char *branch, Bool_t subbranches = kFALSE);
+   Int_t AddBranch(TBranch *b, Bool_t subbranches = kFALSE) override;
+   Int_t AddBranch(const char *branch, Bool_t subbranches = kFALSE) override;
+   Int_t DropBranch(TBranch *b, Bool_t subbranches = kFALSE) override;
+   Int_t DropBranch(const char *branch, Bool_t subbranches = kFALSE) override;
 };
 
 #endif
