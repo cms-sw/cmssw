@@ -125,3 +125,5 @@ hltTOPmonitoring.MHTcut = cms.double(-1)
 hltTOPmonitoring.invMassUppercut=cms.double(-1.0)
 hltTOPmonitoring.invMassLowercut=cms.double(-1.0)
 hltTOPmonitoring.oppositeSignMuons=cms.bool(False)
+hltTOPmonitoring.invMassCutInAllMuPairs=cms.bool(False)
+
