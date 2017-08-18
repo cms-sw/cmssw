@@ -20,7 +20,7 @@
 #include "G4Material.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
+HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 

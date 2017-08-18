@@ -28,16 +28,16 @@ class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
 public:
 
   explicit HcalTB06Analysis(const edm::ParameterSet &p);
-  virtual ~HcalTB06Analysis();
+  ~HcalTB06Analysis() override;
 
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void analyze(const edm::Event & e, const edm::EventSetup& c) override;
-
-private:
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event & e, const edm::EventSetup& c) override;
 
   HcalTB06Analysis(const HcalTB06Analysis&) = delete; 
   const HcalTB06Analysis& operator=(const HcalTB06Analysis&) = delete;
+
+private:
 
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
