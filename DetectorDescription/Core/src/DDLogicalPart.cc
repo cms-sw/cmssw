@@ -261,7 +261,7 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 // - nm corresponds to a regular expression, but will be anchored ( ^regexp$ )
 // - ns corresponds to a regular expression, but will be anchored ( ^regexp$ )
 #include <regex.h>
-#include <stddef.h>
+#include <cstddef>
 
 namespace
 {
@@ -295,7 +295,7 @@ namespace
 
     bool match( const std::string & s ) const {
       if( m_ok )
-	return !regexec( &m_regex, s.c_str(), 0, 0, 0 );
+	return !regexec( &m_regex, s.c_str(), 0, nullptr, 0 );
       else
 	return me == s;
     }

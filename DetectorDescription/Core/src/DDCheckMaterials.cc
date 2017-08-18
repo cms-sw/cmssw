@@ -24,7 +24,7 @@ bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, in
       std::string curr_err = "";
       bool err = false;
       
-      if (mip.isDefined().first == 0) {
+      if (mip.isDefined().first == nullptr) {
         err=true;
 	curr_err += "material not declared; unknown material!";
 	//edm::LogError("DDCheckMaterials") << "material not declared!" << std::endl; //exit(1);

@@ -16,7 +16,7 @@ struct DDSelLevelCollector
   bool isChild_;
   std::vector<DDPartSelRegExpLevel>* p_;
 
-  std::vector<DDPartSelRegExpLevel>* path(std::vector<DDPartSelRegExpLevel>* p=0) {
+  std::vector<DDPartSelRegExpLevel>* path(std::vector<DDPartSelRegExpLevel>* p=nullptr) {
     if (p) {
       p_=p; 
       namespace_="";
