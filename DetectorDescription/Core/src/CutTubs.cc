@@ -9,12 +9,12 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-DDI::CutTubs::CutTubs(double zhalf,
-		      double rIn, double rOut,	      	      
-		      double startPhi, 
-		      double deltaPhi,
-		      double lx, double ly, double lz,
-		      double tx, double ty, double tz)
+DDI::CutTubs::CutTubs( double zhalf,
+		       double rIn, double rOut,	      	      
+		       double startPhi, 
+		       double deltaPhi,
+		       double lx, double ly, double lz,
+		       double tx, double ty, double tz )
   : Solid(ddcuttubs)
 {
   p_.emplace_back(zhalf);

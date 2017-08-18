@@ -42,5 +42,3 @@ void Division::stream(std::ostream & os)
   os << " axis: " << DDAxesNames::name( axis()) << " nReplicas: " << nReplicas()
      << " width: " << width() << " offset: " << offset() << std::endl; 
 }
-
-

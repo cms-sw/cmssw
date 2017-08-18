@@ -10,7 +10,6 @@
 
 using std::sqrt;
 
-
 DDI::Trap::Trap( double pDz, 
                  double pTheta,
                  double pPhi,

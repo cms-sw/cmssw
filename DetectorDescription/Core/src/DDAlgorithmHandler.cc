@@ -21,7 +21,7 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 				const DDStringVectorArguments & svArgs )
 {
   algoname_ = algoName;
-  algo_ = std::unique_ptr<DDAlgorithm>( DDAlgorithmFactory::get()->create( algoname_ ));
+  algo_ = std::unique_ptr<DDAlgorithm>(DDAlgorithmFactory::get()->create( algoname_ ));
   algo_->setParent( parent );
   algo_->initialize( nArgs, vArgs, mArgs, sArgs, svArgs );
 }
