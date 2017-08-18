@@ -34,18 +34,18 @@ using namespace l1t;
 class L1TMuonQualityAdjuster : public edm::EDProducer {
 public:
   explicit L1TMuonQualityAdjuster(const edm::ParameterSet&);
-  ~L1TMuonQualityAdjuster();
+  ~L1TMuonQualityAdjuster() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override ;
-  virtual void endJob() override ;
-  virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-  virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override ;
+  void endJob() override ;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+  void endRun(const edm::Run&, edm::EventSetup const&) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_barrelTfInputToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_overlapTfInputToken;
