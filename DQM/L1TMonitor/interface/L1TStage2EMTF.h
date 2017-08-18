@@ -38,17 +38,23 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   bool verbose;
 
   MonitorElement* emtfErrors;
+  MonitorElement* mpcLinkErrors;
+  MonitorElement* mpcLinkGood;
 
-  MonitorElement* emtfHitBX;
-  MonitorElement* emtfHitStrip[18];
-  MonitorElement* emtfHitWire[18];
-  MonitorElement* emtfChamberStrip[18];
-  MonitorElement* emtfChamberWire[18];
-  MonitorElement* emtfHitOccupancy;
+  MonitorElement* cscLCTBX;
+  MonitorElement* cscLCTStrip[20];
+  MonitorElement* cscLCTWire[20];
+  MonitorElement* cscChamberStrip[20];
+  MonitorElement* cscChamberWire[20];
+  MonitorElement* cscLCTOccupancy;
+  MonitorElement* cscLCTTiming[5];
+  MonitorElement* cscLCTTimingFrac[4];
   
   MonitorElement* emtfnTracks;
   MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
+  MonitorElement* emtfTrackBXVsCSCLCT[3];
+  MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackPhi;
@@ -63,6 +69,17 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfMuonhwEta;
   MonitorElement* emtfMuonhwPhi;
   MonitorElement* emtfMuonhwQual;
+
+  MonitorElement* rpcHitBX;
+  MonitorElement* rpcHitOccupancy;
+  MonitorElement* rpcHitTiming[5];
+  MonitorElement* rpcHitTimingFrac[4];
+  MonitorElement* rpcHitPhi[12];
+  MonitorElement* rpcHitTheta[12];
+  MonitorElement* rpcChamberPhi[12];
+  MonitorElement* rpcChamberTheta[12];
+  
+  MonitorElement* rpcHitTimingInTrack;
 };
 
 #endif
