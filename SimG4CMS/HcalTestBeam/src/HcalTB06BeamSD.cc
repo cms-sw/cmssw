@@ -73,7 +73,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
     }
     dodet = fv2.next();
   }
-  if (matNames.size() > 0) {
+  if (!matNames.empty()) {
     matName = matNames[0];
     int occ = nocc[0];
     for (unsigned int i = 0; i < matNames.size(); i++) {
@@ -120,8 +120,7 @@ uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) {
   } else {
     det = 2;
     lay = (touch->GetReplicaNumber(1));
-    G4ThreeVector hitPoint    = preStepPoint->GetPosition();
-    G4ThreeVector localPoint  = setToLocal(hitPoint, touch);
+    G4ThreeVector localPoint  = setToLocal(preStepPoint->GetPosition(), touch);
     x   = (int)(localPoint.x()/(0.2*mm));
     y   = (int)(localPoint.y()/(0.2*mm));
   }
