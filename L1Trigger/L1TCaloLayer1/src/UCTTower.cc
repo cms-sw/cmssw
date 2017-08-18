@@ -2,9 +2,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTTower.hh"
 #include "UCTLogging.hh"
@@ -20,7 +20,7 @@ bool UCTTower::process() {
   uint32_t calibratedECALET = ecalET;
   uint32_t logECALET = (uint32_t) log2((double) ecalET);
   if(logECALET > erMaxV) logECALET = erMaxV;
-  if(ecalLUT != 0) {
+  if(ecalLUT != nullptr) {
     uint32_t etaAddress = region * NEtaInRegion + iEta;
     uint32_t fbAddress = 0;
     if(ecalFG) fbAddress = 1;
@@ -31,7 +31,7 @@ bool UCTTower::process() {
   uint32_t calibratedHCALET = hcalET;
   uint32_t logHCALET = (uint32_t) log2((double) hcalET);
   if(logHCALET > erMaxV) logHCALET = erMaxV;
-  if(hcalLUT != 0) {
+  if(hcalLUT != nullptr) {
     uint32_t etaAddress = region * NEtaInRegion + iEta;
     uint32_t fbAddress = 0;
     if((hcalFB & 0x1) != 0) fbAddress = 1;
@@ -92,7 +92,7 @@ bool UCTTower::process() {
 bool UCTTower::processHFTower() {
   if ( fwVersion > 2 ) {
     uint32_t calibratedET = hcalET;
-    if(hfLUT != 0) {
+    if(hfLUT != nullptr) {
       uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
       const std::array< uint32_t, 256>& a = hfLUT->at(etaAddress);
       calibratedET = a[hcalET] & 0x1FF;
@@ -103,7 +103,7 @@ bool UCTTower::processHFTower() {
   }
   else {
     uint32_t calibratedET = hcalET;
-    if(hfLUT != 0) {
+    if(hfLUT != nullptr) {
       uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
       const std::array< uint32_t, 256>& a = hfLUT->at(etaAddress);
       calibratedET = a[hcalET] & 0xFF;
