@@ -301,14 +301,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           if(useLSB) calibratedHFInput /= caloLSB;
 
           if ( fwVersion > 2 ) {
-            uint32_t absCaloEta = abs(caloEta);
+            uint32_t absCaloEta = std::abs(caloEta);
             if(absCaloEta > 29 && absCaloEta < 40) {
               // Divide by two (since two duplicate towers are sent)
-              calibratedHFInput /= 2.;
+              calibratedHFInput *= 0.5;
             }
             else if(absCaloEta == 40 || absCaloEta == 41) {
               // Divide by four
-              calibratedHFInput /= 4.;
+              calibratedHFInput *= 0.25;
             }
             value = calibratedHFInput;
             // Saturate if either decompressed value is over 127.5 GeV or input saturated
