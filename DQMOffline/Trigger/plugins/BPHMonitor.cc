@@ -211,8 +211,8 @@ void BPHMonitor::bookME(DQMStore::IBooker &ibooker, METME &me, std::string &hist
 
 
 void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
-				 edm::Run const        & iRun,
-				 edm::EventSetup const & iSetup) 
+				edm::Run const        & iRun,
+				edm::EventSetup const & iSetup) 
 {  
   
   std::string histname, histtitle, istnp, trMuPh;
@@ -223,131 +223,131 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   if (trOrMu_) trMuPh = "tr";else if (Ph_) trMuPh = "ph";else trMuPh = "mu";
 
   if (enum_==7 || enum_==1 || enum_==9 || enum_==10){  
-   histname = trMuPh+"Pt"; histtitle = trMuPh+"_P_{t}";
-   bookME(ibooker,muPt_,histname,histtitle, pt_binning_);
-   setMETitle(muPt_,trMuPh+"_Pt[GeV]","events/1GeV");
+    histname = trMuPh+"Pt"; histtitle = trMuPh+"_P_{t}";
+    bookME(ibooker,muPt_,histname,histtitle, pt_binning_);
+    setMETitle(muPt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
-   histname =trMuPh+"Phi"; histtitle =trMuPh+"Phi";
-   bookME(ibooker,muPhi_,histname,histtitle, phi_binning_);
-   setMETitle(muPhi_,trMuPh+"_#phi","events / 0.1 rad");
+    histname =trMuPh+"Phi"; histtitle =trMuPh+"Phi";
+    bookME(ibooker,muPhi_,histname,histtitle, phi_binning_);
+    setMETitle(muPhi_,trMuPh+"_#phi","events / 0.1 rad");
 
-   histname =trMuPh+"Eta"; histtitle = trMuPh+"_Eta";
-   bookME(ibooker,muEta_,histname,histtitle, eta_binning_);
-   setMETitle(muEta_,trMuPh+"_#eta","events/ ");
+    histname =trMuPh+"Eta"; histtitle = trMuPh+"_Eta";
+    bookME(ibooker,muEta_,histname,histtitle, eta_binning_);
+    setMETitle(muEta_,trMuPh+"_#eta","events/ ");
   }
   else if(enum_==11){
-  trMuPh = "tr";
-  histname = trMuPh+"1Pt"; histtitle = trMuPh+"1_P_{t}";
-  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
-  setMETitle(mu1Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
+    trMuPh = "tr";
+    histname = trMuPh+"1Pt"; histtitle = trMuPh+"1_P_{t}";
+    bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
+    setMETitle(mu1Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
-  histname =trMuPh+"1Phi"; histtitle =trMuPh+"1Phi";
-  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
-  setMETitle(mu1Phi_,trMuPh+"_#phi","events / 0.1 rad");
+    histname =trMuPh+"1Phi"; histtitle =trMuPh+"1Phi";
+    bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
+    setMETitle(mu1Phi_,trMuPh+"_#phi","events / 0.1 rad");
   
-  histname =trMuPh+"1Eta"; histtitle = trMuPh+"1_Eta";
-  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
-  setMETitle(mu1Eta_,trMuPh+"_#eta","events/ ");
+    histname =trMuPh+"1Eta"; histtitle = trMuPh+"1_Eta";
+    bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
+    setMETitle(mu1Eta_,trMuPh+"_#eta","events/ ");
 
-  histname = trMuPh+"2Pt"; histtitle = trMuPh+"2_P_{t}";
-  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
-  setMETitle(mu2Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
+    histname = trMuPh+"2Pt"; histtitle = trMuPh+"2_P_{t}";
+    bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
+    setMETitle(mu2Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
 
-  histname =trMuPh+"2Phi"; histtitle =trMuPh+"2Phi";
-  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
-  setMETitle(mu2Phi_,trMuPh+"_#phi","events / 0.1 rad");
+    histname =trMuPh+"2Phi"; histtitle =trMuPh+"2Phi";
+    bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
+    setMETitle(mu2Phi_,trMuPh+"_#phi","events / 0.1 rad");
 
-  histname =trMuPh+"2Eta"; histtitle = trMuPh+"2_Eta";
-  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
-  setMETitle(mu2Eta_,trMuPh+"_#eta","events/ ");
+    histname =trMuPh+"2Eta"; histtitle = trMuPh+"2_Eta";
+    bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
+    setMETitle(mu2Eta_,trMuPh+"_#eta","events/ ");
 
-}
+  }
 
-else{
-  histname ="mu1Eta"; histtitle = "mu1Eta";
-  bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
-  setMETitle(mu1Eta_,"mu1#eta","events/ ");
+  else{
+    histname ="mu1Eta"; histtitle = "mu1Eta";
+    bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
+    setMETitle(mu1Eta_,"mu1#eta","events/ ");
 
-  histname = "mu1Pt"; histtitle = "mu1_P_{t}";
-  bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
-  setMETitle(mu1Pt_,"mu1_Pt[GeV]","events/1GeV");
+    histname = "mu1Pt"; histtitle = "mu1_P_{t}";
+    bookME(ibooker,mu1Pt_,histname,histtitle, pt_binning_);
+    setMETitle(mu1Pt_,"mu1_Pt[GeV]","events/1GeV");
 
-  histname ="mu1Phi"; histtitle ="mu1Phi";
-  bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
-  setMETitle(mu1Phi_,"mu1_#phi","events / 0.1 rad");
+    histname ="mu1Phi"; histtitle ="mu1Phi";
+    bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
+    setMETitle(mu1Phi_,"mu1_#phi","events / 0.1 rad");
 
-  histname ="mu2Eta"; histtitle = "mu2Eta";
-  bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
-  setMETitle(mu2Eta_,"mu2#eta","events/ ");
+    histname ="mu2Eta"; histtitle = "mu2Eta";
+    bookME(ibooker,mu2Eta_,histname,histtitle, eta_binning_);
+    setMETitle(mu2Eta_,"mu2#eta","events/ ");
 
-  histname = "mu2Pt"; histtitle = "mu2_P_{t}";
-  bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
-  setMETitle(mu2Pt_,"mu2_Pt[GeV]","events/1GeV");
+    histname = "mu2Pt"; histtitle = "mu2_P_{t}";
+    bookME(ibooker,mu2Pt_,histname,histtitle, pt_binning_);
+    setMETitle(mu2Pt_,"mu2_Pt[GeV]","events/1GeV");
 
-  histname ="mu2Phi"; histtitle ="mu2Phi";
-  bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
-  setMETitle(mu2Phi_,"mu2_#phi","events / 0.1 rad");
+    histname ="mu2Phi"; histtitle ="mu2Phi";
+    bookME(ibooker,mu2Phi_,histname,histtitle, phi_binning_);
+    setMETitle(mu2Phi_,"mu2_#phi","events / 0.1 rad");
 
-  histname ="mu3Eta"; histtitle = "mu3Eta";
-  bookME(ibooker,mu3Eta_,histname,histtitle, eta_binning_);
-  setMETitle(mu3Eta_,"mu3#eta","events/ ");
+    histname ="mu3Eta"; histtitle = "mu3Eta";
+    bookME(ibooker,mu3Eta_,histname,histtitle, eta_binning_);
+    setMETitle(mu3Eta_,"mu3#eta","events/ ");
 
-  histname = "mu3Pt"; histtitle = "mu3_P_{t}";
-  bookME(ibooker,mu3Pt_,histname,histtitle, pt_binning_);
-  setMETitle(mu3Pt_,"mu3_Pt[GeV]","events/1GeV");
+    histname = "mu3Pt"; histtitle = "mu3_P_{t}";
+    bookME(ibooker,mu3Pt_,histname,histtitle, pt_binning_);
+    setMETitle(mu3Pt_,"mu3_Pt[GeV]","events/1GeV");
 
-  histname ="mu3Phi"; histtitle ="mu3Phi";
-  bookME(ibooker,mu3Phi_,histname,histtitle, phi_binning_);
-  setMETitle(mu3Phi_,"mu3_#phi","events / 0.1 rad");
+    histname ="mu3Phi"; histtitle ="mu3Phi";
+    bookME(ibooker,mu3Phi_,histname,histtitle, phi_binning_);
+    setMETitle(mu3Phi_,"mu3_#phi","events / 0.1 rad");
 
-  histname ="DiMuEta"; histtitle = "DiMuEta";
-  bookME(ibooker,DiMuEta_,histname,histtitle, eta_binning_);
-  setMETitle(DiMuEta_,"DiMu#eta","events/ ");
+    histname ="DiMuEta"; histtitle = "DiMuEta";
+    bookME(ibooker,DiMuEta_,histname,histtitle, eta_binning_);
+    setMETitle(DiMuEta_,"DiMu#eta","events/ ");
 
-  histname = "DiMuPt"; histtitle = "DiMu_P_{t}";
-  bookME(ibooker,DiMuPt_,histname,histtitle, pt_binning_);
-  setMETitle(DiMuPt_,"DiMu_Pt[GeV]","events/1GeV");
+    histname = "DiMuPt"; histtitle = "DiMu_P_{t}";
+    bookME(ibooker,DiMuPt_,histname,histtitle, pt_binning_);
+    setMETitle(DiMuPt_,"DiMu_Pt[GeV]","events/1GeV");
 
-  histname ="DiMuPhi"; histtitle ="DiMuPhi";
-  bookME(ibooker,DiMuPhi_,histname,histtitle, phi_binning_);
-  setMETitle(DiMuPhi_,"DiMu_#phi","events / 0.1 rad");
+    histname ="DiMuPhi"; histtitle ="DiMuPhi";
+    bookME(ibooker,DiMuPhi_,histname,histtitle, phi_binning_);
+    setMETitle(DiMuPhi_,"DiMu_#phi","events / 0.1 rad");
 
-  histname ="DiMuPVcos"; histtitle ="DiMuPVcos";
-  bookME(ibooker,DiMuPVcos_,histname,histtitle, cos_binning_);
-  setMETitle(DiMuPVcos_,"DiMu_#cosPV","events / ");
+    histname ="DiMuPVcos"; histtitle ="DiMuPVcos";
+    bookME(ibooker,DiMuPVcos_,histname,histtitle, cos_binning_);
+    setMETitle(DiMuPVcos_,"DiMu_#cosPV","events / ");
 
-  histname ="DiMuProb"; histtitle ="DiMuProb";
-  bookME(ibooker,DiMuProb_,histname,histtitle, prob_binning_);
-  setMETitle(DiMuProb_,"DiMu_#prob","events / ");
+    histname ="DiMuProb"; histtitle ="DiMuProb";
+    bookME(ibooker,DiMuProb_,histname,histtitle, prob_binning_);
+    setMETitle(DiMuProb_,"DiMu_#prob","events / ");
 
-  histname ="DiMuDS"; histtitle ="DiMuDS";
-  bookME(ibooker,DiMuDS_,histname,histtitle, ds_binning_);
-  setMETitle(DiMuDS_,"DiMu_#ds","events / ");
+    histname ="DiMuDS"; histtitle ="DiMuDS";
+    bookME(ibooker,DiMuDS_,histname,histtitle, ds_binning_);
+    setMETitle(DiMuDS_,"DiMu_#ds","events / ");
 
 
-  histname ="DiMuDCA"; histtitle ="DiMuDCA";
-  bookME(ibooker,DiMuDCA_,histname,histtitle, dca_binning_);
-  setMETitle(DiMuDCA_,"DiMu_#dca","events / ");
+    histname ="DiMuDCA"; histtitle ="DiMuDCA";
+    bookME(ibooker,DiMuDCA_,histname,histtitle, dca_binning_);
+    setMETitle(DiMuDCA_,"DiMu_#dca","events / ");
 
-  histname ="DiMuMass"; histtitle ="DiMuMass";
-  bookME(ibooker,DiMuMass_,histname,histtitle, mass_binning_);
-  setMETitle(DiMuMass_,"DiMu_#mass","events / ");
+    histname ="DiMuMass"; histtitle ="DiMuMass";
+    bookME(ibooker,DiMuMass_,histname,histtitle, mass_binning_);
+    setMETitle(DiMuMass_,"DiMu_#mass","events / ");
 
-  histname ="DiMudR"; histtitle ="DiMudR";
-  bookME(ibooker,DiMudR_,histname,histtitle, dR_binning_);
-  setMETitle(DiMudR_,"DiMu_#dR","events / ");
+    histname ="DiMudR"; histtitle ="DiMudR";
+    bookME(ibooker,DiMudR_,histname,histtitle, dR_binning_);
+    setMETitle(DiMudR_,"DiMu_#dR","events / ");
 
-}
+  }
 
-if (trOrMu_) {
-  histname =trMuPh+ "_d0"; histtitle =trMuPh+ "_d0";
-  bookME(ibooker,mud0_,histname,histtitle, d0_binning_);
-  setMETitle(mud0_,trMuPh+"_d0","events/bin ");
+  if (trOrMu_) {
+    histname =trMuPh+ "_d0"; histtitle =trMuPh+ "_d0";
+    bookME(ibooker,mud0_,histname,histtitle, d0_binning_);
+    setMETitle(mud0_,trMuPh+"_d0","events/bin ");
 
-  histname = trMuPh+"_z0"; histtitle =trMuPh+"_z0";
-  bookME(ibooker,muz0_,histname,histtitle, z0_binning_);
-  setMETitle(muz0_,trMuPh+"_z0","events/bin ");
-}
+    histname = trMuPh+"_z0"; histtitle =trMuPh+"_z0";
+    bookME(ibooker,muz0_,histname,histtitle, z0_binning_);
+    setMETitle(muz0_,trMuPh+"_z0","events/bin ");
+  }
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -437,15 +437,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         reco::Vertex jpsivertex = jtv;
         float dimuonCL = 0;
         if( (jpsivertex.chi2()>=0) && (jpsivertex.ndof()>0) )//I think these values are "unphysical"(no one will need to change them ever)so the can be fixed
-        dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
+	  dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
         math::XYZVector jpperp(m.px() + m1.px() ,
-                                 m.py() + m1.py() ,
-                                 0.);
+			       m.py() + m1.py() ,
+			       0.);
         GlobalPoint jVertex = jtv.position();
         GlobalError jerr    = jtv.positionError();
         GlobalPoint displacementFromBeamspotJpsi( -1*((vertexBeamSpot.x0() - jVertex.x()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
                                                   -1*((vertexBeamSpot.y0() - jVertex.y()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()),
-                                                   0);
+						  0);
         reco::Vertex::Point vperpj(displacementFromBeamspotJpsi.x(), displacementFromBeamspotJpsi.y(), 0.);
         float jpsi_cos = vperpj.Dot(jpperp)/(vperpj.R()*jpperp.R());
         TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
@@ -572,18 +572,18 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           DiMuEta_.denominator ->Fill((m1.p4()+m.p4()).Eta() );
           DiMuDCA_.denominator ->Fill( cApp.distance());
           break;
-      case 9:
+	case 9:
           if (dimuonCL<minprob)continue;
           if (fabs(jpsi_cos)<mincos)continue;
           if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
   
-        if (trHandle.isValid()){
-      ////////////////////////
+	  if (trHandle.isValid()){
+	    ////////////////////////
   
-          for (auto const & t : *trHandle) {
+	    for (auto const & t : *trHandle) {
       
-          if(!trSelection_ref(t))continue;
-          if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
               reco::Track itrk1       = t ;                                                
               
               if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
@@ -616,7 +616,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
               if (!tv.isValid()) continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-              JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+		JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
               math::XYZVector pperp(m.px() + m1.px() + itrk1.px(),
                                     m.py() + m1.py() + itrk1.py(),
                                     0.);
@@ -629,493 +629,493 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                                                     0);
               reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
               float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
-          if (JpsiTkCL<minprob)continue;
-          if (fabs(jpsiKcos)<mincos)continue;
-          if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-          muPhi_.denominator->Fill(t.phi());
-          muEta_.denominator->Fill(t.eta());
-          muPt_.denominator ->Fill(t.pt());
+	      if (JpsiTkCL<minprob)continue;
+	      if (fabs(jpsiKcos)<mincos)continue;
+	      if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+	      muPhi_.denominator->Fill(t.phi());
+	      muEta_.denominator->Fill(t.eta());
+	      muPt_.denominator ->Fill(t.pt());
    
-      /////////////////////////
-      }
-      }
-      break;
-      case 10:
-        if (trHandle.isValid()){
-          for (auto const & t : *trHandle) {
-            if(!trSelection_ref(t))continue;
-            if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
-            reco::Track itrk1       = t ;                                                
-            if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t,m) <= 0.001)) continue;
-            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-            reco::Particle::LorentzVector pB, p2, p3;
-            double trackMass2 = 0.493677 *0.493677;
-            double MuMass2 = 0.1056583745 *0.1056583745;
-            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
-            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
-            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
-            pB   = p2 + p3;
-            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
-            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-            std::vector<reco::TransientTrack> t_tks;
-            t_tks.push_back(mu2TT);
-            t_tks.push_back(trTT);
-            KalmanVertexFitter kvf;
-            TransientVertex tv  = kvf.vertex(t_tks);
-            reco::Vertex vertex = tv;
-            if (!tv.isValid()) continue;
-            float JpsiTkCL = 0;
-            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
-            math::XYZVector pperp(m1.px() + itrk1.px(),
-                                  m1.py() + itrk1.py(),
-                                  0.);
-            GlobalPoint secondaryVertex = tv.position();
-            GlobalError err             = tv.positionError();
-            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
-                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
-                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
-                                                     (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
-                                                  0);
-            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-            if (JpsiTkCL<minprob)continue;
-            muPhi_.denominator->Fill(m1.phi());
-            muEta_.denominator->Fill(m1.eta());
-            muPt_.denominator ->Fill(m1.pt());
-          }
-        }
-        break;
-      case 11:
-        if (dimuonCL<minprob)continue;
-        if (fabs(jpsi_cos)<mincos)continue;
-        if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
-        if (trHandle.isValid()){
-      ////////////////////////
-        for (auto const & t : *trHandle) {
-          if(!trSelection_ref(t))continue;
-          if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
-          for (auto const & t1 : *trHandle) {
-            if(!trSelection_ref(t1))continue;
-            if(false && !matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
-            reco::Track itrk1       = t ;                                                
-            reco::Track itrk2       = t1 ;                                                
-            if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
-            if((reco::deltaR(t,m) <= 0.001)) continue;
-            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-            if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
-            reco::Particle::LorentzVector pB, p1, p2, p3, p4;
-            double trackMass2 = 0.493677 *0.493677;
-            double MuMass2 = 0.1056583745 *0.1056583745;
-            double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
-            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
-            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-            double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
-            p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
-            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
-            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
-            p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
-            pB   = p1 + p2 + p3 + p4;
-            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
-            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-            reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
-            std::vector<reco::TransientTrack> t_tks;
-            t_tks.push_back(mu1TT);
-            t_tks.push_back(mu2TT);
-            t_tks.push_back(trTT);
-            t_tks.push_back(tr1TT);
-            KalmanVertexFitter kvf;
-            TransientVertex tv  = kvf.vertex(t_tks);
-            reco::Vertex vertex = tv;
-            if (!tv.isValid()) continue;
-            float JpsiTkCL = 0;
-            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
-            math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
-                                  m.py() + m1.py() + itrk1.py() + itrk2.py(),
-                                  0.);
-            GlobalPoint secondaryVertex = tv.position();
-            GlobalError err             = tv.positionError();
-            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
-                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
-                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
-                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
-                                                  0);
-            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
-            if (JpsiTkCL<minprob)continue;
-            if (fabs(jpsiKcos)<mincos)continue;
-            if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-            mu1Phi_.denominator->Fill(t.phi());
-            mu1Eta_.denominator->Fill(t.eta());
-            mu1Pt_.denominator ->Fill(t.pt());
-            mu2Phi_.denominator->Fill(t1.phi());
-            mu2Eta_.denominator->Fill(t1.eta());
-            mu2Pt_.denominator ->Fill(t1.pt());
-        } 
-      /////////////////////////
+	      /////////////////////////
+	    }
+	  }
+	  break;
+	case 10:
+	  if (trHandle.isValid()){
+	    for (auto const & t : *trHandle) {
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+	      reco::Track itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+	      reco::Particle::LorentzVector pB, p2, p3;
+	      double trackMass2 = 0.493677 *0.493677;
+	      double MuMass2 = 0.1056583745 *0.1056583745;
+	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+	      p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+	      p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+	      pB   = p2 + p3;
+	      if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+	      reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+	      std::vector<reco::TransientTrack> t_tks;
+	      t_tks.push_back(mu2TT);
+	      t_tks.push_back(trTT);
+	      KalmanVertexFitter kvf;
+	      TransientVertex tv  = kvf.vertex(t_tks);
+	      reco::Vertex vertex = tv;
+	      if (!tv.isValid()) continue;
+	      float JpsiTkCL = 0;
+	      if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+		JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+	      math::XYZVector pperp(m1.px() + itrk1.px(),
+				    m1.py() + itrk1.py(),
+				    0.);
+	      GlobalPoint secondaryVertex = tv.position();
+	      GlobalError err             = tv.positionError();
+	      GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+						    -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+						    0);
+	      reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+	      if (JpsiTkCL<minprob)continue;
+	      muPhi_.denominator->Fill(m1.phi());
+	      muEta_.denominator->Fill(m1.eta());
+	      muPt_.denominator ->Fill(m1.pt());
+	    }
+	  }
+	  break;
+	case 11:
+	  if (dimuonCL<minprob)continue;
+	  if (fabs(jpsi_cos)<mincos)continue;
+	  if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
+	  if (trHandle.isValid()){
+	    ////////////////////////
+	    for (auto const & t : *trHandle) {
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+	      for (auto const & t1 : *trHandle) {
+		if(!trSelection_ref(t1))continue;
+		if(false && !matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
+		reco::Track itrk1       = t ;                                                
+		reco::Track itrk2       = t1 ;                                                
+		if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+		if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
+		if((reco::deltaR(t,m) <= 0.001)) continue;
+		if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+		if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
+		reco::Particle::LorentzVector pB, p1, p2, p3, p4;
+		double trackMass2 = 0.493677 *0.493677;
+		double MuMass2 = 0.1056583745 *0.1056583745;
+		double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
+		double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+		double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+		double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
+		p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
+		p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+		p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+		p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
+		pB   = p1 + p2 + p3 + p4;
+		if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+		reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+		reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+		std::vector<reco::TransientTrack> t_tks;
+		t_tks.push_back(mu1TT);
+		t_tks.push_back(mu2TT);
+		t_tks.push_back(trTT);
+		t_tks.push_back(tr1TT);
+		KalmanVertexFitter kvf;
+		TransientVertex tv  = kvf.vertex(t_tks);
+		reco::Vertex vertex = tv;
+		if (!tv.isValid()) continue;
+		float JpsiTkCL = 0;
+		if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+		  JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+		math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
+				      m.py() + m1.py() + itrk1.py() + itrk2.py(),
+				      0.);
+		GlobalPoint secondaryVertex = tv.position();
+		GlobalError err             = tv.positionError();
+		GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+							  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+						      -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+							  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+						      0);
+		reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+		float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+		if (JpsiTkCL<minprob)continue;
+		if (fabs(jpsiKcos)<mincos)continue;
+		if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+		mu1Phi_.denominator->Fill(t.phi());
+		mu1Eta_.denominator->Fill(t.eta());
+		mu1Pt_.denominator ->Fill(t.pt());
+		mu2Phi_.denominator->Fill(t1.phi());
+		mu2Eta_.denominator->Fill(t1.eta());
+		mu2Pt_.denominator ->Fill(t1.pt());
+	      } 
+	      /////////////////////////
+	    }
+	  }
+	  break;
+	} 
       }
     }
-    break;
-    } 
-   }
-  }
 
-   if (enum_ == 7){//photons
-   const std::string & hltpath = hltpaths_den[0];
-   for (auto const & p : *phHandle) {
-      if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+    if (enum_ == 7){//photons
+      const std::string & hltpath = hltpaths_den[0];
+      for (auto const & p : *phHandle) {
+	if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.denominator->Fill(p.phi());
         phEta_.denominator->Fill(p.eta());
         phPt_.denominator ->Fill(p.pt());
-  }
-
-  } 
-//
-/////////
-//filling numerator hists
-  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
-  if (handleTriggerEvent->sizeFilters()== 0)return;
-  const std::string & hltpath1 = hltpaths_num[0]; 
-  for (auto const & m : *muoHandle ) {
-    if(false && !matchToTrigger(hltpath1,m, handleTriggerEvent)) continue;
-    if(!muoSelection_ref(m))continue;   
-    for (auto const & m1 : *muoHandle ) {
-      if (seagull_ && ((m.charge()* deltaPhi(m.phi(), m1.phi())) > 0.) )continue;
-      if (m.charge()*m1.charge()>0 )continue;
-      if (m1.pt() == m.pt())continue;
-      if(!muoSelection_ref(m1))continue;   
-      if(false && !matchToTrigger(hltpath1,m1, handleTriggerEvent)) continue;
-      if (!DMSelection_ref(m1.p4() + m.p4()))continue;
-      iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-      const reco::BeamSpot& vertexBeamSpot = *beamSpot;
-      std::vector<reco::TransientTrack> j_tks;
-      reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
-      reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
-      j_tks.push_back(mu1TT);
-      j_tks.push_back(mu2TT);
-      KalmanVertexFitter jkvf;
-      TransientVertex jtv = jkvf.vertex(j_tks);
-      if (!jtv.isValid()) continue;
-      reco::Vertex jpsivertex = jtv;
-      float dimuonCL = 0;
-      if( (jpsivertex.chi2()>=0) && (jpsivertex.ndof()>0) )//I think these values are "unphysical"(no one will need to change them ever)so the can be fixed
-      dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
-      math::XYZVector jpperp(m.px() + m1.px() ,
-                             m.py() + m1.py() ,
-                             0.);
-      GlobalPoint jVertex = jtv.position();
-      GlobalError jerr    = jtv.positionError();
-      GlobalPoint displacementFromBeamspotJpsi( -1*((vertexBeamSpot.x0() - jVertex.x()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
-                                                -1*((vertexBeamSpot.y0() - jVertex.y()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()),
-                                                 0);
-      reco::Vertex::Point vperpj(displacementFromBeamspotJpsi.x(), displacementFromBeamspotJpsi.y(), 0.);
-      float jpsi_cos = vperpj.Dot(jpperp)/(vperpj.R()*jpperp.R());
-      TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
-      TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
-      ClosestApproachInRPhi cApp;
-      if (mu1TS.isValid() && mu2TS.isValid()) {
-        cApp.calculate(mu1TS.theState(), mu2TS.theState());
       }
-      double DiMuMass = (m1.p4()+m.p4()).M();
-      switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
-      case 1: tnp_=1;//already filled hists for tnp method
-      case 2:
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        if (dimuonCL<minprob)continue;
-        mu1Phi_.numerator->Fill(m.phi());
-        mu1Eta_.numerator->Fill(m.eta());
-        mu1Pt_.numerator ->Fill(m.pt());
-        mu2Phi_.numerator->Fill(m1.phi());
-        mu2Eta_.numerator->Fill(m1.eta());
-        mu2Pt_.numerator ->Fill(m1.pt());
-        DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-        DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-        DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-        break;
-      case 3:
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
 
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        if (dimuonCL<minprob)continue;
-        mu1Eta_.numerator->Fill(m.eta());
-        mu1Pt_.numerator ->Fill(m.pt());
-        mu2Eta_.numerator->Fill(m1.eta());
-        mu2Pt_.numerator ->Fill(m1.pt());
-        break; 
-      case 4:
-        if (dimuonCL<minprob)continue;
-        DiMuMass_.numerator ->Fill(DiMuMass);
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        mu1Phi_.numerator->Fill(m.phi());
-        mu1Eta_.numerator->Fill(m.eta());
-        mu1Pt_.numerator ->Fill(m.pt());
-        mu2Phi_.numerator->Fill(m1.phi());
-        mu2Eta_.numerator->Fill(m1.eta());
-        mu2Pt_.numerator ->Fill(m1.pt());
-        DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-        DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-        DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-        DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
-        break;
-      case 5:
-        if (dimuonCL<minprob)continue;
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        mu1Phi_.numerator->Fill(m.phi());
-        mu1Eta_.numerator->Fill(m.eta());
-        mu1Pt_.numerator ->Fill(m.pt());
-        mu2Phi_.numerator->Fill(m1.phi());
-        mu2Eta_.numerator->Fill(m1.eta());
-        mu2Pt_.numerator ->Fill(m1.pt());
-        DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-        DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-        DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-        DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
-        break;
-      case 6: 
-        if (dimuonCL<minprob)continue;
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        for (auto const & m2 : *muoHandle) {//triple muon paths
-          if(false && !matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
-          if (m2.pt() == m.pt())continue;
-          mu1Phi_.numerator->Fill(m.phi());
-          mu1Eta_.numerator->Fill(m.eta());
-          mu1Pt_.numerator ->Fill(m.pt());
-          mu2Phi_.numerator->Fill(m1.phi());
-          mu2Eta_.numerator->Fill(m1.eta());
-          mu2Pt_.numerator ->Fill(m1.pt());
-          mu3Phi_.numerator->Fill(m2.phi());
-          mu3Eta_.numerator->Fill(m2.eta());
-          mu3Pt_.numerator ->Fill(m2.pt());
-        }      
-        break;    
-      case 7:// the hists for photon monitoring will be filled on 515 line
-        tnp_=0;
-        break;
-      case 8://vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
-        if ((Jpsi_) && (!Upsilon_)){
-          if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
-        }
-        if ((!Jpsi_) && (Upsilon_)){
-          if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
-        }
-        DiMuProb_.numerator ->Fill( dimuonCL);
-        if (dimuonCL<minprob)continue;
-        DiMuDS_.numerator ->Fill( displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
-        DiMuPVcos_.numerator ->Fill(jpsi_cos );
-        DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-        DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-        DiMuDCA_.numerator ->Fill( cApp.distance());
-        break;
-    case 9:
-      if (dimuonCL<minprob)continue;
-      if (fabs(jpsi_cos)<mincos)continue;
-      if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
-      if (trHandle.isValid()){
-        for (auto const & t : *trHandle) {
-          if(!trSelection_ref(t))continue;
-          if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
-          reco::Track itrk1       = t ;                                                
-          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t,m) <= 0.001)) continue;
-          if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-          reco::Particle::LorentzVector pB, p1, p2, p3;
-          double trackMass2 = 0.493677 *0.493677;
-          double MuMass2 = 0.1056583745 *0.1056583745;
-          double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
-          double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
-          double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-          p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
-          p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
-          p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
-          pB   = p1 + p2 + p3;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
-          reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-          std::vector<reco::TransientTrack> t_tks;
-          t_tks.push_back(mu1TT);
-          t_tks.push_back(mu2TT);
-          t_tks.push_back(trTT);
-          KalmanVertexFitter kvf;
-          TransientVertex tv  = kvf.vertex(t_tks);
-          reco::Vertex vertex = tv;
-          if (!tv.isValid()) continue;
-          float JpsiTkCL = 0;
-          if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-          JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
-          math::XYZVector pperp(m.px() + m1.px() + itrk1.px(),
-                                m.py() + m1.py() + itrk1.py(),
-                                0.);
-          GlobalPoint secondaryVertex = tv.position();
-          GlobalError err             = tv.positionError();
-          GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
-                                                -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
-                                                0);
-          reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-          float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
-          if (JpsiTkCL<minprob)continue;
-          if (fabs(jpsiKcos)<mincos)continue;
-          if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-          muPhi_.numerator->Fill(t.phi());
-          muEta_.numerator->Fill(t.eta());
-          muPt_.numerator ->Fill(t.pt());
-        }
-      }
-      break;
+    } 
+    //
+    /////////
+    //filling numerator hists
+    if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+    iEvent.getByToken( hltInputTag_, handleTriggerEvent);
+    if (handleTriggerEvent->sizeFilters()== 0)return;
+    const std::string & hltpath1 = hltpaths_num[0]; 
+    for (auto const & m : *muoHandle ) {
+      if(false && !matchToTrigger(hltpath1,m, handleTriggerEvent)) continue;
+      if(!muoSelection_ref(m))continue;   
+      for (auto const & m1 : *muoHandle ) {
+	if (seagull_ && ((m.charge()* deltaPhi(m.phi(), m1.phi())) > 0.) )continue;
+	if (m.charge()*m1.charge()>0 )continue;
+	if (m1.pt() == m.pt())continue;
+	if(!muoSelection_ref(m1))continue;   
+	if(false && !matchToTrigger(hltpath1,m1, handleTriggerEvent)) continue;
+	if (!DMSelection_ref(m1.p4() + m.p4()))continue;
+	iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+	const reco::BeamSpot& vertexBeamSpot = *beamSpot;
+	std::vector<reco::TransientTrack> j_tks;
+	reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
+	reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
+	j_tks.push_back(mu1TT);
+	j_tks.push_back(mu2TT);
+	KalmanVertexFitter jkvf;
+	TransientVertex jtv = jkvf.vertex(j_tks);
+	if (!jtv.isValid()) continue;
+	reco::Vertex jpsivertex = jtv;
+	float dimuonCL = 0;
+	if( (jpsivertex.chi2()>=0) && (jpsivertex.ndof()>0) )//I think these values are "unphysical"(no one will need to change them ever)so the can be fixed
+	  dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
+	math::XYZVector jpperp(m.px() + m1.px() ,
+			       m.py() + m1.py() ,
+			       0.);
+	GlobalPoint jVertex = jtv.position();
+	GlobalError jerr    = jtv.positionError();
+	GlobalPoint displacementFromBeamspotJpsi( -1*((vertexBeamSpot.x0() - jVertex.x()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
+						  -1*((vertexBeamSpot.y0() - jVertex.y()) + (jVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()),
+						  0);
+	reco::Vertex::Point vperpj(displacementFromBeamspotJpsi.x(), displacementFromBeamspotJpsi.y(), 0.);
+	float jpsi_cos = vperpj.Dot(jpperp)/(vperpj.R()*jpperp.R());
+	TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+	TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+	ClosestApproachInRPhi cApp;
+	if (mu1TS.isValid() && mu2TS.isValid()) {
+	  cApp.calculate(mu1TS.theState(), mu2TS.theState());
+	}
+	double DiMuMass = (m1.p4()+m.p4()).M();
+	switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
+	case 1: tnp_=1;//already filled hists for tnp method
+	case 2:
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  if (dimuonCL<minprob)continue;
+	  mu1Phi_.numerator->Fill(m.phi());
+	  mu1Eta_.numerator->Fill(m.eta());
+	  mu1Pt_.numerator ->Fill(m.pt());
+	  mu2Phi_.numerator->Fill(m1.phi());
+	  mu2Eta_.numerator->Fill(m1.eta());
+	  mu2Pt_.numerator ->Fill(m1.pt());
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
+	  break;
+	case 3:
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
 
-    case 10:
-      if (trHandle.isValid()){
-        for (auto const & t : *trHandle) {
-          if(!trSelection_ref(t))continue;
-          if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
-          reco::Track itrk1       = t ;                                                
-          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t,m) <= 0.001)) continue;
-          if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-          reco::Particle::LorentzVector pB, p2, p3;
-          double trackMass2 = 0.493677 *0.493677;
-          double MuMass2 = 0.1056583745 *0.1056583745;
-          double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
-          double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-          p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
-          p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
-          pB   = p2 + p3;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
-          reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-          std::vector<reco::TransientTrack> t_tks;
-          t_tks.push_back(mu2TT);
-          t_tks.push_back(trTT);
-          if (t_tks.size()!=2) continue;
-          KalmanVertexFitter kvf;
-          TransientVertex tv  = kvf.vertex(t_tks);
-          reco::Vertex vertex = tv;
-          if (!tv.isValid()) continue;
-          float JpsiTkCL = 0;
-          if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-          JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
-          math::XYZVector pperp(m1.px() + itrk1.px(),
-                                m1.py() + itrk1.py(),
-                                0.);
-          GlobalPoint secondaryVertex = tv.position();
-          GlobalError err             = tv.positionError();
-          GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
-                                                -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
-                                                0);
-          reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-          if (JpsiTkCL<minprob)continue;
-          muPhi_.numerator->Fill(m1.phi());
-          muEta_.numerator->Fill(m1.eta());
-          muPt_.numerator ->Fill(m1.pt());
-        }
-      }
-      break;
-    case 11:
-      if (dimuonCL<minprob)continue;
-      if (fabs(jpsi_cos)<mincos)continue;
-      if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
-      if (trHandle.isValid()){
-      for (auto const & t : *trHandle) {
-        if(!trSelection_ref(t))continue;
-        if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
-        for (auto const & t1 : *trHandle) {
-          if(!trSelection_ref(t1))continue;
-          if(false && !matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
-          reco::Track itrk1       = t ;
-          reco::Track itrk2       = t1 ;
-          if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
-          if((reco::deltaR(t,m) <= 0.001)) continue;
-          if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-          if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  if (dimuonCL<minprob)continue;
+	  mu1Eta_.numerator->Fill(m.eta());
+	  mu1Pt_.numerator ->Fill(m.pt());
+	  mu2Eta_.numerator->Fill(m1.eta());
+	  mu2Pt_.numerator ->Fill(m1.pt());
+	  break; 
+	case 4:
+	  if (dimuonCL<minprob)continue;
+	  DiMuMass_.numerator ->Fill(DiMuMass);
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  mu1Phi_.numerator->Fill(m.phi());
+	  mu1Eta_.numerator->Fill(m.eta());
+	  mu1Pt_.numerator ->Fill(m.pt());
+	  mu2Phi_.numerator->Fill(m1.phi());
+	  mu2Eta_.numerator->Fill(m1.eta());
+	  mu2Pt_.numerator ->Fill(m1.pt());
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
+	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
+	  break;
+	case 5:
+	  if (dimuonCL<minprob)continue;
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  mu1Phi_.numerator->Fill(m.phi());
+	  mu1Eta_.numerator->Fill(m.eta());
+	  mu1Pt_.numerator ->Fill(m.pt());
+	  mu2Phi_.numerator->Fill(m1.phi());
+	  mu2Eta_.numerator->Fill(m1.eta());
+	  mu2Pt_.numerator ->Fill(m1.pt());
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
+	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
+	  break;
+	case 6: 
+	  if (dimuonCL<minprob)continue;
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  for (auto const & m2 : *muoHandle) {//triple muon paths
+	    if(false && !matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
+	    if (m2.pt() == m.pt())continue;
+	    mu1Phi_.numerator->Fill(m.phi());
+	    mu1Eta_.numerator->Fill(m.eta());
+	    mu1Pt_.numerator ->Fill(m.pt());
+	    mu2Phi_.numerator->Fill(m1.phi());
+	    mu2Eta_.numerator->Fill(m1.eta());
+	    mu2Pt_.numerator ->Fill(m1.pt());
+	    mu3Phi_.numerator->Fill(m2.phi());
+	    mu3Eta_.numerator->Fill(m2.eta());
+	    mu3Pt_.numerator ->Fill(m2.pt());
+	  }      
+	  break;    
+	case 7:// the hists for photon monitoring will be filled on 515 line
+	  tnp_=0;
+	  break;
+	case 8://vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
+	  if ((Jpsi_) && (!Upsilon_)){
+	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
+	  }
+	  if ((!Jpsi_) && (Upsilon_)){
+	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
+	  }
+	  DiMuProb_.numerator ->Fill( dimuonCL);
+	  if (dimuonCL<minprob)continue;
+	  DiMuDS_.numerator ->Fill( displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
+	  DiMuPVcos_.numerator ->Fill(jpsi_cos );
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
+	  DiMuDCA_.numerator ->Fill( cApp.distance());
+	  break;
+	case 9:
+	  if (dimuonCL<minprob)continue;
+	  if (fabs(jpsi_cos)<mincos)continue;
+	  if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
+	  if (trHandle.isValid()){
+	    for (auto const & t : *trHandle) {
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+	      reco::Track itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+	      reco::Particle::LorentzVector pB, p1, p2, p3;
+	      double trackMass2 = 0.493677 *0.493677;
+	      double MuMass2 = 0.1056583745 *0.1056583745;
+	      double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
+	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+	      p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
+	      p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+	      p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+	      pB   = p1 + p2 + p3;
+	      if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+	      reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+	      std::vector<reco::TransientTrack> t_tks;
+	      t_tks.push_back(mu1TT);
+	      t_tks.push_back(mu2TT);
+	      t_tks.push_back(trTT);
+	      KalmanVertexFitter kvf;
+	      TransientVertex tv  = kvf.vertex(t_tks);
+	      reco::Vertex vertex = tv;
+	      if (!tv.isValid()) continue;
+	      float JpsiTkCL = 0;
+	      if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+		JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+	      math::XYZVector pperp(m.px() + m1.px() + itrk1.px(),
+				    m.py() + m1.py() + itrk1.py(),
+				    0.);
+	      GlobalPoint secondaryVertex = tv.position();
+	      GlobalError err             = tv.positionError();
+	      GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+						    -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+						    0);
+	      reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+	      float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+	      if (JpsiTkCL<minprob)continue;
+	      if (fabs(jpsiKcos)<mincos)continue;
+	      if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+	      muPhi_.numerator->Fill(t.phi());
+	      muEta_.numerator->Fill(t.eta());
+	      muPt_.numerator ->Fill(t.pt());
+	    }
+	  }
+	  break;
 
-          reco::Particle::LorentzVector pB, p1, p2, p3, p4;
-          double trackMass2 = 0.493677 *0.493677;
-          double MuMass2 = 0.1056583745 *0.1056583745;
-          double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
-          double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
-          double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-          double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
-          p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
-          p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
-          p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
-          p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
-          pB   = p1 + p2 + p3 + p4;
-          if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
-          reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-          reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
-          std::vector<reco::TransientTrack> t_tks;
-          t_tks.push_back(mu1TT);
-          t_tks.push_back(mu2TT);
-          t_tks.push_back(trTT);
-          t_tks.push_back(tr1TT);
-          KalmanVertexFitter kvf;
-          TransientVertex tv  = kvf.vertex(t_tks);
-          reco::Vertex vertex = tv;
-          if (!tv.isValid()) continue;
-          float JpsiTkCL = 0;
-          if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
-          JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
-          math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
-                                m.py() + m1.py() + itrk1.py() + itrk2.py(),
-                                0.);
-          GlobalPoint secondaryVertex = tv.position();
-          GlobalError err             = tv.positionError();
-          GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
-                                                -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
-                                                    (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
-                                                0);
-          reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-          float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
-          if (JpsiTkCL<minprob)continue;
-          if (fabs(jpsiKcos)<mincos)continue;
-          if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-          mu1Phi_.numerator->Fill(t.phi());
-          mu1Eta_.numerator->Fill(t.eta());
-          mu1Pt_.numerator ->Fill(t.pt());
-          mu2Phi_.numerator->Fill(t1.phi());
-          mu2Eta_.numerator->Fill(t1.eta());
-          mu2Pt_.numerator ->Fill(t1.pt());
-        } 
-    /////////////////////////
+	case 10:
+	  if (trHandle.isValid()){
+	    for (auto const & t : *trHandle) {
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+	      reco::Track itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+	      reco::Particle::LorentzVector pB, p2, p3;
+	      double trackMass2 = 0.493677 *0.493677;
+	      double MuMass2 = 0.1056583745 *0.1056583745;
+	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+	      p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+	      p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+	      pB   = p2 + p3;
+	      if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+	      reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+	      std::vector<reco::TransientTrack> t_tks;
+	      t_tks.push_back(mu2TT);
+	      t_tks.push_back(trTT);
+	      if (t_tks.size()!=2) continue;
+	      KalmanVertexFitter kvf;
+	      TransientVertex tv  = kvf.vertex(t_tks);
+	      reco::Vertex vertex = tv;
+	      if (!tv.isValid()) continue;
+	      float JpsiTkCL = 0;
+	      if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+		JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+	      math::XYZVector pperp(m1.px() + itrk1.px(),
+				    m1.py() + itrk1.py(),
+				    0.);
+	      GlobalPoint secondaryVertex = tv.position();
+	      GlobalError err             = tv.positionError();
+	      GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+						    -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+							(secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+						    0);
+	      reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+	      if (JpsiTkCL<minprob)continue;
+	      muPhi_.numerator->Fill(m1.phi());
+	      muEta_.numerator->Fill(m1.eta());
+	      muPt_.numerator ->Fill(m1.pt());
+	    }
+	  }
+	  break;
+	case 11:
+	  if (dimuonCL<minprob)continue;
+	  if (fabs(jpsi_cos)<mincos)continue;
+	  if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
+	  if (trHandle.isValid()){
+	    for (auto const & t : *trHandle) {
+	      if(!trSelection_ref(t))continue;
+	      if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
+	      for (auto const & t1 : *trHandle) {
+		if(!trSelection_ref(t1))continue;
+		if(false && !matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
+		reco::Track itrk1       = t ;
+		reco::Track itrk2       = t1 ;
+		if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
+		if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
+		if((reco::deltaR(t,m) <= 0.001)) continue;
+		if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+		if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
+
+		reco::Particle::LorentzVector pB, p1, p2, p3, p4;
+		double trackMass2 = 0.493677 *0.493677;
+		double MuMass2 = 0.1056583745 *0.1056583745;
+		double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
+		double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+		double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+		double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
+		p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
+		p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+		p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+		p4   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
+		pB   = p1 + p2 + p3 + p4;
+		if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+		reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+		reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+		std::vector<reco::TransientTrack> t_tks;
+		t_tks.push_back(mu1TT);
+		t_tks.push_back(mu2TT);
+		t_tks.push_back(trTT);
+		t_tks.push_back(tr1TT);
+		KalmanVertexFitter kvf;
+		TransientVertex tv  = kvf.vertex(t_tks);
+		reco::Vertex vertex = tv;
+		if (!tv.isValid()) continue;
+		float JpsiTkCL = 0;
+		if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+		  JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+		math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
+				      m.py() + m1.py() + itrk1.py() + itrk2.py(),
+				      0.);
+		GlobalPoint secondaryVertex = tv.position();
+		GlobalError err             = tv.positionError();
+		GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+							  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+						      -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+							  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+						      0);
+		reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+		float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+		if (JpsiTkCL<minprob)continue;
+		if (fabs(jpsiKcos)<mincos)continue;
+		if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+		mu1Phi_.numerator->Fill(t.phi());
+		mu1Eta_.numerator->Fill(t.eta());
+		mu1Pt_.numerator ->Fill(t.pt());
+		mu2Phi_.numerator->Fill(t1.phi());
+		mu2Eta_.numerator->Fill(t1.eta());
+		mu2Pt_.numerator ->Fill(t1.pt());
+	      } 
+	      /////////////////////////
+	    }
+	  }
+	  break;
+	} 
       }
     }
-    break;
-  } 
- }
-}
     if (enum_ == 7){//photons
-    const std::string &hltpath = hltpaths_num[0];
+      const std::string &hltpath = hltpaths_num[0];
       for (auto const & p : *phHandle) {
         if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.numerator->Fill(p.phi());
@@ -1238,33 +1238,33 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   descriptions.add("bphMonitoring", desc);
 }
-  template <typename T>
-  bool BPHMonitor::matchToTrigger(const std::string  &theTriggerName , T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
+template <typename T>
+bool BPHMonitor::matchToTrigger(const std::string  &theTriggerName , T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
   //bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent){
    
-    bool matchedToTrigger = false;
-    if (handleTriggerEvent->sizeFilters() >0){
+  bool matchedToTrigger = false;
+  if (handleTriggerEvent->sizeFilters() >0){
     const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());//Handle< trigger::TriggerEvent > handleTriggerEvent;
     for ( size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ ia) {
-        std::string fullname = handleTriggerEvent->filterTag(ia).encode();
-        std::string name;
-        size_t p = fullname.find_first_of(':');
-        if ( p != std::string::npos) {name = fullname.substr(0, p);}
-        else {name = fullname;}
-        const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
-        for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-           reco::Particle theTriggerParticle = toc[*ki].particle();
-           if(name.find(theTriggerName) != string::npos){
-             if((reco::deltaR(t.eta(), t.phi(),theTriggerParticle.eta(),theTriggerParticle.phi()) <= 0.2)){
-               matchedToTrigger = true;
-             }
-           }    
-        }
+      std::string fullname = handleTriggerEvent->filterTag(ia).encode();
+      std::string name;
+      size_t p = fullname.find_first_of(':');
+      if ( p != std::string::npos) {name = fullname.substr(0, p);}
+      else {name = fullname;}
+      const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	reco::Particle theTriggerParticle = toc[*ki].particle();
+	if(name.find(theTriggerName) != string::npos){
+	  if((reco::deltaR(t.eta(), t.phi(),theTriggerParticle.eta(),theTriggerParticle.phi()) <= 0.2)){
+	    matchedToTrigger = true;
+	  }
+	}    
+      }
     }
 
     return matchedToTrigger;
-}
-else {cout<<theTriggerName<<"\t\tNo HLT filters"<<endl; return false;}
+  }
+  else {cout<<theTriggerName<<"\t\tNo HLT filters"<<endl; return false;}
 }
 
 
