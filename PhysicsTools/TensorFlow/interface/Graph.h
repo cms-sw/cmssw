@@ -47,8 +47,11 @@ private:
 class Graph
 {
 public:
-    // constructor
-    Graph(const std::string& exportDir = "", const std::string& tag = "serve");
+    // default constructor
+    Graph();
+
+    // constructor with initialization
+    Graph(const std::string& exportDir, const std::string& tag = "serve");
 
     // disable implicit copy constructor
     Graph(const Graph& g) = delete;

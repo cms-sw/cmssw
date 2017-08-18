@@ -26,15 +26,19 @@ GraphIO::~GraphIO()
 {
 }
 
+Graph::Graph()
+    : preparedEval(false)
+    , tf_graph(0)
+    , tf_session(0)
+{
+}
+
 Graph::Graph(const std::string& filename, const std::string& tag)
     : preparedEval(false)
     , tf_graph(0)
     , tf_session(0)
 {
-    if (!filename.empty())
-    {
-        init(filename, tag);
-    }
+    init(filename, tag);
 }
 
 Graph::~Graph()
