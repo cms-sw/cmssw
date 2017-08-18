@@ -183,10 +183,14 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   TH2F *h2D_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt",";#eta;sum p_{T}",etaBins_,edge_pseudorapidity,500,0,500);
   TH2F *h2D_pfcand_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt",";#eta;sum p_{T}",etaBins_,edge_pseudorapidity,300, 0, 300);
  
-  TH2F *h2D_etabins_forRho = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 500,0,100);
-  TH2F *h2D_ptBins_forRho = new TH2F("ptBinsForRho","",300,0,300,500,0,100);
-  TH2F *h2D_centBins_forRho = new TH2F("centBinsForRho","",200,0,200,500,0,100);
+  TH2F *h2D_etabins_forRho = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 500,0,300);
+  TH2F *h2D_ptBins_forRho = new TH2F("ptBinsForRho","",300,0,300,500,0,300);
+  TH2F *h2D_centBins_forRho = new TH2F("centBinsForRho","",200,0,200,500,0,300);
 
+  TH2F *h2D_etabins_forRhoM = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 100,0,1.5);
+  TH2F *h2D_ptBins_forRhoM = new TH2F("ptBinsForRho","",300,0,300,100,0,1.5);
+  //TH2F *h2D_centBins_forRhoM = new TH2F("centBinsForRho","",200,0,200,100,0,1.5);
+  
   if(isPFJet){
 
     mNPFpart         = ibooker.book1D("NPFpart","No of particle flow candidates",1000,0,1000);
@@ -211,17 +215,17 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     	const char* lc = edge_pseudorapidity[ieta]<0 ? "n":"p";
         const char* rc = edge_pseudorapidity[ieta+1]<0 ? "n":"p";
 	std::string histoName = Form("mSumCaloPt_%s%.3g_%s%.3g",lc,abs(edge_pseudorapidity[ieta]),rc,abs(edge_pseudorapidity[ieta+1]));
-        for(int id=0; id<2; id++){ histoName.replace(histoName.find("."), 1, "p"); }
+        for(int id=0; id<2; id++){ if(histoName.find(".")!=std::string::npos) { histoName.replace(histoName.find("."), 1, "p"); } }
 	mSumPFPtEtaDep[ieta] = ibooker.book1D(histoName.c_str(),Form("Sum PFPt in the eta range %.3g to %.3g",edge_pseudorapidity[ieta],edge_pseudorapidity[ieta+1]),500,0,range);
     }
   
     if(std::string("Cs")==UEAlgo){ 
 	    mRhoDist_vsEta= ibooker.book2D("rhoDist_vsEta",h2D_etabins_forRho);
-	    mRhoMDist_vsEta= ibooker.book2D("rhoMDist_vsEta",h2D_etabins_forRho);
+	    mRhoMDist_vsEta= ibooker.book2D("rhoMDist_vsEta",h2D_etabins_forRhoM);
 	    mRhoDist_vsPt= ibooker.book2D("rhoDist_vsPt",h2D_ptBins_forRho);
-	    mRhoMDist_vsPt= ibooker.book2D("rhoMDist_vsPt",h2D_ptBins_forRho);
+	    mRhoMDist_vsPt= ibooker.book2D("rhoMDist_vsPt",h2D_ptBins_forRhoM);
 	    //mRhoDist_vsCent=ibooker.book2D("rhoDist_vsCent",h2D_centBins_forRho);
-	    //mRhoMDist_vsCent=ibooker.book2D("rhoMDist_vsCent",h2D_centBins_forRho);
+	    //mRhoMDist_vsCent=ibooker.book2D("rhoMDist_vsCent",h2D_centBins_forRhoM);
 
 	    //this is kind of a janky way to fill the eta since i can't get it from the edm::Event here... - kjung
 	    rhoEtaRange=ibooker.book1D("rhoEtaRange","",500,-5.5,5.5);
@@ -231,6 +235,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 			    mSubtractedEFrac[ipt][ieta]= ibooker.book1D(Form("subtractedEFrac_JetPt%d_to_%d_etaBin%d",ptBin[ipt],ptBin[ipt+1],ieta),"subtracted fraction of CS jet",50,0,1);
 			    mSubtractedE[ipt][ieta]= ibooker.book1D(Form("subtractedE_JetPt%d_to_%d_etaBin%d",ptBin[ipt],ptBin[ipt+1],ieta),"subtracted total of CS jet",300,0,300);
 		    }
+		    mCSCand_corrPFcand[ieta] = ibooker.book2D(Form("csCandCorrPF%d",ieta), "CS to PF candidate correlation, eta-by-eta",300,0,300,300,0,300);
 	    }
     }
 
@@ -293,7 +298,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 	const char* lc = edge_pseudorapidity[ieta]<0 ? "n":"p";
 	const char* rc = edge_pseudorapidity[ieta+1]<0 ? "n":"p";
 	std::string histoName = Form("mSumCaloPt_%s%.3g_%s%.3g",lc,abs(edge_pseudorapidity[ieta]),rc,abs(edge_pseudorapidity[ieta+1]));
-	for(int id=0; id<2; id++){ histoName.replace(histoName.find("."), 1, "p"); }
+	for(int id=0; id<2; id++){ if(histoName.find(".")!=std::string::npos){ histoName.replace(histoName.find("."), 1, "p"); } }
 	mSumCaloPtEtaDep[ieta] = ibooker.book1D(histoName.c_str(),Form("Sum Calo tower Pt in the eta range %.3g to %.3g",edge_pseudorapidity[ieta],edge_pseudorapidity[ieta+1]),1000,-1*range,range);
     }
   }
@@ -308,7 +313,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   // Jet parameters
   mEta             = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
   mPhi             = ibooker.book1D("Phi",          "Phi",           70, -3.5,  3.5); 
-  mPt              = ibooker.book1D("Pt",           "Pt",           100,    0,  500); 
+  mPt              = ibooker.book1D("Pt",           "Pt",           1000,    0,  500); 
   mP               = ibooker.book1D("P",            "P",            100,    0,  1000); 
   mEnergy          = ibooker.book1D("Energy",       "Energy",       100,    0,  1000); 
   mMass            = ibooker.book1D("Mass",         "Mass",         100,    0,  200); 
@@ -599,10 +604,13 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	    const reco::PFCandidateCollection *csCandidateColl = csCandidates.product();
 
 	    for(unsigned iCScand=0; iCScand<csCandidateColl->size(); iCScand++){
-		const reco::PFCandidate pfCandidate = csCandidateColl->at(iCScand);
+		assert(csCandidateColl->size() < pfCandidateColl->size());
+		const reco::PFCandidate csCandidate = csCandidateColl->at(iCScand);
+		const reco::PFCandidate pfCandidate = pfCandidateColl->at(iCScand);
 		int ieta=0;
-		while(pfCandidate.eta()>edge_pseudorapidity[ieta] && ieta<etaBins_-1) ieta++;		
-		mCSCandpT_vsPt[ieta]->Fill(pfCandidate.pt());
+		while(csCandidate.eta()>edge_pseudorapidity[ieta] && ieta<etaBins_-1) ieta++;		
+		mCSCandpT_vsPt[ieta]->Fill(csCandidate.pt());
+		mCSCand_corrPFcand[ieta]->Fill(csCandidate.pt(), pfCandidate.pt());
 	    }
     }
 

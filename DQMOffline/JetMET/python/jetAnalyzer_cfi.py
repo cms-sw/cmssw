@@ -237,10 +237,11 @@ jetDQMAnalyzerAkCs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                          recoJetPtThreshold = cms.double(10),        
                                          RThreshold = cms.double(0.3),
                                          reverseEnergyFractionThreshold = cms.double(0.5),
-					 etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
-					 rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
-					 rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM')
+                                         etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
+                                         rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
+                                         rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM')
 )
+
 jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJets"),
 						  CScands = cms.InputTag("akCs4PFJets","pfParticlesCs")
 )
