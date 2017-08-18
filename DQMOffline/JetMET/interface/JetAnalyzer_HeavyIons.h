@@ -92,11 +92,11 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   
  private:
   static const Int_t fourierOrder_ = 5;
-  static const Int_t etaBins_ = 15;
+  static const Int_t etaBins_ = 7;
   static const Int_t ptBins_ = 7;
 
   //default values - these are changed by the etaMap values for the CS plots
-  const double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
+  const double edge_pseudorapidity[etaBins_ +1] = {-5, -3, -2.1, -1.3, 1.3, 2.1, 3, 5};
   const int ptBin[ptBins_+1] = {0, 20, 40, 60, 100, 150, 300, 99999};
 
   static const Int_t nedge_pseudorapidity = etaBins_ + 1; 
@@ -199,6 +199,7 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mRhoMDist_vsCent;
   MonitorElement* rhoEtaRange;
   MonitorElement* mCSCandpT_vsPt[etaBins_];
+  MonitorElement* mCSCand_corrPFcand[etaBins_];
   MonitorElement* mSubtractedEFrac[ptBins_][etaBins_];
   MonitorElement* mSubtractedE[ptBins_][etaBins_];
 
