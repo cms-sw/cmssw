@@ -21,6 +21,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 class HCaloDetIdAssociator: public HDetIdAssociator{
  public:
@@ -38,7 +39,10 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
      };
    
    virtual GlobalPoint getPosition(const DetId& id){
-      return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
+      GlobalPoint point = (id.det() == DetId::Hcal) ? 
+	((HcalGeometry*)(geometry_->getSubdetectorGeometry(id)))->getPosition(id) : 
+	geometry_->getPosition(id);
+      return point;
    };
    
    virtual std::set<DetId> getASetOfValidDetIds(){

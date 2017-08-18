@@ -1,5 +1,6 @@
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include <iostream>
 
@@ -190,12 +191,15 @@ namespace spr {
 
   GlobalPoint getGpos(const CaloGeometry* geo,HBHERecHitCollection::const_iterator hit, bool) {
     DetId detId(hit->id());
-    return geo->getPosition(detId);
+    return ((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
   }
 
   GlobalPoint getGpos(const CaloGeometry* geo,edm::PCaloHitContainer::const_iterator hit, bool) {
     DetId detId(hit->id());
-    return geo->getPosition(detId);
+    GlobalPoint point = (detId.det() == DetId::Hcal) ? 
+      ((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : 
+      geo->getPosition(detId);
+    return point;
   }
 
   GlobalPoint getGpos(const CaloGeometry* geo, EcalRecHitCollection::const_iterator hit, bool) {
