@@ -27,7 +27,7 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
     std::string maskCapIdStr{"maskCapId"+std::to_string(i)};
     masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr.c_str(), zeroMask));
     // which masks are defined?
-    if (ps.exists(maskCapIdStr.c_str())) {
+    if (ps.exists(maskCapIdStr)) {
       definedMaskCapIds_.push_back(i);
     }
   }
@@ -44,7 +44,7 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
   }
 }
 
-L1TMP7ZeroSupp::~L1TMP7ZeroSupp() {}
+L1TMP7ZeroSupp::~L1TMP7ZeroSupp() = default;
 
 void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -85,7 +85,7 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
   for (const auto &id: definedMaskCapIds_) {
     ss.str("");
     ss << monitorDir_ << "/CapId" << id;
-    ibooker.setCurrentFolder(ss.str().c_str());
+    ibooker.setCurrentFolder(ss.str());
     bookCapIdHistograms(ibooker, id);
   }
 }
@@ -231,17 +231,16 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         continue;
 
       auto payload64 = amc.data();
-      const uint32_t * start = (const uint32_t*) payload64.get();
+      auto start = (const uint32_t*) payload64.get();
       // Want to have payload size in 32 bit words, but AMC measures
       // it in 64 bit words -> factor 2.
       const uint32_t * end = start + (amc.size() * 2);
 
-      std::unique_ptr<l1t::Payload> payload;
-      payload.reset(new l1t::MP7Payload(start, end, false));
+      auto payload = std::make_unique<l1t::MP7Payload>(start, end, false);
 
       // getBlock() returns a non-null unique_ptr on success
       std::unique_ptr<l1t::Block> block;
-      while ((block = payload->getBlock()).get()) {
+      while ((block = payload->getBlock()) != nullptr) {
         if (verbose_) {
           std::cout << ">>> check zero suppression for block <<<" << std::endl
                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
@@ -287,7 +286,7 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         // check all BX blocks
         bool allToSuppress = true;
-        for (const auto bxBlock: bxBlocks) {
+        for (const auto& bxBlock: bxBlocks) {
           bool toSuppress = false;
           bool bxZsFlagSet = ((bxBlock.header().getFlags() & zsFlagMask_) != 0); // ZS validation flag
 
@@ -318,12 +317,12 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
             }
           }
           // update the overall block status
-          allToSuppress &= toSuppress;
+          allToSuppress = allToSuppress && toSuppress;
 
           // only fill the BX related things for the per-BX ZS
           if (newZsFlagSet) {
             // the ZS flag of the block is the AND of all BX block ZS flags
-            blockZsFlagSet &= bxZsFlagSet;
+            blockZsFlagSet = blockZsFlagSet && bxZsFlagSet;
 
             // fill the BX related bins of the denominator histogram
             zeroSuppValMap_[maxMasks_]->Fill(BXBLOCKS);
