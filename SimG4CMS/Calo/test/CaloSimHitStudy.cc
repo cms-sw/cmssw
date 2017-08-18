@@ -42,10 +42,10 @@ public:
 
 protected:
 
-  virtual void beginJob() override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   void analyzeHits  (std::vector<PCaloHit> &, int);
   void analyzeHits  (edm::Handle<edm::PSimHitContainer>&, int);
@@ -70,6 +70,8 @@ private:
 };
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
+
+  usesResource(TFileService::kSharedResource);
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
@@ -331,8 +333,9 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     double edepEM    = hits[i].energyEM();
     double edepHad   = hits[i].energyHad();
     if (indx == 0) {
-      if      (hits[i].depth()==1) id_ |= 0x20000;
-      else if (hits[i].depth()==2) id_ |= 0x40000;
+      int  dep       = (hits[i].depth())&PCaloHit::kEcalDepthIdMask;
+      if      (dep==1) id_ |= 0x20000;
+      else if (dep==2) id_ |= 0x40000;
     }
     std::map<unsigned int,double>::const_iterator it = hitMap.find(id_);
     if (it == hitMap.end()) {
@@ -342,7 +345,7 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     if (indx != 3) {
       if (indx == 0) {
 	if (storeRL_)  idx = 0;
-	else           idx = hits[i].depth();
+	else           idx = ((hits[i].depth())&PCaloHit::kEcalDepthIdMask);
       } else           idx = indx+2;
       time_[idx]->Fill(time);
       edep_[idx]->Fill(edep);
@@ -464,7 +467,7 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits,
   for (unsigned int i=0; i<ebHits.size(); i++) {
     double edep      = ebHits[i].energy();
     double time      = ebHits[i].time();
-    if  (ebHits[i].depth()==0) {
+    if  (((ebHits[i].depth())&PCaloHit::kEcalDepthIdMask)==0) {
       edepEB += edep;
       if (time < tmax_) edepEBT += edep;
     }
