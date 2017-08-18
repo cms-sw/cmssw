@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include <PhysicsTools/TensorFlow/interface/Tensor.h>
-#include <PhysicsTools/TensorFlow/interface/Graph.h>
+#include "PhysicsTools/TensorFlow/interface/Tensor.h"
+#include "PhysicsTools/TensorFlow/interface/Graph.h"
 
 void test(bool success, const std::string& msg)
 {
