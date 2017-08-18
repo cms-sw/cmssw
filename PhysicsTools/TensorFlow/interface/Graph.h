@@ -20,9 +20,6 @@
 namespace tf
 {
 
-// forward declaration
-class Graph;
-
 // generic class containing all information of inputs to / ouptuts from a graph
 class GraphIO
 {
@@ -33,14 +30,36 @@ public:
     // destructor
     virtual ~GraphIO();
 
+    // returns the pointer to the tensor instance
+    inline Tensor* getTensor()
+    {
+        return tensor;
+    }
+
+    // returns a reference to the tensorflow output object
+    inline TF_Output& getTFOutput()
+    {
+        return tf_output;
+    }
+
+    // returns the operation name
+    inline std::string& getOpName()
+    {
+        return opName;
+    }
+
+    // returns the operation index
+    inline int getOpIndex()
+    {
+        return opIndex;
+    }
+
 private:
     Tensor* tensor;
     std::string opName;
     int opIndex;
 
     TF_Output tf_output;
-
-    friend Graph;
 };
 
 // the Graph class

@@ -181,7 +181,8 @@ void Graph::removeInput(Tensor* tensor, const std::string& opName, int opIndex)
     std::vector<GraphIO*>::iterator it;
     for (it = inputs.begin(); it != inputs.end(); it++)
     {
-        if ((*it)->tensor == tensor && (*it)->opName == opName && (*it)->opIndex == opIndex)
+        if ((*it)->getTensor() == tensor && (*it)->getOpName() == opName
+            && (*it)->getOpIndex() == opIndex)
         {
             delete *it;
             inputs.erase(it);
@@ -207,7 +208,8 @@ void Graph::removeOutput(Tensor* tensor, const std::string& opName, int opIndex)
     std::vector<GraphIO*>::iterator it;
     for (it = outputs.begin(); it != outputs.end(); it++)
     {
-        if ((*it)->tensor == tensor && (*it)->opName == opName && (*it)->opIndex == opIndex)
+        if ((*it)->getTensor() == tensor && (*it)->getOpName() == opName
+            && (*it)->getOpIndex() == opIndex)
         {
             delete *it;
             outputs.erase(it);
@@ -243,7 +245,8 @@ bool Graph::hasInput(Tensor* tensor, const std::string& opName, int opIndex) con
     std::vector<GraphIO*>::const_iterator it;
     for (it = inputs.begin(); it != inputs.end(); it++)
     {
-        if ((*it)->tensor == tensor && (*it)->opName == opName && (*it)->opIndex == opIndex)
+        if ((*it)->getTensor() == tensor && (*it)->getOpName() == opName
+            && (*it)->getOpIndex() == opIndex)
         {
             return true;
         }
@@ -256,7 +259,8 @@ bool Graph::hasOutput(Tensor* tensor, const std::string& opName, int opIndex) co
     std::vector<GraphIO*>::const_iterator it;
     for (it = outputs.begin(); it != outputs.end(); it++)
     {
-        if ((*it)->tensor == tensor && (*it)->opName == opName && (*it)->opIndex == opIndex)
+        if ((*it)->getTensor() == tensor && (*it)->getOpName() == opName
+            && (*it)->getOpIndex() == opIndex)
         {
             return true;
         }
@@ -280,7 +284,7 @@ void Graph::eval()
     // clear previous outputs
     for (size_t i = 0; i < nOut; ++i)
     {
-        outputs[i]->tensor->reset();
+        outputs[i]->getTensor()->reset();
     }
     outputTensors.clear();
     outputTensors.resize(nOut, 0);
@@ -306,7 +310,7 @@ void Graph::eval()
     // sync outputs again
     for (size_t i = 0; i < nOut; ++i)
     {
-        outputs[i]->tensor->init(outputTensors[i]);
+        outputs[i]->getTensor()->init(outputTensors[i]);
     }
 
     // cleanup
@@ -326,8 +330,8 @@ void Graph::prepareEval()
     std::vector<GraphIO*>::iterator it;
     for (it = inputs.begin(); it != inputs.end(); it++)
     {
-        inputOutputs.push_back((*it)->tf_output);
-        inputTensors.push_back((*it)->tensor->tf_tensor);
+        inputOutputs.push_back((*it)->getTFOutput());
+        inputTensors.push_back((*it)->getTensor()->getTFTensor());
     }
 
     // clear output objects and set them again
@@ -335,8 +339,8 @@ void Graph::prepareEval()
     outputTensors.clear();
     for (it = outputs.begin(); it != outputs.end(); it++)
     {
-        outputOutputs.push_back((*it)->tf_output);
-        outputTensors.push_back((*it)->tensor->tf_tensor);
+        outputOutputs.push_back((*it)->getTFOutput());
+        outputTensors.push_back((*it)->getTensor()->getTFTensor());
     }
 
     preparedEval = true;
