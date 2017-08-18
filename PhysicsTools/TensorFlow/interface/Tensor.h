@@ -17,10 +17,6 @@
 namespace tf
 {
 
-// forward declarations
-class GraphIO;
-class Graph;
-
 // typedefs
 typedef TF_DataType DataType;
 typedef int64_t Shape;
@@ -58,6 +54,12 @@ public:
 
     // resets the internal tensorflow tensor object
     void reset();
+
+    // returns the pointer to the tensorflow tensor object
+    inline TF_Tensor* getTFTensor()
+    {
+        return tf_tensor;
+    }
 
     // returns true if the internal tensorflow tensor object is not initalized yet, false otherwise
     inline bool empty() const
@@ -338,10 +340,6 @@ private:
                 + std::to_string(getRank()) + " (expected " + std::to_string(rank) + ")");
         }
     }
-
-    // friends
-    friend GraphIO;
-    friend Graph;
 };
 
 template <typename T>
@@ -448,7 +446,5 @@ void Tensor::fillValuesAtPos(T v, int n, Shape* pos)
 }
 
 } // namepace tf
-
-#include "PhysicsTools/TensorFlow/interface/Graph.h"
 
 #endif // PHYSICSTOOLS_TENSORFLOW_TENSOR_H
