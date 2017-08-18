@@ -95,15 +95,15 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
-   SiPixelPhase1DigisAnalyzer
- + SiPixelPhase1ClustersAnalyzer
+   SiPixelPhase1DigisAnalyzer_Online
+ + SiPixelPhase1ClustersAnalyzer_Online
  + SiPixelPhase1RawDataAnalyzer
 # + SiPixelPhase1GeometryDebugAnalyzer
 )
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
-   SiPixelPhase1DigisHarvester 
- + SiPixelPhase1ClustersHarvester
+   SiPixelPhase1DigisHarvester_Online 
+ + SiPixelPhase1ClustersHarvester_Online
  + SiPixelPhase1RawDataHarvester
  + RunQTests_online
  + SiPixelPhase1SummaryOnline

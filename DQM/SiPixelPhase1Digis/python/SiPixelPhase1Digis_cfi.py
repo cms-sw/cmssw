@@ -20,6 +20,47 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   )
 )
 
+SiPixelPhase1DigisADC_Online = DefaultHistoDigiCluster.clone(
+  name = "adc",
+  title = "Digi ADC values",
+  xlabel = "adc readout",
+  range_min = -0.5,
+  range_max = 300.5,
+  range_nbins = 301,
+  specs = VPSet(
+    StandardSpecificationTrend_Online,
+    StandardSpecificationTrend2D_Online,
+    StandardSpecificationPixelmapProfile,# ROC level map
+    StandardSpecification2DProfile, # module level map
+    StandardSpecifications1D
+  )
+)
+
+SiPixelPhase1DigisNdigis_Online = DefaultHistoDigiCluster.clone(
+  name = "digis", # 'Count of' added automatically
+  title = "Digis",
+  xlabel = "digis",
+  range_min = 0,
+  range_max = 100,
+  range_nbins = 100,
+  dimensions = 0, # this is a count
+
+  specs = VPSet(
+    StandardSpecificationTrend_Online_Num,
+    StandardSpecification2DProfile_Num,
+    StandardSpecifications1D_Num,
+	
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=150, xmin=0, xmax=30000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=150, xmin=0, xmax=15000),
+  )
+)
+
 SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   name = "digis", # 'Count of' added automatically
   title = "Digis",
@@ -188,6 +229,17 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisOccupancy,
 )
 
+SiPixelPhase1DigisConf_Online = cms.VPSet(
+  SiPixelPhase1DigisADC_Online,
+  SiPixelPhase1DigisNdigis_Online,
+  SiPixelPhase1ClustersNdigisInclusive,
+  SiPixelPhase1DigisNdigisPerFED,
+  SiPixelPhase1DigisNdigisPerFEDtrend,
+  SiPixelPhase1DigisEvents,
+  SiPixelPhase1DigisHitmap,
+  SiPixelPhase1DigisOccupancy,
+)
+
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         src = cms.InputTag("siPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
@@ -196,5 +248,16 @@ SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
 
 SiPixelPhase1DigisHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
+        geometry = SiPixelPhase1Geometry
+)
+
+SiPixelPhase1DigisAnalyzer_Online = cms.EDAnalyzer("SiPixelPhase1Digis",
+        src = cms.InputTag("siPixelDigis"), 
+        histograms = SiPixelPhase1DigisConf_Online,
+        geometry = SiPixelPhase1Geometry
+)
+
+SiPixelPhase1DigisHarvester_Online = DQMEDHarvester("SiPixelPhase1Harvester",
+        histograms = SiPixelPhase1DigisConf_Online,
         geometry = SiPixelPhase1Geometry
 )

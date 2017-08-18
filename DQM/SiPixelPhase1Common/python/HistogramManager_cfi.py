@@ -161,7 +161,31 @@ StandardSpecificationTrend = [
                    .save()
 ]
 
+StandardSpecificationTrend_Online = [
+    Specification().groupBy("PXBarrel/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel", "EXTEND_X")
+                   .save(),
+    Specification().groupBy("PXForward/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward", "EXTEND_X")
+                   .save()
+]
+
 StandardSpecificationTrend2D = [
+    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save()
+]
+
+StandardSpecificationTrend2D_Online = [
     Specification().groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
@@ -321,6 +345,41 @@ StandardSpecificationTrend_Num = [
     Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXAll", "EXTEND_X")
+                   .save(),
+]
+
+StandardSpecificationTrend_Online_Num = [
+    Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel", "EXTEND_X")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXForward/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward", "EXTEND_X")
+                   .save(),
+    Specification().groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
