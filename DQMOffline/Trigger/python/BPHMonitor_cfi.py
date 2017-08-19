@@ -93,16 +93,16 @@ hltBPHmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_Dim
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyL1 = cms.bool( True )
 hltBPHmonitoring.numGenericTriggerEventPSet.l1BeforeMask = cms.bool( True )
-hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
+hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-#hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi_v*" )#reference
 #hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
+hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
