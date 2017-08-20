@@ -4,46 +4,46 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 baseFolderPath = 'HLT/HeavyFlavor/HLT/'
 
 hfv1 = heavyFlavorValidationHarvesting.clone(
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_3_Bs_v')
+  MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_DoubleMu4_3_Bs_v')
 )
 hfv2 = heavyFlavorValidationHarvesting.clone(
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_3_Jpsi_Displaced_v')
+  MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_DoubleMu4_3_Jpsi_Displaced_v')
 )
 
 
 hfvTnP1 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_L2Mu2_Jpsi_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_L2Mu2_Jpsi_v')
 )
 hfvTnP2 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_L2Mu2_Upsilon_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_L2Mu2_Upsilon_v')
 )
 hfvTnP3 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track2_Jpsi_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track2_Jpsi_v')
 )
 hfvTnP4 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track3p5_Jpsi_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track3p5_Jpsi_v')
 )
 hfvTnP5 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track7_Jpsi_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track7_Jpsi_v')
 )
 hfvTnP6 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track2_Upsilon_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track2_Upsilon_v')
 )
 hfvTnP7 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track3p5_Upsilon_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track3p5_Upsilon_v')
 )
 hfvTnP8 = heavyFlavorValidationHarvesting.clone(
-    MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track7_Upsilon_v')
+    MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_Mu7p5_Track7_Upsilon_v')
 )
 
 hfv7 = heavyFlavorValidationHarvesting.clone(
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_JpsiTrk_Displaced_v')
+  MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_DoubleMu4_JpsiTrk_Displaced_v')
 )
 hfv8 = heavyFlavorValidationHarvesting.clone(
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_PsiPrimeTrk_Displaced_v')
+  MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v')
 )
 hfv9 = heavyFlavorValidationHarvesting.clone(
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v')
+  MyDQMrootFolder = cms.untracked.string(baseFolderPath + 'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v')
 )
 
 ### 2017 additions
