@@ -43,5 +43,6 @@ run2_HCAL_2017.toModify( hcalRawDatauHTR,
     HFqie8 = cms.InputTag("DMHcalDigis"),
     QIE10 = cms.InputTag("DMHcalDigis","HFQIE10DigiCollection"),
     QIE11 = cms.InputTag("DMHcalDigis","HBHEQIE11DigiCollection"),
+    TP = cms.InputTag("DMHcalTriggerPrimitiveDigis"),
 )
 
