@@ -579,7 +579,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool pfId = false;
 
       if (usePfCandidateMultiMap_) {
-        for (const reco::PFCandidateRef pf : (*ValMultiMapH)[elePtr]) {
+        for (const reco::PFCandidateRef& pf : (*ValMultiMapH)[elePtr]) {
             if (pf->particleId() == reco::PFCandidate::e) {
                 pfId = true;
                 anElectron.setPFCandidateRef( pf );
