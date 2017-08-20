@@ -9,11 +9,15 @@ https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_mod
 
 
 import os
+import sys
 import tensorflow as tf
 
 
-thisdir = os.path.dirname(os.path.abspath(__file__))
-datadir = os.path.join(os.path.dirname(thisdir), "bin", "data")
+if len(sys.argv) >= 2:
+    datadir = sys.argv[1]
+else:
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    datadir = os.path.join(os.path.dirname(thisdir), "bin", "data")
 
 x_ = tf.placeholder(tf.float32, [None, 100], name="input")
 

@@ -1,0 +1,14 @@
+<bin name="testTFTensor" file="testRunner.cpp,testTensor.cc">
+    <use name="tensorflow-c" />
+    <use name="cppunit"/>
+
+    <use name="PhysicsTools/TensorFlow" />
+</bin>
+
+<bin name="testTFGraph" file="testRunner.cpp,testGraph.cc">
+    <use name="tensorflow-c" />
+    <use name="boost_filesystem" />
+    <use name="cppunit"/>
+
+    <use name="PhysicsTools/TensorFlow" />
+</bin>
