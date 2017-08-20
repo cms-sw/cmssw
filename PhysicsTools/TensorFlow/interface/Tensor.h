@@ -1,9 +1,9 @@
 /*
  * TensorFlow tensor interface.
  * Based on TensorFlow C API 1.1.
+ * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
- * Author:
- *   Marcel Rieger
+ * Author: Marcel Rieger
  */
 
 #ifndef PHYSICSTOOLS_TENSORFLOW_TENSOR_H
