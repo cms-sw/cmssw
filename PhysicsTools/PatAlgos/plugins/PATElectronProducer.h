@@ -56,9 +56,9 @@ namespace pat {
     public:
 
       explicit PATElectronProducer(const edm::ParameterSet & iConfig);
-      ~PATElectronProducer();
+      ~PATElectronProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

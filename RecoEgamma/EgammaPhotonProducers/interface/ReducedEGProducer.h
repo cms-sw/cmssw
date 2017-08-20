@@ -49,9 +49,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  public:
 
   ReducedEGProducer (const edm::ParameterSet& ps);
-  ~ReducedEGProducer();
+  ~ReducedEGProducer() override;
 
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) final;
 
  private:
 
