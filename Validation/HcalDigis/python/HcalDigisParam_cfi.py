@@ -11,7 +11,7 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     mc		= cms.untracked.string('yes'),
     simHits     = cms.untracked.InputTag("g4SimHits","HcalHits"),
     emulTPs     = cms.InputTag("emulDigis"),
-    dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    dataTPs     = cms.InputTag("hcalDigis"),
     TestNumber  = cms.bool(False),
     hep17       = cms.bool(False)
 )
