@@ -401,7 +401,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  // embed high level selection
 	  if ( embedHighLevelSelection_ ) {
 	    // get the global track
-	    reco::GsfTrackRef track = PfTk;
+	    const reco::GsfTrackRef& track = PfTk;
 
 	    // Make sure the collection it points to is there
 	    if ( track.isNonnull() && track.isAvailable() ) {
