@@ -24,6 +24,7 @@ minInvMass            (iConfig.getUntrackedParameter<double>("minInvMass",      
 maxInvMass            (iConfig.getUntrackedParameter<double>("maxInvMass",      99999.0)),
 minLeadingJetsInvMass (iConfig.getUntrackedParameter<double>("minLeadingJetsInvMass",          0.0)),
 maxLeadingJetsInvMass (iConfig.getUntrackedParameter<double>("maxLeadingJetsInvMass",      99999.0)),
+deltaRNoLep           (iConfig.getUntrackedParameter<double>("deltaRNoLep",        0.3)),
 minDeltaPhi           (iConfig.getUntrackedParameter<double>("minDeltaPhi",        -1.0)),
 maxDeltaPhi           (iConfig.getUntrackedParameter<double>("maxDeltaPhi",     99999.0)),
 minDeltaEta           (iConfig.getUntrackedParameter<double>("minDeltaEta",        -1.0)),
@@ -31,9 +32,9 @@ maxDeltaEta           (iConfig.getUntrackedParameter<double>("maxDeltaEta",     
 {
   
   m_inputTag_GenJetCollection       = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("inputTag_GenJetCollection",edm::InputTag("ak5GenJetsNoNu")));
-//   m_inputTag_GenParticleCollection  = consumes<std::vector<reco::GenParticle> >(edm::InputTag("genParticles"));
-//   m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("inputTag_GenParticleCollection",edm::InputTag("genParticles")));
-  m_inputTag_GenParticleCollection  = consumes<reco::GenParticle>(iConfig.getParameter<edm::InputTag>("genParticles"));
+  m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("genParticles")));
+//   m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
+
 }
 
 VBFGenJetFilter::~VBFGenJetFilter(){
@@ -48,12 +49,23 @@ vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<
       const reco::GenParticle* p = &((*particles)[i]);
       int absPdgId = abs(p->pdgId());
       
-      if(absPdgId == 13) {
+      
+      if(absPdgId == 13 && p->isHardProcess()) {
           out.push_back(p);
+          
+          
+//           if (p->numberOfDaughters() == 0 ) out.push_back(p);
+//           if (p->isHardProcess()) out.push_back(p);
+//           bool muonToAdd = true;
+//           for (unsigned int n = 0; n < p->numberOfDaughters(); ++n)
+//               if (abs(p->daughter(n)->pdgId()) == 13) muonToAdd = false;
+//           if (muonToAdd) out.push_back(p); 
+              
       }
       
+
   }
-  
+//   if (out.size() > 0) std::cout << "filterGenLeptons size: " << out.size() << std::endl;
   return out;
 }
 
@@ -85,13 +97,7 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(m_inputTag_GenJetCollection, handleGenJets);
   const vector<reco::GenJet>* genJets = handleGenJets.product();
   
-  
-  Handle< vector<reco::GenParticle>> genParticelesCollection;
-  iEvent.getByToken(m_inputTag_GenParticleCollection, genParticelesCollection);
-  const vector<reco::GenParticle>*  genParticles = genParticelesCollection.product();
         
-        
- 
         
   // Getting filtered generator jets
   vector<const reco::GenJet*> filGenJets = filterGenJets(genJets);
@@ -99,8 +105,17 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // If we do not find at least 2 jets veto the event
   if(filGenJets.size()<2){return false;}
   
-  // Testing dijet mass    -------------------------------------------------------      NEW CODE!
+  
+  
+  
+  // Testing dijet mass   
   if(leadJetsNoLepMass) { 
+        
+    Handle<reco::GenParticleCollection> genParticelesCollection;
+    iEvent.getByToken(m_inputTag_GenParticleCollection, genParticelesCollection);
+    const vector<reco::GenParticle>*  genParticles = genParticelesCollection.product();
+            
+    
       // Getting filtered generator muons
       vector<const reco::GenParticle*> filGenLep = filterGenLeptons(genParticles);
       
@@ -108,30 +123,33 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
       unsigned int jetIdx = 0;
       
-      while(genJetsWithoutLeptonsP4.size()<2) {
+      
+      
+
+      while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
           bool jetWhitoutLep = true;
           math::XYZTLorentzVector p4J= (filGenJets[jetIdx])->p4();
-          
-          for(unsigned int i = 0; i < filGenLep.size(); ++i) {
+          for(unsigned int i = 0; i < filGenLep.size() && jetWhitoutLep; ++i) {
               float dPhi = reco::deltaPhi((filGenLep[i])->p4().phi(), p4J.phi());
               float dEta = (filGenLep[i])->p4().eta()-p4J.eta();
-              if(dPhi*dPhi + dEta*dEta < 0.3)
+              if(dPhi*dPhi + dEta*dEta < deltaRNoLep*deltaRNoLep)
                   jetWhitoutLep = false;
           }
           
-          if (jetWhitoutLep) genJetsWithoutLeptonsP4.push_back(p4J);
+          if (jetWhitoutLep)  genJetsWithoutLeptonsP4.push_back(p4J);
           ++jetIdx;
       }
       
-      
+      // Checking the invariant mass of the leading jets
       if (genJetsWithoutLeptonsP4.size() < 2) return false;
       float invMassLeadingJet = (genJetsWithoutLeptonsP4[0] + genJetsWithoutLeptonsP4[1]).M();
       if ( invMassLeadingJet > minLeadingJetsInvMass  && invMassLeadingJet < maxLeadingJetsInvMass) return true;
       else return false;
       
   }
-  //  ---------------------------------------------------------------------------      END NEW CODE!
+
   
+
   
   for(unsigned a=0; a<filGenJets.size(); a++){
     for(unsigned b=a+1; b<filGenJets.size(); b++){    

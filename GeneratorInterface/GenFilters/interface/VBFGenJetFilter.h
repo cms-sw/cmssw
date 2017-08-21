@@ -61,6 +61,7 @@ private:
   double maxInvMass;
   double minLeadingJetsInvMass;
   double maxLeadingJetsInvMass;
+  double deltaRNoLep;
   double minDeltaPhi;
   double maxDeltaPhi;
   double minDeltaEta;
@@ -68,7 +69,7 @@ private:
   
   // Input tags
   edm::EDGetTokenT< reco::GenJetCollection > m_inputTag_GenJetCollection;
-  edm::EDGetTokenT< reco::GenParticle > m_inputTag_GenParticleCollection;
+  edm::EDGetTokenT< reco::GenParticleCollection > m_inputTag_GenParticleCollection;
   
 
 };
