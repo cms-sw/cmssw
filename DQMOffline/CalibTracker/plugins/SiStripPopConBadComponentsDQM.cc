@@ -11,12 +11,12 @@ class SiStripPopConBadComponentsHandlerFromDQM : public SiStripDQMPopConSourceHa
 {
 public:
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
-  virtual ~SiStripPopConBadComponentsHandlerFromDQM();
+  ~SiStripPopConBadComponentsHandlerFromDQM() override;
   // interface methods: implemented in template
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
-  SiStripBadStrip* getObj() const;
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
+  SiStripBadStrip* getObj() const override;
 protected:
-  std::string getMetaDataString() const;
+  std::string getMetaDataString() const override;
 private:
   edm::FileInPath fp_;
   SiStripBadStrip m_obj;

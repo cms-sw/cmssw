@@ -19,15 +19,15 @@ public:
     m_populator(pset),
     m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
-  virtual ~SiStripPopConDQMEDHarvester() {}
+  ~SiStripPopConDQMEDHarvester() override {}
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup)
+  void beginRun(const edm::Run&, const edm::EventSetup& setup) override
   {
     m_source.initES(setup);
   }
 
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override {
     m_source.dqmEndJob(booker, getter);
     m_populator.write(m_source);
   }

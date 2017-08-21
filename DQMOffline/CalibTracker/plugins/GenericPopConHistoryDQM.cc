@@ -11,12 +11,12 @@ public:
     , m_detectorID{iConfig.getParameter<uint32_t>("DetectorId")}
   {}
 
-  virtual ~GenericHistoryDQM();
+  ~GenericHistoryDQM() override;
 private:
   //Methods to be specified by each subdet
-  uint32_t returnDetComponent(const MonitorElement* ME) const;
-  bool setDBLabelsForUser  (const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity ) const;
-  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity ) const;
+  uint32_t returnDetComponent(const MonitorElement* ME) const override;
+  bool setDBLabelsForUser  (const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity ) const override;
+  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity ) const override;
 
   uint32_t m_detectorID;
 };

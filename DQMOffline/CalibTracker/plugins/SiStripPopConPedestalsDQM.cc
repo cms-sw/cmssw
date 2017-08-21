@@ -11,10 +11,10 @@ class SiStripPopConPedestalsHandlerFromDQM : public SiStripDQMPopConSourceHandle
 {
 public:
   explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
-  virtual ~SiStripPopConPedestalsHandlerFromDQM();
+  ~SiStripPopConPedestalsHandlerFromDQM() override;
   // interface methods: implemented in template
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
-  SiStripPedestals* getObj() const;
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
+  SiStripPedestals* getObj() const override;
 private:
   edm::FileInPath fp_;
   std::string MEDir_;

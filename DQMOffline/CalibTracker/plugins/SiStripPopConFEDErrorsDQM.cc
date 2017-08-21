@@ -13,11 +13,11 @@ class SiStripPopConFEDErrorsHandlerFromDQM : public SiStripDQMPopConSourceHandle
 {
 public:
   explicit SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig);
-  virtual ~SiStripPopConFEDErrorsHandlerFromDQM();
+  ~SiStripPopConFEDErrorsHandlerFromDQM() override;
   // interface methods: implemented in template
-  virtual void initES(const edm::EventSetup& iSetup) override;
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
-  SiStripBadStrip* getObj() const;
+  void initES(const edm::EventSetup& iSetup) override;
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
+  SiStripBadStrip* getObj() const override;
 
 private:
   void readHistogram(MonitorElement* aMe,

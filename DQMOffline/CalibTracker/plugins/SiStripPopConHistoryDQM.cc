@@ -18,13 +18,13 @@ public:
     : SiStripPopConHistoryDQMBase(pset)
   {}
 
-  virtual void initES(const edm::EventSetup&) override;
+  void initES(const edm::EventSetup&) override;
 
-  virtual ~SiStripPopConHistoryDQM();
+  ~SiStripPopConHistoryDQM() override;
 private:
-  uint32_t returnDetComponent(const MonitorElement* ME) const;
-  bool setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity) const;
-  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity) const;
+  uint32_t returnDetComponent(const MonitorElement* ME) const override;
+  bool setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity) const override;
+  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity) const override;
 private:
   const TrackerTopology* trackerTopo_;
 };
@@ -41,7 +41,7 @@ void SiStripPopConHistoryDQM::initES(const edm::EventSetup& setup)
 uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) const
 {
   LogTrace("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::returnDetComponent]";
-  const std::string str{ME->getName()};
+  const std::string& str{ME->getName()};
   const size_t __key_length__=7;
   const size_t __detid_length__=9;
 
