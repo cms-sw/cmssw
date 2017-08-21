@@ -37,6 +37,8 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
             consumes < l1t::EGammaBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EGammaSource"))),
         electronEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("electronEfficiencyThresholds")),
         electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins")),
+        probeToL1Offset_(ps.getParameter <double> ("probeToL1Offset")),
+        deepInspectionElectronThresholds_(ps.getParameter < std::vector<double> > ("deepInspectionElectronThresholds")),
         photonEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("photonEfficiencyThresholds")),
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         tagElectron_(),
@@ -120,7 +122,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (!l1EGamma.isValid()) {
-    //edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
   if (!findTagAndProbePair(gsfElectrons)) {
@@ -171,6 +173,27 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   // eta
   fill2DWithinLimits(h_L1EGammaEtavsElectronEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionElectronEta_, resolutionEta);
+
+  // plots for deeper inspection
+  for (auto threshold : deepInspectionElectronThresholds_) {
+    fillWithinLimits(h_efficiencyElectronEta_total_[threshold], recoEta);
+    fillWithinLimits(h_efficiencyElectronPhi_total_[threshold], recoPhi);
+    fillWithinLimits(h_efficiencyElectronNVertex_total_[threshold], nVertex);
+    if(recoEt > threshold){
+      fillWithinLimits(h_efficiencyElectronEta_pass_[threshold], recoEta);
+      fillWithinLimits(h_efficiencyElectronPhi_pass_[threshold], recoPhi);
+      fillWithinLimits(h_efficiencyElectronNVertex_pass_[threshold], nVertex);
+    }
+  }
+
+  for (auto threshold : electronEfficiencyThresholds_) {
+    fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_total_[threshold],
+      recoEta, recoPhi);
+    if(l1Et > threshold + probeToL1Offset_){
+      fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_pass_[threshold],
+        recoEta, recoPhi);
+    }
+  }
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et
@@ -554,6 +577,10 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
     h_efficiencyElectronET_EB_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Num",
         "electron efficiency (EB+EE) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+    h_efficiencyElectronPhi_vs_Eta_pass_[threshold] = ibooker.book2D(
+      "efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Num",
+      "electron efficiency (numerator); GSF Electron #eta; GSF Electron #phi",
+      50, -2.5, 2.5, 32, -3.2, 3.2);
 
     h_efficiencyElectronET_EB_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_threshold_" + str_threshold + "_Den",
@@ -564,7 +591,35 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
     h_efficiencyElectronET_EB_EE_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Den",
         "electron efficiency (EB+EE) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+    h_efficiencyElectronPhi_vs_Eta_total_[threshold] = ibooker.book2D(
+        "efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Den",
+        "electron efficiency (denominator); GSF Electron #eta; GSF Electron #phi",
+        50, -2.5, 2.5, 32, -3.2, 3.2);
   }
+
+  for (auto threshold: deepInspectionElectronThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyElectronEta_pass_[threshold] = ibooker.book1D(
+      "efficiencyElectronEta_threshold_" + str_threshold + "_Num",
+      "electron efficiency (numerator); GSF Electron #eta; events", 50, -2.5, 2.5);
+    h_efficiencyElectronPhi_pass_[threshold] = ibooker.book1D(
+      "efficiencyElectronPhi_threshold_" + str_threshold + "_Num",
+      "electron efficiency (numerator); GSF Electron #phi; events", 32, -3.2, 3.2);
+    h_efficiencyElectronNVertex_pass_[threshold] = ibooker.book1D(
+      "efficiencyElectronNVertex_threshold_" + str_threshold + "_Num",
+      "electron efficiency (numerator); Nvtx; events", 30, 0, 60);
+
+    h_efficiencyElectronEta_total_[threshold] = ibooker.book1D(
+      "efficiencyElectronEta_threshold_" + str_threshold + "_Den",
+      "electron efficiency (denominator); GSF Electron #eta; events", 50, -2.5, 2.5);
+    h_efficiencyElectronPhi_total_[threshold] = ibooker.book1D(
+      "efficiencyElectronPhi_threshold_" + str_threshold + "_Den",
+      "electron efficiency (denominator); GSF Electron #phi; events", 32, -3.2, 3.2);
+    h_efficiencyElectronNVertex_total_[threshold] = ibooker.book1D(
+      "efficiencyElectronNVertex_threshold_" + str_threshold + "_Den",
+      "electron efficiency (denominator); Nvtx; events", 30, 0, 60);
+  }
+
 
   ibooker.cd();
 }
