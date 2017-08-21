@@ -12,11 +12,5 @@ class HDQMInspectorConfigSiStrip : public HDQMInspectorConfigBase
   public:
     HDQMInspectorConfigSiStrip ();
     virtual ~HDQMInspectorConfigSiStrip ();
-    
-    std::string translateDetId (const uint32_t) const;
-
 };
-
-
-
 #endif
