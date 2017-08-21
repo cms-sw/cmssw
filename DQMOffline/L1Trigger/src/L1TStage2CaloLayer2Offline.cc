@@ -295,7 +295,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
     return;
   }
 
