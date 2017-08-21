@@ -14,7 +14,7 @@ from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.bmtfDigis_cfi import *
 
 # OMTF
-#from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import *
+from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import *
 
 # EMTF
 from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import *
@@ -33,7 +33,7 @@ l1tStage2Unpack = cms.Sequence(
 l1tStage2UnpackValidationEvents = cms.Sequence(
     caloStage2Digis +
     bmtfDigis  +
-    #omtfStage2Digis +
+    omtfStage2Digis +
     emtfStage2Digis +
     gtStage2Digis
 )
@@ -63,10 +63,10 @@ valBmtfDigis.DTDigi_Theta_Source = cms.InputTag("bmtfDigis")
 # OMTF
 from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
 valOmtfDigis = simOmtfDigis.clone()
-valOmtfDigis.srcDTPh = cms.InputTag('bmtfDigis')
-valOmtfDigis.srcDTTh = cms.InputTag('bmtfDigis')
-valOmtfDigis.srcCSC = cms.InputTag('emtfStage2Digis')
-valOmtfDigis.srcRPC = cms.InputTag('muonRPCDigis')
+valOmtfDigis.srcDTPh = cms.InputTag('omtfStage2Digis')
+valOmtfDigis.srcDTTh = cms.InputTag('omtfStage2Digis')
+valOmtfDigis.srcCSC = cms.InputTag('omtfStage2Digis')
+valOmtfDigis.srcRPC = cms.InputTag('omtfStage2Digis')
 
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *

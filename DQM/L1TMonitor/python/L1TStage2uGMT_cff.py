@@ -97,6 +97,19 @@ l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
+# only muons that do not match are filled in the histograms
+l1tStage2OmtfOutVsuGMTIn = cms.EDAnalyzer(
+    "L1TStage2RegionalMuonCandComp",
+    regionalMuonCollection1 = cms.InputTag("omtfStage2Digis", ""),
+    regionalMuonCollection2 = cms.InputTag("gmtStage2Digis", "OMTF"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/OMTFoutput_vs_uGMTinput"),
+    regionalMuonCollection1Title = cms.untracked.string("OMTF output data"),
+    regionalMuonCollection2Title = cms.untracked.string("uGMT input data from OMTF"),
+    summaryTitle = cms.untracked.string("Summary of comparison between OMTF output muons and uGMT input muons from OMTF"),
+    verbose = cms.untracked.bool(False),
+)
+
 # compares the unpacked EMTF output regional muon collection with the unpacked uGMT input regional muon collection from EMTF
 # only muons that do not match are filled in the histograms
 l1tStage2EmtfOutVsuGMTIn = cms.EDAnalyzer(
@@ -171,6 +184,7 @@ l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMTIntermediateEMTFPos +
     l1tStage2uGMTZeroSupp +
     l1tStage2BmtfOutVsuGMTIn +
+    l1tStage2OmtfOutVsuGMTIn +
     l1tStage2EmtfOutVsuGMTIn +
     l1tStage2uGMTOutVsuGTIn
 )
