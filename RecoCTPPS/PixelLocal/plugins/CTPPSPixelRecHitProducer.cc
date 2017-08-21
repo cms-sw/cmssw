@@ -27,7 +27,7 @@ void CTPPSPixelRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	edm::DetSetVector<CTPPSPixelRecHit>  output;
 
 // run reconstruction
-	if (rpCl->size())
+	if (!rpCl->empty())
 	  run(*rpCl, output);
 
 	iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelRecHit> >(output));
