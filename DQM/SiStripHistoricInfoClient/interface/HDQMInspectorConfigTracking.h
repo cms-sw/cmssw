@@ -2,7 +2,7 @@
 #define GUARD_HDQMInspectorConfigTracking_h
 
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 #include "DQMServices/Diagnostic/interface/HDQMInspectorConfigBase.h"
 
@@ -10,6 +10,6 @@ class HDQMInspectorConfigTracking : public HDQMInspectorConfigBase
 {
   public:
     HDQMInspectorConfigTracking ();
-    virtual ~HDQMInspectorConfigTracking ();
+    ~HDQMInspectorConfigTracking () override;
 };
 #endif
