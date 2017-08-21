@@ -32,9 +32,9 @@ class CTPPSPixelRecHitProducer : public edm::stream::EDProducer<>
 public:
   explicit CTPPSPixelRecHitProducer(const edm::ParameterSet& param);
   
-  ~CTPPSPixelRecHitProducer();
+  ~CTPPSPixelRecHitProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
