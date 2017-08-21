@@ -26,11 +26,11 @@ public:
     , m_debugMode{pset.getUntrackedParameter<bool>("debug", false)}
   {}
 
-  virtual ~SiStripDQMPopConSourceHandler() {}
+  ~SiStripDQMPopConSourceHandler() override {}
 
   // popcon::PopConSourceHandler interface methods
-  void getNewObjects();
-  std::string id() const { return m_name; }
+  void getNewObjects() override;
+  std::string id() const override { return m_name; }
 
   virtual T* getObj() const = 0;
 

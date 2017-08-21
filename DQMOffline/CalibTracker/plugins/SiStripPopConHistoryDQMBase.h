@@ -11,9 +11,9 @@ class SiStripPopConHistoryDQMBase : public SiStripDQMPopConSourceHandler<HDQMSum
 {
 public:
   explicit SiStripPopConHistoryDQMBase(const edm::ParameterSet& pset);
-  virtual ~SiStripPopConHistoryDQMBase();
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
-  HDQMSummary* getObj() const;
+  ~SiStripPopConHistoryDQMBase() override;
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
+  HDQMSummary* getObj() const override;
   bool checkForCompatibility( const std::string& otherMetaData );
 private:
   std::unique_ptr<HDQMfitUtilities> fitME_;

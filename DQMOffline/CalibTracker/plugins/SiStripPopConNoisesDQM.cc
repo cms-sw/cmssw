@@ -10,10 +10,10 @@ class SiStripPopConNoisesHandlerFromDQM : public SiStripDQMPopConSourceHandler<S
 {
 public:
   explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
-  virtual ~SiStripPopConNoisesHandlerFromDQM();
+  ~SiStripPopConNoisesHandlerFromDQM() override;
   // interface methods: implemented in template
-  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
-  SiStripNoises* getObj() const;
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
+  SiStripNoises* getObj() const override;
 private:
   edm::FileInPath fp_;
   std::string MEDir_;
@@ -82,7 +82,7 @@ void SiStripPopConNoisesHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::
     // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+std::to_string(detInfo.first)) ));
     if ( mE ) {
       TH1F* histo = mE->getTH1F();
-      if( histo != 0 ) {
+      if( histo != nullptr ) {
         // Read the noise from the histograms
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();
 
