@@ -18,7 +18,7 @@ public:
     : SiStripPopConHistoryDQMBase(pset)
   {}
 
-  void init(const edm::EventSetup&);
+  virtual void initES(const edm::EventSetup&) override;
 
   virtual ~SiStripPopConHistoryDQM();
 private:
@@ -31,7 +31,7 @@ private:
 
 SiStripPopConHistoryDQM::~SiStripPopConHistoryDQM() {}
 
-void SiStripPopConHistoryDQM::init(const edm::EventSetup& setup)
+void SiStripPopConHistoryDQM::initES(const edm::EventSetup& setup)
 {
   edm::ESHandle<TrackerTopology> tTopo;
   setup.get<TrackerTopologyRcd>().get(tTopo);
@@ -112,42 +112,7 @@ bool SiStripPopConHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMS
   return true;
 }
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondCore/PopCon/interface/PopCon.h"
-
-// copied from popCon::PopConAnalyzer
-// modified to pass an edm::EventSetup reference at begin run
-class SiStripDQMHistoryPopCon : public edm::EDAnalyzer
-{
-public:
-  using SourceHandler = SiStripPopConHistoryDQM;
-
-  SiStripDQMHistoryPopCon(const edm::ParameterSet& pset) :
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
-
-  virtual ~SiStripDQMHistoryPopCon() {}
-
-private:
-  virtual void beginJob() {}
-  virtual void endJob  () {
-    write();
-  }
-
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup)
-  {
-    m_source.init(setup);
-  }
-
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-
-  void write() {
-    m_populator.write(m_source);
-  }
-private:
-  popcon::PopCon m_populator;
-  SourceHandler m_source;
-};
-
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConDQMEDHarvester.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+using SiStripDQMHistoryPopCon = SiStripPopConDQMEDHarvester<SiStripPopConHistoryDQM>;
 DEFINE_FWK_MODULE(SiStripDQMHistoryPopCon);

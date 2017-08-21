@@ -1,8 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMOffline/CalibTracker/plugins/SiStripFEDErrorsDQM.h"
-DEFINE_FWK_MODULE(SiStripFEDErrorsDQM);
-
 #include "DQMOffline/CalibTracker/plugins/SiStripBadComponentsDQMServiceReader.h"
 DEFINE_FWK_MODULE(SiStripBadComponentsDQMServiceReader);
 

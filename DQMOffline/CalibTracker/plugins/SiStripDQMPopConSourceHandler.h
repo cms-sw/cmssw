@@ -1,31 +1,32 @@
-#ifndef DQMOffline_CalibTracker_SiStripPopConSourceHandler_H
-#define DQMOffline_CalibTracker_SiStripPopConSourceHandler_H
+#ifndef DQMOffline_CalibTracker_SiStripDQMPopConSourceHandler_H
+#define DQMOffline_CalibTracker_SiStripDQMPopConSourceHandler_H
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
-  @class SiStripPopConSourceHandler
+  @class SiStripDQMPopConSourceHandler
   @author M. De Mattia
   @author P. David (merge service functionality into base class)
 
   Base class for SiStrip popcon::PopConSourceHandler (reading from DQM) and writing in the Database.
 */
 template<typename T>
-class SiStripPopConSourceHandler : public popcon::PopConSourceHandler<T>
+class SiStripDQMPopConSourceHandler : public popcon::PopConSourceHandler<T>
 {
 public:
-  explicit SiStripPopConSourceHandler(const edm::ParameterSet& pset)
+  explicit SiStripDQMPopConSourceHandler(const edm::ParameterSet& pset)
     : m_name{pset.getUntrackedParameter<std::string>("name", "SiStripPopConDbObjHandler")}
     , m_since{pset.getUntrackedParameter<uint32_t>("since", 5)}
     , m_runNumber{pset.getParameter<uint32_t>("RunNb")}
     , m_iovSequence{pset.getUntrackedParameter<bool>("iovSequence", true)} // flag: check compatibility
-    // TODO should set to default-FALSE for the DQMHistory one
     , m_debugMode{pset.getUntrackedParameter<bool>("debug", false)}
   {}
 
-  virtual ~SiStripPopConSourceHandler() {}
+  virtual ~SiStripDQMPopConSourceHandler() {}
 
   // popcon::PopConSourceHandler interface methods
   void getNewObjects();
@@ -35,6 +36,10 @@ public:
 
   virtual std::string getMetaDataString() const;
   virtual bool checkForCompatibility( const std::string otherMetaData ) const { return otherMetaData != getMetaDataString(); }
+
+  // additional methods needed for SiStripPopConDQMEDHarvester
+  virtual void initES(const edm::EventSetup&) {}
+  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {}
 
 protected:
   uint32_t getRunNumber() const { return m_runNumber; }
@@ -56,7 +61,7 @@ private:
 #include <sstream>
 
 template<typename T>
-void SiStripPopConSourceHandler<T>::getNewObjects()
+void SiStripDQMPopConSourceHandler<T>::getNewObjects()
 {
   edm::LogInfo("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::getNewObjects] for PopCon application " << m_name;
 
@@ -99,7 +104,7 @@ void SiStripPopConSourceHandler<T>::getNewObjects()
 }
 
 template<typename T>
-bool SiStripPopConSourceHandler<T>::isTransferNeeded()
+bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded()
 {
   edm::LogInfo("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::isTransferNeeded] checking for transfer ";
 
@@ -142,7 +147,7 @@ bool SiStripPopConSourceHandler<T>::isTransferNeeded()
 }
 
 template<typename T>
-void SiStripPopConSourceHandler<T>::setForTransfer()
+void SiStripDQMPopConSourceHandler<T>::setForTransfer()
 {
   edm::LogInfo   ("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::setForTransfer] " << m_name << " getting data to be transferred ";
 
@@ -162,7 +167,7 @@ void SiStripPopConSourceHandler<T>::setForTransfer()
 }
 
 template <class T>
-std::string SiStripPopConSourceHandler<T>::getMetaDataString() const
+std::string SiStripDQMPopConSourceHandler<T>::getMetaDataString() const
 {
   std::cout << "SiStripPedestalsDQMService::getMetaDataString" << std::endl;
   std::stringstream ss;
@@ -170,4 +175,4 @@ std::string SiStripPopConSourceHandler<T>::getMetaDataString() const
   return ss.str();
 }
 
-#endif // DQMOffline_CalibTracker_SiStripPopConSourceHandler_H
+#endif // DQMOffline_CalibTracker_SiStripDQMPopConSourceHandler_H

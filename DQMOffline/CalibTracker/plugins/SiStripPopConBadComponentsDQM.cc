@@ -1,6 +1,5 @@
-#include "DQMOffline/CalibTracker/plugins/SiStripPopConSourceHandler.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMPopConSourceHandler.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "DQMOffline/CalibTracker/plugins/SiStripDQMStoreReader.h"
 
 /**
   @class SiStripBadComponentsDQMService
@@ -8,24 +7,26 @@
 
   @popcon::PopConSourceHandler to read modules flagged by the DQM as bad and write in the database.
 */
-class SiStripPopConBadComponentsHandlerFromDQM : public SiStripPopConSourceHandler<SiStripBadStrip>, private SiStripDQMStoreReader
+class SiStripPopConBadComponentsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip>
 {
 public:
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConBadComponentsHandlerFromDQM();
   // interface methods: implemented in template
+  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
   SiStripBadStrip* getObj() const;
 protected:
   std::string getMetaDataString() const;
 private:
   edm::FileInPath fp_;
+  SiStripBadStrip m_obj;
 };
 
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConBadComponentsHandlerFromDQM::SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig)
-  : SiStripPopConSourceHandler<SiStripBadStrip>(iConfig)
-  , SiStripDQMStoreReader(iConfig)
+  : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig)
   , fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))}
 {
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::SiStripBadComponentsDQMService]";
@@ -39,55 +40,62 @@ SiStripPopConBadComponentsHandlerFromDQM::~SiStripPopConBadComponentsHandlerFrom
 std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString() const
 {
   std::stringstream ss;
-  ss << SiStripPopConSourceHandler<SiStripBadStrip>::getMetaDataString();
+  ss << SiStripDQMPopConSourceHandler<SiStripBadStrip>::getMetaDataString();
   getObj()->printSummary(ss);
   return ss.str();
 }
 
-SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
+namespace {
+  void getModuleFolderList( DQMStore::IGetter& getter, const std::string& pwd, std::vector<std::string>& mfolders)
+  {
+    if ( std::string::npos != pwd.find("module_") )  {
+      //    std::string mId = pwd.substr(pwd.find("module_")+7, 9);
+      mfolders.push_back(pwd);
+    } else {
+      for ( const auto& subdir : getter.getSubdirs() ) {
+        getter.cd(subdir);
+        getModuleFolderList(getter, subdir, mfolders);
+        getter.cd(); getter.cd(pwd);
+      }
+    }
+  }
+}
+
+void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& getter)
 {
   //*LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB*//
 
-  openRequestedFile();
-
-  std::cout << "[readBadComponents]: opened requested file" << std::endl;
-
-  std::unique_ptr<SiStripBadStrip> obj{new SiStripBadStrip{}};
+  m_obj = SiStripBadStrip();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
-  dqmStore_->cd();
+  getter.cd();
 
-  std::string mdir = "MechanicalView";
-  if (!goToDir(mdir)) return obj.release();
-  std::string mechanicalview_dir = dqmStore_->pwd();
+  const std::string mechanicalview_dir = "MechanicalView";
+  if ( ! getter.dirExists(mechanicalview_dir) ) return;
 
-  std::vector<std::string> subdet_folder;
-  subdet_folder.push_back("TIB");
-  subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/side_1");
-  subdet_folder.push_back("TEC/side_2");
-  subdet_folder.push_back("TID/side_1");
-  subdet_folder.push_back("TID/side_2");
+  const std::vector<std::string> subdet_folder = { "TIB", "TOB", "TEC/side_1", "TEC/side_2", "TID/side_1", "TID/side_2" };
 
   int nDetsTotal = 0;
   int nDetsWithErrorTotal = 0;
   for ( const auto& im : subdet_folder ) {
-    std::string dname = mechanicalview_dir + "/" + im;
-    if (!dqmStore_->dirExists(dname)) continue;
+    const std::string dname = mechanicalview_dir + "/" + im;
+    getter.cd();
+    if ( ! getter.dirExists(dname) ) continue;
+    getter.cd(dname);
 
-    dqmStore_->cd(dname);
     std::vector<std::string> module_folders;
-    getModuleFolderList(module_folders);
+    getModuleFolderList(getter, dname, module_folders);
     int nDets = module_folders.size();
 
     int nDetsWithError = 0;
-    std::string bad_module_folder = dname + "/" + "BadModuleList";
-    if ( dqmStore_->dirExists(bad_module_folder) ) {
-      for ( const MonitorElement* me : dqmStore_->getContents(bad_module_folder) ) {
+    const std::string bad_module_folder = dname + "/" + "BadModuleList";
+    getter.cd();
+    if ( getter.dirExists(bad_module_folder) ) {
+      for ( const MonitorElement* me : getter.getContents(bad_module_folder) ) {
         nDetsWithError++;
         std::cout << me->getName() <<  " " << me->getIntValue() << std::endl;
-        uint32_t detId = boost::lexical_cast<uint32_t>(me->getName());
+        uint32_t detId = std::stoul(me->getName());
         short flag = me->getIntValue();
 
         std::vector<unsigned int> theSiStripVector;
@@ -100,7 +108,7 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
         //   firstBadStrip=(*is)*128;
         NconsecutiveBadStrips=reader.getNumberOfApvsAndStripLength(detId).first*128;
 
-        theBadStripRange = obj->encode(firstBadStrip,NconsecutiveBadStrips,flag);
+        theBadStripRange = m_obj.encode(firstBadStrip,NconsecutiveBadStrips,flag);
 
         LogDebug("SiStripBadComponentsDQMService") << "detid " << detId << " \t"
                                                    << ", flag " << flag
@@ -110,7 +118,7 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
         // }
 
         SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-        if ( ! obj->put(detId,range) ) {
+        if ( ! m_obj.put(detId,range) ) {
           edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists"<<std::endl;
         }
       }
@@ -118,12 +126,15 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
     nDetsTotal += nDets;
     nDetsWithErrorTotal += nDetsWithError;
   }
-  dqmStore_->cd();
+  getter.cd();
+}
 
-  return obj.release();
+SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
+{
+  return new SiStripBadStrip(m_obj);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CondCore/PopCon/interface/PopConAnalyzer.h"
-using SiStripPopConBadComponentsDQM = popcon::PopConAnalyzer<SiStripPopConBadComponentsHandlerFromDQM>;
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConDQMEDHarvester.h"
+using SiStripPopConBadComponentsDQM = SiStripPopConDQMEDHarvester<SiStripPopConBadComponentsHandlerFromDQM>;
 DEFINE_FWK_MODULE(SiStripPopConBadComponentsDQM);
