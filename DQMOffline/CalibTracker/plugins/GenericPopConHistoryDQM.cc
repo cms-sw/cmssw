@@ -67,6 +67,6 @@ bool GenericHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMSummary
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CondCore/PopCon/interface/PopConAnalyzer.h"
-typedef popcon::PopConAnalyzer<GenericHistoryDQM> GenericDQMHistoryPopCon;
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConDQMEDHarvester.h"
+using GenericDQMHistoryPopCon = SiStripPopConDQMEDHarvester<GenericHistoryDQM>;
 DEFINE_FWK_MODULE(GenericDQMHistoryPopCon);

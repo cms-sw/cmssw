@@ -1,18 +1,18 @@
 #ifndef DQM_SiStripHistoricInfoClient_SiStripPopConHistoryDQMBase_H
 #define DQM_SiStripHistoricInfoClient_SiStripPopConHistoryDQMBase_H
 
-#include "DQMOffline/CalibTracker/plugins/SiStripPopConSourceHandler.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMPopConSourceHandler.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
-#include "DQMOffline/CalibTracker/plugins/SiStripDQMStoreReader.h"
 #include "DQMOffline/CalibTracker/plugins/SiStripDQMHistoryHelper.h"
 
 class HDQMfitUtilities;
 
-class SiStripPopConHistoryDQMBase : public SiStripPopConSourceHandler<HDQMSummary>, protected SiStripDQMStoreReader, protected SiStripDQMHistoryHelper
+class SiStripPopConHistoryDQMBase : public SiStripDQMPopConSourceHandler<HDQMSummary>, protected SiStripDQMHistoryHelper
 {
 public:
   explicit SiStripPopConHistoryDQMBase(const edm::ParameterSet& pset);
   virtual ~SiStripPopConHistoryDQMBase();
+  virtual void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
   HDQMSummary* getObj() const;
   bool checkForCompatibility( const std::string& otherMetaData );
 private:
@@ -20,6 +20,7 @@ private:
   std::string MEDir_;
   typedef std::vector<edm::ParameterSet> VParameters;
   VParameters histoList_;
+  HDQMSummary m_obj;
 };
 
 #endif // DQM_SiStripHistoricInfoClient_SiStripPopConHistoryDQMBase_H

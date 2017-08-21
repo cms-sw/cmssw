@@ -1,8 +1,7 @@
 #include "DQMOffline/CalibTracker/plugins/SiStripPopConHistoryDQMBase.h"
 
 SiStripPopConHistoryDQMBase::SiStripPopConHistoryDQMBase(const edm::ParameterSet& iConfig)
-  : SiStripPopConSourceHandler<HDQMSummary>(iConfig)
-  , SiStripDQMStoreReader(iConfig)
+  : SiStripDQMPopConSourceHandler<HDQMSummary>(iConfig)
   , SiStripDQMHistoryHelper(iConfig)
   , MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")}
   , histoList_{iConfig.getParameter<VParameters>("histoList")}
@@ -26,10 +25,10 @@ bool SiStripPopConHistoryDQMBase::checkForCompatibility(const std::string& other
   return previousRun < getRunNumber();
 }
 
-HDQMSummary* SiStripPopConHistoryDQMBase::getObj() const
+void SiStripPopConHistoryDQMBase::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& getter)
 {
-  std::unique_ptr<HDQMSummary> obj{new HDQMSummary()};
-  obj->setRunNr(getRunNumber());
+  m_obj = HDQMSummary();
+  m_obj.setRunNr(getRunNumber());
 
   // DISCOVER SET OF HISTOGRAMS & QUANTITIES TO BE UPLOADED
   std::vector<std::string> userDBContent;
@@ -46,25 +45,27 @@ HDQMSummary* SiStripPopConHistoryDQMBase::getObj() const
 	setDBLabelsForUser(keyName, userDBContent, quant);
     }
   }
-  obj->setUserDBContent(userDBContent);
+  m_obj.setUserDBContent(userDBContent);
 
   std::stringstream ss;
   ss << "[DQMHistoryServiceBase::scanTreeAndFillSummary] QUANTITIES TO BE INSERTED IN DB :" << std::endl;
-  for ( const std::string& iCont : obj->getUserDBContent() ) {
+  for ( const std::string& iCont : m_obj.getUserDBContent() ) {
     ss << iCont<< std::endl;
   }
   edm::LogInfo("HDQMSummary") << ss.str();
 
   // OPEN DQM FILE
-  openRequestedFile();
-  const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(MEDir_);
+  const std::vector<MonitorElement*> MEs = getter.getAllContents(MEDir_);
 
   // FILL SUMMARY
   edm::LogInfo("HDQMSummary") << "\nSTARTING TO FILL OBJECT ";
   for ( const auto& histoParams : histoList_ ) {
     const std::string keyName{histoParams.getUntrackedParameter<std::string>("keyName")};
-    scanTreeAndFillSummary(MEs, obj.get(), keyName, histoParams.getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"));
+    scanTreeAndFillSummary(MEs, &m_obj, keyName, histoParams.getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"));
   }
+}
 
-  return obj.release();
+HDQMSummary* SiStripPopConHistoryDQMBase::getObj() const
+{
+  return new HDQMSummary(m_obj);
 }
