@@ -169,12 +169,14 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       label = "ME+" + suffix_label[9 - i];
     }
 
-    if (hist < 6 || hist > 13) {
+    if (hist < 6) {
       nChambs = (i % 2) ? 18 : 36;
-    } else {
+    } else if (hist > 13) { 
+      nChambs = (i % 2) ? 36 : 18; 
+    } else { 
       nChambs = 36;
     }
-    
+
     const std::array<int, 10> wiregroups{{64, 96, 64, 96, 64, 112, 32, 64, 48, 48}};
     const std::array<int, 10> halfstrips{{160, 160, 160, 160, 160, 160, 128, 160, 128, 96}};
     
