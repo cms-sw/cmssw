@@ -153,15 +153,19 @@ siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
 ## Additional settings for pp_run (Phase 0 test)
 SiPixelPhase1TrackClustersAnalyzer_pprun = SiPixelPhase1TrackClustersAnalyzer.clone()
 SiPixelPhase1TrackClustersAnalyzer_pprun.tracks  = cms.InputTag( "initialStepTracksPreSplitting" )
+SiPixelPhase1TrackClustersAnalyzer_pprun.clusterShapeCache = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+SiPixelPhase1TrackClustersAnalyzer_pprun.vertices = cms.InputTag('firstStepPrimaryVerticesPreSplitting')
 SiPixelPhase1TrackClustersAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
 
 SiPixelPhase1TrackResidualsAnalyzer_pprun = SiPixelPhase1TrackResidualsAnalyzer.clone()
 SiPixelPhase1TrackResidualsAnalyzer_pprun.Tracks = cms.InputTag( "initialStepTracksPreSplitting" )
 SiPixelPhase1TrackResidualsAnalyzer_pprun.trajectoryInput = "initialStepTracksPreSplitting"
+SiPixelPhase1TrackResidualsAnalyzer_pprun.vertices = cms.InputTag('firstStepPrimaryVerticesPreSplitting')
 SiPixelPhase1TrackResidualsAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
 
 SiPixelPhase1TrackEfficiencyAnalyzer_pprun=SiPixelPhase1TrackEfficiencyAnalyzer.clone()
 SiPixelPhase1TrackEfficiencyAnalyzer_pprun.tracks=cms.InputTag( "initialStepTracksPreSplitting" )
+SiPixelPhase1TrackEfficiencyAnalyzer_pprun.vertices = cms.InputTag('firstStepPrimaryVerticesPreSplitting')
 SiPixelPhase1TrackEfficiencyAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
 
 siPixelPhase1OnlineDQM_source_pprun = cms.Sequence(
