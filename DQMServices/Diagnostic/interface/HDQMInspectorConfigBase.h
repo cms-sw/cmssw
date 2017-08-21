@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * @author: M. De Mattia
