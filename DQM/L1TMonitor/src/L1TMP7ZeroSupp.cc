@@ -1,7 +1,5 @@
 #include "DQM/L1TMonitor/interface/L1TMP7ZeroSupp.h"
 
-#include <sstream>
-
 const unsigned int L1TMP7ZeroSupp::maxMasks_ = 16;
 
 L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
@@ -25,7 +23,7 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
   masks_.reserve(maxMasks_);
   for (unsigned int i = 0; i < maxMasks_; ++i) {
     std::string maskCapIdStr{"maskCapId"+std::to_string(i)};
-    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr.c_str(), zeroMask));
+    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr, zeroMask));
     // which masks are defined?
     if (ps.exists(maskCapIdStr)) {
       definedMaskCapIds_.push_back(i);
@@ -62,7 +60,7 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<int>("dataInvFlagMask", 0x1)->setComment("Data inversion flag mask.");
   desc.addUntracked<int>("maxFEDReadoutSize", 10000)->setComment("Maximal FED readout size histogram x-axis value.");
   for (unsigned int i = 0; i < maxMasks_; ++i) {
-    desc.addOptionalUntracked<std::vector<int>>(("maskCapId"+std::to_string(i)).c_str())->setComment(("ZS mask for caption id "+std::to_string(i)+".").c_str());
+    desc.addOptionalUntracked<std::vector<int>>("maskCapId"+std::to_string(i))->setComment("ZS mask for caption id "+std::to_string(i)+".");
   }
   desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
   desc.addUntracked<bool>("verbose", false);
@@ -81,11 +79,8 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
   capIds_->setAxisTitle("caption id", 1);
 
   // per caption id subdirectories
-  std::stringstream ss;
   for (const auto &id: definedMaskCapIds_) {
-    ss.str("");
-    ss << monitorDir_ << "/CapId" << id;
-    ibooker.setCurrentFolder(ss.str());
+    ibooker.setCurrentFolder(monitorDir_+"/CapId"+std::to_string(id));
     bookCapIdHistograms(ibooker, id);
   }
 }
@@ -96,15 +91,11 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   if (id == maxMasks_) {
     sizeTitleText = "FED readout ";
   } else {
-    std::stringstream ss;
-    ss << summaryTitleText << ", caption id " << id;
-    summaryTitleText = ss.str();
-    ss.str("");
-    ss << "cumulated caption id " << id << " block ";
-    sizeTitleText = ss.str();
+    summaryTitleText = summaryTitleText+", caption id "+std::to_string(id);
+    sizeTitleText = "cumulated caption id "+std::to_string(id)+" block ";
   }
 
-  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText.c_str(), NBINLABELS, 0, NBINLABELS);
+  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText, NBINLABELS, 0, NBINLABELS);
   zeroSuppValMap_[id]->setAxisTitle("ZS status", 1);
   zeroSuppValMap_[id]->setBinLabel(EVTS+1, "events", 1);
   zeroSuppValMap_[id]->setBinLabel(EVTSGOOD+1, "good events", 1);
@@ -120,7 +111,7 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSEPOS+1, "BX false pos.", 1);
   zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSENEG+1, "BX false neg.", 1);
 
-  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText.c_str(), RNBINLABELS, 0, RNBINLABELS);
+  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText, RNBINLABELS, 0, RNBINLABELS);
   errorSummaryNumMap_[id]->setBinLabel(REVTS+1, "bad events", 1);
   errorSummaryNumMap_[id]->setBinLabel(RBLKS+1, "bad blocks", 1);
   errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSEPOS+1, "false pos.", 1);
@@ -138,11 +129,11 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSEPOS+1, "# BX blocks", 1);
   errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSENEG+1, "# BX blocks", 1);
 
-  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", (sizeTitleText + "size").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", sizeTitleText + "size", 100, 0, maxFedReadoutSize_);
   readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
-  readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", (sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
   readoutSizeZSMap_[id]->setAxisTitle("size (byte)", 1);
-  readoutSizeZSExpectedMap_[id] = ibooker.book1D("readoutSizeZSExpected", ("Expected " + sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeZSExpectedMap_[id] = ibooker.book1D("readoutSizeZSExpected", "Expected " + sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
   readoutSizeZSExpectedMap_[id]->setAxisTitle("size (byte)", 1);
 }
 
