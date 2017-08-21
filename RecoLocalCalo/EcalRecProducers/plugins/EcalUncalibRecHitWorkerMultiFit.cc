@@ -340,7 +340,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
             << "! something wrong with EcalTimeCalibConstants in your DB? ";
 	}
 
-        int lastSampleBeforeSaturation = -1;
+        int lastSampleBeforeSaturation = -2;
         for(unsigned int iSample = 0; iSample < EcalDataFrame::MAXSAMPLES; iSample++) {
           if ( ((EcalDataFrame)(*itdg)).sample(iSample).gainId() == 0 ) {
             lastSampleBeforeSaturation=iSample-1;
@@ -356,7 +356,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
             uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
 	    // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
             uncalibRecHit.setChi2(0);
-        } else if ( lastSampleBeforeSaturation >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
+        } else if ( lastSampleBeforeSaturation >= -1 ) { // saturation on other samples: cannot extrapolate from the fourth one
             int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
             if (gainId==0) gainId=3;
             auto pedestal = pedVec[gainId-1];
