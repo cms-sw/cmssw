@@ -62,7 +62,6 @@ private:
   std::string denominatorSuffix_;
 
   MonitorElement* h_efficiency_;
-
 };
 
 typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
