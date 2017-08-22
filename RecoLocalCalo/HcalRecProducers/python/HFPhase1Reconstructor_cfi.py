@@ -57,8 +57,8 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         # reconstruction even if its TDC undershoots/overshoots. These
         # global limits are in addition to those per channel limits in
         # the database (effectively, the larger limit is used).
-        minChargeForUndershoot = cms.double(-10000.0),
-        minChargeForOvershoot = cms.double(-10000.0),
+        minChargeForUndershoot = cms.double(1.0e10),
+        minChargeForOvershoot = cms.double(1.0e10),
 
         # Do not construct rechits with problems
         rejectAllFailures = cms.bool(True)
