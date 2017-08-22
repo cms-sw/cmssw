@@ -481,7 +481,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
       for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
 	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-	 if( 0 != cell )
+	 if( nullptr != cell )
 	 {
 	    const GlobalPoint& pos ( cell->getPosition() ) ;
 	    sum += pos.perp() ;
@@ -498,5 +498,5 @@ EcalBarrelGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }
