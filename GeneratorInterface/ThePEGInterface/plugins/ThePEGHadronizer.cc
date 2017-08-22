@@ -30,7 +30,7 @@ namespace CLHEP {
 class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
     public:
 	ThePEGHadronizer(const edm::ParameterSet &params);
-	virtual ~ThePEGHadronizer() noexcept {};
+	~ThePEGHadronizer() noexcept override {};
 
 	bool readSettings( int ) { return true; }
 	bool initializeForInternalPartons();
@@ -50,7 +50,7 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
+        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
 
 	unsigned int			eventsToPrint;
 
