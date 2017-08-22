@@ -33,6 +33,7 @@ process.generator = cms.EDFilter("ThePEGGeneratorFilter",
 	configFiles = cms.vstring(
 #		'MSSM.model'
 	),
+	cmsDefaults = cms.vstring(),
 
 	parameterSets = cms.vstring(
 		'cmsDefaults', 
