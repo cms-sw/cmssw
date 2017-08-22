@@ -7,7 +7,7 @@ electronEfficiencyBins.extend(list(xrange(2, 42, 2)))
 electronEfficiencyBins.extend(list(xrange(42, 45, 3)))
 electronEfficiencyBins.extend(list(xrange(45, 50, 5)))
 electronEfficiencyBins.extend(list(xrange(50, 70, 10)))
-electronEfficiencyBins.extend(list(xrange(70, 100, 30)))
+electronEfficiencyBins.extend(list(xrange(70, 101, 30)))
 
 # additional efficiency vs eta, phi and # vertices plots will
 # be created for the following probe electron pT thresholds

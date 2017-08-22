@@ -6,12 +6,12 @@ tauEfficiencyBins = []
 tauEfficiencyBins.extend(list(xrange(0, 120, 1)))
 tauEfficiencyBins.extend(list(xrange(120, 180, 20)))
 tauEfficiencyBins.extend(list(xrange(180, 300, 40)))
-tauEfficiencyBins.extend(list(xrange(300, 400, 100)))
+tauEfficiencyBins.extend(list(xrange(300, 401, 100)))
 
 l1tTauOfflineDQM = cms.EDAnalyzer(
     "L1TTauOffline",
     verbose   = cms.untracked.bool(False),
-    
+
     muonInputTag = cms.untracked.InputTag("muons"),
     tauInputTag = cms.untracked.InputTag("hpsPFTauProducer"),
     metInputTag = cms.untracked.InputTag("pfMet"),
@@ -31,7 +31,7 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
 
     tauEfficiencyThresholds=cms.vint32(tauEfficiencyThresholds),
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
-    
+
 )
 
 l1tTauOfflineDQMEmu = l1tTauOfflineDQM.clone(
