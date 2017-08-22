@@ -30,7 +30,7 @@ namespace CLHEP {
 class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
     public:
 	ThePEGHadronizer(const edm::ParameterSet &params);
-	virtual ~ThePEGHadronizer();
+	virtual ~ThePEGHadronizer() noexcept {};
 
 	bool readSettings( int ) { return true; }
 	bool initializeForInternalPartons();
@@ -68,10 +68,6 @@ ThePEGHadronizer::ThePEGHadronizer(const edm::ParameterSet &pset) :
 {  
 	initRepository(pset);
 
-}
-
-ThePEGHadronizer::~ThePEGHadronizer()
-{
 }
 
 bool ThePEGHadronizer::initializeForInternalPartons()

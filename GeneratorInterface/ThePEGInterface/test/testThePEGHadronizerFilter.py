@@ -46,6 +46,7 @@ process.generator = cms.EDFilter('ThePEGHadronizerFilter',
          'set Evolver:MECorrMode No',
          'cd /',
     ),
+    cmsDefaults = cms.vstring(),
     lheDefaultPDFs1 = cms.vstring(
 #         'set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/myPDFset',
 #         'set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/myPDFset',
