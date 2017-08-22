@@ -53,6 +53,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGen
   inputLUT_   = std::vector<HcaluLUTTPGCoder::Lut>(nluts,HcaluLUTTPGCoder::Lut(INPUT_LUT_SIZE, 0));
   upgradeQIE10LUT_ = std::vector<HcaluLUTTPGCoder::Lut>(nluts,HcaluLUTTPGCoder::Lut(UPGRADE_LUT_SIZE, 0));
   upgradeQIE11LUT_ = std::vector<HcaluLUTTPGCoder::Lut>(nluts,HcaluLUTTPGCoder::Lut(UPGRADE_LUT_SIZE, 0));
+  QIEType_    = std::vector<int> (nluts, 0);
   gain_       = std::vector<float>(nluts, 0.);
   ped_        = std::vector<float>(nluts, 0.);
 }
@@ -267,9 +268,11 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
      float gain = 0;
      uint32_t status = 0;
 
+     QIEType_[lutId]=conditions.getHcalQIEType(cell)->getValue();
+
      if (LUTGenerationMode_){
         const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
-        for (int capId = 0; capId < 4; ++capId){
+	for (auto capId : {0,1,2,3}){
            ped += calibrations.pedestal(capId);
            gain += calibrations.LUTrespcorrgain(capId);
         }
@@ -407,6 +410,16 @@ float HcaluLUTTPGCoder::getLUTGain(HcalDetId id) const {
 std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUTWithMSB(const HcalDetId& id) const{
   int lutId = getLUTId(id);
    return inputLUT_.at(lutId);
+}
+
+std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(HcalDetId id) const{
+
+    int lutId = getLUTId(id);
+    int type=QIEType_[lutId];
+    const std::vector<Lut>& lut= type==0 ? inputLUT_ : 
+				 type==1 ? upgradeQIE10LUT_ : 
+					   upgradeQIE11LUT_ ;
+    return lut.at(lutId);
 }
 
 void HcaluLUTTPGCoder::lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const{

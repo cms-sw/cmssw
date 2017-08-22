@@ -1022,7 +1022,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalL1TriggerObject
     const HcalL1TriggerObject* item = fObject.getValues (*channel);
     if (item) {
       dumpId (fOutput, *channel);
-      sprintf (buffer, " %10.7f %10.7f %12d %10X\n",
+      sprintf (buffer, " %12.7f %13.10f %12d %10X\n",
 	       item->getPedestal(), item->getRespGain(), item->getFlag(), channel->rawId ());
       fOutput << buffer;
     }
