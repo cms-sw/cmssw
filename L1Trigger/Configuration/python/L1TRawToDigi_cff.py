@@ -56,7 +56,7 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
     from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import caloLayer1Digis

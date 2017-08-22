@@ -18,9 +18,9 @@ namespace l1t {
       void
       CaloLayer1Setup::fillDescription(edm::ParameterSetDescription& desc)
       {
-         desc.add<edm::InputTag>("ecalDigis");
-         desc.add<edm::InputTag>("hcalDigis");
-         desc.add<edm::InputTag>("caloRegions");
+         desc.addOptional<edm::InputTag>("ecalDigis");
+         desc.addOptional<edm::InputTag>("hcalDigis");
+         desc.addOptional<edm::InputTag>("caloRegions");
       }
 
       PackerMap
