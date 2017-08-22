@@ -65,7 +65,6 @@ class SiStripFolderOrganizer
       // detector folders
       void setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo);
       void getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder);
-      void getFolderName(int32_t rawdetid, std::string& lokal_folder);  // deprecated version, still needed for now
 
       // layer folders
       void setLayerFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0,bool ring_flag = false);
