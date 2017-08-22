@@ -83,7 +83,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to the whole system
     struct GlobalPlots
     {
-      MonitorElement* h_trackCorr_hor = NULL;
+      MonitorElement* h_trackCorr_hor = nullptr;
 
       GlobalPlots() {}
       GlobalPlots( DQMStore::IBooker& ibooker );
@@ -94,37 +94,37 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond detector package
     struct PotPlots
     {
-      MonitorElement* activity_per_bx_0_25 = NULL;
-      MonitorElement* activity_per_bx_25_50 = NULL;
-      MonitorElement* activity_per_bx_50_75 = NULL;
+      MonitorElement* activity_per_bx_0_25 = nullptr;
+      MonitorElement* activity_per_bx_25_50 = nullptr;
+      MonitorElement* activity_per_bx_50_75 = nullptr;
       std::vector< MonitorElement* > activity_per_bx;
 
-      MonitorElement* hitDistribution2d = NULL;
-      MonitorElement* hitDistribution2dOOT = NULL;
-      MonitorElement* hitDistribution2dOOT_le = NULL;
-      MonitorElement* activePlanes = NULL;
+      MonitorElement* hitDistribution2d = nullptr;
+      MonitorElement* hitDistribution2dOOT = nullptr;
+      MonitorElement* hitDistribution2dOOT_le = nullptr;
+      MonitorElement* activePlanes = nullptr;
 
-      MonitorElement* trackDistribution = NULL;
-      MonitorElement* trackDistributionOOT = NULL;
+      MonitorElement* trackDistribution = nullptr;
+      MonitorElement* trackDistributionOOT = nullptr;
 
-      MonitorElement* stripTomographyAllFar_0_25 = NULL;
-      MonitorElement* stripTomographyAllFar_25_50 = NULL;
-      MonitorElement* stripTomographyAllFar_50_75 = NULL;
+      MonitorElement* stripTomographyAllFar_0_25 = nullptr;
+      MonitorElement* stripTomographyAllFar_25_50 = nullptr;
+      MonitorElement* stripTomographyAllFar_50_75 = nullptr;
       std::vector< MonitorElement* > stripTomographyAllFar;
 
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL, *trailingEdgeCumulative_te = NULL;
-      MonitorElement* timeOverThresholdCumulativePot = NULL, *leadingTrailingCorrelationPot = NULL;
-      MonitorElement* leadingWithoutTrailingCumulativePot = NULL;
+      MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr, *trailingEdgeCumulative_te = nullptr;
+      MonitorElement* timeOverThresholdCumulativePot = nullptr, *leadingTrailingCorrelationPot = nullptr;
+      MonitorElement* leadingWithoutTrailingCumulativePot = nullptr;
 
-      MonitorElement* ECCheck = NULL;
+      MonitorElement* ECCheck = nullptr;
 
-      MonitorElement* HPTDCErrorFlags_cumulative = NULL;
-      MonitorElement* MHComprensive = NULL;
+      MonitorElement* HPTDCErrorFlags_cumulative = nullptr;
+      MonitorElement* MHComprensive = nullptr;
 
-      MonitorElement* clock_Digi1_le = NULL;
-      MonitorElement* clock_Digi1_te = NULL;
-      MonitorElement* clock_Digi3_le = NULL;
-      MonitorElement* clock_Digi3_te = NULL;
+      MonitorElement* clock_Digi1_le = nullptr;
+      MonitorElement* clock_Digi1_te = nullptr;
+      MonitorElement* clock_Digi3_le = nullptr;
+      MonitorElement* clock_Digi3_te = nullptr;
 
       unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
       
@@ -138,11 +138,11 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond plane
     struct PlanePlots
     {
-      MonitorElement* digiProfileCumulativePerPlane = NULL;
-      MonitorElement* hitProfile = NULL;
-      MonitorElement* hit_multiplicity = NULL;
+      MonitorElement* digiProfileCumulativePerPlane = nullptr;
+      MonitorElement* hitProfile = nullptr;
+      MonitorElement* hit_multiplicity = nullptr;
 
-      MonitorElement* stripTomography_far = NULL;
+      MonitorElement* stripTomography_far = nullptr;
 
       PlanePlots() {}
       PlanePlots( DQMStore::IBooker& ibooker, unsigned int id );
@@ -153,19 +153,19 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond channel
     struct ChannelPlots
     {
-      MonitorElement* activity_per_bx_0_25 = NULL;
-      MonitorElement* activity_per_bx_25_50 = NULL;
-      MonitorElement* activity_per_bx_50_75 = NULL;
+      MonitorElement* activity_per_bx_0_25 = nullptr;
+      MonitorElement* activity_per_bx_25_50 = nullptr;
+      MonitorElement* activity_per_bx_50_75 = nullptr;
       std::vector< MonitorElement* > activity_per_bx;
 
-      MonitorElement* HPTDCErrorFlags = NULL;
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL, *trailingEdgeCumulative_te = NULL;
-      MonitorElement* TimeOverThresholdCumulativePerChannel = NULL;
-      MonitorElement* LeadingTrailingCorrelationPerChannel = NULL;
-      MonitorElement* leadingWithoutTrailing = NULL;
-      MonitorElement* stripTomography_far = NULL;
-      MonitorElement* hit_rate = NULL;
-      MonitorElement* ECCheckPerChannel = NULL;
+      MonitorElement* HPTDCErrorFlags = nullptr;
+      MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr, *trailingEdgeCumulative_te = nullptr;
+      MonitorElement* TimeOverThresholdCumulativePerChannel = nullptr;
+      MonitorElement* LeadingTrailingCorrelationPerChannel = nullptr;
+      MonitorElement* leadingWithoutTrailing = nullptr;
+      MonitorElement* stripTomography_far = nullptr;
+      MonitorElement* hit_rate = nullptr;
+      MonitorElement* ECCheckPerChannel = nullptr;
       unsigned long hitsCounterPerLumisection;
       
       unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
@@ -224,11 +224,11 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
 
   activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_0_25);
+  activity_per_bx.emplace_back(activity_per_bx_0_25);
   activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_25_50);
+  activity_per_bx.emplace_back(activity_per_bx_25_50);
   activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_50_75);
+  activity_per_bx.emplace_back(activity_per_bx_50_75);
 
   hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
@@ -239,11 +239,11 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
 
   stripTomographyAllFar_0_25 = ibooker.book2D( "tomography all far 0 25", title+" tomography with strips far 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
-  stripTomographyAllFar.push_back(stripTomographyAllFar_0_25);
+  stripTomographyAllFar.emplace_back(stripTomographyAllFar_0_25);
   stripTomographyAllFar_25_50 = ibooker.book2D( "tomography all far 25 50", title+" tomography with strips far 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
-  stripTomographyAllFar.push_back(stripTomographyAllFar_25_50);
+  stripTomographyAllFar.emplace_back(stripTomographyAllFar_25_50);
   stripTomographyAllFar_50_75 = ibooker.book2D( "tomography all far 50 75", title+" tomography with strips far 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
-  stripTomographyAllFar.push_back(stripTomographyAllFar_50_75);
+  stripTomographyAllFar.emplace_back(stripTomographyAllFar_50_75);
 
   leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge (le and te); leading edge (ns)", 75, 0, 75 );
   leadingEdgeCumulative_le = ibooker.book1D( "leading edge (le only)", title+" leading edge (le only); leading edge (ns)", 75, 0, 75 );
@@ -305,11 +305,11 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
   leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 3, "Full" );
 
   activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_0_25);
+  activity_per_bx.emplace_back(activity_per_bx_0_25);
   activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_25_50);
+  activity_per_bx.emplace_back(activity_per_bx_25_50);
   activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx.push_back(activity_per_bx_50_75);
+  activity_per_bx.emplace_back(activity_per_bx_50_75);
 
   HPTDCErrorFlags = ibooker.book1D( "hptdc_Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
