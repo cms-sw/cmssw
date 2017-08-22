@@ -30,23 +30,23 @@ namespace ThePEG {
 class LesHouchesInterface : public LesHouchesReader {
     public:
 	LesHouchesInterface();
-	virtual ~LesHouchesInterface();
+	~LesHouchesInterface() override;
 
 	static void Init();
 
     protected:		
-	virtual IBPtr clone() const { return new_ptr(*this); }
-	virtual IBPtr fullclone() const { return new_ptr(*this); }
+	IBPtr clone() const override { return new_ptr(*this); }
+	IBPtr fullclone() const override { return new_ptr(*this); }
 
     private:
-	virtual void open();
-	virtual void close();
-	virtual long scan();
+	void open() override;
+	void close() override;
+	long scan() override;
 
 	virtual double eventWeight();
 	virtual double reweight();
-	virtual double getEvent();
-	virtual bool doReadEvent();
+	double getEvent() override;
+	bool doReadEvent() override;
 
 	LHEProxy::ProxyID	proxyID;
 	bool			initialized;

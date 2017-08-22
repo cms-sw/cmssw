@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <memory>
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
