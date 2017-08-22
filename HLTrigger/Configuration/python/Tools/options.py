@@ -7,6 +7,7 @@ globalTag = {
   'GRun' : 'auto:run2_mc_GRun',       # used as default
   '2e34v21' : 'auto:run2_mc_2e34v21',
   '2e34v22' : 'auto:run2_mc_2e34v22',
+  '2e34v30' : 'auto:run2_mc_2e34v30',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
