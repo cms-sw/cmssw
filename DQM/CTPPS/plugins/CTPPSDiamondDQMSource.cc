@@ -648,10 +648,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           }
         }
       }
-      try {
+      if ( (uint) rechit.getOOTIndex() < potPlots_[detId_pot].activity_per_bx.size() )
         potPlots_[detId_pot].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
-      } 
-      catch( ... ) { }
     }
   }
 
@@ -711,10 +709,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
           if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
           if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-            try {
+            if ( (uint) rechit.getOOTIndex() < potPlots_[detId_pot].stripTomographyAllFar.size() )
               potPlots_[detId_pot].stripTomographyAllFar.at( rechit.getOOTIndex() )->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
-            } 
-            catch( ... ) { }
           }
         }
       }
@@ -880,11 +876,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         ++(channelPlots_[detId].hitsCounterPerLumisection);
       }
 
-      try {
+      if ( (uint) rechit.getOOTIndex() < channelPlots_[detId].activity_per_bx.size() )
         channelPlots_[detId].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
-      } 
-      catch( ... ) { }
-
     }
 
   }
