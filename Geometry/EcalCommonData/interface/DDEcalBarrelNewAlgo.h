@@ -420,7 +420,7 @@ private:
 		double              LWeb,
 		double              theta,
 		const Pt3D&         corner,
-		const DDLogicalPart logPar,
+		DDLogicalPart logPar,
 		double&             zee  ,
 		double              side,
 		double              front,
