@@ -58,7 +58,7 @@ DeDxHitInfoProducer::~DeDxHitInfoProducer(){}
 void  DeDxHitInfoProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   if(useCalibration && calibGains.size()==0){
+   if(useCalibration && calibGains.empty()){
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
 
       DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
