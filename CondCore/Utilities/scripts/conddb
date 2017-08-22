@@ -1160,14 +1160,20 @@ def convertRunToTimes( session, fromRun, toRun ):
     toLumi = None
     # the time we get may be a bit delayed (7-10 sec according to Salvatore) 
     if not fromRun is None:
-        conv = run_to_timestamp( session )
-        startTime1, stopTime1 = conv.convertOne( fromRun )
-        fromTime =  startTime1-15.
+        if fromRun == 1:
+            fromTime = 1
+        else:
+            conv = run_to_timestamp( session )
+            startTime1, stopTime1 = conv.convertOne( fromRun )
+            fromTime =  time.mktime( startTime1.timetuple() )-15.
         fromLumi = fromRun<<32|0x1
     if not toRun is None:
-        conv = run_to_timestamp( session )
-        startTime2, stopTime2 = conv.convertOne( toRun )
-        toTime = stopTime2+15.
+        if toRun == 1:
+            toTime = 1
+        else:
+            conv = run_to_timestamp( session )
+            startTime2, stopTime2 = conv.convertOne( toRun )
+            toTime = time.mktime( stopTime2.timetuple() )+15.
         toLumi = toRun<<32|0x1
 
     timeMap = { 'from' : {
@@ -1473,7 +1479,7 @@ def copy(args):
             args.second = args.first
 
         # 'from' is a keyword!
-        session = getSessionOnMasterDB( session1, session2 )
+        session = conddb.getSessionOnMasterDB( session1, session2 )
 	timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
 
         logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
