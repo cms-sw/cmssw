@@ -42,7 +42,7 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
         public:
                 EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerMultiFit() {};
-                virtual ~EcalUncalibRecHitWorkerMultiFit() {};
+                ~EcalUncalibRecHitWorkerMultiFit() override {};
         private:
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
