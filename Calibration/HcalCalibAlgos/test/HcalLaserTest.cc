@@ -119,7 +119,7 @@ void HcalLaserTest::analyze(edm::Event const& iEvent,
       << "Event type: " << eventType 
       << " Laser type: " << laserType << std::endl;
 
-  for (auto hbhe : *hbhe_digi) {
+  for (auto & hbhe : *hbhe_digi) {
     const HBHEDataFrame digi = (const HBHEDataFrame)(hbhe);
 
     int  maxdigiHB(0);
@@ -144,7 +144,7 @@ void HcalLaserTest::analyze(edm::Event const& iEvent,
   h_hb4_->Fill(badrbxfracHBHE);
   h_hb5_->Fill(goodrbxfracHBHE-badrbxfracHBHE);
   
-  for (auto hf : *(hf_digi)) {
+  for (auto & hf : *(hf_digi)) {
     const QIE10DataFrame digi = (const QIE10DataFrame)(hf);
     bool passCut(false);
     int  maxdigiHF(0);
