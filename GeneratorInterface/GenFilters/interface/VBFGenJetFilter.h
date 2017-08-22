@@ -22,6 +22,7 @@
 #include <memory>
 #include <map>
 
+#include <unordered_set>
 //
 // class declaration
 //
@@ -44,6 +45,11 @@ private:
   
   std::vector<const reco::GenJet*>      filterGenJets(const std::vector<reco::GenJet>* jets);
   std::vector<const reco::GenParticle*> filterGenLeptons(const std::vector<reco::GenParticle>* particles);
+  
+  bool isHardProcess(const reco::GenParticle &p);
+  const reco::GenParticle * firstCopy(const reco::GenParticle &p);
+  const reco::GenParticle * previousCopy(const reco::GenParticle &p);
+  const reco::GenParticle * nextCopy(const reco::GenParticle &p);
   
   //**************************
   // Private Member data *****
@@ -73,5 +79,8 @@ private:
   
 
 };
+
+
+
 
 #endif

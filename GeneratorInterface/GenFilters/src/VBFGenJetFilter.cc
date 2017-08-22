@@ -41,6 +41,82 @@ VBFGenJetFilter::~VBFGenJetFilter(){
   
 }
 
+
+bool VBFGenJetFilter::isHardProcess(const reco::GenParticle &p)  {
+  
+  //status 3 in pythia6 means hard process;
+  if (p.status()==3) return true;
+  
+  //hard process codes for pythia8 are 21-29 inclusive (currently 21,22,23,24 are used)
+  if (p.status()>20 && p.status()<30) return true;
+  
+  //if this is a final state or decayed particle,
+  //check if direct mother is a resonance decay in pythia8 but exclude FSR branchings
+  //(In pythia8 if a resonance decay product did not undergo any further branchings
+  //it will be directly stored as status 1 or 2 without any status 23 copy)
+  if (p.status()==1 || p.status()==2) {
+//     const reco::GenParticle *um = mother(p);
+    const reco::GenParticle *um = static_cast<const reco::GenParticle*>(p.mother(0));
+    if (um) {
+      const reco::GenParticle *firstcopy = firstCopy(*um);
+      bool fromResonance = firstcopy && firstcopy->status()==22;
+      
+      const reco::GenParticle *umNext = nextCopy(*um);
+      bool fsrBranching = umNext && umNext->status()>50 && umNext->status()<60;
+      
+      if (fromResonance && !fsrBranching) return true;
+    }
+  }
+  
+  return false;
+  
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+const reco::GenParticle * VBFGenJetFilter::firstCopy(const reco::GenParticle &p)  {
+  const reco::GenParticle *pcopy = &p;
+  std::unordered_set<const reco::GenParticle*> dupCheck;
+  while (previousCopy(*pcopy)) {
+    dupCheck.insert(pcopy);
+    pcopy = previousCopy(*pcopy);
+    if (dupCheck.count(pcopy)) return 0;
+  }
+  return pcopy;    
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+const reco::GenParticle * VBFGenJetFilter::previousCopy(const reco::GenParticle &p)  {
+  
+  const unsigned int nmoth = p.numberOfMothers();
+  for (unsigned int imoth = 0; imoth<nmoth; ++imoth) {
+    const reco::GenParticle *moth = static_cast<const reco::GenParticle*>(p.mother(imoth));//mother(p,imoth);
+    if (moth->pdgId()==p.pdgId()) {
+      return moth;
+    }
+  }
+  
+  return 0;     
+}   
+
+/////////////////////////////////////////////////////////////////////////////
+
+const reco::GenParticle * VBFGenJetFilter::nextCopy(const reco::GenParticle &p)  {
+  
+  const unsigned int ndau = p.numberOfDaughters();
+  for (unsigned int idau = 0; idau<ndau; ++idau) {
+    const reco::GenParticle *dau = static_cast<const reco::GenParticle*>(p.daughter(idau));//daughter(p,idau);
+    if (dau->pdgId()==p.pdgId()) {
+      return dau;
+    }
+  }
+  
+  return 0;     
+} 
+
+/////////////////////////////////////////////////////////////////////////////
+
 vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<reco::GenParticle>* particles){
   vector<const reco::GenParticle*> out;
   
@@ -50,24 +126,23 @@ vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<
       int absPdgId = abs(p->pdgId());
       
       
-      if(absPdgId == 13 && p->isHardProcess()) {
+      if(((absPdgId == 11) || (absPdgId == 13) || (absPdgId == 15)) && isHardProcess(*p)) {
           out.push_back(p);
           
           
-//           if (p->numberOfDaughters() == 0 ) out.push_back(p);
-//           if (p->isHardProcess()) out.push_back(p);
-//           bool muonToAdd = true;
-//           for (unsigned int n = 0; n < p->numberOfDaughters(); ++n)
-//               if (abs(p->daughter(n)->pdgId()) == 13) muonToAdd = false;
-//           if (muonToAdd) out.push_back(p); 
               
       }
       
 
   }
-//   if (out.size() > 0) std::cout << "filterGenLeptons size: " << out.size() << std::endl;
+  if (out.size() > 0) std::cout << "filterGenLeptons size: " << out.size() << " \t  " << out[0]->pdgId();
+  if (out.size() > 2) std::cout << " \t  " << out[2]->pdgId();
+  std::cout << std::endl;
   return out;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets){
@@ -86,6 +161,11 @@ vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::Ge
   
   return out;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
 
 
 // ------------ method called to skim the data  ------------
@@ -107,7 +187,6 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   
-  
   // Testing dijet mass   
   if(leadJetsNoLepMass) { 
         
@@ -126,7 +205,8 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       
 
-      while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
+//       while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
+      while(jetIdx < filGenJets.size()) {
           bool jetWhitoutLep = true;
           math::XYZTLorentzVector p4J= (filGenJets[jetIdx])->p4();
           for(unsigned int i = 0; i < filGenLep.size() && jetWhitoutLep; ++i) {
