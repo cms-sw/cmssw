@@ -94,36 +94,40 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond detector package
     struct PotPlots
     {
-      MonitorElement* activity_per_bx = NULL;
-      MonitorElement* activity_per_bx_plus1 = NULL;
-      MonitorElement* activity_per_bx_minus1 = NULL;
+      MonitorElement* activity_per_bx_0_25 = NULL;
+      MonitorElement* activity_per_bx_25_50 = NULL;
+      MonitorElement* activity_per_bx_50_75 = NULL;
+      std::vector< MonitorElement* > activity_per_bx;
 
       MonitorElement* hitDistribution2d = NULL;
       MonitorElement* hitDistribution2dOOT = NULL;
       MonitorElement* hitDistribution2dOOT_le = NULL;
-      MonitorElement* hitDistribution2dOOT_te = NULL;
       MonitorElement* activePlanes = NULL;
 
       MonitorElement* trackDistribution = NULL;
       MonitorElement* trackDistributionOOT = NULL;
 
-      MonitorElement* stripTomographyAllFar = NULL;
-      MonitorElement* stripTomographyAllFar_plus1 = NULL;
-      MonitorElement* stripTomographyAllFar_minus1 = NULL;
+      MonitorElement* stripTomographyAllFar_0_25 = NULL;
+      MonitorElement* stripTomographyAllFar_25_50 = NULL;
+      MonitorElement* stripTomographyAllFar_50_75 = NULL;
+      std::vector< MonitorElement* > stripTomographyAllFar;
 
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL;
+      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL, *trailingEdgeCumulative_te = NULL;
       MonitorElement* timeOverThresholdCumulativePot = NULL, *leadingTrailingCorrelationPot = NULL;
       MonitorElement* leadingWithoutTrailingCumulativePot = NULL;
 
       MonitorElement* ECCheck = NULL;
 
       MonitorElement* HPTDCErrorFlags_cumulative = NULL;
+      MonitorElement* MHComprensive = NULL;
 
       MonitorElement* clock_Digi1_le = NULL;
       MonitorElement* clock_Digi1_te = NULL;
       MonitorElement* clock_Digi3_le = NULL;
       MonitorElement* clock_Digi3_te = NULL;
 
+      unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
+      
       PotPlots() {};
       PotPlots( DQMStore::IBooker& ibooker, unsigned int id );
     };
@@ -149,12 +153,13 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond channel
     struct ChannelPlots
     {
-      MonitorElement* activity_per_bx = NULL;
-      MonitorElement* activity_per_bx_plus1 = NULL;
-      MonitorElement* activity_per_bx_minus1 = NULL;
+      MonitorElement* activity_per_bx_0_25 = NULL;
+      MonitorElement* activity_per_bx_25_50 = NULL;
+      MonitorElement* activity_per_bx_50_75 = NULL;
+      std::vector< MonitorElement* > activity_per_bx;
 
       MonitorElement* HPTDCErrorFlags = NULL;
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL;
+      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL, *trailingEdgeCumulative_te = NULL;
       MonitorElement* TimeOverThresholdCumulativePerChannel = NULL;
       MonitorElement* LeadingTrailingCorrelationPerChannel = NULL;
       MonitorElement* leadingWithoutTrailing = NULL;
@@ -162,6 +167,8 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       MonitorElement* hit_rate = NULL;
       MonitorElement* ECCheckPerChannel = NULL;
       unsigned long hitsCounterPerLumisection;
+      
+      unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
 
       ChannelPlots() : hitsCounterPerLumisection( 0 ) {}
       ChannelPlots( DQMStore::IBooker &ibooker, unsigned int id );
@@ -208,7 +215,7 @@ CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots( DQMStore::IBooker& ibooker )
 //----------------------------------------------------------------------------------------------------
 
 
-CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned int id )
+CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned int id ): HitCounter(0), MHCounter(0), LeadingOnlyCounter(0), TrailingOnlyCounter(0), CompleteCounter(0)
 {
   std::string path, title;
   CTPPSDiamondDetId( id ).rpName( path, CTPPSDiamondDetId::nPath );
@@ -216,44 +223,50 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
 
-  activity_per_bx = ibooker.book1D( "activity per BX", title+" activity per BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_plus1 = ibooker.book1D( "activity per BX OOT +1", title+" activity per BX OOT +1;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_minus1 = ibooker.book1D( "activity per BX OOT -1", title+" activity per BX OOT -1;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_0_25);
+  activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_25_50);
+  activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_50_75);
 
   hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
-  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.1 OOT;x (mm)", 41, -0.1, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
-  hitDistribution2dOOT_le= ibooker.book2D( "hits with OOT in planes (le only)", title+" hits with OOT in planes (le only);plane number + 0.1 OOT;x (mm)", 41, -0.1, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
-  hitDistribution2dOOT_te= ibooker.book2D( "hits with OOT in planes (te only)", title+" hits with OOT in planes (te only);plane number + 0.1 OOT;x (mm)", 41, -0.1, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
-  activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5 );
+  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
+  hitDistribution2dOOT_le= ibooker.book2D( "hits with OOT in planes (le only)", title+" hits with OOT in planes (le only);plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
+  activePlanes = ibooker.book1D( "active planes", title+" active planes (per event);number of active planes", 6, -0.5, 5.5 );
 
   trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
 
-  stripTomographyAllFar = ibooker.book2D( "tomography all far", title+" tomography with strips far (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
-  stripTomographyAllFar_plus1 = ibooker.book2D( "tomography all far OOT +1", title+" tomography with strips far (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
-  stripTomographyAllFar_minus1 = ibooker.book2D( "tomography all far OOT -1", title+" tomography with strips far (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar_0_25 = ibooker.book2D( "tomography all far 0 25", title+" tomography with strips far 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar.push_back(stripTomographyAllFar_0_25);
+  stripTomographyAllFar_25_50 = ibooker.book2D( "tomography all far 25 50", title+" tomography with strips far 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar.push_back(stripTomographyAllFar_25_50);
+  stripTomographyAllFar_50_75 = ibooker.book2D( "tomography all far 50 75", title+" tomography with strips far 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar.push_back(stripTomographyAllFar_50_75);
 
-  leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge (le and te); leading edge (ns)", 125, 0, 125 );
-  leadingEdgeCumulative_le = ibooker.book1D( "leading edge (le only)", title+" leading edge (le only); leading edge (ns)", 125, 0, 125 );
-  timeOverThresholdCumulativePot = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 100, -100, 100 );
-  leadingTrailingCorrelationPot = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 100, 0, 100, 100, 0, 100 );
+  leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge (le and te); leading edge (ns)", 75, 0, 75 );
+  leadingEdgeCumulative_le = ibooker.book1D( "leading edge (le only)", title+" leading edge (le only); leading edge (ns)", 75, 0, 75 );
+  trailingEdgeCumulative_te = ibooker.book1D( "trailing edge (te only)", title+" trailing edge (te only); trailing edge (ns)", 75, 0, 75 );
+  timeOverThresholdCumulativePot = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 250, -25, 100 );
+  leadingTrailingCorrelationPot = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 75, 0, 75, 75, 0, 75 );
 
-  leadingWithoutTrailingCumulativePot = ibooker.book1D( "leading edges without trailing", title+" leading edges without trailing;leading edges without trailing", 4, 0.5, 4.5 );
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 1, "Nothing" );
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 2, "Leading only" );
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 3, "Trailing only" );
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 4, "Both" );
+  leadingWithoutTrailingCumulativePot = ibooker.book1D( "event category", title+" leading edges without trailing;;%", 3, 0.5, 3.5 );
+  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 1, "Leading only" );
+  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 2, "Trailing only" );
+  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel( 3, "Both" );
 
-  ECCheck = ibooker.book1D( "optorxEC(8bit) - vfatEC", title+" EC Error;optorxEC-vfatEC", 512, -256, 256 );
+  ECCheck = ibooker.book1D( "optorxEC(8bit) - vfatEC", title+" EC Error;optorxEC-vfatEC", 128, -64, 64 );
 
   HPTDCErrorFlags_cumulative = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index ) 
     HPTDCErrorFlags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
-  HPTDCErrorFlags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
+  HPTDCErrorFlags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH  (%)" );
 
+  MHComprensive = ibooker.book2D( "MH in channels", title+" MH (%) in channels;plane number;ch number", 10, -0.5, 4.5, 14, -1, 13 );
 
   ibooker.setCurrentFolder( path+"/clock/" );
-  clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 125, 0, 125 );
+  clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 1000, 0, 125 );
   clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 125, 0, 125 );
   clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 1000, 0, 125 );
   clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 125, 0, 125 );
@@ -278,7 +291,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots( DQMStore::IBooker& ibooker, unsig
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, unsigned int id ) : hitsCounterPerLumisection(0)
+CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, unsigned int id ) : hitsCounterPerLumisection(0), HitCounter(0), MHCounter(0), LeadingOnlyCounter(0), TrailingOnlyCounter(0), CompleteCounter(0)
 {
   std::string path, title;
   CTPPSDiamondDetId( id ).channelName( path, CTPPSDiamondDetId::nPath );
@@ -286,27 +299,30 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
 
   CTPPSDiamondDetId( id ).channelName( title, CTPPSDiamondDetId::nFull );
 
-  leadingWithoutTrailing = ibooker.book1D( "Leading Edges Without Trailing", title+" leading edges without trailing", 4, 0.5, 4.5 );
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 1, "Nothing" );
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 2, "Leading only" );
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 3, "Trailer only" );
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 4, "Full" );
+  leadingWithoutTrailing = ibooker.book1D( "event category", title+" Event Category;;%", 3, 0.5, 3.5 );
+  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 1, "Leading only" );
+  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 2, "Trailing only" );
+  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 3, "Full" );
 
-  activity_per_bx = ibooker.book1D( "activity per BX", title+" activity per BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_plus1 = ibooker.book1D( "activity per BX OOT +1", title+" activity per BX OOT +1;Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_minus1 = ibooker.book1D( "activity per BX OOT -1", title+" activity per BX OOT -1;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_0_25);
+  activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_25_50);
+  activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx.push_back(activity_per_bx_50_75);
 
   HPTDCErrorFlags = ibooker.book1D( "hptdc_Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
     HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
-  HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
+  HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH  (%)" );
 
-  leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge; leading edge (ns)", 100, 0, 200 );
-  leadingEdgeCumulative_le = ibooker.book1D( "leading edge (le only)", title+" leading edge; leading edge (ns)", 200, 0, 200 );
-  TimeOverThresholdCumulativePerChannel = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 100, -100, 100 );
-  LeadingTrailingCorrelationPerChannel = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 100, 0, 100, 100, 0, 100 );
+  leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge; leading edge (ns)", 75, 0, 75 );
+  leadingEdgeCumulative_le = ibooker.book1D( "leading edge (le only)", title+" leading edge; leading edge (ns)", 75, 0, 75 );
+  trailingEdgeCumulative_te = ibooker.book1D( "trailing edge (te only)", title+" trailing edge (te only); trailing edge (ns)", 75, 0, 75 );
+  TimeOverThresholdCumulativePerChannel = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 75, -25, 50 );
+  LeadingTrailingCorrelationPerChannel = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 75, 0, 75, 75, 0, 75 );
 
-  ECCheckPerChannel = ibooker.book1D("optorxEC(8bit) - vfatEC vs optorxEC", title+" EC Error;optorxEC-vfatEC", 512, -256, 256 );
+  ECCheckPerChannel = ibooker.book1D("optorxEC(8bit) - vfatEC vs optorxEC", title+" EC Error;optorxEC-vfatEC", 128, -64, 64 );
 
   stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 25 OOT (mm);y (mm)", 150, -50, 100, 24, -2, 10 );
 
@@ -383,12 +399,7 @@ CTPPSDiamondDQMSource::bookHistograms( DQMStore::IBooker& ibooker, const edm::Ru
 void
 CTPPSDiamondDQMSource::beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) 
 {
-  for ( auto& plot : channelPlots_ ) {
-    if ( plot.second.hitsCounterPerLumisection != 0 ) {
-      plot.second.hit_rate->Fill( (double) plot.second.hitsCounterPerLumisection / SEC_PER_LUMI_SECTION );
-    }
-    plot.second.hitsCounterPerLumisection = 0;
-  }
+  
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -522,16 +533,27 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       if ( detId.channel() == CHANNEL_OF_VFAT_CLOCK ) continue;
       if ( potPlots_.find( detId_pot ) == potPlots_.end() ) continue;
       //Leading without trailing investigation
-      if      ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 1 );
-      else if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 2 );
-      else if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 3 );
-      else if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0 ) potPlots_[detId_pot].leadingWithoutTrailingCumulativePot->Fill( 4 );
-
+      if ( digi.getLeadingEdge() != 0 || digi.getTrailingEdge() != 0 ) {
+        ++(potPlots_[detId_pot].HitCounter);
+        if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0 ) {
+          ++(potPlots_[detId_pot].LeadingOnlyCounter);
+          potPlots_[detId_pot].leadingEdgeCumulative_le->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge() );
+        }
+        if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0 ) {
+          ++(potPlots_[detId_pot].TrailingOnlyCounter);
+          potPlots_[detId_pot].trailingEdgeCumulative_te->Fill( HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+        }
+        if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0 ) {
+          ++(potPlots_[detId_pot].CompleteCounter);
+          potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge(), HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+        }
+      }      
+      
       // HPTDC Errors
       const HPTDCErrorFlags hptdcErrors = digi.getHPTDCErrorFlags();
       for ( unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex )
         if ( hptdcErrors.getErrorId( hptdcErrorIndex-1 ) ) potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( hptdcErrorIndex );
-      if ( digi.getMultipleHit() ) potPlots_[detId_pot].HPTDCErrorFlags_cumulative->Fill( 16 );
+      if ( digi.getMultipleHit() ) ++(potPlots_[detId_pot].MHCounter);
     }
   }
 
@@ -597,7 +619,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         int startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
         int numOfBins = rechit.getXWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for ( int i=0; i<numOfBins; ++i) {
-          hitHistoTmp->Fill( detId.plane(), hitHistoTmpYAxis->GetBinCenter(startBin+i) + UFSDShift );
+          hitHistoTmp->Fill( detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin+i) );
         }
       }
 
@@ -611,48 +633,25 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         int startBin = hitHistoOOTTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
         int numOfBins = rechit.getXWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for ( int i=0; i<numOfBins; ++i) {
-          hitHistoOOTTmp->Fill( detId.plane() + 0.1 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
+          hitHistoOOTTmp->Fill( detId.plane() + 0.2 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
         }
       }
       else {
-        if ( rechit.getT() == 0 ) {
-          // Only trailing
-          TH2F *hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_te->getTH2F();
-          TAxis *hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-          int startBin = hitHistoOOTTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
-          int numOfBins = rechit.getXWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-          for ( int i=0; i<numOfBins; ++i) {
-            hitHistoOOTTmp->Fill( detId.plane() + 0.1 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
-          }
-        }
-        else {
+        if ( rechit.getT() != 0 ) {
           // Only leading
-          potPlots_[detId_pot].leadingEdgeCumulative_le->Fill( rechit.getT() + 25*rechit.getOOTIndex() );
-
           TH2F *hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
           TAxis *hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
           int startBin = hitHistoOOTTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
           int numOfBins = rechit.getXWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for ( int i=0; i<numOfBins; ++i) {
-            hitHistoOOTTmp->Fill( detId.plane() + 0.1 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
+            hitHistoOOTTmp->Fill( detId.plane() + 0.2 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
           }
         }
       }
-
-      if ( rechit.getToT() != 0 ) {
-        switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
-          case -1:
-            potPlots_[detId_pot].activity_per_bx_minus1->Fill( event.bunchCrossing() );
-            break;
-          case 0:
-            potPlots_[detId_pot].activity_per_bx->Fill( event.bunchCrossing() );
-            break;
-          case 1:
-            potPlots_[detId_pot].activity_per_bx_plus1->Fill( event.bunchCrossing() );
-            break;
-        }
-
-      } // End if (complete hits)
+      try {
+        potPlots_[detId_pot].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
+      } 
+      catch( ... ) { }
     }
   }
 
@@ -712,17 +711,10 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
           if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
           if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-            switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
-              case -1: {
-                potPlots_[detId_pot].stripTomographyAllFar_minus1->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
-              } break;
-              case 0: {
-                potPlots_[detId_pot].stripTomographyAllFar->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
-              } break;
-              case 1: {
-                potPlots_[detId_pot].stripTomographyAllFar_plus1->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
-              } break;
-            }
+            try {
+              potPlots_[detId_pot].stripTomographyAllFar.at( rechit.getOOTIndex() )->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
+            } 
+            catch( ... ) { }
           }
         }
       }
@@ -853,13 +845,24 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         const HPTDCErrorFlags hptdcErrors = digi.getHPTDCErrorFlags();
         for ( unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex )
           if ( hptdcErrors.getErrorId( hptdcErrorIndex-1 ) ) channelPlots_[detId].HPTDCErrorFlags->Fill( hptdcErrorIndex );
-        if ( digi.getMultipleHit() ) channelPlots_[detId].HPTDCErrorFlags->Fill( 16 );
+        if ( digi.getMultipleHit() ) ++(channelPlots_[detId].MHCounter);
 
         // Check dropped trailing edges
-        if      ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) channelPlots_[detId].leadingWithoutTrailing->Fill( 1 );
-        else if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0 ) channelPlots_[detId].leadingWithoutTrailing->Fill( 2 );
-        else if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0 ) channelPlots_[detId].leadingWithoutTrailing->Fill( 3 );
-        else if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0 ) channelPlots_[detId].leadingWithoutTrailing->Fill( 4 );
+        if ( digi.getLeadingEdge() != 0 || digi.getTrailingEdge() != 0 ) {
+          ++(channelPlots_[detId].HitCounter);
+          if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0 ) {
+            ++(channelPlots_[detId].LeadingOnlyCounter);
+            channelPlots_[detId].leadingEdgeCumulative_le->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge() );
+          }
+          if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0 ) {
+            ++(channelPlots_[detId].TrailingOnlyCounter);
+            channelPlots_[detId].trailingEdgeCumulative_te->Fill( HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+          }
+          if ( digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0 ) {
+            ++(channelPlots_[detId].CompleteCounter);
+            channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge(), HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+          }
+        }
       }
     }
   }
@@ -874,24 +877,14 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           channelPlots_[detId].leadingEdgeCumulative_both->Fill( rechit.getT() + 25*rechit.getOOTIndex() );
           channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill( rechit.getToT() );
         }
-        else if ( rechit.getT() != 0 ) channelPlots_[detId].leadingEdgeCumulative_le->Fill( rechit.getT() + 25*rechit.getOOTIndex() );
-        channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill( rechit.getT() + 25*rechit.getOOTIndex(), rechit.getT() + 25*rechit.getOOTIndex() + rechit.getToT() );
         ++(channelPlots_[detId].hitsCounterPerLumisection);
       }
 
-      if ( rechit.getToT() != 0 ) {
-        switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
-          case -1: {
-            channelPlots_[detId].activity_per_bx_minus1->Fill( event.bunchCrossing() );
-          } break;
-          case 0: {
-            channelPlots_[detId].activity_per_bx->Fill( event.bunchCrossing() );
-          } break;
-          case 1: {
-            channelPlots_[detId].activity_per_bx_plus1->Fill( event.bunchCrossing() );
-          } break;
-        }
-      }
+      try {
+        channelPlots_[detId].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
+      } 
+      catch( ... ) { }
+
     }
 
   }
@@ -911,7 +904,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
             if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
             if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
             if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-              channelPlots_[detId].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) +1), striplt.getY0() );
+              channelPlots_[detId].stripTomography_far->Fill( striplt.getX0() + 25*rechit.getOOTIndex(), striplt.getY0() );
             }
           }
         }
@@ -924,7 +917,41 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
 
 void
 CTPPSDiamondDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) 
-{}
+{
+  for ( auto& plot : channelPlots_ ) {
+    if ( plot.second.hitsCounterPerLumisection != 0 ) {
+      plot.second.hit_rate->Fill( (double) plot.second.hitsCounterPerLumisection / SEC_PER_LUMI_SECTION );
+    }
+    plot.second.hitsCounterPerLumisection = 0;
+    
+    double HundredOverHitCounter = .0; 
+    if ( plot.second.HitCounter != 0 )
+      HundredOverHitCounter = 100. / plot.second.HitCounter;
+    plot.second.HPTDCErrorFlags->setBinContent( 16, HundredOverHitCounter * plot.second.MHCounter );
+    plot.second.leadingWithoutTrailing->setBinContent(1, HundredOverHitCounter * plot.second.LeadingOnlyCounter ); 
+    plot.second.leadingWithoutTrailing->setBinContent(2, HundredOverHitCounter * plot.second.TrailingOnlyCounter ); 
+    plot.second.leadingWithoutTrailing->setBinContent(3, HundredOverHitCounter * plot.second.CompleteCounter );
+  }
+    
+  for ( auto& plot : potPlots_ ) {
+    double HundredOverHitCounterPot = 100. / plot.second.HitCounter;
+    plot.second.HPTDCErrorFlags_cumulative->setBinContent( 16, HundredOverHitCounterPot * plot.second.MHCounter );
+    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(1, HundredOverHitCounterPot * plot.second.LeadingOnlyCounter ); 
+    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(2, HundredOverHitCounterPot * plot.second.TrailingOnlyCounter ); 
+    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(3, HundredOverHitCounterPot * plot.second.CompleteCounter ); 
+    
+    plot.second.MHComprensive->Reset();
+    CTPPSDiamondDetId rpId(plot.first);
+    for ( auto& chPlot : channelPlots_ ) {
+      CTPPSDiamondDetId chId(chPlot.first);
+      if ( chId.rp() == rpId.rp() ) {
+       plot.second.MHComprensive->Fill(chId.plane(), chId.channel(), chPlot.second.HPTDCErrorFlags->getBinContent( 16 ) );
+      }
+    }
+    
+  }
+  
+}
 
 //----------------------------------------------------------------------------------------------------
 
