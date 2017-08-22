@@ -153,7 +153,10 @@ namespace SiStripPI {
     theMax =  h1->GetMaximum() > h2->GetMaximum() ?  h1->GetMaximum() :  h2->GetMaximum();
     theMin =  h1->GetMinimum() < h2->GetMaximum() ?  h1->GetMinimum() :  h2->GetMinimum();
     
-    auto result = std::make_pair(theMin*0.95,theMax*1.05);
+    float add_min = theMin>0. ? -0.05 :  0.05;
+    float add_max = theMax>0. ?  0.05 : -0.05;
+
+    auto result = std::make_pair(theMin*(1+add_min),theMax*(1+add_max));
     return result;
     
   }
