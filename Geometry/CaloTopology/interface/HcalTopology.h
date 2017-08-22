@@ -25,7 +25,7 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePosition=false);
+  HcalTopology(const HcalDDDRecConstants* hcons, bool mergePosition=false);
   HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::TriggerMode_2009);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
@@ -55,7 +55,7 @@ public:
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
   bool validHT(const HcalTrigTowerDetId& id) const;
   /** Is this a valid cell in context of Plan1 */
-  bool validHcal(const HcalDetId& id, const unsigned int flag) const;
+  bool validHcal(const HcalDetId& id, unsigned int flag) const;
   /** Flag=0 for unmerged Id's; =1 for for merged Id's; =2 for either */
 
   /** Get the neighbors of the given cell in east direction*/
@@ -115,18 +115,18 @@ public:
 
   /// for each of the ~17 depth segments, specify which readout bin they belong to
   /// if the ring is not found, the first one with a lower ring will be returned.
-  void getDepthSegmentation(const unsigned ring, 
+  void getDepthSegmentation(unsigned ring, 
 			    std::vector<int> & readoutDepths,
-			    const bool flag=false) const;
-  void setDepthSegmentation(const unsigned ring, 
+			    bool flag=false) const;
+  void setDepthSegmentation(unsigned ring, 
 			    const std::vector<int> & readoutDepths,
-			    const bool flag);
+			    bool flag);
   /// returns the boundaries of the depth segmentation, so that the first
   /// result is the first segment, and the second result is the first one
   /// of the next segment.  Used for calculating physical bounds.
-  std::pair<int, int> segmentBoundaries(const unsigned ring,
-					const unsigned depth,
-					const bool flag=false) const;
+  std::pair<int, int> segmentBoundaries(unsigned ring,
+					unsigned depth,
+					bool flag=false) const;
   int getPhiZOne(std::vector<std::pair<int,int> >& phiz) const {return hcons_->getPhiZOne(phiz);}
 
   unsigned int getHBSize() const {return HBSize_;}

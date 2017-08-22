@@ -44,25 +44,25 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
       //  New methods for SC geometry
       void EEPositionCRs( const DDName&        pName,
 			  const DDTranslation& offset,
-			  const int iSCType,
+			  int iSCType,
 			  DDCompactView& cpv );
 
-      void EECreateSC( const unsigned int iSCType, DDCompactView& cpv );
+      void EECreateSC( unsigned int iSCType, DDCompactView& cpv );
 
       void EECreateCR();
 
-      void EEPosSC( const int iCol , 
-		    const int iRow , 
+      void EEPosSC( int iCol , 
+		    int iRow , 
 		    DDName    EEDeeName );
 
-      unsigned int EEGetSCType( const unsigned int iCol , 
-				const unsigned int iRow  ) ;
+      unsigned int EEGetSCType( unsigned int iCol , 
+				unsigned int iRow  ) ;
 
-      DDName EEGetSCName( const int iCol , 
-			  const int iRow  ) ;
+      DDName EEGetSCName( int iCol , 
+			  int iRow  ) ;
 
-      std::vector<double> EEGetSCCtrs( const int iCol , 
-				       const int iRow  );
+      std::vector<double> EEGetSCCtrs( int iCol , 
+				       int iRow  );
 
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;

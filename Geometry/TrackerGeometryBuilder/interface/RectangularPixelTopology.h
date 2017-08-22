@@ -110,8 +110,8 @@ public:
   //-------------------------------------------------------------
   // Transform measurement to local coordinates individually in each dimension
   //
-  float localX( const float mpX ) const override;
-  float localY( const float mpY ) const override;
+  float localX( float mpX ) const override;
+  float localY( float mpY ) const override;
 
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
