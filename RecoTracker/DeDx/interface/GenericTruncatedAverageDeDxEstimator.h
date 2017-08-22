@@ -14,7 +14,7 @@ public:
     m_expo = iConfig.getParameter<double>("exponent");
  }
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
+ std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) override{
     int first = 0, last = Hits.size();
     if (m_fraction > 0) { // truncate high charge ones
        last -= int(Hits.size()*m_fraction); 

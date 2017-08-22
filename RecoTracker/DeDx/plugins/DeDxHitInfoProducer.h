@@ -34,11 +34,11 @@
 class DeDxHitInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit DeDxHitInfoProducer(const edm::ParameterSet&);
-  ~DeDxHitInfoProducer();
+  ~DeDxHitInfoProducer() override;
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
   void   processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos);
