@@ -329,12 +329,12 @@ int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
 
   int lay=0;
   if (det == 1) {
-    if      (eta == 16 || eta == -16) lay = layFHB[1];
-    else                              lay = layFHB[0];
+    if      (std::abs(eta) == 16) lay = layFHB[1];
+    else                          lay = layFHB[0];
   } else {
-    if      (eta == 16 || eta == -16) lay = layFHE[1];
-    else if (eta == 18 || eta == -18) lay = layFHE[2];
-    else                              lay = layFHE[0];
+    if      (std::abs(eta) == 16) lay = layFHE[1];
+    else if (std::abs(eta) == 18) lay = layFHE[2];
+    else                          lay = layFHE[0];
   }
   return lay;
 }
@@ -343,14 +343,14 @@ int HcalDDDSimConstants::getLastLayer(const int det, const int eta) const {
 
   int lay=0;
   if (det == 1) {
-    if      (eta == 15 || eta == -15) lay = layBHB[1];
-    else if (eta == 16 || eta == -16) lay = layBHB[2];
-    else                              lay = layBHB[0];
+    if      (std::abs(eta) == 15) lay = layBHB[1];
+    else if (std::abs(eta) == 16) lay = layBHB[2];
+    else                          lay = layBHB[0];
   } else {
-    if      (eta == 16 || eta == -16) lay = layBHE[1];
-    else if (eta == 17 || eta == -17) lay = layBHE[2];
-    else if (eta == 18 || eta == -18) lay = layBHE[3];
-    else                              lay = layBHE[0];
+    if      (std::abs(eta) == 16) lay = layBHE[1];
+    else if (std::abs(eta) == 17) lay = layBHE[2];
+    else if (std::abs(eta) == 18) lay = layBHE[3];
+    else                          lay = layBHE[0];
   }
   return lay;
 }
