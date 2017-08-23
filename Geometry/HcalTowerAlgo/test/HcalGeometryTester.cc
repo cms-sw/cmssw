@@ -26,13 +26,13 @@ public:
 
 private:
   void testValidDetIds(CaloSubdetectorGeometry* geom, const HcalTopology& topo, 
-		       DetId::Detector det, int subdet, std::string label);
+		       DetId::Detector det, int subdet, const std::string& label);
   void testClosestCells(CaloSubdetectorGeometry* geom, const HcalTopology& top);
   void testClosestCell(const HcalDetId & detId, CaloSubdetectorGeometry * geom);
   void testTriggerGeometry(const HcalTopology& topology);
   void testFlexiValidDetIds(CaloSubdetectorGeometry* geom, 
 			    const HcalTopology& topology, DetId::Detector det, 
-			    int subdet, std::string label, 
+			    int subdet, const std::string& label, 
 			    std::vector<int> &dins);
   void testFlexiGeomHF(CaloSubdetectorGeometry* geom);
 
@@ -85,7 +85,7 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
 void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
 					 const HcalTopology& topology, 
 					 DetId::Detector det, int subdet, 
-					 std::string label) {
+					 const std::string& label) {
 
   std::stringstream s;
   s << label << " : " << std::endl;
@@ -206,7 +206,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
 void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
 					      const HcalTopology& topology, 
 					      DetId::Detector det, int subdet, 
-					      std::string label, 
+					      const std::string& label, 
 					      std::vector<int> &dins) {
 
   std::stringstream s;

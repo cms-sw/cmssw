@@ -25,6 +25,7 @@
 using namespace std;
 
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -47,11 +48,11 @@ void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
 
   DDFilteredView fview(*cview,filter);
-  buildGeometry(theGeometry, fview, muonConstants);
+  buildGeometry(std::move(theGeometry), fview, muonConstants);
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(std::shared_ptr<DTGeometry> theGeometry,
+void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
                                              DDFilteredView& fv,
                                              const MuonDDDConstants& muonConstants) const {
   // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "Geometry/GEMGeometry/interface/GEMStation.h"
 #include "Geometry/GEMGeometry/interface/GEMRing.h"
 #include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
@@ -73,7 +75,7 @@ int GEMStation::nRings() const {
 }
 
 void GEMStation::setName(std::string name) {
-  name_ = name;
+  name_ = std::move(name);
 }
 
 const std::string GEMStation::getName() const {

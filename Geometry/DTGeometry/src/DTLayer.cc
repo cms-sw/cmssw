@@ -17,7 +17,7 @@
 /* ====================================================================== */
 
 /* Constructor */ 
-DTLayer::DTLayer(DTLayerId id,
+DTLayer::DTLayer(const DTLayerId& id,
                  ReferenceCountingPointer<BoundPlane>& plane,
                  const DTTopology& topo,
                  const DTLayerType& type,
