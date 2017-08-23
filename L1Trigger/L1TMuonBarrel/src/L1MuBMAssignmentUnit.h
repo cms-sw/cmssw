@@ -57,13 +57,13 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
     L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id );
 
     /// destructor
-    virtual ~L1MuBMAssignmentUnit();
+    ~L1MuBMAssignmentUnit() override;
 
     /// run Assignment Unit
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
 
     /// reset Assignment Unit
-    virtual void reset();
+    void reset() override;
 
     /// assign phi
     void PhiAU(const edm::EventSetup& c);

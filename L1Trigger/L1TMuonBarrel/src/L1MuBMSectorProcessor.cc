@@ -228,7 +228,7 @@ const L1MuBMSectorProcessor* L1MuBMSectorProcessor::neighbour() const {
   // current SP  -3  -2  -1  +1  +2  +3
   // neighbour   -2  -1  +1   0  +1  +2
 
-  if ( wheel == 1) return 0;
+  if ( wheel == 1) return nullptr;
   wheel = (wheel == -1) ? 1 : (wheel/abs(wheel)) * (abs(wheel)-1);
 
   const L1MuBMSecProcId id(wheel,sector);
