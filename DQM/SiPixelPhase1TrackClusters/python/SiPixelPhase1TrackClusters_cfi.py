@@ -350,7 +350,9 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
+        clusterShapeCache = cms.InputTag("siPixelClusterShapeCache"),
         tracks = cms.InputTag("generalTracks"),
+        vertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
@@ -359,5 +361,7 @@ SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
+
+
 
 
