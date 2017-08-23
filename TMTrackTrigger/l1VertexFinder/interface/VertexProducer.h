@@ -33,9 +33,6 @@ public:
 private:
 
   typedef std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > TTTrackCollection;
-  typedef std::vector< const L1fittedTrack* > FitTrackCollection;
-  typedef std::vector< L1fittedTrack > TrackCollection;
-  typedef std::vector< TP > TrackParticleCollection;
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -46,10 +43,10 @@ private:
   const edm::EDGetTokenT<DetSetVec> stubInputTag;
   const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
+  const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
 
   Settings *settings_;
   Histos   *hists_;
-  map<string, TrackFitGeneric*> fitterWorkerMap_;
 };
 
 #endif
