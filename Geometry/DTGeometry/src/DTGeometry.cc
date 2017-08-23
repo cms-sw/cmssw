@@ -77,7 +77,7 @@ const GeomDet* DTGeometry::idToDet(DetId id) const{
   DTLayerId lId(id.rawId());
   DTDetMap::const_iterator i = theMap.find(lId);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 
