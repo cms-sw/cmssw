@@ -9,8 +9,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "TMTrackTrigger/TMTrackFinder/interface/Stub.h"
-#include "TMTrackTrigger/TMTrackFinder/interface/L1fittedTrack.h"
 
 
 #include <vector>
@@ -40,8 +38,11 @@ private:
 
 private:
   const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
+  typedef edmNew::DetSetVector< TTStub<Ref_Phase2TrackerDigi_> > DetSetVec;
   const edm::EDGetTokenT<DetSetVec> stubInputTag;
+  typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_>           TTStubAssMap;
   const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
+  typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
 

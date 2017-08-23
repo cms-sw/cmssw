@@ -4,15 +4,6 @@
 #include <TMTrackTrigger/TMTrackFinder/interface/InputData.h>
 #include <TMTrackTrigger/TMTrackFinder/interface/Settings.h>
 #include <TMTrackTrigger/TMTrackFinder/interface/Histos.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/Sector.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/HTpair.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/KillDupFitTrks.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/TrackFitGeneric.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/L1fittedTrack.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/L1fittedTrk4and5.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/ConverterToTTTrack.h>
-#include "TMTrackTrigger/TMTrackFinder/interface/HTcell.h"
-#include "TMTrackTrigger/TMTrackFinder/interface/MuxHToutputs.h"
 #include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
 #include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
 

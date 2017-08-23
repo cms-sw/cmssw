@@ -1,12 +1,14 @@
 #ifndef __TMTrackTrigger_VertexFinder_RecoVertex_h__
 #define __TMTrackTrigger_VertexFinder_RecoVertex_h__
 
+
+#include "TMTrackTrigger/TMTrackFinder/interface/TP.h"
+
 #include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
 
-#include "TMTrackTrigger/TMTrackFinder/interface/Settings.h"
-#include "TMTrackTrigger/TMTrackFinder/interface/Utility.h"
-
+#include <set>
 #include <vector>
+
 
 class RecoVertex {
 
@@ -16,7 +18,7 @@ public:
   ~RecoVertex(){}
 
   /// Tracking Particles in vertex    
-  vector<const vertexFinder::L1fittedTrack*> tracks()    const { return    tracks_;    }
+  std::vector<const vertexFinder::L1fittedTrack*> tracks()    const { return    tracks_;    }
   /// Tracking Particles in vertex    
   std::set< const TP* > trueTracks()    const { return    trueTracks_;    }
   /// Number of tracks originating from this vertex
