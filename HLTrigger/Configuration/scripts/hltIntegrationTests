@@ -246,7 +246,6 @@ process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 )
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 
-process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 fi
 
@@ -269,6 +268,8 @@ cat >> hlt.py << @EOF
 process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
 process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
 process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+
+process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 
 # dump the menu name, and its release template

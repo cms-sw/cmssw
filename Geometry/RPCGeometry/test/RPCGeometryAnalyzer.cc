@@ -94,15 +94,15 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 
    std::set<RPCDetId> sids;
    std::vector<LocalPoint> vlp;
-   vlp.push_back(LocalPoint(-1, 0, 0));
-   vlp.push_back(LocalPoint( 0, 0, 0));
-   vlp.push_back(LocalPoint( 1, 0, 0));
-   vlp.push_back(LocalPoint( 0,-1, 0));
-   vlp.push_back(LocalPoint( 0, 0, 0));
-   vlp.push_back(LocalPoint( 0, 1, 0));
-   vlp.push_back(LocalPoint( 0, 0,-1));
-   vlp.push_back(LocalPoint( 0, 0, 0));
-   vlp.push_back(LocalPoint( 0, 0, 1));
+   vlp.emplace_back(LocalPoint(-1, 0, 0));
+   vlp.emplace_back(LocalPoint( 0, 0, 0));
+   vlp.emplace_back(LocalPoint( 1, 0, 0));
+   vlp.emplace_back(LocalPoint( 0,-1, 0));
+   vlp.emplace_back(LocalPoint( 0, 0, 0));
+   vlp.emplace_back(LocalPoint( 0, 1, 0));
+   vlp.emplace_back(LocalPoint( 0, 0,-1));
+   vlp.emplace_back(LocalPoint( 0, 0, 0));
+   vlp.emplace_back(LocalPoint( 0, 0, 1));
 
 
    for(auto it : pDD->dets()){

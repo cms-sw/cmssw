@@ -1,16 +1,14 @@
-#include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
-#include "DetectorDescription/Core/interface/graph_util.h"
-//#include "DDD/RegressionTest/src/TagName.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/GraphUtil.h"
 
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-typedef graph<string,string> graph_type;
-
-typedef graphwalker<string,string> walker_type;
+using graph_type = math::Graph<string,string>;
+using walker_type = math::GraphWalker<string,string>;
 
 void build_graph(graph_type & g)
 {
@@ -144,6 +142,7 @@ int main()
   
   os << "exchanging node C through node Y." << endl;
   unsigned int idx = g1.replace("C","Y");
+  os << idx << endl;
   graph_tree_output(g1,string("A"),os);
   
   os << "replacing edge h1 with exchanged_h1 " << endl;

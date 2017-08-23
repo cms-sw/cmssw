@@ -11,7 +11,7 @@
 //
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, kopt, dataMC, drawStatBox, save);
-//      Defaults: modePlot=0, iopt=0, dataMC=false, drawStatBox=true, save=false
+//      Defaults: modePlot=0, kopt=0, dataMC=false, drawStatBox=true, save=false
 //
 //             For plotting several histograms in the same plot
 //             (fits to different data sets for example)
@@ -203,8 +203,18 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
   startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[5] = 100.*startvalues[5];
   fitrange[0] = mean - 3.0*rms; fitrange[1] = mean + 3.0*rms;
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
-  double value = Fitfun->Value(1);
-  double error = Fitfun->FitResult::Error(1); 
+  double wt1    = (Fitfun->Value(0))*(Fitfun->Value(2));
+  double value1 = Fitfun->Value(1);
+  double error1 = Fitfun->FitResult::Error(1); 
+  double wt2    = (Fitfun->Value(3))*(Fitfun->Value(5));
+  double value2 = Fitfun->Value(4);
+  double error2 = Fitfun->FitResult::Error(4);
+  double value  = (wt1*value1+wt2*value2)/(wt1+wt2);
+  double error  = (sqrt((wt1*error1)*(wt1*error1)+(wt2*error2)*(wt2*error2))/
+		   (wt1+wt2));
+  std::cout << hist->GetName() << " Fit " << value << ":" << error
+	    << " First  " << value1 << ":" << error1 << ":" << wt1
+	    << " Second " << value2 << ":" << error2 << ":" << wt2 << std::endl;
   if (debug) {
   for (int k=0; k<6; ++k) 
     std::cout << hist->GetName() << ":Parameter[" << k << "] = " 
@@ -736,7 +746,7 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
       else         gStyle->SetOptStat(10);
     } else {
       gStyle->SetOptStat(0);
-      ymax = 0.89;
+      ymax = 0.82;
     }
     for (int k=0; k<2; ++k) {
       if (k == 0) 

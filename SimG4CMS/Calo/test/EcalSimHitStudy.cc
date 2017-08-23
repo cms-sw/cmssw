@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+//#define EDM_ML_DEBUG
+
 class EcalSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
@@ -58,11 +60,18 @@ protected:
 
 private:
 
+  struct EcalHit {
+    uint16_t id;
+    double   time, energy;
+    EcalHit(uint16_t i=0, double t=0, double e=0) : id(i), time(t), 
+						    energy(e) {}
+  };
   static const int    ndets_ = 2;
   std::string         g4Label_, hitLab_[ndets_];
   edm::EDGetTokenT<edm::HepMCProduct>      tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[2];
   double              maxEnergy_, tmax_, w0_;
+  int                 selX_;
   const CaloGeometry *geometry_;
   TH1F               *ptInc_, *etaInc_, *phiInc_, *eneInc_;
   TH1F               *hit_[ndets_],     *time_[ndets_],    *timeAll_[ndets_];
@@ -84,6 +93,7 @@ EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps) {
   maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
   tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
   w0_       = ps.getUntrackedParameter<double>("W0", 4.7);
+  selX_     = ps.getUntrackedParameter<int>("SelectX",-1);
 
   for (int i=0; i<ndets_; ++i)
     toks_calo_[i] = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hitLab_[i]));
@@ -91,7 +101,7 @@ EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps) {
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: "
 			       << hitLab_[0] << ", " << hitLab_[1] 
 			       << "   MaxEnergy: " << maxEnergy_ << "  Tmax: "
-			       << tmax_;
+			       << tmax_ << " Select " << selX_;
 }
 
 void  EcalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -103,6 +113,7 @@ void  EcalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<std::string>("SourceLabel","VtxSmeared");
   desc.addUntracked<double>("MaxEnergy", 200.0);
   desc.addUntracked<double>("TimeCut", 100.0);
+  desc.addUntracked<int>("SelectX",-1);
   descriptions.add("EcalSimHitStudy",desc);
 }
 
@@ -205,20 +216,20 @@ void EcalSimHitStudy::beginJob() {
     r9by25_[i]->Sumw2();
     double ymax = (i == 0) ? 0.0005 : 0.005;
     sprintf (name, "sEtaEta%d", i);
-    sprintf (title, "Cov(#eta,#eta) inn %s", dets[i].c_str());
+    sprintf (title, "Cov(#eta,#eta) in %s", dets[i].c_str());
     sEtaEta_[i]  = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
     sEtaEta_[i]->GetXaxis()->SetTitle(title); 
     sEtaEta_[i]->GetYaxis()->SetTitle("Events");
     sEtaEta_[i]->Sumw2();
     sprintf (name, "sEtaPhi%d", i);
-    sprintf (title, "Cov(#eta,#phi) inn %s", dets[i].c_str());
+    sprintf (title, "Cov(#eta,#phi) in %s", dets[i].c_str());
     sEtaPhi_[i]  = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
     sEtaPhi_[i]->GetXaxis()->SetTitle(title); 
     sEtaPhi_[i]->GetYaxis()->SetTitle("Events");
     sEtaPhi_[i]->Sumw2();
     ymax = (i == 0) ? 0.001 : 0.01;
     sprintf (name, "sPhiPhi%d", i);
-    sprintf (title, "Cov(#phi,#phi) inn %s", dets[i].c_str());
+    sprintf (title, "Cov(#phi,#phi) in %s", dets[i].c_str());
     sPhiPhi_[i]  = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
     sPhiPhi_[i]->GetXaxis()->SetTitle(title); 
     sPhiPhi_[i]->GetYaxis()->SetTitle("Events");
@@ -228,9 +239,10 @@ void EcalSimHitStudy::beginJob() {
 
 void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "Run = " << e.id().run() << " Event = " 
 			       << e.id().event();
-
+#endif
   // get handles to calogeometry
   edm::ESHandle<CaloGeometry> pG;
   iS.get<CaloGeometryRecord>().get(pG);
@@ -258,12 +270,14 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   else if (std::abs(etaInc) > 1.49 && std::abs(etaInc) < 3.0) type = 1;
   if (type >= 0) {
     bool getHits(false);
-    unsigned int nhits(0);
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByToken(toks_calo_[type],hitsCalo); 
-    if (hitsCalo.isValid()) {getHits = true; nhits = hitsCalo->size();}
+    if (hitsCalo.isValid()) getHits = true; 
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "EcalSimHitStudy: Input flags Hits " 
-				 << getHits << " with " << nhits << " hits";
+				 << getHits << " with " << hitsCalo->size()
+				 << " hits";
+#endif
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(),hitsCalo->begin(),hitsCalo->end());
@@ -275,7 +289,7 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
 void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 
   unsigned int nEC(0);
-  std::map<unsigned int,std::pair<double,double> > hitMap;
+  std::map<unsigned int,EcalHit> hitMap;
   double       etot(0), etotG(0);
   for (auto hit : hits) {
     double edep      = hit.energy();
@@ -289,9 +303,10 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     if (time <= tmax_) {
       auto it = hitMap.find(id_);
       if (it == hitMap.end()) {
-	hitMap[id_] = std::pair<double,double>(time,edep);
+	uint16_t dep = hit.depth();
+	hitMap[id_]  = EcalHit(dep,time,edep);
       } else {
-	(it->second).second += edep;
+	(it->second).energy += edep;
       }
       etotG += edep; 
       ++nEC;
@@ -302,85 +317,104 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     edepHad_[indx]->Fill(edepHad);
     etot += edep;
   }
-
-  edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::analyzeHits: Index " << indx
-			       << " Hits " << hits.size() << ":" << nEC << ":" 
-			       << hitMap.size() << " ETotal " << etot << ":" 
-			       << etotG;
-
-  etot_[indx]->Fill(etot);
-  etotg_[indx]->Fill(etotG);
-  hit_[indx]->Fill(double(nEC));
+  
   double       edepM(0);
   unsigned int idM(0);
+  uint16_t     depM(0);
   for (auto it : hitMap) {
-    timeAll_[indx]->Fill((it.second).first);
-    edepAll_[indx]->Fill((it.second).second);
-    if ((it.second).second > edepM) {
-      edepM = (it.second).second;
+    if (it.second.energy > edepM) {
       idM   = it.first;
+      edepM = it.second.energy;
+      depM  = it.second.id;
     }
   }
-
-  math::XYZVector              meanPosition(0.0, 0.0, 0.0);
-  std::vector<math::XYZVector> position;
-  std::vector<double>          energy;
-  double                       e9(0), e25(0);
-  for (auto it : hitMap) {
-    DetId id(it.first);
-    int   deta(99), dphi(99), dz(0);
-    if (indx == 0) {
-      deta = std::abs(EBDetId(id).ietaAbs()-EBDetId(idM).ietaAbs());
-      dphi = std::abs(EBDetId(id).iphi()-EBDetId(idM).iphi());
-      if (dphi > 180) dphi = std::abs(dphi-360);
-      dz   = std::abs(EBDetId(id).zside()-EBDetId(idM).zside());
-    } else {
-      deta = std::abs(EEDetId(id).ix()-EEDetId(idM).ix());
-      dphi = std::abs(EEDetId(id).iy()-EEDetId(idM).iy());
-      dz   = std::abs(EEDetId(id).zside()-EEDetId(idM).zside());
-    }
-    if (deta <= 1 && dphi <= 1 && dz < 1) e9 += (it.second).second;
-    if (deta <= 2 && dphi <= 2 && dz < 1) {
-      e25 += (it.second).second;
-      GlobalPoint gpos = geometry_->getGeometry(id)->getPosition();
-      math::XYZVector pos(gpos.x(),gpos.y(),gpos.z());
-      meanPosition += (it.second).second * pos;
-      position.push_back(pos); energy.push_back((it.second).second);
-    }
+  
+  bool select(true);
+  if (selX_ >= 0) {
+    if ((depM & 0X4) != 0) select = (selX_ >  0);
+    else                   select = (selX_ == 0);
   }
-  double r1by9  = (e9 > 0)  ? (edepM/e9)  : -1;
-  double r1by25 = (e25 > 0) ? (edepM/e25) : -1;
-  double r9by25 = (e25 > 0) ? (e9/e25)    : -1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::analyzeHits: Index " 
+			       << indx << " Emax " << edepM << " IDMax "
+			       << std::hex << idM << ":" << depM << std::dec 
+			       << " Select " << select << ":" << selX_ 
+			       << " Hits " << hits.size() << ":" << nEC << ":"
+			       << hitMap.size() << " ETotal " << etot << ":" 
+			       << etotG;
+#endif
+  if (select) {
+    etot_[indx]->Fill(etot);
+    etotg_[indx]->Fill(etotG);
+    hit_[indx]->Fill(double(nEC));
+    for (auto it : hitMap) {
+      timeAll_[indx]->Fill((it.second).time);
+      edepAll_[indx]->Fill((it.second).energy);
+    }
 
-  meanPosition /= e25;
-  double denom(0), numEtaEta(0), numEtaPhi(0), numPhiPhi(0);
-  for (unsigned int k=0; k<position.size(); ++k) {
-    double dEta = position[k].eta() - meanPosition.eta();
-    double dPhi = position[k].phi() - meanPosition.phi();
-    if (dPhi > +M_PI) { dPhi = 2*M_PI - dPhi; }
-    if (dPhi < -M_PI) { dPhi = 2*M_PI + dPhi; }
+    math::XYZVector              meanPosition(0.0, 0.0, 0.0);
+    std::vector<math::XYZVector> position;
+    std::vector<double>          energy;
+    double                       e9(0), e25(0);
+    for (auto it : hitMap) {
+      DetId id(it.first);
+      int   deta(99), dphi(99), dz(0);
+      if (indx == 0) {
+	deta = std::abs(EBDetId(id).ietaAbs()-EBDetId(idM).ietaAbs());
+	dphi = std::abs(EBDetId(id).iphi()-EBDetId(idM).iphi());
+	if (dphi > 180) dphi = std::abs(dphi-360);
+	dz   = std::abs(EBDetId(id).zside()-EBDetId(idM).zside());
+      } else {
+	deta = std::abs(EEDetId(id).ix()-EEDetId(idM).ix());
+	dphi = std::abs(EEDetId(id).iy()-EEDetId(idM).iy());
+	dz   = std::abs(EEDetId(id).zside()-EEDetId(idM).zside());
+      }
+      if (deta <= 1 && dphi <= 1 && dz < 1) e9 += (it.second).energy;
+      if (deta <= 2 && dphi <= 2 && dz < 1) {
+	e25 += (it.second).energy;
+	GlobalPoint gpos = geometry_->getGeometry(id)->getPosition();
+	math::XYZVector pos(gpos.x(),gpos.y(),gpos.z());
+	meanPosition += (it.second).energy * pos;
+	position.push_back(pos); energy.push_back((it.second).energy);
+      }
+    }
+    double r1by9  = (e9 > 0)  ? (edepM/e9)  : -1;
+    double r1by25 = (e25 > 0) ? (edepM/e25) : -1;
+    double r9by25 = (e25 > 0) ? (e9/e25)    : -1;
 
-    double w   = std::max(0.0,(w0_+std::log(energy[k]/e25)));
-    denom     += w;
-    numEtaEta += std::abs(w * dEta * dEta);
-    numEtaPhi += std::abs(w * dEta * dPhi);
-    numPhiPhi += std::abs(w * dPhi * dPhi);
-    edm::LogVerbatim("HitStudy") << "[" << k << "] dEta " << dEta << " dPhi "
-				 << dPhi << " Wt " << energy[k]/e25 << ":" 
-				 << std::log(energy[k]/e25) << ":" << w;
+    meanPosition /= e25;
+    double denom(0), numEtaEta(0), numEtaPhi(0), numPhiPhi(0);
+    for (unsigned int k=0; k<position.size(); ++k) {
+      double dEta = position[k].eta() - meanPosition.eta();
+      double dPhi = position[k].phi() - meanPosition.phi();
+      if (dPhi > +M_PI) { dPhi = 2*M_PI - dPhi; }
+      if (dPhi < -M_PI) { dPhi = 2*M_PI + dPhi; }
+
+      double w   = std::max(0.0,(w0_+std::log(energy[k]/e25)));
+      denom     += w;
+      numEtaEta += std::abs(w * dEta * dEta);
+      numEtaPhi += std::abs(w * dEta * dPhi);
+      numPhiPhi += std::abs(w * dPhi * dPhi);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HitStudy") << "[" << k << "] dEta " << dEta <<" dPhi "
+				   << dPhi << " Wt " << energy[k]/e25 << ":" 
+				   << std::log(energy[k]/e25) << ":" << w;
+#endif
+    }
+    double sEtaEta = (denom > 0) ? (numEtaEta / denom) : -1.0;
+    double sEtaPhi = (denom > 0) ? (numEtaPhi / denom) : -1.0;
+    double sPhiPhi = (denom > 0) ? (numPhiPhi / denom) : -1.0;
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::Ratios " << r1by9 
+				 << " : " << r1by25 << " : " << r9by25 
+				 << " Covariances " << sEtaEta << " : " 
+				 << sEtaPhi << " : " << sPhiPhi;
+#endif
+    r1by9_[indx]->Fill(r1by9);     r1by25_[indx]->Fill(r1by25);
+    r9by25_[indx]->Fill(r9by25);   sEtaEta_[indx]->Fill(sEtaEta);
+    sEtaPhi_[indx]->Fill(sEtaPhi); sPhiPhi_[indx]->Fill(sPhiPhi);
   }
-  double sEtaEta = (denom > 0) ? (numEtaEta / denom) : -1.0;
-  double sEtaPhi = (denom > 0) ? (numEtaPhi / denom) : -1.0;
-  double sPhiPhi = (denom > 0) ? (numPhiPhi / denom) : -1.0;
-
-  edm::LogVerbatim("HitStudy") << "EcalSimHitStudy::Ratios " << r1by9 << " : "
-			       << r1by25 << " : " << r9by25 << " Covariances "
-			       << sEtaEta << " : " << sEtaPhi << " : "
-			       << sPhiPhi;
-
-  r1by9_[indx]->Fill(r1by9);     r1by25_[indx]->Fill(r1by25);
-  r9by25_[indx]->Fill(r9by25);   sEtaEta_[indx]->Fill(sEtaEta);
-  sEtaPhi_[indx]->Fill(sEtaPhi); sPhiPhi_[indx]->Fill(sPhiPhi);
 }
 
 //define this as a plug-in

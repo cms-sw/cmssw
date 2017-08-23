@@ -223,14 +223,14 @@ EcalTrapezoidParameters::vertexList() const
 
    const Pt3D f8 ( Pt3D( A_,0,0 ) + f5 ) ;
 
-   vtx.push_back(  fc + f1 ) ;
-   vtx.push_back(  fc + f2 ) ;
-   vtx.push_back(  fc + f3 ) ;
-   vtx.push_back(  fc + f4 ) ;
-   vtx.push_back( -fc + f5 ) ;
-   vtx.push_back( -fc + f6 ) ;
-   vtx.push_back( -fc + f7 ) ;
-   vtx.push_back( -fc + f8 ) ;
+   vtx.emplace_back(  fc + f1 ) ;
+   vtx.emplace_back(  fc + f2 ) ;
+   vtx.emplace_back(  fc + f3 ) ;
+   vtx.emplace_back(  fc + f4 ) ;
+   vtx.emplace_back( -fc + f5 ) ;
+   vtx.emplace_back( -fc + f6 ) ;
+   vtx.emplace_back( -fc + f7 ) ;
+   vtx.emplace_back( -fc + f8 ) ;
 
    return vtx ;
 }

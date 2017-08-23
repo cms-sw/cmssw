@@ -374,7 +374,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::PhotonCollection> phHandle;
   iEvent.getByToken( phToken_, phHandle );
 
+
   edm::Handle<edm::TriggerResults> handleTriggerTrigRes; 
+
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
   edm::ESHandle<MagneticField> bFieldHandle;
   // Filter out events if Trigger Filtering is requested
@@ -763,10 +765,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       }
     }
 
+
     if (enum_ == 7){//photons
       const std::string & hltpath = hltpaths_den[0];
       for (auto const & p : *phHandle) {
-	if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+	      if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
         phPhi_.denominator->Fill(p.phi());
         phEta_.denominator->Fill(p.eta());
         phPt_.denominator ->Fill(p.pt());

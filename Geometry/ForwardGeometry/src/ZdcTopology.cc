@@ -147,18 +147,18 @@ std::vector<DetId> ZdcTopology::transverse(const DetId& id) const{
     if(zdcId.zside()==1)isPositive = true;
     if(zdcId.channel()==1){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     if(zdcId.channel()== ICH_EM_MAX){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-    vNeighborsDetId.push_back(zdcDetId.rawId());
+    vNeighborsDetId.emplace_back(zdcDetId.rawId());
     zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-    vNeighborsDetId.push_back(zdcDetId.rawId());
+    vNeighborsDetId.emplace_back(zdcDetId.rawId());
   }
   return vNeighborsDetId;
 }
@@ -172,30 +172,30 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const{
     if(zdcId.zside()==1)isPositive = true;
     if(zdcId.channel()==1){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     if(zdcId.channel()== ICH_HAD_MAX){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-    vNeighborsDetId.push_back(zdcDetId.rawId());
+    vNeighborsDetId.emplace_back(zdcDetId.rawId());
     zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-    vNeighborsDetId.push_back(zdcDetId.rawId());
+    vNeighborsDetId.emplace_back(zdcDetId.rawId());
   }
   if(validRaw(zdcId) && zdcId.section()== HcalZDCDetId::LUM){
     bool isPositive = false;
     if(zdcId.zside()==1)isPositive = true;
     if(zdcId.channel()==1){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     if(zdcId.channel()== ICH_LUM_MAX){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
   }
@@ -204,12 +204,12 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const{
     if(zdcId.zside()==1)isPositive = true;
     if(zdcId.channel()==1){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
     if(zdcId.channel()== ICH_RPD_MAX){
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
-      vNeighborsDetId.push_back(zdcDetId.rawId());
+      vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
   }

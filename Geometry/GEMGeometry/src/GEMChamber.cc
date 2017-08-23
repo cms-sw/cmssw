@@ -25,7 +25,7 @@ bool GEMChamber::operator==(const GEMChamber& ch) const {
 }
 
 void GEMChamber::add(GEMEtaPartition* rl) {
-  etaPartitions_.push_back(rl);
+  etaPartitions_.emplace_back(rl);
 }
 
 std::vector<const GeomDet*> GEMChamber::components() const {
