@@ -63,7 +63,7 @@ const std::vector<const DTSuperLayer*>& DTChamber::superLayers() const {
 
 
 const DTSuperLayer* DTChamber::superLayer(const DTSuperLayerId& id) const{
-  if (id.chamberId()!=theId) return 0; // not in this SL!
+  if (id.chamberId()!=theId) return nullptr; // not in this SL!
   return superLayer(id.superLayer());
 }
 
@@ -72,7 +72,7 @@ const DTSuperLayer* DTChamber::superLayer(int isl) const {
   for (auto theSL : theSLs) {
     if (theSL->id().superLayer()==isl) return theSL;
   }
-  return 0;
+  return nullptr;
 }
 
 

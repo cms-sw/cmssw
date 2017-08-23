@@ -45,8 +45,8 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
   //  cout << "size " << detids.size() << endl;
 
   size_t idt = 0;
-  DTChamber* chamber(0);
-  DTSuperLayer* sl(0);
+  DTChamber* chamber(nullptr);
+  DTSuperLayer* sl(nullptr);
   while(idt < detids.size()) {
     //copy(par.begin(), par.end(), ostream_iterator<double>(std::cout," "));
     if (int(*(rig.shapeStart(idt)))==0){ // a Chamber

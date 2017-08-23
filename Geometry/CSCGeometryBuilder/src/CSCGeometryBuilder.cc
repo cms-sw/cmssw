@@ -161,10 +161,10 @@ void CSCGeometryBuilder::buildChamber (
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
      const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
-    if ( !fupar.empty() && aSpecs == 0 ) {
+    if ( !fupar.empty() && aSpecs == nullptr ) {
       // make new one:
       aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
-    } else if ( fupar.empty() && aSpecs == 0 ) {
+    } else if ( fupar.empty() && aSpecs == nullptr ) {
       edm::LogError(myName) << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!";
     }
 
@@ -269,7 +269,7 @@ void CSCGeometryBuilder::buildChamber (
       // extra-careful check that we haven't already built this layer
       const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
 
-      if ( cLayer == 0 ) {
+      if ( cLayer == nullptr ) {
 
 	// build the layer - need the chamber's specs and an appropriate layer-geometry
          const CSCChamberSpecs* aSpecs = chamber->specs();
