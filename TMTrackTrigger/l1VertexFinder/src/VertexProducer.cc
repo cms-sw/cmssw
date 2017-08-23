@@ -27,7 +27,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   stubInputTag( consumes<DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
   stubTruthInputTag( consumes<TTStubAssMap>( iConfig.getParameter<edm::InputTag>("stubTruthInputTag") ) ),
   clusterTruthInputTag( consumes<TTClusterAssMap>( iConfig.getParameter<edm::InputTag>("clusterTruthInputTag") ) ),
-  l1TracksToken_( consumes<TTTrackCollection>(iConfig.getParameter<edm::InputTag>("l1Tracks")) )
+  l1TracksToken_( consumes<TTTrackCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
 {
   // Get configuration parameters
   settings_ = new Settings(iConfig);
