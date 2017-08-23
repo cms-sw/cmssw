@@ -13,7 +13,7 @@ class RPCRoll : public GeomDetUnit{
 
  public:
   
-  RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs);
+  RPCRoll(RPCDetId id, const BoundPlane::BoundPlanePointer& bp, RPCRollSpecs* rrs);
   ~RPCRoll() override;
   const RPCRollSpecs* specs() const;
   RPCDetId id() const;

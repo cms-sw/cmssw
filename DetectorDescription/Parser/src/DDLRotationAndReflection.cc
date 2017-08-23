@@ -91,7 +91,7 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
 //
 
 int
-DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
+DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, const DD3Vector& z, const std::string & nmspace)
 {
   int ret = 0;
 
@@ -173,7 +173,7 @@ DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, c
 }
 
 DD3Vector
-DDLRotationAndReflection::makeX(std::string nmspace)
+DDLRotationAndReflection::makeX(const std::string& nmspace)
 {
   DD3Vector x;
   DDXMLAttribute atts = getAttributeSet();
@@ -191,7 +191,7 @@ DDLRotationAndReflection::makeX(std::string nmspace)
 }
 
 DD3Vector
-DDLRotationAndReflection::makeY(std::string nmspace)
+DDLRotationAndReflection::makeY(const std::string& nmspace)
 {
   DD3Vector y;
   DDXMLAttribute atts = getAttributeSet();
@@ -209,7 +209,7 @@ DDLRotationAndReflection::makeY(std::string nmspace)
   return y;
 }
 
-DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
+DD3Vector DDLRotationAndReflection::makeZ(const std::string& nmspace)
 {
   DD3Vector z;
   DDXMLAttribute atts = getAttributeSet();

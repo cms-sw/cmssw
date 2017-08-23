@@ -122,7 +122,7 @@ void DDHGCalTBModule::execute(DDCompactView& cpv) {
 #endif
 }
 
-void DDHGCalTBModule::constructLayers(DDLogicalPart module, 
+void DDHGCalTBModule::constructLayers(const DDLogicalPart& module, 
 				      DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG
