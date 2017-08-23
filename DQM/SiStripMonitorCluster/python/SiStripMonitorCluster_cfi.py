@@ -31,7 +31,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         Nbins = cms.int32(600),
         xmin = cms.double(0.0),
         xmax = cms.double(3600.),
-        xaxis = cms.string('Event Time in LS')
+        xaxis = cms.string('Event Time in Seconds')
     ),
 
     TrendingLS = cms.PSet(
