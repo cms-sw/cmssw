@@ -14,9 +14,7 @@ hltBPHmonitoring.Upsilon = cms.int32(0)
 hltBPHmonitoring.Jpsi = cms.int32(0)
 hltBPHmonitoring.seagull = cms.int32(0)
 hltBPHmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   -0.5),
-  xmax  = cms.double(200),
+    edges = cms.vdouble(-0.5, 0, 2, 4, 8, 10, 12, 14, 16, 18, 20, 22, 25, 30, 35, 40, 50, 70),
 )
 hltBPHmonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.int32 (  64  ),
@@ -29,12 +27,12 @@ hltBPHmonitoring.histoPSet.etaPSet = cms.PSet(
   xmax  = cms.double(2.4),
 )
 hltBPHmonitoring.histoPSet.d0PSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 ( 50   ),
   xmin  = cms.double(   -5.),
   xmax  = cms.double(5),
 )
 hltBPHmonitoring.histoPSet.z0PSet = cms.PSet(
-  nbins = cms.int32 (  300 ),
+  nbins = cms.int32 (  60 ),
   xmin  = cms.double(   -15),
   xmax  = cms.double(15),
 )
@@ -42,33 +40,33 @@ hltBPHmonitoring.histoPSet.z0PSet = cms.PSet(
 hltBPHmonitoring.histoPSet.dRPSet = cms.PSet(
   nbins = cms.int32 (  20 ),
   xmin  = cms.double(   0),
-  xmax  = cms.double(20),
+  xmax  = cms.double(2.0),
 )
 
 hltBPHmonitoring.histoPSet.massPSet = cms.PSet(
-  nbins = cms.int32 ( 200 ),
-  xmin  = cms.double(  2),
-  xmax  = cms.double(4.),
+  nbins = cms.int32 ( 30 ),
+  xmin  = cms.double(  0),
+  xmax  = cms.double(30.0),
 )
 hltBPHmonitoring.histoPSet.dcaPSet = cms.PSet(
   nbins = cms.int32 ( 40 ),
   xmin  = cms.double(  0),
-  xmax  = cms.double(4.),
+  xmax  = cms.double(2.),
 )
 
 hltBPHmonitoring.histoPSet.dsPSet = cms.PSet(
-  nbins = cms.int32 ( 10),
+  nbins = cms.int32 ( 50),
   xmin  = cms.double(  0),
-  xmax  = cms.double(100),
+  xmax  = cms.double( 50),
 )
 
 hltBPHmonitoring.histoPSet.cosPSet = cms.PSet(
   nbins = cms.int32 ( 20),
-  xmin  = cms.double(  -1),
+  xmin  = cms.double(  0.8),
   xmax  = cms.double(1),
 )
 hltBPHmonitoring.histoPSet.probPSet = cms.PSet(
-  nbins = cms.int32 ( 10),
+  nbins = cms.int32 ( 40),
   xmin  = cms.double(  0),
   xmax  = cms.double(1),
 )
@@ -95,16 +93,16 @@ hltBPHmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_Dim
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyL1 = cms.bool( True )
 hltBPHmonitoring.numGenericTriggerEventPSet.l1BeforeMask = cms.bool( True )
-hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
+hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-#hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi_v*" )#reference
 #hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(99)
+hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
