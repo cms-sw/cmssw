@@ -8,13 +8,13 @@ class SimMuFilter : public edm::stream::EDFilter<>
  public:
 
    explicit SimMuFilter(const edm::ParameterSet&);
-   ~SimMuFilter();
+   ~SimMuFilter() override;
 
  private:
 
    virtual void beginJob();
    virtual void endJob();
-   virtual bool filter(edm::Event&, const edm::EventSetup&);
+   bool filter(edm::Event&, const edm::EventSetup&) override;
    
  private:
    
