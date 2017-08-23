@@ -13,6 +13,7 @@
  */
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -56,7 +57,7 @@ private:
     GlobalPoint xyz;
     cellParameters(bool h=false, int w=0, 
 		   GlobalPoint p=GlobalPoint(0,0,0)) : half(h), wafer(w), 
-      xyz(p) {}
+      xyz(std::move(p)) {}
   };
 
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,

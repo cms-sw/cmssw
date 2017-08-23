@@ -86,7 +86,7 @@ void DDHGCalEEAlgo::execute(DDCompactView& cpv) {
   edm::LogInfo("HGCalGeom") << "<<== End of DDHGCalEEAlgo construction ...";
 }
 
-void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
+void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
   
   edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: \t\tInside Layers";
 

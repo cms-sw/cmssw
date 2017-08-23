@@ -28,7 +28,7 @@ class DTLayer : public GeomDetUnit {
   public:
 
 /* Constructor */ 
-    DTLayer(DTLayerId id,
+    DTLayer(const DTLayerId& id,
             ReferenceCountingPointer<BoundPlane>& plane,
             const DTTopology& topo,
             const DTLayerType& type,

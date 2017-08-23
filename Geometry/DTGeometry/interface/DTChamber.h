@@ -25,7 +25,7 @@ class DTChamber : public GeomDet {
 
   public:
     /// Constructor
-    DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>& plane);
+    DTChamber(const DTChamberId& id, const ReferenceCountingPointer<BoundPlane>& plane);
 
     /// Destructor
     ~DTChamber() override;
@@ -52,14 +52,14 @@ class DTChamber : public GeomDet {
     const std::vector< const DTSuperLayer*>& superLayers() const;
 
     /// Return the superlayer corresponding to the given id 
-    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
+    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
   
     /// Return the given superlayer.
     /// Superlayers are numbered 1 (phi), 2 (Z), 3 (phi)
     const DTSuperLayer* superLayer(int isl) const;
 
     /// Return the layer corresponding to the given id 
-    const DTLayer* layer(DTLayerId id) const;
+    const DTLayer* layer(const DTLayerId& id) const;
 
   private:
 
