@@ -607,7 +607,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     std::vector<TLorentzVector> mu;
     for (unsigned int idx=0; idx<muons.size(); idx++){
       TLorentzVector temp_mu;
-      temp_mu.SetPtEtaPhiM(muons[idx].pt(),muons[idx].eta(),muons[idx].phi(),0.1);
+      temp_mu.SetPtEtaPhiM(muons[idx].pt(),muons[idx].eta(),muons[idx].phi(),0.105);
        mu.push_back(temp_mu);
        }
 //here is where the cut is actually done- Returns true if a pair fails the condition

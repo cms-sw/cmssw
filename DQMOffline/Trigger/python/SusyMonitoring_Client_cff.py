@@ -117,20 +117,6 @@ triple_muon_mupt_efficiency = DQMEDHarvester("DQMGenericClient",
         ),
 )
 
-
-triple_muon_mll_efficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/TripleMu/Mll/*"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-      "effic_Mll       'efficiency vs inv.mass; Mll [GeV]; efficiency' invMass_numerator       invMass_denominator",
-     "effic_Mll_variableBinning       'efficiency vs inv.mass; Mll [GeV]; efficiency' invMass_variable_numerator       invMass_variable_denominator",
-
-        ),
-)
-
-
-
 susyClient = cms.Sequence(
     vbfsusyClient
   + LepHTClient
@@ -143,6 +129,5 @@ susyClient = cms.Sequence(
   + double_soft_muon_backup_70_mhtpt_efficiency
   + double_soft_muon_backup_90_metpt_efficiency
   + double_soft_muon_backup_90_mhtpt_efficiency
-  + triple_muon_mll_efficiency
   + triple_muon_mupt_efficiency
 )
