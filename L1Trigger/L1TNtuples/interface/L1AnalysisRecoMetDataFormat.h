@@ -23,6 +23,10 @@ namespace L1Analysis
      metPx = -999.;
      metPy = -999.;
      metPhi = -999.;
+     pfMetNoMu = -999.;
+     pfMetNoMuPx = -999.;
+     pfMetNoMuPy = -999.;
+     pfMetNoMuPhi = -999.;
      caloMet = -999.;
      caloMetPhi = -999.;
      caloSumEt = -999.;
@@ -42,6 +46,10 @@ namespace L1Analysis
     float metPx;
     float metPy;
     float metPhi;
+    float pfMetNoMu;
+    float pfMetNoMuPx;
+    float pfMetNoMuPy;
+    float pfMetNoMuPhi;
     float caloMet;
     float caloMetPhi;
     float caloSumEt;
