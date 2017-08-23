@@ -40,8 +40,7 @@ namespace edm
     BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
-    if( ps.exists("GenPUProtonsInputTags") )
-       GenPUProtonsInputTags_ = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
+    GenPUProtonsInputTags_ = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
 
     // apparently, we don't need consumes from Secondary input stream
     //iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
