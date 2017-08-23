@@ -225,8 +225,10 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       std::vector<std::string> varNames; 
       varNames.push_back("et");
       varNames.push_back("eta"); 
-      if (!noPhiPlots) varNames.push_back("phi"); 
-         varNames.push_back("etaphi");       
+
+      if(!noPhiPlots){ varNames.push_back("phi");
+                       }   
+      varNames.push_back("etaphi");       
 
       std::string filterName;
       std::string filterName2;
