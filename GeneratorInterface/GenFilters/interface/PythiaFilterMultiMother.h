@@ -24,10 +24,10 @@ namespace edm {
 class PythiaFilterMultiMother : public edm::EDFilter {
    public:
       explicit PythiaFilterMultiMother(const edm::ParameterSet&);
-      ~PythiaFilterMultiMother();
+      ~PythiaFilterMultiMother() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
      // ----------member data ---------------------------
 
