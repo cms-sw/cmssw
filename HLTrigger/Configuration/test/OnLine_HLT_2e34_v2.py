@@ -1,11 +1,13 @@
-# /dev/CMSSW_9_2_0/GRun/V97 (CMSSW_9_2_6_HLT1)
+# hltGetConfiguration --full --offline --data /frozen/2017/2e34/v2.1/HLT --type 2e34_v2 --unprescale --process HLT2e34_v2 --globaltag auto:run2_hlt_2e34_v2 --input file:RelVal_Raw_2e34_v2_DATA.root
+
+# /frozen/2017/2e34/v2.1/HLT/V1 (CMSSW_9_2_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT2e34v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V97')
+  tableName = cms.string('/frozen/2017/2e34/v2.1/HLT/V1')
 )
 
 process.transferSystem = cms.PSet( 
@@ -75033,38 +75035,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreExpressCosmicsOutputSmart' in process.__dict__:
-    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreExpressOutputSmart' in process.__dict__:
-    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreDQMForHIOutputSmart' in process.__dict__:
-    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreDQMForPPOutputSmart' in process.__dict__:
-    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltPreHLTMONOutputSmart' in process.__dict__:
-    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLT2e34v2' )
-    process.hltDQMHLTScalers.processname                      = 'HLT2e34v2'
-
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname              = 'HLT2e34v2'
-
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -75082,7 +75052,6 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_2e34_v2')
-    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

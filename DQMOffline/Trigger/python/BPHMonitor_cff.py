@@ -15,7 +15,7 @@ Dimuon0_Jpsi_tnp.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMu
 
 Dimuon25_Jpsi_tnp = hltBPHmonitoring.clone()
 Dimuon25_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu25_Jpsi_noCorr/')
-Dimuon25_Jpsi_tnp.tnp = cms.bool(True)
+Dimuon25_Jpsi_tnp.tnp = cms.bool(False)
 Dimuon25_Jpsi_tnp.enum = cms.int32(1)
 Dimuon25_Jpsi_tnp.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon25_Jpsi_noCorrL1_v*")
 #Dimuon25_Jpsi_tnp.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu8_SQ")

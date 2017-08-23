@@ -60,7 +60,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
     for (auto id : ids)  {
       DetId hid = id;
       if (hid.subdetId() == subdet) {
-	detIds.push_back(hid.rawId());
+	detIds.emplace_back(hid.rawId());
       }
     }
     std::cout << detIds.size() << " valid Ids for subdetector " << subdet

@@ -218,7 +218,7 @@ void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
        i++, ++counter) {
     HcalDetId hid=(*i);
     s << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
-    dins.push_back( topology.detId2denseId(*i));
+    dins.emplace_back( topology.detId2denseId(*i));
 	
     const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
     s << *cell << std::endl;

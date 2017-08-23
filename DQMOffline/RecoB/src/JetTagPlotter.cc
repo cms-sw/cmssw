@@ -33,7 +33,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   int nFl = 1;
   if (mcPlots_) nFl = 8;
   nJets_.resize(nFl, 0);
-  
+
   if (mcPlots_) {
     // jet flavour
     dJetFlav_ = std::make_unique<FlavourHistograms<int>>
@@ -187,34 +187,6 @@ void JetTagPlotter::analyzeTag(float w)
     }
 }
 
-/*void JetTagPlotter::analyzeTag(const reco::Jet & jet, 
-                    const double & jec,
-                    const float& discriminator,
-                    const int& jetFlavour)  
-{
-  if (mcPlots_) {
-    dJetFlav_->fill(jetFlavour, jetFlavour);
-    if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6) nJets_[abs(jetFlavour)] += 1; //quarks 1 to 5
-    else if (abs(jetFlavour)==21) nJets_[6] += 1; //gluons
-    else if (jetFlavour==20) nJets_[7] += 1; //PU
-    else nJets_[0] += 1; //NI
-  } else {
-    nJets_[0] += 1;
-  }
-  if (edm::isNotFinite(discriminator)) dDiscriminator_->fill(jetFlavour, -999.0);
-  else dDiscriminator_->fill(jetFlavour, discriminator);
-  dJetRecMomentum_->fill(jetFlavour, jet.p()*jec);
-  dJetRecPt_->fill(jetFlavour, jet.pt()*jec);
-  dJetRecPseudoRapidity_->fill(jetFlavour, jet.eta());
-  dJetRecPhi_->fill(jetFlavour, jet.phi());
-  if (doDifferentialPlots_) {
-    if (edm::isFinite(discriminator) && discriminator > cutValue_) {
-      dJetPhiDiscrCut_->fill(jetFlavour, jet.phi());
-      dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jet.eta());
-    }
-  }
-}*/
-
 void JetTagPlotter::analyzeTag(const reco::Jet & jet, 
                     double jec,
                     float discriminator,
@@ -245,27 +217,6 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
 }
 
 
-/*void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag, 
-                   const double & jec,
-                   const int & jetFlavour)
-{
-  if (mcPlots_) {
-  dJetFlav_->fill(jetFlavour, jetFlavour);
-  if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6) nJets_[abs(jetFlavour)] += 1; //quarks 1 to 5
-  else if(abs(jetFlavour) == 21) nJets_[6] +=1 ; //gluons
-  else if(jetFlavour == 20) nJets_[7] += 1; //PU  
-  else nJets_[0] += 1; //NI
-  } else {
-    nJets_[0] += 1;
-  }
-  if (edm::isNotFinite(jetTag.second) ) dDiscriminator_->fill(jetFlavour, -999.0 );
-  else dDiscriminator_->fill(jetFlavour, jetTag.second);
-  dJetRecMomentum_->fill(jetFlavour, jetTag.first->p()*jec );
-  dJetRecPt_->fill(jetFlavour, jetTag.first->pt()*jec );
-  dJetRecPseudoRapidity_->fill(jetFlavour, jetTag.first->eta() );
-  dJetRecPhi_->fill(jetFlavour, jetTag.first->phi());
-}*/
-
 void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag, 
                    double jec,
                    int jetFlavour,
@@ -280,12 +231,19 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   } else {
     nJets_[0] += 1;
   }
-  if (edm::isNotFinite(jetTag.second)) dDiscriminator_->fill(jetFlavour, -999.0, w);
-  else dDiscriminator_->fill(jetFlavour, jetTag.second, w);
+  const auto& discriminator = jetTag.second;
+  if (edm::isNotFinite(discriminator)) dDiscriminator_->fill(jetFlavour, -999.0, w);
+  else dDiscriminator_->fill(jetFlavour, discriminator, w);
   dJetRecMomentum_->fill(jetFlavour, jetTag.first->p() * jec, w);
   dJetRecPt_->fill(jetFlavour, jetTag.first->pt() * jec, w);
   dJetRecPseudoRapidity_->fill(jetFlavour, jetTag.first->eta(), w);
   dJetRecPhi_->fill(jetFlavour, jetTag.first->phi(), w);
+  if (doDifferentialPlots_) {
+    if (edm::isFinite(discriminator) && discriminator > cutValue_) {
+      dJetPhiDiscrCut_->fill(jetFlavour, jetTag.first->phi(), w);
+      dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jetTag.first->eta(), w);
+    }
+  }
 }
 
 void JetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_)
@@ -298,7 +256,7 @@ void JetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & ige
   const std::string jetTagDir(es.substr(1));
   dDiscriminator_ = std::make_unique<FlavourHistograms<double>>("discr" + es, "Discriminator", 102, discrStart_, discrEnd_, "b", jetTagDir, mcPlots_, igetter_);
   
-  effPurFromHistos_ = std::make_unique<EffPurFromHistos>(*dDiscriminator_, theExtensionString.substr(1), mcPlots_, ibook_, nBinEffPur_, startEffPur_, endEffPur_);
+  effPurFromHistos_ = std::make_unique<EffPurFromHistos>(*dDiscriminator_, jetTagDir, mcPlots_, ibook_, nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos_->doCTagPlots(doCTagPlots_);
   effPurFromHistos_->compute(ibook_);
 
