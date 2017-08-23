@@ -60,7 +60,7 @@ namespace l1t {
       double phiAtVtx = 0.,
       double ptNoVtx = 0.);
 
-    ~Muon();    
+    ~Muon() override;    
 
     // set values
     inline void setHwCharge(int charge) { hwCharge_ = charge; };

@@ -21,11 +21,11 @@ public:
 
   explicit ME0PadDigiProducer(const edm::ParameterSet& ps);
 
-  virtual ~ME0PadDigiProducer();
+  ~ME0PadDigiProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 
