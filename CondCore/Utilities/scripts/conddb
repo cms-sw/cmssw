@@ -1986,7 +1986,7 @@ def dump(args):
 
     if args.type == 'payload':
        if args.format == 'xml':
-          xmlProcessor.payload2xml(session, name)
+          xmlProcessor.payload2xml(session, name, args.destfile)
        else:
        	  _dump_payload(session, name, args.loadonly)
 
@@ -2115,6 +2115,7 @@ def main():
     parser_dump.add_argument('--loadonly', action='store_true', help='Load only: Do not dump, only load the (deserialize) payload in memory -- useful for testing the load of an entire global tag with the current CMSSW release.')
     parser_dump.add_argument('--type', default=None, choices=['payload', 'tag', 'gt'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
     parser_dump.add_argument('--format', default="xml", choices=['xml', 'raw'], help='Output format. Choice between XML and raw hexdump.')
+    parser_dump.add_argument('--destfile','-d',default=None,help="Destination file for the dump.")
     parser_dump.set_defaults(func=dump)
 
     parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')

@@ -6,18 +6,15 @@
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
-#define PPCAT_NX(A, B) A ## B
-#define PPCAT(A, B) PPCAT_NX(A, B)
-#define STRINGIZE_NX(A) #A
-#define STRINGIZE(A) STRINGIZE_NX(A)
+#define XML_CONVERTER_NAME( CLASS_NAME ) (std::string( #CLASS_NAME )+"2xml").c_str()
 
 #define PAYLOAD_2XML_MODULE( MODULE_NAME ) \
   BOOST_PYTHON_MODULE( MODULE_NAME ) 
 
 #define PAYLOAD_2XML_CLASS( CLASS_NAME ) \
-  boost::python::class_< Payload2xml<CLASS_NAME> >( STRINGIZE(PPCAT(CLASS_NAME,2xml)), boost::python::init<>()) \
+  boost::python::class_< Payload2xml<CLASS_NAME> >( XML_CONVERTER_NAME( CLASS_NAME ), boost::python::init<>()) \
   .def("write",&Payload2xml<CLASS_NAME>::write ) \
-  ; 
+  ;
 
 namespace { // Avoid cluttering the global namespace.
 

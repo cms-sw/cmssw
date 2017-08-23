@@ -40,11 +40,17 @@ buildFileTemplate = """
 def sanitize(typeName):
     return typeName.replace(' ','').replace('<','_').replace('>','')
 
+def localLibName( payloadType ):
+    # required to avoid ( unlikely ) clashes between lib names from templates and lib names from classes
+    prefix = ''
+    if '<' in payloadType and '>' in payloadType:
+       prefix = 't'
+    return "%s_%spayload2xml" %(sanitize(payloadType),prefix)
+
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):
     	self.conddb = condDBIn
-    	#self._pl2xml_isPrepared = False
 
 	if not os.path.exists( os.path.join( os.environ['CMSSW_BASE'], 'src') ):
 	   raise Exception("Looks like you are not running in a CMSSW developer area, $CMSSW_BASE/src/ does not exist")
@@ -84,11 +90,11 @@ class CondXmlProcessor(object):
         if not devCheckout:
            # give-up if it is a read-only release...
            raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.')
-        localLibName = 'plugin%s_payload2xml.so' %sanitize( payloadType )
-        localLibPath = os.path.join( devLibDir, localLibName )
-        if os.path.exists( localLibPath ):
+        libName = 'plugin%s.so' %localLibName( payloadType )
+        libPath = os.path.join( devLibDir, libName )
+        if os.path.exists( libPath ):
            logging.info('Found local library with XML converter for class %s' %payloadType )
-           module = importlib.import_module( localLibName.replace('.so', '') )
+           module = importlib.import_module( libName.replace('.so', '') )
            return getattr( module, funcName)
         logging.warning('No XML converter for payload class %s found in the built-in library.' %payloadType)
         return None
@@ -101,7 +107,7 @@ class CondXmlProcessor(object):
         #otherwise, go for the code generation in the local checkout area.
     	startTime = time.time()
 
-        libName = "%s_payload2xml" %sanitize(payloadType)
+        libName = localLibName( payloadType )
         pluginName = 'plugin%s' % libName
         tmpLibName = "Tmp_payload2xml"
         tmpPluginName = 'plugin%s' %tmpLibName
@@ -150,11 +156,11 @@ class CondXmlProcessor(object):
         self.doCleanup = True
         return functor
     
-    def payload2xml(self, session, payload):
+    def payload2xml(self, session, payloadHash, destFile):
     
         Payload = session.get_dbtype(self.conddb.Payload)
         # get payload from DB:
-        result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payload).one()
+        result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payloadHash).one()
         data, plType = result
         logging.info('Found payload of type %s' %plType)
     
@@ -163,5 +169,9 @@ class CondXmlProcessor(object):
 
         obj = xmlConverter()
         resultXML = obj.write( str(data) )
-        print resultXML    
-    
+        if destFile is None:
+           print resultXML    
+        else:
+           with open(destFile, 'w') as outFile:
+              outFile.write(resultXML)
+              outFile.close()

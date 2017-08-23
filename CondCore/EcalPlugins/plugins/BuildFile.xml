@@ -8,14 +8,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable"/>
-<library   file="EcalCondObjectContainer_EcalTPGCrystalStatusCode_toXML.cc" name="EcalCondObjectContainer_EcalTPGCrystalStatusCode_toXML">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="boost_python"/>
-</library>
-
 <library   file="EcalPedestals_PayloadInspector.cc" name="EcalPedestals_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
