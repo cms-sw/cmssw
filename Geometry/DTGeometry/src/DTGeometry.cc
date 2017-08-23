@@ -77,7 +77,7 @@ const GeomDet* DTGeometry::idToDet(DetId id) const{
   DTLayerId lId(id.rawId());
   DTDetMap::const_iterator i = theMap.find(lId);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 
@@ -96,16 +96,16 @@ const std::vector<const DTLayer*>& DTGeometry::layers() const{
 }
 
 
-const DTChamber* DTGeometry::chamber(DTChamberId id) const {
+const DTChamber* DTGeometry::chamber(const DTChamberId& id) const {
   return (const DTChamber*)(idToDet(id));
 }
 
 
-const DTSuperLayer* DTGeometry::superLayer(DTSuperLayerId id) const {
+const DTSuperLayer* DTGeometry::superLayer(const DTSuperLayerId& id) const {
   return (const DTSuperLayer*)(idToDet(id));
 }
 
 
-const DTLayer* DTGeometry::layer(DTLayerId id) const {
+const DTLayer* DTGeometry::layer(const DTLayerId& id) const {
   return (const DTLayer*)(idToDet(id));
 }

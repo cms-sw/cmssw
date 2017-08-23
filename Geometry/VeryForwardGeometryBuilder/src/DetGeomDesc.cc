@@ -7,6 +7,8 @@
 *
 ****************************************************************************/
 
+#include <utility>
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -19,7 +21,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::DetGeomDesc(nav_type navtype, GeometricEnumType type) : _ddd(navtype), _type(type)
+DetGeomDesc::DetGeomDesc(nav_type navtype, GeometricEnumType type) : _ddd(std::move(navtype)), _type(type)
 { 
 	DDCompactView cpv;
 	DDExpandedView ev(cpv);

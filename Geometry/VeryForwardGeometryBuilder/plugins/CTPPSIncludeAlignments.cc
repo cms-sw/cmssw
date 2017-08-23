@@ -46,7 +46,7 @@ class  CTPPSIncludeAlignments : public edm::ESProducer, public edm::EventSetupRe
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
     /// merges an array of sequences to one
-    RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>) const;
+    RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>&) const;
 
     /// builds a sequence of corrections from provided sources and runs a few checks
     void PrepareSequence(const std::string &label, RPAlignmentCorrectionsDataSequence &seq, const std::vector<std::string> &files) const;
@@ -84,7 +84,7 @@ CTPPSIncludeAlignments::~CTPPSIncludeAlignments()
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence> files) const
+RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence>& files) const
 {
   // find interval boundaries
   map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;

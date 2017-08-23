@@ -5,6 +5,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -18,7 +19,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
   ~EcalEndcapTopology() override { }  
   
   /// create a new Topology from geometry
-  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
+  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
     {
     }
 
