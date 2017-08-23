@@ -54,13 +54,13 @@ class L1MuBMTrackAssembler : public L1AbstractProcessor {
     L1MuBMTrackAssembler(const L1MuBMSectorProcessor& );
 
     /// destructor
-    virtual ~L1MuBMTrackAssembler();
+    ~L1MuBMTrackAssembler() override;
 
     /// run Track Assembler
-    virtual void run();
+    void run() override;
 
     /// reset Track Assembler
-    virtual void reset();
+    void reset() override;
 
     /// print result of Track Assembler
     void print() const;

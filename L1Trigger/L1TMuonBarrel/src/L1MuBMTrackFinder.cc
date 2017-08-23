@@ -61,7 +61,7 @@ using namespace std;
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC):
 _cache0(144,-9,8),_cache(36, -9, 8) {
   // set configuration parameters
-  if ( m_config == 0 ) m_config = new L1MuBMTFConfig(ps);
+  if ( m_config == nullptr ) m_config = new L1MuBMTFConfig(ps);
 
   if ( L1MuBMTFConfig::Debug(1) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(1) ) cout << "**** entering L1MuBMTrackFinder ****" << endl;
@@ -70,7 +70,7 @@ _cache0(144,-9,8),_cache(36, -9, 8) {
   m_spmap = new L1MuBMSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  m_ms = 0;
+  m_ms = nullptr;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
 }
@@ -101,7 +101,7 @@ L1MuBMTrackFinder::~L1MuBMTrackFinder() {
   delete m_ms;
 
   if ( m_config ) delete m_config;
-  m_config = 0;
+  m_config = nullptr;
 
 }
 
@@ -167,7 +167,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // run the barrel Muon Trigger Track Finder
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
-  if ( dttrig->getContainer()->size() == 0 ) return;
+  if ( dttrig->getContainer()->empty() ) return;
 
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << "**** L1MuBMTrackFinder processing ------****" << endl;
@@ -477,4 +477,4 @@ int  L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
 
 // static data members
 
-L1MuBMTFConfig* L1MuBMTrackFinder::m_config = 0;
+L1MuBMTFConfig* L1MuBMTrackFinder::m_config = nullptr;
