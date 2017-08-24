@@ -34,27 +34,27 @@ autoCond = {
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '93X_dataRun2_HLT_frozen_v0',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '93X_dataRun2_HLT_relval_v0',
+    'run2_hlt_relval'   :   '93X_dataRun2_HLT_relval_v1',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '93X_dataRun2_HLTHI_frozen_v0',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '93X_mc2017_design_IdealBS_v1',
+    'phase1_2017_design'       :  '93X_mc2017_design_IdealBS_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '93X_mc2017_realistic_v1',
+    'phase1_2017_realistic'    : '93X_mc2017_realistic_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '93X_mc2017cosmics_realistic_deco_v1',
+    'phase1_2017_cosmics'      : '93X_mc2017cosmics_realistic_deco_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '93X_mc2017cosmics_realistic_peak_v1',
+    'phase1_2017_cosmics_peak' : '93X_mc2017cosmics_realistic_peak_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '93X_upgrade2018_design_IdealBS_v0',
+    'phase1_2018_design'       : '93X_upgrade2018_design_IdealBS_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '93X_upgrade2018_realistic_v0',
+    'phase1_2018_realistic'    : '93X_upgrade2018_realistic_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '93X_upgrade2018cosmics_realistic_deco_v0',
+    'phase1_2018_cosmics'      :   '93X_upgrade2018cosmics_realistic_deco_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '93X_upgrade2023_realistic_v0'
+    'phase2_realistic'         : '93X_upgrade2023_realistic_v1'
 }
 
 aliases = {
