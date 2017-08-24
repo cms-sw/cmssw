@@ -18,6 +18,8 @@ def customiseForPreMixingInput(process):
         replaceInputTag(tag, "simSiPixelDigis", "mixData:PixelDigiSimLink")
     def replaceStripDigiSimLink(tag):
         replaceInputTag(tag, "simSiStripDigis", "mixData:StripDigiSimLink")
+    def replaceHcalTp(tag):
+        replaceInputTag(tag, "simHcalTriggerPrimitiveDigis", "DMHcalTriggerPrimitiveDigis")
 
     for label, producer in process.producers_().iteritems():
         if producer.type_() == "ClusterTPAssociationProducer":
@@ -60,6 +62,8 @@ def customiseForPreMixingInput(process):
         if analyzer.type_() == "SiStripRecHitsValid":
             replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
             replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "HcalDigisValidation":
+            replaceHcalTp(analyzer.dataTPs)
 
 
 
