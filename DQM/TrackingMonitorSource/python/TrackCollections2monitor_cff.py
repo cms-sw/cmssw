@@ -236,7 +236,7 @@ highPurityPV0p1 = trackAssociated2pvSelector.clone()
 highPurityPV0p1.trackWithVertexSelectorParams.zetaVtx = cms.double(0.1)
 
 PV0p1 = highPurityPV0p1.clone()
-PV0p1.quality = cms.string(""), # quality cut as defined in reco::TrackBase
+PV0p1.quality = cms.string("") # quality cut as defined in reco::TrackBase
 
 sequenceName    ['highPurityPV0p1'] = highPurityPV0p1+PV0p1
 allTrackProducer['highPurityPV0p1'] = 'PV0p1'
