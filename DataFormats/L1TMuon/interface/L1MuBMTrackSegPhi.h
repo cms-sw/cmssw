@@ -18,6 +18,7 @@
 //---------------
 
 #include <iosfwd>
+#include <vector>
 
 //----------------------
 // Base Class Headers --
@@ -27,11 +28,15 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
+
+class L1MuBMTrackSegPhi;
+
+typedef std::vector<L1MuBMTrackSegPhi> L1MuBMTrackSegPhiCollection;
 
 class L1MuBMTrackSegPhi {
 
