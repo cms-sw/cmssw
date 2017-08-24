@@ -81,8 +81,21 @@ public:
     // initialize the tensorflow graph and session objects
     void init(const std::string& exportDir, const std::string& tag = "serve");
 
-    // reset the tensorflow graph and session objects as well as input/output vectors
+    // reset the tensorflow graph and session objects as well as input/output vectors, but not the
+    // session options
     void reset();
+
+    // adds a session option of the format "key:value"
+    inline void addSessionOption(const std::string& opt)
+    {
+        sessionOptions_.push_back(opt);
+    }
+
+    // clears all session options
+    inline void clearSessionOptions()
+    {
+        sessionOptions_.clear();
+    }
 
     // returns true if the tensorflow graph object is not initialized yet, false otherwise
     inline bool empty() const
@@ -141,6 +154,9 @@ public:
 
 private:
     bool preparedEval;
+
+    // session option strings of the format "key:value"
+    std::vector<std::string> sessionOptions_;
 
     // pointers to the tensorflow graph and session objects
     TF_Graph* tf_graph;
