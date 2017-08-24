@@ -1591,9 +1591,11 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
 
     // This is an ugly assumption, but a generic solution would
     // require significantly more effort
-    // The "if hit is strip mono or not" is checked only for the last hit
+    // The "if hit is strip mono or not" is checked only for the last
+    // hit and only if nhits is 3, because the "mono-only" definition
+    // is only used by strip triplet seeds
     bool isStripMono = false;
-    if(i == nhits-1 && subdetStrip) {
+    if(nhits == 3 && i == nhits-1 && subdetStrip) {
       isStripMono = trackerHitRTTI::isSingle(*iHit);
     }
     searchId[i] = SeedingLayerId(SeedingLayerSetsBuilder::SeedingLayerId(subdet, side, ttopo.layer(detId)), isStripMono);
