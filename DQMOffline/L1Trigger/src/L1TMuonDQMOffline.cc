@@ -227,15 +227,46 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
     vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
 
     for(; muonGmtPairsIt!=muonGmtPairsEnd; ++muonGmtPairsIt) {
+        float pt  = muonGmtPairsIt->pt();
         float eta = muonGmtPairsIt->eta();
         float phi = muonGmtPairsIt->phi();
-        float pt  = muonGmtPairsIt->pt();
+        int charge = muonGmtPairsIt->charge();
 
-        float gmtPt  = muonGmtPairsIt->gmtPt();
+        float gmtPt  = muonGmtPairsIt->gmtPt();        
+        float gmtEta  = muonGmtPairsIt->gmtEta();
+        float gmtPhi  = muonGmtPairsIt->gmtPhi();        
+        int gmtCharge  = muonGmtPairsIt->gmtCharge();        
         int qual = muonGmtPairsIt->gmtQual();
 
         vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
         vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
+
+        if ( (fabs(eta) < m_MaxMuonEta) && (gmtPt > 0) ) {
+            m_ResolutionHistos["Pt_Res"]->Fill(pt - gmtPt);
+            if (qual >= 4)  m_ResolutionHistos["Pt_Res_OPEN"]->Fill(pt - gmtPt);
+            if (qual >= 8)  m_ResolutionHistos["Pt_Res_DOUBLE"]->Fill(pt - gmtPt);
+            if (qual >= 12) m_ResolutionHistos["Pt_Res_SINGLE"]->Fill(pt - gmtPt);
+
+            m_ResolutionHistos["1overPt_Res"]->Fill(1/pt - 1/gmtPt);
+            if (qual >= 4)  m_ResolutionHistos["1overPt_Res_OPEN"]->Fill(1/pt - 1/gmtPt);
+            if (qual >= 8)  m_ResolutionHistos["1overPt_Res_DOUBLE"]->Fill(1/pt - 1/gmtPt);
+            if (qual >= 12) m_ResolutionHistos["1overPt_Res_SINGLE"]->Fill(1/pt - 1/gmtPt);
+
+            m_ResolutionHistos["Eta_Res"]->Fill(eta - gmtEta);
+            if (qual >= 4)  m_ResolutionHistos["Eta_Res_OPEN"]->Fill(eta - gmtEta);
+            if (qual >= 8)  m_ResolutionHistos["Eta_Res_DOUBLE"]->Fill(eta - gmtEta);
+            if (qual >= 12) m_ResolutionHistos["Eta_Res_SINGLE"]->Fill(eta - gmtEta);
+
+            m_ResolutionHistos["Phi_Res"]->Fill(phi - gmtPhi);
+            if (qual >= 4)  m_ResolutionHistos["Phi_Res_OPEN"]->Fill(phi - gmtPhi);
+            if (qual >= 8)  m_ResolutionHistos["Phi_Res_DOUBLE"]->Fill(phi - gmtPhi);
+            if (qual >= 12) m_ResolutionHistos["Phi_Res_SINGLE"]->Fill(phi - gmtPhi);
+
+            m_ResolutionHistos["Charge_Res"]->Fill(charge - gmtCharge);
+            if (qual >= 4)  m_ResolutionHistos["Charge_Res_OPEN"]->Fill(charge - gmtCharge);
+            if (qual >= 8)  m_ResolutionHistos["Charge_Res_DOUBLE"]->Fill(charge - gmtCharge);
+            if (qual >= 12) m_ResolutionHistos["Charge_Res_SINGLE"]->Fill(charge - gmtCharge);
+        }
 
         for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
             int gmtPtCut = (*gmtPtCutsIt);
@@ -250,22 +281,6 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
                 m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "_Den"]->Fill(pt);
                 m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "_Den"]->Fill(pt);
 
-                if (gmtPt > 0) {
-                    m_ResolutionHistos["Pt_Res"]->Fill(pt - gmtPt);
-                    if (qual >= 4)  m_ResolutionHistos["Pt_Res_OPEN"]->Fill(pt - gmtPt);
-                    if (qual >= 8)  m_ResolutionHistos["Pt_Res_DOUBLE"]->Fill(pt - gmtPt);
-                    if (qual >= 12) m_ResolutionHistos["Pt_Res_SINGLE"]->Fill(pt - gmtPt);
-
-                    m_ResolutionHistos["Eta_Res"]->Fill(pt - gmtPt);
-                    if (qual >= 4)  m_ResolutionHistos["Eta_Res_OPEN"]->Fill(pt - gmtPt);
-                    if (qual >= 8)  m_ResolutionHistos["Eta_Res_DOUBLE"]->Fill(pt - gmtPt);
-                    if (qual >= 12) m_ResolutionHistos["Eta_Res_SINGLE"]->Fill(pt - gmtPt);
-
-                    m_ResolutionHistos["Phi_Res"]->Fill(pt - gmtPt);
-                    if (qual >= 4)  m_ResolutionHistos["Phi_Res_OPEN"]->Fill(pt - gmtPt);
-                    if (qual >= 8)  m_ResolutionHistos["Phi_Res_DOUBLE"]->Fill(pt - gmtPt);
-                    if (qual >= 12) m_ResolutionHistos["Phi_Res_SINGLE"]->Fill(pt - gmtPt);
-                }
                 if (gmtAboveCut) {
                     m_EfficiencyHistos[gmtPtCut]["EffvsPt_" + ptTag + "_Num"]->Fill(pt);
 
@@ -437,35 +452,53 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptC
 void L1TMuonDQMOffline::bookResolutionHistos(DQMStore::IBooker &ibooker) {
     if(m_verbose) cout << "[L1TMuonOffline:] Booking Resolution Plot Histos" << endl;
 
-    ibooker.setCurrentFolder(m_HistFolder+"/ResolutionPlots");
+    ibooker.setCurrentFolder(m_HistFolder+"/resolution");
 
-///////////////////////////////////////////////RESOLUTION vs pt/////////////////////////////////////////////////////////
+///////////////////////////////////////////////pt RESOLUTION/////////////////////////////////////////////////////////
     string name = "Pt_Res";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),200,-100.,100.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
     name = "Pt_Res_OPEN";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),200,-100.,100.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
     name = "Pt_Res_DOUBLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),200,-100.,100.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
     name = "Pt_Res_SINGLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),200,-100.,100.);
-///////////////////////////////////////////////RESOLUTION vs eta////////////////////////////////////////////////////////
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
+///////////////////////////////////////////////1overPt RESOLUTION/////////////////////////////////////////////////////////
+    name = "1overPt_Res";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
+    name = "1overPt_Res_OPEN";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
+    name = "1overPt_Res_DOUBLE";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
+    name = "1overPt_Res_SINGLE";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
+///////////////////////////////////////////////eta RESOLUTION////////////////////////////////////////////////////////
     name = "Eta_Res";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-5.,5.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
     name = "Eta_Res_OPEN";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-5.,5.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
     name = "Eta_Res_DOUBLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-5.,5.);
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
     name = "Eta_Res_SINGLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-5.,5.);
-///////////////////////////////////////////////RESOLUTION vs phi////////////////////////////////////////////////////////
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
+///////////////////////////////////////////////phi RESOLUTION////////////////////////////////////////////////////////
     name = "Phi_Res";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),126,-2*TMath::Pi(),2*TMath::Pi());
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
     name = "Phi_Res_OPEN";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),126,-2*TMath::Pi(),2*TMath::Pi());
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
     name = "Phi_Res_DOUBLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),126,-2*TMath::Pi(),2*TMath::Pi());
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
     name = "Phi_Res_SINGLE";
-    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),126,-2*TMath::Pi(),2*TMath::Pi());
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
+///////////////////////////////////////////////charge RESOLUTION////////////////////////////////////////////////////////
+    name = "Charge_Res";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
+    name = "Charge_Res_OPEN";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
+    name = "Charge_Res_DOUBLE";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
+    name = "Charge_Res_SINGLE";
+    m_ResolutionHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
 }
 //_____________________________________________________________________
 const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex( Handle<VertexCollection> & vertex,
