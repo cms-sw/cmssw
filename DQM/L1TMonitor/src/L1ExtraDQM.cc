@@ -261,7 +261,7 @@ void L1ExtraDQM::analyzeL1ExtraIsoTauJet(const edm::Event& iEvent, const edm::Ev
             << std::endl;
     
     m_validL1ExtraIsoTauJet = false;
-    m_l1ExtraIsoTauJet = 0;
+    m_l1ExtraIsoTauJet = nullptr;
   }
   
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
