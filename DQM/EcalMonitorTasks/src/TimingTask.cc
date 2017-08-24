@@ -20,7 +20,7 @@ namespace ecaldqm
     energyThresholdEB_(0.),
     energyThresholdEE_(0.),
     timingVsBXThreshold_(0.),
-    meTimeMapByLS(0)
+    meTimeMapByLS(nullptr)
   {
   }
 
