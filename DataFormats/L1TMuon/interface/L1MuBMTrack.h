@@ -33,22 +33,21 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
-
-//#include "DataFormats/L1TMuon/interface/MuonInternalTrack.h"
-
-//using namespace L1TMuon;
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
+
+class L1MuBMTrack;
+
+typedef std::vector<L1MuBMTrack> L1MuBMTrackCollection;
 
 class L1MuBMTrack : public l1t::RegionalMuonCand {
 
@@ -64,7 +63,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     L1MuBMTrack(const L1MuBMTrack&);
 
     /// destructor
-    virtual ~L1MuBMTrack();
+    ~L1MuBMTrack() override;
 
     /// reset muon candidate
     void reset();
@@ -151,7 +150,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     void setEta(int eta);
 
     /// set fine eta bit
-    inline void setFineEtaBit() { setHwHF(1); }
+    inline void setFineEtaBit() { setHwHF(true); }
 
     /// set pt-code of muon candidate
     inline void setPt(int pt) { setHwPt(pt); }

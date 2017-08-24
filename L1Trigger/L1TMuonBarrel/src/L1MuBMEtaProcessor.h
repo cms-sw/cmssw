@@ -38,7 +38,7 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
