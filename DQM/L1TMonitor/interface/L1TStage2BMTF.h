@@ -62,10 +62,10 @@ virtual ~L1TStage2BMTF();
 
 // member functions
 protected:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
 
 // data members
 private:  
