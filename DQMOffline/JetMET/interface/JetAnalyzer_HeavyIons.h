@@ -91,15 +91,15 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
-  static const Int_t fourierOrder_ = 5;
-  static const Int_t etaBins_ = 7;
-  static const Int_t ptBins_ = 7;
+  static constexpr int fourierOrder_ = 5;
+  static constexpr int etaBins_ = 7;
+  static constexpr int ptBins_ = 7;
 
   //default values - these are changed by the etaMap values for the CS plots
   const double edge_pseudorapidity[etaBins_ +1] = {-5, -3, -2.1, -1.3, 1.3, 2.1, 3, 5};
   const int ptBin[ptBins_+1] = {0, 20, 40, 60, 100, 150, 300, 99999};
 
-  static const Int_t nedge_pseudorapidity = etaBins_ + 1; 
+  static constexpr int nedge_pseudorapidity = etaBins_ + 1; 
  
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputPFCandCollection;
