@@ -50,6 +50,9 @@ void Graph::init(const std::string& exportDir, const std::string& tag)
 {
     reset();
 
+    // disable tensorflow logging by default
+    setenv("TF_CPP_MIN_LOG_LEVEL", "3", 0);
+
     // config objects
     TF_SessionOptions* sessionOptions = TF_NewSessionOptions();
     const char* tags[] = { tag.c_str() };
