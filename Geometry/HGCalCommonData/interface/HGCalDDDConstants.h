@@ -64,12 +64,12 @@ public:
   std::vector<int>    numberCellsSquare(float h, float bl, float tl, 
 					float alpha, float cellSize) const;
   int                 numberCellsHexagon(int wafer) const;
-  std::pair<int,int>  rowColumnWafer(const int wafer) const;
+  std::pair<int,int>  rowColumnWafer(int wafer) const;
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
   int                 waferFromCopy(int copy) const;
-  void                waferFromPosition(const double x, const double y,
+  void                waferFromPosition(double x, double y,
 					int& wafer, int& icell, 
 					int& celltyp) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
