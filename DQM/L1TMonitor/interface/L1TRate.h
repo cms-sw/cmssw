@@ -51,7 +51,7 @@ class L1TRate : public DQMEDAnalyzer {
   public:
 
     L1TRate(const edm::ParameterSet& ps);   // Constructor
-    virtual ~L1TRate();                     // Destructor
+    ~L1TRate() override;                     // Destructor
 
   protected:
 
