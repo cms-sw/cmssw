@@ -1,0 +1,16 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use   name="DataFormats/ParticleFlowReco"/>
+<use   name="Geometry/Records"/>
+<use   name="SimDataFormats/CaloAnalysis"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="RecoLocalCalo/HGCalRecAlgos"/>
+<use   name="DQMServices/Core"/>
+<use   name="classlib"/>
+<library   file="*.cc" name="ValidationHGCalHitValidationPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<Flags CXXFLAGS="-O2"/>
+<Flags CXXFLAGS="-g"/>
