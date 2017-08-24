@@ -24,7 +24,7 @@ public:
 private:
   std::vector<const TkRadialStripTopology*> get_list_of_radial_topologies(const edm::Event&, const edm::EventSetup&);
   void test_topology(const TkRadialStripTopology* , unsigned);
-  bool pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const float stripErr2, const bool);
+  bool pass_frame_change_test(const TkRadialStripTopology* t, float strip, float stripErr2, bool);
   bool EQUAL(const double a, const double b) {return fabs(a-b)<epsilon_;}
   const double epsilon_;
   TFile* file_;
