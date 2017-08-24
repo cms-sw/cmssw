@@ -7,9 +7,9 @@
  */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <stdexcept>
 
 #include "PhysicsTools/TensorFlow/interface/Tensor.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class testTensor : public CppUnit::TestFixture
 {
@@ -54,8 +54,8 @@ void testTensor::checkEmptyTensor()
     CPPUNIT_ASSERT(emptyTensor->getAxis(0) == -1);
     CPPUNIT_ASSERT(emptyTensor->getShape(0) == -1);
     CPPUNIT_ASSERT(emptyTensor->getData() == 0);
-    CPPUNIT_ASSERT_THROW(emptyTensor->getIndex(0), std::runtime_error);
-    CPPUNIT_ASSERT_THROW(emptyTensor->getPtrAtPos<float>(0), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(emptyTensor->getIndex(0), cms::Exception);
+    CPPUNIT_ASSERT_THROW(emptyTensor->getPtrAtPos<float>(0), cms::Exception);
 
     delete emptyTensor;
 }
@@ -82,8 +82,8 @@ void testTensor::checkScalarTensor()
     *ptr0 = 123;
     CPPUNIT_ASSERT(*scalar->getPtr<float>() == 123.);
 
-    CPPUNIT_ASSERT_THROW(scalar->getPtr<float>(0), std::runtime_error);
-    CPPUNIT_ASSERT_THROW(scalar->getPtrVectorAtPos<float>(0, 0), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(scalar->getPtr<float>(0), cms::Exception);
+    CPPUNIT_ASSERT_THROW(scalar->getPtrVectorAtPos<float>(0, 0), cms::Exception);
 
     scalar->fillValuesAtPos<float>((float)8., -1, 0);
     CPPUNIT_ASSERT(*scalar->getPtr<float>() == 8.);
@@ -111,14 +111,14 @@ void testTensor::checkVectorTensor()
     *ptr1 = 123;
     CPPUNIT_ASSERT(*vector->getPtr<double>(3) == 123.);
 
-    CPPUNIT_ASSERT_THROW(vector->getPtr<double>(0, 1), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(vector->getPtr<double>(0, 1), cms::Exception);
 
     std::vector<double*> vec1 = vector->getPtrVector<double>();
     CPPUNIT_ASSERT(vec1.size() == 5);
     CPPUNIT_ASSERT(*vec1[3] == 123.);
 
     std::vector<double> vec1New = { 5, 6, 7, 8 };
-    CPPUNIT_ASSERT_THROW(vector->setVector<double>(vec1New), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(vector->setVector<double>(vec1New), cms::Exception);
 
     vec1New.push_back(9);
     vector->setVector<double>(vec1New);
@@ -152,14 +152,14 @@ void testTensor::checkMatrixTensor()
     *ptr2 = 123;
     CPPUNIT_ASSERT(*matrix->getPtr<float>(3, 4) == 123.);
 
-    CPPUNIT_ASSERT_THROW(matrix->getPtr<float>(0), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(matrix->getPtr<float>(0), cms::Exception);
 
     std::vector<float*> vec2 = matrix->getPtrVector<float>(1, 3);
     CPPUNIT_ASSERT(vec2.size() == 8);
     CPPUNIT_ASSERT(*vec2[4] == 123.);
 
     std::vector<float> vec2New = { 5, 6, 7, 8, 9, 10, 11 };
-    CPPUNIT_ASSERT_THROW(matrix->setVector<float>(1, 3, vec2New), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(matrix->setVector<float>(1, 3, vec2New), cms::Exception);
 
     vec2New.push_back(12);
     matrix->setVector<float>(1, 3, vec2New);
@@ -193,14 +193,14 @@ void testTensor::checkShape3Tensor()
     *ptr3 = 123;
     CPPUNIT_ASSERT(*tensor3->getPtr<float>(3, 4, 10) == 123.);
 
-    CPPUNIT_ASSERT_THROW(tensor3->getPtr<float>(0), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(tensor3->getPtr<float>(0), cms::Exception);
 
     std::vector<float*> vec3 = tensor3->getPtrVector<float>(2, 3, 4);
     CPPUNIT_ASSERT(vec3.size() == 15);
     CPPUNIT_ASSERT(*vec3[10] == 123.);
 
     std::vector<float> vec3New = { 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-    CPPUNIT_ASSERT_THROW(tensor3->setVector<float>(2, 3, 4, vec3New), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(tensor3->setVector<float>(2, 3, 4, vec3New), cms::Exception);
 
     vec3New.push_back(19);
     tensor3->setVector<float>(2, 3, 4, vec3New);

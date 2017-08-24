@@ -9,10 +9,11 @@
 #ifndef PHYSICSTOOLS_TENSORFLOW_TENSOR_H
 #define PHYSICSTOOLS_TENSORFLOW_TENSOR_H
 
-#include <stdexcept>
 #include <vector>
 
 #include "tensorflow/c/c_api.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace tf
 {
@@ -336,8 +337,8 @@ private:
     {
         if (getRank() != rank)
         {
-            throw std::runtime_error("invalid rank to perform operation: "
-                + std::to_string(getRank()) + " (expected " + std::to_string(rank) + ")");
+            throw cms::Exception("InvalidRank") << "invalid rank to perform operation: "
+                << getRank() << " (expected " << rank << ")";
         }
     }
 };
@@ -350,7 +351,7 @@ void Tensor::getPtrVectorAtPos(int axis, Shape* pos, std::vector<T*>& v)
     // special treatment of scalars
     if (rank == 0)
     {
-        throw std::runtime_error("vectors cannot be extracted from scalars");
+        throw cms::Exception("InvalidRank") << "vectors cannot be extracted from scalars";
     }
 
     axis = getAxis(axis);
@@ -391,7 +392,7 @@ void Tensor::setVectorAtPos(int axis, Shape* pos, std::vector<T>& v)
     // special treatment of scalars
     if (getRank() == 0)
     {
-        throw std::runtime_error("vectors cannot be inserted into scalars");
+        throw cms::Exception("InvalidRank") << "vectors cannot be inserted into scalars";
     }
 
     // get the pointer vector
@@ -402,8 +403,8 @@ void Tensor::setVectorAtPos(int axis, Shape* pos, std::vector<T>& v)
     const int len = getShape(axis);
     if ((int64_t)v.size() != len)
     {
-        throw std::runtime_error("invalid vector size: " + std::to_string(v.size())
-            + " (should be " + std::to_string(len) + ")");
+        throw cms::Exception("InvalidDimension") << "invalid vector size: " << v.size()
+            << " (should be " << len << ")";
     }
 
     // assign the passed values

@@ -6,7 +6,6 @@
  * Author: Marcel Rieger
  */
 
-#include <iostream>
 #include "PhysicsTools/TensorFlow/interface/Graph.h"
 
 namespace tf
@@ -73,7 +72,8 @@ void Graph::init(const std::string& exportDir, const std::string& tag)
         sessionOptions, 0, exportDir.c_str(), tags, 1, tf_graph, 0, status);
     if (TF_GetCode(status) != TF_OK)
     {
-        throw std::runtime_error("error while loading graph: " + std::string(TF_Message(status)));
+        throw cms::Exception("InvalidSession") << "error while loading graph: "
+            << TF_Message(status);
     }
 
     // some cleanup
@@ -105,15 +105,15 @@ void Graph::reset()
         TF_CloseSession(tf_session, status);
         if (TF_GetCode(status) != TF_OK)
         {
-            throw std::runtime_error("error while closing session: "
-                + std::string(TF_Message(status)));
+            throw cms::Exception("InvalidSession") << "error while closing session: "
+                << TF_Message(status);
         }
 
         TF_DeleteSession(tf_session, status);
         if (TF_GetCode(status) != TF_OK)
         {
-            throw std::runtime_error("error while deleting session: "
-                + std::string(TF_Message(status)));
+            throw cms::Exception("InvalidSession") << "error while deleting session: "
+                << TF_Message(status);
         }
         tf_session = 0;
 
@@ -133,22 +133,23 @@ GraphIO* Graph::defineInput(Tensor* tensor, const std::string& opName, int opInd
     // the tensor must be initialized
     if (tensor->empty())
     {
-        throw std::runtime_error("cannot define uninitialized input tensor for operation: "
-            + opName + " " + std::to_string(opIndex));
+        throw cms::Exception("InvalidTensor")
+            << "cannot define uninitialized input tensor for operation: " << opName << " "
+            << opIndex;
     }
 
     // check for duplicate
     if (hasInput(tensor, opName, opIndex))
     {
-        throw std::runtime_error("duplicate input tensor defined for operation: " + opName
-            + " " + std::to_string(opIndex));
+        throw cms::Exception("InvalidInput") << "duplicate input tensor defined for operation: "
+            << opName << " " << opIndex;
     }
 
     // get a pointer to the associated operation
     TF_Operation* operation = TF_GraphOperationByName(tf_graph, opName.c_str());
     if (!operation)
     {
-        throw std::runtime_error("no such input operation in graph: " + opName);
+        throw cms::Exception("InvalidOperation") << "no such input operation in graph: " << opName;
     }
 
     // create and store the input object
@@ -165,15 +166,15 @@ GraphIO* Graph::defineOutput(Tensor* tensor, const std::string& opName, int opIn
     // check for duplicate
     if (hasOutput(tensor, opName, opIndex))
     {
-        throw std::runtime_error("duplicate output tensor defined for operation: " + opName
-            + " " + std::to_string(opIndex));
+        throw cms::Exception("InvalidOutput") << "duplicate output tensor defined for operation: "
+            << opName << " " << opIndex;
     }
 
     // get a pointer to the associated operation
     TF_Operation* operation = TF_GraphOperationByName(tf_graph, opName.c_str());
     if (!operation)
     {
-        throw std::runtime_error("no such output operation in graph: " + opName);
+        throw cms::Exception("InvalidOperation") << "no such input operation in graph: " << opName;
     }
 
     // create and store the output object
@@ -281,7 +282,7 @@ void Graph::eval()
 {
     if (!tf_session)
     {
-        throw std::runtime_error("cannot evaluate uninitialized graph");
+        throw cms::Exception("InvalidGraph") << "cannot evaluate uninitialized graph";
     }
 
     // prepare the evaluation objects
@@ -312,8 +313,8 @@ void Graph::eval()
     // check the status
     if (TF_GetCode(status) != TF_OK)
     {
-        throw std::runtime_error("error while evaluating graph: "
-            + std::string(TF_Message(status)));
+        throw cms::Exception("InvalidGraph") << "error while evaluating graph: "
+            << (TF_Message(status));
     }
 
     // sync outputs again

@@ -110,8 +110,7 @@ int Tensor::getAxis(int axis) const
     // sanity check
     if (wrappedAxis < 0 || wrappedAxis >= rank)
     {
-        throw std::runtime_error("axis " + std::to_string(axis) + " invalid for rank "
-            + std::to_string(rank));
+        throw cms::Exception("InvalidAxis") << "axis " << axis << " invalid for rank " << rank;
     }
 
     return wrappedAxis;
@@ -128,7 +127,7 @@ Shape Tensor::getIndex(Shape* pos) const
 
     if (empty())
     {
-        throw std::runtime_error("cannot find index on uninitialized tensors");
+        throw cms::Exception("InvalidTensor") << "cannot find index on uninitialized tensors";
     }
 
     Shape index = 0;
