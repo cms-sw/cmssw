@@ -38,7 +38,7 @@ public:
     Tensor(int rank, Shape* shape, DataType dtype = TF_FLOAT);
 
     // destructor
-    virtual ~Tensor();
+    ~Tensor();
 
     // static function to return the memory size of a tensor defined by its rank, shape and datatype
     static size_t getTensorSize(int rank, Shape* shape, DataType dtype);
