@@ -62,12 +62,12 @@ public:
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  std::vector<int>          getDepth(const int det, const int phi, 
-				     const int zside, const unsigned int eta) const;
-  std::vector<int>          getDepth(const unsigned int eta, const bool extra) const;
+  std::vector<int>          getDepth(int det, int phi, 
+				     int zside, unsigned int eta) const;
+  std::vector<int>          getDepth(unsigned int eta, bool extra) const;
   int                       getDepthEta16(const int det, const int iphi, 
 					  const int zside) const {return hcons.getDepthEta16(det,iphi,zside);}
-  std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
+  std::vector<HcalEtaBin>   getEtaBins(int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
@@ -82,10 +82,10 @@ public:
   int                       getLayerFront(int det, int eta, int phi, int depth) const;
   double                    getLayer0Wt(int det, int phi, int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
-  int                       getMaxDepth(const int itype, const int ieta,
-					const int iphi, const int zside) const;
-  int                       getMinDepth(const int itype, const int ieta,
-					const int iphi, const int zside) const;
+  int                       getMaxDepth(int itype, int ieta,
+					int iphi, int zside) const;
+  int                       getMinDepth(int itype, int ieta,
+					int iphi, int zside) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
   int                       getNPhi(const int type) const {return nPhiBins[type];}
@@ -99,7 +99,7 @@ public:
   double                    getRZ(int subdet, int ieta, int depth) const;
   double                    getRZ(int subdet, int ieta, int iphi, int depth) const;
   double                    getRZ(int subdet, int layer) const;
-  std::vector<HcalActiveLength>    getThickActive(const int type) const;
+  std::vector<HcalActiveLength>    getThickActive(int type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
@@ -116,7 +116,7 @@ public:
 					      std::vector<HcalDetId>& ids) const;
   void                      specialRBXHBHE(const std::vector<HcalDetId>&,
 					   std::vector<HcalDetId> &) const;
-  bool                      specialRBXHBHE(const bool flag,
+  bool                      specialRBXHBHE(bool flag,
 					   std::vector<HcalDetId> &) const;
   bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
   bool                      isPlan1ToBeMergedId(const HcalDetId& id) const { return detIdSp_.find(id) != detIdSp_.end(); };
