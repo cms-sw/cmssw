@@ -100,7 +100,7 @@ public:
     // returns true if the tensorflow graph object is not initialized yet, false otherwise
     inline bool empty() const
     {
-        return tf_graph_ == 0;
+        return tf_graph_ == nullptr;
     }
 
     // defines an input to the graph that is connected to an operation with name and index
