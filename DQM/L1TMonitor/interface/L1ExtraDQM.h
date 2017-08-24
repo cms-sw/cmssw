@@ -81,7 +81,7 @@ public:
     explicit L1ExtraDQM(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1ExtraDQM();
+    ~L1ExtraDQM() override;
 
 public:
 
