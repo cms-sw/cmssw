@@ -75,14 +75,16 @@ class MuonGmtPair {
         ~MuonGmtPair() { };
 
         double dR();
+        double pt()  const { return m_muon->pt(); };
         double eta() const { return m_muon->eta(); };
         double phi() const { return m_muon->phi(); };
-        double pt()  const { return m_muon->pt(); };
+        int charge() const {return m_muon->charge(); };
         double gmtPt() const { return m_regMu ? m_regMu->pt() : -1.; };
-        int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
-        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
         double gmtEta() const { return m_regMu ? m_regMu->eta() : -5.; };
-
+        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
+        int gmtCharge() const {return m_regMu ? m_regMu->charge() : -5; };
+        int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
+        
         void propagate(edm::ESHandle<MagneticField> bField,
          edm::ESHandle<Propagator> propagatorAlong,
          edm::ESHandle<Propagator> propagatorOpposite);
