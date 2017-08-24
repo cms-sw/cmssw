@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimMuon.MCTruth.SimMuFilter_cfi import SimMuFilter
 
-SimMuFilter.nMuSel = 1
+SimSingleMuFilter = SimMuFilter.clone()
+SimSingleMuFilter.nMuSel = 1
 
-SimMuFiltSeq = cms.Sequence(SimMuFilter)
+SimMuFiltSeq = cms.Sequence(SimSingleMuFilter)
