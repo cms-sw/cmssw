@@ -409,7 +409,7 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_9_2_4-91X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1',    # 5 - fullSim PU 25ns premix
+    'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns premix
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix
     'CMSSW_9_3_0_pre4-93X_mcRun2_asymptotic_v0_FastSim-v1',    # 7 - fastSim MinBias for mixing
     'CMSSW_9_3_0_pre4-PU25ns_93X_mcRun2_asymptotic_v0_FastSim-v1',# 8 - fastSim premixed MinBias
