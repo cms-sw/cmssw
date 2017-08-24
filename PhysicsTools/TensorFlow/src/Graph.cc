@@ -54,6 +54,12 @@ void Graph::init(const std::string& exportDir, const std::string& tag)
     TF_SessionOptions* sessionOptions = TF_NewSessionOptions();
     const char* tags[] = { tag.c_str() };
 
+    // apply all session options
+    for (size_t i = 0, s = sessionOptions_.size(); i < s; i++)
+    {
+        TF_SetTarget(tf_sessionOptions, sessionOptions_[i].c_str());
+    }
+
     // initialize an empty graph
     tf_graph = TF_NewGraph();
 
