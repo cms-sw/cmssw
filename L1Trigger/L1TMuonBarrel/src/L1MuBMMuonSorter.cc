@@ -31,9 +31,10 @@
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 using namespace std;
 
@@ -133,7 +134,7 @@ void L1MuBMMuonSorter::reset() {
   m_TrackCands.clear();
   vector<const L1MuBMTrack*>::iterator iter;
   for ( iter = m_TrackCands.begin(); iter != m_TrackCands.end(); iter++ ) {
-    *iter = 0;
+    *iter = nullptr;
   }
 
 }
@@ -169,12 +170,12 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
 
   typedef vector<L1MuBMTrack*>::iterator TI;
   for ( TI iter1 = cands.begin(); iter1 != cands.end(); iter1++ ) {
-    if ( *iter1 == 0 ) continue;
+    if ( *iter1 == nullptr ) continue;
     if ( (*iter1)->empty() ) continue;
     L1MuBMSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
     for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
+      if ( *iter2 == nullptr ) continue;
       if ( *iter1 == *iter2 ) continue;
       if ( (*iter2)->empty() ) continue;
       L1MuBMSecProcId sp2 = (*iter2)->spid();
@@ -256,13 +257,13 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
   // remove the one with lower rank
 
   for ( TI iter1 = cands.begin(); iter1 != cands.end(); iter1++ ) {
-    if ( *iter1 == 0 ) continue;
+    if ( *iter1 == nullptr ) continue;
     if ( (*iter1)->empty() ) continue;
     int phi1 = (*iter1)->phi();
     int pt1 = (*iter1)->pt();
     int qual1 = (*iter1)->quality();
     for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
+      if ( *iter2 == nullptr ) continue;
       if ( *iter1 == *iter2 ) continue;
       if ( (*iter2)->empty() ) continue;
       int phi2 = (*iter2)->phi();

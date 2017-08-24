@@ -38,8 +38,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssParam.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 class L1MuBMSectorProcessor;
 
 //              ---------------------
@@ -54,13 +54,13 @@ class L1MuBMTrackAssembler : public L1AbstractProcessor {
     L1MuBMTrackAssembler(const L1MuBMSectorProcessor& );
 
     /// destructor
-    virtual ~L1MuBMTrackAssembler();
+    ~L1MuBMTrackAssembler() override;
 
     /// run Track Assembler
-    virtual void run();
+    void run() override;
 
     /// reset Track Assembler
-    virtual void reset();
+    void reset() override;
 
     /// print result of Track Assembler
     void print() const;
