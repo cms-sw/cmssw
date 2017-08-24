@@ -59,25 +59,25 @@ public:
     // returns the pointer to the tensorflow tensor object
     inline TF_Tensor* getTFTensor()
     {
-        return tf_tensor;
+        return tf_tensor_;
     }
 
     // returns true if the internal tensorflow tensor object is not initalized yet, false otherwise
     inline bool empty() const
     {
-        return tf_tensor == 0;
+        return tf_tensor_ == nullptr;
     }
 
     // returns the datatype or NO_DATATYPE when empty
     inline DataType getDataType() const
     {
-        return empty() ? NO_DATATYPE : TF_TensorType(tf_tensor);
+        return empty() ? NO_DATATYPE : TF_TensorType(tf_tensor_);
     }
 
     // returns the tensor tank or -1 when empty
     inline int getRank() const
     {
-        return empty() ? -1 : TF_NumDims(tf_tensor);
+        return empty() ? -1 : TF_NumDims(tf_tensor_);
     }
 
     // performs sanity checks and returns a positive axis number for any (also negative) axis
@@ -86,7 +86,7 @@ public:
     // returns the shape of an axis or -1 when empty
     inline Shape getShape(int axis) const
     {
-        return empty() ? -1 : TF_Dim(tf_tensor, getAxis(axis));
+        return empty() ? -1 : TF_Dim(tf_tensor_, getAxis(axis));
     }
 
     // returns the index in a one dimensional array given a coordinate with multi-dimensional shape
@@ -95,7 +95,7 @@ public:
     // returns a pointer to the data object or 0 when empty
     inline void* getData()
     {
-        return tf_tensor ? TF_TensorData(tf_tensor) : 0;
+        return empty() ? 0 : TF_TensorData(tf_tensor_);
     }
 
     // returns the pointer to the data at an arbitrary position
@@ -327,10 +327,10 @@ public:
 
 private:
     // the internal tensorflow tensor object
-    TF_Tensor* tf_tensor;
+    TF_Tensor* tf_tensor_;
 
     // array of cumulative shape products to accelerate indexing
-    int64_t* prod;
+    int64_t* prod_;
 
     // compares a passed rank to the current rank and throws an exception when they do not match
     inline void assertRank(int rank) const
@@ -376,7 +376,7 @@ void Tensor::getPtrVectorAtPos(int axis, Shape* pos, std::vector<T*>& v)
 
     // start looping
     v.clear();
-    for (Shape i = 0; i < getShape(axis); i++)
+    for (Shape i = 0, s = getShape(axis); i < s; i++)
     {
         // alter the position array for the request axis
         pos2[axis] = i;
@@ -425,7 +425,7 @@ void Tensor::fillValuesAtPos(T v, int n, Shape* pos)
     }
 
     // get the maximum number of elements to fill
-    int nElements = getShape(0) * prod[0] - getIndex(pos);
+    int nElements = getShape(0) * prod_[0] - getIndex(pos);
 
     // limit by n
     if (n >= 0 && n < nElements)
