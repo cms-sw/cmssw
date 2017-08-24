@@ -114,10 +114,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   CSCCorrelatedLCTDigi allLCTs1b[MAX_LCT_BINS][15][2];
   CSCCorrelatedLCTDigi allLCTs1a[MAX_LCT_BINS][15][2];
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
-
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me,
