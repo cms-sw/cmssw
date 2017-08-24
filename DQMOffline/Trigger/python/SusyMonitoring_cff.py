@@ -162,6 +162,7 @@ triple_muon_mupt = hltTOPmonitoring.clone()
 triple_muon_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/Muon')
 # Selections
 triple_muon_mupt.nmuons           = cms.uint32(3)
+triple_muon_mupt.muoSelection     =cms.string('pt>18 & abs(eta)<2.0 & isGlobalMuon() ')
 triple_muon_mupt.invMassUppercut       = cms.double(50)
 triple_muon_mupt.invMassLowercut       = cms.double(10)
 triple_muon_mupt.invMassCutInAllMuPairs=cms.bool(True)
