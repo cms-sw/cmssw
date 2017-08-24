@@ -92,10 +92,10 @@ public:
     // returns the index in a one dimensional array given a coordinate with multi-dimensional shape
     Shape getIndex(Shape* pos) const;
 
-    // returns a pointer to the data object or 0 when empty
+    // returns a pointer to the data object or nullptr when empty
     inline void* getData()
     {
-        return empty() ? 0 : TF_TensorData(tf_tensor_);
+        return empty() ? nullptr : TF_TensorData(tf_tensor_);
     }
 
     // returns the pointer to the data at an arbitrary position

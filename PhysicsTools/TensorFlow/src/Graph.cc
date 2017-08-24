@@ -70,7 +70,7 @@ void Graph::init(const std::string& exportDir, const std::string& tag)
 
     // create the session and load everything into tf_graph
     tf_session_ = TF_LoadSessionFromSavedModel(
-        tf_sessionOptions, 0, exportDir.c_str(), tags, 1, tf_graph_, 0, status);
+        tf_sessionOptions, nullptr, exportDir.c_str(), tags, 1, tf_graph_, nullptr, status);
     if (TF_GetCode(status) != TF_OK)
     {
         throw cms::Exception("InvalidSession") << "error while loading graph: "
@@ -294,17 +294,17 @@ void Graph::eval()
         outputs_[i]->getTensor()->reset();
     }
     outputTensors_.clear();
-    outputTensors_.resize(nOut, 0);
+    outputTensors_.resize(nOut, nullptr);
 
     // actual evaluation
     TF_Status* status = TF_NewStatus();
     TF_SessionRun(
         tf_session_,
-        0, // run options
-        nIn == 0 ? 0 : &inputOutputs_[0], nIn == 0 ? 0 : &inputTensors_[0], nIn,
-        nOut == 0 ? 0 : &outputOutputs_[0], nOut == 0 ? 0 : &outputTensors_[0], nOut,
-        0, 0, // target ops, number of targets
-        0, // run metadata
+        nullptr, // run options
+        nIn == 0 ? nullptr : &inputOutputs_[0], nIn == 0 ? nullptr : &inputTensors_[0], nIn,
+        nOut == 0 ? nullptr : &outputOutputs_[0], nOut == 0 ? nullptr : &outputTensors_[0], nOut,
+        nullptr, 0, // target ops, number of targets
+        nullptr, // run metadata
         status);
 
     // check the status
