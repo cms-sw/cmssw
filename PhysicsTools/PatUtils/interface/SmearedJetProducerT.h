@@ -163,7 +163,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             desc.add<std::int32_t>("variation", 0);
             desc.add<std::uint32_t>("seed", 37428479);
             desc.add<bool>("skipGenMatching", false);
-            desc.add<bool>("useDeterministicSeed", false);
+            desc.add<bool>("useDeterministicSeed", true);
             desc.addUntracked<bool>("debug", false);
 
             auto source =
