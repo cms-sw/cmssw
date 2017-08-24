@@ -10,12 +10,12 @@
 #define PHYSICSTOOLS_TENSORFLOW_GRAPH_H
 
 #include <algorithm>
-#include <stdexcept>
 #include <string>
 
 #include <tensorflow/c/c_api.h>
 
 #include "PhysicsTools/TensorFlow/interface/Tensor.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace tf
 {

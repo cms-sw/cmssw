@@ -12,6 +12,7 @@
 
 #include "PhysicsTools/TensorFlow/interface/Graph.h"
 #include "PhysicsTools/TensorFlow/interface/Tensor.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class testGraph : public CppUnit::TestFixture
 {
@@ -128,7 +129,7 @@ void testGraph::checkAll()
     CPPUNIT_ASSERT(g.hasInput(sIO));
     CPPUNIT_ASSERT(g.hasOutput(yIO));
 
-    CPPUNIT_ASSERT_THROW(g.defineInput(x, "input"), std::runtime_error);
+    CPPUNIT_ASSERT_THROW(g.defineInput(x, "input"), cms::Exception);
 
     g.removeInput(x, "input");
     g.removeInput(s, "scale");
