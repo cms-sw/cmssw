@@ -33,33 +33,33 @@ public:
     // returns the pointer to the tensor instance
     inline Tensor* getTensor()
     {
-        return tensor;
+        return tensor_;
     }
 
     // returns a reference to the tensorflow output object
     inline TF_Output& getTFOutput()
     {
-        return tf_output;
+        return tf_output_;
     }
 
     // returns the operation name
     inline std::string& getOpName()
     {
-        return opName;
+        return opName_;
     }
 
     // returns the operation index
     inline int getOpIndex()
     {
-        return opIndex;
+        return opIndex_;
     }
 
 private:
-    Tensor* tensor;
-    std::string opName;
-    int opIndex;
+    Tensor* tensor_;
+    std::string opName_;
+    int opIndex_;
 
-    TF_Output tf_output;
+    TF_Output tf_output_;
 };
 
 // the Graph class
@@ -100,7 +100,7 @@ public:
     // returns true if the tensorflow graph object is not initialized yet, false otherwise
     inline bool empty() const
     {
-        return tf_graph == 0;
+        return tf_graph_ == 0;
     }
 
     // defines an input to the graph that is connected to an operation with name and index
@@ -140,37 +140,37 @@ public:
     // returns the number of inputs
     inline size_t nInputs() const
     {
-        return inputs.size();
+        return inputs_.size();
     }
 
     // returns the number of outputs
     inline size_t nOutputs() const
     {
-        return outputs.size();
+        return outputs_.size();
     }
 
     // performs a graph evaluation with all previously defined inputs and outputs
     void eval();
 
 private:
-    bool preparedEval;
+    bool preparedEval_;
 
     // session option strings of the format "key:value"
     std::vector<std::string> sessionOptions_;
 
     // pointers to the tensorflow graph and session objects
-    TF_Graph* tf_graph;
-    TF_Session* tf_session;
+    TF_Graph* tf_graph_;
+    TF_Session* tf_session_;
 
     // vectors of input and output objects
-    std::vector<GraphIO*> inputs;
-    std::vector<GraphIO*> outputs;
+    std::vector<GraphIO*> inputs_;
+    std::vector<GraphIO*> outputs_;
 
     // vectors for caching objects required for evaluation
-    std::vector<TF_Output> inputOutputs;
-    std::vector<TF_Output> outputOutputs;
-    std::vector<TF_Tensor*> inputTensors;
-    std::vector<TF_Tensor*> outputTensors;
+    std::vector<TF_Output> inputOutputs_;
+    std::vector<TF_Output> outputOutputs_;
+    std::vector<TF_Tensor*> inputTensors_;
+    std::vector<TF_Tensor*> outputTensors_;
 
     // prepares the cache vectors that are required for the evaluation
     void prepareEval();
