@@ -28,7 +28,7 @@ public:
     GraphIO(Tensor* tensor, TF_Operation* tf_operation, const std::string& opName, int opIndex = 0);
 
     // destructor
-    virtual ~GraphIO();
+    ~GraphIO();
 
     // returns the pointer to the tensor instance
     inline Tensor* getTensor()
@@ -76,7 +76,7 @@ public:
     Graph(const Graph& g) = delete;
 
     // destructor
-    virtual ~Graph();
+    ~Graph();
 
     // initialize the tensorflow graph and session objects
     void init(const std::string& exportDir, const std::string& tag = "serve");
