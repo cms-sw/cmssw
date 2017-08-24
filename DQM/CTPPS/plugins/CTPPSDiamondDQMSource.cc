@@ -241,11 +241,11 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
 
-  stripTomographyAllFar_0_25 = ibooker.book2D( "tomography all far 0 25", title+" tomography with strips far 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 200, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar_0_25 = ibooker.book2D( "tomography all far 0 25", title+" tomography with strips far 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 12, -2, 10 );
   stripTomographyAllFar.emplace_back(stripTomographyAllFar_0_25);
-  stripTomographyAllFar_25_50 = ibooker.book2D( "tomography all far 25 50", title+" tomography with strips far 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 200, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar_25_50 = ibooker.book2D( "tomography all far 25 50", title+" tomography with strips far 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 12, -2, 10 );
   stripTomographyAllFar.emplace_back(stripTomographyAllFar_25_50);
-  stripTomographyAllFar_50_75 = ibooker.book2D( "tomography all far 50 75", title+" tomography with strips far 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 200, 0, 100, 24, -2, 10 );
+  stripTomographyAllFar_50_75 = ibooker.book2D( "tomography all far 50 75", title+" tomography with strips far 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 12, -2, 10 );
   stripTomographyAllFar.emplace_back(stripTomographyAllFar_50_75);
 
   leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge (le and te); leading edge (ns)", 125, 0, 125 );
@@ -269,9 +269,9 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   MHComprensive = ibooker.book2D( "MH in channels", title+" MH (%) in channels;plane number;ch number", 10, -0.5, 4.5, 14, -1, 13 );
 
   ibooker.setCurrentFolder( path+"/clock/" );
-  clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 1000, 0, 125 );
+  clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 1250, 0, 125 );
   clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 125, 0, 125 );
-  clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 1000, 0, 125 );
+  clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 1250, 0, 125 );
   clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 125, 0, 125 );
 }
 
@@ -289,7 +289,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots( DQMStore::IBooker& ibooker, unsig
   hitProfile = ibooker.book1D( "hit profile", title+" hit profile;x (mm)", 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   hit_multiplicity = ibooker.book1D( "channels per plane", title+" channels per plane; ch per plane", 13, -0.5, 12.5 );
 
-  stripTomography_far = ibooker.book2D( "tomography far", title+" tomography with strips far;x + 25 OOT (mm);y (mm)", 200, 0, 100, 24, -2, 10 );
+  stripTomography_far = ibooker.book2D( "tomography far", title+" tomography with strips far;x + 25 OOT (mm);y (mm)", 50, 0, 50, 12, -2, 10 );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
 
   ECCheckPerChannel = ibooker.book1D("optorxEC(8bit) - vfatEC vs optorxEC", title+" EC Error;optorxEC-vfatEC", 128, -64, 64 );
 
-  stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 25 OOT (mm);y (mm)", 200, 0, 100, 24, -2, 10 );
+  stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 25 OOT (mm);y (mm)", 50, 0, 50, 12, -2, 10 );
 
   hit_rate = ibooker.book1D( "hit rate", title+"hit rate;rate (Hz)", 40, 0, 20);
 }
@@ -451,8 +451,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   //------------------------------
   // RP Plots
   //------------------------------  
-
-  //   if (event.bunchCrossing() > 100) return;
 
   //------------------------------
   // Correlation Plots
@@ -824,7 +822,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
           if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
           if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-            planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) +1), striplt.getY0() );
+            planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0() + 25*rechit.getOOTIndex() , striplt.getY0() );
           }
         }
       }
