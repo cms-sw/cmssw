@@ -58,7 +58,7 @@ class CaloGeometryLoaderTest
       void myFillGeom( T*                    geom ,
 		       const ParmVec&        pv ,
 		       const HepGeom::Transform3D& tr ,
-		       const unsigned int     id    ) ;
+		       unsigned int     id    ) ;
 
       unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 

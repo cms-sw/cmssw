@@ -7,7 +7,7 @@
 class StackGeomDet : public TrackerGeomDet{
 public:
 
-  StackGeomDet( BoundPlane* sp, const GeomDetUnit* lowerDet,  const GeomDetUnit* upperDet, const DetId stackDetId);
+  StackGeomDet( BoundPlane* sp, const GeomDetUnit* lowerDet,  const GeomDetUnit* upperDet, DetId stackDetId);
   
   ~StackGeomDet() override;
 
