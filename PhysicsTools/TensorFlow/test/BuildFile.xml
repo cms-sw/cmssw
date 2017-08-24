@@ -3,6 +3,7 @@
     <use name="cppunit"/>
 
     <use name="PhysicsTools/TensorFlow" />
+    <use name="FWCore/Utilities" />
 </bin>
 
 <bin name="testTFGraph" file="testRunner.cpp,testGraph.cc">
@@ -11,4 +12,5 @@
     <use name="cppunit"/>
 
     <use name="PhysicsTools/TensorFlow" />
+    <use name="FWCore/Utilities" />
 </bin>
