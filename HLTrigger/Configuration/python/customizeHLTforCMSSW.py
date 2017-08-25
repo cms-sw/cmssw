@@ -27,8 +27,8 @@ def customiseFor19029(process):
 
 def customiseFor19824(process) :
     for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
-         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
-         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
+         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par')
+         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par')
     return process
 
 # Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
