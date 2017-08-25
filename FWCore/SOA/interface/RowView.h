@@ -33,19 +33,19 @@ namespace soa {
 template <typename... Args>
 class RowView {
   using Layout = std::tuple<Args...>;
-  std::array<void*, sizeof...(Args)> m_values;
+  std::array<void const*, sizeof...(Args)> m_values;
   
 public:
-  explicit RowView( std::array<void*, sizeof...(Args)> const& iValues):
+  explicit RowView( std::array<void const*, sizeof...(Args)> const& iValues):
   m_values{iValues} {}
   
   template<typename U>
   typename U::type const& get() const {
-    return *(static_cast<typename U::type*>(columnAddress<U>()));
+    return *(static_cast<typename U::type const*>(columnAddress<U>()));
   }
   
   template<typename U>
-  void * columnAddress() const {
+  void const* columnAddress() const {
     return m_values[impl::GetIndex<0,U,Layout>::index];
   }
   
