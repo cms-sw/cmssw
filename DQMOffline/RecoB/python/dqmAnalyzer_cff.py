@@ -14,6 +14,7 @@ from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsA
 from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
 myak4JetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = cms.InputTag("ak4PFJetsCHS"),
+    partons = cms.InputTag("selectedHadronsAndPartons","algorithmicPartons"),
     hadronFlavourHasPriority = cms.bool(True)
     )
 
