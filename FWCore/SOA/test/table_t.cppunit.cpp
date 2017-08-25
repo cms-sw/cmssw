@@ -12,6 +12,7 @@ Changed by Viji on 29-06-2005
 #include <cmath>
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/SOA/interface/Table.h"
+#include "FWCore/SOA/interface/TableView.h"
 #include "FWCore/SOA/interface/RowView.h"
 #include "FWCore/SOA/interface/Column.h"
 #include "FWCore/SOA/interface/TableItr.h"
