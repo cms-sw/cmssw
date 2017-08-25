@@ -178,7 +178,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   double varSimTime = sumSimTimeSq/double(nsim) - meanSimTime*meanSimTime;
   double rmsSimTime = std::sqrt(std::max(0.1*0.1,varSimTime));
   
-  printf("meanSimTime = %5e, rmsSimTime = %5e\n",meanSimTime,rmsSimTime);
+//   printf("meanSimTime = %5e, rmsSimTime = %5e\n",meanSimTime,rmsSimTime);
     
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     const auto tkref = TrackCollection.refAt(itk);
