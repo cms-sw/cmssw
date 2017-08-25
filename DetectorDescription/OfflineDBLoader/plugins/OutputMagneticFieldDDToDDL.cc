@@ -177,7 +177,7 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
 	lpStore.insert( ddcurLP );
 	addToMatStore( ddcurLP.material(), matStore );
 	addToSolStore( ddcurLP.solid(), solStore, rotStore );
-	rotStore.insert( gra.edgeData( cit->second )->rot_ );
+	rotStore.insert( gra.edgeData( cit->second )->ddrot() );
 	out.position( ddLP, ddcurLP, gra.edgeData( cit->second ), m_rotNumSeed, *m_xos );
       } // iterate over children
     } // if (children)
