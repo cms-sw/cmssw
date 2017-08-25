@@ -55,32 +55,36 @@ Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.numGenericTriggerEventPSet.h
 
 from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
-Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_VBFmonitoring = hltobjmonitoring.clone(
-    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50/',
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50/',
+    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon50_R9Id90_HE10_IsoM_v*"]
+    ),
+    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_v*"]
+    ),
+    phoSelection = 'pt > 80 & abs(eta) < 1.44',
+    nphotons = 1,
+    jetSelection = "pt > 30 & abs(eta) < 5.0",
+    jetId = "tight",
+    njets = 2,
+    doHTHistos = False
+)
+
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3/',
     denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
         hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_v*"]
     ),
     numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
-        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_v*"]
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_v*"]
     ),
     phoSelection = 'pt > 80 & abs(eta) < 1.44',
     nphotons = 1,
-    jetSelection = "pt > 20 & abs(eta) < 5.0",
+    jetSelection = "pt > 30 & abs(eta) < 5.0",
     jetId = "tight",
     njets = 2,
     doMETHistos = False,
-    doHTHistos = False
-)
-
-Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_METmonitoring = hltobjmonitoring.clone(
-    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50/',
-    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
-        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_v*"]
-    ),
-    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
-        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_v*"]
-    ),
-    doJetHistos = False,
     doHTHistos = False
 )
 
@@ -95,8 +99,8 @@ exoHLTPhotonmonitoring = cms.Sequence(
     + SinglePhoton90_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton120_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton165_R9Id90_HE10_IsoM_monitoring
-    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_VBFmonitoring
-    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ400DEta3_PFMET50_METmonitoring
+    + Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring
+    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring
 )
 
 
