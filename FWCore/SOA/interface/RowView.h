@@ -7,10 +7,16 @@
 // 
 /**\class RowView RowView.h "RowView.h"
 
- Description: [one line class summary]
+ Description: Provides access to all elements of a row in a edm::soa::Table
 
  Usage:
-    <usage>
+    Individual column entries of a row are accessed via the 'get' method
+ by specifying the edm::soa::Column type for the column.
+ \code
+ RowView<Eta,Phi> rv{...};
+ 
+ auto eta = rv.get<Eta>();
+ \endcode
 
 */
 //

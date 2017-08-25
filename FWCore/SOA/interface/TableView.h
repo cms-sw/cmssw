@@ -10,11 +10,26 @@
  Description: A view of certain columns of a edm::soa::Table
 
  Usage:
-    <usage>
+    A TableView<> type can be constructed from any edm::soa::Table<>
+ that shares the same template arguments as the TableView. E.g.
+ \code
+ Table<Eta,Phi> epTable;
+ TableView<Eta,Phi> epView{epTable}; //compiles
+ TableView<Phi,Eta> peView{epTable}; //compiles and works properly
+ TableView<Eta> eView{epTable}; //compiles
+ 
+ //TableVew<Delta> dView{epTable}; //does not compile
+ \endcode
+
+ TableViews are particularly useful when defining functions intended to
+ operate on Tables.
+ \code
+ edm::soa::Table<Eta,Phi> sphericalAngles(edm::soa::TableView<X,Y,Z>);
+ \endcode
 
 */
 //
-// Original Author:  root
+// Original Author:  Chris Jones
 //         Created:  Fri, 25 Aug 2017 19:31:50 GMT
 //
 

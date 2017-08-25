@@ -10,7 +10,7 @@
  Description: An iterator for edm::soa::Table like classes
 
  Usage:
-    <usage>
+    Can be used like any standard library iterator.
 
 */
 //

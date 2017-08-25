@@ -17,13 +17,13 @@
  first argument is a const reference to the class in question, or its base class. The second argument
  is a pointer to the edm::soa::Column<> type. E.g.
  
- /code
+ \code
      namespace reco {
         double value_for_column(Candidate const& iCand, edm::soa::Energy*) {
            return iCand.energy();
         }
      }
- /endcode
+ \endcode
 
 */
 //
