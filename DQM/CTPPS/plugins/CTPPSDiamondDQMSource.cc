@@ -39,15 +39,15 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 {
   public:
     CTPPSDiamondDQMSource( const edm::ParameterSet& );
-    virtual ~CTPPSDiamondDQMSource();
+    ~CTPPSDiamondDQMSource() override;
 
   protected:
     void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
     void bookHistograms( DQMStore::IBooker&, const edm::Run&, const edm::EventSetup& ) override;
-    void analyze( const edm::Event&, const edm::EventSetup& );
-    void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& );
-    void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& );
-    void endRun( const edm::Run&, const edm::EventSetup& );
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
+    void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
+    void endRun( const edm::Run&, const edm::EventSetup& ) override;
 
   private:
     // Constants
@@ -573,7 +573,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       for ( const auto& optorx : *fedInfo ) {
         if ( detId.arm() == 1 && optorx.getFEDId() == CTPPS_FED_ID_56 ) {
           potPlots_[detId_pot].ECCheck->Fill((int)((optorx.getLV1()& 0xFF)-((unsigned int) status.getEC() & 0xFF)) & 0xFF);
-          if ( ( static_cast<int>( ( optorx.getLV1() & 0xFF )-status.getEC() ) != EC_difference_56_ ) && ( static_cast<unsigned int8_t>( ( optorx.getLV1() & 0xFF )-status.getEC() ) < 128 ) )
+          if ( ( static_cast<int>( ( optorx.getLV1() & 0xFF )-status.getEC() ) != EC_difference_56_ ) && ( static_cast<uint8_t>( ( optorx.getLV1() & 0xFF )-status.getEC() ) < 128 ) )
             EC_difference_56_ = static_cast<int>( optorx.getLV1() & 0xFF )-( static_cast<unsigned int>( status.getEC() ) & 0xFF );
           if ( EC_difference_56_ != 1 && EC_difference_56_ != -500 && EC_difference_56_ < 128 && EC_difference_56_ > -128 )
             if (verbosity_)
@@ -584,7 +584,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         }
         else if ( detId.arm() == 0 && optorx.getFEDId()== CTPPS_FED_ID_45 ) {
           potPlots_[detId_pot].ECCheck->Fill((int)((optorx.getLV1()& 0xFF)-status.getEC()) & 0xFF);
-          if ( ( static_cast<int>( ( optorx.getLV1() & 0xFF )-status.getEC() ) != EC_difference_45_ ) && ( static_cast<unsigned int8_t>( ( optorx.getLV1() & 0xFF )-status.getEC() ) < 128 ) )
+          if ( ( static_cast<int>( ( optorx.getLV1() & 0xFF )-status.getEC() ) != EC_difference_45_ ) && ( static_cast<uint8_t>( ( optorx.getLV1() & 0xFF )-status.getEC() ) < 128 ) )
             EC_difference_45_ = static_cast<int>( optorx.getLV1() & 0xFF )-( static_cast<unsigned int>( status.getEC() ) & 0xFF );
           if ( EC_difference_45_ != 1 && EC_difference_45_ != -500 && EC_difference_45_ < 128 && EC_difference_45_ > -128 )
             if (verbosity_)
