@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
 
 class TrackerTopology;

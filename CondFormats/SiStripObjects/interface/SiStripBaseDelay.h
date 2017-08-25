@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
 #include <boost/bind/bind.hpp>
 

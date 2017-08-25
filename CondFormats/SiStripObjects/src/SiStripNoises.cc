@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
