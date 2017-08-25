@@ -22,7 +22,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
   : CommissioningHistograms(),
     runType_(type),
     db_(db),
-    cabling_(0),
+    cabling_(nullptr),
     detInfo_(),
     uploadAnal_(true),
     uploadConf_(false)
@@ -37,8 +37,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
   : CommissioningHistograms(),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
-    db_(0),
-    cabling_(0),
+    db_(nullptr),
+    cabling_(nullptr),
     detInfo_(),
     uploadAnal_(false),
     uploadConf_(false)

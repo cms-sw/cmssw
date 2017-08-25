@@ -35,6 +35,9 @@ class SiStripDelay
   SiStripDelay() {};
   virtual ~SiStripDelay() {};
 
+  SiStripDelay(const SiStripDelay&) = delete;
+  const SiStripDelay& operator=(const SiStripDelay&) = delete;
+
   inline SiStripDelay(const SiStripBaseDelay& baseDelay, const int sumSign,
 		      const std::pair<std::string, std::string> & recordLabelPair)
   {
@@ -87,10 +90,6 @@ class SiStripDelay
   void printDebug(std::stringstream& ss, const TrackerTopology* tTopo) const;
 
  private:
-
-  SiStripDelay(const SiStripDelay&); // stop default
-  const SiStripDelay& operator=(const SiStripDelay&); // stop default
-
   // ---------- member data --------------------------------
 
   std::vector<const SiStripBaseDelay *> baseDelayVector_;

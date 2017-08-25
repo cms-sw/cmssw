@@ -30,10 +30,10 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
   edm::eventsetup::EventSetupRecordKey DetRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripDetCablingRcd"));
   edm::eventsetup::EventSetupRecordKey RegRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripRegionCablingRcd"));
 
-  bool FedRcdfound=setup.find(FedRecordKey) != 0?true:false;  
-  bool FecRcdfound=setup.find(FecRecordKey) != 0?true:false;  
-  bool DetRcdfound=setup.find(DetRecordKey) != 0?true:false;  
-  bool RegRcdfound=setup.find(RegRecordKey) != 0?true:false;  
+  bool FedRcdfound=setup.find(FedRecordKey) != nullptr?true:false;  
+  bool FecRcdfound=setup.find(FecRecordKey) != nullptr?true:false;  
+  bool DetRcdfound=setup.find(DetRecordKey) != nullptr?true:false;  
+  bool RegRcdfound=setup.find(RegRecordKey) != nullptr?true:false;  
 
   edm::ESHandle<SiStripFedCabling> fed;
   if(FedRcdfound){

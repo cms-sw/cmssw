@@ -18,8 +18,8 @@
 namespace sistrip {
 
   RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
-    rawToDigi_(0),
-    cabling_(0),
+    rawToDigi_(nullptr),
+    cabling_(nullptr),
     cacheId_(0),
     extractCm_(false),
     doFullCorruptBufferChecks_(false),
@@ -69,7 +69,7 @@ namespace sistrip {
 
   RawToDigiModule::~RawToDigiModule() {
     if ( rawToDigi_ ) { delete rawToDigi_; }
-    if ( cabling_ ) { cabling_ = 0; }
+    if ( cabling_ ) { cabling_ = nullptr; }
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
 	<< "[sistrip::RawToDigiModule::" << __func__ << "]"
