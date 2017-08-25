@@ -42,7 +42,8 @@ namespace soa {
   public:
     static constexpr const unsigned int kNColumns = sizeof...(Args);
     using Layout = std::tuple<Args...>;
-    using const_iterator = TableItr<Args...>;
+    using const_iterator = ConstTableItr<Args...>;
+    using iterator = TableItr<Args...>;
     
     template <typename T, typename... CArgs>
     Table(T const& iContainer, CArgs... iArgs): m_size(iContainer.size()) {
@@ -90,6 +91,10 @@ namespace soa {
     
     template<typename U>
     typename U::type const& get(size_t iRow) const {
+      return *(static_cast<typename U::type const*>(columnAddress<U>())+iRow);
+    }
+    template<typename U>
+    typename U::type & get(size_t iRow)  {
       return *(static_cast<typename U::type*>(columnAddress<U>())+iRow);
     }
     
@@ -97,19 +102,9 @@ namespace soa {
     ColumnValues<typename U::type> column() const {
       return ColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
     }
-    
     template<typename U>
-    void * columnAddress() const {
-      return m_values[impl::GetIndex<0,U,Layout>::index];
-    }
-    
-    template<typename U>
-    void * columnAddressWorkaround( U const*) const {
-      return columnAddress<U>();
-    }
-    
-    void* columnAddressByIndex(unsigned int iIndex) const {
-      return m_values[iIndex];
+    MutableColumnValues<typename U::type> column() {
+      return MutableColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
     }
     
     template<typename... U>
@@ -117,12 +112,36 @@ namespace soa {
     
     const_iterator begin() const { return const_iterator{m_values}; }
     const_iterator end() const { return const_iterator{m_values,size()}; }
+
+    iterator begin() { return iterator{m_values}; }
+    iterator end() { return iterator{m_values,size()}; }
+
+    
+    template<typename U>
+    void const * columnAddressWorkaround( U const*) const {
+      return columnAddress<U>();
+    }
+
+    void const * columnAddressByIndex(unsigned int iIndex) const {
+      return m_values[iIndex];
+    }
     
   private:
     
     // Member data
     unsigned int m_size = 0;
     std::array<void *, sizeof...(Args)> m_values = {{nullptr}};
+    
+    template<typename U>
+    void const* columnAddress() const {
+      return m_values[impl::GetIndex<0,U,Layout>::index];
+    }
+    
+    template<typename U>
+    void * columnAddress() {
+      return m_values[impl::GetIndex<0,U,Layout>::index];
+    }
+
     //Recursive destructor handling
     template <int I>
     static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::true_type) {
@@ -135,6 +154,7 @@ namespace soa {
     static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::false_type) {
     }
     
+    //Construct the Table using a container per column
     struct CtrFillerFromContainers {
       template<typename T, typename... U>
       static size_t fill(std::array<void *, sizeof...(Args)>& oValues, T const& iContainer, U... iArgs) {
@@ -142,6 +162,7 @@ namespace soa {
         ctrFiller<0>(oValues,iContainer.size(), iContainer,std::forward<U>(iArgs)...);
         return iContainer.size();
       }
+    private:
       template<int I, typename T, typename... U>
       static void ctrFiller(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, T const& iContainer, U... iU) {
         assert(iContainer.size() == iSize);
@@ -161,6 +182,76 @@ namespace soa {
       static void ctrFiller(std::array<void *, sizeof...(Args)>& , size_t  ) {}
       
     };
+    
+    //Construct the Table using one container with each entry representing a row
+    struct CtrFillerFromAOS {
+      template<typename T>
+      static size_t fill(std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
+        presize<0>(oValues,iContainer.size(),std::true_type{});
+        unsigned index=0;
+        for(auto&& item: iContainer) {
+          fillElement<0>(item,index,oValues,std::true_type{});
+          ++index;
+        }
+        return iContainer.size();
+      }
+      
+      template<typename T, typename F>
+      static size_t fillUsingFiller(F& iFiller, std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
+        presize<0>(oValues,iContainer.size(),std::true_type{});
+        unsigned index=0;
+        for(auto&& item: iContainer) {
+          fillElementUsingFiller<0>(iFiller, item,index,oValues,std::true_type{});
+          ++index;
+        }
+        return iContainer.size();
+      }
+      
+
+    private:
+      template<int I>
+      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::true_type) {
+        using Layout = std::tuple<Args...>;
+        using Type = typename std::tuple_element<I,Layout>::type::type;
+        oValues[I] = new Type[iSize];
+        presize<I+1>(oValues,iSize, std::conditional_t<I+1==sizeof...(Args),
+                     std::false_type,
+                     std::true_type>{});
+      }
+      template<int I>
+      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::false_type) {}
+      
+      template<int I, typename E>
+      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
+        using Layout = std::tuple<Args...>;
+        using ColumnType = typename std::tuple_element<I,Layout>::type;
+        using Type = typename ColumnType::type;
+        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
+        *pElement = value_for_column(iItem, static_cast<ColumnType*>(nullptr));
+        fillElement<I+1>(iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
+                         std::false_type,
+                         std::true_type>{});
+      }
+      template<int I, typename E>
+      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
+      
+      
+      template<int I, typename E, typename F>
+      static void fillElementUsingFiller(F& iFiller, E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
+        using Layout = std::tuple<Args...>;
+        using ColumnType = typename std::tuple_element<I,Layout>::type;
+        using Type = typename ColumnType::type;
+        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
+        *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
+        fillElementUsingFiller<I+1>(iFiller,iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
+                                    std::false_type,
+                                    std::true_type>{});
+      }
+      template<int I, typename E, typename F>
+      static void fillElementUsingFiller(F&, E const& , size_t , std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
+      
+    };
+
     
     template<int I>
     static void copyFromToWithResize(size_t iNElements, std::array<void *, sizeof...(Args)> const& iFrom, std::array<void*, sizeof...(Args)>& oTo, std::true_type) {
@@ -191,100 +282,11 @@ namespace soa {
     template<int I>
     static void resizeFromTo(size_t, size_t, std::array<void *, sizeof...(Args)>& , std::false_type) {}
     
-    struct CtrFillerFromAOS {
-      template<typename T>
-      static size_t fill(std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
-        presize<0>(oValues,iContainer.size(),std::true_type{});
-        unsigned index=0;
-        for(auto&& item: iContainer) {
-          fillElement<0>(item,index,oValues,std::true_type{});
-          ++index;
-        }
-        return iContainer.size();
-      }
-      
-      template<int I>
-      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using Type = typename std::tuple_element<I,Layout>::type::type;
-        oValues[I] = new Type[iSize];
-        presize<I+1>(oValues,iSize, std::conditional_t<I+1==sizeof...(Args),
-                     std::false_type,
-                     std::true_type>{});
-      }
-      template<int I>
-      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::false_type) {}
-      
-      template<int I, typename E>
-      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using ColumnType = typename std::tuple_element<I,Layout>::type;
-        using Type = typename ColumnType::type;
-        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
-        *pElement = value_for_column(iItem, static_cast<ColumnType*>(nullptr));
-        fillElement<I+1>(iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
-                         std::false_type,
-                         std::true_type>{});
-      }
-      template<int I, typename E>
-      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
-      
-      
-      template<typename T, typename F>
-      static size_t fillUsingFiller(F& iFiller, std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
-        presize<0>(oValues,iContainer.size(),std::true_type{});
-        unsigned index=0;
-        for(auto&& item: iContainer) {
-          fillElementUsingFiller<0>(iFiller, item,index,oValues,std::true_type{});
-          ++index;
-        }
-        return iContainer.size();
-      }
-      
-      template<int I, typename E, typename F>
-      static void fillElementUsingFiller(F& iFiller, E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using ColumnType = typename std::tuple_element<I,Layout>::type;
-        using Type = typename ColumnType::type;
-        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
-        *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
-        fillElementUsingFiller<I+1>(iFiller,iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
-                                    std::false_type,
-                                    std::true_type>{});
-      }
-      template<int I, typename E, typename F>
-      static void fillElementUsingFiller(F&, E const& , size_t , std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
-      
-    };
-  };
-  
-  
-  template <int I, typename TV, typename T>
-  struct TableViewFiller {
-    static void fillArray( std::array<void*, TV::kNColumns>& iArray,  T const& iTable) {
-      using Layout = typename TV::Layout;
-      using ElementType = typename std::tuple_element<I, Layout>::type;
-      //iArray[I] = iTable.columnAddress<ElementType>();
-      iArray[I] = iTable.columnAddressWorkaround(static_cast<ElementType*>(nullptr));
-      TableViewFiller<I-1, TV, T>::fillArray(iArray, iTable);
-    }
-  };
-  template <typename TV, typename T>
-  struct TableViewFiller<0,TV, T> {
-    static void fillArray( std::array<void*, TV::kNColumns>& iArray, T const& iTable) {
-      using Layout = typename TV::Layout;
-      using ElementType = typename std::tuple_element<0, Layout>::type;
-      //iArray[0] = iTable.columnAddress<ElementType>();
-      iArray[0] = iTable.columnAddressWorkaround(static_cast<ElementType*>(nullptr));
-    }
   };
   
   
   template <typename... Args>
   class TableView {
-    
-    std::array<void*, sizeof...(Args)> m_values;
-    unsigned int m_size;
     
   public:
     using Layout = std::tuple<Args...>;
@@ -294,12 +296,16 @@ namespace soa {
     template <typename... OArgs>
     TableView( Table<OArgs...> const& iTable):
     m_size(iTable.size()) {
-      TableViewFiller<sizeof...(Args)-1, TableView<Args...>, Table<OArgs...>>::fillArray(m_values, iTable);
+      fillArray<0>(iTable,std::true_type{});
     }
     TableView( unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray):
     m_size(iSize),
     m_values(iArray) {}
-    
+
+    TableView( unsigned int iSize, std::array<void const*, sizeof...(Args)>& iArray):
+    m_size(iSize),
+    m_values(iArray) {}
+
     unsigned int size() const {
       return m_size;
     }
@@ -311,16 +317,30 @@ namespace soa {
     
     template<typename U>
     ColumnValues<typename U::type> column() const {
-      return ColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
-    }
-    
-    template<typename U>
-    void * columnAddress() const {
-      return m_values[impl::GetIndex<0,U,Layout>::index];
+      return ColumnValues<typename U::type>{static_cast<typename U::type const*>(columnAddress<U>()), m_size};
     }
     
     const_iterator begin() const { return const_iterator{m_values}; }
     const_iterator end() const { return const_iterator{m_values,size()}; }
+    
+  private:
+    std::array<void const*, sizeof...(Args)> m_values;
+    unsigned int m_size;
+
+    template<typename U>
+    void const* columnAddress() const {
+      return m_values[impl::GetIndex<0,U,Layout>::index];
+    }
+
+    template <int I, typename T>
+    void fillArray( T const& iTable, std::true_type) {
+      using ElementType = typename std::tuple_element<I, Layout>::type;
+      m_values[I] = iTable.columnAddressWorkaround(static_cast<ElementType const*>(nullptr));
+      fillArray<I+1>(iTable, std::conditional_t<I+1<sizeof...(Args), std::true_type, std::false_type>{});
+    }
+    template <int I, typename T>
+    void fillArray( T const& iTable, std::false_type) {}
+
     
   };
   
@@ -329,6 +349,7 @@ namespace soa {
   TableView<U...> Table<T...>::view() const {
     return TableView<U...>{*this};
   };
+  
   /* Table Type Manipulation */
   template <typename T1, typename T2> struct AddColumns;
   template <typename... T1, typename... T2>

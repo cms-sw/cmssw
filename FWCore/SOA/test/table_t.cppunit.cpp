@@ -87,7 +87,7 @@ void testTable::rowviewCtrTest()
   float phi = 1.5;
   std::string label { "foo" };
   
-  std::array<void*, 4> variables{ {&id, &eta, &phi, &label} };
+  std::array<void const*, 4> variables{ {&id, &eta, &phi, &label} };
   
   edm::soa::RowView<ts::ID,ts::Eta,ts::Phi,ts::Label> rv{variables};
   

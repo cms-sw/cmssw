@@ -52,6 +52,27 @@ namespace impl {
       iArray[0] = p+iStep;
     }
   };
+
+  template<int I, typename... Args>
+  struct ConstTableItrAdvance {
+    using Layout = std::tuple<Args...>;
+    static void advance(std::array<void const*, sizeof...(Args)>& iArray, long iStep) {
+      using Type = typename std::tuple_element<I,Layout>::type::type;
+      ConstTableItrAdvance<I-1,Args...>::advance(iArray,iStep);
+      auto p = static_cast<Type const*>( iArray[I]);
+      iArray[I] = p+iStep;
+    }
+  };
+  
+  template<typename... Args>
+  struct ConstTableItrAdvance<0,Args...> {
+    using Layout = std::tuple<Args...>;
+    static void advance(std::array<void const*, sizeof...(Args)>& iArray, long iStep) {
+      using Type = typename std::tuple_element<0,Layout>::type::type;
+      auto p = static_cast<Type const*>( iArray[0]);
+      iArray[0] = p+iStep;
+    }
+  };
 }
   
   
@@ -96,21 +117,21 @@ public:
 template <typename... Args>
 class ConstTableItr {
   using Layout = std::tuple<Args...>;
-  std::array<void*, sizeof...(Args)> m_values;
+  std::array<void const*, sizeof...(Args)> m_values;
 public:
   using value_type = RowView<Args...>;
   
-  explicit ConstTableItr( std::array<void*, sizeof...(Args)> const& iValues):
+  explicit ConstTableItr( std::array<void const*, sizeof...(Args)> const& iValues):
   m_values{iValues} {}
   
-  ConstTableItr( std::array<void*, sizeof...(Args)> const& iValues, long iOffset):
+  ConstTableItr( std::array<void const*, sizeof...(Args)> const& iValues, long iOffset):
   m_values{iValues} {
-    impl::TableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, iOffset);
+    impl::ConstTableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, iOffset);
   }
 
-  ConstTableItr( std::array<void*, sizeof...(Args)> const& iValues, unsigned int iOffset):
+  ConstTableItr( std::array<void const*, sizeof...(Args)> const& iValues, unsigned int iOffset):
   m_values{iValues} {
-    impl::TableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, static_cast<long>(iOffset));
+    impl::ConstTableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, static_cast<long>(iOffset));
   }
 
   value_type operator*() const {
@@ -118,7 +139,7 @@ public:
   }
   
   ConstTableItr& operator++() {
-    impl::TableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, 1);
+    impl::ConstTableItrAdvance<sizeof...(Args)-1, Args...>::advance(m_values, 1);
     return *this;
   }
   
