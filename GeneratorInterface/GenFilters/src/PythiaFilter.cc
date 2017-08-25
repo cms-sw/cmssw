@@ -1,5 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -58,20 +59,20 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	   p != myGenEvent->particles_end(); ++p ) {
-       HepMC::FourVector mom = zboost((*p)->momentum());
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
        rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
        
        if ( abs((*p)->pdg_id()) == particleID 
 	    && mom.rho() > minpcut 
 	    && mom.rho() < maxpcut
-	    && mom.perp() > minptcut 
-	    && mom.perp() < maxptcut
+	    && (*p)->momentum().perp() > minptcut 
+	    && (*p)->momentum().perp() < maxptcut
 	    && mom.eta() > minetacut
 	    && mom.eta() < maxetacut 
 	    && rapidity > minrapcut
 	    && rapidity < maxrapcut 
-	    && mom.phi() > minphicut
-	    && mom.phi() < maxphicut ) {
+	    && (*p)->momentum().phi() > minphicut
+	    && (*p)->momentum().phi() < maxphicut ) {
 	 
          
 	 
@@ -121,14 +122,4 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (accepted){
    return true; } else {return false;}
 
-}
-
-HepMC::FourVector PythiaFilter::zboost(const HepMC::FourVector& mom) {
-   //Boost this Lorentz vector (from TLorentzVector::Boost)
-   double b2 = betaBoost*betaBoost;
-   double gamma = 1.0 / sqrt(1.0 - b2);
-   double bp = betaBoost*mom.pz();
-   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
-
-   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }

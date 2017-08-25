@@ -1,6 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaMomDauFilter.h"
-
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/PythiaWrapper6_4.h"
@@ -68,8 +68,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();  p != myGenEvent->particles_end(); ++p ) {
      
   if( (*p)->pdg_id() != particleID ) continue ;
-  HepMC::FourVector mom = zboost((*p)->momentum());
-  if( mom.perp() >  mom_minptcut  && mom.perp() <  mom_maxptcut  && mom.eta()  >  mom_minetacut &&  mom.eta()  <  mom_maxetacut ){ 
+  HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+  if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  && mom.eta()  >  mom_minetacut &&  mom.eta()  <  mom_maxetacut ){ 
    mom_accepted = true;
    ndauac = 0;
    ndau   = 0;
@@ -88,8 +88,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         ++ndes;        
         for( unsigned int i=0; i<desIDs.size(); ++i) {
          if( (*des)->pdg_id() != desIDs[i] ) continue ;
-         HepMC::FourVector dau_i = zboost((*des)->momentum());
-         if( dau_i.perp() >  minptcut  && dau_i.perp() <  maxptcut  && dau_i.eta()  >  minetacut &&  dau_i.eta()  <  maxetacut ) {
+         HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(),betaBoost);
+         if( (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  && dau_i.eta()  >  minetacut &&  dau_i.eta()  <  maxetacut ) {
           ++ndesac;
           break;
 	  } 
@@ -113,8 +113,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
        
        if( (*p)->pdg_id() != -particleID ) continue ;
-       HepMC::FourVector mom = zboost((*p)->momentum());
-       if( mom.perp() >  mom_minptcut  && mom.perp() <  mom_maxptcut  &&  mom.eta()  >  mom_minetacut && mom.eta()  <  mom_maxetacut ){ 
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  &&  mom.eta()  >  mom_minetacut && mom.eta()  <  mom_maxetacut ){ 
        mom_accepted = true;
        ndauac = 0;
        ndau = 0;
@@ -145,8 +145,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
 	     if( has_antipart == 0 ) IDanti = desIDs[i];
 	     if( (*des)->pdg_id() != IDanti ) continue ;
-             HepMC::FourVector dau_i = zboost((*des)->momentum());
-	     if(   dau_i.perp() >  minptcut  && dau_i.perp() <  maxptcut  &&  dau_i.eta()  >  minetacut && dau_i.eta()  <  maxetacut ) {
+             HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(),betaBoost);
+	     if(   (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  &&  dau_i.eta()  >  minetacut && dau_i.eta()  <  maxetacut ) {
 	       ++ndesac;
 	       break;
 	     } 
@@ -167,14 +167,4 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    if (accepted){
    return true; } else {return false;}
 
-}
-
-HepMC::FourVector PythiaMomDauFilter::zboost(const HepMC::FourVector& mom) {
-   //Boost this Lorentz vector (from TLorentzVector::Boost)
-   double b2 = betaBoost*betaBoost;
-   double gamma = 1.0 / sqrt(1.0 - b2);
-   double bp = betaBoost*mom.pz();
-   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
-
-   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }

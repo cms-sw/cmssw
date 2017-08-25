@@ -31,7 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
@@ -39,21 +38,14 @@ namespace edm {
   class HepMCProduct;
 }
 
-namespace HepMC {
-   class FourVector;
-}
-
 class PythiaFilter : public edm::EDFilter {
    public:
       explicit PythiaFilter(const edm::ParameterSet&);
-      ~PythiaFilter();
+      ~PythiaFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
-      // ----------member function -----------------------
-       HepMC::FourVector zboost(const HepMC::FourVector&);
-
       // ----------member data ---------------------------
       
        edm::EDGetTokenT<edm::HepMCProduct> token_;

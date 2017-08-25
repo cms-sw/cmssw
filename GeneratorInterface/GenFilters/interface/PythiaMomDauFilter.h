@@ -37,10 +37,6 @@ namespace edm {
       class HepMCProduct;
 }
 
-namespace HepMC {
-   class FourVector;
-}
-
 //
 // class decleration
 //
@@ -48,15 +44,11 @@ namespace HepMC {
 class PythiaMomDauFilter : public edm::EDFilter {
    public:
       explicit PythiaMomDauFilter(const edm::ParameterSet&);
-      ~PythiaMomDauFilter();
+      ~PythiaMomDauFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
-      // ----------memeber function----------------------
-
-       HepMC::FourVector zboost(const HepMC::FourVector&);
-
       // ----------member data ---------------------------
       
       edm::EDGetTokenT<edm::HepMCProduct> label_;
