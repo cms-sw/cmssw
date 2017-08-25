@@ -25,7 +25,7 @@ def customiseFor19029(process):
             producer.maxPhi = cms.double(3.2)
     return process
 
-def customiseFor19824(process) :
+def customiseFor20269(process) :
     for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
          producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par')
          producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par')
