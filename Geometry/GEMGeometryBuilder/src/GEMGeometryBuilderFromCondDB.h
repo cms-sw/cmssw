@@ -24,7 +24,8 @@ class GEMGeometryBuilderFromCondDB
 
   ~GEMGeometryBuilderFromCondDB();
   
-  GEMGeometry* build(const RecoIdealGeometry& rgeo);
+  void build(const std::shared_ptr<GEMGeometry>& theGeometry,
+	     const RecoIdealGeometry& rgeo );
   
  private:
 
