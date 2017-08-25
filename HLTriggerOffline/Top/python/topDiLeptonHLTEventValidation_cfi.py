@@ -24,7 +24,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Trigger
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
 ### Updating to  HLT paths to be monitored by TOP PAG in 2017                                                                                                               
-        vsPaths      = cms.untracked.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8',
+        vsPaths      = cms.untracked.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v',
                                               'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v']),
 )
 
