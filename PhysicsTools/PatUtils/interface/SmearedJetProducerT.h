@@ -194,6 +194,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             JME::JetResolution resolution;
             JME::JetResolutionScaleFactor resolution_sf;
 
+            const JetCollection& jets = *jets_collection;
+
             if (m_enabled) {
                 if (m_use_txt_files) {
                     resolution = *m_resolution_from_file;
@@ -205,13 +207,13 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
                 if(m_useDeterministicSeed) {
                     unsigned int runNum_uint = static_cast <unsigned int> (event.id().run());
-                    unsigned int evNum_uint = static_cast <unsigned int> (event.id().event()); 
-                    std::uint32_t seed = runNum_uint + 4*evNum_uint;
+                    unsigned int lumiNum_uint = static_cast <unsigned int> (event.id().luminosityBlock());
+                    unsigned int evNum_uint = static_cast <unsigned int> (event.id().event());
+                    unsigned int jet0pt = uint32_t(jets.empty() ? 0 : jets[0].pt()/0.01);
+                    std::uint32_t seed = jet0pt + (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
                     m_random_generator.seed(seed);
                 }
             }
-
-            const JetCollection& jets = *jets_collection;
 
             if (m_genJetMatcher)
                 m_genJetMatcher->getTokens(event);
