@@ -129,12 +129,12 @@ logconnect = cms.untracked.string("sqlite_file:log.db")
 # SiStripFEDErrorsDQM (POPCON Application) #
 ############################################
 
-process.siStripFEDErrorsDQM = cms.EDAnalyzer("SiStripFEDErrorsDQM",
+process.siStripFEDErrorsDQM = cms.EDAnalyzer("SiStripPopConFEDErrorsDQM",
                                              RunNb = cms.uint32(123815),
-                                             accessDQMFile = cms.bool(True),
-                                             FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Online/123/815/DQM_V0001_SiStrip_R000123815.root"),
-                                             ME_DIR = cms.untracked.string("Run 123815"),
-                                             histoList = cms.VPSet(),
+                                             ##accessDQMFile = cms.bool(True),
+                                             ##FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Online/123/815/DQM_V0001_SiStrip_R000123815.root"),
+                                             ##ME_DIR = cms.untracked.string("Run 123815"),
+                                             ##histoList = cms.VPSet(),
                                              Threshold = cms.untracked.double(0.0),
                                              Debug = cms.untracked.uint32(1)
                                              )

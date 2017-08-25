@@ -791,6 +791,8 @@ RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
+
 RAWMINIAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
@@ -801,6 +803,7 @@ RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
     'keep FEDRawDataCollection_rawDataCollector_*_*',
     'keep FEDRawDataCollection_source_*_*'
 ))
+
 
 #
 #
@@ -818,7 +821,7 @@ RAWAODSIMEventContent = cms.PSet(
 RAWAODSIMEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
+RAWAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
 
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches

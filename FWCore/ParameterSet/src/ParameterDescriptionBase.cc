@@ -24,8 +24,10 @@ namespace edm {
   ParameterDescriptionBase::ParameterDescriptionBase(std::string const& iLabel,
                                                      ParameterTypes iType,
                                                      bool isTracked,
-                                                     bool hasDefault)
-    :label_(iLabel),
+                                                     bool hasDefault,
+                                                     Comment const& iComment)
+    :ParameterDescriptionNode(iComment),
+     label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
      hasDefault_(hasDefault) {
@@ -39,8 +41,10 @@ namespace edm {
   ParameterDescriptionBase::ParameterDescriptionBase(char const* iLabel,
                                                      ParameterTypes iType,
                                                      bool isTracked,
-                                                     bool hasDefault)
-    :label_(iLabel),
+                                                     bool hasDefault,
+                                                     Comment const& iComment)
+    :ParameterDescriptionNode(iComment),
+     label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
      hasDefault_(hasDefault) {

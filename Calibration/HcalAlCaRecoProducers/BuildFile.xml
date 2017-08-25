@@ -20,7 +20,6 @@
 <use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/RecoCandidate"/>
-<use   name="Geometry/EcalAlgo"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>

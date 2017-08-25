@@ -71,6 +71,7 @@ ignore09 = LimitTrackAlgo(None) # ignore Pt09 plots
 # produced for it
 limitSubFolders = {
     "":            limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
+    "tpPtLess09":  limit,  # Efficiency for TrackingParticles with pT < 0.9 GeV
     "allTPEffic":  ignore, # Efficiency with all TrackingParticles
     "bhadron":     limit,  # Efficiency with B-hadron TrackingParticles
     "fromPV":      limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes

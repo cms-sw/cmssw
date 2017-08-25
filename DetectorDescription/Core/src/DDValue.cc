@@ -67,7 +67,6 @@ DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v )
   }
 }
 
-
 DDValue::DDValue( const std::string & name, double val ) 
  : id_( 0 )
 {

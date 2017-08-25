@@ -10,7 +10,7 @@ class DDCompactView;
 class DDLogicalPart;
 
 DDFilteredView::DDFilteredView(const DDCompactView & cpv, const DDFilter& fltr)
-: epv_(cpv), filter_(&fltr)
+  : epv_(cpv), filter_(&fltr)
 {
    parents_.emplace_back(epv_.geoHistory());
 }

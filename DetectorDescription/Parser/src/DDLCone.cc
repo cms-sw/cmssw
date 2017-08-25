@@ -12,7 +12,8 @@ DDLCone::DDLCone( DDLElementRegistry* myreg )
 {}
 
 void
-DDLCone::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLCone::processElement( const std::string& name, const std::string& nmspace,
+			 DDCompactView& cpv )
 {  
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();

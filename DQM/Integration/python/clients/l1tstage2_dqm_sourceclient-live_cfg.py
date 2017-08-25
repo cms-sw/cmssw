@@ -85,6 +85,22 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 #process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
 #--------------------------------------------------
+# Customize for other type of runs
+
+# Cosmic run
+if (process.runType.getRunType() == process.runType.cosmic_run):
+    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_cosmic.root"
+    # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
+    process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
+    process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
+    process.l1tStage2MonitorClient.remove(process.l1TStage2BMTFQualityTests)
+    process.l1tStage2EventInfoClient.DisableL1Systems = cms.vstring("EMTF", "OMTF", "BMTF", "uGMT")
+
+# Heavy-Ion run
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
+
+#--------------------------------------------------
 # L1T Online DQM Schedule
 
 process.schedule = cms.Schedule(

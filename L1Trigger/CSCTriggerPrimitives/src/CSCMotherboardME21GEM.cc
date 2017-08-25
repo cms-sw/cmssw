@@ -781,6 +781,9 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
   {
     lct1 = constructLCTsGEM(bestALCT, gemPad, useOldLCTDataFormat_);
     lct1.setTrknmb(1);
+    lct1.setALCT(bestALCT);
+    lct1.setGEM1(gemPad);
+    lct1.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   }
 
   if ((alct_trig_enable  and secondALCT.isValid()) or
@@ -788,6 +791,9 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
   {
     lct2 = constructLCTsGEM(secondALCT, gemPad, useOldLCTDataFormat_);
     lct2.setTrknmb(2);
+    lct2.setALCT(secondALCT);
+    lct2.setGEM1(gemPad);
+    lct2.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   }
 }
 
@@ -809,6 +815,9 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
   {
     lct1 = constructLCTsGEM(bestCLCT, gemPad, roll, useOldLCTDataFormat_);
     lct1.setTrknmb(1);
+    lct1.setCLCT(bestCLCT);
+    lct1.setGEM1(gemPad);
+    lct1.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   }
 
   if ((clct_trig_enable  and secondCLCT.isValid()) or
@@ -816,6 +825,9 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
     {
     lct2 = constructLCTsGEM(secondCLCT, gemPad, roll, useOldLCTDataFormat_);
     lct2.setTrknmb(2);
+    lct2.setCLCT(secondCLCT);
+    lct2.setGEM1(gemPad);
+    lct2.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   }
 }
 
@@ -925,6 +937,11 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& 
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
+  thisLCT.setALCT(aLCT);
+  thisLCT.setCLCT(cLCT);
+  if (hasPad)   thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
+  if (hasCoPad) thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
+
   return thisLCT;
 }
 

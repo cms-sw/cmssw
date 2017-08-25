@@ -37,13 +37,15 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
@@ -52,8 +54,10 @@ class L1MuBMSectorProcessor;
 class L1MuBMEtaProcessor;
 class L1MuBMWedgeSorter;
 class L1MuBMMuonSorter;
-class BMTrackCand;
 class L1MuRegionalCand;
+class L1MuDTTrack;
+class L1MuDTTrackSegPhi;
+class L1MuDTTrackSegEta;
 
 //              ---------------------
 //              -- Class Interface --
@@ -112,10 +116,11 @@ class L1MuBMTrackFinder {
     /// return configuration
     static const L1MuBMTFConfig* config() { return m_config; }
 
-//    std::vector<BMTrackCand>& getcache0() { return _cache0; }
-
     l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
     l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
+    L1MuBMTrackCollection&       getcache1() { return _cache1; }
+    L1MuBMTrackSegPhiCollection& getcache2() { return _cache2; }
+    L1MuBMTrackSegEtaCollection& getcache3() { return _cache3; }
 
   private:
 
@@ -126,6 +131,10 @@ class L1MuBMTrackFinder {
 
     l1t::RegionalMuonCandBxCollection _cache0;
     l1t::RegionalMuonCandBxCollection _cache;
+    L1MuBMTrackCollection         _cache1;
+    L1MuBMTrackSegPhiCollection   _cache2;
+    L1MuBMTrackSegEtaCollection   _cache3;
+
     L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors
     std::vector<L1MuBMWedgeSorter*>  m_wsvec;        ///< Wedge Sorters

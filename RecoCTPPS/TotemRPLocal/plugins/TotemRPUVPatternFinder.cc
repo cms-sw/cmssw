@@ -21,7 +21,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "RecoCTPPS/TotemRPLocal/interface/FastLineRecognition.h"
 
@@ -38,9 +38,9 @@ class TotemRPUVPatternFinder : public edm::stream::EDProducer<>
   public:
     TotemRPUVPatternFinder(const edm::ParameterSet& conf);
 
-    virtual ~TotemRPUVPatternFinder();
+    ~TotemRPUVPatternFinder() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
     static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:
@@ -167,7 +167,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
       << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
-  ESHandle<TotemRPGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry;
   es.get<VeryForwardRealGeometryRecord>().get(geometry);
   if (geometryWatcher.check(es))
     lrcgn->resetGeometry(geometry.product());
@@ -264,7 +264,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     DetSet<TotemRPUVPattern> &patterns = patternsVector.find_or_insert(rpId);
 
     // "typical" z0 for the RP
-    double z0 = geometry->GetRPDevice(rpId)->translation().z();
+    double z0 = geometry->getRP(rpId)->translation().z();
 
     // u then v recognition
     recognizeAndSelect(TotemRPUVPattern::projU, z0, threshold_U, minPlanesPerProjectionToFit_U, data.hits_U, patterns);
