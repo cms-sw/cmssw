@@ -177,6 +177,8 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   double meanSimTime = sumSimTime/double(nsim);
   double varSimTime = sumSimTimeSq/double(nsim) - meanSimTime*meanSimTime;
   double rmsSimTime = std::sqrt(std::max(0.1*0.1,varSimTime));
+  
+  printf("meanSimTime = %5e, rmsSimTime = %5e\n",meanSimTime,rmsSimTime);
     
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     const auto tkref = TrackCollection.refAt(itk);
@@ -261,8 +263,10 @@ extractTrackVertexTime( const TrackingParticle &tp, const reco::TransientTrack &
   float pathlength = std::sqrt(pathlengthrphi*pathlengthrphi + dz*dz);
   float p = tt.track().p();
   
-  float speed = std::sqrt(1./(1.+m_pion/p))*CLHEP::c_light*CLHEP::s/CLHEP::m;
-  float dt = 1e9*pathlength/speed;
+  float speed = std::sqrt(1./(1.+m_pion/p))*CLHEP::c_light/CLHEP::cm;  //speed in cm/ns
+  float dt = pathlength/speed;
+  
+//   printf("pdgid = %i, time = %5e, dt = %5e\n",pdgid,time,dt);
   
   return time-dt;
 }
