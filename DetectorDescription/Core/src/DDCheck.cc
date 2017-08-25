@@ -14,7 +14,7 @@
 #include "DataFormats/Math/interface/Graph.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
+bool DDCheckLP( const DDLogicalPart & lp , std::ostream & os )
 {
    bool result = false;
    // is it defined or just declared?

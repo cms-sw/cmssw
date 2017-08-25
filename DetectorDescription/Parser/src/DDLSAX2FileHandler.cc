@@ -17,14 +17,14 @@ DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
 }
 
 void
-DDLSAX2FileHandler::init( void )
+DDLSAX2FileHandler::init()
 {
   createDDConstants();
   namesMap_.emplace_back("*** root ***");
   names_.emplace_back(namesMap_.size() - 1);
 }
 
-DDLSAX2FileHandler::~DDLSAX2FileHandler( void )
+DDLSAX2FileHandler::~DDLSAX2FileHandler()
 {}
 
 void

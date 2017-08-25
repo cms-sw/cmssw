@@ -35,6 +35,11 @@ for _eraName, _postfix, _era in _cfg.allEras():
     locals()["_seedProducers"+_postfix] = _seedProd + _cfg.seedProducers(_postfix)
     locals()["_trackProducers"+_postfix] = _trackProd + _cfg.trackProducers(_postfix)
 
+    if _eraName != "trackingPhase2PU140":
+        locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds", "pixelPairElectronSeeds", "stripPairElectronSeeds"]
+    else:
+        locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds"]
+
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
@@ -175,11 +180,9 @@ def _setForEra(module, eraName, era, **kwargs):
         era.toModify(module, **kwargs)
 
 # Seeding layer sets
-def _getSeedingLayers(seedProducers):
-    import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
-
+def _getSeedingLayers(seedProducers, config):
     def _findSeedingLayers(name):
-        prod = getattr(_iterativeTk_cff, name)
+        prod = getattr(config, name)
         if hasattr(prod, "triplets"):
             if hasattr(prod, "layerList"): # merger
                 return prod.layerList.refToPSet_.value()
@@ -190,7 +193,7 @@ def _getSeedingLayers(seedProducers):
 
     seedingLayersMerged = []
     for seedName in seedProducers:
-        seedProd = getattr(_iterativeTk_cff, seedName)
+        seedProd = getattr(config, seedName)
         if hasattr(seedProd, "OrderedHitsFactoryPSet"):
             seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         elif hasattr(seedProd, "seedingHitSets"):
@@ -198,13 +201,23 @@ def _getSeedingLayers(seedProducers):
         else:
             continue
 
-        seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
+        seedingLayers = getattr(config, seedingLayersName).layerList.value()
         for layerSet in seedingLayers:
             if layerSet not in seedingLayersMerged:
                 seedingLayersMerged.append(layerSet)
     return seedingLayersMerged
+import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
+import RecoTracker.IterativeTracking.ElectronSeeds_cff as _ElectronSeeds_cff
 for _eraName, _postfix, _era in _relevantEras:
-    locals()["_seedingLayerSets"+_postfix] = _getSeedingLayers(locals()["_seedProducers"+_postfix])
+    _stdLayers = _getSeedingLayers(locals()["_seedProducers"+_postfix], _iterativeTk_cff)
+    _eleLayers = []
+    for _layer in _getSeedingLayers(locals()["_electronSeedProducers"+_postfix], _ElectronSeeds_cff):
+        if _layer not in _stdLayers:
+            _eleLayers.append(_layer)
+
+    locals()["_seedingLayerSets"+_postfix] = _stdLayers
+    locals()["_seedingLayerSetsForElectrons"+_postfix] = _eleLayers
+
 
 # MVA selectors
 def _getMVASelectors(postfix):
@@ -460,6 +473,18 @@ trackValidatorConversion = trackValidator.clone(
     doPVAssociationPlots = False,
     calculateDrSingleCollection = False,
 )
+from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import convLayerPairs as _convLayerPairs
+def _uniqueFirstLayers(layerList):
+    firstLayers = [layerSet.split("+")[0] for layerSet in layerList]
+    ret = []
+    for l in firstLayers:
+        if not l in ret:
+            ret.append(l)
+    return ret
+# PhotonConversionTrajectorySeedProducerFromSingleLeg keeps only the
+# first hit of the pairs in the seed, bookkeeping those is the best we
+# can do without major further development
+trackValidatorConversion.histoProducerAlgoBlock.seedingLayerSets = _uniqueFirstLayers(_convLayerPairs.layerList.value())
 # relax lip and tip
 for n in ["Eta", "Phi", "Pt", "VTXR", "VTXZ"]:
     pset = getattr(trackValidatorConversion.histoProducerAlgoBlock, "TpSelectorForEfficiencyVs"+n)
@@ -472,6 +497,11 @@ trackValidatorGsfTracks = trackValidatorConversion.clone(
     label = ["electronGsfTracks"],
     label_tp_effic = "trackingParticlesElectron",
 )
+# add the additional seeding layers from ElectronSeeds
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorGsfTracks.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=trackValidator.histoProducerAlgoBlock.seedingLayerSets.value()+locals()["_seedingLayerSetsForElectrons"+_postfix])
+
+
 
 # for B-hadrons
 trackValidatorBHadron = trackValidator.clone(

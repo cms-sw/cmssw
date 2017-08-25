@@ -16,7 +16,7 @@ struct DDSelLevelCollector
   bool isChild_;
   std::vector<DDPartSelRegExpLevel>* p_;
 
-  std::vector<DDPartSelRegExpLevel>* path(std::vector<DDPartSelRegExpLevel>* p=0) {
+  std::vector<DDPartSelRegExpLevel>* path(std::vector<DDPartSelRegExpLevel>* p=nullptr) {
     if (p) {
       p_=p; 
       namespace_="";
@@ -29,10 +29,10 @@ struct DDSelLevelCollector
   }
 };
 
-
 void noNameSpace(char const * /*first*/, char const* /*last*/) {
   DDI::Singleton<DDSelLevelCollector>::instance().namespace_="";
 }
+
 /* Functor for the parser; it does not consume memory -
   pointers are only used to store references to memory
   managed elsewhere 

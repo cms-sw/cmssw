@@ -128,17 +128,17 @@ public:
 
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
-		 std::string copyno,
+		 const std::string& copyno,
 		 const DDTranslation & trans,
 		 const DDRotation & rot,
-		 const DDDivision * div = NULL);
+		 const DDDivision * div = nullptr);
   
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 int copyno,
 		 const DDTranslation & trans,
 		 const DDRotation & rot,
-		 const DDDivision * div = NULL);
+		 const DDDivision * div = nullptr);
   
   // ************************************************************************
   // UNSTABLE STUFF below! DON'T USE!

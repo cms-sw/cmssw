@@ -1,11 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedPolyhedra.h"
-
-#include <stddef.h>
-#include <iostream>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -17,6 +10,12 @@
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 

@@ -76,7 +76,7 @@ public:
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
-  std::vector<std::array<LUT, OUTPUT_LUT_SIZE>> outputLUT_;
+  std::vector<std::vector<LUT>> outputLUT_;
   std::vector<RCTdecompression> hcaluncomp_;
 
   std::set<HcalDetId> plan1_towers_;

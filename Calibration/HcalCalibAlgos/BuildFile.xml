@@ -12,8 +12,7 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/HcalDigi"/>
 <use   name="DataFormats/HcalRecHit"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/Records"/>
 <use   name="CondTools/Hcal"/>
 <export>

@@ -4,10 +4,6 @@
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-#include <stddef.h>
-#include <iomanip>
-#include <vector>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -21,6 +17,10 @@
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 #include "Math/GenVector/Rotation3D.h"
+
+#include <cstddef>
+#include <iomanip>
+#include <vector>
 
 void 
 DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos ) 

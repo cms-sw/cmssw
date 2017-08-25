@@ -1,11 +1,10 @@
 #include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include <map>
 #include <utility>
 #include <vector>
-
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 class DDCompactView;
 

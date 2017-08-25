@@ -1,11 +1,10 @@
 #include "DetectorDescription/RegressionTest/src/SaxToDom2.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include <xercesc/util/XMLString.hpp>
 
 #include <iostream>
 #include <map>
 #include <string>
-
-#include "DetectorDescription/RegressionTest/src/TagName.h"
-#include <xercesc/util/XMLString.hpp>
 
 using namespace std;
 

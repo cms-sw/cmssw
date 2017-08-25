@@ -27,40 +27,6 @@
 
 using namespace std;
 XERCES_CPP_NAMESPACE_USE
-//
-//_____ following removed as a xalan-c component_____________________
-//
-// xalan-c init
-//#include <xalanc/Include/PlatformDefinitions.hpp>
-//#include <xalanc/XPath/XPathEvaluator.hpp>
-//#include <xercesc/framework/LocalFileInputSource.hpp>
-//XALAN_USING_XERCES(XMLPlatformUtils)
-//#include <xalanc/XSLT/XSLTInputSource.hpp>
-//#include <xalanc/PlatformSupport/XSLException.hpp>
-//#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
-//#include <xalanc/XPath/XObject.hpp>
-//#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
-//#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
-//#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
-//using namespace xalanc;
-
-
-
-/*
-LutXml & LutXml::operator+=( const LutXml & other)
-{
-  DOMNodeList * _children = other.getDocumentConst()->getChildNodes();
-  int _length = _children->getLength();
-  std::cout << "Nodes added:" << _length << std::endl;
-  DOMNode * _node;
-  for(int i=0;i!=_length;i++){
-    _node = _children->item(i)->cloneNode(true);
-    this->getDocument()->getDocumentElement()->appendChild(_node);
-  }
-  return *this;
-}
-*/
-
 
 
 LutXml::Config::_Config()
@@ -78,8 +44,6 @@ LutXml::Config::_Config()
 
   char timebuf[50];
   time_t _time = time( NULL );
-  //time_t _time = 1193697120;
-  //strftime( timebuf, 50, "%c", gmtime( &_time ) );
   strftime( timebuf, 50, "%Y-%m-%d %H:%M:%S", gmtime( &_time ) );
   creationstamp = timebuf;
 
@@ -108,10 +72,8 @@ LutXml::LutXml( std::string filename ) : XMLDOMBlock( filename )
 
 LutXml::~LutXml()
 {
-  //delete brickElem; // belongs to document that belongs to parser???
   XMLString::release(&root);
   XMLString::release(&brick);
-  //delete lut_map;
 }
 
 
@@ -120,137 +82,80 @@ void LutXml::init( void )
   root  = XMLString::transcode("CFGBrickSet");
   brick = XMLString::transcode("CFGBrick");
   brickElem = 0;
-  //lut_map = 0;
 }
 
 
 std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
-   /*
-  if (lut_map){
-    return &(*lut_map)[det_id];
-  }
-  else{
-    std::cerr << "LUT not found, null pointer is returned" << std::endl;
-    return 0;
-  }
-  */
    if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
    edm::LogError("LutXml") << "LUT not found, null pointer is returned";
    return 0;
 }
 
-//
-//_____ following removed as a xalan-c component_____________________
-//
-/*
-std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel ){
-  std::vector<unsigned int> _lut;
-  //write();
-
-  std::string _context = "/CFGBrickSet";
-  char buf[1024];
-  sprintf(buf,
-	  "CFGBrick[Parameter[@name='LUT_TYPE']=%d and Parameter[@name='CRATE']=%d and Parameter[@name='SLOT']=%d and Parameter[@name='TOPBOTTOM']=%d and Parameter[@name='FIBER']=%d and Parameter[@name='FIBERCHAN']=%d]/Data",
-	  lut_type, crate, slot, topbottom, fiber, fiber_channel);
-  std::string _expression(buf);
-
-  std::cout << _expression << std::endl;
-
-  const XObjectPtr theResult = eval_xpath(_context,_expression);
-
-  if(theResult.null() == false){
-    std::cout << std::endl << theResult->str() << std::endl;
-  }
-
-  const XalanDOMString & _string = theResult->str();
-  int _string_length = _string.length();
-  XalanVector<char> _str;
-  _string.transcode(_str);
-  unsigned int _base = 16;
-  unsigned int _item=0;
-  for (int i=0; i!=_string_length; i++){
-    bool _range;
-    char ch_cur = _str[i];
-    if (_base==16) _range = (ch_cur>='0' and ch_cur<='9') || (ch_cur>='a' and ch_cur<='f') || (ch_cur>='A' and ch_cur<='F');
-    else if (_base==10) _range = (ch_cur>='0' and ch_cur<='9');
-    if ( _range ){
-      if ( ch_cur>='a' and ch_cur<='f' ) ch_cur += 10-'a';
-      else if ( ch_cur>='A' and ch_cur<='F' ) ch_cur += 10-'A';
-      else if ( ch_cur>='0' and ch_cur<='9' ) ch_cur += -'0';
-      _item = _item*_base;
-      _item += ch_cur;
-      bool last_digit = false;
-      if ( (i+1)==_string_length ) last_digit=true;
-      else{
-	char ch_next = _str[i+1];
-	bool _range_next;
-	if (_base==16) _range_next = (ch_next>='0' and ch_next<='9') || (ch_next>='a' and ch_next<='f') || (ch_next>='A' and ch_next<='F');
-	else if (_base==10) _range_next = (ch_next>='0' and ch_next<='9');
-	if ( !_range_next ) last_digit=true;
-      }
-      if (last_digit){
-	_lut.push_back(_item);
-	_item=0;
-      }
-    }
-  }
-
-  std::cout << "### ";
-  for (std::vector<unsigned int>::const_iterator l=_lut.begin(); l!=_lut.end(); l++){
-    std::cout << *l << " ";
-  }
-  std::cout << std::endl << std::endl;
-
-  return _lut;
-}
-*/
 
 
 // checksums_xml is 0 by default
 void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
 {
-  DOMElement * rootElem = document -> getDocumentElement();
+    DOMElement * rootElem = document -> getDocumentElement();
+    
+    brickElem = document->createElement( XMLProcessor::_toXMLCh("CFGBrick") );
+    rootElem->appendChild(brickElem);
 
-  brickElem = document->createElement( XMLProcessor::_toXMLCh("CFGBrick") );
-  rootElem->appendChild(brickElem);
+    addParameter( "CREATIONTAG", "string", _config.creationtag );
+    addParameter( "CREATIONSTAMP", "string", _config.creationstamp );
+    addParameter( "FORMATREVISION", "string", _config.formatrevision );
+    addParameter( "TARGETFIRMWARE", "string", _config.targetfirmware );
+    addParameter( "GENERALIZEDINDEX", "int", _config.generalizedindex );
+    addParameter( "CRATE", "int", _config.crate );
+    addParameter( "SLOT", "int", _config.slot );
 
-  addParameter( "IETA", "int", _config.ieta );
-  addParameter( "IPHI", "int", _config.iphi );
-  addParameter( "CRATE", "int", _config.crate );
-  addParameter( "SLOT", "int", _config.slot );
-  addParameter( "TOPBOTTOM", "int", _config.topbottom );
-  addParameter( "LUT_TYPE", "int", _config.lut_type );
-  addParameter( "CREATIONTAG", "string", _config.creationtag );
-  addParameter( "CREATIONSTAMP", "string", _config.creationstamp );
-  addParameter( "FORMATREVISION", "string", _config.formatrevision );
-  addParameter( "TARGETFIRMWARE", "string", _config.targetfirmware );
-  addParameter( "GENERALIZEDINDEX", "int", _config.generalizedindex );
-  addParameter( "CHECKSUM", "string", get_checksum( _config.lut ) );
+    if(checksums_xml) {
+	addParameter( "CHECKSUM", "string", get_checksum( _config.lut ) );
+    }
 
-  if(_config.lut_type==1){ // linearizer LUT
-    addParameter( "FIBER", "int", _config.fiber );
-    addParameter( "FIBERCHAN", "int", _config.fiberchan );
-    addParameter( "DEPTH", "int", _config.depth );
-    addData( "128", "hex", _config.lut );
-  }
-  else if(_config.lut_type==2){ // compression LUT
-  addParameter( "SLB", "int", _config.fiber );
-  addParameter( "SLBCHAN", "int", _config.fiberchan );
-    addData( "1024", "hex", _config.lut );
-  }
-  else{
-    edm::LogError("LutXml") << "Unknown LUT type...produced XML will be incorrect";
-  }
+    if(_config.lut_type==1){ // linearizer LUT
+	addParameter( "IETA", "int", _config.ieta );
+	addParameter( "IPHI", "int", _config.iphi );
+	addParameter( "TOPBOTTOM", "int", _config.topbottom );
+	addParameter( "LUT_TYPE", "int", _config.lut_type );
+	addParameter( "FIBER", "int", _config.fiber );
+	addParameter( "FIBERCHAN", "int", _config.fiberchan );
+	addParameter( "DEPTH", "int", _config.depth );
+	addData( to_string(_config.lut.size()), "hex", _config.lut );
+    }
+    else if(_config.lut_type==2){ // compression LUT
+	addParameter( "IETA", "int", _config.ieta );
+	addParameter( "IPHI", "int", _config.iphi );
+	addParameter( "TOPBOTTOM", "int", _config.topbottom );
+	addParameter( "LUT_TYPE", "int", _config.lut_type );
+	addParameter( "SLB", "int", _config.fiber );
+	addParameter( "SLBCHAN", "int", _config.fiberchan );
+	addData( to_string(_config.lut.size()), "hex", _config.lut );
+    }
+    else if(_config.lut_type==3){ // channel masks
+	addParameter( "MASK_TYPE", "string", "TRIGGERCHANMASK" );
+	addData( to_string(_config.mask.size()), "hex", _config.mask );
+    }
+    else if(_config.lut_type==4){ // adc threshold for tdc mask
+	addParameter( "THRESH_TYPE", "string", "TRIGINTIME" );
+	addData( to_string(_config.mask.size()), "hex", _config.mask );
+    }
+    else if(_config.lut_type==5){ // tdc mask
+	addParameter( "TDCMAP_TYPE", "string", "TRIGINTIME" );
+	addData( to_string(_config.mask.size()), "hex", _config.mask );
+    }
+    else{
+	edm::LogError("LutXml") << "Unknown LUT type...produced XML will be incorrect";
+    }
 
-  // if the pointer to the checksums XML was given,
-  // add the checksum to it
-  // checksums_xml is 0 unless explicitely given
-  if ( checksums_xml ){
+
+    if(checksums_xml) {
     add_checksum( checksums_xml->getDocument(), _config );
   }
 }
 
-DOMElement * LutXml::addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut )
+template <typename T>
+DOMElement * LutXml::addData( std::string _elements, std::string _encoding, const T& _lut )
 {
   DOMElement * child    = document -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh( _elements ) );
@@ -258,11 +163,10 @@ DOMElement * LutXml::addData( std::string _elements, std::string _encoding, cons
 
   std::stringstream buf;
 
-  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();++iter){
-    char buf2[8];
-    sprintf(buf2,"%x",(*iter));
+  for (const auto& iter : _lut){
+    char buf2[16];
+    sprintf(buf2,"%lx",uint64_t(iter));
     buf << buf2 << " ";
-    //buf << (*iter) << " ";
   }
 
   std::string _value = buf . str();
@@ -276,12 +180,8 @@ DOMElement * LutXml::addData( std::string _elements, std::string _encoding, cons
 }
 
 
-
 DOMElement * LutXml::add_checksum( DOMDocument * parent, Config & config )
 {
-  //template
-  //   <Data crate='0' slot='2' fpga='1' fiber='1' fiberchan='0' luttype='1' elements='1' encoding='hex'>c6cf91b39e3bff21623fb7366efda1fd</Data>
-  //
   DOMElement * child    = parent -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("crate"),     XMLProcessor::_toXMLCh( config.crate ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("slot"),      XMLProcessor::_toXMLCh( config.slot ) );
@@ -342,9 +242,17 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
   md5_byte_t digest[16];
   md5_init(&md5er);
   // linearizer LUT:
-  if ( lut . size() == 128 ){
+  if ( lut . size() == 128){
     unsigned char tool[2];
     for (int i=0; i<128; i++) {
+      tool[0]=lut[i]&0xFF;
+      tool[1]=(lut[i]>>8)&0xFF;
+      md5_append(&md5er,tool,2);
+    }
+  }
+  else if ( lut . size() == 256){
+    unsigned char tool[2];
+    for (int i=0; i<256; i++) {
       tool[0]=lut[i]&0xFF;
       tool[1]=(lut[i]>>8)&0xFF;
       md5_append(&md5er,tool,2);
@@ -358,23 +266,28 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
       md5_append(&md5er,&tool,1);
     }
   }
+  else if ( lut . size() == 2048 ){
+    unsigned char tool;
+    for (int i=0; i<2048; i++) {
+      tool=lut[i]&0xFF;
+      md5_append(&md5er,&tool,1);
+    }
+  }
   else{
-    edm::LogError("LutXml") << "Irregular LUT size, do not know how to compute checksum, exiting...";
+
+    edm::LogError("LutXml") << "Irregular LUT size, "<< lut.size() << " , do not know how to compute checksum, exiting...";
     exit(-1);
   }
   md5_finish(&md5er,digest);
   for (int i=0; i<16; i++) result << std::hex << (((int)(digest[i]))&0xFF);
 
-  //std::cout << "CHECKSUM: ";
-  //std::cout << result . str();
-  //std::cout << std::endl;
 
   return result . str();
 }
 
 
 int LutXml::test_access( std::string filename ){
-  //create_lut_map();
+
   edm::LogInfo("LutXml") << "Created map size: " << lut_map.size();
 
   struct timeval _t;
@@ -415,45 +328,10 @@ int LutXml::test_access( std::string filename ){
   gettimeofday( &_t, NULL );
   edm::LogInfo("LutXml") << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec";
 
-  //std::cout << std::endl;
-  //for (std::vector<unsigned int>::const_iterator i=l->begin();i!=l->end();i++){
-  //  std::cout << *i << " ";
-  //}
-  //std::cout << std::endl;
 
   return 0;
 }
 
-//
-//_____ following removed as a xalan-c component_____________________
-//
-/*
-int LutXml::test_xpath( std::string filename ){
-  // http://svn.apache.org/repos/asf/xalan/c/tags/Xalan-C_1_10_0/samples/SimpleXPathAPI/SimpleXPathAPI.cpp
-  
-  XMLProcessor::getInstance();
-
-  read_xml_file_xalan( filename );
-
-  std::string _context = "/CFGBrickSet";
-  //std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1 and Parameter[@name='IPHI']=19]/Data";
-  std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1]/Data";
-  std::cout << _expression << std::endl;
-
-  const XObjectPtr theResult = eval_xpath(_context,_expression);
-
-  if(theResult.null() == false){
-    std::cout << "Number of nodes: " << theResult->nodeset().getLength() << std::endl;
-    
-    std::cout << "The std::string value of the result is:"
-	 << std::endl
-	 << theResult->str()
-	 << std::endl
-	 << std::endl;
-  }
-  return 0;
-}
-*/
 
 HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth){
   HcalSubdetector result;
@@ -467,8 +345,8 @@ HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth){
   else if (crate==0 || crate==1 || crate==4 || crate==5 || crate==10 || crate==11 || crate==14 || crate==15 || crate==17){
     if (eta<16) result=HcalBarrel;
     else if (eta>16) result=HcalEndcap;
-    else if (eta==16 && depth!=3) result=HcalBarrel;
-    else if (eta==16 && depth==3) result=HcalEndcap;
+    else if (eta==16 && depth<3)  result=HcalBarrel;
+    else if (eta==16 && depth>=3) result=HcalEndcap;
     else{
       edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
       exit(-1);
@@ -512,9 +390,9 @@ int LutXml::create_lut_map( void ){
       int depth=-99;
       int crate=-99;
       int lut_type=-99;
+      int slb=-99;
       HcalSubdetector subdet;
       for(int j=0; j!=n_of_par; j++){
-	//std::cout << "DEBUG: i,j: " << i << ", " << j << std::endl;
 	DOMElement * aPar = (DOMElement *)(par_list->item(j));
 	char * aName = XMLString::transcode( aPar->getAttribute(XMLProcessor::_toXMLCh("name")) );
 	if ( strcmp(aName, "IETA")==0 ) ieta=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
@@ -522,13 +400,12 @@ int LutXml::create_lut_map( void ){
 	if ( strcmp(aName, "DEPTH")==0 ) depth=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
 	if ( strcmp(aName, "CRATE")==0 ) crate=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
 	if ( strcmp(aName, "LUT_TYPE")==0 ) lut_type=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+	if ( strcmp(aName, "SLB")==0 ) slb=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
       }
       subdet=subdet_from_crate(crate,abs(ieta),depth);
-      //std::cerr << "DEBUG: eta,phi,depth,crate,type,subdet: " << ieta << ", " << iphi << ", " << depth << ", " << crate << ", " << lut_type << ", " << subdet << std::endl;
       DOMElement * _data = (DOMElement *)(aBrick->getElementsByTagName(XMLString::transcode("Data"))->item(0));
       char * _str = XMLString::transcode(_data->getFirstChild()->getNodeValue());
-      //std::cout << _str << std::endl;
-      //
+
       // get the LUT vector
       int _string_length = strlen(_str);
       std::vector<unsigned int> _lut;
@@ -567,9 +444,11 @@ int LutXml::create_lut_map( void ){
 	_key = _id.rawId();
       }
       else if (lut_type==2){
-	HcalTrigTowerDetId _id(ieta,iphi);
+	int version=( abs(ieta)>29 && slb!=12 && crate>20) ? 1: 0;
+	HcalTrigTowerDetId _id(ieta,iphi,10*version);
 	_key = _id.rawId();
       }
+      else continue;
       lut_map.insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
     }
   }

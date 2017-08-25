@@ -176,13 +176,16 @@ def convertToSingleModuleEndPaths(process):
     toRemove =[]
     added = []
     for n,ep in process.endpaths_().iteritems():
+        tsks = []
+        ep.visit(cms.TaskVisitor(tsks))
+
         names = ep.moduleNames()
         if 1 == len(names):
             continue
         toRemove.append(n)
         for m in names:
             epName = m+"_endpath"
-            setattr(process,epName,cms.EndPath(getattr(process,m)))
+            setattr(process,epName,cms.EndPath(getattr(process,m),*tsks))
             added.append(epName)
 
     s = process.schedule_()
@@ -193,6 +196,8 @@ def convertToSingleModuleEndPaths(process):
         for n in added:
             pathNames.append(n)
         newS = cms.Schedule(*[getattr(process,n) for n in pathNames])
+        if s._tasks:
+          newS.associate(*s._tasks)
         process.setSchedule_(newS)
 
     for r in toRemove:
@@ -371,10 +376,12 @@ if __name__ == "__main__":
             process = cms.Process("TEST")
             process.a = cms.EDAnalyzer("A")
             process.b = cms.EDAnalyzer("B")
-            process.ep = cms.EndPath(process.a+process.b)
+            process.c = cms.EDProducer("C")
+            process.ep = cms.EndPath(process.a+process.b,cms.Task(process.c))
+            self.assertEqual(process.ep.dumpPython(None),'cms.EndPath(process.a+process.b, cms.Task(process.c))\n')
             convertToSingleModuleEndPaths(process)
             self.assertEqual(False,hasattr(process,"ep"))
-            self.assertEqual(process.a_endpath.dumpPython(None),'cms.EndPath(process.a)\n')
-            self.assertEqual(process.b_endpath.dumpPython(None),'cms.EndPath(process.b)\n')
+            self.assertEqual(process.a_endpath.dumpPython(None),'cms.EndPath(process.a, cms.Task(process.c))\n')
+            self.assertEqual(process.b_endpath.dumpPython(None),'cms.EndPath(process.b, cms.Task(process.c))\n')
 
     unittest.main()

@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
-#include <assert.h>
+#include <cassert>
 #include <ostream>
 
 #include "DetectorDescription/Core/interface/DDBase.h"

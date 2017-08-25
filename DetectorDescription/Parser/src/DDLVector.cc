@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLVector.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <utility>

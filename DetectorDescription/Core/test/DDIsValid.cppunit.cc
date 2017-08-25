@@ -133,7 +133,6 @@ namespace {
   }
 }
 
-
 namespace {
   // the static dumper 
   // to be used in the real application
@@ -154,7 +153,6 @@ namespace {
   //  BHA bah;
 }
 
-
 class testDDIsValid : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDDIsValid);
   CPPUNIT_TEST(checkAgaistOld);
@@ -168,10 +166,6 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDIsValid);
-
-
-
-
 
 void testDDIsValid::testloading() {
   std::cerr << "test Loading" << std::endl;

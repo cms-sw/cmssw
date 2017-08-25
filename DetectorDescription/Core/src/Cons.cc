@@ -11,13 +11,13 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 DDI::Cons::Cons(double zhalf,
-	 double rInMinusZ,
-	 double rOutMinusZ,
-	 double rInPlusZ,
-	 double rOutPlusZ,
-	 double startPhi,
-	 double deltaPhi)
- : Solid(ddcons)	  
+		double rInMinusZ,
+		double rOutMinusZ,
+		double rInPlusZ,
+		double rOutPlusZ,
+		double startPhi,
+		double deltaPhi)
+  : Solid(ddcons)
 {
   p_.emplace_back(zhalf);
   p_.emplace_back(rInMinusZ);
@@ -26,19 +26,18 @@ DDI::Cons::Cons(double zhalf,
   p_.emplace_back(rOutPlusZ);
   p_.emplace_back(startPhi);
   p_.emplace_back(deltaPhi);
+}
 
-}	 
-
-
-void DDI::Cons::stream(std::ostream & os) const
+void
+DDI::Cons::stream( std::ostream & os ) const
 {
-   os << " zhalf=" << p_[0]/cm
-      << " rIn-Z=" << p_[1]/cm
-      << " rOut-Z=" << p_[2]/cm
-      << " rIn+Z=" << p_[3]/cm
-      << " rOut+Z=" << p_[4]/cm
-      << " startPhi=" << p_[5]/deg
-      << " deltaPhi=" << p_[6]/deg;
+  os << " zhalf=" << p_[0]/cm
+     << " rIn-Z=" << p_[1]/cm
+     << " rOut-Z=" << p_[2]/cm
+     << " rIn+Z=" << p_[3]/cm
+     << " rOut+Z=" << p_[4]/cm
+     << " startPhi=" << p_[5]/deg
+     << " deltaPhi=" << p_[6]/deg;
 }
 
 double DDI::Cons::volume() const

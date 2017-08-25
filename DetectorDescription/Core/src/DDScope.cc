@@ -2,8 +2,9 @@
 
 #include <ostream>
 
-dd_scope_class DDScopeClassification::operator()( const DDGeoHistory & left,
-                                                  const DDGeoHistory & right ) const
+dd_scope_class
+DDScopeClassification::operator()( const DDGeoHistory & left,
+				   const DDGeoHistory & right ) const
 {
   dd_scope_class result = subtree;
   DDGeoHistory::const_iterator lit = left.begin(); // left-iterator

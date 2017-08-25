@@ -151,8 +151,8 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
 	  }
 	  
-	  if(iFoundRefs != 2){
-            edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the Jpsi vertex must have exactly two tracks by definition."  << std::endl;
+	  if(iFoundRefs < 2){
+            edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the tracks matched with the Jpsi vertex tracks should be at least two by definition."  << std::endl;
             return false;
           } 	
           // calculate two-track transverse momentum
@@ -161,7 +161,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
         			  0.);
 
 
-	  reco::Vertex::Point vpoint=displacedVertex.position();
+	  const reco::Vertex::Point& vpoint=displacedVertex.position();
 	  //translate to global point, should be improved
 	  GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
 

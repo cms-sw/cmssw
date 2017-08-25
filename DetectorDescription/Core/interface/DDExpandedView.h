@@ -1,7 +1,7 @@
 #ifndef DDExpandedView_h
 #define DDExpandedView_h
 
-#include <stddef.h>
+#include <cstddef>
 #include <iosfwd>
 #include <map>
 #include <string>

@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 #include <ext/alloc_traits.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 #include "DetectorDescription/Core/interface/Singleton.h"

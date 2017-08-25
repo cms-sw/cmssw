@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDBase.h"
@@ -9,7 +9,8 @@
 // FIXME: DDCompareEqual: use pointers instead of references, initialize to 0 and 
 // FIXME: do the check in operator() instead of in the ctor
 
-bool DDCompareEqual::operator() (const DDGeoHistory &, const DDPartSelection &) 
+bool
+DDCompareEqual::operator() ( const DDGeoHistory & , const DDPartSelection & ) 
 {
   return (*this)();
 }
