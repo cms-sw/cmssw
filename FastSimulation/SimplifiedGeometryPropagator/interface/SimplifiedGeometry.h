@@ -164,7 +164,7 @@ namespace fastsim
 		std::vector<InteractionModel *> interactionModels_;  //!< Vector of all interaction models that are assigned with a layer.
 		CaloType caloType_; //!< Hack to interface "old" Calorimetry with "new" Tracker
 		
-		static constexpr double epsilonDistanceZ_ = 1.0e-4;  //!< Some epsilon distance in Z to check if particle is on forward layer
+		static constexpr double epsilonDistanceZ_ = 1.0e-3;  //!< Some epsilon distance in Z to check if particle is on forward layer
 		static constexpr double epsilonDistanceR_ = 1.0e-2;  //!< Some epsilon distance in R to check if particle is on barrel layer
     };
 
