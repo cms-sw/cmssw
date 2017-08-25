@@ -35,7 +35,6 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include <map>
@@ -67,7 +66,6 @@ class HGCalHitCalibration : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<reco::Photon> > photons_;
 
   int algo_;
-  HGCalDepthPreClusterer pre_;
   bool rawRecHits_;
   int debug_;
   hgcal::RecHitTools recHitTools_;
