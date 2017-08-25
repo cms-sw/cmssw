@@ -12,5 +12,3 @@
 <library   file="*.cc" name="ValidationHGCalHitValidationPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<Flags CXXFLAGS="-O2"/>
-<Flags CXXFLAGS="-g"/>
