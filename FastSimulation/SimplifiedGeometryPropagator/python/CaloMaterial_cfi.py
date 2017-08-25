@@ -19,13 +19,22 @@ CaloMaterialBlock = cms.PSet(
 
         # Coverage usually provided as eta, e.g. barrel ECAL abs(eta) < 1.479
         # Use definition of pseurorapidity: theta = 2*arctan(e^-eta)
-        # And theta = tan(R/z)
-        # Solve for z to get range of barrel ECAL (z < 306.227)
+        # And theta = cos(z/sqrt(R^2+z^2))
+        # (Make sure to use proper conversion for degree and radiants)
+        # Solve for z to get range of barrel ECAL (z < 281.4)
         BarrelLayers = cms.VPSet(
             ########### ECAL ###########
             cms.PSet(
                 radius = cms.untracked.double(129.0),
-                limits = cms.untracked.vdouble(0.0, 306.227),
+                limits = cms.untracked.vdouble(0.0, 281.4),
+                thickness = cms.untracked.vdouble(1.),
+                interactionModels = cms.untracked.vstring(),
+                caloType = cms.untracked.string("ECAL")
+            ),
+            ########### ECAL (barrel cut corner) ###########
+            cms.PSet(
+                radius = cms.untracked.double(152.6),
+                limits = cms.untracked.vdouble(281.4, 320.9),
                 thickness = cms.untracked.vdouble(1.),
                 interactionModels = cms.untracked.vstring(),
                 caloType = cms.untracked.string("ECAL")
@@ -34,6 +43,14 @@ CaloMaterialBlock = cms.PSet(
             cms.PSet(
                 radius = cms.untracked.double(177.5),
                 limits = cms.untracked.vdouble(0.0, 335.0),
+                thickness = cms.untracked.vdouble(1.),
+                interactionModels = cms.untracked.vstring(),
+                caloType = cms.untracked.string("HCAL")
+            ),
+            ########### HCAL (barrel cut corner) ###########
+            cms.PSet(
+                radius = cms.untracked.double(300.0),
+                limits = cms.untracked.vdouble(335.0, 400.458),
                 thickness = cms.untracked.vdouble(1.),
                 interactionModels = cms.untracked.vstring(),
                 caloType = cms.untracked.string("HCAL")
@@ -60,7 +77,7 @@ CaloMaterialBlock = cms.PSet(
             ########### ECAL ###########
             cms.PSet(
                 z = cms.untracked.double(320.9),
-                limits = cms.untracked.vdouble(31.822, 152.9),
+                limits = cms.untracked.vdouble(32.1, 152.6),
                 thickness = cms.untracked.vdouble(1.),
                 interactionModels = cms.untracked.vstring(),
                 caloType = cms.untracked.string("ECAL")
@@ -68,7 +85,7 @@ CaloMaterialBlock = cms.PSet(
             ########### HCAL ###########
             cms.PSet(
                 z = cms.untracked.double(400.458),
-                limits = cms.untracked.vdouble(39.712, 300.),
+                limits = cms.untracked.vdouble(40.1, 300.),
                 thickness = cms.untracked.vdouble(1.),
                 interactionModels = cms.untracked.vstring(),
                 caloType = cms.untracked.string("HCAL")
@@ -76,7 +93,7 @@ CaloMaterialBlock = cms.PSet(
             ########### VFCAL ###########
             cms.PSet(
                 z = cms.untracked.double(1110.0),
-                limits = cms.untracked.vdouble(14.957, 110.074),
+                limits = cms.untracked.vdouble(12.2, 111.2),
                 thickness = cms.untracked.vdouble(1.),
                 interactionModels = cms.untracked.vstring(),
                 caloType = cms.untracked.string("VFCAL")
