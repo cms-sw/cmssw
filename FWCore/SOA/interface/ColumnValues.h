@@ -10,7 +10,6 @@
  Description: Provides container like access to a column of a Table
 
  Usage:
-    <usage>
 
 */
 //

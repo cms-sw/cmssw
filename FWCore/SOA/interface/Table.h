@@ -10,8 +10,88 @@
  Description: A Table which is a 'structure of arrays'
 
  Usage:
-    <usage>
+    A Table provides a 'structure of arrays' using a spreadsheet metaphor.
+ The template arguments of a Table should be edm::soa::Column<> types which 
+ declare the type of the column and a label.
+ \code
+ constexpr char char kEta = "eta";
+ using Eta = edm::soa::Column<double,kEta>;
 
+ constexpr char char kPhi = "phi";
+ using Phi = edm::soa::Column<double,kPhi>;
+
+ using SphereTable = edm::soa::Table<kEta,kPhi>;
+ \endcode
+
+ The same declaration of a column should be shared by different tables
+ in order to allow the functions to be reused across tables. [See TableView]
+ 
+ Accessing data within a Table is done by specifying the column and row
+ to be used. The column is identified by the edm::soa::Column<> type and 
+ the row by an integer.
+ 
+ \code
+ SphereTable sphereTable{...};
+ ...
+ auto eta1 = sphereTable.get<Eta>(1);
+ \endcode
+ 
+ One can iterate over all rows of a Table and get the values of interest
+ \code
+ SphereTable sphereTable{...};
+ ...
+ for(auto const& row: sphereTable) {
+    std::cout<<row.get<Eta>()<<std::endl;
+ }
+ \encode
+ If only some of the columns are of interest, the optimizer of the compiler
+ is very good at removing code associated with non-used columns and providing
+ a highly optimized access to just the data of interest.
+ 
+ On can also explicitly iterate over a single column of interest
+ \code
+ SphereTable sphereTable{...};
+ ...
+ for(auto eta: sphereTable.column<Eta>()) {
+    std::cout<<eta<<std::endl;
+ }
+ \encode
+ Usually the optimizer on the compiler is able to make iteration over the entire
+ row and iterating over just one column compile down to exactly the same machine
+ instructions.
+ 
+ A Table can be constructed either by
+ 1) passing as many containers as their are columns
+ \code
+   std::array<double, 4> eta = {...};
+   std::array<double, 4> phi = {...};
+   SphereTable sphereTable{eta,phi};
+ \endcode
+ 2) passing a single container of objects where the objects hold the value of interests
+ and where appropriate 'value_for_column' functions are defined [See ColumnFillers.h]
+ \code
+   class Vector {
+     ...
+     double eta() const;
+     double phi() const;
+     ...
+   };
+ 
+   double value_for_column(Vector const& iV, Eta*) { return iV.eta(); }
+   double value_for_column(Vector const& iV, Phi*) { return iV.phi(); }
+   ...
+ 
+   std::vector<Vector> vectors{...};
+   ...
+   SphereTable sphereTable{ vectors };
+ \endcode
+ 
+ Functions which operate over Tables should not take Tables are arguments.
+ Instead, they should take an edm::soa::TableView<>. This will allow the function
+ to operate on any Table that uses the edm::soa::Column<> type needed by the function.
+ \code
+    SphereTable sphericalAngles(edm::soa::TableView<X,Y,Z>);
+ \endcode
 */
 //
 // Original Author:  Chris Jones
@@ -289,23 +369,24 @@ namespace soa {
   template <typename T1, typename T2>
   using AddColumns_t = typename AddColumns<T1,T2>::type;
   
-  
-  template <typename LHS, typename E, typename RHS> struct RemoveColumnCheck;
-  template <typename LHS, typename E, typename T, typename... U>
-  struct RemoveColumnCheck<LHS, E, std::tuple<T,U...>> {
-    using type =   typename std::conditional<std::is_same<E, T>::value,
-    typename AddColumns<LHS,std::tuple<U...>>::type,
-    typename RemoveColumnCheck<typename AddColumns<LHS,std::tuple<T>>::type, E, std::tuple<U...>>::type>::type;
-  };
-  
-  template <typename LHS, typename E>
-  struct RemoveColumnCheck<LHS, E, std::tuple<>> {
-    using type = LHS;
-  };
-  
+  namespace impl {
+    template <typename LHS, typename E, typename RHS> struct RemoveColumnCheck;
+    template <typename LHS, typename E, typename T, typename... U>
+    struct RemoveColumnCheck<LHS, E, std::tuple<T,U...>> {
+      using type =   typename std::conditional<std::is_same<E, T>::value,
+      typename AddColumns<LHS,std::tuple<U...>>::type,
+      typename RemoveColumnCheck<typename AddColumns<LHS,std::tuple<T>>::type, E, std::tuple<U...>>::type>::type;
+    };
+    
+    template <typename LHS, typename E>
+    struct RemoveColumnCheck<LHS, E, std::tuple<>> {
+      using type = LHS;
+    };
+  }
+    
   template <typename TABLE, typename E>
   struct RemoveColumn {
-    using type = typename RemoveColumnCheck<Table<>,E, typename TABLE::Layout>::type;
+    using type = typename impl::RemoveColumnCheck<Table<>,E, typename TABLE::Layout>::type;
   };
   
   template <typename TABLE, typename E>
