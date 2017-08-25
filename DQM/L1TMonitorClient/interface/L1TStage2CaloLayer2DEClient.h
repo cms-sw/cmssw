@@ -11,13 +11,13 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
 
   L1TStage2CaloLayer2DEClient(const edm::ParameterSet&);
 
-  virtual ~L1TStage2CaloLayer2DEClient();
+  ~L1TStage2CaloLayer2DEClient() override;
 
  protected:
 
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker,
+  void dqmEndJob(DQMStore::IBooker &ibooker,
 			 DQMStore::IGetter &igetter) override;
-  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
 				     DQMStore::IGetter &igetter,
 				     const edm::LuminosityBlock& lumiSeg,
 				     const edm::EventSetup& c) override;
