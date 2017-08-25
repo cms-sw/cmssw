@@ -59,7 +59,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return void
    */
-  virtual void bookHistograms (DQMStore::IBooker&,
+  void bookHistograms (DQMStore::IBooker&,
 			       const edm::Run&,
 			       const edm::EventSetup&) override;
 
@@ -75,7 +75,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return void
    */
-  virtual void analyze (const edm::Event&, const edm::EventSetup&) override;
+  void analyze (const edm::Event&, const edm::EventSetup&) override;
 
  private:
 
