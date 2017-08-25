@@ -125,19 +125,12 @@ vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<
       const reco::GenParticle* p = &((*particles)[i]);
       int absPdgId = abs(p->pdgId());
       
-      
       if(((absPdgId == 11) || (absPdgId == 13) || (absPdgId == 15)) && isHardProcess(*p)) {
-          out.push_back(p);
-          
-          
-              
+          out.push_back(p);              
       }
       
-
-  }
-  if (out.size() > 0) std::cout << "filterGenLeptons size: " << out.size() << " \t  " << out[0]->pdgId();
-  if (out.size() > 2) std::cout << " \t  " << out[2]->pdgId();
-  std::cout << std::endl;
+          
+  }      
   return out;
 }
 
@@ -186,7 +179,6 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(filGenJets.size()<2){return false;}
   
   
-  
   // Testing dijet mass   
   if(leadJetsNoLepMass) { 
         
@@ -197,6 +189,7 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
       // Getting filtered generator muons
       vector<const reco::GenParticle*> filGenLep = filterGenLeptons(genParticles);
+      if(filGenLep.size() < 1) return false;
       
       // Getting p4 of jet with no lepton
       vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
@@ -205,8 +198,7 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       
 
-//       while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
-      while(jetIdx < filGenJets.size()) {
+      while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
           bool jetWhitoutLep = true;
           math::XYZTLorentzVector p4J= (filGenJets[jetIdx])->p4();
           for(unsigned int i = 0; i < filGenLep.size() && jetWhitoutLep; ++i) {
