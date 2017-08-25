@@ -29,12 +29,12 @@ def L1NtupleCustomReco(process):
     # Bad PF Muon filter for MET & HT
     process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
     process.BadPFMuonFilter.muons = cms.InputTag("muons")
-    process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+    process.BadPFMuonFilter.PFCandidates = cms.InputTag("particleFlow")
 
     # bad charged candidate filter
     process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
     process.BadChargedCandidateFilter.muons = cms.InputTag("muons")
-    process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+    process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("particleFlow")
 
 
 ####  Custom E/Gamma reco ####
