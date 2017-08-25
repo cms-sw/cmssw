@@ -117,7 +117,7 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const u
   return apvgainVector_[index]->getRange(DetId);
 }
 
-void SiStripGain::printDebug(std::stringstream & ss) const
+void SiStripGain::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::vector<unsigned int> detIds;
   getDetIds(detIds);
@@ -136,9 +136,9 @@ void SiStripGain::printDebug(std::stringstream & ss) const
   }
 }
 
-void SiStripGain::printSummary(std::stringstream& ss) const
+void SiStripGain::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
-  SiStripDetSummary summaryGain;
+  SiStripDetSummary summaryGain{trackerTopo};
 
   std::vector<unsigned int> detIds;
   getDetIds(detIds);

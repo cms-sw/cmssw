@@ -358,7 +358,7 @@ void SiStripDetCabling::print( std::stringstream& ss ) const {
      << "Number of connections: " << total << std::endl;
 }
 
-void SiStripDetCabling::printSummary(std::stringstream& ss) const {
+void SiStripDetCabling::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const {
   for( int connectionType = 0; connectionType < 3; ++connectionType ) {
     if( connectionType == 0 ) ss << "Connected modules:" << std::endl;
     else if( connectionType == 1 ) ss << "Detected modules:" << std::endl;
@@ -389,6 +389,6 @@ void SiStripDetCabling::printSummary(std::stringstream& ss) const {
   }
 }
 
-void SiStripDetCabling::printDebug(std::stringstream& ss) const {
+void SiStripDetCabling::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
   print(ss);
 }
