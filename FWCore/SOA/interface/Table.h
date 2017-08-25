@@ -57,6 +57,88 @@ namespace soa {
 
   template <typename... Args>
   class Table {
+  public:
+    static constexpr const unsigned int kNColumns = sizeof...(Args);
+    using Layout = std::tuple<Args...>;
+    using const_iterator = TableItr<Args...>;
+    
+    template <typename T, typename... CArgs>
+    Table(T const& iContainer, CArgs... iArgs): m_size(iContainer.size()) {
+      using CtrChoice = std::conditional_t<sizeof...(CArgs)==0,
+      CtrFillerFromAOS,
+      CtrFillerFromContainers>;
+      m_size = CtrChoice::fill(m_values,iContainer,std::forward<CArgs>(iArgs)...);
+    }
+    
+    template<typename T, typename... CArgs>
+    Table(T const& iContainer, ColumnFillers<CArgs...> iFiller) {
+      m_size = iContainer.size();
+      CtrFillerFromAOS::fillUsingFiller(iFiller,m_values, iContainer);
+    }
+    
+    Table( Table<Args...> const& iOther):m_size(iOther.m_size), m_values{{nullptr}} {
+      copyFromToWithResize<0>(m_size,iOther.m_values,m_values,std::true_type{});
+    }
+    
+    Table( Table<Args...>&& iOther):m_size(0), m_values{{nullptr}} {
+      std::swap(m_size,iOther.m_size);
+      std::swap(m_values,iOther.m_values);
+    }
+    
+    Table() : m_size(0) {
+    }
+    
+    ~Table() {
+      TableArrayDtr<sizeof...(Args)-1,Args...>::dtr(m_values);
+    }
+    
+    Table<Args...>& operator=(Table<Args...>&& iOther) {
+      Table<Args...> cp(std::move(iOther));
+      std::swap(m_size,cp.m_size);
+      std::swap(m_values, cp.m_values);
+      return *this;
+    }
+    Table<Args...>& operator=(Table<Args...> const& iOther) {
+      return operator=( Table<Args...>(iOther));
+    }
+    
+    unsigned int size() const {
+      return m_size;
+    }
+    
+    template<typename U>
+    typename U::type const& get(size_t iRow) const {
+      return *(static_cast<typename U::type*>(columnAddress<U>())+iRow);
+    }
+    
+    template<typename U>
+    ColumnValues<typename U::type> column() const {
+      return ColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
+    }
+    
+    template<typename U>
+    void * columnAddress() const {
+      return m_values[impl::GetIndex<0,U,Layout>::index];
+    }
+    
+    template<typename U>
+    void * columnAddressWorkaround( U const*) const {
+      return columnAddress<U>();
+    }
+    
+    void* columnAddressByIndex(unsigned int iIndex) const {
+      return m_values[iIndex];
+    }
+    
+    template<typename... U>
+    TableView<U...> view() const;
+    
+    const_iterator begin() const { return const_iterator{m_values}; }
+    const_iterator end() const { return const_iterator{m_values,size()}; }
+    
+  private:
+    
+    // Member data
     unsigned int m_size = 0;
     std::array<void *, sizeof...(Args)> m_values = {{nullptr}};
     
@@ -181,87 +263,6 @@ namespace soa {
       static void fillElementUsingFiller(F&, E const& , size_t , std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
       
     };
-    
-    
-  public:
-    static constexpr const unsigned int kNColumns = sizeof...(Args);
-    using Layout = std::tuple<Args...>;
-    using const_iterator = TableItr<Args...>;
-    
-    template <typename T, typename... CArgs>
-    Table(T const& iContainer, CArgs... iArgs): m_size(iContainer.size()) {
-      using CtrChoice = std::conditional_t<sizeof...(CArgs)==0,
-      CtrFillerFromAOS,
-      CtrFillerFromContainers>;
-      m_size = CtrChoice::fill(m_values,iContainer,std::forward<CArgs>(iArgs)...);
-    }
-    
-    template<typename T, typename... CArgs>
-    Table(T const& iContainer, ColumnFillers<CArgs...> iFiller) {
-      m_size = iContainer.size();
-      CtrFillerFromAOS::fillUsingFiller(iFiller,m_values, iContainer);
-    }
-    
-    Table( Table<Args...> const& iOther):m_size(iOther.m_size), m_values{{nullptr}} {
-      copyFromToWithResize<0>(m_size,iOther.m_values,m_values,std::true_type{});
-    }
-    
-    Table( Table<Args...>&& iOther):m_size(0), m_values{{nullptr}} {
-      std::swap(m_size,iOther.m_size);
-      std::swap(m_values,iOther.m_values);
-    }
-    
-    Table() : m_size(0) {
-    }
-    
-    ~Table() {
-      TableArrayDtr<sizeof...(Args)-1,Args...>::dtr(m_values);
-    }
-    
-    Table<Args...>& operator=(Table<Args...>&& iOther) {
-      Table<Args...> cp(std::move(iOther));
-      std::swap(m_size,cp.m_size);
-      std::swap(m_values, cp.m_values);
-      return *this;
-    }
-    Table<Args...>& operator=(Table<Args...> const& iOther) {
-      return operator=( Table<Args...>(iOther));
-    }
-    
-    unsigned int size() const {
-      return m_size;
-    }
-    
-    template<typename U>
-    typename U::type const& get(size_t iRow) const {
-      return *(static_cast<typename U::type*>(columnAddress<U>())+iRow);
-    }
-    
-    template<typename U>
-    ColumnValues<typename U::type> column() const {
-      return ColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
-    }
-    
-    template<typename U>
-    void * columnAddress() const {
-      return m_values[impl::GetIndex<0,U,Layout>::index];
-    }
-    
-    template<typename U>
-    void * columnAddressWorkaround( U const*) const {
-      return columnAddress<U>();
-    }
-    
-    void* columnAddressByIndex(unsigned int iIndex) const {
-      return m_values[iIndex];
-    }
-    
-    template<typename... U>
-    TableView<U...> view() const;
-    
-    const_iterator begin() const { return const_iterator{m_values}; }
-    const_iterator end() const { return const_iterator{m_values,size()}; }
-    
   };
   
   
