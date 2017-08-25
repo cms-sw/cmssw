@@ -222,13 +222,13 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::vector<FSimTrack> myFSimTracks;
 
 	
-    LogDebug(MESSAGECATEGORY) "################################"
+    LogDebug(MESSAGECATEGORY) << "################################"
 			      << "\n###############################";    
 
 	// loop over particles
     for(std::unique_ptr<fastsim::Particle> particle = particleManager.nextParticle(*_randomEngine); particle != 0; particle=particleManager.nextParticle(*_randomEngine)) 
     {
-    	LogDebug(MESSAGECATEGORY) "\n   moving NEXT particle: " << *particle;
+    	LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
     	if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 303.){  // necessary because of hack for calorimetry...
 			// move the particle through the layers
@@ -239,8 +239,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			// in this case particle is propagated up to its decay vertex
 			while(layerNavigator.moveParticleToNextLayer(*particle,layer))
 			{
-			    LogDebug(MESSAGECATEGORY) "   moved to next layer: " << *layer;
-				LogDebug(MESSAGECATEGORY) "   new state: " << *particle;
+			    LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer;
+				LogDebug(MESSAGECATEGORY) << "   new state: " << *particle;
 
 				// Hack to interface "old" calo to "new" tracking
 				// Particle reached calorimetry so stop further propagation
@@ -281,7 +281,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				    }
 				}
 			    
-			    LogDebug(MESSAGECATEGORY) "--------------------------------"
+			    LogDebug(MESSAGECATEGORY) << "--------------------------------"
 						      << "\n-------------------------------";
 			}
 
@@ -296,7 +296,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    continue;
 			}
 			
-			LogDebug(MESSAGECATEGORY) "################################"
+			LogDebug(MESSAGECATEGORY) << "################################"
 						  << "\n###############################";
 		}
 
