@@ -1137,7 +1137,7 @@ bool L1TdeStage2CaloLayer2::compareSums(
       dataEt = dataIt->hwPt();
       emulEt = emulIt->hwPt();
 
-      dataPhi = dataPhi;
+      dataPhi = dataIt->hwPhi();
       emulPhi = emulIt->hwPhi();
 
       sumSummary->Fill(NMHTSUMS);
