@@ -37,6 +37,8 @@
 #include <vector>
 #include <memory>
 
+class TrackerTopology;
+
 class SiStripGain
 {
  public:
@@ -101,8 +103,8 @@ class SiStripGain
     return normVector_[index];
   }
 
-  void printDebug(std::stringstream& ss) const;
-  void printSummary(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
  private:
 

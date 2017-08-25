@@ -110,7 +110,7 @@ std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >( cons
 }
 
 
-void SiStripConfObject::printSummary(std::stringstream & ss) const
+void SiStripConfObject::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
   parMap::const_iterator it = parameters.begin();
   for( ; it != parameters.end(); ++it ) {
@@ -118,7 +118,7 @@ void SiStripConfObject::printSummary(std::stringstream & ss) const
   }
 }
 
-void SiStripConfObject::printDebug(std::stringstream & ss) const
+void SiStripConfObject::printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
-  printSummary(ss);
+  printSummary(ss, trackerTopo);
 }

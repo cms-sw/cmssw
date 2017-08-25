@@ -98,7 +98,7 @@ void SiStripThreshold::allThresholds(std::vector<float> &lowThs, std::vector<flo
     }
 }    
 
-void SiStripThreshold::printDebug(std::stringstream& ss) const{
+void SiStripThreshold::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const{
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   ContainerIterator it,eit;
   for(;rit!=erit;++rit){
@@ -112,7 +112,7 @@ void SiStripThreshold::printDebug(std::stringstream& ss) const{
   }
 }
 
-void SiStripThreshold::printSummary(std::stringstream& ss) const{
+void SiStripThreshold::printSummary(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const{
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   ContainerIterator it,eit,itp;
   float meanLth, meanHth, meanCth; //mean value 

@@ -10,6 +10,8 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
 #include <sstream>
 
+class TrackerTopology;
+
 /**
  * Holds the thresholds:<br>
  * - High threshold <br>
@@ -129,9 +131,9 @@ class SiStripThreshold {
   void  allThresholds(std::vector<float> &lowThs, std::vector<float> &highThs, const Range& range)  const; 
 
   /// Prints mean, rms, min and max threshold values for each DetId.
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints all the thresholds for all DetIds. 
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
  private:
   

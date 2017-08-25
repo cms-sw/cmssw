@@ -50,9 +50,9 @@ class SiStripDetCabling
   void print( std::stringstream& ) const;
 
   /** The printSummary method outputs the number of connected/detected/undetected modules for each layer of each subdetector.*/
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /** The printDebug method returns all the connected/detected/undetected modules.*/
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   // Methods to get the number of connected, detected and undetected modules for each layer of each subdetector.
   uint32_t connectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 0); }
