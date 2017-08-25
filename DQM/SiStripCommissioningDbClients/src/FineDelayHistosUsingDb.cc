@@ -51,6 +51,7 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 /** */
 void FineDelayHistosUsingDb::configure( const edm::ParameterSet& pset, 
 					const edm::EventSetup& setup ) {
+  CommissioningHistosUsingDb::configure(pset, setup);
   // get geometry
   edm::ESHandle<TrackerGeometry> estracker;
   setup.get<TrackerDigiGeometryRecord>().get(estracker);

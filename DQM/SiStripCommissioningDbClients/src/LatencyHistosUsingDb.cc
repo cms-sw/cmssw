@@ -381,6 +381,7 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 
 void LatencyHistosUsingDb::configure( const edm::ParameterSet& pset, const edm::EventSetup& es)
 {
+  CommissioningHistosUsingDb::configure(pset, es);
   perPartition_ = this->pset().getParameter<bool>("OptimizePerPartition");
 }
 

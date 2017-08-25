@@ -24,6 +24,8 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
 
   virtual ~CommissioningHistosUsingDb();
 
+  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& );
+
   void uploadToConfigDb();
   
   bool doUploadAnal() const;
