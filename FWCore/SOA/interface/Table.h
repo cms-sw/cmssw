@@ -36,24 +36,6 @@ namespace soa {
   
   template<typename... Args> class TableView;
   
-  template <int I, typename... Args>
-  struct TableArrayDtr {
-    static void dtr(std::array<void*, sizeof...(Args)>& iArray) {
-      using Layout = std::tuple<Args...>;
-      using Type = typename std::tuple_element<I,Layout>::type::type;
-      delete [] static_cast<Type*>(iArray[I]);
-      TableArrayDtr<I-1, Args...>::dtr(iArray);
-    }
-  };
-  
-  template <typename... Args>
-  struct TableArrayDtr<0, Args...> {
-    static void dtr(std::array<void*, sizeof...(Args)>& iArray) {
-      using Layout = std::tuple<Args...>;
-      using Type = typename std::tuple_element<0,Layout>::type::type;
-      delete [] static_cast<Type*>(iArray[0]);
-    }
-  };
 
   template <typename... Args>
   class Table {
@@ -89,7 +71,7 @@ namespace soa {
     }
     
     ~Table() {
-      TableArrayDtr<sizeof...(Args)-1,Args...>::dtr(m_values);
+      dtr<0>(m_values, std::true_type{});
     }
     
     Table<Args...>& operator=(Table<Args...>&& iOther) {
@@ -141,6 +123,17 @@ namespace soa {
     // Member data
     unsigned int m_size = 0;
     std::array<void *, sizeof...(Args)> m_values = {{nullptr}};
+    //Recursive destructor handling
+    template <int I>
+    static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::true_type) {
+      using Type = typename std::tuple_element<I,Layout>::type::type;
+      delete [] static_cast<Type*>(iArray[I]);
+      dtr<I+1>(iArray,std::conditional_t<I+1<sizeof...(Args), std::true_type, std::false_type>{});
+    }
+
+    template <int I>
+    static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::false_type) {
+    }
     
     struct CtrFillerFromContainers {
       template<typename T, typename... U>
