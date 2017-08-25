@@ -25,10 +25,12 @@ class GEMGeometryESModule : public edm::ESProducer
   ~GEMGeometryESModule() override;
   
   /// Produce GEMGeometry.
-  std::shared_ptr<GEMGeometry>  produce(const MuonGeometryRecord & record);
+  std::shared_ptr<GEMGeometry> produce(const MuonGeometryRecord & record);
   
  private:  
   // use the DDD as Geometry source
   bool useDDD;
+  std::shared_ptr<GEMGeometry> gemGeometry;
+
 };
 #endif
