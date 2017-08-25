@@ -1095,7 +1095,7 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   int clct_bx = clct.getBX();
   const int lowPad(cscHsToGemPad_[clct.getKeyStrip()].first);
   const int highPad(cscHsToGemPad_[clct.getKeyStrip()].second);
-  const bool debug(true);
+  const bool debug(false);
   if (debug) std::cout << "CLCT lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<" bx "<< clct_bx <<std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
@@ -1124,7 +1124,7 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   int deltaBX(isCoPad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
   int alct_bx = alct.getBX();
   auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
-  const bool debug(true);
+  const bool debug(false);
   if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll <<" bx "<< alct_bx << std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
@@ -1153,9 +1153,9 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   const auto& padsClct(matchingGEMPads(clct, pads, isCoPad, false));
   const auto& padsAlct(matchingGEMPads(alct, pads, isCoPad, false));
 
-  const bool debug(true);
+  const bool debug(false);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
-  if (debug) std::cout << "Finding ommon pads"<<std::endl;
+  if (debug) std::cout << "Finding common pads"<<std::endl;
   // Check if the pads overlap
   for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;
@@ -1163,9 +1163,10 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
       if (debug) std::cout<< "++Candidate CLCT: " << q.first << " " << q.second << std::endl;
       // look for exactly the same pads
       if ((p.first != q.first) or p.second != q.second) continue;
-      //      if (debug)
-      if (isCoPad) std::cout << "++Matched copad" << GEMDetId(p.first) << " " << p.second << std::endl;
-      else std::cout << "++Matched pad" << GEMDetId(p.first) << " " << p.second << std::endl;
+      if (debug){
+        if (isCoPad) std::cout << "++Matched copad" << GEMDetId(p.first) << " " << p.second << std::endl;
+        else std::cout << "++Matched pad" << GEMDetId(p.first) << " " << p.second << std::endl;
+      }
       result.push_back(p);
       if (first) return result;
     }
