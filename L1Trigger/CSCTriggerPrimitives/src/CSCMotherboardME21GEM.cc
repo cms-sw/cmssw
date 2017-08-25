@@ -919,10 +919,6 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCCLCTDigi& 
 CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 							  bool hasPad, bool hasCoPad)
 {
-  if (hasPad)   std::cout << "Constructing CLCT-ALCT-1GEM LCT" << std::endl;
-  if (hasCoPad) std::cout << "Constructing CLCT-ALCT-2GEM LCT" << std::endl;
-  if (not hasPad and not hasCoPad) std::cout << "Constructing ME21 ALCT-CLCT LCT without GEM!!" << std::endl;
-
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
