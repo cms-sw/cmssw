@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 //
@@ -117,7 +117,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     edm::LogError("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
     return;
   }
-  if (gsfElectrons->size() == 0) {
+  if (gsfElectrons->empty()) {
     LogDebug("L1TEGammaOffline") << "empty collection: GSF electrons " << std::endl;
     return;
   }
@@ -390,7 +390,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
     return;
   }
 
-  if(photons->size() ==0){
+  if(photons->empty()){
     LogDebug("L1TEGammaOffline") << "No photons found in event." << std::endl;
     return;
   }
@@ -509,7 +509,7 @@ void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_.c_str());
+  ibooker.setCurrentFolder(histFolder_);
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
@@ -561,7 +561,7 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
       "electron #eta resolution  (EB); (L1 EGamma #eta - GSF Electron #eta)/GSF Electron #eta; events", 120, -0.3, 0.3);
 
   // electron turn-ons
-  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  ibooker.setCurrentFolder(efficiencyFolder_);
   std::vector<float> electronBins(electronEfficiencyBins_.begin(), electronEfficiencyBins_.end());
   int nBins = electronBins.size() - 1;
   float* electronBinArray = &(electronBins[0]);
@@ -627,7 +627,7 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_.c_str());
+  ibooker.setCurrentFolder(histFolder_);
   h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
       "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
   h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
@@ -670,7 +670,7 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
       "photon #eta resolution  (EB); (L1 EGamma #eta -  Photon #eta)/ Photon #eta; events", 120, -0.3, 0.3);
 
   // photon turn-ons
-  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  ibooker.setCurrentFolder(efficiencyFolder_);
   std::vector<float> photonBins(photonEfficiencyBins_.begin(), photonEfficiencyBins_.end());
   int nBins = photonBins.size() - 1;
   float* photonBinArray = &(photonBins[0]);
