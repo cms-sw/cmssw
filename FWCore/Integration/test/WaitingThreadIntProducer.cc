@@ -40,7 +40,9 @@ namespace {
                   unsigned int iSecondsToWait):
     m_perStream(iNumberOfStreams),
     m_minNumStreamsBeforeDoingWork(iMinNumberOfStreamsBeforeDoingWork),
-    m_secondsToWait(iSecondsToWait){}
+    m_secondsToWait(iSecondsToWait),
+    m_shouldStop(false),
+    m_drainQueue(false) {}
     void start();
     void stop();
     
