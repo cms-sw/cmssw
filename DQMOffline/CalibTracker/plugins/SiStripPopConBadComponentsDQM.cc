@@ -13,6 +13,7 @@ public:
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConBadComponentsHandlerFromDQM() override;
   // interface methods: implemented in template
+  void initES(const edm::EventSetup&) override;
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
   SiStripBadStrip* getObj() const override;
 protected:
@@ -20,7 +21,12 @@ protected:
 private:
   edm::FileInPath fp_;
   SiStripBadStrip m_obj;
+  const TrackerTopology* trackerTopo_;
 };
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -37,11 +43,18 @@ SiStripPopConBadComponentsHandlerFromDQM::~SiStripPopConBadComponentsHandlerFrom
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::~SiStripBadComponentsDQMService]";
 }
 
+void SiStripPopConBadComponentsHandlerFromDQM::initES(const edm::EventSetup& setup)
+{
+  edm::ESHandle<TrackerTopology> tTopo;
+  setup.get<TrackerTopologyRcd>().get(tTopo);
+  trackerTopo_ = tTopo.product();
+}
+
 std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString() const
 {
   std::stringstream ss;
   ss << SiStripDQMPopConSourceHandler<SiStripBadStrip>::getMetaDataString();
-  getObj()->printSummary(ss);
+  getObj()->printSummary(ss, trackerTopo_);
   return ss.str();
 }
 
