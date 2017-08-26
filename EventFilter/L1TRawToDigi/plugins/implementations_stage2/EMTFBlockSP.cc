@@ -229,239 +229,243 @@ namespace l1t {
 	// if      (nDelay[2]                         >= 1) trk_delay = 2;
 	// else if (nDelay[2] + nDelay[1]             >= 1) trk_delay = 1;
 	// else if (nDelay[2] + nDelay[1] + nDelay[0] >= 1) trk_delay = 0;
-	
-	int St_hits[4] = {0, 0, 0, 0}; // Number of matched hits in each station
-	// int dBX[3] = {0, 1, 2};         // Hit - track BX values for earliest LCT configuration
-	int dBX[5] = {0, -1, 1, -2, 2}; // Hit - track BX values for 2nd-earliest LCT configuration
 
-	Track_.set_has_neighbor(false);
-	Track_.set_all_neighbor(true);
+	std::array<int, 4> St_hits{{0, 0, 0, 0}}; // Number of matched hits in each station
 
-	conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	// if (abs(SP_.TBIN() - 3) < 2)
-	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
-	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
-	  // 	    << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
-	for (unsigned int iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
-	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
-	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
-	      // std::cout << "Hit:   ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
-	      // 		<< ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
-	      // 		<< ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
-		 (res_hit->at(iHit)).Subsector() == conv_vals_SP.at(2) && (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-		 (res_hit->at(iHit)).Station() == 1 && (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() &&
-		 (res_hit->at(iHit)).Endcap() == Track_.Endcap() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[0] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[0] += 1; }
-	  }
-	  if (St_hits[0] > 0) break; // If you found a hit in a BX close to the track, not need to look in other BX
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME1Seg, SP_.ME1_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 1) );
-
-	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
-	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 2 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[1] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[1] += 1; }
-	  }
-	  if (St_hits[1] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME2Seg, SP_.ME2_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 2) );
-
-	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
-	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 3 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() &&
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[2] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[2] += 1; }
-	  }
-	  if (St_hits[2] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME3Seg, SP_.ME3_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 3) );
-
-	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (unsigned int iBX = 0; iBX < 5; iBX++) { 
-	  for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 4 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[3] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[3] += 1; }
-	  }
-	  if (St_hits[3] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME4Seg, SP_.ME4_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 4) );
-
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit) {
 	  
-	  if ( (res_hit->at(iHit)).Endcap() != Track_.Endcap() ) continue;
+	  if ( Track_.Mode() == 1 ) continue;  // Special case dealt with later
+	  if ( Hit->Endcap() != Track_.Endcap() ) continue;
 	  
 	  int hit_delay = -99;
-	  if      ( (res_hit->at(iHit)).Station() == 1 ) hit_delay = SP_.ME1_delay();
-	  else if ( (res_hit->at(iHit)).Station() == 2 ) hit_delay = SP_.ME2_delay();
-	  else if ( (res_hit->at(iHit)).Station() == 3 ) hit_delay = SP_.ME3_delay();
-	  else if ( (res_hit->at(iHit)).Station() == 4 ) hit_delay = SP_.ME4_delay();
+	  if      ( Hit->Station() == 1 ) hit_delay = SP_.ME1_delay();
+	  else if ( Hit->Station() == 2 ) hit_delay = SP_.ME2_delay();
+	  else if ( Hit->Station() == 3 ) hit_delay = SP_.ME3_delay();
+	  else if ( Hit->Station() == 4 ) hit_delay = SP_.ME4_delay();
 	  
 	  // Require exact matching according to TBIN and delays
-	  if ( (res_hit->at(iHit)).BX() + 3 + hit_delay != SP_.TBIN() + trk_delay ) continue;
+	  if ( Hit->BX() + 3 + hit_delay != SP_.TBIN() + trk_delay ) continue;
 	  
 	  // Match hit in station 1
 	  conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
 	  
-	  if ( (res_hit->at(iHit)).Station()  == 1                  &&	    
-	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
-	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-	       (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() ) {
+	  if ( Hit->Station()  == 1                  &&	    
+	       Hit->Sector()   == conv_vals_SP.at(1) &&
+	       Hit->Neighbor() == conv_vals_SP.at(3) &&
+	       Hit->Stub_num() == SP_.ME1_stub_num() ) {
 	    
-	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
-		 ( (res_hit->at(iHit)).CSC_ID()    != conv_vals_SP.at(0) ||
-		   (res_hit->at(iHit)).Subsector() != conv_vals_SP.at(2) ) ) continue;
+	    if ( Hit->Is_CSC() == 1 && 
+		 ( Hit->CSC_ID()    != conv_vals_SP.at(0) ||
+		   Hit->Subsector() != conv_vals_SP.at(2) ) ) continue;
 	    
-	    int RPC_subsector = (((res_hit->at(iHit)).Subsector() - 1) / 3) + 1; // Map RPC subsector to equivalent CSC subsector
-	    int RPC_CSC_ID    = (((res_hit->at(iHit)).Subsector() - 1) % 3) + 4; // Map RPC subsector and ring to equivalent CSC ID
+	    int RPC_subsector = ((Hit->Subsector() - 1) / 3) + 1; // Map RPC subsector to equivalent CSC subsector
+	    int RPC_CSC_ID    = ((Hit->Subsector() - 1) % 3) + 4; // Map RPC subsector and ring to equivalent CSC ID
 	    
-	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
+	    if ( Hit->Is_RPC() == 1 &&
 		 ( RPC_CSC_ID    != conv_vals_SP.at(0) ||
 		   RPC_subsector != conv_vals_SP.at(2) ) ) continue;
 	    
-	    if (St_hits[0] == 0 ) { // Only add the first matched hit to the track
-	      Track_.push_Hit( res_hit->at(iHit) );
+	    if (St_hits.at(0) == 0 ) { // Only add the first matched hit to the track
+	      Track_.push_Hit( (*Hit) );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME1Seg, SP_.ME1_stub_num() );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  
 				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
 									conv_vals_SP.at(2), 
 									conv_vals_SP.at(3), 1) );
 	    }
-	    St_hits[0] += 1; // Count the total number of matches for debugging purposes
-	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 1 
+	    St_hits.at(0) += 1; // Count the total number of matches for debugging purposes
+	  } // End conditional: if ( Hit->Station() == 1 
 	  
 
 	  // Match hit in station 2
 	  conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
 	  
-	  if ( (res_hit->at(iHit)).Station()  == 2                  &&	    
-	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
-	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-	       (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() ) {
+	  if ( Hit->Station()  == 2                  &&	    
+	       Hit->Sector()   == conv_vals_SP.at(1) &&
+	       Hit->Neighbor() == conv_vals_SP.at(3) &&
+	       Hit->Stub_num() == SP_.ME2_stub_num() ) {
 	    
-	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
-		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_CSC() == 1 && 
+		 Hit->CSC_ID() != conv_vals_SP.at(0) ) continue;
 	    
-	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
-		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_RPC() == 1 &&
+		 Hit->Subsector() + 3 != conv_vals_SP.at(0) ) continue;
 	    
-	    if (St_hits[1] == 0 ) {
-	      Track_.push_Hit( res_hit->at(iHit) );
+	    if (St_hits.at(1) == 0 ) {
+	      Track_.push_Hit( (*Hit) );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME2Seg, SP_.ME2_stub_num() );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  
 				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
 									conv_vals_SP.at(2), 
 									conv_vals_SP.at(3), 2) );
 	    }
-	    St_hits[1] += 1;
-	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 2 
+	    St_hits.at(1) += 1;
+	  } // End conditional: if ( Hit->Station() == 2 
 	  
 
 	  // Match hit in station 3
 	  conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
 	  
-	  if ( (res_hit->at(iHit)).Station()  == 3                  &&	    
-	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
-	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-	       (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() ) {
+	  if ( Hit->Station()  == 3                  &&	    
+	       Hit->Sector()   == conv_vals_SP.at(1) &&
+	       Hit->Neighbor() == conv_vals_SP.at(3) &&
+	       Hit->Stub_num() == SP_.ME3_stub_num() ) {
 	    
-	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
-		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_CSC() == 1 && 
+		 Hit->CSC_ID() != conv_vals_SP.at(0) ) continue;
 
-	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
-		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_RPC() == 1 &&
+		 Hit->Subsector() + 3 != conv_vals_SP.at(0) ) continue;
 	    
-	    if (St_hits[2] == 0 ) {
-	      Track_.push_Hit( res_hit->at(iHit) );
+	    if (St_hits.at(2) == 0 ) {
+	      Track_.push_Hit( (*Hit) );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME3Seg, SP_.ME3_stub_num() );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  
 				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
 									conv_vals_SP.at(2), 
 									conv_vals_SP.at(3), 3) );
 	    }
-	    St_hits[2] += 1;
-	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 3 
+	    St_hits.at(2) += 1;
+	  } // End conditional: if ( Hit->Station() == 3 
 	  
 	  
 	  // Match hit in station 4
 	  conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
 	  
-	  if ( (res_hit->at(iHit)).Station()  == 4                  &&	    
-	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
-	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-	       (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() ) {
+	  if ( Hit->Station()  == 4                  &&	    
+	       Hit->Sector()   == conv_vals_SP.at(1) &&
+	       Hit->Neighbor() == conv_vals_SP.at(3) &&
+	       Hit->Stub_num() == SP_.ME4_stub_num() ) {
 	    
-	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
-		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_CSC() == 1 && 
+		 Hit->CSC_ID() != conv_vals_SP.at(0) ) continue;
 	    
-	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
-		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    if ( Hit->Is_RPC() == 1 &&
+		 Hit->Subsector() + 3 != conv_vals_SP.at(0) ) continue;
 	    
-	    if (St_hits[3] == 0 ) {
-	      Track_.push_Hit( res_hit->at(iHit) );
+	    if (St_hits.at(3) == 0 ) {
+	      Track_.push_Hit( (*Hit) );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME4Seg, SP_.ME4_stub_num() );
 	      mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  
 				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
 									conv_vals_SP.at(2), 
 									conv_vals_SP.at(3), 4) );
 	    }
-	    St_hits[3] += 1;
-	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 4 
+	    St_hits.at(3) += 1;
+	  } // End conditional: if ( Hit->Station() == 4 
 	  
-	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+	} // End loop: for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit)
       
+
+	// Special configuration for single-stub tracks from ME1/1
+	if (Track_.Mode() == 1) {
+
+	  // Infer ME1/1 chamber based on track phi
+	  int chamber_min = ((Track_.GMT_phi() - 17) / 16) + Track_.Sector()*6 - 3;
+	  int chamber_max = ((Track_.GMT_phi() +  1) / 16) + Track_.Sector()*6 - 3;
+	  for (int iChamb = chamber_max; iChamb >= chamber_min; iChamb--) {
+	    int chamber = (iChamb < 37 ? iChamb : (iChamb % 36));
+
+	    for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit) {
+	      if ( Hit->Sector_idx()   != Track_.Sector_idx() ) continue;
+	      if ( Hit->BX()           != Track_.BX() ) continue;
+	      if ( Hit->Chamber()      != chamber ) continue;
+	      if ( Hit->Is_CSC()       != 1 ) continue;
+	      if ( Hit->Station()      != 1 ) continue;
+	      if ( ( Hit->Ring() % 3 ) != 1 ) continue;	      
+	      if ( Hit->Neighbor()     == 1 ) continue;
+
+	      // Don't use LCTs that were already used in a multi-station track
+	      bool hit_already_used = false;
+	      for (auto Trk = res_track->begin(); Trk != res_track->end(); ++Trk) {
+		if ( Trk->Sector_idx() != Track_.Sector_idx() ) continue;
+		if ( Trk->NumHits()     < 1 ) continue;
+		
+		if ( Trk->Hits().at(0).Station() == 1 &&
+		     Trk->Hits().at(0).Chamber() == chamber &&
+		     Trk->Hits().at(0).BX()      == Hit->BX() &&
+		     Trk->Hits().at(0).Ring()    == Hit->Ring() &&
+		     Trk->Hits().at(0).Strip()   == Hit->Strip() &&
+		     Trk->Hits().at(0).Wire()    == Hit->Wire() ) {
+		  hit_already_used = true;
+		  break;
+		}
+	      } // End loop: for (auto Trk = res_hit->begin(); Trk != res_hit->end(); ++Trk)
+
+	      if (!hit_already_used) {
+		Track_.push_Hit( (*Hit) );
+		break;
+	      }
+	    } // End loop: for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit)
+	    if (Track_.NumHits() > 0) break;
+	  } // End loop: for (int iChamb = chamber_max; iChamb >= chamber_min; iChamb--)
+
+	  // if (Track_.NumHits() != 1) {
+	  //   std::cout << "\n\n***********************************************************" << std::endl;
+	  //   std::cout << "Bug in unpacked EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
+	  // 	      << ", BX " << Track_.BX() << ", GMT phi " << Track_.GMT_phi() << ", GMT eta " << Track_.GMT_eta()
+	  // 	      << " should have found an LCT between chamber " << chamber_min << " and " << chamber_max << std::endl;
+	  //   std::cout << "All available LCTs as follows:" << std::endl;
+	  //   for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit) {
+	  //     std::cout << "Hit: Is CSC = " << Hit->Is_CSC() << ", CSC ID = " << Hit->CSC_ID() 
+	  // 		<< ", sector = " << Hit->Sector()*Hit->Endcap() << ", sub = " << Hit->Subsector()
+	  // 		<< ", neighbor = " << Hit->Neighbor() << ", station = " << Hit->Station()
+	  // 		<< ", ring = " << Hit->Ring() << ", chamber = " << Hit->Chamber()
+	  // 		<< ", stub = " << Hit->Stub_num() << ", BX = " << Hit->BX() << std::endl;
+	  //   std::cout << "All other tracks are as follows:" << std::endl;
+	  //   for (auto Trk = res_hit->begin(); Trk != res_hit->end(); ++Trk) {
+	  //     std::cout << "Track: mode " << Trk->Mode() << " track in sector " << Trk->Sector()*Trk->Endcap() 
+	  // 		<< ", BX " << Trk->BX() << ", GMT phi " << Trk->GMT_phi() << ", GMT eta " << Trk->GMT_eta() << std::endl;
+	  //   }
+	  //   std::cout << "***********************************************************\n\n" << std::endl;
+	  // } // End conditional: if (Track_.NumHits() != 1)
+
+	} // End conditional: if (Track_.Mode() == 1)
+	  
 	
-	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && Track_.BX() == 0) {
+	// if ( Track_.Mode() != St_hits.at(0)*8 + St_hits.at(1)*4 + St_hits.at(2)*2 + St_hits.at(3) && Track_.BX() == 0) {
 	//   std::cout << "\n\n***********************************************************" << std::endl;
 	//   std::cout << "Bug in unpacked EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
-	// 	    << ", BX " << Track_.BX() << " (delay = " << trk_delay << ") with (" << St_hits[0] << ", " << St_hits[1] 
-	// 	    << ", " << St_hits[2] << ", " << St_hits[3] << ") hits in stations (1, 2, 3, 4)" << std::endl;
+	// 	    << ", BX " << Track_.BX() << " (delay = " << trk_delay << ") with (" << St_hits.at(0) << ", " << St_hits.at(1) 
+	// 	    << ", " << St_hits.at(2) << ", " << St_hits.at(3) << ") hits in stations (1, 2, 3, 4)" << std::endl;
 
-	//   for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++)
-	//     std::cout << "ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector()
-	// 	      << ", sub = " << (res_hit->at(iHit)).Subsector() << ", neighbor = " << (res_hit->at(iHit)).Neighbor()
-	// 	      << ", station = " << (res_hit->at(iHit)).Station() << ", stub = " << (res_hit->at(iHit)).Stub_num() 
-	// 	      << ", BX = " << (res_hit->at(iHit)).BX() << ", ring = " << (res_hit->at(iHit)).Ring() 
-	// 	      << ", chamber = " << (res_hit->at(iHit)).Chamber() << std::endl;
+	//   std::cout << "\nME1_stub_num = " << SP_.ME1_stub_num() << ", ME1_delay = " <<  SP_.ME1_delay() 
+	// 	    << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
+	//   std::cout << "ME2_stub_num = " << SP_.ME2_stub_num() << ", ME2_delay = " <<  SP_.ME2_delay() 
+	// 	    << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
+	//   std::cout << "ME3_stub_num = " << SP_.ME3_stub_num() << ", ME3_delay = " <<  SP_.ME3_delay() 
+	// 	    << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
+	//   std::cout << "ME4_stub_num = " << SP_.ME4_stub_num() << ", ME4_delay = " <<  SP_.ME4_delay() 
+	// 	    << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
 
-	//   for (unsigned int iHit = 0; iHit < res_hit->size(); iHit++) {
-	//     if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();
-	//     (res_hit->at(iHit)).PrintForSimulator();
-	//   }
-	//   std::cout << "***********************************************************" << std::endl;
-	//   std::cout << "" << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
+	//   std::cout << "\nConverted ME1 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
+	//   std::cout << "Converted ME2 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
+	//   std::cout << "Converted ME3 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
+	//   std::cout << "Converted ME4 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << "\n" << std::endl;
+
+	  
+	//   for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit)
+	//     std::cout << "Hit: Is CSC = " << Hit->Is_CSC() << ", CSC ID = " << Hit->CSC_ID() 
+	// 	      << ", sector = " << Hit->Sector() << ", sub = " << Hit->Subsector()
+	// 	      << ", neighbor = " << Hit->Neighbor() << ", station = " << Hit->Station()
+	// 	      << ", ring = " << Hit->Ring() << ", chamber = " << Hit->Chamber()
+	// 	      << ", stub = " << Hit->Stub_num() << ", BX = " << Hit->BX() << std::endl;
+	
+	//   // int iHit = 0;
+	//   // for (auto Hit = res_hit->begin(); Hit != res_hit->end(); ++Hit) {
+	//   //   if (iHit == 0) Hit->PrintSimulatorHeader();
+	//   //   Hit->PrintForSimulator();
+	//   //   iHit += 1;
+	//   // }
+	//   std::cout << "***********************************************************\n\n" << std::endl;
 	// }
 	
 	(res->at(iOut)).push_SP(SP_);
