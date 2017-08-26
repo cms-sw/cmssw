@@ -22,7 +22,7 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
     std::string EMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kEMTF ) ;
 
     // simply assign the algo key to the record
-    pL1TriggerKey->add( "L1TMuonEndcapParamsO2ORcd",
+    pL1TriggerKey->add( "L1TMuonEndCapParamsO2ORcd",
                         "L1TMuonEndCapParams",
                         EMTFKey) ;
 

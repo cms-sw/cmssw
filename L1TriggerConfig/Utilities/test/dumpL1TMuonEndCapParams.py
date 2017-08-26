@@ -70,16 +70,16 @@ else :
     process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap')
     process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
         cms.PSet(
-            record = cms.string('L1TMuonEndcapParamsO2ORcd'),
+            record = cms.string('L1TMuonEndCapParamsO2ORcd'),
             type = cms.string('L1TMuonEndCapParams'),
             key = cms.string(options.systemKey)
         )
     )
 
 # This online produced should never be called if the rest of the O2O machinery works as expected
-process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnline_cfi")
-process.L1TMuonEndcapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
-process.L1TMuonEndcapParamsOnlineProd.onlineDB             = cms.string( options.DBConnect )
+process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapParamsOnline_cfi")
+process.L1TMuonEndCapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TMuonEndCapParamsOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
 
@@ -100,8 +100,8 @@ outputDB = cms.Service("PoolDBOutputService",
     CondDB,
     toPut   = cms.VPSet(
         cms.PSet(
-            record = cms.string('L1TMuonEndcapParamsO2ORcd'),
-            tag = cms.string('L1TMuonEndcapParams_Stage2v0_hlt')
+            record = cms.string('L1TMuonEndCapParamsO2ORcd'),
+            tag = cms.string('L1TMuonEndCapParams_Stage2v0_hlt')
         ),
         cms.PSet(
             record = cms.string("L1TriggerKeyListExtRcd"),

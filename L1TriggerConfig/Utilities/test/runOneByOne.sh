@@ -71,7 +71,7 @@ ugtrscode=$?
 cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonOverlapParams.py topKey="$1:$2" DBAuth=${DBAuth}
 omtfcode=$?
 
-cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonEndcapParams.py topKey="$1:$2" DBAuth=${DBAuth}
+cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonEndCapParams.py topKey="$1:$2" DBAuth=${DBAuth}
 emtfcode=$?
 
 # check if any of the processes above failed

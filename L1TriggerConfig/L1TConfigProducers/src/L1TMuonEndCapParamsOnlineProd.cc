@@ -6,41 +6,41 @@
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsO2ORcd.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
 
-class L1TMuonEndcapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams> {
+class L1TMuonEndCapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
 public:
-    virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) override ;
+    virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
-    L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndcapParamsOnlineProd(void){}
+    L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&);
+    ~L1TMuonEndCapParamsOnlineProd(void){}
 };
 
-L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){}
+L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){}
 
-std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) {
     using namespace edm::es;
 
-    const L1TMuonEndcapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndcapParamsRcd >() ;
+    const L1TMuonEndCapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndCapParamsRcd >() ;
     edm::ESHandle< L1TMuonEndCapParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
 
     if (objectKey.empty()) {
-        edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndcapParams";
+        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndCapParams";
         throw std::runtime_error("Empty objectKey");
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
     std::string  rsKey = objectKey.substr(   objectKey.find(":")+1, std::string::npos );
 
-    edm::LogInfo( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Producing L1TMuonEndcapParams with TSC key = " << tscKey << " and RS key = " << rsKey ;
+    edm::LogInfo( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "Producing L1TMuonEndCapParams with TSC key = " << tscKey << " and RS key = " << rsKey ;
 
     std::string algo_key, hw_key;
     std::string algo_payload, hw_payload;
@@ -68,7 +68,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
                                                       ) ["CONF"];
 
     } catch ( std::runtime_error &e ) {
-        edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << e.what();
+        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << e.what();
         throw std::runtime_error("Broken key");
     }
 
@@ -101,4 +101,4 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndcapParamsOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapParamsOnlineProd);

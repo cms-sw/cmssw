@@ -28,8 +28,8 @@ outputDB = cms.Service("PoolDBOutputService",
                        connect = cms.string('sqlite_file:l1configPP.db'),
                        toPut   = cms.VPSet(
                            cms.PSet(
-                               record = cms.string('L1TMuonEndcapParamsRcd'),
-                               tag = cms.string("L1TMuonEndcapParams_static_v91.10")
+                               record = cms.string('L1TMuonEndCapParamsRcd'),
+                               tag = cms.string("L1TMuonEndCapParams_static_v91.10")
                            ),
                            cms.PSet(
                                record = cms.string('L1TMuonBarrelParamsRcd'),
