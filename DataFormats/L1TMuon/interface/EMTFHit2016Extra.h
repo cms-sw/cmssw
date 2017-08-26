@@ -1,5 +1,5 @@
 // Class for input trigger primitives to EMTF - AWB 04.01.16
-// Based on L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h
+// Based on L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h
 // In particular, see struct CSCData
 
 #ifndef DataFormats_L1TMuon_EMTFHit2016Extra_h
@@ -99,7 +99,7 @@ namespace l1t {
     float phi_loc_rad;  //  ? -  ?.  Filled in emulator, calculated from phi_loc_int with GetPackedPhi
     float phi_glob_deg; //  +/-180.  Filled in emulator, calculated from phi_loc_int with GetPackedPhi
     float phi_glob_rad; //  +/- pi.  Filled in emulator, calculated from phi_loc_int with GetPackedPhi
-    float phi_geom_rad; //  The global phi value returned by L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h.  Not yet filled - AWB 06.04.16
+    float phi_geom_rad; //  The global phi value returned by L1Trigger/L1TMuon/interface/GeometryTranslator.h.  Not yet filled - AWB 06.04.16
     int   theta_int;    //  ? -  ?.  Filled in emulator from ConvertedHit.Theta()
     float theta_loc;    //  Some bizzare local definition of theta.  Not yet filled - AWB 06.04.16
     float theta_deg;    // 10 - 45.  Filled in emulator from calc_theta_deg above

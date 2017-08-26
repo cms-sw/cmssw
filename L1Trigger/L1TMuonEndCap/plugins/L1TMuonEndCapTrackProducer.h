@@ -24,8 +24,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MuonInternalTrackFwd.h"
