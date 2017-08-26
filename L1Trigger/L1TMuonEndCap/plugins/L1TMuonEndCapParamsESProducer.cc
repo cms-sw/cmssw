@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -27,7 +27,7 @@ public:
   
   typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
 
-  ReturnType produce(const L1TMuonEndcapParamsRcd&);
+  ReturnType produce(const L1TMuonEndCapParamsRcd&);
 private:
   l1t::EndCapParamsHelper data_;
 };
@@ -61,7 +61,7 @@ L1TMuonEndCapParamsESProducer::~L1TMuonEndCapParamsESProducer()
 
 // ------------ method called to produce the data  ------------
 L1TMuonEndCapParamsESProducer::ReturnType
-L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndcapParamsRcd& iRecord)
+L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndCapParamsRcd& iRecord)
 {
    using namespace edm::es;
    std::shared_ptr<L1TMuonEndCapParams> pEMTFParams(data_.getWriteInstance());
