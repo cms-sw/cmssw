@@ -1,7 +1,7 @@
 #ifndef __L1TMUON_TRIGGERPRIMITIVE_H__
 #define __L1TMUON_TRIGGERPRIMITIVE_H__
 //
-// Class: L1TwinMux::TriggerPrimitive
+// Class: L1TMuon::TriggerPrimitive
 //
 // Info: This class implements a unifying layer between DT, CSC and RPC
 //       trigger primitives (TPs) such that TPs from different subsystems
@@ -17,7 +17,7 @@
 // Author: L. Gray (FNAL)
 //
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <vector>
 #include <iostream>
 
@@ -25,6 +25,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 //Global point (created on the fly)
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+// Forward declaration
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 
 // DT digi types
 class DTChamberId;
@@ -39,24 +42,30 @@ class CSCDetId;
 class RPCDigiL1Link;
 class RPCDetId;
 
-#include "MuonTriggerPrimitiveFwd.h"
+// GEM digi types
+class GEMPadDigi;
+class GEMDetId;
+
 
 namespace L1TMuon {
 
   class TriggerPrimitive {
   public:
     // define the subsystems that we have available
-    enum subsystem_type{kDT,kCSC,kRPC,kNSubsystems};
+    enum subsystem_type{kDT,kCSC,kRPC,kGEM,kNSubsystems};
 
     // define the data we save locally from each subsystem type
     // variables in these structs keep their colloquial meaning
     // within a subsystem
     // for RPCs you have to unroll the digi-link and raw det-id
     struct RPCData {
-      RPCData() : strip(0), layer(0), bx(0) {}
-      unsigned strip;
-      unsigned layer;
-      uint16_t bx;
+    RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0), valid(0) {}
+      uint16_t strip;
+      uint16_t strip_low; // for use in clustering
+      uint16_t strip_hi;  // for use in clustering
+      uint16_t layer;
+      int16_t bx;
+      uint16_t valid;
     };
 
     struct CSCData {
@@ -104,6 +113,14 @@ namespace L1TMuon {
       int theta_quality;
     };
 
+    struct GEMData {
+      GEMData() : pad(0), pad_low(0), pad_hi(0), bx(0) {}
+      uint16_t pad;
+      uint16_t pad_low; // for use in clustering
+      uint16_t pad_hi;  // for use in clustering
+      int16_t bx;
+    };
+
     //Persistency
     TriggerPrimitive(): _subsystem(kNSubsystems) {}
 
@@ -123,15 +140,16 @@ namespace L1TMuon {
 		     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
-		     const unsigned strip,
-		     const unsigned layer,
-		     const uint16_t bx);
+                     const unsigned strip,
+                     const unsigned layer,
+                     const int bx);
+
+    // GEM
+    TriggerPrimitive(const GEMDetId& detid,
+                     const GEMPadDigi& digi);
 
     //copy
     TriggerPrimitive(const TriggerPrimitive&);
-
-    // Create a copy of TP1 with wire of TP2
-    TriggerPrimitive(const TriggerPrimitive& tp1, const TriggerPrimitive& tp2);
 
     TriggerPrimitive& operator=(const TriggerPrimitive& tp);
     bool operator==(const TriggerPrimitive& tp) const;
@@ -160,9 +178,20 @@ namespace L1TMuon {
       IDType detId() const { return IDType(_id); }
 
     // accessors to raw subsystem data
+    void setDTData(const DTData& dt) { _dt = dt; }
+    void setCSCData(const CSCData& csc) { _csc = csc; }
+    void setRPCData(const RPCData& rpc) { _rpc = rpc; }
+    void setGEMData(const GEMData& gem) { _gem = gem; }
+
     const DTData  getDTData()  const { return _dt;  }
     const CSCData getCSCData() const { return _csc; }
     const RPCData getRPCData() const { return _rpc; }
+    const GEMData getGEMData() const { return _gem; }
+
+    DTData&  accessDTData()  { return _dt; }
+    CSCData& accessCSCData() { return _csc; }
+    RPCData& accessRPCData() { return _rpc; }
+    GEMData& accessGEMData() { return _gem; }
 
     // consistent accessors to common information
     const int getBX() const;
@@ -170,7 +199,6 @@ namespace L1TMuon {
     const int getWire() const;
     const int getPattern() const;
     const DetId rawId() const {return _id;};
-    const int Id() const;
 
     const unsigned getGlobalSector() const { return _globalsector; }
     const unsigned getSubSector() const { return _subsector; }
@@ -187,12 +215,16 @@ namespace L1TMuon {
 				  unsigned& global_sector,
 				  unsigned& subsector );
     void calculateRPCGlobalSector(const RPCDetId& chid,
-				  unsigned& global_sector,
-				  unsigned& subsector );
+                                  unsigned& global_sector,
+                                  unsigned& subsector );
+    void calculateGEMGlobalSector(const GEMDetId& chid,
+                                  unsigned& global_sector,
+                                  unsigned& subsector );
 
     DTData  _dt;
     CSCData _csc;
     RPCData _rpc;
+    GEMData _gem;
 
     DetId _id;
 
@@ -200,7 +232,7 @@ namespace L1TMuon {
 
     unsigned _globalsector; // [1,6] in 60 degree sectors
     unsigned _subsector; // [1,2] in 30 degree partitions of a sector
-    double _eta,_phi,_rho; // global pseudorapidity, phi
+    double _eta,_phi,_rho; // global pseudorapidity, phi, rho
     double _theta; // bend angle with respect to ray from (0,0,0)
   };
 
