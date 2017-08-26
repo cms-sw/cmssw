@@ -70,6 +70,12 @@ Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring = hltobjmo
     njets = 2,
     doHTHistos = False
 )
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring.histoPSet.mjjBinning = cms.vdouble([20. * x for x in range(30)])
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring.histoPSet.metPSet = cms.PSet(
+    nbins = cms.uint32(20),
+    xmin = cms.double(-0.5),
+    xmax = cms.double(200.)
+)
 
 Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring = hltobjmonitoring.clone(
     FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3/',
@@ -87,6 +93,7 @@ Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring = hltobjmonitoring
     doMETHistos = False,
     doHTHistos = False
 )
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring.histoPSet.mjjBinning = cms.vdouble([20. * x for x in range(30)])
 
 exoHLTPhotonmonitoring = cms.Sequence(
     SinglePhoton300_monitoring
