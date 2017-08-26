@@ -101,7 +101,7 @@ outputDB = cms.Service("PoolDBOutputService",
     toPut   = cms.VPSet(
         cms.PSet(
             record = cms.string('L1TMuonEndCapParamsO2ORcd'),
-            tag = cms.string('L1TMuonEndCapParams_Stage2v0_hlt')
+            tag = cms.string('L1TMuonEndCapParams_Stage2v1_hlt')
         ),
         cms.PSet(
             record = cms.string("L1TriggerKeyListExtRcd"),

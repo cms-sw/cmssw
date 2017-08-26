@@ -47,7 +47,7 @@ void L1TMuonEndcapViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 ///    evSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
 ///    boost::shared_ptr<L1TMuonEndCapForest> ptr2(new L1TMuonEndCapForest(*(handle2.product ())));
 ///
-///    cout<<"L1TMuonEndcapForest: "<<endl;
+///    cout<<"L1TMuonEndCapForest: "<<endl;
 ///    l1t::ForestHelper fhelp( ptr2.get() );
 ///    fhelp.print( cout );
 }
