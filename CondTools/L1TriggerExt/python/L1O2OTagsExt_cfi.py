@@ -13,6 +13,7 @@ def initL1O2OTagsExt():
     initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TMuonBarrelParams ] = "Stage2v0_hlt"
     initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TMuonOverlapParams ] = "Stage2v0_hlt"
     initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TMuonEndCapParams ] = "Stage2v0_hlt"
+    initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TMuonEndCapForest ] = "Stage2v0_hlt"
     initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TMuonGlobalParams ] = "Stage2v0_hlt"
     initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TCaloParams ] = "Stage2v0_hlt"
     
