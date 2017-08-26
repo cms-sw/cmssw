@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MuonInternalTrackFwd.h"
 
