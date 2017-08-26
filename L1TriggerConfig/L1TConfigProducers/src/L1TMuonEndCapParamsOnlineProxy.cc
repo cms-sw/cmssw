@@ -5,33 +5,33 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsO2ORcd.h"
 
-class L1TMuonEndcapParamsOnlineProxy : public edm::ESProducer {
+class L1TMuonEndCapParamsOnlineProxy : public edm::ESProducer {
 private:
     unsigned int PtAssignVersion, firmwareVersion, changeDate;
 public:
-    std::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndcapParamsO2ORcd& record);
+    std::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndCapParamsO2ORcd& record);
 
-    L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet&);
-    ~L1TMuonEndcapParamsOnlineProxy(void){}
+    L1TMuonEndCapParamsOnlineProxy(const edm::ParameterSet&);
+    ~L1TMuonEndCapParamsOnlineProxy(void){}
 };
 
-L1TMuonEndcapParamsOnlineProxy::L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
+L1TMuonEndCapParamsOnlineProxy::L1TMuonEndCapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
     setWhatProduced(this);
     PtAssignVersion = iConfig.getUntrackedParameter<unsigned int>("PtAssignVersion", 1);
     firmwareVersion = iConfig.getUntrackedParameter<unsigned int>("firmwareVersion", 1);
     changeDate      = iConfig.getUntrackedParameter<unsigned int>("changeDate",      1);
 }
 
-std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(const L1TMuonEndcapParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProxy::produce(const L1TMuonEndCapParamsO2ORcd& record) {
 /*
-    const L1TMuonEndcapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndcapParamsRcd >() ;
-    edm::ESHandle< L1TMuonEndcapParams > baseSettings ;
+    const L1TMuonEndCapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndCapParamsRcd >() ;
+    edm::ESHandle< L1TMuonEndCapParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
-    return boost::shared_ptr< L1TMuonEndcapParams > ( new L1TMuonEndcapParams( *(baseSettings.product()) ) );
+    return boost::shared_ptr< L1TMuonEndCapParams > ( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
 */
     std::shared_ptr< L1TMuonEndCapParams > retval = std::make_shared< L1TMuonEndCapParams>();
 
@@ -42,4 +42,4 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(con
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndcapParamsOnlineProxy);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapParamsOnlineProxy);

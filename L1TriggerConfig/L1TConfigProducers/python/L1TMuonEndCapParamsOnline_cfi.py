@@ -9,13 +9,13 @@ l1emtfparProtodb = cms.ESSource("PoolDBESSource",
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
-                record = cms.string('L1TMuonEndcapParamsRcd'),
+                record = cms.string('L1TMuonEndCapParamsRcd'),
                 tag = cms.string('L1TMuonEndCapParamsPrototype_Stage2v0_hlt')
             )
        )
 )
 
-L1TMuonEndcapParamsOnlineProd = cms.ESProducer("L1TMuonEndcapParamsOnlineProd",
+L1TMuonEndCapParamsOnlineProd = cms.ESProducer("L1TMuonEndCapParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
     forceGeneration = cms.bool(False),
     onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
