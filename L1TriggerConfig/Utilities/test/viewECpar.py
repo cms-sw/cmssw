@@ -42,7 +42,7 @@ else :
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TMuonEndCapParamsRcd'),
-                 tag = cms.string("L1TMuonEndCapParams_Stage2v0_hlt")
+                 tag = cms.string("L1TMuonEndCapParams_Stage2v1_hlt")
             )
        )
     )
