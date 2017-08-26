@@ -650,7 +650,6 @@ streamPhysicsMuons_datasetDoubleMuon_selector.hltResults = cms.InputTag('Trigger
 streamPhysicsMuons_datasetDoubleMuon_selector.l1tResults = cms.InputTag('')
 streamPhysicsMuons_datasetDoubleMuon_selector.throw      = cms.bool(False)
 streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleL2Mu50_v2', 
-    'HLT_DoubleMu20_7_Mass0to30_Photon23_v4', 
     'HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v4', 
     'HLT_DoubleMu3_DZ_PFMET70_PFMHT70_v4', 
     'HLT_DoubleMu3_DZ_PFMET90_PFMHT90_v4', 
@@ -729,6 +728,7 @@ streamPhysicsMuons_datasetMuonEG_selector.triggerConditions = cms.vstring('HLT_D
     'HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v13', 
     'HLT_DoubleMu20_7_Mass0to30_L1_DM4EG_v4', 
     'HLT_DoubleMu20_7_Mass0to30_L1_DM4_v4', 
+    'HLT_DoubleMu20_7_Mass0to30_Photon23_v4', 
     'HLT_Mu12_DoublePhoton20_v1', 
     'HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v11', 
     'HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v3', 
