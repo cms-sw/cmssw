@@ -11,7 +11,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhThLUT_Neighbor.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 bool neighbor(int endcap,int sector,int SectIndex,int id,int sub,int station){
   

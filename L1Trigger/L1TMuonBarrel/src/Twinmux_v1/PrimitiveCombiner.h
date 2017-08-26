@@ -10,7 +10,7 @@
 //
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include <cmath>
 
