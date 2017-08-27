@@ -1,6 +1,7 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/Framework"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/LHEInterface"/>
 <use   name="heppdt"/>

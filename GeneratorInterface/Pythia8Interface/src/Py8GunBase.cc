@@ -15,14 +15,6 @@ namespace gen {
 Py8GunBase::Py8GunBase( edm::ParameterSet const& ps )
    : Py8InterfaceBase(ps)
 {
-
-  runInfo().setFilterEfficiency(
-    ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
-  runInfo().setExternalXSecLO(
-    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSection", -1.)) );
-  runInfo().setExternalXSecNLO(
-    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSectionNLO", -1.)) );
-
   // PGun specs
   //
   edm::ParameterSet pgun_params = 
@@ -60,8 +52,12 @@ bool Py8GunBase::initializeForInternalPartons()
   if (useEvtGen) {
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str()));
+
+    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
+      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
+    }
   }
 
   return true;
@@ -131,8 +127,8 @@ void Py8GunBase::finalizeEvent()
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) 
     {
-      fMasterGen->info.list(std::cout); 
-      fMasterGen->event.list(std::cout);
+      fMasterGen->info.list(); 
+      fMasterGen->event.list();
     } 
 
     if (pythiaHepMCVerbosity) 

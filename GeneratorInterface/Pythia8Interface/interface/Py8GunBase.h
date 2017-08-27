@@ -23,6 +23,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
@@ -42,33 +43,16 @@ namespace gen {
   public:
     Py8GunBase( edm::ParameterSet const& ps );
     ~Py8GunBase() {}
-
-    // GenRunInfo and GenEvent passing
-    GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
-    HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
-    GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
-
-    void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
-    void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }
-
-    // interface for accessing the EDM information from the hadronizer
-    void setEDMEvent(edm::Event &event) { edmEvent_ = &event; }
-    edm::Event &getEDMEvent() const { return *edmEvent_; }
-    virtual bool select(HepMC::GenEvent*) const { return true;}
     
     virtual bool residualDecay(); // common func
     bool initializeForInternalPartons();
     void finalizeEvent(); 
     void statistics();
-
+    
     void setRandomEngine(CLHEP::HepRandomEngine* v) { p8SetRandomEngine(v); }
     std::vector<std::string> const& sharedResources() const { return p8SharedResources; }
 
-  protected:
-    GenRunInfoProduct& runInfo() { return genRunInfo_; }
-    std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
-    std::auto_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
-        
+  protected:        
     // (some of) PGun parameters
     //
     std::vector<int> fPartIDs ;
@@ -76,12 +60,6 @@ namespace gen {
     double           fMaxPhi ;
     
   private:
-    GenRunInfoProduct                   genRunInfo_;
-    std::auto_ptr<HepMC::GenEvent>      genEvent_;
-    std::auto_ptr<GenEventInfoProduct>  genEventInfo_;
-
-    edm::Event                          *edmEvent_;
-
     static const std::vector<std::string> p8SharedResources;
   };
 
