@@ -7,41 +7,45 @@
 //
 //   Author :
 //   G. Flouris               U Ioannina    Feb. 2015
+//   Mod.: g Karathanasis 
 //--------------------------------------------------
 
 
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/one/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "L1Trigger/L1TTwinMux/interface/L1TwinMuxAlgortithm.h"
+#include "L1Trigger/L1TTwinMux/interface/L1TTwinMuxAlgorithm.h"
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 using namespace std;
 
-class L1TwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> {
+class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> {
 public:
-  L1TwinMuxProducer(const edm::ParameterSet & pset);
-  ~L1TwinMuxProducer() {}
+  L1TTwinMuxProducer(const edm::ParameterSet & pset);
+  ~L1TTwinMuxProducer() {}
   void produce(edm::Event & e, const edm::EventSetup& c);
 private:
-  L1TwinMuxAlgortithm * m_l1tma;
+  //L1TTwinMuxAlgorithm *  m_l1tma;
+//  std::unique_ptr<L1TTwinMuxAlgorithm> m_l1tma(new L1TTwinMuxAlgorithm());
   edm::EDGetToken m_dtdigi, m_dtthetadigi, m_rpcsource;
   ///Event Setup Handler
-  edm::ESHandle< L1TwinMuxParams > tmParamsHandle;
+  edm::ESHandle< L1TTwinMuxParams > tmParamsHandle;
 
 };
 
 
 
 
-L1TwinMuxProducer::L1TwinMuxProducer(const edm::ParameterSet & pset) {
-m_l1tma = new L1TwinMuxAlgortithm();
+L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet & pset) {
+//m_l1tma = new L1TTwinMuxAlgorithm();
+// std::unique_ptr<L1TTwinMuxAlgorithm> m_l1tma(new L1TTwinMuxAlgorithm());
 
 m_dtdigi      = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("DTDigi_Source"));
 m_dtthetadigi = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("DTThetaDigi_Source"));
@@ -51,13 +55,13 @@ produces<L1MuDTChambPhContainer>("TwinMuxEmulator");
 
 }
 
-void L1TwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
+void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
-
+  std::unique_ptr<L1TTwinMuxAlgorithm> m_l1tma(new L1TTwinMuxAlgorithm());
   ///Check consistency of the paramters
-  const L1TwinMuxParamsRcd& tmParamsRcd = c.get<L1TwinMuxParamsRcd>();
+  const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();
   tmParamsRcd.get(tmParamsHandle);
-  const L1TwinMuxParams& tmParams = *tmParamsHandle.product();
+  const L1TTwinMuxParams& tmParams = *tmParamsHandle.product();
 
   ///Only RPC: the emulator's output consist from rpc->dy primitives only
   bool onlyRPC = tmParams.get_UseOnlyRPC();
@@ -82,6 +86,8 @@ void L1TwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
 
   std::unique_ptr<L1MuDTChambPhContainer> l1ttmp(new L1MuDTChambPhContainer);
+  //auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>;
+//  auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>;
   m_l1tma->run(phiDigis, thetaDigis, rpcDigis,c);
   *l1ttmp = m_l1tma->get_ph_tm_output();
 
@@ -90,5 +96,5 @@ void L1TwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 }
 
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(L1TwinMuxProducer);
+
+DEFINE_FWK_MODULE(L1TTwinMuxProducer);

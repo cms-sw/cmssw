@@ -16,8 +16,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "CondFormats/L1TObjects/interface/L1TwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TwinMuxParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
+#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
