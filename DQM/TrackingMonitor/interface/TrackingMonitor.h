@@ -127,6 +127,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         // Track Candidates
         MonitorElement * NumberOfTrackCandidates;
+        MonitorElement * FractionCandidatesOverSeeds;
 
         // Cluster Properties
 	std::vector<MonitorElement*> NumberOfTrkVsClusters;
