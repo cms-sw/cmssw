@@ -136,7 +136,7 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   v0_mass_vs_pt_  = bookProfile(ibooker,"v0_mass_vs_pt", "mass vs pt", "p_{T} [GeV]","mass [GeV]",pt_binning_, mass_binning_);
   v0_mass_vs_eta_ = bookProfile(ibooker,"v0_mass_vs_eta","mass vs eta","#eta",       "mass [GeV]",eta_binning_,mass_binning_); 
 
-  MEbinning delta_binning; delta_binning.nbins = 100; delta_binning.xmin = -1.; delta_binning.xmax = 1.;
+  MEbinning delta_binning; delta_binning.nbins = 100; delta_binning.xmin = -0.2; delta_binning.xmax = 0.2;
   v0_deltaMass_ = bookHisto1D(ibooker,"v0_deltaMass", "deltaMass", "m-m_{PDG}/m_{DPG}", "events",delta_binning ); 
   v0_deltaMass_vs_pt_  = bookProfile(ibooker,"v0_deltaMass_vs_pt",  "deltaMass vs pt",  "p_{T} [GeV]", "m-m_{PDG}/m_{DPG}", pt_binning_,  delta_binning);
   v0_deltaMass_vs_eta_ = bookProfile(ibooker,"v0_deltaMass_vs_eta", "deltaMass vs eta", "#eta",        "m-m_{PDG}/m_{DPG}", eta_binning_, delta_binning);

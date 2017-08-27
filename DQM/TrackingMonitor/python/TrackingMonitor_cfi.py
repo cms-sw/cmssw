@@ -141,13 +141,13 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TkSizeMin = cms.double(-0.5),
 
     # Number of seeds per Event
-    TkSeedSizeBin = cms.int32(150),
-    TkSeedSizeMax = cms.double(149.5),                        
+    TkSeedSizeBin = cms.int32(200),
+    TkSeedSizeMax = cms.double(999.5),                        
     TkSeedSizeMin = cms.double(-0.5),
 
     # Number of Track Cadidates per Event
-    TCSizeBin = cms.int32(150),
-    TCSizeMax = cms.double(149.5),
+    TCSizeBin = cms.int32(200),
+    TCSizeMax = cms.double(999.5),
     TCSizeMin = cms.double(-0.5),
 
     # num rec hits

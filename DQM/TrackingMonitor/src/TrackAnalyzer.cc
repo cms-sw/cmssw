@@ -649,19 +649,19 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       stoppingSource->setAxisTitle("Number of Tracks",2);
       
       histname = "stoppingSourceVSeta_";
-      stoppingSourceVSeta = ibooker.book2D(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, StopReasonNameSize, 0., double(StopReasonNameSize));
+      stoppingSourceVSeta = ibooker.bookProfile(histname+CategoryName, histname+CategoryName,
+                                            EtaBin, EtaMin, EtaMax, 2, 0., 2.);
       stoppingSourceVSeta->setAxisTitle("track #eta",1);
-      stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+      stoppingSourceVSeta->setAxisTitle("stopped fraction",2);
       
       histname = "stoppingSourceVSphi_";
-      stoppingSourceVSphi = ibooker.book2D(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, StopReasonNameSize, 0., double(StopReasonNameSize));
+      stoppingSourceVSphi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, 
+                                           PhiBin, PhiMin, PhiMax, 2, 0., 2.);
       stoppingSourceVSphi->setAxisTitle("track #phi",1);
-      stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+      stoppingSourceVSphi->setAxisTitle("stopped fraction",2);
 
       for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
 	stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
-	stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
-	stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
       }
 
     }
@@ -1129,9 +1129,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // stopping source
     int max = stoppingSource->getNbinsX();
     double stop = track.stopReason() > max ? double(max-1) : static_cast<double>(track.stopReason());
+    double stopped = int(StopReason::NOT_STOPPED)==track.stopReason() ? 0. : 1.;
     stoppingSource->Fill(stop);
-    stoppingSourceVSeta->Fill(track.eta(),stop);
-    stoppingSourceVSphi->Fill(track.phi(),stop);
+    stoppingSourceVSeta->Fill(track.eta(),stopped);
+    stoppingSourceVSphi->Fill(track.phi(),stopped);
   }
 
   if ( doLumiAnalysis_ ) {

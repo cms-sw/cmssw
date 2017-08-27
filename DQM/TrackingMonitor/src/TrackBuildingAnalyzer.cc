@@ -230,31 +230,29 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     stoppingSource->setAxisTitle("Number of Tracks",2);
     
     histname = "StoppingSourceVSeta_"+seedProducer.label() + "_";
-    stoppingSourceVSeta = ibooker.book2D(histname+CatagoryName,
+    stoppingSourceVSeta = ibooker.bookProfile(histname+CatagoryName,
                                          histname+CatagoryName,
                                          EtaBin,
                                          EtaMin,
                                          EtaMax,
-                                         StopReasonNameSize,
-                                         0., double(StopReasonNameSize));
+                                         2,
+                                         0., 2.);
     stoppingSourceVSeta->setAxisTitle("track #eta",1);
-    stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+    stoppingSourceVSeta->setAxisTitle("fraction stopped",2);
     
     histname = "StoppingSourceVSphi_"+seedProducer.label() + "_";
-    stoppingSourceVSphi = ibooker.book2D(histname+CatagoryName,
+    stoppingSourceVSphi = ibooker.bookProfile(histname+CatagoryName,
                                          histname+CatagoryName,
                                          PhiBin,
                                          PhiMin,
                                          PhiMax,
-                                         StopReasonNameSize,
-                                         0., double(StopReasonNameSize));
+                                         2,
+                                         0., 2.);
     stoppingSourceVSphi->setAxisTitle("track #phi",1);
-    stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+    stoppingSourceVSphi->setAxisTitle("fraction stopped",2);
     
     for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
       stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
-      stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
-      stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
     }
   }
   
@@ -475,9 +473,10 @@ void TrackBuildingAnalyzer::analyze
     // stopping source
     int max = stoppingSource->getNbinsX();
     double stop = candidate.stopReason() > max ? double(max-1) : static_cast<double>(candidate.stopReason());
+    double stopped = int(StopReason::NOT_STOPPED)==candidate.stopReason() ? 0. : 1.;
     stoppingSource      ->Fill(stop);
-    stoppingSourceVSeta ->Fill(eta,stop);
-    stoppingSourceVSphi ->Fill(phi,stop);
+    stoppingSourceVSeta ->Fill(eta,stopped);
+    stoppingSourceVSphi ->Fill(phi,stopped);
   }
 
   if (doTCPlots){
