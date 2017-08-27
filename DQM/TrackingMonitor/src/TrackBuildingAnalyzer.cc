@@ -19,20 +19,20 @@
 #include <iostream>
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : SeedPt(NULL)
-    , SeedEta(NULL)
-    , SeedPhi(NULL)
-    , SeedPhiVsEta(NULL)
-    , SeedTheta(NULL)
-    , SeedQ(NULL)
-    , SeedDxy(NULL)
-    , SeedDz(NULL)
-    , NumberOfRecHitsPerSeed(NULL)
-    , NumberOfRecHitsPerSeedVsPhiProfile(NULL)
-    , NumberOfRecHitsPerSeedVsEtaProfile(NULL)
-    , stoppingSource(NULL)
-    , stoppingSourceVSeta(NULL)
-    , stoppingSourceVSphi(NULL)
+    : SeedPt(nullptr)
+    , SeedEta(nullptr)
+    , SeedPhi(nullptr)
+    , SeedPhiVsEta(nullptr)
+    , SeedTheta(nullptr)
+    , SeedQ(nullptr)
+    , SeedDxy(nullptr)
+    , SeedDz(nullptr)
+    , NumberOfRecHitsPerSeed(nullptr)
+    , NumberOfRecHitsPerSeedVsPhiProfile(nullptr)
+    , NumberOfRecHitsPerSeedVsEtaProfile(nullptr)
+    , stoppingSource(nullptr)
+    , stoppingSourceVSeta(nullptr)
+    , stoppingSourceVSphi(nullptr)
 {
 }
 
@@ -50,7 +50,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
   
   // use the AlgoName and Quality Name 
-  std::string CatagoryName = AlgoName;
+  const std::string& CatagoryName = AlgoName;
   
   // get binning from the configuration
   int    TrackPtBin = iConfig.getParameter<int>(   "TrackPtBin");

@@ -972,7 +972,7 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event & iEvent) {
   edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
   iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
   if (recoPrimaryVerticesHandle.isValid())
-    if (recoPrimaryVerticesHandle->size() > 0)
+    if (!recoPrimaryVerticesHandle->empty())
       for (auto v : *recoPrimaryVerticesHandle)
         if (v.ndof() >= pvNDOF_ && !v.isFake())
           ++good_vertices_;
@@ -988,7 +988,7 @@ void TrackAnalyzer::setLumi(const edm::Event & iEvent, const edm::EventSetup& iS
 
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() && lumiScalers->size() ) {
+  if ( lumiScalers.isValid() && !lumiScalers->empty() ) {
     LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
     scal_lumi_ = scalit->instantLumi();
   } else 
@@ -1168,7 +1168,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
     edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
     iEvent.getByToken(pvToken_,recoPrimaryVerticesHandle);
-    if (recoPrimaryVerticesHandle.isValid() && recoPrimaryVerticesHandle->size() > 0) {
+    if (recoPrimaryVerticesHandle.isValid() && !recoPrimaryVerticesHandle->empty()) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
     
 
