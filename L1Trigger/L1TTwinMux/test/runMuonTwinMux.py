@@ -5,14 +5,14 @@ import optparse
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source('PoolSource',
  fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gkaratha/private/bmtf/gen_samples/Singlemu_oneoverpt_100k.root')
 	                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -29,8 +29,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load('L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff')
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TwinMuxParamsRcd'),
-               data = cms.vstring('L1TwinMuxParams'))
+      cms.PSet(record = cms.string('L1TTwinMuxParamsRcd'),
+               data = cms.vstring('L1TTwinMuxParams'))
                    ),
    verbose = cms.untracked.bool(True)
 )
@@ -44,8 +44,8 @@ process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 
 
 process.L1TMuonSeq = cms.Sequence(  
-				  process.esProd
-				  +process.simTwinMuxDigisEmu
+        process.esProd
+       +process.simTwinMuxDigisEmu
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)

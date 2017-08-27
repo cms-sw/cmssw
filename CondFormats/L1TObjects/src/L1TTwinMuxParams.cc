@@ -1,6 +1,6 @@
-#include "CondFormats/L1TObjects/interface/L1TwinMuxParams.h"
+#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
 
-L1TwinMuxParams::L1TwinMuxParams() :
+L1TTwinMuxParams::L1TTwinMuxParams() :
   pnodes_(NUM_TM_PARAM_NODES)
 {
   //pnodes_[CONFIG].sparams_.clear();
@@ -8,7 +8,7 @@ L1TwinMuxParams::L1TwinMuxParams() :
   version_=Version;
 }
 
-void L1TwinMuxParams::print(std::ostream& out) const {
+void L1TTwinMuxParams::print(std::ostream& out) const {
 
   out << "L1 TwinMux Parameters" << std::endl;
 
