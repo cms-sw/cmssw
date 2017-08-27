@@ -50,6 +50,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfSeeds(NULL)
     , NumberOfSeeds_lumiFlag(NULL)
     , NumberOfTrackCandidates(NULL)
+    , FractionCandidatesOverSeeds(NULL)
 				//    , NumberOfGoodTrkVsClus(NULL)
     , NumberEventsOfVsLS(NULL)
     , NumberOfTracksVsLS(NULL)
@@ -613,6 +614,12 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     NumberOfTrackCandidates = ibooker.book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
     NumberOfTrackCandidates->setAxisTitle("Number of Track Candidates per Event", 1);
     NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
+
+    histname = "FractionOfCandOverSeeds_"+ tcProducer.label() + "_"+ CategoryName;
+    FractionCandidatesOverSeeds = ibooker.book1D(histname, histname, 100, 0., 1.);
+    FractionCandidatesOverSeeds->setAxisTitle("Number of Track Candidates / Number of Seeds per Event", 1);
+    FractionCandidatesOverSeeds->setAxisTitle("Number of Event", 2);
+
   }
   
   theTrackBuildingAnalyzer->initHisto(ibooker,*conf);
@@ -855,6 +862,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  const reco::BeamSpot& bs = *recoBeamSpotHandle;      
 	  
 	  NumberOfTrackCandidates->Fill(theTCCollection.size());
+
+          // get the seed collection
+          edm::Handle<edm::View<TrajectorySeed> > seedHandle;
+          iEvent.getByToken(seedToken_, seedHandle );
+          const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
+          if (seedHandle.isValid() && !seedCollection.empty()) 
+            FractionCandidatesOverSeeds->Fill(double(theTCCollection.size())/double(seedCollection.size()));
+
 	  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 	  for( TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end(); ++cand) {
 	    
