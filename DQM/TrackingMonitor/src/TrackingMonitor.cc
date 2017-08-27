@@ -616,7 +616,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
 
     histname = "FractionOfCandOverSeeds_"+ tcProducer.label() + "_"+ CategoryName;
-    FractionCandidatesOverSeeds = ibooker.book1D(histname, histname, 100, 0., 1.);
+    FractionCandidatesOverSeeds = ibooker.book1D(histname, histname, 101, 0., 1.01);
     FractionCandidatesOverSeeds->setAxisTitle("Number of Track Candidates / Number of Seeds per Event", 1);
     FractionCandidatesOverSeeds->setAxisTitle("Number of Event", 2);
 
