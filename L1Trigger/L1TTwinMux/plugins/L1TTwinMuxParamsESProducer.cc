@@ -1,11 +1,11 @@
 // -*- C++ -*-
 //
-// Class:      L1TwinMuxParamsESProducer
+// Class:      L1TTwinMuxParamsESProducer
 //
 // Original Author:  Giannis Flouris
 //         Created:
 //
-//
+//modifications: g karathanasis
 
 
 // system include files
@@ -18,24 +18,24 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
-#include "CondFormats/L1TObjects/interface/L1TwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TwinMuxParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
+#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
 
 
 // class declaration
 //
 typedef std::map<short, short, std::less<short> > LUT;
 
-class L1TwinMuxParamsESProducer : public edm::ESProducer {
+class L1TTwinMuxParamsESProducer : public edm::ESProducer {
    public:
-      L1TwinMuxParamsESProducer(const edm::ParameterSet&);
-      ~L1TwinMuxParamsESProducer();
+      L1TTwinMuxParamsESProducer(const edm::ParameterSet&);
+      ~L1TTwinMuxParamsESProducer();
 
-      typedef std::shared_ptr<L1TwinMuxParams> ReturnType;
+      typedef std::shared_ptr<L1TTwinMuxParams> ReturnType;
 
-      ReturnType produce(const L1TwinMuxParamsRcd&);
+      ReturnType produce(const L1TTwinMuxParamsRcd&);
    private:
-      L1TwinMuxParams m_params;
+      L1TTwinMuxParams m_params;
 };
 
 //
@@ -49,7 +49,7 @@ class L1TwinMuxParamsESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-L1TwinMuxParamsESProducer::L1TwinMuxParamsESProducer(const edm::ParameterSet& iConfig)
+L1TTwinMuxParamsESProducer::L1TTwinMuxParamsESProducer(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -78,7 +78,7 @@ L1TwinMuxParamsESProducer::L1TwinMuxParamsESProducer(const edm::ParameterSet& iC
 }
 
 
-L1TwinMuxParamsESProducer::~L1TwinMuxParamsESProducer()
+L1TTwinMuxParamsESProducer::~L1TTwinMuxParamsESProducer()
 {
 
 }
@@ -89,16 +89,16 @@ L1TwinMuxParamsESProducer::~L1TwinMuxParamsESProducer()
 //
 
 // ------------ method called to produce the data  ------------
-L1TwinMuxParamsESProducer::ReturnType
-L1TwinMuxParamsESProducer::produce(const L1TwinMuxParamsRcd& iRecord)
+L1TTwinMuxParamsESProducer::ReturnType
+L1TTwinMuxParamsESProducer::produce(const L1TTwinMuxParamsRcd& iRecord)
 {
    using namespace edm::es;
    // boost::shared_ptr<L1TwinMuxParams> pTMParams;
 
    // pTMParams = boost::shared_ptr<L1TwinMuxParams>(new L1TwinMuxParams(m_params));
    //return pTMParams;
-   return std::make_shared<L1TwinMuxParams>(m_params);
+   return std::make_shared<L1TTwinMuxParams>(m_params);
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TwinMuxParamsESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TTwinMuxParamsESProducer);

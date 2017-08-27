@@ -7,6 +7,7 @@
 //
 //   Author :
 //   G. Flouris               U Ioannina    Mar. 2015
+//   mod.: G Karathanasis
 //--------------------------------------------------
 
 #ifndef AlignTrackSegments_H
@@ -15,8 +16,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
-#include "CondFormats/L1TObjects/interface/L1TwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TwinMuxParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
+#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

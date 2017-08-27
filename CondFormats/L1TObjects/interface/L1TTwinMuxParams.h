@@ -5,7 +5,7 @@
 ///
 ///
 /// \author: Giannis Flouris
-///
+/// mod : g karathanasis
 
 #ifndef L1TwinMuxParams_h
 #define L1TwinMuxParams_h
@@ -16,9 +16,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-class L1TwinMuxParams {
+class L1TTwinMuxParams {
 public:
-  L1TwinMuxParams();
+  L1TTwinMuxParams();
   enum { Version = 1 };
 
   class Node {
@@ -46,7 +46,7 @@ public:
 	       NUM_CONFIG_PARAMS};
 
 
-  ~L1TwinMuxParams() {}
+  ~L1TTwinMuxParams() {}
 
   // FW version
   unsigned fwVersion() const { return fwVersion_; }
@@ -75,7 +75,7 @@ public:
 
   // print parameters to stream:
   void print(std::ostream&) const;
-  friend std::ostream& operator<<(std::ostream& o, const L1TwinMuxParams & p) { p.print(o); return o; }
+  friend std::ostream& operator<<(std::ostream& o, const L1TTwinMuxParams & p) { p.print(o); return o; }
   private:
     unsigned version_;
     unsigned fwVersion_;

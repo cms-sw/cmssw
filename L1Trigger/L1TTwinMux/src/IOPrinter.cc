@@ -102,14 +102,13 @@ cout<<"======================================================"<<endl;
 }
 
 
-void IOPrinter::run(
-                                                            L1MuDTChambPhContainer* inphiDigis,
-                                                            L1MuDTChambPhContainer outphiDigis,
-                                                            RPCDigiCollection* rpcDigis,
-                                                            const edm::EventSetup& c) {
+void IOPrinter::run(                                                            L1MuDTChambPhContainer* inphiDigis,
+L1MuDTChambPhContainer outphiDigis,
+RPCDigiCollection* rpcDigis,
+const edm::EventSetup& c) {
 
-    cout<<"======================================================"<<endl;
-    int bx=0, wheel=0, sector=0, station=1;
+  cout<<"======================================================"<<endl;
+  int bx=0, wheel=0, sector=0, station=1;
   L1MuDTChambPhDigi const* dtts1=0;
   L1MuDTChambPhDigi const* dtts2=0;
   L1MuTMChambPhContainer * inphiDigis_tm=0;
@@ -127,10 +126,10 @@ void IOPrinter::run(
         for (station=1; station<=4; station++){
           int nhits = DTRPCBxCorrection::noRPCHits(*inphiDigis, bx, wheel, sector, station);
           for(int hit=0; hit<nhits; hit++){
-          dtts1=0;
-          dtts1 = inphiDigis_tm->chPhiSegm(wheel,station,sector,bx,hit);
-          if(dtts1) {
-            cout<<dtts1->bxNum()<<"\t"<<dtts1->whNum()<<"\t"<<dtts1->scNum()<<"\t"<<dtts1->stNum()<<"\t"<<dtts1->phi()<<"\t"<<dtts1->phiB()<<"\t"<<dtts1->code()<<"\t"<<dtts1->Ts2Tag()<<"\t"<<dtts1->BxCnt()<<"\t0"<<endl;
+            dtts1=0;
+            dtts1 = inphiDigis_tm->chPhiSegm(wheel,station,sector,bx,hit);
+            if(dtts1) {
+              cout<<dtts1->bxNum()<<"\t"<<dtts1->whNum()<<"\t"<<dtts1->scNum()<<"\t"<<dtts1->stNum()<<"\t"<<dtts1->phi()<<"\t"<<dtts1->phiB()<<"\t"<<dtts1->code()<<"\t"<<dtts1->Ts2Tag()<<"\t"<<dtts1->BxCnt()<<"\t0"<<endl;
           }
         }
         }

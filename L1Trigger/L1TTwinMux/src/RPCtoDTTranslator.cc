@@ -42,18 +42,15 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
   int max_rpc_bx = 2; int min_rpc_bx = -2;
 
     ///Init structues
-	for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ) {
-
-           RPCDetId detid = (*chamber).first;
-
-               for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
-                   if(detid.region()!=0 ) continue; //Region = 0 Barrel
-                   if(digi->bx()>max_rpc_bx || digi->bx()<min_rpc_bx) continue;
-
-                   if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-                   if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
-                   if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
-                   if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
+  for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ) {
+     RPCDetId detid = (*chamber).first;
+     for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
+            if(detid.region()!=0 ) continue; //Region = 0 Barrel
+            if(digi->bx()>max_rpc_bx || digi->bx()<min_rpc_bx) continue;
+            if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+            if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
+            if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
+            if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
                }
     }///for chamber
 
@@ -62,225 +59,204 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
       int itr=0;
 //      int hits[5][4][12][2][5][3][100]= {{{{{{{0}}}}}}};
       std::map<RPCHitCleaner::detId_Ext, int> hits;
-
       int cluster_size = 0;
-      for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ) {
-
+      for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ){
         RPCDetId detid = (*chamber).first;
         int strip_n1 = -10000;
         int bx_n1 = -10000;
         if(detid.region()!=0 ) continue; //Region = 0 Barrel
-
-                   for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
-                       if(fabs(digi->bx())>3 ) continue;
-                       ///Create cluster ids and store their size
-                       //if((digi->strip()+1!=strip_n1)|| digi->bx()!=bx_n1){
-                       if( abs(digi->strip()-strip_n1)!=1 || digi->bx()!=bx_n1){
-
-                         if(itr!=0)vcluster_size.push_back(cluster_size);
-                         cluster_size = 0;
-                         cluster_id++;
-                       }
-                       itr++;
-                       cluster_size++;
-                       ///hit belongs to cluster with clusterid
-                       //hits[(detid.ring()+2)][(detid.station()-1)][(detid.sector()-1)][(detid.layer()-1)][(digi->bx()+2)][detid.roll()-1][digi->strip()]= cluster_id ;
-                       RPCHitCleaner::detId_Ext tmp{detid,digi->bx(),digi->strip()};
-                       hits[tmp] = cluster_id;
-
-                       ///strip of i-1
-                       strip_n1 = digi->strip();
-                       bx_n1 = digi->bx();
-                   }
+        for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ){
+           if(fabs(digi->bx())>3 ) continue;
+           //Create cluster ids and store their size
+           //if((digi->strip()+1!=strip_n1)|| digi->bx()!=bx_n1){
+           if( abs(digi->strip()-strip_n1)!=1 || digi->bx()!=bx_n1){
+           if(itr!=0)vcluster_size.push_back(cluster_size);
+           cluster_size = 0;
+           cluster_id++;
+           }
+         itr++;
+         cluster_size++;
+         ///hit belongs to cluster with clusterid
+        //hits[(detid.ring()+2)][(detid.station()-1)][(detid.sector()-1)][(detid.layer()-1)][(digi->bx()+2)][detid.roll()-1][digi->strip()]= cluster_id ;
+         RPCHitCleaner::detId_Ext tmp{detid,digi->bx(),digi->strip()};
+         hits[tmp] = cluster_id;
+         ///strip of i-1
+         strip_n1 = digi->strip();
+         bx_n1 = digi->bx();
+         }
         }///for chamber
         vcluster_size.push_back(cluster_size);
 
 
 
    for(int wh=-2; wh<=2; wh++){
-    for(int sec=1; sec<=12; sec++){
+     for(int sec=1; sec<=12; sec++){
         for(int st=1; st<=4; st++){
-            int rpcbx = 0;
-            std::vector<int> delta_phib;
-            bool found_hits = false;
-            std::vector<int> rpc2dt_phi, rpc2dt_phib;
+          int rpcbx = 0;
+          std::vector<int> delta_phib;
+          bool found_hits = false;
+          std::vector<int> rpc2dt_phi, rpc2dt_phib;
+          ///Loop over all combinations of layer 1 and 2.
+          int itr1=0, itr2=0;
+          int phi1=0, phi2=0;
+          for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
+           RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid,vrpc_hit_layer1[l1].bx,vrpc_hit_layer1[l1].strip};
+           int id = hits[tmp];
+           phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
+           if(vcluster_size[id]==2 && itr1==0) {
+             itr1++;
+             continue;
+             }
+           if(vcluster_size[id]==2 && itr1==1 ) {
+             itr1 = 0;
+             phi1 = phi1 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip));
+             phi1 /= 2;
+             }
 
-            ///Loop over all combinations of layer 1 and 2.
-            int itr1=0, itr2=0;
-            int phi1=0, phi2=0;
-            for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
-                RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid,vrpc_hit_layer1[l1].bx,vrpc_hit_layer1[l1].strip};
-                int id = hits[tmp];
-                phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
+            for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
+              if(vrpc_hit_layer1[l1].station!=st || vrpc_hit_layer2[l2].station!=st ) continue;
+              if(vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer2[l2].sector!=sec ) continue;
+              if(vrpc_hit_layer1[l1].wheel!=wh || vrpc_hit_layer2[l2].wheel!=wh ) continue;
+              if(vrpc_hit_layer1[l1].bx!=vrpc_hit_layer2[l2].bx ) continue;
+              RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer2[l2].detid,vrpc_hit_layer2[l2].bx,vrpc_hit_layer2[l2].strip};
+              int id = hits[tmp];
 
-                 if(vcluster_size[id]==2 && itr1==0) {
-                   itr1++;
-                   continue;
+              if(vcluster_size[id]==2 && itr2==0) {
+                 itr2++;
+                 continue;
                  }
-                 if(vcluster_size[id]==2 && itr1==1 ) {
-                     itr1 = 0;
-                     phi1 = phi1 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip));
-                     phi1 /= 2;
-                }
-
-
-                for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
-
-                        if(vrpc_hit_layer1[l1].station!=st || vrpc_hit_layer2[l2].station!=st ) continue;
-                        if(vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer2[l2].sector!=sec ) continue;
-                        if(vrpc_hit_layer1[l1].wheel!=wh || vrpc_hit_layer2[l2].wheel!=wh ) continue;
-                        if(vrpc_hit_layer1[l1].bx!=vrpc_hit_layer2[l2].bx ) continue;
-
-                         RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer2[l2].detid,vrpc_hit_layer2[l2].bx,vrpc_hit_layer2[l2].strip};
-                         int id = hits[tmp];
-
-                         if(vcluster_size[id]==2 && itr2==0) {
-                           itr2++;
-                           continue;
-                         }
 
                         //int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
-                        phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip) ;
-                         if(vcluster_size[id]==2 && itr2==1) {
-                             itr2 = 0;
-                             phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip));
-                             phi2 /= 2;
-                        }
-
-                        int average = ( (phi1 + phi2)/2 )<<2; //10-bit->12-bit
-                        rpc2dt_phi.push_back(average);  //Convert and store to 12-bit
-
-                        //int xin = localX(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
-                        //int xout = localX(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
-                        //cout<<(phi1<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
-                        //cout<<(phi2<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
-                        int xin = localXX((phi1<<2), 1, vrpc_hit_layer1[l1].station );
-                        int xout = localXX((phi2<<2), 2, vrpc_hit_layer2[l2].station);
-                        if(vcluster_size[id]==2 && itr2==1) {
-                          int phi1_n1 = radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip);
-                          int phi2_n1 = radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip);
-
-                          xin += localXX((phi1_n1<<2), 1, vrpc_hit_layer1[l1].station );
-                          xout += localXX((phi2_n1<<2), 2, vrpc_hit_layer2[l2].station );
-                          xin /= 2;
-                          xout /= 2;
-                       }
-                        //cout<<">>"<<xin<<"   "<<xout<<endl;
-
-                        int phi_b = bendingAngle(xin,xout,average);
-                        //cout<<"phib   "<<phi_b<<endl;
-                        rpc2dt_phib.push_back(phi_b);
-
-                        ///delta_phib to find the highest pt primitve
-                        delta_phib.push_back(abs(phi_b));
-                        found_hits = true;
-                        rpcbx = vrpc_hit_layer1[l1].bx;
+              phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip) ;
+              if(vcluster_size[id]==2 && itr2==1) {
+                itr2 = 0;
+                phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip));
+                phi2 /= 2;
                 }
+              int average = ( (phi1 + phi2)/2 )<<2; //10-bit->12-bit
+              rpc2dt_phi.push_back(average);  //Convert and store to 12-bit
+              //int xin = localX(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
+             //int xout = localX(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
+             //cout<<(phi1<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
+             //cout<<(phi2<<2)<<"   "<<l1<<"   "<<vrpc_hit_layer1[l1].station<<endl;
+             int xin = localXX((phi1<<2), 1, vrpc_hit_layer1[l1].station );
+             int xout = localXX((phi2<<2), 2, vrpc_hit_layer2[l2].station);
+             if(vcluster_size[id]==2 && itr2==1) {
+               int phi1_n1 = radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip);
+               int phi2_n1 = radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip);
+               xin += localXX((phi1_n1<<2), 1, vrpc_hit_layer1[l1].station );
+               xout += localXX((phi2_n1<<2), 2, vrpc_hit_layer2[l2].station );
+               xin /= 2;
+               xout /= 2;
+               }
+             //cout<<">>"<<xin<<"   "<<xout<<endl;
+             int phi_b = bendingAngle(xin,xout,average);
+             //cout<<"phib   "<<phi_b<<endl;
+             rpc2dt_phib.push_back(phi_b);
+             //delta_phib to find the highest pt primitve
+             delta_phib.push_back(abs(phi_b));
+             found_hits = true;
+             rpcbx = vrpc_hit_layer1[l1].bx;
+             }
             }
-            if(found_hits){
-                //cout<<"found_hits"<<endl;
-                int min_index = std::distance(delta_phib.begin(), std::min_element(delta_phib.begin(), delta_phib.end())) + 0;
-                //cout<<min_index<<endl;
-                L1MuDTChambPhDigi rpc2dt_out( rpcbx, wh, sec-1, st, rpc2dt_phi[min_index], rpc2dt_phib[min_index], 3, 0, 0, 2);
-                l1ttma_out.push_back(rpc2dt_out);
-            }
+          if(found_hits){
+            //cout<<"found_hits"<<endl;
+            int min_index = std::distance(delta_phib.begin(), std::min_element(delta_phib.begin(), delta_phib.end())) + 0;
+            //cout<<min_index<<endl;
+            L1MuDTChambPhDigi rpc2dt_out( rpcbx, wh, sec-1, st, rpc2dt_phi[min_index], rpc2dt_phib[min_index], 3, 0, 0, 2);
+            l1ttma_out.push_back(rpc2dt_out);
+           }
 ///Use ts2tag variable to store N rpchits for the same st/wheel/sec
-            int bx_range = (max_rpc_bx - min_rpc_bx) + 1 ;
-            int hit[bx_range] = {0};   ///store the number of RPC->DT for each bx, stored as ts2tag
-            itr1=0;
-
-            for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
-                if(vrpc_hit_layer1[l1].station!=st || st>2 || vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer1[l1].wheel!=wh) continue;
-
-			             //int id = hits[vrpc_hit_layer1[l1].wheel+2][(vrpc_hit_layer1[l1].station-1)][(vrpc_hit_layer1[l1].sector-1)][(vrpc_hit_layer1[l1].layer-1)][(vrpc_hit_layer1[l1].bx+2)][vrpc_hit_layer1[l1].roll-1][vrpc_hit_layer1[l1].strip];
-                   RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid,vrpc_hit_layer1[l1].bx,vrpc_hit_layer1[l1].strip};
-                   int id = hits[tmp];
-
-                   if(vcluster_size[id]==2 && itr1==0) {
-                     itr1++;
-                     continue;
-                   }
-                    int phi2 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
-                    phi2 = phi2<<2;
-                    if(vcluster_size[id]==2 && itr1==1 ) {
-                        itr1 = 0;
-                        phi2 = phi2 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip)<<2);
-                        phi2 /= 2;
-                   }
-                    L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx+2], 0, 2);
-                    hit[vrpc_hit_layer1[l1].bx+2]++;
-                    l1ttma_hits_out.push_back(rpc2dt_out);
+          int bx_range = (max_rpc_bx - min_rpc_bx) + 1 ;
+          int hit[bx_range] = {0};   ///store the number of RPC->DT for each bx, stored as ts2tag
+          itr1=0;
+          for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
+           if(vrpc_hit_layer1[l1].station!=st || st>2 || vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer1[l1].wheel!=wh) continue;
+           //int id = hits[vrpc_hit_layer1[l1].wheel+2][(vrpc_hit_layer1[l1].station-1)][(vrpc_hit_layer1[l1].sector-1)][(vrpc_hit_layer1[l1].layer-1)][(vrpc_hit_layer1[l1].bx+2)][vrpc_hit_layer1[l1].roll-1][vrpc_hit_layer1[l1].strip];
+            RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid,vrpc_hit_layer1[l1].bx,vrpc_hit_layer1[l1].strip};
+            int id = hits[tmp];
+            if(vcluster_size[id]==2 && itr1==0) {
+              itr1++;
+              continue;
+              }
+            int phi2 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
+            phi2 = phi2<<2;
+            if(vcluster_size[id]==2 && itr1==1 ) {
+              itr1 = 0;
+              phi2 = phi2 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip)<<2);
+              phi2 /= 2;
+              }
+            L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx+2], 0, 2);
+            hit[vrpc_hit_layer1[l1].bx+2]++;
+            l1ttma_hits_out.push_back(rpc2dt_out);
             }
             itr1 = 0;
             for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
-                if(vrpc_hit_layer2[l2].station!=st || st>2 || vrpc_hit_layer2[l2].sector!=sec || vrpc_hit_layer2[l2].wheel!=wh) continue;
-                RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer2[l2].detid,vrpc_hit_layer2[l2].bx,vrpc_hit_layer2[l2].strip};
-                int id = hits[tmp];
-//                int id = hits[vrpc_hit_layer2[l2].wheel+2][(vrpc_hit_layer2[l2].station-1)][(vrpc_hit_layer2[l2].sector-1)][(vrpc_hit_layer2[l2].layer-1)][(vrpc_hit_layer2[l2].bx+2)][vrpc_hit_layer2[l2].roll-1][vrpc_hit_layer2[l2].strip];
-                if(vcluster_size[id]==2 && itr1==0) {
-                  itr1++;
-                  continue;
+              if(vrpc_hit_layer2[l2].station!=st || st>2 || vrpc_hit_layer2[l2].sector!=sec || vrpc_hit_layer2[l2].wheel!=wh) continue;
+              RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer2[l2].detid,vrpc_hit_layer2[l2].bx,vrpc_hit_layer2[l2].strip};
+              int id = hits[tmp];
+//              int id = hits[vrpc_hit_layer2[l2].wheel+2][(vrpc_hit_layer2[l2].station-1)][(vrpc_hit_layer2[l2].sector-1)][(vrpc_hit_layer2[l2].layer-1)][(vrpc_hit_layer2[l2].bx+2)][vrpc_hit_layer2[l2].roll-1][vrpc_hit_layer2[l2].strip];
+              if(vcluster_size[id]==2 && itr1==0) {
+                itr1++;
+                continue;
                 }
-                 int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
-                 phi2 = phi2<<2;
-                 if(vcluster_size[id]==2 && itr1==1) {
-                     itr1 = 0;
-                     phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip)<<2);
-                     phi2 /= 2;
-                }
-                    L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx+2] , 0, 2);
-                    hit[vrpc_hit_layer2[l2].bx+2]++;
-                    l1ttma_hits_out.push_back(rpc2dt_out);
+              int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
+              phi2 = phi2<<2;
+              if(vcluster_size[id]==2 && itr1==1) {
+                itr1 = 0;
+                phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip)<<2);
+                phi2 /= 2;
+               }
+             L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx+2] , 0, 2);
+             hit[vrpc_hit_layer2[l2].bx+2]++;
+             l1ttma_hits_out.push_back(rpc2dt_out);
             }
             itr1 = 0;
-
+            
             for(unsigned int l1=0; l1<vrpc_hit_st3.size(); l1++){
-
-                        if(st!=3 || vrpc_hit_st3[l1].station!=3 || vrpc_hit_st3[l1].wheel!=wh || vrpc_hit_st3[l1].sector!=sec) continue;
-                        RPCHitCleaner::detId_Ext tmp{vrpc_hit_st3[l1].detid,vrpc_hit_st3[l1].bx,vrpc_hit_st3[l1].strip};
-                        int id = hits[tmp];
-                        //int id = hits[vrpc_hit_st3[l1].wheel+2][(vrpc_hit_st3[l1].station-1)][(vrpc_hit_st3[l1].sector-1)][(vrpc_hit_st3[l1].layer-1)][(vrpc_hit_st3[l1].bx+2)][vrpc_hit_st3[l1].roll-1][vrpc_hit_st3[l1].strip];
-                        if(vcluster_size[id]==2 && itr1==0) {
-                          itr1++;
-                          continue;
-                        }
-                         int phi2 = radialAngle(vrpc_hit_st3[l1].detid, c, vrpc_hit_st3[l1].strip);
-                         phi2 = phi2<<2;
-                         if(vcluster_size[id]==2 && itr1==1) {
-                             itr1 = 0;
-                             phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1-1].detid, c, vrpc_hit_st3[l1-1].strip)<<2);
-                             phi2 /= 2;
-                        }
-                        L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx+2], 0, 2);
-                        hit[vrpc_hit_st3[l1].bx+2]++;
-                        l1ttma_hits_out.push_back(rpc2dt_out);
+              if(st!=3 || vrpc_hit_st3[l1].station!=3 || vrpc_hit_st3[l1].wheel!=wh || vrpc_hit_st3[l1].sector!=sec) continue;
+              RPCHitCleaner::detId_Ext tmp{vrpc_hit_st3[l1].detid,vrpc_hit_st3[l1].bx,vrpc_hit_st3[l1].strip};
+              int id = hits[tmp];
+              //int id = hits[vrpc_hit_st3[l1].wheel+2][(vrpc_hit_st3[l1].station-1)][(vrpc_hit_st3[l1].sector-1)][(vrpc_hit_st3[l1].layer-1)][(vrpc_hit_st3[l1].bx+2)][vrpc_hit_st3[l1].roll-1][vrpc_hit_st3[l1].strip];
+              if(vcluster_size[id]==2 && itr1==0) {
+                itr1++;
+                continue;
+                 }
+              int phi2 = radialAngle(vrpc_hit_st3[l1].detid, c, vrpc_hit_st3[l1].strip);
+              phi2 = phi2<<2;
+              if(vcluster_size[id]==2 && itr1==1) {
+                itr1 = 0;
+                phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1-1].detid, c, vrpc_hit_st3[l1-1].strip)<<2);
+                phi2 /= 2;
+                }
+              L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx+2], 0, 2);
+              hit[vrpc_hit_st3[l1].bx+2]++;
+              l1ttma_hits_out.push_back(rpc2dt_out);
             }
             itr1 = 0;
 
             for(unsigned int l1=0; l1<vrpc_hit_st4.size(); l1++){
-                        if(st!=4 || vrpc_hit_st4[l1].station!=4 || vrpc_hit_st4[l1].wheel!=wh || vrpc_hit_st4[l1].sector!=sec) continue;
-                        //int id = hits[vrpc_hit_st4[l1].wheel+2][(vrpc_hit_st4[l1].station-1)][(vrpc_hit_st4[l1].sector-1)][(vrpc_hit_st4[l1].layer-1)][(vrpc_hit_st4[l1].bx+2)][vrpc_hit_st4[l1].roll-1][vrpc_hit_st4[l1].strip];
-                        RPCHitCleaner::detId_Ext tmp{vrpc_hit_st4[l1].detid,vrpc_hit_st4[l1].bx,vrpc_hit_st4[l1].strip};
-                        int id = hits[tmp];
-                        if(vcluster_size[id]==2 && itr1==0) {
-                          itr1++;
-                          continue;
-                        }
-                         int phi2 = radialAngle(vrpc_hit_st4[l1].detid, c, vrpc_hit_st4[l1].strip);
-                         phi2 = phi2<<2;
-                         if(vcluster_size[id]==2 && itr1==1) {
-                             itr1 = 0;
-                             phi2 = phi2 + (radialAngle(vrpc_hit_st4[l1-1].detid, c, vrpc_hit_st4[l1-1].strip)<<2);
-                             phi2 /= 2;
-                        }
-                        L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st4[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st4[l1].bx] , 0, 2);
-                        hit[vrpc_hit_st4[l1].bx]++;
-                        //l1ttma_out.push_back(rpc2dt_out);
-                        l1ttma_hits_out.push_back(rpc2dt_out);
-                        //break;
+              if(st!=4 || vrpc_hit_st4[l1].station!=4 || vrpc_hit_st4[l1].wheel!=wh || vrpc_hit_st4[l1].sector!=sec) continue;
+              //int id = hits[vrpc_hit_st4[l1].wheel+2][(vrpc_hit_st4[l1].station-1)][(vrpc_hit_st4[l1].sector-1)][(vrpc_hit_st4[l1].layer-1)][(vrpc_hit_st4[l1].bx+2)][vrpc_hit_st4[l1].roll-1][vrpc_hit_st4[l1].strip];
+              RPCHitCleaner::detId_Ext tmp{vrpc_hit_st4[l1].detid,vrpc_hit_st4[l1].bx,vrpc_hit_st4[l1].strip};
+              int id = hits[tmp];
+              if(vcluster_size[id]==2 && itr1==0) {
+                 itr1++;
+                 continue;
+               }
+              int phi2 = radialAngle(vrpc_hit_st4[l1].detid, c, vrpc_hit_st4[l1].strip);
+              phi2 = phi2<<2;
+              if(vcluster_size[id]==2 && itr1==1) {
+                 itr1 = 0;
+                 phi2 = phi2 + (radialAngle(vrpc_hit_st4[l1-1].detid, c, vrpc_hit_st4[l1-1].strip)<<2);
+                 phi2 /= 2;
+              }
+              L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st4[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st4[l1].bx] , 0, 2);
+              hit[vrpc_hit_st4[l1].bx]++;
+              //l1ttma_out.push_back(rpc2dt_out);
+              l1ttma_hits_out.push_back(rpc2dt_out);
+              //break;
             }
-
-
        }
     }
    }
