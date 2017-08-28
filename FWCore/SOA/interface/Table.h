@@ -92,7 +92,22 @@
  \code
     SphereTable sphericalAngles(edm::soa::TableView<X,Y,Z>);
  \endcode
-*/
+
+ 
+ New Table declarations can be created based on existing Table declarations.
+ E.g. say you want a new Table based on an existing Table but with an additional column.
+ \code
+   using ATable = edm::soa::Table<...>;
+ 
+   using MyLabel = edm::soa::Column<...>;
+   using MyATable = AddColumns_t<ATable, MyLabel>;
+ \endcode
+ 
+ It is also possible to declare a new Table by removing columns from an existing declaration
+ \code
+   using MyBTable = RemoveColumn_t<BTable, Phi>; //Phi is a previously defined Column
+ \endcode
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 24 Aug 2017 16:18:05 GMT
