@@ -131,6 +131,5 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 0.1f;
     const float caHardPtCut = 0.f;
-    const bool caOnlyOneLastHitPerLayerFilter = false;
 };
 #endif
