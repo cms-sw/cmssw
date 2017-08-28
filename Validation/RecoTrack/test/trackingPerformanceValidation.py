@@ -192,6 +192,7 @@ kwargs_tracking = {
     "limitSubFoldersOnlyTo": {
         # filter out the pT>0.9 GeV track selection
         "": limitRelVal,
+        "tpPtLess09": limitRelVal,
         "allTPEffic": limitRelVal,
         "fromPV": limitRelVal,
         "fromPVAllTP": limitRelVal,
