@@ -1,9 +1,7 @@
-#ifndef TAU3MUMONITOR_H
-#define TAU3MUMONITOR_H
+#ifndef DQMOFFLINE_TRIGGER_TAU3MUMONITOR_H
+#define DQMOFFLINE_TRIGGER_TAU3MUMONITOR_H
 
 #include <string>
-#include <vector>
-#include <map>
 
 // Framework
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -69,4 +67,4 @@ class Tau3MuMonitor : public DQMEDAnalyzer
     std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_; // "is trigger fired?" flag
 };
 
-#endif // TAU3MUMONITOR_H
+#endif // DQMOFFLINE_TRIGGER_TAU3MUMONITOR_H
