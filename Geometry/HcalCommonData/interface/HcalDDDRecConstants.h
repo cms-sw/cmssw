@@ -58,49 +58,51 @@ public:
                                                  nPhi(nfi), rMin(r1), rMax(r2) {}
   };
 
-  std::vector<std::pair<double,double> > getConstHBHE(int type) const {
+  std::vector<std::pair<double,double> > getConstHBHE(const int& type) const {
     if      (type == 0) return gconsHB;
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  std::vector<int>          getDepth(int det, int phi, 
-				     int zside, unsigned int eta) const;
-  std::vector<int>          getDepth(unsigned int eta, bool extra) const;
-  int                       getDepthEta16(const int det, const int iphi, 
-					  const int zside) const {return hcons.getDepthEta16(det,iphi,zside);}
-  std::vector<HcalEtaBin>   getEtaBins(int itype) const;
-  std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
-  std::pair<int,int>        getEtaRange(int i) const
+  std::vector<int>          getDepth(const int& det, const int& phi, 
+				     const int& zside, const unsigned int& eta) const;
+  std::vector<int>          getDepth(const unsigned int& eta, const bool& extra) const;
+  int                       getDepthEta16(const int& det, const int& iphi, 
+					  const int& zside) const {return hcons.getDepthEta16(det,iphi,zside);}
+  std::vector<HcalEtaBin>   getEtaBins(const int& itype) const;
+  std::pair<double,double>  getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const;
+  std::pair<int,int>        getEtaRange(const int& i) const
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
   const std::vector<double> &      getEtaTable()   const {return etaTable;}
   const std::vector<double> &      getEtaTableHF() const {return hpar->etaTableHF;}
-  std::pair<double,double>  getEtaLimit(int i) const 
+  std::pair<double,double>  getEtaLimit(const int& i) const 
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
-  HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
-				    int idepth) const;
+  HcalID                    getHCID(int subdet, int ieta, int iphi, int lay, int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
-  void                      getLayerDepth(const int ieta, std::map<int,int>& layers) const;
-  int                       getLayerFront(const int det, const int eta, const int phi, const int depth) const;
-  double                    getLayer0Wt(const int det, const int phi, const int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
-  int                       getMaxDepth(const int type) const {return maxDepth[type];}
-  int                       getMaxDepth(int itype, int ieta,
-					int iphi, int zside) const;
-  int                       getMinDepth(int itype, int ieta,
-					int iphi, int zside) const;
+  void                      getLayerDepth(const int& ieta, std::map<int,int>& layers) const;
+  int                       getLayerFront(const int& det, const int& eta, const int& phi,
+					  const int& depth) const;
+  double                    getLayer0Wt(const int& det, const int& phi,
+					const int& zside) const {return hcons.getLayer0Wt(det,phi,zside);}
+  int                       getMaxDepth(const int& type) const {return maxDepth[type];}
+  int                       getMaxDepth(const int& itype, const int& ieta,
+					const int& iphi,  const int& zside) const;
+  int                       getMinDepth(const int& itype, const int& ieta,
+					const int& iphi,  const int& zside) const;
   int                       getNEta() const {return hpar->etagroup.size();}
-  int                       getNoff(int i) const {return hpar->noff[i];}
-  int                       getNPhi(int type) const {return nPhiBins[type];}
-  double                    getPhiBin(int i) const {return phibin[i];}
-  double                    getPhiOff(int i) const {return hpar->phioff[i];}
+  int                       getNoff(const int& i) const {return hpar->noff[i];}
+  int                       getNPhi(const int& type) const {return nPhiBins[type];}
+  double                    getPhiBin(const int& i) const {return phibin[i];}
+  double                    getPhiOff(const int& i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
-  std::vector<std::pair<int,double> > getPhis(int subdet, int ieta) const;
+  std::vector<std::pair<int,double> > getPhis(const int& subdet, const int& ieta) const;
   const std::vector<double> &      getPhiTable()   const {return phibin;}
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   int                       getPhiZOne(std::vector<std::pair<int,int> >& phiz) const;
-  double                    getRZ(int subdet, int ieta, int depth) const;
-  double                    getRZ(int subdet, int ieta, int iphi, int depth) const;
-  double                    getRZ(int subdet, int layer) const;
-  std::vector<HcalActiveLength>    getThickActive(int type) const;
+  double                    getRZ(const int& subdet, const int& ieta, const int& depth) const;
+  double                    getRZ(const int& subdet, const int& ieta, const int& iphi,
+				  const int& depth) const;
+  double                    getRZ(const int& subdet, const int& layer) const;
+  std::vector<HcalActiveLength>    getThickActive(const int& type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
