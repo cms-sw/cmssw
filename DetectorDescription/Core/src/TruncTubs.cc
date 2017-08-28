@@ -8,12 +8,12 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 DDI::TruncTubs::TruncTubs(double zHalf,
-              double rIn, double rOut,
-	      double startPhi,
-	      double deltaPhi,
-	      double cutAtStart,
-	      double cutAtDelta,
-	      bool cutInside)
+			  double rIn, double rOut,
+			  double startPhi,
+			  double deltaPhi,
+			  double cutAtStart,
+			  double cutAtDelta,
+			  bool cutInside)
   : Solid(ddtrunctubs)
 {
   p_.emplace_back(zHalf);

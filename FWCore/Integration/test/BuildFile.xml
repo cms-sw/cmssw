@@ -239,6 +239,11 @@
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
   </library>
+  <library   file="TestDescriptionComments.cc" name="TestDescriptionComments">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+  </library>
   <library   file="WhatsItExtensionCordAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItExtensionCordAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>

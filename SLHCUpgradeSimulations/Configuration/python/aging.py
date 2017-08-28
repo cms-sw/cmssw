@@ -123,8 +123,8 @@ def ageEcal(process,lumi,instLumi):
    # available conditions
     ecal_lumis = [300,1000,3000,4500]
     ecal_conditions = [
-        ['EcalIntercalibConstantsRcd','EcalIntercalibConstants_TL{:d}_upgrade_8deg_mc'],
-        ['EcalIntercalibConstantsMCRcd','EcalIntercalibConstantsMC_TL{:d}_upgrade_8deg_mc'],
+        ['EcalIntercalibConstantsRcd','EcalIntercalibConstants_TL{:d}_upgrade_8deg_v2_mc'],
+        ['EcalIntercalibConstantsMCRcd','EcalIntercalibConstantsMC_TL{:d}_upgrade_8deg_v2_mc'],
         ['EcalLaserAPDPNRatiosRcd','EcalLaserAPDPNRatios_TL{:d}_upgrade_8deg_mc'],
         ['EcalPedestalsRcd','EcalPedestals_TL{:d}_upgradeTIA_8deg_mc'],
         ['EcalTPGLinearizationConstRcd','EcalTPGLinearizationConst_TL{:d}_upgrade_8deg_mc'],

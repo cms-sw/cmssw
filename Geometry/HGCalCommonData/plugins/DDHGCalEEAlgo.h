@@ -31,7 +31,7 @@ public:
 
 protected:
 
-  void constructLayers (DDLogicalPart, DDCompactView& cpv);
+  void constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   HGCalEEPar parameterLayer(double rinF, double routF, double rinB,
 			    double routB, double zi, double zo);
   double     rMax(double z);

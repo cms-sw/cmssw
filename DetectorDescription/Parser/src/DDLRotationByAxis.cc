@@ -1,9 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
-
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
@@ -14,6 +9,10 @@
 #include "Math/GenVector/RotationY.h"
 #include "Math/GenVector/RotationZ.h"
 
+#include <map>
+#include <utility>
+#include <vector>
+
 class DDCompactView;
 
 DDLRotationByAxis::DDLRotationByAxis( DDLElementRegistry* myreg )
@@ -21,14 +20,16 @@ DDLRotationByAxis::DDLRotationByAxis( DDLElementRegistry* myreg )
 {}
 
 void
-DDLRotationByAxis::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLRotationByAxis::preProcessElement( const std::string& name, const std::string& nmspace,
+				      DDCompactView& cpv )
 {
   pNameSpace = nmspace;
   pName = name;
 }
 
 void
-DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace,
+				   DDCompactView& cpv )
 {
   DDXMLAttribute atts = getAttributeSet();
   if (parent() != "RotationSequence")
@@ -55,7 +56,7 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
       loadAttributes(name, names, values, nmspace, cpv);
     }
     DDRotation rot = DDrot(getDDName(nmspace), ddr);
-      
+    
     clear();
   }
   else { } //let the parent handle the clearing, etc.

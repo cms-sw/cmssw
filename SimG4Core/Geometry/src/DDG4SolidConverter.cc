@@ -270,7 +270,7 @@ namespace {
 
 G4VSolid * DDG4SolidConverter::reflected(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: reflected = " << solid;
-  G4ReflectedSolid * rs = 0;
+  G4ReflectedSolid * rs = nullptr;
   DDReflectionSolid rfs(solid); 
   if (rfs) {	
     rs = new G4ReflectedSolid(solid.name().name(), 
@@ -285,7 +285,7 @@ G4VSolid * DDG4SolidConverter::reflected(const DDSolid & solid) {
 #include "G4UnionSolid.hh"
 G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: unionsolid = " << solid.name();
-  G4UnionSolid * us = 0;
+  G4UnionSolid * us = nullptr;
   DDBooleanSolid bs(solid);
   if (bs) {
     LogDebug("SimG4CoreGeometry") << "SolidA=" << bs.solidA();
@@ -313,7 +313,7 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & solid) {
 #include <sstream>
 G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: subtraction = " << solid;
-  G4SubtractionSolid * us = 0;
+  G4SubtractionSolid * us = nullptr;
   DDBooleanSolid bs(solid);
   if (bs) {
     G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
@@ -340,7 +340,7 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
 #include "G4IntersectionSolid.hh"
 G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: intersection = " << solid;
-  G4IntersectionSolid * us = 0;
+  G4IntersectionSolid * us = nullptr;
   DDBooleanSolid bs(solid);
   if (bs) {
     G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
@@ -367,14 +367,13 @@ G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
   G4MultiUnion* munion = new G4MultiUnion( G4String( solid.name().name()));
   DDMultiUnionSolid ms( solid );
   std::vector<DDSolid> solids = ms.solids();
-  // FIXME: need to use G4GEOM_USE_USOLIDS
   if( ms ) {
     for( auto i : solids ) {
       G4VSolid* gs = DDG4SolidConverter().convert( solids[i]);
       G4RotationMatrix rotm = G4RotationMatrix();
       G4ThreeVector position1 = G4ThreeVector( 0., 0., 1. );
       G4Transform3D tr1 = G4Transform3D( rotm, position1 );
-      munion->AddNode( gs, tr1 );
+      munion->AddNode( *gs, tr1 );
     }
   }
   return munion;
@@ -396,9 +395,9 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
   }    
 
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pseudoTrap = " << solid;
-  G4Trd * trap = 0;
-  G4Tubs * tubs = 0;
-  G4VSolid * result = 0;
+  G4Trd * trap = nullptr;
+  G4Tubs * tubs = nullptr;
+  G4VSolid * result = nullptr;
   DDPseudoTrap pt(solid); // pt...PseudoTrap
   double r = pt.radius();
   bool atMinusZ = pt.atMinusZ();
@@ -468,7 +467,7 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
     G4VSolid * tubicCap = new G4SubtractionSolid(name, 
 						 tubs, 
 						 new G4Box(name, 1.1*x, sqrt(r*r-x*x), 1.1*h),  
-						 0, 
+						 nullptr, 
 						 G4ThreeVector());
     result = new G4UnionSolid(name, trap, tubicCap, rot, displ);
             
@@ -518,7 +517,7 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & solid) {
   
   startPhi=0.;
   double r(cutAtStart), R(cutAtDelta);
-  G4VSolid * result(0);
+  G4VSolid * result(nullptr);
   G4VSolid * tubs = new G4Tubs(name,rIn,rOut,zHalf,startPhi,deltaPhi);
   LogDebug("SimG4CoreGeometry") << "G4Tubs: " << rIn/CLHEP::cm << ' ' << rOut/CLHEP::cm << ' ' << zHalf/CLHEP::cm << ' ' << startPhi/CLHEP::deg << ' ' << deltaPhi/CLHEP::deg;
   LogDebug("SimG4CoreGeometry") << solid;

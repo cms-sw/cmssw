@@ -150,7 +150,7 @@
             <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>
             <Translation x="-(-[RP_Dist_Beam_Cent:RP_220_Left_Det_Dist_2]-[RP_Box:RP_Box_primary_vacuum_y]/2)" y="0*mm" z="-([RP_220_Left_Prim_Hor_z]-[RP_220_Left_Station_Length]/2)"/>
         </PosPart>
-        <PosPart copyNumber="23">
+        <PosPart copyNumber="10023"> <!-- the offset 10^4 indicates pixel RP -->
             <rParent name="RP_220_Left_Station_Vacuum_5"/>
             <rChild name="RP_Box_023:RP_box_primary_vacuum"/>
             <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>

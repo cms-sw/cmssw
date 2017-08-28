@@ -1,10 +1,3 @@
-#include <stddef.h>
-#include <algorithm>
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
@@ -40,6 +33,13 @@
 #include "DetectorDescription/Parser/src/DDLVector.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cstddef>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 DDLElementRegistry::DDLElementRegistry( void )
 {}

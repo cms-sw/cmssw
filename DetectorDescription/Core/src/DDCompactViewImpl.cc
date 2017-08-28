@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 
-#include <math.h>
+#include <cmath>
 #include <ostream>
 #include <utility>
 #include <vector>
@@ -30,7 +30,7 @@ DDCompactViewImpl::~DDCompactViewImpl()
        for(; erange.first != erange.second; ++(erange.first)) {
 	 DDPosData * pd = graph_.edgeData(erange.first->second);
 	 delete pd;
-	 pd=0;
+	 pd=nullptr;
        }  
      }
    }

@@ -32,6 +32,7 @@ process.source = cms.Source("EmptySource",
 ################
 
 process.load("DQMServices.Core.DQM_cfg")
+process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 
 #################
@@ -60,93 +61,93 @@ process.PoolDBOutputService = cms.Service(
 )
 
 ######################
+# HistoryDQMService  #
 # POPCON Application #
 ######################
 process.siStripDQMHistoryPopCon = cms.EDAnalyzer(
-    "SiStripDQMHistoryPopCon",
-    record = cms.string("HDQMSummary"),
-    loggingOn = cms.untracked.bool(True),
-    SinceAppendMode = cms.bool(True),
-    Source = cms.PSet(
-        since = cms.untracked.uint32(RUNNUMBER),
-        debug = cms.untracked.bool(False)
+        "SiStripDQMHistoryPopCon",
+        # popcon::PopConAnalyzer
+        record = cms.string("HDQMSummary"),
+        loggingOn = cms.untracked.bool(True),
+        SinceAppendMode = cms.bool(True),
+        # SiStripDQMHistoryPopCon
+        Source = cms.PSet(
+                since = cms.untracked.uint32(RUNNUMBER),
+                RunNb = cms.uint32(RUNNUMBER),
+                iovSequence = cms.untracked.bool(False),
+                debug = cms.untracked.bool(False),
+                ## DQMStoreReader
+                accessDQMFile = cms.bool(True),
+                FILE_NAME = cms.untracked.string("FILENAME"),
+                ## DQMHistoryHelper
+                #
+                ## base DQM history service
+                ME_DIR = cms.untracked.string("Run RUNNUMBER/SiStrip"),
+                histoList = cms.VPSet(
+                        # quantities are 'stat', 'landau', 'gauss'
+                        # where
+                        #'stat' includes entries, mean, rms
+                        #'landau' includes
+                        #'gauss' includes gaussMean, gaussSigma
+
+                        # Summary Cluster Properties (subdet tag _in_TOB)
+                        cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterCharge_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoNCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoN_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        # Summary Cluster properties @ layer level (layer tag __TOB__layer__1)
+                        cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfDigis"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterCharge__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoNCorr__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoN__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        # FED errors:
+                        cms.PSet( keyName = cms.untracked.string("nFEDErrors"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("nBadActiveChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("nBadChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("nAPVAddressError"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("nUnlocked"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("nOutOfSync"), quantitiesToExtract = cms.untracked.vstring("stat"))
+
+                    )
+                ## specific for SiStripDQMHistory
+                #
+            )
     )
-)
-
-#####################
-# HistoryDQMService #
-#####################
-
-process.SiStripHistoryDQMService = cms.Service(
-    "SiStripHistoryDQMService",
-    RunNb = cms.uint32(RUNNUMBER),
-    accessDQMFile = cms.bool(True),
-    FILE_NAME = cms.untracked.string("FILENAME"),
-    ME_DIR = cms.untracked.string("Run RUNNUMBER/SiStrip"),
-    histoList = cms.VPSet(
-    
-    # quantities are 'stat', 'landau', 'gauss'
-    # where 
-    #'stat' includes entries, mean, rms
-    #'landau' includes
-    #'gauss' includes gaussMean, gaussSigma
-    
-
-    # Summary Cluster Properties (subdet tag _in_TOB)
-    cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterCharge_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoNCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoN_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth_OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    # Summary Cluster properties @ layer level (layer tag __TOB__layer__1)
-    cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfDigis"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterCharge__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterNoise__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","gauss"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoNCorr__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterStoN__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    # FED errors:
-    cms.PSet( keyName = cms.untracked.string("nFEDErrors"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nBadActiveChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nBadChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nAPVAddressError"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nUnlocked"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nOutOfSync"), quantitiesToExtract = cms.untracked.vstring("stat"))
-
-    )
-)
 
 # Schedule
 

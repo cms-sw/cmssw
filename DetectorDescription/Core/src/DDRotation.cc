@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <atomic>
 #include <cmath>
 #include <sstream>

@@ -3,9 +3,8 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-#include <stdlib.h>
-#include <sys/time.h>
-#include <time.h>
+#include <cstdlib>
+#include <chrono>
 #include <fstream>
 #include <map>
 #include <memory>
@@ -100,7 +99,7 @@ void debugHistory(const DDGeoHistory & h)
   }
 }
 
-void goPersistent(const DDCompactView & cv, std::string file) {
+void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
   typedef DDCompactView::graph_type graph_t;
   const graph_t & g = cv.graph();

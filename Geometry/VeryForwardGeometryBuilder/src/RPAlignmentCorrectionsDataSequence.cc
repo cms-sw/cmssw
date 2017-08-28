@@ -18,11 +18,6 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
-using namespace std;
-using namespace edm;
-using namespace xercesc;
-
-
 /**
 STRUCTURE OF ALINGMENT XML FILE
 
@@ -66,112 +61,97 @@ Each tag must have an "id" attribute set. In addition the following attributes a
 UNITS: shifts are in um, rotations are in mrad.
  */
 
-void RPAlignmentCorrectionsDataSequence::LoadXMLFile(const string &fileName)
+void
+RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
 {
   // prepend CMSSW src dir
-  char *cmsswPath = getenv("CMSSW_BASE");
-  size_t start = fileName.find_first_not_of("   ");
-  string fn = fileName.substr(start);
-  if (cmsswPath && fn[0] != '/' && fn.find("./") != 0)
-    fn = string(cmsswPath) + string("/src/") + fn;
+  const char* cmsswPath = getenv( "CMSSW_BASE" );
+  size_t start = fileName.find_first_not_of( "   " );
+  std::string fn = fileName.substr( start );
+  if ( cmsswPath && fn[0] != '/' && fn.find( "./" ) != 0 )
+    fn = std::string( cmsswPath ) + std::string( "/src/" ) + fn;
 
   // load DOM tree first the file
-  try
-  {
+  try {
     XMLPlatformUtils::Initialize();
-  }
-  catch (const XMLException& toCatch)
-  {
-    char* message = XMLString::transcode(toCatch.getMessage());
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "An XMLException caught with message: " << message << ".\n";
-    XMLString::release(&message);
+  } catch ( const XMLException& toCatch ) {
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "An XMLException caught with message: " << cms::xerces::toString( toCatch.getMessage() ) << ".";
   }
 
-  XercesDOMParser* parser = new XercesDOMParser();
-  parser->setValidationScheme(XercesDOMParser::Val_Always);
-  parser->setDoNamespaces(true);
+  auto parser = std::make_unique<XercesDOMParser>();
+  parser->setValidationScheme( XercesDOMParser::Val_Always );
+  parser->setDoNamespaces( true );
+  parser->parse( fn.c_str() );
 
-  try
-  {
-    parser->parse(fn.c_str());
-  }
-  catch (...)
-  {
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (exception)." << endl;
-  }
+  if ( !parser )
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (parser = NULL).";
 
-  if (!parser)
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (parser = NULL)." << endl;
-  
   DOMDocument* xmlDoc = parser->getDocument();
 
-  if (!xmlDoc)
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (xmlDoc = NULL)." << endl;
+  if ( !xmlDoc )
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Cannot parse file `" << fn << "' (xmlDoc = NULL).";
 
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
-  if (!elementRoot)
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "File `" << fn << "' is empty." << endl;
-  
+  if ( !elementRoot )
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "File `" << fn << "' is empty.";
+
   // extract useful information form the DOM tree
-  DOMNodeList *children = elementRoot->getChildNodes();
-  for (unsigned int i = 0; i < children->getLength(); i++)
-  {
-    DOMNode *n = children->item(i);
-    if (n->getNodeType() != DOMNode::ELEMENT_NODE)
-      continue;
-   
+  DOMNodeList* children = elementRoot->getChildNodes();
+  for ( unsigned int i = 0; i < children->getLength(); i++ ) {
+    DOMNode* node = children->item( i );
+    if ( node->getNodeType() != DOMNode::ELEMENT_NODE ) continue;
+    const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
     // check node type
     unsigned char nodeType = 0;
-    if (!strcmp(XMLString::transcode(n->getNodeName()), "TimeInterval")) nodeType = 1;
-    if (!strcmp(XMLString::transcode(n->getNodeName()), "det")) nodeType = 2;
-    if (!strcmp(XMLString::transcode(n->getNodeName()), "rp")) nodeType = 3;
+    if      ( node_name == "TimeInterval" ) nodeType = 1;
+    else if ( node_name == "det"          ) nodeType = 2;
+    else if ( node_name == "rp"           ) nodeType = 3;
 
-    if (!nodeType)
-      throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Unknown node `" << XMLString::transcode(n->getNodeName()) << "'.";
+    if ( nodeType==0 )
+      throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "Unknown node `" << cms::xerces::toString( node->getNodeName() ) << "'.";
 
     // old style - no TimeInterval block?
-    if (nodeType == 2 || nodeType == 3)
-    {
-      //printf(">> RPAlignmentCorrectionsDataSequence::LoadXMLFile > WARNING:\n\tIn file `%s' no TimeInterval given, assuming one block of infinite validity.\n", fileName.c_str());
-
+    if ( nodeType == 2 || nodeType == 3 ) {
+      //edm::LogWarning("RPAlignmentCorrectionsDataSequence::LoadXMLFile") << "In file `" << fn << "' no TimeInterval given, assuming one block of infinite validity.";
       TimeValidityInterval inf;
       inf.SetInfinite();
-      insert(pair<TimeValidityInterval, RPAlignmentCorrectionsData>(inf, RPAlignmentCorrectionsMethods::GetCorrectionsData(elementRoot)));
+      std::map<TimeValidityInterval,RPAlignmentCorrectionsData>::insert( std::make_pair( inf, RPAlignmentCorrectionsMethods::getCorrectionsData( elementRoot ) ) );
       break;
     }
 
     // get attributes
-    TimeValue_t first=0, last=0;
+    edm::TimeValue_t first = 0, last = 0;
     bool first_set = false, last_set = false;
-    DOMNamedNodeMap* attr = n->getAttributes();
-    for (unsigned int j = 0; j < attr->getLength(); j++)
-    {    
-      DOMNode *a = attr->item(j);
- 
-      if (!strcmp(XMLString::transcode(a->getNodeName()), "first"))
-      {
+    DOMNamedNodeMap* attrs = node->getAttributes();
+    for ( unsigned int j = 0; j < attrs->getLength(); j++ ) {
+      const DOMNode* attr = attrs->item( j );
+      const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
+      if ( node_name == "first" ) {
         first_set = true;
-        first = TimeValidityInterval::UNIXStringToValue(XMLString::transcode(a->getNodeValue()));
-      } else if (!strcmp(XMLString::transcode(a->getNodeName()), "last"))
-      {
+        first = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+      }
+      else if ( node_name == "last" ) {
         last_set = true;
-        last = TimeValidityInterval::UNIXStringToValue(XMLString::transcode(a->getNodeValue()));
-      } else
+        last = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+      }
+      else
         edm::LogProblem("RPAlignmentCorrectionsDataSequence") << ">> RPAlignmentCorrectionsDataSequence::LoadXMLFile > Warning: unknown attribute `"
-          << XMLString::transcode(a->getNodeName()) << "'.";
+          << cms::xerces::toString( attr->getNodeName() ) << "'.";
     }
 
     // interval of validity must be set
-    if (!first_set || !last_set)
+    if ( !first_set || !last_set )
       throw cms::Exception("RPAlignmentCorrectionsDataSequence") << "TimeInterval tag must have `first' and `last' attributes set.";
 
-    TimeValidityInterval tvi(first, last);
-    
+    TimeValidityInterval tvi( first, last );
+
     // process data
-    RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::GetCorrectionsData(n);
+    RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::getCorrectionsData( node );
 
     // save result
-    insert(pair<TimeValidityInterval, RPAlignmentCorrectionsData>(tvi, corrections));
+    std::map<TimeValidityInterval,RPAlignmentCorrectionsData>::insert( std::make_pair( tvi, corrections ) );
   }
 
   XMLPlatformUtils::Terminate();
@@ -179,31 +159,30 @@ void RPAlignmentCorrectionsDataSequence::LoadXMLFile(const string &fileName)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionsDataSequence::WriteXMLFile(const string &fileName, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy,
-  bool wrSh_z, bool wrRot_z) const
+void
+RPAlignmentCorrectionsDataSequence::writeXMLFile( const std::string &fileName, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy, bool wrSh_z, bool wrRot_z ) const
 {
-  FILE *rf = fopen(fileName.c_str(), "w");
-  if (!rf)
-    throw cms::Exception("RPAlignmentCorrectionsDataSequence::WriteXMLFile") << "Cannot open file `" << fileName
-      << "' to save alignments." << endl;
+  FILE *rf = fopen( fileName.c_str(), "w" );
+  if ( !rf )
+    throw cms::Exception("RPAlignmentCorrectionsDataSequence::writeXMLFile") << "Cannot open file `" << fileName
+      << "' to save alignments.";
 
-  fprintf(rf, "<!--\nShifts in um, rotations in mrad.\n\nFor more details see RPAlignmentCorrections::LoadXMLFile in\n");
-  fprintf(rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsDataSequence.cc\n-->\n\n");
-  fprintf(rf, "<xml DocumentType=\"AlignmentSequenceDescription\">\n");
+  fprintf( rf, "<!--\nShifts in um, rotations in mrad.\n\nFor more details see RPAlignmentCorrections::LoadXMLFile in\n" );
+  fprintf( rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsDataSequence.cc\n-->\n\n" );
+  fprintf( rf, "<xml DocumentType=\"AlignmentSequenceDescription\">\n" );
 
   // write all time blocks
-  for (const auto & it : *this)
-  {
-    fprintf(rf, "\t<TimeInterval first=\"%s\" last=\"%s\">",
-      TimeValidityInterval::ValueToUNIXString(it.first.first).c_str(),
-      TimeValidityInterval::ValueToUNIXString(it.first.last).c_str()
+  for ( const auto& it : *this ) {
+    fprintf( rf, "\t<TimeInterval first=\"%s\" last=\"%s\">",
+      TimeValidityInterval::ValueToUNIXString( it.first.first ).c_str(),
+      TimeValidityInterval::ValueToUNIXString( it.first.last ).c_str()
     );
 
-    RPAlignmentCorrectionsMethods::WriteXMLBlock(it.second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
-    fprintf(rf, "\t</TimeInterval>\n");
+    RPAlignmentCorrectionsMethods::writeXMLBlock( it.second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
+    fprintf( rf, "\t</TimeInterval>\n" );
   }
 
-  fprintf(rf, "</xml>\n");
-  fclose(rf);
+  fprintf( rf, "</xml>\n" );
+  fclose( rf );
 }
 

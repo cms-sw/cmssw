@@ -45,7 +45,7 @@ EcalEndcapGeometry::~EcalEndcapGeometry()
   {
     auto ptr = m_borderPtrVec.load(std::memory_order_acquire);
     for(auto& v: (*ptr)) {
-        if(v) delete v;
+        delete v;
         v = nullptr;
     }
     delete m_borderPtrVec.load() ;
@@ -88,7 +88,7 @@ EcalEndcapGeometry::initializeParms()
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
      const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-     if( 0 != cell )
+     if( nullptr != cell )
      {
 	const CCGFloat z ( cell->getPosition().z() ) ;
 	if(z>0.)
@@ -122,9 +122,9 @@ EcalEndcapGeometry::initializeParms()
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
      const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-     if( 0 != cell )
+     if( nullptr != cell )
      {
-	const GlobalPoint p ( cell->getPosition()  ) ;
+	const GlobalPoint& p ( cell->getPosition()  ) ;
 	const CCGFloat z ( p.z() ) ;
 	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
 	const CCGFloat x ( p.x()*zz/z ) ;
@@ -264,7 +264,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	 // compute the distance of the point with respect of the 4 crystal lateral planes
 
 	 
-	 if( 0 != getGeometry(mycellID) )
+	 if( nullptr != getGeometry(mycellID) )
 	 {
 	    const GlobalPoint& myPosition=getGeometry(mycellID)->getPosition();
 	 
@@ -432,7 +432,7 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
    OrderedListOfEBDetId* ptr ( nullptr ) ;
    auto ptrVec = m_borderPtrVec.load(std::memory_order_acquire);
    if(!ptrVec) {
-       if(0 != id.rawId() && 0 != getGeometry(id)) {
+       if(0 != id.rawId() && nullptr != getGeometry(id)) {
            const float phi(370.+getGeometry(id)->getPosition().phi().degrees());
            const int iPhi(1+int(phi)%360) ;
            const int iz(id.zside()) ;
@@ -505,7 +505,7 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
       for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
 	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-	 if( 0 != cell )
+	 if( nullptr != cell )
 	 {
 	    sum += fabs( cell->getPosition().z() ) ;
 	 }
@@ -521,5 +521,5 @@ EcalEndcapGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }
