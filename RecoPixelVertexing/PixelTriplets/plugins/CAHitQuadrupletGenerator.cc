@@ -9,11 +9,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 
@@ -51,8 +46,7 @@ fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
 useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
 caThetaCut(cfg.getParameter<double>("CAThetaCut")),
 caPhiCut(cfg.getParameter<double>("CAPhiCut")),
-caHardPtCut(cfg.getParameter<double>("CAHardPtCut")),
-caOnlyOneLastHitPerLayerFilter(cfg.getParameter<bool>("CAOnlyOneLastHitPerLayerFilter"))
+caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -70,7 +64,7 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
   desc.add<double>("CAHardPtCut", 0);
-  desc.add<bool>("CAOnlyOneLastHitPerLayerFilter",false);
+  desc.addOptional<bool>("CAOnlyOneLastHitPerLayerFilter")->setComment("Deprecated and has no effect. To be fully removed later when the parameter is no longer used in HLT configurations.");
   edm::ParameterSetDescription descMaxChi2;
   descMaxChi2.add<double>("pt1", 0.2);
   descMaxChi2.add<double>("pt2", 1.5);
@@ -194,10 +188,6 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
   std::vector<const HitDoublets *> hitDoublets;
 
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();	
-
   const int numberOfHitsInNtuplet = 4;
   std::vector<CACell::CAntuplet> foundQuadruplets;
 
@@ -238,12 +228,6 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
   	std::array<GlobalPoint, 4> gps;
   	std::array<GlobalError, 4> ges;
   	std::array<bool, 4> barrels;
-	bool hasAlreadyPushedACandidate = false;
-	float selectedChi2 = std::numeric_limits<float>::max();
-  	unsigned int previousfourthLayerId = 0;
-	std::array<unsigned int, 2> previousCellIds ={{0,0}};
-	unsigned int previousSideId = 0;
-	int previousSubDetId = 0;
 
 	unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
 
@@ -267,25 +251,6 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     		gps[3] = ahit->globalPosition();
     		ges[3] = ahit->globalPositionError();
     		barrels[3] = isBarrel(ahit->geographicalId().subdetId());
-    		if(caOnlyOneLastHitPerLayerFilter)
-   		{
- 	     		const auto fourthLayerId = tTopo->layer(ahit->geographicalId());
-            		const auto sideId = tTopo->side(ahit->geographicalId());
-            		const auto subDetId = ahit->geographicalId().subdetId();
-    			const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0] ==  previousCellIds[0]) && (foundQuadruplets[quadId][1] ==  previousCellIds[1]);
-   			const auto isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
-
-    			previousCellIds = {{foundQuadruplets[quadId][0], foundQuadruplets[quadId][1]}};
-    			previousfourthLayerId = fourthLayerId;
-
-
-    			if(!(isTheSameTriplet && isTheSameFourthLayer ))
-    			{
-    				selectedChi2 = std::numeric_limits<float>::max();
-    				hasAlreadyPushedACandidate = false;
-    			}
-
-    		}
     		// TODO:
     		// - if we decide to always do the circle fit for 4 hits, we don't
     		//   need ThirdHitPredictionFromCircle for the curvature; then we
@@ -344,29 +309,10 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
       			if (edm::isNotFinite(chi2)) continue;
       			if (fitFastCircleChi2Cut && chi2 > thisMaxChi2) continue;
     		}
-    		if(caOnlyOneLastHitPerLayerFilter)
-    		{
-    			if (chi2 < selectedChi2)
-   			{
-    				selectedChi2 = chi2;
-    				if(hasAlreadyPushedACandidate)
-    				{
-    					result[index].pop_back();
-    				}
-	    			result[index].emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
-							   allCells[foundQuadruplets[quadId][1]].getInnerHit(),
-							   allCells[foundQuadruplets[quadId][2]].getInnerHit(),
-							   allCells[foundQuadruplets[quadId][2]].getOuterHit());
-	    			hasAlreadyPushedACandidate = true;
-    			}
-   		}
-    		else
-    		{
-		  result[index].emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
-					     allCells[foundQuadruplets[quadId][1]].getInnerHit(),
-					     allCells[foundQuadruplets[quadId][2]].getInnerHit(),
-					     allCells[foundQuadruplets[quadId][2]].getOuterHit());
-    		}
+		result[index].emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+					   allCells[foundQuadruplets[quadId][1]].getInnerHit(),
+					   allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+					   allCells[foundQuadruplets[quadId][2]].getOuterHit());
         }
 	index++;
      }
