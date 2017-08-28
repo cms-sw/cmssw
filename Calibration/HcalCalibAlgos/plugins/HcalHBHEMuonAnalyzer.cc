@@ -821,17 +821,25 @@ double HcalHBHEMuonAnalyzer::activeLength(const DetId& id_) {
   HcalDetId id(id_);
   int ieta = id.ietaAbs();
   int depth= id.depth();
+  int zside= id.zside();
+  int iphi = id.iphi();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
     for (unsigned int i=0; i<actHB.size(); ++i) {
-      if (ieta == actHB[i].ieta && depth == actHB[i].depth) {
+      if ((ieta == actHB[i].ieta) && (depth == actHB[i].depth) && 
+	  (zside == actHB[i].zside) && 
+	  (std::find(actHB[i].iphis.begin(),actHB[i].iphis.end(),iphi) !=
+	   actHB[i].iphis.end())) {
 	lx = actHB[i].thick;
 	break;
       }
     }
   } else {
     for (unsigned int i=0; i<actHE.size(); ++i) {
-      if (ieta == actHE[i].ieta && depth == actHE[i].depth) {
+      if ((ieta == actHE[i].ieta) && (depth == actHE[i].depth) && 
+	  (zside == actHE[i].zside) && 
+	  (std::find(actHE[i].iphis.begin(),actHE[i].iphis.end(),iphi) !=
+	   actHE[i].iphis.end())) {
 	lx = actHE[i].thick;
 	break;
       }

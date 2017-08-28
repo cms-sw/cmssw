@@ -51,16 +51,17 @@ public:
   const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
   const std::vector<HcalDetId> & getIdHF2QIE() const {return idHF2QIE;}
-  double                    getLayer0Wt(int det, int phi, 
-					int zside) const;
-  int                       getFrontLayer(int det, int eta) const;
-  int                       getLayerFront(int det, int eta, 
-					  int phi, int zside,
-					  int depth) const;
-  int                       getLayerBack(int det, int eta, 
-					 int phi, int zside,
-					 int depth) const;
-  int                       getLayerMax(int eta, int depth) const;
+  double                    getLayer0Wt(const int det, const int phi, 
+					const int zside) const;
+  int                       getFrontLayer(const int det, const int eta) const;
+  int                       getLastLayer(const int det, const int eta) const;
+  int                       getLayerFront(const int det, const int eta, 
+					  const int phi, const int zside,
+					  const int depth) const;
+  int                       getLayerBack(const int det, const int eta, 
+					 const int phi, const int zside,
+					 const int depth) const;
+  int                       getLayerMax(const int eta, const int depth) const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(int det, int eta, 
 					int phi, int zside,
@@ -130,6 +131,8 @@ private:
   int                 depthEta29[2]; // maximum depth index for ieta=29
   int                 layFHB[2]; // first layers in HB (normal, special 16)
   int                 layFHE[3]; // first layers in HE (normal, special 16, 18)
+  int                 layBHB[3]; // last layers in HB (normal, special 15, 16)
+  int                 layBHE[3]; // last layers in HE (normal, special 16, 17|18)
   bool                isBH_;         // if HE is BH
   std::vector<HcalDetId> idHF2QIE;   // DetId's of HF modules with 2 QIE's
   std::pair<int,int>  depthMaxDf_, depthMaxSp_; // (subdet,maximum depth) default,special

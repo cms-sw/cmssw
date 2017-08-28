@@ -44,6 +44,7 @@ public:
   struct HcalActiveLength {
     int    ieta, depth, zside, stype;
     double eta, thick;
+    std::vector<int> iphis;
     HcalActiveLength(int ie=0, int d=0, int z=0, int s=0, double et=0, 
 		     double t=0) : ieta(ie), depth(d), zside(z), stype(s),
                                    eta(et), thick(t) {}
@@ -78,9 +79,9 @@ public:
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
-  void                      getLayerDepth(int ieta, std::map<int,int>& layers) const;
-  int                       getLayerFront(int det, int eta, int phi, int depth) const;
-  double                    getLayer0Wt(int det, int phi, int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
+  void                      getLayerDepth(const int ieta, std::map<int,int>& layers) const;
+  int                       getLayerFront(const int det, const int eta, const int phi, const int depth) const;
+  double                    getLayer0Wt(const int det, const int phi, const int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(int itype, int ieta,
 					int iphi, int zside) const;
