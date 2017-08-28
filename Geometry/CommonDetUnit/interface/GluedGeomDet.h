@@ -7,7 +7,7 @@
 class GluedGeomDet final : public TrackerGeomDet {
 public:
 
-  GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet, const DetId gluedDetId);
+  GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet, DetId gluedDetId);
   
   ~GluedGeomDet() override;
 

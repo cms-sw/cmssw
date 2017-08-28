@@ -25,10 +25,10 @@
 class DDEcalEndcapTrap {
 
    public:
-      DDEcalEndcapTrap( const int hand,
-			const double front , 
-			const double rear  ,
-			const double length  ) ;
+      DDEcalEndcapTrap( int hand,
+			double front , 
+			double rear  ,
+			double length  ) ;
 
       //  virtual ~DDEcalEndcapTrap();
 
@@ -39,8 +39,8 @@ class DDEcalEndcapTrap {
 
   //  void rotate();
 
-      void rotateX( const double angle ) ;
-      void rotateY( const double angle ) ;
+      void rotateX( double angle ) ;
+      void rotateY( double angle ) ;
       void translate();
       void moveto( const DDTranslation& frontCentre,
 		   const DDTranslation& rearCentre  );
@@ -48,8 +48,8 @@ class DDEcalEndcapTrap {
       double polarAngle(     const DDTranslation& trans);
       double elevationAngle();
       double polarAngle();
-      DDTranslation cornerPos( const int icorner );
-      void cornerPos( const int           icorner ,
+      DDTranslation cornerPos( int icorner );
+      void cornerPos( int           icorner ,
 		      const DDTranslation& cc)         ;
       DDTranslation centrePos();
       DDTranslation fcentrePos();
