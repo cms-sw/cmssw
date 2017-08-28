@@ -47,7 +47,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.load("Validation.HGCalHitValidation.hgcalHitValidation_cfi")
+process.load("Validation.HGCalValidation.hgcalHitValidation_cfi")
 process.dqmoffline_step = cms.EndPath(process.hgcalHitValidationSequece)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
