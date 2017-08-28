@@ -1,3 +1,6 @@
+#ifndef CondCore_Utilities_Payload2XMLModule_h
+#define CondCore_Utilities_Payload2XMLModule_h
+
 #include <string>
 #include <memory>
 
@@ -46,3 +49,4 @@ namespace { // Avoid cluttering the global namespace.
 
 } // end namespace
 
+#endif
