@@ -30,6 +30,7 @@
 
 // user include files
 #include "FWCore/SOA/interface/tablehelpers.h"
+#include "FWCore/SOA/interface/ColumnFillers.h"
 
 // forward declarations
 
@@ -67,15 +68,66 @@ public:
   m_values{iValues} {}
   
   template<typename U>
-  typename U::type& get() const {
+  typename U::type& get()  {
     return *(static_cast<typename U::type*>(columnAddress<U>()));
+  }
+  template<typename U>
+  typename U::type const& get() const  {
+    return *(static_cast<typename U::type const*>(columnAddress<U>()));
+  }
+
+  template<typename U>
+  MutableRowView<Args...>& set( typename U::type const& iValue)  {
+    get<U>() = iValue;
+    return *this;
   }
   
   template<typename U>
-  void * columnAddress() const {
+  void * columnAddress()  {
     return m_values[impl::GetIndex<0,U,Layout>::index];
   }
+  template<typename U>
+  void const * columnAddress() const {
+    return m_values[impl::GetIndex<0,U,Layout>::index];
+  }
+
   
+  template<typename O>
+  void copyValuesFrom(O const& iObj) {
+    copyValueFromImpl<0>(iObj, std::true_type{});
+  }
+  template<typename O, typename... CArgs>
+  void copyValuesFrom(O const& iObj, ColumnFillers<CArgs...> iFiller) {
+    copyValuesUsingFiller<0>(iFiller, iObj, m_values, std::true_type{});
+  }
+  
+private:
+  template<int I, typename O>
+  void copyValueFromImpl(O const& iObj, std::true_type) {
+    using ColumnType = typename std::tuple_element<I,Layout>::type;
+    using Type = typename ColumnType::type;
+    auto ptr = static_cast<Type*>(m_values[I]);
+    *ptr =value_for_column(iObj, static_cast<ColumnType*>(nullptr));
+    copyValueFromImpl<I+1>(iObj, std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{});
+  }
+  template<int I, typename O>
+  void copyValueFromImpl(O const& iObj, std::false_type) {
+  }
+  
+  template<int I, typename E, typename F>
+  static void copyValuesUsingFiller(F& iFiller, E const& iItem, std::array<void *, sizeof...(Args)>& oValues, std::true_type) {
+    using Layout = std::tuple<Args...>;
+    using ColumnType = typename std::tuple_element<I,Layout>::type;
+    using Type = typename ColumnType::type;
+    Type* pElement = static_cast<Type*>(oValues[I]);
+    *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
+    copyValuesUsingFiller<I+1>(iFiller,iItem, oValues, std::conditional_t<I+1==sizeof...(Args),
+                                std::false_type,
+                                std::true_type>{});
+  }
+  template<int I, typename E, typename F>
+  static void copyValuesUsingFiller(F&, E const& , std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
+
 };
 
 }

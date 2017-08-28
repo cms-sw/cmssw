@@ -30,6 +30,7 @@ class testTable: public CppUnit::TestFixture
   CPPUNIT_TEST(tableViewConversionTest);
   CPPUNIT_TEST(tableExaminerTest);
   CPPUNIT_TEST(tableResizeTest);
+  CPPUNIT_TEST(mutabilityTest);
   CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -43,6 +44,7 @@ public:
   void tableViewConversionTest();
   void tableExaminerTest();
   void tableResizeTest();
+  void mutabilityTest();
 };
 
 namespace ts {
@@ -420,5 +422,36 @@ void testTable::tableResizeTest() {
   }
   
 }
+
+void testTable::mutabilityTest() {
+  using namespace edm::soa;
+  using namespace ts;
+  
+  std::array<double,3> eta={{1.,2.,4.}};
+  std::array<double,3> phi={{3.14,0.,1.3}};
+  JetTable jets{eta,phi};
+
+  jets.get<Eta>(0) = 0.;
+  CPPUNIT_ASSERT(jets.get<Eta>(0) == 0.);
+  jets.get<Phi>(1) = 0.03;
+  CPPUNIT_ASSERT(tolerance(jets.get<Phi>(1),0.03));
+
+  auto row = jets.row(2);
+  CPPUNIT_ASSERT(row.get<Eta>() == 4.);
+  CPPUNIT_ASSERT(tolerance(row.get<Phi>(),1.3));
+  
+  row.copyValuesFrom(JetType{5., 6.});
+  CPPUNIT_ASSERT(row.get<Eta>() == 5.);
+  CPPUNIT_ASSERT(row.get<Phi>() == 6.);
+  
+  row.copyValuesFrom(JetType{7.,8.}, column_fillers(filler_for<Phi>([](JetType const&) {return 9.;})));
+  CPPUNIT_ASSERT(row.get<Eta>() == 7.);
+  CPPUNIT_ASSERT(row.get<Phi>() == 9.);
+
+  row.set<Phi>(10.).set<Eta>(11.);
+  CPPUNIT_ASSERT(row.get<Eta>() == 11.);
+  CPPUNIT_ASSERT(row.get<Phi>() == 10.);
+}
+
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

@@ -209,6 +209,13 @@ namespace soa {
       return MutableColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
     }
     
+    RowView<Args...> row(size_t iRow) const {
+      return *(begin()+iRow);
+    }
+    MutableRowView<Args...> row(size_t iRow)  {
+      return *(begin()+iRow);
+    }
+    
     const_iterator begin() const { return const_iterator{m_values}; }
     const_iterator end() const { return const_iterator{m_values,size()}; }
 
