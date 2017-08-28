@@ -7,11 +7,6 @@
 
 double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimplifiedGeometry & layer) const
 {
-    if(layer.isOnSurface(position_))
-    {
-	   return -1;
-    }
-
     //
     // solve the equation
     // (x^2 + y^2 = R^2),   (1)

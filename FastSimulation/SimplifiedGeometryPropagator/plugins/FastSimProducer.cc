@@ -412,7 +412,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 		LogDebug(MESSAGECATEGORY) << "   new state: " << *particle;
 
 		// break after 25 ns: only happens for particles stuck in loops
-	    if(particle->position().T() > 40)
+	    if(particle->position().T() > 50)
 	    {
 		    caloLayer = 0;
 			break;
