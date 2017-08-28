@@ -154,6 +154,8 @@ globalValidationHCAL = cms.Sequence(
     + calotowersValidationSequence
 )
 
+globalValidationHGCal = cms.Sequence(hgcalValidation)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
@@ -187,12 +189,3 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
-
-# Order matters! If we do the clone here, after all the previous
-# toReplaceWith we are sure not to screw/loose their modification
-_phase2_hgcalGlobalValidation = globalValidation.copy()
-_phase2_hgcalGlobalValidation += hgcalValidation
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith(
-    globalValidation, _phase2_hgcalGlobalValidation
-    )
