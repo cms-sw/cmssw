@@ -26,7 +26,7 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet & cfg)
 
     // Particles must have vertex inside the tracker
     vertexRMax2_ = 129.0*129.0; 
-    vertexZMax_ = 317;
+    vertexZMax_ = 303.353;
 }
 
 bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
@@ -60,6 +60,7 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
 
     // particles must have vertex in volume of tracker
     return acceptsVtx(particle.position()) && acceptsEn(particle);
+    //return (acceptsVtx(particle.position()) || particle.momentum().Pz()*particle.momentum().Pz()/particle.momentum().P2() > (vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)*(vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)) && acceptsEn(particle);
 }
 
 bool fastsim::ParticleFilter::acceptsEn(const fastsim::Particle & particle) const
@@ -91,5 +92,5 @@ bool fastsim::ParticleFilter::acceptsEn(const fastsim::Particle & particle) cons
 bool fastsim::ParticleFilter::acceptsVtx(const math::XYZTLorentzVector & originVertex) const
 {
     // origin vertex is within the tracker volume
-    return originVertex.Perp2() < vertexRMax2_ && fabs(originVertex.Z()) < vertexZMax_;
+    return (originVertex.Perp2() < vertexRMax2_ && fabs(originVertex.Z()) < vertexZMax_);
 }

@@ -53,10 +53,6 @@ namespace fastsim{
 		*/
 		const double getThickness(const math::XYZTLorentzVector & position) const override
 		{
-		    if(!this->isOnSurface(position))
-		    {
-			throw cms::Exception("fastsim::BarrelSimplifiedGeometry::getThickness") << "position is not on layer's surface";
-		    }
 		    return thicknessHist_->GetBinContent(thicknessHist_->GetXaxis()->FindBin(fabs(position.Z())));
 		}
 
@@ -83,10 +79,6 @@ namespace fastsim{
 		*/
 		const double getMagneticFieldZ(const math::XYZTLorentzVector & position) const override
 		{
-		    if(!this->isOnSurface(position))
-		    {
-			throw cms::Exception("fastsim::BarrelSimplifiedGeometry::getMagneticFieldZ") << "position is not on layer's surface";
-		    }
 		    return magneticFieldHist_->GetBinContent(magneticFieldHist_->GetXaxis()->FindBin(fabs(position.z())));
 		}
 

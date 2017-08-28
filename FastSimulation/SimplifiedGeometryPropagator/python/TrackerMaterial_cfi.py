@@ -187,7 +187,7 @@ TrackerMaterialBlock = cms.PSet(
 			########### Pixel Barrel Outside walls and cables (endcap) ###########
             #PIXBOut4
             cms.PSet(
-                z = cms.untracked.double(28.799),
+                z = cms.untracked.double(28.7),
                 limits = cms.untracked.vdouble(4.2, 5.1, 7.1, 8.2, 10.0, 11.0, 11.9, 16.5),
                 thickness = cms.untracked.vdouble(0.100, 0.00, 0.108, 0.00, 0.112, 0.02, 0.04),
                 interactionModels = _trackerMaterialInteractionModels

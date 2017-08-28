@@ -57,7 +57,7 @@ namespace fastsim
 			\param layer A barrel or forward layer.
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		double nextCrossingTimeC(const SimplifiedGeometry & layer) const;
+		double nextCrossingTimeC(const SimplifiedGeometry & layer, bool onLayer = false) const;
 
 		//! Return delta time (t*c) of the next intersection of trajectory and forward layer
     	/*!
