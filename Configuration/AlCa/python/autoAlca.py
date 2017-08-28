@@ -1,6 +1,6 @@
-AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels",
+AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   "Charmonium"     : "TkAlJpsiMuMu",
-                  "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector",
+                  "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
                   "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics",
                   "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
                   "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
@@ -31,9 +31,8 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels",
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
                   }
 
-# this matrix will be used for the legacy reprocessing of the 2016 2016B-H dataset;
-# with the exception of ZeroBias, it was also used for the 23Sept16 reprocessing of 2016B-G 
-AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
+# this matrix will be used for the 1st reprocessing of the 2017 2016B-C dataset;
+AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom',
                         'Charmonium'     : 'TkAlJpsiMuMu',
                         'Commissioning'  : 'TkAlMinBias+SiStripCalMinBias+HcalCalIsoTrk+HcalCalIsolatedBunchSelector',
                         'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
@@ -52,7 +51,7 @@ AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
                         'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO',
                         'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHO',
                         'SinglePhoton'   : 'HcalCalGammaJet',
-                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+SiStripCalMinBiasAfterAbortGap',
+                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+SiStripCalMinBiasAfterAAGap',
                         'HcalNZS'        : 'HcalCalMinBias'
                         }
 
