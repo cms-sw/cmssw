@@ -18,6 +18,22 @@
  auto eta = rv.get<Eta>();
  \endcode
 
+ The MutableRowView allows one to modify the values associated with the row.
+ \code
+ MutableRowView<Eta,Phi> rv = table.row(3);
+ 
+ rv.get<Eta>() = 4;
+ rv.set<Eta>(5).set<Phi>(6);
+ \endcode
+ 
+ If the necessary fillers (See ColumnFillers.h) have been defined, then
+ one can directly copy values from an object into the row elements
+ \code
+ MutableRowView<Eta,Phi> rv = table.row(3);
+ ...
+ rv.copyValuesFrom( Angles{0.2,3.1415} );
+ \endcode
+ 
 */
 //
 // Original Author:  Chris Jones
