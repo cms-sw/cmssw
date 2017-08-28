@@ -189,7 +189,7 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
       // Getting filtered generator muons
       vector<const reco::GenParticle*> filGenLep = filterGenLeptons(genParticles);
-      if(filGenLep.size() < 1) return false;
+
       
       // Getting p4 of jet with no lepton
       vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
