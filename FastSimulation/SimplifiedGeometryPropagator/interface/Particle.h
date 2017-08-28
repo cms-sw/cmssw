@@ -1,6 +1,7 @@
 #ifndef FASTSIM_PARTCILE_H
 #define FASTSIM_PARTICLE_H
 
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 
@@ -36,6 +37,8 @@ namespace fastsim
 		    , simTrackIndex_(-1)
 		    , simVertexIndex_(-1)
 		    , genParticleIndex_(-1)
+		    , isOnForwardLayer_(false)
+			, isOnLayerIndex_(-1)
 		    , energyDeposit_(0)
 		    , isLooper_(false)
 		    , motherDeltaR_(-1)
@@ -68,6 +71,17 @@ namespace fastsim
 	
 	//! Set the charge of the particle.
 	void setCharge(double charge) {charge_ = charge;}
+
+	//! Set layer this particle is currently on
+	void setOnLayer(const SimplifiedGeometry *layer){
+		isOnForwardLayer_ = layer->isForward();
+		isOnLayerIndex_ = layer->index();
+	}
+
+	//! Reset layer this particle is currently on
+	void resetOnLayer(){
+		isOnLayerIndex_ = -1;
+	}
 
 	//! Set the energy the particle deposited in the tracker layer that was last hit (ionization).
 	/*!
@@ -153,6 +167,11 @@ namespace fastsim
     */
 	int genParticleIndex() const {return genParticleIndex_;}
 
+	//! Check if particle is on layer
+	bool isOnLayer(const SimplifiedGeometry *layer){
+		return isOnForwardLayer_ == layer->isForward() && isOnLayerIndex_ == layer->index();
+	}
+
 	//! Returns true if particle is considered stable.
 	bool isStable() const {return remainingProperLifeTimeC_ == -1.;}
 
@@ -223,6 +242,8 @@ namespace fastsim
 	int simTrackIndex_;  //!< index of the simTrack
 	int simVertexIndex_;  //!< index of the origin vertex
 	int genParticleIndex_;  //!< index of the particle in the vector of genParticles (if applies)
+	bool isOnForwardLayer_;
+	int isOnLayerIndex_;
 	double energyDeposit_;  //!< energy deposit through ionization in the previous tracker layer
 	bool isLooper_;  //!< this particle is about to do a loop or momentum goes inwards
 	double motherDeltaR_;  //!< delta R to mother particle if both charged

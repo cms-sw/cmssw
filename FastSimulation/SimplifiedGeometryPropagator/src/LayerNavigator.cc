@@ -72,7 +72,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     // if the layer is provided, the particle must be on it
     if(layer)
     {	
-		if(!layer->isOnSurface(particle.position()))
+		if(!particle.isOnLayer(layer))
 		{
 		    throw cms::Exception("FastSimulation") << "If layer is provided, particle must be on layer."
 		    << "\n   Layer: " << *layer
@@ -150,6 +150,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     else
     {
 		LogDebug(MESSAGECATEGORY) << "      ordinary call";
+
 		// barrel layer was hit
 		if(layer == nextBarrelLayer_)
 		{
@@ -233,7 +234,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     double deltaTimeC = -1;
     for(auto _layer : layers)
     {
-		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer);
+		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer));
 		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
 		if(tempDeltaTime > 0 && (layer == 0 || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
 		{
@@ -267,7 +268,10 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 
 		if(!particle.isStable()) particle.setRemainingProperLifeTimeC(particle.remainingProperLifeTimeC() - properDeltaTimeC);
 
+		particle.setOnLayer(layer);
 		LogDebug(MESSAGECATEGORY) << "    moved particle to layer: " << *layer;
+    }else{
+    	particle.resetOnLayer();
     }
 
     // return true / false if propagations succeeded /failed
