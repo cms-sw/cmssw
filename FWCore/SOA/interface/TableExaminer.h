@@ -7,14 +7,14 @@
 // 
 /**\class TableExaminer TableExaminer.h "TableExaminer.h"
 
- Description: [one line class summary]
+ Description: Concrete implementation of TableExaminerBase
 
  Usage:
     <usage>
 
 */
 //
-// Original Author:  root
+// Original Author:  Chris Jones
 //         Created:  Mon, 28 Aug 2017 14:22:29 GMT
 //
 
