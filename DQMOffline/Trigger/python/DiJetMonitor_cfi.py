@@ -19,8 +19,6 @@ DiPFjetAve40_Prommonitoring.dijetSrc  = cms.InputTag("ak4PFJets") # ak4PFJets, a
 DiPFjetAve40_Prommonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 DiPFjetAve40_Prommonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 DiPFjetAve40_Prommonitoring.ptcut     = cms.double(20) # while pfIsolatedMuonsEI are reco::PFCandidate !
-DiPFjetAve40_Prommonitoring.etacut     = cms.double(1.7) # Using dijet offline selection
-DiPFjetAve40_Prommonitoring.delphicut  = cms.double(2.7) # Using dijet offline selection
 
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("JetMETDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
