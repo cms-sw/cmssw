@@ -29,6 +29,7 @@ class testTable: public CppUnit::TestFixture
   CPPUNIT_TEST(tableColumnTest);
   CPPUNIT_TEST(tableViewConversionTest);
   CPPUNIT_TEST(tableExaminerTest);
+  CPPUNIT_TEST(tableResizeTest);
   CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -378,4 +379,46 @@ void testTable::tableExaminerTest()
   checkColumnTypes(r);
   checkColumnDescriptions(r);
 }
+
+void testTable::tableResizeTest() {
+  using namespace edm::soa;
+  using namespace ts;
+
+  std::vector<double> px = { 0.1, 0.9, 1.3 };
+  std::vector<double> py = { 0.8, 1.7, 2.1 };
+  std::vector<double> pz = { 0.4, 1.0, 0.7 };
+  std::vector<double> energy = { 1.4, 3.7, 4.1};
+
+  ParticleTable particlesStandard{px,py,pz,energy};
+
+  ParticleTable particles{px,py,pz,energy};
+
+  particles.resize(2);
+  
+  auto compare = [](const ParticleTable& iLHS, const ParticleTable& iRHS, size_t n) {
+    for(size_t i = 0; i< n; ++i) {
+      CPPUNIT_ASSERT(iLHS.get<Px>(i) == iRHS.get<Px>(i));
+      CPPUNIT_ASSERT(iLHS.get<Py>(i) == iRHS.get<Py>(i));
+      CPPUNIT_ASSERT(iLHS.get<Pz>(i) == iRHS.get<Pz>(i));
+      CPPUNIT_ASSERT(iLHS.get<Energy>(i) == iRHS.get<Energy>(i));
+    }
+  };
+  
+  CPPUNIT_ASSERT(particles.size() == 2);
+  compare(particlesStandard,particles,2);
+
+  particles.resize(4);
+  CPPUNIT_ASSERT(particles.size() == 4);
+  compare(particles,particlesStandard,2);
+  
+  for(size_t i = 2; i<4; ++i) {
+    CPPUNIT_ASSERT(particles.get<Px>(i) == 0.);
+    CPPUNIT_ASSERT(particles.get<Py>(i) == 0.);
+    CPPUNIT_ASSERT(particles.get<Pz>(i) == 0.);
+    CPPUNIT_ASSERT(particles.get<Energy>(i) == 0.);
+
+  }
+  
+}
+
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

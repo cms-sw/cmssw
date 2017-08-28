@@ -181,6 +181,16 @@ namespace soa {
       return m_size;
     }
     
+    void resize(unsigned int iNewSize) {
+      if(m_size == iNewSize) { return;}
+      resizeFromTo<0>(m_size,iNewSize,m_values,std::true_type{});
+      if(m_size < iNewSize) {
+        //initialize the extra values
+        resetStartingAt<0>(m_size, iNewSize,m_values,std::true_type{});
+      }
+      m_size = iNewSize;
+    }
+    
     template<typename U>
     typename U::type const& get(size_t iRow) const {
       return *(static_cast<typename U::type const*>(columnAddress<U>())+iRow);
@@ -357,20 +367,35 @@ namespace soa {
     static void copyFromToWithResize(size_t, std::array<void *, sizeof...(Args)> const& , std::array<void*, sizeof...(Args)>&, std::false_type) {}
     
     template<int I>
-    static void resizeFromTo(size_t iOldSize, size_t iNewSize, std::array<void *, sizeof...(Args)>& ioArray) {
+    static void resizeFromTo(size_t iOldSize, size_t iNewSize, std::array<void *, sizeof...(Args)>& ioArray, std::true_type) {
       using Layout = std::tuple<Args...>;
       using Type = typename std::tuple_element<I,Layout>::type::type;
-      Type* ptr = static_cast<Type*>(ioArray[I]);
-      ptr = new Type[iNewSize];
+      Type* oldPtr = static_cast<Type*>(ioArray[I]);
+      auto ptr = new Type[iNewSize];
       auto nToCopy = std::min(iOldSize,iNewSize);
       std::copy(static_cast<Type const*>(ioArray[I]), static_cast<Type const*>(ioArray[I])+nToCopy, ptr);
       resizeFromTo<I+1>(iOldSize, iNewSize, ioArray, std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{} );
-      delete [] ioArray[I];
+      
+      delete [] oldPtr;
       ioArray[I]=ptr;
     }
     template<int I>
     static void resizeFromTo(size_t, size_t, std::array<void *, sizeof...(Args)>& , std::false_type) {}
     
+    template<int I>
+    static void resetStartingAt(size_t iStartIndex, size_t iEndIndex,std::array<void *, sizeof...(Args)>& ioArray,std::true_type) {
+      using Layout = std::tuple<Args...>;
+      using Type = typename std::tuple_element<I,Layout>::type::type;
+      auto ptr = static_cast<Type*>(ioArray[I]);
+      auto temp = Type{};
+      std::fill(ptr+iStartIndex, ptr+iEndIndex, temp);
+      resetStartingAt<I+1>(iStartIndex, iEndIndex, ioArray,std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{} );
+    }
+
+    template<int I>
+    static void resetStartingAt(size_t, size_t,std::array<void *, sizeof...(Args)>& ,std::false_type) {
+    }
+
   };
   
     
