@@ -1,8 +1,7 @@
 #include "RecoCTPPS/PixelLocal/interface/RPixClusterToHit.h"
 
 
-RPixClusterToHit::RPixClusterToHit(edm::ParameterSet const& conf):
-  params_(conf)
+RPixClusterToHit::RPixClusterToHit(edm::ParameterSet const& conf)
 {
 verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
 }
