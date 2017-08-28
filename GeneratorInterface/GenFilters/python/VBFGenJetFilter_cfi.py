@@ -56,19 +56,9 @@ vbfGenJetFilterD = cms.EDFilter("VBFGenJetFilter",
 
   inputTag_GenJetCollection = cms.untracked.InputTag('ak4GenJetsNoNu'),
 
-  #oppositeHemisphere = cms.untracked.bool  ( False), # Require j1_eta*j2_eta<0
-  leadJetsNoLepMass  = cms.untracked.bool  ( True),  # Require j1_eta*j2_eta<0
-
-  #minPt                     = cms.untracked.double(    40), # Minimum dijet jet_pt
-  #minEta                    = cms.untracked.double(  -4.8), # Minimum dijet jet_eta
-  #maxEta                    = cms.untracked.double(   4.8), # Maximum dijet jet_eta
-  #minInvMass                = cms.untracked.double( 1000.), # Minimum dijet invariant mass
-  #maxInvMass                = cms.untracked.double(99999.), # Maximum dijet invariant mass
+  leadJetsNoLepMass         = cms.untracked.bool  ( True),  # Require the cut on the mass of the leading jets
   minLeadingJetsInvMass     = cms.untracked.double(   0.0), # Minimum dijet invariant mass
   maxLeadingJetsInvMass     = cms.untracked.double(99999.), # Maximum dijet invariant mass
-  #minDeltaPhi               = cms.untracked.double(  -1.0), # Minimum dijet delta phi
-  #maxDeltaPhi               = cms.untracked.double(   3.2), # Maximum dijet delta phi
-  #minDeltaEta               = cms.untracked.double(   3.0), # Minimum dijet delta eta
-  #maxDeltaEta               = cms.untracked.double(99999.)  # Maximum dijet delta eta
+  deltaRNoLep               = cms.untracked.double(   0.3), # Maximum dijet invariant mass
 
 )
