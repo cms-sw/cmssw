@@ -406,8 +406,8 @@ baseDataSetRelease=[
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-     'CMSSW_9_2_3-92X_upgrade2017_realistic_v1_earlyBS2017-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-     'CMSSW_9_2_3-PU25ns_92X_upgrade2017_realistic_v2_earlyBS2017-v1',     # 14 - fullSim PU 25ns UP17 premix
+    'CMSSW_9_2_8-92X_upgrade2017_realistic_v10_resub-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
+    'CMSSW_9_2_8-PU25ns_92X_upgrade2017_realistic_v10-v1',     # 14 - fullSim PU 25ns UP17 premix
     ]
 
 
@@ -1860,7 +1860,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_2_3-92X_upgrade2017_realistic_v1_earlyBS2017-v'
+defaultDataSets['2017']='CMSSW_9_2_8-92X_upgrade2017_realistic_v10_resub-v'
 defaultDataSets['2017Design']='CMSSW_9_2_1-92X_upgrade2017_design_IdealBS_v1-v'
 #defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
