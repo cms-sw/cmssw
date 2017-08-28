@@ -95,10 +95,10 @@ class JetPartonMatcher : public edm::global::EDProducer<>
 {
   public:
     JetPartonMatcher( const edm::ParameterSet & );
-    ~JetPartonMatcher();
+    ~JetPartonMatcher() override;
 
   private:
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
     struct WorkingVariables {
       Handle <GenParticleRefVector> particles;
@@ -240,7 +240,7 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m != wv.particles->size() && !foundPriority; ++ m ) {
+  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
     const Candidate & aParton = *(wv.particles->at(m).get());
 
     // "Priority" behavoir:
@@ -354,7 +354,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m != wv.particles->size() && !foundPriority; ++ m ) {
+  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
 
     const Candidate & aParticle = *(wv.particles->at(m).get());
 
@@ -421,7 +421,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
     wv.theNearest3 = tempNearest;
 
     if(nInTheCone != 1) return -1; // rejected --> only one initialParton requested
-    if(theContaminations.size() == 0 ) return tempParticle; //no contamination
+    if(theContaminations.empty() ) return tempParticle; //no contamination
     int initialPartonFlavour = abs( (wv.particles->at(tempParticle).get()) ->pdgId() );
 
     vector<const Candidate *>::const_iterator itCont = theContaminations.begin();
