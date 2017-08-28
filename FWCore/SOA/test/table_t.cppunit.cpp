@@ -16,6 +16,7 @@ Changed by Viji on 29-06-2005
 #include "FWCore/SOA/interface/RowView.h"
 #include "FWCore/SOA/interface/Column.h"
 #include "FWCore/SOA/interface/TableItr.h"
+#include "FWCore/SOA/interface/TableExaminer.h"
 
 class testTable: public CppUnit::TestFixture
 {
@@ -27,6 +28,7 @@ class testTable: public CppUnit::TestFixture
   CPPUNIT_TEST(tableStandardOpsTest);
   CPPUNIT_TEST(tableColumnTest);
   CPPUNIT_TEST(tableViewConversionTest);
+  CPPUNIT_TEST(tableExaminerTest);
   CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -38,13 +40,14 @@ public:
   void tableStandardOpsTest();
   void tableColumnTest();
   void tableViewConversionTest();
+  void tableExaminerTest();
 };
 
 namespace ts {
   constexpr const char kEta[] = "eta";
   using Eta = edm::soa::Column<kEta,float>;
 
-  constexpr const char kPhi[] = "eta";
+  constexpr const char kPhi[] = "phi";
   using Phi = edm::soa::Column<kPhi,float>;
 
   constexpr const char kEnergy[] = "energy";
@@ -335,5 +338,53 @@ void testTable::tableStandardOpsTest()
     compare(opEqMvTable,particles);
   }
   
+}
+
+namespace {
+  void checkColumnTypes(edm::soa::TableExaminerBase& reader) {
+    auto columns = reader.columnTypes();
+    std::array<std::type_index,2> const types{ {typeid(ts::Eta), typeid(ts::Phi) } };
+
+    auto itT = types.begin();
+    for( auto c: columns) {
+      CPPUNIT_ASSERT(c == *itT);
+      ++itT;
+    }
+  };
+  
+  void checkColumnDescriptions(edm::soa::TableExaminerBase& reader) {
+    auto columns = reader.columnDescriptions();
+
+    std::array<std::string,2> const desc{{"eta", "phi"}};
+    std::array<std::type_index,2> const types{ {typeid(float), typeid(float) } };
+    
+    auto itD = desc.begin();
+    auto itT = types.begin();
+    
+    for( auto c: columns) {
+      CPPUNIT_ASSERT(c.first == *itD);
+      CPPUNIT_ASSERT(c.second == *itT);
+      ++itD;
+      ++itT;
+    }
+  };
+
+}
+
+void testTable::tableExaminerTest()
+{
+  using namespace edm::soa;
+  using namespace ts;
+  
+  std::array<double,3> eta={{1.,2.,4.}};
+  std::array<double,3> phi={{3.14,0.,1.3}};
+  int size = eta.size();
+  CPPUNIT_ASSERT(size == 3);
+  
+  JetTable jets{eta,phi};
+  
+  TableExaminer<JetTable> r(&jets);
+  checkColumnTypes(r);
+  checkColumnDescriptions(r);
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
