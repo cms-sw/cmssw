@@ -69,10 +69,10 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::PFJetCollection>  dijetSrc_; // test for Jet
 
-  std::vector<double> dijetpT_variable_binning_;
+
   MEbinning           dijetpt_binning_;
   MEbinning           dijetptThr_binning_;
-  MEbinning           ls_binning_;
+
 
   ObjME jetpt1ME_;
   ObjME jetpt2ME_;
@@ -93,8 +93,7 @@ private:
 
   int nmuons_;
   double ptcut_;
-  double etacut_;
-  double phicut_;
+
 
   std::vector<double> v_jetpt;
   std::vector<double> v_jeteta;
