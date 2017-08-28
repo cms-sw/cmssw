@@ -14,18 +14,3 @@ HDQMInspectorConfigTracking::HDQMInspectorConfigTracking ()
 HDQMInspectorConfigTracking::~HDQMInspectorConfigTracking ()
 {
 }
-
-
-std::string HDQMInspectorConfigTracking::translateDetId(const uint32_t id) const
-{
-  std::stringstream Name;
-
-  if(id == 268435456) {
-    Name << "Tracker";
-  } else{
-    Name << "???";
-  }
-
-  return Name.str();
-
-}

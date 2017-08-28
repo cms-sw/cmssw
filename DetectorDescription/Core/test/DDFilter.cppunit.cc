@@ -18,7 +18,6 @@
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"
 
-
 class testDDFilter : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDDFilter);
   CPPUNIT_TEST(checkFilters);
@@ -41,23 +40,18 @@ namespace {
       dodet = fv.next();
     }
     return returnValue;
-  }
-
-  
+  }  
 }
 
 void testDDFilter::checkFilters() {
   //Create the geometry
   DDCompactView cv{};
-
-
   {
     double const kPI = std::acos(-1.);
 
     auto const& root = cv.root();
 
     DDMaterial mat{"Stuff"};
-
     {
       //Central
       auto outershape = DDSolidFactory::tubs("OuterShape",
@@ -69,13 +63,13 @@ void testDDFilter::checkFilters() {
       DDLogicalPart outerlp{ "Outer", mat, outershape };
 
       cv.position(outerlp,root,0, DDTranslation{}, DDRotation{});
-            {
+      {
         DDValue val{"Volume","Outer",0};
         DDsvalues_type values;
         values.emplace_back(DDsvalues_Content_type(val,val));
-
+	
         DDSpecifics ds{"OuterVolume", {"//Outer.*"}, values}; 
-        }
+      }
 
       auto middleshape = DDSolidFactory::tubs("MiddleShape",
                                               1.,
@@ -89,16 +83,14 @@ void testDDFilter::checkFilters() {
         values.emplace_back(DDsvalues_Content_type(val,val));
 
         DDSpecifics ds{"MiddleVolume", {"//Middle.*"}, values}; 
-        } 
-
-
+      }
+      
       auto innershape = DDSolidFactory::tubs("InnerShape",
                                              1.,
                                              0.19,0.05,
                                              0., 2*kPI);
       DDLogicalPart innerlp{"Inner",mat,innershape };
       cv.position(innerlp, middlelp, 0, DDTranslation{}, DDRotation{});
-      
       {
         DDValue val{"Volume","Inner",0};
         DDsvalues_type values;
@@ -106,16 +98,14 @@ void testDDFilter::checkFilters() {
 
         DDSpecifics ds{"InnerVolume", {"//Inner.*"}, values}; 
       }
-      
-
     }
     {
       //Endcaps
       auto endshape = DDSolidFactory::tubs("EndShape",
-                                             0.1,
-                                             0.05,1.,
-                                             0.,
-                                             2*kPI);
+					   0.1,
+					   0.05,1.,
+					   0.,
+					   2*kPI);
 
       DDLogicalPart endlp{"End", mat, endshape};
       cv.position(endlp,root,0,DDTranslation{0.,0.,-(1.0+0.1)},DDRotation{});
@@ -142,8 +132,7 @@ void testDDFilter::checkFilters() {
         }
 
         DDSpecifics ds{"EPlusVolume", {"//End[1]"}, values}; 
-      } 
-
+      }
       {
         DDValue val{"Endcap","",0};
         DDsvalues_type values;
@@ -151,7 +140,6 @@ void testDDFilter::checkFilters() {
 
         DDSpecifics ds{"Endcap", {"//End.*"}, values}; 
       }
-
     }
     cv.lockdown();
 
@@ -163,7 +151,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End","End"};
 
       CPPUNIT_ASSERT( names == expectedNames );
-      
     }
     {
       DDValue tofind("Volume","Outer",0);
@@ -173,20 +160,16 @@ void testDDFilter::checkFilters() {
 
       auto const names = getNames(fv);
       std::vector<std::string> const expectedNames = {"Outer"};
-      CPPUNIT_ASSERT( names == expectedNames );
-      
+      CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDSpecificsMatchesValueFilter f{DDValue("Volume","Outer",0)};
       DDFilteredView fv(cv,f);
 
       auto const names = getNames(fv);
       std::vector<std::string> const expectedNames = {"Outer"};
-      CPPUNIT_ASSERT( names == expectedNames );
-      
+      CPPUNIT_ASSERT( names == expectedNames ); 
     }
-
     {
       DDValue tofind("Volume","Outer",0);
       DDSpecificsFilter f;
@@ -197,7 +180,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Middle","Inner","End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","Middle",0);
       DDSpecificsFilter f;
@@ -206,10 +188,8 @@ void testDDFilter::checkFilters() {
 
       auto const names = getNames(fv);
       std::vector<std::string> const expectedNames = {"Middle"};
-      CPPUNIT_ASSERT( names == expectedNames );
-      
+      CPPUNIT_ASSERT( names == expectedNames ); 
     }
-
     {
       DDSpecificsMatchesValueFilter f(DDValue("Volume","Middle",0));
       DDFilteredView fv(cv,f);
@@ -217,9 +197,7 @@ void testDDFilter::checkFilters() {
       auto const names = getNames(fv);
       std::vector<std::string> const expectedNames = {"Middle"};
       CPPUNIT_ASSERT( names == expectedNames );
-      
     }
-
     {
       DDValue tofind("Volume","Middle",0);
       DDSpecificsFilter f;
@@ -230,7 +208,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Inner","End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","EPlus",0);
       DDSpecificsFilter f;
@@ -241,7 +218,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDSpecificsMatchesValueFilter f(DDValue("Volume","EPlus",0));
       DDFilteredView fv(cv,f);
@@ -250,7 +226,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EPlus",0);
       DDSpecificsFilter f;
@@ -261,7 +236,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDSpecificsFilter f;
@@ -272,7 +246,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDSpecificsMatchesValueFilter f{DDValue("Volume","EMinus",0)};
       DDFilteredView fv(cv,f);
@@ -281,7 +254,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       //Test one LogicalPart with different Specifics
       // based on placement
@@ -303,7 +275,6 @@ void testDDFilter::checkFilters() {
         std::vector<std::string> const expectedNames = {"End"};
         CPPUNIT_ASSERT( names == expectedNames );      
       }
-
       {
         DDValue tofind("Side","+",0);
         DDSpecificsFilter f;
@@ -323,7 +294,6 @@ void testDDFilter::checkFilters() {
         CPPUNIT_ASSERT( names == expectedNames );      
       }
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDSpecificsFilter f;
@@ -334,7 +304,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","DoesntExist",0);
       DDSpecificsFilter f;
@@ -345,7 +314,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDSpecificsMatchesValueFilter f{DDValue("Volume","DoesntExist",0)};
       DDFilteredView fv(cv,f);
@@ -354,7 +322,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","DoesntExist",0);
       DDSpecificsFilter f;
@@ -365,7 +332,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDSpecificsHasNamedValueFilter f("Volume");
       DDFilteredView fv(cv,f);
@@ -374,7 +340,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDSpecificsHasNamedValueFilter f("DoesntExist");
       DDFilteredView fv(cv,f);
@@ -383,7 +348,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Endcap","",0);
       DDSpecificsFilter f;
@@ -394,7 +358,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       
       DDSpecificsMatchesValueFilter f{DDValue("Endcap","",0)};
@@ -404,7 +367,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Endcap","",0);
       DDSpecificsFilter f;
@@ -418,7 +380,6 @@ void testDDFilter::checkFilters() {
       }
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Endcap","DoesntExist",0);
       DDSpecificsFilter f;
@@ -429,7 +390,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
 
       DDSpecificsHasNamedValueFilter f("Endcap");
@@ -439,7 +399,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End","End"};
       CPPUNIT_ASSERT( names == expectedNames );
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
@@ -452,7 +411,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {      
       auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
                                DDSpecificsMatchesValueFilter{DDValue("Endcap","",0)} );
@@ -462,7 +420,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
@@ -475,7 +432,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
                                DDSpecificsMatchesValueFilter{DDValue("Endcap","",0)});
@@ -485,7 +441,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","any",0);
@@ -498,7 +453,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
                                  DDSpecificsHasNamedValueFilter{"Endcap"});
@@ -508,7 +462,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","any",0);
@@ -521,7 +474,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       auto f = make_and_ddfilter(DDSpecificsHasNamedValueFilter{"Endcap"},
                                  DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)});
@@ -531,7 +483,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {"End"};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
@@ -544,7 +495,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
@@ -557,7 +507,6 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
     {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
@@ -570,9 +519,7 @@ void testDDFilter::checkFilters() {
       std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
-
   }
 
   //CPPUNIT_ASSERT (bad==0);
 }
-

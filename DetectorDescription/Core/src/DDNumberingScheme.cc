@@ -5,11 +5,9 @@
 
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDNumberingScheme::~DDNumberingScheme() {}
-
 
 DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDExpandedView & ex)
 { 

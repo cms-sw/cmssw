@@ -403,7 +403,7 @@ steps['TTbar_13_ID']=identitySim(steps['TTbar_13'])
 
 baseDataSetRelease=[
     'CMSSW_9_2_4-91X_mcRun1_realistic_v2-v1',               # 0 run1 samples; note TTbar GENSIM has v2 (see TTbarINPUT below)
-    'CMSSW_9_3_0_pre1-92X_upgrade2017_realistic_v7-v1',     # 1 GEN-SIM for HI RunII, 2018
+    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1',     # 1 GEN-SIM for HI RunII, 2018
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
@@ -411,14 +411,14 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns premix
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix
-    'CMSSW_9_0_0_pre4-90X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing
-    'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias
-    'CMSSW_9_3_0_pre2-92X_upgrade2017_realistic_v7-v1', 	   # 9 - Run2 HI GEN-SIM for mixing
+    'CMSSW_9_3_0_pre4-93X_mcRun2_asymptotic_v0_FastSim-v1',    # 7 - fastSim MinBias for mixing
+    'CMSSW_9_3_0_pre4-PU25ns_93X_mcRun2_asymptotic_v0_FastSim-v1',# 8 - fastSim premixed MinBias
+    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1', 	   # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_9_2_3-92X_upgrade2017_realistic_v1_earlyBS2017-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-    'CMSSW_9_2_3-PU25ns_92X_upgrade2017_realistic_v2_earlyBS2017-v1',     # 14 - fullSim PU 25ns UP17 premix
+    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
+    'CMSSW_9_3_0_pre4-PU25ns_93X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
     ]
 
 
@@ -945,10 +945,21 @@ def lhegensim(fragment,howMuch):
     global step1LHEGenSimDefault
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimDefault])
 
+# LHE-GEN-SIM step for 2017
+step1LHEGenSimUp2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision'},step1LHEGenSimDefault])
+
+def lhegensim2017(fragment,howMuch):
+    global step1LHEGenSimUp2017Default
+    return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2017Default])
+
 steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
 steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
 steps['VBFHToBB_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
+
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,100))
+steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
+steps['VBFHToBB_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
 
 #GEN-SIM inputs for LHE-GEN-SIM workflows
 #steps['TTbar012Jets_NLO_Mad_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar012Jets_NLO_Mad_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -1041,6 +1052,7 @@ steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventc
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
+steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 
 # for Run2 PPb MC workflows
 steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:PIon','--conditions':'auto:run2_mc_pa', '--era':'Run2_2016_pA'}, steps['DIGIUP15']])
@@ -1368,6 +1380,9 @@ steps['RECOUP15_trackingOnly']=merge([step3Up2015Defaults_trackingOnly]) # todo:
 steps['RECOUP15_trackingLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15_trackingOnlyLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults_trackingOnly]) # todo: remove UP from label
 steps['RECOUP15_HIPM']=merge([step3_HIPM,step3Up2015Defaults]) # todo: remove UP from label
+
+steps['RECOUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['RECOUP15']])
+steps['RECOUP17_PU25']=steps['RECOUP17']
 
 # for Run1 PPb data workflow
 steps['RECO_PPbData']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:TkAlMinBias+TkAlMuonIsolatedPA+TkAlUpsilonMuMuPA+TkAlZMuMuPA,SKIM:PAZMM+PAZEE+PAMinBias,EI,DQM','--scenario':'pp','--conditions':'auto:run1_data','--era':'Run1_pA','--datatier':'AOD,DQMIO','--eventcontent':'AOD,DQM'}, dataReco])
@@ -1776,7 +1791,8 @@ steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@sta
 
 steps['HARVESTUP15_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15']])
 
-steps['HARVESTUP17_PU25']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['HARVESTUP15']])
+steps['HARVESTUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['HARVESTUP15']])
+steps['HARVESTUP17_PU25']=steps['HARVESTUP17']
 
 steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTUP15']])
 
@@ -1923,9 +1939,9 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_2_3-92X_upgrade2017_realistic_v1_earlyBS2017-v'
-defaultDataSets['2017Design']='CMSSW_9_2_1-92X_upgrade2017_design_IdealBS_v1-v'
-#defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
+defaultDataSets['2017']='CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v'
+defaultDataSets['2017Design']='CMSSW_9_3_0_pre4-93X_mc2017_design_IdealBS_v1-v'
+#defaultDataSets['2018']='CMSSW_9_3_0_pre4-93X_upgrade2018_realistic_v0-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''

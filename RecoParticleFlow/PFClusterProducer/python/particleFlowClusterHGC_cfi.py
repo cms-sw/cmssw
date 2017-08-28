@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+from RecoParticleFlow.PFClusterProducer.particleFlowRealisticSimClusterHGCCalibrations_cfi import *
 #### PF CLUSTER HGCal ####
 
 #cleaning (none for now)
@@ -23,6 +23,10 @@ _simClusterMapper_HGCal = cms.PSet(
     useMCFractionsForExclEnergy = cms.bool(False),    
     thresholdsByDetector = cms.VPSet(
     ),
+    hadronCalib = hadronCorrections,
+    egammaCalib = egammaCorrections, 
+    calibMinEta = minEtaCorrection, 
+    calibMaxEta = maxEtaCorrection,                                   
     simClusterSrc = cms.InputTag("mix:MergedCaloTruth")
 )
 

@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
 // .L CalibSort.C+g
-//  CalibSort(fname, dirname, prefix, flag, double mipCut);
+//  CalibSort c1(fname, dirname, prefix, flag, mipCut);
 //  c1.Loop();
 //  findDuplicate(infile, outfile, debug)
 //
 //        This will prepare a list of dupliate entries from combined
-//        daa sets
+//        data sets
 //
 //   where:
 // 
@@ -42,6 +42,8 @@
 #include <TLegend.h>
 #include <TPaveStats.h>
 #include <TPaveText.h>
+
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -49,13 +51,20 @@
 #include <fstream>
 
 struct record {
-  record() {
-    serial_ = entry_ = run_ = event_ = ieta_ = p_ = 0;
-  };
-  record(int ser, int ent, int r, int ev, int ie, double p) :
-    serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {};
-  int serial_, entry_, run_, event_, ieta_;
+  record(int ser=0, int ent=0, int r=0, int ev=0, int ie=0, double p=0) :
+    serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {}
+
+  int    serial_, entry_, run_, event_, ieta_;
   double p_;
+};
+
+struct recordLess {
+  bool operator() (const record& a, const record& b) {
+    return ((a.run_ < b.run_) || 
+	    ((a.run_ == b.run_) && (a.event_ <  b.event_)) ||
+	    ((a.run_ == b.run_) && (a.event_ == b.event_) && 
+	     (a.ieta_ < b.ieta_)));
+  }
 };
 
 class CalibSort {
@@ -325,12 +334,17 @@ void CalibSort::Loop() {
   }
   fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
 	  << " Prefix: " << prefix_ << "\n";
+  Int_t runLow(99999999), runHigh(0);
   Long64_t nbytes(0), nb(0), good(0);
   Long64_t nentries = fChain->GetEntriesFast();
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (t_Run > 200000 && t_Run < 800000) {
+      if (t_Run < runLow)  runLow  = t_Run;
+      if (t_Run > runHigh) runHigh = t_Run;
+    }
     double cut = (t_p > 20) ? 10.0 : 0.0;
     if ((flag_/10)%10 > 0) 
       std::cout << "Entry " << jentry << " p " << t_p << " Cuts " << t_qltyFlag
@@ -344,7 +358,8 @@ void CalibSort::Loop() {
   }
   fileout.close();
   std::cout << "Writes " << good << " events in the file events.txt from "
-	    << nentries << " entries" << std::endl;
+	    << nentries << " entries in run range " << runLow << ":"
+ 	    << runHigh << std::endl;
 }
 
 void readRecords(std::string fname, std::vector<record>& records, bool debug) {
@@ -375,39 +390,8 @@ void readRecords(std::string fname, std::vector<record>& records, bool debug) {
 }
 
 void sort(std::vector<record>& records, bool debug) {
-  // First sort by run number
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if (records[d].run_ > records[d+1].run_) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
-  // Then sort by event number
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if ((records[d].run_ == records[d+1].run_) &&
-	  (records[d].event_ > records[d+1].event_)) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
-  // Finally by ieta
-  for (int c = 0 ; c < ((int)(records.size())-1); c++) {
-    for (int d = 0; d < ((int)(records.size())-c-1); d++) {
-      if ((records[d].run_ == records[d+1].run_) &&
-	  (records[d].event_ == records[d+1].event_) &&
-	  (records[d].ieta_ > records[d+1].ieta_)) {
-        record swap  = records[d];
-        records[d]   = records[d+1];
-        records[d+1] = swap;
-      }
-    }
-  }
+  // Use std::sort
+  std::sort(records.begin(), records.end(), recordLess());
   if (debug) {
     for (unsigned int k=0; k<records.size(); ++k) {
       std::cout << "[" << k << ":" << records[k].serial_ << ":" 
@@ -417,6 +401,7 @@ void sort(std::vector<record>& records, bool debug) {
     }
   }
 }
+
 
 void duplicate (std::string fname, std::vector<record>& records, bool debug) {
   std::ofstream file;
@@ -428,11 +413,20 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	(records[k].event_ == records[k-1].event_) &&
 	(records[k].ieta_ == records[k-1].ieta_) &&
 	(fabs(records[k].p_-records[k-1].p_) < 0.0001)) {
-      // This is a duplicate event
+      // This is a duplicate event - reject the one with larger serial #
+      if (records[k].entry_ < records[k-1].entry_) {
+	record swap = records[k-1];
+	records[k-1]= records[k];
+	records[k]  = swap;
+      }
       if (debug)
-	std::cout << "[" << records[k].serial_ << ":"  << records[k].entry_ 
-		  << "] " << records[k].run_ << ":" << records[k].event_ << " " 
-		  << records[k].ieta_ << " " << records[k].p_ << std::endl;
+	std::cout << "Serial " << records[k-1].serial_ << ":"  
+		  << records[k].serial_ << " Entry "  
+		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
+		  << records[k-1].run_ << ":"  << records[k].run_ << " Event "
+		  << records[k-1].event_ << " " << records[k].event_ << " Eta "
+		  << records[k-1].ieta_ << " " << records[k].ieta_ << " p "
+		  << records[k-1].p_ << ":" << records[k].p_ << std::endl;
       file << records[k].entry_ << std::endl;
       duplicate++;
       if (records[k].p_ >= 40.0 && records[k].p_ <= 60.0) dupl40++;
@@ -447,6 +441,6 @@ void findDuplicate(std::string infile, std::string outfile, bool debug=false) {
 
   std::vector<record> records;
   readRecords(infile, records, debug);
-  sort(records, debug);
+  sort(records,debug);
   duplicate(outfile, records, debug);
 }

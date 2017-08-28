@@ -1,6 +1,6 @@
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <cmath>
 #include <iomanip>
 #include <iostream>

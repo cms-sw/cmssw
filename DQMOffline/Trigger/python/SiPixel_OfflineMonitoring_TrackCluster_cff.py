@@ -137,8 +137,11 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 )
 
 hltSiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
+        VertexCut  = cms.untracked.bool(False),
         clusters   = cms.InputTag("hltSiPixelClusters"),
-        tracks     = cms.InputTag("hltTracksMerged"), #hltIter2Merged"
+        tracks     = cms.InputTag("hltMergedTracks"), #hltIter2Merged"
+        clusterShapeCache = cms.InputTag("hltSiPixelClusterShapeCache"),
+        vertices = cms.InputTag(""),
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )

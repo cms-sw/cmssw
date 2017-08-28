@@ -108,7 +108,7 @@ void DDAHcalModuleAlgo::execute(DDCompactView& cpv) {
 #endif
 }
 
-void DDAHcalModuleAlgo::constructLayers(DDLogicalPart module, 
+void DDAHcalModuleAlgo::constructLayers(const DDLogicalPart& module, 
 					DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG

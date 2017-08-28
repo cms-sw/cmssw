@@ -42,9 +42,9 @@ testDDStrVector::testloading() {
   DDStrVector testVec( "TestVector", strVec );
   std::ostringstream  os;
   os << testVec;
-  std::string str("DDStrVector name=GLOBAL:TestVector size=3 vals=( One Two Three )");
-  if (os.str()!=str) std::cerr << "not the same!" << std::endl;
-  CPPUNIT_ASSERT (os.str()==str);
+  std::string str( "DDStrVector name=GLOBAL:TestVector size=3 vals=( One Two Three )" );
+  if( os.str() != str ) std::cerr << "not the same!" << std::endl;
+  CPPUNIT_ASSERT( os.str() == str );
 }
 
 void

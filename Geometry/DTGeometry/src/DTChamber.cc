@@ -16,7 +16,7 @@
 /* ====================================================================== */
 
 /* Constructor */ 
-DTChamber::DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>& plane) :
+DTChamber::DTChamber(const DTChamberId& id, const ReferenceCountingPointer<BoundPlane>& plane) :
   GeomDet(plane), 
   theId(id) {
   setDetId(id);
@@ -62,8 +62,8 @@ const std::vector<const DTSuperLayer*>& DTChamber::superLayers() const {
 }
 
 
-const DTSuperLayer* DTChamber::superLayer(DTSuperLayerId id) const{
-  if (id.chamberId()!=theId) return 0; // not in this SL!
+const DTSuperLayer* DTChamber::superLayer(const DTSuperLayerId& id) const{
+  if (id.chamberId()!=theId) return nullptr; // not in this SL!
   return superLayer(id.superLayer());
 }
 
@@ -72,11 +72,11 @@ const DTSuperLayer* DTChamber::superLayer(int isl) const {
   for (auto theSL : theSLs) {
     if (theSL->id().superLayer()==isl) return theSL;
   }
-  return 0;
+  return nullptr;
 }
 
 
-const DTLayer* DTChamber::layer(DTLayerId id) const {
+const DTLayer* DTChamber::layer(const DTLayerId& id) const {
   return (superLayer(id.superlayer()))->layer(id.layer());
 }
 
