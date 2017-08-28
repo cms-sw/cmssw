@@ -40,7 +40,7 @@ public:
     CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitQuadrupletGenerator(cfg, iC) {}
     CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    virtual ~CAHitQuadrupletGenerator();
+    ~CAHitQuadrupletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }

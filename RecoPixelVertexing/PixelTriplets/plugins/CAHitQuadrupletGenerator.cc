@@ -62,10 +62,6 @@ caOnlyOneLastHitPerLayerFilter(cfg.getParameter<bool>("CAOnlyOneLastHitPerLayerF
   }
 }
 
-CAHitQuadrupletGenerator::~CAHitQuadrupletGenerator()
-{
-}
-
 void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<double>("extraHitRPhitolerance", 0.1);
   desc.add<bool>("fitFastCircle", false);

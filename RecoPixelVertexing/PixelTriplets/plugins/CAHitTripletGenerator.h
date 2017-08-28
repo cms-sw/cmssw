@@ -39,7 +39,7 @@ public:
     CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitTripletGenerator(cfg, iC) {}
     CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    virtual ~CAHitTripletGenerator();
+    ~CAHitTripletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitTriplet"; }
