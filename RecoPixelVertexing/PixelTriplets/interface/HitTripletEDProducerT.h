@@ -25,11 +25,11 @@ template <typename T_HitTripletGenerator>
 class HitTripletEDProducerT: public edm::stream::EDProducer<> {
 public:
   HitTripletEDProducerT(const edm::ParameterSet& iConfig);
-  ~HitTripletEDProducerT() = default;
+  ~HitTripletEDProducerT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<IntermediateHitDoublets> doubletToken_;
@@ -58,7 +58,7 @@ namespace hitTripletEDProducerT {
     ImplGeneratorBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
       generator_(iConfig, iC)
     {}
-    ~ImplGeneratorBase() = default;
+    ~ImplGeneratorBase() override = default;
 
   protected:
     T_HitTripletGenerator generator_;
@@ -71,7 +71,7 @@ namespace hitTripletEDProducerT {
   public:
     Impl(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
       ImplGeneratorBase<T_HitTripletGenerator>(iConfig, iC) {}
-    ~Impl() = default;
+    ~Impl() override = default;
 
     void produces(edm::ProducerBase& producer) const override {
       T_SeedingHitSets::produces(producer);
