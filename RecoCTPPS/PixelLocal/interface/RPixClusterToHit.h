@@ -24,7 +24,6 @@ public:
 
 private:
 
-  const edm::ParameterSet &params_;
   int verbosity_;
 
 };
