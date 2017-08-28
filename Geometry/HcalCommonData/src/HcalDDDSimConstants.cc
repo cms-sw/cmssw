@@ -339,6 +339,22 @@ int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
   return lay;
 }
 
+int HcalDDDSimConstants::getLastLayer(const int det, const int eta) const {
+
+  int lay=0;
+  if (det == 1) {
+    if      (eta == 15 || eta == -15) lay = layBHB[1];
+    else if (eta == 16 || eta == -16) lay = layBHB[2];
+    else                              lay = layBHB[0];
+  } else {
+    if      (eta == 16 || eta == -16) lay = layBHE[1];
+    else if (eta == 17 || eta == -17 || 
+	     eta == 18 || eta == -18) lay = layBHE[2];
+    else                              lay = layBHE[0];
+  }
+  return lay;
+}
+
 double HcalDDDSimConstants::getLayer0Wt(const int det, const int phi, 
 					const int zside) const {
 
@@ -681,7 +697,9 @@ void HcalDDDSimConstants::printTiles() const {
   int kphi  = (detsp > 0) ? phis[0] : 1;
   int zside = (kphi > 0) ? 1 : -1;
   int iphi  = (kphi > 0) ? kphi : -kphi;
-  std::cout << "Tile Information for HB from " << hpar->etaMin[0] << " to " << hpar->etaMax[0] << "\n\n";
+  edm::LogVerbatim("HcalGeom") << "Tile Information for HB from " 
+			       << hpar->etaMin[0] << " to " << hpar->etaMax[0]
+			       << "\n";
   for (int eta=hpar->etaMin[0]; eta<= hpar->etaMax[0]; eta++) {
     int dmax = getMaxDepth(1,eta,iphi,-zside,false);
     for (int depth=1; depth<=dmax; depth++) 
@@ -693,7 +711,9 @@ void HcalDDDSimConstants::printTiles() const {
     }
   }
 
-  std::cout << "\nTile Information for HE from " << hpar->etaMin[1] << " to " << hpar->etaMax[1] << "\n\n";
+  edm::LogVerbatim("HcalGeom") << "\nTile Information for HE from " 
+			       << hpar->etaMin[1] << " to " << hpar->etaMax[1]
+			       << "\n";
   for (int eta=hpar->etaMin[1]; eta<= hpar->etaMax[1]; eta++) {
     int dmin = (eta == hpar->etaMin[1]) ? getDepthEta16(2,iphi,-zside) : 1;
     int dmax = getMaxDepth(2,eta,iphi,-zside,false);
@@ -857,8 +877,10 @@ void HcalDDDSimConstants::initialize( void ) {
     std::cout << " [" << k << "] " << idHF2QIE[k] << std::endl;
 #endif
 
-  layFHB[0] = 0; layFHB[1] = 1;
-  layFHE[0] = 1; layFHE[1] = 9; layFHE[2] = 0;
+  layFHB[0] = 0;  layFHB[1] = 1;
+  layBHB[0] = 16; layBHB[1] = 15; layBHB[2] = 8;
+  layFHE[0] = 1;  layFHE[1] = 4;  layFHE[2] = 0;
+  layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14;
   depthMaxSp_ = std::pair<int,int>(0,0);
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
@@ -906,6 +928,10 @@ void HcalDDDSimConstants::initialize( void ) {
 	  for (int i=0; i<2; ++i) layFHB[i] = hpar->noff[noffm+i+1];
 	  for (int i=0; i<3; ++i) layFHE[i] = hpar->noff[noffm+i+3];
 	}
+	if (ndnext > 10 && (int)(hpar->noff.size()) >= noffm+ndnext) {
+	  for (int i=0; i<3; ++i) layBHB[i] = hpar->noff[noffm+i+6];
+	  for (int i=0; i<3; ++i) layBHE[i] = hpar->noff[noffm+i+9];
+	}
       }
     }
   }
@@ -913,6 +939,9 @@ void HcalDDDSimConstants::initialize( void ) {
   std::cout << "Front Layer Definition for HB: " << layFHB[0] << ":" 
 	    << layFHB[1] << " and for HE: " << layFHE[0] << ":" << layFHE[1] 
 	    << ":" << layFHE[2] << std::endl;
+  std::cout << "Last Layer Definition for HB: " << layBHB[0] << ":" 
+	    << layBHB[1] << ":" << layBHB[2] << " and for HE: " << layBHE[0] 
+	    << ":" << layBHE[1] << ":" << layBHE[2] << std::endl;
 #endif
   if (depthMaxSp_.first == 0) {
     depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
@@ -1065,7 +1094,8 @@ double HcalDDDSimConstants::getGain(const HcalSubdetector subdet,
 
 void HcalDDDSimConstants::printTileHB(const int eta, const int phi,
 				      const int zside, const int depth) const {
-  std::cout << "HcalDDDSimConstants::printTileHB for eta " << eta << " and depth " << depth << "\n";
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::printTileHB for eta " 
+			       << eta << " and depth " << depth;
   
   double etaL   = hpar->etaTable.at(eta-1);
   double thetaL = 2.*atan(exp(-etaL));
@@ -1073,7 +1103,10 @@ void HcalDDDSimConstants::printTileHB(const int eta, const int phi,
   double thetaH = 2.*atan(exp(-etaH));
   int    layL   = getLayerFront(1,eta,phi,zside,depth);
   int    layH   = getLayerBack(1,eta,phi,zside,depth);
-  std::cout << "\ntileHB:: eta|depth " << zside*eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << "\n";
+  edm::LogVerbatim("HcalGeom") << "\ntileHB:: eta|depth " << zside*eta << "|" 
+			       << depth << " theta " << thetaH/CLHEP::deg 
+			       << ":" << thetaL/CLHEP::deg << " Layer " 
+			       << layL << ":" << layH-1;
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(2,0);
     int kk=0;
@@ -1088,7 +1121,10 @@ void HcalDDDSimConstants::printTileHB(const int eta, const int phi,
 	}
       }
     }
-    if (area[0] > 0) std::cout << std::setw(2) << lay << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << "\n";
+    if (area[0] > 0) 
+      edm::LogVerbatim("HcalGeom") << std::setw(2) << lay << " Area " 
+				   << std::setw(8) << area[0] << " " 
+				   << std::setw(8) << area[1];
   }
 }
 
@@ -1104,7 +1140,10 @@ void HcalDDDSimConstants::printTileHE(const int eta, const int phi,
   double phib  = hpar->phibin[eta-1];
   int nphi = 2;
   if (phib > 6*CLHEP::deg) nphi = 1;
-  std::cout << "\ntileHE:: Eta/depth " << zside*eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << " phi " << nphi << "\n";
+  edm::LogVerbatim("HcalGeom") << "\ntileHE:: Eta/depth " << zside*eta << "|" 
+			       << depth << " theta " << thetaH/CLHEP::deg 
+			       << ":" << thetaL/CLHEP::deg << " Layer " 
+			       << layL << ":" << layH-1 << " phi " << nphi;
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(4,0);
     int kk=0;
@@ -1138,9 +1177,15 @@ void HcalDDDSimConstants::printTileHE(const int eta, const int phi,
       int lay0 = lay-1;
       if (eta == 18) lay0++;
       if (nphi == 1) {
-	std::cout << std::setw(2) << lay0 << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << "\n";
+	edm::LogVerbatim("HcalGeom") << std::setw(2) << lay0 << " Area " 
+				     << std::setw(8) << area[0] << " " 
+				     << std::setw(8) << area[1];
       } else {
-	std::cout << std::setw(2) << lay0 << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << ":" << std::setw(8) << area[2] << " " << std::setw(8) << area[3] << "\n";
+	edm::LogVerbatim("HcalGeom") << std::setw(2) << lay0 << " Area " 
+				     << std::setw(8) << area[0] << " " 
+				     << std::setw(8) << area[1] << ":" 
+				     << std::setw(8) << area[2] << " " 
+				     << std::setw(8) << area[3];
       }
     }
   }
