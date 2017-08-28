@@ -17,4 +17,4 @@ hgcalHitValidation = cms.EDAnalyzer("HGCalHitValidation",
 
 from Validation.HGCalValidation.hgcalHitCalibration_cfi import hgcalHitCalibration
 
-hgcalHitValidationSequece = cms.Sequence(hgcalHitValidation+hgcalHitCalibration)
+hgcalHitValidationSequence = cms.Sequence(hgcalHitValidation+hgcalHitCalibration)
