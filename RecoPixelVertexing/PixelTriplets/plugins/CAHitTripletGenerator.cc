@@ -52,10 +52,6 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 	}
 }
 
-CAHitTripletGenerator::~CAHitTripletGenerator()
-{
-}
-
 void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<double>("extraHitRPhitolerance", 0.06);
   desc.add<bool>("useBendingCorrection", false);
