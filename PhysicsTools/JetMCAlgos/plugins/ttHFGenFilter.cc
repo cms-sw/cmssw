@@ -190,15 +190,15 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std:
       return true;
     }
   }
-  bool IsFromHardProcess=false;
+  bool isFromHardProcess=false;
   for(unsigned int i=0;i<particle->numberOfMothers();i++){
     const reco::Candidate* mother = particle->mother(i);
-    IsFromHardProcess=analyzeMothersRecursive(mother,AllTopMothers);
-    if(IsFromHardProcess){
+    isFromHardProcess=analyzeMothersRecursive(mother,AllTopMothers);
+    if(isFromHardProcess){
       return true;
     }
   }
-  return IsFromHardProcess;
+  return isFromHardProcess;
 }
 
 std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<reco::GenParticle>& genParticles, std::vector<const reco::Candidate*>& AllTopMothers){
@@ -215,8 +215,8 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
 
    for(reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle){
      const reco::GenParticle* thisParticle = &*i_particle;
-     firstTop = thisParticle;
-     if(!foundTop && firstTop->pdgId()==6){
+     if(!foundTop && thisParticle->pdgId()==6){
+       firstTop = thisParticle;
        for(unsigned int i=0; i<firstTop->numberOfMothers();i++){
          FindAllTopMothers(thisParticle->mother(i),AllTopMothers);
        }
@@ -244,7 +244,7 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
 void ttHFGenFilter::FindAllTopMothers(const reco::Candidate* particle, std::vector<const reco::Candidate*>& AllTopMothers){
  // std::cout << "particle mother: " << particle->mother(0) << std::endl;
   for(unsigned int i=0;i<particle->numberOfMothers();i++){
-    if(abs(particle->mother(i)->pdgId())!=6&&particle->mother(i)->pdgId()!=2212){
+    if(abs(particle->mother(i)->pdgId())!=6 && particle->mother(i)->pdgId()!=2212){
       AllTopMothers.push_back(particle->mother(i));
       if(particle->mother(i)->pdgId()!=2212 || particle->mother(i)->numberOfMothers()>1){
         //std::cout << "Size of vector in loop = " << AllTopMothers.size() << std::endl;
