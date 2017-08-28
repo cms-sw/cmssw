@@ -182,7 +182,8 @@ def limitProcessing(algo, quality):
     return algo in Algos and quality in Qualities
 
 def limitRelVal(algo, quality):
-    return quality in ["", "highPurity"]
+    qual = quality.replace("ByOriginalAlgo", "") # include ByOriginalAlgo
+    return qual in ["", "highPurity"]
 
 def ignore(a, q):
     return False
