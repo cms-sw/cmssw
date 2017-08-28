@@ -112,8 +112,17 @@ public:
   bool operator!=( const TableItr<Args...>& iOther) {
     return m_values[0] != iOther.m_values[0];
   }
+  
+  TableItr<Args...> makeOffset(long iDiff) const {
+    return TableItr<Args...>{ m_values, iDiff };
+  }
 };
 
+template <typename... Args>
+TableItr<Args...> operator+(TableItr<Args...> const& iLHS, long iDiff) {
+  return iLHS.makeOffset(iDiff);
+}
+  
 template <typename... Args>
 class ConstTableItr {
   using Layout = std::tuple<Args...>;
@@ -150,7 +159,16 @@ public:
   bool operator!=( const ConstTableItr<Args...>& iOther) {
     return m_values[0] != iOther.m_values[0];
   }
+  
+  TableItr<Args...> makeOffset(long iDiff) const {
+    return TableItr<Args...>{ m_values, iDiff };
+  }
 };
+
+template <typename... Args>
+ConstTableItr<Args...> operator+(ConstTableItr<Args...> const& iLHS, long iDiff) {
+  return iLHS.makeOffset(iDiff);
+}
 
 }
 }
