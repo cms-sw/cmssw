@@ -24,7 +24,7 @@ public:
 private:
   std::vector<const TkRadialStripTopology*> get_list_of_radial_topologies(const edm::Event&, const edm::EventSetup&);
   void test_topology(const TkRadialStripTopology* , unsigned);
-  bool pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const float stripErr2, const bool);
+  bool pass_frame_change_test(const TkRadialStripTopology* t, float strip, float stripErr2, bool);
   bool EQUAL(const double a, const double b) {return fabs(a-b)<epsilon_;}
   const double epsilon_;
   TFile* file_;
@@ -71,7 +71,7 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
     auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detid ));
     if (!g) std::cout << "no geom for " << radial_detid << std::endl;
     auto const topol = &g->specificTopology();
-    const TkRadialStripTopology* rt =0;	
+    const TkRadialStripTopology* rt =nullptr;	
     auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
     if (proxyT) rt = dynamic_cast<const TkRadialStripTopology*>(&(proxyT->specificTopology()));
     else rt = dynamic_cast<const TkRadialStripTopology*>(topol);
