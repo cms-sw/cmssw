@@ -131,17 +131,6 @@ topEleHT_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele28_eta2p1
 
 #ATHER
 #########SingleMuon
-topSingleMuonHLTMonitor_Mu20 = hltTOPmonitoring.clone()
-topSingleMuonHLTMonitor_Mu20.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/Mu20/')
-topSingleMuonHLTMonitor_Mu20.nmuons = cms.uint32(1)
-topSingleMuonHLTMonitor_Mu20.nelectrons = cms.uint32(0)
-topSingleMuonHLTMonitor_Mu20.njets = cms.uint32(0)
-topSingleMuonHLTMonitor_Mu20.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
-topSingleMuonHLTMonitor_Mu20.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15')
-topSingleMuonHLTMonitor_Mu20.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
-topSingleMuonHLTMonitor_Mu20.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_IsoMu20_v*',])
-
-
 topSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone()
 topSingleMuonHLTMonitor_Mu24.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/Mu24/')
 topSingleMuonHLTMonitor_Mu24.nmuons = cms.uint32(1)
@@ -160,7 +149,7 @@ topSingleMuonHLTMonitor_Mu27.njets = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu27.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topSingleMuonHLTMonitor_Mu27.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15')
 topSingleMuonHLTMonitor_Mu27.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
-topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu27_v*', 'HLT_IsoMu27_v*',])
+topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu27_v*',])
 
 
 topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone()
@@ -605,7 +594,6 @@ topMonitorHLT = cms.Sequence(
     + topEleHT_ele
     + topEleHT_ht
     + topEleHT_all
-    + topSingleMuonHLTMonitor_Mu20
     + topSingleMuonHLTMonitor_Mu24
     + topSingleMuonHLTMonitor_Mu27
     + topSingleMuonHLTMonitor_Mu50
