@@ -4,9 +4,9 @@
 CTPPSPixelRecHitProducer::CTPPSPixelRecHitProducer(const edm::ParameterSet& conf) :
   param_(conf), cluster2hit_(conf)
 {
-  src_ = conf.getParameter<std::string>("label");
+  src_ = conf.getParameter<edm::InputTag>("RPixClusterTag");
   verbosity_ = conf.getUntrackedParameter<int> ("RPixVerbosity");	 
-  tokenCTPPSPixelCluster_ = consumes<edm::DetSetVector<CTPPSPixelCluster> >(edm::InputTag(src_));
+  tokenCTPPSPixelCluster_ = consumes<edm::DetSetVector<CTPPSPixelCluster> >(src_);
   produces<edm::DetSetVector<CTPPSPixelRecHit> > ();
 }
 
@@ -15,7 +15,7 @@ CTPPSPixelRecHitProducer::~CTPPSPixelRecHitProducer() {}
 void CTPPSPixelRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("RPixVerbosity",0);
-  desc.add<std::string>("label", "ctppsPixelClusters");
+  desc.add<edm::InputTag>("RPixClusterTag",edm::InputTag("ctppsPixelClusters"));
   descriptions.add("ctppsPixelRecHits", desc);
 }
 
