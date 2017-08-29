@@ -39,15 +39,15 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 {
   public:
     CTPPSDiamondDQMSource( const edm::ParameterSet& );
-    virtual ~CTPPSDiamondDQMSource();
+    ~CTPPSDiamondDQMSource() override;
 
   protected:
     void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
     void bookHistograms( DQMStore::IBooker&, const edm::Run&, const edm::EventSetup& ) override;
-    void analyze( const edm::Event&, const edm::EventSetup& );
-    void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& );
-    void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& );
-    void endRun( const edm::Run&, const edm::EventSetup& );
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
+    void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
+    void endRun( const edm::Run&, const edm::EventSetup& ) override;
 
   private:
     // Constants
@@ -270,9 +270,9 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 
   ibooker.setCurrentFolder( path+"/clock/" );
   clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 1250, 0, 125 );
-  clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 125, 0, 125 );
+  clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 75, 0, 75 );
   clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 1250, 0, 125 );
-  clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 125, 0, 125 );
+  clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 75, 0, 75 );
 }
 
 //----------------------------------------------------------------------------------------------------
