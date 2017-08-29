@@ -1,9 +1,4 @@
 <environment>
-  <bin name="TestL1TriggerL1TMuonEndCap" file="unittests/TestDriver.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash L1Trigger/L1TMuonEndCap/test/unittests runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
   <bin name="TestPhiMemoryImage" file="unittests/TestPhiMemoryImage.cpp">
     <use name="L1Trigger/L1TMuonEndCap"/>
     <use name="cppunit"/>
