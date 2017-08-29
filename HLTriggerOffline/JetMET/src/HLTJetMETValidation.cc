@@ -18,6 +18,7 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
   CaloMETColl( consumes<CaloMETCollection>(ps.getUntrackedParameter<edm::InputTag>( "CaloMETCollection" ) )),
   GenMETColl( consumes<GenMETCollection>(ps.getUntrackedParameter<edm::InputTag>( "GenMETCollection" ) )),
   HLTriggerResults(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>( "HLTriggerResults" ) )),
+  triggerProcessName_(ps.getUntrackedParameter<std::string>("triggerProcessName","HLT")),
   triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder","SingleJet")),
   patternJetTrg_(ps.getUntrackedParameter<std::string>("PatternJetTrg","")),
   patternMetTrg_(ps.getUntrackedParameter<std::string>("PatternMetTrg","")),
@@ -48,8 +49,8 @@ HLTJetMETValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iS
   TPRegexp patternMet(patternMetTrg_);
   TPRegexp patternMu(patternMuTrg_);
 
-  if (!hltConfig_.init(iRun, iSetup, "HLT", changedConfig)) {
-    edm::LogError("HLTJetMETValidation") << "Initialization of HLTConfigProvider failed!!"; 
+  if (!hltConfig_.init(iRun, iSetup, triggerProcessName_, changedConfig)) {
+    std::cout << "[HLTJetMETValidation] : " << "Initialization of HLTConfigProvider failed!!"; 
     return;
   }
   
