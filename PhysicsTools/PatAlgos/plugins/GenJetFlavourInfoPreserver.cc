@@ -27,9 +27,9 @@ namespace pat {
   class GenJetFlavourInfoPreserver : public edm::stream::EDProducer<> {
   public:
     explicit GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig);
-    virtual ~GenJetFlavourInfoPreserver() { }
+    ~GenJetFlavourInfoPreserver() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > genJetsToken_;
