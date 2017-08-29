@@ -53,9 +53,9 @@ void TestTrackTools::test_theta()
 {
   for (int i = 0; i < 1801; ++i) {
     double theta = 0. + 0.1 * static_cast<double>(i);  // theta=[0,180,step=0.1]
-    int endcap = (theta >= 90.) ? 2 : 1;
+    int endcap = (theta >= 90.) ? -1 : 1;
     double eps = 0.28515625;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL((endcap == 2 ? (180. - theta) : theta), calc_theta_deg_from_int(calc_theta_int(theta, endcap, 7)), eps);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((endcap == -1 ? (180. - theta) : theta), calc_theta_deg_from_int(calc_theta_int(theta, endcap, 7)), eps);
   }
 }
 
