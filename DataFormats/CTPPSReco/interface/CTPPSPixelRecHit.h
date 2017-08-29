@@ -20,7 +20,7 @@ class CTPPSPixelRecHit{
 public:
 
   CTPPSPixelRecHit(){}
-CTPPSPixelRecHit(LocalPoint lp, LocalError le) : 
+/*CTPPSPixelRecHit(LocalPoint lp, LocalError le) : 
   thePoint(lp), 
     theError(le), 
     isOnEdge_(false),
@@ -44,9 +44,9 @@ CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge, bool bad, bool rocs) :
     clusterSizeRow_(0), 
     clusterSizeCol_(0)
     {}
-
-CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge, bool bad, bool rocs, 
-		 int minrow, int mincol, int size, int rowsize, int colsize) : 
+*/
+CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge = false, bool bad = false, bool rocs = false, 
+		 int minrow = 0, int mincol = 0, int size = 0, int rowsize = 0, int colsize = 0) : 
   thePoint(lp), 
     theError(le), 
     isOnEdge_(edge),hasBadPixels_(bad), 
