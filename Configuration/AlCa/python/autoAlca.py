@@ -1,28 +1,24 @@
 AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   "Charmonium"     : "TkAlJpsiMuMu",
                   "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
-                  "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics",
+                  "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+DtCalibCosmics",
                   "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
-                  "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
-                  "DoubleMu"       : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
+                  "DoubleMu"       : "TkAlZMuMu+TkAlJpsiMuMu+TkAlUpsilonMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+DtCalib+HcalCalIsoTrkFilter",
                   "DoubleMuon"     : "TkAlZMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+DtCalib",
-                  "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
-                  "HLTPhysics"     : "SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrkFilter",
-                  "JetHT"          : "HcalCalDijets+HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
+                  "HLTPhysics"     : "TkAlMinBias",
+                  "JetHT"          : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
                   "MET"            : "HcalCalNoise",
-                  "MinimumBias"    : "SiStripCalMinBias+TkAlMinBias",
-                  "MuOnia"         : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
-                  "MuOniaParked"   : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                  "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
+                  "MuOnia"         : "TkAlUpsilonMuMu",
                   "NoBPTX"         : "TkAlCosmicsInCollisions",
-                  "SingleElectron" : "EcalCalWElectron+EcalUncalWElectron+EcalCalZElectron+EcalUncalZElectron+EcalESAlign+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
-                  "SingleMu"       : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO",
-                  "SingleMuon"     : "TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter",
+                  "SingleElectron" : "EcalUncalWElectron+EcalUncalZElectron+HcalCalIterativePhiSym+EcalESAlign",
+                  "SingleMuon"     : "TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter",
                   "SinglePhoton"   : "HcalCalGammaJet",
-                  "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+EcalTrg+AlCaPCCZeroBiasFromRECO",
+                  "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
 
-                  "StreamExpress"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias",
-                  "StreamExpressHI": "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalibHI",
-                  "ExpressCosmics" : "SiStripCalZeroBias+TkAlCosmics0T",
+                  "Express"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias",
+                  "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+DtCalibCosmics",
+                  "ExpressAlignment":"TkAlMinBias",
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaP0"         : "",
                   # ---------------------------------------------------------------------------------------------------------------------------
@@ -30,10 +26,12 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   # This is in the AlCaRecoMatrix, but no RelVals are produced
                   # 'TestEnablesTracker'  : 'TkAlLAS'
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
+
                   }
 
-# this matrix will be used for the 1st reprocessing of the 2017 2016B-C dataset;
-AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom',
+# this matrix will be used for the legacy reprocessing of the 2016 2016B-H dataset;
+# with the exception of ZeroBias, it was also used for the 23Sept16 reprocessing of 2016B-G 
+AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
                         'Charmonium'     : 'TkAlJpsiMuMu',
                         'Commissioning'  : 'TkAlMinBias+SiStripCalMinBias+HcalCalIsoTrk+HcalCalIsolatedBunchSelector',
                         'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
@@ -52,7 +50,7 @@ AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels+AlCaPCCZeroBias+AlCaPCCRa
                         'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO',
                         'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHO',
                         'SinglePhoton'   : 'HcalCalGammaJet',
-                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+SiStripCalMinBiasAfterAAGap+AlCaPCCZeroBiasFromRECO',
+                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+SiStripCalMinBiasAfterAbortGap',
                         'HcalNZS'        : 'HcalCalMinBias'
                         }
 
