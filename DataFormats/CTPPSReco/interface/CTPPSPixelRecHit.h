@@ -20,45 +20,24 @@ class CTPPSPixelRecHit{
 public:
 
   CTPPSPixelRecHit(){}
-/*CTPPSPixelRecHit(LocalPoint lp, LocalError le) : 
-  thePoint(lp), 
-    theError(le), 
-    isOnEdge_(false),
-    hasBadPixels_(false), 
-    spanTwoRocs_(false), 
-    minPixelRow_(0), minPixelCol_(0), 
-    clusterSize_(0), 
-    clusterSizeRow_(0), 
-    clusterSizeCol_(0)
-    {}
 
-CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge, bool bad, bool rocs) : 
-  thePoint(lp), 
-    theError(le), 
+CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge = false, bool bad = false, bool rocs = false, 
+		 int minrow = 0, int mincol = 0, int size = 0, int rowsize = 0, int colsize = 0) : 
+  thePoint_(lp), 
+    theError_(le), 
     isOnEdge_(edge),
     hasBadPixels_(bad), 
     spanTwoRocs_(rocs),  
-    minPixelRow_(0), 
-    minPixelCol_(0), 
-    clusterSize_(0), 
-    clusterSizeRow_(0), 
-    clusterSizeCol_(0)
-    {}
-*/
-CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge = false, bool bad = false, bool rocs = false, 
-		 int minrow = 0, int mincol = 0, int size = 0, int rowsize = 0, int colsize = 0) : 
-  thePoint(lp), 
-    theError(le), 
-    isOnEdge_(edge),hasBadPixels_(bad), 
-    spanTwoRocs_(rocs),  minPixelRow_(minrow), 
-    minPixelCol_(mincol), clusterSize_(size), 
+    minPixelRow_(minrow), 
+    minPixelCol_(mincol), 
+    clusterSize_(size), 
     clusterSizeRow_(rowsize), 
     clusterSizeCol_(colsize)
     {}
 
   
-  inline LocalPoint getPoint() const { return thePoint;}
-  inline LocalError getError() const { return theError;}
+  inline LocalPoint getPoint() const { return thePoint_;}
+  inline LocalError getError() const { return theError_;}
   
   inline bool isOnEdge() const {return isOnEdge_;}
   inline bool hasBadPixels() const {return hasBadPixels_;}
@@ -74,8 +53,8 @@ CTPPSPixelRecHit(LocalPoint lp, LocalError le, bool edge = false, bool bad = fal
 
 private:
 
-  LocalPoint thePoint;
-  LocalError theError;
+  LocalPoint thePoint_;
+  LocalError theError_;
 
   bool isOnEdge_;
   bool hasBadPixels_;
