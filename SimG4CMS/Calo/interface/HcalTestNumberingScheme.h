@@ -20,7 +20,7 @@ public:
 				   int& depth, int& eta, int& phi, int& lay);
 private:
 
-  HcalTestNumberingScheme() = delete;
+  HcalTestNumberingScheme();
 
   bool forTBH2;
 };

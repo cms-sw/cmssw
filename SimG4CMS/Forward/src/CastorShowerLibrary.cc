@@ -211,14 +211,9 @@ void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) 
 
 CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step * aStep, bool & ok) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  // G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track         = aStep->GetTrack();
   // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  const G4ThreeVector&               momDir = aParticle->GetMomentumDirection();
-  //  double mom = aParticle->GetTotalMomentum();
-
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
@@ -234,8 +229,6 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step * aStep, bool 
   ok = true;
 
   double pin    = preStepPoint->GetTotalEnergy();
-  //  double etain  = momDir.getEta();
-  //double phiin  = momDir.getPhi();
   
   double zint = hitPoint.z();
   double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
