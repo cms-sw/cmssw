@@ -81,8 +81,9 @@
   <class name="edm::DetSetVector<CTPPSPixelCluster>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelCluster> >"/>
 
-  <class name="CTPPSPixelRecHit" ClassVersion="3">
+  <class name="CTPPSPixelRecHit" ClassVersion="4">
     <version ClassVersion="3" checksum="4187113353"/>
+    <version ClassVersion="4" checksum="2784452215"/>
   </class>
   <class name="edm::DetSet<CTPPSPixelRecHit>"/>
   <class name="std::vector<CTPPSPixelRecHit>"/>
