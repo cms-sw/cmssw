@@ -53,7 +53,7 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,  std::vector<CTPPSPi
 // check for spanning two ROCs
   bool twoRocs = false;
   int currROCId = pxlInd.getROCId(aCluster.pixelCol(0),aCluster.pixelRow(0) ); 
-  if(thisClusterSize>1)
+
   for(unsigned int i = 1; i < thisClusterSize; i++){
     if(pxlInd.getROCId(aCluster.pixelCol(i),aCluster.pixelRow(i) ) != currROCId){
       twoRocs = true;
@@ -93,6 +93,16 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,  std::vector<CTPPSPi
     weights += aCluster.pixelADC(i);
 
   } 
+
+  if(weights == 0){
+    edm::LogError("RPixClusterToHit") << " unexpected weights = 0 for cluster (Row_min, Row_max, Col_min, Col_max) = ("
+				      << aCluster.minPixelRow() << ","
+				      << aCluster.minPixelRow()+aCluster.rowSpan() << ","
+				      << aCluster.minPixelCol() << ","
+				      << aCluster.minPixelCol()+aCluster.colSpan()
+				      << ")"; 
+    return;
+  }
 
   double avgLocalX = avgWLocalX / weights;
   double avgLocalY = avgWLocalY / weights;
