@@ -55,7 +55,7 @@ namespace ts {
   using Phi = edm::soa::Column<kPhi,float>;
 
   constexpr const char kEnergy[] = "energy";
-  using Energy = edm::soa::Column<kEta,double>;
+  using Energy = edm::soa::Column<kEnergy,double>;
 
   constexpr const char kID[] = "id";
   using ID = edm::soa::Column<kID,int>;
