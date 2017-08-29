@@ -266,12 +266,12 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   }
 
   // run the ALCT processor for the Phase-II ME2/1 integrated local trigger
-  runME21ILT_ = conf.existsAs<bool>("runME21ILT")?
-    conf.getParameter<bool>("runME21ILT"):false;
+  runME21ILT_ = comm.existsAs<bool>("runME21ILT")?
+    comm.getParameter<bool>("runME21ILT"):false;
 
   // run the ALCT processor for the Phase-II ME3/1-ME4/1 integrated local trigger
-  runME3141ILT_ = conf.existsAs<bool>("runME3141ILT")?
-    conf.getParameter<bool>("runME3141ILT"):false;
+  runME3141ILT_ = comm.existsAs<bool>("runME3141ILT")?
+    comm.getParameter<bool>("runME3141ILT"):false;
 
   //if (theStation==1 && theRing==2) infoV = 3;
 
