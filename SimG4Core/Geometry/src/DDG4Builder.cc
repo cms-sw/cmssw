@@ -145,10 +145,10 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	rm.GetComponents(x, y, z);
 	if ((x.Cross(y)).Dot(z)<0)
 	  edm::LogInfo("SimG4CoreGeometry") << ">>Reflection encountered: " 
-					    << gra.edgeData(cit->second)->rot_  
+					    << gra.edgeData(cit->second)->ddrot()  
 					    << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
 					    << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
-					    << " r=" << gra.edgeData(cit->second)->rot_.ddname();     
+					    << " r=" << gra.edgeData(cit->second)->ddrot().ddname();     
 	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
 	G4Translate3D transl = tempTran;
 	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
