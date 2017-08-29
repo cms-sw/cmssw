@@ -5,6 +5,8 @@ import sys
 import time
 import glob
 import importlib
+import logging
+import subprocess
 
 # as we need to load the shared lib from here, make sure it's in our path:
 if os.path.join( os.environ['CMSSW_BASE'], 'src') not in sys.path:
@@ -14,66 +16,21 @@ if os.path.join( os.environ['CMSSW_BASE'], 'src') not in sys.path:
 
 payload2xmlCodeTemplate = """
 
-#include <iostream>
-#include <string>
-#include <memory>
-
-#include <boost/python/class.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/init.hpp>
-#include <boost/python/def.hpp>
-#include <iostream>
-#include <string>
-#include <sstream>
-
-#include "boost/archive/xml_oarchive.hpp"
-#include "CondFormats/Serialization/interface/Serializable.h"
-#include "CondFormats/Serialization/interface/Archive.h"
-
+#include "CondCore/Utilities/interface/Payload2XMLModule.h"
 #include "CondCore/Utilities/src/CondFormats.h"
 
-namespace { // Avoid cluttering the global namespace.
-
-  std::string %(plTypeSan)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
-
-      // now to convert
-      std::unique_ptr< %(plType)s > payload;
-
-      std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf( const_cast<char *> ( payloadData.c_str() ), payloadData.size() );
-
-      std::istream inBuffer( &sdataBuf );
-      eos::portable_iarchive ia( inBuffer );
-      payload.reset( new %(plType)s );
-      ia >> (*payload);
-
-      // now we have the object in memory, convert it to xml in a string and return it
-     
-      std::ostringstream outBuffer;
-      {
-        boost::archive::xml_oarchive xmlResult( outBuffer );
-        xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
-      } 
-      return outBuffer.str();
-  }
-
-} // end namespace
-
-
-BOOST_PYTHON_MODULE(%(mdName)s)
-{
-    using namespace boost::python;
-    def ("%(plTypeSan)s2xml", %(plTypeSan)s2xml);
+PAYLOAD_2XML_MODULE( %s ){
+  PAYLOAD_2XML_CLASS( %s );
 }
 
 """ 
 
 buildFileTemplate = """
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -Os"/>
-<use   name="CondCore/Utilities"/>
-<use   name="boost_python"/>
-<use   name="boost_iostreams"/>
-<use   name="boost_serialization"/>
+<library   file="%s" name="%s">
+  <use   name="CondCore/Utilities"/>
+  <use   name="boost_python"/>
+</library>
 <export>
   <lib   name="1"/>
 </export>
@@ -83,11 +40,17 @@ buildFileTemplate = """
 def sanitize(typeName):
     return typeName.replace(' ','').replace('<','_').replace('>','')
 
+def localLibName( payloadType ):
+    # required to avoid ( unlikely ) clashes between lib names from templates and lib names from classes
+    prefix = ''
+    if '<' in payloadType and '>' in payloadType:
+       prefix = 't'
+    return "%s_%spayload2xml" %(sanitize(payloadType),prefix)
+
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):
     	self.conddb = condDBIn
-    	self._pl2xml_isPrepared = False
 
 	if not os.path.exists( os.path.join( os.environ['CMSSW_BASE'], 'src') ):
 	   raise Exception("Looks like you are not running in a CMSSW developer area, $CMSSW_BASE/src/ does not exist")
@@ -95,115 +58,120 @@ class CondXmlProcessor(object):
 	self.fakePkgName = "fakeSubSys4pl/fakePkg4pl"
 	self._pl2xml_tmpDir = os.path.join( os.environ['CMSSW_BASE'], 'src', self.fakePkgName )
 
-	self.doCleanup = True
+	self.doCleanup = False
 
     def __del__(self):
 
     	if self.doCleanup: 
            shutil.rmtree( '/'.join( self._pl2xml_tmpDir.split('/')[:-1] ) )
-           os.unlink( os.path.join( os.environ['CMSSW_BASE'], 'src', './pl2xmlComp.so') )
         return 
 
     def discover(self, payloadType):
 
-    	# print "discover> checking for plugin of type %s" % payloadType
+        libName = 'pluginUtilities_payload2xml.so'
+        # first search: developer area or main release
+        libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+        devLibDir = libDir
+        libPath = os.path.join( devLibDir, libName )
+        devCheckout = ("CMSSW_RELEASE_BASE" in os.environ)
+        if not os.path.exists( libPath ) and devCheckout:
+           # main release ( for dev checkouts )
+           libDir = os.path.join( os.environ["CMSSW_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+           libPath = os.path.join( libDir, libName )
+        if not os.path.exists( libPath ):
+           # it should never happen!
+           raise Exception('No built-in library found with XML converters.')
+        module = importlib.import_module( libName.replace('.so', '') )
+        functors = dir(module)
+        funcName = payloadType+'2xml'
+        if funcName in functors:
+           logging.info('XML converter for payload class %s found in the built-in library.' %payloadType)
+           return getattr( module, funcName)
+        if not devCheckout:
+           # give-up if it is a read-only release...
+           raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.')
+        libName = 'plugin%s.so' %localLibName( payloadType )
+        libPath = os.path.join( devLibDir, libName )
+        if os.path.exists( libPath ):
+           logging.info('Found local library with XML converter for class %s' %payloadType )
+           module = importlib.import_module( libName.replace('.so', '') )
+           return getattr( module, funcName)
+        logging.warning('No XML converter for payload class %s found in the built-in library.' %payloadType)
+        return None
 
-        # first search in developer area:
-	libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-	pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
-
-        # if nothing found there, check release:
-        if not pluginList:
-	   libDir = os.path.join( os.environ["CMSSW_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-	   pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
-
-	# if pluginList: 
-	#    print "found plugin for %s (in %s) : %s " % (payloadType, libDir, pluginList)
-	# else:
-	#    print "no plugin found for type %s" % payloadType
-
-	xmlConverter = None
-	if len(pluginList) > 0:
-           dirPath, libName = os.path.split( pluginList[0] )
-	   sys.path.append(dirPath)
-	   # print "going to import %s from %s" % (libName, dirPath)
-	   xmlConverter = importlib.import_module( libName.replace('.so', '') )
-	   # print "found methods: ", dir(xmlConverter)
-	   self.doCleanup = False
-
-	return xmlConverter
-
-    def prepPayload2xml(self, session, payload):
-
-    	startTime = time.time()
+    def prepPayload2xml(self, payloadType):
     
-        Payload = session.get_dbtype(self.conddb.Payload)
-        # get payload from DB:
-        result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payload).one()
-        data, plType = result
-    
-        info = { "mdName" : "pl2xmlComp",
-        	 'plType' : plType,
-        	 'plTypeSan' : sanitize(plType),
-    	    }
-    
-        converter = self.discover(plType)
+        converter = self.discover(payloadType)
 	if converter: return converter
 
-        code = payload2xmlCodeTemplate % info
+        #otherwise, go for the code generation in the local checkout area.
+    	startTime = time.time()
+
+        libName = localLibName( payloadType )
+        pluginName = 'plugin%s' % libName
+        tmpLibName = "Tmp_payload2xml"
+        tmpPluginName = 'plugin%s' %tmpLibName
+         
+        libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+        tmpLibFile = os.path.join( libDir,tmpPluginName+'.so' )
+        code = payload2xmlCodeTemplate %(pluginName,payloadType) 
     
+        tmpSrcFileName = 'Local_2XML.cpp' 
         tmpDir = self._pl2xml_tmpDir
         if ( os.path.exists( tmpDir ) ) :
            msg = '\nERROR: %s already exists, please remove if you did not create that manually !!' % tmpDir
-           self.doCleanup = False
 	   raise Exception(msg)
 
-        os.makedirs( tmpDir+'/src' )
+        logging.debug('Creating temporary package %s' %self._pl2xml_tmpDir)
+        os.makedirs( tmpDir+'/plugins' )
     
-        buildFileName = "%s/BuildFile.xml" % (tmpDir,)
+        buildFileName = "%s/plugins/BuildFile.xml" % (tmpDir,)
         with open(buildFileName, 'w') as buildFile:
-        	 buildFile.write( buildFileTemplate )
+        	 buildFile.write( buildFileTemplate %(tmpSrcFileName,tmpLibName) )
     	 	 buildFile.close()
     
-        tmpFileName = "%s/src/%s" % (tmpDir, info['mdName'],)
-        with open(tmpFileName+'.cpp', 'w') as codeFile:
+        tmpSrcFilePath = "%s/plugins/%s" % (tmpDir, tmpSrcFileName,)
+        with open(tmpSrcFilePath, 'w') as codeFile:
         	 codeFile.write(code)
     	 	 codeFile.close()
     
-	libDir = os.path.join( os.environ["CMSSW_BASE"], 'tmp', os.environ["SCRAM_ARCH"], 'src', self.fakePkgName, 'src', self.fakePkgName.replace('/',''))
-	libName = libDir + '/lib%s.so' % self.fakePkgName.replace('/','') 
     	cmd = "source /afs/cern.ch/cms/cmsset_default.sh;"
-    	cmd += "(cd %s ; scram b 2>&1 >build.log && cp %s $CMSSW_BASE/src/pl2xmlComp.so )" % (tmpDir, libName)
-    	ret = os.system(cmd)
-	if ret != 0 : self.doCleanup = False
+    	cmd += "(cd %s ; scram b 2>&1 >build.log)" %tmpDir
+        pipe = subprocess.Popen( cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+        out, err = pipe.communicate()
+        ret = pipe.returncode
 
 	buildTime = time.time()-startTime
-	print >> sys.stderr, "buillding done in ", buildTime, 'sec., return code from build: ', ret
+        logging.info("Building done in %s sec., return code from build: %s" %(buildTime,ret) )
 
 	if (ret != 0):
            return None
 
-        return importlib.import_module( 'pl2xmlComp' )
-    
-    def payload2xml(self, session, payload):
-    
-        if not self._pl2xml_isPrepared:
-	   xmlConverter = self.prepPayload2xml(session, payload)
-           if not xmlConverter:
-              msg = "Error preparing code for "+payload
-              raise Exception(msg)
-           self._pl2xml_isPrepared = True
+        libFile = os.path.join(libDir,pluginName + '.so')
+        shutil.copyfile(tmpLibFile,libFile)
 
+        module =  importlib.import_module( pluginName )
+        funcName = payloadType+'2xml'
+        functor = getattr( module, funcName ) 
+        self.doCleanup = True
+        return functor
+    
+    def payload2xml(self, session, payloadHash, destFile):
     
         Payload = session.get_dbtype(self.conddb.Payload)
         # get payload from DB:
-        result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payload).one()
+        result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payloadHash).one()
         data, plType = result
+        logging.info('Found payload of type %s' %plType)
     
         convFuncName = sanitize(plType)+'2xml'
-        sys.path.append('.')
-	func = getattr(xmlConverter, convFuncName)
-    	resultXML = func( str(data), str(plType) )
+        xmlConverter = self.prepPayload2xml(plType)
 
-        print resultXML    
-    
+        obj = xmlConverter()
+        resultXML = obj.write( str(data) )
+        if destFile is None:
+           print resultXML    
+        else:
+           with open(destFile, 'w') as outFile:
+              outFile.write(resultXML)
+              outFile.close()
