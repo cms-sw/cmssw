@@ -17,15 +17,11 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
 {
   folderName_              = iConfig.getParameter<std::string>("FolderName"); 
   dijetSrc_                = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
-  dijetpT_variable_binning_= iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
   dijetpt_binning_         = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
   dijetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPtThrPSet")    );
-  ls_binning_              = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
 
 
   ptcut_      = iConfig.getParameter<double>("ptcut" ); 
-  etacut_      = iConfig.getParameter<double>("etacut" ); // for DiJet Offline selection 
-  phicut_      = iConfig.getParameter<double>("delphicut" ); // for DiJet Offline selection
 
 }
 
@@ -168,8 +164,6 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
    jetEtaPhiME_.denominator -> Fill(eta_1,phi_1);
    }
 
-  }
-
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; 
 
      jetpt1ME_.numerator -> Fill(pt_1);
@@ -204,7 +198,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     jetAsyEtaME_.numerator -> Fill(pt_asy,eta_1);
     jetEtaPhiME_.numerator -> Fill(eta_1,phi_1);
     }
-
+  }
 }
 
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -219,8 +213,6 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<double>("ptcut",   20);
-  desc.add<double>("etacut",   1.7);   //using dijet offline selection
-  desc.add<double>("delphicut",   2.7);//using dijet offline selection
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -258,6 +250,10 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
 //---- Additional DiJet offline selection------
 bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
+  
+  double etacut_ = 1.7;
+  double phicut_ = 2.7;
+  
   bool passeta = false; //check that one of the jets in the barrel
   if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ )  passeta=true;
   
