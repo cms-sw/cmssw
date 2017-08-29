@@ -17,6 +17,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -89,7 +90,8 @@ class HcalHaloAlgo{
   float SumEnergyThreshold;
   int NHitsThreshold;
 
-  const CaloGeometry *geo;
+  const CaloGeometry *geo_;
+  const HcalGeometry *hgeo_;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
   
 };
