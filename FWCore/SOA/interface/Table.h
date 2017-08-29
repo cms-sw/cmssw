@@ -14,13 +14,13 @@
  The template arguments of a Table should be edm::soa::Column<> types which 
  declare the type of the column and a label.
  \code
- constexpr char char kEta = "eta";
+ constexpr char kEta[] = "eta";
  using Eta = edm::soa::Column<double,kEta>;
 
- constexpr char char kPhi = "phi";
+ constexpr char kPhi[] = "phi";
  using Phi = edm::soa::Column<double,kPhi>;
 
- using SphereTable = edm::soa::Table<kEta,kPhi>;
+ using SphereTable = edm::soa::Table<Eta,Phi>;
  \endcode
 
  The same declaration of a column should be shared by different tables
