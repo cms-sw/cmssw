@@ -18,6 +18,7 @@
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
 #include <vector>
 
@@ -71,6 +72,19 @@ namespace DataFormats_CTPPSDigi {
     edm::Wrapper< edm::DetSet<CTPPSPixelDigi> > wff2;
     edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDigi> > > wff3;
     edm::Wrapper< edm::DetSetVector<CTPPSPixelDigi> > wff4;
+
+
+    std::vector<CTPPSPixelDataError> err0;
+    std::map<int, std::vector<CTPPSPixelDataError> > err1;
+    edm::DetSet<CTPPSPixelDataError> err2;
+    std::vector<edm::DetSet<CTPPSPixelDataError> > err3;
+    edm::DetSetVector<CTPPSPixelDataError> err4;
+    edm::Wrapper< std::vector<CTPPSPixelDataError>  > err5;
+    edm::Wrapper< std::map<int, std::vector<CTPPSPixelDataError> > > err6;
+    edm::Wrapper< edm::DetSet<CTPPSPixelDataError>  > err7;
+    edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDataError> > > err8;
+    edm::Wrapper< edm::DetSetVector<CTPPSPixelDataError> > err9;
+
 
   };
 }
