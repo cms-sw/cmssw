@@ -120,20 +120,37 @@ hltSiPixelPhase1TrackClustersNTracksInVolume = hltDefaultHistoTrack.clone(
 )
 
 hltSiPixelPhase1TrackClustersConf = cms.VPSet(
-  hltSiPixelPhase1TrackClustersOnTrackCharge,
-  hltSiPixelPhase1TrackClustersOnTrackSize,
-  hltSiPixelPhase1TrackClustersOnTrackNClusters,
-  hltSiPixelPhase1TrackClustersOnTrackPositionB,
-  hltSiPixelPhase1TrackClustersOnTrackPositionF,
-
-  hltSiPixelPhase1TrackClustersOffTrackCharge,
-  hltSiPixelPhase1TrackClustersOffTrackSize,
-  hltSiPixelPhase1TrackClustersOffTrackNClusters,
-  hltSiPixelPhase1TrackClustersOffTrackPositionB,
-  hltSiPixelPhase1TrackClustersOffTrackPositionF,
-
-  hltSiPixelPhase1TrackClustersNTracks,
-  hltSiPixelPhase1TrackClustersNTracksInVolume,
+### IT HAS TO BE IN SYNCH W/
+### THE LIST DEFINED IN THE ENUM
+### https://cmssdt.cern.ch/lxr/source/DQM/SiPixelPhase1TrackClusters/src/SiPixelPhase1TrackClusters.cc#0063
+   SiPixelPhase1TrackClustersOnTrackCharge,
+   SiPixelPhase1TrackClustersOnTrackSize,
+   SiPixelPhase1TrackClustersOnTrackShape,
+   SiPixelPhase1TrackClustersOnTrackNClusters,
+   SiPixelPhase1TrackClustersOnTrackPositionB,
+   SiPixelPhase1TrackClustersOnTrackPositionF,
+ 
+   SiPixelPhase1TrackClustersNTracks,
+   SiPixelPhase1TrackClustersNTracksInVolume,
+ 
+   SiPixelPhase1ClustersSizeVsEtaOnTrackOuter,
+   SiPixelPhase1ClustersSizeVsEtaOnTrackInner,
+   SiPixelPhase1TrackClustersOnTrackChargeOuter,
+   SiPixelPhase1TrackClustersOnTrackChargeInner,
+ 
+   SiPixelPhase1TrackClustersOnTrackShapeOuter,
+   SiPixelPhase1TrackClustersOnTrackShapeInner,
+ 
+   SiPixelPhase1TrackClustersOnTrackSizeXOuter,
+   SiPixelPhase1TrackClustersOnTrackSizeXInner,
+   SiPixelPhase1TrackClustersOnTrackSizeXF,
+   SiPixelPhase1TrackClustersOnTrackSizeYOuter,
+   SiPixelPhase1TrackClustersOnTrackSizeYInner,
+   SiPixelPhase1TrackClustersOnTrackSizeYF,
+ 
+   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
+   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
+   SiPixelPhase1TrackClustersOnTrackSizeXYF
 )
 
 hltSiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
