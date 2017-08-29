@@ -165,20 +165,22 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 	  auto ch2 = theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0 ));
 	  superChamber->add( const_cast<GEMChamber*>( ch1 ));
 	  superChamber->add( const_cast<GEMChamber*>( ch2 ));
+	  // superChamber->add( ch1 );
+	  // superChamber->add( ch2 );
 	  ring->add( superChamber );
 	  theGeometry->add( superChamber );
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
 						<< "re " << re << " st " << st << " ri " << ri << std::endl;
 	}
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
-	station->add( const_cast<GEMRing*>( ring ));
-	theGeometry->add( const_cast<GEMRing*>( ring ));
+	station->add( ring );
+	theGeometry->add( ring );
       }
       LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
-      region->add(const_cast<GEMStation*>(station));
-      theGeometry->add(const_cast<GEMStation*>(station));
+      region->add( station );
+      theGeometry->add( station );
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    theGeometry->add(const_cast<GEMRegion*>(region));
+    theGeometry->add( region );
   }
 }
