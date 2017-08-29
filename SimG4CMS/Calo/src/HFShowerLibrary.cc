@@ -15,6 +15,7 @@
 #include "G4NavigationHistory.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4ParticleTable.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -119,6 +120,10 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
   
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
+
+  emPDG = epPDG = gammaPDG = 0;
+  pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
+  anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -128,10 +133,25 @@ HFShowerLibrary::~HFShowerLibrary() {
   delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable *,
+void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
 			      HcalDDDSimConstants* hcons) {
 
   if (fibre) fibre->initRun(hcons);
+
+  G4String parName;
+  emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
+  pi0PDG = theParticleTable->FindParticle(parName="pi0")->GetPDGEncoding();
+  etaPDG = theParticleTable->FindParticle(parName="eta")->GetPDGEncoding();
+  nuePDG = theParticleTable->FindParticle(parName="nu_e")->GetPDGEncoding();
+  numuPDG = theParticleTable->FindParticle(parName="nu_mu")->GetPDGEncoding();
+  nutauPDG= theParticleTable->FindParticle(parName="nu_tau")->GetPDGEncoding();
+  anuePDG = theParticleTable->FindParticle(parName="anti_nu_e")->GetPDGEncoding();
+  anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
+  anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
+  geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
+
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFShowerLibrary: Particle codes for e- = " 
 			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
@@ -166,7 +186,7 @@ void HFShowerLibrary::initRun(G4ParticleTable *,
 
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
-							   bool isEM,
+							   bool,
 							   double weight,
 							   bool onlyLong) {
 
@@ -184,7 +204,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
 #ifdef DebugLog
   G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
-  //  if (zoff < 0) zoff = 0;
+  
   edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
                            << " of energy " << pin/GeV << " GeV"
                            << "  dir.orts " << momDir.x() << ", " <<momDir.y()
@@ -198,16 +218,23 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
+  bool ok;
 
-  return std::move(fillHits(hitPoint,momDir,parCode,pin,isEM,weight,tSlice,onlyLong));
+  return std::move(fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong));
 }
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector & hitPoint,
                                const G4ThreeVector & momDir,
-                               int parCode, double pin, bool isEM,
+                               int parCode, double pin, bool& ok,
                                double weight, double tSlice,bool onlyLong) {
 
   std::vector<HFShowerLibrary::Hit> hit;
+  ok = false;
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
+    { return std::move(hit); }
+  ok = true;
 
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
@@ -221,7 +248,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-  if (isEM) {
+  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
