@@ -39,7 +39,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0), mouseBite_(0), slopeMin_(0), levelT_(99) {
+  numberingScheme(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT_(99) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -93,47 +93,47 @@ HGCSD::~HGCSD() {
 
 bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  NaNTrap( aStep ) ;
-  
-  if (aStep == NULL) {
-    return true;
-  } else {
-    double r = aStep->GetPreStepPoint()->GetPosition().perp();
-    double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
+  // this line may be modified if parameterisation of 
+  // detector response will be implemented
+  if(aStep->GetTotalEnergyDeposit() <= 0.0) { return true; }
+
+  NaNTrap( aStep );  
+
+  double r = aStep->GetPreStepPoint()->GetPosition().perp();
+  double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef EDM_ML_DEBUG
-    G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    bool notaMuon = (parCode == mupPDG || parCode == mumPDG ) ? false : true;
-    G4LogicalVolume* lv =
-      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-    edm::LogInfo("HGCSim") << "HGCSD: Hit from standard path from "
-			   << lv->GetName() << " for Track " 
-			   << aStep->GetTrack()->GetTrackID() << " ("
-			   << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-			   << ":" << notaMuon << ") R = " << r << " Z = " << z
-			   << " slope = " << r/z << ":" << slopeMin_;
+  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  bool notaMuon = (parCode == mupPDG || parCode == mumPDG ) ? false : true;
+  const G4LogicalVolume* lv =
+    aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+  edm::LogInfo("HGCSim") << "HGCSD: Hit from standard path from "
+			 << lv->GetName() << " for Track " 
+			 << aStep->GetTrack()->GetTrackID() << " ("
+			 << aStep->GetTrack()->GetDefinition()->GetParticleName() 
+			 << ":" << notaMuon << ") R = " << r << " Z = " << z
+			 << " slope = " << r/z << ":" << slopeMin_;
 #endif
-    // Apply fiducial cuts
-    if (r/z >= slopeMin_) {
-      if (getStepInfo(aStep)) {
-	if ((storeAllG4Hits_ || (hitExists() == false)) && 
-	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit();
+  // Apply fiducial cuts
+  if (r/z >= slopeMin_) {
+    if (getStepInfo(aStep)) {
+      if ((storeAllG4Hits_ || !hitExists()) && (edepositEM+edepositHAD>0.f)) {
+	currentHit = createNewHit(); 
       }
     }
-    return true;
   }
+  return true;
 } 
 
-double HGCSD::getEnergyDeposit(G4Step* aStep) {
-  double wt1    = getResponseWt(aStep->GetTrack());
-  double wt2    = aStep->GetTrack()->GetWeight();
+double HGCSD::getEnergyDeposit(const G4Step* aStep) {
+  double wt1    = getResponseWt(theTrack);
+  double wt2    = theTrack->GetWeight();
   double destep = wt1*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
   return destep;
 }
 
-uint32_t HGCSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HGCSD::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
   //determine the exact position in global coordinates in the mass geometry 
@@ -177,10 +177,9 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 			   << ":" << touch->GetReplicaNumber(2) << "   "
 			   << " layer:module:cell " << layer << ":" << module 
 			   << ":" << cell <<" Material " << mat->GetName()<<":"
-			   << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen()
-			   << std::endl;
+			   << preStepPoint()->GetMaterial()->GetRadlen();
 #endif
-    if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
+    if (preStepPoint->GetMaterial()->GetRadlen() > 100000.) return 0;
   }
 
   uint32_t id = setDetUnitId (subdet, layer, module, cell, iz, localpos);
@@ -190,7 +189,7 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 #ifdef EDM_ML_DEBUG
     edm::LogInfo("HGCSim") << "ID " << std::hex << id << std::dec << " Decode "
 			   << det << ":" << z << ":" << lay << ":" << wafer 
-			   << ":" << type << ":" << ic << std::endl;
+			   << ":" << type << ":" << ic;
 #endif
     if (mouseBite_->exclude(hitPoint, z, wafer)) id = 0;
   }
@@ -232,21 +231,20 @@ void HGCSD::initRun() {
 #endif
 }
 
-bool HGCSD::filterHit(CaloG4Hit* aHit, double time) {
+bool HGCSD::filterHit(const CaloG4Hit* aHit, double time) {
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > eminHit));
 }
 
-uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
+uint32_t HGCSD::setDetUnitId (const ForwardSubdetector &subdet, int layer, int module,
 			      int cell, int iz, G4ThreeVector &pos) {  
   uint32_t id = numberingScheme ? 
     numberingScheme->getUnitID(subdet, layer, module, cell, iz, pos) : 0;
   return id;
 }
 
-int HGCSD::setTrackID (G4Step* aStep) {
-  theTrack     = aStep->GetTrack();
+int HGCSD::setTrackID (const G4Step* aStep) {
 
-  double etrack = preStepPoint->GetKineticEnergy();
+  theTrack     = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -257,8 +255,8 @@ int HGCSD::setTrackID (G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  if (primaryID != previousID.trackID())
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
-
+  if (primaryID != previousID.trackID()) {
+    resetForNewPrimary(preStepPoint->GetPosition(), preStepPoint->GetKineticEnergy());
+  }
   return primaryID;
 }

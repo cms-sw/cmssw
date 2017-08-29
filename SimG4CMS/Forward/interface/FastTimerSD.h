@@ -34,43 +34,38 @@ class G4TrackToParticleID;
 class FastTimerSD : public SensitiveTkDetector,
                     public Observer<const BeginOfJob *>,
                     public Observer<const BeginOfRun *>,
-                    public Observer<const BeginOfEvent*>,
-                    public Observer<const EndOfEvent*> {
+                    public Observer<const BeginOfEvent*> {
 
 public:
   
-  FastTimerSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &, 
+  FastTimerSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &, 
 	      edm::ParameterSet const &, const SimTrackManager* );
 
 
-  virtual ~FastTimerSD();
+  ~FastTimerSD() override;
   
-  virtual bool     ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
+  bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
-  virtual void     Initialize(G4HCofThisEvent * HCE);
-  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent * HCE) override;
+  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
-  virtual double   getEnergyDeposit(G4Step* step);
-  void             fillHits(edm::PSimHitContainer&, std::string use);
-  
-  std::vector<std::string> getNames();
+  void             fillHits(edm::PSimHitContainer&, const std::string& use) override;
   
 private:
-  virtual void     update(const BeginOfJob *);
-  virtual void     update(const BeginOfRun *);
-  virtual void     update(const BeginOfEvent *);
-  virtual void     update(const ::EndOfEvent *);
-  virtual void     clearHits();
+  void     update(const BeginOfJob *) override;
+  void     update(const BeginOfRun *) override;
+  void     update(const BeginOfEvent *) override;
+  void     clearHits() override;
 
 private:
   
   G4ThreeVector    SetToLocal(const G4ThreeVector& global);
   G4ThreeVector    SetToLocalExit(const G4ThreeVector& globalPoint);
-  void             GetStepInfo(G4Step* aStep);
+  void             GetStepInfo(const G4Step* aStep);
   G4bool           HitExists();
   void             CreateNewHit();
   void             UpdateHit();
@@ -91,21 +86,20 @@ private:
   float                        incidentEnergy;
   G4int                        primID  ; 
   
-  std::string                  name;
   G4int                        hcID;
   BscG4HitCollection*          theHC; 
   const SimTrackManager*       theManager;
  
   G4int                        tsID; 
   BscG4Hit*                    currentHit;
-  G4Track*                     theTrack;
-  G4VPhysicalVolume*           currentPV;
+  const G4Track*               theTrack;
+  const G4VPhysicalVolume*     currentPV;
   uint32_t                     unitID, previousUnitID;
   G4int                        primaryID, tSliceID;  
   G4double                     tSlice;
   
-  G4StepPoint*                 preStepPoint; 
-  G4StepPoint*                 postStepPoint; 
+  const G4StepPoint*           preStepPoint; 
+  const G4StepPoint*           postStepPoint; 
   float                        edeposit;
   
   G4ThreeVector                hitPoint;
@@ -122,8 +116,6 @@ private:
   float                        X,Y,Z;
   
   int                          eventno;
-  
-protected:
   
   float                        edepositEM, edepositHAD;
   G4int                        emPDG;

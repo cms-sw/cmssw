@@ -37,18 +37,17 @@
 
 //#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
-FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
+FastTimerSD::FastTimerSD(const std::string& name, const DDCompactView & cpv,
 			 const SensitiveDetectorCatalog & clg, 
 			 edm::ParameterSet const & p, 
 			 const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), ftcons(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0) {
+  SensitiveTkDetector(name, cpv, clg, p), ftcons(nullptr), 
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0) {
     
   //Add FastTimer Sentitive Detector Name
   collectionName.insert(name);
-    
     
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FastTimerSD");
@@ -92,19 +91,15 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
 
 
 FastTimerSD::~FastTimerSD() { 
-  if (slave)  delete slave; 
-}
-
-double FastTimerSD::getEnergyDeposit(G4Step* aStep) {
-  return aStep->GetTotalEnergyDeposit();
+  delete slave; 
 }
 
 void FastTimerSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimerSD : Initialize called for " << name << std::endl;
+  std::cout << "FastTimerSD : Initialize called for " << GetName() << std::endl;
 #endif
 
-  theHC = new BscG4HitCollection(name, collectionName[0]);
+  theHC = new BscG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -113,25 +108,19 @@ void FastTimerSD::Initialize(G4HCofThisEvent * HCE) {
   primID = -2;
 }
 
-
 bool FastTimerSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
-    return true;
-  } else {
-    GetStepInfo(aStep);
+  GetStepInfo(aStep);
 #ifdef EDM_ML_DEBUG
-    std::cout << "FastTimerSD :  number of hits = " << theHC->entries() <<"\n";
+  std::cout << "FastTimerSD :  number of hits = " << theHC->entries() <<"\n";
 #endif
-    if (HitExists() == false && edeposit>0. ){ 
-      CreateNewHit();
-      return true;
-    }
+  if (!HitExists() && edeposit>0.f ){ 
+    CreateNewHit();
   }
   return true;
 } 
 
-void FastTimerSD::GetStepInfo(G4Step* aStep) {
+void FastTimerSD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -152,9 +141,9 @@ void FastTimerSD::GetStepInfo(G4Step* aStep) {
   if (particleCode == emPDG ||
       particleCode == epPDG ||
       particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
+    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.f;
   } else {
-    edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
+    edepositEM  = 0.f; edepositHAD = getEnergyDeposit(aStep);
   }
   edeposit = aStep->GetTotalEnergyDeposit();
   tSlice    = (100*postStepPoint->GetGlobalTime() )/CLHEP::nanosecond;
@@ -181,11 +170,11 @@ void FastTimerSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) { 
+uint32_t FastTimerSD::setDetUnitId(const G4Step * aStep) { 
 
   //Find the depth segment
-  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  G4ThreeVector global = aStep->GetPreStepPoint()->GetPosition();
+  const G4VTouchable* touch = preStepPoint->GetTouchable();
+  G4ThreeVector global = preStepPoint->GetPosition();
   G4ThreeVector local  = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   int        iz = (global.z() > 0) ? 1 : -1;
   std::pair<int,int> izphi = ((ftcons) ? ((type_ == 1) ? 
@@ -252,7 +241,7 @@ void FastTimerSD::ResetForNewPrimary() {
 void FastTimerSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0) {
+  if (hit == nullptr) {
     edm::LogWarning("FastTimerSim") << "FastTimerSD: hit to be stored is NULL !!";
   } else {
     theHC->insert( hit );
@@ -394,8 +383,8 @@ void FastTimerSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void FastTimerSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void FastTimerSD::fillHits(edm::PSimHitContainer& chit, const std::string& nhit) {
+  if (slave->name() == nhit) chit=slave->hits();
 }
 
 void FastTimerSD::update(const BeginOfJob * job) {
@@ -432,16 +421,8 @@ void FastTimerSD::update(const BeginOfRun *) {
 
 } 
 
-void FastTimerSD::update (const ::EndOfEvent*) {}
-
 void FastTimerSD::clearHits(){
   slave->Initialize();
-}
-
-std::vector<std::string> FastTimerSD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }
 
 std::vector<double> FastTimerSD::getDDDArray(const std::string & str, 

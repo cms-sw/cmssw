@@ -45,10 +45,10 @@ public:
   };
 
   void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
+  std::vector<Hit>    getHits(const G4Step * aStep, bool isEM, double weight, 
 			      bool onlyLong=false);
-  std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,
-                               int parCode, double parEnergy, bool & ok,
+  std::vector<Hit>    fillHits(const G4ThreeVector & p, const G4ThreeVector & v,
+                               int parCode, double parEnergy, bool isEM,
                                double weight, double time, bool onlyLong=false);
 protected:
 
@@ -75,10 +75,6 @@ private:
   double              probMax, backProb;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
-
-  int                 emPDG, epPDG, gammaPDG;
-  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
   HFShowerPhotonCollection pe;

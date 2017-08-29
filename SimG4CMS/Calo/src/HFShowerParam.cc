@@ -89,9 +89,9 @@ HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv
 }
 
 HFShowerParam::~HFShowerParam() {
-  if (fibre)         delete fibre;
-  if (gflash)        delete gflash;
-  if (showerLibrary) delete showerLibrary;
+  delete fibre;
+  delete gflash;
+  delete showerLibrary;
 }
 
 void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
@@ -116,10 +116,10 @@ void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep, 
 						       double weight) {
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();   
+
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  G4Track * track    = aStep->GetTrack();   
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
-  G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
   G4ThreeVector localPoint = G4ThreeVector(hitPoint.x(),hitPoint.y(),zv);
 
@@ -151,14 +151,15 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 			   <<track->GetDynamicParticle()->GetMomentumDirection()
 			   << " HitPoint " << hitPoint << " dirz " << dirz;
 #endif  
-  if (particleCode != emPDG && particleCode != epPDG && particleCode != gammaPDG ) {
+  G4int pdg = track->GetDefinition()->GetPDGEncoding();
+  bool isEM = (pdg == emPDG || pdg == epPDG || pdg == gammaPDG );
+  if(!isEM) {
     if (track->GetDefinition()->GetPDGCharge() != 0 && pBeta > (1/ref_index) &&
         aStep->GetTotalEnergyDeposit() > 0) other = true;
   }
 
   // take only e+-/gamma/or special particles
-  if (particleCode == emPDG || particleCode == epPDG ||
-      particleCode == gammaPDG || other) {
+  if (isEM || other) {
     // Leave out the last part
     double edep = 0.;
     bool   kill = false;
@@ -180,7 +181,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
     if (edep > 0) {
       if ((showerLibrary || gflash) && kill && pin > edMin && (!other)) {
         if (showerLibrary) {
-          std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill,weight,onlyLong);
+          std::vector<HFShowerLibrary::Hit> hitSL = 
+	    showerLibrary->getHits(aStep,isEM,weight,onlyLong);
           for (unsigned int i=0; i<hitSL.size(); i++) {
             bool ok = true;
 #ifdef DebugLog
@@ -397,7 +399,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 #endif
     }
   }
-  return hits;
+  return std::move(hits);
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 

@@ -119,36 +119,19 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
   
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
-  emPDG = epPDG = gammaPDG = 0;
-  pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
-  anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  if (fibre)  delete   fibre;
+  delete   fibre;
   fibre  = nullptr;
-  if (photo)  delete photo;
+  delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
+void HFShowerLibrary::initRun(G4ParticleTable *,
 			      HcalDDDSimConstants* hcons) {
 
   if (fibre) fibre->initRun(hcons);
-
-  G4String parName;
-  emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
-  pi0PDG = theParticleTable->FindParticle(parName="pi0")->GetPDGEncoding();
-  etaPDG = theParticleTable->FindParticle(parName="eta")->GetPDGEncoding();
-  nuePDG = theParticleTable->FindParticle(parName="nu_e")->GetPDGEncoding();
-  numuPDG = theParticleTable->FindParticle(parName="nu_mu")->GetPDGEncoding();
-  nutauPDG= theParticleTable->FindParticle(parName="nu_tau")->GetPDGEncoding();
-  anuePDG = theParticleTable->FindParticle(parName="anti_nu_e")->GetPDGEncoding();
-  anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
-  anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFShowerLibrary: Particle codes for e- = " 
 			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
@@ -182,20 +165,19 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
 }
 
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
-							   bool & ok,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
+							   bool isEM,
 							   double weight,
 							   bool onlyLong) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
+  const G4Track *     track    = aStep->GetTrack();
   // Get Z-direction 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
-  //  double mom = aParticle->GetTotalMomentum();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
@@ -217,21 +199,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
 
-  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+  return std::move(fillHits(hitPoint,momDir,parCode,pin,isEM,weight,tSlice,onlyLong));
 }
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
-                               G4ThreeVector & momDir,
-                               int parCode, double pin, bool & ok,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector & hitPoint,
+                               const G4ThreeVector & momDir,
+                               int parCode, double pin, bool isEM,
                                double weight, double tSlice,bool onlyLong) {
 
   std::vector<HFShowerLibrary::Hit> hit;
-  ok = false;
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
-    return hit;
-  ok = true;
 
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
@@ -245,7 +221,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (isEM) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -261,7 +237,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
     
   int nHit = 0;
   HFShowerLibrary::Hit oneHit;
-  for (int i = 0; i < npe; i++) {
+  for (int i = 0; i < npe; ++i) {
     double zv = std::abs(pe[i].z()); // abs local z  
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
@@ -346,7 +322,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
 				 << fibre->tShift(lpos,depth,1) << ":" 
 				 << (hit[nHit].time);
 #endif
-	nHit++;
+	++nHit;
       }
 #ifdef DebugLog
       else  LogDebug("HFShower") << "HFShowerLibrary: REJECTED !!!";
@@ -367,7 +343,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
 				   << fibre->tShift(lpos,2,1) << ":" 
 				   << (hit[nHit].time);
 #endif
-	  nHit++;
+	  ++nHit;
 	}
       }
     }
@@ -380,14 +356,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
- return hit;
-
+  return std::move(hit);
 }
 
 bool HFShowerLibrary::rInside(double r) {
 
-  if (r >= rMin && r <= rMax) return true;
-  else                        return false;
+  return (r >= rMin && r <= rMax);
 }
 
 void HFShowerLibrary::getRecord(int type, int record) {

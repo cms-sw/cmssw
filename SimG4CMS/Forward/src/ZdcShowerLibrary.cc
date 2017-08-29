@@ -16,7 +16,7 @@
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
+ZdcShowerLibrary::ZdcShowerLibrary(const std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
   verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);
@@ -53,17 +53,17 @@ void ZdcShowerLibrary::initRun(G4ParticleTable *theParticleTable){
 		       << anutauPDG;
 }
 
-std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, bool & ok) {
+std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(const G4Step * aStep, bool & ok) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
+  const G4Track *     track    = aStep->GetTrack();
 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
   double energy = preStepPoint->GetKineticEnergy();
   G4ThreeVector hitPoint = preStepPoint->GetPosition();  
-  G4ThreeVector hitPointOrig = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPointOrig = preStepPoint->GetPosition();
   G4int parCode  = track->GetDefinition()->GetPDGEncoding();
 
   hits.clear();
@@ -87,9 +87,9 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   ZdcShowerLibrary::Hit oneHit;
   side = (hitPointOrig.z() > 0.) ?  true : false;  
   
-  float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
-  float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1]); 
-  float zWidthHAD = fabs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1]); 
+  float xWidthEM = std::abs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
+  float zWidthEM = std::abs(theZSectionBoundaries[0] - theZSectionBoundaries[1]); 
+  float zWidthHAD = std::abs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1]); 
 
   for (int i = 0; i < npe; i++) {
     if(i < 5){
@@ -128,7 +128,7 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
     // Note: coodinates of hit are relative to center of detector (X0,Y0,Z0) 
     hitPoint.setX(hitPointOrig.x()-X0);
     hitPoint.setY(hitPointOrig.y()-Y0);
-    double setZ= (hitPointOrig.z()> 0.) ? hitPointOrig.z()- Z0 : fabs(hitPointOrig.z()) - Z0;
+    double setZ= (hitPointOrig.z()> 0.) ? hitPointOrig.z()- Z0 : std::abs(hitPointOrig.z()) - Z0;
     hitPoint.setZ(setZ);
 
     int dE = getEnergyFromLibrary(hitPoint,momDir,energy,parCode,section,side,channel);

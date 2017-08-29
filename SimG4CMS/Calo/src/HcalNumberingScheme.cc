@@ -5,8 +5,8 @@
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -16,10 +16,9 @@ HcalNumberingScheme::HcalNumberingScheme() : CaloNumberingScheme(0) {
 }
 
 HcalNumberingScheme::~HcalNumberingScheme() {
-  edm::LogInfo("HcalSim") << "Deleting HcalNumberingScheme" << std::endl;
 }
 
-uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id){
+uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id) const{
 
   int zside = 2*(id.zside) - 1;
   int etaR  = zside*(id.etaR);
@@ -36,8 +35,7 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id){
 			  << " zside = " << id.zside << " eta/R = " << id.etaR 
 			  << " phi = " << id.phis << " oldphi = " << id.phi
 			  << " packed index = 0x" << std::hex << index 
-			  << std::dec << " " << hid << " " << HcalDetId(index)
-			  << std::endl;
+			  << std::dec << " " << hid << " " << HcalDetId(index);
 #endif
   return index;
 

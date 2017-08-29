@@ -20,11 +20,11 @@
 #include "G4Material.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
+HcalTB06BeamSD::HcalTB06BeamSD(const std::string& iname, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager) {
+  CaloSD(iname, cpv, clg, p, manager) {
 
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
@@ -54,7 +54,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
 
   //Material list for scintillator detector
   attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter2{DDValue(attribute,name,0)};
+  DDSpecificsMatchesValueFilter filter2{DDValue(attribute,iname,0)};
   DDFilteredView fv2(cpv,filter2);
   bool dodet = fv2.firstChild();
 
@@ -88,16 +88,16 @@ HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
 
   edm::LogInfo("HcalTB06BeamSD") 
     << "HcalTB06BeamSD: Material name for " 
-    << attribute << " = " << name << ":" << matName;
+    << attribute << " = " << iname << ":" << matName;
 }
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
 
-double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
+double HcalTB06BeamSD::getEnergyDeposit(const G4Step* aStep) {
 
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  if (useBirk && matName == aStep->GetPreStepPoint()->GetMaterial()->GetName()) {
+  if (useBirk && destep > 0.0 && matName == aStep->GetPreStepPoint()->GetMaterial()->GetName()) {
     weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   LogDebug("HcalTB06BeamSD") 
@@ -107,15 +107,15 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
   return weight*destep;
 }
 
-uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4String name             = preStepPoint->GetPhysicalVolume()->GetName();
+  G4String vname = preStepPoint->GetPhysicalVolume()->GetName();
 
   int det = 1;
   int lay = 0, x = 0, y = 0;
-  if (!isItWireChamber(name)) {
+  if (!isItWireChamber(vname)) {
     lay     = (touch->GetReplicaNumber(0));
   } else {
     det = 2;
@@ -136,18 +136,17 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
     const DDLogicalPart & log = fv.logicalPart();
     G4String name = log.name().name();
     bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
+    for (unsigned int i=0; i<tmp.size(); ++i)
       if (name == tmp[i]) ok = false;
     if (ok) tmp.push_back(name);
     dodet = fv.next();
   }
-  return tmp;
+  return std::move(tmp);
 }
  
-bool HcalTB06BeamSD::isItWireChamber (G4String name) {
+bool HcalTB06BeamSD::isItWireChamber (const G4String& wname) {
  
   std::vector<G4String>::const_iterator it = wcNames.begin();
-  for (; it != wcNames.end(); it++)
-    if (name == *it) return true;
+  for (auto & wcname : wcNames) { if (wname == wcname) return true; }
   return false;
 }

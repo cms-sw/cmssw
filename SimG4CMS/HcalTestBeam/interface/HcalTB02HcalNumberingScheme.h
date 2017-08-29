@@ -25,8 +25,8 @@ class HcalTB02HcalNumberingScheme : public HcalTB02NumberingScheme {
 
 public:
   HcalTB02HcalNumberingScheme();
-  virtual ~HcalTB02HcalNumberingScheme();
-  virtual int getUnitID(const G4Step* aStep) const;
+  ~HcalTB02HcalNumberingScheme() override;
+  int getUnitID(const G4Step* aStep) const override;
 
   int getphiScaleF() const { return phiScale;}
   int getetaScaleF() const { return etaScale;}

@@ -28,7 +28,8 @@ public:
   void Initialize(G4HCofThisEvent * eventHC) override;
   virtual void clearHits() = 0;
   G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) override = 0;
-  virtual uint32_t setDetUnitId(G4Step * step) = 0;
+  virtual uint32_t setDetUnitId(const G4Step * step) = 0;
+  virtual double getEnergyDeposit(const G4Step* step);
   void Register();
   void AssignSD(const std::string & vname);
   void EndOfEvent(G4HCofThisEvent * eventHC) override; 
@@ -44,7 +45,7 @@ public:
   }    
   inline std::string& nameOfSD() { return name; }
   virtual std::vector<std::string> getNames();
-  void NaNTrap( G4Step* step ) ;
+  void NaNTrap(const G4Step* step );
     
 private:
   std::string name;

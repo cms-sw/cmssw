@@ -26,7 +26,7 @@ public:
 	  edm::ParameterSet const & p);
   ~HFFibre();
 
-  void                initRun(HcalDDDSimConstants*);
+  void                initRun(const HcalDDDSimConstants*);
   double              attLength(double lambda);
   double              tShift(const G4ThreeVector& point, int depth, 
 			     int fromEndAbs=0);

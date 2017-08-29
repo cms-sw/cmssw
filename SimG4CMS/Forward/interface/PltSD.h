@@ -34,28 +34,28 @@ class PltSD : public SensitiveTkDetector,
 
 public:
 
-  PltSD(std::string, const DDCompactView &, 
+  PltSD(const std::string&, const DDCompactView &, 
 		       const SensitiveDetectorCatalog &,
 		       edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~PltSD();
+  ~PltSD() override;
 
-  virtual bool     ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step*) override;
+  void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits (edm::PSimHitContainer&, std::string use);
+  void fillHits (edm::PSimHitContainer&, const std::string& use) override;
 
 private:
 
   virtual void   sendHit();
-  virtual void   updateHit(G4Step *);
-  virtual bool   newHit(G4Step *);
-  virtual bool   closeHit(G4Step *);
-  virtual void   createHit(G4Step *);
-  void           update(const BeginOfEvent *);
-  void           update(const BeginOfTrack *);
-  void           update(const BeginOfJob *);
-  virtual void   clearHits();
+  virtual void   updateHit(const G4Step *);
+  virtual bool   newHit(const G4Step *);
+  virtual bool   closeHit(const G4Step *);
+  virtual void   createHit(const G4Step *);
+  void           update(const BeginOfEvent *) override;
+  void           update(const BeginOfTrack *) override;
+  void           update(const BeginOfJob *) override;
+  void   clearHits() override;
   TrackInformation* getOrCreateTrackInformation(const G4Track *);
 
 private:
@@ -63,14 +63,14 @@ private:
   TrackingSlaveSD*            slave;
   G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
   G4TrackToParticleID * myG4TrackToParticleID;
-  std::string        myName;
+
   UpdatablePSimHit * mySimHit;
   float energyCut;
   float energyHistoryCut;
 
   Local3DPoint globalEntryPoint;
   Local3DPoint globalExitPoint;
-  G4VPhysicalVolume * oldVolume;
+  const G4VPhysicalVolume * oldVolume;
   uint32_t lastId;
   unsigned int lastTrack;
   int eventno;

@@ -4,11 +4,11 @@
 G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator = nullptr;
 
 FiberG4Hit::FiberG4Hit() : theTowerId(0), theDepth(0), theTrackId(0),
-			   theNpe(0), theTime(0), theLogV(0) {
+			   theNpe(0), theTime(0), theLogV(nullptr) {
   theHitPos.SetCoordinates(0.,0.,0.);
 }
 
-FiberG4Hit::FiberG4Hit(G4LogicalVolume* logVol, G4int tower, G4int depth,
+FiberG4Hit::FiberG4Hit(const G4LogicalVolume* logVol, G4int tower, G4int depth,
 		       G4int tkID) : theTowerId(tower), theDepth(depth), 
 				     theTrackId(tkID), theNpe(0), theTime(0), 
 				     theLogV(logVol) {

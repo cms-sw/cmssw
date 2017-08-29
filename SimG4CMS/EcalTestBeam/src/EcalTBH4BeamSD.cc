@@ -19,11 +19,11 @@
 
 #include "G4SystemOfUnits.hh"
 
-EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
+EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string& iname, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(iname, cpv, clg, p, manager), numberingScheme(nullptr) {
   
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk= m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");
@@ -31,8 +31,8 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   birk2  = m_EcalTBH4BeamSD.getParameter<double>("BirkC2");
   birk3  = m_EcalTBH4BeamSD.getParameter<double>("BirkC3");
 
-  EcalNumberingScheme* scheme=0;
-  if     (name == "EcalTBH4BeamHits") { 
+  EcalNumberingScheme* scheme=nullptr;
+  if (iname == "EcalTBH4BeamHits") { 
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalHodoscopeNumberingScheme());
   } 
   else {edm::LogWarning("EcalTBSim") << "EcalTBH4BeamSD: ReadoutName not supported\n";}
@@ -47,14 +47,11 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
 }
 
 EcalTBH4BeamSD::~EcalTBH4BeamSD() {
-  if (numberingScheme) delete numberingScheme;
+  delete numberingScheme;
 }
 
-double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
+double EcalTBH4BeamSD::getEnergyDeposit(const G4Step * aStep) {
   
-  if (aStep == NULL) {
-    return 0;
-  } else {
     preStepPoint        = aStep->GetPreStepPoint();
     G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
@@ -66,23 +63,21 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
 			<<" Light Collection Efficiency " << weight 
 			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
     return edep;
-  } 
 }
 
-uint32_t EcalTBH4BeamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t EcalTBH4BeamSD::setDetUnitId(const G4Step * aStep) { 
   getBaseNumber(aStep);
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(theBaseNumber));
 }
 
 void EcalTBH4BeamSD::setNumberingScheme(EcalNumberingScheme* scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("EcalTBSim") << "EcalTBH4BeamSD: updates numbering scheme for " 
 			    << GetName() << "\n";
-    if (numberingScheme) delete numberingScheme;
+    delete numberingScheme;
     numberingScheme = scheme;
   }
 }
-
 
 void EcalTBH4BeamSD::getBaseNumber(const G4Step* aStep) {
 

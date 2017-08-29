@@ -42,8 +42,9 @@ public:
     double              edep;
   };
 
-  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>      getHits(G4Step * aStep, double weight);
+  void                  initRun(G4ParticleTable*, HcalDDDSimConstants*);
+
+  std::vector<HFShowerParam::Hit>  getHits(G4Step* aStep, double weight);
   
 private:    
 

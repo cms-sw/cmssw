@@ -26,10 +26,10 @@
 #include "G4PhysicalConstants.hh"
 
 //________________________________________________________________________________________
-DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
+DreamSD::DreamSD(const std::string& iname, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager) {
+  CaloSD(iname, cpv, clg, p, manager) {
 
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk= m_EC.getParameter<bool>("UseBirkLaw");
@@ -51,7 +51,7 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
                            << doCherenkov_ << " and readout both sides is "
 			   << readBothSide_;
 
-  initMap(name,cpv);
+  initMap(iname,cpv);
 
   // Init histogramming
   edm::Service<TFileService> tfile;
@@ -76,44 +76,41 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 //________________________________________________________________________________________
 bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
-  if (aStep == NULL) {
-    return true;
-  } else {
-    side = 1;
-    if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.)
-        currentHit = createNewHit();
-      if (readBothSide_) {
-	side = -1;
-	getStepInfo(aStep);
-	if (hitExists() == false && edepositEM+edepositHAD>0.)
-	  currentHit = createNewHit();
+  side = 1;
+  if (getStepInfo(aStep)) {
+    if (!hitExists() && edepositEM+edepositHAD>0.f) {
+      currentHit = createNewHit();
+    }
+    if (readBothSide_) {
+      side = -1;
+      getStepInfo(aStep);
+      if (!hitExists() && edepositEM+edepositHAD>0.f) {
+	currentHit = createNewHit();
       }
     }
   }
   return true;
 }
 
-
 //________________________________________________________________________________________
-bool DreamSD::getStepInfo(G4Step* aStep) {
+bool DreamSD::getStepInfo(const G4Step* aStep) {
 
   preStepPoint = aStep->GetPreStepPoint();
+  theLogicalVolume = preStepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
   theTrack     = aStep->GetTrack();
-  G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
   // take into account light collection curve for crystals
   double weight = 1.;
-  weight *= curve_LY(aStep, side);
+  weight *= curve_LY();
   if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
   edepositEM  = aStep->GetTotalEnergyDeposit() * weight;
-  LogDebug("EcalSim") << "DreamSD:: " << nameVolume << " Side " << side
+  LogDebug("EcalSim") << "DreamSD:: " << theLogicalVolume->GetName() << " Side " << side
 		      <<" Light Collection Efficiency " << weight 
 		      << " Weighted Energy Deposit " << edepositEM/MeV 
 		      << " MeV";
   // Get cherenkov contribution
   if ( doCherenkov_ ) {
-    edepositHAD = cherenkovDeposit_( aStep );
+    edepositHAD = cherenkovDeposit_(aStep);
   } else {
     edepositHAD = 0;
   }
@@ -160,7 +157,6 @@ bool DreamSD::getStepInfo(G4Step* aStep) {
 
 }
 
-
 //________________________________________________________________________________________
 void DreamSD::initRun() {
 
@@ -182,7 +178,7 @@ void DreamSD::initRun() {
 
 
 //________________________________________________________________________________________
-uint32_t DreamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t DreamSD::setDetUnitId(const G4Step * aStep) { 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t id = (touch->GetReplicaNumber(1))*10 + (touch->GetReplicaNumber(0));
   LogDebug("EcalSim") << "DreamSD:: ID " << id;
@@ -191,7 +187,7 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 
 
 //________________________________________________________________________________________
-void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
+void DreamSD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
@@ -205,7 +201,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::vector<double> paras(sol.parameters());
     G4String name = sol.name().name();
-    G4LogicalVolume* lv=0;
+    G4LogicalVolume* lv=nullptr;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
       if ((*lvcite)->GetName() == name) {
 	lv = (*lvcite);
@@ -228,7 +224,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
-    if (ite->first != 0) name = (ite->first)->GetName();
+    if (ite->first != nullptr) name = (ite->first)->GetName();
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second.first
                         << " W = " << ite->second.second;
@@ -236,69 +232,59 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 }
 
 //________________________________________________________________________________________
-double DreamSD::curve_LY(G4Step* aStep, int flag) {
-
-  G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
-  G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  G4String         nameVolume= lv->GetName();
+double DreamSD::curve_LY() {
 
   double weight = 1.;
-  G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
-					 stepPoint->GetTouchable());
-  double crlength = crystalLength(lv);
+  G4ThreeVector localPoint = setToLocal(preStepPoint->GetPosition(),
+					preStepPoint->GetTouchable());
+  double crlength = crystalLength();
   double localz   = localPoint.x();
-  double dapd = 0.5 * crlength - flag*localz; // Distance from closest APD
+  double dapd = std::abs(0.5 * crlength - side*localz); // Distance from closest APD
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
       weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
   } else {
     edm::LogWarning("EcalSim") << "DreamSD: light coll curve : wrong distance "
 			       << "to APD " << dapd << " crlength = " 
-			       << crlength << " crystal name = " << nameVolume 
+			       << crlength << " crystal name = " 
+			       << theLogicalVolume->GetName() 
 			       << " z of localPoint = " << localz
 			       << " take weight = " << weight;
   }
   LogDebug("EcalSim") << "DreamSD, light coll curve : " << dapd 
 		      << " crlength = " << crlength
-		      << " crystal name = " << nameVolume 
+		      << " crystal name = " << theLogicalVolume->GetName()
 		      << " z of localPoint = " << localz
 		      << " take weight = " << weight;
   return weight;
 }
 
 //________________________________________________________________________________________
-const double DreamSD::crystalLength(G4LogicalVolume* lv) const {
+double DreamSD::crystalLength() const {
 
-  double length= -1.;
-  DimensionMap::const_iterator ite = xtalLMap.find(lv);
-  if (ite != xtalLMap.end()) length = ite->second.first;
-  return length;
-
+  auto ite = xtalLMap.find(theLogicalVolume);
+  return (ite == xtalLMap.end()) ? 230.0 : ite->second.first;
 }
 
 //________________________________________________________________________________________
-const double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
+double DreamSD::crystalWidth() const {
 
-  double width= -1.;
-  DimensionMap::const_iterator ite = xtalLMap.find(lv);
-  if (ite != xtalLMap.end()) width = ite->second.second;
-  return width;
-
+  auto ite = xtalLMap.find(theLogicalVolume);
+  return (ite == xtalLMap.end()) ? 0.0 : ite->second.second;
 }
-
 
 //________________________________________________________________________________________
 // Calculate total cherenkov deposit
 // Inspired by Geant4's Cherenkov implementation
-double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
+double DreamSD::cherenkovDeposit_(const G4Step* aStep) {
 
   double cherenkovEnergy = 0;
   if (!materialPropertiesTable) return cherenkovEnergy;
-  G4Material* material = aStep->GetTrack()->GetMaterial();
+  const G4Material* material = theLogicalVolume->GetMaterial();
 
   // Retrieve refractive index
   G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
-  if ( Rindex == NULL ) {
+  if ( Rindex == nullptr ) {
     edm::LogWarning("EcalSim") << "Couldn't retrieve refractive index";
     return cherenkovEnergy;
   }
@@ -313,14 +299,13 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
                       << "  Pmax = " << Pmax;
   
   // Get particle properties
-  G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  G4ThreeVector x0 = preStepPoint->GetPosition();
   G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
-  const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
-  const double charge = aParticle->GetDefinition()->GetPDGCharge();
+  const G4DynamicParticle* aParticle = theTrack->GetDynamicParticle();
+  double charge = aParticle->GetDefinition()->GetPDGCharge();
   // beta is averaged over step
-  double beta = 0.5*( pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta() );
+  double beta = 0.5*( preStepPoint->GetBeta() + pPostStepPoint->GetBeta() );
   double BetaInverse = 1.0/beta;
 
   LogDebug("EcalSim") << "Particle properties: " << "\n"
@@ -398,7 +383,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
     G4ThreeVector photonMomentum = sampledMomentum*photonDirection;
 
     // Collect energy on APD
-    cherenkovEnergy += getPhotonEnergyDeposit_( photonMomentum, photonPosition, aStep );
+    cherenkovEnergy += getPhotonEnergyDeposit_( photonMomentum, photonPosition);
 
     // Ntuple variables
     nphotons_ = numPhotons;
@@ -413,19 +398,16 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // Fill ntuple
   ntuple_->Fill();
 
-
   return cherenkovEnergy;
-
 }
-
 
 //________________________________________________________________________________________
 // Returns number of photons produced per GEANT-unit (millimeter) in the current medium. 
 // From G4Cerenkov.cc
-double DreamSD::getAverageNumberOfPhotons_( const double charge,
-					    const double beta,
+double DreamSD::getAverageNumberOfPhotons_( double charge,
+					    double beta,
 					    const G4Material* aMaterial,
-					    G4MaterialPropertyVector* Rindex )
+					    const G4MaterialPropertyVector* Rindex )
 {
   const G4double rFact = 369.81/(eV * cm);
 
@@ -482,19 +464,14 @@ double DreamSD::getAverageNumberOfPhotons_( const double charge,
                       << "CAImin = " << CAImin << "\n"
                       << "CAImax = " << CAImax << "\n"
                       << "dp = " << dp << ", ge = " << ge << "\n"
-                      << "numPhotons = " << numPhotons;
-
-
-  
+                      << "numPhotons = " << numPhotons;  
   return numPhotons;
-
 }
-
 
 //________________________________________________________________________________________
 // Set lead tungstate material properties on the fly.
 // Values from Ts42 detector construction
-bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
+bool DreamSD::setPbWO2MaterialProperties_(G4Material* aMaterial ) {
 
   std::string pbWO2Name("E_PbWO4");
   if ( pbWO2Name != aMaterial->GetName() ) { // Wrong material!
@@ -547,9 +524,7 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
   LogDebug("EcalSim") << "Material properties set for " << aMaterial->GetName();
 
   return true;
-
 }
-
 
 //________________________________________________________________________________________
 // Calculate energy deposit of a photon on APD
@@ -557,8 +532,7 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
 // - configurable reflection probability if not straight to APD;
 // - APD response function
 double DreamSD::getPhotonEnergyDeposit_( const G4ThreeVector& p, 
-					 const G4ThreeVector& x,
-					 const G4Step* aStep )
+					 const G4ThreeVector& x)
 {
 
   double energy = 0;
@@ -571,12 +545,8 @@ double DreamSD::getPhotonEnergyDeposit_( const G4ThreeVector& p,
   //    - assume that APD is at x=xtalLength/2.0
   //    - extrapolate from x=x0 to x=xtalLength/2.0 using momentum in x-y
   
-  G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
-  G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  G4String         nameVolume= lv->GetName();
-
-  double crlength = crystalLength(lv);
-  double crwidth  = crystalWidth(lv);
+  double crlength = crystalLength();
+  double crwidth  = crystalWidth();
   double dapd = 0.5 * crlength - x.x(); // Distance from closest APD
   double y = p.y()/p.x()*dapd;
 

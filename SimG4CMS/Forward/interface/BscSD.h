@@ -10,14 +10,6 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-// last
-//#include "SimG4Core/Application/interface/SimTrackManager.h"
-//#include "SimG4CMS/Calo/interface/CaloSD.h"
-
-
-//#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-//#include "SimG4Core/Notification/interface/TrackContainer.h"
-
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
@@ -28,14 +20,7 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
-//#include <CLHEP/Vector/ThreeVector.h>
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
-//#include <map>
 #include <string>
- 
-
 
 class TrackingSlaveSD;
 //AZ:
@@ -53,57 +38,45 @@ class G4TrackToParticleID;
 
 class BscSD : public SensitiveTkDetector,
               public Observer<const BeginOfRun *>,
-              public Observer<const BeginOfEvent*>,
-              public Observer<const EndOfEvent*> {
+              public Observer<const BeginOfEvent*>{
 
 public:
   
-  BscSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  BscSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
   	  edm::ParameterSet const &, const SimTrackManager* );
 
 
-  virtual ~BscSD();
+  ~BscSD() override;
   
-  virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t  setDetUnitId(G4Step*);
+  bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t  setDetUnitId(const G4Step*) override;
 
-  virtual void Initialize(G4HCofThisEvent * HCE);
-  virtual void EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void clear();
-  virtual void DrawAll();
-  virtual void PrintAll();
+  void Initialize(G4HCofThisEvent * HCE) override;
+  void EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void clear() override;
+  void DrawAll() override;
+  void PrintAll() override;
 
-  virtual double getEnergyDeposit(G4Step* step);
-  //protected:
-  //    Collection       hits_;
-    void fillHits(edm::PSimHitContainer&, std::string use);
-  
-  std::vector<std::string> getNames();
+  void fillHits(edm::PSimHitContainer&, const std::string& use) override;
   
  private:
-  void           update(const BeginOfRun *);
-  void           update(const BeginOfEvent *);
-  void           update(const ::EndOfEvent *);
-  virtual void   clearHits();
-  
-  //void SetNumberingScheme(BscNumberingScheme* scheme);
-  
-  
+  void           update(const BeginOfRun *) override;
+  void           update(const BeginOfEvent *) override;
+  void   clearHits() override;
   
   //  int eventno;
  private:
   
   G4ThreeVector SetToLocal(const G4ThreeVector& global);
   G4ThreeVector SetToLocalExit(const G4ThreeVector& globalPoint);
-  void          GetStepInfo(G4Step* aStep);
+  void          GetStepInfo(const G4Step* aStep);
   G4bool        HitExists();
   void          CreateNewHit();
   void          UpdateHit();
   void          StoreHit(BscG4Hit*);
   void          ResetForNewPrimary();
   void          Summarize();
-  
-  
+    
  private:
   
   //AZ:
@@ -117,27 +90,23 @@ public:
   float                incidentEnergy;
   G4int                primID  ; 
   
-  //  G4String             name;
-  std::string             name;
   G4int                    hcID;
   BscG4HitCollection*       theHC; 
   const SimTrackManager*      theManager;
  
-  G4int                    tsID; 
-  BscG4Hit*               currentHit;
-  G4Track*                 theTrack;
-  G4VPhysicalVolume*         currentPV;
-  // unsigned int         unitID, previousUnitID;
+  G4int                tsID; 
+  BscG4Hit*            currentHit;
+  const G4Track*       theTrack;
+  const G4VPhysicalVolume*   currentPV;
   uint32_t             unitID, previousUnitID;
   G4int                primaryID, tSliceID;  
   G4double             tSlice;
   
-  G4StepPoint*         preStepPoint; 
-  G4StepPoint*         postStepPoint; 
+  const G4StepPoint*   preStepPoint; 
+  const G4StepPoint*   postStepPoint; 
   float                edeposit;
   
   G4ThreeVector        hitPoint;
-  //  G4ThreeVector    Position;
   G4ThreeVector        hitPointExit;
   G4ThreeVector        hitPointLocal;
   G4ThreeVector        hitPointLocalExit;
@@ -159,9 +128,9 @@ public:
   //
   int eventno;
   
- protected:
+  // protected:
   
-  float                edepositEM, edepositHAD;
+  float edepositEM, edepositHAD;
   G4int emPDG;
   G4int epPDG;
   G4int gammaPDG;

@@ -8,14 +8,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4CMS/Calo/interface/HFShower.h"
-#include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
-#include "SimG4CMS/Calo/interface/HFShowerParam.h"
-#include "SimG4CMS/Calo/interface/HFShowerPMT.h"
-#include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
-#include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
-#include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
-#include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
@@ -32,6 +24,15 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 class HcalTestNS;
+class HcalNumberingScheme;
+class HFShowerLibrary;
+class HFShower;
+class HFShowerParam;
+class HFShowerPMT;
+class HFShowerFibreBundle;
+class HBHEDarkening;
+class HFDarkening;
+class HcalTestNS;
 
 class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
@@ -41,37 +42,37 @@ public:
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
-  double                getEnergyDeposit(G4Step* ) override;
-  uint32_t              setDetUnitId(G4Step* step) override ;
-  void                          setNumberingScheme(HcalNumberingScheme* );
+  double                getEnergyDeposit(const G4Step* ) override;
+  uint32_t              setDetUnitId(const G4Step* step) override ;
+  void                  setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
   void                  update(const BeginOfJob *) override;
   void                  initRun() override;
-  bool                  filterHit(CaloG4Hit*, double) override;
+  bool                  filterHit(const CaloG4Hit*, double) override;
 
 private:    
 
   uint32_t                      setDetUnitId(int, const G4ThreeVector&, int, int);
   uint32_t                      setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
-  std::vector<double>           getDDDArray(const std::string&, 
-                                            const DDsvalues_type&);
+  std::vector<double>           getDDDArray(const std::string&, const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
-  bool                          isItHF(const G4Step *);
-  bool                          isItHF(const G4String&);
-  bool                          isItFibre(G4LogicalVolume*);
-  bool                          isItFibre(const G4String&);
-  bool                          isItPMT(G4LogicalVolume*);
-  bool                          isItStraightBundle(G4LogicalVolume*);
-  bool                          isItConicalBundle(G4LogicalVolume*);
-  bool                          isItScintillator(G4Material*);
-  bool                          isItinFidVolume (const G4ThreeVector&);
+  bool                          isItHF(const G4Step *) const;
+  bool                          isItHF(const G4String&) const;
+  bool                          isApplicableHF(const G4ParticleDefinition*) const;
+  bool                          isItFibre(const G4LogicalVolume*) const;
+  bool                          isItFibre(const G4String&) const;
+  bool                          isItPMT(const G4LogicalVolume*) const;
+  bool                          isItStraightBundle(const G4LogicalVolume*) const;
+  bool                          isItConicalBundle(const G4LogicalVolume*) const;
+  bool                          isItScintillator(const G4Material*) const;
+  bool                          isItinFidVolume (const G4ThreeVector&) const;
   void                          getFromLibrary(G4Step * step, double weight);
-  void                          hitForFibre(G4Step * step, double weight);
+  void                          hitForFibre(const G4Step * step, double weight);
   void                          getFromParam(G4Step * step, double weight);
-  void                          getHitPMT(G4Step * step);
-  void                          getHitFibreBundle(G4Step * step, bool type);
+  void                          getHitPMT(const G4Step * step);
+  void                          getHitFibreBundle(const G4Step * step, bool type);
   int                           setTrackID(const G4Step * step);
   void                          readWeightFromFile(const std::string&);
   double                        layerWeight(int, const G4ThreeVector&, int, int);
@@ -82,7 +83,7 @@ private:
 
   HcalDDDSimConstants*          hcalConstants;
   HcalNumberingFromDDD*         numberingFromDDD;
-  HcalNumberingScheme*          numberingScheme;
+  const HcalNumberingScheme*    numberingScheme;
   HFShowerLibrary *             showerLibrary;
   HFShower *                    hfshower;
   HFShowerParam *               showerParam;
@@ -99,9 +100,10 @@ private:
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG, depth_;
+  G4int                         depth_;
   std::vector<double>           gpar;
   std::vector<int>              hfLevels;
+  std::vector<int>              hfPGDcodes;
   std::vector<G4String>         hfNames, fibreNames, matNames;
   std::vector<G4Material*>      materials;
   std::vector<G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;

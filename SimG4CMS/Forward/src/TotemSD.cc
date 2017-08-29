@@ -45,13 +45,13 @@
 //
 // constructors and destructor
 //
-TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
+TotemSD::TotemSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), 
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
 
   //Add Totem Sentitive Detector Names
   collectionName.insert(name);
@@ -97,17 +97,17 @@ TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
 } 
 
 TotemSD::~TotemSD() { 
-  if (slave)           delete slave; 
-  if (numberingScheme) delete numberingScheme;
+  delete slave; 
+  delete numberingScheme;
 }
 
 bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
-    if (HitExists() == false && edeposit>0.) { 
+    if (HitExists() == false && edeposit>0.f) { 
       CreateNewHit();
       return true;
     }
@@ -120,16 +120,16 @@ bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   return true;
 }
 
-uint32_t TotemSD::setDetUnitId(G4Step * aStep) { 
+uint32_t TotemSD::setDetUnitId(const G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->GetUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep));
 }
 
 void TotemSD::Initialize(G4HCofThisEvent * HCE) { 
 
-  LogDebug("ForwardSim") << "TotemSD : Initialize called for " << name;
+  LogDebug("ForwardSim") << "TotemSD : Initialize called for " << GetName();
 
-  theHC = new TotemG4HitCollection(name, collectionName[0]);
+  theHC = new TotemG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -176,8 +176,8 @@ void TotemSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void TotemSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void TotemSD::fillHits(edm::PSimHitContainer& chit, const std::string& nhit) {
+  if (slave->name() == nhit) chit=slave->hits();
 }
 
 void TotemSD::update (const BeginOfEvent * i) {
@@ -185,9 +185,6 @@ void TotemSD::update (const BeginOfEvent * i) {
                        << " !" ;
    clearHits();
    eventno = (*i)()->GetEventID();
-}
-
-void TotemSD::update (const ::EndOfEvent*) {
 }
 
 void TotemSD::clearHits(){
@@ -202,17 +199,15 @@ G4ThreeVector TotemSD::SetToLocal(const G4ThreeVector& global) {
   return localPoint;  
 }
 
-void TotemSD::GetStepInfo(G4Step* aStep) {
+void TotemSD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
   theTrack     = aStep->GetTrack();   
-  //Local3DPoint theEntryPoint = SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates);  
-  //Local3DPoint theExitPoint  = SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates);
+
   hitPoint     = preStepPoint->GetPosition();	
   currentPV    = preStepPoint->GetPhysicalVolume();
 
-  // double weight = 1; 
   G4String name = currentPV->GetName();
   name.assign(name,0,4);
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
@@ -390,10 +385,10 @@ G4ThreeVector TotemSD::PosizioEvo(const G4ThreeVector& Pos, double vx, double vy
   //  double temp_evo_X;
   //  double temp_evo_Y;
   //  double temp_evo_Z;
-  //  temp_evo_Z = fabs(Pos.z())/Pos.z()*220000.; 
+  //  temp_evo_Z = std::abs(Pos.z())/Pos.z()*220000.; 
  
   //csi=-dp/d
-  double csi = fabs((7000.-pabs)/7000.);
+  double csi = std::abs((7000.-pabs)/7000.);
 
   // all in m 
   const int no_rp=4;
@@ -428,22 +423,22 @@ G4ThreeVector TotemSD::PosizioEvo(const G4ThreeVector& Pos, double vx, double vy
    
    
   //pass TAN@141
-  if (fabs(y_par[0])<pipelim[0][1] && sqrt((y_par[0]*y_par[0])+(x_par[0]*x_par[0]))<pipelim[0][0])  {
+  if (std::abs(y_par[0])<pipelim[0][1] && sqrt((y_par[0]*y_par[0])+(x_par[0]*x_par[0]))<pipelim[0][0])  {
     //pass 149
     if ((sqrt((y_par[1]*y_par[1])+(x_par[1]*x_par[1]))<pipelim[1][0]) &&
-	(fabs(y_par[1])>detlim[1][1] || x_par[1]>detlim[1][0]))  {
+	(std::abs(y_par[1])>detlim[1][1] || x_par[1]>detlim[1][0]))  {
       accettanza = 1;
     }
   }
 
       
   //pass TAN@141
-  if (fabs(y_par[0])<pipelim[0][1] && sqrt((y_par[0])*(y_par[0])+(x_par[0])*(x_par[0]))<pipelim[0][0]) {
+  if (std::abs(y_par[0])<pipelim[0][1] && sqrt((y_par[0])*(y_par[0])+(x_par[0])*(x_par[0]))<pipelim[0][0]) {
     //pass Q5@198
-    if (fabs(y_par[2])<pipelim[2][1] && sqrt((y_par[2]*y_par[2])+(x_par[2]*x_par[2]))<pipelim[2][0]) {
+    if (std::abs(y_par[2])<pipelim[2][1] && sqrt((y_par[2]*y_par[2])+(x_par[2]*x_par[2]))<pipelim[2][0]) {
       //pass 220
       if ((sqrt((y_par[3]*y_par[3])+(x_par[3]*x_par[3]))<pipelim[3][0]) &&
-	  (fabs(y_par[3])>detlim[3][1] || x_par[3]>detlim[3][0])) {
+	  (std::abs(y_par[3])>detlim[3][1] || x_par[3]>detlim[3][0])) {
 	accettanza = 1;
 	
 	PosEvo.setX(1000*x_par[3]);
@@ -508,7 +503,7 @@ void TotemSD::UpdateHit() {
 void TotemSD::StoreHit(TotemG4Hit* hit) {
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("ForwardSim") << "TotemSD: hit to be stored is NULL !!";
     return;
   }

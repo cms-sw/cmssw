@@ -5,6 +5,8 @@
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
+class HcalNumberingScheme;
+
 class HcalTestNS {
 
 public:    
@@ -16,8 +18,8 @@ public:
 
 private:
 
-  HcalDDDRecConstants*          hcons_;
-
+  HcalDDDRecConstants* hcons_;
+  const HcalNumberingScheme* scheme_;
 };
 
 #endif // HcalTestNS_h

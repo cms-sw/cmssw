@@ -195,10 +195,6 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
   return false;
 }                                   
 
-double CaloSD::getEnergyDeposit(G4Step* aStep) {
-  return aStep->GetTotalEnergyDeposit();
-}
-
 void CaloSD::Initialize(G4HCofThisEvent * HCE) { 
   totalHits = 0;
   
@@ -236,12 +232,12 @@ void CaloSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void CaloSD::fillHits(edm::PCaloHitContainer& cont, std::string& hitname) {
+void CaloSD::fillHits(edm::PCaloHitContainer& cont, const std::string& hitname) {
   if (slave->name() == hitname) { cont = slave->hits(); }
   slave->Clean();
 }
 
-bool CaloSD::getStepInfo(G4Step* aStep) {  
+bool CaloSD::getStepInfo(const G4Step* aStep) {  
 
   preStepPoint = aStep->GetPreStepPoint(); 
   theLogicalVolume = preStepPoint->GetPhysicalVolume()->GetLogicalVolume();
@@ -367,7 +363,7 @@ CaloG4Hit* CaloSD::createNewHit() {
 			  << " daughter of part. " << theTrack->GetParentID()
 			  << " and created by " ;
   
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     edm::LogInfo("CaloSim") << theTrack->GetCreatorProcess()->GetProcessName();
   else 
     edm::LogInfo("CaloSim") << "NO process";
@@ -454,7 +450,7 @@ void CaloSD::resetForNewPrimary(const G4ThreeVector& point, double energy) {
 #endif
 }
 
-double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2, double birk3) {
+double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) {
   double weight = 1.;
   double charge = aStep->GetPreStepPoint()->GetCharge();
 
@@ -560,7 +556,7 @@ void CaloSD::clearHits() {
 
 void CaloSD::initRun() {}
 
-int CaloSD::getTrackID(G4Track* aTrack) {
+int CaloSD::getTrackID(const G4Track* aTrack) {
   int primaryID = 0;
   forceSave = false;
   TrackInformation* trkInfo=(TrackInformation *)(aTrack->GetUserInformation());
@@ -581,9 +577,9 @@ int CaloSD::getTrackID(G4Track* aTrack) {
   return primaryID;
 }
 
-uint16_t CaloSD::getDepth(G4Step*) { return 0; }
+uint16_t CaloSD::getDepth(const G4Step*) { return 0; }
 
-bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
+bool CaloSD::filterHit(const CaloG4Hit* hit, double time) {
   double emin(eminHit);
   if (hit->getDepth() > 0) emin = eminHitD;
 #ifdef DebugLog
@@ -593,12 +589,12 @@ bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   return ((time <= tmaxHit) && (hit->getEnergyDeposit() > emin));
 }
 
-double CaloSD::getResponseWt(G4Track* aTrack) {
+double CaloSD::getResponseWt(const G4Track* aTrack) {
   if (meanResponse) {
     TrackInformation * trkInfo = (TrackInformation *)(aTrack->GetUserInformation());
     return meanResponse->getWeight(trkInfo->genParticlePID(), trkInfo->genParticleP());
   } else {
-    return 1;
+    return 1.0;
   }
 }
 

@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
@@ -16,8 +17,9 @@ HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
     hcons_ = (HcalDDDRecConstants*)(&(*hdc));
   } else {
     edm::LogError("HcalSim") << "HcalTestNS : Cannot find HcalDDDRecConstant";
-    hcons_ = 0;
+    hcons_ = nullptr;
   }
+  scheme_ = new HcalTestNumberingScheme(false);
 }
 
 HcalTestNS::~HcalTestNS() {}
@@ -25,8 +27,7 @@ HcalTestNS::~HcalTestNS() {}
 bool HcalTestNS::compare(HcalNumberingFromDDD::HcalID const& tmp, 
 			 uint32_t const& id) {
 
-  HcalNumberingScheme* scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
-  uint32_t id0 = scheme->getUnitID(tmp);
+  uint32_t id0 = scheme_->getUnitID(tmp);
   DetId    hid = HcalHitRelabeller::relabel(id0,hcons_);
   bool     ok  =  (id == hid.rawId());
 #ifdef EDM_ML_DEBUG
