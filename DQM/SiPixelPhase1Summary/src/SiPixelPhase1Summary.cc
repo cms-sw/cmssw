@@ -162,13 +162,14 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
   if (runOnEndLumi_){
     std::vector<trendPlots> histoOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
     std::vector<string> varName ={"Layer_1","Layer_2","Layer_3","Layer_4","Ring_1","Ring_2"};
+    std::vector<int> yMax = {1536,3584,5632,8192,4224,6528};
     for (unsigned int i = 0; i < histoOrder.size(); i++){
       string varNameStr = "deadRocTrend"+varName[i];
       string varTitle = binAxisLabels[i]+" dead ROC trend";
-      deadROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);  
+      deadROCTrends_[histoOrder[i]] = iBooker.bookProfile(varNameStr,varTitle,500,0.,5000,0.,yMax[i],"");  
       varNameStr = "ineffRocTrend"+varName[i];
       varTitle = binAxisLabels[i]+" inefficient ROC trend";
-      ineffROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);
+      ineffROCTrends_[histoOrder[i]] = iBooker.bookProfile(varNameStr,varTitle,500,0.,5000,0.,yMax[i],"");
       deadROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
       ineffROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
     }
@@ -299,8 +300,8 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   }
   else { //online
     for (unsigned int i = 0; i < trendOrder.size(); i++){
-      deadROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nRocsPerTrend[i]-nFilledROCs[i]);
-      ineffROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nFilledROCs[i]-hiEffROCs[i]);
+      deadROCTrends_[trendOrder[i]]->Fill(lumiSec-1,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[trendOrder[i]]->Fill(lumiSec-1,nFilledROCs[i]-hiEffROCs[i]);
     }
   }
 
