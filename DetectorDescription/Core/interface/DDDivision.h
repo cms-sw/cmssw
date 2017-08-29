@@ -76,8 +76,6 @@ std::ostream & operator<<( std::ostream &, const DDDivision &);
 
 class DDDivision : public DDBase<DDName, DDI::Division*>
 {
-  friend std::ostream & operator<<( std::ostream &, const DDDivision &);
-  
  public:      
   
   //! The default constructor provides an uninitialzed reference object.
