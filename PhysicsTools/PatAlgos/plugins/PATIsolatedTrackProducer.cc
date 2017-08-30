@@ -71,6 +71,8 @@ namespace pat {
           const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedxStrip_;
           const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedxPixel_;
           const edm::EDGetTokenT<reco::DeDxHitInfoAss> gt2dedxHitInfo_;
+          const bool addPrescaledDeDxTracks_;
+          const edm::EDGetTokenT<edm::ValueMap<int> >  gt2dedxHitInfoPrescale_;
           const bool usePrecomputedDeDxStrip_;
           const bool usePrecomputedDeDxPixel_;
           const float pT_cut_;  // only save cands with pT>pT_cut_
@@ -101,6 +103,8 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   gt2dedxStrip_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxDataStrip"))),
   gt2dedxPixel_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxDataPixel"))),
   gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
+  addPrescaledDeDxTracks_(iConfig.getParameter<bool>("addPrescaledDeDxTracks")),
+  gt2dedxHitInfoPrescale_(addPrescaledDeDxTracks_ ? consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("dEdxHitInfoPrescale")) : edm::EDGetTokenT<edm::ValueMap<int>>()),
   usePrecomputedDeDxStrip_(iConfig.getParameter<bool>("usePrecomputedDeDxStrip")),
   usePrecomputedDeDxPixel_(iConfig.getParameter<bool>("usePrecomputedDeDxPixel")),
   pT_cut_         (iConfig.getParameter<double>("pT_cut")),
@@ -175,6 +179,10 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // associate generalTracks with their DeDx hit info (used to estimate pixel dE/dx)
     edm::Handle<reco::DeDxHitInfoAss> gt2dedxHitInfo;
     iEvent.getByToken(gt2dedxHitInfo_, gt2dedxHitInfo);
+    edm::Handle<edm::ValueMap<int>> gt2dedxHitInfoPrescale;
+    if (addPrescaledDeDxTracks_) {
+        iEvent.getByToken(gt2dedxHitInfoPrescale_, gt2dedxHitInfoPrescale);
+    }
 
     edm::ESHandle<HcalChannelQuality> hcalQ_h;
     iSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalQ_h);
@@ -224,7 +232,15 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             pfCandInd = -1;
         }
 
-        if(p4.pt() < pT_cut_)
+        int prescaled = 0;
+        if (addPrescaledDeDxTracks_) {
+            const auto &dedxRef = (*gt2dedxHitInfo)[tkref];
+            if (dedxRef.isNonnull()) {
+                prescaled = (*gt2dedxHitInfoPrescale)[dedxRef];
+            }
+        }
+
+        if(p4.pt() < pT_cut_ && prescaled <= 1) 
             continue;
         if(charge == 0)
             continue;
@@ -235,7 +251,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         getIsolation(p4, pc, pfCandInd, isolationDR03, miniIso);
         
         // isolation cut
-        if( p4.pt() < pT_cut_noIso_ && 
+        if( p4.pt() < pT_cut_noIso_ && prescaled <= 1 && 
             !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
               isolationDR03.chargedHadronIso()/p4.pt() < relIso_cut_ ||
               miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut_))
@@ -246,16 +262,16 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             pdgId     = pfCand.pdgId();
             dz        = pfCand.dz();
             dxy       = pfCand.dxy();
-            dzError   = pfCand.dzError();
-            dxyError  = pfCand.dxyError();
+            dzError   = pfCand.hasTrackDetails() ? pfCand.dzError()  : gentk.dzError();
+            dxyError  = pfCand.hasTrackDetails() ? pfCand.dxyError() : gentk.dxyError();
             fromPV    = pfCand.fromPV();
             refToCand = pcref;
         }else if(isInLostTracks){
             pdgId     = lostTrack.pdgId();
             dz        = lostTrack.dz();
             dxy       = lostTrack.dxy();
-            dzError   = lostTrack.dzError();
-            dxyError  = lostTrack.dxyError();
+            dzError   = lostTrack.hasTrackDetails() ? lostTrack.dzError()  : gentk.dzError();
+            dxyError  = lostTrack.hasTrackDetails() ? lostTrack.dxyError() : gentk.dxyError();
             fromPV    = lostTrack.fromPV();
             refToCand = ltref;
         }else{
@@ -313,6 +329,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                               gentk.hitPattern(), dEdxStrip, dEdxPixel, fromPV, trackQuality,
                                               crossedEcalStatus, crossedHcalStatus,
                                               deltaEta, deltaPhi, refToCand));
+        outPtrP->back().setStatus(prescaled);
 
     }
 
