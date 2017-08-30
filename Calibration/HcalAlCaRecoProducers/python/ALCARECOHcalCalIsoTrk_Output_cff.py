@@ -16,6 +16,8 @@ OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
         'keep *_towerMaker_*_*',
 	'keep *_offlineBeamSpot_*_*',
         'keep *_hltTriggerSummaryAOD_*_*',
+        'keep *_gtStage2Digis_*_*',
+        'keep *_hbheprereco_*_*',
         'keep *_TriggerResults_*_*',
         'keep *_generalTracks_*_*',
         'keep *_generalTracksExtra_*_*',

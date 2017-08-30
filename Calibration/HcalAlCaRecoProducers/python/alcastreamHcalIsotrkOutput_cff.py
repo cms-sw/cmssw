@@ -7,6 +7,8 @@ alcastreamHcalIsotrkOutput = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
                                            'keep *_offlineBeamSpot_*_*',
                                            'keep edmTriggerResults_*_*_*',
+                                           'keep *_gtStage2Digis_*_*',
+                                           'keep *_hbheprereco_*_*',
                                            'keep triggerTriggerEvent_*_*_*',
                                            'keep recoTracks_generalTracks_*_*',
                                            'keep recoTrackExtras_generalTracks_*_*',
