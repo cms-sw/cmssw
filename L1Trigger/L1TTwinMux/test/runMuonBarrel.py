@@ -11,12 +11,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source('PoolSource',
- fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
+ fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gkaratha/private/bmtf/gen_samples/Singlemu_oneoverpt_100k.root')
 # ,eventsToProcess=cms.untracked.VEventRange('1:1:969-1:1:969')
 
 	                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(24))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2400))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -42,8 +42,8 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 process.load('L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff')
 process.esProdTM = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TwinMuxParamsRcd'),
-               data = cms.vstring('L1TwinMuxParams'))
+      cms.PSet(record = cms.string('L1TTwinMuxParamsRcd'),
+               data = cms.vstring('L1TTwinMuxParams'))
               ),
    verbose = cms.untracked.bool(True)
 )
@@ -51,7 +51,7 @@ process.esProdTM = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 
 ####BMTF Emulator
-process.load('L1Trigger.L1TwinMux.simTwinMuxDigis_cfi')
+process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.simBmtfDigis.Debug = cms.untracked.int32(0)
 process.simBmtfDigis.DTDigi_Source = cms.InputTag("simTwinMuxDigisEmu:TwinMuxEmulator")

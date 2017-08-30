@@ -28,7 +28,7 @@ using namespace std;
 
 RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection inrpcDigis){
 
-m_rpcDigis = inrpcDigis;
+  m_rpcDigis = inrpcDigis;
 
 }
 
@@ -45,14 +45,14 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
   for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ) {
      RPCDetId detid = (*chamber).first;
      for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
-            if(detid.region()!=0 ) continue; //Region = 0 Barrel
-            if(digi->bx()>max_rpc_bx || digi->bx()<min_rpc_bx) continue;
-            if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-            if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
-            if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
-            if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer() });
-               }
-    }///for chamber
+        if(detid.region()!=0 ) continue; //Region = 0 Barrel
+        if(digi->bx()>max_rpc_bx || digi->bx()<min_rpc_bx) continue;
+        if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+        if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+        if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+        if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+     }
+  }///for chamber
 
       vector<int> vcluster_size ;
       int cluster_id = -1;
@@ -70,21 +70,21 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
            //Create cluster ids and store their size
            //if((digi->strip()+1!=strip_n1)|| digi->bx()!=bx_n1){
            if( abs(digi->strip()-strip_n1)!=1 || digi->bx()!=bx_n1){
-           if(itr!=0)vcluster_size.push_back(cluster_size);
-           cluster_size = 0;
-           cluster_id++;
+             if(itr!=0)vcluster_size.push_back(cluster_size);
+             cluster_size = 0;
+             cluster_id++;
            }
-         itr++;
-         cluster_size++;
+           itr++;
+           cluster_size++;
          ///hit belongs to cluster with clusterid
         //hits[(detid.ring()+2)][(detid.station()-1)][(detid.sector()-1)][(detid.layer()-1)][(digi->bx()+2)][detid.roll()-1][digi->strip()]= cluster_id ;
-         RPCHitCleaner::detId_Ext tmp{detid,digi->bx(),digi->strip()};
-         hits[tmp] = cluster_id;
+           RPCHitCleaner::detId_Ext tmp{detid,digi->bx(),digi->strip()};
+           hits[tmp] = cluster_id;
          ///strip of i-1
-         strip_n1 = digi->strip();
-         bx_n1 = digi->bx();
+           strip_n1 = digi->strip();
+           bx_n1 = digi->bx();
          }
-        }///for chamber
+      }///for chamber
         vcluster_size.push_back(cluster_size);
 
 
@@ -163,8 +163,8 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             //cout<<"found_hits"<<endl;
             int min_index = std::distance(delta_phib.begin(), std::min_element(delta_phib.begin(), delta_phib.end())) + 0;
             //cout<<min_index<<endl;
-            L1MuDTChambPhDigi rpc2dt_out( rpcbx, wh, sec-1, st, rpc2dt_phi[min_index], rpc2dt_phib[min_index], 3, 0, 0, 2);
-            l1ttma_out.push_back(rpc2dt_out);
+            l1ttma_out.emplace_back( rpcbx, wh, sec-1, st, rpc2dt_phi[min_index], rpc2dt_phib[min_index], 3, 0, 0, 2);
+            
            }
 ///Use ts2tag variable to store N rpchits for the same st/wheel/sec
           int bx_range = (max_rpc_bx - min_rpc_bx) + 1 ;
@@ -186,9 +186,9 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
               phi2 = phi2 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip)<<2);
               phi2 /= 2;
               }
-            L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx+2], 0, 2);
+                        
+            l1ttma_hits_out.emplace_back(vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx+2], 0, 2);
             hit[vrpc_hit_layer1[l1].bx+2]++;
-            l1ttma_hits_out.push_back(rpc2dt_out);
             }
             itr1 = 0;
             for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
@@ -207,9 +207,9 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                 phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip)<<2);
                 phi2 /= 2;
                }
-             L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx+2] , 0, 2);
+               l1ttma_hits_out.emplace_back( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx+2] , 0, 2);
              hit[vrpc_hit_layer2[l2].bx+2]++;
-             l1ttma_hits_out.push_back(rpc2dt_out);
+            
             }
             itr1 = 0;
             
@@ -229,9 +229,9 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                 phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1-1].detid, c, vrpc_hit_st3[l1-1].strip)<<2);
                 phi2 /= 2;
                 }
-              L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx+2], 0, 2);
+               l1ttma_hits_out.emplace_back( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx+2], 0, 2);
               hit[vrpc_hit_st3[l1].bx+2]++;
-              l1ttma_hits_out.push_back(rpc2dt_out);
+              
             }
             itr1 = 0;
 
@@ -251,10 +251,10 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                  phi2 = phi2 + (radialAngle(vrpc_hit_st4[l1-1].detid, c, vrpc_hit_st4[l1-1].strip)<<2);
                  phi2 /= 2;
               }
-              L1MuDTChambPhDigi rpc2dt_out( vrpc_hit_st4[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st4[l1].bx] , 0, 2);
+              l1ttma_hits_out.emplace_back(vrpc_hit_st4[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st4[l1].bx] , 0, 2);
               hit[vrpc_hit_st4[l1].bx]++;
               //l1ttma_out.push_back(rpc2dt_out);
-              l1ttma_hits_out.push_back(rpc2dt_out);
+              
               //break;
             }
        }

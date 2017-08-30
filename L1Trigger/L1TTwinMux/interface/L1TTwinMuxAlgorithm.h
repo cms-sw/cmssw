@@ -10,8 +10,8 @@
 //   mpd.: g karathanasis
 //--------------------------------------------------
 
-#ifndef L1T_TwinMuxAlgorithm_H
-#define L1T_TwinMuxAlgorithm_H
+#ifndef L1TTwinMuxAlgorithm_H
+#define L1TTwinMuxAlgorithm_H
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"

@@ -64,6 +64,7 @@ private:
     int strip;
     int roll;
     int layer;
+    //rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel, detid(pdet),strip(pstrip),roll(proll),layer(player) {}
   };
 
 

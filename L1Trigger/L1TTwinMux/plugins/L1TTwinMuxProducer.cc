@@ -26,7 +26,9 @@
 
 using namespace std;
 
-class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> {
+//class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> 
+class L1TTwinMuxProducer: public edm::EDProducer
+{
 public:
   L1TTwinMuxProducer(const edm::ParameterSet & pset);
   ~L1TTwinMuxProducer() {}
@@ -68,7 +70,7 @@ void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   ///Only DT: the emulator's output consist from dt primitives only
   bool onlyDT = tmParams.get_UseOnlyDT();
 
-  if(onlyDT && onlyRPC) {cout<<"TWINMUX:: Inconsistent parameters onlyRPC and onlyDT. "<<endl; return;}
+  if(onlyDT && onlyRPC) {edm::LogWarning("Inconsistent configuration")<<"onlyRPC and onlyDT options"; return;}
   ///---Check consistency of the paramters
 
   edm::Handle<L1MuDTChambPhContainer> phiDigis;
@@ -80,14 +82,13 @@ void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(m_rpcsource, rpcDigis);
 
   if (! phiDigis.isValid()){
-    cout << "TwinMux input DT phi digis not valid.\n";
+    edm::LogWarning("Inconsistent digis")<<"input DT phi digis not valid";
   }
 
 
 
-  std::unique_ptr<L1MuDTChambPhContainer> l1ttmp(new L1MuDTChambPhContainer);
-  //auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>;
-//  auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>;
+  //std::unique_ptr<L1MuDTChambPhContainer> l1ttmp(new L1MuDTChambPhContainer);
+  auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>();
   m_l1tma->run(phiDigis, thetaDigis, rpcDigis,c);
   *l1ttmp = m_l1tma->get_ph_tm_output();
 
