@@ -111,10 +111,16 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   _Hists.NEvents++;
 
-  _Hists.FillNumber(L1ValidatorHists::Type::Muon, MuonsBX->size());
-  _Hists.FillNumber(L1ValidatorHists::Type::Egamma, EGammasBX->size());
-  _Hists.FillNumber(L1ValidatorHists::Type::Tau, TausBX->size());
-  _Hists.FillNumber(L1ValidatorHists::Type::Jet, JetsBX->size());
+  int nL1Muons = 0, nL1EGammas = 0, nL1Taus = 0, nL1Jets = 0;
+  if(MuonsBX->getFirstBX()>=0) nL1Muons = MuonsBX->size(0);
+  if(EGammasBX->getFirstBX()>=0) nL1EGammas = EGammasBX->size(0);
+  if(TausBX->getFirstBX()>=0) nL1Taus = TausBX->size(0);
+  if(JetsBX->getFirstBX()>=0) nL1Jets = JetsBX->size(0);
+
+  _Hists.FillNumber(L1ValidatorHists::Type::Muon, nL1Muons);
+  _Hists.FillNumber(L1ValidatorHists::Type::Egamma, nL1EGammas);
+  _Hists.FillNumber(L1ValidatorHists::Type::Tau, nL1Taus);
+  _Hists.FillNumber(L1ValidatorHists::Type::Jet, nL1Jets);
 
   //For gen jet
 

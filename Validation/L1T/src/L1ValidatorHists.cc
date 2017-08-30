@@ -34,7 +34,7 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
   int Nptbin = 13;
 
   for(int i=0; i<Type::Number; i++){
-    N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), (Name[i]+" Number").c_str(), 5, -0.5, 4.5);
+    N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), ("L1 " + Name[i]+" Number with BX=0").c_str(), 13, -0.5, 12.5);
 
     Eff_Pt[i] = iBooker.book1D( (Name[i]+"_Eff_Pt").c_str(), (Name[i]+" Efficiency vs Pt; Gen p_{T} [GeV]; L1T Efficiency").c_str(), Nptbin, ptbins);
     Eff_Pt_Denom[i] = iBooker.book1D( (Name[i]+"_Eff_Pt_Denom").c_str(), (Name[i]+" Efficiency vs Pt Denom; Gen p_{T} [GeV]; Entries").c_str(), Nptbin, ptbins);
