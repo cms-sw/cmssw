@@ -20,13 +20,13 @@ DDExpandedNode::~DDExpandedNode()
 
 bool DDExpandedNode::operator==(const DDExpandedNode & n) const {
   return ( (logp_==n.logp_) && 
-	   (posd_->copyno_ == n.posd_->copyno_) );  
+	   (posd_->copyno() == n.posd_->copyno()) );  
 }	 		  		 
      
 int DDExpandedNode::copyno() const 
 {
   assert( posd_ );
-  return posd_->copyno_; 
+  return posd_->copyno(); 
 }
 
 std::ostream & operator<<(std::ostream & os, const DDExpandedNode & n)
