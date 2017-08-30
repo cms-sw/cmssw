@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +53,7 @@
 //
 using namespace l1t;
 
-class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
+class L1TMicroGMTLUTDumper : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
    public:
       explicit L1TMicroGMTLUTDumper(const edm::ParameterSet&);
       ~L1TMicroGMTLUTDumper() override;
@@ -61,6 +61,7 @@ class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
 
    private:
       void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
 
       void dumpLut(MicroGMTLUT*, const std::string&);
 
@@ -201,5 +202,11 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdNegSingleMatchQualLUT(), cancel_t::emtf_emtf_neg, fwVersion);
 }
 
-//define this as a plug-in
+// ------------ method called when ending to processes a run  ------------
+void
+L1TMicroGMTLUTDumper::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+ //define this as a plug-in
 DEFINE_FWK_MODULE(L1TMicroGMTLUTDumper);
