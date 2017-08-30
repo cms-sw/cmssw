@@ -28,7 +28,8 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              es_dqm_client_offline *
                                              hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
-                                             dqmFEDIntegrityClient )
+                                             dqmFEDIntegrityClient *
+                                             l1TriggerDqmOfflineClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PreDPG *
@@ -86,11 +87,11 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  PixelOfflineDQMClientNoDataCertification *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
+                                 l1TriggerDqmOfflineClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
-                                 dqmFastTimerServiceClient *
-                                 l1TriggerDqmOfflineClient
+                                 dqmFastTimerServiceClient
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
@@ -100,6 +101,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                PixelOfflineDQMClientNoDataCertification *
                                                triggerOfflineDQMClient *
                                                hltOfflineDQMClient *
+                                               l1TriggerDqmOfflineClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
                                                runTauEff  *
