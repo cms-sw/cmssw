@@ -127,6 +127,10 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
   edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
   iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);
+  if ( !pixelClusterShapeCacheH.isValid() ) {
+    edm::LogWarning("SiPixelPhase1TrackClusters")  << "PixelClusterShapeCache collection is not valid";
+    return;
+  }  
   auto const & pixelClusterShapeCache = *pixelClusterShapeCacheH;
 
   
