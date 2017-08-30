@@ -94,14 +94,6 @@ namespace soa {
     }
   };
 
-  template<typename COL, typename F>
-  struct ColumnFillerHolder {
-    using Column_type = COL;
-    F m_f;
-  };
-  template<typename COL, typename F>
-  ColumnFillerHolder<COL,F> filler_for(F&& iF) { return {iF}; }
-  
   template<typename... Args>
   ColumnFillers<Args...> column_fillers(Args... iArgs) {
     return ColumnFillers<Args...>(std::forward<Args>(iArgs)...);
