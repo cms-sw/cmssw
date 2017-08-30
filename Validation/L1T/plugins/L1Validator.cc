@@ -70,7 +70,7 @@ L1Validator::~L1Validator(){
 }
 
 void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
-  iBooker.setCurrentFolder(_dirName.c_str());
+  iBooker.setCurrentFolder(_dirName);
   _Hists.Book(iBooker);
 };
 
@@ -135,7 +135,7 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      double minDR = 999.0;
 
      // match L1T object
-     const l1t::Jet        *L1Part=NULL;
+     const l1t::Jet        *L1Part=nullptr;
      for(int iBx = JetsBX->getFirstBX();  iBx<=JetsBX->getLastBX(); ++iBx){
           if(iBx>0) continue;
           for(std::vector<l1t::Jet>::const_iterator jet = JetsBX->begin(iBx); jet != JetsBX->end(iBx); ++jet){
@@ -167,7 +167,7 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        if(fabs(GenPart->eta())>2.4) continue;
 
        // match L1T object
-       const l1t::Muon 	*L1Part=NULL;
+       const l1t::Muon 	*L1Part=nullptr;
        for(int iBx = MuonsBX->getFirstBX();  iBx<=MuonsBX->getLastBX(); ++iBx){
 	  if(iBx>0) continue;
           for(std::vector<l1t::Muon>::const_iterator mu = MuonsBX->begin(iBx); mu != MuonsBX->end(iBx); ++mu){
@@ -192,7 +192,7 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        if(fabs(GenPart->eta())>1.4442 && fabs(GenPart->eta())<1.5660) continue;
 
        // match L1T object
-       const l1t::EGamma 	*L1Part=NULL;
+       const l1t::EGamma 	*L1Part=nullptr;
        for(int iBx = EGammasBX->getFirstBX();  iBx<=EGammasBX->getLastBX(); ++iBx){
 	  if(iBx>0) continue;
           for(std::vector<l1t::EGamma>::const_iterator eg = EGammasBX->begin(iBx); eg != EGammasBX->end(iBx); ++eg){
@@ -213,7 +213,7 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        if(fabs(GenPart->eta())>2.4) continue;
 
        // match L1T object
-       const l1t::Tau 	*L1Part=NULL;
+       const l1t::Tau 	*L1Part=nullptr;
        for(int iBx = TausBX->getFirstBX();  iBx<=TausBX->getLastBX(); ++iBx){
 	  if(iBx>0) continue;
           for(std::vector<l1t::Tau>::const_iterator tau = TausBX->begin(iBx); tau != TausBX->end(iBx); ++tau){
@@ -233,8 +233,8 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 //The next three are exactly the same, but apparently inheritance doesn't work like I thought it did.
-const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1EmParticle> *Collection1, const std::vector<l1extra::L1EmParticle> *Collection2=NULL){
-  const reco::LeafCandidate *BestPart=NULL;
+const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1EmParticle> *Collection1, const std::vector<l1extra::L1EmParticle> *Collection2=nullptr){
+  const reco::LeafCandidate *BestPart=nullptr;
   double BestDR=999.;
 
   for(uint i=0; i < Collection1->size(); i++){
@@ -246,7 +246,7 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
     }
   }
 
-  if(Collection2==NULL) return BestPart;
+  if(Collection2==nullptr) return BestPart;
 
   for(uint i=0; i < Collection2->size(); i++){
     const reco::LeafCandidate *ThisPart = &Collection2->at(i);
@@ -260,8 +260,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   return BestPart;
 }
 
-const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1JetParticle> *Collection1, const std::vector<l1extra::L1JetParticle> *Collection2=NULL){
-  const reco::LeafCandidate *BestPart=NULL;
+const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1JetParticle> *Collection1, const std::vector<l1extra::L1JetParticle> *Collection2=nullptr){
+  const reco::LeafCandidate *BestPart=nullptr;
   double BestDR=999.;
 
   for(uint i=0; i < Collection1->size(); i++){
@@ -273,7 +273,7 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
     }
   }
 
-  if(Collection2==NULL) return BestPart;
+  if(Collection2==nullptr) return BestPart;
 
   for(uint i=0; i < Collection2->size(); i++){
     const reco::LeafCandidate *ThisPart = &Collection2->at(i);
@@ -288,7 +288,7 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
 }
 
 const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1MuonParticle> *Collection1){
-  const reco::LeafCandidate *BestPart=NULL;
+  const reco::LeafCandidate *BestPart=nullptr;
   double BestDR=999.;
 
   for(uint i=0; i < Collection1->size(); i++){
