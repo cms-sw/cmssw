@@ -82,14 +82,14 @@ from DQMOffline.Trigger.BPHMonitor_cff import *
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
-offlineHLTSource = cms.Sequence(
+# offline DQM for running also on AOD (w/o the need of the RECO step on-the-fly)
+## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
+offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    jetMETHLTOfflineAnalyzer * 
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
@@ -110,9 +110,20 @@ offlineHLTSource = cms.Sequence(
     bphMonitorHLT *
     hltObjectsMonitor *
     jetmetMonitorHLT
-    )
+)
+
+# offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
+## ADD here only sequences/modules which rely on transient collections produced by the RECO step
+## and not stored in the AOD format
+offlineHLTSource = cms.Sequence(
+    offlineHLTSourceOnAOD
+    + hcalMonitoringSequence
+    + jetMETHLTOfflineAnalyzer
+)
 
 # offline DQM for the HLTMonitoring stream
+## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
+## and are not available in the standard RAW format
 dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('HLT')
     )
