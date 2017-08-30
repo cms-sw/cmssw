@@ -30,7 +30,7 @@ public:
     int adc() const { return frame_[i_]&MASK_ADC; }
     int tdc() const { return (frame_[i_]>>OFFSET_TDC)&MASK_TDC; }
     bool soi() const { return frame_[i_]&MASK_SOI; }
-    int capid() const { return ((((frame_[0]>>OFFSET_CAPID)&MASK_CAPID)+i_)&MASK_CAPID); }
+    int capid() const { return ((((frame_[0]>>OFFSET_CAPID)&MASK_CAPID)+i_-HEADER_WORDS)&MASK_CAPID); }
   private:
     const edm::DataFrame& frame_;
     edm::DataFrame::size_type i_;
