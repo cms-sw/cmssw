@@ -47,13 +47,6 @@ namespace edm {
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
     template <typename T, typename U>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
-                              StreamID streamID,
-                              typename T::Context const* topContext,
-                              U const* context,
-                              bool cleaningUpAfterException = false);
-    template <typename T, typename U>
     void processOneOccurrenceAsync(
                               WaitingTask* task,
                               typename T::MyPrincipal& principal,
@@ -95,33 +88,6 @@ namespace edm {
     void const* lastSetupEventPrincipal_;
   };
 
-  template <typename T, typename U>
-  void
-  WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                 EventSetup const& es,
-                                 StreamID streamID,
-                                 typename T::Context const* topContext,
-                                 U const* context,
-                                 bool cleaningUpAfterException) {
-    this->resetAll();
-
-    try {
-      convertException::wrap([&]() {
-        //make sure the unscheduled items see this run or lumi transition
-        unscheduled_.runNow<T,U>(ep, es,streamID, topContext, context);
-        }
-      );
-    }
-    catch(cms::Exception& ex) {
-      if (ex.context().empty()) {
-        addContextAndPrintException("Calling function WorkerManager::processOneOccurrence", ex, cleaningUpAfterException);
-      } else {
-        addContextAndPrintException("", ex, cleaningUpAfterException);
-      }
-      throw;
-    }
-  }
-  
   template <typename T, typename U>
   void
   WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
