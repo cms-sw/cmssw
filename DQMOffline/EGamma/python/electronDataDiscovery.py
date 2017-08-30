@@ -227,7 +227,7 @@ def common_search(dd_tier):
       
   elif os.environ['DD_SOURCE'].startswith('/eos/cms/'): # assumed to be an eos dir
   
-    data = os.popen('/afs/cern.ch/project/eos/installation/pro/bin/eos.select find -f '+os.environ['DD_SOURCE'])
+    data = os.popen('eos find -f '+os.environ['DD_SOURCE'])
     lines = data.readlines()
     data.close()
     result = []
