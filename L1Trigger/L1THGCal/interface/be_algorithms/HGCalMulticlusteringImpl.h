@@ -6,6 +6,8 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
+
 class HGCalMulticlusteringImpl{
 
 public:
@@ -19,11 +21,15 @@ public:
     void clusterize( const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
 
+
 private:
     
     double dr_;
     double ptC3dThreshold_;
     double calibSF_;
+
+    HGCalShowerShape shape_;
+
 };
 
 #endif
