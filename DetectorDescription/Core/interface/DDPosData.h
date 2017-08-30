@@ -1,5 +1,5 @@
-#ifndef DetectorDescription_Core_DDPosData_h
-#define DetectorDescription_Core_DDPosData_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_POS_DATA_H
+#define DETECTOR_DESCRIPTION_CORE_DD_POS_DATA_H
 
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
@@ -23,24 +23,25 @@ struct DDPosData
   DDPosData(const DDTranslation & t, const DDRotation& r, int c, const DDDivision * d = nullptr )
    : trans_(t), rot_(r), copyno_(c), div_(d)
    {} 
+  DDPosData() = delete;  
+  DDPosData & operator=(const DDPosData &) = delete;
 
   const DDTranslation & translation() const { return trans_; }
   const DDTranslation & trans() const { return trans_; }
-  
+
   const DDRotationMatrix & rotation() const { return *(rot_.rotation()); }
   const DDRotationMatrix & rot() const { return *(rot_.rotation()); }
+  const DDRotation & ddrot() const { return rot_; }
+  int copyno() const { return copyno_; }
 
   const DDDivision & div() const { return *div_; }
   const DDDivision & division() const { return *div_; }
-  
+
+private:
   DDTranslation trans_; /**< relative translation std::vector */
   DDRotation rot_; /**< relative rotation matrix */
   int copyno_; /**< copy number */
   const DDDivision * div_; /**< provides original division that created this pos */
-
-private:
-  DDPosData() = delete;  
-  DDPosData & operator=(const DDPosData &) = delete;
 };
 
 #endif

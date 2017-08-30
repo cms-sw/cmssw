@@ -15,6 +15,7 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
         'keep *_mixData_HcalSamples_*',
         'keep *_mix_HcalHits_*',
         'keep *_mixData_HcalHits_*',
+        'keep *_DMHcalTriggerPrimitiveDigis_*_*',
     )
 )
 SimCalorimetryRAW = cms.PSet(
