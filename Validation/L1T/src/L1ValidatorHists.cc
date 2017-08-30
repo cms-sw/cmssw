@@ -60,7 +60,7 @@ void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const rec
   double GenPartPt = GenPart->pt();
   // fill the overflow in the last bin
   if(GenPart->pt()>=160.0) GenPartPt = 159.0;
-  if(L1Part==NULL) {
+  if(L1Part==nullptr) {
      Eff_Pt_Denom[i]->Fill(GenPartPt);
      if(GenPart->pt()>10)Eff_Eta_Denom[i]->Fill(GenPart->eta());
      TurnOn_15_Denom[i]->Fill(GenPartPt);
