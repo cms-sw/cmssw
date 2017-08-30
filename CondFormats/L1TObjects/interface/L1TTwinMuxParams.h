@@ -7,8 +7,8 @@
 /// \author: Giannis Flouris
 /// mod : g karathanasis
 
-#ifndef L1TwinMuxParams_h
-#define L1TwinMuxParams_h
+#ifndef L1TTwinMuxParams_h
+#define L1TTwinMuxParams_h
 
 #include <memory>
 #include <iostream>
@@ -43,7 +43,7 @@ public:
          UseLowQDT,
          CorrectDTBxwRPC,
          Verbose,
-	       NUM_CONFIG_PARAMS};
+         NUM_CONFIG_PARAMS};
 
 
   ~L1TTwinMuxParams() {}

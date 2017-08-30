@@ -18,13 +18,9 @@
 
 using namespace std;
 
-DTRPCBxCorrection::DTRPCBxCorrection(L1MuDTChambPhContainer inphiDTDigis, L1MuDTChambPhContainer inphiRPCDigis)  {
-      // const std::vector<L1MuDTChambPhDigi>* vInCon = i.getContainer();
-
-//	m_phiDTDigis.setContainer(*inphiDTDigis.getContainer());
-//	m_phiRPCDigis.setContainer(*inphiRPCDigis.getContainer());
-  m_phiDTDigis=inphiDTDigis;
-  m_phiRPCDigis=inphiRPCDigis;
+DTRPCBxCorrection::DTRPCBxCorrection(L1MuDTChambPhContainer inphiDTDigis, L1MuDTChambPhContainer inphiRPCDigis) :m_phiDTDigis(inphiDTDigis),m_phiRPCDigis(inphiRPCDigis) {
+//  m_phiDTDigis=inphiDTDigis;
+//  m_phiRPCDigis=inphiRPCDigis;
 };
 
 
@@ -45,13 +41,9 @@ void DTRPCBxCorrection::run( const edm::EventSetup& c) {
 
 void DTRPCBxCorrection::BxCorrection(int track_seg){
 
- // L1MuDTChambPhDigi * dtts=0;
- // L1MuDTChambPhDigi * dttsnew=0;
- // L1MuDTChambPhDigi * rpcts1=0;
-  auto dtts=std::make_shared<L1MuDTChambPhDigi>(0,0,0,0,0,0,7,0,0,0);
-  auto dtts_sh2nd=std::make_shared<L1MuDTChambPhDigi>(0,0,0,0,0,0,7,0,0,0);
-  auto dttsnew=std::make_shared<L1MuDTChambPhDigi>(0,0,0,0,0,0,7,0,0,0);
-  auto rpcts1=std::make_shared<L1MuDTChambPhDigi>(0,0,0,0,0,0,7,0,0,0);
+  L1MuDTChambPhDigi * dtts=0;
+  L1MuDTChambPhDigi * dttsnew=0;
+  L1MuDTChambPhDigi * rpcts1=0;
   std::auto_ptr<L1MuTMChambPhContainer> m_phiDTDigis_tm(new L1MuTMChambPhContainer);
   const std::vector<L1MuDTChambPhDigi> *phiChambVectorDT;
   phiChambVectorDT= m_phiDTDigis.getContainer();
@@ -72,29 +64,19 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
        bool dups[7] = {false, false, false, false,false, false, false};
        bool secondTs[7] = {false, false, false, false,false, false, false};
        L1MuTMChambPhContainer shiftedPhiDTDigis;
-       //L1MuDTChambPhDigi *dtts_sh2nd = 0;
+       L1MuDTChambPhDigi *dtts_sh2nd = 0;
        for(bx=3; bx>=-3; bx--){
          vector<int> delta_m, delta_p, delta_0;
          for(int rpcbx=bx-1; rpcbx<=bx+1; rpcbx++){
-           //dtts=0; rpcts1=0; dttsnew = 0;
-           //dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
-            dtts.reset(new L1MuDTChambPhDigi(0,0,0,0,0,0,7,0,0,0));
-            dttsnew.reset(new L1MuDTChambPhDigi(0,0,0,0,0,0,7,0,0,0));
-            rpcts1.reset(new L1MuDTChambPhDigi(0,0,0,0,0,0,7,0,0,0));
-            dtts_sh2nd.reset(new L1MuDTChambPhDigi(0,0,0,0,0,0,7,0,0,0));
+           dtts=0; rpcts1=0; dttsnew = 0;
+           dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
 
-
-
-            if (m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg))
-              dtts.reset(new L1MuDTChambPhDigi(m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->bxNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->whNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->scNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->stNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phi(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phiB(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->code(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->Ts2Tag(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->BxCnt(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->RpcBit()));
-           if(!dtts || dtts->code()==7 ) continue;
+           if(!dtts ) continue;
            int nhits = noRPCHits(*m_phiRPCDigis_tm, rpcbx, wheel, sector, station);
            for(int hit=0; hit<nhits; hit++){
-            // rpcts1 = m_phiRPCDigis_tm->chPhiSegm(wheel, station, sector, rpcbx,hit);
-             if(m_phiRPCDigis_tm->chPhiSegm(wheel, station, sector, rpcbx,hit))
-                rpcts1.reset(new L1MuDTChambPhDigi(m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->bxNum(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->whNum(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->scNum(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->stNum(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->phi(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->phiB(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->code(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->Ts2Tag(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->BxCnt(),m_phiRPCDigis_tm->chPhiSegm(wheel,station,sector,rpcbx,hit)->RpcBit()));
+             rpcts1 = m_phiRPCDigis_tm->chPhiSegm(wheel, station, sector, rpcbx,hit);
              //Store in vectors the dphi of matched dt/rpc
-             if(rpcts1 &&rpcts1->code()!=7 && dtts && dtts->code()<m_QualityLimit && deltaPhi(dtts->phi(),rpcts1->phi()) < m_DphiWindow){
+             if(rpcts1 && dtts && dtts->code()<m_QualityLimit && deltaPhi(dtts->phi(),rpcts1->phi()) < m_DphiWindow){
                if((dtts->bxNum()-rpcbx)==-1  ) {
                   delta_m.push_back( deltaPhi(dtts->phi(),rpcts1->phi()) );
                   ibx_dtm = dtts->bxNum();
@@ -132,30 +114,26 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
           }
        else continue;
         //Primitve to be shifted in place of dttsnew
-       if (m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,init_bx ,track_seg))
-         dtts.reset(new L1MuDTChambPhDigi(init_bx,m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->whNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->scNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->stNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phi(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phiB(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->code(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->Ts2Tag(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->BxCnt(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->RpcBit()));
-       //dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,init_bx,track_seg);
-       //dttsnew = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,track_seg);
-       if (m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx ,track_seg))
-         dttsnew.reset(new L1MuDTChambPhDigi(final_bx,m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->whNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->scNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->stNum(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phi(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->phiB(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->code(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->Ts2Tag(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->BxCnt(),m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg)->RpcBit()));
+       dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,init_bx,track_seg);
+       dttsnew = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,track_seg);
        bool shift_1 = false;
         ///dtts exists and qual lt m_QualityLimit and (there is no primitve in the new bx or it was shifted or it is going to be removed as duplicate)
       // if(dtts && dtts->code()<m_QualityLimit && (!dttsnew  || shifted[final_bx+3] || dups[final_bx+3])) {
-        if(dtts && dtts->code()<m_QualityLimit && dtts->code()!=7 && (dttsnew->code()==7  || shifted[final_bx+3] || dups[final_bx+3])) {
+        if(dtts && dtts->code()<m_QualityLimit  && (!dttsnew  || shifted[final_bx+3] || dups[final_bx+3])) {
           dtts_sh = new L1MuDTChambPhDigi( final_bx , dtts->whNum(), dtts->scNum(), dtts->stNum(),dtts->phi(), dtts->phiB(), dtts->code(), dtts->Ts2Tag(), dtts->BxCnt(),1);
           l1ttma_outsh.push_back(*dtts_sh);
           shifted[init_bx+3] = true;
           shift_1 = true;}
-       if(dtts && dtts->code()<m_QualityLimit && dttsnew && dttsnew->code()!=7  ) dups[init_bx+3] = true;
+       if(dtts && dtts->code()<m_QualityLimit && dttsnew) dups[init_bx+3] = true;
 
         //dtts exists and qual lt m_QualityLimit and dttsnew exists and the previous (shift_1) prim was not shifted and there is empty space in second TS
-       if(dtts && dtts->code()<m_QualityLimit && dtts->code()!=7 && dttsnew && dttsnew->code()!=7 && !shift_1 && !m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,flipBit(track_seg)) ) {
+       if(dtts && dtts->code()<m_QualityLimit && dttsnew && !shift_1 && !m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,flipBit(track_seg)) ) {
         ///XXX: Source of discrepancies
         ///in order to send as second TS the two prims must come from different halves of the station
        ///this information does not exist in data
        ///'simulate' this information by requiring different sign in phis and dphi>100
            if(sign(dtts->phi())!=sign(dttsnew->phi())&& deltaPhi(-(dtts->phi()),dttsnew->phi())>100) {
-              dtts_sh2nd.reset(new L1MuDTChambPhDigi( final_bx , dtts->whNum(), dtts->scNum(), dtts->stNum(),dtts->phi(), dtts->phiB(), dtts->code(), flipBit(track_seg), dtts->BxCnt(),1));
+              dtts_sh2nd  = new L1MuDTChambPhDigi( final_bx , dtts->whNum(), dtts->scNum(), dtts->stNum(),dtts->phi(), dtts->phiB(), dtts->code(), flipBit(track_seg), dtts->BxCnt(),1);
               secondTs[final_bx+3] = true;
               dups[init_bx+3] = false;
               shifted[init_bx+3] = true;
@@ -207,9 +185,8 @@ int DTRPCBxCorrection::sign(float inv){
 int DTRPCBxCorrection::noRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st){
   int size = 0;
   const std::vector<L1MuDTChambPhDigi>* vInCon = inCon.getContainer();
-  for ( std::vector<L1MuDTChambPhDigi>::const_iterator i = vInCon->begin(); i != vInCon->end(); i++ ) {
-  //for ( auto &i:vInCon){
-    if  (bx == i->bxNum() && i->code() != 7 && i->whNum()==wh && i->scNum()==sec && i->stNum()==st) size++;
+  for ( auto &i: *vInCon){
+    if  (bx == i.bxNum() && i.code() != 7 && i.whNum()==wh && i.scNum()==sec && i.stNum()==st) size++;
   }
 
   return size;
@@ -218,9 +195,8 @@ int DTRPCBxCorrection::noRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, i
 int DTRPCBxCorrection::noRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st){
   int size = 0;
   const std::vector<L1MuDTChambPhDigi>* vInCon = inCon.getContainer();
-  for ( std::vector<L1MuDTChambPhDigi>::const_iterator i = vInCon->begin(); i != vInCon->end(); i++ ) {
-  //for ( auto &i:vInCon){
-    if  (bx == i->bxNum() && i->code() != 7 && i->whNum()==wh && i->scNum()==sec && i->stNum()==st) size++;
+  for ( auto &i:* vInCon){
+    if  (bx == i.bxNum() && i.code() != 7 && i.whNum()==wh && i.scNum()==sec && i.stNum()==st) size++;
   }
 
   return size;
