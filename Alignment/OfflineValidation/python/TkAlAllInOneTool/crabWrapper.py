@@ -46,10 +46,7 @@ sys.path.extend( os.environ["PYTHONPATH"].split( ':' ) )
 import crab
 import crab_exceptions
 
-class CrabWrapper:
-    def __init__( self ):
-        pass
-
+class CrabWrapper(object):
     def run( self, options ):
         theCrab = crab.Crab()
         try:
