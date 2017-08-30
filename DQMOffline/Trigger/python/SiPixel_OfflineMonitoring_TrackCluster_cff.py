@@ -28,6 +28,7 @@ hltSiPixelPhase1TrackClustersOnTrackSize = hltDefaultHistoTrack.clone(
 
 
 hltSiPixelPhase1TrackClustersOnTrackShape = hltDefaultHistoTrack.clone(
+  enabled = False,
   name = "shapeFilter",
   title = "Shape filter (OnTrack)",
   range_min = 0, range_max = 2, range_nbins = 2,
@@ -137,7 +138,6 @@ hltSiPixelPhase1ClustersSizeVsEtaOnTrackInner = hltSiPixelPhase1ClustersSizeVsEt
 
 
 hltSiPixelPhase1TrackClustersOnTrackSizeYOuter = hltSiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
-  topFolderName = "PixelPhase1/ClusterShape",
   name = "sizey_on_track_outer",
   title = "Cluster Size along Beamline vs. prediction (OnTrack) outer ladders",
   xlabel = "prediction",
@@ -222,7 +222,7 @@ hltSiPixelPhase1TrackClustersOnTrackChargeInner = hltSiPixelPhase1TrackClustersO
 )  
 
 hltSiPixelPhase1TrackClustersOnTrackShapeOuter = hltDefaultHistoTrack.clone(
-  topFolderName = "PixelPhase1/ClusterShape",
+  enabled = False,
   name = "shapeFilterOuter",
   title = "Shape filter (OnTrack) Outer Ladders",
   range_min = 0, range_max = 2, range_nbins = 2,
@@ -233,6 +233,7 @@ hltSiPixelPhase1TrackClustersOnTrackShapeOuter = hltDefaultHistoTrack.clone(
 )
 
 hltSiPixelPhase1TrackClustersOnTrackShapeInner = hltSiPixelPhase1TrackClustersOnTrackShapeOuter.clone(
+  enabled = False,
   name = "shapeFilterInner",
   title = "Shape filter (OnTrack) Inner Ladders",
 )
