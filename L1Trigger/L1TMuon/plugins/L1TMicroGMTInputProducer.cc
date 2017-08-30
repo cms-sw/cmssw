@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,7 +44,7 @@
 //
 using namespace l1t;
 
-class L1TMicroGMTInputProducer : public edm::EDProducer {
+class L1TMicroGMTInputProducer : public edm::stream::EDProducer<> {
    public:
       explicit L1TMicroGMTInputProducer(const edm::ParameterSet&);
       ~L1TMicroGMTInputProducer();
@@ -52,9 +52,7 @@ class L1TMicroGMTInputProducer : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override ;
-      virtual void endJob() override ;
 
       virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
       virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
@@ -308,17 +306,6 @@ L1TMicroGMTInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   m_currEvt++;
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMicroGMTInputProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMicroGMTInputProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
