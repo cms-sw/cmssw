@@ -33,7 +33,6 @@
 
 #include "G4SystemOfUnits.hh"
 
-
 #include <string>
 #include <vector>
 #include <iostream>
@@ -66,7 +65,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, clg, p), myRotation(nullptr),  mySimHit(nullptr),theManager(manager),
-   oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm),
+   oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0), rTracker(1200.*mm), zTracker(3000.*mm),
    numberingScheme_(nullptr)
 {
    
@@ -148,9 +147,9 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
     return false;
 }
 
-uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * s)
+uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * step)
 { 
-  uint32_t detId = numberingScheme_->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+  uint32_t detId = numberingScheme_->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 
   LogDebug("TrackerSimDebug")<< " DetID = "<<detId; 
 
@@ -190,7 +189,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   //
   // Check if in Tracker Volume
   //
-  if (pos.perp() < rTracker &&std::abs(pos.z()) < zTracker){
+  if ((float)pos.perp() < rTracker && std::fabs(pos.z()) < zTracker){
     //
     // inside the Tracker
     //
@@ -441,7 +440,6 @@ void TkAccumulatingSensitiveDetector::checkExitPoint(const Local3DPoint& p)
     double z = p.z();
     if (std::abs(z)<0.3*mm) return;
     bool sendExc = false;
-    //static SimpleConfigurable<bool> sendExc(false,"TrackerSim:ThrowOnBadHits");
     edm::LogWarning("TrackerSimInfo")<< " ************ Hit outside the detector ; Local z " << z 
 				     << "; skipping event = " << sendExc;
     if (sendExc == true)
@@ -472,7 +470,7 @@ void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& chit, cons
   //
 
   if (slaveLowTof->name() == nhit)  chit=slaveLowTof->hits();
-  else if (slaveHighTof->name() == nhit) chit=slaveHighTof->hits();
+  if (slaveHighTof->name() == nhit) chit=slaveHighTof->hits();
 
 }
 
@@ -480,5 +478,5 @@ std::vector<string> TkAccumulatingSensitiveDetector::getNames(){
   std::vector<string> temp;
   temp.push_back(slaveLowTof->name());
   temp.push_back(slaveHighTof->name());
-  return temp;
+  return std::move(temp);
 }
