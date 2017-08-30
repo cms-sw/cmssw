@@ -43,8 +43,8 @@ testSingleton::testEquality( void )
   m_s = &DDI::Singleton<Dummy>::instance();
   m_copy = &DDI::Singleton<Dummy>::instance();
 
-  CPPUNIT_ASSERT( m_s != 0 );
-  CPPUNIT_ASSERT( m_copy != 0 );
+  CPPUNIT_ASSERT( m_s != nullptr );
+  CPPUNIT_ASSERT( m_copy != nullptr );
   CPPUNIT_ASSERT( m_s == m_copy );
   CPPUNIT_ASSERT( m_s->value == m_copy->value );
   m_s->value = 50.0;

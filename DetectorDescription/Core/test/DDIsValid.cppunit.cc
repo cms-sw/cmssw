@@ -66,7 +66,7 @@ namespace {
       ed(LPNAMES::instance().end());
     for (; it != ed; ++it) {
       bool doit = false;
-      doit = !regexec(&aRegex, it->first.c_str(), 0,0,0);
+      doit = !regexec(&aRegex, it->first.c_str(), 0,nullptr,0);
       //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
       if ( doit  ) {
 	std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
@@ -82,7 +82,7 @@ namespace {
 	  std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
 	  for (; nsit !=nsed; ++nsit) {
 	    //edm::LogInfo("DDLogicalPart") << "comparing " << aNs << " with " << *nsit << std::endl;
-	    bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0,0,0);
+	    bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0,nullptr,0);
 	    if ( another_doit ) {
 	      //temp.emplace_back(std::make_pair(it->first,*nsit));
 	      result.emplace_back(DDLogicalPart(*nsit));

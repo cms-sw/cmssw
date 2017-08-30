@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 	DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
 	for (; cit != cend; ++cit) {
 	  const DDLogicalPart & ddcurLP = gt.nodeData(cit->first);
-	  std::cout << ++i << " c--> " << gt.edgeData(cit->second)->copyno_ << " " << ddcurLP.name() << std::endl;
+	  std::cout << ++i << " c--> " << gt.edgeData(cit->second)->copyno() << " " << ddcurLP.name() << std::endl;
 	}
       }
     }

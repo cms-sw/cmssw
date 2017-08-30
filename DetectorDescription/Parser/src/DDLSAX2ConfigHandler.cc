@@ -62,7 +62,7 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
   else if( XMLString::equals( qname, uStr("Schema").ptr()))
   {
     schemaLocation_ = toString(attrs.getValue(uStr("schemaLocation").ptr()));
-    doValidation_ = (XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr()) ? true : false);
+    doValidation_ = XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr());
   }
 }
 
