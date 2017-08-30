@@ -88,7 +88,7 @@ HFGflash::~HFGflash() {
 }
 
 
-std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok,bool onlyLong) {
+std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step * aStep,bool & ok,bool onlyLong) {
   double tempZCalo = 26;  // Gflash::Z[jCalorimeter]
   double hfcriticalEnergy = 0.021;  // Gflash::criticalEnergy
 

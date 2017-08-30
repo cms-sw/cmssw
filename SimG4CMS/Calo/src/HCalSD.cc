@@ -56,8 +56,9 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
          (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), showerLibrary(nullptr), 
-  hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), showerBundle(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
-  m_HFDarkening(nullptr), hcalTestNS_(nullptr), depth_(1) {
+  hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), showerBundle(nullptr), 
+  m_HBDarkening(nullptr), m_HEDarkening(nullptr),
+  m_HFDarkening(nullptr), hcalTestNS_(nullptr), isPametrized(false), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
@@ -361,15 +362,14 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   NaNTrap( aStep );
   
   depth_ = (aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0))%10;
-  const G4Track* track = aStep->GetTrack();
   const G4LogicalVolume* lv =
     aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
  
   // in the case of parameterisation or shower library the primary track
   // should be killed
   if (isItHF(aStep)) {
-    bool isOKforHFparam = isApplicableHF(track->GetDefinition());
     double weight(1.0);
+    isPametrized = false;
     if (m_HFDarkening) {
       G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
       double r = hitPoint.perp()/CLHEP::cm;
@@ -390,35 +390,37 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			  << " weight " << weight;
 #endif
     }
-    if (useParam && isOKforHFparam) {
+    if (useParam) {
 #ifdef EDM_ML_DEBUG
       LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits()
 			  << " hits from parametrization in " << lv->GetName()
-			  << " for Track " << track->GetTrackID()
-			  <<" (" track->GetDefinition()->GetParticleName() 
+			  << " for Track " << aStep->GetTrack()->GetTrackID()
+			  <<" (" aStep->GetTrack()->GetDefinition()->GetParticleName() 
 			  <<")";
 #endif
       getFromParam(aStep, weight);
+      if(isPametrized) { killTracks(aStep); }
 #ifdef EDM_ML_DEBUG
       LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits() 
 			  << " hits afterParamS*";
 #endif 
     } else {
-      if (useShowerLibrary && isOKforHFparam) {
+      if (useShowerLibrary) {
 #ifdef EDM_ML_DEBUG
 	LogDebug("HcalSim") << "HCalSD: Starts shower library from PV: " 
 			    << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() 
 			    << " for Track " 
-			    << track->GetTrackID() << " ("
-			    << track->GetDefinition()->GetParticleName() << ")";
+			    << aStep->GetTrack()->GetTrackID() << " ("
+			    << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
 	getFromLibrary(aStep, weight);
+	if(isPametrized) { killTracks(aStep); }
       } else if (isItFibre(lv)) {
 #ifdef EDM_ML_DEBUG
 	LogDebug("HcalSim") << "HCalSD: Hit at Fibre in LV: " << lv->GetName()
 			    << " for Track " 
-			    << track->GetTrackID() <<" ("
-			    << track->GetDefinition()->GetParticleName() << ")";
+			    << aStep->GetTrack()->GetTrackID() <<" ("
+			    << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
 	hitForFibre(aStep, weight);
       }
@@ -428,16 +430,16 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 #ifdef EDM_ML_DEBUG
     LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
 			<<  nameVolume << " for Track " 
-			<< track->GetTrackID() << " ("
-			<< track->GetDefinition()->GetParticleName() << ")";
+			<< aStep->GetTrack()->GetTrackID() << " ("
+			<< aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
     if (usePMTHit && showerPMT) { getHitPMT(aStep); }
   } else if (isItStraightBundle(lv) || isItConicalBundle(lv)) {
 #ifdef EDM_ML_DEBUG
     LogDebug("HcalSim") << "HCalSD: Hit from FibreBundle from "
 			<< nameVolume << " for Track " 
-			<< track->GetTrackID() << " ("
-			<< track->GetDefinition()->GetParticleName() << ")";
+			<< aStep->GetTrack()->GetTrackID() << " ("
+			<< aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
     if (useFibreBundle && showerBundle) {
       getHitFibreBundle(aStep, isItConicalBundle(lv));
@@ -789,7 +791,7 @@ bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) const {
   return flag;
 }
 
-void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
+void HCalSD::getFromLibrary (const G4Step* aStep, double weight) {
   // track status and secondaries will be changed
   preStepPoint   = aStep->GetPreStepPoint(); 
   G4Track* track = aStep->GetTrack();   
@@ -797,7 +799,8 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   int det  = 5;
   bool isEM = (pdg == hfPGDcodes[0] || pdg == hfPGDcodes[1] || pdg == hfPGDcodes[2]);
 
-  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, isEM, weight, false);
+  std::vector<HFShowerLibrary::Hit> hits = 
+    showerLibrary->getHits(aStep, isPametrized, weight, false);
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
@@ -839,13 +842,15 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
       }
     }
   }
+}
 
+void HCalSD::killTracks(G4Step* aStep) { 
   //Now kill the current track
+  G4Track* track = aStep->GetTrack();
   track->SetTrackStatus(fStopAndKill);
-  G4TrackVector tv = *(aStep->GetSecondary());
-  for (unsigned int kk=0; kk<tv.size(); ++kk) {
-    if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
-      tv[kk]->SetTrackStatus(fStopAndKill);
+  for (auto & sect : *(aStep->GetSecondary())) {
+    if (sect->GetVolume() == preStepPoint->GetPhysicalVolume()) {
+      sect->SetTrackStatus(fStopAndKill);
     }
   }
 }
@@ -899,9 +904,9 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) {
   }
 }
 
-void HCalSD::getFromParam (G4Step* aStep, double weight) {
+void HCalSD::getFromParam (const G4Step* aStep, double weight) {
 
-  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep, weight);
+  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep, weight, isPametrized);
   int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {
@@ -917,13 +922,13 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
                             << " of " << preStepPoint->GetKineticEnergy()/GeV 
                             << " GeV in detector type " << det;
 #endif
-    for (int i = 0; i<nHit; ++i) {
-      G4ThreeVector hitPoint = hits[i].position;
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
+    for (auto & ahit : hits) {
+      G4ThreeVector hitPoint = ahit.position;
+      int depth              = ahit.depth;
+      double time            = ahit.time;
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
-      edepositEM             = hits[i].edep*GeV; 
+      edepositEM             = ahit.edep*GeV; 
       edepositHAD            = 0.f;
 #ifdef plotDebug
       plotProfile(aStep, hitPoint, edepositEM, time, depth);

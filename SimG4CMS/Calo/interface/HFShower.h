@@ -41,7 +41,7 @@ public:
 
   void                initRun(const G4ParticleTable *, const HcalDDDSimConstants*);
   std::vector<Hit>    getHits(const G4Step * aStep, double weight);
-  std::vector<Hit>    getHits(G4Step * aStep, bool forLibraryProducer, double zoffset);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibraryProducer, double zoffset);
 
 private:    
 

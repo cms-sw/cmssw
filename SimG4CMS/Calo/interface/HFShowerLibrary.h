@@ -44,11 +44,11 @@ public:
     double                    time;
   };
 
-  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(const G4Step * aStep, bool isEM, double weight, 
+  void                initRun(const G4ParticleTable *, const HcalDDDSimConstants*);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool & ok, double weight, 
 			      bool onlyLong=false);
   std::vector<Hit>    fillHits(const G4ThreeVector & p, const G4ThreeVector & v,
-                               int parCode, double parEnergy, bool & isEM,
+                               int parCode, double parEnergy, bool & ok,
                                double weight, double time, bool onlyLong=false);
 protected:
 

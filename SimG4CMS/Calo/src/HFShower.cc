@@ -183,7 +183,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step * aStep, double weight
   return std::move(hits);
 } 
 
-std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, 
+std::vector<HFShower::Hit> HFShower::getHits(const G4Step * aStep, 
                                              bool forLibraryProducer,
 				             double zoffset) {
 

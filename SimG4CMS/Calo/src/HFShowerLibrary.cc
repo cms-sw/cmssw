@@ -128,14 +128,14 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  delete   fibre;
-  fibre  = nullptr;
+  delete fibre;
   delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
-			      HcalDDDSimConstants* hcons) {
+void HFShowerLibrary::initRun(const G4ParticleTable *,
+			      const HcalDDDSimConstants* hcons) {
 
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   if (fibre) fibre->initRun(hcons);
 
   G4String parName;
@@ -186,7 +186,7 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
 
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
-							   bool,
+							   bool& ok ,
 							   double weight,
 							   bool onlyLong) {
 
@@ -218,7 +218,6 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
-  bool ok;
 
   return std::move(fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong));
 }

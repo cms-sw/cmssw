@@ -68,9 +68,9 @@ private:
   bool                          isItConicalBundle(const G4LogicalVolume*) const;
   bool                          isItScintillator(const G4Material*) const;
   bool                          isItinFidVolume (const G4ThreeVector&) const;
-  void                          getFromLibrary(G4Step * step, double weight);
+  void                          getFromLibrary(const G4Step * step, double weight);
   void                          hitForFibre(const G4Step * step, double weight);
-  void                          getFromParam(G4Step * step, double weight);
+  void                          getFromParam(const G4Step * step, double weight);
   void                          getHitPMT(const G4Step * step);
   void                          getHitFibreBundle(const G4Step * step, bool type);
   int                           setTrackID(const G4Step * step);
@@ -80,6 +80,7 @@ private:
                                             double edep, double time, int id);
   void                          plotHF(const G4ThreeVector& pos, bool emType);
   void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
+  void                          killTracks(G4Step*);
 
   HcalDDDSimConstants*          hcalConstants;
   HcalNumberingFromDDD*         numberingFromDDD;
@@ -98,6 +99,7 @@ private:
   bool                          testNumber, neutralDensity, testNS_;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
+  bool                          isPametrized;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
   G4int                         depth_;
