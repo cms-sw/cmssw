@@ -21,7 +21,6 @@
 // system include files
 #include <memory>
 #include <fstream>
-#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
