@@ -37,4 +37,6 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
 
     caloJet_DR = cms.double(0.3),
 
+    saveDeDxHitInfo = cms.bool(True),
+    saveDeDxHitInfoCut = cms.string("pt > 50"), 
 )

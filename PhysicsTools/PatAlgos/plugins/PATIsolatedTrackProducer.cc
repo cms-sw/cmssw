@@ -25,6 +25,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
@@ -83,6 +84,8 @@ namespace pat {
           const float relIso_cut_;
           const float miniRelIso_cut_;
           const float caloJet_DR_;  // save energy of nearest calojet within caloJet_DR_
+          const bool saveDeDxHitInfo_;
+          StringCutObjectSelector<pat::IsolatedTrack> saveDeDxHitInfoCut_;
 
           std::vector<double> miniIsoParams_;
 
@@ -114,7 +117,9 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   absIso_cut_     (iConfig.getParameter<double>("absIso_cut")),
   relIso_cut_     (iConfig.getParameter<double>("relIso_cut")),
   miniRelIso_cut_ (iConfig.getParameter<double>("miniRelIso_cut")),
-  caloJet_DR_     (iConfig.getParameter<double>("caloJet_DR"))
+  caloJet_DR_     (iConfig.getParameter<double>("caloJet_DR")),
+  saveDeDxHitInfo_(iConfig.getParameter<bool>("saveDeDxHitInfo")),
+  saveDeDxHitInfoCut_(iConfig.getParameter<std::string>("saveDeDxHitInfoCut"))
 {
     // TrackAssociator parameters
     edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -128,6 +133,11 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
         throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 3 elements.\n";
 
     produces< pat::IsolatedTrackCollection > ();
+
+    if (saveDeDxHitInfo_) {
+       produces<reco::DeDxHitInfoCollection>();
+       produces<reco::DeDxHitInfoAss>();
+    }
 }
 
 pat::PATIsolatedTrackProducer::~PATIsolatedTrackProducer() {}
@@ -191,6 +201,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     edm::ESHandle<EcalChannelStatus> ecalS_h;
     iSetup.get<EcalChannelStatusRcd>().get(ecalS_h);
     const EcalChannelStatus *ecalS = ecalS_h.product();
+
+    auto outDeDxC = std::make_unique<reco::DeDxHitInfoCollection>();
+    std::vector<int> dEdXass;
 
     auto outPtrP = std::make_unique<std::vector<pat::IsolatedTrack>>();
 
@@ -331,6 +344,16 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                               deltaEta, deltaPhi, refToCand));
         outPtrP->back().setStatus(prescaled);
 
+        if (saveDeDxHitInfo_) {
+            const auto &dedxRef = (*gt2dedxHitInfo)[tkref];
+            if (saveDeDxHitInfoCut_(outPtrP->back()) && dedxRef.isNonnull()) {
+                outDeDxC->push_back( *dedxRef );
+                dEdXass.push_back(outDeDxC->size());
+            } else {
+                dEdXass.push_back(-1);
+            }
+        }
+
     }
 
     // there are some number of pfcandidates with no associated track
@@ -399,9 +422,19 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                               charge, pdgId, dz, dxy, dzError, dxyError,
                                               hp, dEdxStrip, dEdxPixel, fromPV, trackQuality,
                                               ecalStatus, hcalStatus, deltaEta, deltaPhi, refToCand));
+        dEdXass.push_back(-1); // these never have dE/dx hit info, as there's no track
     }
-
-    iEvent.put(std::move(outPtrP));
+    
+    auto orphHandle = iEvent.put(std::move(outPtrP));
+    if (saveDeDxHitInfo_) {
+        auto dedxOH = iEvent.put(std::move(outDeDxC));
+        auto dedxMatch = std::make_unique<reco::DeDxHitInfoAss>(dedxOH);
+        reco::DeDxHitInfoAss::Filler filler(*dedxMatch);  
+        filler.insert(orphHandle, dEdXass.begin(), dEdXass.end()); 
+        filler.fill();
+        iEvent.put(std::move(dedxMatch));
+    }
+    
 }
 
 
