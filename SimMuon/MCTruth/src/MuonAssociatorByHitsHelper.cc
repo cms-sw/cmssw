@@ -940,6 +940,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	      <<"\n\t this TrackingRecHit is a DTRecSegment4D with "
 	      <<componentHits.size()<<" hits (phi:"<<phiHits.size()<<", z:"<<zHits.size()<<")";
 	    
+	    SimTrackIds.clear();
 	    std::vector<SimHitIdpr> i_SimTrackIds;
 	    int i_compHit = 0;
 	    for (std::vector<const TrackingRecHit *>::const_iterator ithit =componentHits.begin(); 
@@ -1041,6 +1042,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	    if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	      <<"\n\t this TrackingRecHit is a CSCSegment with "<<componentHits.size()<<" hits";
 	    
+	    SimTrackIds.clear();
 	    std::vector<SimHitIdpr> i_SimTrackIds;
 	    int i_compHit = 0;
 	    for (std::vector<const TrackingRecHit *>::const_iterator ithit =componentHits.begin(); 
@@ -1168,6 +1170,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	    if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	      <<"\n\t this TrackingRecHit is a GEMSegment with "<<componentHits.size()<<" hits";
 	    
+	    SimTrackIds.clear();
 	    std::vector<SimHitIdpr> i_SimTrackIds;
 	    int i_compHit = 0;
 
@@ -1211,7 +1214,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 		i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
 		edm::LogVerbatim("MuonAssociatorByHitsHelper") << i_hitlog;
 	      }
-	      
+
 	      SimTrackIds.insert(SimTrackIds.end(),i_SimTrackIds.begin(),i_SimTrackIds.end());
 	    }	    
 	  }  // if (gemsegment)	  
@@ -1220,7 +1223,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
       }
       else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 			   <<"TrackingRecHit "<<iloop<<"  *** WARNING *** Unexpected Hit from Detector = "<<det;
-    }
+    } // end if (det == DetId::Muon && UseMuon)
     else continue;
     
     hitlog = hitlog + write_matched_simtracks(SimTrackIds);
