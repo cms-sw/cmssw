@@ -64,7 +64,8 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
    }
       
   // first use "closest in Z" with tight cuts (targetting primary particles)
-    const float dzE=sqrt(track->dzError()*track->dzError()+vertices[vtxIdMinDz].covariance(2,2));
+    const float add_cov = vtxIdMinDist >= 0 ? vertices[vtxIdMinDist].covariance(2,2) : 0.f;
+    const float dzE=sqrt(track->dzError()*track->dzError()+add_cov);
     if(vtxIdMinDist>=0 and 
        (dzmin < maxDzForPrimaryAssignment_ and dzmin/dzE < maxDzSigForPrimaryAssignment_  and track->dzError()<maxDzErrorForPrimaryAssignment_) and
        (!useTime or dtmin/timeReso < maxDtSigForPrimaryAssignment_) )
