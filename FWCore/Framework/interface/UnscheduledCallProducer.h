@@ -57,26 +57,6 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
     
     template <typename T, typename U>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
-                typename T::Context const* topContext, U const* context) const {
-      //do nothing for event since we will run when requested
-      if(!T::isEvent_) {
-        for(auto worker: unscheduledWorkers_) {
-          try {
-            ParentContext parentContext(context);
-            worker->doWork<T>(p, es, streamID, parentContext, topContext);
-          }
-          catch (cms::Exception & ex) {
-            if(ex.context().empty()) {
-              addContextToException<T>(ex,worker,p.id());
-            }
-            throw;
-          }
-        }
-      }
-    }
-
-    template <typename T, typename U>
     void runNowAsync(WaitingTask* task,
                      typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
                      typename T::Context const* topContext, U const* context) const {
