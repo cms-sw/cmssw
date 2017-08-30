@@ -1,4 +1,4 @@
-<library   file="*.cc" name="L1TriggerL1TwinMuxPlugins">
+<library   file="*.cc" name="L1TriggerL1TTwinMuxPlugins">
 <use name="FWCore/ServiceRegistry"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/L1TObjects"/>

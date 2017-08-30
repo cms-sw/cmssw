@@ -12,11 +12,7 @@
 #include "L1Trigger/L1TTwinMux/interface/IOPrinter.h"
 #include "L1Trigger/L1TTwinMux/interface/L1MuTMChambPhContainer.h"
 
-void IOPrinter::run(
-                                                            edm::Handle<L1MuDTChambPhContainer> inphiDigis,
-                                                            L1MuDTChambPhContainer outphiDigis,
-                                                            edm::Handle<RPCDigiCollection> rpcDigis,
-                                                            const edm::EventSetup& c) {
+void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambPhContainer outphiDigis,edm::Handle<RPCDigiCollection> rpcDigis, const edm::EventSetup& c) {
 
     cout<<"======================================================"<<endl;
     int bx=0, wheel=0, sector=0, station=1;
@@ -55,15 +51,14 @@ void IOPrinter::run(
   cout<<"bx\tring\tsector\tstation\troll\tlayer\tstrip\tphi\tlocalX"<<endl;
   //cout<<"RPCHitCleaner"<<endl;
   for( auto chamber = rpcDigis->begin(); chamber != rpcDigis->end(); ++chamber ) {
-
-           RPCDetId detid = (*chamber).first;
-               for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
-                    RPCDigi digi_out(digi->strip(), digi->bx());
-                    //if(digi->bx()!=0) continue;
-                    int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2 ;
-                    float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
-                    cout<<digi->bx()<<"\t"<<detid.ring()<<"\t"<<detid.sector()-1<<"\t"<<detid.station()<<"\t"<<detid.roll()<<"\t"<<detid.layer()<<"\t"<<digi->strip()<<"\t"<<phi<<"\t"<<localx<<endl;
-               }///for digicout
+     RPCDetId detid = (*chamber).first;
+     for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
+        RPCDigi digi_out(digi->strip(), digi->bx());
+       //if(digi->bx()!=0) continue;
+        int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2 ;
+        float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
+        cout<<digi->bx()<<"\t"<<detid.ring()<<"\t"<<detid.sector()-1<<"\t"<<detid.station()<<"\t"<<detid.roll()<<"\t"<<detid.layer()<<"\t"<<digi->strip()<<"\t"<<phi<<"\t"<<localx<<endl;
+       }///for digicout
     }///for chamber
   cout<<endl;
 
@@ -102,10 +97,7 @@ cout<<"======================================================"<<endl;
 }
 
 
-void IOPrinter::run(                                                            L1MuDTChambPhContainer* inphiDigis,
-L1MuDTChambPhContainer outphiDigis,
-RPCDigiCollection* rpcDigis,
-const edm::EventSetup& c) {
+void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer outphiDigis,RPCDigiCollection* rpcDigis,const edm::EventSetup& c) {
 
   cout<<"======================================================"<<endl;
   int bx=0, wheel=0, sector=0, station=1;
@@ -144,15 +136,14 @@ const edm::EventSetup& c) {
   cout<<"bx\tring\tsector\tstation\troll\tlayer\tstrip\tphi\tlocalX"<<endl;
   //cout<<"RPCHitCleaner"<<endl;
   for( auto chamber = rpcDigis->begin(); chamber != rpcDigis->end(); ++chamber ) {
-
-           RPCDetId detid = (*chamber).first;
-               for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
-                    RPCDigi digi_out(digi->strip(), digi->bx());
-                    //if(digi->bx()!=0) continue;
-                    int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) <<2 ;
-                    float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
-                    cout<<digi->bx()<<"\t"<<detid.ring()<<"\t"<<detid.sector()-1<<"\t"<<detid.station()<<"\t"<<detid.roll()<<"\t"<<detid.layer()<<"\t"<<digi->strip()<<"\t"<<phi<<"\t"<<localx<<endl;
-               }///for digicout
+   RPCDetId detid = (*chamber).first;
+   for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
+       RPCDigi digi_out(digi->strip(), digi->bx());
+       //if(digi->bx()!=0) continue;
+       int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) <<2 ;
+       float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
+       cout<<digi->bx()<<"\t"<<detid.ring()<<"\t"<<detid.sector()-1<<"\t"<<detid.station()<<"\t"<<detid.roll()<<"\t"<<detid.layer()<<"\t"<<digi->strip()<<"\t"<<phi<<"\t"<<localx<<endl;
+        }///for digicout
     }///for chamber
   cout<<endl;
 
