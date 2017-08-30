@@ -47,17 +47,17 @@ using namespace l1t;
 class L1TMicroGMTInputProducer : public edm::stream::EDProducer<> {
    public:
       explicit L1TMicroGMTInputProducer(const edm::ParameterSet&);
-      ~L1TMicroGMTInputProducer();
+      ~L1TMicroGMTInputProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override ;
+      void produce(edm::Event&, const edm::EventSetup&) override ;
 
-      virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+      void endRun(const edm::Run&, edm::EventSetup const&) override ;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
 
       void openFile();
       void skipHeader();
