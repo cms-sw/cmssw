@@ -270,7 +270,3 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
 
 }
 
-
-
-
-
