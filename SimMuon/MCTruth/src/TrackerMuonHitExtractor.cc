@@ -171,7 +171,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	      // with the following line the DT segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
-              if (segmentDT.get() != 0) {
+              if (segmentDT.get() != nullptr) {
 		const DTRecSegment4D* segment = segmentDT.get();
 		
 		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with DT segment with index = "<<segmentDT.key();
@@ -205,7 +205,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	      // with the following line the CSC segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
-              if (segmentCSC.get() != 0) {
+              if (segmentCSC.get() != nullptr) {
 		const CSCSegment* segment = segmentCSC.get();
 		
 		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
