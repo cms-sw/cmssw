@@ -81,7 +81,7 @@ public:
     explicit L1ExtraDQM(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1ExtraDQM();
+    ~L1ExtraDQM() override;
 
 public:
 
@@ -167,11 +167,11 @@ protected:
     void analyzeL1ExtraHfBitCounts(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraHfRingEtSums(const edm::Event&, const edm::EventSetup&);
 
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
 
 private:
 
