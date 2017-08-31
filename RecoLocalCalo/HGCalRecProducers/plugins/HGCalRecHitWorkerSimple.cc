@@ -110,7 +110,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
         cce_correction = hgcEE_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-                    * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1]/cce_correction;
+                    * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
         break;
     case HGCHEF:
         rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
@@ -118,7 +118,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
         cce_correction = hgcHEF_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-                    * hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1]/cce_correction;
+                    * hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
         break;
     case HcalEndcap:
     case HGCHEB:

@@ -96,7 +96,7 @@ namespace {
   float getCCE(const HGCalGeometry* geom,
 	       const DetId& detid,
 	       const std::vector<float>&cces) {
-    if( !cces.size() ) return 1.f;
+    if( cces.empty() ) return 1.f;
     const auto& topo     = geom->topology();
     const auto& dddConst = topo.dddConstants();
     uint32_t id(detid.rawId());
@@ -355,9 +355,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     const float toa    = std::get<2>(hitRefs[i]);
     const PCaloHit &hit=hits->at( hitidx );     
     const float charge = hit.energy()*1e6*keV2fC*getCCE(geom,id,cce_);
-      
     
-
     //distance to the center of the detector
     const float dist2center( getPositionDistance(geom,id) );
       
