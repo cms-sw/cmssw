@@ -6,14 +6,18 @@
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
     ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-    calibSF_(conf.getParameter<double>("calibSF_multicluster"))
+    calibSF_(conf.getParameter<double>("calibSF_multicluster")),
+    multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
+    distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
+    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster global calibration factor: " << calibSF_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster DBSCAN Clustering distance: " << distDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster clustering min number of subclusters: " << minNDbscan_;
-
+    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster type of multiclustering algortihm: " << multiclusterAlgoType_;
+    
 }
 
 
@@ -133,7 +137,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
-  
+
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
   l1t::HGCalMulticluster mcluTmp;
   std::vector<bool> visited(clustersPtrs.size(),false);

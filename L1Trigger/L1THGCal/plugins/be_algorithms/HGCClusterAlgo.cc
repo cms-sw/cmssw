@@ -56,6 +56,16 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                     << "'. Using nearest neighbor NNC2d instead.\n";
                 clusteringAlgorithmType_ = NNC2d;
             }
+            std::string typeMulticluster(conf.getParameterSet("C3d_parameters").getParameter<std::string>("type_multicluster"));
+            if(typeMulticluster=="dRC3d"){
+                multiclusteringAlgoType_ = dRC3d;
+            }else if(typeMulticluster=="DBSCANC3d"){
+                multiclusteringAlgoType_ = DBSCANC3d;
+            }else {
+                edm::LogWarning("ParameterError") << "Unknown Multiclustering type '" << typeMulticluster
+                    << "'. Using DBSCAN instead.\n";
+                multiclusteringAlgoType_ = DBSCANC3d;
+            }
 
         }
     
@@ -101,6 +111,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         ClusterType clusteringAlgorithmType_;
         double clustering_threshold_silicon_;
         double clustering_threshold_scintillator_;
+        MulticlusterType multiclusteringAlgoType_;
 };
 
 
@@ -174,7 +185,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to multiclustering and compute shower shape*/
-    switch(clusteringAlgorithmType_){
+    switch(multiclusteringAlgoType_){
     case dRC3d : 
       multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_ );
       break;
