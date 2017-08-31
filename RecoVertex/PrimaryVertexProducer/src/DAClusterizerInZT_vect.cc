@@ -321,7 +321,7 @@ bool DAClusterizerInZT_vect::merge(vertex_t & y, double & beta)const{
       critical.push_back( make_pair( dz2 + dt2, k ) );
     }
   }
-  if (critical.size() == 0) return false;
+  if (critical.empty()) return false;
 
   std::stable_sort(critical.begin(), critical.end(), std::less<std::pair<double, unsigned int> >() );
 
@@ -508,7 +508,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
       critical.push_back( make_pair(Tc, k));
     }
   }
-  if (critical.size()==0) return false;
+  if (critical.empty()) return false;
 
 
   std::stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >() );
@@ -875,7 +875,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZT_vect::clusterize(
   }
 #endif
 
-  if (pv.size() == 0) {
+  if (pv.empty()) {
     return clusters;
   }
   
