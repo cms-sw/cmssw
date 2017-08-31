@@ -35,6 +35,22 @@ def insert_modules_before(process, target, *modules):
                 sequence.insert(position, module)
 
 
+def insert_modules_after(process, target, *modules):
+    "Add the `modules` after the `target` in any Sequence, Paths or EndPath that contains the latter."
+    for sequence in itertools.chain(
+        process._Process__sequences.itervalues(),
+        process._Process__paths.itervalues(),
+        process._Process__endpaths.itervalues()
+    ):
+        try:
+            position = sequence.index(target)
+        except ValueError:
+            continue
+        else:
+            for module in reversed(modules):
+                sequence.insert(position+1, module)
+
+
 # logic from Modifier.toModify from FWCore/ParameterSet/python/Config.py
 def replace_with(fromObj, toObj):
     """Replace one object with a different one of the same type.
