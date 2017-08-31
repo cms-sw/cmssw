@@ -60,12 +60,9 @@ public:
   void fillHits(edm::PSimHitContainer&, const std::string& use) override;
   
  private:
-  void           update(const BeginOfRun *) override;
-  void           update(const BeginOfEvent *) override;
-  void   clearHits() override;
-  
-  //  int eventno;
- private:
+  void          update(const BeginOfRun *) override;
+  void          update(const BeginOfEvent *) override;
+  void          clearHits() override;
   
   G4ThreeVector SetToLocal(const G4ThreeVector& global);
   G4ThreeVector SetToLocalExit(const G4ThreeVector& globalPoint);
@@ -91,8 +88,8 @@ public:
   G4int                primID  ; 
   
   G4int                    hcID;
-  BscG4HitCollection*       theHC; 
-  const SimTrackManager*      theManager;
+  BscG4HitCollection*      theHC; 
+  const SimTrackManager*   theManager;
  
   G4int                tsID; 
   BscG4Hit*            currentHit;
@@ -121,14 +118,11 @@ public:
   int ParentId;
   float Vx,Vy,Vz;
   float X,Y,Z;
-  
-  
+   
   //
   // Hist
   //
   int eventno;
-  
-  // protected:
   
   float edepositEM, edepositHAD;
   G4int emPDG;

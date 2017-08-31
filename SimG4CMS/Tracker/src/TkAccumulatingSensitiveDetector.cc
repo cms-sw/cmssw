@@ -384,9 +384,8 @@ bool TkAccumulatingSensitiveDetector::newHit(const G4Step * aStep)
     LogDebug("TrackerSimDebug")<< " OLD (d,t) = (" << lastId << "," << lastTrack 
 			       << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
 			       << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
-    if ((mySimHit != nullptr) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
-      return false;
-    return true;
+    return ((mySimHit != nullptr) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
+      ? false : true;
 }
 
 bool TkAccumulatingSensitiveDetector::closeHit(const G4Step * aStep)
@@ -405,9 +404,7 @@ void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 {
 
   LogDebug("TrackerSimDebug")<< " Saving the last hit in a ROU " << GetName();
-
-    if (mySimHit == nullptr) return;
-      sendHit();
+  if (mySimHit) sendHit();
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
@@ -437,10 +434,9 @@ void TkAccumulatingSensitiveDetector::clearHits()
 
 void TkAccumulatingSensitiveDetector::checkExitPoint(const Local3DPoint& p)
 {
-    double z = p.z();
-    if (std::abs(z)<0.3*mm) return;
+    if (std::abs(p.z())<0.3*mm) return;
     bool sendExc = false;
-    edm::LogWarning("TrackerSimInfo")<< " ************ Hit outside the detector ; Local z " << z 
+    edm::LogWarning("TrackerSimInfo")<< " ************ Hit outside the detector ; Local z " << p.z() 
 				     << "; skipping event = " << sendExc;
     if (sendExc == true)
     {
@@ -454,24 +450,21 @@ TrackInformation* TkAccumulatingSensitiveDetector::getOrCreateTrackInformation( 
   if (temp == nullptr){
     edm::LogError("TrackerSimInfo") <<" ERROR: no G4VUserTrackInformation available";
     abort();
-  }else{
-    TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
-    if (info ==nullptr){
-      edm::LogError("TrackerSimInfo")<<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
-      abort();
-    }
-    return info;
   }
+  TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
+  if (info ==nullptr){
+    edm::LogError("TrackerSimInfo")<<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
+    abort();
+  }
+  return info;
 }
 
 void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& chit, const std::string& nhit){
   //
   // do it once for low, once for High
   //
-
   if (slaveLowTof->name() == nhit)  chit=slaveLowTof->hits();
   if (slaveHighTof->name() == nhit) chit=slaveHighTof->hits();
-
 }
 
 std::vector<string> TkAccumulatingSensitiveDetector::getNames(){

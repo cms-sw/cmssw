@@ -99,7 +99,7 @@ private:
   bool                          testNumber, neutralDensity, testNS_;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
-  bool                          isPametrized;
+  bool                          isParametrized;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
   G4int                         depth_;

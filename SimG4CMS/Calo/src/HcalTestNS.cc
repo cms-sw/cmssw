@@ -22,7 +22,9 @@ HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
   scheme_ = new HcalTestNumberingScheme(false);
 }
 
-HcalTestNS::~HcalTestNS() {}
+HcalTestNS::~HcalTestNS() {
+  delete scheme_;
+}
 
 bool HcalTestNS::compare(HcalNumberingFromDDD::HcalID const& tmp, 
 			 uint32_t const& id) {

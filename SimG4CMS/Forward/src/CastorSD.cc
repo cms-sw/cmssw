@@ -9,7 +9,6 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
-//#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
@@ -70,14 +69,13 @@ CastorSD::CastorSD(const std::string& iname, const DDCompactView & cpv,
 			     << lvC4HF << " for C4HF; " 
 			     << lvCAST << " for CAST. " << std::endl;
 
-  //  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library \n";
-
+  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library";
 }
 
 //=============================================================================================
 
 CastorSD::~CastorSD() {
-  if (useShowerLibrary) delete showerLibrary;
+  delete showerLibrary;
 }
 
 //=============================================================================================
@@ -111,16 +109,14 @@ bool CastorSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 			   << theTrack->GetTotalEnergy()
 			   << " has been set to be killed" ;
 #endif
-    G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); ++kk) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
-	tv[kk]->SetTrackStatus(fStopAndKill);
+    for (auto & tr : *(aStep->GetSecondary())) {
+      if (tr->GetVolume() == preStepPoint->GetPhysicalVolume()) {
+	tr->SetTrackStatus(fStopAndKill);
 #ifdef debugLog
 	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
-			       << "\n tv[" << kk << "]->GetTrackID() = " 
-			       << tv[kk]->GetTrackID() 
-			       << " with energy " 
-			       << tv[kk]->GetTotalEnergy()
+			       << " TrackID = " << tr->GetTrackID() 
+			       << " with Ekin(MeV)= " 
+			       << tr->GetKineticEnergy()
 			       << " has been set to be killed" ;
 #endif
       }
@@ -220,7 +216,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
   if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
   
   // angle condition
-  double theta_max = pi - 3.1305; // angle in radians corresponding to -5.2 eta
+  double theta_max = CLHEP::pi - 3.1305; // angle in radians corresponding to -5.2 eta
   double R_mom=sqrt(hit_mom.x()*hit_mom.x() + hit_mom.y()*hit_mom.y());
   double theta = atan2(R_mom,std::abs(pz));
   bool angleok = false;
@@ -293,7 +289,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
   // calculations...       *************************************************
   double phi = -100.;
   if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
-  if (phi < 0.) phi += twopi;
+  if (phi < 0.) phi += CLHEP::twopi;
   
   
   double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
@@ -346,7 +342,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
     /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
     
     double thFullRefl = 23.;  /* 23.dergee */
-    double thFullReflRad = thFullRefl*pi/180.;
+    double thFullReflRad = thFullRefl*CLHEP::pi/180.;
     
     /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
     double thFibDir = 45.;  /* .dergee */
@@ -355,7 +351,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
        nameVolume == "GR2Q" || nameVolume == "GRNQ")
        thFibDir = 0.0; // .dergee
     */
-    double thFibDirRad = thFibDir*pi/180.;
+    double thFibDirRad = thFibDir*CLHEP::pi/180.;
     /*   */
     /*   */
     
@@ -370,7 +366,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
     double th = acos(std::min(std::max(costh,double(-1.)),double(1.)));
     
     // just in case (can do bot use):
-    if (th < 0.) th += twopi;
+    if (th < 0.) th += CLHEP::twopi;
     
     
     
@@ -437,7 +433,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
 	  if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
 	  arg_arcos = std::abs(arg_arcos);
 	  double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
-	  d_qz = std::abs(th_arcos/pi/2.);
+	  d_qz = std::abs(th_arcos/CLHEP::pi/2.);
 	  
 	  //	    }
 	  //             else
@@ -474,9 +470,9 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
       
       
 #ifdef debugLog
-      double thgrad = th*180./pi;
-      double thchergrad = thcher*180./pi;
-      double DelFibPartgrad = DelFibPart*180./pi;
+      double thgrad = th*180./CLHEP::pi;
+      double thchergrad = thcher*180./CLHEP::pi;
+      double DelFibPartgrad = DelFibPart*180./CLHEP::pi;
       LogDebug("ForwardSim") << " ==============================> start all "
 			     << "information:<========= \n" << " =====> for "
 			     << "test:<===  \n" << " variant = " << variant  
@@ -599,15 +595,15 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track,
   
   // Get 'track' phi:
   double   trackPhi = track->GetPosition().phi(); 
-  if(trackPhi<0) trackPhi += twopi;
+  if(trackPhi<0) trackPhi += CLHEP::twopi;
   // Get phi from primary that gave rise to SL 'shower':
   double  showerPhi = shower.getPrimPhi(); 
-  if(showerPhi<0) showerPhi += twopi;
+  if(showerPhi<0) showerPhi += CLHEP::twopi;
   // Delta phi:
   
   //  Find the OctSector for which 'track' and 'shower' belong
-  int  trackOctSector = (int) (  trackPhi / (pi/4) ) ;
-  int showerOctSector = (int) ( showerPhi / (pi/4) ) ;
+  int  trackOctSector = (int) (  trackPhi / (CLHEP::pi/4) ) ;
+  int showerOctSector = (int) ( showerPhi / (CLHEP::pi/4) ) ;
   
   uint32_t  newUnitID;
   uint32_t         sec = ( ( unitID>>4 ) & 0xF ) ;

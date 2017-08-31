@@ -22,7 +22,7 @@ MuonGEMFrameRotation::~MuonGEMFrameRotation() {
 }
 
 Local3DPoint MuonGEMFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
-  if (!aStep) return Local3DPoint(0.,0.,0.);  
+  if (!aStep) return std::move(Local3DPoint(0.,0.,0.));  
 
-  return Local3DPoint(point.x(),point.z(),-point.y());
+  return std::move(Local3DPoint(point.x(),point.z(),-point.y()));
 }

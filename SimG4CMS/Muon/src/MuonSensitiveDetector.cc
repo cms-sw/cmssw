@@ -70,9 +70,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& iname,
   }  else {
     theRotation = nullptr;
   }
-  LogDebug("MuonSimDebug") << "create MuonSlaveSD"<<std::endl;
+  LogDebug("MuonSimDebug") << "create MuonSlaveSD";
   slaveMuon  = new MuonSlaveSD(detector,theManager);
-  LogDebug("MuonSimDebug") << "create MuonSimHitNumberingScheme"<<std::endl;
+  LogDebug("MuonSimDebug") << "create MuonSimHitNumberingScheme";
   numbering  = new MuonSimHitNumberingScheme(detector, constants);
   g4numbering = new MuonG4Numbering(constants);
   
@@ -81,9 +81,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& iname,
   //
   const std::vector<std::string>& lvNames = clg.logicalNames(iname);
   this->Register();
-  for (std::vector<std::string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++){
-    LogDebug("MuonSimDebug") << iname << " MuonSensitiveDetector:: attaching SD to LV " << *it;
-    this->AssignSD(*it);
+  for (auto & lvname : lvNames){
+    LogDebug("MuonSimDebug") << iname << " MuonSensitiveDetector:: attaching SD to LV " << lvname;
+    this->AssignSD(lvname);
   }
 
   if (printHits) {
@@ -128,6 +128,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
 {
   LogDebug("MuonSimDebug") <<" MuonSensitiveDetector::ProcessHits "<<InitialStepPosition(aStep,WorldCoordinates)<<std::endl;
 
+  bool res = true;
   if (aStep->GetTotalEnergyDeposit()>0.){
     // do not count neutrals that are killed by User Limits MinEKine
     if( aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0 ){
@@ -138,13 +139,12 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
       } else {
 	updateHit(aStep);
       }    
-      return true;
     } else {
       storeVolumeAndTrack(aStep);
-      return false;
+      res = false;
     }
   }
-  return false;
+  return res;
 }
 
 uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
@@ -153,25 +153,22 @@ uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 
   std::stringstream MuonBaseNumber; 
   // LogDebug :: Print MuonBaseNumber
-  MuonBaseNumber << "MuonNumbering :: number of levels = "<<num.getLevels()<<std::endl;
-  MuonBaseNumber << "Level \t SuperNo \t BaseNo"<<std::endl;
-  for (int level=1;level<=num.getLevels();level++) {
+  MuonBaseNumber << "MuonNumbering :: number of levels = "<<num.getLevels()<<"\n";
+  MuonBaseNumber << "Level \t SuperNo \t BaseNo"<<"\n";
+  for (int level=1; level<=num.getLevels(); ++level) {
     MuonBaseNumber << level << " \t " << num.getSuperNo(level)
-	      << " \t " << num.getBaseNo(level) << std::endl;
+	      << " \t " << num.getBaseNo(level) << "\n";
   }
   std::string MuonBaseNumbr = MuonBaseNumber.str();
 
-  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: "<<MuonBaseNumbr;
-  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "<<(numbering->baseNumberToUnitNumber(num));
+  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: "<<MuonBaseNumbr
+			   <<" MuonDetUnitId = "<<(numbering->baseNumberToUnitNumber(num));
   return numbering->baseNumberToUnitNumber(num);
 }
 
 
 Local3DPoint MuonSensitiveDetector::toOrcaRef(const Local3DPoint& in ,const G4Step * step){
-  if (theRotation != nullptr ) {
-    return theRotation->transformPoint(in,step);
-  }
-  return (in);
+  return std::move(theRotation ? theRotation->transformPoint(in,step) : in);
 }
 
 Local3DPoint MuonSensitiveDetector::toOrcaUnits(const Local3DPoint& in){
@@ -183,24 +180,18 @@ Global3DPoint MuonSensitiveDetector::toOrcaUnits(const Global3DPoint& in){
 }
 
 void MuonSensitiveDetector::storeVolumeAndTrack(const G4Step * aStep) {
-  G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
-  G4Track * t  = aStep->GetTrack();
-  thePV=pv;
-  theTrackID=t->GetTrackID();
+  thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
+  theTrackID = aStep->GetTrack()->GetTrackID();
 }
 
 bool MuonSensitiveDetector::newHit(const G4Step * aStep){
   
   const G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
-  const G4Track * t  = aStep->GetTrack();
   uint32_t currentUnitId=setDetUnitId(aStep);
   LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::newHit :: currentUnitId = "<<currentUnitId;
-  unsigned int currentTrackID=t->GetTrackID();
-  //unsigned int currentEventID=G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-  bool changed=((pv!=thePV) || 
-		(currentUnitId!=theDetUnitId) || 
-		(currentTrackID!=theTrackID));
-  return changed;
+  unsigned int currentTrackID = aStep->GetTrack()->GetTrackID();
+
+  return ((pv!=thePV) || (currentUnitId!=theDetUnitId) || (currentTrackID!=theTrackID));
 }
 
 void MuonSensitiveDetector::createHit(const G4Step * aStep){
@@ -379,15 +370,10 @@ TrackInformation* MuonSensitiveDetector::getOrCreateTrackInformation( const G4Tr
 
 void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-//  TimeMe t("MuonSensitiveDetector::EndOfEvent", false);
- // LogDebug("MuonSimDebug") << "MuonSensitiveDetector::EndOfEvent saving last hit en event " << std::endl;
   saveHit();
 }
 
 void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& chit, const std::string& nhit){
-  //
-  // do it once for low, once for High
-  //
   if (slaveMuon->name() == nhit) {chit=slaveMuon->hits(); }
 }
 

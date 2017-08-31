@@ -58,7 +58,7 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
   hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), showerLibrary(nullptr), 
   hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), showerBundle(nullptr), 
   m_HBDarkening(nullptr), m_HEDarkening(nullptr),
-  m_HFDarkening(nullptr), hcalTestNS_(nullptr), isPametrized(false), depth_(1) {
+  m_HFDarkening(nullptr), hcalTestNS_(nullptr), isParametrized(false), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
@@ -131,7 +131,6 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
   setNumberingScheme(scheme);
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
-  std::vector<G4LogicalVolume *>::const_iterator lvcite;
   G4LogicalVolume* lv;
   std::string attribute, value;
   if (useHF) {
@@ -156,12 +155,13 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
 			    << " elements";
     for (unsigned int i=0; i < hfNames.size(); ++i) {
       G4String namv = hfNames[i];
-      lv            = nullptr;
-      for(lvcite=lvs->begin(); lvcite!=lvs->end(); lvcite++) 
-	if((*lvcite)->GetName()==namv) {
-	  lv = (*lvcite);
+      lv = nullptr;
+      for(auto & lvol : *lvs) {
+	if(lvol->GetName()==namv) {
+          lv = lvol;
 	  break;
 	}
+      }
       hfLV.push_back(lv);
       int level = static_cast<int>(temp[i]);
       hfLevels.push_back(level);
@@ -180,9 +180,9 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
     for (unsigned int i=0; i<fibreNames.size(); ++i) {
       G4String namv = fibreNames[i];
       lv            = nullptr;
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) {
-        if ((*lvcite)->GetName() == namv) {
-          lv = (*lvcite);
+      for (auto & lvol : *lvs) {
+        if (lvol->GetName() == namv) {
+          lv = lvol;
           break;
         }
       }
@@ -202,11 +202,12 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
     for (unsigned int i=0; i<pmtNames.size(); ++i)  {
       G4String namv = pmtNames[i];
       lv            = nullptr;
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) 
-        if ((*lvcite)->GetName() == namv) {
-	  lv = (*lvcite);
+      for (auto & lvol : *lvs) {
+        if (lvol->GetName() == namv) {
+	  lv = lvol;
 	  break;
 	}
+      }
       pmtLV.push_back(lv);
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
@@ -217,20 +218,20 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
     value     = "HFFibreBundleStraight";
     DDSpecificsMatchesValueFilter filter4{DDValue(attribute,value,0)};
     DDFilteredView fv4(cpv,filter4);
-    std::vector<G4String> fibreNames = getNames(fv4);
+    std::vector<G4String> fibreBNames = getNames(fv4);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
-                            << " = " << value << " have " << fibreNames.size()
+                            << " = " << value << " have " << fibreBNames.size()
                             << " entries";
-    for (unsigned int i=0; i<fibreNames.size(); ++i) {
-      G4String namv = fibreNames[i];
+    for (unsigned int i=0; i<fibreBNames.size(); ++i) {
+      G4String namv = fibreBNames[i];
       lv            = nullptr;
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
-        if ((*lvcite)->GetName() == namv) {
-	  lv = (*lvcite);
-	  break;
+      for (auto & lvol : *lvs) {
+        if (lvol->GetName() == namv) {
+	  lv = lvol;
 	}
+      }
       fibre1LV.push_back(lv);
-      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i]
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreBNames[i]
                               << " LV " << fibre1LV[i];
     }
 
@@ -238,20 +239,20 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
     value     = "HFFibreBundleConical";
     DDSpecificsMatchesValueFilter filter5{DDValue(attribute,value,0)};
     DDFilteredView fv5(cpv,filter5);
-    fibreNames = getNames(fv5);
+    std::vector<G4String> fibreCNames = getNames(fv5);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
-			    << " = " << value << " have " << fibreNames.size() 
+			    << " = " << value << " have " << fibreCNames.size() 
 			    << " entries";
-    for (unsigned int i=0; i<fibreNames.size(); ++i) {
-      G4String namv = fibreNames[i];
+    for (unsigned int i=0; i<fibreCNames.size(); ++i) {
+      G4String namv = fibreCNames[i];
       lv            = nullptr;
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) 
-	if ((*lvcite)->GetName() == namv) {
-	  lv = (*lvcite);
-	  break;
+      for (auto & lvol : *lvs) {
+        if (lvol->GetName() == namv) {
+	  lv = lvol;
 	}
+      }
       fibre2LV.push_back(lv);
-      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i]
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreCNames[i]
                               << " LV " << fibre2LV[i];
     }
     if (!fibre1LV.empty() || !fibre2LV.empty()) {
@@ -369,7 +370,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   // should be killed
   if (isItHF(aStep)) {
     double weight(1.0);
-    isPametrized = false;
+    isParametrized = false;
     if (m_HFDarkening) {
       G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
       double r = hitPoint.perp()/CLHEP::cm;
@@ -399,7 +400,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			  <<")";
 #endif
       getFromParam(aStep, weight);
-      if(isPametrized) { killTracks(aStep); }
+      if(isParametrized) { killTracks(aStep); }
 #ifdef EDM_ML_DEBUG
       LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits() 
 			  << " hits afterParamS*";
@@ -414,7 +415,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			    << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
 	getFromLibrary(aStep, weight);
-	if(isPametrized) { killTracks(aStep); }
+	if(isParametrized) { killTracks(aStep); }
       } else if (isItFibre(lv)) {
 #ifdef EDM_ML_DEBUG
 	LogDebug("HcalSim") << "HCalSD: Hit at Fibre in LV: " << lv->GetName()
@@ -800,7 +801,7 @@ void HCalSD::getFromLibrary (const G4Step* aStep, double weight) {
   bool isEM = (pdg == hfPGDcodes[0] || pdg == hfPGDcodes[1] || pdg == hfPGDcodes[2]);
 
   std::vector<HFShowerLibrary::Hit> hits = 
-    showerLibrary->getHits(aStep, isPametrized, weight, false);
+    showerLibrary->getHits(aStep, isParametrized, weight, false);
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
@@ -883,11 +884,11 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) {
 			  << " of " << preStepPoint->GetKineticEnergy()/GeV 
 			  << " GeV in detector type " << det;
 #endif
-  for (unsigned int i=0; i<hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
+  for (auto & ahit : hits) {
+    G4ThreeVector hitPoint = ahit.position;
     if (isItinFidVolume (hitPoint)) {
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
+      int depth              = ahit.depth;
+      double time            = ahit.time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
@@ -906,17 +907,17 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) {
 
 void HCalSD::getFromParam (const G4Step* aStep, double weight) {
 
-  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep, weight, isPametrized);
-  int nHit = static_cast<int>(hits.size());
+  std::vector<HFShowerParam::Hit> hits = 
+    showerParam->getHits(aStep, weight, isParametrized);
 
-  if (nHit > 0) {
+  if (!hits.empty()) {
     preStepPoint  = aStep->GetPreStepPoint();
     posGlobal     = preStepPoint->GetPosition();
     int primaryID = setTrackID(aStep);
    
     int det   = 5;
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HcalSim") << "HCalSD::getFromParam " << nHit << " hits for " 
+    edm::LogInfo("HcalSim") << "HCalSD::getFromParam " << hits.size() << " hits for " 
                             << GetName() << " of " << primaryID << " with " 
                             <<  aStep->GetTrack()->GetDefinition()->GetParticleName()
                             << " of " << preStepPoint->GetKineticEnergy()/GeV 

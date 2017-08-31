@@ -239,7 +239,7 @@ double DreamSD::curve_LY() {
 					preStepPoint->GetTouchable());
   double crlength = crystalLength();
   double localz   = localPoint.x();
-  double dapd = std::abs(0.5 * crlength - side*localz); // Distance from closest APD
+  double dapd = 0.5 * crlength - side*localz; // Distance from closest APD
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
       weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
@@ -270,7 +270,7 @@ double DreamSD::crystalLength() const {
 double DreamSD::crystalWidth() const {
 
   auto ite = xtalLMap.find(theLogicalVolume);
-  return (ite == xtalLMap.end()) ? 0.0 : ite->second.second;
+  return (ite == xtalLMap.end()) ? -1.0 : ite->second.second;
 }
 
 //________________________________________________________________________________________
