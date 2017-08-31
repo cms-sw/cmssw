@@ -788,6 +788,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       double enM0  = cenM0[i]; 
       double enM3  = cenM3[i]; 
       double chi2  = cchi2[i];
+      if (chi2<0.01) chi2=0.01;
       double t   = ctime[i];
       double depth = cdepth[i];
 
