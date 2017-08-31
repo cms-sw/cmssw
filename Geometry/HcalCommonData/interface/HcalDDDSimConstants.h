@@ -28,49 +28,50 @@ public:
   HcalDDDSimConstants(const HcalParameters* hp);
   ~HcalDDDSimConstants();
 
-  HcalCellType::HcalCell    cell(const int& det,  const int& zside, const int& depth,
-				 const int& etaR, const int& iphi) const;
-  int                       findDepth(const int& det,   const int& eta, const int& phi,
-				      const int& zside, const int& lay) const;
-  unsigned int              findLayer(const int& layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
-  std::vector<std::pair<double,double> > getConstHBHE(const int& type) const;
-  int                       getDepthEta16(const int& det, const int& phi, 
-					  const int& zside) const;
-  int                       getDepthEta16M(const int& det) const;
-  int                       getDepthEta29(const int& phi, const int& zside, const int& i) const;
-  int                       getDepthEta29M(const int& i, const bool& planOne) const;
-  std::pair<int,double>     getDetEta(const double& eta, const int& depth);
-  int                       getEta(const int& det, const int& lay, const double& hetaR);
-  std::pair<int,int>        getEtaDepth(const int& det, int etaR, const int& phi,
-					const int& zside, int depth, const int& lay);
-  double                    getEtaHO(const double& etaR, const double& x, const double& y, 
-				     const double& z) const;
-  std::pair<int,int>        getiEtaRange(const int& i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
+  HcalCellType::HcalCell    cell(const int det, const int zside, 
+				 const int depth, const int etaR, 
+				 const int iphi) const;
+  int                       findDepth(const int det, const int eta, 
+				      const int phi, const int zside,
+				      const int lay) const;
+  unsigned int              findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
+  std::vector<std::pair<double,double> > getConstHBHE(const int type) const;
+  int                       getDepthEta16(const int det, const int phi, 
+					  const int zside) const;
+  int                       getDepthEta16M(const int det) const;
+  int                       getDepthEta29(const int phi, int zside, int i) const;
+  int                       getDepthEta29M(const int i, const bool planOne) const;
+  std::pair<int,double>     getDetEta(const double eta, const int depth);
+  int                       getEta(const int det, const int lay, const double hetaR);
+  std::pair<int,int>        getEtaDepth(const int det, int etaR, int phi,
+					int zside, int depth, int lay);
+  double                    getEtaHO(double& etaR, double& x, double& y, 
+				     double& z) const;
+  std::pair<int,int>        getiEtaRange(const int i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
   const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
   const std::vector<HcalDetId> & getIdHF2QIE() const {return idHF2QIE;}
-  double                    getLayer0Wt(const int& det, const int& phi, 
-					const int& zside) const;
-  int                       getFrontLayer(const int& det, const int& eta) const;
-  int                       getLastLayer(const int& det, const int& eta) const;
-  int                       getLayerFront(const int& det, const int& eta, 
-					  const int& phi, const int& zside,
-					  const int& depth) const;
-  int                       getLayerBack(const int& det, const int& eta, 
-					 const int& phi, const int& zside,
-					 const int& depth) const;
-  int                       getLayerMax(const int& eta, const int& depth) const;
-  int                       getMaxDepth(const int& type) const {return maxDepth[type];}
-  int                       getMaxDepth(const int& det, const int& eta, 
-					const int& phi, const int& zside,
-					const bool& partialOnly) const;
-  std::pair<int,int>        getMaxDepthDet(const int& i) const {return ((i==1) ? depthMaxDf_ : depthMaxSp_);}
-  int                       getMinDepth(const int& det, const int& eta, 
-					const int& phi, const int& zside,
-					const bool& partialOnly) const;
-  std::pair<int,int>        getModHalfHBHE(const int& type) const;
-  std::pair<double,double>  getPhiCons(const int& det, const int& ieta) const;
-  std::vector<std::pair<int,double> > getPhis(const int& subdet, const int& ieta) const;
+  double                    getLayer0Wt(const int det, const int phi, 
+					const int zside) const;
+  int                       getFrontLayer(const int det, const int eta) const;
+  int                       getLayerFront(const int det, const int eta, 
+					  const int phi, const int zside,
+					  const int depth) const;
+  int                       getLayerBack(const int det, const int eta, 
+					 const int phi, const int zside,
+					 const int depth) const;
+  int                       getLayerMax(const int eta, const int depth) const;
+  int                       getMaxDepth(const int type) const {return maxDepth[type];}
+  int                       getMaxDepth(const int det, const int eta, 
+					const int phi, const int zside,
+					bool partialOnly) const;
+  std::pair<int,int>        getMaxDepthDet(const int i) const {return ((i==1) ? depthMaxDf_ : depthMaxSp_);}
+  int                       getMinDepth(const int det, const int eta, 
+					const int phi, const int zside,
+					bool partialOnly) const;
+  std::pair<int,int>        getModHalfHBHE(const int type) const;
+  std::pair<double,double>  getPhiCons(const int det, const int ieta) const;
+  std::vector<std::pair<int,double> > getPhis(const int subdet, const int ieta) const;
   const std::vector<double> &  getPhiTableHF() const {return hpar->phitable;}
   const std::vector<double> &  getRTableHF()   const {return hpar->rTable;}
   std::vector<HcalCellType> HcalCellTypes()    const;
@@ -78,12 +79,12 @@ public:
 					  int depth=-1) const;
   bool                      isBH() const {return isBH_;}
   const HcalLayerDepthMap*  ldMap() const {return &ldmap_;}
-  int                       maxHFDepth(const int& ieta, const int& iphi) const;
-  unsigned int              numberOfCells(const HcalSubdetector&) const;
-  int                       phiNumber(const int& phi, const int& unit) const;
+  int                       maxHFDepth(const int ieta, const int iphi) const;
+  unsigned int              numberOfCells(HcalSubdetector) const;
+  int                       phiNumber(const int phi, const int unit) const;
   void                      printTiles() const;
-  int                       unitPhi(const int& det, const int& etaR) const;
-  int                       unitPhi(const double& dphi) const; 
+  int                       unitPhi(const int det, const int etaR) const;
+  int                       unitPhi(const double dphi) const; 
        
 private:
 
@@ -92,21 +93,24 @@ private:
   static const int          maxLayerHB_=16;
 
   void                      initialize();
-  double                    deltaEta(const int& det, const int& eta, const int& depth) const;
-  double                    getEta(const int& det, const int& etaR,
-				   const int& zside, int depth=1) const;
-  double                    getEta(const double& r, const double& z) const;
-  int                       getShift(const HcalSubdetector& subdet, const int& depth) const;
-  double                    getGain (const HcalSubdetector& subdet, const int& depth) const;
-  void                      printTileHB(const int& eta,   const int& phi,
-					const int& zside, const int& depth) const;
-  void                      printTileHE(const int& eta,   const int& phi, 
-					const int& zside, const int& depth) const;
-  unsigned int              layerGroupSize(int eta) const;
-  unsigned int              layerGroup(int eta, int i) const;
-  unsigned int              layerGroup(int det, int eta,
-				       int phi, int zside,
-				       int i) const;
+  double                    deltaEta(const int det, const int eta, 
+				     const int depth) const;
+  double                    getEta(const int det, const int etaR,
+				   const int zside, const int depth=1) const;
+  double                    getEta(const double r, const double z) const;
+  int                       getShift(const HcalSubdetector subdet, 
+				     const int depth) const;
+  double                    getGain (const HcalSubdetector subdet, 
+				     const int depth) const;
+  void                      printTileHB(const int eta, const int phi,
+					const int zside, const int depth) const;
+  void                      printTileHE(const int eta, const int phi, 
+					const int zside, const int depth) const;
+  unsigned int              layerGroupSize(const int eta) const;
+  unsigned int              layerGroup(const int eta, const int i) const;
+  unsigned int              layerGroup(const int det, const int eta,
+				       const int phi, const int zside,
+				       const int i) const;
 
   const HcalParameters* hpar;
   HcalLayerDepthMap     ldmap_;

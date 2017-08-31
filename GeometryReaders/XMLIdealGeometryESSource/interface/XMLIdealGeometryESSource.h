@@ -24,14 +24,14 @@ public:
     std::unique_ptr<DDCompactView> produce();
 protected:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-				const edm::IOVSyncValue &,edm::ValidityInterval &) override;
-private:
+			const edm::IOVSyncValue &,edm::ValidityInterval &) override;
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &) = delete;
+
+ private:
     std::string rootNodeName_;
     bool userNS_;
     GeometryConfiguration geoConfig_;
-
 };
 
 

@@ -175,7 +175,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   iSetup.get<GlobalTrackingGeometryRecord>().get(geo);     
     
   DetId detId1(DetId::Tracker, 0);
-  const TrackerGeometry* trackerGeometry = 0;
+  const TrackerGeometry* trackerGeometry = nullptr;
   std::cout << "Pointer to Tracker Geometry: ";
   try {
     trackerGeometry = (const TrackerGeometry*) geo->slaveGeometry(detId1);
@@ -185,7 +185,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   }
     
   DetId detId2(DetId::Muon, 1); 
-  const DTGeometry* dtGeometry = 0;
+  const DTGeometry* dtGeometry = nullptr;
   std::cout << "Pointer to DT Geometry: ";
   try {
     dtGeometry = (const DTGeometry*) geo->slaveGeometry(detId2);
@@ -195,7 +195,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   }
  
   DetId detId3(DetId::Muon, 2); 
-  const CSCGeometry* cscGeometry = 0;
+  const CSCGeometry* cscGeometry = nullptr;
   std::cout << "Pointer to CSC Geometry: "; 
   try {
     cscGeometry = (const CSCGeometry*) geo->slaveGeometry(detId3);
@@ -205,7 +205,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   }
  
   DetId detId4(DetId::Muon, 3); 
-  const RPCGeometry* rpcGeometry = 0;
+  const RPCGeometry* rpcGeometry = nullptr;
   std::cout << "Pointer to RPC Geometry: ";
   try {
     rpcGeometry = (const RPCGeometry*) geo->slaveGeometry(detId4);
@@ -215,7 +215,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   }
     
   DetId detId5(DetId::Muon, 4); 
-  const GEMGeometry* gemGeometry = 0;
+  const GEMGeometry* gemGeometry = nullptr;
   std::cout << "Pointer to GEM Geometry: ";
   try {
     gemGeometry = (const GEMGeometry*) geo->slaveGeometry(detId5);

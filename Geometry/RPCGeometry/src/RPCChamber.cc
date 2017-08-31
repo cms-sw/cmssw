@@ -79,7 +79,7 @@ RPCChamber::nrolls() const
 const RPCRoll* 
 RPCChamber::roll(RPCDetId id) const
 {
-  if (id.chamberId()!=theId) return 0; // not in this Roll!
+  if (id.chamberId()!=theId) return nullptr; // not in this Roll!
   return roll(id.roll());
 }
 
@@ -91,6 +91,6 @@ RPCChamber::roll(int isl) const
     if (theRoll->id().roll()==isl) 
       return theRoll;
   }
-  return 0;
+  return nullptr;
 }
 

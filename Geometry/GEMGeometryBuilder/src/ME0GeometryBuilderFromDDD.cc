@@ -80,8 +80,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
 
     // chamber id for this partition. everything is the same; but partition number is 0 and layer number is 0.
-    ME0DetId chamberId(rollDetId.chamberId());
-    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 chamber rawId: " << chamberId.rawId() << ", detId: " << chamberId;
+    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 chamber rawId: " << ME0DetId(rollDetId.chamberId()).rawId() << ", detId: " << ME0DetId(rollDetId.chamberId());
 
     //Commented out, we don't have stations
     //const int stationId(rollDetId.station());

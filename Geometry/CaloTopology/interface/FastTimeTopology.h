@@ -93,8 +93,8 @@ public:
 
   const FastTimeDDDConstants& dddConstants () const {return hdcons_;}
 
-  DetId offsetBy(DetId startId, int nrStepsX, int nrStepsY ) const;
-  DetId switchZSide(DetId startId) const;
+  DetId offsetBy(const DetId startId, int nrStepsX, int nrStepsY ) const;
+  DetId switchZSide(const DetId startId) const;
 
   struct DecodedDetId {
     DecodedDetId() : iPhi(0), iEtaZ(0), zside(0), iType(0), subdet(0) {}
