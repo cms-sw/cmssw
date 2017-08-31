@@ -8,11 +8,3 @@ primaryVertexAssociation = sortedPFPrimaryVertices.clone(
   produceNoPileUpCollection = cms.bool(False)
 )
 
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    primaryVertexAssociation,
-    vertices=cms.InputTag("offlinePrimaryVertices4D"),
-    trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),
-    trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
-    assignment=dict(useTiming=True),
-)
