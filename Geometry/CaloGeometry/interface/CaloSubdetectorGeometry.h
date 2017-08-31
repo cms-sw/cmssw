@@ -43,6 +43,10 @@ public:
   /// The base class DOES assume that it owns the CaloCellGeometry objects
   virtual ~CaloSubdetectorGeometry();
 
+  /// avoid copies
+  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) = delete;
+  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) = delete;
+
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
@@ -124,10 +128,6 @@ private:
   ParMgr*   m_parMgr ;
 
   CaloCellGeometry::CornersMgr* m_cmgr ;
-
-  /// avoid copies
-  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) = delete;
-  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) = delete;
 
   bool               m_sortedIds ;
 
