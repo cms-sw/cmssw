@@ -86,7 +86,7 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
 
 const CaloCellGeometry* FastTimeGeometry::getGeometry(const DetId& id) const {
 
-  if (id == DetId()) return 0; // nothing to get
+  if (id == DetId()) return nullptr; // nothing to get
   DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
   const uint32_t cellIndex (topology().detId2denseGeomId(geoId));
   return cellGeomPtr (cellIndex);
@@ -160,12 +160,12 @@ unsigned int FastTimeGeometry::sizeForDenseIndex() const {
 
 const CaloCellGeometry* FastTimeGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
-    return 0;
+    return nullptr;
   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
 #ifdef EDM_ML_DEBUG
   //  std::cout << "cellGeomPtr " << m_cellVec[index];
 #endif
-  if (0 == cell->param()) return 0;
+  if (nullptr == cell->param()) return nullptr;
   return cell;
 }
 
@@ -221,8 +221,8 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
     
     Tr3D tr;
     const CaloCellGeometry* ptr( cellGeomPtr( i ));
-    if ( 0 != ptr ) {
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 );
+    if ( nullptr != ptr ) {
+      ptr->getTransform( tr, ( Pt3DVec* ) nullptr );
 
       if( Tr3D() == tr ) { // there is no rotation
 	const GlobalPoint& gp( ptr->getPosition()); 

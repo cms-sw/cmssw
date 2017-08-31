@@ -12,11 +12,11 @@ public:
   HcalHitRelabeller(bool nd=false);
   void process(std::vector<PCaloHit> & hcalHits);
   void setGeometry(const HcalDDDRecConstants *&);
-  DetId relabel(uint32_t testId) const;
-  static DetId relabel(uint32_t testId, const HcalDDDRecConstants * theRecNumber);
+  DetId relabel(const uint32_t testId) const;
+  static DetId relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber);
 
 private:
-  double energyWt(uint32_t testId) const;
+  double energyWt(const uint32_t testId) const;
 
   const HcalDDDRecConstants* theRecNumber;
   bool                       neutralDensity_;

@@ -15,7 +15,7 @@ ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() :
 }
 
 ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : 
-   theTopology( 0   ) ,
+   theTopology( nullptr   ) ,
    extTopology( &ht ) 
 {
   init();
@@ -64,8 +64,8 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
     id = HcalZDCDetId(section, false, ichannel);
     if(extTopology->valid(id)) zdcIds.emplace_back(id);
    }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 
+  if( geom->cornersMgr() == nullptr ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
+  if( geom->parMgr()     == nullptr ) geom->allocatePar( 
      ZdcGeometry::k_NumberOfParametersPerShape*ZdcGeometry::k_NumberOfShapes,
      ZdcGeometry::k_NumberOfParametersPerShape ) ;
 

@@ -40,7 +40,7 @@ int ME0Chamber::nLayers() const {
 }
 
 const ME0Layer* ME0Chamber::layer(ME0DetId id) const {
-  if (id.chamberId()!=detId_) return 0; // not in this layer!
+  if (id.chamberId()!=detId_) return nullptr; // not in this layer!
   return layer(id.layer());
 }
 
@@ -49,7 +49,7 @@ const ME0Layer* ME0Chamber::layer(int isl) const {
     if (layer->id().layer()==isl)
       return layer;
   }
-  return 0;
+  return nullptr;
 }
 
 // For the old ME0 Geometry (with one eta partition)
@@ -67,7 +67,7 @@ int ME0Chamber::nEtaPartitions() const {
 }
 
 const ME0EtaPartition* ME0Chamber::etaPartition(ME0DetId id) const {
-  if (id.chamberId()!=detId_) return 0; // not in this eta partition!                                                                                                                                                             
+  if (id.chamberId()!=detId_) return nullptr; // not in this eta partition!                                                                                                                                                             
   return etaPartition(id.roll());
 }
 
@@ -76,7 +76,7 @@ const ME0EtaPartition* ME0Chamber::etaPartition(int isl) const {
     if (roll->id().roll()==isl)
       return roll;
   }
-  return 0;
+  return nullptr;
 }
 
 float ME0Chamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction ) const {

@@ -83,7 +83,7 @@ private:
 
   void cmpset( const CaloSubdetectorGeometry* geom ,
 	       const GlobalPoint&             gp   ,
-	       double                   dR     ) ;
+	       const double                   dR     ) ;
 
   void ovrTst( const CaloGeometry& cg      , 
 	       const CaloSubdetectorGeometry* geom ,
