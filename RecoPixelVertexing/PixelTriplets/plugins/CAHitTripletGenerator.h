@@ -1,7 +1,6 @@
 #ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
 #define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
 
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
@@ -29,7 +28,7 @@ namespace edm {
     class ParameterSetDescription;
 }
 
-class CAHitTripletGenerator : public HitTripletGenerator {
+class CAHitTripletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
@@ -37,19 +36,15 @@ public:
     typedef OrderedHitSeeds ResultType;
 public:
 
-    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitTripletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
-    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits=true);
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitTripletGenerator(cfg, iC) {}
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    virtual ~CAHitTripletGenerator();
+    ~CAHitTripletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitTriplet"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
-
-    /// from base class
-    virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
-            const edm::Event & ev, const edm::EventSetup& es);
 
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                      std::vector<OrderedHitSeeds>& result,
@@ -57,14 +52,6 @@ public:
                      const SeedingLayerSetsHits& layers);
 
 private:
-    // actual work
-    void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets& result,
-                     std::vector<const HitDoublets *>& hitDoublets,
-                     CAGraph& g,
-                     const edm::EventSetup& es);
-
-    edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
-
     LayerCacheType theLayerCache;
 
     std::unique_ptr<SeedComparitor> theComparitor;
