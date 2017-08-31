@@ -96,6 +96,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH,alongMomentum);
   std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH,oppositeToMomentum);
 
+  edm::ESHandle<Propagator> SmartOpposite;
+  edm::ESHandle<Propagator> SHPOpposite;
   iSetup.get<TrackingComponentsRecord>().get("hltESPSmartPropagatorAnyOpposite", SmartOpposite);
   iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
 
@@ -238,7 +240,6 @@ void TSGForOI::findSeedsOnLayer(
       }
     }
   }
-  //  numSeedsMade=out->size();
 
   // Hits:
   if (layerCount>numOfLayersToTry_) return;
@@ -279,6 +280,7 @@ int TSGForOI::makeSeedsFromHits(
 				const Propagator& propagatorAlong,
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+				unsigned int& numSeedsMade,
 				const double errorSF)  const{
 
   //		Error Rescaling:
