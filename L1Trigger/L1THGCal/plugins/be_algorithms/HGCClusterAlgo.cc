@@ -28,6 +28,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             dRC2d,
             NNC2d
         };
+        enum MulticlusterType{
+            dRC3d,
+            DBSCANC3d
+        };
     
     public:
 
@@ -170,7 +174,17 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to multiclustering and compute shower shape*/
-    multiclustering_.clusterize( clustersPtrs, *multicluster_product_ );
+    switch(clusteringAlgorithmType_){
+    case dRC3d : 
+      multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_ );
+      break;
+    case DBSCANC3d:
+      multiclustering_.clusterizeDBSCAN( clustersPtrs, *multicluster_product_ );
+      break;
+    default:
+      // Should not happen, clustering type checked in constructor
+      break;
+    }
 
     /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
     multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");
