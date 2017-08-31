@@ -49,7 +49,7 @@ namespace edm {
 
   template <typename TReturn>
   TReturn callWithTryCatchAndPrint(std::function<TReturn (void)> iFunc,
-                                   char const* context = 0,
+                                   char const* context = nullptr,
                                    bool disablePrint = false) {
 
     try {

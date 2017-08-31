@@ -120,7 +120,7 @@ namespace edm {
             std::shared_ptr<ProcessConfiguration const> processConfiguration,
             PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
-    if(main_input == 0) {
+    if(main_input == nullptr) {
       throw Exception(errors::Configuration)
         << "There must be exactly one source in the configuration.\n"
         << "It is missing (or there are sufficient syntax errors such that it is not recognized as the source)\n";
@@ -192,7 +192,7 @@ namespace edm {
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 
-    if(loopers.size() == 0) {
+    if(loopers.empty()) {
       return vLooper;
     }
 
