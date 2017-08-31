@@ -319,6 +319,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',
                   'TenE_E_0_200_pythia8_cfi',
                   'FlatRandomPtAndDxyGunProducer_cfi',
+                  'TenTau_E_15_500_pythia8_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -408,6 +409,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
            'TenE_E_0_200_pythia8_cfi':Kby(9,100),
            'FlatRandomPtAndDxyGunProducer_cfi':Kby(9,100),
+           'TenTau_E_15_500_pythia8_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -497,4 +499,5 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff': 'DisplacedSUSY_stopToBottom_M_300_1000mm_13',
                             'TenE_E_0_200_pythia8_cfi': 'TenE_0_200',
                             'FlatRandomPtAndDxyGunProducer_cfi': 'DisplacedMuonsDxy_0_500',
+                            'TenTau_E_15_500_pythia8_cfi':'TenTau_15_500',
 }
