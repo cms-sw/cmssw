@@ -266,7 +266,7 @@ void testTable::tableCtrTest()
     std::vector<std::string> labels = {{"jet0","jet1","jet2"}};
     
     int index=0;
-    MyJetTable jt{ j, column_fillers(filler_for<Label>([&index](JetType const&)
+    MyJetTable jt{ j, column_fillers(Label::filler([&index](JetType const&)
                                                             { std::ostringstream s;
                                                               s<<"jet"<<index++;
                                                               return s.str();}) ) };
@@ -282,7 +282,7 @@ void testTable::tableCtrTest()
 
     {
       auto itFillIndex = labels.begin();
-      MyJetTable jt{ j, column_fillers(filler_for<Label>([&itFillIndex](JetType const&)
+      MyJetTable jt{ j, column_fillers(Label::filler([&itFillIndex](JetType const&)
                                                         {return *(itFillIndex++);}) ) };
       auto itLabels = labels.begin();
       for(auto const& v: jt) {
@@ -444,7 +444,7 @@ void testTable::mutabilityTest() {
   CPPUNIT_ASSERT(row.get<Eta>() == 5.);
   CPPUNIT_ASSERT(row.get<Phi>() == 6.);
   
-  row.copyValuesFrom(JetType{7.,8.}, column_fillers(filler_for<Phi>([](JetType const&) {return 9.;})));
+  row.copyValuesFrom(JetType{7.,8.}, column_fillers(Phi::filler([](JetType const&) {return 9.;})));
   CPPUNIT_ASSERT(row.get<Eta>() == 7.);
   CPPUNIT_ASSERT(row.get<Phi>() == 9.);
 
