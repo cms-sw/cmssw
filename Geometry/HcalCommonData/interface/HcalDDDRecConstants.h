@@ -58,7 +58,7 @@ public:
                                                  nPhi(nfi), rMin(r1), rMax(r2) {}
   };
 
-  std::vector<std::pair<double,double> > getConstHBHE(const int& type) const {
+  std::vector<std::pair<double,double> > getConstHBHE(const int type) const {
     if      (type == 0) return gconsHB;
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
@@ -75,7 +75,7 @@ public:
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
   const std::vector<double> &      getEtaTable()   const {return etaTable;}
   const std::vector<double> &      getEtaTableHF() const {return hpar->etaTableHF;}
-  std::pair<double,double>  getEtaLimit(const int& i) const 
+  std::pair<double,double>  getEtaLimit(const int i) const 
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay, int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
@@ -88,12 +88,12 @@ public:
   int                       getMinDepth(const int itype, const int ieta,
 					const int iphi, const int zside) const;
   int                       getNEta() const {return hpar->etagroup.size();}
-  int                       getNoff(const int& i) const {return hpar->noff[i];}
-  int                       getNPhi(const int& type) const {return nPhiBins[type];}
-  double                    getPhiBin(const int& i) const {return phibin[i];}
-  double                    getPhiOff(const int& i) const {return hpar->phioff[i];}
+  int                       getNoff(const int i) const {return hpar->noff[i];}
+  int                       getNPhi(const int type) const {return nPhiBins[type];}
+  double                    getPhiBin(const int i) const {return phibin[i];}
+  double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
-  std::vector<std::pair<int,double> > getPhis(const int& subdet, const int& ieta) const;
+  std::vector<std::pair<int,double> > getPhis(const int subdet, const int ieta) const;
   const std::vector<double> &      getPhiTable()   const {return phibin;}
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   int                       getPhiZOne(std::vector<std::pair<int,int> >& phiz) const;

@@ -45,8 +45,8 @@ public:
   int                       getEta(const int det, const int lay, const double hetaR);
   std::pair<int,int>        getEtaDepth(const int det, int etaR, int phi,
 					int zside, int depth, int lay);
-  double                    getEtaHO(double& etaR, double& x, double& y, 
-				     double& z) const;
+  double                    getEtaHO(const double etaR, const double x, const double y, 
+				     const double z) const;
   std::pair<int,int>        getiEtaRange(const int i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
   const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
