@@ -101,6 +101,8 @@ MicroEventContentMC = cms.PSet(
 )
 MicroEventContentMC.outputCommands += MicroEventContentGEN.outputCommands
 MicroEventContentMC.outputCommands += [
+                                        'keep *_slimmedGenJets__*',
+                                        'keep *_slimmedGenJetsFlavourInfos_*_*',
                                         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
                                         # RUN
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
