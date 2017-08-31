@@ -529,6 +529,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
+  double sipmDarkCurrentWidth = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
 
   // go over the time slices
   for(unsigned int ip=0; ip<cssize; ++ip){
@@ -551,7 +552,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
     if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
-      noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
+      noiseDCArr[ip] = sipmDarkCurrentWidth;
     }
 
     // Photo statistics uncertainties
@@ -573,10 +574,11 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     }
   }
 
-  double averagePedSig2GeV=0.25*(channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)*channelData.tsGain(0)*channelData.tsGain(0) +
-				 channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)*channelData.tsGain(1)*channelData.tsGain(1) +
-				 channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)*channelData.tsGain(2)*channelData.tsGain(2) +
-				 channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)*channelData.tsGain(3)*channelData.tsGain(3));
+  double sipmDarkCurrentWidth2 = sipmDarkCurrentWidth*sipmDarkCurrentWidth;
+  double averagePedSig2GeV=0.25*((channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)+sipmDarkCurrentWidth2)*channelData.tsGain(0)*channelData.tsGain(0) +
+				 (channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)+sipmDarkCurrentWidth2)*channelData.tsGain(1)*channelData.tsGain(1) +
+				 (channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+sipmDarkCurrentWidth2)*channelData.tsGain(2)*channelData.tsGain(2) +
+				 (channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)+sipmDarkCurrentWidth2)*channelData.tsGain(3)*channelData.tsGain(3));
 
   // redefine the invertpedSig2
   psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
