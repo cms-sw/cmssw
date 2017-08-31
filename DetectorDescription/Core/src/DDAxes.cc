@@ -3,7 +3,13 @@
 #include <utility>
 
 AxesNames::AxesNames()
-  : axesmap_{{"x", DDAxes::x }, {"y", DDAxes::y}, {"z", DDAxes::z}, {"rho", DDAxes::rho}, {"radial3D", DDAxes::radial3D}, {"phi", DDAxes::phi}, {"undefined", DDAxes::undefined }}
+  : axesmap_{{"x", DDAxes::x },
+             {"y", DDAxes::y},
+	     {"z", DDAxes::z},
+	     {"rho", DDAxes::rho},
+	     {"radial3D", DDAxes::radial3D},
+	     {"phi", DDAxes::phi},
+	     {"undefined", DDAxes::undefined }}
 {}
 
 AxesNames::~AxesNames() { }

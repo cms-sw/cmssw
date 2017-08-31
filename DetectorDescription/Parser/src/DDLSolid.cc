@@ -1,11 +1,10 @@
 #include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include <map>
 #include <utility>
 #include <vector>
-
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 class DDCompactView;
 
@@ -26,8 +25,8 @@ DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
     auto refsol = myRegistry_->getElement("rSolid");
     std::vector<std::string> names;
     std::vector<std::string> values;
-    names.push_back("name");
-    values.push_back(getAttributeSet().find("name")->second);
+    names.emplace_back("name");
+    values.emplace_back(getAttributeSet().find("name")->second);
     refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
   }
 

@@ -6,184 +6,123 @@
  *
  ****************************************************************************/
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
-//#include "Alignment/RPTrackBased/interface/AlignmentGeometry.h"
-
-#include <set>
-
-#include "TMatrixD.h"
-#include "TVectorD.h"
-
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
-
-using namespace std;
-using namespace xercesc;
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFromFile(const string &fileName)
+RPAlignmentCorrectionsData
+RPAlignmentCorrectionsMethods::getCorrectionsDataFromFile( const edm::FileInPath& fileName )
 {
-  printf(">> RPAlignmentCorrectionsMethods::LoadXMLFile(%s)\n", fileName.c_str());
-
-  // prepend CMSSW src dir
-  char *cmsswPath = getenv("CMSSW_BASE");
-  size_t start = fileName.find_first_not_of("   ");
-  string fn = fileName.substr(start);
-  if (cmsswPath && fn[0] != '/' && fn.find("./") != 0)
-    fn = string(cmsswPath) + string("/src/") + fn;
+  edm::LogInfo("RPAlignmentCorrectionsMethods")
+    << "LoadXMLFile(" << fileName << ")";
 
   // load DOM tree first the file
-  try {
-    XMLPlatformUtils::Initialize();
-  }
-  catch (const XMLException& toCatch) {
-    char* message = XMLString::transcode(toCatch.getMessage());
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "An XMLException caught with message: " << message << ".\n";
-    XMLString::release(&message);
-  }
+  XMLPlatformUtils::Initialize();
 
-  XercesDOMParser* parser = new XercesDOMParser();
-  parser->setValidationScheme(XercesDOMParser::Val_Always);
-  parser->setDoNamespaces(true);
+  auto parser = std::make_unique<XercesDOMParser>();
+  parser->setValidationScheme( XercesDOMParser::Val_Always );
+  parser->setDoNamespaces( true );
+  parser->parse( fileName.fullPath().c_str() );
 
-  try {
-    parser->parse(fn.c_str());
-  }
-  catch (...) {
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fn << "' (exception)." << endl;
-  }
-
-  if (!parser)
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fn << "' (parser = NULL)." << endl;
+  if ( !parser )
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName.fullPath() << "' (parser = NULL).";
   
   DOMDocument* xmlDoc = parser->getDocument();
 
-  if (!xmlDoc)
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fn << "' (xmlDoc = NULL)." << endl;
+  if ( !xmlDoc )
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName.fullPath() << "' (xmlDoc = NULL).";
 
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
-  if (!elementRoot)
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "File `" << fn << "' is empty." << endl;
+  if ( !elementRoot )
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "File `" << fileName.fullPath() << "' is empty.";
 
-  RPAlignmentCorrectionsData d = GetCorrectionsData(elementRoot);
+  RPAlignmentCorrectionsData corr_data = getCorrectionsData( elementRoot );
 
   XMLPlatformUtils::Terminate();
 
-  return d;
+  return corr_data;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOMNode *root)
+RPAlignmentCorrectionsData
+RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
 {
   RPAlignmentCorrectionsData result;
-  
+
   DOMNodeList *children = root->getChildNodes();
-  for (unsigned int i = 0; i < children->getLength(); i++)
-  {
-    DOMNode *n = children->item(i);
-    if (n->getNodeType() != DOMNode::ELEMENT_NODE)
-      continue;
-   
+  for ( unsigned int i = 0; i < children->getLength(); i++ ) {
+    DOMNode *node = children->item( i );
+    if ( node->getNodeType() != DOMNode::ELEMENT_NODE ) continue;
+    const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
     // check node type
     unsigned char nodeType = 0;
-    if (!strcmp(XMLString::transcode(n->getNodeName()), "det")) nodeType = 1;
-    if (!strcmp(XMLString::transcode(n->getNodeName()), "rp")) nodeType = 2;
+    if      ( node_name == "det" ) nodeType = 1;
+    else if ( node_name == "rp"  ) nodeType = 2;
 
-    if (!nodeType)
-      throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << XMLString::transcode(n->getNodeName()) << "'.";
+    if ( nodeType == 0 )
+      throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << cms::xerces::toString( node->getNodeName() ) << "'.";
 
     // check children
-    if (n->getChildNodes()->getLength() > 0)
-    {
-        edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: tag `" <<
-          XMLString::transcode(n->getNodeName()) << "' has " << n->getChildNodes()->getLength() << 
-          " children nodes - they will be all ignored.";
+    if ( node->getChildNodes()->getLength() > 0 ) {
+        edm::LogProblem("RPAlignmentCorrectionsMethods") << "LoadXMLFile > Warning: tag `" <<
+          cms::xerces::toString( node->getNodeName() ) << "' has " << node->getChildNodes()->getLength() << " children nodes - they will be all ignored.";
     }
 
     // default values
     double sh_r = 0., sh_x = 0., sh_y = 0., sh_z = 0., rot_z = 0.;
     double sh_r_e = 0., sh_x_e = 0., sh_y_e = 0., sh_z_e = 0., rot_z_e = 0.;
-    unsigned int decId = 0;
+    unsigned int id = 0;
     bool idSet = false;
 
     // get attributes
-    DOMNamedNodeMap* attr = n->getAttributes();
-    for (unsigned int j = 0; j < attr->getLength(); j++)
-    {    
-      DOMNode *a = attr->item(j);
- 
-      //printf("\t%s\n", XMLString::transcode(a->getNodeName()));
+    DOMNamedNodeMap* attr = node->getAttributes();
+    for ( unsigned int j = 0; j < attr->getLength(); j++ ) {
+      DOMNode *a = attr->item( j );
+      const std::string node_name = cms::xerces::toString( a->getNodeName() );
 
-      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
-      {
-        decId = atoi(XMLString::transcode(a->getNodeValue()));
+      if ( node_name == "id" ) {
+        id = cms::xerces::toUInt( a->getNodeValue() );
         idSet = true;
-      } else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_r"))
-          sh_r = atof(XMLString::transcode(a->getNodeValue()));
-        else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_r_e"))
-          sh_r_e = atof(XMLString::transcode(a->getNodeValue()));
-          else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_x"))
-            sh_x = atof(XMLString::transcode(a->getNodeValue()));
-            else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_x_e"))
-              sh_x_e = atof(XMLString::transcode(a->getNodeValue()));
-              else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_y"))
-                sh_y = atof(XMLString::transcode(a->getNodeValue()));
-                else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_y_e"))
-                  sh_y_e = atof(XMLString::transcode(a->getNodeValue()));
-                  else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_z"))
-                    sh_z = atof(XMLString::transcode(a->getNodeValue()));
-                    else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_z_e"))
-                      sh_z_e = atof(XMLString::transcode(a->getNodeValue()));
-                      else if (!strcmp(XMLString::transcode(a->getNodeName()), "rot_z"))
-                        rot_z = atof(XMLString::transcode(a->getNodeValue()));
-                        else if (!strcmp(XMLString::transcode(a->getNodeName()), "rot_z_e"))
-                          rot_z_e = atof(XMLString::transcode(a->getNodeValue()));
-                        else
-                          edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: unknown attribute `"
-                            << XMLString::transcode(a->getNodeName()) << "'.";
+      }
+      else if ( node_name == "sh_r"    ) sh_r    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_r_e"  ) sh_r_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_x"    ) sh_x    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_x_e"  ) sh_x_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_y"    ) sh_y    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_y_e"  ) sh_y_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_z"    ) sh_z    = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "sh_z_e"  ) sh_z_e  = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "rot_z"   ) rot_z   = cms::xerces::toDouble( a->getNodeValue() );
+      else if ( node_name == "rot_z_e" ) rot_z_e = cms::xerces::toDouble( a->getNodeValue() );
+      else
+        edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: unknown attribute `"
+          << cms::xerces::toString( a->getNodeName() ) << "'.";
     }
 
     // id must be set
-    if (!idSet)
-        throw cms::Exception("RPAlignmentCorrectionsMethods") << "Id not set for tag `" << XMLString::transcode(n->getNodeName()) << "'.";
+    if ( !idSet )
+        throw cms::Exception("RPAlignmentCorrectionsMethods") << "Id not set for tag `" << cms::xerces::toString( node->getNodeName() ) << "'.";
 
     // build alignment
-    RPAlignmentCorrectionData a(sh_r*1E-3, sh_r_e*1E-3, sh_x*1E-3, sh_x_e*1E-3, sh_y*1E-3, sh_y_e*1E-3,
-      sh_z*1E-3, sh_z_e*1E-3, rot_z*1E-3, rot_z_e*1E-3);
+    const RPAlignmentCorrectionData align_corr(
+      sh_r*1e-3, sh_r_e*1e-3,
+      sh_x*1e-3, sh_x_e*1e-3,
+      sh_y*1e-3, sh_y_e*1e-3,
+      sh_z*1e-3, sh_z_e*1e-3,
+      rot_z*1e-3, rot_z_e*1e-3
+    );
 
     // add the alignment to the right list
-    if (nodeType == 1)
-    {
-      const unsigned int arm = decId / 1000;
-      const unsigned int st = (decId / 100) % 10;
-      const unsigned int rp = (decId / 10) % 10;
-      const unsigned int det = decId % 10;
-      result.AddSensorCorrection(TotemRPDetId(arm, st, rp, det), a, true);
-    }
-
-    if (nodeType == 2)
-    {
-      const unsigned int arm = (decId / 100) % 10;
-      const unsigned int st = (decId / 10) % 10;
-      const unsigned int rp = decId % 10;
-      result.AddRPCorrection(TotemRPDetId(arm, st, rp), a, true);
-    }
+    if ( nodeType == 1 ) result.addSensorCorrection( id, align_corr, true );
+    if ( nodeType == 2 ) result.addRPCorrection( id, align_corr, true );
   }
 
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------
 
 #define WRITE(q, dig, lim) \
   if (precise) \
@@ -194,13 +133,16 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     else \
       fprintf(f, " " #q "=\"%+8." #dig "f\"", q()*1E3);
 
-void RPAlignmentCorrectionsMethods::WriteXML(const RPAlignmentCorrectionData & data, FILE *f, bool precise, bool wrErrors, bool wrSh_r, bool wrSh_xy,
-  bool wrSh_z, bool wrRot_z)
+//----------------------------------------------------------------------------------------------------
+
+void
+RPAlignmentCorrectionsMethods::writeXML( const RPAlignmentCorrectionData& data, FILE* f, bool precise, bool wrErrors,
+  bool wrSh_r, bool wrSh_xy, bool wrSh_z, bool wrRot_z )
 {
-  if (wrSh_r) {
-    WRITE(data.sh_r, 2, 0.1);
+  if ( wrSh_r ) {
+    WRITE( data.sh_r, 2, 0.1 );
     if (wrErrors) {
-      WRITE(data.sh_r_e, 2, 0.1);
+      WRITE( data.sh_r_e, 2, 0.1 );
     }
     /*
     fprintf(f, " sh_r=\"%+8.2f\"", data.sh_r()*1E3);
@@ -212,12 +154,12 @@ void RPAlignmentCorrectionsMethods::WriteXML(const RPAlignmentCorrectionData & d
     */
   }
 
-  if (wrSh_xy) {
-    WRITE(data.sh_x, 2, 0.1);
-    WRITE(data.sh_y, 2, 0.1);
-    if (wrErrors) {
-      WRITE(data.sh_x_e, 2, 0.1);
-      WRITE(data.sh_y_e, 2, 0.1);
+  if ( wrSh_xy ) {
+    WRITE( data.sh_x, 2, 0.1 );
+    WRITE( data.sh_y, 2, 0.1 );
+    if ( wrErrors ) {
+      WRITE( data.sh_x_e, 2, 0.1 );
+      WRITE( data.sh_y_e, 2, 0.1 );
     }
     /*
     fprintf(f, " sh_x=\"%+8.2f\" sh_y=\"%+8.2f\"", data.sh_x()*1E3, data.sh_y()*1E3);
@@ -237,10 +179,10 @@ void RPAlignmentCorrectionsMethods::WriteXML(const RPAlignmentCorrectionData & d
 
   // TODO: add the other 2 rotations
 
-  if (wrRot_z) {
-    WRITE(data.rot_z, 3, 0.01);
-    if (wrErrors) {
-      WRITE(data.rot_z_e, 3, 0.01);
+  if ( wrRot_z ) {
+    WRITE( data.rot_z, 3, 0.01 );
+    if ( wrErrors ) {
+      WRITE( data.rot_z_e, 3, 0.01 );
     }
     /*
     fprintf(f, " rot_z=\"%+8.3f\"", data.rot_z()*1E3);
@@ -252,10 +194,10 @@ void RPAlignmentCorrectionsMethods::WriteXML(const RPAlignmentCorrectionData & d
     */
   }
 
-  if (wrSh_z) {
-    WRITE(data.sh_z, 2, 0.1);
-    if (wrErrors) {
-      WRITE(data.sh_z_e, 2, 0.1);
+  if ( wrSh_z ) {
+    WRITE( data.sh_z, 2, 0.1 );
+    if ( wrErrors ) {
+      WRITE( data.sh_z_e, 2, 0.1 );
     }
 
     /*
@@ -269,73 +211,74 @@ void RPAlignmentCorrectionsMethods::WriteXML(const RPAlignmentCorrectionData & d
   }
 }
 
-#undef WRITE
+//----------------------------------------------------------------------------------------------------
 
+#undef WRITE
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionsMethods::WriteXMLFile(const RPAlignmentCorrectionsData & data, const string &fileName, bool precise, bool wrErrors, bool wrSh_r,
-  bool wrSh_xy, bool wrSh_z, bool wrRot_z)
+void
+RPAlignmentCorrectionsMethods::writeXMLFile( const RPAlignmentCorrectionsData& data, const std::string& fileName, bool precise, bool wrErrors,
+  bool wrSh_r, bool wrSh_xy, bool wrSh_z, bool wrRot_z )
 {
-  FILE *rf = fopen(fileName.c_str(), "w");
-  if (!rf)
-    throw cms::Exception("RPAlignmentCorrections::WriteXMLFile") << "Cannot open file `" << fileName
-      << "' to save alignments." << endl;
+  FILE* rf = fopen( fileName.c_str(), "w" );
+  if ( !rf )
+    throw cms::Exception("RPAlignmentCorrections::writeXMLFile") << "Cannot open file `" << fileName << "' to save alignments.";
 
-  fprintf(rf, "<!--\nShifts in um, rotations in mrad.\n\nFor more details see RPAlignmentCorrections::LoadXMLFile in\n");
-  fprintf(rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc\n-->\n\n");
-  fprintf(rf, "<xml DocumentType=\"AlignmentDescription\">\n");
+  fprintf( rf, "<!--\nShifts in um, rotations in mrad.\n\nFor more details see RPAlignmentCorrections::LoadXMLFile in\n" );
+  fprintf( rf, "Alignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc\n-->\n\n" );
+  fprintf( rf, "<xml DocumentType=\"AlignmentDescription\">\n" );
 
-  WriteXMLBlock(data, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z);
+  writeXMLBlock( data, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
 
-  fprintf(rf, "</xml>\n");
-  fclose(rf);
+  fprintf( rf, "</xml>\n" );
+  fclose( rf );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsData & data, FILE *rf, bool precise, bool wrErrors, bool wrSh_r,
-  bool wrSh_xy, bool wrSh_z, bool wrRot_z)
+void
+RPAlignmentCorrectionsMethods::writeXMLBlock( const RPAlignmentCorrectionsData& data, FILE* rf, bool precise, bool wrErrors,
+  bool wrSh_r, bool wrSh_xy, bool wrSh_z, bool wrRot_z )
 {
   bool firstRP = true;
   unsigned int prevRP = 0;
-  set<unsigned int> writtenRPs;
+  std::set<unsigned int> writtenRPs;
 
-  RPAlignmentCorrectionsData::mapType sensors = data.GetSensorMap();
-  RPAlignmentCorrectionsData::mapType rps = data.GetRPMap();
+  RPAlignmentCorrectionsData::mapType sensors = data.getSensorMap();
+  RPAlignmentCorrectionsData::mapType rps = data.getRPMap();
 
-  for (RPAlignmentCorrectionsData::mapType::const_iterator it = sensors.begin(); it != sensors.end(); ++it) {
+  for ( const auto& it : sensors ) {
     // start a RP block
-    unsigned int rp = it->first / 10;
-    if (firstRP || prevRP != rp) {
-      if (!firstRP)
-        fprintf(rf, "\n");
+    unsigned int rp = it.first / 10;
+    if ( firstRP || prevRP != rp ) {
+      if ( !firstRP ) fprintf( rf, "\n" );
       firstRP = false;
 
-      RPAlignmentCorrectionsData::mapType::const_iterator rit = rps.find(rp);
-      if (rit != rps.end()) {
-        fprintf(rf, "\t<rp  id=\"%4u\"                                  ", rit->first);
-        WriteXML( rit->second , rf, precise, wrErrors, false, wrSh_xy, wrSh_z, wrRot_z );
-        fprintf(rf, "/>\n");
-        writtenRPs.insert(rp);
-      } else
-        fprintf(rf, "\t<!-- RP %3u -->\n", rp);
+      const auto& rit = rps.find( rp );
+      if ( rit != rps.end() ) {
+        fprintf( rf, "\t<rp  id=\"%4u\"                                  ", rit->first );
+        writeXML( rit->second , rf, precise, wrErrors, false, wrSh_xy, wrSh_z, wrRot_z );
+        fprintf( rf, "/>\n" );
+        writtenRPs.insert( rp );
+      }
+      else fprintf( rf, "\t<!-- RP %3u -->\n", rp );
     }
     prevRP = rp;
 
     // write the correction
-    fprintf(rf, "\t<det id=\"%4u\"", it->first);
-    WriteXML(it->second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z);
-    fprintf(rf, "/>\n");
+    fprintf( rf, "\t<det id=\"%4u\"", it.first );
+    writeXML( it.second, rf, precise, wrErrors, wrSh_r, wrSh_xy, wrSh_z, wrRot_z );
+    fprintf( rf, "/>\n" );
   }
 
   // write remaining RPs
-  for (RPAlignmentCorrectionsData::mapType::const_iterator it = rps.begin(); it != rps.end(); ++it) {
-    set<unsigned int>::iterator wit = writtenRPs.find(it->first);
-    if (wit == writtenRPs.end()) {
-      fprintf(rf, "\t<rp  id=\"%4u\"                                ", it->first);
-      WriteXML(it->second, rf, precise, wrErrors, false, wrSh_xy, wrSh_z, wrRot_z);
-      fprintf(rf, "/>\n");
+  for ( const auto& it : rps ) {
+    const auto& wit = writtenRPs.find( it.first );
+    if ( wit == writtenRPs.end() ) {
+      fprintf( rf, "\t<rp  id=\"%4u\"                                ", it.first );
+      writeXML( it.second, rf, precise, wrErrors, false, wrSh_xy, wrSh_z, wrRot_z );
+      fprintf( rf, "/>\n" );
     }
   }
 }
@@ -362,14 +305,14 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //  expanded.Clear();
 //  factored.Clear();
 //
-//  RPAlignmentCorrectionsData::mapType sensors = data.GetSensorMap();
-//  RPAlignmentCorrectionsData::mapType rps = data.GetRPMap();
+//  RPAlignmentCorrectionsData::mapType sensors = data.getSensorMap();
+//  RPAlignmentCorrectionsData::mapType rps = data.getRPMap();
 //
 //
 //  // save full alignments of all sensors first
 //  // skip elements that are not being optimized
-//  RPAlignmentCorrectionsData::mapType origAlignments = expanded.GetSensorMap();
-//  map<unsigned int, set<unsigned int> > detsPerPot;
+//  RPAlignmentCorrectionsData::mapType origAlignments = expanded.getSensorMap();
+//  std::map<unsigned int, std::set<unsigned int> > detsPerPot;
 //  for (RPAlignmentCorrectionsData::mapType::const_iterator it = sensors.begin(); it != sensors.end(); ++it) {
 //    AlignmentGeometry::const_iterator git = geometry.find(it->first);
 //    if (git == geometry.end())
@@ -377,16 +320,16 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //    const DetGeometry &d = git->second;
 //
 //    // RP errors are coming from the previous iteration and shall be discarded!
-//    origAlignments[it->first] = data.GetFullSensorCorrection(it->first, false);
+//    origAlignments[it->first] = data.getFullSensorCorrection(it->first, false);
 ////
 //    origAlignments[it->first].xyTranslationToReadout(d.dx, d.dy);
 //    detsPerPot[it->first/10].insert(it->first);
 //  }
 //
 //  // do the factorization
-//  for (map<unsigned int, set<unsigned int> >::iterator it = detsPerPot.begin(); it != detsPerPot.end(); ++it) {
-//    unsigned int rpId = it->first;
-//    const set<unsigned int> &dets = it->second;
+//  for (const auto& it : detsPerPot) {
+//    unsigned int rpId = it.first;
+//    const std::set<unsigned int>& dets = it.second;
 //
 //    if (verbosity)
 //      printf("* processing RP %u\n", rpId);
@@ -394,7 +337,7 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //    // get z0
 //    unsigned int N = 0;
 //    double z0 = 0;
-//    for (set<unsigned int>::const_iterator dit = dets.begin(); dit != dets.end(); ++dit) {
+//    for (const auto& dit : dets) {
 //      AlignmentGeometry::const_iterator git = geometry.find(*dit);
 //      const DetGeometry &d = git->second;
 //      N++;
@@ -521,7 +464,7 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //
 //    // store factored values
 //    //  sh_r,  sh_r_e,  sh_x,  sh_x_e,  sh_y,  sh_y_e,  sh_z,  sh_z_e,  rot_z,  rot_z_e);
-//    factored.SetRPCorrection(rpId, RPAlignmentCorrectionData(0., 0., g0x, g0x_error, g0y, g0y_error, 0., 0., rot_z_mean, rot_z_mean_error));
+//    factored.setRPCorrection(rpId, RPAlignmentCorrectionData(0., 0., g0x, g0x_error, g0y, g0y_error, 0., 0., rot_z_mean, rot_z_mean_error));
 //
 //    // calculate and store residuals for sensors
 //    idx = 0;
@@ -554,7 +497,7 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //        oa.sh_z(), oa.sh_z_e(),
 //        rot_z_res, rot_z_e_full
 //      );
-//      factored.SetSensorCorrection(*dit, ac);
+//      factored.setSensorCorrection(*dit, ac);
 //    }
 //  }
 //}

@@ -74,6 +74,8 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 //  cond::ExportIOVUtilities utilities;
 
   std::string outTxt = Form("%s_Run%d.txt", outTxtFileName_.c_str(), iRun.id().run());
+  std::ofstream outFile;
+  outFile.open(outTxt.c_str());
 
   if(poolDbService.isAvailable() ) {
     for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
@@ -146,7 +148,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
           if (dumpTxt_ && beamSpotOutputBase_ == "lumibased"){
-              beamspot::dumpBeamSpotTxt(outTxt, false, currentBS);
+              beamspot::dumpBeamSpotTxt(outFile, currentBS);
           }    
       } 
       else {
@@ -155,7 +157,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
 	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
         if (dumpTxt_ && beamSpotOutputBase_ == "lumibased"){
-            beamspot::dumpBeamSpotTxt(outTxt, true, currentBS);
+            beamspot::dumpBeamSpotTxt(outFile, currentBS);
         }
       }
 
@@ -187,6 +189,9 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
 
   }
+
+  outFile.close();
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,7 +43,7 @@ class DTGeometryBuilderFromCondDB{
     virtual ~DTGeometryBuilderFromCondDB() ;
 
 /* Operations */ 
-    void build(std::shared_ptr<DTGeometry> theGeometry,
+    void build(const std::shared_ptr<DTGeometry>& theGeometry,
                const RecoIdealGeometry& rig);
 
   private:
@@ -64,8 +64,8 @@ class DTGeometryBuilderFromCondDB{
 
     typedef ReferenceCountingPointer<Plane> RCPPlane;
 
-    RCPPlane plane(const std::vector<double>::const_iterator tranStart,
-                   const std::vector<double>::const_iterator rotStart,
+    RCPPlane plane(std::vector<double>::const_iterator tranStart,
+                   std::vector<double>::const_iterator rotStart,
                    Bounds * bounds) const ;
 
   protected:

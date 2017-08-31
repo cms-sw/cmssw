@@ -32,7 +32,7 @@ public:
 
   double              getConstDzHF()   const {return dzVcal;}
   void                getConstRHO( std::vector<double> & ) const;
-  std::vector<int>    getModHalfHBHE(const int type) const;
+  std::vector<int>    getModHalfHBHE(int type) const;
   void                loadGeometry(const DDFilteredView& _fv, 
 				   HcalParameters& php);
 

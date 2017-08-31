@@ -24,23 +24,23 @@ const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
 
 
 void DTGeometry::add(DTChamber* ch) {
-  theDets.push_back(ch);
-  theChambers.push_back(ch);
+  theDets.emplace_back(ch);
+  theChambers.emplace_back(ch);
   theMap.insert(DTDetMap::value_type(ch->geographicalId(),ch));
 }
 
 
 void DTGeometry::add(DTSuperLayer* sl) {
-  theDets.push_back(sl);
-  theSuperLayers.push_back(sl);
+  theDets.emplace_back(sl);
+  theSuperLayers.emplace_back(sl);
   theMap.insert(DTDetMap::value_type(sl->geographicalId(),sl));
 }
 
 
 void DTGeometry::add(DTLayer* l) {
-  theDetUnits.push_back(l);
-  theDets.push_back(l);
-  theLayers.push_back(l); 
+  theDetUnits.emplace_back(l);
+  theDets.emplace_back(l);
+  theLayers.emplace_back(l); 
   theMap.insert(DTDetMap::value_type(l->geographicalId(),l));
 }
 
@@ -77,7 +77,7 @@ const GeomDet* DTGeometry::idToDet(DetId id) const{
   DTLayerId lId(id.rawId());
   DTDetMap::const_iterator i = theMap.find(lId);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 
@@ -96,16 +96,16 @@ const std::vector<const DTLayer*>& DTGeometry::layers() const{
 }
 
 
-const DTChamber* DTGeometry::chamber(DTChamberId id) const {
+const DTChamber* DTGeometry::chamber(const DTChamberId& id) const {
   return (const DTChamber*)(idToDet(id));
 }
 
 
-const DTSuperLayer* DTGeometry::superLayer(DTSuperLayerId id) const {
+const DTSuperLayer* DTGeometry::superLayer(const DTSuperLayerId& id) const {
   return (const DTSuperLayer*)(idToDet(id));
 }
 
 
-const DTLayer* DTGeometry::layer(DTLayerId id) const {
+const DTLayer* DTGeometry::layer(const DTLayerId& id) const {
   return (const DTLayer*)(idToDet(id));
 }

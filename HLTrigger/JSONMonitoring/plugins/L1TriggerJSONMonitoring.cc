@@ -144,7 +144,6 @@ private:
   static constexpr const int kPrescaleUndefined = -2;
   static constexpr const int kPrescaleConflict  = -1;
 
-  // FIXME use this
   static constexpr const char* streamName_ = "streamL1Rates";
 
   static void writeJsdFile(L1TriggerJSONMonitoringData::run const&);
@@ -190,8 +189,8 @@ L1TriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
 
   // set the DAQ parameters
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
-    rundata->streamDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
-    rundata->streamMergeType   = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates", evf::MergeTypeJSNDATA);
+    rundata->streamDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamName_);
+    rundata->streamMergeType   = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamName_, evf::MergeTypeJSNDATA);
     rundata->baseRunDir        = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   } else {
     rundata->streamDestination = "";
@@ -207,7 +206,7 @@ L1TriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
     for (auto const& algo: menuHandle->getAlgorithmMap())
       triggerNames[algo.second.getIndex()] = algo.first;
   } else {
-    edm::LogWarning("L1TriggerJSONMonitoring") << "L1TUtmTriggerMenu not found in the EventSetup.\nThe Level 1 Trigger rate monitoring will not include the rigger names.";
+    edm::LogWarning("L1TriggerJSONMonitoring") << "L1TUtmTriggerMenu not found in the EventSetup.\nThe Level 1 Trigger rate monitoring will not include the trigger names.";
   }
 
   // write the per-run .jsd file

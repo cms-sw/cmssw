@@ -369,7 +369,7 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
    for( int i ( 0 ) ; i != nFibres_ ; ++i )
    {
       if( ( xtr >= fibrePos_[plane][i].lp ) &&  
-	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.push_back(i);
+	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.emplace_back(i);
    }
    return firedFibres ;
 }

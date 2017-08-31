@@ -93,7 +93,7 @@ void HcalCellType::setPhi(const std::vector<std::pair<int,double> >& phis,
   thePhis.clear();
   for (const auto & phi : phis) {
     if (std::find(iphiMiss.begin(),iphiMiss.end(),phi.first) == iphiMiss.end()) {
-      thePhis.push_back(phi);
+      thePhis.emplace_back(phi);
     }
   }
 }

@@ -32,7 +32,7 @@ class ProcCount : public TrainProcessor {
 	std::vector<double>	neutrals;
 };
 
-static ProcCount::Registry registry("ProcCount");
+ProcCount::Registry registry("ProcCount");
 
 ProcCount::ProcCount(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :

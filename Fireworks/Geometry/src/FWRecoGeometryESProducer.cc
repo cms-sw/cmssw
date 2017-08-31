@@ -78,7 +78,7 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const Geo
   }                                                                     \
 
 namespace {
-  static const std::array<std::string,3> hgcal_geom_names =  { { "HGCalEESensitive",
+  const std::array<std::string,3> hgcal_geom_names =  { { "HGCalEESensitive",
                                                                  "HGCalHESiliconSensitive",
                                                                  "HGCalHEScintillatorSensitive" } };
 }

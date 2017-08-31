@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Specific.h"
 
-#include <assert.h>
+#include <cassert>
 #include <ext/alloc_traits.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDBase.h"
@@ -19,19 +19,19 @@ namespace DDI {
    Specific::Specific(const std::vector<std::string>& selections,
                       const DDsvalues_type & specs,
                       bool doRegex)
-   : specifics_(specs), 
-   partSelections_(0), 
-   valid_(false),
-   doRegex_(doRegex)			
+     : specifics_(specs), 
+       partSelections_(0), 
+       valid_(false),
+       doRegex_(doRegex)			
    {
-      for( const auto& it : selections ) {
-         createPartSelections( it );
-      }
+     for( const auto& it : selections ) {
+       createPartSelections( it );
+     }
    }
    
    Specific::Specific(const std::vector<DDPartSelection> & selections,
                       const DDsvalues_type & specs)
-   : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
+     : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
    { }		   
    
    void Specific::createPartSelections(const std::string & selString)
@@ -40,7 +40,10 @@ namespace DDI {
       std::vector<DDPartSelection> temp;
       DDTokenize2(selString,regv);
       
-      if (!regv.size()) throw cms::Exception("DDException") << "Could not evaluate the selection-std::string ->" << selString << "<-";
+      if (regv.empty()) throw cms::Exception("DDException")
+			  << "Could not evaluate the selection-std::string ->"
+			  << selString << "<-";
+      
       std::pair<bool,std::string> res;
       for( const auto& it : regv ) {
          std::vector<DDLogicalPart> lpv;
@@ -57,7 +60,7 @@ namespace DDI {
       if ( res.first ) { // i.e. it wasn't "thrown" out of the loop
          partSelections_.reserve(temp.size() + partSelections_.size());
          for( const auto& iit : temp ) {
-            partSelections_.push_back( iit );
+            partSelections_.emplace_back( iit );
          } 
       }
    }
@@ -65,8 +68,8 @@ namespace DDI {
    void Specific::addSelectionLevel(std::vector<DDLogicalPart> & lpv, int copyno, ddselection_type st, 
                                     std::vector<DDPartSelection> & selv)
    {
-      if (!selv.size()) { // create one, no entry yet!
-         selv.push_back(DDPartSelection());
+      if (selv.empty()) { // create one, no entry yet!
+         selv.emplace_back(DDPartSelection());
       }
       typedef std::vector<DDLogicalPart>::size_type lpv_sizetype;
       typedef std::vector<DDPartSelection>::size_type ps_sizetype;
@@ -77,13 +80,13 @@ namespace DDI {
       for (; lpv_i < lpv_sz; ++lpv_i) {
          std::vector<DDPartSelection>::const_iterator ps_it = selv.begin();
          for (; ps_it != selv.end(); ++ps_it) {
-            result.push_back(*ps_it);
+            result.emplace_back(*ps_it);
          }
       }
       ps_sizetype ps_i = 0;
       for(lpv_i=0; lpv_i < lpv_sz; ++lpv_i) {
          for(ps_i = ps_sz*lpv_i; ps_i < ps_sz*(lpv_i+1); ++ps_i) {
-            result[ps_i].push_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
+            result[ps_i].emplace_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
          }
       }    
       selv = result;
@@ -121,7 +124,7 @@ namespace DDI {
    
    void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<const DDPartSelection*, const DDsvalues_type*> > >& result) const
    {
-      if (partSelections_.size()) {
+      if (!partSelections_.empty()) {
          const DDsvalues_type* sv = (&specifics_);
          for( const auto& it : partSelections_ ) {
             DDLogicalPart logp = it.back().lp_; 
@@ -129,7 +132,7 @@ namespace DDI {
             assert(ps); 
             assert(sv);
             std::pair<const DDPartSelection*,const DDsvalues_type*> pssv(ps,sv);
-            result.push_back(std::make_pair(logp,pssv));
+            result.emplace_back(std::make_pair(logp,pssv));
          }  
       }  
    }

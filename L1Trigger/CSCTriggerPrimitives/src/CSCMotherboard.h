@@ -142,7 +142,8 @@ class CSCMotherboard
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
-				     const CSCCLCTDigi& cLCT);
+				     const CSCCLCTDigi& cLCT, 
+				     int);
   unsigned int encodePattern(const int ptn, const int highPt);
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT);
 

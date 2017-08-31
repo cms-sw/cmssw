@@ -2,7 +2,7 @@
 //
 //   Class: CSCMotherboard
 //
-//   Description: 
+//   Description:
 //    When the Trigger MotherBoard is instantiated it instantiates an ALCT
 //    and CLCT board.  The Motherboard takes up to two LCTs from each anode
 //    and cathode LCT card and combines them into a single Correlated LCT.
@@ -37,6 +37,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include <iostream>
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a      = 1;
@@ -52,12 +53,12 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
-  
+
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   // Some configuration parameters and some details of the emulator
   // algorithms depend on whether we want to emulate the trigger logic
@@ -100,12 +101,12 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
                                              conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
 
-  const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);  
-  const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);  
+  const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);
+  const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);
   const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
-  if (isSLHC and theRing == 1){    
+  if (isSLHC and theRing == 1){
     if (theStation == 1) {
       tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
@@ -169,7 +170,7 @@ CSCMotherboard::CSCMotherboard() :
                    theEndcap(1), theStation(1), theSector(1),
                    theSubsector(1), theTrigChamber(1) {
   // Constructor used only for testing.  -JM
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   isMTCC  = false;
   isTMB07 = true;
@@ -206,7 +207,7 @@ void CSCMotherboard::clear() {
 
 // Set configuration parameters obtained via EventSetup mechanism.
 void CSCMotherboard::setConfigParameters(const CSCDBL1TPParameters* conf) {
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   // Config. parameters for the TMB itself.
   mpc_block_me1a         = conf->tmbMpcBlockMe1a();
@@ -308,7 +309,7 @@ void CSCMotherboard::run(
       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       // Empirical correction to match 2009 collision data (firmware change?)
       if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
-      
+
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
         if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
           continue;
@@ -451,12 +452,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
   // Just choose it such that the window is centered at bx=7.  This may
   // need further tweaking if the value of tmb_l1a_window_size changes.
   //static int early_tbins = 4;
-  
-  // Empirical correction to match 2009 collision data (firmware change?)
-  static int lct_bins   = tmb_l1a_window_size;
-  static int late_tbins = early_tbins + lct_bins;
 
-  static int ifois = 0;
+  // Empirical correction to match 2009 collision data (firmware change?)
+  int lct_bins   = tmb_l1a_window_size;
+  int late_tbins = early_tbins + lct_bins;
+
+  int ifois = 0;
   if (ifois == 0) {
     if (infoV >= 0 && early_tbins < 0) {
       edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
@@ -558,7 +559,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
     int bx = lct.getBX();
     if (bx >= 0 && bx < MAX_LCT_BINS) {
       firstLCT[bx] = lct;
@@ -576,7 +577,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
     int bx = lct.getBX();
     if (bx >= 0 && bx < MAX_LCT_BINS) {
       secondLCT[bx] = lct;
@@ -594,7 +595,8 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // This method calculates all the TMB words and then passes them to the
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
-                                                   const CSCCLCTDigi& cLCT) {
+                                                   const CSCCLCTDigi& cLCT,
+						   int type) {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -609,6 +611,9 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
+  thisLCT.setType(type);
+  thisLCT.setALCT(aLCT);
+  thisLCT.setCLCT(cLCT);
   return thisLCT;
 }
 
@@ -781,23 +786,23 @@ void CSCMotherboard::testLCT() {
                         LogTrace("CSCMotherboard")
                           << "pattern mismatch: " << lctPattern
                           << " " << thisLCT.getPattern();
-                      if (bend != thisLCT.getBend()) 
+                      if (bend != thisLCT.getBend())
                         LogTrace("CSCMotherboard")
                           << "bend mismatch: " << bend
                           << " " << thisLCT.getBend();
                       int key_strip = 32*cfeb + strip;
-                      if (key_strip != thisLCT.getStrip()) 
+                      if (key_strip != thisLCT.getStrip())
                         LogTrace("CSCMotherboard")
                           << "strip mismatch: " << key_strip
                           << " " << thisLCT.getStrip();
-                      if (wireGroup != thisLCT.getKeyWG()) 
+                      if (wireGroup != thisLCT.getKeyWG())
                         LogTrace("CSCMotherboard")
                           << "wire group mismatch: " << wireGroup
                           << " " << thisLCT.getKeyWG();
-                      if (abx != thisLCT.getBX()) 
+                      if (abx != thisLCT.getBX())
                         LogTrace("CSCMotherboard")
                           << "bx mismatch: " << abx << " " << thisLCT.getBX();
-                      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
+                      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality()))
                         LogTrace("CSCMotherboard")
                           << "quality mismatch: " << lctQuality
                           << " " << thisLCT.getQuality();
@@ -837,14 +842,14 @@ void CSCMotherboard::dumpConfigParams() const {
 
 
 // compare LCTs by quality
-bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
-{ 
+bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
+{
   return lct1.getQuality() > lct2.getQuality();
 }
 
 // compare LCTs by GEM bending angle
-bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
-{ 
+bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
+{
   //  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
   return true;
 }

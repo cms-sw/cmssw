@@ -10,7 +10,6 @@
 
 using std::sqrt;
 
-
 DDI::Trap::Trap( double pDz, 
                  double pTheta,
                  double pPhi,
@@ -20,17 +19,17 @@ DDI::Trap::Trap( double pDz,
                  double pAlp2 )
  : Solid(ddtrap) 
 {		 
-  p_.push_back(pDz); // ......... 0
-  p_.push_back(pTheta); // .. 1
-  p_.push_back(pPhi); // ....... 2
-  p_.push_back(pDy1); // ........ 3
-  p_.push_back(pDx1); // ........ 4
-  p_.push_back(pDx2); // ........ 5
-  p_.push_back(pAlp1); // ....... 6
-  p_.push_back(pDy2); // ........ 7
-  p_.push_back(pDx3); // ......... 8
-  p_.push_back(pDx4); // ........ 9
-  p_.push_back(pAlp2);
+  p_.emplace_back(pDz); // ......... 0
+  p_.emplace_back(pTheta); // .. 1
+  p_.emplace_back(pPhi); // ....... 2
+  p_.emplace_back(pDy1); // ........ 3
+  p_.emplace_back(pDx1); // ........ 4
+  p_.emplace_back(pDx2); // ........ 5
+  p_.emplace_back(pAlp1); // ....... 6
+  p_.emplace_back(pDy2); // ........ 7
+  p_.emplace_back(pDx3); // ......... 8
+  p_.emplace_back(pDx4); // ........ 9
+  p_.emplace_back(pAlp2);
 }
 
 

@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -53,7 +53,7 @@ public:
   /// ReadConfig
   int readConfig( const std::string& filename ) override;
 
-  void push_back( std::string fileName, std::string url = std::string( "./" ));
+  void emplace_back( const std::string& fileName, const std::string& url = std::string( "./" ));
 
   void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
@@ -94,10 +94,10 @@ DDLTestDoc::getURLList( void ) const
 }
 
 void
-DDLTestDoc::push_back( std::string fileName, std::string url ) 
+DDLTestDoc::emplace_back( const std::string& fileName, const std::string& url ) 
 {
-  fnames_.push_back(fileName);
-  urls_.push_back(url);
+  fnames_.emplace_back(fileName);
+  urls_.emplace_back(url);
 }
 
 void
@@ -110,7 +110,7 @@ DDLTestDoc::doValidation( void ) const
 
 void
 DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = path; }
+{ schemaLoc_ = std::move(path); }
 
 std::string
 DDLTestDoc::getSchemaLocation( void ) const
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
          DDLTestDoc dp;
          while (fname != "q") {
             std::cout << "about to try to process the file " << fname << std::endl;
-            dp.push_back(fname);
+            dp.emplace_back(fname);
             myP.parse(dp);
             std::cout << "next file name:" ;
             std::cin >> fname;

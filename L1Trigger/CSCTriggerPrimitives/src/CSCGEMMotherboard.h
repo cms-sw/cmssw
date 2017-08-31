@@ -28,7 +28,7 @@ public:
    //Default constructor for testing
   CSCGEMMotherboard();
 
-  virtual ~CSCGEMMotherboard();
+  ~CSCGEMMotherboard() override;
 
   void clear();
 
@@ -36,7 +36,7 @@ public:
   virtual void run(const CSCWireDigiCollection* wiredc,
 		   const CSCComparatorDigiCollection* compdc,
 		   const GEMPadDigiCollection* gemPads)=0;
-  
+
   void run(const CSCWireDigiCollection* wiredc,
 	   const CSCComparatorDigiCollection* compdc,
 	   const GEMPadDigiClusterCollection* gemPads);
@@ -90,7 +90,7 @@ protected:
 			  enum CSCPart part);
 
   template <class T>
-  void correlateLCTsGEM(T& best, T& second, const GEMCoPadDigiIds& coPads, 
+  void correlateLCTsGEM(T& best, T& second, const GEMCoPadDigiIds& coPads,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, enum CSCPart);
   template <class T>
   void correlateLCTsGEM(const T& best, const T& second, const GEMCoPadDigi&, const GEMCoPadDigi&,
@@ -114,7 +114,7 @@ protected:
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
 					const GEMPadDigi& gem1,  const GEMCoPadDigi& gem2,
 					enum CSCPart p, int i);
-  
+
   void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
   void retrieveGEMCoPads();
 
@@ -124,11 +124,11 @@ protected:
   void printGEMTriggerCoPads(int bx_start, int bx_stop, enum CSCPart);
 
   bool isPadInOverlap(int roll);
-  
+
   void setupGeometry();
 
   /** Chamber id (trigger-type labels). */
-  unsigned gemId; 
+  unsigned gemId;
 
   const GEMGeometry* gem_g;
   bool gemGeometryAvailable;
@@ -194,7 +194,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCCLCTDigi& clct, const matches<S>& 
 }
 
 template <class S>
-S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi& clct1, 
+S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi& clct1,
 				     const matches<S>& pads, enum CSCPart part)
 {
   S result;
@@ -215,7 +215,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi
 }
 
 template <class T>
-void CSCGEMMotherboard::correlateLCTsGEM(T& bestLCT, T& secondLCT, const GEMCoPadDigiIds& coPads, 
+void CSCGEMMotherboard::correlateLCTsGEM(T& bestLCT, T& secondLCT, const GEMCoPadDigiIds& coPads,
 					 CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, enum CSCPart p)
 {
   bool bestValid     = bestLCT.isValid();
@@ -234,7 +234,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(T& bestLCT, T& secondLCT, const GEMCoPa
 
 
 template <>
-void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bestLCT, const CSCALCTDigi& secondLCT, 
+void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bestLCT, const CSCALCTDigi& secondLCT,
 					 const GEMCoPadDigi& bestCoPad, const GEMCoPadDigi& secondCoPad,
 					 CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, enum CSCPart p)
 {
@@ -243,7 +243,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bestLCT, const CSCAL
     {
     lct1 = constructLCTsGEM(bestLCT, bestCoPad, p, 1);
   }
-  
+
   if ((alct_trig_enable  and secondLCT.isValid()) or
       (match_trig_enable and secondLCT.isValid() and secondLCT != bestLCT))
     {
@@ -262,7 +262,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCCLCTDigi& bestLCT, const CSCCL
     {
     lct1 = constructLCTsGEM(bestLCT, bestCoPad, p, 1);
   }
-  
+
   if ((clct_trig_enable  and secondLCT.isValid()) or
       (match_trig_enable and secondLCT.isValid() and secondLCT != bestLCT))
     {

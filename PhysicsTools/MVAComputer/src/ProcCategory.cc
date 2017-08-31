@@ -41,7 +41,7 @@ class ProcCategory : public VarProcessor {
 	const Calibration::ProcCategory	*calib;
 };
 
-static ProcCategory::Registry registry("ProcCategory");
+ProcCategory::Registry registry("ProcCategory");
 
 ProcCategory::ProcCategory(const char *name,
                            const Calibration::ProcCategory *calib,

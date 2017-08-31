@@ -38,7 +38,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   thickBlock    = vArgs["LayerThick"];
   zMinBlock     = nArgs["zMinBlock"];
   for (unsigned int i=0; i<materials.size(); ++i) {
-    copyNumber.push_back(1);
+    copyNumber.emplace_back(1);
   }
   edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo: " << materials.size()
 			    << " volumes to be put with rotation " << rotstr
@@ -86,7 +86,7 @@ void DDHGCalEEAlgo::execute(DDCompactView& cpv) {
   edm::LogInfo("HGCalGeom") << "<<== End of DDHGCalEEAlgo construction ...";
 }
 
-void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
+void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
   
   edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: \t\tInside Layers";
 

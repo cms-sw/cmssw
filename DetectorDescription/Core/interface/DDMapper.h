@@ -223,10 +223,10 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
        if (DDfetch(*svIt,v)) {
          //std::cout << "found: ";
          const std::vector<std::string> & s = v.strings();
-  	  if (s.size()) {
+  	  if (!s.empty()) {
 	    //std::cout << s[0];
 	    if (s[0]==value) {
-	      result.push_back(std::make_pair(it->second,it->first));
+	      result.emplace_back(std::make_pair(it->second,it->first));
 	      break;
 	    }
 	  }	  
@@ -257,10 +257,10 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
        if (DDfetch(*svIt,v)) {
          //std::cout << "found: ";
          const std::vector<double> & s = v.doubles();
-  	  if (s.size()) {
+  	  if (!s.empty()) {
 	    //std::cout << s[0];
 	    if (s[0]==value) {
-	      result.push_back(std::make_pair(it->second,it->first));
+	      result.emplace_back(std::make_pair(it->second,it->first));
 	      break;
 	    }
 	  }	  
@@ -289,7 +289,7 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name) const
      DDValue v(name);
      for (; svIt != svEd; ++svIt) {
        if (DDfetch(*svIt,v)) {
-	   result.push_back(std::make_pair(it->second,it->first));
+	   result.emplace_back(std::make_pair(it->second,it->first));
 	   break;  
 	 }	  
      }  

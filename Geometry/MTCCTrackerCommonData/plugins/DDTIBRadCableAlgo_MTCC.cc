@@ -147,17 +147,17 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       name  = "TIBRadCable" + std::to_string(i);
       double rv = layRin[i]+0.5*deltaR;
       std::vector<double> pgonZ;
-      pgonZ.push_back(-0.5*cableT); 
-      pgonZ.push_back(cableT*(rv/rMax-0.5));
-      pgonZ.push_back(0.5*cableT);
+      pgonZ.emplace_back(-0.5*cableT); 
+      pgonZ.emplace_back(cableT*(rv/rMax-0.5));
+      pgonZ.emplace_back(0.5*cableT);
       std::vector<double> pgonRmin;
-      pgonRmin.push_back(rv); 
-      pgonRmin.push_back(rv); 
-      pgonRmin.push_back(rv); 
+      pgonRmin.emplace_back(rv); 
+      pgonRmin.emplace_back(rv); 
+      pgonRmin.emplace_back(rv); 
       std::vector<double> pgonRmax;
-      pgonRmax.push_back(rMax); 
-      pgonRmax.push_back(rMax); 
-      pgonRmax.push_back(rv); 
+      pgonRmax.emplace_back(rMax); 
+      pgonRmax.emplace_back(rMax); 
+      pgonRmax.emplace_back(rv); 
       solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0,
 				       CLHEP::twopi,pgonZ, pgonRmin, pgonRmax);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "

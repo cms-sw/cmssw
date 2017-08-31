@@ -1,5 +1,9 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDComparator.h"
+
 #include <cassert>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +14,7 @@ static std::atomic<unsigned int> lastIndex{0};
 void
 DDValue::init( const std::string &name )
 {
-  auto result = indexer().insert( { name, 0 });
+  auto result = indexer().insert( { name, 0 } );
   
   auto& indexToUse = result.first->second;
   
@@ -62,11 +66,10 @@ DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v )
   vecPair_.reset(new vecpair_type( false, std::make_pair( svec, dvec )));
   for(; it != v.end(); ++it )
   {
-    vecPair_->second.first.push_back( it->first );
-    vecPair_->second.second.push_back( it->second );
+    vecPair_->second.first.emplace_back( it->first );
+    vecPair_->second.second.emplace_back( it->second );
   }
 }
-
 
 DDValue::DDValue( const std::string & name, double val ) 
  : id_( 0 )
@@ -122,7 +125,7 @@ DDValue::Names DDValue::initializeNames() {
   // this allows us to check the value of the held std::atomic
   // as the object is being added to the container
   DDValue::Names names{};
-  names.push_back(StringHolder(std::string{}));
+  names.emplace_back(StringHolder(std::string{}));
   return names;
 }
 

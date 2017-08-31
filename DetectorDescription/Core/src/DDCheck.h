@@ -15,6 +15,6 @@ class DDName;
 // some self-consistency checks
 bool DDCheck(std::ostream&);
 bool DDCheck(const DDCompactView& cpv, std::ostream&);
-bool DDCheckMaterials(std::ostream&, std::vector<std::pair<std::string,DDName> > * = 0);
+bool DDCheckMaterials(std::ostream&, std::vector<std::pair<std::string,DDName> > * = nullptr);
 
 #endif

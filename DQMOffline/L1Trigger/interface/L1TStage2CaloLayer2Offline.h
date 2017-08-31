@@ -61,10 +61,12 @@ public:
 
   enum ControlPlots {
     L1MET,
+    L1ETMHF,
     L1MHT,
     L1ETT,
     L1HTT,
     OfflineMET,
+    OfflineETMHF,
     OfflineMHT,
     OfflineETT,
     OfflineHTT,
@@ -99,6 +101,7 @@ private:
   //variables from config file
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloMETCollection_;
+  edm::EDGetTokenT<reco::CaloMETCollection> thecaloETMHFCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
   edm::EDGetTokenT<reco::BeamSpot> theBSCollection_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_;
@@ -123,6 +126,9 @@ private:
   std::vector<double> ettEfficiencyBins_;
   std::vector<double> httEfficiencyBins_;
 
+  double recoHTTMaxEta_;
+  double recoMHTMaxEta_;
+
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
   MonitorElement* h_nVertex_;
@@ -132,28 +138,34 @@ private:
 
   // energy sums reco vs L1
   MonitorElement* h_L1METvsCaloMET_;
+  MonitorElement* h_L1ETMHFvsCaloETMHF_;
   MonitorElement* h_L1MHTvsRecoMHT_;
   MonitorElement* h_L1METTvsCaloETT_;
   MonitorElement* h_L1HTTvsRecoHTT_;
 
   MonitorElement* h_L1METPhivsCaloMETPhi_;
+  MonitorElement* h_L1ETMHFPhivsCaloETMHFPhi_;
   MonitorElement* h_L1MHTPhivsRecoMHTPhi_;
 
   // energy sum resolutions
   MonitorElement* h_resolutionMET_;
+  MonitorElement* h_resolutionETMHF_;
   MonitorElement* h_resolutionMHT_;
   MonitorElement* h_resolutionETT_;
   MonitorElement* h_resolutionHTT_;
   MonitorElement* h_resolutionMETPhi_;
+  MonitorElement* h_resolutionETMHFPhi_;
   MonitorElement* h_resolutionMHTPhi_;
 
   // energy sum turn ons
   std::map<double, MonitorElement*> h_efficiencyMET_pass_;
+  std::map<double, MonitorElement*> h_efficiencyETMHF_pass_;
   std::map<double, MonitorElement*> h_efficiencyMHT_pass_;
   std::map<double, MonitorElement*> h_efficiencyETT_pass_;
   std::map<double, MonitorElement*> h_efficiencyHTT_pass_;
 
   std::map<double, MonitorElement*> h_efficiencyMET_total_;
+  std::map<double, MonitorElement*> h_efficiencyETMHF_total_;
   std::map<double, MonitorElement*> h_efficiencyMHT_total_;
   std::map<double, MonitorElement*> h_efficiencyETT_total_;
   std::map<double, MonitorElement*> h_efficiencyHTT_total_;

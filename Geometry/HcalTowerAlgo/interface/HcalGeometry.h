@@ -70,7 +70,7 @@ public:
 
   static unsigned int numberOfOuterAlignments() { return 60 ; }
 
-  unsigned int getHxSize(const int type) const;
+  unsigned int getHxSize(int type) const;
 
   static unsigned int numberOfAlignments() 
     { return ( numberOfBarrelAlignments() +

@@ -67,9 +67,9 @@ DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
 
 namespace {
   constexpr float fakeBeamSpotTimeWidth = 0.175f; // ns
-  static const std::string generalTracksName("generalTracks");
-  static const std::string gsfTracksName("gsfTracks");
-  static const std::string resolution("Resolution");
+  const std::string generalTracksName("generalTracks");
+  const std::string gsfTracksName("gsfTracks");
+  const std::string resolution("Resolution");
 
   template<typename ParticleType, typename T>
   void writeValueMap(edm::Event &iEvent,

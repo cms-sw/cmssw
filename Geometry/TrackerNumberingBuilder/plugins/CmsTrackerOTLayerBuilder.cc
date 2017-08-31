@@ -47,12 +47,12 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   for(uint32_t i=0; i<comp.size();i++){
     auto component = det->component(i);
     if(component->type()== GeometricDet::ladder){
-      rods.push_back(component);
+      rods.emplace_back(component);
     } else if(component->type()== GeometricDet::panel){
       if(component->translation().z() < 0.){
-        ringsNeg.push_back(component);
+        ringsNeg.emplace_back(component);
       } else if (component->translation().z() > 0.) {
-        ringsPos.push_back(component);
+        ringsPos.emplace_back(component);
       }
     } else {
       edm::LogError("CmsTrackerOTLayerBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
@@ -60,7 +60,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
       
   // negative rings 
-  if(ringsNeg.size() != 0){
+  if(!ringsNeg.empty()){
     std::sort(ringsNeg.begin(),ringsNeg.end(),LessZ());  
     uint32_t  totalringsNeg = ringsNeg.size();
   
@@ -74,7 +74,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
 
   // rods 
-  if(rods.size() != 0){
+  if(!rods.empty()){
     TrackerStablePhiSort(rods.begin(), rods.end(), ExtractPhi());
     uint32_t  totalrods = rods.size();
   
@@ -88,7 +88,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
 
   // positive rings 
-  if(ringsPos.size() != 0){
+  if(!ringsPos.empty()){
     std::sort(ringsPos.begin(),ringsPos.end(),LessZ());  
     uint32_t  totalringsPos = ringsPos.size();
   

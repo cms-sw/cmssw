@@ -7,6 +7,8 @@
 *
 ****************************************************************************/
 
+#include <utility>
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -19,7 +21,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::DetGeomDesc(nav_type navtype, GeometricEnumType type) : _ddd(navtype), _type(type)
+DetGeomDesc::DetGeomDesc(nav_type navtype, GeometricEnumType type) : _ddd(std::move(navtype)), _type(type)
 { 
 	DDCompactView cpv;
 	DDExpandedView ev(cpv);
@@ -122,7 +124,7 @@ DetGeomDesc::ConstContainer DetGeomDesc::components() const
 {
 	ConstContainer _temp;
 	for (auto it : _container) {
-		_temp.push_back(it);
+		_temp.emplace_back(it);
 	}
 	return _temp;
 }
@@ -133,7 +135,7 @@ DetGeomDesc::ConstContainer DetGeomDesc::deepComponents() const
 {
   ConstContainer _temp;
   if (isLeaf())
-    _temp.push_back(const_cast<DetGeomDesc*>(this));
+    _temp.emplace_back(const_cast<DetGeomDesc*>(this));
   else {
     for (auto it : _container){
       ConstContainer _temp2 =  (*it).deepComponents();
@@ -149,7 +151,7 @@ DetGeomDesc::ConstContainer DetGeomDesc::deepComponents() const
 void DetGeomDesc::addComponents(Container cont)
 {
 	for(auto & ig : cont) {
-		_container.push_back(ig);
+		_container.emplace_back(ig);
 	}
 }
 
@@ -157,7 +159,7 @@ void DetGeomDesc::addComponents(Container cont)
 
 void DetGeomDesc::addComponent(DetGeomDesc* det)
 {
-	_container.push_back(det);
+	_container.emplace_back(det);
 }
 
 //----------------------------------------------------------------------------------------------------

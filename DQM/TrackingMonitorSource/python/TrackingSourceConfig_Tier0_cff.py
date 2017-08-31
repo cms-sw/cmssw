@@ -45,6 +45,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = doEffFromHitPatternVsLumi           [tracks]
     if tracks == 'generalTracks':
         locals()[label].doEffFromHitPatternVsBX = False
     else:

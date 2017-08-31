@@ -31,14 +31,14 @@ public:
 
 protected:
 
-  void constructInsideModule0(DDLogicalPart module, DDCompactView& cpv);
-  void constructInsideModule (DDLogicalPart module, DDCompactView& cpv);
+  void constructInsideModule0(const DDLogicalPart& module, DDCompactView& cpv);
+  void constructInsideModule (const DDLogicalPart& module, DDCompactView& cpv);
   HcalEndcapPar parameterLayer0(unsigned int iphi);
   HcalEndcapPar parameterLayer(unsigned int iphi, double rinF, double routF, 
 			       double rinB, double routB, double zi,double zo);
-  void constructScintLayer(DDLogicalPart detector, double dz,
+  void constructScintLayer(const DDLogicalPart& detector, double dz,
 			   DDHCalEndcapModuleAlgo::HcalEndcapPar parm,
-			   std::string nm, int id, DDCompactView& cpv);
+			   const std::string& nm, int id, DDCompactView& cpv);
   double getTrim(unsigned int j) const;
   double getRout(double z) const;
 

@@ -18,7 +18,8 @@ private:
     // So cannot retrieve the following constants.
     static const unsigned kLayersEE_ = 28;
     static const unsigned kLayersFH_ = 12;
-    static const unsigned kLayers_ = kLayersEE_+kLayersFH_;
+    static const unsigned kLayersBH_ = 12;
+    static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
 
 public:
   
@@ -51,8 +52,10 @@ public:
 
 private:
     
-    double seedThreshold_;
-    double triggerCellThreshold_;
+    double siliconSeedThreshold_;
+    double siliconTriggerCellThreshold_;
+    double scintillatorSeedThreshold_;
+    double scintillatorTriggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
