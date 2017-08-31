@@ -57,8 +57,8 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
     return;
   }
 
-  TH1F *numH = num->getTH1F();
-  TH1F *denH = den->getTH1F();
+  TH1 *numH = num->getTH1();
+  TH1 *denH = den->getTH1();
 
   if (!numH || !denH) {
 
@@ -70,32 +70,37 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
 
   }
 
-  int nBinsNum = numH->GetNbinsX();
-  int nBinsDen = denH->GetNbinsX();
-
-  if (nBinsNum != nBinsDen) {
-    edm::LogError("L1TEfficiencyPlotHandler") << " # bins in " << numeratorName << " and " << denominatorName
-        << " are different. Quitting booking" << endl;
+  if (numH->GetNbinsX() != denH->GetNbinsX()) {
+    edm::LogError(
+      "L1TEfficiencyPlotHandler") << " # X bins in " <<
+      numeratorName << " and " << denominatorName <<
+      " are different. Quitting booking" << endl;
     return;
   }
 
-  // double min = numH->GetXaxis()->GetXmin();
-  // double max = numH->GetXaxis()->GetXmax();
+  MonitorElement::Kind kind = num->kind();
+  bool is1D = kind == MonitorElement::DQM_KIND_TH1F ||
+              kind == MonitorElement::DQM_KIND_TH1D;
+  bool is2D = kind == MonitorElement::DQM_KIND_TH2F ||
+              kind == MonitorElement::DQM_KIND_TH2D;
 
-  std::string denXaxisTitle{denH->GetXaxis()->GetTitle()};
+  if (is2D) {
+    if (numH->GetNbinsY() != denH->GetNbinsY()) {
+      edm::LogError(
+        "L1TEfficiencyPlotHandler") << " # Y bins in " << numeratorName <<
+        " and " << denominatorName << " are different. Quitting booking" <<
+        endl;
+      return;
+    }
+  }
 
   ibooker.setCurrentFolder(outputDir_);
-
-  std::vector<float> bins;
-  bins.reserve(nBinsNum+1);
-  for(int i = 1 ; i <= nBinsNum ; ++i) {
-    bins.push_back(numH->GetBinLowEdge(i));
+  if (is1D) {
+    h_efficiency_ = ibooker.book1D(plotName_, den->getTH1F());
   }
-  bins.push_back(numH->GetBinLowEdge(nBinsNum)+numH->GetBinWidth(nBinsNum));
-  float* binArray = &(bins[0]);
-
-  h_efficiency_ = ibooker.book1D(plotName_, plotName_+";"+denXaxisTitle+";L1 efficiency", nBinsNum, binArray);
-
+  else if (is2D) {
+    h_efficiency_ = ibooker.book2D(plotName_, den->getTH2F());
+  }
 }
 
 void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
@@ -108,13 +113,9 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
   MonitorElement *num = igetter.get(numeratorDir_ + "/" + plotName_ + numeratorSuffix_);
   MonitorElement *den = igetter.get(denominatorDir_ + "/" + plotName_ + denominatorSuffix_);
 
-  TH1F *numH = num->getTH1F();
-  TH1F *denH = den->getTH1F();
-
-  numH->Sumw2();
-  denH->Sumw2();
-
-  TH1F *effH = h_efficiency_->getTH1F();
+  TH1 *numH = num->getTH1();
+  TH1 *denH = den->getTH1();
+  TH1 *effH = h_efficiency_->getTH1();
 
   effH->Divide(numH, denH, 1.0, 1.0, "B");
 }

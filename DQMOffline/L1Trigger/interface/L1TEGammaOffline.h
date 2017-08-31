@@ -39,16 +39,16 @@ class L1TEGammaOffline: public DQMEDAnalyzer {
 public:
 
   L1TEGammaOffline(const edm::ParameterSet& ps);
-  virtual ~L1TEGammaOffline();
+  ~L1TEGammaOffline() override;
 
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
@@ -83,6 +83,8 @@ private:
 
   std::vector<double> electronEfficiencyThresholds_;
   std::vector<double> electronEfficiencyBins_;
+  double probeToL1Offset_;
+  std::vector<double>deepInspectionElectronThresholds_;
 
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
@@ -122,12 +124,22 @@ private:
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_pass_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EE_pass_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_EE_pass_;
+  std::map<double, MonitorElement*> h_efficiencyElectronPhi_vs_Eta_pass_;
+  // for deep inspection only
+  std::map<double, MonitorElement*> h_efficiencyElectronEta_pass_;
+  std::map<double, MonitorElement*> h_efficiencyElectronPhi_pass_;
+  std::map<double, MonitorElement*> h_efficiencyElectronNVertex_pass_;
 
   // we could drop the map here, but L1TEfficiency_Harvesting expects
   // identical names except for the suffix
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_total_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EE_total_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_EE_total_;
+  std::map<double, MonitorElement*> h_efficiencyElectronPhi_vs_Eta_total_;
+  // for deep inspection only
+  std::map<double, MonitorElement*> h_efficiencyElectronEta_total_;
+  std::map<double, MonitorElement*> h_efficiencyElectronPhi_total_;
+  std::map<double, MonitorElement*> h_efficiencyElectronNVertex_total_;
 
   // photons
   MonitorElement* h_L1EGammaETvsPhotonET_EB_;
