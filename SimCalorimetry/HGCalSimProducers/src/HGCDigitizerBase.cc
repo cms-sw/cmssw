@@ -128,7 +128,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
     
     //run the shaper to create a new data frame
     DFr rawDataFrame( id );
-    if( cce_.size() )
+    if( !cce_.empty() )
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness-1]);
     else
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
