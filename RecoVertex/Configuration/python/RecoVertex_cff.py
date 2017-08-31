@@ -33,10 +33,10 @@ vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
                           )
 
 #timing
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2DParameters
-DA2DParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
+from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
+DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
-                                                                         TkClusParameters = DA2DParameters )
+                                                                         TkClusParameters = DA2D_vectParameters )
 unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.0)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
