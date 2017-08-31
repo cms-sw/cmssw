@@ -73,10 +73,10 @@ private:
   // ---------- Member data ----------
 
   // Hard-coded numbers of layers and disks...
-  static size_t const kNumLayers = 5;
-  static size_t const kNumDisks = 12;
-  static size_t const kOffsetLayers = 0;
-  static size_t const kOffsetDisks = 4;
+  static constexpr size_t kNumLayers = 5;
+  static constexpr size_t kNumDisks = 12;
+  static constexpr size_t kOffsetLayers = 0;
+  static constexpr size_t kOffsetDisks = 4;
 
   class PixelClusterCount {
     // B for barrel, F for forwared, M for minus, P for plus side, 
