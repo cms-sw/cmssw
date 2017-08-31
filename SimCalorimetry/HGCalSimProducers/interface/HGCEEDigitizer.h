@@ -11,7 +11,7 @@ public:
   void runDigitizer(std::unique_ptr<HGCEEDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
 		    const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 		    uint32_t digitizationType, CLHEP::HepRandomEngine* engine) override; 
-  ~HGCEEDigitizer();
+  ~HGCEEDigitizer() override;
 private:
 
 };
