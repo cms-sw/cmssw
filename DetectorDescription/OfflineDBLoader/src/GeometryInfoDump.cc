@@ -1,12 +1,6 @@
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
-#include <cassert>
-#include <fstream>
-#include <map>
-#include <set>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -14,6 +8,12 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <cassert>
+#include <fstream>
+#include <map>
+#include <set>
+#include <vector>
 
 GeometryInfoDump::GeometryInfoDump () { }
 
@@ -74,20 +74,20 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
     for (; git != gend; ++git) 
     {
       const DDLogicalPart & ddLP = gra.nodeData(git);
-      if ( lpStore.find(ddLP) != lpStore.end() && ddLP.attachedSpecifics().size() != 0 ) {
+      if ( lpStore.find(ddLP) != lpStore.end() && !ddLP.attachedSpecifics().empty() ) {
 	dump << ddLP.toString() << ": ";
 	dumpSpec( ddLP.attachedSpecifics(), dump );
       }
       lpStore.insert(ddLP);
 
       ++i;
-      if (git->size()) 
+      if (!git->empty()) 
 	{
 	  // ask for children of ddLP  
 	  for( const auto& cit : *git ) 
 	    {
 	      const DDLogicalPart & ddcurLP = gra.nodeData(cit.first);
-	      if (lpStore.find(ddcurLP) != lpStore.end() && ddcurLP.attachedSpecifics().size() != 0 ) {
+	      if (lpStore.find(ddcurLP) != lpStore.end() && !ddcurLP.attachedSpecifics().empty() ) {
 		dump << ddcurLP.toString() << ": ";
 		dumpSpec( ddcurLP.attachedSpecifics(), dump );
 	      }
@@ -146,9 +146,9 @@ void GeometryInfoDump::dumpSpec( const std::vector<std::pair< const DDPartSelect
 	}
 	if (sdind != bsit->second.strings().size() - 1) dump << ", ";
       }
-      if ( bsit->second.strings().size() > 0 && bsit + 1 != bseit ) dump << " | ";
+      if ( !bsit->second.strings().empty() && bsit + 1 != bseit ) dump << " | ";
     }
-    if ( bit->second->size() > 0 && bit + 1 != eit) dump << " | ";
+    if ( !bit->second->empty() && bit + 1 != eit) dump << " | ";
   }
   dump << std::endl;
 }

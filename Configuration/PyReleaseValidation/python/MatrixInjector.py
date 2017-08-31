@@ -223,6 +223,10 @@ class MatrixInjector(object):
             wmsplit['RECOHID11']=1
             wmsplit['DigiFullPU_2023D17PU']=1
             wmsplit['RecoFullGlobalPU_2023D17PU']=1
+            wmsplit['DIGIUP17']=1
+            wmsplit['RECOUP17']=1
+            wmsplit['DIGIUP17_PU25']=1
+            wmsplit['RECOUP17_PU25']=1
 
                                     
             #import pprint

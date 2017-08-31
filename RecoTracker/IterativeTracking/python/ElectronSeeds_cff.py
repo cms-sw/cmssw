@@ -246,7 +246,12 @@ _seedCollections_Phase1 = [
     'pixelLessStepSeeds',
     'tripletElectronSeeds',
     'pixelPairElectronSeeds',
-    'stripPairElectronSeeds'
+    'stripPairElectronSeeds',
+    'lowPtTripletStepSeeds',
+    'lowPtQuadStepSeeds',
+    'detachedTripletStepSeeds',
+    'detachedQuadStepSeeds',
+    'pixelPairStepSeeds'
 ]
 trackingPhase1.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)
 trackingPhase1QuadProp.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)

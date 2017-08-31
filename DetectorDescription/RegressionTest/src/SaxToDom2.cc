@@ -1,11 +1,10 @@
 #include "DetectorDescription/RegressionTest/src/SaxToDom2.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include <xercesc/util/XMLString.hpp>
 
 #include <iostream>
 #include <map>
 #include <string>
-
-#include "DetectorDescription/RegressionTest/src/TagName.h"
-#include <xercesc/util/XMLString.hpp>
 
 using namespace std;
 
@@ -16,7 +15,7 @@ SaxToDom2::SaxToDom2()
   AttList2 al;
   al [ TagName("name") ] = TagName("myTinyDomTest");
   Node2 nm(TagName("TinyDom2"), al);
-  parent_.push_back( nm );
+  parent_.emplace_back( nm );
 }
 
 SaxToDom2::~SaxToDom2() 
@@ -51,7 +50,7 @@ void SaxToDom2::startElement( const XMLCh* const uri,
   Node2 par = parent_.back();
   dom_.addEdge(par, nm, AnotherDummy2());
 
-  parent_.push_back(nm);
+  parent_.emplace_back(nm);
   XMLString::release(&strx);
 }
 

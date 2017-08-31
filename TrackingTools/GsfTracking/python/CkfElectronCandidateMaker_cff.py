@@ -68,11 +68,7 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
 
-
-
-
-
-
-
-
+electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
+  src = 'electronMergedSeedsFromMultiCl'
+)
 

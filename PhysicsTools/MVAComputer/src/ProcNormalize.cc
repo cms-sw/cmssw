@@ -64,7 +64,7 @@ class ProcNormalize : public VarProcessor {
 	unsigned int		nCategories;
 };
 
-static ProcNormalize::Registry registry("ProcNormalize");
+ProcNormalize::Registry registry("ProcNormalize");
 
 ProcNormalize::ProcNormalize(const char *name,
                              const Calibration::ProcNormalize *calib,

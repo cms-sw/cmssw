@@ -28,7 +28,7 @@ public:
     DetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -40,7 +40,7 @@ public:
     DetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -52,7 +52,7 @@ public:
     DetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -64,7 +64,7 @@ public:
     DetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
   
@@ -93,8 +93,8 @@ public:
 
   const FastTimeDDDConstants& dddConstants () const {return hdcons_;}
 
-  DetId offsetBy(const DetId startId, int nrStepsX, int nrStepsY ) const;
-  DetId switchZSide(const DetId startId) const;
+  DetId offsetBy(DetId startId, int nrStepsX, int nrStepsY ) const;
+  DetId switchZSide(DetId startId) const;
 
   struct DecodedDetId {
     DecodedDetId() : iPhi(0), iEtaZ(0), zside(0), iType(0), subdet(0) {}

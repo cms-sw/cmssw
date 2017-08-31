@@ -1148,6 +1148,9 @@ void GetEntries::Init(TTree *tree) {
   // (once per file to be processed).
 
   // Set branch addresses and branch pointers
+  // Set object pointer
+  t_ietaAll      = 0;
+  t_ietaGood     = 0;
   if (!tree) return;
   fChain = tree;
   fCurrent = -1;
@@ -1222,7 +1225,6 @@ void GetEntries::Loop() {
   if (fChain == 0) return;
 
   Long64_t nentries = fChain->GetEntriesFast();
-  
   Long64_t nbytes = 0, nb = 0;
   int      kount(0), selected(0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -1249,7 +1251,7 @@ void GetEntries::Loop() {
     for (int i=1; i<=h_eff->GetNbinsX(); ++i) {
       double rat(0), drat(0);
       if (h_eta[0]->GetBinContent(i) > ymaxk) ymaxk = h_eta[0]->GetBinContent(i);
-      if (h_eta[1]->GetBinContent(i) > 0) {
+      if ((h_eta[1]->GetBinContent(i) > 0)&&(h_eta[0]->GetBinContent(i) > 0)) {
 	rat = h_eta[1]->GetBinContent(i)/h_eta[0]->GetBinContent(i);
 	drat= rat*std::sqrt(pow((h_eta[1]->GetBinError(i)/h_eta[1]->GetBinContent(i)),2) +
 			    pow((h_eta[0]->GetBinError(i)/h_eta[0]->GetBinContent(i)),2));
@@ -1270,7 +1272,7 @@ void GetEntries::Loop() {
   pad1->SetTopMargin(0.10);
   pad1->SetFillColor(kWhite);
   std::string titl1[3] = {"Reconstructed", "Propagated", "Saved"};
-  TLegend  *legend1 = new TLegend(0.55, 0.54, 0.90, 0.63);
+  TLegend  *legend1 = new TLegend(0.11, 0.80, 0.50, 0.89);
   legend1->SetFillColor(kWhite);
   double ymax(0), xmax(0);
   for (int k=0; k<3; ++k) {
@@ -1331,7 +1333,7 @@ void GetEntries::Loop() {
     pad2->SetFillColor(kWhite);
     pad2->SetLogy();
     std::string titl2[2] = {"All Tracks", "Selected Tracks"};
-    TLegend  *legend2 = new TLegend(0.55, 0.28, 0.90, 0.35);
+    TLegend  *legend2 = new TLegend(0.11, 0.82, 0.50, 0.89);
     legend2->SetFillColor(kWhite);
     i2    = (int)(0.001*ymaxk) + 1;
     ymax  = 1000.0*i2;
@@ -1349,15 +1351,16 @@ void GetEntries::Loop() {
       else        h_eta[k]->Draw("hist sames");
     }
     pad2->Update();
-    double ymin = 0.10;
+    ymax = 0.90;
+//  double ymin = 0.10;
     for (int k=0; k<2; ++k) {
       TPaveStats* st1 = (TPaveStats*)h_eta[k]->GetListOfFunctions()->FindObject("stats");
       if (st1 != NULL) {
 	st1->SetLineColor(color[k]);
 	st1->SetTextColor(color[k]);
-	st1->SetY1NDC(ymin); st1->SetY2NDC(ymin+0.09);
+	st1->SetY1NDC(ymax-0.09); st1->SetY2NDC(ymax);
 	st1->SetX1NDC(0.55); st1->SetX2NDC(0.90);
-	ymin += 0.09;
+	ymax -= 0.09;
       }
     }
     pad2->Modified();

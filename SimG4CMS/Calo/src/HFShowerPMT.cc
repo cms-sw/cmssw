@@ -19,8 +19,8 @@
 
 //#define DebugLog
 
-HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
-			 edm::ParameterSet const & p) : cherenkov(0) {
+HFShowerPMT::HFShowerPMT(const std::string & name, const DDCompactView & cpv,
+			 edm::ParameterSet const & p) : cherenkov(nullptr) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");

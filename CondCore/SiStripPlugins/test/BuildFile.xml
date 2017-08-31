@@ -3,7 +3,6 @@
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/SiStripPlugins"/>
 <use   name="CommonTools/TrackerMap"/>
 <bin   file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>

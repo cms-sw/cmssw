@@ -16,7 +16,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
   gemId = GEMDetId(theRegion, 1, theStation, 1, theChamber, 0).rawId();
   
   const edm::ParameterSet coPadParams(conf.getParameter<edm::ParameterSet>("copadParam"));
-  coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, 1, chamber, coPadParams) );
+  coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, chamber, coPadParams) );
 
   maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL1Odd") );

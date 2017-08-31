@@ -16,21 +16,29 @@
 
 class HGCalTriggerCellCalibration{
 
+private:
+    // FIXME: currently there is no access to the HGCal DDDConstants
+    // So cannot retrieve the following constants.
+    static const unsigned kLayersEE_ = 28;
+    static const unsigned kLayersFH_ = 12;
+    static const unsigned kLayersBH_ = 12;
+    static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
+
 public:
   
     HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
-    void calibrateInMipT(l1t::HGCalTriggerCell&, int cellThickness);
+    void calibrateInMipT(l1t::HGCalTriggerCell&);
     void calibrateMipTinGeV(l1t::HGCalTriggerCell&); 
-    void calibrateInGeV(l1t::HGCalTriggerCell&, int cellThickness); 
+    void calibrateInGeV(l1t::HGCalTriggerCell&); 
     void print();
 
 private:
     
-    double LSB_;
-    std::vector<double> fCperMIP_ee_;
-    std::vector<double> fCperMIP_fh_;
+    double LSB_silicon_fC_;
+    double LSB_scintillator_MIP_;
+    double fCperMIP_;
+    double thickCorr_;
     std::vector<double> dEdX_weights_;
-    std::vector<double> thickCorr_;
 
 };
 

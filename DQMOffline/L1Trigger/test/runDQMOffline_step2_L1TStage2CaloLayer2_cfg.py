@@ -1,4 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+
+options = VarParsing('analysis')
+options.setDefault(
+    'inputFiles', ['L1TOffline_L1TStage2CaloLayer2_job1_RAW2DIGI_RECO_DQM.root'])
+options.parseArguments()
 
 process = cms.Process('HARVESTING')
 
@@ -39,7 +46,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "DQMRootSource",
     fileNames=cms.untracked.vstring(
-        "file:L1TOffline_L1TStage2CaloLayer2_job1_RAW2DIGI_RECO_DQM.root")
+        "file:{0}".format(options.inputFiles[0]))
 )
 
 
@@ -52,7 +59,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  # for MC
 process.myHarvesting = cms.Path(process.DQMExampleStep2)
 process.myEff = cms.Path(
     process.l1tStage2CaloLayer2Efficiency * process.l1tStage2CaloLayer2EmuDiff +
-    process. l1tEGammaEfficiency * process.l1tEGammaEmuDiff + 
+    process. l1tEGammaEfficiency * process.l1tEGammaEmuDiff +
     process. l1tTauEfficiency * process.l1tTauEmuDiff
 )
 process.myTest = cms.Path(process.DQMExample_qTester)

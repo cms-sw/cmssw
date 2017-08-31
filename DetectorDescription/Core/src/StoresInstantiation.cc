@@ -12,6 +12,7 @@
 #include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+
 #include <map>
 #include <string>
 #include <utility>

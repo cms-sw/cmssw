@@ -12,7 +12,8 @@ DDLEllipsoid::DDLEllipsoid( DDLElementRegistry* myreg )
 {}
 
 void
-DDLEllipsoid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLEllipsoid::processElement( const std::string& name, const std::string& nmspace,
+			      DDCompactView& cpv )
 { 
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();

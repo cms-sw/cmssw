@@ -100,9 +100,13 @@ testPackedCandidate::testPackUnpack() {
   CPPUNIT_ASSERT(tolerance(pc.vertex().X(),v.X(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Y(),v.Y(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Z(),v.Z(), 0.01));  
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
+//AR : this cannot be called unless track details are set
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
 }
 
 void testPackedCandidate::testSimulateReadFromRoot() {
@@ -131,6 +135,7 @@ void testPackedCandidate::testSimulateReadFromRoot() {
   delete pc.p4c_.exchange(nullptr);
   delete pc.vertex_.exchange(nullptr);
   delete pc.track_.exchange(nullptr);
+  delete pc.m_.exchange(nullptr);
 
   CPPUNIT_ASSERT(tolerance(pc.polarP4().Pt(),plv.Pt(),0.001) );
   CPPUNIT_ASSERT(tolerance(pc.polarP4().Eta(),plv.Eta(),0.001) );
@@ -143,9 +148,13 @@ void testPackedCandidate::testSimulateReadFromRoot() {
   CPPUNIT_ASSERT(tolerance(pc.vertex().X(),v.X(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Y(),v.Y(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Z(),v.Z(), 0.01));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
+//AR : this cannot be called unless track details are set
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
+//  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
   
 }
 

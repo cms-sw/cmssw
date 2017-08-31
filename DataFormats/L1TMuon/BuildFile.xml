@@ -1,5 +1,5 @@
 <export>
-  <lib name="1"/> 
+  <lib name="1"/>
 </export>
 
 <use name="DataFormats/CSCDigi"/>
@@ -11,3 +11,4 @@
 <use name="DataFormats/Common"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="rootrflx"/>
+<flags ADD_SUBDIR="1"/>

@@ -159,7 +159,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	}	    
 
-	if (hitEnergies.size()==0)
+	if (hitEnergies.empty())
 	  continue;
 
 	int depth = detid.depth();

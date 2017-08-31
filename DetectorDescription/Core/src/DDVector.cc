@@ -4,8 +4,9 @@
 
 #include "DetectorDescription/Core/interface/Store.h"
 
-DDVector::DDVector() : DDBase<DDName,std::vector<double>*>() { }
-
+DDVector::DDVector()
+  : DDBase<DDName,std::vector<double>*>()
+{ }
 
 DDVector::DDVector(const DDName & name) : DDBase<DDName,std::vector<double>*>() 
 {

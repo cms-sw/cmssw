@@ -39,8 +39,8 @@ private:
 
   std::string clean( const std::string& in );
   std::string merge( const std::list<std::string>& list );
-  std::string fillAndSort( tokenizer::iterator start, tokenizer::iterator end, std::list<std::string>& list );
-  std::string preFill( tokenizer::iterator it, std::list<std::string>& list );
+  std::string fillAndSort( const tokenizer::iterator& start, const tokenizer::iterator& end, std::list<std::string>& list );
+  std::string preFill( const tokenizer::iterator& it, std::list<std::string>& list );
 
   std::string fname1_;
   std::string fname2_;
@@ -91,7 +91,7 @@ TestCompareDDSpecsDumpFiles::clean( const std::string& in )
 }
 
 std::string
-TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::string>& list )
+TestCompareDDSpecsDumpFiles::preFill( const tokenizer::iterator& it, std::list<std::string>& list )
 {
   boost::char_separator<char> space( " " );
 
@@ -100,7 +100,7 @@ TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::str
   std::string str( *it );
   str.erase( 0, ( *fit ).size());
   boost::trim( str );
-  list.push_back( clean( str ));
+  list.emplace_back( clean( str ));
 
   return *fit;
 }
@@ -119,11 +119,11 @@ TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 }
 
 std::string
-TestCompareDDSpecsDumpFiles::fillAndSort( tokenizer::iterator start, tokenizer::iterator end, std::list<std::string>& list )
+TestCompareDDSpecsDumpFiles::fillAndSort( const tokenizer::iterator& start, const tokenizer::iterator& end, std::list<std::string>& list )
 {
   for( tokenizer::iterator it = start; it != end; ++it )
   {
-    list.push_back( clean( *it ));
+    list.emplace_back( clean( *it ));
   }     
   list.sort();
 

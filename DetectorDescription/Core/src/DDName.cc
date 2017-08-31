@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 #include <ext/alloc_traits.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 #include "DetectorDescription/Core/interface/Singleton.h"
@@ -130,13 +130,13 @@ DDName::Registry::iterator DDName::registerName(const std::pair<std::string,std:
     Registry::size_type sz = reg_.size();
     if (!sz) {
       reg_[std::make_pair(std::string(""),std::string(""))] = 0;
-      idToName.push_back(reg_.begin());
+      idToName.emplace_back(reg_.begin());
       ++sz;
     }
     Registry::value_type val(nm, sz);
     std::pair<Registry::iterator,bool> result = reg_.insert(val);
     if (result.second) {
-      idToName.push_back(result.first);
+      idToName.emplace_back(result.first);
     }
     return result.first;
 }

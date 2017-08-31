@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Polycone.h" 
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -18,8 +18,8 @@ Polycone::Polycone (double startPhi, double deltaPhi,
                     const std::vector<double> & rmin,
                     const std::vector<double> & rmax) : Solid (ddpolycone_rrz)	      
 {
-   p_.push_back(startPhi);
-   p_.push_back(deltaPhi);
+   p_.emplace_back(startPhi);
+   p_.emplace_back(deltaPhi);
    if((z.size()!=rmin.size()) || (z.size()!=rmax.size()) )
    {
       throw cms::Exception("DDException") << "Polycone(..): std::vectors z,rmin,rmax not of same length";
@@ -28,9 +28,9 @@ Polycone::Polycone (double startPhi, double deltaPhi,
    {
       for(unsigned int i=0;i<z.size(); ++i)
       {
-         p_.push_back(z[i]);
-         p_.push_back(rmin[i]);
-         p_.push_back(rmax[i]);
+         p_.emplace_back(z[i]);
+         p_.emplace_back(rmin[i]);
+         p_.emplace_back(rmax[i]);
       }
    }
 }	      
@@ -40,8 +40,8 @@ Polycone::Polycone (double startPhi, double deltaPhi,
                     const std::vector<double> & z,
                     const std::vector<double> & r) : Solid (ddpolycone_rz)	      
 {
-   p_.push_back(startPhi);
-   p_.push_back(deltaPhi);
+   p_.emplace_back(startPhi);
+   p_.emplace_back(deltaPhi);
    if(z.size()!=r.size())
    {
       throw cms::Exception("DDException") << "Polycone(..): std::vectors z,rmin,rmax not of same length";
@@ -50,8 +50,8 @@ Polycone::Polycone (double startPhi, double deltaPhi,
    {
       for( unsigned int i = 0; i < z.size(); ++i )
       {
-         p_.push_back(z[i]);
-         p_.push_back(r[i]);
+         p_.emplace_back(z[i]);
+         p_.emplace_back(r[i]);
       }
    }
 }	     

@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_CALOTOPOLOGY_ECALBARRELTOPOLOGY_H
 #define GEOMETRY_CALOTOPOLOGY_ECALBARRELTOPOLOGY_H 1
 
+#include <utility>
 #include <vector>
 #include <iostream>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -19,7 +20,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
   ~EcalBarrelTopology() override { }  
 
   /// create a new Topology from geometry
-  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
+  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
     {
     }
   
@@ -32,7 +33,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goNorth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -45,7 +46,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goSouth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -58,7 +59,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goEast(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -71,7 +72,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
       EBDetId nextId=goWest(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
   

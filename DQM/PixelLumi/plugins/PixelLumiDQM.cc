@@ -14,8 +14,8 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -106,7 +106,7 @@ PixelLumiDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 void
 PixelLumiDQM::analyze(const edm::Event& iEvent,
-		      const edm::EventSetup& iSetup)
+          const edm::EventSetup& iSetup)
 {
   // Collect all bookkeeping information.
   fRunNo = iEvent.id().run();
@@ -141,7 +141,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
         edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch =
           pixelClusters->find(detId);
         if (iSearch != pixelClusters->end()) {
-	  
+    
           // Count the number of clusters with at least a minimum
           // number of pixels per cluster and at least a minimum charge.
           size_t numClusters = 0;
@@ -153,34 +153,34 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
               ++numClusters;
             }
           }
-	        // DEBUG DEBUG DEBUG
+          // DEBUG DEBUG DEBUG
           assert(numClusters <= iSearch->size());
           // DEBUG DEBUG DEBUG end
-	  
+    
           // Add up the cluster count based on the position of this detector element.
           if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-            PixelBarrelName detName = PixelBarrelName(detId);
-            int layer = detName.layerName();
-            fNumPixelClusters[fBXNo].numB.at(layer - 1) += numClusters;
-            fNumPixelClusters[fBXNo].dnumB.at(layer - 1) += sqrt(numClusters);
+            PixelBarrelNameUpgrade detName = PixelBarrelNameUpgrade(detId);
+            int layer = detName.layerName() - kOffsetLayers;
+            fNumPixelClusters[fBXNo].numB.at(layer) += numClusters;
+            fNumPixelClusters[fBXNo].dnumB.at(layer) += sqrt(numClusters);
           } else {
             // DEBUG DEBUG DEBUG
             assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
             // DEBUG DEBUG DEBUG end
-	    
-            PixelEndcapName detName = PixelEndcapName(detId);
-            PixelEndcapName::HalfCylinder halfCylinder = detName.halfCylinder();
-            int disk = detName.diskName();
+      
+            PixelEndcapNameUpgrade detName = PixelEndcapNameUpgrade(detId);
+            PixelEndcapNameUpgrade::HalfCylinder halfCylinder = detName.halfCylinder();
+            int disk = detName.diskName() - kOffsetDisks;
             switch (halfCylinder) {
-              case PixelEndcapName::mO:
-              case PixelEndcapName::mI:
-                fNumPixelClusters[fBXNo].numFM.at(disk - 1) += numClusters;
-                fNumPixelClusters[fBXNo].dnumFM.at(disk - 1) += sqrt(numClusters);
+              case PixelEndcapNameUpgrade::mO:
+              case PixelEndcapNameUpgrade::mI:
+                fNumPixelClusters[fBXNo].numFM.at(disk) += numClusters;
+                fNumPixelClusters[fBXNo].dnumFM.at(disk) += sqrt(numClusters);
                 break;
-              case PixelEndcapName::pO:
-              case PixelEndcapName::pI:
-                fNumPixelClusters[fBXNo].numFP.at(disk - 1) += numClusters;
-                fNumPixelClusters[fBXNo].dnumFP.at(disk - 1) += sqrt(numClusters);
+              case PixelEndcapNameUpgrade::pO:
+              case PixelEndcapNameUpgrade::pI:
+                fNumPixelClusters[fBXNo].numFP.at(disk) += numClusters;
+                fNumPixelClusters[fBXNo].dnumFP.at(disk) += sqrt(numClusters);
                 break;
               default:
                 assert(false);
@@ -203,7 +203,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     // Find pixel clusters.
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
-    
+   
     bool filterDeadModules = (fDeadModules.size() > 0);
     std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
     std::vector<uint32_t>::const_iterator deadModulesEnd = fDeadModules.end();
@@ -216,25 +216,25 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
       // See if this is a pixel module.
       if ( GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
         DetId detId = (*i)->geographicalId();
-	
+  
         // Skip this module if it's on the list of modules to be ignored.
         if (filterDeadModules &&
             find(deadModulesBegin, deadModulesEnd, detId()) != deadModulesEnd) {
           continue;
         }
-	
+  
         // Find all clusters in this module.
         edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch =
           pixelClusters->find(detId);
-	
+  
         // Loop over all clusters in this module.
         if (iSearch != pixelClusters->end()) {
           for (edmNew::DetSet<SiPixelCluster>::const_iterator clus = iSearch->begin();
                clus != iSearch->end(); ++clus) {
-	    
+      
             if ((clus->size() >= fMinPixelsPerCluster) &&
                 (clus->charge() >= fMinClusterCharge)) {
-	      
+        
               PixelGeomDetUnit const* theGeomDet =
                 dynamic_cast<PixelGeomDetUnit const*>(trackerGeo->idToDet(detId));
               PixelTopology const* topol = &(theGeomDet->specificTopology());
@@ -244,29 +244,20 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
               GlobalPoint clustGP = theGeomDet->surface().toGlobal(clustLP);
               double charge = clus->charge() / 1.e3;
               int size = clus->size();
-	      
+        
               if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-                PixelBarrelName detName = PixelBarrelName(detId);
-                int layer = detName.layerName();
-                switch (layer) {
-                case 1:
-                  fHistContainerThisRun["clusPosBarrel1"]->Fill(clustGP.z(), clustGP.phi());
-                  fHistContainerThisRun["clusChargeBarrel1"]->Fill(iEvent.bunchCrossing(), charge);
-                  fHistContainerThisRun["clusSizeBarrel1"]->Fill(iEvent.bunchCrossing(), size);
-                  break;
-                case 2:
-                  fHistContainerThisRun["clusPosBarrel2"]->Fill(clustGP.z(), clustGP.phi());
-                  fHistContainerThisRun["clusChargeBarrel2"]->Fill(iEvent.bunchCrossing(), charge);
-                  fHistContainerThisRun["clusSizeBarrel2"]->Fill(iEvent.bunchCrossing(), size);
-                  break;
-                case 3:
-                  fHistContainerThisRun["clusPosBarrel3"]->Fill(clustGP.z(), clustGP.phi());
-                  fHistContainerThisRun["clusChargeBarrel3"]->Fill(iEvent.bunchCrossing(), charge);
-                  fHistContainerThisRun["clusSizeBarrel3"]->Fill(iEvent.bunchCrossing(), size);
-                  break;
-                default:
-                  assert(false);
-                  break;
+                PixelBarrelNameUpgrade detName = PixelBarrelNameUpgrade(detId);
+                unsigned int layer = detName.layerName()-kOffsetLayers;
+                if (layer<kNumLayers) {
+                  std::string histName;
+                  histName="clusPosBarrel"+std::to_string(layer);
+                  fHistContainerThisRun[histName.c_str()]->Fill(clustGP.z(), clustGP.phi());
+                  histName="clusChargeBarrel"+std::to_string(layer);
+                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), charge);
+                  histName="clusSizeBarrel"+std::to_string(layer);
+                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
+                } else {
+                  edm::LogWarning("pixelLumi")<<"higher layer number, "<<layer<<", than layers";
                 }
               } else {
                 
@@ -274,49 +265,18 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                 assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
                 // DEBUG DEBUG DEBUG end
                 
-                PixelEndcapName detName = PixelEndcapName(detId);
-                PixelEndcapName::HalfCylinder halfCylinder = detName.halfCylinder();
-                int disk = detName.diskName();
-                switch (halfCylinder) {
-                  case PixelEndcapName::mO:
-                  case PixelEndcapName::mI:
-                    switch (disk) {
-                      case 1:
-                        fHistContainerThisRun["clusPosEndCapM1"]->Fill(clustGP.x(), clustGP.y());
-                        fHistContainerThisRun["clusChargeEndCapM1"]->Fill(iEvent.bunchCrossing(), charge);
-                        fHistContainerThisRun["clusSizeEndCapM1"]->Fill(iEvent.bunchCrossing(), size);
-                        break;
-                      case 2:
-                        fHistContainerThisRun["clusPosEndCapM2"]->Fill(clustGP.x(), clustGP.y());
-                        fHistContainerThisRun["clusChargeEndCapM2"]->Fill(iEvent.bunchCrossing(), charge);
-                        fHistContainerThisRun["clusSizeEndCapM2"]->Fill(iEvent.bunchCrossing(), size);
-                        break;
-                      default:
-                        assert(false);
-                        break;
-                    }
-                    break;
-                  case PixelEndcapName::pO:
-                  case PixelEndcapName::pI:
-                    switch (disk) {
-                      case 1:
-                        fHistContainerThisRun["clusPosEndCapP1"]->Fill(clustGP.x(), clustGP.y());
-                        fHistContainerThisRun["clusChargeEndCapP1"]->Fill(iEvent.bunchCrossing(), charge);
-                        fHistContainerThisRun["clusSizeEndCapP1"]->Fill(iEvent.bunchCrossing(), size);
-                        break;
-                      case 2:
-                        fHistContainerThisRun["clusPosEndCapP2"]->Fill(clustGP.x(), clustGP.y());
-                        fHistContainerThisRun["clusChargeEndCapP2"]->Fill(iEvent.bunchCrossing(), charge);
-                        fHistContainerThisRun["clusSizeEndCapP2"]->Fill(iEvent.bunchCrossing(), size);
-                        break;
-                      default:
-                        assert(false);
-                        break;
-                    }
-                    break;
-                  default:
-                    assert(false);
-                    break;
+                PixelEndcapNameUpgrade detName = PixelEndcapNameUpgrade(detId);
+                unsigned int disk = detName.diskName() - kOffsetDisks;
+                if (disk<kNumDisks) {
+                  std::string histName;
+                  histName="clusPosEndCap"+std::to_string(disk);
+                  fHistContainerThisRun[histName.c_str()]->Fill(clustGP.x(), clustGP.y());
+                  histName="clusChargeEndCap"+std::to_string(disk);
+                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), charge);
+                  histName="clusSizeEndCap"+std::to_string(disk);
+                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
+                } else {
+                  edm::LogWarning("pixelLumi")<<"higher disk number, "<<disk<<", than disks,"<<kNumDisks<<std::endl;
                 }
               }
             }
@@ -340,12 +300,12 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
   
   fHistTotalRecordedLumiByLS = ibooker.book1D("totalPixelLumiByLS","Pixel Lumi in nb vs LS",8000,0.5,8000.5);
   fHistRecordedByBxCumulative = ibooker.book1D("PXLumiByBXsum","Pixel Lumi in nb by BX Cumulative vs LS",lastBunchCrossing,
-					     0.5,float(lastBunchCrossing)+0.5);
+               0.5,float(lastBunchCrossing)+0.5);
 
   std::string subfolder = folder + "lastLS/";
   ibooker.setCurrentFolder(subfolder);
   fHistRecordedByBxLastLumi = ibooker.book1D("PXByBXLastLumi","Pixel By BX Last Lumi",lastBunchCrossing+1,
-					   -0.5,float(lastBunchCrossing)+0.5);
+             -0.5,float(lastBunchCrossing)+0.5);
 
   subfolder = folder+"ClusterCountingDetails/";
   ibooker.setCurrentFolder(subfolder);
@@ -358,13 +318,13 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
   fHistnFMClusVsLS[0] = ibooker.book1D("nFMClusVsLS_0","Fraction of Clusters vs LS Barrel layer 0",8000,0.5,8000.5);
   fHistnFMClusVsLS[1] = ibooker.book1D("nFMClusVsLS_1","Fraction of Clusters vs LS Barrel layer 1",8000,0.5,8000.5);
   fHistBunchCrossings = ibooker.book1D("BunchCrossings","Cumulative Bunch Crossings",lastBunchCrossing,
-				 0.5,float(lastBunchCrossing)+0.5);
+         0.5,float(lastBunchCrossing)+0.5);
   fHistBunchCrossingsLastLumi = ibooker.book1D("BunchCrossingsLL","Bunch Crossings Last Lumi",lastBunchCrossing,
-					 0.5,float(lastBunchCrossing)+0.5);
+           0.5,float(lastBunchCrossing)+0.5);
   fHistClusterCountByBxLastLumi = ibooker.book1D("ClusterCountByBxLL","Cluster Count by BX Last Lumi",lastBunchCrossing,
-					 0.5,float(lastBunchCrossing)+0.5);
+           0.5,float(lastBunchCrossing)+0.5);
   fHistClusterCountByBxCumulative = ibooker.book1D("ClusterCountByBxSum","Cluster Count by BX Cumulative",lastBunchCrossing,
-					 0.5,float(lastBunchCrossing)+0.5);
+           0.5,float(lastBunchCrossing)+0.5);
   fHistClusByLS = ibooker.book1D("totalClusByLS","Number of Clusters all dets vs LS",8000,0.5,8000.5);
 
   // Add some pixel cluster quality check histograms (in a subfolder).
@@ -376,7 +336,7 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
     edm::LogInfo("Status") << "Creating histograms for run #" << run.id().run();
     
     // Pixel cluster positions in the barrel - (z, phi).
-    for (size_t i = 1; i <= kNumLayers; ++i) {
+    for (size_t i = 0; i <= kNumLayers; ++i) {
       std::stringstream key;
       key << "clusPosBarrel" << i;
       std::stringstream name;
@@ -384,33 +344,27 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
       std::stringstream title;
       title << "Pixel cluster position - barrel layer " << i;
       fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
-					    title.str().c_str(),
-					    100, -30., 30.,
-					    64, -Geom::pi(), Geom::pi());
+              title.str().c_str(),
+              100, -30., 30.,
+              64, -Geom::pi(), Geom::pi());
     }
     
     // Pixel cluster positions in the endcaps (x, y).
-    std::vector<std::string> sides;
-    sides.push_back("M");
-    sides.push_back("P");
-    for (std::vector<std::string>::const_iterator side = sides.begin();
-         side != sides.end(); ++side) {
-      for (size_t i = 1; i <= kNumDisks; ++i) {
-        std::stringstream key;
-        key << "clusPosEndCap" << *side << i;
-        std::stringstream name;
-        name << key.str() << "_" << run.run();
-        std::stringstream title;
-        title << "Pixel cluster position - endcap disk " << i;
-        fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
-					      title.str().c_str(),
-					      100, -20., 20.,
-					      100, -20., 20.);
-      }
+    for (size_t i = 0; i <= kNumDisks; ++i) {
+      std::stringstream key;
+      key << "clusPosEndCap" << i;
+      std::stringstream name;
+      name << key.str() << "_" << run.run();
+      std::stringstream title;
+      title << "Pixel cluster position - endcap disk " << i;
+      fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
+              title.str().c_str(),
+              100, -20., 20.,
+              100, -20., 20.);
     }
     
     // Pixel cluster charge in the barrel, per bx.
-    for (size_t i = 1; i <= kNumLayers; ++i) {
+    for (size_t i = 0; i <= kNumLayers; ++i) {
       std::stringstream key;
       key << "clusChargeBarrel" << i;
       std::stringstream name;
@@ -418,30 +372,28 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
       std::stringstream title;
       title << "Pixel cluster charge - barrel layer " << i;
       fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
-					    title.str().c_str(),
-					    3564, .5, 3564.5,
-					    100, 0., 100.);
+              title.str().c_str(),
+              3564, .5, 3564.5,
+              100, 0., 100.);
     }
 
     // Pixel cluster charge in the endcaps, per bx.
-    for (std::vector<std::string>::const_iterator side = sides.begin();
-         side != sides.end(); ++side) {
-      for (size_t i = 1; i <= kNumDisks; ++i) {
-        std::stringstream key;
-        key << "clusChargeEndCap" << *side << i;
-        std::stringstream name;
-        name << key.str() << "_" << run.run();
-        std::stringstream title;
-        title << "Pixel cluster charge - endcap disk " << i;
-        fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
-                                    title.str().c_str(),
-                                    3564, .5, 3564.5,
-                                    100, 0., 100.);
-      }
+    for (size_t i = 0; i <= kNumDisks; ++i) {
+      std::stringstream key;
+      key << "clusChargeEndCap" << i;
+      std::stringstream name;
+      name << key.str() << "_" << run.run();
+      std::stringstream title;
+      title << "Pixel cluster charge - endcap disk " << i;
+      fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
+                                  title.str().c_str(),
+                                  3564, .5, 3564.5,
+                                  100, 0., 100.);
     }
+    
 
     // Pixel cluster size in the barrel, per bx.
-    for (size_t i = 1; i <= kNumLayers; ++i) {
+    for (size_t i = 0; i <= kNumLayers; ++i) {
       std::stringstream key;
       key << "clusSizeBarrel" << i;
       std::stringstream name;
@@ -455,20 +407,17 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
     }
 
     // Pixel cluster size in the endcaps, per bx.
-    for (std::vector<std::string>::const_iterator side = sides.begin();
-         side != sides.end(); ++side) {
-      for (size_t i = 1; i <= kNumDisks; ++i) {
-        std::stringstream key;
-        key << "clusSizeEndCap" << *side << i;
-        std::stringstream name;
-        name << key.str() << "_" << run.run();
-        std::stringstream title;
-        title << "Pixel cluster size - endcap disk " << i;
-        fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
-                                    title.str().c_str(),
-                                    3564, .5, 3564.5,
-                                    100, 0., 100.);
-      }
+    for (size_t i = 0; i <= kNumDisks; ++i) {
+      std::stringstream key;
+      key << "clusSizeEndCap" << i;
+      std::stringstream name;
+      name << key.str() << "_" << run.run();
+      std::stringstream title;
+      title << "Pixel cluster size - endcap disk " << i;
+      fHistContainerThisRun[key.str()] = ibooker.book2D(name.str().c_str(),
+                                  title.str().c_str(),
+                                  3564, .5, 3564.5,
+                                  100, 0., 100.);
     }
   }
 }
@@ -489,7 +438,7 @@ PixelLumiDQM::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ Method called when starting to process a luminosity block.  ------------
 void
 PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const&lumiBlock,
-				   edm::EventSetup const&)
+           edm::EventSetup const&)
 {
   // Only reset and fill every fResetIntervalInLumiSections (default is 1 LS)
   // Return unless the PREVIOUS LS was at the right modulo value 
@@ -510,7 +459,7 @@ PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const&lumiBlock,
 // ------------ Method called when ending the processing of a luminosity block.  ------------
 void
 PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
-				 edm::EventSetup const&es)
+         edm::EventSetup const&es)
 {
   
   unsigned int ls = lumiBlock.luminosityBlockAuxiliary().luminosityBlock();
@@ -568,27 +517,27 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     double pixel_bx_lumi_per_ls_unc = 0.0;
     if(useInnerBarrelLayer) 
       pixel_bx_lumi_per_ls_unc = sqrt(lumi_factor_per_bx*lumi_factor_per_bx *
-				      (average_cluster_count_unc*average_cluster_count_unc +
-				       (average_cluster_count*  XSEC_PIXEL_CLUSTER_UNC /
-					XSEC_PIXEL_CLUSTER )*
-				       (average_cluster_count*  XSEC_PIXEL_CLUSTER / 
-					XSEC_PIXEL_CLUSTER ))
-				      ) / CM2_TO_NANOBARN ;
+              (average_cluster_count_unc*average_cluster_count_unc +
+               (average_cluster_count*  XSEC_PIXEL_CLUSTER_UNC /
+          XSEC_PIXEL_CLUSTER )*
+               (average_cluster_count*  XSEC_PIXEL_CLUSTER / 
+          XSEC_PIXEL_CLUSTER ))
+              ) / CM2_TO_NANOBARN ;
     else
       pixel_bx_lumi_per_ls_unc = sqrt(lumi_factor_per_bx*lumi_factor_per_bx *
-				      (average_cluster_count_unc*average_cluster_count_unc +
-				       (average_cluster_count*  rXSEC_PIXEL_CLUSTER_UNC /
-					rXSEC_PIXEL_CLUSTER )*
-				       (average_cluster_count*  rXSEC_PIXEL_CLUSTER / 
-					rXSEC_PIXEL_CLUSTER ))
-				      ) / CM2_TO_NANOBARN ;
+              (average_cluster_count_unc*average_cluster_count_unc +
+               (average_cluster_count*  rXSEC_PIXEL_CLUSTER_UNC /
+          rXSEC_PIXEL_CLUSTER )*
+               (average_cluster_count*  rXSEC_PIXEL_CLUSTER / 
+          rXSEC_PIXEL_CLUSTER ))
+              ) / CM2_TO_NANOBARN ;
     
     fHistRecordedByBxLastLumi->setBinContent((*it).first,pixel_bx_lumi_per_ls);
     fHistRecordedByBxLastLumi->setBinError((*it).first,pixel_bx_lumi_per_ls_unc);
     
     fHistRecordedByBxCumulative->setBinContent((*it).first,
-					       fHistRecordedByBxCumulative->getBinContent((*it).first)+
-					       pixel_bx_lumi_per_ls);
+                 fHistRecordedByBxCumulative->getBinContent((*it).first)+
+                 pixel_bx_lumi_per_ls);
     
     /*
       if(fHistRecordedByBxLastLumi->getBinContent((*it).first)!=0.)
@@ -608,7 +557,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     // Reset counters 
     (*it).second.Reset();
 
-    // std::cout << "bx="<< (*it).first << " clusters=" << (*it).second.numB.at(0)) << std::endl; 
+    // edm::LogWarning("pixelLumi") << "bx="<< (*it).first << " clusters=" << (*it).second.numB.at(0)); 
   }
 
   if((filledAndUnmaskedBunches = calculateBunchMask(fHistClusterCountByBxCumulative,bunchTriggerMask))!=0){
@@ -627,10 +576,10 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     }
     else total_recorded = 0.0;
     
-    std::cout << " Total recorded " << total_recorded  << std::endl;
+    edm::LogWarning("pixelLumi") << " Total recorded " << total_recorded ;
     fHistTotalRecordedLumiByLS->setBinContent(ls,total_recorded);
     fHistTotalRecordedLumiByLS->setBinError(ls,
-					    sqrt(total_recorded_unc_square));
+              sqrt(total_recorded_unc_square));
   }
   // fill cluster counts by detector regions for sanity checks
   unsigned int all_detectors_counts = 0;
@@ -648,18 +597,18 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   
   for(unsigned int i = 0; i < 3; i++){
     fHistnBClusVsLS[i]->setBinContent(ls, 
-				      float(nBClus[i])/float(all_detectors_counts));
+              float(nBClus[i])/float(all_detectors_counts));
   }
   for(unsigned int i = 0; i < 2; i++){
     fHistnFPClusVsLS[i]->setBinContent(ls, 
-				       float(nFPClus[i])/float(all_detectors_counts));
+               float(nFPClus[i])/float(all_detectors_counts));
   }
   for(unsigned int i = 0; i < 2; i++){
     fHistnFMClusVsLS[i]->setBinContent(ls, 
-				       float(nFMClus[i])/float(all_detectors_counts));
+               float(nFMClus[i])/float(all_detectors_counts));
   }
   
-  logFile_.open(fLogFileName_.c_str(),std::ios_base::trunc);		
+  logFile_.open(fLogFileName_.c_str(),std::ios_base::trunc);    
 
   timeval tv;
   gettimeofday(&tv,0);
@@ -702,9 +651,9 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
   }
   
   ave /= non_empty_bins;
-  std::cout << "Bunch mask finder - non empty bins " << non_empty_bins
-	    << " average of non empty bins " << ave 
-	    << " max content of one bin " << maxc << std::endl;
+  edm::LogWarning("pixelLumi") << "Bunch mask finder - non empty bins " << non_empty_bins
+      << " average of non empty bins " << ave 
+      << " max content of one bin " << maxc;
   double mean = 0.;
   double sigma = 0.;
   if(non_empty_bins < 50){
@@ -722,17 +671,16 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
     mean = fit.GetParameter("Mean");
     sigma = fit.GetParameter("Sigma");
   }
-  std::cout << "Bunch mask will use mean" << mean << " sigma " << sigma << std::endl;
+  edm::LogWarning("pixelLumi") << "Bunch mask will use mean" << mean << " sigma " << sigma;
   // Active BX defined as those which have nclus within fixed standard deviations of peak.
   for(unsigned int i = 1; i<= nbins; i++){
     double bin = e[i];
     if(bin>0. && std::abs(bin-mean)<5.*(sigma)){ mask[i]=true; active_count++;}
   }
-  std::cout << "Bunch mask finds " << active_count << " active bunch crossings " << std::endl;
-  //   std::cout << "this is the full bx mask " ;
+  edm::LogWarning("pixelLumi") << "Bunch mask finds " << active_count << " active bunch crossings ";
+  //   edm::LogWarning("pixelLumi") << "this is the full bx mask " ;
   //   for(unsigned int i = 1; i<= nbins; i++)
-  //     std::cout << ((mask[i]) ? 1:0);
-  //   std::cout << std::endl;
+  //     edm::LogWarning("pixelLumi") << ((mask[i]) ? 1:0);
   return active_count;
 }
 // Define this as a CMSSW plug-in.

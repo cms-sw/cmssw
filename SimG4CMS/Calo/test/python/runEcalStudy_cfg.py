@@ -25,7 +25,7 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(10000)
 )
 
 process.source = cms.Source("EmptySource",
@@ -40,22 +40,36 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxEta = cms.double(2.9),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        MinE   = cms.double(100.),
-        MaxE   = cms.double(100.)
+        MinE   = cms.double(10.0),
+        MaxE   = cms.double(10.0)
     ),
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('electron100.root')
+    fileName = cms.string('electron10.root')
 )
+
+process.g4SimHits.ECalSD.StoreRadLength  = True
+
+process.EcalSimHitStudy.MaxEnergy = 15.0
+
+process.EcalSimHitStudyNormal = process.EcalSimHitStudy.clone(
+	MaxEnergy  = 15.0,
+	SelectX    = 0)
+
+process.EcalSimHitStudyReflect = process.EcalSimHitStudy.clone(
+	MaxEnergy  = 15.0,
+	SelectX    = 1)
+
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.EcalSimHitStudy)
+process.analysis_step   = cms.Path(process.EcalSimHitStudy*
+				   process.EcalSimHitStudyNormal*
+				   process.EcalSimHitStudyReflect)
 
-process.EcalSimHitStudy.MaxEnergy = 200.0
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

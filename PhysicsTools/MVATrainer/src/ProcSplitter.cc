@@ -32,7 +32,7 @@ class ProcSplitter : public TrainProcessor {
 	unsigned int	count;
 };
 
-static ProcSplitter::Registry registry("ProcSplitter");
+ProcSplitter::Registry registry("ProcSplitter");
 
 ProcSplitter::ProcSplitter(const char *name, const AtomicId *id,
                            MVATrainer *trainer) :

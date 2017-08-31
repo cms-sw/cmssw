@@ -73,7 +73,7 @@ void
 KDTreeLinkerAlgo<DATA>::build(std::vector<KDTreeNodeInfo<DATA> >	&eltList, 
 			      const KDTreeBox				&region)
 {
-  if (eltList.size()) {
+  if (!eltList.empty()) {
     initialEltList = &eltList;
     
     size_t size = initialEltList->size();
@@ -83,7 +83,7 @@ KDTreeLinkerAlgo<DATA>::build(std::vector<KDTreeNodeInfo<DATA> >	&eltList,
     int root = recBuild(0, size, 0);
     assert(root == 0);
     
-    initialEltList = 0;
+    initialEltList = nullptr;
   }
 }
  
@@ -141,7 +141,7 @@ KDTreeLinkerAlgo<DATA>::search(const KDTreeBox		&trackBox,
   if (!empty()) {
     closestNeighbour = &recHits;
     recSearch(0, trackBox.dim1min, trackBox.dim1max, trackBox.dim2min, trackBox.dim2max);
-    closestNeighbour = 0;
+    closestNeighbour = nullptr;
   }
 }
 

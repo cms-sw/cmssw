@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
@@ -107,7 +107,7 @@ double DDCompactView::weight(const DDLogicalPart & p) const
 
 void DDCompactView::position (const DDLogicalPart & self, 
 			      const DDLogicalPart & parent,
-			      std::string copyno,
+			      const std::string& copyno,
 			      const DDTranslation & trans,
 			      const DDRotation & rot,
 			      const DDDivision * div)
