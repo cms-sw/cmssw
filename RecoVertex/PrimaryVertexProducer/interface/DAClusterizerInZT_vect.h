@@ -50,23 +50,23 @@ public:
     // has to be called everytime the items are modified
     void ExtractRaw()
     {
-      _z = &z.front();
-      _t = &t.front();
-      _dz2 = &dz2.front();
-      _dt2 = &dt2.front();
-      _errsum = &errsum.front();
-      _Z_sum = &Z_sum.front();
-      _pi = &pi.front();
+      z_ = &z.front();
+      t_ = &t.front();
+      dz2_ = &dz2.front();
+      dt2_ = &dt2.front();
+      errsum_ = &errsum.front();
+      Z_sum_ = &Z_sum.front();
+      pi_ = &pi.front();
     }
     
-    double * __restrict__ _z; // z-coordinate at point of closest approach to the beamline
-    double * __restrict__ _t; // t-coordinate at point of closest approach to the beamline
-    double * __restrict__ _dz2; // square of the error of z(pca)
-    double * __restrict__ _dt2; // square of the error of t(pca)
-    double * __restrict__ _errsum; // sum of squares of the pca errors
+    double * z_; // z-coordinate at point of closest approach to the beamline
+    double * t_; // t-coordinate at point of closest approach to the beamline
+    double * dz2_; // square of the error of z(pca)
+    double * dt2_; // square of the error of t(pca)
+    double * errsum_; // sum of squares of the pca errors
     
-    double * __restrict__  _Z_sum; // Z[i]   for DA clustering
-    double * __restrict__  _pi; // track weight
+    double * Z_sum_; // Z[i]   for DA clustering
+    double * pi_; // track weight
     
     std::vector<double> z; // z-coordinate at point of closest approach to the beamline
     std::vector<double> t; // t-coordinate at point of closest approach to the beamline
@@ -156,38 +156,38 @@ public:
       
       for ( unsigned int i =0; i < GetSize(); ++ i)
 	{
-	  std::cout << " z = " << _z[i] << " t = " << _t[i] << " pk = " << _pk[i] << std::endl;
+	  std::cout << " z = " << z_[i] << " t = " << t_[i] << " pk = " << pk_[i] << std::endl;
 	}
     }
     
     // has to be called everytime the items are modified
     void ExtractRaw()
     {
-      _z = &z.front();
-      _t = &t.front();
-      _pk = &pk.front();
+      z_ = &z.front();
+      t_ = &t.front();
+      pk_ = &pk.front();
       
-      _ei = &ei.front();
-      _sw = &sw.front();
-      _swz = &swz.front();
-      _swt = &swt.front();
-      _se = &se.front();
-      _swE = &swE.front();
-      _ei_cache = &ei_cache.front();
+      ei_ = &ei.front();
+      sw_ = &sw.front();
+      swz_ = &swz.front();
+      swt_ = &swt.front();
+      se_ = &se.front();
+      swE_ = &swE.front();
+      ei_cache_ = &ei_cache.front();
       
     }
     
-    double * __restrict__ _z;
-    double * __restrict__ _t;
-    double * __restrict__ _pk;
+    double * z_;
+    double * t_;
+    double * pk_;
     
-    double * __restrict__ _ei_cache;
-    double * __restrict__ _ei;
-    double * __restrict__ _sw;
-    double * __restrict__ _swz;
-    double * __restrict__ _swt;
-    double * __restrict__ _se;
-    double * __restrict__ _swE;
+    double * ei_cache_;
+    double * ei_;
+    double * sw_;
+    double * swz_;
+    double * swt_;
+    double * se_;
+    double * swE_;
     
   };
   
