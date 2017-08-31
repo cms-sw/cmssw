@@ -31,9 +31,9 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
   zdumpwidth_ = conf.getUntrackedParameter<double> ("zdumpwidth", 20.);
   
   // configurable parameters
-  double Tmin = conf.getParameter<double> ("Tmin")*std::sqrt(2.0);
-  double Tpurge = conf.getParameter<double> ("Tpurge")*std::sqrt(2.0);
-  double Tstop = conf.getParameter<double> ("Tstop")*std::sqrt(2.0);
+  double minT = conf.getParameter<double> ("Tmin")*std::sqrt(2.0);
+  double purgeT = conf.getParameter<double> ("Tpurge")*std::sqrt(2.0);
+  double stopT = conf.getParameter<double> ("Tstop")*std::sqrt(2.0);
   vertexSize_ = conf.getParameter<double> ("vertexSize");
   coolingFactor_ = conf.getParameter<double> ("coolingFactor");
   useTc_=true;
@@ -54,9 +54,9 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
     std::cout << "DAClusterizerinZT_vect: uniquetrkweight = " << uniquetrkweight_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: zmerge = " << zmerge_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: tmerge = " << tmerge_ << std::endl;
-    std::cout << "DAClusterizerinZT_vect: Tmin = " << Tmin << std::endl;
-    std::cout << "DAClusterizerinZT_vect: Tpurge = " << Tpurge << std::endl;
-    std::cout << "DAClusterizerinZT_vect: Tstop = " << Tstop << std::endl;
+    std::cout << "DAClusterizerinZT_vect: Tmin = " << minT << std::endl;
+    std::cout << "DAClusterizerinZT_vect: Tpurge = " << purgeT << std::endl;
+    std::cout << "DAClusterizerinZT_vect: Tstop = " << stopT << std::endl;
     std::cout << "DAClusterizerinZT_vect: vertexSize = " << vertexSize_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: coolingFactor = " << coolingFactor_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: d0CutOff = " << d0CutOff_ << std::endl;
@@ -66,28 +66,28 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 #endif
 
 
-  if (Tmin == 0) {
-    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tmin" << Tmin
+  if (minT == 0) {
+    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tmin" << minT
 						   << "  reset do default " << 1. / betamax_;
   } else {
-    betamax_ = 1. / Tmin;
+    betamax_ = 1. / minT;
   }
 
 
-  if ((Tpurge > Tmin) || (Tpurge == 0)) {
-    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tpurge" << Tpurge
-						   << "  set to " << Tmin;
-    Tpurge =  Tmin;
+  if ((purgeT > minT) || (purgeT == 0)) {
+    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tpurge" << purgeT
+						   << "  set to " << minT;
+    purgeT =  minT;
   }
-  betapurge_ = 1./Tpurge;
+  betapurge_ = 1./purgeT;
   
 
-  if ((Tstop > Tpurge) || (Tstop == 0)) {
-    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tstop" << Tstop
-						   << "  set to  " << max(1., Tpurge);
-    Tstop = max(1., Tpurge) ;
+  if ((stopT > purgeT) || (stopT == 0)) {
+    edm::LogWarning("DAClusterizerinZT_vectorized") << "DAClusterizerInZT: invalid Tstop" << stopT
+						   << "  set to  " << max(1., purgeT);
+    stopT = max(1., purgeT) ;
   }
-  betastop_ = 1./Tstop;
+  betastop_ = 1./stopT;
   
 }
 
@@ -692,7 +692,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
   while ((update(beta, tks, y, false, rho0) > 1.e-6) && 
 	 (niter++ < maxIterations_)) {}
 
-  // annealing loop, stop when T<Tmin  (i.e. beta>1/Tmin)
+  // annealing loop, stop when T<minT  (i.e. beta>1/minT)
 
   double betafreeze = betamax_ * sqrt(coolingFactor_);
 
@@ -752,7 +752,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
 #endif
   
   
-  // switch on outlier rejection at T=Tmin
+  // switch on outlier rejection at T=minT
   if(dzCutOff_ > 0){
     rho0 = 1./nt;
     for(unsigned int a=0; a<10; a++){ update(beta, tks, y, true, a*rho0/10);} // adiabatic turn-on
