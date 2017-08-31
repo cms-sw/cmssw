@@ -43,7 +43,7 @@ namespace edm {
       aux_.postModuleDelayedGetSignal_.connect(std::cref(iReg.postModuleEventDelayedGetSignal_));
     }
     void addWorker(Worker* aWorker) {
-      assert(0 != aWorker);
+      assert(nullptr != aWorker);
       unscheduledWorkers_.push_back(aWorker);
     }
     

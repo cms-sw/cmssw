@@ -25,7 +25,7 @@
 #endif
 
 #ifdef USE_CLOCK_GETTIME
-#include <time.h>
+#include <ctime>
 #else
 #include <sys/time.h>
 #endif

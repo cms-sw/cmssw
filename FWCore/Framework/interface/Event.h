@@ -67,7 +67,7 @@ namespace edm {
   public:
     Event(EventPrincipal const& ep, ModuleDescription const& md,
           ModuleCallingContext const*);
-    virtual ~Event();
+    ~Event() override;
 
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
@@ -214,16 +214,16 @@ namespace edm {
     bool
     getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
 
-    virtual ProcessHistory const&
+    ProcessHistory const&
     processHistory() const override;
 
-    virtual edm::ParameterSet const*
+    edm::ParameterSet const*
     parameterSet(edm::ParameterSetID const& psID) const override;
 
     size_t size() const;
 
-    virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
-    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+    edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+    TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
@@ -245,10 +245,10 @@ namespace edm {
     makeProductID(BranchDescription const& desc) const;
 
     //override used by EventBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
     //override used by EventBase class
-    virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
+    BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -260,8 +260,8 @@ namespace edm {
     friend class ProducerBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
-    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= 0, ParentageID* previousParentageId = 0);
-    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = 0, ParentageID* previousParentageId = 0);
+    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= nullptr, ParentageID* previousParentageId = nullptr);
+    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = nullptr, ParentageID* previousParentageId = nullptr);
 
     BasicHandle
     getByProductID_(ProductID const& oid) const;

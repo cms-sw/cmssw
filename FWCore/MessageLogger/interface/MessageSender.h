@@ -49,7 +49,7 @@ public:
   }
 
   bool valid() {
-    return errorobj_p != 0;
+    return errorobj_p != nullptr;
   }
   
 private:

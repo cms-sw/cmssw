@@ -25,7 +25,7 @@ namespace edm {
       return;
     }
     void const* basicWrapper = bh.wrapper();
-    if(basicWrapper == 0) {
+    if(basicWrapper == nullptr) {
       handleimpl::throwInvalidReference();
     }
     if(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
