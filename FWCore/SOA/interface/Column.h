@@ -41,7 +41,16 @@
 // forward declarations
 namespace edm {
 namespace soa {
-    
+
+/**Helper class used to fill a column of a table
+  in a 'non standard' way
+*/
+template<typename COL, typename F>
+struct ColumnFillerHolder {
+  using Column_type = COL;
+  F m_f;
+};  
+
 template <const char* LABEL, typename T>
 struct Column
 {
@@ -52,6 +61,9 @@ struct Column
     static char const* const s_label(LABEL);
     return s_label;
   }
+  
+  template <typename F>
+  static ColumnFillerHolder<Column<LABEL,T>,F> filler(F&& iF) { return {iF}; }
   
  private:
   Column() = default;
