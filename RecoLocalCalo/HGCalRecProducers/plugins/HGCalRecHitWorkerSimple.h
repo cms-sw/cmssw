@@ -19,10 +19,10 @@
 class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
  public:
   HGCalRecHitWorkerSimple(const edm::ParameterSet&);
-  virtual ~HGCalRecHitWorkerSimple();                       
+  ~HGCalRecHitWorkerSimple() override;                       
   
-  void set(const edm::EventSetup& es);
-  bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result);
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result) override;
   
  protected:
   
