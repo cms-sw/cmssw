@@ -454,7 +454,7 @@ HcalDDDRecConstants::getThickActive(const int& type) const {
     int    zside = bin.zside;
     int    stype = (bin.phis.size() > 4) ? 0 : 1;
     int    layf  = getLayerFront(type+1,zside*ieta,bin.phis[0].first,bin.depthStart) + 1;
-    int    layl  = hcons.getLastLayer(type+1,zside*ieta) + 1;
+    int    layl  = hcons.getFrontLayer(type+1,zside*ieta) + 1;
     double eta   = 0.5*(bin.etaMin+bin.etaMax);
     double theta = 2*atan(exp(-eta));
     double scale = 1.0/((type == 0) ? sin(theta) : cos(theta));
