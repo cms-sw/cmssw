@@ -27,13 +27,13 @@
 
 #define debug
 //-------------------------------------------------------------------
-BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
+BHMSD::BHMSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
     
   //Add BHM Sentitive Detector Name
   collectionName.insert(name);
@@ -104,7 +104,7 @@ void BHMSD::Initialize(G4HCofThisEvent * HCE) {
 
 bool BHMSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -166,8 +166,8 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t BHMSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+uint32_t BHMSD::setDetUnitId(const G4Step * aStep) { 
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 
@@ -222,7 +222,7 @@ void BHMSD::ResetForNewPrimary() {
 void BHMSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("BHMSim") << "BHMSD: hit to be stored is NULL !!";
     return;
   }
@@ -250,7 +250,7 @@ void BHMSD::CreateNewHit() {
   }
 
   LogDebug("BHMSim")  << " and created by " ;
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("BHMSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("BHMSim") << "NO process";
@@ -371,7 +371,7 @@ void BHMSD::PrintAll() {
 } 
 
 
-void BHMSD::fillHits(edm::PSimHitContainer& c, std::string n) {
+void BHMSD::fillHits(edm::PSimHitContainer& c, const std::string& n) {
   if (slave->name() == n) c=slave->hits();
 }
 
@@ -399,8 +399,3 @@ void BHMSD::clearHits(){
   slave->Initialize();
 }
 
-std::vector<std::string> BHMSD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
-}

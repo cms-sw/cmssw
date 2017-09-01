@@ -16,11 +16,11 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-HFWedgeSD::HFWedgeSD(std::string name, const DDCompactView & cpv, 
+HFWedgeSD::HFWedgeSD(const std::string& name, const DDCompactView & cpv, 
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), hcID(-1), theHC(0), currentHit(0) {
+  m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"
@@ -145,9 +145,8 @@ void HFWedgeSD::clearHits() {
   previousID = -1;
 }
 
-uint32_t HFWedgeSD::setDetUnitId(G4Step* aStep) {
+uint32_t HFWedgeSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   return (touch->GetReplicaNumber(0));
 }
 
-void HFWedgeSD::fillHits(edm::PCaloHitContainer&, std::string) {}

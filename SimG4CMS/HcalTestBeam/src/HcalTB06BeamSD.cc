@@ -107,7 +107,7 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
   return weight*destep;
 }
 
-uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step * aStep) { 
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
@@ -144,7 +144,7 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
   return tmp;
 }
  
-bool HcalTB06BeamSD::isItWireChamber (G4String name) {
+bool HcalTB06BeamSD::isItWireChamber (const G4String& name) {
  
   std::vector<G4String>::const_iterator it = wcNames.begin();
   for (; it != wcNames.end(); it++)

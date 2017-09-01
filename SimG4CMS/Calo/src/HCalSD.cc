@@ -540,7 +540,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   return destep;
 }
 
-uint32_t HCalSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HCalSD::setDetUnitId(const G4Step * aStep) { 
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();

@@ -26,7 +26,7 @@
 #include "G4PhysicalConstants.hh"
 
 //________________________________________________________________________________________
-DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
+DreamSD::DreamSD(const std::string& name, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager) {
@@ -76,7 +76,7 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 //________________________________________________________________________________________
 bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     side = 1;
@@ -182,7 +182,7 @@ void DreamSD::initRun() {
 
 
 //________________________________________________________________________________________
-uint32_t DreamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t DreamSD::setDetUnitId(const G4Step * aStep) { 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t id = (touch->GetReplicaNumber(1))*10 + (touch->GetReplicaNumber(0));
   LogDebug("EcalSim") << "DreamSD:: ID " << id;
@@ -191,7 +191,7 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 
 
 //________________________________________________________________________________________
-void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
+void DreamSD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
@@ -205,7 +205,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::vector<double> paras(sol.parameters());
     G4String name = sol.name().name();
-    G4LogicalVolume* lv=0;
+    G4LogicalVolume* lv=nullptr;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
       if ((*lvcite)->GetName() == name) {
 	lv = (*lvcite);
@@ -228,7 +228,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
-    if (ite->first != 0) name = (ite->first)->GetName();
+    if (ite->first != nullptr) name = (ite->first)->GetName();
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second.first
                         << " W = " << ite->second.second;
@@ -236,7 +236,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 }
 
 //________________________________________________________________________________________
-double DreamSD::curve_LY(G4Step* aStep, int flag) {
+double DreamSD::curve_LY(const G4Step* aStep, int flag) {
 
   G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
   G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
@@ -290,7 +290,7 @@ const double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
 //________________________________________________________________________________________
 // Calculate total cherenkov deposit
 // Inspired by Geant4's Cherenkov implementation
-double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
+double DreamSD::cherenkovDeposit_(const G4Step* aStep ) {
 
   double cherenkovEnergy = 0;
   if (!materialPropertiesTable) return cherenkovEnergy;
@@ -298,7 +298,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 
   // Retrieve refractive index
   G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
-  if ( Rindex == NULL ) {
+  if ( Rindex == nullptr ) {
     edm::LogWarning("EcalSim") << "Couldn't retrieve refractive index";
     return cherenkovEnergy;
   }
@@ -315,7 +315,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  const G4ThreeVector& x0 = pPreStepPoint->GetPosition();
   G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const double charge = aParticle->GetDefinition()->GetPDGCharge();

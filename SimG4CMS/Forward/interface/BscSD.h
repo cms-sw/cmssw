@@ -10,14 +10,6 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-// last
-//#include "SimG4Core/Application/interface/SimTrackManager.h"
-//#include "SimG4CMS/Calo/interface/CaloSD.h"
-
-
-//#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-//#include "SimG4Core/Notification/interface/TrackContainer.h"
-
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
@@ -28,14 +20,7 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
-//#include <CLHEP/Vector/ThreeVector.h>
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
-//#include <map>
 #include <string>
- 
-
 
 class TrackingSlaveSD;
 //AZ:
@@ -58,33 +43,31 @@ class BscSD : public SensitiveTkDetector,
 
 public:
   
-  BscSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  BscSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
   	  edm::ParameterSet const &, const SimTrackManager* );
 
 
-  virtual ~BscSD();
+  ~BscSD() override;
   
-  virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t  setDetUnitId(G4Step*);
+  bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t  setDetUnitId(const G4Step*) override;
 
-  virtual void Initialize(G4HCofThisEvent * HCE);
-  virtual void EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void clear();
-  virtual void DrawAll();
-  virtual void PrintAll();
+  void Initialize(G4HCofThisEvent * HCE) override;
+  void EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void clear() override;
+  void DrawAll() override;
+  void PrintAll() override;
 
   virtual double getEnergyDeposit(G4Step* step);
   //protected:
   //    Collection       hits_;
-    void fillHits(edm::PSimHitContainer&, std::string use);
-  
-  std::vector<std::string> getNames();
+  void fillHits(edm::PSimHitContainer&, const std::string& use) override;
   
  private:
-  void           update(const BeginOfRun *);
-  void           update(const BeginOfEvent *);
-  void           update(const ::EndOfEvent *);
-  virtual void   clearHits();
+  void           update(const BeginOfRun *) override;
+  void           update(const BeginOfEvent *) override;
+  void           update(const ::EndOfEvent *) override;
+  void   clearHits() override;
   
   //void SetNumberingScheme(BscNumberingScheme* scheme);
   
