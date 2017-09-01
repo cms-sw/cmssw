@@ -26,7 +26,7 @@ public:
   // Internal data structure to 
   struct track_t {
     
-    void AddItem( double new_z, double new_t, double new_dz2, double new_dt2, const reco::TransientTrack* new_tt, double new_pi   )
+    void addItem( double new_z, double new_t, double new_dz2, double new_dt2, const reco::TransientTrack* new_tt, double new_pi   )
     {
       z.push_back( new_z );
       t.push_back( new_t );
@@ -38,17 +38,14 @@ public:
       pi.push_back( new_pi ); // track weight
       Z_sum.push_back( 1.0 ); // Z[i]   for DA clustering, initial value as done in ::fill
     }
-
     
-    
-    unsigned int GetSize() const
+    unsigned int getSize() const
     {
       return z.size();
     }
     
-    
     // has to be called everytime the items are modified
-    void ExtractRaw()
+    void extractRaw()
     {
       z_ = &z.front();
       t_ = &t.front();
@@ -61,12 +58,12 @@ public:
     
     double * z_; // z-coordinate at point of closest approach to the beamline
     double * t_; // t-coordinate at point of closest approach to the beamline
+    double * pi_; // track weight
+
     double * dz2_; // square of the error of z(pca)
     double * dt2_; // square of the error of t(pca)
-    double * errsum_; // sum of squares of the pca errors
-    
+    double * errsum_; // sum of squares of the pca errors    
     double * Z_sum_; // Z[i]   for DA clustering
-    double * pi_; // track weight
     
     std::vector<double> z; // z-coordinate at point of closest approach to the beamline
     std::vector<double> t; // t-coordinate at point of closest approach to the beamline
@@ -75,14 +72,13 @@ public:
     std::vector<double> errsum; // sum of squares of the pca errors    
     std::vector<double> Z_sum; // Z[i]   for DA clustering
     std::vector<double> pi; // track weight
-
     std::vector< const reco::TransientTrack* > tt; // a pointer to the Transient Track
   };
   
   struct vertex_t {
     std::vector<double> z; //           z coordinate
     std::vector<double> t; //           t coordinate
-    std::vector<double> pk; //           vertex weight for "constrained" clustering
+    std::vector<double> pk; //          vertex weight for "constrained" clustering
     
     // --- temporary numbers, used during update
     std::vector<double> ei_cache;
@@ -93,13 +89,7 @@ public:
     std::vector<double> se;
     std::vector<double> swE;
     
-    
-    unsigned int GetSize() const
-    {
-      return z.size();
-    }
-    
-    void AddItem( double new_z, double new_t, double new_pk   )
+    void addItem( double new_z, double new_t, double new_pk   )
     {
       z.push_back( new_z);
       t.push_back( new_t);
@@ -113,55 +103,16 @@ public:
       se.push_back( 0.0);
       swE.push_back( 0.0);
       
-      ExtractRaw();
+      extractRaw();
     }
     
-    void InsertItem( unsigned int i, double new_z, double new_t, double new_pk   )
+    unsigned int getSize() const
     {
-      z.insert(z.begin() + i, new_z);
-      t.insert(t.begin() + i, new_t);
-      pk.insert(pk.begin() + i, new_pk);
-      
-      ei_cache.insert(ei_cache.begin() + i, 0.0 );
-      ei.insert( ei.begin()  + i, 0.0 );
-      sw.insert( sw.begin()  + i, 0.0 );
-      swz.insert(swz.begin() + i, 0.0 );
-      swt.insert(swt.begin() + i, 0.0 );
-      se.insert( se.begin()  + i, 0.0 );
-      swE.insert(swE.begin() + i, 0.0 );
-      
-      ExtractRaw();
+      return z.size();
     }
-    
-    void RemoveItem( unsigned int i )
-    {
-      z.erase( z.begin() + i );
-      t.erase( t.begin() + i );
-      pk.erase( pk.begin() + i );
-      
-      ei_cache.erase( ei_cache.begin() + i);
-      ei.erase( ei.begin() + i);
-      sw.erase( sw.begin() + i);
-      swz.erase( swz.begin() + i);
-      swt.erase( swt.begin() + i);
-      se.erase(se.begin() + i);
-      swE.erase(swE.begin() + i);
-      
-      ExtractRaw();
-    }
-    
-    void DebugOut()
-    {
-      std::cout <<  "vertex_t size: " << GetSize() << std::endl;
-      
-      for ( unsigned int i =0; i < GetSize(); ++ i)
-	{
-	  std::cout << " z = " << z_[i] << " t = " << t_[i] << " pk = " << pk_[i] << std::endl;
-	}
-    }
-    
+
     // has to be called everytime the items are modified
-    void ExtractRaw()
+    void extractRaw()
     {
       z_ = &z.front();
       t_ = &t.front();
@@ -176,6 +127,50 @@ public:
       ei_cache_ = &ei_cache.front();
       
     }
+
+    void insertItem( unsigned int i, double new_z, double new_t, double new_pk   )
+    {
+      z.insert(z.begin() + i, new_z);
+      t.insert(t.begin() + i, new_t);
+      pk.insert(pk.begin() + i, new_pk);
+      
+      ei_cache.insert(ei_cache.begin() + i, 0.0 );
+      ei.insert( ei.begin()  + i, 0.0 );
+      sw.insert( sw.begin()  + i, 0.0 );
+      swz.insert(swz.begin() + i, 0.0 );
+      swt.insert(swt.begin() + i, 0.0 );
+      se.insert( se.begin()  + i, 0.0 );
+      swE.insert(swE.begin() + i, 0.0 );
+      
+      extractRaw();
+    }
+    
+    void removeItem( unsigned int i )
+    {
+      z.erase( z.begin() + i );
+      t.erase( t.begin() + i );
+      pk.erase( pk.begin() + i );
+      
+      ei_cache.erase( ei_cache.begin() + i);
+      ei.erase( ei.begin() + i);
+      sw.erase( sw.begin() + i);
+      swz.erase( swz.begin() + i);
+      swt.erase( swt.begin() + i);
+      se.erase(se.begin() + i);
+      swE.erase(swE.begin() + i);
+      
+      extractRaw();
+    }
+    
+    void debugOut()
+    {
+      std::cout <<  "vertex_t size: " << getSize() << std::endl;
+      
+      for ( unsigned int i =0; i < getSize(); ++ i)
+	{
+	  std::cout << " z = " << z_[i] << " t = " << t_[i] << " pk = " << pk_[i] << std::endl;
+	}
+    }
     
     double * z_;
     double * t_;
@@ -187,16 +182,13 @@ public:
     double * swz_;
     double * swt_;
     double * se_;
-    double * swE_;
-    
+    double * swE_;    
   };
   
-  DAClusterizerInZT_vect(const edm::ParameterSet& conf);
-  
+  DAClusterizerInZT_vect(const edm::ParameterSet& conf);  
   
   std::vector<std::vector<reco::TransientTrack> >
-  clusterize(const std::vector<reco::TransientTrack> & tracks) const override;
-  
+  clusterize(const std::vector<reco::TransientTrack> & tracks) const override;  
   
   std::vector<TransientVertex>
   vertices(const std::vector<reco::TransientTrack> & tracks,
