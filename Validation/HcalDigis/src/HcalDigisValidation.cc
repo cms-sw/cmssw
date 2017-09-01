@@ -67,7 +67,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
     msm_ = new std::map<std::string, MonitorElement*>();
 
-    if (outputFile_.size() != 0) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    if (!outputFile_.empty()) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
     else edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
 
 }
@@ -1262,7 +1262,7 @@ void HcalDigisValidation::fillPf(std::string name, double X, double Y) {
 }
 
 MonitorElement* HcalDigisValidation::monitor(std::string name) {
-    if (!msm_->count(name)) return NULL;
+    if (!msm_->count(name)) return nullptr;
     else return msm_->find(name)->second;
 }
 
