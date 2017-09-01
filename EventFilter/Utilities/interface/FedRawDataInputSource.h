@@ -20,8 +20,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/FEDInterface/interface/FED1024.h"
-
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 class FEDRawDataCollection;
@@ -77,7 +75,7 @@ private:
   //monitoring
   void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
-  long initFileList(); 
+  long initFileList();
   evf::EvFDaqDirector::FileStatus getFile(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
 
   //variables
@@ -224,7 +222,7 @@ struct InputFile {
   uint32_t  chunkPosition_ = 0;
   unsigned int currentChunk_ = 0;
 
-  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
+  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(),
       uint32_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
     parent_(parent),
     status_(status),

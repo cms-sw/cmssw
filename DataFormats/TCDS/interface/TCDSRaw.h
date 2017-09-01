@@ -77,8 +77,7 @@ namespace tcds {
     uint32_t gpstimehigh;
     uint32_t bireserved8_11;
     uint32_t bireserved12_15;
-    uint8_t statusRegister;
-    uint8_t bstMaster;
+    uint16_t bstMaster;
     uint16_t turnCountLow;
     uint16_t turnCountHigh;
     uint16_t lhcFillLow;
