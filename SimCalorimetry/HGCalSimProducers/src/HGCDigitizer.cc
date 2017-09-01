@@ -70,7 +70,7 @@ namespace {
     const auto& topo     = geom->topology();
     const auto& dddConst = topo.dddConstants();
     
-    int subdet, layer, cell, sec, subsec, zp;
+    int subdet(DetId(simId).subdetId()), layer, cell, sec, subsec, zp;
 
     const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
     if (isSqr) {
