@@ -118,7 +118,7 @@ namespace cms {
     ost_ << other.ost_.str();
   }
 
-  Exception::~Exception() throw() {
+  Exception::~Exception() noexcept {
   }
 
   void
@@ -138,7 +138,7 @@ namespace cms {
     return *this;
   }
   
-  char const* Exception::what() const throw() {
+  char const* Exception::what() const noexcept {
     what_ = explainSelf();
     return what_.c_str();
   }
