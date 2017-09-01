@@ -59,9 +59,6 @@ TcdsRawToDigi::TcdsRawToDigi(const edm::ParameterSet& iConfig)
     edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("InputLabel");
     dataToken_=consumes<FEDRawDataCollection>(dataLabel);
     produces<TCDSRecord>( "tcdsRecord" ).setBranchAlias( "tcdsRecord" );
-    // produces<int>( "nibble" ).setBranchAlias( "nibble");
-    // produces<int64_t>( "triggerCount" ).setBranchAlias( "triggerCount");
-    // produces<BSTRecord>( "bstRecord" ).setBranchAlias( "bstRecord" );
 }
 
 
