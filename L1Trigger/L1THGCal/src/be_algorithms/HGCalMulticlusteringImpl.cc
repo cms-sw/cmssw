@@ -40,7 +40,7 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 
 
 bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1, 
-					   const l1t::HGCalCluster & clu2) const
+                                           const l1t::HGCalCluster & clu2) const
 {
   HGCalDetId cluDetId( clu2.detId() );
   HGCalDetId firstClusterDetId( clu1.detId() );
@@ -58,9 +58,9 @@ bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1,
 
 
 void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-					     const l1t::HGCalCluster & cluster,
-					     std::vector<int> & neighbors
-					    )
+                                             const l1t::HGCalCluster & cluster,
+                                             std::vector<int> & neighbors
+                                            )
 {
   int iclu = 0;
   
@@ -135,7 +135,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
     
 }
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-						 l1t::HGCalMulticlusterBxCollection & multiclusters)
+                                                 l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
   
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
@@ -152,32 +152,32 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
       visited.at(iclu)=true;
       findNeighbor(clustersPtrs, **clu, neighbors);
       neighborList.push_back(std::move(neighbors));
-	
+        
       if(neighborList.at(iclu).size() > minNDbscan_) {
-	multiclustersTmp.emplace_back( *clu );
-	merged.at(iclu) = true;
-	/* dynamic range loop: range-based loop syntax cannot be employed */
-	for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
-	    
-	  neighNo = neighborList.at(iclu).at(neighInd);
-	  
-	  if(!visited.at(neighNo)){
-	    visited.at(neighNo) = true;
-	    std::vector<int> secNeighbors;
-	    findNeighbor(clustersPtrs,*(clustersPtrs[neighNo]), secNeighbors);
-	    multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo]);
-	    merged.at(neighNo) = true;
-	    
-	    if(secNeighbors.size() > minNDbscan_){
-	      neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
-	    }
-	    
-	    } else if(!merged.at(neighNo) ){
-	    merged.at(neighNo) = true;		
-	    multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo] );
-	  }
-	}
-	imclu++;
+        multiclustersTmp.emplace_back( *clu );
+        merged.at(iclu) = true;
+        /* dynamic range loop: range-based loop syntax cannot be employed */
+        for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
+            
+          neighNo = neighborList.at(iclu).at(neighInd);
+          
+          if(!visited.at(neighNo)){
+            visited.at(neighNo) = true;
+            std::vector<int> secNeighbors;
+            findNeighbor(clustersPtrs,*(clustersPtrs[neighNo]), secNeighbors);
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo]);
+            merged.at(neighNo) = true;
+            
+            if(secNeighbors.size() > minNDbscan_){
+              neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
+            }
+            
+            } else if(!merged.at(neighNo) ){
+            merged.at(neighNo) = true;          
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo] );
+          }
+        }
+        imclu++;
       }
     }
     
@@ -187,9 +187,9 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
   /* making the collection of multiclusters */
   for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
     math::PtEtaPhiMLorentzVector calibP4( multiclustersTmp.at(i).pt() * calibSF_, 
-					  multiclustersTmp.at(i).eta(), 
-					  multiclustersTmp.at(i).phi(), 
-					  0. );
+                                          multiclustersTmp.at(i).eta(), 
+                                          multiclustersTmp.at(i).phi(), 
+                                          0. );
     // overwriting the 4p with the calibrated 4p     
     multiclustersTmp.at(i).setP4( calibP4 );
     
