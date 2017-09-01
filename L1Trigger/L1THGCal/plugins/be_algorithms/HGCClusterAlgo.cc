@@ -28,6 +28,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             dRC2d,
             NNC2d
         };
+        enum MulticlusterType{
+            dRC3d,
+            DBSCANC3d
+        };
     
     public:
 
@@ -51,6 +55,16 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                 edm::LogWarning("ParameterError") << "Unknown clustering type '" << type
                     << "'. Using nearest neighbor NNC2d instead.\n";
                 clusteringAlgorithmType_ = NNC2d;
+            }
+            std::string typeMulticluster(conf.getParameterSet("C3d_parameters").getParameter<std::string>("type_multicluster"));
+            if(typeMulticluster=="dRC3d"){
+                multiclusteringAlgoType_ = dRC3d;
+            }else if(typeMulticluster=="DBSCANC3d"){
+                multiclusteringAlgoType_ = DBSCANC3d;
+            }else {
+                edm::LogWarning("ParameterError") << "Unknown Multiclustering type '" << typeMulticluster
+                    << "'. Using Cone Algorithm instead.\n";
+                multiclusteringAlgoType_ = dRC3d;
             }
 
         }
@@ -97,6 +111,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         ClusterType clusteringAlgorithmType_;
         double clustering_threshold_silicon_;
         double clustering_threshold_scintillator_;
+        MulticlusterType multiclusteringAlgoType_;
 };
 
 
@@ -170,7 +185,17 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to multiclustering and compute shower shape*/
-    multiclustering_.clusterize( clustersPtrs, *multicluster_product_ );
+    switch(multiclusteringAlgoType_){
+    case dRC3d : 
+      multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_ );
+      break;
+    case DBSCANC3d:
+      multiclustering_.clusterizeDBSCAN( clustersPtrs, *multicluster_product_ );
+      break;
+    default:
+      // Should not happen, clustering type checked in constructor
+      break;
+    }
 
     /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
     multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");
