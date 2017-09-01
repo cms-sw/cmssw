@@ -91,9 +91,9 @@ add_reco_strings(efficiency_strings)
 
 
 
-# hltSMPPostSingleEle = hltSMPPostProcessor.clone()
-# hltSMPPostSingleEle.subDirs = ['HLT/SMP/SingleEle']
-# hltSMPPostSingleEle.efficiencyProfile = efficiency_strings
+hltSMPPostSingleEle = hltSMPPostProcessor.clone()
+hltSMPPostSingleEle.subDirs = ['HLT/SMP/SingleEle']
+hltSMPPostSingleEle.efficiencyProfile = efficiency_strings
 
 # hltSMPPostSingleMu = hltSMPPostProcessor.clone()
 # hltSMPPostSingleMu.subDirs = ['HLT/SMP/SingleMu']
@@ -104,7 +104,7 @@ hltSMPPostSinglePhoton.subDirs = ['HLT/SMP/SinglePhoton']
 hltSMPPostSinglePhoton.efficiencyProfile = efficiency_strings
 
 hltSMPPostProcessors = cms.Sequence(
-#		hltSMPPostSingleEle+
+		hltSMPPostSingleEle+
 #		hltSMPPostSingleMu+
 		hltSMPPostSinglePhoton
 )
