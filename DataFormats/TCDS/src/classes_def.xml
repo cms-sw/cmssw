@@ -1,4 +1,4 @@
 <lcgdict>
-  <class name="edm::RefProd<BSTRecord>"/>
-  <class name="edm::Wrapper<BSTRecord>"/>
+  <class name="edm::RefProd<TCDSRecord>"/>
+  <class name="edm::Wrapper<TCDSRecord>"/>
 </lcgdict>

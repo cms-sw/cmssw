@@ -65,9 +65,9 @@ public:
 
   const BSTRecord& getBST() const { return bst_; }
 
-  const L1aInfo& getL1aHistoryEntry(const auto entry) const { return l1aHistory_.at(entry); }
+  const L1aInfo& getL1aHistoryEntry(const uint8_t entry) const { return l1aHistory_.at(entry); }
 
-  uint32_t getOrbitOfLastBgo(const auto bgo) const { return lastBgos_.at(bgo); }
+  uint32_t getOrbitOfLastBgo(const uint8_t bgo) const { return lastBgos_.at(bgo); }
   uint32_t getLastOrbitCounter0() const { return lastBgos_.at(BGo::OC0); }
   uint32_t getLastTestEnable() const { return lastBgos_.at(BGo::TestEnable); }
   uint32_t getLastResync() const { return lastBgos_.at(BGo::Resync); }
