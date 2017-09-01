@@ -6,7 +6,7 @@
 
 class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
 
-public:
+public: 
   CMSEmStandardPhysicsXS(G4int ver);
   virtual ~CMSEmStandardPhysicsXS();
 
