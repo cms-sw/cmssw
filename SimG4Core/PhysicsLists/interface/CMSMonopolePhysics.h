@@ -17,12 +17,12 @@ namespace sim {
 
 class CMSMonopolePhysics : public G4VPhysicsConstructor {
 
-public:
+public: 
   CMSMonopolePhysics(const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter * cfs_, const edm::ParameterSet & p);
-  virtual ~CMSMonopolePhysics();
+  ~CMSMonopolePhysics() override;
 
-  void ConstructParticle();
-  void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
   sim::ChordFinderSetter * chordFinderSetter;
