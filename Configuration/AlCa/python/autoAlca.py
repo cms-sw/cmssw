@@ -20,10 +20,16 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaP0"         : "",
                   # ---------------------------------------------------------------------------------------------------------------------------
-                  "HcalNZS"        : "HcalCalMinBias"
+                  "HcalNZS"        : "HcalCalMinBias",
                   # This is in the AlCaRecoMatrix, but no RelVals are produced
                   # 'TestEnablesTracker'  : 'TkAlLAS'
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
+                  "MET" : "",
+                  "SingleMu" : "",
+                  "MuOniaParked" : "",
+                  "DoubleElectron" : "",
+                  "StreamExpress" : "",
+                  "StreamExpressHI" : ""
 
                   }
 
