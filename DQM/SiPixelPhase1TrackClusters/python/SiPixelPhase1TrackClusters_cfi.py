@@ -202,6 +202,23 @@ SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1DigisHitmapOnTrack = DefaultHistoTrack.clone(
+  name = "digi_occupancy_ontrack",
+  title = "Digi Occupancy (OnTrack)",
+  ylabel = "#digis",
+  dimensions = 0,
+  specs = VPSet(
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row/col")
+                            .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row", "EXTEND_X")
+                            .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_Y")
+                            .save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row/col")
+                            .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_X")
+                            .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_Y")
+                            .save(),
+  )
+)
+
 SiPixelPhase1TrackClustersNTracks = DefaultHistoTrack.clone(
   name = "ntracks",
   title = "Number of Tracks",
@@ -326,6 +343,20 @@ SiPixelPhase1ClustersSizeVsEtaOnTrack = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1ClustersChargeVsSizeOnTrack = DefaultHistoTrack.clone(
+  name = "chargevssize_on_track",
+  title = "Cluster Charge vs. Cluster Size (OnTrack)",
+  xlabel = "size[pixels]",
+  ylabel = "Cluster charge",
+  range_min =  0, range_max = 30, range_nbins = 30,
+  range_y_min = 0, range_y_max = 150e3, range_y_nbins = 150,
+  dimensions = 2,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
 
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
@@ -334,6 +365,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackNClusters,
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
+  SiPixelPhase1DigisHitmapOnTrack,
 
   SiPixelPhase1TrackClustersNTracks,
   SiPixelPhase1TrackClustersNTracksInVolume,
@@ -354,7 +386,8 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
 
-  SiPixelPhase1ClustersSizeVsEtaOnTrack
+  SiPixelPhase1ClustersSizeVsEtaOnTrack,
+  SiPixelPhase1ClustersChargeVsSizeOnTrack,
 )
 
 
