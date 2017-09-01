@@ -102,7 +102,7 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    edm::LogInfo("GeometricDetAnalyzer")<< " And Contains  Daughters: "<< pDD->deepComponents().size();   
    std::vector<const GeometricDet*> det = pDD->deepComponents();   
    for(auto & it : det){
-     DDRotationMatrix res = it->rotation();
+     const DDRotationMatrix& res = it->rotation();
      DD3Vector x, y, z;
      res.GetComponents(x, y, z);
      DD3Vector colx(x.X(),x.Y(),x.Z());

@@ -31,10 +31,10 @@ const GeomDetUnit* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
     
     const TrackingGeometry* tg = slaveGeometry(id);
     
-    if (tg != 0) {
+    if (tg != nullptr) {
       return tg->idToDetUnit(id);
     } else {
-      return 0;
+      return nullptr;
     }
 }
 
@@ -43,10 +43,10 @@ const GeomDet* GlobalTrackingGeometry::idToDet(DetId id) const{
   
     const TrackingGeometry* tg = slaveGeometry(id);
     
-    if (tg != 0) {
+    if (tg != nullptr) {
         return tg->idToDet(id);
     } else {
-      return 0;
+      return nullptr;
     }
 }
 
@@ -58,7 +58,7 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
         idx+=id.subdetId()-1;
     }
 
-    if (theGeometries[idx]==0) throw cms::Exception("NoGeometry") << "No Tracking Geometry is available for DetId " << id.rawId() << std::endl;
+    if (theGeometries[idx]==nullptr) throw cms::Exception("NoGeometry") << "No Tracking Geometry is available for DetId " << id.rawId() << std::endl;
 
     return theGeometries[idx];
 }
@@ -70,7 +70,7 @@ GlobalTrackingGeometry::detTypes( void ) const
        std::unique_ptr<DetTypeContainer> ptr{new DetTypeContainer()};
        for(auto theGeometrie : theGeometries)
        {
-        if( theGeometrie == 0 ) continue;
+        if( theGeometrie == nullptr ) continue;
         DetTypeContainer detTypes(theGeometrie->detTypes());
         if( detTypes.size() + ptr->size() < ptr->capacity()) ptr->resize( detTypes.size() + ptr->size());
         for(auto detType : detTypes)
@@ -91,7 +91,7 @@ GlobalTrackingGeometry::detUnits( void ) const
        std::unique_ptr<DetUnitContainer> ptr{new DetUnitContainer()};
        for(auto theGeometrie : theGeometries)
        {
-        if( theGeometrie == 0 ) continue;
+        if( theGeometrie == nullptr ) continue;
         DetUnitContainer detUnits(theGeometrie->detUnits());
         if( detUnits.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnits.size() + ptr->size());
         for(auto detUnit : detUnits)
@@ -112,7 +112,7 @@ GlobalTrackingGeometry::dets( void ) const
        std::unique_ptr<DetContainer> ptr{new DetContainer()};
        for(auto theGeometrie : theGeometries)
        {
-        if( theGeometrie == 0 ) continue;
+        if( theGeometrie == nullptr ) continue;
         DetContainer dets(theGeometrie->dets());
         if( dets.size() + ptr->size() < ptr->capacity()) ptr->resize( dets.size() + ptr->size());
         for(auto det : dets)
@@ -133,7 +133,7 @@ GlobalTrackingGeometry::detUnitIds( void ) const
        std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
        for(auto theGeometrie : theGeometries)
        {
-        if( theGeometrie == 0 ) continue;
+        if( theGeometrie == nullptr ) continue;
         DetIdContainer detUnitIds(theGeometrie->detUnitIds());
         if( detUnitIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnitIds.size() + ptr->size());
         for(auto detUnitId : detUnitIds)
@@ -154,7 +154,7 @@ GlobalTrackingGeometry::detIds( void ) const
        std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
        for(auto theGeometrie : theGeometries)
        {
-        if( theGeometrie == 0 ) continue;
+        if( theGeometrie == nullptr ) continue;
         DetIdContainer detIds(theGeometrie->detIds());
         if( detIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detIds.size() + ptr->size());
         for(auto detId : detIds)

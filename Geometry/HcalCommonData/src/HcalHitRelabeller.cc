@@ -7,7 +7,7 @@
 //#define EDM_ML_DEBUG
 
 HcalHitRelabeller::HcalHitRelabeller(bool nd) : 
-  theRecNumber(0),
+  theRecNumber(nullptr),
   neutralDensity_(nd) { }
 
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {

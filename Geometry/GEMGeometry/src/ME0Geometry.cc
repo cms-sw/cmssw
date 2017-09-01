@@ -42,7 +42,7 @@ const GeomDetUnit* ME0Geometry::idToDetUnit(DetId id) const{
 const GeomDet* ME0Geometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 

@@ -143,7 +143,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
-  hcons_(0), mergePosition_(false),
+  hcons_(nullptr), mergePosition_(false),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   mode_(mode), triggerMode_(tmode),
   firstHBRing_(1),   lastHBRing_(16),

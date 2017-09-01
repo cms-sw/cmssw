@@ -50,7 +50,7 @@ private:
   FastTimeDDDConstants* fastTimeDDDConst_;
 };
 
-FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&) : fastTimeDDDConst_(0) {
+FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&) : fastTimeDDDConst_(nullptr) {
 #ifdef EDM_ML_DEBUG
   std::cout <<"constructing FastTimeNumberingInitialization" << std::endl;
 #endif
@@ -66,7 +66,7 @@ FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   std::cout << "in FastTimeNumberingInitialization::produce" << std::endl;
 #endif
-  if (fastTimeDDDConst_ == 0) {
+  if (fastTimeDDDConst_ == nullptr) {
     edm::ESHandle<FastTimeParameters>  pFTpar;
     iRecord.get(pFTpar);
     fastTimeDDDConst_ = new FastTimeDDDConstants(&(*pFTpar));

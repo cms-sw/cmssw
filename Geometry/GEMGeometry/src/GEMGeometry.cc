@@ -37,7 +37,7 @@ const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
 
 const GeomDet* GEMGeometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
-  return (i != theMap.end()) ? i->second : 0;
+  return (i != theMap.end()) ? i->second : nullptr;
 }
 
 const std::vector<const GEMRegion*>& GEMGeometry::regions() const {
@@ -69,7 +69,7 @@ const GEMRegion* GEMGeometry::region(int re) const{
     if (re != region->region()) continue;
     return region;
   }
-  return 0;
+  return nullptr;
 }
 
 const GEMStation* GEMGeometry::station(int re, int st) const{ 
@@ -77,7 +77,7 @@ const GEMStation* GEMGeometry::station(int re, int st) const{
     if (re != station->region() || st != station->station()) continue;
     return station;
   }
-  return 0;
+  return nullptr;
 }
 
 const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
@@ -85,7 +85,7 @@ const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
     if (re != ring->region() || st != ring->station() || ri != ring->ring()) continue;	
     return ring;
   }
-  return 0;
+  return nullptr;
 }
 
 const GEMSuperChamber* GEMGeometry::superChamber(GEMDetId id) const{

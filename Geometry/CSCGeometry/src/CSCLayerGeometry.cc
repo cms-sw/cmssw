@@ -25,7 +25,7 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
 	 float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
 	 const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire, float hThickness )
   :   TrapezoidalPlaneBounds( bounds.widthAtHalfLength() - bounds.width()/2., bounds.width()/2., bounds.length()/2., hThickness ), 
-      theWireTopology( 0 ), theStripTopology( 0 ), 
+      theWireTopology( nullptr ), theStripTopology( nullptr ), 
       hBottomEdge( bounds.widthAtHalfLength() - bounds.width()/2. ), 
       hTopEdge( bounds.width()/2. ), apothem( bounds.length()/2. ),  
       myName( "CSCLayerGeometry" ), chamberType( iChamberType ) {
@@ -65,7 +65,7 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
 CSCLayerGeometry::CSCLayerGeometry(const CSCLayerGeometry& melg) :
   TrapezoidalPlaneBounds(melg.hBottomEdge, melg.hTopEdge, melg.apothem,
 			 0.5 * melg.thickness() ),
-  theWireTopology(0), theStripTopology(0), 
+  theWireTopology(nullptr), theStripTopology(nullptr), 
   hBottomEdge(melg.hBottomEdge), hTopEdge(melg.hTopEdge),
   apothem(melg.apothem), chamberType(melg.chamberType) 
 {
@@ -82,13 +82,13 @@ CSCLayerGeometry& CSCLayerGeometry::operator=(const CSCLayerGeometry& melg)
     if ( melg.theStripTopology )
       theStripTopology=melg.theStripTopology->clone();
     else
-      theStripTopology=0;
+      theStripTopology=nullptr;
 
     delete theWireTopology;
     if ( melg.theWireTopology )
       theWireTopology=new CSCWireTopology(*(melg.theWireTopology));
     else
-      theWireTopology=0;
+      theWireTopology=nullptr;
 
     hBottomEdge     = melg.hBottomEdge;
     hTopEdge        = melg.hTopEdge;

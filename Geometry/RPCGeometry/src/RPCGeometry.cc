@@ -56,7 +56,7 @@ const GeomDet* RPCGeometry::idToDet(DetId id) const{
     return i->second;
 
   LogDebug("RPCGeometry")<<"Invalid DetID: no GeomDet associated "<< RPCDetId(id);
-  GeomDet* geom = 0;
+  GeomDet* geom = nullptr;
   return geom;   
 }
 
