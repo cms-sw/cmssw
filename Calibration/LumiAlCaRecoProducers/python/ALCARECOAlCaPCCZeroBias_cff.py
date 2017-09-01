@@ -12,6 +12,7 @@ ALCARECOZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
 siPixelDigisForLumiZB = siPixelDigis.clone()
 siPixelDigisForLumiZB.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
+siPixelDigisForLumiZB.UsePhase1 = True
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
 siPixelClustersForLumiZB = siPixelClustersPreSplitting.clone()
