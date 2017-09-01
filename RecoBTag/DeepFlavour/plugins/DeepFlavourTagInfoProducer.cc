@@ -205,6 +205,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
         if(cand){
           if (cand->charge() != 0) {
+            // charged candidates under 950MeV are not considered
+            // might change if we use also white-listing
+            if (cand->pt()<0.95) continue;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
                     -deep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
@@ -246,6 +249,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, cand);
     
     if (cand->charge() != 0) {
+      // charged candidates under 950MeV are not considered
+      // might change if we use also white-listing
+      if (cand->pt()<0.95) continue;
       // is charged candidate
       auto entry = c_sortedindices.at(i);
       // build track info
