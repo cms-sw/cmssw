@@ -20,6 +20,8 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -297,7 +299,7 @@ bool FedRawDataInputSource::checkNextEvent()
       }
       if (fileListMode_ || fileListLoopMode_)
         eventRunNumber_=runNumber_;
-      else 
+      else
         eventRunNumber_=event_->run();
       L1EventID_ = event_->event();
 
@@ -449,9 +451,9 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     if (currentFile_->nEvents_>=0 && currentFile_->nEvents_!=int(currentFile_->nProcessed_))
     {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
-	<< "Fully processed " << currentFile_->nProcessed_ 
-        << " from the file " << currentFile_->fileName_ 
-	<< " but according to BU JSON there should be " 
+	<< "Fully processed " << currentFile_->nProcessed_
+        << " from the file " << currentFile_->fileName_
+	<< " but according to BU JSON there should be "
 	<< currentFile_->nEvents_ << " events";
     }
     //try to wake up supervisor thread which might be sleeping waiting for the free chunk
@@ -501,7 +503,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
       if (detectedFRDversion_==0) {
         detectedFRDversion_=*((uint32*)dataPosition);
-        if (detectedFRDversion_>5) 
+        if (detectedFRDversion_>5)
           throw cms::Exception("FedRawDataInputSource::getNextEvent")
               << "Unknown FRD version -: " << detectedFRDversion_;
         assert(detectedFRDversion_>=1);
@@ -688,7 +690,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     makeEvent(eventPrincipal, aux);
   }
   else{
-    evf::evtn::TCDSRecord record((unsigned char *)(tcds_pointer_));
+    TCDSRecord record((unsigned char *)(tcds_pointer_));
     edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(&record,
 						 eventRunNumber_,currentLumiSection_,
                                                  processGUID(),!fileListLoopMode_);
@@ -976,7 +978,7 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-     
+
       uint64_t thisLockWaitTimeUs=0.;
       if (fileListMode_) {
         //return LS if LS not set, otherwise return file
@@ -984,7 +986,7 @@ void FedRawDataInputSource::readSupervisor()
       }
       else
         status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
-        
+
       if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
 
       if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
@@ -1375,7 +1377,7 @@ void FedRawDataInputSource::reportEventsThisLumiInSource(unsigned int lumi,unsig
   auto itr = sourceEventsReport_.find(lumi);
   if (itr!=sourceEventsReport_.end())
     itr->second+=events;
-  else 
+  else
     sourceEventsReport_[lumi]=events;
 }
 
@@ -1385,11 +1387,11 @@ std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int 
   auto itr = sourceEventsReport_.find(lumi);
   if (itr!=sourceEventsReport_.end()) {
     auto && ret = std::pair<bool,unsigned int>(true,itr->second);
-    if (erase) 
+    if (erase)
       sourceEventsReport_.erase(itr);
     return ret;
   }
-  else 
+  else
     return std::pair<bool,unsigned int>(false,0);
 }
 

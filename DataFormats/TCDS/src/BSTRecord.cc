@@ -17,7 +17,7 @@ BSTRecord::BSTRecord() :
 
 BSTRecord::BSTRecord(const tcds::BST_v1& bst) :
   gpsTime_(((uint64_t)(bst.gpstimehigh)<<32)|bst.gpstimelow),
-  bstMaster_(bst.bstMaster),
+  bstMaster_(bst.bstMaster >> 8),
   turnCount_(((uint32_t)(bst.turnCountHigh)<<16)|bst.turnCountLow),
   lhcFill_(((uint32_t)(bst.lhcFillHigh)<<16)|bst.lhcFillLow),
   beamMode_(bst.beamMode),

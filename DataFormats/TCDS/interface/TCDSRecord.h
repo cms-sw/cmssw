@@ -41,6 +41,7 @@ public:
   TCDSRecord(const unsigned char* rawData);
   virtual ~TCDSRecord();
 
+  uint16_t getEventType() const { return eventType_; }
   uint64_t getMacAddress() const { return macAddress_; }
   uint32_t getSwVersion() const { return swVersion_; }
   uint32_t getFwVersion() const { return fwVersion_; }
@@ -53,7 +54,7 @@ public:
   uint16_t getTriggerTypeFlags() const { return triggerTypeFlags_; }
   uint16_t getInputs() const { return inputs_; }
   uint16_t getBCID() const { return bcid_; }
-  uint64_t getOrbit() const { return orbit_; }
+  uint64_t getOrbitNr() const { return orbitNr_; }
   uint64_t getTriggerCount() const { return triggerCount_; }
   uint64_t getEventNumber() const { return eventNumber_; }
 
@@ -78,6 +79,7 @@ public:
 
 private:
 
+  uint16_t eventType_;
   uint64_t macAddress_;
   uint32_t swVersion_;
   uint32_t fwVersion_;
@@ -90,7 +92,7 @@ private:
   uint16_t triggerTypeFlags_;
   uint16_t inputs_;
   uint16_t bcid_;
-  uint64_t orbit_;
+  uint64_t orbitNr_;
   uint64_t triggerCount_;
   uint64_t eventNumber_;
 

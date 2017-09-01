@@ -2,10 +2,10 @@
 //
 // Package:    HLTL1NumberFilter
 // Class:      HLTL1NumberFilter
-// 
+//
 /**\class HLTL1NumberFilter HLTL1NumberFilter.cc filter/HLTL1NumberFilter/src/HLTL1NumberFilter.cc
 
-Description: 
+Description:
 
 Implementation:
 <Notes on implementation>
@@ -27,9 +27,8 @@ Implementation:
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "EventFilter/FEDInterface/interface/FED1024.h"
 
 //
 // constructors and destructor
@@ -81,8 +80,8 @@ HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
     if (data.data() and data.size() > 0) {
       unsigned long counter;
       if (useTCDS_) {
-        evf::evtn::TCDSRecord record(data.data());
-        counter = record.getHeader().getData().header.triggerCount;
+        TCDSRecord record(data.data());
+        counter = record.getTriggerCount();
       } else {
         FEDHeader header(data.data());
         counter = header.lvl1ID();
