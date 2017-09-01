@@ -63,8 +63,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                 multiclusteringAlgoType_ = DBSCANC3d;
             }else {
                 edm::LogWarning("ParameterError") << "Unknown Multiclustering type '" << typeMulticluster
-                    << "'. Using DBSCAN instead.\n";
-                multiclusteringAlgoType_ = DBSCANC3d;
+                    << "'. Using Cone Algorithm instead.\n";
+                multiclusteringAlgoType_ = dRC3d;
             }
 
         }

@@ -57,14 +57,14 @@ bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1,
 }
 
 
-void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-					     const l1t::HGCalCluster & cluster,
-					     std::vector<int> & neighbors
-					     )
+void HGCalMulticlusteringImpl::findNeighbor(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+					    const l1t::HGCalCluster & cluster,
+					    std::vector<int> & neighbors
+					    )
 {
   int iclu = 0;
-
-  for(edm::PtrVector<l1t::HGCalCluster>::iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+  
+  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
     
     if(isNeighbor(cluster, **clu)){
       neighbors.push_back(iclu);
@@ -75,7 +75,7 @@ void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalClus
 void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
-           
+
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
     int iclu = 0;
@@ -137,55 +137,59 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
-
+  
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
   l1t::HGCalMulticluster mcluTmp;
   std::vector<bool> visited(clustersPtrs.size(),false);
   std::vector<bool> merged (clustersPtrs.size(),false);
   std::vector<std::vector<int>> neighborList;
-  int iclu = 0, imclu = 0;
+  int iclu = 0, imclu = 0, neighNo = 0;
 
-  for(edm::PtrVector<l1t::HGCalCluster>::iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
-      std::vector<int> neighbors;      
+  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+    std::vector<int> neighbors;      
       
-      if(!visited.at(iclu)){
-	visited.at(iclu)=true;
-	findNeighbor(clustersPtrs, **clu, neighbors);
-	neighborList.push_back(neighbors);
-
-	if(neighborList.at(iclu).size() > minNDbscan_) {
-	  multiclustersTmp.emplace_back( *clu );
-	  merged.at(iclu) = true;
+    if(!visited.at(iclu)){
+      visited.at(iclu)=true;
+      findNeighbor(clustersPtrs, **clu, neighbors);
+      neighborList.push_back(std::move(neighbors));
+	
+      if(neighborList.at(iclu).size() > minNDbscan_) {
+	multiclustersTmp.emplace_back( *clu );
+	merged.at(iclu) = true;
+	/* dynamic range loop: range-based loop syntax cannot be employed */
+	for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
+	    
+	  neighNo = neighborList.at(iclu).at(neighInd);
 	  
-	  for(unsigned int neighNo = 0; neighNo < neighborList.at(iclu).size(); neighNo++){
-	    if(!visited.at(neighborList.at(iclu).at(neighNo))){
-	      visited.at(neighborList.at(iclu).at(neighNo)) = true;
-	      std::vector<int> secNeighbors;
-	      findNeighbor(clustersPtrs,*(clustersPtrs[neighborList.at(iclu).at(neighNo)]), secNeighbors);
-	      multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighborList.at(iclu).at(neighNo)]);
-	      merged.at(neighborList.at(iclu).at(neighNo)) = true;
-	      
-	      if(secNeighbors.size() > minNDbscan_){
-		neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
-	      }
-	      
-	    } else if(!merged.at(neighborList.at(iclu).at(neighNo)) ){
-	      merged.at(neighborList.at(iclu).at(neighNo)) = true;		
-	      multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighborList.at(iclu).at(neighNo)] );
-	      }
+	  if(!visited.at(neighNo)){
+	    visited.at(neighNo) = true;
+	    std::vector<int> secNeighbors;
+	    findNeighbor(clustersPtrs,*(clustersPtrs[neighNo]), secNeighbors);
+	    multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo]);
+	    merged.at(neighNo) = true;
+	    
+	    if(secNeighbors.size() > minNDbscan_){
+	      neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
 	    }
-	    imclu++;
+	    
+	    } else if(!merged.at(neighNo) ){
+	    merged.at(neighNo) = true;		
+	    multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo] );
+	  }
 	}
+	imclu++;
       }
-      else neighborList.push_back(neighbors);
+    }
+    
+    else neighborList.push_back(std::move(neighbors));
   }
   
   /* making the collection of multiclusters */
   for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-    math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt() * calibSF_, 
-					   multiclustersTmp.at(i).eta(), 
-					   multiclustersTmp.at(i).phi(), 
-					   0. );
+    math::PtEtaPhiMLorentzVector calibP4(multiclustersTmp.at(i).pt() * calibSF_, 
+					 multiclustersTmp.at(i).eta(), 
+					 multiclustersTmp.at(i).phi(), 
+					 0. );
     // overwriting the 4p with the calibrated 4p     
     multiclustersTmp.at(i).setP4( calibP4 );
     
