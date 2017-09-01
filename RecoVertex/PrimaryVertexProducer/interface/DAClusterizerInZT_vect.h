@@ -76,18 +76,6 @@ public:
   };
   
   struct vertex_t {
-    std::vector<double> z; //           z coordinate
-    std::vector<double> t; //           t coordinate
-    std::vector<double> pk; //          vertex weight for "constrained" clustering
-    
-    // --- temporary numbers, used during update
-    std::vector<double> ei_cache;
-    std::vector<double> ei;
-    std::vector<double> sw;
-    std::vector<double> swz;
-    std::vector<double> swt;
-    std::vector<double> se;
-    std::vector<double> swE;
     
     void addItem( double new_z, double new_t, double new_pk   )
     {
@@ -172,6 +160,10 @@ public:
 	}
     }
     
+    std::vector<double> z;  //           z coordinate
+    std::vector<double> t;  //           t coordinate
+    std::vector<double> pk; //          vertex weight for "constrained" clustering
+    
     double * z_;
     double * t_;
     double * pk_;
@@ -182,7 +174,16 @@ public:
     double * swz_;
     double * swt_;
     double * se_;
-    double * swE_;    
+    double * swE_;   
+    
+    // --- temporary numbers, used during update
+    std::vector<double> ei_cache;
+    std::vector<double> ei;
+    std::vector<double> sw;
+    std::vector<double> swz;
+    std::vector<double> swt;
+    std::vector<double> se;
+    std::vector<double> swE;
   };
   
   DAClusterizerInZT_vect(const edm::ParameterSet& conf);  
@@ -216,12 +217,14 @@ private:
   double zdumpwidth_;
 
   double vertexSize_;
+  double vertexSizeTime_;
   int maxIterations_;
   double coolingFactor_;
   double betamax_;
   double betastop_;
   double dzCutOff_;
   double d0CutOff_;
+  double dtCutOff_;
   bool useTc_;
 
   double mintrkweight_;

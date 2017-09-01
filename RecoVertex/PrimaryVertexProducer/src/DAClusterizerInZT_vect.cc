@@ -12,12 +12,6 @@
 
 using namespace std;
 
-namespace {
-  constexpr double epsilon = 1.0e-3;
-  constexpr double vertexSizeTime = 0.008;
-  constexpr double dtCutOff = 4.0;
-}
-
 DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 
   // hardcoded parameters
@@ -35,6 +29,7 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
   double purgeT = conf.getParameter<double> ("Tpurge")*std::sqrt(2.0);
   double stopT = conf.getParameter<double> ("Tstop")*std::sqrt(2.0);
   vertexSize_ = conf.getParameter<double> ("vertexSize");
+  vertexSizeTime_ = conf.getParameter<double> ("vertexSizeTime");
   coolingFactor_ = conf.getParameter<double> ("coolingFactor");
   useTc_=true;
   if(coolingFactor_<0){
@@ -44,6 +39,7 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
   coolingFactor_ = std::sqrt(coolingFactor_);
   d0CutOff_ = conf.getParameter<double> ("d0CutOff");
   dzCutOff_ = conf.getParameter<double> ("dzCutOff");
+  dtCutOff_ = conf.getParameter<double> ("dtCutOff");
   uniquetrkweight_ = conf.getParameter<double>("uniquetrkweight");
   zmerge_ = conf.getParameter<double>("zmerge");
   tmerge_ = conf.getParameter<double>("tmerge");
@@ -58,10 +54,11 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
     std::cout << "DAClusterizerinZT_vect: Tpurge = " << purgeT << std::endl;
     std::cout << "DAClusterizerinZT_vect: Tstop = " << stopT << std::endl;
     std::cout << "DAClusterizerinZT_vect: vertexSize = " << vertexSize_ << std::endl;
+    std::cout << "DAClusterizerinZT_vect: vertexSizeTime = " << vertexSizeTime_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: coolingFactor = " << coolingFactor_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: d0CutOff = " << d0CutOff_ << std::endl;
     std::cout << "DAClusterizerinZT_vect: dzCutOff = " << dzCutOff_ << std::endl;
-    std::cout << "DAClusterizerinZT_vect: dtCutoff = " << dtCutOff << std::endl;
+    std::cout << "DAClusterizerinZT_vect: dtCutoff = " << dtCutOff_ << std::endl;
   }
 #endif
 
@@ -111,31 +108,31 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
 
   // prepare track data for clustering
   track_t tks;
-  for (auto it = tracks.begin(); it!= tracks.end(); it++){
-    if (!(*it).isValid()) continue;
+  for( const auto& tk : tracks ) {
+    if (!tk.isValid()) continue;
     double t_pi=1.;
-    double t_z = ((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
-    double t_t = it->timeExt();
+    double t_z = tk.stateAtBeamLine().trackStateAtPCA().position().z();
+    double t_t = tk.timeExt();
     if (std::fabs(t_z) > 1000.) continue;
-    auto const & t_mom = (*it).stateAtBeamLine().trackStateAtPCA().momentum();
+    auto const & t_mom = tk.stateAtBeamLine().trackStateAtPCA().momentum();
     //  get the beam-spot
-    reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
+    reco::BeamSpot beamspot = tk.stateAtBeamLine().beamSpot();
     double t_dz2 = 
-      std::pow((*it).track().dzError(), 2) // track errror
+      std::pow(tk.track().dzError(), 2) // track errror
       + (std::pow(beamspot.BeamWidthX()*t_mom.x(),2)+std::pow(beamspot.BeamWidthY()*t_mom.y(),2))*std::pow(t_mom.z(),2)/std::pow(t_mom.perp2(),2) // beam spot width
       + std::pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
     t_dz2 = 1./ t_dz2;
-    double t_dt2 =std::pow((*it).dtErrorExt(),2.) + std::pow(vertexSizeTime,2.); // the ~injected~ timing error, need to add a small minimum vertex size in time
+    double t_dt2 =std::pow(tk.dtErrorExt(),2.) + std::pow(vertexSizeTime_,2.); // the ~injected~ timing error, need to add a small minimum vertex size in time
     t_dt2 = 1./t_dt2;
     if (edm::isNotFinite(t_dz2) || t_dz2 < std::numeric_limits<double>::min() ) continue;
     if (d0CutOff_ > 0) {
       Measurement1D atIP =
-	(*it).stateAtBeamLine().transverseImpactParameter();// error contains beamspot
+	tk.stateAtBeamLine().transverseImpactParameter();// error contains beamspot
       t_pi = 1. / (1. + local_exp(std::pow(atIP.value() / atIP.error(), 2) - std::pow(d0CutOff_, 2))); // reduce weight for high ip tracks
       if (edm::isNotFinite(t_pi) ||  t_pi < std::numeric_limits<double>::epsilon())  continue; // usually is > 0.99
     }
     LogTrace("DAClusterizerinZT_vectorized") << t_z << ' ' << t_t <<' '<< t_dz2 << ' ' << t_dt2 <<' '<< t_pi;
-    tks.addItem(t_z, t_t, t_dz2, t_dt2, &(*it), t_pi);
+    tks.addItem(t_z, t_t, t_dz2, t_dt2, &it, t_pi);
   }
   tks.extractRaw();
   
@@ -910,8 +907,8 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZT_vect::clusterize(
 
 
 void DAClusterizerInZT_vect::dump(const double beta, const vertex_t & y,
-		const track_t & tks, int verbosity) const {
-
+				  const track_t & tks, int verbosity) const {
+#ifdef VI_DEBUG
 	const unsigned int nv = y.getSize();
 	const unsigned int nt = tks.getSize();
 	
@@ -1029,4 +1026,5 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t & y,
 		std::cout  << endl << "T=" << 1 / beta << " E=" << E << " n=" << y.getSize()
 			 << "  F= " << F << endl << "----------" << endl;
 	}
+#endif
 }
