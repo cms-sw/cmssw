@@ -6,6 +6,7 @@
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
