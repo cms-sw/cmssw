@@ -1,6 +1,6 @@
 
 #include <vector>
-#include <boost/cstdint.hpp> 
+#include <boost/cstdint.hpp>
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
@@ -10,7 +10,6 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/TimeSpec.h"
-#include "DataFormats/Scalers/interface/BSTRecord.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -25,7 +24,6 @@ namespace DataFormats_Scalers {
     LumiScalers lumiScalers;
     DcsStatus dcsStatus;
     BeamSpotOnline beamSpotOnline;
-    BSTRecord bstRecord;
 
     edm::Wrapper<L1AcceptBunchCrossing> w_l1AcceptBunchCrossing;
     edm::Wrapper<L1TriggerScalers> w_l1TriggerScalers;
@@ -35,7 +33,6 @@ namespace DataFormats_Scalers {
     edm::Wrapper<LumiScalers> w_lumiScalers;
     edm::Wrapper<DcsStatus> w_dcsStatus;
     edm::Wrapper<BeamSpotOnline> w_beamSpotOnline;
-    edm::Wrapper<BSTRecord> w_bstRecord;
 
     edm::RefProd<L1AcceptBunchCrossing> l1AcceptBunchCrossingRef ;
     edm::RefProd<L1TriggerScalers> l1TriggerScalersRef ;
@@ -45,15 +42,14 @@ namespace DataFormats_Scalers {
     edm::RefProd<LumiScalers> lumiScalersRef ;
     edm::RefProd<DcsStatus> dcsStatusRef ;
     edm::RefProd<BeamSpotOnline> beamSpotOnlineRef ;
-    edm::RefProd<BSTRecord> bstRecordRef ;
 
     L1AcceptBunchCrossingCollection l1AcceptBunchCrossingCollection;
-    edm::Wrapper<L1AcceptBunchCrossingCollection> 
+    edm::Wrapper<L1AcceptBunchCrossingCollection>
       w_l1AcceptBunchCrossingCollection;
 
     L1TriggerScalersCollection l1TriggerScalersCollection;
     edm::Wrapper<L1TriggerScalersCollection> w_l1TriggerScalersCollection;
- 
+
     L1TriggerRatesCollection l1TriggerRatesCollection;
     edm::Wrapper<L1TriggerRatesCollection> w_l1TriggerRatesCollection;
 

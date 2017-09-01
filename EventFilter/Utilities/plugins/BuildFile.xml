@@ -1,6 +1,6 @@
 <library   file="*.cc" name="EventFilterUtilitiesPlugins">
   <use   name="DataFormats/FEDRawData"/>
-  <use   name="DataFormats/Scalers"/>
+  <use   name="DataFormats/TCDS"/>
   <use   name="EventFilter/Utilities"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
