@@ -209,8 +209,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     unsigned int runNum_uint = static_cast <unsigned int> (event.id().run());
                     unsigned int lumiNum_uint = static_cast <unsigned int> (event.id().luminosityBlock());
                     unsigned int evNum_uint = static_cast <unsigned int> (event.id().event());
-                    unsigned int jet0pt = uint32_t(jets.empty() ? 0 : jets[0].pt()/0.01);
-                    std::uint32_t seed = jet0pt + (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
+                    unsigned int jet0eta = uint32_t(jets.empty() ? 0 : jets[0].eta()/0.01);
+                    std::uint32_t seed = jet0eta + m_nomVar + (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
                     m_random_generator.seed(seed);
                 }
             }
