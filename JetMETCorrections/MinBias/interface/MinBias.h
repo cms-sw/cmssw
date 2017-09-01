@@ -42,11 +42,11 @@ namespace cms
 class MinBias : public edm::EDAnalyzer {
    public:
       explicit MinBias(const edm::ParameterSet&);
-      ~MinBias();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endJob() override;
 
    private:
   // ----------member data ---------------------------
@@ -57,24 +57,21 @@ class MinBias : public edm::EDAnalyzer {
      edm::EDGetTokenT<HORecHitCollection> hoToken_;
      edm::EDGetTokenT<HFRecHitCollection> hfToken_;
   // stuff for histogramms
-  //  output file name with histograms
-     std::string fOutputFileName ;
      bool allowMissingInputs_;
   //
-     TFile*      hOutputFile ;
   //   TH1D*       hCalo1[8000], *hCalo2;
-     TTree * myTree;
+     TTree * myTree_;
   //
-     int mydet, mysubd, depth, iphi, ieta, ievent;
+     int mydet, mysubd, depth, iphi, ieta;
      float phi,eta;
      float mom1,mom2,mom3,mom4,occup;
-     const CaloGeometry* geo;
+     const CaloGeometry* geo_;
   // counters
-     std::map<DetId,double> theFillDetMap0;
-     std::map<DetId,double> theFillDetMap1;
-     std::map<DetId,double> theFillDetMap2;
-     std::map<DetId,double> theFillDetMap3;
-     std::map<DetId,double> theFillDetMap4;
+     std::map<DetId,double> theFillDetMap0_;
+     std::map<DetId,double> theFillDetMap1_;
+     std::map<DetId,double> theFillDetMap2_;
+     std::map<DetId,double> theFillDetMap3_;
+     std::map<DetId,double> theFillDetMap4_;
 
 };
 }
