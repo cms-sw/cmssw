@@ -20,40 +20,39 @@ class DreamSD : public CaloSD {
 
 public:    
 
-  DreamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  DreamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~DreamSD() {}
-  virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual uint32_t setDetUnitId(G4Step*);
+  ~DreamSD() override {}
+  bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
 protected:
 
-  virtual G4bool getStepInfo(G4Step* aStep);
-  virtual void   initRun();
+  G4bool getStepInfo(const G4Step* aStep) override;
+  void   initRun() override;
 
 private:    
 
   typedef std::pair<double,double> Doubles;
   typedef std::map<G4LogicalVolume*,Doubles> DimensionMap;
 
-  void           initMap(G4String, const DDCompactView &);
-  double         curve_LY(G4Step*, int); 
-  const double   crystalLength(G4LogicalVolume*) const;
-  const double   crystalWidth(G4LogicalVolume*) const;
+  void     initMap(const G4String&, const DDCompactView &);
+  double   curve_LY(); 
+  double   crystalLength() const;
+  double   crystalWidth() const;
 
   /// Returns the total energy due to Cherenkov radiation
-  double         cherenkovDeposit_( G4Step* aStep );
+  double         cherenkovDeposit_(const G4Step* aStep );
   /// Returns average number of photons created by track
-  double getAverageNumberOfPhotons_(const double charge,
-				    const double beta,
+  double getAverageNumberOfPhotons_(double charge,
+				    double beta,
 				    const G4Material* aMaterial,
-				    G4MaterialPropertyVector* rIndex );
+				    const G4MaterialPropertyVector* rIndex );
   /// Returns energy deposit for a given photon
   double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, 
-				  const G4ThreeVector& x,
-				  const G4Step* aStep );
+				  const G4ThreeVector& x);
   /// Sets material properties at run-time...
-  bool setPbWO2MaterialProperties_( G4Material* aMaterial );
+  bool setPbWO2MaterialProperties_(G4Material* aMaterial );
 
   bool         useBirk, doCherenkov_, readBothSide_;
   double       birk1, birk2, birk3;

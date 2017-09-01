@@ -19,7 +19,7 @@ SensitiveDetector::SensitiveDetector(const std::string & iname,
 
 SensitiveDetector::~SensitiveDetector() {}
 
-void SensitiveDetector::Initialize(G4HCofThisEvent * eventHC) {}
+void SensitiveDetector::Initialize(G4HCofThisEvent*) {}
 
 void SensitiveDetector::Register()
 {
@@ -34,7 +34,7 @@ void SensitiveDetector::AssignSD(const std::string & vname)
   if (v) { v->SetSensitiveDetector(this); }
 }
 
-void SensitiveDetector::EndOfEvent(G4HCofThisEvent * eventHC) {}
+void SensitiveDetector::EndOfEvent(G4HCofThisEvent*) {}
 
 Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step * step, coordinates cc)
 {
@@ -54,7 +54,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinat
                             ->GetTopTransform().TransformPoint(postStepPoint->GetPosition()));
 }
 
-void SensitiveDetector::NaNTrap( G4Step* aStep )
+void SensitiveDetector::NaNTrap(const G4Step* aStep)
 {
   if( aStep != nullptr ) {   
     G4Track* CurrentTrk = aStep->GetTrack();
@@ -80,6 +80,10 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     }
   }
   return;
+}
+
+double SensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
+  return aStep->GetTotalEnergyDeposit();
 }
 
 std::vector<std::string> SensitiveDetector::getNames()

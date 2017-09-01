@@ -33,11 +33,11 @@
 // constructors and destructor
 //
 
-HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
+HcalTB02SD::HcalTB02SD(const std::string& iname, const DDCompactView & cpv,
 		       const SensitiveDetectorCatalog & clg,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(iname, cpv, clg, p, manager), numberingScheme(nullptr) {
   
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk= m_SD.getUntrackedParameter<bool>("UseBirkLaw",false);
@@ -46,14 +46,14 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
   birk3  = m_SD.getUntrackedParameter<double>("BirkC3",1.75);
   useWeight= true;
 
-  HcalTB02NumberingScheme* scheme=0;
-  if      (name == "EcalHitsEB") {
+  HcalTB02NumberingScheme* scheme=nullptr;
+  if (iname == "EcalHitsEB") {
     scheme = dynamic_cast<HcalTB02NumberingScheme*>(new HcalTB02XtalNumberingScheme());
     useBirk = false;
-  } else if (name == "HcalHits") {
+  } else if (iname == "HcalHits") {
     scheme = dynamic_cast<HcalTB02NumberingScheme*>(new HcalTB02HcalNumberingScheme());
       useWeight= false;
-  } else {edm::LogWarning("HcalTBSim") << "HcalTB02SD: ReadoutName " << name
+  } else {edm::LogWarning("HcalTBSim") << "HcalTB02SD: ReadoutName " << iname
 				       << " not supported\n";}
 
   if (scheme)  setNumberingScheme(scheme);
@@ -72,23 +72,20 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
 			     << birk1 << ", C1 = " << birk2 << ", C2 = "
 			     << birk3;
 
-  if (useWeight) initMap(name,cpv);
+  if (useWeight) initMap(iname,cpv);
 
 }
 
 HcalTB02SD::~HcalTB02SD() {
-  if (numberingScheme) delete numberingScheme;
+  delete numberingScheme;
 }
 
 //
 // member functions
 //
  
-double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
+double HcalTB02SD::getEnergyDeposit(const G4Step * aStep) {
   
-  if (aStep == NULL) {
-    return 0;
-  } else {
     preStepPoint        = aStep->GetPreStepPoint();
     G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
@@ -100,24 +97,23 @@ double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
     LogDebug("HcalTBSim") << "HcalTB02SD:: " << nameVolume
 			  <<" Light Collection Efficiency " << weight 
 			  << " Weighted Energy Deposit " << edep/MeV << " MeV";
-    return edep;
-  } 
+    return edep; 
 }
 
-uint32_t HcalTB02SD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
+uint32_t HcalTB02SD::setDetUnitId(const G4Step * aStep) { 
+  return (numberingScheme == nullptr ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
 }
 
 void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("HcalTBSim") << "HcalTB02SD: updates numbering scheme for " 
 			      << GetName();
-    if (numberingScheme) delete numberingScheme;
+    delete numberingScheme;
     numberingScheme = scheme;
   }
 }
 
-void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
+void HcalTB02SD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
@@ -148,7 +144,7 @@ void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
   }
 }
 
-double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
+double HcalTB02SD::curve_LY(const G4String& nameVolume, const G4StepPoint* stepPoint) {
 
   double weight = 1.;
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
@@ -173,7 +169,7 @@ double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
   return weight;
 }
 
-double HcalTB02SD::crystalLength(G4String name) {
+double HcalTB02SD::crystalLength(const G4String& name) {
 
   double length = 230.;
   std::map<G4String,double>::const_iterator it = lengthMap.find(name);

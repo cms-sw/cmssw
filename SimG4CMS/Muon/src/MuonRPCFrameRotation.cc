@@ -19,14 +19,14 @@ MuonRPCFrameRotation::~MuonRPCFrameRotation(){
 
 Local3DPoint MuonRPCFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
   if (!aStep)
-    return Local3DPoint(0.,0.,0.);  
+    return std::move(Local3DPoint(0.,0.,0.));  
 
   //check if endcap
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
   bool endcap_muon = (num.getSuperNo(theRegion)!=1);
   if (endcap_muon){
-    return Local3DPoint(point.x(),point.z(),-point.y());
+    return std::move(Local3DPoint(point.x(),point.z(),-point.y()));
   } else {
-    return point; 
+    return std::move(point); 
   }
 }

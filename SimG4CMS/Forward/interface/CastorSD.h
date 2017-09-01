@@ -31,30 +31,32 @@ class CastorSD : public CaloSD {
 
 public:    
 
-  CastorSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog & clg,
+  CastorSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog & clg,
 	   edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~CastorSD();
-  virtual double   getEnergyDeposit(G4Step* );
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~CastorSD() override;
+  bool             ProcessHits(G4Step * step, G4TouchableHistory *) override;
+  double           getEnergyDeposit(const G4Step * step) override;
+  uint32_t setDetUnitId(const G4Step* step) override;
   void             setNumberingScheme(CastorNumberingScheme* scheme);
 
 private:
 
-  void                    getFromLibrary(G4Step*);
-  int                     setTrackID(G4Step*);
-  uint32_t                rotateUnitID(uint32_t, G4Track*, const CastorShowerEvent&);
+  void                    getFromLibrary(const G4Step*);
+  int                     setTrackID(const G4Step*);
+  uint32_t                rotateUnitID(uint32_t, const G4Track*, const CastorShowerEvent&);
   CastorNumberingScheme * numberingScheme;
   CastorShowerLibrary *   showerLibrary;
   G4LogicalVolume         *lvC3EF, *lvC3HF, *lvC4EF, *lvC4HF;
   G4LogicalVolume         *lvCAST;               // Pointer for CAST sensitive volume  (SL trigger)
   
   bool                    useShowerLibrary;
+  bool                    isAppliedSL;
   double                  energyThresholdSL; 
   double		  non_compensation_factor;
 
 protected:
 
-  virtual void            initRun();
+  void            initRun() override;
 
 };
 

@@ -9,7 +9,6 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
-//#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
@@ -28,12 +27,12 @@
 
 //#define debugLog
 
-CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
+CastorSD::CastorSD(const std::string& iname, const DDCompactView & cpv,
 		   const SensitiveDetectorCatalog & clg,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),
-  lvC3HF(0), lvC4EF(0), lvC4HF(0), lvCAST(0) {
+  CaloSD(iname, cpv, clg, p, manager), numberingScheme(nullptr), lvC3EF(nullptr),
+  lvC3HF(nullptr), lvC4EF(nullptr), lvC4HF(nullptr), lvCAST(nullptr), isAppliedSL(false) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
   useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");
@@ -42,7 +41,8 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 	  
   non_compensation_factor = m_CastorSD.getParameter<double>("nonCompensationFactor");
   
-  if (useShowerLibrary) showerLibrary = new CastorShowerLibrary(name, p);
+  if (useShowerLibrary) showerLibrary = new CastorShowerLibrary(iname, p);
+  else showerLibrary = nullptr;
   
   setNumberingScheme(new CastorNumberingScheme());
   
@@ -61,7 +61,7 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"CAST") == 0) lvCAST = (*lvcite);
-    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0 && lvCAST != 0) break;
+    if (lvC3EF != nullptr && lvC3HF != nullptr && lvC4EF != nullptr && lvC4HF != nullptr && lvCAST != nullptr) break;
   }
   edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
 			     << lvC3EF << " for C3EF; " << lvC3HF 
@@ -69,14 +69,13 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 			     << lvC4HF << " for C4HF; " 
 			     << lvCAST << " for CAST. " << std::endl;
 
-  //  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library \n";
-
+  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library";
 }
 
 //=============================================================================================
 
 CastorSD::~CastorSD() {
-  if (useShowerLibrary) delete showerLibrary;
+  delete showerLibrary;
 }
 
 //=============================================================================================
@@ -92,21 +91,50 @@ void CastorSD::initRun(){
 
 //=============================================================================================
 
-double CastorSD::getEnergyDeposit(G4Step * aStep) {
+bool CastorSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
+
+  NaNTrap(aStep);
+  isAppliedSL = false;
+  if(getStepInfo(aStep) && !hitExists() && edepositEM+edepositHAD>0.f) {
+    currentHit = createNewHit();
+  }
+  //Now kill the current track
+  if(isAppliedSL) {
+    aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+#ifdef debugLog
+    LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
+			   << "\n \"theTrack\" with TrackID() = " 
+			   << theTrack->GetTrackID() 
+			   << " and with energy " 
+			   << theTrack->GetTotalEnergy()
+			   << " has been set to be killed" ;
+#endif
+    for (auto & tr : *(aStep->GetSecondary())) {
+      if (tr->GetVolume() == preStepPoint->GetPhysicalVolume()) {
+	tr->SetTrackStatus(fStopAndKill);
+#ifdef debugLog
+	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
+			       << " TrackID = " << tr->GetTrackID() 
+			       << " with Ekin(MeV)= " 
+			       << tr->GetKineticEnergy()
+			       << " has been set to be killed" ;
+#endif
+      }
+    }
+  }
+  return true;
+} 
+
+//=============================================================================================
+
+double CastorSD::getEnergyDeposit(const G4Step * aStep) {
   
   double NCherPhot = 0.;
 
-  if (aStep == NULL) 
-    return 0;
-
-  // Get theTrack 
-  G4Track*        theTrack = aStep->GetTrack();
-
   // preStepPoint information *********************************************
   
-  G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
-  G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
-  G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
+  const G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
+  const G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
 
 #ifdef debugLog
   G4String           name   = currentPV->GetName();
@@ -188,7 +216,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
   
   // angle condition
-  double theta_max = M_PI - 3.1305; // angle in radians corresponding to -5.2 eta
+  double theta_max = CLHEP::pi - 3.1305; // angle in radians corresponding to -5.2 eta
   double R_mom=sqrt(hit_mom.x()*hit_mom.x() + hit_mom.y()*hit_mom.y());
   double theta = atan2(R_mom,std::abs(pz));
   bool angleok = false;
@@ -215,8 +243,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     LogDebug("ForwardSim") << " Current logical volume is " << nameVolume ;
 #endif
     
-    // track is killed in getFromLibrary...
-
     return 0;
   }
   
@@ -239,33 +265,20 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
   
   // Usual calculations
-  // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
-  // G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
   G4double           stepl    = aStep->GetStepLength()/cm;
   G4double           beta     = preStepPoint->GetBeta();
   G4double           charge   = preStepPoint->GetCharge();
-  //        G4VProcess*        curprocess   = preStepPoint->GetProcessDefinedStep();
-  //        G4String           namePr   = preStepPoint->GetProcessDefinedStep()->GetProcessName();
-  //        std::string nameProcess;
-  //        nameProcess.assign(namePr,0,4);
-  
-  //        G4LogicalVolume*   lv    = currentPV->GetLogicalVolume();
-  //        G4Material*        mat   = lv->GetMaterial();
-  //        G4double           rad   = mat->GetRadlen();
-  
   
 #ifdef debugLog
   // postStepPoint information *********************************************
-  G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
-  G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
+  const G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
+  const G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
   
   G4String           postname   = postPV->GetName();
   std::string        postnameVolume;
   postnameVolume.assign(postname,0,4);
   
   // theTrack information  *************************************************
-  // G4Track*        theTrack = aStep->GetTrack();   
-  //G4double        entot    = theTrack->GetTotalEnergy();
   G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
   
   G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
@@ -276,7 +289,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   // calculations...       *************************************************
   double phi = -100.;
   if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
-  if (phi < 0.) phi += twopi;
+  if (phi < 0.) phi += CLHEP::twopi;
   
   
   double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
@@ -313,7 +326,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   */  
   if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
       currentLV == lvC4HF) {
-    //      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
     
     double bThreshold = 0.67;
     double nMedium = 1.4925;
@@ -330,7 +342,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
     
     double thFullRefl = 23.;  /* 23.dergee */
-    double thFullReflRad = thFullRefl*pi/180.;
+    double thFullReflRad = thFullRefl*CLHEP::pi/180.;
     
     /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
     double thFibDir = 45.;  /* .dergee */
@@ -339,7 +351,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
        nameVolume == "GR2Q" || nameVolume == "GRNQ")
        thFibDir = 0.0; // .dergee
     */
-    double thFibDirRad = thFibDir*pi/180.;
+    double thFibDirRad = thFibDir*CLHEP::pi/180.;
     /*   */
     /*   */
     
@@ -354,7 +366,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     double th = acos(std::min(std::max(costh,double(-1.)),double(1.)));
     
     // just in case (can do bot use):
-    if (th < 0.) th += twopi;
+    if (th < 0.) th += CLHEP::twopi;
     
     
     
@@ -363,16 +375,16 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     double thcher = acos(std::min(std::max(costhcher,double(-1.)),double(1.)));
     
     // diff thetas of charged part. and quartz direction in LabRF:
-    double DelFibPart = fabs(th - thFibDirRad);
+    double DelFibPart = std::abs(th - thFibDirRad);
     
     // define real distances:
-    double d = fabs(tan(th)-tan(thFibDirRad));   
+    double d = std::abs(tan(th)-tan(thFibDirRad));   
     
     //       double a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
     //       double r = fabs(tan(th)-tan(th+thcher));   
     
     double a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
-    double r = tan(th)+tan(fabs(th-thcher));   
+    double r = tan(th)+tan(std::abs(th-thcher));   
     
     
     // define losses d_qz in cone of full reflection inside quartz direction
@@ -419,9 +431,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	  double arg_arcos = 0.;
 	  double tan_arcos = 2.*a*d;
 	  if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
-	  arg_arcos = fabs(arg_arcos);
+	  arg_arcos = std::abs(arg_arcos);
 	  double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
-	  d_qz = fabs(th_arcos/pi/2.);
+	  d_qz = std::abs(th_arcos/CLHEP::pi/2.);
 	  
 	  //	    }
 	  //             else
@@ -446,7 +458,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	( 1. - 1./(nMedium*nMedium*beta*beta) )*
 	photEnSpectrDE*stepl;
       
-      const double scale = (isHad ? non_compensation_factor : 1.0);
+      double scale = (isHad ? non_compensation_factor : 1.0);
       G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot * scale);
       
       if(poissNCherPhot < 0) poissNCherPhot = 0;
@@ -458,9 +470,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
       
       
 #ifdef debugLog
-      double thgrad = th*180./pi;
-      double thchergrad = thcher*180./pi;
-      double DelFibPartgrad = DelFibPart*180./pi;
+      double thgrad = th*180./CLHEP::pi;
+      double thchergrad = thcher*180./CLHEP::pi;
+      double DelFibPartgrad = DelFibPart*180./CLHEP::pi;
       LogDebug("ForwardSim") << " ==============================> start all "
 			     << "information:<========= \n" << " =====> for "
 			     << "test:<===  \n" << " variant = " << variant  
@@ -530,15 +542,15 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::setDetUnitId(G4Step* aStep) {
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+uint32_t CastorSD::setDetUnitId(const G4Step* aStep) {
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 //=======================================================================================
 
 void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("ForwardSim") << "CastorSD: updates numbering scheme for " 
 			       << GetName();
     if (numberingScheme) delete numberingScheme;
@@ -548,7 +560,7 @@ void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
 //=======================================================================================
 
-int CastorSD::setTrackID (G4Step* aStep) {
+int CastorSD::setTrackID (const G4Step* aStep) {
 
   theTrack     = aStep->GetTrack();
 
@@ -572,7 +584,8 @@ int CastorSD::setTrackID (G4Step* aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorShowerEvent& shower) {
+uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, 
+                                const CastorShowerEvent& shower) {
 // ==============================================================
 //
 //   o   Exploit Castor phi symmetry to return newUnitID for  
@@ -582,15 +595,15 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorSho
   
   // Get 'track' phi:
   double   trackPhi = track->GetPosition().phi(); 
-  if(trackPhi<0) trackPhi += 2*M_PI ;
+  if(trackPhi<0) trackPhi += CLHEP::twopi;
   // Get phi from primary that gave rise to SL 'shower':
   double  showerPhi = shower.getPrimPhi(); 
-  if(showerPhi<0) showerPhi += 2*M_PI ;
+  if(showerPhi<0) showerPhi += CLHEP::twopi;
   // Delta phi:
   
   //  Find the OctSector for which 'track' and 'shower' belong
-  int  trackOctSector = (int) (  trackPhi / (M_PI/4) ) ;
-  int showerOctSector = (int) ( showerPhi / (M_PI/4) ) ;
+  int  trackOctSector = (int) (  trackPhi / (CLHEP::pi/4) ) ;
+  int showerOctSector = (int) ( showerPhi / (CLHEP::pi/4) ) ;
   
   uint32_t  newUnitID;
   uint32_t         sec = ( ( unitID>>4 ) & 0xF ) ;
@@ -637,7 +650,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorSho
 
 //=======================================================================================
 
-void CastorSD::getFromLibrary (G4Step* aStep) {
+void CastorSD::getFromLibrary (const G4Step* aStep) {
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -650,16 +663,11 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 //
 /////////////////////////////////////////////////////////////////////
 
-  preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack      = aStep->GetTrack();   
-  bool ok;
-  
   // ****    Call method to retrieve hits from the ShowerLibrary   ****
-  CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, ok);
+  CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, isAppliedSL);
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
-  // int    primaryID = theTrack->GetTrackID();
 
   // Reset entry point for new primary
   posGlobal = preStepPoint->GetPosition();
@@ -688,13 +696,12 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   double E_SLhit = hits.getPrimE() * GeV ;
   double scale = E_track/E_SLhit ;
 	
-	//Non compensation 
-	if (isHAD){
-		scale=scale*non_compensation_factor; // if hadronic extend the scale with the non-compensation factor
-	} else {
-		scale=scale; // if electromagnetic, don't do anything
-	}
-	
+  //Non compensation 
+  if (isHAD){
+    scale *= non_compensation_factor; 
+    // if hadronic extend the scale with the non-compensation factor
+    // if electromagnetic, don't do anything
+  }
   
 /*    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
   
@@ -722,9 +729,9 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
     if(isEM)  {
        // edepositEM  = nPhotoElectrons*GeV; 
        edepositEM  = nPhotoElectrons; 
-       edepositHAD = 0.;                 
+       edepositHAD = 0.f;           
     } else if(isHAD) {
-       edepositEM  = 0.;                  
+       edepositEM  = 0.f;                  
        edepositHAD = nPhotoElectrons;
        // edepositHAD = nPhotoElectrons*GeV;
     }
@@ -750,32 +757,5 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
       if (!checkHit()) currentHit = createNewHit();
     }
   }  //  End of loop over hits
-
-  //Now kill the current track
-  if (ok) {
-    theTrack->SetTrackStatus(fStopAndKill);
-#ifdef debugLog
-    LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
-			   << "\n \"theTrack\" with TrackID() = " 
-			   << theTrack->GetTrackID() 
-			   << " and with energy " 
-			   << theTrack->GetTotalEnergy()
-			   << " has been set to be killed" ;
-#endif
-    G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); kk++) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
-	tv[kk]->SetTrackStatus(fStopAndKill);
-#ifdef debugLog
-	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
-			       << "\n tv[" << kk << "]->GetTrackID() = " 
-			       << tv[kk]->GetTrackID() 
-			       << " with energy " 
-			       << tv[kk]->GetTotalEnergy()
-			       << " has been set to be killed" ;
-#endif
-      }
-    }
-  }
 }
 

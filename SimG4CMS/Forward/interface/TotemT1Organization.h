@@ -55,11 +55,11 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemT1Organization();
-  virtual          ~TotemT1Organization();
+           ~TotemT1Organization() override;
 
   // ---------- member functions ---------------------------
   uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const;
+  uint32_t         GetUnitID(const G4Step* aStep) const override;
   
   int              GetCurrentUnitID(void) const;
   void             SetCurrentUnitID(int currentUnitID);

@@ -44,34 +44,31 @@ class SimTrackManager;
 
 class MuonSensitiveDetector : 
 public SensitiveTkDetector,
-public Observer<const BeginOfEvent*>,
-public Observer<const EndOfEvent*>
+public Observer<const BeginOfEvent*>
  {
 
  public:    
-  MuonSensitiveDetector(std::string, const DDCompactView &,
+  MuonSensitiveDetector(const std::string&, const DDCompactView &,
 			const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 			const SimTrackManager*);
-  virtual ~MuonSensitiveDetector();
-  virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step *);
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  ~MuonSensitiveDetector() override;
+  G4bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step *) override;
+  void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use);
-  std::vector<std::string> getNames();
-  std::string type();
+  void fillHits(edm::PSimHitContainer&, const std::string& use) override;
+  //  std::string type();
 
   const MuonSlaveSD* GetSlaveMuon() const {
     return slaveMuon; }
   
  private:
-  void update(const BeginOfEvent *);
-  void update(const ::EndOfEvent *);
-  virtual void clearHits();
+  void update(const BeginOfEvent *) override;
+  void clearHits() override;
 
-  Local3DPoint toOrcaRef(Local3DPoint in ,G4Step * s);
-  Local3DPoint toOrcaUnits(Local3DPoint);
-  Global3DPoint toOrcaUnits(Global3DPoint);
+  Local3DPoint toOrcaRef(const Local3DPoint& in ,const G4Step *);
+  Local3DPoint toOrcaUnits(const Local3DPoint&);
+  Global3DPoint toOrcaUnits(const Global3DPoint&);
 
   TrackInformation* getOrCreateTrackInformation( const G4Track* theTrack );
 
@@ -82,10 +79,10 @@ public Observer<const EndOfEvent*>
   MuonFrameRotation* theRotation;
   MuonG4Numbering* g4numbering;
 
-  void storeVolumeAndTrack(G4Step *);
-  bool newHit(G4Step *);
-  void createHit(G4Step *);
-  void updateHit(G4Step *);
+  void storeVolumeAndTrack(const G4Step *);
+  bool newHit(const G4Step *);
+  void createHit(const G4Step *);
+  void updateHit(const G4Step *);
   void saveHit();
   
   /**
@@ -93,8 +90,8 @@ public Observer<const EndOfEvent*>
    * one or more levels up the volume hierarchy: e.g. levelsUp = 1 for immediate parent. <BR>
    * This is done by moving from local_1 -> global -> local_2.
    */
-  Local3DPoint InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp);
-  Local3DPoint FinalStepPositionVsParent(G4Step * currentStep, G4int levelsUp);
+  Local3DPoint InitialStepPositionVsParent(const G4Step * currentStep, G4int levelsUp);
+  Local3DPoint FinalStepPositionVsParent(const G4Step * currentStep, G4int levelsUp);
 
   G4VPhysicalVolume * thePV;
   UpdatablePSimHit* theHit;

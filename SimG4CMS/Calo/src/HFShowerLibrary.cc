@@ -15,6 +15,7 @@
 #include "G4NavigationHistory.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4ParticleTable.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -119,6 +120,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
   
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
+
   emPDG = epPDG = gammaPDG = 0;
   pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
   anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
@@ -126,14 +128,14 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  if (fibre)  delete   fibre;
-  fibre  = nullptr;
-  if (photo)  delete photo;
+  delete fibre;
+  delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
-			      HcalDDDSimConstants* hcons) {
+void HFShowerLibrary::initRun(const G4ParticleTable *,
+			      const HcalDDDSimConstants* hcons) {
 
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   if (fibre) fibre->initRun(hcons);
 
   G4String parName;
@@ -149,6 +151,7 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
   anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
   anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
   geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
+
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFShowerLibrary: Particle codes for e- = " 
 			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
@@ -182,27 +185,26 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
 }
 
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
-							   bool & ok,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
+							   bool& ok ,
 							   double weight,
 							   bool onlyLong) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
+  const G4Track *     track    = aStep->GetTrack();
   // Get Z-direction 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
-  //  double mom = aParticle->GetTotalMomentum();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
 #ifdef DebugLog
   G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
-  //  if (zoff < 0) zoff = 0;
+  
   edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
                            << " of energy " << pin/GeV << " GeV"
                            << "  dir.orts " << momDir.x() << ", " <<momDir.y()
@@ -217,12 +219,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
 
-  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+  return std::move(fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong));
 }
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
-                               G4ThreeVector & momDir,
-                               int parCode, double pin, bool & ok,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector & hitPoint,
+                               const G4ThreeVector & momDir,
+                               int parCode, double pin, bool& ok,
                                double weight, double tSlice,bool onlyLong) {
 
   std::vector<HFShowerLibrary::Hit> hit;
@@ -230,7 +232,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
       parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
-    return hit;
+    { return std::move(hit); }
   ok = true;
 
   double pz     = momDir.z(); 
@@ -261,7 +263,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
     
   int nHit = 0;
   HFShowerLibrary::Hit oneHit;
-  for (int i = 0; i < npe; i++) {
+  for (int i = 0; i < npe; ++i) {
     double zv = std::abs(pe[i].z()); // abs local z  
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
@@ -346,7 +348,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
 				 << fibre->tShift(lpos,depth,1) << ":" 
 				 << (hit[nHit].time);
 #endif
-	nHit++;
+	++nHit;
       }
 #ifdef DebugLog
       else  LogDebug("HFShower") << "HFShowerLibrary: REJECTED !!!";
@@ -367,7 +369,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
 				   << fibre->tShift(lpos,2,1) << ":" 
 				   << (hit[nHit].time);
 #endif
-	  nHit++;
+	  ++nHit;
 	}
       }
     }
@@ -380,14 +382,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
- return hit;
-
+  return std::move(hit);
 }
 
 bool HFShowerLibrary::rInside(double r) {
 
-  if (r >= rMin && r <= rMax) return true;
-  else                        return false;
+  return (r >= rMin && r <= rMax);
 }
 
 void HFShowerLibrary::getRecord(int type, int record) {

@@ -6,16 +6,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "SimG4CMS/Calo/interface/HFCherenkov.h"
-#include "SimG4CMS/Calo/interface/HFFibre.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "G4ThreeVector.hh"
 #include "G4String.hh"
 
 class DDCompactView;    
 class G4Step;
+class HFFibre;
+class HFCherenkov;
+class HcalDDDSimConstants;
+class G4ParticleTable;
 
 #include <vector>
  
@@ -38,11 +39,9 @@ public:
     G4ThreeVector     position;
   };
 
-  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(G4Step * aStep, double weight);
-  std::vector<Hit>    getHits(G4Step * aStep, bool forLibrary);
-  std::vector<Hit>    getHits(G4Step * aStep, bool forLibraryProducer, double zoffset);
-
+  void                initRun(const G4ParticleTable *, const HcalDDDSimConstants*);
+  std::vector<Hit>    getHits(const G4Step * aStep, double weight);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibraryProducer, double zoffset);
 
 private:    
 

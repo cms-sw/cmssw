@@ -74,7 +74,7 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
 
 HFFibre::~HFFibre() {}
 
-void HFFibre::initRun(HcalDDDSimConstants* hcons) {
+void HFFibre::initRun(const HcalDDDSimConstants* hcons) {
 
   // Now geometry parameters
   gpar      = hcons->getGparHF();

@@ -34,28 +34,27 @@ public:
   ECalSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   ~ECalSD() override;
-  double                    getEnergyDeposit(G4Step*) override;
-  virtual uint16_t                  getRadiationLength(G4Step *);
-  virtual uint16_t                  getLayerIDForTimeSim(G4Step *);
-  uint32_t                  setDetUnitId(G4Step*) override ;
-  void                              setNumberingScheme(EcalNumberingScheme*);
-  int                       getTrackID(G4Track*) override;
-  uint16_t                  getDepth(G4Step*) override;
+  double                    getEnergyDeposit(const G4Step*) override;
+  virtual uint16_t          getRadiationLength(const G4Step *);
+  virtual uint16_t          getLayerIDForTimeSim(const G4Step *);
+  uint32_t                  setDetUnitId(const G4Step*) override ;
+  void                      setNumberingScheme(const EcalNumberingScheme*);
+  int                       getTrackID(const G4Track*) override;
+  uint16_t                  getDepth(const G4Step*) override;
 
 private:    
-  void                              initMap(const G4String&, const DDCompactView &);
-  double                            curve_LY(); 
-  double                            crystalLength();
-  double                            crystalDepth();
-  void                              getBaseNumber(const G4Step*); 
-  double                            getBirkL3(const G4Step*);
-  std::vector<double>               getDDDArray(const std::string&,
-						const DDsvalues_type&);
-  std::vector<std::string>          getStringArray(const std::string&,
-						   const DDsvalues_type&);
+  void                      initMap(const G4String&, const DDCompactView &);
+  double                    curve_LY(); 
+  double                    crystalLength();
+  double                    crystalDepth();
+  void                      getBaseNumber(const G4Step*); 
+  double                    getBirkL3(const G4Step*);
+  std::vector<double>       getDDDArray(const std::string&, const DDsvalues_type&);
+  std::vector<std::string>  getStringArray(const std::string&, const DDsvalues_type&);
+
   bool                              isEB;
   bool                              isEE;
-  EcalNumberingScheme *             numberingScheme;
+  const EcalNumberingScheme*        numberingScheme;
   bool                              useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool                              useBirk, useBirkL3;
   double                            birk1, birk2, birk3, birkSlope, birkCut;

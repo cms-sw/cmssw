@@ -22,9 +22,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// To be replaced by something else 
-/* #include "Utilities/Notification/interface/TimerProxy.h" */
- 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
@@ -56,8 +53,6 @@ public:
   ~CaloSD() override;
   bool     ProcessHits(G4Step * step, G4TouchableHistory * tHistory) override;
   bool     ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) override;
-  virtual double   getEnergyDeposit(G4Step* step); 
-  //uint32_t setDetUnitId(G4Step* step) override =0;
   
   void     Initialize(G4HCofThisEvent * HCE) override;
   void     EndOfEvent(G4HCofThisEvent * eventHC) override;
@@ -65,11 +60,11 @@ public:
   void     DrawAll() override;
   void     PrintAll() override;
 
-  void     fillHits(edm::PCaloHitContainer&, std::string&) override ;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 protected:
 
-  virtual G4bool   getStepInfo(G4Step* aStep);
+  virtual G4bool   getStepInfo(const G4Step* aStep);
   G4ThreeVector    setToLocal(const G4ThreeVector&, const G4VTouchable*);
   G4ThreeVector    setToGlobal(const G4ThreeVector&, const G4VTouchable*);
   G4bool           hitExists();
@@ -77,7 +72,7 @@ protected:
   CaloG4Hit*       createNewHit();
   void             updateHit(CaloG4Hit*);
   void             resetForNewPrimary(const G4ThreeVector&, double);
-  double           getAttenuation(G4Step* aStep, double birk1, double birk2,
+  double           getAttenuation(const G4Step* aStep, double birk1, double birk2,
                                   double birk3);
 
   void     update(const BeginOfRun *) override;
@@ -87,11 +82,11 @@ protected:
   void     update(const ::EndOfEvent *) override;
   void     clearHits() override ;
   virtual void     initRun();
-  virtual bool     filterHit(CaloG4Hit*, double);
+  virtual bool     filterHit(const CaloG4Hit*, double);
 
-  virtual int      getTrackID(G4Track*);
-  virtual uint16_t getDepth(G4Step*);   
-  double           getResponseWt(G4Track*);
+  virtual int      getTrackID(const G4Track*);
+  virtual uint16_t getDepth(const G4Step*);   
+  double           getResponseWt(const G4Track*);
   int              getNumberOfHits();
 
 private:
@@ -126,7 +121,6 @@ protected:
 
   const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
-  //  TimerProxy                    theHitTimer;
   bool                            runInit;
 
   bool                            corrTOFBeam, suppressHeavy;

@@ -34,33 +34,32 @@ public Observer<const BeginOfTrack*>,
 public Observer<const BeginOfJob*>
 { 
 public:    
-    TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
+    TkAccumulatingSensitiveDetector(const std::string&, const DDCompactView &,
 				    const SensitiveDetectorCatalog &,
 				    edm::ParameterSet const &,
 				    const SimTrackManager*);
-    virtual ~TkAccumulatingSensitiveDetector();
-    virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
-    virtual uint32_t setDetUnitId(G4Step*);
-    virtual void EndOfEvent(G4HCofThisEvent*);
+    ~TkAccumulatingSensitiveDetector() override;
+    bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+    uint32_t setDetUnitId(const G4Step*) override;
+    void EndOfEvent(G4HCofThisEvent*) override;
 
-    void fillHits(edm::PSimHitContainer&, std::string use);
-    std::vector<std::string> getNames();
-    std::string type();
+    void fillHits(edm::PSimHitContainer&, const std::string& use) override;
+    std::vector<std::string> getNames() override;
 
 private:
     virtual void sendHit();
-    virtual void updateHit(G4Step *);
-    virtual bool newHit(G4Step *);
-    virtual bool closeHit(G4Step *);
-    virtual void createHit(G4Step *);
-    void checkExitPoint(Local3DPoint);
-    void update(const BeginOfEvent *);
-    void update(const BeginOfTrack *);
-    void update(const BeginOfJob *);
-    virtual void clearHits();
-    Local3DPoint toOrcaRef(Local3DPoint ,G4VPhysicalVolume *);
+    virtual void updateHit(const G4Step *);
+    virtual bool newHit(const G4Step *);
+    virtual bool closeHit(const G4Step *);
+    virtual void createHit(const G4Step *);
+    void checkExitPoint(const Local3DPoint&);
+    void update(const BeginOfEvent *) override;
+    void update(const BeginOfTrack *) override;
+    void update(const BeginOfJob *) override;
+    void clearHits() override;
+    Local3DPoint toOrcaRef(const Local3DPoint& ,const G4VPhysicalVolume *);
     int tofBin(float);
-    std::string myName; 
+   
     TrackingSlaveSD * slaveLowTof;
     TrackingSlaveSD * slaveHighTof;
     FrameRotation * myRotation;
@@ -69,7 +68,7 @@ private:
     Local3DPoint globalEntryPoint;
     Local3DPoint globalExitPoint;
     const SimTrackManager* theManager;
-    G4VPhysicalVolume * oldVolume;
+    const G4VPhysicalVolume * oldVolume;
     G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
     double theSigma;
     uint32_t lastId;

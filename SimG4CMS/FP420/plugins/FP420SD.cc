@@ -5,9 +5,6 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
  
-//#include "Geometry/Vector/interface/LocalPoint.h"
-//#include "Geometry/Vector/interface/LocalVector.h"
-
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -47,35 +44,20 @@
 #include "G4VProcess.hh"
 #endif
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
-
 //#define debug
+
 //-------------------------------------------------------------------
-FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
+FP420SD::FP420SD(const std::string& iname, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(iname, cpv, clg, p), numberingScheme(nullptr),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
 //-------------------------------------------------------------------
-/*
-FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
-		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  CaloSD(name, cpv, p, manager), numberingScheme(0), name(name),hcID(-1),
-  theHC(0), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  previousUnitID(0), preStepPoint(0), postStepPoint(0), eventno(0){
-*/
-//-------------------------------------------------------------------
-
-
     
     //Add FP420 Sentitive Detector Name
-    collectionName.insert(name);
-    
+    collectionName.insert(iname);
     
     //Parameters
       edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FP420SD");
@@ -86,17 +68,16 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     LogDebug("FP420Sim") 
       << "*******************************************************\n"
       << "*                                                     *\n"
-      << "* Constructing a FP420SD  with name " << name << "\n"
+      << "* Constructing a FP420SD  with name " << iname << "\n"
       << "*                                                     *\n"
       << "*******************************************************";
-    
-    
-    slave  = new TrackingSlaveSD(name);
+        
+    slave  = new TrackingSlaveSD(iname);
     
     //
     // attach detectors (LogicalVolumes)
     //
-    const std::vector<std::string>& lvNames = clg.logicalNames(name);
+    const std::vector<std::string>& lvNames = clg.logicalNames(iname);
 
     this->Register();
 
@@ -106,34 +87,25 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
       edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << (*it);
     }
     
-    if      (name == "FP420SI") {
+    if (iname == "FP420SI") {
       if (verbn > 0) {
-      edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
-    std::cout << "name = FP420SI and  new FP420NumberingSchem"<< std::endl;
+	edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
       }
       numberingScheme = new FP420NumberingScheme() ;
     } else {
       edm::LogWarning("FP420Sim") << "FP420SD: ReadoutName not supported\n";
-    std::cout << "FP420SD: ReadoutName not supported"<< std::endl;
     }
     
     edm::LogInfo("FP420Sim") << "FP420SD: Instantiation completed";
-    std::cout << "FP420SD: Instantiation completed"<< std::endl;
   }
 
-
-
-
 FP420SD::~FP420SD() { 
-  //AZ:
-  if (slave) delete slave; 
 
-  if (numberingScheme)
-    delete numberingScheme;
-
+  delete slave; 
+  delete numberingScheme;
 }
 
-double FP420SD::getEnergyDeposit(G4Step* aStep) {
+double FP420SD::getEnergyDeposit(const G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();
 }
 
@@ -142,7 +114,7 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
     LogDebug("FP420Sim") << "FP420SD : Initialize called for " << name << std::endl;
 #endif
 
-  theHC = new FP420G4HitCollection(name, collectionName[0]);
+    theHC = new FP420G4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -154,29 +126,21 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
   ////    slave->Initialize();
 }
 
-
 bool FP420SD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
-    return true;
-  } else {
-    GetStepInfo(aStep);
-  //   LogDebug("FP420Sim") << edeposit <<std::endl;
+  GetStepInfo(aStep);
 
-    //AZ
 #ifdef debug
   LogDebug("FP420Sim") << "FP420SD :  number of hits = " << theHC->entries() << std::endl;
 #endif
 
-    if (HitExists() == false && edeposit>0. &&  theHC->entries()< 200 ){ 
-      CreateNewHit();
-    return true;
-    }
+  if (!HitExists() && edeposit>0.f &&  theHC->entries()< 200 ){ 
+    CreateNewHit();
   }
-    return true;
+  return true;
 } 
 
-void FP420SD::GetStepInfo(G4Step* aStep) {
+void FP420SD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -187,7 +151,6 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
 
   hitPointLocal = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
-
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode == emPDG ||
@@ -205,9 +168,7 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   LogDebug("FP420Sim") << "unitID=" << unitID <<std::endl;
 #endif
   primaryID    = theTrack->GetTrackID();
-  //  Position     = hitPoint;
   Pabs         = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
-  //Tof          = 1400. + aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
   Tof          = aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
   Eloss        = aStep->GetTotalEnergyDeposit()/GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();      
@@ -223,11 +184,10 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t FP420SD::setDetUnitId(G4Step * aStep) { 
+uint32_t FP420SD::setDetUnitId(const G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
-
 
 G4bool FP420SD::HitExists() {
   if (primaryID<1) {
@@ -274,7 +234,6 @@ G4bool FP420SD::HitExists() {
   }    
 }
 
-
 void FP420SD::ResetForNewPrimary() {
   
   entrancePoint  = SetToLocal(hitPoint);
@@ -283,18 +242,15 @@ void FP420SD::ResetForNewPrimary() {
 
 }
 
-
 void FP420SD::StoreHit(FP420G4Hit* hit){
 
   //  if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr) {
     edm::LogWarning("FP420Sim") << "FP420SD: hit to be stored is NULL !!";
     return;
   }
-
   theHC->insert( hit );
 }
-
 
 void FP420SD::CreateNewHit() {
 
@@ -497,27 +453,17 @@ void FP420SD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-
-//void FP420SD::SetNumberingScheme(FP420NumberingScheme* scheme){
-//
-//  if (numberingScheme)
-//    delete numberingScheme;
-//  numberingScheme = scheme;
-//
-//}
-
-void FP420SD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) {
-    c=slave->hits();
-    std::cout << "FP420SD: fillHits to PSimHitContainer for name= " <<  name << std::endl;
+void FP420SD::fillHits(edm::PSimHitContainer& chit, const std::string& nhit) {
+  if (slave->name() == nhit) {
+    chit = slave->hits();
   }
 }
 
 void FP420SD::update (const BeginOfEvent * i) {
   LogDebug("ForwardSim") << " Dispatched BeginOfEvent for " << GetName()
                        << " !" ;
-   clearHits();
-   eventno = (*i)()->GetEventID();
+  clearHits();
+  eventno = (*i)()->GetEventID();
 }
 
 void FP420SD::update(const BeginOfRun *) {
@@ -530,17 +476,8 @@ void FP420SD::update(const BeginOfRun *) {
 
 }
 
-void FP420SD::update (const ::EndOfEvent*) {
-}
-
 void FP420SD::clearHits(){
   //AZ:
     slave->Initialize();
-}
-
-std::vector<std::string> FP420SD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }
 

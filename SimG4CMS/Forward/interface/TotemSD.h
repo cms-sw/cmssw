@@ -41,36 +41,35 @@ class TrackingSlaveSD;
 class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
-		public Observer<const BeginOfEvent*>,
-		public Observer<const EndOfEvent*> {
+		public Observer<const BeginOfEvent*> {
 
 public:
 
-  TotemSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  TotemSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~TotemSD();
+  ~TotemSD() override;
 
-  virtual bool   ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
+  bool   ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
-  virtual void   Initialize(G4HCofThisEvent * HCE);
-  virtual void   EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void   clear();
-  virtual void   DrawAll();
-  virtual void   PrintAll();
+  void   Initialize(G4HCofThisEvent * HCE) override;
+  void   EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void   clear() override;
+  void   DrawAll() override;
+  void   PrintAll() override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use);
+  void fillHits(edm::PSimHitContainer&, const std::string& use) override;
 
 private:
 
-  void           update(const BeginOfEvent *);
+  void           update(const BeginOfEvent *) override;
   void           update(const ::EndOfEvent *);
-  virtual void   clearHits();
+  void   clearHits() override;
 
 private:
 
   G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
-  void           GetStepInfo(G4Step* aStep);
+  void           GetStepInfo(const G4Step* aStep);
   bool           HitExists();
   void           CreateNewHit();
   void           CreateNewHitEvo();
@@ -94,21 +93,20 @@ private:
   float                       incidentEnergy;
   G4int                       primID  ; //@@ ID of the primary particle.
 
-  std::string                 name;
   G4int                       hcID;
   TotemG4HitCollection*       theHC; 
   const SimTrackManager*      theManager;
 
   int                         tsID; 
   TotemG4Hit*                 currentHit;
-  G4Track*                    theTrack;
-  G4VPhysicalVolume*          currentPV;
+  const G4Track*              theTrack;
+  const G4VPhysicalVolume*    currentPV;
   uint32_t                    unitID, previousUnitID;
   int                         primaryID, tSliceID;  
   double                      tSlice;
 
-  G4StepPoint*                preStepPoint; 
-  G4StepPoint*                postStepPoint; 
+  const G4StepPoint*          preStepPoint; 
+  const G4StepPoint*          postStepPoint; 
   float                       edeposit;
   G4ThreeVector               hitPoint;
 

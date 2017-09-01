@@ -27,17 +27,16 @@
 
 #define debug
 //-------------------------------------------------------------------
-BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
+BHMSD::BHMSD(const std::string& iname, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(iname, cpv, clg, p), numberingScheme(nullptr), 
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
     
   //Add BHM Sentitive Detector Name
-  collectionName.insert(name);
-    
+  collectionName.insert(iname);
     
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BHMSD");
@@ -48,17 +47,16 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
   LogDebug("BHMSim") 
     << "*******************************************************\n"
     << "*                                                     *\n"
-    << "* Constructing a BHMSD  with name " << name << "\n"
+    << "* Constructing a BHMSD  with name " << iname << "\n"
     << "*                                                     *\n"
     << "*******************************************************";
-    
-    
-  slave  = new TrackingSlaveSD(name);
+        
+  slave  = new TrackingSlaveSD(iname);
     
   //
   // attach detectors (LogicalVolumes)
   //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
+  std::vector<std::string> lvNames = clg.logicalNames(iname);
 
   this->Register();
 
@@ -69,7 +67,7 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
   }
     
   if (verbn > 0) {
-    edm::LogInfo("BHMSim") << "name = " <<name <<" and new BHMNumberingScheme";
+    edm::LogInfo("BHMSim") << "name = " <<iname <<" and new BHMNumberingScheme";
   }
   numberingScheme = new BHMNumberingScheme() ;
   
@@ -79,20 +77,16 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
 
 BHMSD::~BHMSD() { 
 
-  if (slave)           delete slave; 
-  if (numberingScheme) delete numberingScheme;
-}
-
-double BHMSD::getEnergyDeposit(G4Step* aStep) {
-  return aStep->GetTotalEnergyDeposit();
+  delete slave; 
+  delete numberingScheme;
 }
 
 void BHMSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef debug
-  LogDebug("BHMSim") << "BHMSD : Initialize called for " << name << std::endl;
+  LogDebug("BHMSim") << "BHMSD : Initialize called for " << GetName();
 #endif
 
-  theHC = new BscG4HitCollection(name, collectionName[0]);
+  theHC = new BscG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -101,25 +95,19 @@ void BHMSD::Initialize(G4HCofThisEvent * HCE) {
   primID = -2;
 }
 
-
 bool BHMSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
-    return true;
-  } else {
-    GetStepInfo(aStep);
+  stepInfo(aStep);
 #ifdef debug
-    LogDebug("BHMSim") << "BHMSD :  number of hits = " << theHC->entries() << std::endl;
+  LogDebug("BHMSim") << "BHMSD :  number of hits = " << theHC->entries() << std::endl;
 #endif
-    if (HitExists() == false && edeposit>0. ){ 
-      CreateNewHit();
-      return true;
-    }
+  if (!HitExists() && edeposit>0.f ){ 
+    CreateNewHit();
   }
   return true;
 } 
 
-void BHMSD::GetStepInfo(G4Step* aStep) {
+void BHMSD::stepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -137,9 +125,9 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
   if (particleCode == emPDG ||
       particleCode == epPDG ||
       particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
+    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.f;
   } else {
-    edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
+    edepositEM  = 0.f; edepositHAD = getEnergyDeposit(aStep);
   }
   edeposit = aStep->GetTotalEnergyDeposit();
   tSlice    = (postStepPoint->GetGlobalTime() )/CLHEP::nanosecond;
@@ -166,10 +154,9 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t BHMSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+uint32_t BHMSD::setDetUnitId(const G4Step * aStep) { 
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
-
 
 G4bool BHMSD::HitExists() {
   if (primaryID<1) {
@@ -222,7 +209,7 @@ void BHMSD::ResetForNewPrimary() {
 void BHMSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("BHMSim") << "BHMSD: hit to be stored is NULL !!";
     return;
   }
@@ -250,7 +237,7 @@ void BHMSD::CreateNewHit() {
   }
 
   LogDebug("BHMSim")  << " and created by " ;
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("BHMSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("BHMSim") << "NO process";
@@ -371,8 +358,8 @@ void BHMSD::PrintAll() {
 } 
 
 
-void BHMSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void BHMSD::fillHits(edm::PSimHitContainer& chit, const std::string& nhit) {
+  if (slave->name() == nhit) chit=slave->hits();
 }
 
 void BHMSD::update (const BeginOfEvent * i) {
@@ -392,15 +379,7 @@ void BHMSD::update(const BeginOfRun *) {
 
 } 
 
-void BHMSD::update (const ::EndOfEvent*) {
-}
-
 void BHMSD::clearHits(){
   slave->Initialize();
 }
 
-std::vector<std::string> BHMSD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
-}

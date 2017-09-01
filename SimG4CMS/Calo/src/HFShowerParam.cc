@@ -89,13 +89,14 @@ HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv
 }
 
 HFShowerParam::~HFShowerParam() {
-  if (fibre)         delete fibre;
-  if (gflash)        delete gflash;
-  if (showerLibrary) delete showerLibrary;
+  delete fibre;
+  delete gflash;
+  delete showerLibrary;
 }
 
-void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
-			    HcalDDDSimConstants* hcons) {
+void HFShowerParam::initRun(const G4ParticleTable *,
+			    const HcalDDDSimConstants* hcons) {
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   emPDG = theParticleTable->FindParticle("e-")->GetPDGEncoding();
   epPDG = theParticleTable->FindParticle("e+")->GetPDGEncoding();
   gammaPDG = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
@@ -114,12 +115,12 @@ void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
                              << gpar[ig]/cm << " cm";
 }
 
-std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep, 
-						       double weight) {
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();   
+std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep, 
+						       double weight, bool& kill) {
+
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  G4Track * track    = aStep->GetTrack();   
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
-  G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
   G4ThreeVector localPoint = G4ThreeVector(hitPoint.x(),hitPoint.y(),zv);
 
@@ -151,17 +152,18 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 			   <<track->GetDynamicParticle()->GetMomentumDirection()
 			   << " HitPoint " << hitPoint << " dirz " << dirz;
 #endif  
-  if (particleCode != emPDG && particleCode != epPDG && particleCode != gammaPDG ) {
+  G4int pdg = track->GetDefinition()->GetPDGEncoding();
+  bool isEM = (pdg == emPDG || pdg == epPDG || pdg == gammaPDG );
+  if(!isEM) {
     if (track->GetDefinition()->GetPDGCharge() != 0 && pBeta > (1/ref_index) &&
         aStep->GetTotalEnergyDeposit() > 0) other = true;
   }
 
   // take only e+-/gamma/or special particles
-  if (particleCode == emPDG || particleCode == epPDG ||
-      particleCode == gammaPDG || other) {
+  if (isEM || other) {
     // Leave out the last part
     double edep = 0.;
-    bool   kill = false;
+    kill = false;
     if ((!trackEM) && ((zz<(gpar[1]-gpar[2])) || parametrizeLast) && (!other)){
       edep = pin;
       kill = true;
@@ -180,20 +182,21 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
     if (edep > 0) {
       if ((showerLibrary || gflash) && kill && pin > edMin && (!other)) {
         if (showerLibrary) {
-          std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill,weight,onlyLong);
-          for (unsigned int i=0; i<hitSL.size(); i++) {
-            bool ok = true;
 #ifdef DebugLog
-            edm::LogInfo("HFShower") << "HFShowerParam: getHits applyFidCut = " << applyFidCut;
+	  edm::LogInfo("HFShower") << "HFShowerParam: getHits applyFidCut = " << applyFidCut;
 #endif
+          std::vector<HFShowerLibrary::Hit> hitSL = 
+	    showerLibrary->getHits(aStep, kill, weight, onlyLong);
+          for (auto & ahit : hitSL) {
+            bool ok = true;
             if (applyFidCut) { // @@ For showerlibrary no z-cut for Short (no z)
-              int npmt = HFFibreFiducial:: PMTNumber(hitSL[i].position);
+              int npmt = HFFibreFiducial::PMTNumber(ahit.position);
               if (npmt <= 0) ok = false;
             } 
             if (ok) {
-              hit.position = hitSL[i].position;
-              hit.depth    = hitSL[i].depth;
-              hit.time     = hitSL[i].time;
+              hit.position = ahit.position;
+              hit.depth    = ahit.depth;
+              hit.time     = ahit.time;
               hit.edep     = 1;
               hits.push_back(hit);
 #ifdef plotDebug
@@ -222,11 +225,11 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
             }
           }
         } else { // GFlash clusters with known z
-          std::vector<HFGflash::Hit>hitSL=gflash->gfParameterization(aStep,kill, onlyLong);
-          for (unsigned int i=0; i<hitSL.size(); ++i) {
+          std::vector<HFGflash::Hit> hitSL = gflash->gfParameterization(aStep,kill, onlyLong);
+          for (auto & ahit : hitSL) {
             bool ok = true;
-            G4ThreeVector pe_effect(hitSL[i].position.x(), hitSL[i].position.y(),
-                                    hitSL[i].position.z());
+            G4ThreeVector pe_effect(ahit.position.x(), ahit.position.y(),
+                                    ahit.position.z());
             double zv  = std::abs(pe_effect.z()) - gpar[4];
             //depth
             int depth    = 1;
@@ -290,14 +293,14 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 	      if (r2 < weight) {
 		double time = fibre->tShift(localPoint,depth,0);
 
-		hit.position = hitSL[i].position;
+		hit.position = ahit.position;
 		hit.depth    = depth;
-		hit.time     = time + hitSL[i].time;
+		hit.time     = time + ahit.time;
 		hit.edep     = 1;
 		hits.push_back(hit);
 #ifdef plotDebug
 		if (fillHisto) {
-		  em_long_gflash->Fill(pe_effect.z()/cm, hitSL[i].edep);
+		  em_long_gflash->Fill(pe_effect.z()/cm, ahit.edep);
 		  hzvem->Fill(zv);
 		  double sq = sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2));
 		  double zp = hit.position.z()/cm;
@@ -380,24 +383,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
                                                 << " time " << hit.time;
       }
 #endif
-      if (kill) {
-        track->SetTrackStatus(fStopAndKill);
-        G4TrackVector tv = *(aStep->GetSecondary());
-        for (unsigned int kk=0; kk<tv.size(); ++kk) {
-          if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
-	    tv[kk]->SetTrackStatus(fStopAndKill);
-        }
-      }
-#ifdef DebugLog
-      edm::LogInfo("HFShower") << "HFShowerParam: getHits kill (" << kill
-                               << ") track " << track->GetTrackID() 
-                               << " at " << hitPoint
-                               << " and deposit " << edep << " " << hits.size()
-                               << " times" << " ZZ " << zz << " " << gpar[0];
-#endif
     }
   }
-  return hits;
+  return std::move(hits);
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 

@@ -17,8 +17,8 @@
 
 class MuonEndcapFrameRotation : public MuonFrameRotation {
  public:
-  virtual ~MuonEndcapFrameRotation() {};
-  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const;
+  ~MuonEndcapFrameRotation() override {};
+  Local3DPoint transformPoint(const Local3DPoint &,const G4Step * step=nullptr) const override;
  private:
 };
 

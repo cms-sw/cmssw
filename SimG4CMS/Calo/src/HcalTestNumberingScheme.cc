@@ -5,6 +5,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -17,11 +18,10 @@ HcalTestNumberingScheme::HcalTestNumberingScheme(bool forTB) :
 }
 
 HcalTestNumberingScheme::~HcalTestNumberingScheme() {
-  edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme" << std::endl;
 }
 
 uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& 
-					    id) {
+					    id) const {
 
   //pack it into an integer
   uint32_t index = 0;
@@ -46,7 +46,7 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID&
 			  << " depth/lay = " << id.depth << "/" << id.lay 
 			  << " zside = " << id.zside << " eta/R = " << id.etaR 
 			  << " phi = " << id.phis << " packed index = 0x" 
-			  << std::hex << index << std::dec << std::endl;
+			  << std::hex << index << std::dec;
 #endif
   return index;
 
