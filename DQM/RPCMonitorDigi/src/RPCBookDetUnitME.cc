@@ -5,10 +5,10 @@
 #include <DQM/RPCMonitorDigi/interface/utils.h>
 #include <iomanip>
 
-void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, const RPCGeometry* rpcGeo, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap)
+void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, const RPCDetId& detId, const RPCGeometry* rpcGeo, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap)
 {
-  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-  std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr->folderStructure(detId);
+  RPCBookFolderStructure folderStr;
+  std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr.folderStructure(detId);
 
   ibooker.setCurrentFolder(folder);
   
@@ -71,8 +71,6 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, c
   os.str("");
   os<<"NumberOfClusters_"<<nameRoll;
   meMap[os.str()] = ibooker.book1D(os.str(), os.str(),10,0.5,10.5);
-  
-  delete folderStr;
 }
 
 

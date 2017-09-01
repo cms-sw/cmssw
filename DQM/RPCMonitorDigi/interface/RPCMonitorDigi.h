@@ -29,7 +29,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
-	void bookRollME(DQMStore::IBooker &,RPCDetId& , const RPCGeometry* rpcGeo, const std::string &, std::map<std::string, MonitorElement*> &);
+	void bookRollME(DQMStore::IBooker &, const RPCDetId& , const RPCGeometry* rpcGeo, const std::string &, std::map<std::string, MonitorElement*> &);
 	/// Booking of MonitoringElement at Sector/Ring level
 	void bookSectorRingME(DQMStore::IBooker &,const std::string&, std::map<std::string, MonitorElement*> &);
 	/// Booking of MonitoringElemnt at Wheel/Disk level
@@ -38,8 +38,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	void bookRegionME(DQMStore::IBooker &,const std::string &, std::map<std::string, MonitorElement*> &);
 
    private:
-
-	enum detectorRegions{EM = 0, B = 1, EP= 2, ALL=3};
 
 	bool useMuonDigis_;
 
@@ -73,9 +71,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
    
 	std::string globalFolder_;
 	std::string subsystemFolder_;
-
-	bool saveRootFile;
-	std::string RootFileName;
 
 	edm::EDGetTokenT<reco::CandidateView> muonLabel_;
 	edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitLabel_;
