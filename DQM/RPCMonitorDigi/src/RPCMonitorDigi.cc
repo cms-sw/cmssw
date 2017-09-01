@@ -50,8 +50,9 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Begin Run " ;
   
   std::set<int> disk_set, ring_set;
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  edm::ESHandle<RPCGeometry> rpcGeoHandle;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeoHandle);
+  const RPCGeometry* rpcGeo = rpcGeoHandle.product();
 
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
@@ -72,15 +73,15 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 	  //booking all histograms
 	  RPCGeomServ rpcsrv(rpcId);
 	  std::string nameID = rpcsrv.name();
-	  if(useMuonDigis_) bookRollME(ibooker,rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
-	  bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	  if(useMuonDigis_) bookRollME(ibooker,rpcId , rpcGeo, muonFolder_, meMuonCollection[nameID]);
+	  bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
 	}
       }else{
 	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameID = rpcsrv.chambername();
-	if(useMuonDigis_) bookRollME(ibooker, rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
-	bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	if(useMuonDigis_) bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
+	bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
 	if(rpcId.region()!=0){
 	  disk_set.insert(rpcId.station());
 	  ring_set.insert(rpcId.ring());
@@ -249,7 +250,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  detIdIter++){
     
     RPCDetId detId = (*detIdIter).first;
-    // int id=detId();
     
     //get roll number
     rpcdqm::utils rpcUtils;

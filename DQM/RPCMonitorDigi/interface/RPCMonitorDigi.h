@@ -4,12 +4,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//DQMServices
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-///Data Format
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -29,7 +29,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
-	void bookRollME(DQMStore::IBooker &,RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string, MonitorElement*> &);
+	void bookRollME(DQMStore::IBooker &,RPCDetId& , const RPCGeometry* rpcGeo, const std::string &, std::map<std::string, MonitorElement*> &);
 	/// Booking of MonitoringElement at Sector/Ring level
 	void bookSectorRingME(DQMStore::IBooker &,const std::string&, std::map<std::string, MonitorElement*> &);
 	/// Booking of MonitoringElemnt at Wheel/Disk level
@@ -44,7 +44,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	bool useMuonDigis_;
 
 	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, std::string );
-	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
+	int stripsInRoll(const RPCDetId& id, const RPCGeometry* rpcGeo) const;
 
 	static const std::string regionNames_[3];
 	std::string muonFolder_;
@@ -60,7 +60,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	MonitorElement * NumberOfMuon_;
 
 	int numberOfDisks_, numberOfInnerRings_;
-	//	int muonCounter_, noiseCounter_;
 
 	std::map< std::string, std::map<std::string, MonitorElement*> >   meMuonCollection;
 	std::map<std::string, MonitorElement*>  wheelDiskMuonCollection;
