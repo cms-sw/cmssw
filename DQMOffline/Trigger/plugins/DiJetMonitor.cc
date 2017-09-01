@@ -17,12 +17,10 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
 {
   folderName_              = iConfig.getParameter<std::string>("FolderName"); 
   dijetSrc_                = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));//jet 
-  dijetpT_variable_binning_= iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
+  
   dijetpt_binning_         = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPSet")    );
   dijetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("dijetPtThrPSet")    );
-  ls_binning_              = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
-
-
+  
   ptcut_      = iConfig.getParameter<double>("ptcut" ); 
 
 }
