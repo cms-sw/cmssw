@@ -12,6 +12,9 @@
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
+#pragma pack(push)
+#pragma pack(1)
+
 namespace tcds {
 
   struct Sizes_v1
@@ -45,7 +48,7 @@ namespace tcds {
     uint16_t triggerTypeFlags;
     uint16_t reserved5;
     uint16_t inputs;
-    uint16_t bcid;
+    uint16_t bxid;
     uint16_t orbitLow;
     uint32_t orbitHigh;
     uint64_t triggerCount;
@@ -54,13 +57,13 @@ namespace tcds {
 
   struct L1aInfo_v1
   {
+    uint32_t orbitlow;
+    uint16_t orbithigh;
+    unsigned char reserved2;
+    unsigned char ind0;
     uint16_t bxid;
     uint16_t reserved0;
     uint16_t reserved1;
-    unsigned char reserved2;
-    unsigned char ind0;
-    uint32_t orbitlow;
-    uint16_t orbithigh;
     unsigned char eventtype;
     unsigned char ind1;
   };
@@ -97,8 +100,9 @@ namespace tcds {
 
   struct LastBGo_v1
   {
-    uint32_t lastOrbit;
-    uint32_t reserved;
+    uint32_t orbitlow;
+    uint16_t orbithigh;
+    uint16_t reserved;
   };
 
   const uint8_t bgoCount_v1 = 64;
@@ -120,5 +124,7 @@ namespace tcds {
   };
 
 }
+
+#pragma pack(pop)
 
 #endif // DATAFORMATS_TCDS_TCDSRAW_H

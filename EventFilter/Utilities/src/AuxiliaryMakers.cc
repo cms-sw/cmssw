@@ -36,7 +36,7 @@ namespace evf{
 				   edm::Timestamp(time),
 				   true,
                                    (edm::EventAuxiliary::ExperimentType)(record->getEventType()),
-				   (int)record->getBCID(),
+				   (int)record->getBXID(),
 				   edm::EventAuxiliary::invalidStoreNumber,
 				   (int)(orbitnr&0x7fffffffU));//framework supports only 32-bit signed
       }

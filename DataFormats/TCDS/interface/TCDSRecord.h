@@ -10,6 +10,7 @@
 
 
 #include <bitset>
+#include <ostream>
 #include <stdint.h>
 #include <vector>
 
@@ -53,7 +54,7 @@ public:
   uint16_t getNibblesPerLumiSection() const { return nibblesPerLumiSection_; }
   uint16_t getTriggerTypeFlags() const { return triggerTypeFlags_; }
   uint16_t getInputs() const { return inputs_; }
-  uint16_t getBCID() const { return bcid_; }
+  uint16_t getBXID() const { return bxid_; }
   uint64_t getOrbitNr() const { return orbitNr_; }
   uint64_t getTriggerCount() const { return triggerCount_; }
   uint64_t getEventNumber() const { return eventNumber_; }
@@ -68,7 +69,7 @@ public:
 
   const L1aInfo& getL1aHistoryEntry(const uint8_t entry) const { return l1aHistory_.at(entry); }
 
-  uint32_t getOrbitOfLastBgo(const uint8_t bgo) const { return lastBgos_.at(bgo); }
+  uint32_t getOrbitOfLastBgo(const uint16_t bgo) const { return lastBgos_.at(bgo); }
   uint32_t getLastOrbitCounter0() const { return lastBgos_.at(BGo::OC0); }
   uint32_t getLastTestEnable() const { return lastBgos_.at(BGo::TestEnable); }
   uint32_t getLastResync() const { return lastBgos_.at(BGo::Resync); }
@@ -91,7 +92,7 @@ private:
   uint16_t nibblesPerLumiSection_;
   uint16_t triggerTypeFlags_;
   uint16_t inputs_;
-  uint16_t bcid_;
+  uint16_t bxid_;
   uint64_t orbitNr_;
   uint64_t triggerCount_;
   uint64_t eventNumber_;
@@ -104,5 +105,8 @@ private:
   std::vector<uint32_t> lastBgos_;
 
 };
+
+/// Pretty-print operator for TCDSRecord
+std::ostream& operator<<(std::ostream&, const TCDSRecord&);
 
 #endif // DATAFORMATS_TCDS_TCDSRECORD_H
