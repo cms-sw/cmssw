@@ -135,13 +135,13 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
       if (edm::isNotFinite(t_pi) ||  t_pi < std::numeric_limits<double>::epsilon())  continue; // usually is > 0.99
     }
     LogTrace("DAClusterizerinZT_vectorized") << t_z << ' ' << t_t <<' '<< t_dz2 << ' ' << t_dt2 <<' '<< t_pi;
-    tks.AddItem(t_z, t_t, t_dz2, t_dt2, &(*it), t_pi);
+    tks.addItem(t_z, t_t, t_dz2, t_dt2, &(*it), t_pi);
   }
-  tks.ExtractRaw();
+  tks.extractRaw();
   
 #ifdef VI_DEBUG
   if (verbose_) {
-    std::cout << "Track count " << tks.GetSize() << std::endl;
+    std::cout << "Track count " << tks.getSize() << std::endl;
   }
 #endif
   
@@ -163,8 +163,8 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   // mass constrained annealing without noise
   // returns the squared sum of changes of vertex positions
   
-  const unsigned int nt = gtracks.GetSize();
-  const unsigned int nv = gvertices.GetSize();
+  const unsigned int nt = gtracks.getSize();
+  const unsigned int nv = gvertices.getSize();
   
   //initialize sums
   double sumpi = 0.;
@@ -306,7 +306,7 @@ bool DAClusterizerInZT_vect::merge(vertex_t & y, double & beta)const{
   // merge clusters that collapsed or never separated,
   // only merge if the estimated critical temperature of the merged vertex is below the current temperature
   // return true if vertices were merged, false otherwise
-  const unsigned int nv = y.GetSize();
+  const unsigned int nv = y.getSize();
 
   if (nv < 2)
     return false;
@@ -346,7 +346,7 @@ bool DAClusterizerInZT_vect::merge(vertex_t & y, double & beta)const{
       y.pk_[k] = rho;
       y.sw_[k] += y.sw_[k+1];
       y.swE_[k] = swE;
-      y.RemoveItem(k+1);
+      y.removeItem(k+1);
       return true;
     }
   }
@@ -361,8 +361,8 @@ bool
 DAClusterizerInZT_vect::purge(vertex_t & y, track_t & tks, double & rho0, const double beta) const {
   constexpr double eps = 1.e-100;
   // eliminate clusters with only one significant/unique track
-  const unsigned int nv = y.GetSize();
-  const unsigned int nt = tks.GetSize();
+  const unsigned int nv = y.getSize();
+  const unsigned int nt = tks.getSize();
   
   if (nv < 2)
     return false;
@@ -424,7 +424,7 @@ DAClusterizerInZT_vect::purge(vertex_t & y, track_t & tks, double & rho0, const 
 		 << endl;
     }
 #endif
-    y.RemoveItem(k0);
+    y.removeItem(k0);
     return true;
   } else {
     return false;
@@ -439,8 +439,8 @@ DAClusterizerInZT_vect::beta0(double betamax, track_t const  & tks, vertex_t con
   
   double T0 = 0; // max Tc for beta=0
   // estimate critical temperature from beta=0 (T=inf)
-  const unsigned int nt = tks.GetSize();
-  const unsigned int nv = y.GetSize();
+  const unsigned int nt = tks.getSize();
+  const unsigned int nv = y.getSize();
   
   for (unsigned int k = 0; k < nv; k++) {
     
@@ -497,7 +497,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
   
   constexpr double epsilonz=1e-3;      // minimum split size z
   constexpr double epsilont=1e-2;      // minimum split size t
-  unsigned int nv = y.GetSize();
+  unsigned int nv = y.getSize();
   
   // avoid left-right biases by splitting highest Tc first
   
@@ -515,7 +515,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
   
   
   bool split=false;
-  const unsigned int nt = tks.GetSize();
+  const unsigned int nt = tks.getSize();
 
   for(unsigned int ic=0; ic<critical.size(); ic++){
     unsigned int k=critical[ic].second;
@@ -586,7 +586,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
       y.z_[k]  =  z2;
       y.t_[k]  =  t2;
       y.pk_[k] = pk2;
-      y.InsertItem(k, z1, t1, pk1);
+      y.insertItem(k, z1, t1, pk1);
       nv++;
 
      // adjust remaining pointers
@@ -602,7 +602,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
 
 void DAClusterizerInZT_vect::splitAll( vertex_t & y) const {
 
-  const unsigned int nv = y.GetSize();
+  const unsigned int nv = y.getSize();
   
   constexpr double epsilonz = 1e-3; // split all single vertices by 10 um
   constexpr double epsilont = 1e-2; // split all single vertices by 10 ps
@@ -631,27 +631,27 @@ void DAClusterizerInZT_vect::splitAll( vertex_t & y) const {
 	double new_pk = 0.5 * y.pk[k];
 	y.pk[k] = 0.5 * y.pk[k];
 	
-	y1.AddItem(new_z, new_t, new_pk);
-	y1.AddItem(y.z_[k], y.t_[k], y.pk_[k]);	
+	y1.addItem(new_z, new_t, new_pk);
+	y1.addItem(y.z_[k], y.t_[k], y.pk_[k]);	
       }
-    else if ( (y1.GetSize() == 0 ) ||
-	      (y1.z_[y1.GetSize() - 1] <  (y.z_[k] - zsep)  ) ||
-              (y1.t_[y1.GetSize() - 1] <  (y.t_[k] - tsep)  ))
+    else if ( (y1.getSize() == 0 ) ||
+	      (y1.z_[y1.getSize() - 1] <  (y.z_[k] - zsep)  ) ||
+              (y1.t_[y1.getSize() - 1] <  (y.t_[k] - tsep)  ))
       {
-	y1.AddItem(y.z_[k], y.t_[k], y.pk_[k]);
+	y1.addItem(y.z_[k], y.t_[k], y.pk_[k]);
       }
     else
       {
-	y1.z_[y1.GetSize() - 1] = y1.z_[y1.GetSize() - 1] - epsilonz;
-        y1.t_[y1.GetSize() - 1] = y1.t_[y1.GetSize() - 1] - epsilont;
+	y1.z_[y1.getSize() - 1] = y1.z_[y1.getSize() - 1] - epsilonz;
+        y1.t_[y1.getSize() - 1] = y1.t_[y1.getSize() - 1] - epsilont;
 	y.z_[k] = y.z_[k] + epsilonz;
         y.t_[k] = y.t_[k] + epsilont;
-	y1.AddItem( y.z_[k], y.t_[k] , y.pk_[k]);
+	y1.addItem( y.z_[k], y.t_[k] , y.pk_[k]);
       }
   }// vertex loop
 
   y = y1;
-  y.ExtractRaw();
+  y.extractRaw();
   
 #ifdef VI_DEBUG
   if (verbose_) {
@@ -666,18 +666,18 @@ void DAClusterizerInZT_vect::splitAll( vertex_t & y) const {
 vector<TransientVertex> 
 DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, const int verbosity) const {
   track_t && tks = fill(tracks);
-  tks.ExtractRaw();
+  tks.extractRaw();
   
-  unsigned int nt = tks.GetSize();
+  unsigned int nt = tks.getSize();
   double rho0 = 0.0; // start with no outlier rejection
   
   vector<TransientVertex> clusters;
-  if (tks.GetSize() == 0) return clusters;
+  if (tks.getSize() == 0) return clusters;
   
   vertex_t y; // the vertex prototypes
   
   // initialize:single vertex at infinite temperature
-  y.AddItem( 0, 0, 1.0);
+  y.addItem( 0, 0, 1.0);
   
   int niter = 0; // number of iterations
   
@@ -787,7 +787,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
   // eliminate insigificant vertices, this is more restrictive at higher T
   while (purge(y, tks, rho0, beta)) {
     niter = 0;
-    while (( update(beta, tks, y, true, rho0) >  2.5e-7 * y.GetSize() ) && (niter++ < maxIterations_)) {
+    while (( update(beta, tks, y, true, rho0) >  2.5e-7 * y.getSize() ) && (niter++ < maxIterations_)) {
     }
   }
 
@@ -817,7 +817,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
   GlobalError dummyError(0.01, 0, 0.01, 0., 0., 0.01);
   
   // ensure correct normalization of probabilities, should makes double assignment reasonably impossible
-  const unsigned int nv = y.GetSize();
+  const unsigned int nv = y.getSize();
   for (unsigned int k = 0; k < nv; k++)
      if ( edm::isNotFinite(y.pk_[k]) || edm::isNotFinite(y.z_[k]) ) { y.pk_[k]=0; y.z_[k]=0;}
 
@@ -912,8 +912,8 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZT_vect::clusterize(
 void DAClusterizerInZT_vect::dump(const double beta, const vertex_t & y,
 		const track_t & tks, int verbosity) const {
 
-	const unsigned int nv = y.GetSize();
-	const unsigned int nt = tks.GetSize();
+	const unsigned int nv = y.getSize();
+	const unsigned int nt = tks.getSize();
 	
 	std::vector< unsigned int > iz;
 	for(unsigned int j=0; j<nt; j++){ iz.push_back(j); }
@@ -1026,7 +1026,7 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t & y,
 			}
 			std::cout  << endl;
 		}
-		std::cout  << endl << "T=" << 1 / beta << " E=" << E << " n=" << y.GetSize()
+		std::cout  << endl << "T=" << 1 / beta << " E=" << E << " n=" << y.getSize()
 			 << "  F= " << F << endl << "----------" << endl;
 	}
 }
