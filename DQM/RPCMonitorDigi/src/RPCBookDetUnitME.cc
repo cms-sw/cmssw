@@ -97,6 +97,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 	
 	meMap[os.str()]->setAxisTitle("strip", 1);
 	rpcdqm::utils rpcUtils;
+	rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
 	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, wheel, true);
 	
       }
@@ -122,6 +123,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 
 	meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18 , 0.5,  18.5);
 	meMap[os.str()]->setAxisTitle("strip", 1);
+	rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
 
 	std::stringstream yLabel;
 	for (int i = 1 ; i<=18; i++) {
