@@ -5,7 +5,7 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-    analysis       = cms.vstring("SinglePhoton"),
+    analysis       = cms.vstring("SinglePhoton","SingleEle"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -95,6 +95,17 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    "HLT_Photon165_R9Id90_HE10_IsoM_v",
 		    ),
 	    recPhotonLabel  = cms.string("photons"),
+	    # -- Analysis specific cuts
+	    minCandidates = cms.uint32(1), 
+	    ),
+    SingleEle = cms.PSet( 
+	    hltPathsToCheck = cms.vstring(
+		    "HLT_Ele35_WPTight_Gsf_v",
+		    "HLT_Ele38_WPTight_Gsf_v",
+		    "HLT_Ele40_WPTight_Gsf_v",
+		    "HLT_Ele35_WPTight_Gsf_L1EGMT_v",
+		    ),
+	    recElecLabel  = cms.string("gedGsfElectrons"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(1), 
 	    ),
