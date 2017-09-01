@@ -27,9 +27,9 @@ namespace pat {
   class GenJetFlavourInfoPreserver : public edm::stream::EDProducer<> {
   public:
     explicit GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig);
-    virtual ~GenJetFlavourInfoPreserver() { }
+    ~GenJetFlavourInfoPreserver() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > genJetsToken_;
@@ -72,12 +72,13 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
 
     edm::Ref<std::vector<reco::GenJet> > slimmedGenJetRef;
 
-    int i = -1;
-    for (auto const& genJet : *genJets){
-         i++;
+
+    for (unsigned int i=0; i<genJets->size();++i){
+
         slimmedGenJetRef = (*slimmedGenJetAssociation)[genJets->refAt(i)]; 
         if(!slimmedGenJetRef) continue;
         (*jetFlavourInfos)[reco::JetBaseRef(slimmedGenJetRef)] = (*genJetFlavourInfos)[i].second;
+
     }
 
     iEvent.put(std::move(jetFlavourInfos));
