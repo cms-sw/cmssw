@@ -224,7 +224,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor + process.selectedPixelTra
 #-----------------------------------------------------------
 process.dqmBeamSpotProblemMonitor.monitorName       = "BeamMonitor/BeamSpotProblemMonitor"
 process.dqmBeamSpotProblemMonitor.AlarmONThreshold  = 15 # 10
-process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 12
+process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 17 # 12
 process.dqmBeamSpotProblemMonitor.nCosmicTrk        = 10
 process.dqmBeamSpotProblemMonitor.doTest            = False
 if (runFirstStepTrk):
