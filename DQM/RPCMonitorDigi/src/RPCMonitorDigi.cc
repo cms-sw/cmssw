@@ -1,18 +1,17 @@
-#include <set>
-#include <sstream>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
-///Geometry
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-//Tracking Tools
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-//FW Core
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//Reco Muon
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
+#include <set>
+#include <sstream>
 
 const std::string RPCMonitorDigi::regionNames_[3] =  {"Endcap-", "Barrel", "Endcap+"};
 

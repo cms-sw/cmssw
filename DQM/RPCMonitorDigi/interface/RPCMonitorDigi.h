@@ -2,10 +2,8 @@
 #define RPCMonitorDigi_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQMServices
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -14,10 +12,8 @@
 ///Data Format
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include<string>
 #include<map>
