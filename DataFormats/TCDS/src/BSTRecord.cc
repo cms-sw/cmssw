@@ -27,3 +27,21 @@ BSTRecord::BSTRecord(const tcds::BST_v1& bst) :
   intensityBeam1_(bst.intensityBeam1),
   intensityBeam2_(bst.intensityBeam2)
 {}
+
+
+std::ostream& operator<<(std::ostream& s, const BSTRecord& record)
+{
+  s << "BST record:" << std::endl;
+  s << "   GpsTime:            " << record.getGpsTime() << std::endl;
+  s << "   BstMaster:          " << record.getBstMaster() << std::endl;
+  s << "   TurnCount:          " << record.getTurnCount() << std::endl;
+  s << "   LhcFill:            " << record.getLhcFill() << std::endl;
+  s << "   BeamMode:           " << record.getBeamMode() << std::endl;
+  s << "   ParticleBeam1:      " << record.getParticleBeam1() << std::endl;
+  s << "   ParticleBeam2:      " << record.getParticleBeam2() << std::endl;
+  s << "   BeamMomentum:       " << record.getBeamMomentum() << " GeV" << std::endl;
+  s << "   IntensityBeam1:     " << record.getIntensityBeam1() << " 10E10" << std::endl;
+  s << "   IntensityBeam2:     " << record.getIntensityBeam2() << " 10E10" << std::endl;
+
+  return s;
+}

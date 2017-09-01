@@ -16,6 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 
@@ -119,7 +120,7 @@ namespace test{
                                                << "\ntriggerTypeFlags;	   " << std::hex <<(unsigned int)record->header.triggerTypeFlags
                                                << "\nreserved5;	   " << std::hex <<(unsigned int)record->header.reserved5
                                                << "\ninputs;		   " << std::hex <<(unsigned int)record->header.inputs
-                                               << "\nbcid;		   " << std::dec << (unsigned int)record->header.bcid
+                                               << "\nbxid;		   " << std::dec << (unsigned int)record->header.bxid
                                                << "\norbitLow;		   " << std::dec << (unsigned int)record->header.orbitLow
                                                << "\norbitHigh;	   " << std::dec << (unsigned int)record->header.orbitHigh
                                                << "\ntriggerCount;	   " << std::dec << (uint64_t)record->header.triggerCount
@@ -176,6 +177,10 @@ namespace test{
                                                << "\nBeam Momentum: " << record->bst.beamMomentum << " GeV/c"
                                                << "\nB1 intensity: (10E10 charges) " << record->bst.intensityBeam1
                                                << ", B2 intensity: (10E10 charges) " << record->bst.intensityBeam2 << std::endl;
+
+        TCDSRecord tcds(data3.data());
+        edm::LogInfo( "GlobalNumberAnalysis" ) << "====================TCDS Record===================\n"
+                                               << tcds << std::endl;
       } else {
         edm::LogInfo( "GlobalNumberAnalysis" ) << "FED# " << std::setw(4) << FEDNumbering::MINTCDSuTCAFEDID << " not read out." << std::endl;
       }
