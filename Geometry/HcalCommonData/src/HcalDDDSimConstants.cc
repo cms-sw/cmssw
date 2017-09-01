@@ -28,9 +28,9 @@ HcalDDDSimConstants::~HcalDDDSimConstants() {
 #endif
 }
 
-HcalCellType::HcalCell HcalDDDSimConstants::cell(const int idet,  const int zside, 
-						 const int depth, const int etaR,
-						 const int iphi) const {
+HcalCellType::HcalCell HcalDDDSimConstants::cell(const int& idet,  const int& zside, 
+						 const int& depth, const int& etaR,
+						 const int& iphi) const {
 
   double etaMn = hpar->etaMin[0];
   double etaMx = hpar->etaMax[0];
@@ -120,15 +120,15 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(const int idet,  const int zsid
   return tmp;
 }
 
-int HcalDDDSimConstants::findDepth(const int det, const int eta, 
-				   const int phi, const int zside,
-				   const int lay) const {
+int HcalDDDSimConstants::findDepth(const int& det, const int& eta, 
+				   const int& phi, const int& zside,
+				   const int& lay) const {
 
   int depth = (ldmap_.isValid(det,phi,zside)) ? ldmap_.getDepth(det,eta,phi,zside,lay) : -1;
   return depth;
 }
 
-unsigned int HcalDDDSimConstants::findLayer(const int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const {
+unsigned int HcalDDDSimConstants::findLayer(const int& layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const {
   
   unsigned int id = layerGroup.size();
   for (unsigned int i = 0; i < layerGroup.size(); i++) {
@@ -140,7 +140,7 @@ unsigned int HcalDDDSimConstants::findLayer(const int layer, const std::vector<H
   return id;
 }
 
-std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const int type) const {
+std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const int& type) const {
 
   std::vector<std::pair<double,double> > gcons;
   if (type == 0) {
@@ -155,8 +155,8 @@ std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const i
   return gcons;
 }
 
-int HcalDDDSimConstants::getDepthEta16(const int det, const int phi, 
-				       const int zside) const {
+int HcalDDDSimConstants::getDepthEta16(const int& det, const int& phi, 
+				       const int& zside) const {
 
   int depth = ldmap_.getDepth16(det,phi,zside);
   if (depth < 0) depth = (det == 2) ? depthEta16[1] : depthEta16[0];
@@ -166,7 +166,7 @@ int HcalDDDSimConstants::getDepthEta16(const int det, const int phi,
   return depth;
 }
 
-int HcalDDDSimConstants::getDepthEta16M(const int det) const {
+int HcalDDDSimConstants::getDepthEta16M(const int& det) const {
   int depth = (det == 2) ? depthEta16[1] : depthEta16[0];
   std::vector<int> phis;
   int detsp = ldmap_.validDet(phis);
@@ -180,16 +180,16 @@ int HcalDDDSimConstants::getDepthEta16M(const int det) const {
   return depth;
 }
 
-int HcalDDDSimConstants::getDepthEta29(const int phi, const int zside, 
-				       const int i) const {
+int HcalDDDSimConstants::getDepthEta29(const int& phi, const int& zside, 
+				       const int& i) const {
 
   int depth = (i == 0) ? ldmap_.getMaxDepthLastHE(2,phi,zside) : -1;
   if (depth < 0) depth = (i == 1) ? depthEta29[1] : depthEta29[0];
   return depth;
 }
 
-int HcalDDDSimConstants::getDepthEta29M(const int i, 
-					const bool planOne) const {
+int HcalDDDSimConstants::getDepthEta29M(const int& i, 
+					const bool& planOne) const {
   int depth = (i == 1) ? depthEta29[1] : depthEta29[0];
   if (i == 0 && planOne) {
     std::vector<int> phis;
@@ -204,8 +204,8 @@ int HcalDDDSimConstants::getDepthEta29M(const int i,
   return depth;
 }
 
-std::pair<int,double> HcalDDDSimConstants::getDetEta(const double eta, 
-						     const int depth) {
+std::pair<int,double> HcalDDDSimConstants::getDetEta(const double& eta, 
+						     const int& depth) {
 
   int    hsubdet(0), ieta(0);
   double etaR(0);
@@ -229,8 +229,8 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(const double eta,
   return std::pair<int,double>(hsubdet,etaR);
 }
 
-int HcalDDDSimConstants::getEta(const int det, const int lay, 
-				const double hetaR) {
+int HcalDDDSimConstants::getEta(const int& det, const int& lay, 
+				const double& hetaR) {
 
   int    ieta(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
@@ -253,9 +253,9 @@ int HcalDDDSimConstants::getEta(const int det, const int lay,
   return ieta;
 }
 
-std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR, 
-						    const int phi, const int zside, 
-						    int depth, const int lay) {
+std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int& det, int etaR, 
+						    const int& phi, const int& zside, 
+						    int depth, const int& lay) {
 
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDEsimConstants:getEtaDepth: I/P " << det << ":" << etaR
@@ -299,8 +299,8 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
   return std::pair<int,int>(etaR,depth);
 }
 
-double HcalDDDSimConstants::getEtaHO(const double etaR, const double x, const double y, 
-				     const double z) const {
+double HcalDDDSimConstants::getEtaHO(const double& etaR, const double& x, const double& y, 
+				     const double& z) const {
 
   if (hpar->zHO.size() > 4) {
     double eta  = fabs(etaR);
@@ -325,7 +325,7 @@ double HcalDDDSimConstants::getEtaHO(const double etaR, const double x, const do
   }
 }
 
-int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
+int HcalDDDSimConstants::getFrontLayer(const int& det, const int& eta) const {
 
   int lay=0;
   if (det == 1) {
@@ -339,7 +339,7 @@ int HcalDDDSimConstants::getFrontLayer(const int det, const int eta) const {
   return lay;
 }
 
-int HcalDDDSimConstants::getLastLayer(const int det, const int eta) const {
+int HcalDDDSimConstants::getLastLayer(const int& det, const int& eta) const {
 
   int lay=0;
   if (det == 1) {
@@ -355,17 +355,17 @@ int HcalDDDSimConstants::getLastLayer(const int det, const int eta) const {
   return lay;
 }
 
-double HcalDDDSimConstants::getLayer0Wt(const int det, const int phi, 
-					const int zside) const {
+double HcalDDDSimConstants::getLayer0Wt(const int& det, const int& phi, 
+					const int& zside) const {
 
   double wt = ldmap_.getLayer0Wt(det, phi, zside);
   if (wt < 0) wt = (det == 2) ? hpar->Layer0Wt[1] :  hpar->Layer0Wt[0];
   return wt;
 }
 
-int HcalDDDSimConstants::getLayerFront(const int det, const int eta, 
-				       const int phi, const int zside,
-				       const int depth) const {
+int HcalDDDSimConstants::getLayerFront(const int& det, const int& eta, 
+				       const int& phi, const int& zside,
+				       const int& depth) const {
 
   int layer = ldmap_.getLayerFront(det, eta, phi, zside, depth);
   if (layer < 0) {
@@ -383,9 +383,9 @@ int HcalDDDSimConstants::getLayerFront(const int det, const int eta,
   return layer;
 }
 
-int HcalDDDSimConstants::getLayerBack(const int det, const int eta, 
-				      const int phi, const int zside,
-				      const int depth) const {
+int HcalDDDSimConstants::getLayerBack(const int& det, const int& eta, 
+				      const int& phi, const int& zside,
+				      const int& depth) const {
 
   int layer = ldmap_.getLayerBack(det, eta, phi, zside, depth);
   if (layer < 0) {
@@ -398,15 +398,15 @@ int HcalDDDSimConstants::getLayerBack(const int det, const int eta,
   return layer;
 }
 
-int HcalDDDSimConstants::getLayerMax(const int eta, const int depth) const {
+int HcalDDDSimConstants::getLayerMax(const int& eta, const int& depth) const {
 
   int layermx =  ((eta < hpar->etaMin[1]) && depth-1 < maxDepth[0]) ? maxLayerHB_+1 : (int)layerGroupSize(eta-1);
   return layermx;
 }
 
-int HcalDDDSimConstants::getMaxDepth(const int det, const int eta, 
-				     const int phi, const int zside,
-				     const bool partialDetOnly) const {
+int HcalDDDSimConstants::getMaxDepth(const int& det, const int& eta, 
+				     const int& phi, const int& zside,
+				     const bool& partialDetOnly) const {
 
   int dmax(-1);
   if (partialDetOnly) {
@@ -432,9 +432,9 @@ int HcalDDDSimConstants::getMaxDepth(const int det, const int eta,
   return dmax;
 }
 
-int HcalDDDSimConstants::getMinDepth(const int det, const int eta, 
-				     const int phi, const int zside,
-				     const bool partialDetOnly) const {
+int HcalDDDSimConstants::getMinDepth(const int& det, const int& eta, 
+				     const int& phi, const int& zside,
+				     const bool& partialDetOnly) const {
 
   int lmin(-1);
   if (partialDetOnly) {
@@ -460,7 +460,7 @@ int HcalDDDSimConstants::getMinDepth(const int det, const int eta,
   return lmin;
 }
 
-std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
+std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int& type) const {
 
   if (type == 0) {
     return std::pair<int,int>(nmodHB,nzHB);
@@ -469,8 +469,8 @@ std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
   }
 }
 
-std::pair<double,double> HcalDDDSimConstants::getPhiCons(const int det, 
-							 const int ieta) const {
+std::pair<double,double> HcalDDDSimConstants::getPhiCons(const int& det, 
+							 const int& ieta) const {
   
   double fioff(0), fibin(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
@@ -491,7 +491,7 @@ std::pair<double,double> HcalDDDSimConstants::getPhiCons(const int det,
 }
 
 std::vector<std::pair<int,double> >
-HcalDDDSimConstants::getPhis(const int subdet, const int ieta) const {
+HcalDDDSimConstants::getPhis(const int& subdet, const int& ieta) const {
 
   std::vector<std::pair<int,double> > phis;
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
@@ -653,7 +653,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
   return cellTypes;
 }
 
-int HcalDDDSimConstants::maxHFDepth(const int eta, const int iphi) const {
+int HcalDDDSimConstants::maxHFDepth(const int& eta, const int& iphi) const {
   int mxdepth = maxDepth[2];
   if (!idHF2QIE.empty()) {
     bool ok(false);
@@ -682,7 +682,7 @@ unsigned int HcalDDDSimConstants::numberOfCells(const HcalSubdetector& subdet) c
   return num;
 }
 
-int HcalDDDSimConstants::phiNumber(const int phi, const int units) const {
+int HcalDDDSimConstants::phiNumber(const int& phi, const int& units) const {
 
   int iphi_skip = phi;
   if      (units==2) iphi_skip  = (phi-1)*2+1;
@@ -728,13 +728,13 @@ void HcalDDDSimConstants::printTiles() const {
   }
 }
 
-int HcalDDDSimConstants::unitPhi(const int det, const int etaR) const {
+int HcalDDDSimConstants::unitPhi(const int& det, const int& etaR) const {
 
   double dphi = (det == static_cast<int>(HcalForward)) ? hpar->phitable[etaR-hpar->etaMin[2]] : hpar->phibin[etaR-1];
   return unitPhi(dphi);
 }
 
-int HcalDDDSimConstants::unitPhi(const double dphi) const {
+int HcalDDDSimConstants::unitPhi(const double& dphi) const {
 
   const double fiveDegInRad = 2*M_PI/72;
   int units = int(dphi/fiveDegInRad+0.5);
@@ -962,8 +962,8 @@ void HcalDDDSimConstants::initialize( void ) {
 #endif
 }
 
-double HcalDDDSimConstants::deltaEta(const int det, const int etaR,
-				     const int depth) const {
+double HcalDDDSimConstants::deltaEta(const int& det, const int& etaR,
+				     const int& depth) const {
 
   double tmp = 0;
   if (det == static_cast<int>(HcalForward)) {
@@ -1001,8 +1001,8 @@ double HcalDDDSimConstants::deltaEta(const int det, const int etaR,
   return tmp;
 }
 
-double HcalDDDSimConstants::getEta(const int det,   const int etaR,
-				   const int zside, int depth) const {
+double HcalDDDSimConstants::getEta(const int& det,   const int& etaR,
+				   const int& zside, int depth) const {
 
   double tmp = 0;
   if (det == static_cast<int>(HcalForward)) {
@@ -1041,7 +1041,7 @@ double HcalDDDSimConstants::getEta(const int det,   const int etaR,
   return tmp;
 }
  
-double HcalDDDSimConstants::getEta(const double r, const double z) const {
+double HcalDDDSimConstants::getEta(const double& r, const double& z) const {
 
   double tmp = 0;
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
@@ -1053,7 +1053,7 @@ double HcalDDDSimConstants::getEta(const double r, const double z) const {
 }
 
 int HcalDDDSimConstants::getShift(const HcalSubdetector& subdet,
-				  const int depth) const {
+				  const int& depth) const {
 
   int shift;
   switch(subdet) {
@@ -1074,7 +1074,7 @@ int HcalDDDSimConstants::getShift(const HcalSubdetector& subdet,
 }
 
 double HcalDDDSimConstants::getGain(const HcalSubdetector& subdet, 
-				    const int depth) const {
+				    const int& depth) const {
 
   double gain;
   switch(subdet) {
@@ -1094,8 +1094,8 @@ double HcalDDDSimConstants::getGain(const HcalSubdetector& subdet,
   return gain;
 }
 
-void HcalDDDSimConstants::printTileHB(const int eta,   const int phi,
-				      const int zside, const int depth) const {
+void HcalDDDSimConstants::printTileHB(const int& eta,   const int& phi,
+				      const int& zside, const int& depth) const {
   edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::printTileHB for eta " 
 			       << eta << " and depth " << depth;
   
@@ -1130,8 +1130,8 @@ void HcalDDDSimConstants::printTileHB(const int eta,   const int phi,
   }
 }
 
-void HcalDDDSimConstants::printTileHE(const int eta,   const int phi,
-				      const int zside, const int depth) const {
+void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
+				      const int& zside, const int& depth) const {
 
   double etaL   = hpar->etaTable[eta-1];
   double thetaL = 2.*atan(exp(-etaL));
