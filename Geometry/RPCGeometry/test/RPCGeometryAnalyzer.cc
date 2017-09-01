@@ -109,7 +109,7 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-      if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
+      if( dynamic_cast< const RPCChamber* >( it ) != nullptr ){
        ++iRPCCHcount;
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
 

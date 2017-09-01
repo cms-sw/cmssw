@@ -38,7 +38,7 @@ int GEMSuperChamber::nChambers() const {
 }
 
 const GEMChamber* GEMSuperChamber::chamber(GEMDetId id) const {
-  if (id.chamber()!=detId_.chamber()) return 0; // not in this super chamber!
+  if (id.chamber()!=detId_.chamber()) return nullptr; // not in this super chamber!
   return chamber(id.layer());
 }
 
@@ -47,5 +47,5 @@ const GEMChamber* GEMSuperChamber::chamber(int isl) const {
     if (ch->id().layer()==isl) 
       return ch;
   }
-  return 0;
+  return nullptr;
 }

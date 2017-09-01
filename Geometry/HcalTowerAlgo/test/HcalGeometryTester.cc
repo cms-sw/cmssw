@@ -54,7 +54,7 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
   edm::ESHandle<HcalTopology> topologyHandle;
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
-  CaloSubdetectorGeometry* geom(0);
+  CaloSubdetectorGeometry* geom(nullptr);
   if (useOld_) {
     HcalHardcodeGeometryLoader m_loader(ps0_);
     geom = m_loader.load(topology);

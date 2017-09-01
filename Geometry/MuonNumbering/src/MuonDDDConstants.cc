@@ -1,6 +1,5 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -44,12 +43,7 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
       std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
 #endif
     }
-  }
-  
-}
-
-MuonDDDConstants::~MuonDDDConstants() { 
-  //  std::cout << "destructed!!!" << std::endl;
+  }  
 }
 
 int MuonDDDConstants::getValue( const std::string& name ) const {

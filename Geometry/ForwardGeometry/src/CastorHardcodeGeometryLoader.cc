@@ -17,7 +17,7 @@ CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader() :
 }
 
 CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader( const CastorTopology& ht ) : 
-   theTopology( 0 ) , 
+   theTopology( nullptr ) , 
    extTopology ( &ht )
 {
    init();
@@ -60,9 +60,9 @@ void
 CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section , 
 				    CaloSubdetectorGeometry* geom      ) 
 {
-   if( geom->cornersMgr() == 0 ) geom->allocateCorners(
+   if( geom->cornersMgr() == nullptr ) geom->allocateCorners(
       HcalCastorDetId::kSizeForDenseIndexing ) ;
-   if( geom->parMgr()     == 0 ) geom->allocatePar( 
+   if( geom->parMgr()     == nullptr ) geom->allocatePar( 
       CastorGeometry::k_NumberOfShapes*
       CastorGeometry::k_NumberOfParametersPerShape,
       CastorGeometry::k_NumberOfParametersPerShape ) ;

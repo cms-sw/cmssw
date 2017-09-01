@@ -41,7 +41,7 @@ const GeomDet* GEMRegion::component(DetId id) const {
 }
 
 const GEMSuperChamber* GEMRegion::superChamber(GEMDetId id) const {
-  if (id.region()!=region_ ) return 0; // not in this region
+  if (id.region()!=region_ ) return nullptr; // not in this region
   return station(id.station())->ring(id.ring())->superChamber(id);
 }
 
@@ -60,7 +60,7 @@ const GEMStation* GEMRegion::station(int st) const {
       return stat;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 const std::vector<const GEMStation*>& GEMRegion::stations() const {

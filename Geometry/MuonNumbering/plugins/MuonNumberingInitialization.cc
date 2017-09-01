@@ -49,7 +49,7 @@ private:
 };
 
 MuonNumberingInitialization::MuonNumberingInitialization( const edm::ParameterSet& iConfig )
-  : muonDDDConst_( 0 )
+  : muonDDDConst_( nullptr )
 {
   setWhatProduced( this, dependsOn( &MuonNumberingInitialization::initializeMuonDDDConstants ));
 }
@@ -60,7 +60,7 @@ MuonNumberingInitialization::~MuonNumberingInitialization()
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 {
-  if ( muonDDDConst_ == 0 )
+  if ( muonDDDConst_ == nullptr )
   {
     edm::LogError( "MuonNumberingInitialization" ) << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!";
     throw;
@@ -74,7 +74,7 @@ MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometryReco
   edm::ESTransientHandle<DDCompactView> pDD;
   igr.get( label_, pDD );
 
-  if( muonDDDConst_ != 0 ) {
+  if( muonDDDConst_ != nullptr ) {
     delete muonDDDConst_;
   }
 

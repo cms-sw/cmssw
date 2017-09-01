@@ -129,7 +129,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     HcalDetId bestId;
     for ( ; currentId != HcalDetId(); m_topology.incrementDepth(currentId)) {
       const CaloCellGeometry * cell = getGeometry(currentId);
-      if (cell == 0) {
+      if (cell == nullptr) {
         assert (bestId != HcalDetId());
         break;
       } else {
@@ -232,7 +232,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
 		     const CaloCellGeometry* cell ( getGeometry( did ) );
-		     if (0 != cell ) {
+		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
 		       const double       phi ( p.phi() ) ;
@@ -448,7 +448,7 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
 }
 
 const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
-  const CaloCellGeometry* cell ( 0 ) ;
+  const CaloCellGeometry* cell ( nullptr ) ;
   if( m_hbCellVec.size() > din ) {
     cell = &m_hbCellVec[ din ] ;
   } else {
@@ -466,7 +466,7 @@ const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
     }
   }
    
-  return (( 0 == cell || 0 == cell->param()) ? 0 : cell ) ;
+  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
 void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
@@ -489,7 +489,7 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
     Tr3D tr ;
     const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
        
-    if (0 != ptr) {
+    if (nullptr != ptr) {
       dinsVec.emplace_back( i );
 
       const CCGFloat* par ( ptr->param() ) ;
@@ -512,7 +512,7 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
       const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_dins.size() ) ; 
       if( iVec.size() < nn ) iVec.emplace_back( ishape ) ;
 
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) nullptr ) ;
 
       if( Tr3D() == tr ) { // for preshower there is no rotation
 	const GlobalPoint& gp ( ptr->getPosition() ) ; 
