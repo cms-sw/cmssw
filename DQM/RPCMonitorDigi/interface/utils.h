@@ -18,7 +18,7 @@ namespace rpcdqm{
     static void setNoAlphanumeric(MonitorElement* myMe)
     {
       // Set no-alphanumeric flag to avoid malfunctioning in multithread environment.
-      TH2* h2 = 0;
+      TH2* h2 = nullptr;
       if      ( myMe->kind() == MonitorElement::DQM_KIND_TH2F ) h2 = myMe->getTH2F();
       else if ( myMe->kind() == MonitorElement::DQM_KIND_TH2D ) h2 = myMe->getTH2D();
       if ( !h2 ) return;

@@ -15,18 +15,18 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include<string>
-#include<map>
+#include <string>
+#include <array>
+#include <map>
 
-class RPCMonitorDigi : public DQMEDAnalyzer {
-   public:
+class RPCMonitorDigi : public DQMEDAnalyzer
+{
+public:
 	explicit RPCMonitorDigi( const edm::ParameterSet&);
-	~RPCMonitorDigi();
-	
+	~RPCMonitorDigi() override = default;
 
- protected:
-
-	virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+protected:
+	void analyze( const edm::Event&, const edm::EventSetup& ) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
 	void bookRollME(DQMStore::IBooker &, const RPCDetId& , const RPCGeometry* rpcGeo, const std::string &, std::map<std::string, MonitorElement*> &);
@@ -37,14 +37,14 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	/// Booking of MonitoringElemnt at region (Barrel/Endcap) level
 	void bookRegionME(DQMStore::IBooker &,const std::string &, std::map<std::string, MonitorElement*> &);
 
-   private:
+private:
 
 	bool useMuonDigis_;
 
 	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, std::string );
 	int stripsInRoll(const RPCDetId& id, const RPCGeometry* rpcGeo) const;
 
-	static const std::string regionNames_[3];
+	static const std::array<std::string, 3> regionNames_;
 	std::string muonFolder_;
 	std::string noiseFolder_;
 	int counter;
