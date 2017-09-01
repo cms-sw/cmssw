@@ -26,6 +26,7 @@
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/GenericTruncatedAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/ProductDeDxDiscriminator.h"
@@ -47,12 +48,12 @@
 class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
 public:
   explicit DeDxEstimatorProducer(const edm::ParameterSet&);
-  ~DeDxEstimatorProducer();
+  ~DeDxEstimatorProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
   void   processHit(const TrackingRecHit * recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
@@ -75,6 +76,8 @@ private:
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;
+
+  edm::ESHandle<TrackerGeometry> tkGeom;
 };
 
 #endif
