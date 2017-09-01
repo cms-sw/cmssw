@@ -20,9 +20,6 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
    numberOfDisks_(0),
    numberOfInnerRings_(0){
 
-  saveRootFile  = pset.getUntrackedParameter<bool>("SaveRootFile", false); 
-  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCMonitorDigiDQM.root"); 
-
   useMuonDigis_=  pset.getUntrackedParameter<bool>("UseMuon", true);
   useRollInfo_=  pset.getUntrackedParameter<bool>("UseRollInfo", false);
 
