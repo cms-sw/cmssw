@@ -40,7 +40,7 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 
 
 bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1, 
-                                            const l1t::HGCalCluster & clu2) const
+					   const l1t::HGCalCluster & clu2) const
 {
   HGCalDetId cluDetId( clu2.detId() );
   HGCalDetId firstClusterDetId( clu1.detId() );
@@ -57,9 +57,9 @@ bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1,
 }
 
 
-void HGCalMulticlusteringImpl::findNeighbor(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-					    const l1t::HGCalCluster & cluster,
-					    std::vector<int> & neighbors
+void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+					     const l1t::HGCalCluster & cluster,
+					     std::vector<int> & neighbors
 					    )
 {
   int iclu = 0;
@@ -135,7 +135,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
     
 }
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-                                           l1t::HGCalMulticlusterBxCollection & multiclusters)
+						 l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
   
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
@@ -186,10 +186,10 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
   
   /* making the collection of multiclusters */
   for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-    math::PtEtaPhiMLorentzVector calibP4(multiclustersTmp.at(i).pt() * calibSF_, 
-					 multiclustersTmp.at(i).eta(), 
-					 multiclustersTmp.at(i).phi(), 
-					 0. );
+    math::PtEtaPhiMLorentzVector calibP4( multiclustersTmp.at(i).pt() * calibSF_, 
+					  multiclustersTmp.at(i).eta(), 
+					  multiclustersTmp.at(i).phi(), 
+					  0. );
     // overwriting the 4p with the calibrated 4p     
     multiclustersTmp.at(i).setP4( calibP4 );
     
