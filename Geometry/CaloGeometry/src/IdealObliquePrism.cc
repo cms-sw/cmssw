@@ -90,7 +90,7 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
 				      Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    
    const CCGFloat dEta ( pv[0] ) ;
    const CCGFloat dPhi ( pv[1] ) ;

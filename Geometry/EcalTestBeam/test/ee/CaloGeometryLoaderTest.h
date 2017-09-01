@@ -37,8 +37,8 @@ class CaloGeometryLoaderTest
       virtual ~CaloGeometryLoaderTest< T >() {}
  
       PtrType load( const DDCompactView* cpv,
-		    const Alignments*    alignments = 0 ,
-		    const Alignments*    globals    = 0  ) ;  
+		    const Alignments*    alignments = nullptr ,
+		    const Alignments*    globals    = nullptr  ) ;  
 
    private:
 
@@ -58,7 +58,7 @@ class CaloGeometryLoaderTest
       void myFillGeom( T*                    geom ,
 		       const ParmVec&        pv ,
 		       const HepGeom::Transform3D& tr ,
-		       unsigned int     id    ) ;
+		       const unsigned int     id    ) ;
 
       unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 

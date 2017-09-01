@@ -53,8 +53,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
                               *(rotStart+3),*(rotStart+4),*(rotStart+5),
                               *(rotStart+6),*(rotStart+7),*(rotStart+8));
 
-    RPCRollSpecs* rollspecs= 0;
-    Bounds* bounds = 0;
+    RPCRollSpecs* rollspecs= nullptr;
+    Bounds* bounds = nullptr;
 
     //    if (dpar.size()==4){
     if ( rgeo.shapeEnd(id) - shapeStart == 4 ) {
@@ -118,7 +118,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     const auto& rls = ich.second;
 
     // compute the overall boundplane.
-    BoundPlane* bp=0;
+    BoundPlane* bp=nullptr;
     if ( !rls.empty() ) {
       // First set the baseline plane to calculate relative poisions
       const auto& refSurf = (*rls.begin())->surface();

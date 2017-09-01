@@ -33,22 +33,22 @@ public:
   LocalPoint localPosition( const MeasurementPoint& ) const override;
   /// conversion taking also the predicted track state 
   LocalPoint localPosition( const MeasurementPoint& mp,
-			    const Topology::LocalTrackPred &trkPred ) const override;
+				    const Topology::LocalTrackPred &trkPred ) const override;
   
   LocalError localError( const MeasurementPoint&,
-			 const MeasurementError& ) const override;
+                                 const MeasurementError& ) const override;
   /// conversion taking also the predicted track state
   LocalError localError( const MeasurementPoint& mp,
-			 const MeasurementError& me,
-			 const Topology::LocalTrackPred &trkPred ) const override;
+				 const MeasurementError& me,
+				 const Topology::LocalTrackPred &trkPred ) const override;
 
   MeasurementPoint measurementPosition( const LocalPoint & ) const override;
   MeasurementPoint measurementPosition( const LocalPoint &lp, 
-					const Topology::LocalTrackAngles &dir ) const override;
+						const Topology::LocalTrackAngles &dir ) const override;
 
   MeasurementError measurementError( const LocalPoint &lp, const LocalError &le ) const override;
   MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
-				     const Topology::LocalTrackAngles &dir ) const override;
+					     const Topology::LocalTrackAngles &dir ) const override;
 
   int channel( const LocalPoint& ) const override;
   int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir ) const override;
@@ -56,7 +56,7 @@ public:
   std::pair<float,float> pixel( const LocalPoint& p) const override;
   /// conversion taking also the angle from the track state
   std::pair<float,float> pixel( const LocalPoint& p,
-				const Topology::LocalTrackAngles &ltp ) const override; 
+					const Topology::LocalTrackAngles &ltp ) const override; 
   
   std::pair<float,float> pitch() const override { return specificTopology().pitch(); }
   int nrows() const override { return specificTopology().nrows(); }
@@ -65,11 +65,11 @@ public:
   int rocsX() const override { return specificTopology().rocsX(); } 	 
   int rowsperroc() const override { return specificTopology().rowsperroc(); } 	 
   int colsperroc() const override { return specificTopology().colsperroc(); }
-  float localX( float mpX ) const override;
-  float localX( float mpX, const Topology::LocalTrackPred &trkPred ) const override;
-  float localY( float mpY ) const override;
-  float localY( float mpY, const Topology::LocalTrackPred &trkPred ) const override;
-  
+  float localX( const float mpX ) const override;
+  float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const override;
+  float localY( const float mpY ) const override;
+  float localY( const float mpY, const Topology::LocalTrackPred &trkPred ) const override;
+
   bool isItBigPixelInX(const int ixbin) const override {
     return specificTopology().isItBigPixelInX(ixbin);
   }

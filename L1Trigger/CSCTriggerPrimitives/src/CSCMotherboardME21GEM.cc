@@ -316,7 +316,6 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
 
   const bool hasPads(!pads_.empty());
-  const bool hasCoPads(hasPads and !coPads_.empty());
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)

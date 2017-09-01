@@ -39,7 +39,7 @@ HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
   iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
   const HcalTopology topology = (*topologyHandle);
 
-  CaloSubdetectorGeometry* caloGeom(0);
+  CaloSubdetectorGeometry* caloGeom(nullptr);
   if (useOld_) {
     HcalHardcodeGeometryLoader m_loader(ps0_);
     caloGeom = m_loader.load(topology);

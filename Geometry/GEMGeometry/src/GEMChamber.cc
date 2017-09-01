@@ -45,7 +45,7 @@ int GEMChamber::nEtaPartitions() const {
 }
 
 const GEMEtaPartition* GEMChamber::etaPartition(GEMDetId id) const {
-  if (id.chamberId()!=detId_) return 0; // not in this eta partition!
+  if (id.chamberId()!=detId_) return nullptr; // not in this eta partition!
   return etaPartition(id.roll());
 }
 
@@ -54,5 +54,5 @@ const GEMEtaPartition* GEMChamber::etaPartition(int isl) const {
     if (roll->id().roll()==isl) 
       return roll;
   }
-  return 0;
+  return nullptr;
 }
