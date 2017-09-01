@@ -132,7 +132,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
       if (edm::isNotFinite(t_pi) ||  t_pi < std::numeric_limits<double>::epsilon())  continue; // usually is > 0.99
     }
     LogTrace("DAClusterizerinZT_vectorized") << t_z << ' ' << t_t <<' '<< t_dz2 << ' ' << t_dt2 <<' '<< t_pi;
-    tks.addItem(t_z, t_t, t_dz2, t_dt2, &it, t_pi);
+    tks.addItem(t_z, t_t, t_dz2, t_dt2, &tk, t_pi);
   }
   tks.extractRaw();
   
