@@ -4,6 +4,7 @@
 <use   name="FWCore/Sources"/>
 <use   name="EventFilter/FEDInterface"/>
 <use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/TCDS"/>
 <use   name="IOPool/Streamer"/>
 <use   name="curl"/>
 <export>

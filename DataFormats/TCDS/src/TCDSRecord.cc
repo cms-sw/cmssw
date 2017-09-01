@@ -3,6 +3,7 @@
 
 
 TCDSRecord::TCDSRecord() :
+  eventType_(0),
   macAddress_(0),
   swVersion_(0),
   fwVersion_(0),
@@ -14,7 +15,7 @@ TCDSRecord::TCDSRecord() :
   triggerTypeFlags_(0),
   inputs_(0),
   bcid_(0),
-  orbit_(0),
+  orbitNr_(0),
   triggerCount_(0),
   eventNumber_(0)
 {}
@@ -25,6 +26,7 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   tcds::Raw_v1 const* tcdsRaw =
     reinterpret_cast<tcds::Raw_v1 const*>(rawData);
 
+  eventType_ = FED_EVTY_EXTRACT(tcdsRaw->fedHeader.eventid);
   macAddress_ = tcdsRaw->header.macAddress;
   swVersion_ = tcdsRaw->header.swVersion;
   fwVersion_ = tcdsRaw->header.fwVersion;
@@ -37,7 +39,7 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   triggerTypeFlags_ = tcdsRaw->header.triggerTypeFlags;
   inputs_ = tcdsRaw->header.inputs;
   bcid_ = tcdsRaw->header.bcid;
-  orbit_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
+  orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
   triggerCount_ = tcdsRaw->header.triggerCount;
   eventNumber_ = tcdsRaw->header.eventNumber;
 
