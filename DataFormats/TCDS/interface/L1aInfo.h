@@ -8,6 +8,8 @@
 //!  \author Remi Mommsen - Fermilab
 //---------------------------------------------------------------------------
 
+#include <stdint.h>
+#include <ostream>
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
@@ -21,16 +23,21 @@ public:
 
   L1aInfo(const tcds::L1aInfo_v1&);
 
-  uint64_t getorbit() const { return orbit_; }
-  uint16_t getbxid() const { return bxid_; }
-  unsigned char getEventType() const { return eventType_; }
+  int16_t getIndex() const { return index_; }
+  uint64_t getOrbitNr() const { return orbitNr_; }
+  uint16_t getBXID() const { return bxid_; }
+  uint16_t getEventType() const { return eventType_; }
 
 private:
 
-  uint64_t orbit_;
+  int16_t index_;
+  uint64_t orbitNr_;
   uint16_t bxid_;
-  unsigned char eventType_;
+  uint16_t eventType_;
 
 };
+
+/// Pretty-print operator for L1aInfo
+std::ostream& operator<<(std::ostream&, const L1aInfo&);
 
 #endif // DATAFORMATS_TCDS_L1AINFO_H

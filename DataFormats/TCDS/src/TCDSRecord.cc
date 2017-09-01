@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
@@ -14,7 +16,7 @@ TCDSRecord::TCDSRecord() :
   nibblesPerLumiSection_(0),
   triggerTypeFlags_(0),
   inputs_(0),
-  bcid_(0),
+  bxid_(0),
   orbitNr_(0),
   triggerCount_(0),
   eventNumber_(0)
@@ -38,7 +40,7 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   nibblesPerLumiSection_ = tcdsRaw->header.nibblesPerLumiSection;
   triggerTypeFlags_ = tcdsRaw->header.triggerTypeFlags;
   inputs_ = tcdsRaw->header.inputs;
-  bcid_ = tcdsRaw->header.bcid;
+  bxid_ = tcdsRaw->header.bxid;
   orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
   triggerCount_ = tcdsRaw->header.triggerCount;
   eventNumber_ = tcdsRaw->header.eventNumber;
@@ -56,9 +58,50 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
 
   for (auto i = 0; i < tcds::bgoCount_v1; ++i)
   {
-    lastBgos_.emplace_back(tcdsRaw->bgoHistory.lastBGo[i].lastOrbit);
+    lastBgos_.emplace_back(((uint64_t)(tcdsRaw->bgoHistory.lastBGo[i].orbithigh)<<32) | tcdsRaw->bgoHistory.lastBGo[i].orbitlow);
   }
 }
 
 
 TCDSRecord::~TCDSRecord() {}
+
+
+std::ostream& operator<<(std::ostream& s, const TCDSRecord& record)
+{
+  s << "MacAddress:            0x" << std::hex << record.getMacAddress() << std::dec << std::endl;
+  s << "SwVersion:             0x" << std::hex << record.getSwVersion() << std::dec << std::endl;
+  s << "FwVersion:             0x" << std::hex << record.getFwVersion() << std::dec << std::endl;
+  s << "RecordVersion:         " << record.getRecordVersion() << std::endl;
+  s << "RunNumber:             " << record.getRunNumber() << std::endl;
+  s << "BstReceptionStatus:    0x" << std::hex << record.getBstReceptionStatus() << std::dec << std::endl;
+  s << "Nibble:                " << record.getNibble() << std::endl;
+  s << "LumiSection:           " << record.getLumiSection() << std::endl;
+  s << "NibblesPerLumiSection: " << record.getNibblesPerLumiSection() << std::endl;
+  s << "EventType:             " << record.getEventType() << std::endl;
+  s << "TriggerTypeFlags:      0x" << std::hex << record.getTriggerTypeFlags() << std::dec << std::endl;
+  s << "Inputs:                " << record.getInputs() << std::endl;
+  s << "OrbitNr:               " << record.getOrbitNr() << std::endl;
+  s << "BXID:                  " << record.getBXID() << std::endl;
+  s << "TriggerCount:          " << record.getTriggerCount() << std::endl;
+  s << "EventNumber:           " << record.getEventNumber() << std::endl;
+  s << "ActivePartitions:      " << record.getActivePartitions() << std::endl;
+  s << std::endl;
+
+  s << "L1aHistory:" << std::endl;
+  for (auto l1Info : record.getFullL1aHistory())
+    s << l1Info;
+  s << std::endl;
+
+  s << record.getBST() << std::endl;
+  s << "LastOrbitCounter0:     " << record.getLastOrbitCounter0() << std::endl;
+  s << "LastTestEnable:        " << record.getLastTestEnable() << std::endl;
+  s << "LastResync:            " << record.getLastResync() << std::endl;
+  s << "LastStart:             " << record.getLastStart() << std::endl;
+  s << "LastEventCounter0:     " << record.getLastEventCounter0() << std::endl;
+  s << "LastHardReset:         " << record.getLastHardReset() << std::endl;
+
+  for (auto i = 0; i < tcds::bgoCount_v1; ++i)
+    s << "Last BGo " << std::setw(2) << i << ": " << record.getOrbitOfLastBgo(i) << std::endl;
+
+  return s;
+}
