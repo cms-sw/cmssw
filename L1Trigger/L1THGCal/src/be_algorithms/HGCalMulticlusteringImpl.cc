@@ -6,12 +6,18 @@
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
     ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-    calibSF_(conf.getParameter<double>("calibSF_multicluster"))
+    calibSF_(conf.getParameter<double>("calibSF_multicluster")),
+    multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
+    distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
+    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster global calibration factor: " << calibSF_;
-
+    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster DBSCAN Clustering distance: " << distDbscan_;
+    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster clustering min number of subclusters: " << minNDbscan_;
+    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster type of multiclustering algortihm: " << multiclusterAlgoType_;
+    
 }
 
 
@@ -33,10 +39,43 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 }
 
 
-void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1, 
+                                           const l1t::HGCalCluster & clu2) const
+{
+  HGCalDetId cluDetId( clu2.detId() );
+  HGCalDetId firstClusterDetId( clu1.detId() );
+  
+  if( cluDetId.zside() != firstClusterDetId.zside() ){
+    return false;
+  }
+  double dist = (clu1.centreProj() - clu2.centreProj() ).mag();
+  
+  if(dist < distDbscan_ ) {
+    return true;
+  }
+  return false;
+}
+
+
+void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+                                             const l1t::HGCalCluster & cluster,
+                                             std::vector<int> & neighbors
+                                            )
+{
+  int iclu = 0;
+  
+  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+    
+    if(isNeighbor(cluster, **clu)){
+      neighbors.push_back(iclu);
+    }
+  }
+}
+
+void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
-           
+
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
     int iclu = 0;
@@ -95,6 +134,78 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     }
     
 }
+void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+                                                 l1t::HGCalMulticlusterBxCollection & multiclusters)
+{
+  
+  std::vector<l1t::HGCalMulticluster> multiclustersTmp;
+  l1t::HGCalMulticluster mcluTmp;
+  std::vector<bool> visited(clustersPtrs.size(),false);
+  std::vector<bool> merged (clustersPtrs.size(),false);
+  std::vector<std::vector<int>> neighborList;
+  int iclu = 0, imclu = 0, neighNo = 0;
 
-
-
+  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+    std::vector<int> neighbors;      
+      
+    if(!visited.at(iclu)){
+      visited.at(iclu)=true;
+      findNeighbor(clustersPtrs, **clu, neighbors);
+      neighborList.push_back(std::move(neighbors));
+        
+      if(neighborList.at(iclu).size() > minNDbscan_) {
+        multiclustersTmp.emplace_back( *clu );
+        merged.at(iclu) = true;
+        /* dynamic range loop: range-based loop syntax cannot be employed */
+        for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
+            
+          neighNo = neighborList.at(iclu).at(neighInd);
+          
+          if(!visited.at(neighNo)){
+            visited.at(neighNo) = true;
+            std::vector<int> secNeighbors;
+            findNeighbor(clustersPtrs,*(clustersPtrs[neighNo]), secNeighbors);
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo]);
+            merged.at(neighNo) = true;
+            
+            if(secNeighbors.size() > minNDbscan_){
+              neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
+            }
+            
+            } else if(!merged.at(neighNo) ){
+            merged.at(neighNo) = true;          
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo] );
+          }
+        }
+        imclu++;
+      }
+    }
+    
+    else neighborList.push_back(std::move(neighbors));
+  }
+  
+  /* making the collection of multiclusters */
+  for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
+    math::PtEtaPhiMLorentzVector calibP4( multiclustersTmp.at(i).pt() * calibSF_, 
+                                          multiclustersTmp.at(i).eta(), 
+                                          multiclustersTmp.at(i).phi(), 
+                                          0. );
+    // overwriting the 4p with the calibrated 4p     
+    multiclustersTmp.at(i).setP4( calibP4 );
+    
+    if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+      
+      //compute shower shape
+      multiclustersTmp.at(i).set_showerLength(shape_.showerLength(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
+      multiclustersTmp.at(i).set_eMax(shape_.eMax(multiclustersTmp.at(i)));
+      
+      multiclusters.push_back( 0, multiclustersTmp.at(i));  
+    }
+  }
+}
