@@ -29,13 +29,13 @@
 
 #include <iostream>
 
-MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
+MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name, 
 					     const DDCompactView & cpv,
 					     const SensitiveDetectorCatalog & clg,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, clg, p),
-    thePV(0), theHit(0), theDetUnitId(0), theTrackID(0), theManager(manager)
+    thePV(nullptr), theHit(nullptr), theDetUnitId(0), theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
   STenergyPersistentCut = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency");//Default 1. GeV
@@ -67,7 +67,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
     //    cout << "MuonFrameRotation create MuonME0FrameRotation"<<endl;
     theRotation=new MuonME0FrameRotation( constants );
   }  else {
-    theRotation = 0;
+    theRotation = nullptr;
   }
   LogDebug("MuonSimDebug") << "create MuonSlaveSD"<<std::endl;
   slaveMuon  = new MuonSlaveSD(detector,theManager);
@@ -115,7 +115,7 @@ void MuonSensitiveDetector::update(const BeginOfEvent * i){
   clearHits();
 
   //----- Initialize variables to check if two steps belong to same hit
-  thePV = 0;
+  thePV = nullptr;
   theDetUnitId = 0;
   theTrackID = 0;
 
@@ -158,7 +158,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
   return false;
 }
 
-uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
+uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 { 
   //  G4VPhysicalVolume * pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
@@ -180,7 +180,7 @@ uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
 
 
 Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * s){
-  if (theRotation !=0 ) {
+  if (theRotation !=nullptr ) {
     return theRotation->transformPoint(in,s);
   }
   return (in);
@@ -340,7 +340,7 @@ void MuonSensitiveDetector::updateHit(G4Step * aStep){
 
   float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;  
 
-  if( theHit == 0 ){ 
+  if( theHit == nullptr ){ 
     std::cerr << "!!ERRROR in MuonSensitiveDetector::updateHit. It is called when there is no hit " << std::endl;
   }
 
@@ -380,7 +380,7 @@ void MuonSensitiveDetector::saveHit(){
     // seems the hit does not want to be deleted
     // done by the hit collection?
     delete theHit;
-    theHit = 0; //set it to 0, because you are checking that is 0
+    theHit = nullptr; //set it to 0, because you are checking that is 0
   }
 
 }
@@ -388,12 +388,12 @@ void MuonSensitiveDetector::saveHit(){
 TrackInformation* MuonSensitiveDetector::getOrCreateTrackInformation( const G4Track* gTrack)
 {
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
-  if (temp == 0){
+  if (temp == nullptr){
     std::cerr <<" ERROR: no G4VUserTrackInformation available"<<std::endl;
     abort();
   }else{
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
-    if (info ==0){
+    if (info ==nullptr){
       std::cerr <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<std::endl;
       abort();
     }
@@ -409,7 +409,7 @@ void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 }
 
 
-void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
+void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& c, const std::string& n){
   //
   // do it once for low, once for High
   //
@@ -418,16 +418,10 @@ void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
 
 }
 
-std::vector<std::string> MuonSensitiveDetector::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slaveMuon->name());
-  return temp;
-}
-
 Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp) {
   
   G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
-  G4ThreeVector globalCoordinates = preStepPoint->GetPosition();
+  const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
   
   const G4TouchableHistory * theTouchable=(const G4TouchableHistory *)
     (preStepPoint->GetTouchable());
@@ -443,7 +437,7 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(G4Step * currentSt
   
   G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
   G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
-  G4ThreeVector globalCoordinates = postStepPoint->GetPosition();
+  const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
     
   const G4TouchableHistory * theTouchable = (const G4TouchableHistory *)
     (preStepPoint->GetTouchable());

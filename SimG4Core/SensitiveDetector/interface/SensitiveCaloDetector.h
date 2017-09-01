@@ -14,7 +14,7 @@ public:
 			const SensitiveDetectorCatalog & clg,
 			edm::ParameterSet const & p) :
   SensitiveDetector(iname,cpv,clg,p) {}
-  virtual void fillHits(edm::PCaloHitContainer &, std::string& hitnam) {};
+  virtual void fillHits(edm::PCaloHitContainer &, const std::string& hitnam) {};
 };
 
 #endif

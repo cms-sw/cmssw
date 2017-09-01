@@ -22,9 +22,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// To be replaced by something else 
-/* #include "Utilities/Notification/interface/TimerProxy.h" */
- 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
@@ -52,12 +49,11 @@ public:
   CaloSD(const std::string& aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
-	 float timeSlice=1., bool ignoreTkID=false);
+	 float timeSlice=1.f, bool ignoreTkID=false);
   ~CaloSD() override;
   bool     ProcessHits(G4Step * step, G4TouchableHistory * tHistory) override;
   bool     ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) override;
   virtual double   getEnergyDeposit(G4Step* step); 
-  //uint32_t setDetUnitId(G4Step* step) override =0;
   
   void     Initialize(G4HCofThisEvent * HCE) override;
   void     EndOfEvent(G4HCofThisEvent * eventHC) override;
@@ -65,7 +61,7 @@ public:
   void     DrawAll() override;
   void     PrintAll() override;
 
-  void     fillHits(edm::PCaloHitContainer&, std::string&) override ;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override ;
 
 protected:
 
@@ -89,9 +85,9 @@ protected:
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 
-  virtual int      getTrackID(G4Track*);
-  virtual uint16_t getDepth(G4Step*);   
-  double           getResponseWt(G4Track*);
+  virtual int      getTrackID(const G4Track*);
+  virtual uint16_t getDepth(const G4Step*);   
+  double           getResponseWt(const G4Track*);
   int              getNumberOfHits();
 
 private:
@@ -126,7 +122,6 @@ protected:
 
   const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
-  //  TimerProxy                    theHitTimer;
   bool                            runInit;
 
   bool                            corrTOFBeam, suppressHeavy;

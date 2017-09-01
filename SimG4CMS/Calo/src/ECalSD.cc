@@ -241,7 +241,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
   return edep;
 }
 
-int ECalSD::getTrackID(G4Track* aTrack) {
+int ECalSD::getTrackID(const G4Track* aTrack) {
 
   int  primaryID(0);
   bool flag(false);
@@ -261,7 +261,7 @@ int ECalSD::getTrackID(G4Track* aTrack) {
   return primaryID;
 }
 
-uint16_t ECalSD::getDepth(G4Step * aStep) {
+uint16_t ECalSD::getDepth(const G4Step * aStep) {
 
   uint16_t depth  = any(useDepth1,theLogicalVolume) ? 1 : (any(useDepth2,theLogicalVolume) ? 2 : 0);
   if (storeRL) {
@@ -282,7 +282,7 @@ uint16_t ECalSD::getDepth(G4Step * aStep) {
   return depth;
 }
 
-uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
+uint16_t ECalSD::getRadiationLength(const G4Step * aStep) {
   
   uint16_t thisX0 = 0;
 #ifdef EDM_ML_DEBUG
@@ -317,7 +317,7 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
   return thisX0;
 }
 
-uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) 
+uint16_t ECalSD::getLayerIDForTimeSim(const G4Step * aStep) 
 {
   const float layerSize = (float)(1*cm); //layer size in cm
   if (!isEB && !isEE)  return 0;
@@ -327,7 +327,7 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
   return (int)detz/layerSize;
 }
 
-uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
+uint32_t ECalSD::setDetUnitId(const G4Step * aStep) { 
   if (numberingScheme == nullptr) {
     return EBDetId(1,1)();
   } else {

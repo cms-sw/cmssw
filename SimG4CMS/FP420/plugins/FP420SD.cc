@@ -5,9 +5,6 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
  
-//#include "Geometry/Vector/interface/LocalPoint.h"
-//#include "Geometry/Vector/interface/LocalVector.h"
-
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -54,13 +51,13 @@ using std::string;
 
 //#define debug
 //-------------------------------------------------------------------
-FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
+FP420SD::FP420SD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
 //-------------------------------------------------------------------
 /*
 FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
@@ -121,9 +118,6 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     std::cout << "FP420SD: Instantiation completed"<< std::endl;
   }
 
-
-
-
 FP420SD::~FP420SD() { 
   //AZ:
   if (slave) delete slave; 
@@ -157,7 +151,7 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
 
 bool FP420SD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -223,9 +217,9 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t FP420SD::setDetUnitId(G4Step * aStep) { 
+uint32_t FP420SD::setDetUnitId(const G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 
@@ -287,7 +281,7 @@ void FP420SD::ResetForNewPrimary() {
 void FP420SD::StoreHit(FP420G4Hit* hit){
 
   //  if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("FP420Sim") << "FP420SD: hit to be stored is NULL !!";
     return;
   }
@@ -506,10 +500,9 @@ void FP420SD::PrintAll() {
 //
 //}
 
-void FP420SD::fillHits(edm::PSimHitContainer& c, std::string n) {
+void FP420SD::fillHits(edm::PSimHitContainer& c, const std::string& n) {
   if (slave->name() == n) {
     c=slave->hits();
-    std::cout << "FP420SD: fillHits to PSimHitContainer for name= " <<  name << std::endl;
   }
 }
 
@@ -536,11 +529,5 @@ void FP420SD::update (const ::EndOfEvent*) {
 void FP420SD::clearHits(){
   //AZ:
     slave->Initialize();
-}
-
-std::vector<std::string> FP420SD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }
 

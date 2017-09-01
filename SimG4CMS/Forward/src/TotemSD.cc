@@ -45,13 +45,13 @@
 //
 // constructors and destructor
 //
-TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
+TotemSD::TotemSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
 
   //Add Totem Sentitive Detector Names
   collectionName.insert(name);
@@ -103,7 +103,7 @@ TotemSD::~TotemSD() {
 
 bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -120,9 +120,9 @@ bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   return true;
 }
 
-uint32_t TotemSD::setDetUnitId(G4Step * aStep) { 
+uint32_t TotemSD::setDetUnitId(const G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->GetUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep));
 }
 
 void TotemSD::Initialize(G4HCofThisEvent * HCE) { 
@@ -176,7 +176,7 @@ void TotemSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void TotemSD::fillHits(edm::PSimHitContainer& c, std::string n) {
+void TotemSD::fillHits(edm::PSimHitContainer& c, const std::string& n) {
   if (slave->name() == n) c=slave->hits();
 }
 
@@ -202,7 +202,7 @@ G4ThreeVector TotemSD::SetToLocal(const G4ThreeVector& global) {
   return localPoint;  
 }
 
-void TotemSD::GetStepInfo(G4Step* aStep) {
+void TotemSD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -508,7 +508,7 @@ void TotemSD::UpdateHit() {
 void TotemSD::StoreHit(TotemG4Hit* hit) {
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("ForwardSim") << "TotemSD: hit to be stored is NULL !!";
     return;
   }

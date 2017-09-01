@@ -42,8 +42,8 @@ public:
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
   double                getEnergyDeposit(G4Step* ) override;
-  uint32_t              setDetUnitId(G4Step* step) override ;
-  void                          setNumberingScheme(HcalNumberingScheme* );
+  uint32_t              setDetUnitId(const G4Step* step) override ;
+  void                  setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 

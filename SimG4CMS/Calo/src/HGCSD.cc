@@ -33,13 +33,13 @@
 
 //#define EDM_ML_DEBUG
 
-HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
+HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0), mouseBite_(0), slopeMin_(0), levelT_(99) {
+  numberingScheme(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT_(99) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -95,7 +95,7 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   NaNTrap( aStep ) ;
   
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     double r = aStep->GetPreStepPoint()->GetPosition().perp();
@@ -131,7 +131,7 @@ double HGCSD::getEnergyDeposit(G4Step* aStep) {
   return destep;
 }
 
-uint32_t HGCSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HGCSD::setDetUnitId(const G4Step * aStep) { 
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
@@ -243,7 +243,7 @@ uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
   return id;
 }
 
-int HGCSD::setTrackID (G4Step* aStep) {
+int HGCSD::setTrackID (const G4Step* aStep) {
   theTrack     = aStep->GetTrack();
 
   double etrack = preStepPoint->GetKineticEnergy();

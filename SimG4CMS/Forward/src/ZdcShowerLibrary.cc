@@ -16,7 +16,7 @@
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
+ZdcShowerLibrary::ZdcShowerLibrary(const std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
   verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);
@@ -60,10 +60,10 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   G4Track *     track    = aStep->GetTrack();
 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
   double energy = preStepPoint->GetKineticEnergy();
   G4ThreeVector hitPoint = preStepPoint->GetPosition();  
-  G4ThreeVector hitPointOrig = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPointOrig = preStepPoint->GetPosition();
   G4int parCode  = track->GetDefinition()->GetPDGEncoding();
 
   hits.clear();
