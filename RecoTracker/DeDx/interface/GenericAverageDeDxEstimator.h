@@ -12,7 +12,7 @@ public:
     m_expo = iConfig.getParameter<double>("exponent");
  }
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) {
+ std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) override {
     float result=0;
     size_t n = Hits.size();
     for(size_t i = 0; i< n; i ++){
