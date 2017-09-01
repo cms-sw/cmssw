@@ -55,17 +55,17 @@ class TrackingMonitor : public DQMEDAnalyzer
         using QualityMaskCollection = std::vector<unsigned char>;
 
         explicit TrackingMonitor(const edm::ParameterSet&);
-        ~TrackingMonitor();
+        ~TrackingMonitor() override;
         virtual void beginJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
 
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-        virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+        void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     private:
         void doProfileX(TH2 * th2, MonitorElement* me);
@@ -127,6 +127,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         // Track Candidates
         MonitorElement * NumberOfTrackCandidates;
+        MonitorElement * FractionCandidatesOverSeeds;
 
         // Cluster Properties
 	std::vector<MonitorElement*> NumberOfTrkVsClusters;
