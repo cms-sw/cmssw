@@ -1,202 +1,63 @@
-
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-## Use RECO Muons flag
-useMuons = True
-isOfflineDQM = True
+process = cms.Process('DQM',eras.Run2_2017)
 
-process = cms.Process("RPCDQM")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-############# Source File #################
+process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
+process.load('Configuration.StandardSequences.Harvesting_cff')
+process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+process.options = cms.untracked.PSet()
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/c/cimmino/Mu/165993/00472EF2-7F8B-E011-9D6A-001D09F2915A.root'))
-                            
-## process.source = cms.Source("PoolSource",
-##                             fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/2EB74417-51AF-DF11-8773-001617E30D00.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/4420AAFC-3BAF-DF11-8457-0019B9F72BAA.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/58BD28DA-4CAF-DF11-912A-001617E30D00.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/5E4D5A83-54AF-DF11-9580-001D09F24934.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/6C72A6E0-40AF-DF11-B657-001D09F252F3.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/7A94925E-4CAF-DF11-9C5E-001D09F2960F.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/8A10CC2F-47AF-DF11-BB2F-0030487A17B8.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/8CAFACF6-49AF-DF11-861A-003048F118AC.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/9A3E9521-53AF-DF11-84AC-001D09F24934.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/BEE0AAB1-37AF-DF11-9FB8-0030487C60AE.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/C4EF4794-48AF-DF11-AC6B-003048F117EA.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/D2381722-53AF-DF11-8D77-001D09F2906A.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/E4185ADF-4CAF-DF11-BA63-0030487CD906.root',
-##                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/FE2C2F5F-4CAF-DF11-AA49-0030487A3C9A.root')
-##                             )
-
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
-
-################ Condition #################
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-#process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
-
-############ Geometry ######################
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
-#process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-
-#process.load("Geometry.DTGeometry.dtGeometry_cfi")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-
-############ RAW to DIGI ###################
-## process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
-##     InputLabel = cms.InputTag("source"),
-##     doSynchro = cms.bool(False)
-## )
-#process.load("EventFilter.RPCRawToDigi.RPCFrontierCabling_cfi")
-
-############ RecHits #######################
-process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
-#process.rpcRecHits.rpcDigiLabel ='rpcunpacker'
-process.rpcRecHits.rpcDigiLabel = 'muonRPCDigis'
-process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-################ DQM #######################
-process.load("DQMServices.Core.DQM_cfg")
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmEnv.subSystemFolder = 'RPC'
-process.dqmSaver.convention = 'Online'
-
-############# RPC Monitor Digi #############
-process.load("DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi")
-process.rpcdigidqm.UseMuon =  cms.untracked.bool(useMuons)
-
-
-########### RPC RecHit Probability #########
-process.load("DQM.RPCMonitorDigi.RPCRecHitProbability_cfi")
-
-
-################### FED ####################
-process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")
-process.load("DQM.RPCMonitorClient.RPCFEDIntegrity_cfi")
-process.rpcFEDIntegrity.RPCRawCountsInputTag = 'provaDiNoCrash'
-process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
-
-
-######### DQM Client Modules ###############
-import DQM.RPCMonitorClient.RPCDqmClient_cfi
-
-process.rpcdqmclientNOISE = DQM.RPCMonitorClient.RPCDqmClient_cfi.rpcdqmclient.clone(
-    RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
-    DiagnosticPrescale = cms.untracked.int32(1),
-    MinimumRPCEvents  = cms.untracked.int32(1),
-    OfflineDQM = cms.untracked.bool(isOfflineDQM ),
-    RecHitTypeFolder = cms.untracked.string("Noise")
-    )
-
-if useMuons :
-    process.rpcdqmclientMUON = DQM.RPCMonitorClient.RPCDqmClient_cfi.rpcdqmclient.clone(
-        RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
-        DiagnosticPrescale = cms.untracked.int32(1),
-        MinimumRPCEvents  = cms.untracked.int32(1),
-        OfflineDQM = cms.untracked.bool(isOfflineDQM),
-        RecHitTypeFolder = cms.untracked.string("Muon")
-        )
-
-##### RPC RecHit Probability Client #######
-process.load("DQM.RPCMonitorClient.RPCRecHitProbabilityClient_cfi")
-
-
-
-############## Quality Tests ##############
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
-                                    qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
-                                    prescaleFactor = cms.untracked.int32(1),
-                                    qtestOnEndLumi = cms.untracked.bool(True),
-                                    qtestOnEndRun = cms.untracked.bool(True)
-                                    )
-
-############## Chamber Quality ############
-import DQM.RPCMonitorClient.RPCChamberQuality_cfi
-
-process.rpcChamberQualityNOISE = DQM.RPCMonitorClient.RPCChamberQuality_cfi.rpcChamberQuality.clone(
-    OfflineDQM = cms.untracked.bool(isOfflineDQM ),
-    RecHitTypeFolder = cms.untracked.string("Noise"),
-    MinimumRPCEvents  = cms.untracked.int32(1)
+    fileNames = cms.untracked.vstring(
+        '/store/relval/CMSSW_9_3_0_pre4/RelValSingleMuPt100/GEN-SIM-RECO/93X_mc2017_realistic_v1-v1/00000/2CB3B693-5286-E711-9BD2-003048FFD7AA.root',
+        '/store/relval/CMSSW_9_3_0_pre4/RelValSingleMuPt100/GEN-SIM-RECO/93X_mc2017_realistic_v1-v1/00000/38CF6891-5286-E711-A48C-0CC47A78A3B4.root',
+    ),
+    secondaryFileNames = cms.untracked.vstring(
+        '/store/relval/CMSSW_9_3_0_pre4/RelValSingleMuPt100/GEN-SIM-DIGI-RAW/93X_mc2017_realistic_v1-v1/00000/56E52423-4986-E711-A1D3-0025905A6066.root',
+        '/store/relval/CMSSW_9_3_0_pre4/RelValSingleMuPt100/GEN-SIM-DIGI-RAW/93X_mc2017_realistic_v1-v1/00000/7E558B24-4986-E711-A60B-0025905A60CE.root',
+        '/store/relval/CMSSW_9_3_0_pre4/RelValSingleMuPt100/GEN-SIM-DIGI-RAW/93X_mc2017_realistic_v1-v1/00000/9A673D21-4986-E711-A989-0025905A6134.root',
+    ),
 )
 
-if useMuons :
-    process.rpcChamberQualityMUON = DQM.RPCMonitorClient.RPCChamberQuality_cfi.rpcChamberQuality.clone(
-        OfflineDQM = cms.untracked.bool(isOfflineDQM ),
-        RecHitTypeFolder = cms.untracked.string("Muon"),
-        MinimumRPCEvents  = cms.untracked.int32(1)
-        )
+process.mix.playback = True
+process.mix.digitizers = cms.PSet()
+for a in process.aliases: delattr(process, a)
+process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.dqmOffline_step = cms.Path(process.DQMOfflineMuon)
+#process.dqmHarvest_step = cms.Path(process.DQMHarvestMuon+process.dqmSaver)
+process.dqmHarvest_step = cms.Path(process.dqmSaver)
 
-################ Event Summary ###########
-import DQM.RPCMonitorClient.RPCEventSummary_cfi
-
-process.rpcEventSummaryNOISE = DQM.RPCMonitorClient.RPCEventSummary_cfi.rpcEventSummary.clone(
-    OfflineDQM = cms.untracked.bool(isOfflineDQM ),
-    MinimumRPCEvents  = cms.untracked.int32(1),
-    RecHitTypeFolder = cms.untracked.string("Noise")
+process.schedule = cms.Schedule(
+    process.raw2digi_step,
+    process.dqmOffline_step,
+#    process.dqmHarvesting,
+    process.dqmHarvest_step
 )
 
-## process.rpcEventSummaryMUON = DQM.RPCMonitorClient.RPCEventSummary_cfi.rpcEventSummary.clone(
-##     OfflineDQM = cms.untracked.bool(True),
-##     MinimumRPCEvents  = cms.untracked.int32(10),
-##     RecHitTypeFolder = cms.untracked.string("Muon")
-## )
+#Setup FWK for multithreaded
+process.options.numberOfThreads=cms.untracked.uint32(8)
+process.options.numberOfStreams=cms.untracked.uint32(0)
 
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
+process = setCrossingFrameOn(process)
+from FWCore.ParameterSet.Utilities import convertToUnscheduled
+process=convertToUnscheduled(process)
 
-########### Message Logger ##############
-process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('*'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
-
-
-############ Output Module ##############
-process.out = cms.OutputModule("PoolOutputModule",
-   fileName = cms.untracked.string('/tmp/cimmino/RPCDQM.root'),
-   outputCommands = cms.untracked.vstring("keep *")
-)
-
-
-## ############ Memory check ##################
-## process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-##         ignoreTotal = cms.untracked.int32(1) ## default is one
-## ) 
-
-## ################## Timing #################
-## process.Timing = cms.Service("Timing")
-## process.options = cms.untracked.PSet(
-##     wantSummary = cms.untracked.bool(True)
-##     )
-
-## process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
-
-
-#########   Private Saver ###############
-process.savedqmfile = cms.EDAnalyzer("SaveDQMFile",
-                                     OutputFile = cms.untracked.string("/tmp/cimmino/DQM_165993.root")
-                                     )
-
-
-############# Path ######################
-
-## process.rpcdqmsource = cms.Sequence(process.rpcdigidqm)
-## process.rpcdqmclient = cms.Sequence(process.qTesterRPC * process.rpcdqmclient * process.rpcChamberQuality  * process.rpcEventSummary * process.dqmSaver)
-## process.p = cms.Path(process.rpcdqmsource*process.rpcdqmclient)
-
-process.rpcSourceSeq = cms.Sequence(process.rpcdigidqm*process.rpcrechitprobability*process.dqmEnv )
-
-process.rpcClientNoiseSeq = cms.Sequence(process.rpcdqmclientNOISE * process.rpcChamberQualityNOISE  * process.rpcEventSummaryNOISE)
-
-if useMuons:
-    process.rpcClientMuonSeq = cms.Sequence(process.rpcdqmclientMUON * process.rpcChamberQualityMUON)
-
-if useMuons:
-    process.p = cms.Path(process.rpcSourceSeq  * process.qTesterRPC * process.rpcrechitprobabilityclient * process.rpcClientNoiseSeq  * process.rpcClientMuonSeq * process.savedqmfile)
-else :
-    process.p = cms.Path(process.rpcSourceSeq  * process.qTesterRPC * process.rpcrechitprobabilityclient * process.rpcClientNoiseSeq  * process.savedqmfile)    
-#process.e = cms.EndPath(process.out)
