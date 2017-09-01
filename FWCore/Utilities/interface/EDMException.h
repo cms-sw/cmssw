@@ -82,7 +82,7 @@ namespace edm {
 
     Exception(Exception const& other);
 
-    ~Exception() throw() override;
+    ~Exception() noexcept override;
 
     void swap(Exception& other) {
       std::swap(category_, other.category_);
