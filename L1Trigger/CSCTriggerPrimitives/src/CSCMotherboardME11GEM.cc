@@ -565,7 +565,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   }
 
   const bool hasPads(!pads_.empty());
-  const bool hasCoPads(hasPads and !coPads_.empty());
   bool hasLCTs(false);
 
   // ALCT-centric matching
