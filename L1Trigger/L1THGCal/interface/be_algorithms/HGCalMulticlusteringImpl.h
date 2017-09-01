@@ -24,14 +24,14 @@ public:
     void clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
 
+private:
+
     void findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
 		       const l1t::HGCalCluster & cluster,
 		       std::vector<int> & neighborList);
 
     bool isNeighbor( const l1t::HGCalCluster & clu1, 
 		     const l1t::HGCalCluster & clu2) const;
-
-private:
     
     double dr_;
     double ptC3dThreshold_;
