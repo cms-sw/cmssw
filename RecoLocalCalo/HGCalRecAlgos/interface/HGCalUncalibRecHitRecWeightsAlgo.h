@@ -81,7 +81,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         // LG (11/04/2016):
         // offset the TDC upwards to reflect the bin center
 	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + ( double(sample.data()) + 0.5) * tdcLSB_;
-	jitter_    = double(sample.toa()) * toaLSBToNS_;
+	if(sample.data() != 0.) jitter_    = double(sample.toa()) * toaLSBToNS_;
 	LogDebug("HGCUncalibratedRecHit") << "TDC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
                                           << ' ' << tdcLSB_ << std::endl
                                           << "TDC+: set the ToA to: " << jitter_ << ' ' 
@@ -89,7 +89,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
                                           << " flag=" << flag << std::endl;
       } else {
 	amplitude_ = double(sample.data()) * adcLSB_;
-	if(amplitude_ > tdcForToaOnsetfC_[thickness-1]) {jitter_    = double(sample.toa()) * toaLSBToNS_;}
+	if(sample.toa() != 0.) {jitter_    = double(sample.toa()) * toaLSBToNS_;}
 	LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
                                           << ' ' << adcLSB_ << ' ' 
 					  << "TDC+: set the ToA to: " << jitter_ << ' '
