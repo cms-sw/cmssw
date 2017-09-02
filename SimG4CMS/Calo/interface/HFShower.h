@@ -23,7 +23,7 @@ class HFShower {
 
 public:    
 
-  HFShower(const std::string & name, const DDCompactView & cpv, 
+  HFShower(std::string & name, const DDCompactView & cpv, 
 	   edm::ParameterSet const & p, int chk=0);
   virtual ~HFShower();
 

@@ -22,7 +22,7 @@ class HFFibre {
 public:
   
   //Constructor and Destructor
-  HFFibre(const std::string & name, const DDCompactView & cpv,
+  HFFibre(std::string & name, const DDCompactView & cpv,
 	  edm::ParameterSet const & p);
   ~HFFibre();
 

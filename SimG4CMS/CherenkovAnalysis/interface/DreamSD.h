@@ -63,7 +63,7 @@ private:
   int          side;
 
   /// Table of Cherenkov angle integrals vs photon momentum
-  std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
+  std::auto_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
   G4MaterialPropertiesTable*                materialPropertiesTable;
   // Histogramming
   TTree* ntuple_;
