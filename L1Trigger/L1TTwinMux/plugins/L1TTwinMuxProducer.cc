@@ -15,8 +15,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/ConsumesCollector.h>
-#include <FWCore/Framework/interface/one/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "L1Trigger/L1TTwinMux/interface/L1TTwinMuxAlgorithm.h"
 
@@ -27,7 +27,8 @@
 using namespace std;
 
 //class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> 
-class L1TTwinMuxProducer: public edm::EDProducer
+//class L1TTwinMuxProducer: public edm::EDProducer
+class  L1TTwinMuxProducer: public edm::stream::EDProducer<>
 {
 public:
   L1TTwinMuxProducer(const edm::ParameterSet & pset);
