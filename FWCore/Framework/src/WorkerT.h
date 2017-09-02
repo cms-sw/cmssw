@@ -104,7 +104,7 @@ namespace edm {
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
-    virtual SerialTaskQueueChain* serializeRunModule() override;
+    virtual TaskQueueAdaptor serializeRunModule() override;
 
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,

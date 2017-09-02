@@ -54,7 +54,8 @@ namespace edm {
     droppedBranchIDToKeptBranchID_(),
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
-    thinnedAssociationsHelper_(new ThinnedAssociationsHelper) {
+    thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
+    queue_(pset.getUntrackedParameter<unsigned int>("concurrencyLimit")) {
       
       hasNewlyDroppedBranch_.fill(false);
       
@@ -364,6 +365,7 @@ namespace edm {
     OutputModuleBase::fillDescription(ParameterSetDescription& desc) {
       ProductSelectorRules::fillDescription(desc, "outputCommands");
       EventSelector::fillDescription(desc);
+      desc.addUntracked<unsigned int>("concurrencyLimit",1);
     }
     
     void

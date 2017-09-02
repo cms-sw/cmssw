@@ -105,15 +105,20 @@ namespace edm {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase * iMod){
       return std::make_unique<OutputModuleCommunicatorT<edm::one::OutputModuleBase>>(iMod);
     }
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase * iMod){
+      return std::make_unique<OutputModuleCommunicatorT<edm::limited::OutputModuleBase>>(iMod);
+    }
   }
 }
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
+#include "FWCore/Framework/interface/limited/OutputModuleBase.h"
 
 namespace edm {
   template class OutputModuleCommunicatorT<OutputModule>;
   template class OutputModuleCommunicatorT<one::OutputModuleBase>;
   template class OutputModuleCommunicatorT<global::OutputModuleBase>;
+  template class OutputModuleCommunicatorT<limited::OutputModuleBase>;
 }

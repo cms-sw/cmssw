@@ -34,13 +34,16 @@ namespace edm {
   
   namespace limited {
     namespace impl {
-      class EmptyType {};
+      class EmptyType {
+      public:
+        EmptyType(edm::ParameterSet const&) {}
+      };
       
       
       template <typename T, typename C>
       class StreamCacheHolder : public virtual T {
       public:
-        StreamCacheHolder() = default;
+        StreamCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         StreamCacheHolder( StreamCacheHolder<T,C> const&) = delete;
         StreamCacheHolder<T,C>& operator=(StreamCacheHolder<T,C> const&) = delete;
         ~StreamCacheHolder() {
@@ -89,7 +92,7 @@ namespace edm {
       template <typename T, typename C>
       class RunCacheHolder : public virtual T {
       public:
-        RunCacheHolder() = default;
+        RunCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunCacheHolder( RunCacheHolder<T,C> const&) = delete;
         RunCacheHolder<T,C>& operator=(RunCacheHolder<T,C> const&) = delete;
         ~RunCacheHolder() noexcept(false) {};
@@ -97,15 +100,15 @@ namespace edm {
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
       private:
         void doBeginRun_(Run const& rp, EventSetup const& c) override final {
-          cache_ = limitedBeginRun(rp,c);
+          cache_ = globalBeginRun(rp,c);
         }
         void doEndRun_(Run const& rp, EventSetup const& c) override final {
-          limitedEndRun(rp,c);
+          globalEndRun(rp,c);
           cache_ = nullptr; // propagate_const<T> has no reset() function
         }
         
-        virtual std::shared_ptr<C> limitedBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
-        virtual void limitedEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
         //When threaded we will have a container for N items whre N is # of simultaneous runs
         edm::propagate_const<std::shared_ptr<C>> cache_;
       };
@@ -113,7 +116,7 @@ namespace edm {
       template <typename T, typename C>
       class LuminosityBlockCacheHolder : public virtual T {
       public:
-        LuminosityBlockCacheHolder() = default;
+        LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<T,C> const&) = delete;
         LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
         ~LuminosityBlockCacheHolder() noexcept(false) {};
@@ -121,15 +124,15 @@ namespace edm {
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return cache_.get(); }
       private:
         void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final {
-          cache_ = limitedBeginLuminosityBlock(rp,c);
+          cache_ = globalBeginLuminosityBlock(rp,c);
         }
         void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final {
-          limitedEndLuminosityBlock(rp,c);
+          globalEndLuminosityBlock(rp,c);
           cache_.reset();
         }
         
-        virtual std::shared_ptr<C> limitedBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
-        virtual void limitedEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        virtual std::shared_ptr<C> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        virtual void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
         //When threaded we will have a container for N items whre N is # of simultaneous runs
         std::shared_ptr<C> cache_;
       };
@@ -139,14 +142,14 @@ namespace edm {
       template <typename T, typename C>
       class RunSummaryCacheHolder : public virtual T {
       public:
-        RunSummaryCacheHolder() = default;
+        RunSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunSummaryCacheHolder( RunSummaryCacheHolder<T,C> const&) = delete;
         RunSummaryCacheHolder<T,C>& operator=(RunSummaryCacheHolder<T,C> const&) = delete;
         ~RunSummaryCacheHolder() noexcept(false) {};
       private:
         friend class EndRunSummaryProducer<T,C>;
         void doBeginRunSummary_(edm::Run const& rp, EventSetup const& c) override final {
-          cache_ = limitedBeginRunSummary(rp,c);
+          cache_ = globalBeginRunSummary(rp,c);
         }
         void doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c) override final {
           //NOTE: in future this will need to be serialized
@@ -154,13 +157,13 @@ namespace edm {
           streamEndRunSummary(id,rp,c,cache_.get());
         }
         void doEndRunSummary_(Run const& rp, EventSetup const& c) override final {
-          limitedEndRunSummary(rp,c,cache_.get());
+          globalEndRunSummary(rp,c,cache_.get());
         }
 
-        virtual std::shared_ptr<C> limitedBeginRunSummary(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual std::shared_ptr<C> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const = 0;
         virtual void streamEndRunSummary(StreamID, edm::Run const&, edm::EventSetup const&, C*) const = 0;
 
-        virtual void limitedEndRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
+        virtual void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
 
         //When threaded we will have a container for N items where N is # of simultaneous runs
         std::shared_ptr<C> cache_;
@@ -173,7 +176,7 @@ namespace edm {
       template <typename T, typename C>
       class LuminosityBlockSummaryCacheHolder : public virtual T {
       public:
-        LuminosityBlockSummaryCacheHolder() = default;
+        LuminosityBlockSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockSummaryCacheHolder( LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<T,C>& operator=(LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
         ~LuminosityBlockSummaryCacheHolder() noexcept(false) {};
@@ -181,7 +184,7 @@ namespace edm {
         friend class EndLuminosityBlockSummaryProducer<T,C>;
         
         void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) override final {
-          cache_ = limitedBeginLuminosityBlockSummary(lb,c);
+          cache_ = globalBeginLuminosityBlockSummary(lb,c);
         }
 
         virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lb, EventSetup const& c) override final
@@ -190,13 +193,13 @@ namespace edm {
           streamEndLuminosityBlockSummary(id,lb,c,cache_.get());
         }
         void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) override final {
-          limitedEndLuminosityBlockSummary(lb,c,cache_.get());
+          globalEndLuminosityBlockSummary(lb,c,cache_.get());
         }
 
-        virtual std::shared_ptr<C> limitedBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+        virtual std::shared_ptr<C> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
         virtual void streamEndLuminosityBlockSummary(StreamID, edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
         
-        virtual void limitedEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
+        virtual void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
         
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::shared_ptr<C> cache_;
@@ -207,7 +210,7 @@ namespace edm {
       template <typename T>
       class BeginRunProducer : public virtual T {
       public:
-        BeginRunProducer() = default;
+        BeginRunProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
         BeginRunProducer( BeginRunProducer const&) = delete;
         BeginRunProducer& operator=(BeginRunProducer const&) = delete;
         ~BeginRunProducer() noexcept(false) {};
@@ -215,13 +218,13 @@ namespace edm {
       private:
         void doBeginRunProduce_(Run& rp, EventSetup const& c) override final;
         
-        virtual void limitedBeginRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
+        virtual void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
       };
       
       template <typename T>
       class EndRunProducer : public virtual T {
       public:
-        EndRunProducer() = default;
+        EndRunProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
         EndRunProducer( EndRunProducer const&) = delete;
         EndRunProducer& operator=(EndRunProducer const&) = delete;
         ~EndRunProducer() noexcept(false) {};
@@ -230,13 +233,13 @@ namespace edm {
         
         void doEndRunProduce_(Run& rp, EventSetup const& c) override final;
         
-        virtual void limitedEndRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
+        virtual void globalEndRunProduce(edm::Run&, edm::EventSetup const&) const = 0;
       };
 
       template <typename T, typename C>
       class EndRunSummaryProducer : public RunSummaryCacheHolder<T,C> {
       public:
-        EndRunSummaryProducer() = default;
+        EndRunSummaryProducer(edm::ParameterSet const& iPSet) : T(iPSet), RunSummaryCacheHolder<T,C>(iPSet) {}
         EndRunSummaryProducer( EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
         ~EndRunSummaryProducer() noexcept(false) {};
@@ -244,52 +247,52 @@ namespace edm {
       private:
         
         void doEndRunProduce_(Run& rp, EventSetup const& c) override final {
-          limitedEndRunProduce(rp,c,RunSummaryCacheHolder<T,C>::cache_.get());
+          globalEndRunProduce(rp,c,RunSummaryCacheHolder<T,C>::cache_.get());
         }
         
-        virtual void limitedEndRunProduce(edm::Run&, edm::EventSetup const&, C const*) const = 0;
+        virtual void globalEndRunProduce(edm::Run&, edm::EventSetup const&, C const*) const = 0;
       };
 
       template <typename T>
       class BeginLuminosityBlockProducer : public virtual T {
       public:
-        BeginLuminosityBlockProducer() = default;
+        BeginLuminosityBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
         BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
         BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
         ~BeginLuminosityBlockProducer() noexcept(false) {};
         
       private:
         void doBeginLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
-        virtual void limitedBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
+        virtual void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
       };
       
       template <typename T>
       class EndLuminosityBlockProducer : public virtual T {
       public:
-        EndLuminosityBlockProducer() = default;
+        EndLuminosityBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
         EndLuminosityBlockProducer( EndLuminosityBlockProducer const&) = delete;
         EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
         ~EndLuminosityBlockProducer() noexcept(false) {};
         
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
-        virtual void limitedEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
+        virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
       };
 
       template <typename T, typename S>
       class EndLuminosityBlockSummaryProducer : public LuminosityBlockSummaryCacheHolder<T,S> {
       public:
-        EndLuminosityBlockSummaryProducer() = default;
+        EndLuminosityBlockSummaryProducer(edm::ParameterSet const& iPSet) : T(iPSet), LuminosityBlockSummaryCacheHolder<T,S>(iPSet) {}
         EndLuminosityBlockSummaryProducer( EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
         ~EndLuminosityBlockSummaryProducer() noexcept(false) {};
         
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final {
-          limitedEndLuminosityBlockProduce(lb,c,LuminosityBlockSummaryCacheHolder<T,S>::cache_.get());
+          globalEndLuminosityBlockProduce(lb,c,LuminosityBlockSummaryCacheHolder<T,S>::cache_.get());
         }
         
-        virtual void limitedEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+        virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
       };
     }
   }
