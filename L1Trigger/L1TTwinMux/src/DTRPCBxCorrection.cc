@@ -44,11 +44,11 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
   L1MuDTChambPhDigi * dtts=0;
   L1MuDTChambPhDigi * dttsnew=0;
   L1MuDTChambPhDigi * rpcts1=0;
-  std::auto_ptr<L1MuTMChambPhContainer> m_phiDTDigis_tm(new L1MuTMChambPhContainer);
+  std::shared_ptr<L1MuTMChambPhContainer> m_phiDTDigis_tm(new L1MuTMChambPhContainer);
   const std::vector<L1MuDTChambPhDigi> *phiChambVectorDT;
   phiChambVectorDT= m_phiDTDigis.getContainer();
   m_phiDTDigis_tm->setContainer(*phiChambVectorDT);
-  std::auto_ptr<L1MuTMChambPhContainer> m_phiRPCDigis_tm(new L1MuTMChambPhContainer);
+  std::shared_ptr<L1MuTMChambPhContainer> m_phiRPCDigis_tm(new L1MuTMChambPhContainer);
   const std::vector<L1MuDTChambPhDigi> *phiChambVectorRPC;
   phiChambVectorRPC= m_phiRPCDigis.getContainer();
   m_phiRPCDigis_tm->setContainer(*phiChambVectorRPC);
