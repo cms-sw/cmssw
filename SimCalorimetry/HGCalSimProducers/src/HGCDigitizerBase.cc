@@ -121,6 +121,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
       
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
+      // need either to move in HGCDigitizer or increase the threshold to fire the ToA
       totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
       if(totalCharge<0.f) totalCharge=0.f;
       
