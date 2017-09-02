@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     EDAnalyzerBase
 // 
-/**\class EDAnalyzerBase EDAnalyzerBase.h "EDAnalyzerBase.h"
+/**\class limited::EDAnalyzerBase EDAnalyzerBase.h "EDAnalyzerBase.h"
 
  Description: [one line class summary]
 
@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 // forward declarations
 
@@ -51,8 +52,8 @@ namespace edm {
       template <typename T> friend class edm::maker::ModuleHolderT;
       typedef EDAnalyzerBase ModuleType;
 
-      EDAnalyzerBase();
-      virtual ~EDAnalyzerBase();
+      EDAnalyzerBase(ParameterSet const& pset);
+      ~EDAnalyzerBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -60,7 +61,12 @@ namespace edm {
 
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+      
+      unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
+      LimitedTaskQueue& queue() {
+        return queue_;
+      }
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
@@ -140,6 +146,8 @@ namespace edm {
       ModuleDescription moduleDescription_;
 
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      
+      LimitedTaskQueue queue_;
     };
 
   }

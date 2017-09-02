@@ -38,9 +38,14 @@ namespace edm {
     {
       
     public:
-      EDFilter() = default;
+      EDFilter(edm::ParameterSet const& iPSet) : EDFilterBase(iPSet),
+      filter::SpecializeAbilityToImplementor<
+      CheckAbility<edm::module::Abilities::kRunSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndRunProducer,T...>::kHasIt,
+      CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer,T...>::kHasIt,
+      T>::Type(iPSet)...
+      {}
 // We do this only in the case of the intel compiler as this might
-// end up creating a lot of code bloat due to inline symbols being generated 
+// end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
 #ifdef __INTEL_COMPILER
       virtual ~EDFilter() = default;

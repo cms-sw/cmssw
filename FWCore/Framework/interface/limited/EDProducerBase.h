@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 // forward declarations
 
@@ -56,8 +57,8 @@ namespace edm {
       
       friend class edm::GlobalSchedule;
 
-      EDProducerBase();
-      virtual ~EDProducerBase();
+      EDProducerBase(ParameterSet const& pset);
+      ~EDProducerBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -65,7 +66,12 @@ namespace edm {
 
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+      
+      unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
+      LimitedTaskQueue& queue() {
+        return queue_;
+      }
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
@@ -152,6 +158,7 @@ namespace edm {
       ModuleDescription moduleDescription_;
       std::unique_ptr<std::vector<BranchID>[]> previousParentages_;
       std::unique_ptr<ParentageID[]> previousParentageIds_;
+      LimitedTaskQueue queue_;
     };
 
   }

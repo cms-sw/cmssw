@@ -37,7 +37,11 @@ namespace edm {
     {
       
     public:
-      EDProducer() = default;
+      EDProducer(edm::ParameterSet const& iPSet): EDProducerBase(iPSet),
+      producer::SpecializeAbilityToImplementor<
+      CheckAbility<edm::module::Abilities::kRunSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndRunProducer,T...>::kHasIt,
+      CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer,T...>::kHasIt,
+      T>::Type(iPSet)... {}
       
       // ---------- const member functions ---------------------
       

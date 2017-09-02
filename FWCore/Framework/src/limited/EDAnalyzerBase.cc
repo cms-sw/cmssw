@@ -43,8 +43,9 @@ namespace edm {
     //
     // constructors and destructor
     //
-    EDAnalyzerBase::EDAnalyzerBase():
-    moduleDescription_() { }
+    EDAnalyzerBase::EDAnalyzerBase(ParameterSet const& pset):
+    moduleDescription_(),
+    queue_(pset.getUntrackedParameter<unsigned int>("concurrencyLimit")) { }
     
     EDAnalyzerBase::~EDAnalyzerBase()
     {

@@ -34,7 +34,7 @@ namespace edm {
     {
       
     public:
-      EDAnalyzer() = default;
+      EDAnalyzer(edm::ParameterSet const& iPSet) : EDAnalyzerBase(iPSet),analyzer::AbilityToImplementor<T>::Type(iPSet)...  {}
 // We do this only in the case of the intel compiler as this might
 // end up creating a lot of code bloat due to inline symbols being generated 
 // in each DSO which uses this header.

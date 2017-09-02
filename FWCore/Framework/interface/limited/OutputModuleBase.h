@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 // forward declarations
 namespace edm {
@@ -66,7 +67,7 @@ namespace edm {
       typedef OutputModuleBase ModuleType;
       
       explicit OutputModuleBase(ParameterSet const& pset);
-      virtual ~OutputModuleBase();
+      ~OutputModuleBase() override;
       
       OutputModuleBase(OutputModuleBase const&) = delete; // Disallow copying and moving
       OutputModuleBase& operator=(OutputModuleBase const&) = delete; // Disallow copying and moving
@@ -99,6 +100,12 @@ namespace edm {
       
       const ModuleDescription& moduleDescription() const {
         return moduleDescription_;
+      }
+      
+      unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
+
+      LimitedTaskQueue& queue() {
+        return queue_;
       }
     protected:
       
@@ -197,7 +204,7 @@ namespace edm {
 
       edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       std::map<BranchID, bool> keepAssociation_;
-
+      LimitedTaskQueue queue_;
       
       //------------------------------------------------------------------
       // private member functions
@@ -228,11 +235,11 @@ namespace edm {
       /// Ask the OutputModule if we should end the current file.
       virtual bool shouldWeCloseFile() const {return false;}
       
-      virtual void write(EventForOutput const&) const = 0;
+      virtual void write(EventForOutput const&) = 0;
       virtual void beginJob(){}
       virtual void endJob(){}
-      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
-      virtual void writeRun(RunForOutput const&) const = 0;
+      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
+      virtual void writeRun(RunForOutput const&) = 0;
       virtual void openFile(FileBlock const&) const {}
       virtual bool isFileOpen() const { return true; }
       

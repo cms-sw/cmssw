@@ -37,11 +37,12 @@ namespace edm {
     //
     // constructors and destructor
     //
-    EDProducerBase::EDProducerBase():
+    EDProducerBase::EDProducerBase(ParameterSet const& pset):
     ProducerBase(),
     moduleDescription_(),
     previousParentages_(),
-    previousParentageIds_() { }
+    previousParentageIds_(),
+    queue_(pset.getUntrackedParameter<unsigned int>("concurrencyLimit")){ }
     
     EDProducerBase::~EDProducerBase()
     {
