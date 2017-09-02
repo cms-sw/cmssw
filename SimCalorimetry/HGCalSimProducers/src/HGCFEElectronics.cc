@@ -187,35 +187,45 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 
   bool debug = debug_state;
   float timeTOA = 0.;
-  bool timeFlags = false;
 
 
-  //first identify sampling bunch which will trigger TDC for ToA
-  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;  
+  //first look at time
+  //for pileup look only at intime signals
+  //ToA is in central BX if fired -- std::floor(BX/25.)+9;
+  int fireBX = 9; 
+  //noise fluctuation on charge is added after ToA computation
+  //do not recheck the ToA firing threshold tdcForToaOnset_fC_[thickness-1] not to bias the efficiency 
+  //to be done properly with realistic ToA shaper and jitter 
+  if(toaColl[fireBX] != 0.){
+    timeTOA = toaColl[fireBX];
+    if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
+    else timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, tdcResolutionInNs_);
+
+    totForToaFlags[fireBX] = true;
+    toaFromToT[fireBX] = timeTOA;
+  }
+
+  //now look at charge
+  //first identify bunches which will trigger ToT
+  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;
   for(int it=0; it<(int)(chargeColl.size()); ++it)
     {
       debug = debug_state;
       //if already flagged as busy it can't be re-used to trigger the ToT
       if(busyFlags[it]) continue;
 
-      //if below TDC onset will be handled by SARS ADC later for charge computation
-      //fire TDC for ToA estimate anyway if above threshold
+      //if below TDC onset will be handled by SARS ADC later 
       float charge = chargeColl[it];
-      if(charge >= tdcForToaOnset_fC_[thickness-1] && !timeFlags){
-	timeTOA = toaColl[it];
-	toaFromToT[it] = toaColl[it];
-        timeFlags = true;
-        totForToaFlags[it] = true;
-      }
-      if(charge < tdcOnset_fC_)  {
+      if(charge < tdcOnset_fC_){
         debug = false;
         continue;
       }
 
       //raise TDC mode for charge computation
-      //ToA anyway fired independently 
+      //ToA anyway fired independently will be sorted out with realistic ToA dedicated shaper
       float toa = timeTOA;
       totFlags[it]=true;
+
 
       if(debug) edm::LogVerbatim("HGCFE") << "\t q=" << charge << " fC with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
 
@@ -344,19 +354,15 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   };
   runChargeSharing();
 
-
-
-
+  //should keep track of the BX firing the ToA somewhere to restore the use of finalToA 
   float finalToA(0.);
   for(int it=0; it<(int)(newCharge.size()); it++){
     if(totForToaFlags[it]){
       finalToA = toaFromToT[it];
-      float chargeInTime = (newCharge.size() > 9) ? newCharge[9] : newCharge[it]; 
-      if(jitterNoise2_ns_[0] != 0) finalToA = CLHEP::RandGaussQ::shoot(engine, finalToA, getTimeJitter(chargeInTime, thickness));
-      else finalToA = CLHEP::RandGaussQ::shoot(engine, finalToA, tdcResolutionInNs_);
-      //to avoid +=25 for small negative time taken as 0
-      while(finalToA < -1.e-5)  finalToA+=25.f; 
+      //to avoid +=25 for small negative time taken as 0          
+      while(finalToA < -1.e-5)  finalToA+=25.f;
       while(finalToA > 25.f) finalToA-=25.f;
+      toaFromToT[it] = finalToA;
     }
   }
 
@@ -375,7 +381,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	    {
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
-	      newSample.set(true,true,(uint16_t)(finalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      //working version for in-time PU and signal 
+	      newSample.set(true,true,(uint16_t)(toaFromToT[it]/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	    }
 	  else
 	    {
@@ -386,7 +393,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
-	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(finalToA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  //working version for in-time PU and signal 
+	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(toaFromToT[it]/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	}
       dataFrame.setSample(it,newSample);
     }
