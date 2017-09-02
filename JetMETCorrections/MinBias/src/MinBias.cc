@@ -7,7 +7,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 namespace cms {
-MinBias::MinBias(const edm::ParameterSet& iConfig) : geo_(0) {
+MinBias::MinBias(const edm::ParameterSet& iConfig) : geo_(nullptr) {
   // get names of modules, producing object collections
   hbheLabel_= iConfig.getParameter<std::string>("hbheInput");
   hoLabel_  = iConfig.getParameter<std::string>("hoInput");
