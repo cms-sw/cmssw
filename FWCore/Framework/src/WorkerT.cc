@@ -120,7 +120,7 @@ namespace edm{
   WorkerT<T>::WorkerT(std::shared_ptr<T> ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
     Worker(md, actions),
     module_(ed) {
-    assert(module_ != 0);
+    assert(module_ != nullptr);
   }
 
   template<typename T>
