@@ -47,8 +47,8 @@ class SensitiveDetectorMakerBase
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,
-			std::unique_ptr<SensitiveTkDetector>& oTK,
-			std::unique_ptr<SensitiveCaloDetector>& oCalo) const =0;
+			std::auto_ptr<SensitiveTkDetector>& oTK,
+			std::auto_ptr<SensitiveCaloDetector>& oCalo) const =0;
       
       // ---------- static member functions --------------------
 
@@ -57,14 +57,14 @@ class SensitiveDetectorMakerBase
    protected:
       //used to identify which type of Sensitive Detector we have
       void convertTo( SensitiveTkDetector* iFrom, 
-		      std::unique_ptr<SensitiveTkDetector>& oTo,
-		      std::unique_ptr<SensitiveCaloDetector>&) const{
-	oTo= std::unique_ptr<SensitiveTkDetector>(iFrom);
+		      std::auto_ptr<SensitiveTkDetector>& oTo,
+		      std::auto_ptr<SensitiveCaloDetector>&) const{
+	oTo= std::auto_ptr<SensitiveTkDetector>(iFrom);
       }
       void convertTo( SensitiveCaloDetector* iFrom,
-		      std::unique_ptr<SensitiveTkDetector>&,
-		      std::unique_ptr<SensitiveCaloDetector>& oTo) const{
-	oTo=std::unique_ptr<SensitiveCaloDetector>(iFrom);
+		      std::auto_ptr<SensitiveTkDetector>&,
+		      std::auto_ptr<SensitiveCaloDetector>& oTo) const{
+	oTo=std::auto_ptr<SensitiveCaloDetector>(iFrom);
       }
 
    private:
