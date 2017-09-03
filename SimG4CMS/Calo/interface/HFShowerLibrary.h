@@ -31,7 +31,7 @@ class HFShowerLibrary {
 public:
   
   //Constructor and Destructor
-  HFShowerLibrary(const std::string & name, const DDCompactView & cpv,
+  HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 		  edm::ParameterSet const & p);
   ~HFShowerLibrary();
 

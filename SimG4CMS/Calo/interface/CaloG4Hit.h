@@ -35,15 +35,15 @@ class CaloG4Hit : public G4VHit {
 public:
   
   CaloG4Hit();
-  ~CaloG4Hit() override;
+  virtual ~CaloG4Hit();
   CaloG4Hit(const CaloG4Hit &right);
   const CaloG4Hit& operator=(const CaloG4Hit &right);
   bool operator==(const CaloG4Hit &){return false;}
   inline void * operator new(size_t);
   inline void   operator delete(void * CaloG4Hit);
 
-  void         Draw() override{}
-  void         Print() override;
+  void         Draw(){}
+  void         Print();
   
 public:
   
