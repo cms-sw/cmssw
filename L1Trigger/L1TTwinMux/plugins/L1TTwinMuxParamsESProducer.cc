@@ -14,8 +14,8 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESProducts.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
 #include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
