@@ -9,12 +9,12 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "G4TouchableHistory.hh"
+using std::string;
 
-SensitiveDetector::SensitiveDetector(const std::string & iname, 
-                                     const DDCompactView & cpv,
-                                     const SensitiveDetectorCatalog & clg,
-                                     edm::ParameterSet const & p) :
+SensitiveDetector::SensitiveDetector(std::string & iname, 
+				     const DDCompactView & cpv,
+				     const SensitiveDetectorCatalog & clg,
+				     edm::ParameterSet const & p) :
   G4VSensitiveDetector(iname), name(iname) {}
 
 SensitiveDetector::~SensitiveDetector() {}
@@ -29,60 +29,98 @@ void SensitiveDetector::Register()
 
 void SensitiveDetector::AssignSD(const std::string & vname)
 {
-  G4LogicalVolume* v = 
-    G4LogicalVolumeStore::GetInstance()->GetVolume((G4String)vname, true);
-  if (v) { v->SetSensitiveDetector(this); }
+  G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
+  G4LogicalVolumeStore::const_iterator it;
+  for (it = theStore->begin(); it != theStore->end(); it++)
+    {
+      G4LogicalVolume * v = *it;
+      if (vname==v->GetName()) { v->SetSensitiveDetector(this); }
+    }
 }
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent * eventHC) {}
 
-Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step * step, coordinates cc)
+#include "G4TouchableHistory.hh"
+
+Local3DPoint SensitiveDetector::InitialStepPosition(G4Step * s, coordinates c)
 {
-  G4StepPoint * preStepPoint = step->GetPreStepPoint();
-  return (cc == WorldCoordinates) ? ConvertToLocal3DPoint(preStepPoint->GetPosition())
-    : ConvertToLocal3DPoint(preStepPoint->GetTouchable()->GetHistory()
-                            ->GetTopTransform().TransformPoint(preStepPoint->GetPosition()));
+    currentStep = s;
+    G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
+    G4ThreeVector globalCoordinates = preStepPoint->GetPosition();
+    if (c == WorldCoordinates) return ConvertToLocal3DPoint(globalCoordinates);
+    G4TouchableHistory * theTouchable=(G4TouchableHistory *)
+                                      (preStepPoint->GetTouchable());
+    G4ThreeVector localCoordinates = theTouchable->GetHistory()
+                  ->GetTopTransform().TransformPoint(globalCoordinates);
+    return ConvertToLocal3DPoint(localCoordinates); 
 }
 
-Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinates cc)
+Local3DPoint SensitiveDetector::FinalStepPosition(G4Step * s, coordinates c)
 {
-  // transformation is defined pre-step
-  G4StepPoint * preStepPoint = step->GetPreStepPoint();
-  G4StepPoint * postStepPoint = step->GetPostStepPoint();
-  return (cc == WorldCoordinates) ? ConvertToLocal3DPoint(postStepPoint->GetPosition())
-    : ConvertToLocal3DPoint(preStepPoint->GetTouchable()->GetHistory()
-                            ->GetTopTransform().TransformPoint(postStepPoint->GetPosition()));
+    currentStep = s;
+    G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
+    G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
+    G4ThreeVector globalCoordinates = postStepPoint->GetPosition();
+    if (c == WorldCoordinates) return ConvertToLocal3DPoint(globalCoordinates);
+    G4TouchableHistory * theTouchable = (G4TouchableHistory *)
+                                        (preStepPoint->GetTouchable());
+    G4ThreeVector localCoordinates = theTouchable->GetHistory()
+                  ->GetTopTransform().TransformPoint(globalCoordinates);
+    return ConvertToLocal3DPoint(localCoordinates); 
+}
+
+Local3DPoint SensitiveDetector::ConvertToLocal3DPoint(const G4ThreeVector& p)
+{
+    return Local3DPoint(p.x(),p.y(),p.z());
 }
 
 void SensitiveDetector::NaNTrap( G4Step* aStep )
 {
-  if( aStep != nullptr ) {   
-    G4Track* CurrentTrk = aStep->GetTrack();
 
-    double xyz = CurrentTrk->GetPosition().x() + CurrentTrk->GetPosition().y() + CurrentTrk->GetPosition().z();
-    if( edm::isNotFinite(xyz))
+    if ( aStep == nullptr ) return ;
+    
+    G4Track* CurrentTrk = aStep->GetTrack() ;
+    G4ThreeVector CurrentPos = CurrentTrk->GetPosition() ;
+    G4ThreeVector CurrentMom = CurrentTrk->GetMomentum() ;
+    G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
+    G4String NameOfVol ;
+    if ( pCurrentVol != nullptr )
     {
-      G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
-      G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
-        : "CorruptedVolumeInfo";
-      throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position) in volume " 
-                           + NameOfVol);
+       NameOfVol = pCurrentVol->GetName() ;
+    }
+    else
+    {
+       NameOfVol = "CorruptedVolumeInfo" ;
+    }
+    
+    // for simplicity... maybe edm::isNotFinite() will work on the 
+    // 3-vector directly...
+
+    double xyz[3] ;
+    xyz[0] = CurrentPos.x() ;
+    xyz[1] = CurrentPos.y() ;
+    xyz[2] = CurrentPos.z() ;
+    
+    //
+    // this is another trick to check on a NaN, maybe it's even CPU-faster...
+    // but ler's stick to system function edm::isNotFinite(...) for now
+    //
+    // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
+    if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]) != 0 )
+    {
+      throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position) in volume " + NameOfVol);
     }
 
-    xyz = CurrentTrk->GetMomentum().x() + CurrentTrk->GetMomentum().y() + CurrentTrk->GetMomentum().z();
-    if( edm::isNotFinite(xyz))
+    xyz[0] = CurrentMom.x() ;
+    xyz[1] = CurrentMom.y() ;
+    xyz[2] = CurrentMom.z() ;
+    if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
+         edm::isNotFinite(xyz[0]) != 0 || edm::isNotFinite(xyz[1]) != 0 || 
+	 edm::isNotFinite(xyz[2]) != 0 )
     {
-      G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
-      G4String NameOfVol = ( pCurrentVol != nullptr ) ? pCurrentVol->GetName() 
-        : "CorruptedVolumeInfo";
-      throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum) in volume "
-                           + NameOfVol);
+      throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum) in volume " + NameOfVol);
     }
-  }
-  return;
+
+   return;
+
 }
-
-std::vector<std::string> SensitiveDetector::getNames()
-{
-  return std::vector<std::string>(1, name);
-}  
