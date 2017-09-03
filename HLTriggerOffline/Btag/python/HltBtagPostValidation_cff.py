@@ -4,11 +4,11 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 HltBTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = cms.vstring(
-	'HLT_PFMET120_',
-	'HLT_HT300PT30_QuadJet_75_60_45_40_v',
-	'HLT_PFHT380_SixJet32_DoubleBTagCSV_',
+	'HLT_PFMET120_PFMHT120_IDTight_v',
+	'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v',
+	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_Ele28_eta2p1_WPTight_Gsf_HT150_',
-	'HLT_IsoMu24_eta2p1_'
+	'HLT_IsoMu24_eta2p1_v'
 	),
 	histoName	= cms.vstring(
 	'hltCombinedSecondaryVertexBJetTagsCalo',
