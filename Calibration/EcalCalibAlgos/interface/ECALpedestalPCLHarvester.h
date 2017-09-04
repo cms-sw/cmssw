@@ -27,19 +27,21 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 class ECALpedestalPCLHarvester : public  DQMEDHarvester {
    public:
       explicit ECALpedestalPCLHarvester(const edm::ParameterSet& ps);
-      virtual void endRun(edm::Run const& run, edm::EventSetup const & isetup);
+      void endRun(edm::Run const& run, edm::EventSetup const & isetup) override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
      
-      virtual void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) ;
+      void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override ;
 
       void  dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker);
 
@@ -52,11 +54,16 @@ class ECALpedestalPCLHarvester : public  DQMEDHarvester {
       bool  checkVariation(const EcalPedestalsMap& oldPedestals, const EcalPedestalsMap& newPedestals);
       std::vector<int> chStatusToExclude_;
       int minEntries_;
-          
+
+
+      int entriesEB_[EBDetId::kSizeForDenseIndexing];
+      int entriesEE_[EEDetId::kSizeForDenseIndexing];
       bool   checkAnomalies_ ;    // whether or not to avoid creating sqlite file in case of many changed pedestals
       double nSigma_;             // threshold in sigmas to define a pedestal as changed
       double thresholdAnomalies_; // threshold (fraction of changed pedestals) to avoid creation of sqlite file 
       std::string dqmDir_;        // DQM directory where histograms are stored
       std::string labelG6G1_;    // DB label from which pedestals for G6 and G1 are to be copied
+      float threshDiffEB_;       // if the new pedestals differs more than this from old, keep old
+      float threshDiffEE_;         // same as above for EE. Stray channel protection
 
 };
