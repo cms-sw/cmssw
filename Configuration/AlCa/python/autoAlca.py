@@ -26,6 +26,8 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
                   "MET" : "",
                   "SingleMu" : "",
+                  "DoubleMu" : "",
+                  "DoubleMuParked" : "",
                   "MuOniaParked" : "",
                   "DoubleElectron" : "",
                   "StreamExpress" : "",
