@@ -671,6 +671,7 @@ FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const& des
 
 FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
   event_(),
+  event_ex_(),
   highlight_(groups.size()),
   modules_(job.size()),
   processes_()
@@ -684,6 +685,7 @@ void
 FastTimerService::PlotsPerJob::reset()
 {
   event_.reset();
+  event_ex_.reset();
   for (auto & module: highlight_)
     module.reset();
   for (auto & module: modules_)
@@ -710,6 +712,12 @@ FastTimerService::PlotsPerJob::book(
   // event summary plots
   event_.book(booker,
       "event", "Event",
+      event_ranges,
+      lumisections,
+      byls);
+
+  event_ex_.book(booker,
+      "event_ex", "Event (explicit)",
       event_ranges,
       lumisections,
       byls);
@@ -762,6 +770,7 @@ FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob
 {
   // fill total event plots
   event_.fill(data.total, ls);
+  event_ex_.fill(data.event, ls);
 
   // fill highltight plots
   for (unsigned int group: boost::irange(0ul, highlight_.size()))
@@ -833,7 +842,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
 //registry.watchPostStreamBeginLumi(        this, & FastTimerService::postStreamBeginLumi );
 //registry.watchPreStreamEndLumi(           this, & FastTimerService::preStreamEndLumi );
   registry.watchPostStreamEndLumi(          this, & FastTimerService::postStreamEndLumi );
-//registry.watchPreEvent(                   this, & FastTimerService::preEvent );
+  registry.watchPreEvent(                   this, & FastTimerService::preEvent );
   registry.watchPostEvent(                  this, & FastTimerService::postEvent );
   registry.watchPrePathEvent(               this, & FastTimerService::prePathEvent );
   registry.watchPostPathEvent(              this, & FastTimerService::postPathEvent );
@@ -1496,7 +1505,7 @@ FastTimerService::postEvent(edm::StreamContext const& sc)
   auto & stream  = streams_[sid];
   auto & process = callgraph_.processDescription(pid);
 
-  // compute the event timing as the sum of all modules' timing
+  // measure the event resources as the sum of all modules' resources
   auto & data = stream.processes[pid].total;
   for (unsigned int i: process.modules_)
     data += stream.modules[i].total;
@@ -1506,6 +1515,9 @@ FastTimerService::postEvent(edm::StreamContext const& sc)
   bool last = isLastSubprocess(subprocess_event_check_[sid]);
   if (not last)
     return;
+
+  // measure the event resources explicitly
+  stream.event_measurement.measure_and_store(stream.event);
 
   // highlighted modules
   for (unsigned int group: boost::irange(0ul, highlight_modules_.size()))
@@ -1538,7 +1550,10 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
 
   subprocess_event_check_[sid] = 0;
 
-  thread().measure();
+  // reuse the same measurement for the Source module and for the explicit begin of the Event
+  auto & measurement = thread();
+  measurement.measure();
+  stream.event_measurement = measurement;
 }
 
 
