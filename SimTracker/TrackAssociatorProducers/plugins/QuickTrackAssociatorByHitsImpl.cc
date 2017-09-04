@@ -191,7 +191,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedClusters=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pTrack->recHitsBegin(), pTrack->recHitsEnd());
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(*pTrack, hitOrClusterAssociator);
 
 			if( numberOfSharedClusters == 0.0 ) continue; // No point in continuing if there was no association
 
@@ -240,7 +240,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedClusters=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pTrack->recHitsBegin(), pTrack->recHitsEnd());
+			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(*pTrack, hitOrClusterAssociator);
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
 			if( numberOfSharedClusters==0.0 ) continue; // No point in continuing if there was no association
@@ -629,7 +629,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedClusters=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pSeed->recHits().first, pSeed->recHits().second);
+			double numberOfValidTrackClusters = clusterToTPMap_ ? weightedNumberOfTrackClusters(*pSeed, *clusterToTPMap_) : weightedNumberOfTrackClusters(*pSeed, *hitAssociator_);
 
 			if( numberOfSharedClusters == 0.0 ) continue; // No point in continuing if there was no association
 
@@ -688,7 +688,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			double numberOfSharedClusters=iTrackingParticleQualityPair->second;
-			double numberOfValidTrackClusters=weightedNumberOfTrackClusters(pSeed->recHits().first, pSeed->recHits().second);
+			double numberOfValidTrackClusters = clusterToTPMap_ ? weightedNumberOfTrackClusters(*pSeed, *clusterToTPMap_)  :weightedNumberOfTrackClusters(*pSeed, *hitAssociator_);
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
 			if( numberOfSharedClusters == 0.0 ) continue; // No point in continuing if there was no association
@@ -730,6 +730,33 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 	return returnValue;
 }
 
+// count hits
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const {
+  const reco::HitPattern& p = track.hitPattern();
+  const auto pixelHits = p.numberOfValidPixelHits();
+  const auto otherHits = p.numberOfValidHits() - pixelHits;
+  return pixelHits*pixelHitWeight_ + otherHits;
+}
+
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const {
+  double sum = 0.0;
+  for(auto iHit=seed.recHits().first; iHit!=seed.recHits().second; ++iHit) {
+    const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+    const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
+    sum += weight;
+  }
+  return sum;
+}
+
+// count clusters
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco::Track& track, const ClusterTPAssociation&) const {
+  return weightedNumberOfTrackClusters(track.recHitsBegin(), track.recHitsEnd());
+}
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed, const ClusterTPAssociation&) const {
+  const auto& hitRange = seed.recHits();
+  return weightedNumberOfTrackClusters(hitRange.first, hitRange.second);
+}
+
 template<typename iter> double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(iter begin, iter end) const {
 
   double weightedClusters = 0.0;
@@ -748,3 +775,4 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::weightedNumberOfT
 
   return weightedClusters;
 }
+
