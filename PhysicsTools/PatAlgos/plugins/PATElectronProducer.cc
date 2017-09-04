@@ -1174,6 +1174,9 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;
   anElectron.setDB( d0_corr, d0_err, pat::Electron::BS3D);
+
+    // PVDZ
+  anElectron.setDB( track->dz(primaryVertex.position()), track->dzError(), pat::Electron::PVDZ );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

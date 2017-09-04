@@ -229,7 +229,7 @@ namespace pat {
 	// IpType defines the type of the impact parameter
 	typedef enum IPTYPE 
 	  {
-	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
+	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
 	double dB(IPTYPE type) const;

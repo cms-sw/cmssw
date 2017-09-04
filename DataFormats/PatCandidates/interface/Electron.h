@@ -203,7 +203,7 @@ namespace pat {
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       // ---- embed various impact parameters with errors ----
-      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4 } IpType;
+      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5 } IpType;
       /// Impact parameter wrt primary vertex or beamspot
       double dB(IPTYPE type) const;
       /// Uncertainty on the corresponding impact parameter
