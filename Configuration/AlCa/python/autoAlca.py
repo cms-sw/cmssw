@@ -24,14 +24,14 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
                   # This is in the AlCaRecoMatrix, but no RelVals are produced
                   # 'TestEnablesTracker'  : 'TkAlLAS'
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
-                  "MET" : "",
-                  "SingleMu" : "",
-                  "DoubleMu" : "",
-                  "DoubleMuParked" : "",
-                  "MuOniaParked" : "",
-                  "DoubleElectron" : "",
-                  "StreamExpress" : "",
-                  "StreamExpressHI" : ""
+                  "MET" : "HcalCalNoise",
+                  "SingleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO",
+                  "DoubleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
+                  "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
+                  "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                  "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
+                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias",
+                  "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalibHI"
 
                   }
 
