@@ -19,7 +19,10 @@
 #include <iostream>
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : SeedPt(nullptr)
+    : TrackingRegionEta(nullptr)
+    , TrackingRegionPhi(nullptr)
+    , TrackingRegionPhiVsEta(nullptr)
+    , SeedPt(nullptr)
     , SeedEta(nullptr)
     , SeedPhi(nullptr)
     , SeedPhiVsEta(nullptr)
@@ -105,6 +108,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   edm::InputTag seedProducer   = iConfig.getParameter<edm::InputTag>("SeedProducer");
   edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
   std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
+  edm::InputTag regionProducer = iConfig.getParameter<edm::InputTag>("RegionProducer");
   
   doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
   doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
@@ -123,6 +127,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
   doStopSource   = iConfig.getParameter<bool>("doStopSource");
   doMVAPlots     = iConfig.getParameter<bool>("doMVAPlots");
+  doRegionPlots  = iConfig.getParameter<bool>("doRegionPlots");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
@@ -208,6 +213,29 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     NumberOfRecHitsPerSeedVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, SeedHitBin, SeedHitMin, SeedHitMax,"s");
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Seed #eta",1);
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Number of RecHits of each Seed",2);
+  }
+
+  if (doRegionPlots) {
+    if (doAllSeedPlots || doETA) {
+      histname = "TrackingRegionEta_"+seedProducer.label() + "_";
+      TrackingRegionEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+      TrackingRegionEta->setAxisTitle("TrackingRegion #eta", 1);
+      TrackingRegionEta->setAxisTitle("Number of TrackingRegions", 2);
+    }
+
+    if (doAllSeedPlots || doPHI) {
+      histname = "TrackingRegionPhi_"+seedProducer.label() + "_";
+      TrackingRegionPhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+      TrackingRegionPhi->setAxisTitle("TrackingRegion #phi", 1);
+      TrackingRegionPhi->setAxisTitle("Number of TrackingRegions", 2);
+    }
+
+    if (doAllSeedPlots || doPHIVsETA) {
+      histname = "TrackingRegionPhiVsEta_"+seedProducer.label() + "_";
+      TrackingRegionPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+      TrackingRegionPhiVsEta->setAxisTitle("TrackingRegion #eta", 1);
+      TrackingRegionPhiVsEta->setAxisTitle("TrackingRegion #phi", 2);
+    }
   }
 
   if (doAllTCPlots || doStopSource) {
@@ -553,5 +581,19 @@ void TrackBuildingAnalyzer::analyze(const edm::View<reco::Track>& trackCollectio
       if(selectedLoose && selectedHP)
         break;
     }
+  }
+}
+
+void TrackBuildingAnalyzer::analyze(const edm::OwnVector<TrackingRegion>& regions) {
+  if(!doRegionPlots)
+    return;
+
+  for(const auto& region: regions) {
+    const auto dir = region.direction();
+    const auto eta = dir.eta();
+    const auto phi = dir.phi();
+    if (doAllSeedPlots || doETA) TrackingRegionEta->Fill( eta );
+    if (doAllSeedPlots || doPHI) TrackingRegionPhi->Fill( phi );
+    if (doAllSeedPlots || doPHIVsETA) TrackingRegionPhiVsEta->Fill( eta, phi);
   }
 }

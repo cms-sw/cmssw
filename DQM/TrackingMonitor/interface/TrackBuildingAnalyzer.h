@@ -29,6 +29,9 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+
 class TrackBuildingAnalyzer 
 {
     public:
@@ -62,6 +65,10 @@ class TrackBuildingAnalyzer
             const std::vector<const MVACollection *>& mvaCollections,
             const std::vector<const QualityMaskCollection *>& qualityMaskCollections
         );
+        void analyze
+        (
+            const edm::OwnVector<TrackingRegion>& regions
+        );
 
     private:
 
@@ -69,6 +76,11 @@ class TrackBuildingAnalyzer
         void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
 
         // ----------member data ---------------------------
+
+        // Tracking regions
+        MonitorElement* TrackingRegionEta;
+        MonitorElement* TrackingRegionPhi;
+	MonitorElement* TrackingRegionPhiVsEta;
 
         // Track Seeds
         MonitorElement* SeedPt;
@@ -127,5 +139,6 @@ class TrackBuildingAnalyzer
 	bool doProfETA;
 	bool doStopSource;
 	bool doMVAPlots;
+	bool doRegionPlots;
 };
 #endif

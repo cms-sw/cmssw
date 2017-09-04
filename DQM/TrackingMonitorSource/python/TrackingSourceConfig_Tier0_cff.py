@@ -243,6 +243,9 @@ for step in seedInputTag.iterkeys():
     elif clusterLabel[step] == cms.vstring('Strip') or clusterLabel[step] == cms.vstring('Tot') :
         locals()[label].NClusStrBin = clusterBin[step]
         locals()[label].NClusStrMax = clusterMax[step]
+    if step in regionLabel:
+        locals()[label].doRegionPlots = True
+        locals()[label].RegionProducer = regionLabel[step]
 
 # DQM Services
 dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",
