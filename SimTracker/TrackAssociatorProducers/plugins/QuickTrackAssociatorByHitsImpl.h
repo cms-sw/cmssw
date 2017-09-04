@@ -171,8 +171,14 @@ public:
     return &(*iter);
   }
   
-  template<typename iter> double weightedNumberOfTrackClusters(iter begin, iter end) const ;
+  // The last parameter is used to decide whether we cound hits or clusters
+  double weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const reco::Track& track, const ClusterTPAssociation&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const ClusterTPAssociation&) const;
 
+  // called only by weightedNumberOfTrackClusters(..., ClusterTPAssociation)
+  template<typename iter> double weightedNumberOfTrackClusters(iter begin, iter end) const ;
 
   /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *
