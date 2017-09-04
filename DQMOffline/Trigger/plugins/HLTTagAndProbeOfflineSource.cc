@@ -98,10 +98,12 @@ using HLTEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElec
 using HLTPhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Photon,reco::PhotonCollection>;
 using HLTElePhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElectron,reco::GsfElectronCollection,reco::Photon,reco::PhotonCollection>;
 using HLTMuEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection,reco::GsfElectron,reco::GsfElectronCollection>;
+using HLTMuPhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection,reco::Photon,reco::PhotonCollection>;
 using HLTMuTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection>;
 DEFINE_FWK_MODULE(HLTEleTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTPhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTElePhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTMuEleTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTMuPhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTMuTagAndProbeOfflineSource);
 

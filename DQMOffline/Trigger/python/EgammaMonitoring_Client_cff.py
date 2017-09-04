@@ -15,7 +15,7 @@ def makeEGEffHistDef(baseName,filterName):
             
 def makeAllEGEffHistDefs():
     baseNames=["eleWPTightTag","eleWPTightTag-HEP17","eleWPTightTag-HEM17"]
-    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32noerWPTightGsfTrackIsoFilter","hltEle35noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEG25L1EG18HEFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550","hltEle28HighEtaSC20TrackIsoFilter","hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle135CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle145CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle200CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle250CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle300CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle20WPLoose1GsfTrackIsoFilter","hltEle20erWPLoose1GsfTrackIsoFilter","hltEle20WPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightEcalIsoFilter","hltDiEle27L1DoubleEGWPTightEcalIsoFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle25CaloIdLMWPMS2Filter","hltDiEle25CaloIdLMWPMS2UnseededFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle37CaloIdLMWPMS2UnseededFilter","hltSingleEle35WPTightGsfL1EGMTTrackIsoFilter"
+    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32WPTightGsfTrackIsoFilter","hltEle35noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEG25L1EG18HEFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550","hltEle28HighEtaSC20TrackIsoFilter","hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle135CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle145CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle200CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle250CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle300CaloIdVTGsfTrkIdTGsfDphiFilter","hltEle20WPLoose1GsfTrackIsoFilter","hltEle20erWPLoose1GsfTrackIsoFilter","hltEle20WPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightEcalIsoFilter","hltDiEle27L1DoubleEGWPTightEcalIsoFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle25CaloIdLMWPMS2Filter","hltDiEle25CaloIdLMWPMS2UnseededFilter","hltEle27CaloIdLMWPMS2Filter","hltDiEle27CaloIdLMWPMS2UnseededFilter","hltEle37CaloIdLMWPMS2UnseededFilter","hltSingleEle35WPTightGsfL1EGMTTrackIsoFilter"
                  ]
     
     
@@ -40,6 +40,19 @@ def makeAllEGEffHistDefs():
         for filterName in filterNames:
             histDefs.extend(makeEGEffHistDef(baseName,filterName))
     
+    baseNames=["muonIsoMuTagPhoProbe","muonIsoMuTagPhoProbe-HEM17","muonIsoMuTagPhoProbe-HEP17"]
+    filterNames=["hltMu12DiEG20HEUnseededFilter"]
+
+    for baseName in baseNames:
+        for filterName in filterNames:
+            histDefs.extend(makeEGEffHistDef(baseName,filterName))
+
+    baseNames=["muonIsoMuTagEleProbe","muonIsoMuTagEleProbe-HEM17","muonIsoMuTagEleProbe-HEP17"]
+    filterNames=["hltMu12DiEG20HEUnseededFilter","hltEle27CaloIdLMWPMS2UnseededFilter","hltEle37CaloIdLMWPMS2UnseededFilter","hltEle33CaloIdLMWPMS2Filter","hltEle32WPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"]
+    for baseName in baseNames:
+        for filterName in filterNames:
+            histDefs.extend(makeEGEffHistDef(baseName,filterName))
+
 #    print histDefs
     return histDefs
 
