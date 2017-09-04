@@ -193,7 +193,7 @@ namespace pat {
       void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso, dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
-      const PFIsolation& miniPFIsolation() { return miniPFIsolation_; }
+      const PFIsolation& miniPFIsolation() const { return miniPFIsolation_; }
       void setMiniPFIsolation(PFIsolation const& iso)  { miniPFIsolation_ = iso; }
 
     protected:
