@@ -35,13 +35,13 @@
 class ECALpedestalPCLHarvester : public  DQMEDHarvester {
    public:
       explicit ECALpedestalPCLHarvester(const edm::ParameterSet& ps);
-      void endRun(edm::Run const& run, edm::EventSetup const & isetup);
+      void endRun(edm::Run const& run, edm::EventSetup const & isetup) override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
      
-      void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) ;
+      void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override ;
 
       void  dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker);
 
