@@ -396,6 +396,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	  //working version for in-time PU and signal 
 	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(toaFromToT[it]/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	}
+      newSample.setToAValid(totForToaFlags[it]);
       dataFrame.setSample(it,newSample);
     }
 
