@@ -219,34 +219,41 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
      for(unsigned int i(0); i < mucands->size(); ++i){
 	RecoChargedCandidateRef cand(mucands,i);
         TrackRef tk = cand->track(); // is inner track
-	check_l1match = true;
-	for(auto const & link : *links){
 
-	  // Using the same method that was used to create the links between L3 and L2
-	  // ToDo: there should be a better way than dR,dPt matching
-	  const reco::Track& trackerTrack = *link.trackerTrack();
-          if (tk->pt()==0 or trackerTrack.pt()==0) continue;
+	if (!matchPreviousCand_){
+	    MuonToL3s[i] = RecoChargedCandidateRef(cand);
+	}
+	else{
 
-	  float dR2 = deltaR2(tk->eta(),tk->phi(),trackerTrack.eta(),trackerTrack.phi());
-	  float dPt = std::abs(tk->pt() - trackerTrack.pt())/tk->pt();
+	  check_l1match = true;
+	  for(auto const & link : *links){
 
-	  if (matchPreviousCand_ and dR2 < 0.02*0.02 and dPt < 0.001) {
-	      const TrackRef staTrack = link.standAloneTrack();
-	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
-	      check_l1match = false;
-	  }
-        } //MTL loop
+	    // Using the same method that was used to create the links between L3 and L2
+	    // ToDo: there should be a better way than dR,dPt matching
+	    const reco::Track& trackerTrack = *link.trackerTrack();
+            if (tk->pt()==0 or trackerTrack.pt()==0) continue;
 
-        if (not l1CandTag_.label().empty() and check_l1match and matchPreviousCand_){
-            iEvent.getByToken(l1CandToken_,level1Cands);
-            level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
-            const unsigned int nL1Muons(vl1cands.size());
-	    for (unsigned int il1=0; il1!=nL1Muons; ++il1) {
-                if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) < L1MatchingdR_) { //was muon, non cand
-  	          MuonToL3s[i] = RecoChargedCandidateRef(cand);
-                }
+	    float dR2 = deltaR2(tk->eta(),tk->phi(),trackerTrack.eta(),trackerTrack.phi());
+	    float dPt = std::abs(tk->pt() - trackerTrack.pt())/tk->pt();
+
+	    if (dR2 < 0.02*0.02 and dPt < 0.001) {
+	        const TrackRef staTrack = link.standAloneTrack();
+	        L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	        check_l1match = false;
 	    }
-        }
+          } //MTL loop
+
+          if (not l1CandTag_.label().empty() and check_l1match){
+              iEvent.getByToken(l1CandToken_,level1Cands);
+              level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
+              const unsigned int nL1Muons(vl1cands.size());
+	      for (unsigned int il1=0; il1!=nL1Muons; ++il1) {
+                  if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) < L1MatchingdR_) { //was muon, non cand
+  	            MuonToL3s[i] = RecoChargedCandidateRef(cand);
+                  }
+	      }
+          }
+        }  
      } //RCC loop
    } //end of using normal TrajectorySeeds
 
@@ -263,7 +270,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    bool atLeastOnePair=false;
    for (; L2toL3s_it1!=L2toL3s_end; ++L2toL3s_it1){
 
-     if (matchPreviousCand_ and (!triggeredByLevel2(L2toL3s_it1->first,vl2cands))) continue;
+     if (!triggeredByLevel2(L2toL3s_it1->first,vl2cands)) continue;
 
      //loop over the L3Tk reconstructed for this L2.
      unsigned int iTk1=0;
