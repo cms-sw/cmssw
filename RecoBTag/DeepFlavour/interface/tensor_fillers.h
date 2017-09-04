@@ -49,16 +49,16 @@ namespace deep {
 
     float* ptr = tensor->getPtr<float>(jet_n, c_pf_n, 0);
 
-    *ptr     = c_pf_features.BtagPf_trackEtaRel;
-    *(++ptr) = c_pf_features.BtagPf_trackPtRel;
-    *(++ptr) = c_pf_features.BtagPf_trackPPar;
-    *(++ptr) = c_pf_features.BtagPf_trackDeltaR;
-    *(++ptr) = c_pf_features.BtagPf_trackPParRatio;
-    *(++ptr) = c_pf_features.BtagPf_trackSip2dVal;
-    *(++ptr) = c_pf_features.BtagPf_trackSip2dSig;
-    *(++ptr) = c_pf_features.BtagPf_trackSip3dVal;
-    *(++ptr) = c_pf_features.BtagPf_trackSip3dSig;
-    *(++ptr) = c_pf_features.BtagPf_trackJetDistVal;
+    *ptr     = c_pf_features.btagPf_trackEtaRel;
+    *(++ptr) = c_pf_features.btagPf_trackPtRel;
+    *(++ptr) = c_pf_features.btagPf_trackPPar;
+    *(++ptr) = c_pf_features.btagPf_trackDeltaR;
+    *(++ptr) = c_pf_features.btagPf_trackPParRatio;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dSig;
+    *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
     *(++ptr) = c_pf_features.ptrel;
     *(++ptr) = c_pf_features.drminsv;
     *(++ptr) = c_pf_features.VTX_ass;

@@ -44,23 +44,23 @@ class ChargedCandidateFeatures {
     float  dphidxy;
     float  dlambdadz;
 
-    float BtagPf_trackMomentum;
-    float BtagPf_trackEta;
-    float BtagPf_trackEtaRel;
-    float BtagPf_trackPtRel;
-    float BtagPf_trackPPar;
-    float BtagPf_trackDeltaR;
-    float BtagPf_trackPtRatio;
-    float BtagPf_trackPParRatio;
-    float BtagPf_trackSip3dVal;
-    float BtagPf_trackSip3dSig;
-    float BtagPf_trackSip2dVal;
-    float BtagPf_trackSip2dSig;
+    float btagPf_trackMomentum;
+    float btagPf_trackEta;
+    float btagPf_trackEtaRel;
+    float btagPf_trackPtRel;
+    float btagPf_trackPPar;
+    float btagPf_trackDeltaR;
+    float btagPf_trackPtRatio;
+    float btagPf_trackPParRatio;
+    float btagPf_trackSip3dVal;
+    float btagPf_trackSip3dSig;
+    float btagPf_trackSip2dVal;
+    float btagPf_trackSip2dSig;
 
-    float BtagPf_trackDecayLen;
+    float btagPf_trackDecayLen;
 
-    float BtagPf_trackJetDistVal;
-    float BtagPf_trackJetDistSig;
+    float btagPf_trackJetDistVal;
+    float btagPf_trackJetDistSig;
 
     // ID, skipped "charged hadron" as that is true if now the other
     // TODO (comment of Markus Stoye) add reco information
