@@ -42,6 +42,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+//george
+#include "TLorentzVector.h"
 
 class GenericTriggerEventFlag;
 
@@ -56,6 +58,9 @@ public:
   TopMonitor( const edm::ParameterSet& );
   ~TopMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+//george
+  bool mllpairscut(std::vector<TLorentzVector> mu, double uppercut, double lowercut);
+  
 
 protected:
 
@@ -251,7 +256,7 @@ private:
   double MHTcut_;
   double mll;
   int   sign;
-  
+  bool invMassCutInAllMuPairs_;
 
 
   
