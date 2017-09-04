@@ -15,9 +15,8 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char tdcNbits[]         = "tdcNbits";
   constexpr char tdcSaturation[]    = "tdcSaturation";
   constexpr char tdcOnset[]         = "tdcOnset";
-  constexpr char tdcForToaOnset[]   = "tdcForToaOnset";
   constexpr char toaLSB_ns[]        = "toaLSB_ns";
-  constexpr char fCPerMIP[]         = "fCPerMIP";
+  constexpr char fCPerMIP[]          = "fCPerMIP";
   
   if( conf.exists(isSiFE) ) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
@@ -46,12 +45,6 @@ void configureIt(const edm::ParameterSet& conf,
     maker.set_tdcOnsetfC(-1.);
   } 
 
-  if( conf.exists(tdcForToaOnset) ) {
-    maker.set_tdcForToaOnsetfC(conf.getParameter<std::vector<double> >(tdcForToaOnset)); // in fC for each thickness
-  } else {
-    maker.set_tdcForToaOnsetfC(std::vector<double>({-1.0}));
-  }
-    
   if( conf.exists(toaLSB_ns) ) {
     maker.set_toaLSBToNS(conf.getParameter<double>(toaLSB_ns));
   } else {
