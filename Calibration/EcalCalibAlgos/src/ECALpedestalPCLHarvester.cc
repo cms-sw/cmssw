@@ -16,7 +16,7 @@
 #include <string>
 
 ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
-    currentPedestals_(0),channelStatus_(0){
+    currentPedestals_(nullptr),channelStatus_(nullptr){
 
     chStatusToExclude_= StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToExclude"));
     minEntries_=ps.getParameter<int>("MinEntries");
