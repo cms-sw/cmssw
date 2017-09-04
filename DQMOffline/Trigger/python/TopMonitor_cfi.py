@@ -14,6 +14,9 @@ hltTOPmonitoring.histoPSet.ptPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
+hltTOPmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 hltTOPmonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.uint32(  32  ),
   xmin  = cms.double( -3.2 ),
@@ -54,11 +57,11 @@ hltTOPmonitoring.histoPSet.invMassPSet = cms.PSet(
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 80.0  ),
 )
-#hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
-#  nbins = cms.uint32(   80  ),
-#  xmin  = cms.double(   60   ),
-#  xmax  = cms.double(  300  ),
-#)
+hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
+)
 
 
 #MET and HT binning

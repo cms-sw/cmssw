@@ -14,6 +14,9 @@ mssmHbbMonitoring.histoPSet.ptPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  1000  ), #300
 )
+mssmHbbMonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 mssmHbbMonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.uint32(  32  ),
   xmin  = cms.double( -3.2 ),
@@ -47,6 +50,16 @@ mssmHbbMonitoring.applyleptonPVcuts = cms.bool(False)
 mssmHbbMonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   9999.   ),
   dz  = cms.double(   9999.   ),
+)
+mssmHbbMonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+mssmHbbMonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
 )
 
 #MET and HT binning

@@ -9,6 +9,9 @@ hltHIGmonitoring.histoPSet.metPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
+hltHIGmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 hltHIGmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.uint32 (  60   ),
   xmin  = cms.double(   0   ),
@@ -47,6 +50,16 @@ hltHIGmonitoring.applyleptonPVcuts = cms.bool(True)
 hltHIGmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   0.5  ),
   dz  = cms.double(   1.   ),
+)
+hltHIGmonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+hltHIGmonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
 )
 
 

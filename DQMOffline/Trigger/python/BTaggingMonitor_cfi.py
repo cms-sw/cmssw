@@ -9,6 +9,9 @@ hltBTVmonitoring.histoPSet.metPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
+hltBTVmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 hltBTVmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.uint32(  100  ),
   xmin  = cms.double(   0   ),
@@ -38,6 +41,16 @@ hltBTVmonitoring.histoPSet.DRPSet = cms.PSet(
   nbins = cms.uint32( 60  ),
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 6.0 ),
+)
+hltBTVmonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+hltBTVmonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
 )
 
 

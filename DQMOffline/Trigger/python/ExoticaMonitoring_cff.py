@@ -13,7 +13,7 @@ exoticaMonitorHLT = cms.Sequence(
   + exoHLTNoBPTXmonitoring
   + exoHLTPhotonmonitoring
   + exoHLTHTmonitoring
-  + exoHLTMETplusTrackMonitoring
+# + exoHLTMETplusTrackMonitoring    # disabled pending the review of METplusTrackMonitor.cc
   + exoHLTMuonmonitoring
   + exoHLTDisplacedJetmonitoring
 )
