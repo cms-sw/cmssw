@@ -39,7 +39,7 @@ namespace fastsim
 			If the radius of the helix is smaller than 5000cm a full analytic solution is calculated.
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer) const override;
+		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = 0) const override;
 
 		//! Move the particle along the helix trajectory for a given time.
     	/*!
