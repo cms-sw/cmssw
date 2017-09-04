@@ -41,8 +41,8 @@ public:
 
 private:
     virtual void beginJob() ;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);   
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) ;
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);   
+    void analyze(const edm::Event&, const edm::EventSetup&) ;
     virtual void endJob() ;
 
 
