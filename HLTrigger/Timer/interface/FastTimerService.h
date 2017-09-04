@@ -17,7 +17,6 @@
 #include <tbb/concurrent_unordered_set.h>
 #include <tbb/enumerable_thread_specific.h>
 
-
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -253,6 +252,23 @@ private:
     unsigned  events;
   };
 
+  // per-thread measurements
+  struct Measurement {
+  public:
+    Measurement();
+    void measure();
+    void measure_and_store(Resources & store);
+
+  public:
+    #ifdef DEBUG_THREAD_CONCURRENCY
+    std::thread::id                                  id;
+    #endif // DEBUG_THREAD_CONCURRENCY
+    boost::chrono::thread_clock::time_point          time_thread;
+    boost::chrono::high_resolution_clock::time_point time_real;
+    uint64_t                                         allocated;
+    uint64_t                                         deallocated;
+  };
+
   struct ResourcesPerPath {
   public:
     ResourcesPerPath();
@@ -294,26 +310,11 @@ private:
     std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
     unsigned                         events;
+
+    // real time spent between preSourceEvent and postEvent
+    Resources                        event;
+    Measurement                      event_measurement;
   };
-
-
-  // per-thread measurements
-  struct Measurement {
-  public:
-    Measurement();
-    void measure();
-    void measure_and_store(Resources & store);
-
-  public:
-    #ifdef DEBUG_THREAD_CONCURRENCY
-    std::thread::id                                  id;
-    #endif // DEBUG_THREAD_CONCURRENCY
-    boost::chrono::thread_clock::time_point          time_thread;
-    boost::chrono::high_resolution_clock::time_point time_real;
-    uint64_t                                         allocated;
-    uint64_t                                         deallocated;
-  };
-
 
   // plot ranges and resolution
   struct PlotRanges {
@@ -400,6 +401,7 @@ private:
   private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
+    PlotsPerElement              event_ex_;
     // resources spent in the highlighted modules
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
