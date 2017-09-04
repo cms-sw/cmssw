@@ -175,7 +175,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 {
   busyFlags.fill(false);
   totFlags.fill(false);
-  totForToaFlags.fill(false);
+  toaFlags.fill(false);
   newCharge.fill( 0.f );
   toaFromToT.fill( 0.f );
 
@@ -200,9 +200,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     timeTOA = toaColl[fireBX];
     if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
     else timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, tdcResolutionInNs_);
-
-    totForToaFlags[fireBX] = true;
-    toaFromToT[fireBX] = timeTOA;
+    toaFlags[fireBX] = true;
   }
 
   //now look at charge
@@ -307,7 +305,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         //finalize ToA contamination
         if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
       }
-
+      //toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
       
       if(debug) edm::LogVerbatim("HGCFE") << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -354,10 +352,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   };
   runChargeSharing();
 
+
+  /*
   //should keep track of the BX firing the ToA somewhere to restore the use of finalToA 
   float finalToA(0.);
   for(int it=0; it<(int)(newCharge.size()); it++){
-    if(totForToaFlags[it]){
+    if(toaFlags[it]){
       finalToA = toaFromToT[it];
       //to avoid +=25 for small negative time taken as 0          
       while(finalToA < -1.e-5)  finalToA+=25.f;
@@ -365,7 +365,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
       toaFromToT[it] = finalToA;
     }
   }
-
+  */
+  //timeTOA is already in 0-25ns range by construction
 
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
@@ -382,7 +383,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
 	      //working version for in-time PU and signal 
-	      newSample.set(true,true,(uint16_t)(toaFromToT[it]/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      //	      newSample.set(true,true,(uint16_t)(toaFromToT[it]/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      newSample.set(true,true,(uint16_t)(timeTOA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      if(toaFlags[it]) newSample.setToAValid(true);
 	    }
 	  else
 	    {
@@ -394,9 +397,10 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
 	  //working version for in-time PU and signal 
-	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(toaFromToT[it]/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  //	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(toaFromToT[it]/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeTOA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  if(toaFlags[it]) newSample.setToAValid(true);
 	}
-      newSample.setToAValid(totForToaFlags[it]);
       dataFrame.setSample(it,newSample);
     }
 

@@ -20,9 +20,9 @@ public:
   /**
      @short CTOR
    */
- HGCSample() : value_(0) { }
- HGCSample(uint32_t value) : value_(value) { }
- HGCSample( const HGCSample& o ) : value_(o.value_) { }
+ HGCSample() : value_(0), toaFired_(0) { }
+ HGCSample(uint32_t value) : value_(value), toaFired_(0) { }
+ HGCSample( const HGCSample& o ) : value_(o.value_), toaFired_(o.toaFired_) { }
 
   /**
      @short setters
