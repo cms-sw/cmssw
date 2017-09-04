@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DEMO",eras.Run2_2016,eras.fastSim)
+process = cms.Process("RECO",eras.Run2_2016,eras.fastSim)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 # load particle data table
@@ -23,7 +23,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # read generator event from file
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:gen_muGen.root'),
+    fileNames = cms.untracked.vstring('file:gen_muGun.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_genParticlesForJets_*_*', 
         'drop *_kt4GenJets_*_*', 
@@ -40,7 +40,8 @@ process.source = cms.Source("PoolSource",
         'drop *_genMetCaloAndNonPrompt_*_*', 
         'drop *_genMetTrue_*_*', 
         'drop *_genMetIC5GenJs_*_*'),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    #skipEvents=cms.untracked.uint32(150)
 )
 
 # configure random number generator for simhit production
@@ -191,7 +192,8 @@ process.load("FastSimulation.SimplifiedGeometryPropagator.fastSimProducer_cff")
 
 # Output definition
 process.FEVTDEBUGHLTEventContent.outputCommands.extend([
-        'keep *_fastSimProducer_*_*'
+        'keep *_fastSimProducer_*_*',
+        'drop recoPFTauDiscriminator_*_*_*'
     ])
 
 #process.FEVTDEBUGHLTEventContent.outputCommands.append(

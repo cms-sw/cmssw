@@ -65,7 +65,7 @@ namespace fastsim
 			\param layer A forward layer.
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		double nextCrossingTimeC(const ForwardSimplifiedGeometry & layer) const;
+		double nextCrossingTimeC(const ForwardSimplifiedGeometry & layer, bool onLayer = false) const;
 
 		//! Return delta time (t*c) of the next intersection of trajectory and barrel layer
     	/*!
@@ -73,7 +73,7 @@ namespace fastsim
 			\param layer A barrel layer.
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		virtual double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer) const = 0;
+		virtual double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = false) const = 0;
 
 		//! Move the particle along the trajectory for a given time.
     	/*!

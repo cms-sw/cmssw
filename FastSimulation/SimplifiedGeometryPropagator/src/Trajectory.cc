@@ -35,21 +35,21 @@ double fastsim::Trajectory::nextCrossingTimeC(const fastsim::SimplifiedGeometry 
 {
     if(layer.isForward())
     {
-        if(onLayer)
-        {
-            return false;
-        }
-        return this->nextCrossingTimeC(static_cast<const fastsim::ForwardSimplifiedGeometry &>(layer));
+        return this->nextCrossingTimeC(static_cast<const fastsim::ForwardSimplifiedGeometry &>(layer), onLayer);
     }
     else
     {
-        return this->nextCrossingTimeC(static_cast<const fastsim::BarrelSimplifiedGeometry &>(layer));
+        return this->nextCrossingTimeC(static_cast<const fastsim::BarrelSimplifiedGeometry &>(layer), onLayer);
     }
 }
 
 
-double fastsim::Trajectory::nextCrossingTimeC(const fastsim::ForwardSimplifiedGeometry & layer) const
+double fastsim::Trajectory::nextCrossingTimeC(const fastsim::ForwardSimplifiedGeometry & layer, bool onLayer) const
 {
+    if(onLayer)
+    {
+        return -1;
+    }
     // t = (z - z_0) / v_z
     // substitute: v_z = p_z / E * c  ( note: extra * c absorbed in p_z units)
     // => t*c = (z - z_0) / p_z * E

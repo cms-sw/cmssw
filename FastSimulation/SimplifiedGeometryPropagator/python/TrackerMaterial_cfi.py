@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Do not change the order of the interaction models unless you know what you are doing.
 # Not used at the moment: "muonBremsstrahlung", "nuclearInteractionFTF"
-#_trackerMaterialInteractionModels = cms.untracked.vstring("trackerSimHits")
-_trackerMaterialInteractionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+_trackerMaterialInteractionModels = cms.untracked.vstring("trackerSimHits")
+#_trackerMaterialInteractionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 
 # Material effects to be simulated in the tracker material and associated cuts 
 TrackerMaterialBlock = cms.PSet(

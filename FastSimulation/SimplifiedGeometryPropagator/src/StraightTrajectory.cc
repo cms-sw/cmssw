@@ -5,7 +5,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/BarrelSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
 
-double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimplifiedGeometry & layer) const
+double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimplifiedGeometry & layer, bool onLayer) const
 {
     //
     // solve the equation
@@ -43,16 +43,39 @@ double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimpl
     // return -1 if no positive solution exists
     // note: 'a' always positive, sqrtDelta always positive
     //
-    if(-b > sqrtDelta)
+    double tc1 = (-b - sqrtDelta)/a*momentum_.E();
+    double tc2 = (-b + sqrtDelta)/a*momentum_.E();
+
+    if(onLayer && tc2 > 0)
     {
-	   return (-b - sqrtDelta)/a*momentum_.E();
+        bool particleMovesInwards = momentum_.X()*position_.X() + momentum_.Y()*position_.Y() < 0;
+
+        double posX2 = position_.X() + momentum_.X()/momentum_.E()*tc2;
+        double posY2 = position_.Y() + momentum_.Y()/momentum_.E()*tc2;
+        bool particleMovesInwards2 = momentum_.X()*posX2 + momentum_.Y()*posY2 < 0;
+
+        if(particleMovesInwards != particleMovesInwards2)   
+        {
+            return tc2;
+        }
+
+        return -1;
+
     }
-    else if(b < sqrtDelta)
+
+    if(tc1 > 0)
     {
-	   return (-b + sqrtDelta)/a*momentum_.E();
+        return tc1;
+    }
+    else if(tc2 > 0)
+    {
+        return tc2;
     }
 
     return -1.;
+
+
+    
 }
 
 void fastsim::StraightTrajectory::move(double deltaTimeC)
