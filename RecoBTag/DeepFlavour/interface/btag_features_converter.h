@@ -1,7 +1,7 @@
 #ifndef RecoBTag_DeepFlavour_btag_features_converter_h
 #define RecoBTag_DeepFlavour_btag_features_converter_h
 
-namespace deep {
+namespace btagbtvdeep {
 
   static constexpr std::size_t max_jetNSelectedTracks =100;
 

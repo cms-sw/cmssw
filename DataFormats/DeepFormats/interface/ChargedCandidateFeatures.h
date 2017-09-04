@@ -1,7 +1,7 @@
 #ifndef DataFormats_DeepFormats_ChargedCandidateFeatures_h
 #define DataFormats_DeepFormats_ChargedCandidateFeatures_h
 
-namespace deep {
+namespace btagbtvdeep {
 
 class ChargedCandidateFeatures {
 

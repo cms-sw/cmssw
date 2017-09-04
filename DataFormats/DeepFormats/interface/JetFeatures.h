@@ -1,7 +1,7 @@
 #ifndef DataFormats_DeepFormats_JetFeatures_h
 #define DataFormats_DeepFormats_JetFeatures_h
 
-namespace deep {
+namespace btagbtvdeep {
 
 class JetFeatures {
 

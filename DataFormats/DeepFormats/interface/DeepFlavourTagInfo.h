@@ -21,14 +21,14 @@ template<class Features> class FeaturesTagInfo : public BaseTagInfo {
 
     virtual edm::RefToBase<Jet> jet() const { return jet_ref_; }
 
-    const Features & features() const { return features_; } ; 
+    const Features & features() const { return features_; }
 
   private:
     Features features_;
     edm::RefToBase<Jet> jet_ref_;
 };
 
-typedef  FeaturesTagInfo<deep::DeepFlavourFeatures> DeepFlavourTagInfo;
+typedef  FeaturesTagInfo<btagbtvdeep::DeepFlavourFeatures> DeepFlavourTagInfo;
 
 DECLARE_EDM_REFS( DeepFlavourTagInfo )
 

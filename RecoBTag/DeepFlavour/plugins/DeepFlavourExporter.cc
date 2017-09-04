@@ -46,7 +46,7 @@ class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResource
     // to keep data to be saved in the TTree
     std::vector<std::string> disc_names_;
     std::vector<float> disc_values_;
-    deep::DeepFlavourFeatures features_;
+    btagbtvdeep::DeepFlavourFeatures features_;
     
     bool use_jet_src_;
 

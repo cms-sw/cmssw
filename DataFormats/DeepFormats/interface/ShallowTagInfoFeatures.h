@@ -1,7 +1,7 @@
 #ifndef DataFormats_DeepFormats_ShallowTagInfoFeatures_h
 #define DataFormats_DeepFormats_ShallowTagInfoFeatures_h
 
-namespace deep {
+namespace btagbtvdeep {
 
 class ShallowTagInfoFeatures {
 

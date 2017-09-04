@@ -1,7 +1,7 @@
 #ifndef RecoBTag_DeepFlavour_jet_features_converter_h
 #define RecoBTag_DeepFlavour_jet_features_converter_h
 
-namespace deep {
+namespace btagbtvdeep {
 
   template <typename JetType, typename JetFeaturesType>
   void jet_features_converter( const JetType & jet, JetFeaturesType & jet_features) {
