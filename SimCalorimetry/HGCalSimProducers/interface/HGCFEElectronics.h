@@ -106,7 +106,7 @@ class HGCFEElectronics
   uint32_t toaMode_;
   bool thresholdFollowsMIP_;
   //caches
-  std::array<bool,hgc::nSamples>  busyFlags, totFlags, totForToaFlags;
+  std::array<bool,hgc::nSamples>  busyFlags, totFlags, toaFlags;
   hgc::HGCSimHitData newCharge, toaFromToT;
 };
 
