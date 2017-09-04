@@ -1,11 +1,11 @@
 <lcgdict>
 
-  <class name="deep::JetFeatures"/>
-  <class name="deep::SecondaryVertexFeatures"/>
-  <class name="deep::ShallowTagInfoFeatures"/>
-  <class name="deep::NeutralCandidateFeatures"/>
-  <class name="deep::ChargedCandidateFeatures"/>
-  <class name="deep::DeepFlavourFeatures"/>
+  <class name="btagbtvdeep::JetFeatures"/>
+  <class name="btagbtvdeep::SecondaryVertexFeatures"/>
+  <class name="btagbtvdeep::ShallowTagInfoFeatures"/>
+  <class name="btagbtvdeep::NeutralCandidateFeatures"/>
+  <class name="btagbtvdeep::ChargedCandidateFeatures"/>
+  <class name="btagbtvdeep::DeepFlavourFeatures"/>
 
   <class name="reco::DeepFlavourTagInfo"/>
   <class name="reco::DeepFlavourTagInfoCollection"/>

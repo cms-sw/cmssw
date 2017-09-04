@@ -1,7 +1,7 @@
 #ifndef DataFormats_DeepFormats_NeutralCandidateFeatures_h
 #define DataFormats_DeepFormats_NeutralCandidateFeatures_h
 
-namespace deep {
+namespace btagbtvdeep {
 
 class NeutralCandidateFeatures {
 

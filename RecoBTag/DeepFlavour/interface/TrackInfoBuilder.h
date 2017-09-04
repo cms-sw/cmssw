@@ -9,7 +9,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "TVector3.h"
 
-namespace deep{
+namespace btagbtvdeep{
 
 // adapted from DeepNtuples
 class TrackInfoBuilder{

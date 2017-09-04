@@ -10,12 +10,12 @@
 namespace DataFormats_DeepFormats {
 
   struct dictionary {
-    deep::JetFeatures jet_features;
-    deep::SecondaryVertexFeatures secondary_vertex_features;
-    deep::ShallowTagInfoFeatures shallow_tag_info_features;
-    deep::NeutralCandidateFeatures neutral_candidate_features;
-    deep::ChargedCandidateFeatures charged_candidate_features;
-    deep::DeepFlavourFeatures deep_flavour_features;
+    btagbtvdeep::JetFeatures jet_features;
+    btagbtvdeep::SecondaryVertexFeatures secondary_vertex_features;
+    btagbtvdeep::ShallowTagInfoFeatures shallow_tag_info_features;
+    btagbtvdeep::NeutralCandidateFeatures neutral_candidate_features;
+    btagbtvdeep::ChargedCandidateFeatures charged_candidate_features;
+    btagbtvdeep::DeepFlavourFeatures deep_flavour_features;
 
     reco::DeepFlavourTagInfo deep_flavour_tag_info;
     reco::DeepFlavourTagInfoCollection deep_flavour_tag_info_collection;
