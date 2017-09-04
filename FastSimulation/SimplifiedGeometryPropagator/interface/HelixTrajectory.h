@@ -39,18 +39,24 @@ namespace fastsim
     	/*!
     		This function solves the quadratic equation (basically intersection of two circles with a given radius)
     		in order to calculate the moment in time when the particle's trajectory intersects with a given barrel layer.
-			If the radius of the helix is smaller than 5000cm a full analytic solution is calculated.
+			If the radius of the helix is smaller than 10000cm a full analytic solution is calculated.
 			In case of a larger radius a numerically more stable taylor expansion provides a simpler solution. 
 			\param layer A barrel layer.
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer) const override;
+		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = 0) const override;
 
 		//! Move the particle along the helix trajectory for a given time.
     	/*!
 			\param deltaTimeC Time in units of t*c..
     	*/
 		void move(double deltaTimeC) override;
+
+		//! Return distance of particle from center of the detector if it was at given angle phi of the helix
+    	/*!
+			\param phi angle of the helix
+    	*/
+		double getRadParticle(double phi) const;
 
 	    private:
 		const double radius_;  //!< The radius of the helix

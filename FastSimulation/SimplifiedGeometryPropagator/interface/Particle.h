@@ -1,7 +1,6 @@
 #ifndef FASTSIM_PARTCILE_H
 #define FASTSIM_PARTICLE_H
 
-#include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 
@@ -73,9 +72,9 @@ namespace fastsim
 	void setCharge(double charge) {charge_ = charge;}
 
 	//! Set layer this particle is currently on
-	void setOnLayer(const SimplifiedGeometry *layer){
-		isOnForwardLayer_ = layer->isForward();
-		isOnLayerIndex_ = layer->index();
+	void setOnLayer(bool isForward, int index){
+		isOnForwardLayer_ = isForward;
+		isOnLayerIndex_ = index;
 	}
 
 	//! Reset layer this particle is currently on
@@ -168,8 +167,8 @@ namespace fastsim
 	int genParticleIndex() const {return genParticleIndex_;}
 
 	//! Check if particle is on layer
-	bool isOnLayer(const SimplifiedGeometry *layer){
-		return isOnForwardLayer_ == layer->isForward() && isOnLayerIndex_ == layer->index();
+	bool isOnLayer(bool isForward, int index){
+		return isOnForwardLayer_ == isForward && isOnLayerIndex_ == index;
 	}
 
 	//! Returns true if particle is considered stable.

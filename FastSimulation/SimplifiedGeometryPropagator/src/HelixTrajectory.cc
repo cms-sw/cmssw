@@ -44,139 +44,146 @@ bool fastsim::HelixTrajectory::crosses(const BarrelSimplifiedGeometry & layer) c
     return (minR_ < layer.getRadius() && maxR_ > layer.getRadius());
 }
 
-double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometry & layer) const
+double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer) const
 {
 	if(!crosses(layer)) return -1;
 
-    // Taylor expansion: faster + more stable (numerically)
-    // Full helix: Valid even for geometrically "strange" properties of particle
-    bool doApproximation = (radius_ > 5000 ? true : false);
+    // solve the following equation for sin(phi)
+    // (x^2 + y^2 = R_L^2)     (1)      the layer 
+    // x = x_c + R_H*cos(phi)  (2)      the helix in the xy plane
+    // y = y_c + R_H*sin(phi)  (3)      the helix in the xy plane
+    // with
+    // R_L: the radius of the layer
+    // x_c,y_c the center of the helix in xy plane
+    // R_H, the radius of the helix
+    // phi, the phase of the helix
+    //
+    // substitute (2) and (3) in (1)
+    // =>
+    //   x_c^2 + 2*x_c*R_H*cos(phi) + R_H^2*cos^2(phi)
+    // + y_c^2 + 2*y_c*R_H*sin(phi) + R_H^2*sin^2(phi)
+    // = R_L^2
+    // =>
+    // (x_c^2 + y_c^2 + R_H^2 - R_L^2) + (2*y_c*R_H)*sin(phi) = -(2*x_c*R_H)*cos(phi)
+    //
+    // rewrite
+    //               E                 +       F    *sin(phi) =      G     *cos(phi)
+    // =>
+    // E^2 + 2*E*F*sin(phi) + F^2*sin^2(phi) = G^2*(1-sin^2(phi))
+    // rearrange
+    // sin^2(phi)*(F^2 + G^2) + sin(phi)*(2*E*F) + (E^2 - G^2) = 0
+    //
+    // rewrite
+    // sin^2(phi)*     a      + sin(phi)*   b    +      c      = 0
+    // => sin(phi) = (-b +/- sqrt(b^2 - 4*ac)) / (2*a)
+    // with
+    // a = F^2 + G^2
+    // b = 2*E*F
+    // c = E^2 - G^2
 
-    // NEW: In case the full helix propagation is not successful do Taylor expansion, too.
-    // This can happen if the particle's momentum is ~aligned with the x-/y-axis due to numerical instabilities of the geometrical functions.
-    
-    if(!doApproximation){
-        // solve the following equation for sin(phi)
-        // (x^2 + y^2 = R_L^2)     (1)      the layer 
-        // x = x_c + R_H*cos(phi)  (2)      the helix in the xy plane
-        // y = y_c + R_H*sin(phi)  (3)      the helix in the xy plane
-        // with
-        // R_L: the radius of the layer
-        // x_c,y_c the center of the helix in xy plane
-        // R_H, the radius of the helix
-        // phi, the phase of the helix
-        //
-        // substitute (2) and (3) in (1)
-        // =>
-        //   x_c^2 + 2*x_c*R_H*cos(phi) + R_H^2*cos^2(phi)
-        // + y_c^2 + 2*y_c*R_H*sin(phi) + R_H^2*sin^2(phi)
-        // = R_L^2
-        // =>
-        // (x_c^2 + y_c^2 + R_H^2 - R_L^2) + (2*y_c*R_H)*sin(phi) = -(2*x_c*R_H)*cos(phi)
-        //
-        // rewrite
-        //               E                 +       F    *sin(phi) =      G     *cos(phi)
-        // =>
-        // E^2 + 2*E*F*sin(phi) + F^2*sin^2(phi) = G^2*(1-sin^2(phi))
-        // rearrange
-        // sin^2(phi)*(F^2 + G^2) + sin(phi)*(2*E*F) + (E^2 - G^2) = 0
-        //
-        // rewrite
-        // sin^2(phi)*     a      + sin(phi)*   b    +      c      = 0
-        // => sin(phi) = (-b +/- sqrt(b^2 - 4*ac)) / (2*a)
-        // with
-        // a = F^2 + G^2
-        // b = 2*E*F
-        // c = E^2 - G^2
+    double E = centerX_*centerX_ + centerY_*centerY_ + radius_*radius_ - layer.getRadius()*layer.getRadius();
+    double F = 2*centerY_*radius_;
+    double G = 2*centerX_*radius_;
 
-        double E = centerX_*centerX_ + centerY_*centerY_ + radius_*radius_ - layer.getRadius()*layer.getRadius();
-        double F = 2*centerY_*radius_;
-        double G = 2*centerX_*radius_;
+    double a = F*F + G*G;
+    double b = 2*E*F;
+    double c = E*E - G*G;
 
-        double a = F*F + G*G;
-        double b = 2*E*F;
-        double c = E*E - G*G;
+    double delta = b*b - 4*a*c;
 
-        double delta = b*b - 4*a*c;
+    // case of no solution
+    if(delta < 0)
+    {   
+    	// Should not be reached: Full Propagation does always have a solution "if(crosses(layer)) == -1"
+        // Even if particle is outside all layers -> can turn around in magnetic field
+        throw cms::Exception("FastSimulation") << "HelixTrajectory: should not be reached (no solution).";
+    }
 
-        // case of no solution
-        if(delta < 0)
-        {   
-        	// Should not be reached: Full Propagation does always have a solution "if(crosses(layer)) == -1"
-            // Even if particle is outside all layers -> can turn around in magnetic field
-            return -1.;
-        }
+    // Uses a numerically more stable procedure:
+    // https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
+    double sqrtDelta = sqrt(delta);
+    double phi1 = 0, phi2 = 0;
+    if(b < 0){
+        phi1 = std::asin((2.*c) / (-b + sqrtDelta));
+        phi2 = std::asin((-b + sqrtDelta) / (2.*a));
+    }else{
+        phi1 = std::asin((-b - sqrtDelta) / (2.*a));
+        phi2 = std::asin((2.*c) / (-b - sqrtDelta));
+    }
 
-        // Uses a numerically more stable procedure:
-        // https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
-        double sqrtDelta = sqrt(delta);
-        double phi1 = 0, phi2 = 0;
-        if(b < 0){
-            phi1 = std::asin((2.*c) / (-b + sqrtDelta));
-            phi2 = std::asin((-b + sqrtDelta) / (2.*a));
-        }else{
-            phi1 = std::asin((-b - sqrtDelta) / (2.*a));
-            phi2 = std::asin((2.*c) / (-b - sqrtDelta));
-        }
+    // asin is ambiguous, make sure to have the right solution
+    if(std::abs(layer.getRadius() - getRadParticle(phi1)) > 1.0e-2){
+        phi1 = - phi1 + M_PI;
+    }
+    if(std::abs(layer.getRadius() - getRadParticle(phi2)) > 1.0e-2){
+        phi2 = - phi2 + M_PI;
+    }
 
-        // asin is ambiguous, make sure to have the right solution
-        if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1)))) > 1.0e-2){
-            phi1 = - phi1 + M_PI;
-        }
-        if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi2))*(centerX_ + radius_*std::cos(phi2)) + (centerY_ + radius_*std::sin(phi2))*(centerY_ + radius_*std::sin(phi2)))) > 1.0e-2){
-            phi2 = - phi2 + M_PI;
-        }
+    // another ambiguity
+    if(phi1 < 0){
+        phi1 += 2. * M_PI;
+    }
+    if(phi2 < 0){
+        phi2 += 2. * M_PI;
+    }
 
-        // another ambiguity
-        if(phi1 < 0){
-            phi1 += 2. * M_PI;
-        }
-        if(phi2 < 0){
-            phi2 += 2. * M_PI;
-        }
+    // find the corresponding times when the intersection occurs
+    // make sure they are positive
+    double t1 = (phi1 - phi_)/phiSpeed_;
+    while(t1 < 0)
+    {
+       t1 += 2*M_PI/std::abs(phiSpeed_);
+    }
+    double t2 = (phi2 - phi_)/phiSpeed_;
+    while(t2 < 0)
+    {
+       t2 += 2*M_PI/std::abs(phiSpeed_);
+    }
 
-        // Check if propagation successful (numerical reasons): both solutions (phi1, phi2) have to be on the layer (same radius)
-        // Otherwise do Taylor expansion as fallback
-        if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1)))) > 1.0e-2 
-            || std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi2))*(centerX_ + radius_*std::cos(phi2)) + (centerY_ + radius_*std::sin(phi2))*(centerY_ + radius_*std::sin(phi2)))) > 1.0e-2)
+    // Check if propagation successful (numerical reasons): both solutions (phi1, phi2) have to be on the layer (same radius)
+    // Can happen due to numerical instabilities of geometrical function
+    if(std::abs(layer.getRadius() - getRadParticle(phi1)) > 1.0e-2 
+        || std::abs(layer.getRadius() - getRadParticle(phi2)) > 1.0e-2)
+    {
+        throw cms::Exception("FastSimulation") << "HelixTrajectory: full propagation failed.";
+    }
+
+    // if the particle is already on the layer, we need to make sure the 2nd solution is picked.
+    // happens if particle turns around in the magnetic field instead of hitting the next layer
+    if(onLayer)
+    {
+        bool particleMovesInwards = momentum_.X()*position_.X() + momentum_.Y()*position_.Y() < 0;
+
+        double posX1 = centerX_ + radius_*std::cos(phi1);
+        double posY1 = centerY_ + radius_*std::sin(phi1);
+        double momX1 = momentum_.X()*std::cos(phi1 - phi_) - momentum_.Y()*std::sin(phi1 - phi_);
+        double momY1 = momentum_.X()*std::sin(phi1 - phi_) + momentum_.Y()*std::cos(phi1 - phi_);
+        bool particleMovesInwards1 = momX1*posX1 + momY1*posY1 < 0;
+
+        double posX2 = centerX_ + radius_*std::cos(phi2);
+        double posY2 = centerY_ + radius_*std::sin(phi2);
+        double momX2 = momentum_.X()*std::cos(phi2 - phi_) - momentum_.Y()*std::sin(phi2 - phi_);
+        double momY2 = momentum_.X()*std::sin(phi2 - phi_) + momentum_.Y()*std::cos(phi2 - phi_);
+        bool particleMovesInwards2 = momX2*posX2 + momY2*posY2 < 0;
+
+        if(particleMovesInwards1 != particleMovesInwards)
         {
-            doApproximation = true;
+            return t1*fastsim::Constants::speedOfLight;
         }
-
-        // Propagation successful!
-        if(!doApproximation){
-            // find the corresponding times when the intersection occurs
-            // make sure they are positive
-            double t1 = (phi1 - phi_)/phiSpeed_;
-            while(t1 < 0)
-            {
-               t1 += 2*M_PI/std::abs(phiSpeed_);
-            }
-            double t2 = (phi2 - phi_)/phiSpeed_;
-            while(t2 < 0)
-            {
-               t2 += 2*M_PI/std::abs(phiSpeed_);
-            }
-
-            // if the particle is already on the layer, we need to make sure the 2nd solution is picked.
-            // happens if particle turns around in the magnetic field instead of hitting the next layer
-
-            // cannot distinguish between both solutions: don't create a second intersection here
-            if(std::abs(phi1 - phi_)*radius_ < 1e-3 && std::abs(phi2 - phi_)*radius_ < 1e-3){
-                return -1;
-            }
-
-            if(std::abs(phi1 - phi_)*radius_ < 1e-3){
-                return t2*fastsim::Constants::speedOfLight;
-            }
-            if(std::abs(phi2 - phi_)*radius_ < 1e-3){
-                return t1*fastsim::Constants::speedOfLight;
-            }
-
-            return std::min(t1,t2)*fastsim::Constants::speedOfLight;
+        else if(particleMovesInwards2 != particleMovesInwards)
+        {
+            return t2*fastsim::Constants::speedOfLight;
+        }
+        // try to catch numerical issues again..
+        else
+        {
+            return -1;
         }
     }
 
+    return std::min(t1,t2)*fastsim::Constants::speedOfLight;
+
+/*
     ////////////////
     // Do Taylor approximation (either huge radius of trajectory or full helix was numerically not stable)
     ////////////////
@@ -217,38 +224,51 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
         delPhi2 = std::asin((2.*c) / (-b - sqrtDelta));
     }
 
+    // Get correct solution
+    double delPhi = 0;
+
+    // If particle already on layer return -1 (unless second solution):
+    if(onLayer){
+        delPhi = std::max(delPhi1, delPhi2);
+
+        bool particleMovesInwards = momentum_.X()*position_.X() + momentum_.Y()*position_.Y() < 0;
+
+        double posX2 = centerX_ + radius_*std::cos(delPhi);
+        double posY2 = centerY_ + radius_*std::sin(delPhi);
+        double momX2 = momentum_.X()*std::cos(delPhi - phi_) - momentum_.Y()*std::sin(delPhi - phi_);
+        double momY2 = momentum_.X()*std::sin(delPhi - phi_) + momentum_.Y()*std::cos(delPhi - phi_);
+        bool particleMovesInwards2 = momX2*posX2 + momY2*posY2 < 0;
+
+        if(delPhi > 0 && particleMovesInwards != particleMovesInwards2){
+            if(std::abs(delPhi) > 0.3) return -1;
+
+            return delPhi;
+        }
+
+        return -1;
+    }
+
     // Only one solution should be valid in most cases (Tayler expansion only for small delPhi)
-    double delPhi;
-    bool twoSolutions = false;
     if(phiSpeed_ > 0){
         if(delPhi1 > 0 && delPhi2 > 0){
             delPhi = std::min(delPhi1, delPhi2);
-            twoSolutions = true;
         }
         else if(delPhi1 > 0) delPhi = delPhi1;
         else delPhi = delPhi2;
     }else{
         if(delPhi1 < 0 && delPhi2 < 0){
             delPhi = std::max(delPhi1, delPhi2);
-            twoSolutions = true;
         }
         else if(delPhi1 < 0) delPhi = delPhi1;
         else delPhi = delPhi2;
     }
 
-    // If particle already on layer return -1 (unless second solution also very small):
-    if(std::abs(delPhi)*radius_ < 1e-2){
-        if(twoSolutions){
-            if(delPhi == delPhi1 && std::abs(delPhi2) < 1e-2) return delPhi2 / phiSpeed_ * fastsim::Constants::speedOfLight;
-            else if(delPhi == delPhi2 && std::abs(delPhi1) < 1e-2) return delPhi1 / phiSpeed_ * fastsim::Constants::speedOfLight;
-        }
-        return -1;
-    }
-
     // Taylor approximation not valid (and not necessary to do further propagation)
-    if(std::abs(delPhi) > 1) return -1;
+    if(std::abs(delPhi) > 0.3) return -1;
     
     return delPhi / phiSpeed_ * fastsim::Constants::speedOfLight;
+
+    */
 }
 
 void fastsim::HelixTrajectory::move(double deltaTimeC)
@@ -268,4 +288,9 @@ void fastsim::HelixTrajectory::move(double deltaTimeC)
 	   momentum_.X()*std::sin(deltaPhi) + momentum_.Y()*std::cos(deltaPhi),
 	   momentum_.Z(),
 	   momentum_.E());
+}
+
+double fastsim::HelixTrajectory::getRadParticle(double phi) const
+{
+    return sqrt((centerX_ + radius_*std::cos(phi))*(centerX_ + radius_*std::cos(phi)) + (centerY_ + radius_*std::sin(phi))*(centerY_ + radius_*std::sin(phi)));
 }

@@ -7,6 +7,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleFilter.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -127,7 +128,8 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextParticle(const 
 void fastsim::ParticleManager::addSecondaries(
     const math::XYZTLorentzVector & vertexPosition,
     int parentSimTrackIndex,
-    std::vector<std::unique_ptr<Particle> > & secondaries)
+    std::vector<std::unique_ptr<Particle> > & secondaries,
+    const SimplifiedGeometry * layer)
 {
 
     // vertex must be within the accepted volume
@@ -179,6 +181,11 @@ void fastsim::ParticleManager::addSecondaries(
 
         // set origin vertex
     	secondary->setSimVertexIndex(simVertexIndex);
+        //
+        if(layer)
+        {
+            secondary->setOnLayer(layer->isForward(), layer->index());
+        }
         // ...and add particle to buffer
     	particleBuffer_.push_back(std::move(secondary));
     }

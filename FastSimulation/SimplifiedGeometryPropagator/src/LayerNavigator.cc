@@ -72,7 +72,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     // if the layer is provided, the particle must be on it
     if(layer)
     {	
-		if(!particle.isOnLayer(layer))
+		if(!particle.isOnLayer(layer->isForward(), layer->index()))
 		{
 		    throw cms::Exception("FastSimulation") << "If layer is provided, particle must be on layer."
 		    << "\n   Layer: " << *layer
@@ -104,7 +104,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		// assume barrel layers are ordered with increasing r
 		for(const auto & layer : geometry_->barrelLayers())
 		{
-			if(layer->isOnSurface(particle.position())){
+			if(particle.isOnLayer(layer->isForward(), layer->index()) || layer->isOnSurface(particle.position())){
 				if(particleMovesInwards){
 					nextBarrelLayer_ = layer.get();
 					break;
@@ -126,7 +126,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		//  layer.z > particle z (the closest layer with layer.z < particle.z will then be considered, too)
 		for(const auto & layer : geometry_->forwardLayers())
 		{
-			if(layer->isOnSurface(particle.position())){
+			if(particle.isOnLayer(layer->isForward(), layer->index()) || layer->isOnSurface(particle.position())){
 				if(particle.momentum().Z() < 0){
 					nextForwardLayer_ = layer.get();
 					break;
@@ -234,7 +234,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     double deltaTimeC = -1;
     for(auto _layer : layers)
     {
-		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer));
+		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer->isForward(), _layer->index()));
 		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
 		if(tempDeltaTime > 0 && (layer == 0 || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
 		{
@@ -268,9 +268,10 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 
 		if(!particle.isStable()) particle.setRemainingProperLifeTimeC(particle.remainingProperLifeTimeC() - properDeltaTimeC);
 
-		particle.setOnLayer(layer);
+		particle.setOnLayer(layer->isForward(), layer->index());
 		LogDebug(MESSAGECATEGORY) << "    moved particle to layer: " << *layer;
     }else{
+    	// particle no longer is on a layer
     	particle.resetOnLayer();
     }
 

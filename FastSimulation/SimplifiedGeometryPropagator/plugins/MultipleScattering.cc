@@ -152,7 +152,7 @@ void fastsim::MultipleScattering::interact(fastsim::Particle & particle, const S
 
     // Make sure particle is still physically on the layer (particle moved on a tangent but a barrel layer is bent)
     // Happens only in very very few cases
-    if(!layer.isForward() && !layer.isOnSurface(particle.position())){
+    if(!layer.isForward() && std::abs(layer.getGeomProperty() - particle.position().Rho()) > 1e-2){
         // Scale positions so the radii agree
         double scalePos = layer.getGeomProperty() / particle.position().Rho();
         particle.position().SetXYZT(

@@ -230,7 +230,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
     	LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
-    	if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 303.){  // necessary because of hack for calorimetry...
+    	if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 302.){  // necessary because of hack for calorimetry...
 			// move the particle through the layers
 			fastsim::LayerNavigator layerNavigator(geometry_);
 			const fastsim::SimplifiedGeometry * layer = 0;
@@ -247,6 +247,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				if(layer->getCaloType() == fastsim::SimplifiedGeometry::TRACKERBOUNDARY)
 				{
 					layer = 0;
+					// particle no longer is on a layer
+    				particle->resetOnLayer();
 					break;
 				}
 
@@ -254,6 +256,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    if(particle->position().T() > 25)
 			    {
 				    layer = 0;
+				    // particle no longer is on a layer
+    				particle->resetOnLayer();
 					break;
 			    }
 
@@ -268,7 +272,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 						std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
 						interactionModel->interact(*particle,*layer,secondaries,*_randomEngine);
 						nSecondaries += secondaries.size();
-						particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
+						particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries,layer);
 				    }
 
 				    // kinematic cuts: particle might e.g. lost all its energy
@@ -308,7 +312,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// some part of the calorimetry but this is how the code works...
 	    // -----------------------------
 
-	    if(particle->position().Perp2() > 128.*128. || std::abs(particle->position().Z()) > 303.){
+	    if(particle->position().Perp2() > 128.*128. || std::abs(particle->position().Z()) > 302.){
 
 			LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 
@@ -355,12 +359,15 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	}
 
-    // store calohits
+
+	// -----------------------------
+	// Store Hits
+	// -----------------------------
 	std::unique_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
 	std::unique_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
 	std::unique_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
 	std::unique_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
-	// store muonTracks
+
 	std::unique_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
 
 	if(simulateCalorimetry)
@@ -378,14 +385,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.put(std::move(p6),"EcalHitsES");
 	iEvent.put(std::move(p7),"HcalHits");
 	iEvent.put(std::move(m1),"MuonSimTracks");
-
-	
-	
-
-
-	// -----------------------------
-	// Muon system
-	// -----------------------------
 }
 
 void
@@ -422,24 +421,31 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 	    // Define ParticlePropagators (RawParticle) needed for CalorimetryManager and save them
 	    //////////
 
-	    RawParticle PP(particle->momentum());
+	    RawParticle PP(particle->pdgId(), particle->momentum());
 	    PP.setVertex(particle->position());
 
 	    // no material
 	    if(caloLayer->getThickness(particle->position(), particle->momentum()) < 1E-10)
 	    {
 	    	// unfortunately needed for CalorimetryManager
-	    	if(caloLayer->isForward()){
-	    		if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::ECAL){
-	    			myFSimTrack.setEcal(PP, 0);
-	    		}
-	    		else if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HCAL){
-	    			myFSimTrack.setHcal(PP, 0);
-	    		}
-	    		else if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL){
-	    			myFSimTrack.setVFcal(PP, 0);
-	    		}
-	    	}
+    		if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::ECAL){
+    			if(!myFSimTrack.onEcal())
+				{
+					myFSimTrack.setEcal(PP, 0);
+				}
+    		}
+    		else if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HCAL){
+    			if(!myFSimTrack.onHcal())
+				{
+					myFSimTrack.setHcal(PP, 0);
+				}
+    		}
+    		else if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL){
+    			if(!myFSimTrack.onVFcal())
+				{
+					myFSimTrack.setVFcal(PP, 0);
+				}
+    		}
 
 	    	// not necessary to continue propagation
 	    	if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
