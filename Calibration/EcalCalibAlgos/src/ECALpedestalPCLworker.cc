@@ -14,11 +14,11 @@
 ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
 
 {
-    digiTagEB_= iConfig.getParameter<edm::InputTag>("BarrelDigis");
-    digiTagEE_= iConfig.getParameter<edm::InputTag>("EndcapDigis");
+    edm::InputTag digiTagEB= iConfig.getParameter<edm::InputTag>("BarrelDigis");
+    edm::InputTag digiTagEE= iConfig.getParameter<edm::InputTag>("EndcapDigis");
 
-    digiTokenEB_ = consumes<EBDigiCollection>(digiTagEB_);
-    digiTokenEE_ = consumes<EEDigiCollection>(digiTagEE_);
+    digiTokenEB_ = consumes<EBDigiCollection>(digiTagEB);
+    digiTokenEE_ = consumes<EEDigiCollection>(digiTagEE);
 
     pedestalSamples_ = iConfig.getParameter<uint32_t>("pedestalSamples");
     checkSignal_     = iConfig.getParameter<bool>("checkSignal");
@@ -29,6 +29,10 @@ ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
     fixedBookingCenterBin_ = iConfig.getParameter<int>("fixedBookingCenterBin");
     nBins_          = iConfig.getParameter<int>("nBins");
     dqmDir_         = iConfig.getParameter<std::string>("dqmDir");
+
+    edm::InputTag bstRecord= iConfig.getParameter<edm::InputTag>("bstRecord");  
+    bstToken_       = consumes<BSTRecord>(bstRecord);
+    requireStableBeam_ = iConfig.getParameter<bool>("requireStableBeam");
 }
 
 
@@ -40,12 +44,20 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     using namespace edm;
 
     Handle<EBDigiCollection> pDigiEB;
-    iEvent.getByLabel(digiTagEB_,pDigiEB);
+    iEvent.getByToken(digiTokenEB_,pDigiEB);
 
     Handle<EEDigiCollection> pDigiEE;
-    iEvent.getByLabel(digiTagEE_,pDigiEE);
+    iEvent.getByToken(digiTokenEE_,pDigiEE);
 
 
+    // Only Events with stable beam
+ 
+    if (requireStableBeam_){
+        edm::Handle<BSTRecord> bstData;           
+        iEvent.getByToken(bstToken_,bstData);
+        int beamMode = static_cast<int>( bstData->beamMode() );
+        if (beamMode != 11 ) return;
+    }
 
     for (EBDigiCollection::const_iterator pDigi=pDigiEB->begin(); pDigi!=pDigiEB->end(); ++pDigi){
 
