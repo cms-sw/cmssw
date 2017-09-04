@@ -7,11 +7,9 @@ DA_vectParameters = cms.PSet(
         Tmin = cms.double(2.0),           # end of vertex splitting
         Tpurge = cms.double(2.0),         # cleaning 
         Tstop = cms.double(0.5),          # end of annealing 
-        vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
-        vertexSizeTime = cms.double(0.008),
+        vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions        
         d0CutOff = cms.double(3.),        # downweight high IP tracks 
-        dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)
-        dtCutOff = cms.double(4.),        # outlier rejection after freeze-out (T<Tmin)
+        dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)       
         zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
         uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
         )
@@ -25,8 +23,10 @@ DA2D_vectParameters = cms.PSet(
         Tpurge = cms.double(4.0),         # cleaning 
         Tstop = cms.double(2.0),          # end of annealing 
         vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
+        vertexSizeTime = cms.double(0.008),
         d0CutOff = cms.double(3.),        # downweight high IP tracks 
         dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)
+        dtCutOff = cms.double(4.),        # outlier rejection after freeze-out (T<Tmin)
         zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge and tmerge
         tmerge = cms.double(1e-1),        # merge intermediat clusters separated by less than zmerge and tmerge
         uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
