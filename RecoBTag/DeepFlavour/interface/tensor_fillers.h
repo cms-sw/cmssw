@@ -4,7 +4,7 @@
 #include "PhysicsTools/TensorFlow/interface/Tensor.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
-namespace deep {
+namespace btagbtvdeep {
 
   // Note on setting tensor values:
   // Instead of using the more convenient tensor.getPtr or tensor.setVector
@@ -15,7 +15,7 @@ namespace deep {
 
   void jet_tensor_filler(tf::Tensor * tensor,
                          std::size_t jet_n,
-                         const deep::DeepFlavourFeatures & features) {
+                         const btagbtvdeep::DeepFlavourFeatures & features) {
 
     float* ptr = tensor->getPtr<float>(jet_n, 0);
 
@@ -45,7 +45,7 @@ namespace deep {
   void c_pf_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
-                          const deep::ChargedCandidateFeatures & c_pf_features) {
+                          const btagbtvdeep::ChargedCandidateFeatures & c_pf_features) {
 
     float* ptr = tensor->getPtr<float>(jet_n, c_pf_n, 0);
 
@@ -71,7 +71,7 @@ namespace deep {
   void n_pf_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t n_pf_n,
-                          const deep::NeutralCandidateFeatures & n_pf_features) {
+                          const btagbtvdeep::NeutralCandidateFeatures & n_pf_features) {
 
     float* ptr = tensor->getPtr<float>(jet_n, n_pf_n, 0);
 
@@ -87,7 +87,7 @@ namespace deep {
   void sv_tensor_filler(tf::Tensor * tensor,
                           std::size_t jet_n,
                           std::size_t sv_n,
-                          const deep::SecondaryVertexFeatures & sv_features) {
+                          const btagbtvdeep::SecondaryVertexFeatures & sv_features) {
 
     float* ptr = tensor->getPtr<float>(jet_n, sv_n, 0);
 

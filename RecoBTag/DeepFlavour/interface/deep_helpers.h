@@ -7,7 +7,7 @@
 
 
 
-namespace deep {
+namespace btagbtvdeep {
 
   // adapted from DeepNTuples
   inline const float& catch_infs(const float& in,

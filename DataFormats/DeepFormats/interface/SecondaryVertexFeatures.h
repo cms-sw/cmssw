@@ -1,7 +1,7 @@
 #ifndef DataFormats_DeepFormats_SecondaryVertexFeatures_h
 #define DataFormats_DeepFormats_SecondaryVertexFeatures_h
 
-namespace deep {
+namespace btagbtvdeep {
 
 class SecondaryVertexFeatures {
 

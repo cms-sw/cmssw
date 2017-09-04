@@ -9,7 +9,7 @@
 #include "DataFormats/DeepFormats/interface/NeutralCandidateFeatures.h"
 #include "DataFormats/DeepFormats/interface/ChargedCandidateFeatures.h"
 
-namespace deep {
+namespace btagbtvdeep {
 
 class DeepFlavourFeatures {
 

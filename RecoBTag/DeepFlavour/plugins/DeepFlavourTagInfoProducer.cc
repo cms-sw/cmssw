@@ -136,7 +136,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
 
     // create data containing structure
-    deep::DeepFlavourFeatures features;
+    btagbtvdeep::DeepFlavourFeatures features;
 
     // reco jet reference (use as much as possible)
     const auto & jet = jets->at(jet_n);
@@ -162,7 +162,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     } // will be default values otherwise
 
     // fill basic jet features
-    deep::jet_features_converter(jet, features.jet_features);
+    btagbtvdeep::jet_features_converter(jet, features.jet_features);
 
     // fill number of pv
     features.npv = vtxs->size();
@@ -176,7 +176,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // sort by dxy
     std::sort(svs_sorted.begin(), svs_sorted.end(),
               [&pv](const auto & sva, const auto &svb)
-              { return deep::sv_vertex_comparator(sva, svb, pv); });
+              { return btagbtvdeep::sv_vertex_comparator(sva, svb, pv); });
     // fill features from secondary vertices
     for (const auto & sv : svs_sorted) {
       if (reco::deltaR(sv, jet) > jet_radius_) continue;
@@ -184,7 +184,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
         auto & sv_features = features.sv_features.back();
-        deep::sv_features_converter(sv, pv, jet, sv_features);
+        btagbtvdeep::sv_features_converter(sv, pv, jet, sv_features);
       }
     }
 
@@ -196,7 +196,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     std::vector<sorting::sortingClass<size_t> > c_sorted, n_sorted;
 
-    deep::TrackInfoBuilder trackinfo(track_builder);
+    btagbtvdeep::TrackInfoBuilder trackinfo(track_builder);
 
     // unsorted reference to sv
     const auto & svs_unsorted = *svs;     
@@ -210,10 +210,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             if (cand->pt()<0.95) continue;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
-                    -deep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
+                    -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
           } else {
             n_sorted.emplace_back(i, -1,
-                    -deep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
+                    -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
           }
         }
     }
@@ -246,7 +246,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
     auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
-    float drminpfcandsv = deep::mindrsvpfcand(svs_unsorted, cand);
+    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
     
     if (cand->charge() != 0) {
       // charged candidates under 950MeV are not considered
@@ -260,7 +260,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
       if (packed_cand) {
-        deep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
+        btagbtvdeep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
                                              drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
         if (pf_jet) { 
@@ -281,7 +281,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto PV = reco::VertexRef(vtxs, pvi);
         const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
         if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
-        deep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
+        btagbtvdeep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
                                            pv_ass_quality, PV_orig, c_pf_features);
         }
@@ -293,7 +293,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure 
       if (packed_cand) {
-        deep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
+        btagbtvdeep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
                                             n_pf_features);
       } else if (reco_cand) {
         if (pf_jet) { 
@@ -301,7 +301,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto reco_ptr = pf_jet->getPFConstituent(i);
         // get PUPPI weight from value map
         float puppiw = (*puppi_value_map)[reco_ptr];
-        deep::n_pf_reco_features_converter(reco_cand, jet,
+        btagbtvdeep::n_pf_reco_features_converter(reco_cand, jet,
                                            drminpfcandsv, puppiw,
                                            n_pf_features);
         }
