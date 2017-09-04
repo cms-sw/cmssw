@@ -109,8 +109,8 @@ offlineHLTSourceOnAOD = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor
-    jetmetMonitorHLT *
+    hltObjectsMonitor *
+    jetmetMonitorHLT
 )
 
 # offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
