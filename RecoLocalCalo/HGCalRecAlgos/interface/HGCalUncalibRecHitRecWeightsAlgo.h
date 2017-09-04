@@ -35,12 +35,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 
   void set_tdcOnsetfC(const double tdcOnset) { tdcOnsetfC_ = tdcOnset; }
 
-  void set_tdcForToaOnsetfC(const std::vector<double>& tdcForToaOnset) { 
-    for( unsigned i = 0; i < tdcForToaOnset.size(); ++i ) {
-      tdcForToaOnsetfC_[i] = (float)tdcForToaOnset[i];
-    }
-  }
-
   void set_fCPerMIP(const std::vector<double>& fCPerMIP) { 
     if( std::any_of(fCPerMIP.cbegin(), 
                     fCPerMIP.cend(), 
@@ -60,12 +54,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
     uint32_t flag = 0;
 
-    int thickness = 1;
-    if( ddd_ != nullptr ) {
-      HGCalDetId hid(dataFrame.id());
-      thickness = ddd_->waferTypeL(hid.wafer());
-    }
-    
     constexpr int iSample=2; //only in-time sample
     const auto& sample = dataFrame.sample(iSample);
     
@@ -100,6 +88,12 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
       LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
 						 << ' ' << adcLSB_ << ' ' << std::endl;
     }
+    
+    int thickness = 1;
+    if( ddd_ != nullptr ) {
+      HGCalDetId hid(dataFrame.id());
+      thickness = ddd_->waferTypeL(hid.wafer());
+    }    
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
