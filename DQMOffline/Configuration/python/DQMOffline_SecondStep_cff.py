@@ -117,6 +117,8 @@ DQMHarvestOuterTracker = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmFastTimerServiceClient
                                  )
 
+DQMHarvestLumi = cms.Sequence()
+
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *
