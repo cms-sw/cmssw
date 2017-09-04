@@ -79,26 +79,20 @@ public:
                                  bool threeHitTracksAreSpecial,
                                  SimToRecoDenomType simToRecoDenominator);
   
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
   //seed
-  virtual
     reco::RecoToSimCollectionSeed associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
-  virtual
     reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
