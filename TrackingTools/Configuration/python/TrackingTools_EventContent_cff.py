@@ -13,7 +13,6 @@ TrackingToolsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_CkfElectronCandidates_*_*', 
         'keep *_GsfGlobalElectronTest_*_*',
         'keep *_electronMergedSeeds_*_*',
-        'keep *_electronMergedSeedsFromMultiCl_*_*',
         'keep recoGsfTracks_electronGsfTracks_*_*', 
         'keep recoGsfTrackExtras_electronGsfTracks_*_*', 
         'keep recoTrackExtras_electronGsfTracks_*_*', 
@@ -21,10 +20,11 @@ TrackingToolsRECO = cms.PSet(
 )
 
 _phase2_hgcal_TrackingRECO_tokeep = [
-         'keep recoGsfTracks_electronGsfTracksFromMultiCl_*_*',
+        'keep recoGsfTracks_electronGsfTracksFromMultiCl_*_*',
         'keep recoGsfTrackExtras_electronGsfTracksFromMultiCl_*_*',
         'keep recoTrackExtras_electronGsfTracksFromMultiCl_*_*',
-        'keep TrackingRecHitsOwned_electronGsfTracksFromMultiCl_*_*'
+        'keep TrackingRecHitsOwned_electronGsfTracksFromMultiCl_*_*',
+        'keep *_electronMergedSeedsFromMultiCl_*_*'
 ]
 
 #AOD content
