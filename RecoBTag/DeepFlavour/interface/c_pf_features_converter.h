@@ -89,21 +89,21 @@ namespace deep {
             c_pf_features.dlambdadz=  deep::catch_infs(cov_matrix[1][4],-0.03);
 
 
-            c_pf_features.BtagPf_trackMomentum   =deep::catch_infs_and_bound(track_info.getTrackMomentum(),0,0 ,1000);
-            c_pf_features.BtagPf_trackEta        =deep::catch_infs_and_bound(track_info.getTrackEta()   ,  0,-5,5);
-            c_pf_features.BtagPf_trackEtaRel     =deep::catch_infs_and_bound(track_info.getTrackEtaRel(),  0,-5,15);
-            c_pf_features.BtagPf_trackPtRel      =deep::catch_infs_and_bound(track_info.getTrackPtRel(),   0,-1,4);
-            c_pf_features.BtagPf_trackPPar       =deep::catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
-            c_pf_features.BtagPf_trackDeltaR     =deep::catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
-            c_pf_features.BtagPf_trackPtRatio    =deep::catch_infs_and_bound(track_info.getTrackPtRatio(), 0,-1,10 );
-            c_pf_features.BtagPf_trackPParRatio  =deep::catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
-            c_pf_features.BtagPf_trackSip3dVal   =deep::catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
-            c_pf_features.BtagPf_trackSip3dSig   =deep::catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
-            c_pf_features.BtagPf_trackSip2dVal   =deep::catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
-            c_pf_features.BtagPf_trackSip2dSig   =deep::catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
-            c_pf_features.BtagPf_trackDecayLen   =0;
-            c_pf_features.BtagPf_trackJetDistVal =deep::catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
-            c_pf_features.BtagPf_trackJetDistSig =deep::catch_infs_and_bound(track_info.getTrackJetDistSig(),0,-1,1e5 );
+            c_pf_features.btagPf_trackMomentum   =deep::catch_infs_and_bound(track_info.getTrackMomentum(),0,0 ,1000);
+            c_pf_features.btagPf_trackEta        =deep::catch_infs_and_bound(track_info.getTrackEta()   ,  0,-5,5);
+            c_pf_features.btagPf_trackEtaRel     =deep::catch_infs_and_bound(track_info.getTrackEtaRel(),  0,-5,15);
+            c_pf_features.btagPf_trackPtRel      =deep::catch_infs_and_bound(track_info.getTrackPtRel(),   0,-1,4);
+            c_pf_features.btagPf_trackPPar       =deep::catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
+            c_pf_features.btagPf_trackDeltaR     =deep::catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
+            c_pf_features.btagPf_trackPtRatio    =deep::catch_infs_and_bound(track_info.getTrackPtRatio(), 0,-1,10 );
+            c_pf_features.btagPf_trackPParRatio  =deep::catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
+            c_pf_features.btagPf_trackSip3dVal   =deep::catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
+            c_pf_features.btagPf_trackSip3dSig   =deep::catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
+            c_pf_features.btagPf_trackSip2dVal   =deep::catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
+            c_pf_features.btagPf_trackSip2dSig   =deep::catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
+            c_pf_features.btagPf_trackDecayLen   =0;
+            c_pf_features.btagPf_trackJetDistVal =deep::catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
+            c_pf_features.btagPf_trackJetDistSig =deep::catch_infs_and_bound(track_info.getTrackJetDistSig(),0,-1,1e5 );
 
             // TO DO: we can do better than that by including reco::muon informations
             c_pf_features.isMu = 0;
@@ -207,21 +207,21 @@ namespace deep {
             c_pf_features.dlambdadz=  deep::catch_infs(cov_matrix[1][4],-0.03);
 
 
-            c_pf_features.BtagPf_trackMomentum   =deep::catch_infs_and_bound(track_info.getTrackMomentum(),0,0 ,1000);
-            c_pf_features.BtagPf_trackEta        =deep::catch_infs_and_bound(track_info.getTrackEta()   ,  0,-5,5);
-            c_pf_features.BtagPf_trackEtaRel     =deep::catch_infs_and_bound(track_info.getTrackEtaRel(),  0,-5,15);
-            c_pf_features.BtagPf_trackPtRel      =deep::catch_infs_and_bound(track_info.getTrackPtRel(),   0,-1,4);
-            c_pf_features.BtagPf_trackPPar       =deep::catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
-            c_pf_features.BtagPf_trackDeltaR     =deep::catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
-            c_pf_features.BtagPf_trackPtRatio    =deep::catch_infs_and_bound(track_info.getTrackPtRatio(), 0,-1,10 );
-            c_pf_features.BtagPf_trackPParRatio  =deep::catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
-            c_pf_features.BtagPf_trackSip3dVal   =deep::catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
-            c_pf_features.BtagPf_trackSip3dSig   =deep::catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
-            c_pf_features.BtagPf_trackSip2dVal   =deep::catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
-            c_pf_features.BtagPf_trackSip2dSig   =deep::catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
-            c_pf_features.BtagPf_trackDecayLen   =0;
-            c_pf_features.BtagPf_trackJetDistVal =deep::catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
-            c_pf_features.BtagPf_trackJetDistSig =deep::catch_infs_and_bound(track_info.getTrackJetDistSig(),0,-1,1e5 );
+            c_pf_features.btagPf_trackMomentum   =deep::catch_infs_and_bound(track_info.getTrackMomentum(),0,0 ,1000);
+            c_pf_features.btagPf_trackEta        =deep::catch_infs_and_bound(track_info.getTrackEta()   ,  0,-5,5);
+            c_pf_features.btagPf_trackEtaRel     =deep::catch_infs_and_bound(track_info.getTrackEtaRel(),  0,-5,15);
+            c_pf_features.btagPf_trackPtRel      =deep::catch_infs_and_bound(track_info.getTrackPtRel(),   0,-1,4);
+            c_pf_features.btagPf_trackPPar       =deep::catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
+            c_pf_features.btagPf_trackDeltaR     =deep::catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
+            c_pf_features.btagPf_trackPtRatio    =deep::catch_infs_and_bound(track_info.getTrackPtRatio(), 0,-1,10 );
+            c_pf_features.btagPf_trackPParRatio  =deep::catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
+            c_pf_features.btagPf_trackSip3dVal   =deep::catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
+            c_pf_features.btagPf_trackSip3dSig   =deep::catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
+            c_pf_features.btagPf_trackSip2dVal   =deep::catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
+            c_pf_features.btagPf_trackSip2dSig   =deep::catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
+            c_pf_features.btagPf_trackDecayLen   =0;
+            c_pf_features.btagPf_trackJetDistVal =deep::catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
+            c_pf_features.btagPf_trackJetDistSig =deep::catch_infs_and_bound(track_info.getTrackJetDistSig(),0,-1,1e5 );
 
             // TO DO: we can do better than that by including reco::muon informations
             c_pf_features.isMu = 0;
