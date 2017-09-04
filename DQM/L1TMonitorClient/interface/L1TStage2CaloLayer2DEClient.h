@@ -6,27 +6,31 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
-  
+
  public:
-  
+
   L1TStage2CaloLayer2DEClient(const edm::ParameterSet&);
-  
-  virtual ~L1TStage2CaloLayer2DEClient();
-  
+
+  ~L1TStage2CaloLayer2DEClient() override;
+
  protected:
-  
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
-  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
-  
+
+  void dqmEndJob(DQMStore::IBooker &ibooker,
+			 DQMStore::IGetter &igetter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
+				     DQMStore::IGetter &igetter,
+				     const edm::LuminosityBlock& lumiSeg,
+				     const edm::EventSetup& c) override;
+
  private:
-  
+
   void book(DQMStore::IBooker &ibooker);
   void processHistograms(DQMStore::IGetter &igetter);
-  
+
   std::string monitor_dir_;
   std::string input_dir_data_;
   std::string input_dir_emul_;
-  
+
   MonitorElement* CenJetRankComp_;
   MonitorElement* CenJetEtaComp_;
   MonitorElement* CenJetPhiComp_;
@@ -46,12 +50,29 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* TauEtaComp_;
   MonitorElement* TauPhiComp_;
   MonitorElement* METComp_;
+  MonitorElement* METPhiComp_;
+  MonitorElement* METHFComp_;
+  MonitorElement* METHFPhiComp_;
   MonitorElement* MHTComp_;
+  MonitorElement* MHTPhiComp_;
+  MonitorElement* MHTHFComp_;
+  MonitorElement* MHTHFPhiComp_;
   MonitorElement* ETTComp_;
   MonitorElement* HTTComp_;
+
+  MonitorElement* MinBiasHFP0Comp_;
+  MonitorElement* MinBiasHFM0Comp_;
+  MonitorElement* MinBiasHFP1Comp_;
+  MonitorElement* MinBiasHFM1Comp_;
+  MonitorElement* ETTEMComp_;
+  MonitorElement* TowerCountComp_;
+
+  MonitorElement * hlSummary;
+  MonitorElement * jetSummary;
+  MonitorElement * egSummary;
+  MonitorElement * tauSummary;
+  MonitorElement * sumSummary;
+  MonitorElement * problemSummary;
 };
 
 #endif
-
-    
-  
