@@ -104,11 +104,12 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,  std::vector<CTPPSPi
     return;
   }
 
-  double avgLocalX = avgWLocalX / weights;
-  double avgLocalY = avgWLocalY / weights;
+  double invWeights = 1./weights;
+  double avgLocalX = avgWLocalX*invWeights;
+  double avgLocalY = avgWLocalY*invWeights;
   
-  double varianceX = weightedVarianceX/weights/weights;
-  double varianceY = weightedVarianceY/weights/weights;
+  double varianceX = weightedVarianceX*invWeights*invWeights;
+  double varianceY = weightedVarianceY*invWeights*invWeights;
 
   LocalPoint lp(avgLocalX,avgLocalY,0);
   LocalError le(varianceX,0,varianceY);
