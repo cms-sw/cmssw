@@ -9,4 +9,7 @@ ECALpedestalPCLHarvester = DQMEDHarvester('ECALpedestalPCLHarvester',
                                           thresholdAnomalies = cms.double(0.1),# threshold (fraction of changed pedestals) to avoid creation of sqlite file 
                                           dqmDir      = cms.string('AlCaReco/EcalPedestalsPCL'),
                                           labelG6G1   = cms.string('HLT'), #use the HLT tag as source for G6 and G1 pedestals
+                                          threshDiffEB= cms.double(5.0), # if pedestal has changed more then this wrt old value, keep old value. Unit = ADC count
+                                          threshDiffEE= cms.double(8.0),
+
                                           )
