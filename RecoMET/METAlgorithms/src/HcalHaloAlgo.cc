@@ -12,10 +12,7 @@ namespace {
   constexpr float zseparation_HBHE = 380.;
 };
 
-
-using namespace std;
 using namespace reco;
-using namespace edm;
 
 #include <iomanip>
 bool CompareTime(const HBHERecHit* x, const HBHERecHit* y ){ return x->time() < y->time() ;}
@@ -23,7 +20,8 @@ bool CompareTowers(const CaloTower* x, const CaloTower* y ){
   return x->iphi()*1000 + x->ieta() < y->iphi()*1000 + y->ieta();
 }
 
-HcalHaloAlgo::HcalHaloAlgo() : geo_(nullptr), hgeo_(nullptr) {
+HcalHaloAlgo::HcalHaloAlgo() : geo_(0), hgeo_(0)
+{
   HBRecHitEnergyThreshold = 0.;
   HERecHitEnergyThreshold = 0.;
   SumEnergyThreshold = 0.;
@@ -224,7 +222,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo_  = pGeo.product();
-  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal,1));
+  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector. 
@@ -517,8 +515,12 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 
 math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :
-			   GlobalPoint(geo_->getPosition(id)));
+  GlobalPoint pos;
+  if (id.det() == DetId::Hcal) {
+    pos = hgeo_->getPosition(id);
+  } else {
+    pos = GlobalPoint(geo_->getPosition(id));
+  }
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }
