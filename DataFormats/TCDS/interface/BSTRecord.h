@@ -15,7 +15,7 @@
 //---------------------------------------------------------------------------
 
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 

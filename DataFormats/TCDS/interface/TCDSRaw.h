@@ -8,7 +8,7 @@
 //!  \author Remi Mommsen - Fermilab
 //---------------------------------------------------------------------------
 
-#include <stdint.h>
+#include <cstdint>
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 

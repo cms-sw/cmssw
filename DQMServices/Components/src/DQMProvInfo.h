@@ -24,7 +24,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);
   // Destructor
-  virtual ~DQMProvInfo();
+  ~DQMProvInfo() override;
 
  protected:
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
