@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SuperimoposePlotsInOnlineBlocks=True
-
-
+IsOffline.enabled=False
 
 
 StandardSpecifications1D.append(
@@ -153,8 +152,6 @@ siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
 ## Additional settings for pp_run (Phase 0 test)
 SiPixelPhase1TrackClustersAnalyzer_pprun = SiPixelPhase1TrackClustersAnalyzer.clone()
 SiPixelPhase1TrackClustersAnalyzer_pprun.tracks  = cms.InputTag( "initialStepTracksPreSplitting" )
-SiPixelPhase1TrackClustersAnalyzer_pprun.clusterShapeCache = cms.InputTag("siPixelClusterShapeCachePreSplitting")
-SiPixelPhase1TrackClustersAnalyzer_pprun.vertices = cms.InputTag('firstStepPrimaryVerticesPreSplitting')
 SiPixelPhase1TrackClustersAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
 
 SiPixelPhase1TrackResidualsAnalyzer_pprun = SiPixelPhase1TrackResidualsAnalyzer.clone()

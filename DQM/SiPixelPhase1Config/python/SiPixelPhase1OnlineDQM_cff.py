@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SuperimoposePlotsInOnlineBlocks=False
+IsOffline.enabled=False
 
 
 
@@ -106,11 +107,11 @@ siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
  + SiPixelPhase1ClustersHarvester
  + SiPixelPhase1RawDataHarvester
  + RunQTests_online
- + SiPixelPhase1SummaryOnline
+ + SiPixelPhase1Summary_Online
 # + SiPixelPhase1GeometryDebugHarvester
 )
 
 siPixelPhase1OnlineDQM_timing_harvesting = siPixelPhase1OnlineDQM_harvesting.copyAndExclude([
  RunQTests_online,
- SiPixelPhase1SummaryOnline,
+ SiPixelPhase1Summary_Online,
 ])
