@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "DataFormats/TCDS/interface/L1aInfo.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
@@ -16,9 +14,7 @@ L1aInfo::L1aInfo(const tcds::L1aInfo_v1& l1Info) :
   orbitNr_(((uint64_t)(l1Info.orbithigh)<<32)|l1Info.orbitlow),
   bxid_(l1Info.bxid),
   eventType_(l1Info.eventtype)
-{
-  assert(l1Info.ind0 == l1Info.ind1);
-}
+{}
 
 
 std::ostream& operator<<(std::ostream& s, const L1aInfo& l1aInfo)

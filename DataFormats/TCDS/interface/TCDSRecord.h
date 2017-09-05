@@ -11,7 +11,7 @@
 
 #include <bitset>
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #include "DataFormats/TCDS/interface/BSTRecord.h"

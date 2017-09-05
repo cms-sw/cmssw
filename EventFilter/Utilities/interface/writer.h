@@ -30,12 +30,12 @@ namespace Json {
    {
    public:
       FastWriter();
-      virtual ~FastWriter(){}
+      ~FastWriter() override{}
 
       void enableYAMLCompatibility();
 
    public: // overridden from Writer
-      virtual std::string write( const Value &root );
+      std::string write( const Value &root ) override;
 
    private:
       void writeValue( const Value &value );
@@ -66,14 +66,14 @@ namespace Json {
    {
    public:
       StyledWriter();
-      virtual ~StyledWriter(){}
+      ~StyledWriter() override{}
 
    public: // overridden from Writer
       /** \brief Serialize a Value in <a HREF="http://www.json.org">JSON</a> format.
        * \param root Value to serialize.
        * \return String containing the JSON document that represents the root value.
        */
-      virtual std::string write( const Value &root );
+      std::string write( const Value &root ) override;
 
    private:
       void writeValue( const Value &value );

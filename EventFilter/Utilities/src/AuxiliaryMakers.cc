@@ -19,7 +19,7 @@ namespace evf{
         edm::TimeValue_t time = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
         if (time == 0) {
           timeval stv;
-          gettimeofday(&stv,0);
+          gettimeofday(&stv,nullptr);
           time = stv.tv_sec;
           time = (time << 32) + stv.tv_usec;
         }
