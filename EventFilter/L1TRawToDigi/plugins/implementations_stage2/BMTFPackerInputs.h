@@ -21,21 +21,17 @@ namespace l1t {
             uint32_t wordThMaker(const L1MuDTChambThDigi& thInput, const bool& qualFlag);
 
             static const unsigned int phiMask = 0xFFF;
-            static const unsigned int phiShift = 0;//11;
+            static const unsigned int phiShift = 0;
             static const unsigned int phiBMask = 0x3FF;
-            static const unsigned int phiBShift = 12;//21;
+            static const unsigned int phiBShift = 12;
             static const unsigned int qualMask = 0x7;
-            static const unsigned int qualShift = 22;//26;
+            static const unsigned int qualShift = 22;
             static const unsigned int rpcMask = 0x1;
-            static const unsigned int rpcShift = 26;//27;
+            static const unsigned int rpcShift = 26;
             static const unsigned int bxCntMask = 0x3;
-            static const unsigned int bxCntShift = 30;//0;
+            static const unsigned int bxCntShift = 30;
 
             static const int ownLinks_[];
-            //<link, <bx, <st, payload> > > by that way of mapping we benefit from the auto sorting of the map 
-            std::map<unsigned int, std::vector<std::map<int, std::vector<std::map<unsigned int, std::vector<uint32_t> >> >> > phiPayloadFromAllLinks_;
-            //<link, <bx, payload> > > by that way of mapping we benefit from the auto sorting of the map 
-            std::map<unsigned int, std::vector<std::map<int, std::vector<std::map<unsigned int, std::vector<uint32_t> >> >> > thePayloadFromAllLinks_;
 
       };
    }

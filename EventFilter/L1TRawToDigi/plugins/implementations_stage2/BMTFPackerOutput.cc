@@ -13,8 +13,6 @@ namespace l1t
 
 	int board_id = (int)board();
 
-	std::cout<<"---->\tOutput.cc here"<<std::endl;                                                                                        
-	
 	auto muonToken = static_cast<const BMTFTokens*>(toks)->getOutputMuonToken();
 
         Blocks blocks;
@@ -22,21 +20,8 @@ namespace l1t
 	edm::Handle<RegionalMuonCandBxCollection> muons;
         event.getByToken(muonToken, muons);
 
-	std::cout<<"board_id = "<< board_id << "\tOutput" <<std::endl;//debug
-	//int itrs_over_bx = 0;//debug
-
-	//for(int ibx = muons->getFirstBX(); ibx <= muons->getLastBX(); ibx++)
-	//{
-	//  itrs_over_bx++;
-
-	    int itrs_over_muons = 0;//debug
 	    for (auto imu = muons->begin(); imu != muons->end(); imu++)
 	      {
-		itrs_over_muons++;
-		std::cout<<"imu->processor() = "<<imu->processor()+1<<std::endl;
-		std::cout<<"hwPt = " << imu->hwPt() << std::endl;
-		std::cout<<"hwSign = " << imu->hwSign() << std::endl;
-		std::cout<<"link = " << imu->link() << std::endl;
 
 		if (imu->processor()+1 == board_id){
 		  uint32_t firstWord(0), lastWord(0);
@@ -46,10 +31,9 @@ namespace l1t
 		}
 	      }//imu
 
-	    std::cout << "iterations over muons are: " << itrs_over_muons << std::endl;
 
-
-	    if (payloadMap_[123].size() < 6) //in case less than 3 muons have been found by the processor
+	    //in case less than 3 muons have been found by the processor
+	    if (payloadMap_[123].size() < 6) 
 	      {
 		unsigned int initialSize = payloadMap_[123].size();
 
@@ -71,22 +55,21 @@ namespace l1t
 	      }
 
 	    
-	    //  }//ibx
-	    //std::cout << "iterations over bx are: " << itrs_over_bx << "\tOutput" << std::endl;
-      
+
 	Block block(123, payloadMap_[123]);
 
 	blocks.push_back(block);
 	
-		
+
+	/*
 	  //debug from here
 	  std::cout << "block id : " << block.header().getID() << std::endl;
 
 	  std::cout << "payload created : " << std::endl;
-	  for (auto &word : block.payload())	// 
+	  for (auto &word : block.payload())  
 	    std::cout << std::bitset<32>(word).to_string() << std::endl;
 	  //debug up to here
-	
+	*/
 
 
          return blocks;

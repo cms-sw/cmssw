@@ -1,19 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-#print "\n!!!!! EventFilter/L1TRawToDigi/python/l1tRawtoDigiBMTF_cfi.py will be depricated soon.  Please migrate to using the unpacker EventFilter/L1TRawToDigi/python/bmtfDigis_cfi. !!!!!\n"
+print "\n!!!!! WARNING: The BMTF Packer returns the entire detector information in one fed (# 1376), instead of the real BMTF which owns 2 feds (1376, 1377)  !!!!!\n"
 
 
-BMTFStage2Digis2 = cms.EDProducer(
+BMTFStage2Digis = cms.EDProducer(
     "L1TDigiToRaw",
     Setup = cms.string("stage2::BMTFSetup"),
-    InputLabel = cms.InputTag("BMTFStage2Digis1","BMTF"),
-    InputLabel2 = cms.InputTag("BMTFStage2Digis1"),
+    InputLabel = cms.InputTag("BMTFStage2Digis","BMTF"),
+    InputLabel2 = cms.InputTag("BMTFStage2Digis"),
     FedId = cms.int32(1376),
     FWId = cms.uint32(1),
-#    lenSlinkHeader = cms.untracked.int32(8),
-#    lenSlinkTrailer = cms.untracked.int32(8),
-#    lenAMCHeader = cms.untracked.int32(8),
-#    lenAMCTrailer = cms.untracked.int32(0),
-#    lenAMC13Header = cms.untracked.int32(8),
-#    lenAMC13Trailer = cms.untracked.int32(8)
 )
