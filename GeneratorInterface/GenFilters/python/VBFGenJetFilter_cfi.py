@@ -50,3 +50,14 @@ vbfGenJetFilterC = cms.EDFilter("VBFGenJetFilter",
   maxDeltaEta        = cms.untracked.double(99999.)  # Maximum dijet delta eta
 
 )
+
+vbfGenJetFilterD = cms.EDFilter("VBFGenJetFilter",
+
+  inputTag_GenJetCollection = cms.untracked.InputTag('ak4GenJetsNoNu'),
+
+  leadJetsNoLepMass         = cms.untracked.bool  ( True),  # Require the cut on the mass of the leading jets
+  minLeadingJetsInvMass     = cms.untracked.double(   0.0), # Minimum dijet invariant mass
+  maxLeadingJetsInvMass     = cms.untracked.double(99999.), # Maximum dijet invariant mass
+  deltaRNoLep               = cms.untracked.double(   0.3), # Maximum dijet invariant mass
+
+)
