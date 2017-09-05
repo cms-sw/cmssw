@@ -19,53 +19,53 @@ namespace tcds {
 
   struct Sizes_v1
   {
-    const unsigned char headerSize;
-    const unsigned char summarySize;
-    const unsigned char L1AhistSize;
-    const unsigned char BSTSize;
-    const unsigned char reserved0;
-    const unsigned char reserved1;
-    const unsigned char reserved2;
-    const unsigned char BGOSize;
+    const uint8_t headerSize;
+    const uint8_t summarySize;
+    const uint8_t L1AhistSize;
+    const uint8_t BSTSize;
+    const uint8_t reserved0;
+    const uint8_t reserved1;
+    const uint8_t reserved2;
+    const uint8_t BGOSize;
   };
 
   struct Header_v1
   {
-    uint64_t macAddress;
-    uint32_t swVersion;
-    uint32_t fwVersion;
-    uint32_t reserved0;
-    uint32_t recordVersion;
-    uint32_t runNumber;
-    uint32_t reserved1;
-    uint32_t activePartitions2;
-    uint32_t bstReceptionStatus;
-    uint32_t activePartitions0;
-    uint32_t activePartitions1;
-    uint32_t nibble;
-    uint32_t lumiSection;
-    uint16_t nibblesPerLumiSection;
-    uint16_t triggerTypeFlags;
-    uint16_t reserved5;
-    uint16_t inputs;
-    uint16_t bxid;
-    uint16_t orbitLow;
-    uint32_t orbitHigh;
-    uint64_t triggerCount;
-    uint64_t eventNumber;
+    const uint64_t macAddress;
+    const uint32_t swVersion;
+    const uint32_t fwVersion;
+    const uint32_t reserved0;
+    const uint32_t recordVersion;
+    const uint32_t runNumber;
+    const uint32_t reserved1;
+    const uint32_t activePartitions2;
+    const uint32_t bstReceptionStatus;
+    const uint32_t activePartitions0;
+    const uint32_t activePartitions1;
+    const uint32_t nibble;
+    const uint32_t lumiSection;
+    const uint16_t nibblesPerLumiSection;
+    const uint16_t triggerTypeFlags;
+    const uint16_t reserved5;
+    const uint16_t inputs;
+    const uint16_t bxid;
+    const uint16_t orbitLow;
+    const uint32_t orbitHigh;
+    const uint64_t triggerCount;
+    const uint64_t eventNumber;
   };
 
   struct L1aInfo_v1
   {
-    uint32_t orbitlow;
-    uint16_t orbithigh;
-    unsigned char reserved2;
-    unsigned char ind0;
-    uint16_t bxid;
-    uint16_t reserved0;
-    uint16_t reserved1;
-    unsigned char eventtype;
-    unsigned char ind1;
+    const uint32_t orbitlow;
+    const uint16_t orbithigh;
+    const uint8_t reserved2;
+    const uint8_t ind0;
+    const uint16_t bxid;
+    const uint16_t reserved0;
+    const uint16_t reserved1;
+    const uint8_t eventtype;
+    const uint8_t ind1;
   };
 
   const uint8_t l1aHistoryDepth_v1 = 16;
@@ -76,51 +76,51 @@ namespace tcds {
 
   struct BST_v1
   {
-    uint32_t gpstimelow;
-    uint32_t gpstimehigh;
-    uint32_t bireserved8_11;
-    uint32_t bireserved12_15;
-    uint16_t bstMaster;
-    uint16_t turnCountLow;
-    uint16_t turnCountHigh;
-    uint16_t lhcFillLow;
-    uint16_t lhcFillHigh;
-    uint16_t beamMode;
-    uint16_t particleTypes;
-    uint16_t beamMomentum;
-    uint32_t intensityBeam1;
-    uint32_t intensityBeam2;
-    uint32_t bireserved40_43;
-    uint32_t bireserved44_47;
-    uint32_t bireserved48_51;
-    uint32_t bireserved52_55;
-    uint32_t bireserved56_59;
-    uint32_t bireserved60_63;
+    const uint32_t gpstimelow;
+    const uint32_t gpstimehigh;
+    const uint32_t bireserved8_11;
+    const uint32_t bireserved12_15;
+    const uint16_t bstMaster;
+    const uint16_t turnCountLow;
+    const uint16_t turnCountHigh;
+    const uint16_t lhcFillLow;
+    const uint16_t lhcFillHigh;
+    const uint16_t beamMode;
+    const uint16_t particleTypes;
+    const uint16_t beamMomentum;
+    const uint32_t intensityBeam1;
+    const uint32_t intensityBeam2;
+    const uint32_t bireserved40_43;
+    const uint32_t bireserved44_47;
+    const uint32_t bireserved48_51;
+    const uint32_t bireserved52_55;
+    const uint32_t bireserved56_59;
+    const uint32_t bireserved60_63;
   };
 
   struct LastBGo_v1
   {
-    uint32_t orbitlow;
-    uint16_t orbithigh;
-    uint16_t reserved;
+    const uint32_t orbitlow;
+    const uint16_t orbithigh;
+    const uint16_t reserved;
   };
 
   const uint8_t bgoCount_v1 = 64;
   struct BGoHistory_v1
   {
-    uint64_t bgoHistoryHeader;
-    struct LastBGo_v1 lastBGo[bgoCount_v1];
+    const uint64_t bgoHistoryHeader;
+    const struct LastBGo_v1 lastBGo[bgoCount_v1];
   };
 
   struct Raw_v1
   {
-    fedh_t               fedHeader;
-    struct Sizes_v1      sizes;
-    struct Header_v1     header;
-    struct L1aHistory_v1 l1aHistory;
-    struct BST_v1        bst;
-    struct BGoHistory_v1 bgoHistory;
-    fedt_t               fedTrailer;
+    const fedh_t               fedHeader;
+    const struct Sizes_v1      sizes;
+    const struct Header_v1     header;
+    const struct L1aHistory_v1 l1aHistory;
+    const struct BST_v1        bst;
+    const struct BGoHistory_v1 bgoHistory;
+    const fedt_t               fedTrailer;
   };
 
 }
