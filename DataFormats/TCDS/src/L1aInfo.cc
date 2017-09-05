@@ -26,7 +26,7 @@ std::ostream& operator<<(std::ostream& s, const L1aInfo& l1aInfo)
   s << "Index:        " << l1aInfo.getIndex() << std::endl;
   s << "   OrbitNr:   " << l1aInfo.getOrbitNr() << std::endl;
   s << "   BXID:      " << l1aInfo.getBXID() << std::endl;
-  s << "   EventType: " << l1aInfo.getEventType() << std::endl;
+  s << "   EventType: " << (uint16_t)l1aInfo.getEventType() << std::endl;
 
   return s;
 }
