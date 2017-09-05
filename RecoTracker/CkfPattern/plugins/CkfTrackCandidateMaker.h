@@ -28,11 +28,8 @@ namespace cms
 
     explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
       CkfTrackCandidateMakerBase(conf, consumesCollector()){
-      produceSeedStopReasons_ = conf.getParameter<bool>("produceSeedStopReasons");
       produces<TrackCandidateCollection>();
-      if(produceSeedStopReasons_) {
-        produces<std::vector<short> >();
-      }
+      produces<std::vector<short> >();
     }
 
     virtual ~CkfTrackCandidateMaker(){;}

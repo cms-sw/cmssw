@@ -11,6 +11,7 @@ namespace cms {
   public:
     CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
+      produces<std::vector<short> >();
     }
 
     virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {

@@ -35,6 +35,7 @@ namespace cms
       if (theTrackCandidateOutput)
 	produces<TrackCandidateCollection>();
       produces<TrajectoryCollection>();
+      produces<std::vector<short> >();
     }
 
     virtual ~CkfTrajectoryMaker(){;}
