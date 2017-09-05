@@ -18,9 +18,7 @@ namespace rpcdqm{
     static void setNoAlphanumeric(MonitorElement* myMe)
     {
       // Set no-alphanumeric flag to avoid malfunctioning in multithread environment.
-      TH2* h2 = nullptr;
-      if      ( myMe->kind() == MonitorElement::DQM_KIND_TH2F ) h2 = myMe->getTH2F();
-      else if ( myMe->kind() == MonitorElement::DQM_KIND_TH2D ) h2 = myMe->getTH2D();
+      TH2* h2 = dynamic_cast<TH2*>(myMe->getTH1());
       if ( !h2 ) return;
 
       h2->GetXaxis()->SetNoAlphanumeric(true);
@@ -251,6 +249,7 @@ namespace rpcdqm{
     void labelXAxisSector(MonitorElement * myMe){
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
 
       std::stringstream xLabel;
 
@@ -265,6 +264,7 @@ namespace rpcdqm{
     void labelXAxisSegment(MonitorElement * myMe){
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
 
       std::stringstream xLabel;
 
@@ -284,6 +284,7 @@ namespace rpcdqm{
   
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
   
       //set bin labels
       if(region == 0){
