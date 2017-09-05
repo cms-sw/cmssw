@@ -116,7 +116,7 @@ void CMSHadronPhysicsFTFP_BERT_ATL::ConstructParticle()
 #include "G4ProcessManager.hh"
 void CMSHadronPhysicsFTFP_BERT_ATL::ConstructProcess()
 {
-  if ( tpdata == 0 ) tpdata = new ThreadPrivate;
+  if ( tpdata == nullptr ) tpdata = new ThreadPrivate;
   CreateModels();
   tpdata->theNeutrons->Build();
   tpdata->thePro->Build();
