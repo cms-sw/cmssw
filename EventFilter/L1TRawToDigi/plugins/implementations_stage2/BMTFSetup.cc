@@ -39,12 +39,8 @@ namespace l1t {
 		}
 
 	     }
-/*	   for (int i=7; i<=12; i++)
-	     {
-	       res[{1377, i}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-				 PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-				 }*/
 	  }//if feds
+
 	   /*
 	 if (fed == 1376) {
 	   std::cout << "fed is 1376" << std::endl;
@@ -91,8 +87,6 @@ namespace l1t {
       UnpackerMap
       BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
-	//debug
-	std::cout << "firmware is " << fw << std::endl;
 
          auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
@@ -106,11 +100,9 @@ namespace l1t {
 
                if (fw < 2452619552){
                   res[iL] = inputMuonsOld;
-		  std::cout << "created old" << std::endl;
 	       }
                else{
                   res[iL] = inputMuonsNew;
-		  std::cout << "created new" << std::endl;
 	       }
 	    }
             res[123] = outputMuon;
