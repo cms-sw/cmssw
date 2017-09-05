@@ -49,12 +49,12 @@ Implementation:
 class L1TValidationEventFilter : public edm::EDFilter {
 public:
   explicit L1TValidationEventFilter(const edm::ParameterSet&);
-  virtual ~L1TValidationEventFilter();
+  ~L1TValidationEventFilter() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TCDSRecord> tcsdRecord_;
