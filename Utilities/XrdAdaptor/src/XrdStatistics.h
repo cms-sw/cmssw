@@ -55,7 +55,7 @@ public:
     // Returns a mapping of "site name" to transfer statistics.  The "site name" is
     // as self-identified by the Xrootd host; may not necessarily match up with the
     // "CMS site name".
-    std::map<std::string, CondorIOStats> condorUpdate();
+    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate();
 };
 
 class XrdSiteStatisticsInformation
