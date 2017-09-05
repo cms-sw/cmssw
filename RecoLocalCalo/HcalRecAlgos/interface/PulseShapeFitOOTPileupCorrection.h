@@ -115,7 +115,7 @@ public:
 		     double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 		     double iNoiseHPD, double iNoiseSiPM,
 		     double iTMin, double iTMax,
-		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes, bool iDCConstraint=false);
 
     const HcalPulseShapes::Shape* currentPulseShape_=NULL;
     void setChi2Term( bool isHPD );
@@ -163,7 +163,8 @@ private:
     double noise_;    
     double noiseHPD_;
     double noiseSiPM_;
-    HcalTimeSlew::BiasSetting slewFlavor_;    
+    HcalTimeSlew::BiasSetting slewFlavor_;
+    bool dcConstraint_;
 
     bool isCurrentChannelHPD_;
 };
