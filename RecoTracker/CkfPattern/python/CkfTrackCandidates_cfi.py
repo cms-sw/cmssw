@@ -31,6 +31,5 @@ ckfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
         numberMeasurementsForFit = cms.int32(4)
     ),
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    produceSeedStopReasons = cms.bool(False), # useful only for ntuple/debugging
 )
 

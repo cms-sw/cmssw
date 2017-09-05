@@ -17,11 +17,6 @@ def customiseTrackingNtuple(process):
         if not hasattr(process, "reconstruction_step"):
             raise Exception("TrackingNtuple includeSeeds=True needs reconstruction which is missing")
 
-        # enable seed stopping reason in track candidate producer
-        for trkCand in process.trackingNtuple.trackCandidates.value():
-            producer = getattr(process, cms.InputTag(trkCand).getModuleLabel())
-            producer.produceSeedStopReasons = True
-
     # Replace validation_step with ntuplePath
     if not hasattr(process, "validation_step"):
         raise Exception("TrackingNtuple customise assumes process.validation_step exists")
