@@ -431,8 +431,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
     //time-of-arrival (check how to be used)
     if(weightToAbyEnergy) (simHitIt->second).hit_info[1][itime] += charge*tof;
-    if(accChargeForToA > tdcForToaOnset[waferThickness-1] &&
-       ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true) ){
+    else if(accChargeForToA > tdcForToaOnset[waferThickness-1] &&
+	    ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true) ){
       float fireTDC = hitRefs_bx0[id].back().second;
       if (hitRefs_bx0[id].size() > 1){
 	float chargeBeforeThr = 0.;
@@ -450,7 +450,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       }
       (simHitIt->second).hit_info[1][itime] = fireTDC;                                                                  
     }
-
+    
   }
   hitRefs.clear();
 }

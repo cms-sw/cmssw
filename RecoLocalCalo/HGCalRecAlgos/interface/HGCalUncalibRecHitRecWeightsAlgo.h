@@ -77,7 +77,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
                                           << " flag=" << flag << std::endl;
       } else {
 	amplitude_ = double(sample.data()) * adcLSB_;
-	if(sample.getToAValid()) {jitter_    = double(sample.toa()) * toaLSBToNS_;}
+	if(sample.getToAValid()) jitter_    = double(sample.toa()) * toaLSBToNS_;
 	LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
                                           << ' ' << adcLSB_ << ' ' 
 					  << "TDC+: set the ToA to: " << jitter_ << ' '
@@ -105,7 +105,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
    double adcLSB_, tdcLSB_, toaLSBToNS_, tdcOnsetfC_;
    bool   isSiFESim_;  
    std::vector<double> fCPerMIP_;
-   std::array<float, 3> tdcForToaOnsetfC_;
    const HGCalDDDConstants* ddd_;
 };
 #endif

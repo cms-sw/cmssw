@@ -195,7 +195,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   int fireBX = 9; 
   //noise fluctuation on charge is added after ToA computation
   //do not recheck the ToA firing threshold tdcForToaOnset_fC_[thickness-1] not to bias the efficiency 
-  //to be done properly with realistic ToA shaper and jitter 
+  //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
   if(toaColl[fireBX] != 0.){
     timeTOA = toaColl[fireBX];
     if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
@@ -383,7 +383,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
 	      //working version for in-time PU and signal 
-	      //	      newSample.set(true,true,(uint16_t)(toaFromToT[it]/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	      newSample.set(true,true,(uint16_t)(timeTOA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	      if(toaFlags[it]) newSample.setToAValid(true);
 	    }
@@ -397,7 +396,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
 	  //working version for in-time PU and signal 
-	  //	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(toaFromToT[it]/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeTOA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	  if(toaFlags[it]) newSample.setToAValid(true);
 	}
