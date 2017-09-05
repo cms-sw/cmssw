@@ -64,7 +64,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.load('Calibration.EcalCalibAlgos.ecalPedestalPCLworker_cfi')
 
-process.raw2digi_step = cms.Path(process.ecalDigis*process.ecalpedestalPCL)
+process.tcdsDigis = cms.EDProducer('TcdsRawToDigi')
+process.raw2digi_step = cms.Path(process.tcdsDigis*process.ecalDigis*process.ecalpedestalPCL)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",                                      
                                      fileName = cms.untracked.string("OUT_step1.root"))

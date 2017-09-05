@@ -16,6 +16,7 @@ ALCARECOEcalPedestalsDigis.InputLabel = cms.InputTag('hltEcalCalibrationRaw')
 ALCARECOEcalPedestals = ecalpedestalPCL.clone()
 ALCARECOEcalPedestals.BarrelDigis = cms.InputTag('ALCARECOEcalPedestalsDigis', 'ebDigis')
 ALCARECOEcalPedestals.EndcapDigis = cms.InputTag('ALCARECOEcalPedestalsDigis', 'eeDigis')
+ALCARECOEcalPedestals.bstRecord   = cms.InputTag('ALCALRECOEcalTCDSDigis', 'bstRecord')
 
 
 MEtoEDMConvertEcalPedestals = cms.EDProducer("MEtoEDMConverter",
@@ -29,8 +30,11 @@ MEtoEDMConvertEcalPedestals = cms.EDProducer("MEtoEDMConverter",
                                              deleteAfterCopy=cms.untracked.bool(True)
                                              )
 
+ALCALRECOEcalTCDSDigis = cms.EDProducer('TcdsRawToDigi')
+
 # The actual sequence
-seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCARECOEcalTestPulsesRaw *
+seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCALRECOEcalTCDSDigis    *
+                                                       ALCARECOEcalTestPulsesRaw *
                                                        ALCARECOEcalPedestalsDigis *
                                                        ALCARECOEcalPedestals *
                                                        MEtoEDMConvertEcalPedestals)
