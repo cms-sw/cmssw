@@ -16,6 +16,7 @@
 // tbb headers
 #include <tbb/concurrent_unordered_set.h>
 #include <tbb/enumerable_thread_specific.h>
+#include <tbb/task_scheduler_observer.h>
 
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -79,7 +80,8 @@ Performance of std::chrono::high_resolution_clock
 */
 
 
-class FastTimerService {
+class FastTimerService : public tbb::task_scheduler_observer
+{
 public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService() override;
@@ -213,6 +215,10 @@ private:
 
   void preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  // inherited from TBB task_scheduler_observer
+  void on_scheduler_entry(bool worker) final;
+  void on_scheduler_exit(bool worker) final;
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
