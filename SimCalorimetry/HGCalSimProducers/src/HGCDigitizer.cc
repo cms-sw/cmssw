@@ -47,13 +47,10 @@ namespace {
     HGCalDetId hid(id);
     int wafer = HGCalDetId(id).wafer();
     int waferTypeL = dddConst.waferTypeL(wafer);
-    int isHalf = dddConst.isHalfCell(wafer,hid.cell());
-    int size = (isHalf ? 0.5 : 1.0);
     return waferTypeL;
   }
 
   int getCellThickness(const HcalGeometry* geom, const DetId& detid ) {
-    int size = 1;
     return 1;
   }
 
