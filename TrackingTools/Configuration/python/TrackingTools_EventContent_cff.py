@@ -4,7 +4,6 @@ TrackingToolsFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_CkfElectronCandidates_*_*', 
         'keep *_GsfGlobalElectronTest_*_*',
         'keep *_electronMergedSeeds_*_*',
-        'keep *_electronMergedSeedsFromMultiCl_*_*',
         'keep *_electronGsfTracks_*_*'
         )
 )
@@ -32,7 +31,7 @@ TrackingToolsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_GsfGlobalElectronTest_*_*',
         'keep recoGsfTracks_electronGsfTracks_*_*'
                                          
-                                           )
+    )
 )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
