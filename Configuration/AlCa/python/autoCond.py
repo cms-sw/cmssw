@@ -35,7 +35,7 @@ autoCond = {
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '92X_dataRun2_HLT_frozen_v6',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '92X_dataRun2_HLT_relval_v7',
+    'run2_hlt_relval'   :   '92X_dataRun2_HLT_relval_v8',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '92X_dataRun2_HLTHI_frozen_v6',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
