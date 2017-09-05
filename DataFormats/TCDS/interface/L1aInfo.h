@@ -26,14 +26,14 @@ public:
   int16_t getIndex() const { return index_; }
   uint64_t getOrbitNr() const { return orbitNr_; }
   uint16_t getBXID() const { return bxid_; }
-  uint16_t getEventType() const { return eventType_; }
+  uint8_t getEventType() const { return eventType_; }
 
 private:
 
   int16_t index_;
   uint64_t orbitNr_;
   uint16_t bxid_;
-  uint16_t eventType_;
+  uint8_t eventType_;
 
 };
 
