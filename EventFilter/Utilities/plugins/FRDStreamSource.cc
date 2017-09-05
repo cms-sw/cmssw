@@ -6,7 +6,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DataFormats/TCDS/interface/TCDSRecord.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
@@ -120,10 +120,10 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
       foundTCDSFED=true;
-      TCDSRecord tcds((unsigned char *)(event + eventSize));
-      id = edm::EventID(frdEventMsg->run(),tcds.getLumiSection(),tcds.getEventNumber());
+      tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(event + eventSize);
+      id = edm::EventID(frdEventMsg->run(),tcds->header.lumiSection,tcds->header.eventNumber);
       eType = ((edm::EventAuxiliary::ExperimentType)FED_EVTY_EXTRACT(fedHeader->eventid));
-      theTime = static_cast<edm::TimeValue_t>(tcds.getBST().getGpsTime());
+      theTime = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
     }
 
     if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {

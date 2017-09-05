@@ -20,7 +20,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "DataFormats/TCDS/interface/TCDSRecord.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -690,8 +690,8 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     makeEvent(eventPrincipal, aux);
   }
   else{
-    TCDSRecord record((unsigned char *)(tcds_pointer_));
-    edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(&record,
+    tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer_);
+    edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(tcds,
 						 eventRunNumber_,currentLumiSection_,
                                                  processGUID(),!fileListLoopMode_);
     aux.setProcessHistoryID(processHistoryID_);
