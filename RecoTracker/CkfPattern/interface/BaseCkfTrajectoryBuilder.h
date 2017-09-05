@@ -75,6 +75,7 @@ public:
   // new interface returning the start Trajectory...
   virtual TempTrajectory buildTrajectories (const TrajectorySeed& seed,
 					    TrajectoryContainer &ret,
+					    unsigned int& nCandPerSeed,
 					    const TrajectoryFilter*) const  { assert(0==1); return TempTrajectory();}
   
   

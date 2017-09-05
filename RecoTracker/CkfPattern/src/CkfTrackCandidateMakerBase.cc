@@ -298,11 +298,15 @@ namespace cms{
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
-        if(theTmpTrajectories.empty()) {
+        unsigned int nCandPerSeed = 0;
+        auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nCandPerSeed, nullptr );
+        {
           Lock lock(theMutex);
-          (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NO_TRAJECTORY);
-          return; // from the lambda!
+          (*outputSeedStopInfos)[j].setCandidatesPerSeed(nCandPerSeed);
+          if(theTmpTrajectories.empty()) {
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NO_TRAJECTORY);
+            return; // from the lambda!
+          }
         }
 
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()

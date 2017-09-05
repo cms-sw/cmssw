@@ -51,6 +51,7 @@ public:
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,
 				    TrajectoryContainer &ret,
+				    unsigned int& nCandPerSeed,
 				    const TrajectoryFilter*) const override;
   
   
@@ -76,8 +77,8 @@ public:
 
   virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
-  void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
-  void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
+  unsigned int limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
+  unsigned int limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
   void updateTrajectory( TempTrajectory& traj, TM && tm) const;
 

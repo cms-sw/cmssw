@@ -1068,6 +1068,7 @@ private:
   std::vector<unsigned int> see_nPhase2OT;
   std::vector<unsigned int> see_algo    ;
   std::vector<unsigned short> see_stopReason;
+  std::vector<unsigned short> see_nCands;
   std::vector<int> see_trkIdx;
   std::vector<short> see_isTrue;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
@@ -1448,6 +1449,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nPhase2OT", &see_nPhase2OT);
     t->Branch("see_algo"     , &see_algo    );
     t->Branch("see_stopReason", &see_stopReason);
+    t->Branch("see_nCands"   , &see_nCands  );
     t->Branch("see_trkIdx"   , &see_trkIdx  );
     if(includeTrackingParticles_) {
       t->Branch("see_shareFrac", &see_shareFrac);
@@ -1733,6 +1735,7 @@ void TrackingNtuple::clearVariables() {
   see_nPhase2OT.clear();
   see_algo    .clear();
   see_stopReason.clear();
+  see_nCands  .clear();
   see_trkIdx  .clear();
   if(includeTrackingParticles_) {
     see_shareFrac.clear();
@@ -2551,6 +2554,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_dzErr   .push_back( seedFitOk ? seedTrack.dzError() : 0);
       see_algo    .push_back( algo );
       see_stopReason.push_back( seedStopInfo.stopReasonUC() );
+      see_nCands  .push_back( seedStopInfo.candidatesPerSeed() );
 
       const auto& state = seedTrack.seedRef()->startingState();
       const auto& pos = state.parameters().position();
