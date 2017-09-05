@@ -4,7 +4,7 @@ from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
 #denominator trigger
 hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-      "HLT_PFMET120_PFMHT120_IDTight_v* OR HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v* OR HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_* OR HLT_Ele28_eta2p1_WPTight_Gsf_HT150_* OR HLT_IsoMu24_eta2p1_v*"),
+      "HLT_PFMET120_PFMHT120_IDTight_v* OR HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v* OR HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_* OR HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_* OR HLT_IsoMu24_eta2p1_v*"),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
     l1tResults = cms.InputTag( "" ),
@@ -28,7 +28,7 @@ HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
-	'HLT_Ele28_eta2p1_WPTight_Gsf_HT150_',
+	'HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_',
 	'HLT_IsoMu24_eta2p1_v'
 	),
 	Vertex = cms.VInputTag(
@@ -46,7 +46,7 @@ hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 	'HLT_PFMET120_PFMHT120_IDTight_v',
 	'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
-	'HLT_Ele28_eta2p1_WPTight_Gsf_HT150_',
+	'HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_',
 	'HLT_IsoMu24_eta2p1_v'
 	),
 	JetTag = cms.VInputTag(
