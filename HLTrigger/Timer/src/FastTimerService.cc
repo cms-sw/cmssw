@@ -937,6 +937,10 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   highlight_module_psets_(      config.getUntrackedParameter<std::vector<edm::ParameterSet>>("highlightModules") ),
   highlight_modules_(           highlight_module_psets_.size())         // filled in postBeginJob()
 {
+  // start observing when a thread enters or leaves the TBB global thread arena
+  tbb::task_scheduler_observer::observe();
+
+  // register EDM call backs
   registry.watchPreallocate(                this, & FastTimerService::preallocate );
   registry.watchPreBeginJob(                this, & FastTimerService::preBeginJob );
   registry.watchPostBeginJob(               this, & FastTimerService::postBeginJob );
@@ -1872,6 +1876,22 @@ FastTimerService::postModuleStreamEndLumi(edm::StreamContext const&, edm::Module
   ignoredSignal(__func__);
 }
 
+void
+FastTimerService::on_scheduler_entry(bool worker)
+{
+  // initialise the measurement point for a thread that has newly joining the TBB pool
+  // FIXME any resources used or freed will be accounted to the next stream the uses this thread
+  thread().measure();
+}
+
+void
+FastTimerService::on_scheduler_exit(bool worker)
+{
+  // account any resources used or freed by the thread before leaving the TBB pool.
+  // FIXME arbitrarility use the first stream because there is no global measurement
+  auto & stream = streams_.front();
+  thread().measure_and_accumulate(stream.overhead);
+}
 
 FastTimerService::Measurement &
 FastTimerService::thread()
