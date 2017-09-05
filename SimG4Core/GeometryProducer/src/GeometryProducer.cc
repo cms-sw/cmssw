@@ -63,11 +63,8 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const & p) :
     m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
     m_pField(p.getParameter<edm::ParameterSet>("MagneticField")), 
     m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
-    m_p(p), m_firstRun ( true )
+    m_attach(nullptr), m_p(p), m_firstRun ( true )
 {
-    m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
-    m_attach = std::unique_ptr<AttachSD>(new AttachSD);
-
     //Look for an outside SimActivityRegistry
     //this is used by the visualization code
     edm::Service<SimActivityRegistry> otherRegistry;
@@ -78,6 +75,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const & p) :
 
 GeometryProducer::~GeometryProducer() 
 { 
+  delete m_attach;
   delete m_kernel; 
 }
 
@@ -136,6 +134,8 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
     {
        edm::LogInfo("GeometryProducer") << " instantiating sensitive detectors ";
        // instantiate and attach the sensitive detectors
+       m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+       if (m_attach==0) m_attach = new AttachSD;
        {
            std::pair< std::vector<SensitiveTkDetector*>,
                std::vector<SensitiveCaloDetector*> > 

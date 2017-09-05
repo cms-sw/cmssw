@@ -107,7 +107,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v21 2e34v22 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v21 2e34v22 2e34v30 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -191,6 +191,18 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:2e34v22
       set GTAG = ${BASE2}_2e34v22
       set RTAG = ${BASE2RD}_2e34v22
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+    else if ( $table == 2e34v30 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:2e34v30
+      set GTAG = ${BASE2}_2e34v30
+      set RTAG = ${BASE2RD}_2e34v30
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

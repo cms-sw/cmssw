@@ -7,10 +7,10 @@
 #include <string>
 #include <map>
 
-#include <ctime>
-#include <cstdio>
+#include <time.h>
+#include <stdio.h>
 
-#include <cmath>
+#include <math.h>
 #include "TF1.h"
 #include "TH1F.h"
 #include "TMath.h"

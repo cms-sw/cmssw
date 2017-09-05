@@ -82,7 +82,7 @@ namespace edm {
 
     Exception(Exception const& other);
 
-    virtual ~Exception() throw();
+    ~Exception() noexcept override;
 
     void swap(Exception& other) {
       std::swap(category_, other.category_);
@@ -102,12 +102,12 @@ namespace edm {
                           char const* message4 = "");
     static void throwThis(Code category, char const* message0, int intVal, char const* message2 = "");
 
-    virtual Exception* clone() const;
+    Exception* clone() const override;
 
   private:
 
-    virtual void rethrow();
-    virtual int returnCode_() const;
+    void rethrow() override;
+    int returnCode_() const override;
 
     Code category_;
   };

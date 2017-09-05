@@ -114,10 +114,11 @@ class EcalTrapezoidParameters
   
   VertexList vertexList() const ; // order is as in picture above: index=vtx-1
   
- private:
   EcalTrapezoidParameters() = delete;
   EcalTrapezoidParameters( const EcalTrapezoidParameters& ) = delete;
   const EcalTrapezoidParameters& operator=( const EcalTrapezoidParameters& ) = delete;
+
+ private:
   
   TPFloat m_dz, m_th, m_ph, m_h1, m_bl1, m_tl1, m_alp1, m_h2, m_bl2, m_tl2, m_alp2 ;
   TPFloat m_a1, m_hAa, m_x15, m_y15 ;

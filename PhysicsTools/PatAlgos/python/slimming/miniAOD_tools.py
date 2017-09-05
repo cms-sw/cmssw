@@ -339,6 +339,7 @@ def miniAOD_customizeMC(process):
     #GenJetFlavourInfos
     process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
     task.add(process.selectedHadronsAndPartons)
+    task.add(process.selectedHadronsAndPartonsForGenJetsFlavourInfos)
     
     process.load("PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi")
     task.add(process.ak4GenJetFlavourInfos)

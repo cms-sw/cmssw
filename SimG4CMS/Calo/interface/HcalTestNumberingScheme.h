@@ -12,8 +12,8 @@ class HcalTestNumberingScheme : public HcalNumberingScheme {
 
 public:
   HcalTestNumberingScheme(bool forTB);
-  ~HcalTestNumberingScheme() override;
-  uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id) override;
+  virtual ~HcalTestNumberingScheme();
+  virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id);
   static uint32_t  packHcalIndex(int det, int z, int depth, int eta,
                                  int phi, int lay);
   static void      unpackHcalIndex(const uint32_t & idx, int& det, int& z, 

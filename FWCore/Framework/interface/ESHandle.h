@@ -44,7 +44,7 @@ class ESHandleBase {
 
       edm::eventsetup::ComponentDescription const* description() const;
       
-      bool isValid() const { return 0 != data_ && 0 != description_; }
+      bool isValid() const { return nullptr != data_ && nullptr != description_; }
 
       bool failedToGet() const { return bool(whyFailedFactory_); }
 

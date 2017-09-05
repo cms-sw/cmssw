@@ -56,10 +56,10 @@ bool DDCheckPD(const DDLogicalPart & lp, DDCompactView::graph_type::edge_range n
 	 edm::LogInfo ("DDCheck") << "  the LogicalPart is meant to be a daughter volume, but its position is missing!" << std::endl;
        } 
        else { // check for the rotation matrix being present
-         const DDRotation & r = g.edgeData(nb.first->second)->rot_;
+         const DDRotation & r = g.edgeData(nb.first->second)->ddrot();
 	 if (! r.isDefined().second ) {
 	 //if (! nb.first->second->rot_.rotation() ) {
-	   const DDRotation & r = g.edgeData(nb.first->second)->rot_;
+	   const DDRotation & r = g.edgeData(nb.first->second)->ddrot();
 	   os << "Rotationmatrix is not defined: " << r << std::endl;
 	 }
        }

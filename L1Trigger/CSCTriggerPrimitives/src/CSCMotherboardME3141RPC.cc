@@ -321,13 +321,11 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
         std::cout << "========================================================================" << std::endl;
         std::cout << "ALCT-CLCT matching in ME" << theStation << "/1 chamber: " << csc_id << std::endl;
         std::cout << "------------------------------------------------------------------------" << std::endl;
-        std::cout << "+++ Best ALCT Details: ";
-        alct->bestALCT[bx_alct].print();
-        std::cout << "+++ Second ALCT Details: ";
-        alct->secondALCT[bx_alct].print();
+        std::cout << "+++ Best ALCT Details: " << alct->bestALCT[bx_alct] << std::endl;
+        std::cout << "+++ Second ALCT Details: " << alct->secondALCT[bx_alct] << std::endl;
         std::cout << "------------------------------------------------------------------------" << std::endl;
-        std::cout << "RPC Chamber " << rpc_id << std::endl;
-        printRPCTriggerDigis(bx_clct_start, bx_clct_stop);
+        if (hasRPCDigis) std::cout << "RPC Chamber " << rpc_id << std::endl;
+        if (hasRPCDigis) printRPCTriggerDigis(bx_clct_start, bx_clct_stop);
 
         std::cout << "------------------------------------------------------------------------" << std::endl;
         std::cout << "Attempt ALCT-CLCT matching in ME" << theStation << "/1 in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
@@ -379,10 +377,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
               << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
               << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
 	              << "]; bx_alct = " << bx_alct << std::endl;
-	            std::cout << "+++ Best CLCT Details: ";
-            clct->bestCLCT[bx_clct].print();
-            std::cout << "+++ Second CLCT Details: ";
-            clct->secondCLCT[bx_clct].print();
+            std::cout << "+++ Best CLCT Details: " << clct->secondCLCT[bx_clct]<< std::endl;
+            std::cout << "+++ Second CLCT Details: " << clct->secondCLCT[bx_clct]<< std::endl;
           }
           if (allLCTs[bx_alct][mbx][0].isValid()) {
             used_clct_mask[bx_clct] += 1;
@@ -392,7 +388,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
       }
       // ALCT-RPC digi matching
       int nSuccesFulRPCMatches = 0;
-      if (runME3141ILT_ and nSuccesFulMatches==0 and buildLCTfromALCTandRPC_){
+      if (runME3141ILT_ and nSuccesFulMatches==0 and buildLCTfromALCTandRPC_ and hasRPCDigis){
         if (debug_rpc_matching_) std::cout << "++No valid ALCT-CLCT matches in ME"<<theStation<<"1" << std::endl;
         for (int bx_rpc = bx_clct_start; bx_rpc <= bx_clct_stop; bx_rpc++) {
           if (lowQualityALCT and !buildLCTfromLowQstubandRPC_) continue; // build lct from low-Q ALCTs and rpc if para is set true
@@ -448,10 +444,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
               //	    if (infoV > 1) LogTrace("CSCMotherboard")
               std::cout << "Successful RPC-CLCT match in ME"<<theStation<<"/1: bx_alct = " << bx_alct
                         << std::endl;
-              std::cout << "+++ Best CLCT Details: ";
-              clct->bestCLCT[bx_alct].print();
-              std::cout << "+++ Second CLCT Details: ";
-              clct->secondCLCT[bx_alct].print();
+              std::cout << "+++ Best CLCT Details: "<< clct->bestCLCT[bx_alct]<< std::endl;
+              std::cout << "+++ Second CLCT Details: " << clct->secondCLCT[bx_alct]<< std::endl;
             }
             if (allLCTs[bx_rpc][mbx][0].isValid()) {
               used_clct_mask[bx_alct] += 1;
@@ -576,6 +570,8 @@ int CSCMotherboardME3141RPC::assignRPCRoll(double eta)
 
 void CSCMotherboardME3141RPC::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, unsigned id)
 {
+  if (rpcDigis == nullptr) return;
+
   auto chamber(rpc_g->chamber(RPCDetId(id)));
   for (auto roll : chamber->rolls()) {
     RPCDetId roll_id(roll->id());
@@ -782,11 +778,11 @@ unsigned int CSCMotherboardME3141RPC::findQualityRPC(const CSCALCTDigi& aLCT, co
       else {
         // ALCT quality is the number of layers hit minus 3.
         // CLCT quality is the number of layers hit.
-	int n_rpc = 0;
-	if (hasRPC) n_rpc = 1;
-	const bool a4((aLCT.getQuality() >= 1 and aLCT.getQuality() != 4) or
-		      (aLCT.getQuality() == 4 and n_rpc >=1));
-	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_rpc>=1));
+        int n_rpc = 0;
+        if (hasRPC) n_rpc = 1;
+        const bool a4((aLCT.getQuality() >= 1 and aLCT.getQuality() != 4) or
+                      (aLCT.getQuality() == 4 and n_rpc >=1));
+        const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_rpc>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
         else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode

@@ -52,13 +52,12 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
 void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads) const
 {
-  auto etaPartitions = geometry_->etaPartitions();
-  for(const auto& p: etaPartitions)
+  for(const auto& p: geometry_->etaPartitions())
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
-  
-    // walk over digis in this partition, 
+
+    // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d)
@@ -66,10 +65,10 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
       int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
       proto_pads.emplace(pad_num, d->bx());
     }
-  
+
     // in the future, do some dead-time handling
     // emulateDeadTime(proto_pads)
-  
+
     // fill the output collections
     for (const auto& d: proto_pads)
     {

@@ -106,8 +106,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
                                float(y.X()),float(y.Y()),float(y.Z()),
                                float(z.X()),float(z.Y()),float(z.Z()));
 
-    RPCRollSpecs* rollspecs= 0;
-    Bounds* bounds = 0;
+    RPCRollSpecs* rollspecs= nullptr;
+    Bounds* bounds = nullptr;
 
     if (dpar.size()==3){
       const float width     = dpar[0]/cm;
@@ -178,7 +178,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     const auto& rls = ich.second;
 
     // compute the overall boundplane.
-    BoundPlane* bp=0;
+    BoundPlane* bp=nullptr;
     if ( !rls.empty() ) {
       // First set the baseline plane to calculate relative poisions
       const auto& refSurf = (*rls.begin())->surface();

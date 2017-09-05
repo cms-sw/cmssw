@@ -5,6 +5,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
 
     minTrackHits       = cms.uint32(0),
     minTrackPt         = cms.double(10),
+    minTrackPtPrescale = cms.double(0.5), # minimal pT for prescaled low pT tracks
     maxTrackEta        = cms.double(5.0),
 
     useStrip           = cms.bool(True),
@@ -15,6 +16,14 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     useCalibration     = cms.bool(False),
     calibrationPath    = cms.string("file:Gains.root"),
     shapeTest          = cms.bool(True),
+
+    lowPtTracksPrescalePass = cms.uint32(100),   # prescale factor for low pt tracks above the dEdx cut
+    lowPtTracksPrescaleFail = cms.uint32(2000), # prescale factor for low pt tracks below the dEdx cut
+    lowPtTracksEstimatorParameters = cms.PSet( # generalized truncated average
+        fraction = cms.double(-0.15), # negative = throw away the 15% with lowest charge
+        exponent = cms.double(-2.0),
+    ),
+    lowPtTracksDeDxThreshold = cms.double(3.5), # threshold on tracks
 )
 
 dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
@@ -39,6 +48,13 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
 
 dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
 
+dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
+        UseStrip = True, UsePixel = True,
+        estimator = 'genericTruncated',
+        fraction  = -0.15, # Drop the lowest 15% of hits
+        exponent  = -2.0, # Harmonic02
+)
+
 dedxTruncated40 = dedxHarmonic2.clone()
 dedxTruncated40.estimator =  cms.string('truncated')
 
@@ -60,4 +76,4 @@ dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
 dedxDiscrimASmi         = dedxHarmonic2.clone()
 dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
-doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxHitInfo)
+doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxPixelAndStripHarmonic2T085 + dedxHitInfo)
