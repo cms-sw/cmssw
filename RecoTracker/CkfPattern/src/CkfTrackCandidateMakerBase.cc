@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/SeedStopReason.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -209,13 +209,13 @@ namespace cms{
     // Step C: Create empty output collection
     auto output = std::make_unique<TrackCandidateCollection>();
     auto outputT = std::make_unique<std::vector<Trajectory>>();
-    auto outputSeedStopReasons = std::make_unique<std::vector<short> >(collseed->size(), SeedStopReason::UNINITIALIZED);
+    auto outputSeedStopInfos = std::make_unique<std::vector<SeedStopInfo> >(collseed->size());
 
     if ( (*collseed).size()>theMaxNSeeds ) {
       LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
       if (theTrackCandidateOutput){e.put(std::move(output));}
       if (theTrajectoryOutput){e.put(std::move(outputT));}
-      e.put(std::move(outputSeedStopReasons));
+      e.put(std::move(outputSeedStopInfos));
       return;
     }
 
@@ -291,7 +291,7 @@ namespace cms{
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-          (*outputSeedStopReasons)[j] = SeedStopReason::SEED_CLEANING;
+          (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::SEED_CLEANING);
           return;  // from the lambda!
         }}
 
@@ -301,7 +301,7 @@ namespace cms{
 	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
         if(theTmpTrajectories.empty()) {
           Lock lock(theMutex);
-          (*outputSeedStopReasons)[j] = SeedStopReason::NO_TRAJECTORY;
+          (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NO_TRAJECTORY);
           return; // from the lambda!
         }
 
@@ -344,7 +344,7 @@ namespace cms{
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
-            (*outputSeedStopReasons)[j] = SeedStopReason::NOT_STOPPED;
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NOT_STOPPED);
 	    // Store trajectory
 	    rawResult.push_back(std::move(*it));
   	    // Tell seed cleaner which hits this trajectory used.
@@ -408,8 +408,8 @@ namespace cms{
       for(const auto& traj: rawResult) {
         if(!traj.isValid()) {
           const auto seedIndex = traj.seedRef().key();
-          if((*outputSeedStopReasons)[seedIndex] == SeedStopReason::NOT_STOPPED) {
-            (*outputSeedStopReasons)[seedIndex] = SeedStopReason::FINAL_CLEAN;
+          if((*outputSeedStopInfos)[seedIndex].stopReason() == SeedStopReason::NOT_STOPPED) {
+            (*outputSeedStopInfos)[seedIndex].setStopReason(SeedStopReason::FINAL_CLEAN);
           }
         }
       }
@@ -499,7 +499,7 @@ namespace cms{
 
          if(failed) {
            const auto seedIndex = it->seedRef().key();
-           (*outputSeedStopReasons)[seedIndex] = SeedStopReason::SMOOTHING_FAILED;
+           (*outputSeedStopInfos)[seedIndex].setStopReason(SeedStopReason::SMOOTHING_FAILED);
            continue;
          }
 
@@ -539,7 +539,7 @@ namespace cms{
     // Step G: write output to file
     if (theTrackCandidateOutput){e.put(std::move(output));}
     if (theTrajectoryOutput){e.put(std::move(outputT));}
-    e.put(std::move(outputSeedStopReasons));
+    e.put(std::move(outputSeedStopInfos));
   }
 
 }
