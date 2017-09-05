@@ -37,6 +37,9 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace dqm {
@@ -90,6 +93,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
 
@@ -118,12 +123,15 @@ class TrackingMonitor : public DQMEDAnalyzer
 	// Good Tracks 
         MonitorElement * FractionOfGoodTracks;
 
+	// Tracking regions
+	MonitorElement * NumberOfTrackingRegions;
+
         // Track Seeds 
         MonitorElement * NumberOfSeeds;
         MonitorElement * NumberOfSeeds_lumiFlag;
 	std::vector<MonitorElement *> SeedsVsClusters;
 	std::vector<std::string> ClusterLabels;
-	
+
 
         // Track Candidates
         MonitorElement * NumberOfTrackCandidates;
@@ -189,6 +197,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
 	bool doMVAPlots;
+	bool doRegionPlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;
