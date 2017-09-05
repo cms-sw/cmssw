@@ -25,7 +25,7 @@ generate() {
     python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a produce -n $numFiles 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -37,10 +37,10 @@ convertROOT2PB() {
     for file in $(ls Merge*root)
     do
         fastHadd encode -o `basename $file .root`.pb $file
-#	cmsRun convertRoot2PB.py $file &> /dev/null
-	if [ $? -ne 0 ]; then
-	    exit $?
-	fi
+#       cmsRun convertRoot2PB.py $file &> /dev/null
+        if [ $? -ne 0 ]; then
+            exit $?
+        fi
     done
 
     return 0
@@ -50,13 +50,13 @@ hadd_merge() {
     echo "Merging with hadd"
 
     if [ -e "$cumRootFile" ]; then
-	rm $cumRootFile
+        rm $cumRootFile
     fi
 
     $timecmd hadd $cumRootFile $(ls Merge*.root) 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -68,7 +68,7 @@ check_hadd() {
     python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumRootFile 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -80,7 +80,7 @@ fasthadd_merge() {
     $timecmd fastHadd -d add -o $cumPBFile $(ls Merge*.pb) 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -92,7 +92,7 @@ convertPB2ROOT() {
     fastHadd -d convert -o $cumPBFile_inROOT $cumPBFile 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -104,7 +104,7 @@ check_fasthadd() {
     python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFile_inROOT 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -116,7 +116,7 @@ fasthadd_parallel_merge() {
     $timecmd fastHadd -d add -j $numThreads -o $cumPBFileThreaded $(ls Merge*.pb) 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
@@ -128,7 +128,7 @@ convert() {
     fastHadd -d convert -o $cumPBFileThreaded_inROOT $cumPBFileThreaded 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 }
 
@@ -138,7 +138,7 @@ check_fasthadd_parallel() {
     python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFileThreaded_inROOT 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
-	exit $?
+        exit $?
     fi
 
     return 0
