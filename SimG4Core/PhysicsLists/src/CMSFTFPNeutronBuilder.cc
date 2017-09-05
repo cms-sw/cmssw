@@ -5,8 +5,7 @@
 #include "G4NeutronInelasticCrossSection.hh"
 #include "G4SystemOfUnits.hh"
 
-CMSFTFPNeutronBuilder::
-CMSFTFPNeutronBuilder(G4bool quasiElastic) 
+CMSFTFPNeutronBuilder::CMSFTFPNeutronBuilder(G4bool quasiElastic) 
 {
   theMin =   4*GeV;
   theMax = 100*TeV;
@@ -28,7 +27,7 @@ CMSFTFPNeutronBuilder(G4bool quasiElastic)
      theQuasiElastic=new G4QuasiElasticChannel;
      theModel->SetQuasiElasticChannel(theQuasiElastic);
   } else 
-  {  theQuasiElastic=0;}  
+  {  theQuasiElastic=nullptr;}  
 
   theModel->SetMinEnergy(theMin);
   theModel->SetMaxEnergy(100*TeV);

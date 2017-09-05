@@ -6,11 +6,11 @@
 
 class CMSThermalNeutrons : public G4VHadronPhysics {
 
-public:
+public: 
   CMSThermalNeutrons(G4int ver);
-  virtual ~CMSThermalNeutrons();
+  ~CMSThermalNeutrons() override;
 
-  virtual void ConstructProcess();
+  void ConstructProcess() override;
 
 private:
   G4int               verbose;
