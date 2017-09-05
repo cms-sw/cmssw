@@ -44,14 +44,15 @@ void XrdStatisticsService::postEndJob()
     }
 }
 
-std::map<std::string, XrdStatisticsService::CondorIOStats>
+std::vector<std::pair<std::string, XrdStatisticsService::CondorIOStats>>
 XrdStatisticsService::condorUpdate()
 {
-    std::map<std::string, XrdStatisticsService::CondorIOStats> result;
+    std::vector<std::pair<std::string, XrdStatisticsService::CondorIOStats>> result;
     XrdSiteStatisticsInformation *instance = XrdSiteStatisticsInformation::getInstance();
     if (!instance) {return result;}
 
     std::lock_guard<std::mutex> lock(instance->m_mutex);
+    result.reserve(instance->m_sites.size());
     for (auto& stats : instance->m_sites)
     {
         CondorIOStats cs;
@@ -59,7 +60,7 @@ XrdStatisticsService::condorUpdate()
         if (!ss) continue;
         cs.bytesRead = ss->getTotalBytes();
         cs.transferTime = ss->getTotalReadTime();
-        result[ss->site()] = cs;
+        result.emplace_back(ss->site(), cs);
     }
     return result;
 }
