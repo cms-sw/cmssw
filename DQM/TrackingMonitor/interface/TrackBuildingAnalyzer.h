@@ -29,8 +29,7 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 class TrackBuildingAnalyzer 
 {
@@ -67,7 +66,7 @@ class TrackBuildingAnalyzer
         );
         void analyze
         (
-            const edm::OwnVector<TrackingRegion>& regions
+            const reco::CandidateView& regionCandidates
         );
 
     private:
@@ -77,10 +76,11 @@ class TrackBuildingAnalyzer
 
         // ----------member data ---------------------------
 
-        // Tracking regions
-        MonitorElement* TrackingRegionEta;
-        MonitorElement* TrackingRegionPhi;
-	MonitorElement* TrackingRegionPhiVsEta;
+        // Candidates used for tracking regions
+        MonitorElement* TrackingRegionCandidatePt;
+        MonitorElement* TrackingRegionCandidateEta;
+        MonitorElement* TrackingRegionCandidatePhi;
+        MonitorElement* TrackingRegionCandidatePhiVsEta;
 
         // Track Seeds
         MonitorElement* SeedPt;

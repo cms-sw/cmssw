@@ -246,6 +246,7 @@ for step in seedInputTag.iterkeys():
     if step in regionLabel:
         locals()[label].doRegionPlots = True
         locals()[label].RegionProducer = regionLabel[step]
+        locals()[label].RegionCandidates = regionCandidateLabel[step]
 
 # DQM Services
 dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",

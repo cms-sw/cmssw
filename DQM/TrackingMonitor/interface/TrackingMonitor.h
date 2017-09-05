@@ -37,6 +37,9 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace dqm {
@@ -91,6 +94,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
 
