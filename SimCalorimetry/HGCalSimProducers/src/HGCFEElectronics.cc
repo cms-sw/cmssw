@@ -305,6 +305,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         //finalize ToA contamination
         if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
       }
+      
       //toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
       
