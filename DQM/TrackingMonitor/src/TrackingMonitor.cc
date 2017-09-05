@@ -32,6 +32,9 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
 #include <string>
@@ -135,6 +138,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   doRegionPlots = iConfig.getParameter<bool>("doRegionPlots");
   if(doRegionPlots) {
     regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("RegionProducer"));
+    regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
   }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
@@ -976,11 +980,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (doRegionPlots) {
         edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
         iEvent.getByToken(regionToken_, hregions);
-        const auto& regions = *hregions;
+        NumberOfTrackingRegions->Fill(hregions->size());
 
-        NumberOfTrackingRegions->Fill(regions.size());
-
-        theTrackBuildingAnalyzer->analyze(regions);
+        edm::Handle<reco::CandidateView> hcandidates;
+        iEvent.getByToken(regionCandidateToken_, hcandidates);
+        theTrackBuildingAnalyzer->analyze(*hcandidates);
       }
       
       if (doTrackerSpecific_ || doAllPlots) {
