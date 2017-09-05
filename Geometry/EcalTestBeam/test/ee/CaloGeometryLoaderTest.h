@@ -37,8 +37,8 @@ class CaloGeometryLoaderTest
       virtual ~CaloGeometryLoaderTest< T >() {}
  
       PtrType load( const DDCompactView* cpv,
-		    const Alignments*    alignments = 0 ,
-		    const Alignments*    globals    = 0  ) ;  
+		    const Alignments*    alignments = nullptr ,
+		    const Alignments*    globals    = nullptr  ) ;  
 
    private:
 

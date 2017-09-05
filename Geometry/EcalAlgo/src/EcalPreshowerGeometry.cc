@@ -99,7 +99,7 @@ EcalPreshowerGeometry::initializeParms()
    {
       const ESDetId esid ( esDetIds[i] ) ;
       const CaloCellGeometry* cell ( getGeometry( esid ) ) ;
-      if( 0 != cell )
+      if( nullptr != cell )
       {
 	 const CCGFloat zz ( cell->getPosition().z() ) ; 
 	 if( 1 == esid.plane() )
@@ -218,7 +218,7 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 	    {
 	       const ESDetId esId ( jstrip, jx, jy, plane, jz ) ;
 	       const CaloCellGeometry* cell ( getGeometry( esId ) ) ;
-	       if( 0 != cell )
+	       if( nullptr != cell )
 	       {
 		  const GlobalPoint& p ( cell->getPosition() ) ;
 		  const CCGFloat dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;

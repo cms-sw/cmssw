@@ -26,8 +26,8 @@ HcalDDDRecConstants::~HcalDDDRecConstants() {
 #endif
 }
 
-std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int eta,
-					       const bool extra) const {
+std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta,
+					       const bool& extra) const {
 
   if (!extra) {
     std::vector<HcalParameters::LayerItem>::const_iterator last = hpar->layerGroupEtaRec.begin();
@@ -47,7 +47,8 @@ std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int eta,
   }
 }
 
-std::vector<int> HcalDDDRecConstants::getDepth(const int det, const int phi, const int zside, const unsigned int eta) const {
+std::vector<int> HcalDDDRecConstants::getDepth(const int& det, const int& phi, const int& zside, 
+					       const unsigned int& eta) const {
   std::map<int,int> layers;
   hcons.ldMap()->getLayerDepth(det, eta+1, phi, zside, layers);
   if (layers.empty()) {
@@ -61,7 +62,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const int det, const int phi, con
 }
 
 std::vector<HcalDDDRecConstants::HcalEtaBin> 
-HcalDDDRecConstants::getEtaBins(const int itype) const {
+HcalDDDRecConstants::getEtaBins(const int& itype) const {
 
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins;
   unsigned int     type     = (itype == 0) ? 0 : 1;
@@ -131,7 +132,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 }
 
 std::pair<double,double> 
-HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
+HcalDDDRecConstants::getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const {
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
   double eta(0), phi(0);
   if ((subdet == static_cast<int>(HcalBarrel)) || 
@@ -270,8 +271,7 @@ HcalDDDRecConstants::getHFCellParameters() const {
   return cells;
 }
 
-void HcalDDDRecConstants::getLayerDepth(const int ieta, 
-					std::map<int,int>& layers) const {
+void HcalDDDRecConstants::getLayerDepth(const int& ieta, std::map<int,int>& layers) const {
 
   layers.clear();
   for (unsigned int l=0; l<layerGroupSize(ieta-1); ++l) {
@@ -287,15 +287,17 @@ void HcalDDDRecConstants::getLayerDepth(const int ieta,
 #endif
 }
 
-int HcalDDDRecConstants::getLayerFront(const int idet, const int ieta,
-				       const int iphi, const int depth) const {
+int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta,
+				       const int& iphi, const int& depth) const {
   int subdet = (idet == 1) ? 1 : 2;
   int zside  = (ieta > 0) ? 1 : -1;
   int eta    = zside*ieta;
   int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
   if (layFront < 0) {
     int laymin  = hcons.getFrontLayer(subdet, ieta);
-    if (eta <= hpar->etaMax[1]) {
+    if (eta == 16 && subdet == 2) {
+      layFront = laymin;
+    } else if (eta <= hpar->etaMax[1]) {
       for (unsigned int k=0; k<layerGroupSize(eta-1); ++k) {
 	if (depth == (int)layerGroup(eta-1, k)) {
 	  if ((int)(k) >= laymin) {
@@ -313,8 +315,8 @@ int HcalDDDRecConstants::getLayerFront(const int idet, const int ieta,
   return layFront;
 }
 
-int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta,
-				      const int iphi, const int zside) const {
+int HcalDDDRecConstants::getMaxDepth (const int& itype, const int& ieta,
+				      const int& iphi,  const int& zside) const {
   
   unsigned int type  = (itype == 0) ? 0 : 1;
   int lmax = hcons.getMaxDepth(type+1, ieta, iphi, zside, true);
@@ -328,11 +330,15 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta,
       if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29M(0,false);
     }
   }
+#ifdef EDM_ML_DEBUG
+  std::cout << "getMaxDepth::Input " << itype << ":" << ieta << ":"
+	    << iphi << ":" << zside << " Output " << lmax << std::endl;
+#endif
   return lmax;
 }
 
-int HcalDDDRecConstants::getMinDepth (const int itype, const int ieta,
-				      const int iphi, const int zside) const {
+int HcalDDDRecConstants::getMinDepth (const int& itype, const int& ieta,
+				      const int& iphi,  const int& zside) const {
 
   int lmin = hcons.getMinDepth(itype+1, ieta, iphi, zside, true);
   if (lmin < 0) {
@@ -354,7 +360,7 @@ int HcalDDDRecConstants::getMinDepth (const int itype, const int ieta,
 }
 
 std::vector<std::pair<int,double> >
-HcalDDDRecConstants::getPhis(int subdet, int ieta) const {
+HcalDDDRecConstants::getPhis(const int& subdet, const int& ieta) const {
 
   std::vector<std::pair<int,double> > phis;
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
@@ -401,13 +407,14 @@ int HcalDDDRecConstants::getPhiZOne(std::vector<std::pair<int,int>>& phiz) const
   return subdet;
 }
 
-double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
+double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, 
+				  const int& depth) const {
 
   return getRZ(subdet, ieta, 1, depth);
 }
 
-double HcalDDDRecConstants::getRZ(int subdet, int ieta, int iphi,
-				  int depth) const {
+double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, const int& iphi,
+				  const int& depth) const {
   int    layf  = getLayerFront(subdet,ieta,iphi,depth);
   double rz    = (layf < 0) ? 0.0 : 
     ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layf].first) :
@@ -420,7 +427,7 @@ double HcalDDDRecConstants::getRZ(int subdet, int ieta, int iphi,
   return rz;
 }
 
-double HcalDDDRecConstants::getRZ(int subdet, int layer) const {
+double HcalDDDRecConstants::getRZ(const int& subdet, const int& layer) const {
 
   double rz(0);
   if (layer > 0 && layer <= (int)(layerGroupSize(0)))
@@ -435,7 +442,7 @@ double HcalDDDRecConstants::getRZ(int subdet, int layer) const {
 
  	
 std::vector<HcalDDDRecConstants::HcalActiveLength> 
-HcalDDDRecConstants::getThickActive(const int type) const {
+HcalDDDRecConstants::getThickActive(const int& type) const {
 
   std::vector<HcalDDDRecConstants::HcalActiveLength> actives;
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins = getEtaBins(type);
@@ -446,13 +453,26 @@ HcalDDDRecConstants::getThickActive(const int type) const {
     int    ieta  = bin.ieta;
     int    zside = bin.zside;
     int    stype = (bin.phis.size() > 4) ? 0 : 1;
+    int    layf  = getLayerFront(type+1,zside*ieta,bin.phis[0].first,bin.depthStart) + 1;
+    int    layl  = hcons.getLastLayer(type+1,zside*ieta) + 1;
     double eta   = 0.5*(bin.etaMin+bin.etaMax);
     double theta = 2*atan(exp(-eta));
     double scale = 1.0/((type == 0) ? sin(theta) : cos(theta));
     int    depth = bin.depthStart;
+#ifdef EDM_ML_DEBUG
+    std::cout << "Eta " << ieta << " zside " << zside << " depth " << depth
+	      << " Layers " << layf << ":" << layl << ":" << bin.layer.size();
+    for (auto ll : bin.layer) std::cout << " " << ll.first << ":" << ll.second;
+    std::cout << " phi ";
+    for (auto phi : bin.phis) std::cout << " " << phi.first;
+    std::cout << std::endl;
+#endif
     for (unsigned int i = 0; i < bin.layer.size(); ++i) {
       double thick(0);
-      for (int j = bin.layer[i].first; j <= bin.layer[i].second; ++j) {
+      int lmin = (type == 1 && ieta == iEtaMin[1]) ? layf :
+	std::max(bin.layer[i].first,layf);
+      int lmax = std::min(bin.layer[i].second,layl);
+      for (int j = lmin; j <= lmax; ++j) {
 	if (type == 0 || j > 1) {
 	  double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
 	  if (t > 0) thick += t;
@@ -460,6 +480,8 @@ HcalDDDRecConstants::getThickActive(const int type) const {
       }
       thick *= (2.*scale);
       HcalDDDRecConstants::HcalActiveLength active(ieta,depth,zside,stype,zside*eta,thick);
+      for (auto phi : bin.phis) 
+	active.iphis.emplace_back(phi.first);
       actives.emplace_back(active);
       ++depth;
 #ifdef EDM_ML_DEBUG
@@ -840,7 +862,8 @@ void HcalDDDRecConstants::initialize(void) {
       int laymax0 = (imx > 16) ? layerGroup(i,16) : laymax;
       if (i+1 == iEtaMax[0]) laymax0 = hcons.getDepthEta16M(1);
 #ifdef EDM_ML_DEBUG
-      std::cout << "HB " << i << " " << imx << " " << laymax << " " << laymax0 << std::endl;
+      std::cout << "HB " << i << " " << imx << " " << laymax << " " 
+		<< laymax0 << std::endl;
 #endif
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
@@ -1006,7 +1029,7 @@ void HcalDDDRecConstants::initialize(void) {
 
 }
 
-unsigned int HcalDDDRecConstants::layerGroupSize(const int eta) const {
+unsigned int HcalDDDRecConstants::layerGroupSize(int eta) const {
   unsigned int k = 0;
   for (auto const & it : hpar->layerGroupEtaRec) {
     if (it.layer == (unsigned int)(eta + 1)) {
@@ -1018,8 +1041,7 @@ unsigned int HcalDDDRecConstants::layerGroupSize(const int eta) const {
   return k;
 }
 
-unsigned int HcalDDDRecConstants::layerGroup(const int eta, 
-					     const int i) const {
+unsigned int HcalDDDRecConstants::layerGroup(int eta, int i) const {
   unsigned int k = 0;
   for (auto const & it :  hpar->layerGroupEtaRec) {
     if (it.layer == (unsigned int)(eta + 1))  {

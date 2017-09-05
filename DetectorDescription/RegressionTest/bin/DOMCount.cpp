@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 
-/*
- * $Id$
- */
-
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/AbstractDOMParser.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
@@ -36,15 +29,14 @@
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include "DOMCount.hpp"
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #if defined(XERCES_NEW_IOSTREAMS)
 #include <fstream>
 #else
 #include <fstream.h>
 #endif
-
 
 // ---------------------------------------------------------------------------
 //  This is a simple program which invokes the DOMParser to build a DOM
@@ -70,8 +62,6 @@ static void usage()
             "  * = Default if not provided explicitly.\n"
          << XERCES_STD_QUALIFIER endl;
 }
-
-
 
 // ---------------------------------------------------------------------------
 //
@@ -116,7 +106,7 @@ static int countChildElements(DOMNode *n, bool printOutEncounteredEles)
             }
 			++count;
 		}
-        for (child = n->getFirstChild(); child != 0; child=child->getNextSibling())
+        for (child = n->getFirstChild(); child != nullptr; child=child->getNextSibling())
             count += countChildElements(child, printOutEncounteredEles);
     }
     return count;
@@ -137,7 +127,7 @@ int main(int argC, char* argV[])
         return 1;
     }
 
-    const char*                xmlFile = 0;
+    const char*                xmlFile = nullptr;
     AbstractDOMParser::ValSchemes valScheme = AbstractDOMParser::Val_Auto;
     bool                       doNamespaces       = false;
     bool                       doSchema           = false;
@@ -263,7 +253,7 @@ int main(int argC, char* argV[])
     // Instantiate the DOM parser.
     static const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
     DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
     DOMConfiguration  *config = parser->getDomConfig();
 
     config->setParameter(XMLUni::fgDOMNamespaces, doNamespaces);
@@ -336,7 +326,7 @@ int main(int argC, char* argV[])
         //reset error count first
         errorHandler.resetErrors();
 
-        XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = 0;
+        XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = nullptr;
 
         try
         {

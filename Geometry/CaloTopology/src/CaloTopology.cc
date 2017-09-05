@@ -24,63 +24,63 @@ void CaloTopology::setSubdetTopology(DetId::Detector det, int subdet, const Calo
 
 const CaloSubdetectorTopology* CaloTopology::getSubdetectorTopology(const DetId& id) const {
   std::map<int, const CaloSubdetectorTopology*>::const_iterator i=theTopologies_.find(makeIndex(id.det(),id.subdetId()));
-  return (i==theTopologies_.end())?(0):(i->second);
+  return (i==theTopologies_.end())?(nullptr):(i->second);
 }
 
 const CaloSubdetectorTopology* CaloTopology::getSubdetectorTopology(DetId::Detector det, int subdet) const {
     std::map<int, const CaloSubdetectorTopology*>::const_iterator i=theTopologies_.find(makeIndex(det,subdet));
-    return (i==theTopologies_.end())?(0):(i->second);
+    return (i==theTopologies_.end())?(nullptr):(i->second);
 }
 
 static const std::vector<DetId> emptyDetIdVector;
 
 std::vector<DetId> CaloTopology::east(const DetId& id) const {
   const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-  return (topology==0) ? (emptyDetIdVector):(topology->east(id));
+  return (topology==nullptr) ? (emptyDetIdVector):(topology->east(id));
 }
 
 std::vector<DetId> CaloTopology::west(const DetId& id) const {
   const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-  return (topology==0) ? (emptyDetIdVector):(topology->west(id));
+  return (topology==nullptr) ? (emptyDetIdVector):(topology->west(id));
 }
 
 std::vector<DetId> CaloTopology::north(const DetId& id) const {
   const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-  return (topology==0) ? (emptyDetIdVector):(topology->north(id));
+  return (topology==nullptr) ? (emptyDetIdVector):(topology->north(id));
 }
 
 std::vector<DetId> CaloTopology::south(const DetId& id) const {
   const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-  return (topology==0) ? (emptyDetIdVector):(topology->south(id));
+  return (topology==nullptr) ? (emptyDetIdVector):(topology->south(id));
 }
 
 std::vector<DetId> CaloTopology::up(const DetId& id) const {
   const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-  return (topology==0) ? (emptyDetIdVector):(topology->up(id));
+  return (topology==nullptr) ? (emptyDetIdVector):(topology->up(id));
 }
 
 std::vector<DetId> CaloTopology::down(const DetId& id) const {
     const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-    return (topology==0) ? (emptyDetIdVector):(topology->down(id));
+    return (topology==nullptr) ? (emptyDetIdVector):(topology->down(id));
 }
 
 std::vector<DetId> CaloTopology::getNeighbours(const DetId& id,const CaloDirection& dir) const {
     const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-    return (topology==0) ? (emptyDetIdVector):(topology->getNeighbours(id,dir));
+    return (topology==nullptr) ? (emptyDetIdVector):(topology->getNeighbours(id,dir));
 }
 
 std::vector<DetId> CaloTopology::getWindow(const DetId& id, const int& northSouthSize, const int& eastWestSize) const {
     const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-    return (topology==0) ? (emptyDetIdVector):(topology->getWindow(id,northSouthSize, eastWestSize));
+    return (topology==nullptr) ? (emptyDetIdVector):(topology->getWindow(id,northSouthSize, eastWestSize));
 }
 
 std::vector<DetId> CaloTopology::getAllNeighbours(const DetId& id) const {
     const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
-    return (topology==0) ? (emptyDetIdVector):(topology->getAllNeighbours(id));
+    return (topology==nullptr) ? (emptyDetIdVector):(topology->getAllNeighbours(id));
 }
 
 bool CaloTopology::valid(const DetId& id) const {
   const CaloSubdetectorTopology* geom=getSubdetectorTopology(id);
-  return (geom==0)?(false):(geom->valid(id));
+  return (geom==nullptr)?(false):(geom->valid(id));
 }
 

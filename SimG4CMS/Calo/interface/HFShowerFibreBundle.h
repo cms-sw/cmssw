@@ -21,7 +21,7 @@ class HFShowerFibreBundle {
 
 public:    
 
-  HFShowerFibreBundle(const std::string & name, const DDCompactView & cpv, 
+  HFShowerFibreBundle(std::string & name, const DDCompactView & cpv, 
 		      edm::ParameterSet const & p);
   virtual ~HFShowerFibreBundle();
   double                getHits(G4Step * aStep, bool type);

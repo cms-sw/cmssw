@@ -156,7 +156,7 @@ public:
   unsigned int detId2denseIdCALIB(const DetId& id) const;
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
-  bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
+  bool isBH() const { return ((hcons_ == nullptr) ? false : hcons_->isBH()); }
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
   bool  withSpecialRBXHBHE() const {return hcons_->withSpecialRBXHBHE();}

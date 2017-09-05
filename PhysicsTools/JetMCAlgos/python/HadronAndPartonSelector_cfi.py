@@ -7,3 +7,6 @@ selectedHadronsAndPartons = cms.EDProducer('HadronAndPartonSelector',
     partonMode = cms.string("Auto"),
     fullChainPhysPartons = cms.bool(True)
 )
+# select hadrons and partons for the slimmedGenJetsFlavourInfos, required for origin identification
+
+selectedHadronsAndPartonsForGenJetsFlavourInfos = selectedHadronsAndPartons.clone(particles = "prunedGenParticles")

@@ -104,7 +104,7 @@ bool DDExpandedView::nextSibling()
 	const DDExpandedNode & expnBefore(history_[hsize-2]);
 	
 	// T = T1 + INV[R1] * T2
-	expn.trans_  = expnBefore.trans_ + (expnBefore.rot_ * expn.posd_->trans_);
+	expn.trans_  = expnBefore.trans_ + (expnBefore.rot_ * expn.posd_->trans());
      
 	// R = R1*INV[R2]	
 	// VI in principle we can do this
@@ -113,7 +113,7 @@ bool DDExpandedView::nextSibling()
 	}
       }
       else {
-	expn.trans_ = expn.posd_->trans_;
+	expn.trans_ = expn.posd_->trans();
 	expn.rot_ = expn.posd_->rot();//.inverse();
       }   
       ++expn.siblingno_;
@@ -147,7 +147,7 @@ bool DDExpandedView::firstChild()
       DDPosData * newPosd = curr.second;
     
           // T = ... (see nextSiblinig())
-      DDTranslation newTrans = expnBefore.trans_ + expnBefore.rot_ * newPosd->trans_;
+      DDTranslation newTrans = expnBefore.trans_ + expnBefore.rot_ * newPosd->trans();
     
       // R = ... (see nextSibling())
       DDRotationMatrix newRot =  expnBefore.rot_ *  newPosd->rot();//.inverse();

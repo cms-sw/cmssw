@@ -39,7 +39,7 @@ namespace sim_act {
       public:
 	 typedef Observer<const T*>* slot_type; 
 	 Signaler() {}
-	 ~Signaler() override {}
+	 virtual ~Signaler() {}
 	 
 	 // ---------- const member functions ---------------------
 	 void operator()(const T* iSignal) const {
@@ -65,12 +65,12 @@ namespace sim_act {
 	    observers_.push_back(&iObs);
 	 }
 
-	 Signaler(const Signaler&) = delete; // stop default
-	 
-	 const Signaler& operator=(const Signaler&) = delete; // stop default
-	 
       private:
-	 void update(const T* iData) override {
+	 Signaler(const Signaler&); // stop default
+	 
+	 const Signaler& operator=(const Signaler&); // stop default
+	 
+	 void update(const T* iData) {
 	    this->operator()(iData);
 	 }
 	 // ---------- member data --------------------------------

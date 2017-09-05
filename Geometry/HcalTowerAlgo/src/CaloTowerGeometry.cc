@@ -74,7 +74,7 @@ const CaloCellGeometry*
 CaloTowerGeometry::cellGeomPtr( uint32_t index ) const {
   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
   return  ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }
 
 void
@@ -97,10 +97,10 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
     Tr3D tr ;
     const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
        
-    if (0 != ptr) {
+    if (nullptr != ptr) {
       dinsVec.emplace_back( i );
 
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) nullptr ) ;
 
       if( Tr3D() == tr ) { // for preshower there is no rotation
          const GlobalPoint& gp ( ptr->getPosition() ) ; 

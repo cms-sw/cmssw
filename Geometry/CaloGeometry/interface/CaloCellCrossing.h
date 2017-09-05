@@ -37,10 +37,10 @@ class CaloCellCrossing
       const Points&  exits()     const { return m_exit  ; }
       const Lengths& lengths()   const { return m_len   ; }
 
-   private:
-
       CaloCellCrossing( const CaloCellCrossing& ) = delete;
       CaloCellCrossing operator=( const CaloCellCrossing& ) = delete;
+
+   private:
 
       GlobalPoint  m_gp ;
       GlobalVector m_gv ;

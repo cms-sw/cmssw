@@ -30,10 +30,10 @@ public:
     explicit EventAction(const edm::ParameterSet& ps,
 			 SimRunInterface*, SimTrackManager*,
 			 CMSSteppingVerbose*);
-    ~EventAction() override;
+    virtual ~EventAction();
 
-    void BeginOfEventAction(const G4Event * evt) override;
-    void EndOfEventAction(const G4Event * evt) override;
+    virtual void BeginOfEventAction(const G4Event * evt);
+    virtual void EndOfEventAction(const G4Event * evt);
 
     void abortEvent();
 

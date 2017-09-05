@@ -29,10 +29,10 @@ public:
   ReturnType load(const HcalTopology& topo, DetId::Detector , int );
   /// Load all of HCAL
   ReturnType load(const HcalTopology& topo);
-  
-private:
 
   HcalDDDGeometryLoader() = delete;
+
+ private:
 
   /// helper functions to make all the ids and cells, and put them into the
   /// vectors and mpas passed in.
@@ -42,7 +42,7 @@ private:
 		 const HcalCellType& , double, 
 		 double, HcalDDDGeometry* geom) const;
   
-  const HcalDDDRecConstants* hcalConstants;
+  const HcalDDDRecConstants* hcalConstants_;
 
   HcalTopology* dummyTopology_;
   bool          isBH_;

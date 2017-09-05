@@ -24,7 +24,7 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
 
   //Special parameters at simulation level
   std::string attribute = "Volume"; 
-  std::string value     = name;
+  const std::string& value     = name;
   DDValue val(attribute, value, 0.0);
   DDSpecificsMatchesValueFilter filter{val};
   DDFilteredView fv(*cpv,filter);

@@ -42,6 +42,7 @@
 
 /* mia: but is there not a smarter way ?!?!?! */
 const double NORBITS_PER_SECOND = 11223.;
+const double NORBITS_PER_LS     = 262144.;
 
 //--------------------------------------------------------------------------------------------
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
@@ -164,6 +165,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   createTrendMEs        = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_               = conf_.getParameter<bool>("Mod_On");
+  m_trendVsLS             = conf_.getParameter<bool>("TrendVsLS");
   //  xLumiProf             = conf_.getParameter<int>("xLumiProf");
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
@@ -178,7 +180,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
-  else dcsStatus_ = 0;
+  else dcsStatus_ = nullptr;
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
   isStableBeams = false;
@@ -242,7 +244,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
 
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-    if( es.find( recordKey ) != 0) {
+    if( es.find( recordKey ) != nullptr) {
 
       edm::ESHandle<RunInfo> sumFED;
       es.get<RunInfoRcd>().get(sumFED);
@@ -363,12 +365,12 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 
       ModMEs local_modmes;
 
-      local_modmes.NumberOfDigis         = 0;
-      local_modmes.NumberOfDigisPerStrip = 0;
-      local_modmes.ADCsHottestStrip      = 0;
-      local_modmes.ADCsCoolestStrip      = 0;
-      local_modmes.DigiADCs              = 0;
-      local_modmes.StripOccupancy        = 0;
+      local_modmes.NumberOfDigis         = nullptr;
+      local_modmes.NumberOfDigisPerStrip = nullptr;
+      local_modmes.ADCsHottestStrip      = nullptr;
+      local_modmes.ADCsCoolestStrip      = nullptr;
+      local_modmes.DigiADCs              = nullptr;
+      local_modmes.StripOccupancy        = nullptr;
 
       if (Mod_On_) {
 
@@ -524,13 +526,13 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     // Book new histogram to monitor digi in last LS
     //
 
-    digiFailureMEs.SubDetTotDigiProfLS   = 0;
-    digiFailureMEs.SubDetDigiFailures2D  = 0;
+    digiFailureMEs.SubDetTotDigiProfLS   = nullptr;
+    digiFailureMEs.SubDetDigiFailures2D  = nullptr;
 
     std::stringstream ss;
 
     folder_organizer.getLayerFolderName(ss, 0, tTopo);
-    ibooker.setCurrentFolder(ss.str().c_str());
+    ibooker.setCurrentFolder(ss.str());
 
     if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";
@@ -585,7 +587,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   runNb   = iEvent.id().run();
   eventNb++;
 
-  float iOrbitSec      = iEvent.orbitNumber()/NORBITS_PER_SECOND;
+  float iOrbitVar      = m_trendVsLS ? iEvent.orbitNumber()/NORBITS_PER_LS : iEvent.orbitNumber()/NORBITS_PER_SECOND ;
 
   digi_detset_handles.clear();
 
@@ -638,7 +640,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       uint32_t detid = (*iterDets);
 
       // Get SubDet label once
-      if (subdet_label.size() == 0) subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
+      if (subdet_label.empty()) subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
 
       // DetId and corresponding set of MEs
 
@@ -663,12 +665,12 @@ std::vector<const FedChannelConnection*> fedConnections = SiStripDetCabling_->ge
 
 int good_fcc_index = -999;
 for(unsigned int x=0;x<fedConnections.size();x++){
-  if(fedConnections[x]!=NULL){
+  if(fedConnections[x]!=nullptr){
     good_fcc_index = x;
     break;
   }
 }
-if(fedConnections[good_fcc_index]!=NULL){
+if(fedConnections[good_fcc_index]!=nullptr){
   int temp_fedid = fedConnections[good_fcc_index]->fedId();
   if(FEDID_v_digisum.find(temp_fedid) != FEDID_v_digisum.end()){
     if(ndigi_det <1000 && ndigi_det>0){
@@ -694,7 +696,7 @@ else{
 	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots,shots,detid,2);
       }
 
-      if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
+      if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != nullptr))
 	(local_modmes.NumberOfDigis)->Fill(ndigi_det);
 
       if (layerswitchnumdigisprofon)
@@ -726,16 +728,16 @@ else{
 	if(this_adc>largest_adc) largest_adc  = this_adc;
 	if(this_adc<smallest_adc) smallest_adc  = this_adc;
 
-	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != NULL) && (this_adc > 0.0) )
+	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != nullptr) && (this_adc > 0.0) )
           (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter->strip());
 
-	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
+	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != nullptr) )
 	  (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
 
 	//Fill #ADCs for this digi at layer level
 	if(layerswitchdigiadcson) {
 	  fillME(local_layermes.LayerDigiADCs , this_adc);
-	  if (createTrendMEs) fillTrend(local_layermes.LayerDigiADCsTrend, this_adc, iOrbitSec);
+	  if (createTrendMEs) fillTrend(local_layermes.LayerDigiADCsTrend, this_adc, iOrbitVar);
 	}
 
 	if (layerswitchdigiadcprofon)
@@ -747,11 +749,11 @@ else{
       short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;
       if (nstrips > 0 && det_occupancy > 0 ) {
 	det_occupancy = det_occupancy/nstrips;
-	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
+	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != nullptr))
 	  (local_modmes.StripOccupancy)->Fill(det_occupancy);
 	if (layerswitchstripoccupancyon) {
 	  fillME(local_layermes.LayerStripOccupancy, det_occupancy);
-	  if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy, iOrbitSec);
+	  if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy, iOrbitVar);
 	}
       }
 
@@ -759,26 +761,26 @@ else{
       if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
 
       // nr. of adcs for hottest strip
-      if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL))
+      if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != nullptr))
 	(local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
 
       // nr. of adcs for coolest strip
-      if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL))
+      if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != nullptr))
 	(local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc));
 
     }//end of loop over DetIds
 
     if(layerswitchnumdigison) {
       fillME(local_layermes.LayerNumberOfDigis,ndigi_layer);
-      if (createTrendMEs) fillTrend(local_layermes.LayerNumberOfDigisTrend, ndigi_layer, iOrbitSec);
+      if (createTrendMEs) fillTrend(local_layermes.LayerNumberOfDigisTrend, ndigi_layer, iOrbitVar);
     }
     if(layerswitchadchotteston) {
       fillME(local_layermes.LayerADCsHottestStrip,largest_adc_layer);
-      if (createTrendMEs) fillTrend(local_layermes.LayerADCsHottestStripTrend, largest_adc_layer, iOrbitSec);
+      if (createTrendMEs) fillTrend(local_layermes.LayerADCsHottestStripTrend, largest_adc_layer, iOrbitVar);
     }
     if(layerswitchadccooleston) {
       fillME(local_layermes.LayerADCsCoolestStrip ,smallest_adc_layer);
-      if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend, smallest_adc_layer, iOrbitSec);
+      if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend, smallest_adc_layer, iOrbitVar);
     }
 
     std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
@@ -852,7 +854,7 @@ else{
       TotalNShots+=ShotsSize; //Counter for total Shots in the SiStrip Tracker
 
       if (subdetswitchnapvshotson ) subdetmes.SubDetNApvShotsTH1->Fill(ShotsSize);// N shots
-      if (subdetswitchapvshotsonprof) subdetmes.SubDetNApvShotsProf ->Fill(iOrbitSec,ShotsSize); //N shots vs time
+      if (subdetswitchapvshotsonprof) subdetmes.SubDetNApvShotsProf ->Fill(iOrbitVar,ShotsSize); //N shots vs time
 
       for (uint i=0; i< ShotsSize; ++i){ // Strip multiplicity, charge median and APV number distributions for APV shots
 
@@ -867,11 +869,11 @@ else{
 
       }
 
-      if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,subdetmes.totNDigis);
+      if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitVar,subdetmes.totNDigis);
   }
 
   if (globalswitchnapvshotson) NApvShotsGlobal->Fill(TotalNShots);
-  if (globalswitchapvshotsonprof) ShotsVsTimeApvShotsGlobal->Fill(iOrbitSec,TotalNShots);
+  if (globalswitchapvshotsonprof) ShotsVsTimeApvShotsGlobal->Fill(iOrbitVar,TotalNShots);
 
 
   if (globalswitchNDigisFEDID){
@@ -949,7 +951,8 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
 					   "" );
   if(!me) return me;
 
-  me->setAxisTitle("Event Time in Seconds",1);
+  if(m_trendVsLS ) me->setAxisTitle("Lumisection",1);
+  else             me->setAxisTitle("Event Time in Seconds",1);
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
@@ -1043,18 +1046,18 @@ void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , std::stri
   if(iLayerME==LayerMEsMap.end()){
     SiStripHistoId hidmanager;
     LayerMEs layerMEs;
-    layerMEs.LayerNumberOfDigis         = 0;
-    layerMEs.LayerNumberOfDigisTrend    = 0;
-    layerMEs.LayerADCsHottestStrip      = 0;
-    layerMEs.LayerADCsHottestStripTrend = 0;
-    layerMEs.LayerADCsCoolestStrip      = 0;
-    layerMEs.LayerADCsCoolestStripTrend = 0;
-    layerMEs.LayerDigiADCs              = 0;
-    layerMEs.LayerDigiADCsTrend         = 0;
-    layerMEs.LayerStripOccupancy        = 0;
-    layerMEs.LayerStripOccupancyTrend   = 0;
-    layerMEs.LayerNumberOfDigisProfile  = 0;
-    layerMEs.LayerDigiADCProfile        = 0;
+    layerMEs.LayerNumberOfDigis         = nullptr;
+    layerMEs.LayerNumberOfDigisTrend    = nullptr;
+    layerMEs.LayerADCsHottestStrip      = nullptr;
+    layerMEs.LayerADCsHottestStripTrend = nullptr;
+    layerMEs.LayerADCsCoolestStrip      = nullptr;
+    layerMEs.LayerADCsCoolestStripTrend = nullptr;
+    layerMEs.LayerDigiADCs              = nullptr;
+    layerMEs.LayerDigiADCsTrend         = nullptr;
+    layerMEs.LayerStripOccupancy        = nullptr;
+    layerMEs.LayerStripOccupancyTrend   = nullptr;
+    layerMEs.LayerNumberOfDigisProfile  = nullptr;
+    layerMEs.LayerDigiADCProfile        = nullptr;
 
 
     //#Digis
@@ -1109,15 +1112,15 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 
   SubDetMEs subdetMEs;
   subdetMEs.totNDigis         = 0;
-  subdetMEs.SubDetTotDigiProf = 0;
-  subdetMEs.SubDetDigiApvProf = 0;
-  subdetMEs.SubDetDigiApvTH2  = 0;
+  subdetMEs.SubDetTotDigiProf = nullptr;
+  subdetMEs.SubDetDigiApvProf = nullptr;
+  subdetMEs.SubDetDigiApvTH2  = nullptr;
 
   subdetMEs.SubDetApvShots.clear();
-  subdetMEs.SubDetNApvShotsTH1            = 0;
-  subdetMEs.SubDetChargeMedianApvShotsTH1 = 0;
-  subdetMEs.SubDetNStripsApvShotsTH1      = 0;
-  subdetMEs.SubDetNApvShotsProf           = 0;
+  subdetMEs.SubDetNApvShotsTH1            = nullptr;
+  subdetMEs.SubDetChargeMedianApvShotsTH1 = nullptr;
+  subdetMEs.SubDetNStripsApvShotsTH1      = nullptr;
+  subdetMEs.SubDetNApvShotsProf           = nullptr;
 
   std::string HistoName;
 
@@ -1133,7 +1136,9 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymin"),
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
-    subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
+    if(m_trendVsLS) subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection",1);
+    else            subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
+
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 

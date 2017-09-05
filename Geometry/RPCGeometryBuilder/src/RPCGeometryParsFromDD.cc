@@ -70,9 +70,9 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
 
     const std::string name=fview.logicalPart().name().name();
     const std::vector<std::string> strpars = {name};
-    DDTranslation tran = fview.translation();
+    const DDTranslation& tran = fview.translation();
 
-    DDRotationMatrix rota = fview.rotation();//.Inverse();
+    const DDRotationMatrix& rota = fview.rotation();//.Inverse();
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
     std::vector<double> pars;

@@ -34,11 +34,11 @@ class APVCyclePhaseCollection;
 class SiStripMonitorDigi : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
-  ~SiStripMonitorDigi();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  ~SiStripMonitorDigi() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
@@ -92,7 +92,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
     MonitorElement* SubDetDigiFailures2D;
   };
 
-  MonitorElement* NumberOfFEDDigis = 0;
+  MonitorElement* NumberOfFEDDigis = nullptr;
 
  private:
   void createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es );
@@ -103,10 +103,10 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   void bookTrendMEs( DQMStore::IBooker & ibooker , const TString& name,int32_t layer,uint32_t id,std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
   void fillTrend(MonitorElement* me ,float value, float timeinorbit);
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
+  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
   bool AllDigis( const edm::EventSetup& es);
 
   void createModuleMEs( DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid);
@@ -208,6 +208,8 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   bool shotschargehistomapon;
 
   bool createTrendMEs;
+
+  bool m_trendVsLS;
 
   edm::InputTag historyProducer_;
   edm::InputTag apvPhaseProducer_;
