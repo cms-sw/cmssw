@@ -20,6 +20,7 @@ from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 PerModule.enabled = False
+IsOffline.enabled=True
 
 siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1RawDataAnalyzer
                                             + SiPixelPhase1DigisAnalyzer

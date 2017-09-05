@@ -40,7 +40,8 @@ PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
 PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
-OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(False)) #switch to overlay digi/clusters curves for timing scan
+OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(True)) #switch to overlay digi/clusters curves for timing scan
+IsOffline = cms.PSet(enabled = cms.bool(True)) # should be switch off for Online
 
 # Default histogram configuration. This is _not_ used automatically, but you
 # can import and pass this (or clones of it) in the plugin config.
@@ -151,23 +152,41 @@ StandardSpecifications1D = [
 ]
 
 StandardSpecificationTrend = [
-    Specification().groupBy("PXBarrel/Lumisection")
+    Specification(PerModule).groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXForward/Lumisection")
+    Specification(PerModule).groupBy("PXForward/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward", "EXTEND_X")
+                   .save(),
+    Specification(IsOffline).groupBy("PXBarrel/LumiBlock")
+                    .reduce("MEAN")
+                    .groupBy("PXBarrel", "EXTEND_X")
+                    .save(),
+    Specification(IsOffline).groupBy("PXForward/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
                    .save()
 ]
 
 StandardSpecificationTrend2D = [
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
+    Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save(),
+    Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
@@ -291,36 +310,67 @@ StandardSpecificationInclusive_Num = [#to count inclusively objects in substruct
 ]
 
 StandardSpecificationTrend_Num = [
-
-    Specification().groupBy("PXBarrel/PXLayer/Event")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel/Event")
+    Specification(PerModule).groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Event")
+    Specification(PerModule).groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/Event")
+    Specification(PerModule).groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXAll/Event")
+    Specification(PerModule).groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXAll", "EXTEND_X")
+                   .save(),
+    Specification(IsOffline).groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification(IsOffline).groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel", "EXTEND_X")
+                   .save(),
+    Specification(IsOffline).groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save(),
+    Specification(IsOffline).groupBy("PXForward/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward", "EXTEND_X")
+                   .save(),
+    Specification(IsOffline).groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
