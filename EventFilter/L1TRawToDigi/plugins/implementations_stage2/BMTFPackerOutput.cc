@@ -1,7 +1,7 @@
 #include "BMTFPackerOutput.h"
 
-#include <vector>//Panos debug
-#include <bitset>//Panos debug
+#include <vector>
+//#include <bitset>//debug
 
 // Implementation
 namespace l1t 
