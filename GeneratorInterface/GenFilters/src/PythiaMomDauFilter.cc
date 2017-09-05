@@ -1,6 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaMomDauFilter.h"
-
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/PythiaWrapper6_4.h"
@@ -24,7 +24,8 @@ maxetacut(iConfig.getUntrackedParameter<double>("MaxEta", 10.)),
 mom_minptcut(iConfig.getUntrackedParameter<double>("MomMinPt", 0.)),
 mom_maxptcut(iConfig.getUntrackedParameter<double>("MomMaxPt", 14000.)),
 mom_minetacut(iConfig.getUntrackedParameter<double>("MomMinEta", -10.)),
-mom_maxetacut(iConfig.getUntrackedParameter<double>("MomMaxEta", 10.))
+mom_maxetacut(iConfig.getUntrackedParameter<double>("MomMaxEta", 10.)),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //now do what ever initialization is needed
    vector<int> defdauID;
@@ -67,7 +68,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();  p != myGenEvent->particles_end(); ++p ) {
      
   if( (*p)->pdg_id() != particleID ) continue ;
-  if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  && (*p)->momentum().eta()  >  mom_minetacut &&  (*p)->momentum().eta()  <  mom_maxetacut ){ 
+  HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+  if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  && mom.eta()  >  mom_minetacut &&  mom.eta()  <  mom_maxetacut ){ 
    mom_accepted = true;
    ndauac = 0;
    ndau   = 0;
@@ -86,7 +88,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         ++ndes;        
         for( unsigned int i=0; i<desIDs.size(); ++i) {
          if( (*des)->pdg_id() != desIDs[i] ) continue ;
-         if( (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  && (*des)->momentum().eta()  >  minetacut &&  (*des)->momentum().eta()  <  maxetacut ) {
+         HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(),betaBoost);
+         if( (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  && dau_i.eta()  >  minetacut &&  dau_i.eta()  <  maxetacut ) {
           ++ndesac;
           break;
 	  } 
@@ -110,7 +113,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
        
        if( (*p)->pdg_id() != -particleID ) continue ;
-       if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  &&  (*p)->momentum().eta()  >  mom_minetacut && (*p)->momentum().eta()  <  mom_maxetacut ){ 
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       if( (*p)->momentum().perp() >  mom_minptcut  && (*p)->momentum().perp() <  mom_maxptcut  &&  mom.eta()  >  mom_minetacut && mom.eta()  <  mom_maxetacut ){ 
        mom_accepted = true;
        ndauac = 0;
        ndau = 0;
@@ -141,7 +145,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
 	     if( has_antipart == 0 ) IDanti = desIDs[i];
 	     if( (*des)->pdg_id() != IDanti ) continue ;
-	     if(   (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  &&  (*des)->momentum().eta()  >  minetacut && (*des)->momentum().eta()  <  maxetacut ) {
+             HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(),betaBoost);
+	     if(   (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  &&  dau_i.eta()  >  minetacut && dau_i.eta()  <  maxetacut ) {
 	       ++ndesac;
 	       break;
 	     } 

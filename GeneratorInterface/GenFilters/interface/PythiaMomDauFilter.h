@@ -44,13 +44,11 @@ namespace edm {
 class PythiaMomDauFilter : public edm::EDFilter {
    public:
       explicit PythiaMomDauFilter(const edm::ParameterSet&);
-      ~PythiaMomDauFilter();
+      ~PythiaMomDauFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
-      // ----------memeber function----------------------
-
       // ----------member data ---------------------------
       
       edm::EDGetTokenT<edm::HepMCProduct> label_;
@@ -69,6 +67,7 @@ class PythiaMomDauFilter : public edm::EDFilter {
        double mom_maxptcut;
        double mom_minetacut;
        double mom_maxetacut;
+       double betaBoost;
 };
 #define PYCOMP pycomp_
 extern "C" {
