@@ -8,7 +8,7 @@
 //!  \author Remi Mommsen - Fermilab
 //---------------------------------------------------------------------------
 
-#include <stdint.h>
+#include <cstdint>
 #include <ostream>
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"

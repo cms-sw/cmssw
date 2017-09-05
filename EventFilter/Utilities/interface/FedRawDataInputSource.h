@@ -2,7 +2,7 @@
 #define EventFilter_Utilities_FedRawDataInputSource_h
 
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
@@ -45,16 +45,16 @@ friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
-  virtual ~FedRawDataInputSource();
+  ~FedRawDataInputSource() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::pair<bool,unsigned int> getEventReport(unsigned int lumi, bool erase);
 protected:
-  virtual bool checkNextEvent() override;
-  virtual void read(edm::EventPrincipal& eventPrincipal) override;
+  bool checkNextEvent() override;
+  void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-  virtual void rewind_() override;
+  void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);

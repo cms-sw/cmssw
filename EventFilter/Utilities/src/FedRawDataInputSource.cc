@@ -10,7 +10,7 @@
 #include <vector>
 #include <fstream>
 #include <zlib.h>
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 
 #include <boost/algorithm/string.hpp>
@@ -74,7 +74,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventID_(),
   processHistoryID_(),
   currentLumiSection_(0),
-  tcds_pointer_(0),
+  tcds_pointer_(nullptr),
   eventsThisLumi_(0),
   dpd_(nullptr)
 {
@@ -346,7 +346,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     resetLuminosityBlockAuxiliary();
 
     timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday(&tv, nullptr);
     const edm::Timestamp lsopentime( (unsigned long long) tv.tv_sec * 1000000 + (unsigned long long) tv.tv_usec );
 
     edm::LuminosityBlockAuxiliary* lumiBlockAuxiliary =
@@ -681,7 +681,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   }
-  else if(tcds_pointer_==0){
+  else if(tcds_pointer_==nullptr){
     assert(GTPEventID_);
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
     edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
@@ -746,7 +746,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
 {
   edm::TimeValue_t time;
   timeval stv;
-  gettimeofday(&stv,0);
+  gettimeofday(&stv,nullptr);
   time = stv.tv_sec;
   time = (time << 32) + stv.tv_usec;
   edm::Timestamp tstamp(time);
@@ -754,7 +754,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
   GTPEventID_=0;
-  tcds_pointer_ = 0;
+  tcds_pointer_ = nullptr;
   while (eventSize > 0) {
     assert(eventSize>=sizeof(fedt_t));
     eventSize -= sizeof(fedt_t);
@@ -865,7 +865,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 	}
     }
     if (!success) {
-      if (dp.getData().size())
+      if (!dp.getData().empty())
 	data = dp.getData()[0];
       else
 	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
@@ -1186,7 +1186,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
   bool init = true;
   threadInit_.exchange(true,std::memory_order_acquire);
 
-  while (1) {
+  while (true) {
 
     tid_active_[tid]=false;
     std::unique_lock<std::mutex> lk(mReader_);
@@ -1403,7 +1403,7 @@ long FedRawDataInputSource::initFileList()
               if (b.rfind("/")!=std::string::npos) b=b.substr(b.rfind("/"));
               return b > a;});
 
-  if (fileNames_.size()) {
+  if (!fileNames_.empty()) {
     //get run number from first file in the vector
     boost::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
