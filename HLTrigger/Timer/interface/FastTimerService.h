@@ -240,6 +240,24 @@ private:
     uint64_t                   deallocated;
   };
 
+  // atomic version of Resources
+  struct AtomicResources {
+  public:
+    AtomicResources();
+    AtomicResources(AtomicResources const& other);
+    void reset();
+
+    AtomicResources & operator=(AtomicResources const& other);
+    AtomicResources & operator+=(AtomicResources const& other);
+    AtomicResources operator+(AtomicResources const& other) const;
+
+  public:
+    std::atomic<boost::chrono::nanoseconds::rep> time_thread;
+    std::atomic<boost::chrono::nanoseconds::rep> time_real;
+    std::atomic<uint64_t> allocated;
+    std::atomic<uint64_t> deallocated;
+  };
+
   struct ResourcesPerModule {
   public:
     ResourcesPerModule();
@@ -258,6 +276,7 @@ private:
     Measurement();
     void measure();
     void measure_and_store(Resources & store);
+    void measure_and_accumulate(AtomicResources & store);
 
   public:
     #ifdef DEBUG_THREAD_CONCURRENCY
@@ -306,14 +325,13 @@ private:
 
   public:
     Resources                        total;
+    AtomicResources                  overhead;
+    Resources                        event;                 // total time etc. spent between preSourceEvent and postEvent
+    Measurement                      event_measurement;
     std::vector<Resources>           highlight;
     std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
     unsigned                         events;
-
-    // real time spent between preSourceEvent and postEvent
-    Resources                        event;
-    Measurement                      event_measurement;
   };
 
   // plot ranges and resolution
@@ -331,6 +349,7 @@ private:
     void reset();
     void book(DQMStore::IBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
+    void fill(AtomicResources const&, unsigned int lumisection);
     void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
   private:
@@ -402,6 +421,7 @@ private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
     PlotsPerElement              event_ex_;
+    PlotsPerElement              overhead_;
     // resources spent in the highlighted modules
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module

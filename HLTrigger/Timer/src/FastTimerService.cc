@@ -100,6 +100,58 @@ FastTimerService::Resources::operator+(Resources const& other) const {
   return result;
 }
 
+// AtomicResources
+// operation on the whole object are not atomic, as the operations
+// on the individual fields could be interleaved; however, accumulation
+// of results should yield the correct result.
+
+FastTimerService::AtomicResources::AtomicResources() :
+  time_thread(0UL),
+  time_real(0UL),
+  allocated(0UL),
+  deallocated(0UL)
+{ }
+
+FastTimerService::AtomicResources::AtomicResources(AtomicResources const& other) :
+  time_thread(other.time_thread.load()),
+  time_real(other.time_real.load()),
+  allocated(other.allocated.load()),
+  deallocated(other.deallocated.load())
+{ }
+
+void
+FastTimerService::AtomicResources::reset() {
+  time_thread = 0UL;
+  time_real   = 0UL;
+  allocated   = 0UL;
+  deallocated = 0UL;
+}
+
+FastTimerService::AtomicResources &
+FastTimerService::AtomicResources::operator=(AtomicResources const& other) {
+  time_thread = other.time_thread.load();
+  time_real   = other.time_real.load();
+  allocated   = other.allocated.load();
+  deallocated = other.deallocated.load();
+  return *this;
+}
+
+FastTimerService::AtomicResources &
+FastTimerService::AtomicResources::operator+=(AtomicResources const& other) {
+  time_thread += other.time_thread.load();
+  time_real   += other.time_real.load();
+  allocated   += other.allocated.load();
+  deallocated += other.deallocated.load();
+  return *this;
+}
+
+FastTimerService::AtomicResources
+FastTimerService::AtomicResources::operator+(AtomicResources const& other) const {
+  AtomicResources result(*this);
+  result += other;
+  return result;
+}
+
 // ResourcesPerModule
 
 FastTimerService::ResourcesPerModule::ResourcesPerModule()
@@ -201,6 +253,8 @@ FastTimerService::ResourcesPerJob::ResourcesPerJob()
 
 FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
   total(),
+  overhead(),
+  event(),
   highlight( groups.size() ),
   modules( job.size() ),
   processes(),
@@ -214,6 +268,8 @@ FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job, 
 void
 FastTimerService::ResourcesPerJob::reset() {
   total.reset();
+  overhead.reset();
+  event.reset();
   for (auto & module: highlight)
     module.reset();
   for (auto & module: modules)
@@ -226,6 +282,8 @@ FastTimerService::ResourcesPerJob::reset() {
 FastTimerService::ResourcesPerJob &
 FastTimerService::ResourcesPerJob::operator+=(ResourcesPerJob const& other) {
   total     += other.total;
+  overhead  += other.overhead;
+  event     += other.event;
   assert(highlight.size() == other.highlight.size());
   for (unsigned int i: boost::irange(0ul, highlight.size()))
     highlight[i] += other.highlight[i];
@@ -278,6 +336,25 @@ FastTimerService::Measurement::measure_and_store(Resources & store) {
   store.time_real   = new_time_real   - time_real;
   store.allocated   = new_allocated   - allocated;
   store.deallocated = new_deallocated - deallocated;
+  time_thread = new_time_thread;
+  time_real   = new_time_real;
+  allocated   = new_allocated;
+  deallocated = new_deallocated;
+}
+
+void
+FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) {
+  #ifdef DEBUG_THREAD_CONCURRENCY
+  assert(std::this_thread::get_id() == id);
+  #endif // DEBUG_THREAD_CONCURRENCY
+  auto new_time_thread = boost::chrono::thread_clock::now();
+  auto new_time_real   = boost::chrono::high_resolution_clock::now();
+  auto new_allocated   = memory_usage::allocated();
+  auto new_deallocated = memory_usage::deallocated();
+  store.time_thread += boost::chrono::duration_cast<boost::chrono::nanoseconds>(new_time_thread - time_thread).count();
+  store.time_real   += boost::chrono::duration_cast<boost::chrono::nanoseconds>(new_time_real   - time_real).count();
+  store.allocated   += new_allocated   - allocated;
+  store.deallocated += new_deallocated - deallocated;
   time_thread = new_time_thread;
   time_real   = new_time_real;
   allocated   = new_allocated;
@@ -426,6 +503,34 @@ FastTimerService::PlotsPerElement::fill(Resources const& data, unsigned int lumi
 
   if (time_real_byls_)
     time_real_byls_->Fill(lumisection, ms(data.time_real));
+
+  if (allocated_)
+    allocated_->Fill(kB(data.allocated));
+
+  if (allocated_byls_)
+    allocated_byls_->Fill(lumisection, kB(data.allocated));
+
+  if (deallocated_)
+    deallocated_->Fill(kB(data.deallocated));
+
+  if (deallocated_byls_)
+    deallocated_byls_->Fill(lumisection, kB(data.deallocated));
+}
+
+void
+FastTimerService::PlotsPerElement::fill(AtomicResources const& data, unsigned int lumisection)
+{
+  if (time_thread_)
+    time_thread_->Fill(ms(boost::chrono::nanoseconds(data.time_thread.load())));
+
+  if (time_thread_byls_)
+    time_thread_byls_->Fill(lumisection, ms(boost::chrono::nanoseconds(data.time_thread.load())));
+
+  if (time_real_)
+    time_real_->Fill(ms(boost::chrono::nanoseconds(data.time_real.load())));
+
+  if (time_real_byls_)
+    time_real_byls_->Fill(lumisection, ms(boost::chrono::nanoseconds(data.time_real.load())));
 
   if (allocated_)
     allocated_->Fill(kB(data.allocated));
@@ -672,6 +777,7 @@ FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const& des
 FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
   event_(),
   event_ex_(),
+  overhead_(),
   highlight_(groups.size()),
   modules_(job.size()),
   processes_()
@@ -686,6 +792,7 @@ FastTimerService::PlotsPerJob::reset()
 {
   event_.reset();
   event_ex_.reset();
+  overhead_.reset();
   for (auto & module: highlight_)
     module.reset();
   for (auto & module: modules_)
@@ -718,6 +825,12 @@ FastTimerService::PlotsPerJob::book(
 
   event_ex_.book(booker,
       "event_ex", "Event (explicit)",
+      event_ranges,
+      lumisections,
+      byls);
+
+  overhead_.book(booker,
+      "overhead", "Overhead",
       event_ranges,
       lumisections,
       byls);
@@ -771,6 +884,7 @@ FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob
   // fill total event plots
   event_.fill(data.total, ls);
   event_ex_.fill(data.event, ls);
+  overhead_.fill(data.overhead, ls);
 
   // fill highltight plots
   for (unsigned int group: boost::irange(0ul, highlight_.size()))
@@ -1552,7 +1666,7 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
 
   // reuse the same measurement for the Source module and for the explicit begin of the Event
   auto & measurement = thread();
-  measurement.measure();
+  measurement.measure_and_accumulate(stream.overhead);
   stream.event_measurement = measurement;
 }
 
@@ -1608,7 +1722,9 @@ FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext c
 void
 FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const & mcc)
 {
-  thread().measure();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
 }
 
 void
