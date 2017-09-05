@@ -39,6 +39,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -512,7 +513,7 @@ private:
 
   // ----------member data ---------------------------
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > seedTokens_;
-  std::vector<edm::EDGetTokenT<std::vector<short> > > seedStopReasonTokens_;
+  std::vector<edm::EDGetTokenT<std::vector<SeedStopInfo> > > seedStopInfoTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
   std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityCollectionTokens_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
@@ -1141,11 +1142,11 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     seedTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("seedTracks"), [&](const edm::InputTag& tag) {
         return consumes<edm::View<reco::Track> >(tag);
       });
-    seedStopReasonTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("trackCandidates"), [&](const edm::InputTag& tag) {
-        return consumes<std::vector<short> >(tag);
+    seedStopInfoTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("trackCandidates"), [&](const edm::InputTag& tag) {
+        return consumes<std::vector<SeedStopInfo> >(tag);
       });
-    if(seedTokens_.size() != seedStopReasonTokens_.size()) {
-      throw cms::Exception("Configuration") << "Got " << seedTokens_.size() << " seed collections, but " << seedStopReasonTokens_.size() << " track candidate collections";
+    if(seedTokens_.size() != seedStopInfoTokens_.size()) {
+      throw cms::Exception("Configuration") << "Got " << seedTokens_.size() << " seed collections, but " << seedStopInfoTokens_.size() << " track candidate collections";
     }
   }
 
@@ -2463,15 +2464,15 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     edm::EDConsumerBase::Labels labels;
     labelsForToken(seedToken, labels);
 
-    const auto& seedStopReasonToken = seedStopReasonTokens_[iColl];
-    edm::Handle<std::vector<short> > seedStopReasonHandle;
-    iEvent.getByToken(seedStopReasonToken, seedStopReasonHandle);
-    const auto& seedStopReasons = *seedStopReasonHandle;
-    if(seedTracks.size() != seedStopReasons.size()) {
+    const auto& seedStopInfoToken = seedStopInfoTokens_[iColl];
+    edm::Handle<std::vector<SeedStopInfo> > seedStopInfoHandle;
+    iEvent.getByToken(seedStopInfoToken, seedStopInfoHandle);
+    const auto& seedStopInfos = *seedStopInfoHandle;
+    if(seedTracks.size() != seedStopInfos.size()) {
       edm::EDConsumerBase::Labels labels2;
-      labelsForToken(seedStopReasonToken, labels2);
+      labelsForToken(seedStopInfoToken, labels2);
       
-      throw cms::Exception("LogicError") << "Got " << seedTracks.size() << " seeds, but " << seedStopReasons.size() << " seed stopping reasons for collections " << labels.module << ", " << labels2.module;
+      throw cms::Exception("LogicError") << "Got " << seedTracks.size() << " seeds, but " << seedStopInfos.size() << " seed stopping infos for collections " << labels.module << ", " << labels2.module;
     }
 
     // The associator interfaces really need to be fixed...
@@ -2505,7 +2506,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       const auto& seedRef = seedTrack.seedRef();
       const auto& seed = *seedRef;
 
-      const auto seedStopReason = seedStopReasons[iSeed];
+      const auto seedStopInfo = seedStopInfos[iSeed];
 
       if(seedRef.id() != id)
         throw cms::Exception("LogicError") << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the element 0 had ProductID " << id << " while the element " << seedTrackRef.key() << " had " << seedTrackRef.id() << ". The source collection is " << labels.module << ".";
@@ -2549,7 +2550,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_dxyErr  .push_back( seedFitOk ? seedTrack.dxyError() : 0);
       see_dzErr   .push_back( seedFitOk ? seedTrack.dzError() : 0);
       see_algo    .push_back( algo );
-      see_stopReason.push_back( seedStopReason );
+      see_stopReason.push_back( seedStopInfo.stopReasonUC() );
 
       const auto& state = seedTrack.seedRef()->startingState();
       const auto& pos = state.parameters().position();
