@@ -9,11 +9,13 @@ cumPBFileThreaded_inROOT='provaPBThreaded.root'
 numThreads=3
 timecmd='/usr/bin/time -f %E'
 
-clean_up() {
+set_up() {
     echo "Removing previous ROOT and PB files"
 
-    rm -fr *.root
-    rm -fr *.pb
+    rm -fr fastHaddTests
+    mkdir fastHaddTests
+    cd fastHaddTests
+
     return 0
 }
 
@@ -142,7 +144,8 @@ check_fasthadd_parallel() {
     return 0
 }
 
-clean_up
+set_up
+
 generate
 convertROOT2PB
 hadd_merge
