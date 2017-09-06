@@ -16,6 +16,11 @@ namespace edm
     class ParameterSet;
     class ActivityRegistry;
     class ConfigurationDescriptions;
+
+    namespace service
+    {
+        class CondorStatusService;
+    }
 }
 
 namespace XrdAdaptor
@@ -41,8 +46,16 @@ public:
 
     void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-private:
+    struct CondorIOStats {
+      uint64_t bytesRead{0};
+      std::chrono::nanoseconds transferTime{0};
+    };
 
+    // Provide an update of per-site transfer statistics to the CondorStatusService.
+    // Returns a mapping of "site name" to transfer statistics.  The "site name" is
+    // as self-identified by the Xrootd host; may not necessarily match up with the
+    // "CMS site name".
+    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate();
 };
 
 class XrdSiteStatisticsInformation
@@ -81,6 +94,9 @@ public:
 
     void finishRead(XrdReadStatistics const &);
 
+    uint64_t getTotalBytes() const {return m_readvSize + m_readSize;}
+    std::chrono::nanoseconds getTotalReadTime() {return std::chrono::nanoseconds(m_readvNS) + std::chrono::nanoseconds(m_readNS);}
+
 private:
     const std::string m_site = "Unknown";
 
@@ -105,7 +121,7 @@ public:
 private:
     XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, IOSize size, size_t count);
 
-    float elapsedNS() const;
+    uint64_t elapsedNS() const;
     int readCount() const {return m_count;}
     int size() const {return m_size;}
 
