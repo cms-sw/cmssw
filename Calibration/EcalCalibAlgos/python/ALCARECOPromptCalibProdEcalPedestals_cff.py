@@ -31,6 +31,7 @@ MEtoEDMConvertEcalPedestals = cms.EDProducer("MEtoEDMConverter",
                                              )
 
 ALCALRECOEcalTCDSDigis = cms.EDProducer('TcdsRawToDigi')
+ALCALRECOEcalTCDSDigis.InputLabel =  cms.InputTag('hltEcalCalibrationRaw')
 
 # The actual sequence
 seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCALRECOEcalTCDSDigis    *
