@@ -33,6 +33,9 @@ public:
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
   void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
   { 
+    toa = ( toa > kToAMask ? kToAMask : toa );
+    data = ( data > kDataMask ? kDataMask : data);
+
     value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
                ( (uint32_t)mode & kModeMask   ) << kModeShift   |
                ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
@@ -64,6 +67,7 @@ private:
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
+    if( word > mask ) word = mask; // deal with saturation
     //clear required bits
     const uint32_t masked_word = (word & mask) << pos;
     value_ &= ~(masked_word); 

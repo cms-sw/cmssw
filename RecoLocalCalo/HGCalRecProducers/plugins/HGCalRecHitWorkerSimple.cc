@@ -51,7 +51,9 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 
 
     hgcEE_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCEE_noise_fC");
+    hgcEE_cce_ = ps.getParameter< std::vector<double> > ("HGCEE_cce");
     hgcHEF_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCHEF_noise_fC");
+    hgcHEF_cce_ = ps.getParameter< std::vector<double> > ("HGCHEF_cce");
     hgcHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
 
     // don't produce rechit if detid is a ghost one
@@ -98,6 +100,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
     float sigmaNoiseGeV = 0.f;
     unsigned int layer = tools_->getLayerWithOffset(detid);
     HGCalDetId hid;
+    float cce_correction = 1.0;
 
     switch (detid.subdetId())
     {
@@ -105,6 +108,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
         hid = detid;
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
+        cce_correction = hgcEE_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
                     * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
         break;
@@ -112,6 +116,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
         hid = detid;
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
+        cce_correction = hgcHEF_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
                     * hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
         break;
@@ -129,10 +134,10 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
     // make the rechit and put in the output collection
 
     HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
-    const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness]);
+    const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness])/cce_correction;
 
 
-    myrechit.setEnergy(new_E);
+    myrechit.setEnergy(new_E); 
     myrechit.setSignalOverSigmaNoise(new_E/sigmaNoiseGeV);
     result.push_back(myrechit);
 
