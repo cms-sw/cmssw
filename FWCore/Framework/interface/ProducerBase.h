@@ -35,6 +35,10 @@ namespace edm {
     class EDProducerBase;
     class EDFilterBase;
   }
+  namespace limited {
+    class EDProducerBase;
+    class EDFilterBase;
+  }
   namespace stream {
     template<typename T> class ProducingModuleAdaptorBase;
   }
@@ -86,6 +90,8 @@ namespace edm {
     friend class one::EDFilterBase;
     friend class global::EDProducerBase;
     friend class global::EDFilterBase;
+    friend class limited::EDProducerBase;
+    friend class limited::EDFilterBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
     
     template< typename P>
