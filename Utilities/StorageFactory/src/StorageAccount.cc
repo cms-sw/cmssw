@@ -72,7 +72,7 @@ const std::array<StorageAccount::Operation, 22> StorageAccount::allOperations{ {
   Operation::writev
 } };
 
-thread_local StorageAccount::OpenLabel StorageAccount::OpenLabelToken::s_label{OpenLabel::None};
+thread_local StorageAccount::OpenLabel StorageAccount::OpenLabelToken::s_label{OpenLabel::Aggregate};
 
 static std::string i2str(int i) {
   std::ostringstream t;
@@ -93,7 +93,7 @@ void StorageAccount::aggregateStatistics() {
     protocols.insert(item.first.second);
   }
   for (auto const &protocol : protocols) {
-    auto token = tokenForStorageClassName(protocol, OpenLabel::None);
+    auto token = tokenForStorageClassName(protocol, OpenLabel::Aggregate);
     OperationStats protocol_stats;
     for (auto &item : m_stats) {
       if (item.first == token.value()) {
@@ -149,7 +149,7 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
     auto const& opStats = m_stats[i->second];
     for (auto j = opStats.begin (); j != opStats.end (); ++j, first = false) {
-      if (i->first.first != OpenLabel::None) continue;
+      if (i->first.first != OpenLabel::Aggregate) continue;
       if (j->second.attempts == 0) continue;
       os << (first ? "" : "; ")
          << (i->first.second) << '/'
@@ -176,7 +176,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
     for (auto j = opStats.begin(); j != opStats.end(); ++j) {
       std::ostringstream os;
       if (j->second.attempts == 0) continue;
-      if (i->first.first == OpenLabel::None) {
+      if (i->first.first == OpenLabel::Aggregate) {
         os << "Timing-" << i->first.second << "-" << kOperationNames[j->first] << "-";
       } else {
         os << "Timing-" << kLabelNames[static_cast<int>(i->first.first)]

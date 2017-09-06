@@ -40,7 +40,7 @@ namespace edm {
           label = StorageAccount::OpenLabel::SecondarySource;
           break;
         default:
-          label = StorageAccount::OpenLabel::None;
+          label = StorageAccount::OpenLabel::Aggregate;
           assert(true);
       }
       // Sets a label for statistics collection; it is a thread-local that is unset when the

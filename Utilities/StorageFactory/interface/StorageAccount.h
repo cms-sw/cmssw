@@ -157,7 +157,7 @@ public:
   };
 
   enum class OpenLabel {
-    None,
+    Aggregate,
     Primary,
     SecondaryFile,
     SecondarySource
