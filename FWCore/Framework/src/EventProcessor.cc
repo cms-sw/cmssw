@@ -120,7 +120,7 @@ namespace edm {
             std::shared_ptr<ProcessConfiguration const> processConfiguration,
             PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
-    if(main_input == 0) {
+    if(main_input == nullptr) {
       throw Exception(errors::Configuration)
         << "There must be exactly one source in the configuration.\n"
         << "It is missing (or there are sufficient syntax errors such that it is not recognized as the source)\n";
@@ -192,7 +192,7 @@ namespace edm {
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 
-    if(loopers.size() == 0) {
+    if(loopers.empty()) {
       return vLooper;
     }
 
@@ -1184,10 +1184,22 @@ namespace edm {
       //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
     {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+      
       lumiPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-      schedule_->processOneGlobal<Traits>(lumiPrincipal, es, cleaningUpAfterException);
-      for_all(subProcesses_, [&lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){	subProcess.doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException); });
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       lumiPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {

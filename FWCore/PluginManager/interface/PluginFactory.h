@@ -53,7 +53,7 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
       };
 
       // ---------- const member functions ---------------------
-      virtual const std::string& category() const ;
+      const std::string& category() const override ;
       
       R* create(const std::string& iName, Args... args) const {
         return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
