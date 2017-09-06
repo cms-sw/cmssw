@@ -37,6 +37,7 @@ void HcalGeometry::init() {
 }
 
 void HcalGeometry::fillDetIds() const {
+  // this must test the last record filled to avoid a race condition
   if(!m_emptyIds.isSet()) {
     std::unique_ptr<std::vector<DetId>> p_hbIds{new std::vector<DetId>};
     std::unique_ptr<std::vector<DetId>> p_heIds{new std::vector<DetId>};
@@ -74,7 +75,7 @@ void HcalGeometry::fillDetIds() const {
 const std::vector<DetId>& 
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const {
-  if( 0 != subdet && !m_hbIds.isSet() ) fillDetIds() ;
+  if( 0 != subdet ) fillDetIds() ;
   return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	   ( HcalBarrel == subdet ? *m_hbIds.load() :
 	     ( HcalEndcap == subdet ? *m_heIds.load() :
