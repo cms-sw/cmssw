@@ -32,9 +32,9 @@ std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(c
 
   CaloTowerGeometry* geom=new CaloTowerGeometry(m_limits);
 
-  if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
+  if( nullptr == geom->cornersMgr() ) geom->allocateCorners ( 
      geom->numberOfCellsForCorners() ) ;
-  if( 0 == geom->parMgr() ) geom->allocatePar (
+  if( nullptr == geom->parMgr() ) geom->allocatePar (
      geom->numberOfParametersPerShape()*geom->numberOfShapes(),
      geom->numberOfParametersPerShape() ) ;
 

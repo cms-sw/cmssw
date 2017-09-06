@@ -92,7 +92,7 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( it ) != nullptr ){
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
       
       

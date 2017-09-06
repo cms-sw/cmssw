@@ -14,8 +14,9 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 //#define EDM_ML_DEBUG
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const HcalDDDRecConstants* hcons)
-  : hcalConstants(hcons) { 
-  isBH_ = hcalConstants->isBH();
+  : hcalConstants_(hcons)
+{ 
+  isBH_ = hcalConstants_->isBH();
 }
 
 HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
@@ -29,17 +30,17 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
 
   HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
-  if ( geom->cornersMgr() == 0 ) {
-     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
-			       hcalConstants->numberOfCells(HcalEndcap ) +
-			       2*hcalConstants->numberOfCells(HcalForward) +
-			       hcalConstants->numberOfCells(HcalOuter  ) );
+  if ( geom->cornersMgr() == nullptr ) {
+     const unsigned int count (hcalConstants_->numberOfCells(HcalBarrel ) +
+			       hcalConstants_->numberOfCells(HcalEndcap ) +
+			       2*hcalConstants_->numberOfCells(HcalForward) +
+			       hcalConstants_->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
   }
 
   //  if( geom->cornersMgr() == 0 )  geom->allocateCorners( 2592 ) ;
 
-  if ( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  if ( geom->parMgr()     == nullptr ) geom->allocatePar( 500, 3 ) ;
 
   fill (hsub, geom );
   //fast insertion of valid ids requires sort at end
@@ -52,14 +53,14 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
 
   HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
-  if( geom->cornersMgr() == 0 ) {
-    const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
-			      hcalConstants->numberOfCells(HcalEndcap ) +
-			      2*hcalConstants->numberOfCells(HcalForward) +
-			      hcalConstants->numberOfCells(HcalOuter  ) );
+  if( geom->cornersMgr() == nullptr ) {
+    const unsigned int count (hcalConstants_->numberOfCells(HcalBarrel ) +
+			      hcalConstants_->numberOfCells(HcalEndcap ) +
+			      2*hcalConstants_->numberOfCells(HcalForward) +
+			      hcalConstants_->numberOfCells(HcalOuter  ) );
     geom->allocateCorners( count ) ;
   }
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  if( geom->parMgr()     == nullptr ) geom->allocatePar( 500, 3 ) ;
   
   fill(HcalBarrel,  geom); 
   fill(HcalEndcap,  geom); 
@@ -74,7 +75,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 				 HcalDDDGeometry*         geom ) {
 
   // start by making the new HcalDetIds
-  std::vector<HcalCellType> hcalCells = hcalConstants->HcalCellTypes(subdet);
+  std::vector<HcalCellType> hcalCells = hcalConstants_->HcalCellTypes(subdet);
   geom->insertCell(hcalCells);
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDGeometryLoader::fill gets " << hcalCells.size() 

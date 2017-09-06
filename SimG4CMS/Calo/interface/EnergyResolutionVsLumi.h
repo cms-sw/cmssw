@@ -7,10 +7,10 @@
 #include <string>
 #include <map>
 
-#include <ctime>
-#include <cstdio>
+#include <time.h>
+#include <stdio.h>
 
-#include <cmath>
+#include <math.h>
 
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 #include "DataFormats/DetId/interface/DetId.h"

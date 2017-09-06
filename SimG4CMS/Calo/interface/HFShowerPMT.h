@@ -21,7 +21,7 @@ class HFShowerPMT {
 
 public:    
 
-  HFShowerPMT(const std::string & name, const DDCompactView & cpv, 
+  HFShowerPMT(std::string & name, const DDCompactView & cpv, 
 	      edm::ParameterSet const & p);
   virtual ~HFShowerPMT();
   double                getHits(G4Step * aStep);

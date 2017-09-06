@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run2_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_9_2_0/HIon/V109 (CMSSW_9_2_7)
+# /dev/CMSSW_9_2_0/HIon/V124 (CMSSW_9_2_10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/HIon/V109')
+  tableName = cms.string('/dev/CMSSW_9_2_0/HIon/V124')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2096,7 +2096,7 @@ process.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "92X_dataRun2_HLT_v4" ),
+    globaltag = cms.string( "92X_dataRun2_HLT_v7" ),
     RefreshEachRun = cms.untracked.bool( False ),
     snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 
@@ -2152,172 +2152,6 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 
-process.hltESPPixelPairStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPPixelPairStepChi2ChargeMeasurementEstimator9" ),
-  pTChargeCutThreshold = cms.double( 15.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 9.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1.0E12 )
-)
-process.hltESPChi2MeasurementEstimator100 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator100" ),
-  nSigma = cms.double( 4.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 40.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1.0E12 )
-)
-process.muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "muonSeededTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.1 ),
-  ValidHitBonus = cms.double( 1000.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 1.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPLowPtQuadStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPLowPtQuadStepChi2ChargeMeasurementEstimator9" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 9.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPLowPtTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPLowPtTripletStepTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.16 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPLowPtQuadStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPLowPtQuadStepTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.16 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPHighPtTripletStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPHighPtTripletStepChi2ChargeMeasurementEstimator30" ),
-  pTChargeCutThreshold = cms.double( 15.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 30.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPLowPtTripletStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPLowPtTripletStepChi2ChargeMeasurementEstimator9" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 9.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPDetachedQuadStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPDetachedQuadStepChi2ChargeMeasurementEstimator9" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 9.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPDetachedQuadStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPDetachedQuadStepTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.13 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPDetachedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPDetachedTripletStepTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.13 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPDetachedTripletStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPDetachedTripletStepChi2ChargeMeasurementEstimator9" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 9.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPMixedTripletStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPMixedTripletStepChi2ChargeMeasurementEstimator16" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 16.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPMixedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPMixedTripletStepTrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.11 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPPixelLessStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPPixelLessStepChi2ChargeMeasurementEstimator16" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 16.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
-process.hltESPTobTecStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MaxDisplacement = cms.double( 0.5 ),
-  ComponentName = cms.string( "hltESPTobTecStepChi2ChargeMeasurementEstimator16" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxSagitta = cms.double( 2.0 ),
-  MaxChi2 = cms.double( 16.0 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
-)
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
@@ -2695,11 +2529,12 @@ process.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False )
 )
 process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
-  RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
-    'TimingSubtractedBit' ),
+  phase = cms.uint32( 1 ),
+  RecoveredRecHitBits = cms.vstring(  ),
+  appendToDataLabel = cms.string( "" ),
   SeverityLevels = cms.VPSet( 
     cms.PSet(  ChannelStatus = cms.vstring(  ),
-      RecHitFlags = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'TimingFromTDC' ),
       Level = cms.int32( 0 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' ),
@@ -2707,37 +2542,26 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 1 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellExcludeFromHBHENoiseSummary' ),
-      RecHitFlags = cms.vstring( 'HSCP_R1R2',
-        'HSCP_FracLeader',
-        'HSCP_OuterEnergy',
-        'HSCP_ExpFit',
-        'ADCSaturationBit',
-        'HBHEIsolatedNoise',
-        'AddedSimHcalNoise' ),
+      RecHitFlags = cms.vstring(  ),
       Level = cms.int32( 5 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring(  ),
       RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
-        'HBHEPulseShape',
-        'HOBit',
-        'HFInTimeWindow',
-        'ZDCBit',
-        'CalibrationBit',
-        'TimingErrorBit',
-        'HBHETriangleNoise',
-        'HBHETS4TS5Noise' ),
+        'HBHEIsolatedNoise',
+        'HBHEFlatNoise',
+        'HBHESpikeNoise',
+        'HBHETS4TS5Noise',
+        'HBHENegativeNoise',
+        'HBHEPulseFitBit',
+        'HBHEOOTPU' ),
       Level = cms.int32( 8 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring(  ),
       RecHitFlags = cms.vstring( 'HFLongShort',
+        'HFS8S1Ratio',
         'HFPET',
-        'HFS8S1Ratio' ),
+        'HFSignalAsymmetry' ),
       Level = cms.int32( 11 )
-    ),
-    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' ),
-      RecHitFlags = cms.vstring( 'HBHEFlatNoise',
-        'HBHESpikeNoise' ),
-      Level = cms.int32( 8 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellHot' ),
       RecHitFlags = cms.vstring(  ),
@@ -2755,39 +2579,12 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
-  trackSelection = cms.PSet( 
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    ptMin = cms.double( 0.0 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    normChi2Max = cms.double( 99999.9 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip2dSigMin = cms.double( -99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
-    'CombinedSVPseudoVertex',
-    'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackPseudoSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
     totalHitsMin = cms.uint32( 0 ),
@@ -2806,54 +2603,44 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
     sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
+  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
+    'CombinedSVPseudoVertex',
+    'CombinedSVNoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackSelection = cms.PSet( 
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    ptMin = cms.double( 0.0 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( -99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 )
+  ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
   trackFlip = cms.bool( False )
 )
 process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
-  trackSelection = cms.PSet( 
-    max_pT_dRcut = cms.double( 0.1 ),
-    b_dR = cms.double( 0.6263 ),
-    min_pT = cms.double( 120.0 ),
-    b_pT = cms.double( 0.3684 ),
-    ptMin = cms.double( 0.0 ),
-    max_pT_trackPTcut = cms.double( 3.0 ),
-    max_pT = cms.double( 500.0 ),
-    useVariableJTA = cms.bool( False ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    normChi2Max = cms.double( 99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 ),
-    a_dR = cms.double( -0.001053 ),
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    a_pT = cms.double( 0.005263 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    min_pT_dRcut = cms.double( 0.5 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip2dSigMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
-    'CombinedSVIVFV2PseudoVertex',
-    'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackPseudoSelection = cms.PSet( 
     max_pT_dRcut = cms.double( 0.1 ),
     b_dR = cms.double( 0.6263 ),
@@ -2881,6 +2668,43 @@ process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexE
     pixelHitsMin = cms.uint32( 0 ),
     sip3dSigMin = cms.double( -99999.9 ),
     sip2dSigMin = cms.double( 2.0 )
+  ),
+  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
+    'CombinedSVIVFV2PseudoVertex',
+    'CombinedSVIVFV2NoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( -99999.9 )
   ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
@@ -3022,6 +2846,16 @@ process.hltESPChi2ChargeTightMeasurementEstimator16 = cms.ESProducer( "Chi2Charg
   MaxChi2 = cms.double( 16.0 ),
   MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
+process.hltESPChi2MeasurementEstimator100 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator100" ),
+  nSigma = cms.double( 4.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 40.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1.0E12 )
+)
 process.hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   appendToDataLabel = cms.string( "" ),
   MinimalTolerance = cms.double( 10.0 ),
@@ -3057,8 +2891,48 @@ process.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerES
   MaxComponents = cms.int32( 12 ),
   DistanceMeasure = cms.string( "hltESPKullbackLeiblerDistance5D" )
 )
+process.hltESPDetachedQuadStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPDetachedQuadStepChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+process.hltESPDetachedQuadStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPDetachedQuadStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.13 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
 process.hltESPDetachedStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPDetachedStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.13 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+process.hltESPDetachedTripletStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPDetachedTripletStepChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+process.hltESPDetachedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPDetachedTripletStepTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.13 ),
   ValidHitBonus = cms.double( 5.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
@@ -3267,6 +3141,18 @@ process.hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESPr
   GeometricalPropagator = cms.string( "hltESPBwdAnalyticalPropagator" ),
   MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" )
 )
+process.hltESPHighPtTripletStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPHighPtTripletStepChi2ChargeMeasurementEstimator30" ),
+  pTChargeCutThreshold = cms.double( 15.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 30.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
 process.hltESPInitialStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   appendToDataLabel = cms.string( "" ),
   clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
@@ -3436,8 +3322,48 @@ process.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProd
   Propagator = cms.string( "hltESPSmartPropagatorAny" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
+process.hltESPLowPtQuadStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPLowPtQuadStepChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+process.hltESPLowPtQuadStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPLowPtQuadStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.16 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
 process.hltESPLowPtStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPLowPtStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.16 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+process.hltESPLowPtTripletStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPLowPtTripletStepChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+process.hltESPLowPtTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPLowPtTripletStepTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.16 ),
   ValidHitBonus = cms.double( 5.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
@@ -3493,6 +3419,26 @@ process.hltESPMixedStepTrajectoryCleanerBySharedHits = cms.ESProducer( "Trajecto
   MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
+process.hltESPMixedTripletStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPMixedTripletStepChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+process.hltESPMixedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPMixedTripletStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.11 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
 process.hltESPMuonDetLayerGeometryESProducer = cms.ESProducer( "MuonDetLayerGeometryESProducer" )
 process.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
@@ -3531,6 +3477,18 @@ process.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProd
   speed = cms.int32( -2 ),
   UseClusterSplitter = cms.bool( False )
 )
+process.hltESPPixelLessStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPPixelLessStepChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
 process.hltESPPixelLessStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "hltESPPixelLessStepClusterShapeHitFilter" ),
   clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
@@ -3543,6 +3501,18 @@ process.hltESPPixelLessStepTrajectoryCleanerBySharedHits = cms.ESProducer( "Traj
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
   MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( True )
+)
+process.hltESPPixelPairStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPPixelPairStepChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( 15.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1.0E12 )
 )
 process.hltESPPixelPairStepChi2MeasurementEstimator25 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -3700,6 +3670,18 @@ process.hltESPTTRHBuilderWithoutAngle4PixelTriplets = cms.ESProducer( "TkTransie
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBuilderWithoutAngle4PixelTriplets" )
+)
+process.hltESPTobTecStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPTobTecStepChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
 process.hltESPTobTecStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "hltESPTobTecStepClusterShapeHitFilter" ),
@@ -3862,6 +3844,14 @@ process.muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False ),
   includeME0 = cms.bool( False ),
   includeGEM = cms.bool( False )
+)
+process.muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "muonSeededTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.1 ),
+  ValidHitBonus = cms.double( 1000.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 1.0 ),
+  allowSharedFirstHit = cms.bool( True )
 )
 process.navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" ),

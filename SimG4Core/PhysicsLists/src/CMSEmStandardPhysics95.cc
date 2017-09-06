@@ -70,7 +70,8 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, std::string reg):
+CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, 
+					       const std::string& reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();

@@ -29,6 +29,8 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 class TrackBuildingAnalyzer 
 {
     public:
@@ -62,6 +64,10 @@ class TrackBuildingAnalyzer
             const std::vector<const MVACollection *>& mvaCollections,
             const std::vector<const QualityMaskCollection *>& qualityMaskCollections
         );
+        void analyze
+        (
+            const reco::CandidateView& regionCandidates
+        );
 
     private:
 
@@ -69,6 +75,12 @@ class TrackBuildingAnalyzer
         void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
 
         // ----------member data ---------------------------
+
+        // Candidates used for tracking regions
+        MonitorElement* TrackingRegionCandidatePt;
+        MonitorElement* TrackingRegionCandidateEta;
+        MonitorElement* TrackingRegionCandidatePhi;
+        MonitorElement* TrackingRegionCandidatePhiVsEta;
 
         // Track Seeds
         MonitorElement* SeedPt;
@@ -127,5 +139,6 @@ class TrackBuildingAnalyzer
 	bool doProfETA;
 	bool doStopSource;
 	bool doMVAPlots;
+	bool doRegionPlots;
 };
 #endif

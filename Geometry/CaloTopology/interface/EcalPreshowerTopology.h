@@ -5,6 +5,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -12,13 +13,13 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
-  EcalPreshowerTopology() : theGeom_(0) {};
+  EcalPreshowerTopology() : theGeom_(nullptr) {};
 
   /// virtual destructor
   ~EcalPreshowerTopology() override { }  
   
   /// create a new Topology from geometry
-  EcalPreshowerTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
+  EcalPreshowerTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
     {
     }
 

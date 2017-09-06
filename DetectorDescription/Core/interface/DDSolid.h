@@ -79,7 +79,10 @@ private:
 class DDTrap : public DDSolid
 {
 public:
+  
   DDTrap( const DDSolid & s );
+  DDTrap( void ) = delete;
+
   //! half of the z-Axis
   double halfZ( void ) const;
   //! Polar angle of the line joining the centres of the faces at -/+pDz
@@ -101,16 +104,16 @@ public:
   //! Half-length along x of the side at y=+pDy2 of the face at +pDz
   double x4( void ) const;
   //! Angle with respect to the y axis from the centre of the side at y=-pDy2 to the centre at y=+pDy2 of the face at +pDz
-  double alpha2( void ) const;
-  
-private:
-  DDTrap( void ) = delete;
+  double alpha2( void ) const;  
 };
 
 class DDPseudoTrap : public DDSolid
 {
 public:
+  
   DDPseudoTrap( const DDSolid & s );
+  DDPseudoTrap( void ) = delete;
+
   //! half of the z-Axis
   double halfZ( void ) const;
   //! half length along x on -z
@@ -125,16 +128,16 @@ public:
   double radius( void ) const;
   //! true, if cut-out or rounding is on the -z side
   bool atMinusZ( void ) const;
-
-private:
-  DDPseudoTrap( void ) = delete;
 };
   
 /// A truncated tube section    
 class DDTruncTubs : public DDSolid
 {
 public:
+
   DDTruncTubs( const DDSolid & s );
+  DDTruncTubs( void ) = delete;
+
   //! half of the z-Axis
   double zHalf( void ) const;
   //! inner radius
@@ -151,9 +154,6 @@ public:
   double cutAtDelta( void ) const;
   //! true, if truncation is on the inner side of the tube-section
   bool cutInside( void ) const;
-
-private:
-  DDTruncTubs( void ) = delete;
 };
 
 //! Interface to a Box
@@ -164,60 +164,68 @@ private:
 class DDBox : public DDSolid
 {
 public:
+  
   DDBox( const DDSolid & s );
+  DDBox( void ) = delete;
+
   double halfX( void ) const; 
   double halfY( void ) const; 
   double halfZ( void ) const; 
-
-private:
-  DDBox( void ) = delete;
 };
 
 /// This is simply a handle on the solid.
 class DDShapelessSolid : public DDSolid
 {
 public:
-  DDShapelessSolid( const DDSolid & s );
 
-private:
+  DDShapelessSolid( const DDSolid & s );
   DDShapelessSolid( void ) = delete;
 };
 
 class DDReflectionSolid : public DDSolid
 {
 public:
+
   DDReflectionSolid( const DDSolid & s );
+  DDReflectionSolid( void ) = delete; 
+
   DDSolid unreflected( void ) const;
 
 private:
-  DDReflectionSolid( void ) = delete; 
+
   DDI::Reflection * reflected_; 
 }; 
 
 class DDBooleanSolid : public DDSolid
 {
 public:
+
   DDBooleanSolid( const DDSolid & s );
+  DDBooleanSolid( void ) = delete;
+
   DDSolid solidA( void ) const;
   DDSolid solidB( void ) const;
   DDTranslation translation( void ) const;
   DDRotation rotation( void ) const;
 
 private:
-  DDBooleanSolid( void ) = delete;
+
   DDI::BooleanSolid * boolean_;  
 };
 
 class DDMultiUnionSolid : public DDSolid
 {
 public:
+
   DDMultiUnionSolid( const DDSolid & s );
+  DDMultiUnionSolid( void ) = delete;
+
   const std::vector<DDSolid>& solids( void ) const;
   const std::vector<DDTranslation>& translations( void ) const;
   const std::vector<DDRotation>& rotations( void ) const;
 
 private:
-  DDMultiUnionSolid( void ) = delete;
+
   DDI::MultiUnion * union_;  
 };
 
@@ -225,33 +233,37 @@ private:
 class DDPolySolid : public DDSolid
 {
 public:
+
   DDPolySolid( const DDSolid & s );
+  DDPolySolid( void ) = delete;
 
 protected:
   /// note defaults please.
   virtual std::vector<double> getVec( const size_t& which, const size_t& offset = 0, const size_t& nVecs = 1 ) const;
-  DDPolySolid( void );
 };
   
 class DDPolycone : public DDPolySolid
 {
 public:
+  
   DDPolycone( const DDSolid & s );
+  DDPolycone( void ) = delete;
+
   double startPhi( void ) const;
   double deltaPhi( void ) const;
   std::vector<double> zVec( void ) const;
   std::vector<double> rVec( void ) const;
   std::vector<double> rMinVec( void ) const;
   std::vector<double> rMaxVec( void ) const;
-
-private:
-  DDPolycone( void ) = delete;
 };
 
 class DDPolyhedra : public DDPolySolid
 {
 public:
+
   DDPolyhedra( const DDSolid & s );
+  DDPolyhedra( void ) = delete;
+
   int sides( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
@@ -259,15 +271,15 @@ public:
   std::vector<double> rVec( void ) const;
   std::vector<double> rMinVec( void ) const;
   std::vector<double> rMaxVec( void ) const;
-
-private:
-  DDPolyhedra( void ) = delete;
 };
 
 class DDExtrudedPolygon : public DDPolySolid
 {
 public:
+
   DDExtrudedPolygon( const DDSolid & s );
+  DDExtrudedPolygon( void ) = delete;
+
   std::vector<double> xVec( void ) const;
   std::vector<double> yVec( void ) const;
   std::vector<double> zVec( void ) const;
@@ -276,7 +288,7 @@ public:
   std::vector<double> zscaleVec( void ) const;
 
 private:
-  DDExtrudedPolygon( void ) = delete;
+
   auto xyPointsSize( void ) const -> std::size_t;
   auto zSectionsSize( void ) const -> std::size_t;
 };
@@ -284,21 +296,24 @@ private:
 class DDTubs : public DDSolid
 {
 public:
+
   DDTubs( const DDSolid & s );
+  DDTubs( void ) = delete;
+
   double zhalf( void ) const;
   double rIn( void ) const;
   double rOut( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDTubs( void ) = delete;
 };
 
 class DDCutTubs : public DDSolid
 {
 public:
+
   DDCutTubs( const DDSolid & s );
+  DDCutTubs( void ) = delete;
+
   double zhalf( void ) const;
   double rIn( void ) const;
   double rOut( void ) const;
@@ -306,15 +321,15 @@ public:
   double deltaPhi( void ) const;
   std::array<double, 3> lowNorm( void ) const;
   std::array<double, 3> highNorm( void ) const;
-
-private:
-  DDCutTubs( void ) = delete;
 };
 
 class DDCons : public DDSolid
 {
 public:
+
   DDCons( const DDSolid & s );
+  DDCons( void ) = delete;
+
   double zhalf( void ) const;
   double rInMinusZ( void ) const;
   double rOutMinusZ( void ) const;
@@ -322,125 +337,118 @@ public:
   double rOutPlusZ( void ) const;
   double phiFrom( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDCons( void ) = delete;
 };
 
 class DDTorus : public DDSolid
 {
 public:
+
   DDTorus( const DDSolid & s );
+  DDTorus( void ) = delete;
+
   double rMin( void ) const;
   double rMax( void ) const;
   double rTorus( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDTorus( void ) = delete;
 };
 
 class DDUnion : public DDBooleanSolid
 {
 public:
+
   DDUnion( const DDSolid & s );
-  
-private:
   DDUnion( void ) = delete;
 };
 
 class DDMultiUnion : public DDMultiUnionSolid
 {
 public:
+
   DDMultiUnion( const DDSolid & s );
-  
-private:
   DDMultiUnion( void ) = delete;
 };
 
 class DDIntersection : public DDBooleanSolid
 {
 public:
-  DDIntersection( const DDSolid & s );
 
-private:
+  DDIntersection( const DDSolid & s );
   DDIntersection( void ) = delete;
 };
 
 class DDSubtraction : public DDBooleanSolid
 {
 public:
-  DDSubtraction( const DDSolid & s );
 
-private:
+  DDSubtraction( const DDSolid & s );
   DDSubtraction( void ) = delete;
 };
 
 class DDSphere : public DDSolid
 {
 public:
+
   DDSphere( const DDSolid & s );
+  DDSphere( void ) = delete;
+
   double innerRadius( void ) const;
   double outerRadius( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
   double startTheta( void ) const;
   double deltaTheta( void ) const;
-
-private:
-  DDSphere( void ) = delete;
 };
 
 class DDOrb : public DDSolid
 {
 public:
-  DDOrb( const DDSolid & s );
-  double radius( void ) const;
 
-private:
+  DDOrb( const DDSolid & s );
   DDOrb( void ) = delete;
+
+  double radius( void ) const;
 };
 
 class DDEllipticalTube : public DDSolid
 {
 public:
+
   DDEllipticalTube( const DDSolid & s );
+  DDEllipticalTube( void ) = delete;
+
   double xSemiAxis( void ) const;
   double ySemiAxis( void ) const;
   double zHeight( void ) const;
-  
-private:
-  DDEllipticalTube( void ) = delete;
 };
 
 class DDEllipsoid : public DDSolid
 {
 public:
+
   DDEllipsoid( const DDSolid & s );
+  DDEllipsoid( void ) = delete;
+
   double xSemiAxis( void ) const;
   double ySemiAxis( void ) const;
   double zSemiAxis( void ) const;
   double zBottomCut( void ) const;
   double zTopCut( void ) const;
-
-private:
-  DDEllipsoid( void ) = delete;
 };
 
 class DDParallelepiped : public DDSolid
 {
 public:
+
   DDParallelepiped( const DDSolid & s );
+  DDParallelepiped( void ) = delete;
+
   double xHalf( void ) const;
   double yHalf( void ) const;
   double zHalf( void ) const;
   double alpha( void ) const;
   double theta( void ) const;
   double phi( void ) const;
-
-private:
-  DDParallelepiped( void ) = delete;
 };
 
 // Solid generation functions

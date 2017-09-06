@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -53,7 +53,7 @@ public:
   /// ReadConfig
   int readConfig( const std::string& filename ) override;
 
-  void emplace_back( std::string fileName, std::string url = std::string( "./" ));
+  void emplace_back( const std::string& fileName, const std::string& url = std::string( "./" ));
 
   void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
@@ -94,7 +94,7 @@ DDLTestDoc::getURLList( void ) const
 }
 
 void
-DDLTestDoc::emplace_back( std::string fileName, std::string url ) 
+DDLTestDoc::emplace_back( const std::string& fileName, const std::string& url ) 
 {
   fnames_.emplace_back(fileName);
   urls_.emplace_back(url);
@@ -110,7 +110,7 @@ DDLTestDoc::doValidation( void ) const
 
 void
 DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = path; }
+{ schemaLoc_ = std::move(path); }
 
 std::string
 DDLTestDoc::getSchemaLocation( void ) const

@@ -1,5 +1,9 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDComparator.h"
+
 #include <cassert>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +14,7 @@ static std::atomic<unsigned int> lastIndex{0};
 void
 DDValue::init( const std::string &name )
 {
-  auto result = indexer().insert( { name, 0 });
+  auto result = indexer().insert( { name, 0 } );
   
   auto& indexToUse = result.first->second;
   

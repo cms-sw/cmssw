@@ -33,7 +33,7 @@ class Eras (object):
                            'run2_50ns_specific', 'run2_HI_specific',
                            'stage1L1Trigger', 'fastSim',
                            'peripheralPbPb', 'pA_2016',
-                           'run2_HE_2017', 'stage2L1Trigger',
+                           'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017',
                            'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017',
                            'run3_HB', 'run3_common',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017', 'run2_GEM_2017_MCTest',

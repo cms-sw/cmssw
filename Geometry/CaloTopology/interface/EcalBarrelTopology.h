@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_CALOTOPOLOGY_ECALBARRELTOPOLOGY_H
 #define GEOMETRY_CALOTOPOLOGY_ECALBARRELTOPOLOGY_H 1
 
+#include <utility>
 #include <vector>
 #include <iostream>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -13,13 +14,13 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
 
  public:
   /// create a new Topology
-  EcalBarrelTopology(): theGeom_(0) {};
+  EcalBarrelTopology(): theGeom_(nullptr) {};
 
   /// virtual destructor
   ~EcalBarrelTopology() override { }  
 
   /// create a new Topology from geometry
-  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
+  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
     {
     }
   

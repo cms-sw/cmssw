@@ -49,7 +49,7 @@ SurfaceDeformation* SurfaceDeformationFactory::create(int type, const std::vecto
       << "Unknown SurfaceDeformation type " << type << " (need "
       << kBowedSurface << " or " << kTwoBowedSurfaces
       << ")\n";
-    return 0;
+    return nullptr;
   }
 }
 
@@ -66,5 +66,5 @@ SurfaceDeformation* SurfaceDeformationFactory::create(const std::vector<double> 
 				   << "Params.size() (" << params.size()
 				   << ") does not match.\n";
   
-  return 0;
+  return nullptr;
 }

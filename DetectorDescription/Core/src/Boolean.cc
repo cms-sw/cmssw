@@ -1,5 +1,5 @@
-#include "DetectorDescription/Core/src/Boolean.h"
-#include "DetectorDescription/Core/src/Solid.h"
+# include "DetectorDescription/Core/src/Boolean.h"
+# include "DetectorDescription/Core/src/Solid.h"
 
 DDI::BooleanSolid::BooleanSolid( const DDSolid & A,
 				 const DDSolid & B, 

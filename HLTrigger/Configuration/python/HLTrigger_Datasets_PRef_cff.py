@@ -15,22 +15,22 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.triggerConditions = cms.vstring('HLT_HISinglePhoton10_Eta1p5ForPPRef_v7', 
-    'HLT_HISinglePhoton15_Eta1p5ForPPRef_v7', 
-    'HLT_HISinglePhoton20_Eta1p5ForPPRef_v7')
+streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.triggerConditions = cms.vstring('HLT_HISinglePhoton10_Eta1p5ForPPRef_v8', 
+    'HLT_HISinglePhoton15_Eta1p5ForPPRef_v8', 
+    'HLT_HISinglePhoton20_Eta1p5ForPPRef_v8')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector
 streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.triggerConditions = cms.vstring('HLT_HIDoublePhoton15_Eta1p5_Mass50_1000ForPPRef_v7', 
-    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECutForPPRef_v7', 
-    'HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9CutForPPRef_v7', 
-    'HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECutForPPRef_v7', 
-    'HLT_HISinglePhoton30_Eta1p5ForPPRef_v7', 
-    'HLT_HISinglePhoton40_Eta1p5ForPPRef_v7', 
-    'HLT_HISinglePhoton50_Eta1p5ForPPRef_v7', 
-    'HLT_HISinglePhoton60_Eta1p5ForPPRef_v7')
+streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.triggerConditions = cms.vstring('HLT_HIDoublePhoton15_Eta1p5_Mass50_1000ForPPRef_v8', 
+    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECutForPPRef_v8', 
+    'HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9CutForPPRef_v8', 
+    'HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECutForPPRef_v8', 
+    'HLT_HISinglePhoton30_Eta1p5ForPPRef_v8', 
+    'HLT_HISinglePhoton40_Eta1p5ForPPRef_v8', 
+    'HLT_HISinglePhoton50_Eta1p5ForPPRef_v8', 
+    'HLT_HISinglePhoton60_Eta1p5ForPPRef_v8')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetTOTEM_minBias_selector
 streamPhysicsCommissioning_datasetTOTEM_minBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -80,57 +80,57 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsHadronsTaus_datasetBTagCSV_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetBTagCSV_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetBTagCSV_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_AK4PFBJetBCSV60_Eta2p1ForPPRef_v10', 
-    'HLT_AK4PFBJetBCSV80_Eta2p1ForPPRef_v10', 
-    'HLT_AK4PFBJetBSSV60_Eta2p1ForPPRef_v10', 
-    'HLT_AK4PFBJetBSSV80_Eta2p1ForPPRef_v10')
+streamPhysicsHadronsTaus_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_AK4PFBJetBCSV60_Eta2p1ForPPRef_v11', 
+    'HLT_AK4PFBJetBCSV80_Eta2p1ForPPRef_v11', 
+    'HLT_AK4PFBJetBSSV60_Eta2p1ForPPRef_v11', 
+    'HLT_AK4PFBJetBSSV80_Eta2p1ForPPRef_v11')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHadronsTaus_datasetHeavyFlavor_selector
 streamPhysicsHadronsTaus_datasetHeavyFlavor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetHeavyFlavor_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetHeavyFlavor_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetHeavyFlavor_selector.triggerConditions = cms.vstring('HLT_DmesonPPTrackingGlobal_Dpt15ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt20ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt30ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt40ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt50ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt60ForPPRef_v8', 
-    'HLT_DmesonPPTrackingGlobal_Dpt8ForPPRef_v8')
+streamPhysicsHadronsTaus_datasetHeavyFlavor_selector.triggerConditions = cms.vstring('HLT_DmesonPPTrackingGlobal_Dpt15ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt20ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt30ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt40ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt50ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt60ForPPRef_v9', 
+    'HLT_DmesonPPTrackingGlobal_Dpt8ForPPRef_v9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHadronsTaus_datasetHighPtJet80_selector
 streamPhysicsHadronsTaus_datasetHighPtJet80_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetHighPtJet80_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetHighPtJet80_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetHighPtJet80_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet100_Eta5p1ForPPRef_v7', 
-    'HLT_AK4CaloJet100_Jet35_Eta0p7ForPPRef_v7', 
-    'HLT_AK4CaloJet100_Jet35_Eta1p1ForPPRef_v7', 
-    'HLT_AK4CaloJet110_Eta5p1ForPPRef_v7', 
-    'HLT_AK4CaloJet120_Eta5p1ForPPRef_v7', 
-    'HLT_AK4CaloJet150ForPPRef_v7', 
-    'HLT_AK4CaloJet80_45_45_Eta2p1ForPPRef_v7', 
-    'HLT_AK4CaloJet80_Eta5p1ForPPRef_v7', 
-    'HLT_AK4CaloJet80_Jet35_Eta0p7ForPPRef_v7', 
-    'HLT_AK4CaloJet80_Jet35_Eta1p1ForPPRef_v7', 
-    'HLT_AK4PFJet100_Eta5p1ForPPRef_v10', 
-    'HLT_AK4PFJet110_Eta5p1ForPPRef_v10', 
-    'HLT_AK4PFJet120_Eta5p1ForPPRef_v10', 
-    'HLT_AK4PFJet80_Eta5p1ForPPRef_v10')
+streamPhysicsHadronsTaus_datasetHighPtJet80_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet100_Eta5p1ForPPRef_v8', 
+    'HLT_AK4CaloJet100_Jet35_Eta0p7ForPPRef_v8', 
+    'HLT_AK4CaloJet100_Jet35_Eta1p1ForPPRef_v8', 
+    'HLT_AK4CaloJet110_Eta5p1ForPPRef_v8', 
+    'HLT_AK4CaloJet120_Eta5p1ForPPRef_v8', 
+    'HLT_AK4CaloJet150ForPPRef_v8', 
+    'HLT_AK4CaloJet80_45_45_Eta2p1ForPPRef_v8', 
+    'HLT_AK4CaloJet80_Eta5p1ForPPRef_v8', 
+    'HLT_AK4CaloJet80_Jet35_Eta0p7ForPPRef_v8', 
+    'HLT_AK4CaloJet80_Jet35_Eta1p1ForPPRef_v8', 
+    'HLT_AK4PFJet100_Eta5p1ForPPRef_v11', 
+    'HLT_AK4PFJet110_Eta5p1ForPPRef_v11', 
+    'HLT_AK4PFJet120_Eta5p1ForPPRef_v11', 
+    'HLT_AK4PFJet80_Eta5p1ForPPRef_v11')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet40_Eta5p1ForPPRef_v7', 
-    'HLT_AK4CaloJet60_Eta5p1ForPPRef_v7', 
-    'HLT_AK4PFJet40_Eta5p1ForPPRef_v10', 
-    'HLT_AK4PFJet60_Eta5p1ForPPRef_v10')
+streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet40_Eta5p1ForPPRef_v8', 
+    'HLT_AK4CaloJet60_Eta5p1ForPPRef_v8', 
+    'HLT_AK4PFJet40_Eta5p1ForPPRef_v11', 
+    'HLT_AK4PFJet60_Eta5p1ForPPRef_v11')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHadronsTaus_datasetJetHT_selector
 streamPhysicsHadronsTaus_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetJetHT_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetJetHT_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK4PFDJet60_Eta2p1ForPPRef_v10', 
-    'HLT_AK4PFDJet80_Eta2p1ForPPRef_v10')
+streamPhysicsHadronsTaus_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK4PFDJet60_Eta2p1ForPPRef_v11', 
+    'HLT_AK4PFDJet80_Eta2p1ForPPRef_v11')
 
 
 # stream PhysicsMuons
@@ -149,15 +149,15 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsMuons_datasetMuPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsMuons_datasetMuPlusX_selector.l1tResults = cms.InputTag('')
 streamPhysicsMuons_datasetMuPlusX_selector.throw      = cms.bool(False)
-streamPhysicsMuons_datasetMuPlusX_selector.triggerConditions = cms.vstring('HLT_HIL2Mu3Eta2p5_AK4CaloJet100Eta2p1ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_AK4CaloJet40Eta2p1ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_AK4CaloJet60Eta2p1ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_AK4CaloJet80Eta2p1ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5ForPPRef_v9', 
-    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5ForPPRef_v9')
+streamPhysicsMuons_datasetMuPlusX_selector.triggerConditions = cms.vstring('HLT_HIL2Mu3Eta2p5_AK4CaloJet100Eta2p1ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_AK4CaloJet40Eta2p1ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_AK4CaloJet60Eta2p1ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_AK4CaloJet80Eta2p1ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5ForPPRef_v10', 
+    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5ForPPRef_v10')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsMuons_datasetSingleMuHighPt_selector
 streamPhysicsMuons_datasetSingleMuHighPt_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -186,11 +186,11 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsTracks_datasetFullTrack_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsTracks_datasetFullTrack_selector.l1tResults = cms.InputTag('')
 streamPhysicsTracks_datasetFullTrack_selector.throw      = cms.bool(False)
-streamPhysicsTracks_datasetFullTrack_selector.triggerConditions = cms.vstring('HLT_FullTrack18ForPPRef_v8', 
-    'HLT_FullTrack24ForPPRef_v8', 
-    'HLT_FullTrack34ForPPRef_v8', 
-    'HLT_FullTrack45ForPPRef_v8', 
-    'HLT_FullTrack53ForPPRef_v8')
+streamPhysicsTracks_datasetFullTrack_selector.triggerConditions = cms.vstring('HLT_FullTrack18ForPPRef_v9', 
+    'HLT_FullTrack24ForPPRef_v9', 
+    'HLT_FullTrack34ForPPRef_v9', 
+    'HLT_FullTrack45ForPPRef_v9', 
+    'HLT_FullTrack53ForPPRef_v9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsTracks_datasetHighMultiplicity_selector
 streamPhysicsTracks_datasetHighMultiplicity_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

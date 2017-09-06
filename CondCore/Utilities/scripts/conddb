@@ -22,6 +22,7 @@ import sqlalchemy
 
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
+import CondCore.Utilities.conddb_serialization_metadata as serialization_metadata
 
 from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # -------------------------------------------------------------------------------------------------------
@@ -1202,19 +1203,28 @@ def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
     TagLog = session.get_dbtype(conddb.TagLog)
     session.add(TagLog(tag_name=the_tag, event_time=the_timestamp, action=the_action, user_name=userName, host_name=hostName, command=userCommand, user_text=note ))
 
-def _copy_payload( args, copyTime, session1, session2, payloadHash ):
+def _copy_payload( args, copyTime, session1, session2, payloadHash, payloadSerializationVersionMap=None ):
     Payload1 = session1.get_dbtype(conddb.Payload)
     Payload2 = session2.get_dbtype(conddb.Payload)
+    ret = False
+    streamerInfo = None
     if _exists(session2, Payload2.hash, payloadHash):
         logging.debug('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
-        return False
+        if payloadSerializationVersionMap is not None:
+            q = session1.query(Payload1.streamer_info).filter(Payload1.hash == payloadHash).one()
+            streamerInfo = str(q[0])
     else:
         logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
         payload = _rawdict(q)
         payload['insertion_time'] = copyTime
+        streamerInfo = str(payload['streamer_info'])
         session2.add(Payload2(** payload))
-        return True
+        ret = True
+    if payloadSerializationVersionMap is not None:
+        serialization_version = serialization_metadata.get_boost_version_from_streamer_info(streamerInfo)
+        payloadSerializationVersionMap[payloadHash] = serialization_version
+    return ret
 
 def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
     ret = True
@@ -1281,11 +1291,13 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             if raw_input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
-        destSynchro = tag['synchronization']
+        destSynchro = 'any'
         if args.convertTime:
             tag['time_type'] = 'Time'
         destTimeType = tag['time_type']
-        session2.add(Tag2(**tag))
+        dest = Tag2(**tag)
+        dest.synchronization = destSynchro
+        session2.add(dest)
         note = args.note 
         if note is None or note=='' or note==' ':
             note = '-'
@@ -1322,6 +1334,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     query = query.filter(_inserted_before(IOV1,args.snapshot))
     iovs = {}
     hashes = set()
+    payloadSerializationVersionMap = None
+    if session2.is_oracle:
+        payloadSerializationVersionMap = {}
     if not args.o2oTest:
         query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
         for iov in query:
@@ -1344,7 +1359,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                 logging.warning('Skipping older iov with since %s...', since)
         sourceIovSize = len(iovs)
         logging.info('Selected %s source iov(s)' %sourceIovSize)
-        if args.synchronize:
+        if not args.nosynchro:
             # synchronize lower boundary when required
             logging.info('Destination tag synchronization is %s' %destSynchro)
             policy_type = _get_synchro_policy( destSynchro )
@@ -1379,7 +1394,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     # Copy the payloads referenced in the selected iovs
     np = 0
     for h in hashes:
-        if _copy_payload( args, copyTime, session1, session2, h ):
+        if _copy_payload( args, copyTime, session1, session2, h, payloadSerializationVersionMap ):
             np += 1
     if not np==0:
         logging.info('%s payload(s) copied.',np)
@@ -1416,13 +1431,46 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     
     # Copy the set of IOVs collected        
     session2.merge(Tag2(name=second,modification_time=copyTime))
+    if payloadSerializationVersionMap is not None:
+        BoostRunMap = session2.get_dbtype(conddb.BoostRunMap)
+        q = session2.query(BoostRunMap).order_by(BoostRunMap.run_number)
+        boost_run_map = []
+        for r in q:
+            r = _rawdict(r)
+            boost_run_map.append( (r['run_number'],r['run_start_time'],r['boost_version']) )
+        TagMetadata = session2.get_dbtype(conddb.TagMetadata)
+        q = session2.query(TagMetadata.min_serialization_v).filter(TagMetadata.tag_name == second )
+        tagBoostVersion = None
+        for r in q:
+            tagBoostVersion = r[0]
+            break
+        currentTagBoostVersion = tagBoostVersion
+        if len(iovs)>0 and destExists and currentTagBoostVersion is None:
+            raise Exception('No information found about the destination tag boost version. Cannot proceed with the update.')
+        logging.info('Destination tag boost version is %s' %currentTagBoostVersion )
     niovs = 0
     for k,v in iovs.items():
         logging.debug('Copying IOV %s -> %s...', k, v)
         session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
         niovs += 1
+        if payloadSerializationVersionMap is not None:
+            if v in payloadSerializationVersionMap.keys():
+                tagBoostVersion = serialization_metadata.do_update_tag_boost_version(tagBoostVersion,payloadSerializationVersionMap[v], k, destTimeType, boost_run_map )
     if not niovs==0:
         logging.info('%s iov(s) copied.',niovs)
+        merge = False
+        if payloadSerializationVersionMap is not None and tagBoostVersion is not None:
+            if currentTagBoostVersion is not None: 
+                if currentTagBoostVersion != tagBoostVersion:
+                    if serialization_metadata.cmp_boost_version( currentTagBoostVersion, tagBoostVersion )<0:
+                        if destSynchro not in ['any','validation']:
+                            raise Exception('Cannot update existing tag %s, since the minimum serialization version %s is not compatible with the combined boost version of the payloads to add (%s)' %(second,currentTagBoostVersion,tagBoostVersion))
+                    merge = True
+            else:
+                merge = True
+        if merge:
+            session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,modification_time=copyTime))
+            logging.info('Destination Tag boost Version set to %s ( was %s )' %(tagBoostVersion,currentTagBoostVersion) )
     return ret, niovs
 
 def copy(args):
@@ -1452,25 +1500,26 @@ def copy(args):
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
         if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.synchronize or args.convertTime:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, synchronize, snapshot or convertTime.')
-        if args.synchronize:
-            if args.override:
-                raise Exception('Override copy is not supported with the synchronization.')
-            if args.convertTime:
-                raise Exception('Copy with time conversion is not supported with the synchronization.')
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.convertTime:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or convertTime.')
+ 
+        try:
+            ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
+            if niovs!=0:
+                _confirm_changes(args)
+                note = args.note
+                if args.force and args.note is None:
+                    note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
+                if note is None or note=='' or note==' ':
+                    note = '-'
+                _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
+                session2.commit()
+                logging.info('Changes committed.')
+        except Exception as e:
+            session2.rollback()
+            logging.error('Changes rolled back.')
+            raise e
 
-        ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
-
-        if niovs!=0:
-            _confirm_changes(args)
-            note = args.note
-            if args.force and args.note is None:
-                note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
-            if note is None or note=='' or note==' ':
-                note = '-'
-            _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
-            session2.commit()
         return 1*( not ret )
 
 
@@ -1986,7 +2035,7 @@ def dump(args):
 
     if args.type == 'payload':
        if args.format == 'xml':
-          xmlProcessor.payload2xml(session, name)
+          xmlProcessor.payload2xml(session, name, args.destfile)
        else:
        	  _dump_payload(session, name, args.loadonly)
 
@@ -2094,7 +2143,8 @@ def main():
     parser_copy.add_argument('--override','-o', action='store_true', help='Override the existing iovs for the interval covered by the new iovs.') 
     parser_copy.add_argument('--snapshot','-s', help="Timestamp of the snapshot to consider for the source iovs. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
-    parser_copy.add_argument('--synchronize',action='store_true',help='For tags, set the destination iovs according to the destination tag synchronization. No effect for other object type copy') 
+    parser_copy.add_argument('--synchronize',action='store_true',help='No effect, since the synchronization is applied by default for tags. The option is kept for backward compatibility') 
+    parser_copy.add_argument('--nosynchro',action='store_true',help='For tags, disable the synchronization of the destination iovs. No effect for other object type copy') 
     parser_copy.add_argument('--convertTime',action='store_true',help='For tags, triggers the convertion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
     parser_copy.set_defaults(func=copy)
 
@@ -2115,6 +2165,7 @@ def main():
     parser_dump.add_argument('--loadonly', action='store_true', help='Load only: Do not dump, only load the (deserialize) payload in memory -- useful for testing the load of an entire global tag with the current CMSSW release.')
     parser_dump.add_argument('--type', default=None, choices=['payload', 'tag', 'gt'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
     parser_dump.add_argument('--format', default="xml", choices=['xml', 'raw'], help='Output format. Choice between XML and raw hexdump.')
+    parser_dump.add_argument('--destfile','-d',default=None,help="Destination file for the dump.")
     parser_dump.set_defaults(func=dump)
 
     parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')

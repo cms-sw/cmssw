@@ -37,6 +37,9 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace dqm {
@@ -55,17 +58,17 @@ class TrackingMonitor : public DQMEDAnalyzer
         using QualityMaskCollection = std::vector<unsigned char>;
 
         explicit TrackingMonitor(const edm::ParameterSet&);
-        ~TrackingMonitor();
+        ~TrackingMonitor() override;
         virtual void beginJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
 
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-        virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+        void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     private:
         void doProfileX(TH2 * th2, MonitorElement* me);
@@ -90,6 +93,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
 
@@ -118,15 +123,19 @@ class TrackingMonitor : public DQMEDAnalyzer
 	// Good Tracks 
         MonitorElement * FractionOfGoodTracks;
 
+	// Tracking regions
+	MonitorElement * NumberOfTrackingRegions;
+
         // Track Seeds 
         MonitorElement * NumberOfSeeds;
         MonitorElement * NumberOfSeeds_lumiFlag;
 	std::vector<MonitorElement *> SeedsVsClusters;
 	std::vector<std::string> ClusterLabels;
-	
+
 
         // Track Candidates
         MonitorElement * NumberOfTrackCandidates;
+        MonitorElement * FractionCandidatesOverSeeds;
 
         // Cluster Properties
 	std::vector<MonitorElement*> NumberOfTrkVsClusters;
@@ -188,6 +197,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
 	bool doMVAPlots;
+	bool doRegionPlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;

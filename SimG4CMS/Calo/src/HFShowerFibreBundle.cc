@@ -19,7 +19,7 @@
 
 //#define DebugLog
 
-HFShowerFibreBundle::HFShowerFibreBundle(const std::string & name, 
+HFShowerFibreBundle::HFShowerFibreBundle(std::string & name, 
 					 const DDCompactView & cpv,
 					 edm::ParameterSet const & p) {
 

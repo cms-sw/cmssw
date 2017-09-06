@@ -36,7 +36,7 @@ void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t s
       s << ex.logicalPart().name() << ' '
 	<< ex.copyno() << ' ' 
 	<< ex.geoHistory() << " r="
-	<< ex.geoHistory().back().posdata()->rot_.name() << "\n"; 
+	<< ex.geoHistory().back().posdata()->ddrot().name() << "\n"; 
       DDRotationMatrix rm = ex.rotation();
       {
 	double v[9]; rm.GetComponents(v,v+9);

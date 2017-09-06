@@ -298,7 +298,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if (caloJets->size() == 0) {
+  if (caloJets->empty()) {
     LogDebug("L1TStage2CaloLayer2Offline") << "no calo jets found" << std::endl;
     return;
   }
@@ -331,7 +331,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
     return;
   }
 
@@ -452,7 +452,7 @@ void L1TStage2CaloLayer2Offline::bookHistos(DQMStore::IBooker & ibooker)
 void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_.c_str());
+  ibooker.setCurrentFolder(histFolder_);
 
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
 
@@ -520,7 +520,7 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
   // energy sum turn ons
-  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  ibooker.setCurrentFolder(efficiencyFolder_);
 
   std::vector<float> metBins(metEfficiencyBins_.begin(), metEfficiencyBins_.end());
   std::vector<float> mhtBins(mhtEfficiencyBins_.begin(), mhtEfficiencyBins_.end());
@@ -569,7 +569,7 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_.c_str());
+  ibooker.setCurrentFolder(histFolder_);
   // jets control plots (monitor beyond the limits of the 2D histograms)
   h_controlPlots_[ControlPlots::L1JetET] = ibooker.book1D("L1JetET", "L1 Jet E_{T}; L1 Jet E_{T} (GeV); events", 500, 0,
       5e3);
@@ -625,7 +625,7 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
 
   // jet turn-ons
-  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  ibooker.setCurrentFolder(efficiencyFolder_);
   std::vector<float> jetBins(jetEfficiencyBins_.begin(), jetEfficiencyBins_.end());
   int nBins = jetBins.size() - 1;
   float* jetBinArray = &(jetBins[0]);

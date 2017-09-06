@@ -29,4 +29,5 @@ selectedPatCandidatesTask = cms.Task(
     selectedPatOOTPhotons,
     selectedPatJets
 )
+
 selectedPatCandidates = cms.Sequence(selectedPatCandidateSummary, selectedPatCandidatesTask)

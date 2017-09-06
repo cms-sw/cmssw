@@ -14,7 +14,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
@@ -25,12 +24,12 @@ namespace edm {
 class PythiaFilterMultiMother : public edm::EDFilter {
    public:
       explicit PythiaFilterMultiMother(const edm::ParameterSet&);
-      ~PythiaFilterMultiMother();
+      ~PythiaFilterMultiMother() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
-      // ----------member data ---------------------------
+     // ----------member data ---------------------------
 
        edm::EDGetTokenT<edm::HepMCProduct> token_;
        int particleID;
@@ -50,5 +49,7 @@ class PythiaFilterMultiMother : public edm::EDFilter {
        int status;
        std::vector<int> motherIDs;
        int processID;
+
+       double betaBoost;
 };
 #endif

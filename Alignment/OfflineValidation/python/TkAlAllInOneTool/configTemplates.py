@@ -222,9 +222,8 @@ cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 
-#create results-directory and copy used configuration there
-rfmkdir -p .oO[datadir]Oo.
-rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
+
+.oO[createResultsDirectory]Oo.
 
 if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
@@ -260,6 +259,50 @@ rm -f *.root
 cd .oO[logdir]Oo.
 find . -name "*.stderr" -exec gzip -f {} \;
 find . -name "*.stdout" -exec gzip -f {} \;
+"""
+
+
+
+######################################################################
+######################################################################
+mergeParallelOfflineTemplate="""
+#!/bin/bash
+eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
+CWD=`pwd -P`
+cd .oO[CMSSW_BASE]Oo./src
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
+eval `scramv1 ru -sh`
+
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
+then
+    mkdir -p .oO[workdir]Oo.
+    cd .oO[workdir]Oo.
+else
+    cd $CWD
+fi
+echo "Working directory: $(pwd -P)"
+
+###############################################################################
+# download root files from eos
+root_files=$(ls /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo. \
+             | grep ".root$" | grep -v "result.root$")
+#for file in ${root_files}
+#do
+#    xrdcp -f root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./${file} .
+#    echo ${file}
+#done
+
+
+#run
+.oO[DownloadData]Oo.
+"""
+
+######################################################################
+######################################################################
+createResultsDirectoryTemplate="""
+#create results-directory and copy used configuration there
+rfmkdir -p .oO[datadir]Oo.
+rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
 """
 
 

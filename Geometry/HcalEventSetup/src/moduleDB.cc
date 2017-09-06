@@ -8,8 +8,8 @@
 template<>
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::PtrType
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const typename HcalGeometry::AlignedRecord& iRecord ) {
-  const Alignments* alignPtr  ( 0 ) ;
-  const Alignments* globalPtr ( 0 ) ;
+  const Alignments* alignPtr  ( nullptr ) ;
+  const Alignments* globalPtr ( nullptr ) ;
   if( m_applyAlignment ) {// get ptr if necessary
     edm::ESHandle< Alignments >                                      alignments ;
     iRecord.getRecord< typename HcalGeometry::AlignmentRecord >().get( alignments ) ;
@@ -90,24 +90,24 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
     const DetId id( hcalTopology->denseId2detId( dins[i]));
     
-    const unsigned int iGlob( 0 == globalPtr ? 0 :
+    const unsigned int iGlob( nullptr == globalPtr ? 0 :
 			      HcalGeometry::alignmentTransformIndexGlobal( id ));
 
-    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size());
+    assert( nullptr == globalPtr || iGlob < globalPtr->m_align.size());
 
-    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] );
+    const AlignTransform* gt ( nullptr == globalPtr ? nullptr : &globalPtr->m_align[ iGlob ] );
 
-    assert( 0 == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId())));
+    assert( nullptr == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId())));
 
-    const unsigned int iLoc( 0 == alignPtr ? 0 :
+    const unsigned int iLoc( nullptr == alignPtr ? 0 :
 			     HcalGeometry::alignmentTransformIndexLocal( id ));
 
-    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size());
+    assert( nullptr == alignPtr || iLoc < alignPtr->m_align.size());
 
-    const AlignTransform* at( 0 == alignPtr ? 0 :
+    const AlignTransform* at( nullptr == alignPtr ? nullptr :
 			      &alignPtr->m_align[ iLoc ]);
 
-    assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId())) == iLoc ));
+    assert( nullptr == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId())) == iLoc ));
 
     Pt3D  lRef ;
     Pt3DVec lc( 8, Pt3D( 0, 0, 0 ));
@@ -137,8 +137,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 	       CLHEP::Hep3Vector( dx, dy, dz));
 
     // now prepend alignment(s) for final transform
-    const Tr3D atr( 0 == at ? tr :
-		    ( 0 == gt ? at->transform() * tr :
+    const Tr3D atr( nullptr == at ? tr :
+		    ( nullptr == gt ? at->transform() * tr :
 		      at->transform() * gt->transform() * tr ));
     //--------------------------------- done making transform  ---------------
 
@@ -163,8 +163,8 @@ template<>
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::PtrType
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const typename CaloTowerGeometry::AlignedRecord& iRecord ) {
 
-  const Alignments* alignPtr  ( 0 ) ;
-  const Alignments* globalPtr ( 0 ) ;
+  const Alignments* alignPtr  ( nullptr ) ;
+  const Alignments* globalPtr ( nullptr ) ;
   if( m_applyAlignment ) { // get ptr if necessary
     edm::ESHandle< Alignments >                                      alignments ;
     iRecord.getRecord< typename CaloTowerGeometry::AlignmentRecord >().get( alignments ) ;
@@ -246,24 +246,24 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
 
     const DetId id ( caloTopology->detIdFromDenseIndex(dins[i]) ) ;
     
-    const unsigned int iGlob ( 0 == globalPtr ? 0 :
+    const unsigned int iGlob ( nullptr == globalPtr ? 0 :
 			       ctg->alignmentTransformIndexGlobal( id ) ) ;
 
-    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
+    assert( nullptr == globalPtr || iGlob < globalPtr->m_align.size() ) ;
 
-    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
+    const AlignTransform* gt ( nullptr == globalPtr ? nullptr : &globalPtr->m_align[ iGlob ] ) ;
 
-    assert( 0 == gt || iGlob == ctg->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+    assert( nullptr == gt || iGlob == ctg->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
 
-    const unsigned int iLoc ( 0 == alignPtr ? 0 :
+    const unsigned int iLoc ( nullptr == alignPtr ? 0 :
 			      ctg->alignmentTransformIndexLocal( id ) ) ;
 
-    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
+    assert( nullptr == alignPtr || iLoc < alignPtr->m_align.size() ) ;
 
-    const AlignTransform* at ( 0 == alignPtr ? 0 :
+    const AlignTransform* at ( nullptr == alignPtr ? nullptr :
 			       &alignPtr->m_align[ iLoc ] ) ;
 
-    assert( 0 == at || ( ctg->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+    assert( nullptr == at || ( ctg->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
     const CaloGenericDetId gId ( id ) ;
 
@@ -291,8 +291,8 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
 	       CLHEP::Hep3Vector(dx,dy,dz)     );
 
     // now prepend alignment(s) for final transform
-    const Tr3D atr ( 0 == at ? tr :
-		     ( 0 == gt ? at->transform()*tr :
+    const Tr3D atr ( nullptr == at ? tr :
+		     ( nullptr == gt ? at->transform()*tr :
 		       at->transform()*gt->transform()*tr ) ) ;
     //--------------------------------- done making transform  ---------------
 
