@@ -239,11 +239,11 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 pixelLessStepClassifier1 = TrackMVAClassifierPrompt.clone()
 pixelLessStepClassifier1.src = 'pixelLessStepTracks'
-pixelLessStepClassifier1.GBRForestLabel = 'MVASelectorIter5_13TeV'
+pixelLessStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter5_13TeV'
 pixelLessStepClassifier1.qualityCuts = [-0.4,0.0,0.4]
 pixelLessStepClassifier2 = TrackMVAClassifierPrompt.clone()
 pixelLessStepClassifier2.src = 'pixelLessStepTracks'
-pixelLessStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+pixelLessStepClassifier2.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 pixelLessStepClassifier2.qualityCuts = [-0.0,0.0,0.0]
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
@@ -253,11 +253,11 @@ pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassif
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.4],
 ))
 trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.4],
 ))
 
