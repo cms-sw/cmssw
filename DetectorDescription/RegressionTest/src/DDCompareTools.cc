@@ -150,8 +150,8 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
       while ( cit1 != cend1 && cit2 != cend2 ) {
 	const DDLogicalPart & ddcurLP1 = g1.nodeData(cit1->first);
 	const DDLogicalPart & ddcurLP2 = g2.nodeData(cit2->first);
-	std::cout << ++i << " c1--> " << g1.edgeData(cit1->second)->copyno_ << " " << ddcurLP1.name().fullname() << std::endl;
-	std::cout << ++i << " c2--> " << g2.edgeData(cit2->second)->copyno_ << " " << ddcurLP2.name().fullname() << std::endl;
+	std::cout << ++i << " c1--> " << g1.edgeData(cit1->second)->copyno() << " " << ddcurLP1.name().fullname() << std::endl;
+	std::cout << ++i << " c2--> " << g2.edgeData(cit2->second)->copyno() << " " << ddcurLP2.name().fullname() << std::endl;
 	const DDPosData* p1(g1.edgeData(cit1->second));
 	const DDPosData* p2(g2.edgeData(cit2->second));
 	//	  if ( g1.edgeData(cit1->second)->copyno_ != g2.edgeData(cit2->second)->copyno_
@@ -162,14 +162,14 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 // 		    << ddcurLP2.name().fullname() << ":" << p2->copyno_ << std::endl;
 // 	  ret = false;
 // 	  break;
-	if ( p1->copyno_ != p2->copyno_ || 
+	if ( p1->copyno() != p2->copyno() || 
 	     ! DDCompareLP(ddco_)(ddcurLP1,ddcurLP2) ) {
 	  std::cout << "Failed to match node (fullname:copy_no): 1: " 
-		    << ddcurLP1.name().fullname() << ":" << p1->copyno_ << " 2: " 
-		    << ddcurLP2.name().fullname() << ":" << p2->copyno_ << std::endl;
+		    << ddcurLP1.name().fullname() << ":" << p1->copyno() << " 2: " 
+		    << ddcurLP2.name().fullname() << ":" << p2->copyno() << std::endl;
 	  ret = false;
 	  break;
-	} else if ( ! DDCompareDDTrans()(p1->trans_, p2->trans_) ) {
+	} else if ( ! DDCompareDDTrans()(p1->trans(), p2->trans()) ) {
 	  std::cout << "Failed to match translation " << std::endl;
 // 	  std::cout << "1: " << std::setw(12) << std::fixed << std::setprecision(4) << p1->trans_.x();
 // 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p1->trans_.y();
@@ -179,7 +179,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 // 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p2->trans_.z() << std::endl;
 	  ret = false;
 	  break;
-	} else if ( ! DDCompareDDRot(ddco_)(p1->rot_, p2->rot_) ) {
+	} else if ( ! DDCompareDDRot(ddco_)(p1->ddrot(), p2->ddrot()) ) {
 	  std::cout << "Failed to match rotation " << std::endl;
 	  ret = false;
 	  break;

@@ -189,21 +189,6 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     )
 )
 
-
-jetDQMAnalyzerAkVs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Vs'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akVs3PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
 jetDQMAnalyzerAkPU3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                          JetType = cms.untracked.string('calo'),
                                          UEAlgo = cms.untracked.string('Pu'),
@@ -219,37 +204,9 @@ jetDQMAnalyzerAkPU3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                          RThreshold = cms.double(0.3),
                                          reverseEnergyFractionThreshold = cms.double(0.5)
 )
-
-jetDQMAnalyzerAkPU4Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Pu'),
-                                         OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akPu4CaloJets"),
-                                         PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
-                                         centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                         JetCorrections = cms.string(""),
-                                         recoJetPtThreshold = cms.double(10),        
-                                         RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)                                    
-)
-
-jetDQMAnalyzerAkPU5Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Pu'),
-                                         OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akPu5CaloJets"),
-                                         PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
-                                         centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                         JetCorrections = cms.string(""),
-                                         recoJetPtThreshold = cms.double(10),        
-                                         RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
+jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu4CaloJets"))
+jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu5CaloJets"))
+ 
 jetDQMAnalyzerAkPU3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                        JetType = cms.untracked.string('pf'),
                                        UEAlgo = cms.untracked.string('Pu'),
@@ -264,165 +221,31 @@ jetDQMAnalyzerAkPU3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                        RThreshold = cms.double(0.3),
                                        reverseEnergyFractionThreshold = cms.double(0.5)
 )
+jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu4PFJets"))
+jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu5PFJets"))
 
-jetDQMAnalyzerAkPU4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Pu'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akPu4PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-jetDQMAnalyzerAkPU5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Pu'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akPu5PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-jetDQMAnalyzerAkVs2Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Vs'),
+jetDQMAnalyzerAkCs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+                                         JetType = cms.untracked.string('pf'),
+                                         UEAlgo = cms.untracked.string('Cs'),
                                          OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akVs2CaloJets"),
+                                         src = cms.InputTag("akCs3PFJets"),
+                                         CScands = cms.InputTag("akCs3PFJets","pfParticlesCs"),
                                          PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
                                          centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
+                                         #centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                          JetCorrections = cms.string(""),
                                          recoJetPtThreshold = cms.double(10),        
                                          RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)
+                                         reverseEnergyFractionThreshold = cms.double(0.5),
+                                         etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
+                                         rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
+                                         rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM')
 )
 
-jetDQMAnalyzerAkVs3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Vs'),
-                                         OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akVs3CaloJets"),
-                                         PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
-                                         centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                         JetCorrections = cms.string(""),
-                                         recoJetPtThreshold = cms.double(10),        
-                                         RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)
+jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJets"),
+						  CScands = cms.InputTag("akCs4PFJets","pfParticlesCs")
 )
 
-jetDQMAnalyzerAkVs4Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Vs'),
-                                         OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akVs4CaloJets"),
-                                         PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
-                                         centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                         JetCorrections = cms.string(""),
-                                         recoJetPtThreshold = cms.double(10),        
-                                         RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-jetDQMAnalyzerAkVs5Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                         JetType = cms.untracked.string('calo'),
-                                         UEAlgo = cms.untracked.string('Vs'),
-                                         OutputFile = cms.untracked.string(''),
-                                         src = cms.InputTag("akVs5CaloJets"),
-                                         PFcands = cms.InputTag("particleFlowTmp"),
-                                         Background = cms.InputTag("voronoiBackgroundCalo"),
-                                         centralitycollection = cms.InputTag("hiCentrality"),
-                                         centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                         JetCorrections = cms.string(""),
-                                         recoJetPtThreshold = cms.double(10),        
-                                         RThreshold = cms.double(0.3),
-                                         reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-jetDQMAnalyzerAkVs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Vs'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akVs3PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       #srcRho = cms.InputTag("akVs3PFJets","rho"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-
-jetDQMAnalyzerAkVs4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Vs'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akVs4PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-jetDQMAnalyzerAkVs5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
-                                       JetType = cms.untracked.string('pf'),
-                                       UEAlgo = cms.untracked.string('Vs'),
-                                       OutputFile = cms.untracked.string(''),
-                                       src = cms.InputTag("akVs5PFJets"),
-                                       PFcands = cms.InputTag("particleFlowTmp"),
-                                       Background = cms.InputTag("voronoiBackgroundPF"),
-                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                       centralitycollection = cms.InputTag("hiCentrality"),
-                                       centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
-                                       JetCorrections = cms.string(""),
-                                       recoJetPtThreshold = cms.double(10),        
-                                       RThreshold = cms.double(0.3),
-                                       reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-
-jetDQMMatchAkPu3CaloAkVs3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                               src_Jet1 = cms.InputTag("akPu3CaloJets"),
-                                               src_Jet2 = cms.InputTag("akVs3CaloJets"),
-                                               Jet1     = cms.untracked.string("PuCalo"),
-                                               Jet2     = cms.untracked.string("VsCalo"),
-                                               recoJetPtThreshold = cms.double(20.),
-                                               recoDelRMatch = cms.double(0.2),
-                                               recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu3PFAkVs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                           src_Jet1 = cms.InputTag("akPu3PFJets"),
-                                           src_Jet2 = cms.InputTag("akVs3PFJets"),
-                                           Jet1     = cms.untracked.string("PuPF"),
-                                           Jet2     = cms.untracked.string("VsPF"),
-                                           recoJetPtThreshold = cms.double(20.),
-                                           recoDelRMatch = cms.double(0.2),
-                                           recoJetEtaCut = cms.double(2.0)
-)
 
 jetDQMMatchAkPu3CaloAkPu3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              src_Jet1 = cms.InputTag("akPu3CaloJets"),
@@ -432,34 +255,6 @@ jetDQMMatchAkPu3CaloAkPu3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              recoJetPtThreshold = cms.double(20.),
                                              recoDelRMatch = cms.double(0.2),
                                              recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkVs3CaloAkVs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                             src_Jet1 = cms.InputTag("akVs3CaloJets"),
-                                             src_Jet2 = cms.InputTag("akVs3PFJets"),
-                                             Jet1     = cms.untracked.string("VsCalo"),
-                                             Jet2     = cms.untracked.string("VsPF"),
-                                             recoJetPtThreshold = cms.double(20.),
-                                             recoDelRMatch = cms.double(0.2),
-                                             recoJetEtaCut = cms.double(2.0)
-)
-
-jetDQMMatchAkPu4CaloAkVs4Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                               src_Jet1 = cms.InputTag("akPu4CaloJets"),
-                                               src_Jet2 = cms.InputTag("akVs4CaloJets"),
-                                               Jet1     = cms.untracked.string("PuCalo"),
-                                               Jet2     = cms.untracked.string("VsCalo"),
-                                               recoJetPtThreshold = cms.double(20.),
-                                               recoDelRMatch = cms.double(0.2),
-                                               recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu4PFAkVs4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                           src_Jet1 = cms.InputTag("akPu4PFJets"),
-                                           src_Jet2 = cms.InputTag("akVs4PFJets"),
-                                           Jet1     = cms.untracked.string("PuPF"),
-                                           Jet2     = cms.untracked.string("VsPF"),
-                                           recoJetPtThreshold = cms.double(20.),
-                                           recoDelRMatch = cms.double(0.2),
-                                           recoJetEtaCut = cms.double(2.0)
 )
 
 jetDQMMatchAkPu4CaloAkPu4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
@@ -471,33 +266,6 @@ jetDQMMatchAkPu4CaloAkPu4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              recoDelRMatch = cms.double(0.2),
                                              recoJetEtaCut = cms.double(2.0)
 )
-jetDQMMatchAkVs4CaloAkVs4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                             src_Jet1 = cms.InputTag("akVs4CaloJets"),
-                                             src_Jet2 = cms.InputTag("akVs4PFJets"),
-                                             Jet1     = cms.untracked.string("VsCalo"),
-                                             Jet2     = cms.untracked.string("VsPF"),
-                                             recoJetPtThreshold = cms.double(20.),
-                                             recoDelRMatch = cms.double(0.2),
-                                             recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu5CaloAkVs5Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                               src_Jet1 = cms.InputTag("akPu5CaloJets"),
-                                               src_Jet2 = cms.InputTag("akVs5CaloJets"),
-                                               Jet1     = cms.untracked.string("PuCalo"),
-                                               Jet2     = cms.untracked.string("VsCalo"),
-                                               recoJetPtThreshold = cms.double(20.),
-                                               recoDelRMatch = cms.double(0.2),
-                                               recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu5PFAkVs5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                           src_Jet1 = cms.InputTag("akPu5PFJets"),
-                                           src_Jet2 = cms.InputTag("akVs5PFJets"),
-                                           Jet1     = cms.untracked.string("PuPF"),
-                                           Jet2     = cms.untracked.string("VsPF"),
-                                           recoJetPtThreshold = cms.double(20.),
-                                           recoDelRMatch = cms.double(0.2),
-                                           recoJetEtaCut = cms.double(2.0)
-)
 
 jetDQMMatchAkPu5CaloAkPu5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              src_Jet1 = cms.InputTag("akPu5CaloJets"),
@@ -508,49 +276,4 @@ jetDQMMatchAkPu5CaloAkPu5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              recoDelRMatch = cms.double(0.2),
                                              recoJetEtaCut = cms.double(2.0)
 )
-jetDQMMatchAkVs5CaloAkVs5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                             src_Jet1 = cms.InputTag("akVs5CaloJets"),
-                                             src_Jet2 = cms.InputTag("akVs5PFJets"),
-                                             Jet1     = cms.untracked.string("VsCalo"),
-                                             Jet2     = cms.untracked.string("VsPF"),
-                                             recoJetPtThreshold = cms.double(20.),
-                                             recoDelRMatch = cms.double(0.2),
-                                             recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu2CaloAkVs2Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                               src_Jet1 = cms.InputTag("akPu2CaloJets"),
-                                               src_Jet2 = cms.InputTag("akVs2CaloJets"),
-                                               Jet1     = cms.untracked.string("PuCalo"),
-                                               Jet2     = cms.untracked.string("VsCalo"),
-                                               recoJetPtThreshold = cms.double(20.),
-                                               recoDelRMatch = cms.double(0.2),
-                                               recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkPu2PFAkVs2PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                           src_Jet1 = cms.InputTag("akPu2PFJets"),
-                                           src_Jet2 = cms.InputTag("akVs2PFJets"),
-                                           Jet1     = cms.untracked.string("PuPF"),
-                                           Jet2     = cms.untracked.string("VsPF"),
-                                           recoJetPtThreshold = cms.double(20.),
-                                           recoDelRMatch = cms.double(0.2),
-                                           recoJetEtaCut = cms.double(2.0)
-)
 
-jetDQMMatchAkPu2CaloAkPu2PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                             src_Jet1 = cms.InputTag("akPu2CaloJets"),
-                                             src_Jet2 = cms.InputTag("akPu2PFJets"),
-                                             Jet1     = cms.untracked.string("PuCalo"),
-                                             Jet2     = cms.untracked.string("PuPF"),
-                                             recoJetPtThreshold = cms.double(20.),
-                                             recoDelRMatch = cms.double(0.2),
-                                             recoJetEtaCut = cms.double(2.0)
-)
-jetDQMMatchAkVs2CaloAkVs2PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
-                                             src_Jet1 = cms.InputTag("akVs2CaloJets"),
-                                             src_Jet2 = cms.InputTag("akVs2PFJets"),
-                                             Jet1     = cms.untracked.string("VsCalo"),
-                                             Jet2     = cms.untracked.string("VsPF"),
-                                             recoJetPtThreshold = cms.double(20.),
-                                             recoDelRMatch = cms.double(0.2),
-                                             recoJetEtaCut = cms.double(2.0)
-)

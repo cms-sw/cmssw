@@ -103,6 +103,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
     public:
         explicit SmearedJetProducerT(const edm::ParameterSet& cfg):
             m_enabled(cfg.getParameter<bool>("enabled")),
+            m_useDeterministicSeed(cfg.getParameter<bool>("useDeterministicSeed")),
             m_debug(cfg.getUntrackedParameter<bool>("debug", false)) {
 
             m_jets_token = consumes<JetCollection>(cfg.getParameter<edm::InputTag>("src"));
@@ -162,6 +163,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             desc.add<std::int32_t>("variation", 0);
             desc.add<std::uint32_t>("seed", 37428479);
             desc.add<bool>("skipGenMatching", false);
+            desc.add<bool>("useDeterministicSeed", true);
             desc.addUntracked<bool>("debug", false);
 
             auto source =
@@ -192,6 +194,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             JME::JetResolution resolution;
             JME::JetResolutionScaleFactor resolution_sf;
 
+            const JetCollection& jets = *jets_collection;
+
             if (m_enabled) {
                 if (m_use_txt_files) {
                     resolution = *m_resolution_from_file;
@@ -200,9 +204,16 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     resolution = JME::JetResolution::get(setup, m_jets_algo_pt);
                     resolution_sf = JME::JetResolutionScaleFactor::get(setup, m_jets_algo);
                 }
-            }
 
-            const JetCollection& jets = *jets_collection;
+                if(m_useDeterministicSeed) {
+                    unsigned int runNum_uint = static_cast <unsigned int> (event.id().run());
+                    unsigned int lumiNum_uint = static_cast <unsigned int> (event.id().luminosityBlock());
+                    unsigned int evNum_uint = static_cast <unsigned int> (event.id().event());
+                    unsigned int jet0eta = uint32_t(jets.empty() ? 0 : jets[0].eta()/0.01);
+                    std::uint32_t seed = jet0eta + m_nomVar + (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
+                    m_random_generator.seed(seed);
+                }
+            }
 
             if (m_genJetMatcher)
                 m_genJetMatcher->getTokens(event);
@@ -297,6 +308,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
         std::string m_jets_algo_pt;
         std::string m_jets_algo;
         Variation m_systematic_variation;
+        bool m_useDeterministicSeed;
         bool m_debug;
         std::shared_ptr<pat::GenJetMatcher> m_genJetMatcher;
 

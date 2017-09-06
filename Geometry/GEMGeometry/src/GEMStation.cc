@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "Geometry/GEMGeometry/interface/GEMStation.h"
 #include "Geometry/GEMGeometry/interface/GEMRing.h"
 #include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
@@ -42,7 +44,7 @@ const GeomDet* GEMStation::component(DetId id) const {
 }
 
 const GEMSuperChamber* GEMStation::superChamber(GEMDetId id) const {
-  if (id.region()!=region_ || id.station()!=station_ ) return 0; // not in this station
+  if (id.region()!=region_ || id.station()!=station_ ) return nullptr; // not in this station
   return ring(id.ring())->superChamber(id.chamber());
 }
 
@@ -61,7 +63,7 @@ const GEMRing* GEMStation::ring(int ring) const {
       return ri;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 const std::vector<const GEMRing*>& GEMStation::rings() const {
@@ -73,7 +75,7 @@ int GEMStation::nRings() const {
 }
 
 void GEMStation::setName(std::string name) {
-  name_ = name;
+  name_ = std::move(name);
 }
 
 const std::string GEMStation::getName() const {

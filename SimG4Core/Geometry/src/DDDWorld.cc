@@ -8,12 +8,15 @@
 #include "G4PVPlacement.hh"
 #include "G4TransportationManager.hh"
  
+using namespace edm;
+
 DDDWorld::DDDWorld(const DDCompactView* cpv, 
 		   G4LogicalVolumeToDDLogicalPartMap & map,
 		   SensitiveDetectorCatalog & catalog,
 		   bool check) {
 
-  auto theBuilder = std::make_unique<DDG4Builder>(cpv, check);
+  std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
   G4LogicalVolume *    world = ret.logicalVolume();
 

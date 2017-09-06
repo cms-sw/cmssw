@@ -9,6 +9,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -19,20 +21,24 @@
 #include <iostream>
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : SeedPt(NULL)
-    , SeedEta(NULL)
-    , SeedPhi(NULL)
-    , SeedPhiVsEta(NULL)
-    , SeedTheta(NULL)
-    , SeedQ(NULL)
-    , SeedDxy(NULL)
-    , SeedDz(NULL)
-    , NumberOfRecHitsPerSeed(NULL)
-    , NumberOfRecHitsPerSeedVsPhiProfile(NULL)
-    , NumberOfRecHitsPerSeedVsEtaProfile(NULL)
-    , stoppingSource(NULL)
-    , stoppingSourceVSeta(NULL)
-    , stoppingSourceVSphi(NULL)
+    : TrackingRegionCandidatePt(nullptr)
+    , TrackingRegionCandidateEta(nullptr)
+    , TrackingRegionCandidatePhi(nullptr)
+    , TrackingRegionCandidatePhiVsEta(nullptr)
+    , SeedPt(nullptr)
+    , SeedEta(nullptr)
+    , SeedPhi(nullptr)
+    , SeedPhiVsEta(nullptr)
+    , SeedTheta(nullptr)
+    , SeedQ(nullptr)
+    , SeedDxy(nullptr)
+    , SeedDz(nullptr)
+    , NumberOfRecHitsPerSeed(nullptr)
+    , NumberOfRecHitsPerSeedVsPhiProfile(nullptr)
+    , NumberOfRecHitsPerSeedVsEtaProfile(nullptr)
+    , stoppingSource(nullptr)
+    , stoppingSourceVSeta(nullptr)
+    , stoppingSourceVSphi(nullptr)
 {
 }
 
@@ -50,7 +56,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
   
   // use the AlgoName and Quality Name 
-  std::string CatagoryName = AlgoName;
+  const std::string& CatagoryName = AlgoName;
   
   // get binning from the configuration
   int    TrackPtBin = iConfig.getParameter<int>(   "TrackPtBin");
@@ -105,6 +111,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   edm::InputTag seedProducer   = iConfig.getParameter<edm::InputTag>("SeedProducer");
   edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
   std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
+  edm::InputTag regionProducer = iConfig.getParameter<edm::InputTag>("RegionProducer");
   
   doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
   doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
@@ -123,6 +130,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
   doStopSource   = iConfig.getParameter<bool>("doStopSource");
   doMVAPlots     = iConfig.getParameter<bool>("doMVAPlots");
+  doRegionPlots  = iConfig.getParameter<bool>("doRegionPlots");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
@@ -210,6 +218,40 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Number of RecHits of each Seed",2);
   }
 
+  if (doRegionPlots) {
+    if (doAllSeedPlots || doPT) {
+      auto ptBin = iConfig.getParameter<int>(   "RegionCandidatePtBin");
+      auto ptMin = iConfig.getParameter<double>("RegionCandidatePtMin");
+      auto ptMax = iConfig.getParameter<double>("RegionCandidatePtMax");
+
+      histname = "TrackingRegionCandidatePt_"+seedProducer.label() + "_";
+      TrackingRegionCandidatePt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ptBin, ptMin, ptMax);
+      TrackingRegionCandidatePt->setAxisTitle("TrackingRegion Candidate p_{T} (GeV/c)", 1);
+      TrackingRegionCandidatePt->setAxisTitle("Number of TrackingRegion Candidates", 2);
+    }
+
+    if (doAllSeedPlots || doETA) {
+      histname = "TrackingRegionCandidateEta_"+seedProducer.label() + "_";
+      TrackingRegionCandidateEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+      TrackingRegionCandidateEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
+      TrackingRegionCandidateEta->setAxisTitle("Number of TrackingRegion Candidates", 2);
+    }
+
+    if (doAllSeedPlots || doPHI) {
+      histname = "TrackingRegionCandidatePhi_"+seedProducer.label() + "_";
+      TrackingRegionCandidatePhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+      TrackingRegionCandidatePhi->setAxisTitle("TrackingRegion Candidate #phi", 1);
+      TrackingRegionCandidatePhi->setAxisTitle("Number of TrackingRegion Candidates", 2);
+    }
+
+    if (doAllSeedPlots || doPHIVsETA) {
+      histname = "TrackingRegionCandidatePhiVsEta_"+seedProducer.label() + "_";
+      TrackingRegionCandidatePhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+      TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
+      TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #phi", 2);
+    }
+  }
+
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
     size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
@@ -230,31 +272,29 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     stoppingSource->setAxisTitle("Number of Tracks",2);
     
     histname = "StoppingSourceVSeta_"+seedProducer.label() + "_";
-    stoppingSourceVSeta = ibooker.book2D(histname+CatagoryName,
+    stoppingSourceVSeta = ibooker.bookProfile(histname+CatagoryName,
                                          histname+CatagoryName,
                                          EtaBin,
                                          EtaMin,
                                          EtaMax,
-                                         StopReasonNameSize,
-                                         0., double(StopReasonNameSize));
+                                         2,
+                                         0., 2.);
     stoppingSourceVSeta->setAxisTitle("track #eta",1);
-    stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+    stoppingSourceVSeta->setAxisTitle("fraction stopped",2);
     
     histname = "StoppingSourceVSphi_"+seedProducer.label() + "_";
-    stoppingSourceVSphi = ibooker.book2D(histname+CatagoryName,
+    stoppingSourceVSphi = ibooker.bookProfile(histname+CatagoryName,
                                          histname+CatagoryName,
                                          PhiBin,
                                          PhiMin,
                                          PhiMax,
-                                         StopReasonNameSize,
-                                         0., double(StopReasonNameSize));
+                                         2,
+                                         0., 2.);
     stoppingSourceVSphi->setAxisTitle("track #phi",1);
-    stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+    stoppingSourceVSphi->setAxisTitle("fraction stopped",2);
     
     for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
       stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
-      stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
-      stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
     }
   }
   
@@ -475,9 +515,10 @@ void TrackBuildingAnalyzer::analyze
     // stopping source
     int max = stoppingSource->getNbinsX();
     double stop = candidate.stopReason() > max ? double(max-1) : static_cast<double>(candidate.stopReason());
+    double stopped = int(StopReason::NOT_STOPPED)==candidate.stopReason() ? 0. : 1.;
     stoppingSource      ->Fill(stop);
-    stoppingSourceVSeta ->Fill(eta,stop);
-    stoppingSourceVSphi ->Fill(phi,stop);
+    stoppingSourceVSeta ->Fill(eta,stopped);
+    stoppingSourceVSphi ->Fill(phi,stopped);
   }
 
   if (doTCPlots){
@@ -554,5 +595,19 @@ void TrackBuildingAnalyzer::analyze(const edm::View<reco::Track>& trackCollectio
       if(selectedLoose && selectedHP)
         break;
     }
+  }
+}
+
+void TrackBuildingAnalyzer::analyze(const reco::CandidateView& regionCandidates) {
+  if(!doRegionPlots)
+    return;
+
+  for(const auto& candidate: regionCandidates) {
+    const auto eta = candidate.eta();
+    const auto phi = candidate.phi();
+    if (doAllSeedPlots || doPT) TrackingRegionCandidatePt->Fill( candidate.pt() );
+    if (doAllSeedPlots || doETA) TrackingRegionCandidateEta->Fill( eta );
+    if (doAllSeedPlots || doPHI) TrackingRegionCandidatePhi->Fill( phi );
+    if (doAllSeedPlots || doPHIVsETA) TrackingRegionCandidatePhiVsEta->Fill( eta, phi);
   }
 }

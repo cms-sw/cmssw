@@ -1,12 +1,5 @@
 <flags CXX_FLAGS="-Wno-unused-variable"/>
 
-<library   file="SiStripObjects_toXML.cc" name="SiStripObjects_toXML">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="boost_python"/>
-</library>
-
 <library   file="SiStripDetVOff_PayloadInspector.cc" name="SiStripDetVOff_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
@@ -16,6 +9,15 @@
 </library>
 
 <library  file="SiStripApvGain_PayloadInspector.cc" name="SiStripApvGain_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripBadStrip_PayloadInspector.cc" name="SiStripBadStrip_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>

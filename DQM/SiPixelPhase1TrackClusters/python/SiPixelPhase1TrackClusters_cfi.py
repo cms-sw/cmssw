@@ -5,7 +5,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
-  range_min = 0, range_max = 150e3, range_nbins = 100,
+  range_min = 0, range_max = 80e3, range_nbins = 100,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
@@ -93,27 +93,27 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=20000),
+                             .save(nbins=50, xmin=0, xmax=5000),
 
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=10000),
+                             .save(nbins=50, xmin=0, xmax=2000),
 
     Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel")
-                   .save(nbins=150, xmin=0, xmax=30000),
+                   .save(nbins=100, xmin=0, xmax=5000),
 
     Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward")
-                   .save(nbins=150, xmin=0, xmax=30000),
+                   .save(nbins=100, xmin=0, xmax=5000),
 
     Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll")
-                   .save(nbins=150, xmin=0, xmax=30000),
+                   .save(nbins=100, xmin=0, xmax=5000),
 
     Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save(),
@@ -350,7 +350,9 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
+        clusterShapeCache = cms.InputTag("siPixelClusterShapeCache"),
         tracks = cms.InputTag("generalTracks"),
+        vertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
@@ -359,5 +361,7 @@ SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
+
+
 
 

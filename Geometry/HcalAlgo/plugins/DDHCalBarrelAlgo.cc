@@ -436,7 +436,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
 }
 
 
-void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView& cpv) {
+void DDHCalBarrelAlgo::constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Layers (" << getNLayers()
 		       << ") ...";
@@ -552,8 +552,8 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView
   
 }
 
-void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
-					     string nm, int id, int nAbs, 
+void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
+					     const string& nm, int id, int nAbs, 
 					     double rin, double d1, 
 					     double alpha1, double d2, 
 					     double alpha2, double t1,
@@ -652,8 +652,8 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
   constructInsideDetectors(glog, nam0+"2", id, dx, dy, dz, 2, cpv);
 }
 
-DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
-						   string nm, int nAbs, 
+DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(const DDLogicalPart& laylog,
+						   const string& nm, int nAbs, 
 						   double rin, double alpha,
 						   DDCompactView& cpv) {
 
@@ -736,8 +736,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
   return glog;
 }
 
-DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
-						  string nm, double rin, 
+DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(const DDLogicalPart& laylog,
+						  const string& nm, double rin, 
 						  double alpha, DDCompactView& cpv) {
 
   DDSolid       solid;
@@ -883,8 +883,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
   return glog;
 }
  
-void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
-						string name, int id, double dx,
+void DDHCalBarrelAlgo::constructInsideDetectors(const DDLogicalPart& detector,
+						const string& name, int id, double dx,
 						double dy, double dz,
 						int type, DDCompactView& cpv) {
 

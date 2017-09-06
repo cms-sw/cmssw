@@ -106,8 +106,8 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
   while( !gzeof( gzed )) {
     char line[1024];
     int ieta, iphi, rawid;
-    if( 0 != gzgets( gzed, line, 1023 )) {
-      if( index( line, '#' ) != 0 )*( index( line, '#' )) = 0;
+    if( nullptr != gzgets( gzed, line, 1023 )) {
+      if( index( line, '#' ) != nullptr )*( index( line, '#' )) = 0;
       int ct = sscanf( line, "%i %d %d", &rawid, &ieta, &iphi );
       if( ct == 3 ) {
 	DetId detid( rawid );
@@ -123,7 +123,7 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
 void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
   //get EE and HE geometries
   const CaloSubdetectorGeometry* geomEE ( geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
-  if(geomEE==NULL) return; // if no EE is defined don't know where it is used  
+  if(geomEE==nullptr) return; // if no EE is defined don't know where it is used  
 
   const CaloSubdetectorGeometry* geomHE ( geometry->getSubdetectorGeometry( DetId::Hcal, HcalEndcap ) );
   
@@ -133,7 +133,7 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
   for(auto detId_itr : vec){
     //get detid position
     const CaloCellGeometry* cellGeometry = geomEE->getGeometry(detId_itr);
-    const GlobalPoint gp ( cellGeometry->getPosition() ) ;
+    const GlobalPoint& gp ( cellGeometry->getPosition() ) ;
     
     //find closest HE cell
     const HcalDetId closestCell ( geomHE->getClosestCell( gp ) ) ;

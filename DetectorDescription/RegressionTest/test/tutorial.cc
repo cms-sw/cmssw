@@ -75,7 +75,7 @@ DDTranslation calc(const DDGeoHistory & aHist)
     vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.emplace_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
+      vr.emplace_back( vr.back() * *(h[i].posdata()->ddrot().rotation()) );
       vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
@@ -99,7 +99,7 @@ void debugHistory(const DDGeoHistory & h)
   }
 }
 
-void goPersistent(const DDCompactView & cv, std::string file) {
+void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
   typedef DDCompactView::graph_type graph_t;
   const graph_t & g = cv.graph();
@@ -109,16 +109,16 @@ void goPersistent(const DDCompactView & cv, std::string file) {
     graph_t::const_edge_iterator eit = it->begin();
     for (; eit != it->end(); ++eit) {
       unsigned int eindex = eit->first;
-      int copyno = g.edgeData(eit->second)->copyno_;
+      int copyno = g.edgeData(eit->second)->copyno();
       double x,y,z;
       
-      x = g.edgeData(eit->second)->trans_.x()/mm;
-      y = g.edgeData(eit->second)->trans_.y()/mm;
-      z = g.edgeData(eit->second)->trans_.z()/mm;
+      x = g.edgeData(eit->second)->trans().x()/mm;
+      y = g.edgeData(eit->second)->trans().y()/mm;
+      z = g.edgeData(eit->second)->trans().z()/mm;
       f << node << " " << eindex << " " << copyno 
         << " " << x << " " << y << " " << z 
-	<< " " << g.edgeData(eit->second)->rot_.ddname().ns()
-	<< " " << g.edgeData(eit->second)->rot_.ddname().name()
+	<< " " << g.edgeData(eit->second)->ddrot().ddname().ns()
+	<< " " << g.edgeData(eit->second)->ddrot().ddname().name()
         << std::endl;
     }
     ++node;  
@@ -268,11 +268,11 @@ void tutorial()
 	    << cpv.root() << "]" << std::endl << std::endl;
  
   // The same, but creating a reference to it:
-  DDLogicalPart root = cpv.root(); 
-  DDLogicalPart world = root; //(DDName("CMS","cms"));
+  const DDLogicalPart& root = cpv.root(); 
+  const DDLogicalPart& world = root; //(DDName("CMS","cms"));
   std::cout << "The world volume is described by following solid:" << std::endl;
   std::cout << world.solid() << std::endl << std::endl;
-  DDMaterial worldMaterial = root.material();
+  const DDMaterial& worldMaterial = root.material();
   std::cout << "The world volume is filled with following material:" << std::endl;
   std::cout << worldMaterial << std::endl << std::endl;
  

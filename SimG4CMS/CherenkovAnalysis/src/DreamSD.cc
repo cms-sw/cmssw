@@ -521,7 +521,8 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
 
   // Calculate Cherenkov angle integrals: 
   // This is an ad-hoc solution (we hold it in the class, not in the material)
-  chAngleIntegrals_ = std::make_unique<G4PhysicsOrderedFreeVector>();
+  chAngleIntegrals_ = 
+    std::auto_ptr<G4PhysicsOrderedFreeVector>( new G4PhysicsOrderedFreeVector() );
 
   int index = 0;
   double currentRI = RefractiveIndex[index];

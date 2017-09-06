@@ -67,15 +67,14 @@ class HcalHBHEMuonAnalyzer :  public edm::one::EDAnalyzer<edm::one::WatchRuns,ed
 
 public:
   explicit HcalHBHEMuonAnalyzer(const edm::ParameterSet&);
-  ~HcalHBHEMuonAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginJob() override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   void   clearVectors();
@@ -136,7 +135,7 @@ private:
   unsigned int              runNumber_, eventNumber_ , lumiNumber_, bxNumber_;
 };
 
-HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc(0) {
+HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc(nullptr) {
   
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
@@ -182,11 +181,6 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
 				   << "\n            " << labelHBHERecHit_
 				   << "\n            " << edm::InputTag(modnam,labelMuon_,procnm);
   }
-}
-
-HcalHBHEMuonAnalyzer::~HcalHBHEMuonAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -821,17 +815,25 @@ double HcalHBHEMuonAnalyzer::activeLength(const DetId& id_) {
   HcalDetId id(id_);
   int ieta = id.ietaAbs();
   int depth= id.depth();
+  int zside= id.zside();
+  int iphi = id.iphi();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
     for (unsigned int i=0; i<actHB.size(); ++i) {
-      if (ieta == actHB[i].ieta && depth == actHB[i].depth) {
+      if ((ieta == actHB[i].ieta) && (depth == actHB[i].depth) && 
+	  (zside == actHB[i].zside) && 
+	  (std::find(actHB[i].iphis.begin(),actHB[i].iphis.end(),iphi) !=
+	   actHB[i].iphis.end())) {
 	lx = actHB[i].thick;
 	break;
       }
     }
   } else {
     for (unsigned int i=0; i<actHE.size(); ++i) {
-      if (ieta == actHE[i].ieta && depth == actHE[i].depth) {
+      if ((ieta == actHE[i].ieta) && (depth == actHE[i].depth) && 
+	  (zside == actHE[i].zside) && 
+	  (std::find(actHE[i].iphis.begin(),actHE[i].iphis.end(),iphi) !=
+	   actHE[i].iphis.end())) {
 	lx = actHE[i].thick;
 	break;
       }

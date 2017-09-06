@@ -14,8 +14,8 @@ class SimG4Exception : public std::exception
 {
 public:
     SimG4Exception(const std::string & message) : error_(message) {}
-    ~SimG4Exception() throw() override {}
-    const char * what () const throw() override { return error_.c_str(); }
+    virtual ~SimG4Exception() throw() {}
+    virtual const char * what () const throw() { return error_.c_str(); }
 private:
     std::string error_;    
 };

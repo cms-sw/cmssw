@@ -11,8 +11,8 @@ typedef CaloCellGeometry::Tr3D     Tr3D     ;
 typedef CaloSubdetectorGeometry::CCGFloat CCGFloat ;
 
 CaloSubdetectorGeometry::CaloSubdetectorGeometry() : 
-   m_parMgr ( 0 ) ,
-   m_cmgr   ( 0 ) ,
+   m_parMgr ( nullptr ) ,
+   m_cmgr   ( nullptr ) ,
    m_deltaPhi  (nullptr) ,
    m_deltaEta  (nullptr)
 {}
@@ -49,7 +49,7 @@ CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 bool 
 CaloSubdetectorGeometry::present( const DetId& id ) const 
 {
-   return ( 0 != getGeometry( id ) ) ;
+   return ( nullptr != getGeometry( id ) ) ;
 }
 
 DetId 
@@ -63,7 +63,7 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
    for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
    {
       const CaloCellGeometry* cell ( getGeometry( m_validIds[ i ] ) ) ;
-      if( 0 != cell )
+      if( nullptr != cell )
       {
 	 const GlobalPoint& p ( cell->getPosition() ) ;
 	 const CCGFloat eta0 ( p.eta() ) ;
@@ -96,7 +96,7 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
       for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
       {
 	 const CaloCellGeometry* cell ( getGeometry( m_validIds[i] ) ) ;
-	 if( 0 != cell )
+	 if( nullptr != cell )
 	 {
 	    const GlobalPoint& p ( cell->getPosition() ) ;
 	    const CCGFloat eta0 ( p.eta() ) ;
@@ -129,7 +129,7 @@ CaloSubdetectorGeometry::getCellSet( const GlobalPoint& r, double dR ) const {
 void 
 CaloSubdetectorGeometry::allocateCorners( CaloCellGeometry::CornersVec::size_type n )
 {
-   assert( 0 == m_cmgr ) ;
+   assert( nullptr == m_cmgr ) ;
    m_cmgr = new CaloCellGeometry::CornersMgr( n*( CaloCellGeometry::k_cornerSize ),
 					      CaloCellGeometry::k_cornerSize        ) ; 
 
@@ -140,7 +140,7 @@ void
 CaloSubdetectorGeometry::allocatePar( ParVec::size_type n,
 				      unsigned int      m     )
 {
-   assert( 0 == m_parMgr ) ;
+   assert( nullptr == m_parMgr ) ;
    m_parMgr = new ParMgr( n*m, m ) ;
 }
 
@@ -166,8 +166,8 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    {
       Tr3D tr ;
       const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
-      assert( 0 != ptr ) ;
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+      assert( nullptr != ptr ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) nullptr ) ;
 
       if( Tr3D() == tr ) // for preshower there is no rotation
       {
@@ -228,7 +228,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
-	 if( 0 != cellPtr )
+	 if( nullptr != cellPtr )
 	 {
 	    const CaloCellGeometry& cell ( *cellPtr ) ;
 	    CCGFloat dPhi1 ( fabs(
@@ -280,7 +280,7 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
-	 if( 0 != cellPtr )
+	 if( nullptr != cellPtr )
 	 {
 	    const CaloCellGeometry& cell ( *cellPtr ) ;
 	    const CCGFloat dEta1 ( fabs(

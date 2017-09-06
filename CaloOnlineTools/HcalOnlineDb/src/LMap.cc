@@ -187,7 +187,8 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.fiber     = eId->fiberIndex();
       row.fiberchan = eId->fiberChanId();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
-      else row.topbottom = "b";
+      else if (eId->htrTopBottom()==0) row.topbottom = "b";
+      else row.topbottom = "u";
       //
       HcalGenericDetId _gid( emap->lookup(*eId) );
       if ( !(_gid.null()) &&
@@ -235,7 +236,8 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.fiber     = eId->isVMEid() ? eId->slbSiteNumber()   : eId->fiberIndex();
       row.fiberchan = eId->isVMEid() ? eId->slbChannelIndex() : eId->fiberChanId();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
-      else row.topbottom = "b";
+      else if (eId->htrTopBottom()==0) row.topbottom = "b";
+      else row.topbottom = "u";
       //
       HcalTrigTowerDetId _id( emap->lookupTrigger(*eId) );
       if ( !(_id.null()) ){

@@ -37,6 +37,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include <iostream>
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a      = 1;
@@ -558,7 +559,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
     int bx = lct.getBX();
     if (bx >= 0 && bx < MAX_LCT_BINS) {
       firstLCT[bx] = lct;
@@ -576,7 +577,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
     int bx = lct.getBX();
     if (bx >= 0 && bx < MAX_LCT_BINS) {
       secondLCT[bx] = lct;
@@ -594,7 +595,8 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // This method calculates all the TMB words and then passes them to the
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
-                                                   const CSCCLCTDigi& cLCT) {
+                                                   const CSCCLCTDigi& cLCT,
+						   int type) {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -609,6 +611,9 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
+  thisLCT.setType(type);
+  thisLCT.setALCT(aLCT);
+  thisLCT.setCLCT(cLCT);
   return thisLCT;
 }
 

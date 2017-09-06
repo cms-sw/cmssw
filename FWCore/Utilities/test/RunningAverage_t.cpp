@@ -15,7 +15,7 @@ namespace {
 #include <algorithm>
 #include <type_traits>
 
-namespace test {
+namespace test_average {
   namespace running_average {
     int test() {
     
@@ -74,5 +74,5 @@ namespace test {
 }
 
 int main() {
-  return ::test::running_average::test();
+  return ::test_average::running_average::test();
 }

@@ -53,5 +53,37 @@
   <class name="l1t::EMTFHit2016ExtraCollection"/>
   <class name="edm::Wrapper<l1t::EMTFHit2016ExtraCollection>"/>
 
+  <class name="L1MuBMTrackSegPhi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3818011888"/>
+  </class>
+
+  <class name="L1MuBMTrackSegEta" ClassVersion="10">
+    <version ClassVersion="10" checksum="2263077996"/>
+ </class>
+
+  <class name="L1MuBMTrack" ClassVersion="10">
+    <version ClassVersion="10" checksum="955528069"/>
+  </class>
+
+  <class name="L1MuBMSecProcId" ClassVersion="10">
+    <version ClassVersion="10" checksum="3768381571"/>
+  </class>
+
+  <class name="L1MuBMAddressArray" ClassVersion="10">
+    <version ClassVersion="10" checksum="1391538870"/>
+  </class>
+
+  <class name="L1MuBMTrackSegLoc" ClassVersion="10">
+    <version ClassVersion="10" checksum="1894920440"/>
+  </class>
+
+  <class name="L1MuBMTrackCollection"/>
+  <class name="L1MuBMTrackSegPhiCollection"/>
+  <class name="L1MuBMTrackSegEtaCollection"/>
+
+  <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
+
  </selection>
 </lcgdict>

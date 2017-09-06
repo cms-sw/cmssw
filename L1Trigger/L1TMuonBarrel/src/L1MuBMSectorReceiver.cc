@@ -32,8 +32,8 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegLoc.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
@@ -107,7 +107,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   //e.getByLabel(L1MuBMTFConfig::getBMDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken,dttrig);
-  L1MuDTChambPhDigi const* ts=0;
+  L1MuDTChambPhDigi const* ts=nullptr;
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;

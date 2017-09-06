@@ -25,12 +25,12 @@ public:
   PixelTripletHLTGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): PixelTripletHLTGenerator(cfg, iC) {}
   PixelTripletHLTGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelTripletHLTGenerator();
+  ~PixelTripletHLTGenerator() override;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char *fillDescriptionsLabel() { return "pixelTripletHLT"; }
 
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+  void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
                             const edm::Event & ev, const edm::EventSetup& es,
                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;

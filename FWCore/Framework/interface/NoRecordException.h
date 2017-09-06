@@ -55,7 +55,7 @@ class NoRecordException : public cms::Exception
     no_record_exception_message_builder(*this,heterocontainer::className<T>(), iValue, iKnownRecord);
   }
 
-      virtual ~NoRecordException() throw() {}
+      ~NoRecordException() noexcept override {}
 
       // ---------- const member functions ---------------------
 

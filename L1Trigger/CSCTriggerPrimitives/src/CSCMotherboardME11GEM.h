@@ -23,7 +23,7 @@ class GEMSuperChamber;
 
 class CSCMotherboardME11GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
+  typedef std::pair<unsigned int, GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
@@ -114,10 +114,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   CSCCorrelatedLCTDigi allLCTs1b[MAX_LCT_BINS][15][2];
   CSCCorrelatedLCTDigi allLCTs1a[MAX_LCT_BINS][15][2];
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
-
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me,
@@ -195,7 +191,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
-  bool debug_gem_dphi;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
@@ -233,9 +228,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 
   // send LCT old dataformat
   bool useOldLCTDataFormat_;
-
-  // send only first 2 lcts
-  bool firstTwoLCTsInChamber_;
 
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;

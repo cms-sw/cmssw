@@ -39,6 +39,8 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.embedPflowPreshowerClusters    = False  ## process.patElectrons.embed in AOD externally stored the electron's pflow preshower clusters
     process.patElectrons.embedRecHits         = False  ## process.patElectrons.embed in AOD externally stored the RecHits - can be called from the PATElectronProducer
     process.patElectrons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.patElectrons.usePfCandidateMultiMap = True
+    process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet(
             # configure many IDs as InputTag <someName> = <someTag> you
             # can comment out those you don't want to save some disk space
@@ -333,9 +335,20 @@ def miniAOD_customizeCommon(process):
 
 
 def miniAOD_customizeMC(process):
+    task = getPatAlgosToolsTask(process)
+    #GenJetFlavourInfos
+    process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
+    task.add(process.selectedHadronsAndPartons)
+    task.add(process.selectedHadronsAndPartonsForGenJetsFlavourInfos)
+    
+    process.load("PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi")
+    task.add(process.ak4GenJetFlavourInfos)
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJetsFlavourInfos_cfi')
+    task.add(process.slimmedGenJetsFlavourInfos)
+
     #slimmed pileup information
     process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
-    task = getPatAlgosToolsTask(process)
     task.add(process.slimmedAddPileupInfo)
 
     process.muonMatch.matched = "prunedGenParticles"

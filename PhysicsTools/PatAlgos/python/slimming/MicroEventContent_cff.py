@@ -27,7 +27,8 @@ MicroEventContent = cms.PSet(
         'keep recoSuperClusters_reducedEgamma_*_*',
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
-
+        'keep recoGsfTracks_reducedEgamma_*_*',
+        
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
@@ -81,8 +82,9 @@ MicroEventContentMC = cms.PSet(
 )
 MicroEventContentMC.outputCommands += [
         #'keep *_slimmedGenJets*_*_*',
-        'keep *_slimmedGenJets_*_*',
-        'keep *_slimmedGenJetsAK8_*_*',
+        'keep *_slimmedGenJets__*',
+        'keep *_slimmedGenJetsFlavourInfos_*_*',
+        'keep *_slimmedGenJetsAK8__*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',

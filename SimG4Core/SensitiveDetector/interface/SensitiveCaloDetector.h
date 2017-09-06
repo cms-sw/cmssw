@@ -10,11 +10,11 @@
 class SensitiveCaloDetector : public SensitiveDetector
 {
 public:
-  SensitiveCaloDetector(const std::string & iname, const DDCompactView & cpv,
-			const SensitiveDetectorCatalog & clg,
-			edm::ParameterSet const & p) :
-  SensitiveDetector(iname,cpv,clg,p) {}
-  virtual void fillHits(edm::PCaloHitContainer &, std::string& hitnam) {};
+    SensitiveCaloDetector(std::string & iname, const DDCompactView & cpv,
+			  const SensitiveDetectorCatalog & clg,
+			  edm::ParameterSet const & p) :
+      SensitiveDetector(iname,cpv,clg,p) {}
+    virtual void fillHits(edm::PCaloHitContainer &, std::string name = 0) = 0;
 };
 
 #endif

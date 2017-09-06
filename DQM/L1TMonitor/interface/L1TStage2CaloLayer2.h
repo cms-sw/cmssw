@@ -28,9 +28,9 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
  protected:
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
  private:
 
@@ -102,6 +102,18 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2MHTRank_;
   MonitorElement* stage2CaloLayer2MHTPhi_;
   MonitorElement* stage2CaloLayer2HTTRank_;
+  MonitorElement* stage2CaloLayer2METHFRank_;
+  MonitorElement* stage2CaloLayer2METHFPhi_;
+  // MonitorElement* stage2CaloLayer2ETTHFRank_;
+  MonitorElement* stage2CaloLayer2MHTHFRank_;
+  MonitorElement* stage2CaloLayer2MHTHFPhi_;
+  // MonitorElement* stage2CaloLayer2HTTHFRank_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP1_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM1_;
+  MonitorElement* stage2CaloLayer2ETTEMRank_;
+  MonitorElement* stage2CaloLayer2TowCount_;
 
   MonitorElement* timingStage2CaloLayer2CenJetBxOcc_;
   MonitorElement* timingStage2CaloLayer2ForJetBxOcc_;

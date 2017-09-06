@@ -16,7 +16,7 @@
 
 //#define DebugLog
 
-HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv, 
+HFFibre::HFFibre(std::string & name, const DDCompactView & cpv, 
 		 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
