@@ -6,6 +6,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -98,7 +99,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
     }
   else
     {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      result=((HcalGeometry*)(HcalGeometry_))->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
       HcalDetId myDetId(result);
 
       // special patch for HF
@@ -146,7 +147,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	  return result;
 	}
       GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
-      GlobalPoint cc=HcalGeometry_->getGeometry(result)->getPosition();
+      GlobalPoint cc=((HcalGeometry*)(HcalGeometry_))->getPosition(result);
       float deltaeta2 = ip.eta()-cc.eta();
       deltaeta2 *= deltaeta2;
       float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
