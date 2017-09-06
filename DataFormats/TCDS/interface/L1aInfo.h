@@ -23,10 +23,18 @@ public:
 
   L1aInfo(const tcds::L1aInfo_v1&);
 
+  // The history index, where -1 means the previous L1 accept, -2 the one before that, etc.
   int16_t getIndex() const { return index_; }
+
+  // The orbit number when the L1 accept occured
   uint64_t getOrbitNr() const { return orbitNr_; }
+
+  // The bunch-crossing counter for the L1 accept
   uint16_t getBXID() const { return bxid_; }
+
+  // The event type of the L1 accept corresponding to edm::EventAuxiliary::ExperimentType
   uint8_t getEventType() const { return eventType_; }
+
 
 private:
 
