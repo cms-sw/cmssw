@@ -40,15 +40,15 @@ namespace edm {
       std::shared_ptr<InputFile> filePtr,
       InputType inputType);
 
-    virtual ~RootDelayedReader();
+    ~RootDelayedReader() override;
 
     RootDelayedReader(RootDelayedReader const&) = delete; // Disallow copying and moving
     RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
-    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override final {
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const final {
       return preEventReadFromSourceSignal_;
     }
-    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override final {
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const final {
       return postEventReadFromSourceSignal_;
     }
 
@@ -59,9 +59,9 @@ namespace edm {
     }
 
   private:
-    virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
-    virtual void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
-    virtual void reset_() override {nextReader_ = nullptr;}
+    std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
+    void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
+    void reset_() override {nextReader_ = nullptr;}
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;
 
     BranchMap const& branches() const {return tree_.branches();}

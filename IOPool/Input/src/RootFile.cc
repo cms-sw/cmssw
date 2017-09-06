@@ -67,23 +67,23 @@ namespace edm {
   // Algorithm classes for making ProvenanceReader:
   class MakeDummyProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
+    std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   };
   class MakeOldProvenanceReader : public MakeProvenanceReader {
   public:
     MakeOldProvenanceReader(std::unique_ptr<EntryDescriptionMap>&& entryDescriptionMap) : MakeProvenanceReader(), entryDescriptionMap_(std::move(entryDescriptionMap)) {}
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
+    std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   private:
     edm::propagate_const<std::unique_ptr<EntryDescriptionMap>> entryDescriptionMap_;
   };
   class MakeFullProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
+    std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   };
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
   public:
     MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup) : parentageIDLookup_(parentageIDLookup) {}
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
+    std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   private:
     std::vector<ParentageID> const& parentageIDLookup_;
   };
@@ -110,8 +110,8 @@ namespace edm {
   class RootFileEventFinder : public IndexIntoFile::EventFinder {
   public:
     explicit RootFileEventFinder(RootTree& eventTree) : eventTree_(eventTree) {}
-    virtual ~RootFileEventFinder() {}
-    virtual
+    ~RootFileEventFinder() override {}
+    
     EventNumber_t getEventNumberOfEntry(roottree::EntryNumber entry) const override {
       roottree::EntryNumber saveEntry = eventTree_.entryNumber();
       eventTree_.setEntryNumber(entry);
@@ -274,7 +274,7 @@ namespace edm {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
-      filePtr_->SetCacheRead(0);
+      filePtr_->SetCacheRead(nullptr);
     }
 
     // backward compatibility
@@ -324,9 +324,9 @@ namespace edm {
 
     if(metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != nullptr) {
       if(metaDataTree->GetBranch(poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
-        metaDataTree->SetBranchStatus((poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
+        metaDataTree->SetBranchStatus((poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), false);
       } else {
-        metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), 0);
+        metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), false);
       }
     }
 
@@ -1833,9 +1833,9 @@ namespace edm {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
 
-    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
+    std::set<ProductProvenance> readProvenance(unsigned int) const override;
 private:
-    virtual void readProvenanceAsync(WaitingTask* task,
+    void readProvenanceAsync(WaitingTask* task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo
@@ -1966,10 +1966,10 @@ private:
   class FullProvenanceReader : public ProvenanceReaderBase {
   public:
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
-    virtual ~FullProvenanceReader() {}
-    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
+    ~FullProvenanceReader() override {}
+    std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
   private:
-    virtual void readProvenanceAsync(WaitingTask* task,
+    void readProvenanceAsync(WaitingTask* task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo
@@ -2034,10 +2034,10 @@ private:
   class OldProvenanceReader : public ProvenanceReaderBase {
   public:
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
-    virtual ~OldProvenanceReader() {}
-    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
+    ~OldProvenanceReader() override {}
+    std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
   private:
-    virtual void readProvenanceAsync(WaitingTask* task,
+    void readProvenanceAsync(WaitingTask* task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo
@@ -2106,10 +2106,10 @@ private:
   class DummyProvenanceReader : public ProvenanceReaderBase {
   public:
     DummyProvenanceReader();
-    virtual ~DummyProvenanceReader() {}
+    ~DummyProvenanceReader() override {}
   private:
-    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
-    virtual void readProvenanceAsync(WaitingTask* task,
+    std::set<ProductProvenance> readProvenance(unsigned int) const override;
+    void readProvenanceAsync(WaitingTask* task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo
