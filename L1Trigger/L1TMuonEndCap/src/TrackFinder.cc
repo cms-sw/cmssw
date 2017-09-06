@@ -75,34 +75,29 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   pt_lut_version_ = 888888;
   pc_lut_version_ = 777777;
 
-  try {
-
-    // Configure sector processors
-    for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
-      for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
-        const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
-
-        sector_processors_.at(es).configure(
-            &geometry_translator_,
-            &condition_helper_,
-            &sector_processor_lut_,
-            &pt_assign_engine_,
-            verbose_, endcap, sector,
-            minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC, bxShiftGEM,
-            zoneBoundaries, zoneOverlap,
-            includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
-            pattDefinitions, symPattDefinitions, useSymPatterns,
-            thetaWindow, thetaWindowRPC, useSingleHits, bugSt2PhDiff, bugME11Dupes,
-            maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
-            ptLUTVersion, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7
-        );
-      }
+  // Configure sector processors
+  for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
+    for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
+      const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
+      
+      sector_processors_.at(es).configure(
+          &geometry_translator_,
+          &condition_helper_,
+          &sector_processor_lut_,
+          &pt_assign_engine_,
+          verbose_, endcap, sector,
+          minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC, bxShiftGEM,
+          zoneBoundaries, zoneOverlap,
+          includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
+          pattDefinitions, symPattDefinitions, useSymPatterns,
+          thetaWindow, thetaWindowRPC, useSingleHits, bugSt2PhDiff, bugME11Dupes,
+          maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
+          ptLUTVersion, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7
+      );
     }
-
-  } catch (...) {
-    throw;
   }
-}
+
+} // End constructor: TrackFinder::TrackFinder()
 
 TrackFinder::~TrackFinder() {
 
