@@ -710,12 +710,18 @@ L1EGCrystalClusterProducer::cluster_passes_photonWP80(float &cluster_pt, float &
    // These cuts have been optimized based on 92X
    // This cut reaches an 80% efficiency for photons
    // for offline pt > 30 GeV
+   // 19 Aug 2017 - added flat line extension for isolation cut
 
    if ( fabs(cluster_eta) < 1.479 )
    {
       if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (e2x5 / e5x5)) ) return false;
-      if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
-      if ( ( e2x2 / e2x5) < 0.95 ) return false;
+      if ( cluster_pt < 80 ) {
+         if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
+      }
+      if ( cluster_pt >= 80 ) { // do flat line extension of isolation cut
+         if ( iso > 0.21 ) return false;
+      }
+      if ( ( e2x2 / e2x5) < 0.96 - 0.0003 * cluster_pt ) return false;
 
       // Passes cuts
       return true;
@@ -730,7 +736,12 @@ L1EGCrystalClusterProducer::cluster_passes_electronWP98(float &cluster_pt, float
    if ( fabs(cluster_eta) < 1.479 )
    {
       if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (e2x5 / e5x5)) ) return false;
-      if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
+      if ( cluster_pt < 80 ) {
+         if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
+      }
+      if ( cluster_pt >= 80 ) { // do flat line extension of isolation cut
+         if ( iso > 0.21 ) return false;
+      }
 
       // Passes cuts
       return true;
@@ -758,8 +769,12 @@ L1EGCrystalClusterProducer::cluster_passes_base_cuts(const l1slhc::L1EGCrystalCl
      
       if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (clusterE2x5 / clusterE5x5)) )
          return false;
-      if ( !(( 0.85 + -0.0080 * cluster_pt ) > cluster_iso ) )
-         return false;
+      if ( cluster_pt < 80 ) {
+         if ( !(( 0.85 + -0.0080 * cluster_pt ) > cluster_iso ) ) return false;
+      }
+      if ( cluster_pt >= 80 ) { // do flat line extension of isolation cut
+         if ( cluster_iso > 0.21 ) return false;
+      }
       return true; // cluster passes all cuts
    }
    return false; // out of eta range
