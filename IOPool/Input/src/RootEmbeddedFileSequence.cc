@@ -31,6 +31,7 @@ namespace edm {
     input_(input),
     orderedProcessHistoryIDs_(),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+    recycle_(pset.getUntrackedParameter<bool>("recycleFiles", true)),
     sameLumiBlock_(pset.getUntrackedParameter<bool>("sameLumiBlock", false)),
     fptr_(nullptr),
     eventsRemainingInFile_(0),
@@ -171,7 +172,11 @@ namespace edm {
     if(!found) {
       setAtNextFile();
       if(noMoreFiles()) {
-        setAtFirstFile();
+        if (recycle_) {
+          setAtFirstFile();          
+        } else {
+          return false;
+        }
       }
       initFile(false);
       assert(rootFile());
@@ -325,6 +330,9 @@ namespace edm {
     desc.addUntracked<bool>("sequential", false)
         ->setComment("True: loopEvents() reads events sequentially from beginning of first file.\n"
                      "False: loopEvents() first reads events beginning at random event. New files also chosen randomly");
+    desc.addUntracked<bool>("recycleFiles", true)
+        ->setComment("True: readOneSequential() loops back to the first file at the end of the last file.\n"
+                     "False: readOneSequential() returns false at the end of the last file");
     desc.addUntracked<bool>("sameLumiBlock", false)
         ->setComment("True: loopEvents() reads events only in same lumi as the specified event.\n"
                      "False: loopEvents() reads events regardless of lumi.");

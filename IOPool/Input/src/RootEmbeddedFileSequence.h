@@ -59,6 +59,7 @@ namespace edm {
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
     bool sequential_;
+    bool recycle_;
     bool sameLumiBlock_;
     bool (RootEmbeddedFileSequence::* fptr_)(EventPrincipal&, size_t&, CLHEP::HepRandomEngine*, EventID const*);
     int eventsRemainingInFile_;
