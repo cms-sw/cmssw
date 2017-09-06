@@ -744,6 +744,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       jetMulti_.denominator -> Fill(jets.size());
       jetEtaPhi_HEP17_.denominator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
       jetVsLS_.denominator -> Fill(ls, jets.at(0).pt());
+	}
 
   if(enablePhotonPlot_){
     	phoMulti_.denominator -> Fill(photons.size());
