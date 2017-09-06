@@ -1303,7 +1303,13 @@ double Fit::getEntryValue( const Entry* entry )
   double entryvalue;
   if( entry->type() == "angles") {
     if(ALIUtils::debug >= 2 ) std::cout << "WARNING valueDisplacementByFitting has no sense for angles "  << std::endl;
-    entryvalue = -999;
+
+    // commenting out the following line as it is a dead assignment due to the
+    // subsequent assignment below
+    // -> silence static analyzer warnings, but leaving the commented line in
+    //    case someone wants to actively use this code again
+
+    // entryvalue = -999;
   }
   entryvalue = ( entry->value() + entry->valueDisplacementByFitting() ) / entry->OutputValueDimensionFactor();
   return entryvalue;
