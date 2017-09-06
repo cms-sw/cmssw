@@ -23,6 +23,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -45,6 +46,7 @@ class TrackBuildingAnalyzer
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
             const TrajectorySeed& seed, 
+            const SeedStopInfo& stopInfo,
             const reco::BeamSpot& bs, 
             const edm::ESHandle<MagneticField>& theMF,
             const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
@@ -94,6 +96,16 @@ class TrackBuildingAnalyzer
         MonitorElement* NumberOfRecHitsPerSeed = nullptr;
         MonitorElement* NumberOfRecHitsPerSeedVsPhiProfile = nullptr;
         MonitorElement* NumberOfRecHitsPerSeedVsEtaProfile = nullptr;
+
+        MonitorElement *seedStoppingSource = nullptr;
+        MonitorElement *seedStoppingSourceVsPhi = nullptr;
+        MonitorElement *seedStoppingSourceVsEta = nullptr;
+
+        MonitorElement *numberOfTrajCandsPerSeed = nullptr;
+        MonitorElement *numberOfTrajCandsPerSeedVsPhi = nullptr;
+        MonitorElement *numberOfTrajCandsPerSeedVsEta = nullptr;
+
+        MonitorElement *seedStoppingSourceVsNumberOfTrajCandsPerSeed = nullptr;
 
         // Track Candidate
         MonitorElement* TrackCandPt = nullptr;
