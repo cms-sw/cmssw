@@ -21,7 +21,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theFile = new TFile(m_inFileName.c_str()); 
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree file not found " << m_inFileName << std::endl;
-    std::exception();
+    throw std::exception();
   }
   
   // Read TTree named "CocoaDaq" in memory.  !! SHOULD BE CALLED Alignment_Cocoa
@@ -30,7 +30,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree in file " << m_inFileName << " should be called 'CocoaDaq' " << std::endl;
-    std::exception();
+    throw std::exception();
   }
   TBranch *branch = theTree->GetBranch("Alignment_Cocoa");
 
