@@ -122,7 +122,7 @@ void MakePtLUT::makeLUT() {
   float pt = 0.;
   int gmt_pt = 0;
 
-  for ( ; address < abs(num_ * (PTLUT_SIZE / denom_)); ++address) {
+  for ( ; address < (PtLUTWriter::address_t) abs(num_ * (PTLUT_SIZE / denom_)); ++address) {
     if (address % (PTLUT_SIZE / (denom_ * 128)) == 0)
       show_progress_bar(address, PTLUT_SIZE);
 
