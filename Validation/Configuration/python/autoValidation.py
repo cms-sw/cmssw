@@ -8,10 +8,11 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
                    'standardValidation' : ['prevalidation','validation','validationHarvesting'],
-                   'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT']
+                   'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT'],
+                   'HGCalValidation' : ['', 'globalValidationHGCal', '']
                  }
 
-_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation','bTagOnlyValidation','hcalOnlyValidation']
+_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation','bTagOnlyValidation','hcalOnlyValidation', 'HGCalValidation']
 autoValidation['phase2Validation'] = ['','','']
 for i in range(0,3):
     autoValidation['phase2Validation'][i] = '+'.join([autoValidation[m][i] for m in _phase2_allowed])
