@@ -42,11 +42,11 @@ namespace edm {
     void closeFile_() override;
     void endJob();
     void skipEntries(unsigned int offset);
-    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id);
-    bool readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*);
-    bool readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id);
-    bool readOneSequential(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*);
-    bool readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id);
+    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles);
+    bool readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*, bool);
+    bool readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool);
+    bool readOneSequential(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*, bool recycleFiles);
+    bool readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool);
     void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id);
 
     static void fillDescription(ParameterSetDescription & desc);
@@ -59,9 +59,8 @@ namespace edm {
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
     bool sequential_;
-    bool recycle_;
     bool sameLumiBlock_;
-    bool (RootEmbeddedFileSequence::* fptr_)(EventPrincipal&, size_t&, CLHEP::HepRandomEngine*, EventID const*);
+    bool (RootEmbeddedFileSequence::* fptr_)(EventPrincipal&, size_t&, CLHEP::HepRandomEngine*, EventID const*, bool);
     int eventsRemainingInFile_;
     int initialNumberOfEventsToSkip_;
     unsigned int treeCacheSize_;
