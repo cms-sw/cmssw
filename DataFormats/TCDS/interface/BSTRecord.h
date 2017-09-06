@@ -48,30 +48,45 @@ public:
     NOBEAM   = 21,
   };
 
+  enum Particle {
+    PROTON = 0,
+    LEAD   = 1,
+  };
+
   BSTRecord();
 
   BSTRecord(const tcds::BST_v1&);
 
   // Microseconds since Epoch
   uint64_t const getGpsTime() const  { return gpsTime_; }
+
   // BST beam master
   uint8_t const getBstMaster() const { return bstMaster_; }
+
   // Turn count
   uint32_t const getTurnCount() const { return turnCount_; }
+
   // Fill number
   uint32_t const getLhcFill() const { return lhcFill_; }
-  // Beam Mode
+
+  // Beam Mode. The return value corresponds to BSTRecord::BeamMode
   uint16_t const getBeamMode() const { return beamMode_; }
-  // Enumerator for particle type in beam 1
+
+  // Particle type BSTRecord::Particle in beam 1
   uint8_t const getParticleBeam1() const { return particleBeam1_; }
-  // Enumerator for particle type in beam 2
+
+  // Particle type BSTRecord::Particle in beam 2
   uint8_t const getParticleBeam2() const { return particleBeam2_; }
-  // Beam momentum (GeV/c)
-  uint16_t const getBeamMomentum() const { return beamMomentum_; }
+
+  // Beam momentum (GeV/c). Returns -1 if no valid value is available
+  int32_t const getBeamMomentum() const { return beamMomentum_; }
+
   // Intensity of Beam 1 (10E10 charges)
   uint32_t const getIntensityBeam1() const { return intensityBeam1_; }
+
   // Intensity of Beam 2 (10E10 charges)
   uint32_t const getIntensityBeam2() const { return intensityBeam2_; }
+
 
  private:
 
@@ -82,7 +97,7 @@ public:
   uint16_t beamMode_;
   uint8_t particleBeam1_;
   uint8_t particleBeam2_;
-  uint16_t beamMomentum_;
+  int32_t beamMomentum_;
   uint32_t intensityBeam1_;
   uint32_t intensityBeam2_;
 
