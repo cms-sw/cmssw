@@ -216,7 +216,7 @@ void TSGForOI::findSeedsOnLayer(
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
     layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
-    if (dets.size()>0) {  
+    if (!dets.empty()) {  
       auto const& detOnLayer = dets.front().first;
       auto const& tsosOnLayer = dets.front().second;
       LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: tsosOnLayer " << tsosOnLayer << endl;
