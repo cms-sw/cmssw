@@ -38,6 +38,10 @@ const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobal
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalEDProducer("global::EDProducer");
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalEDFilter("global::EDFilter");
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalOutputModule("global::OutputModule");
+const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimitedEDAnalyzer("limited::EDAnalyzer");
+const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimitedEDProducer("limited::EDProducer");
+const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimitedEDFilter("limited::EDFilter");
+const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimitedOutputModule("limited::OutputModule");
 
 //
 // static data member definitions
