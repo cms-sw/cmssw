@@ -4,7 +4,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-DistanceToCell::DistanceToCell():det_(0) {;}
+DistanceToCell::DistanceToCell():det_(nullptr) {;}
 
 DistanceToCell::DistanceToCell(const DistanceToCell& dist)
 {
