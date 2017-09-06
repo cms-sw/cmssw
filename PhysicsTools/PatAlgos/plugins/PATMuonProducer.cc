@@ -704,7 +704,7 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
 
 
     // PVDZ
-  aMuon.setDB( track->dz(primaryVertex.position()), track->dzError(), pat::Muon::PVDZ );
+  aMuon.setDB( track->dz(primaryVertex.position()), std::hypot(track->dzError(), primaryVertex.zError()), pat::Muon::PVDZ );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

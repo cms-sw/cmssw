@@ -1176,7 +1176,7 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
   anElectron.setDB( d0_corr, d0_err, pat::Electron::BS3D);
 
     // PVDZ
-  anElectron.setDB( track->dz(primaryVertex.position()), track->dzError(), pat::Electron::PVDZ );
+  anElectron.setDB( track->dz(primaryVertex.position()), std::hypot(track->dzError(), primaryVertex.zError()), pat::Electron::PVDZ );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
