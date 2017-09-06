@@ -3,12 +3,13 @@
  * Modification of GenParticleProducer.
  * Saves final state protons from HepMC events in Crossing Frame, in the generator-particle format.
  *
- * Note: Use the option USER_CXXFLAGS=-DEDM_ML_DEBUG with SCRAM in order to enable the debug messages
+ * Note: Use the option USER_CXXFLAGS=-DEDM_ML_DEBUG with SCRAM in order to enable debug messages.
  *
- *  March  9, 2017 : Initial version.
- *  March 14, 2017 : Updated debug messages.
- *   July 27, 2017 : Removed extra loop initially inherited from GenParticleProducer. 
- * August 17, 2017 : Replaced std::auto_ptr with std::unique_ptr. 
+ *    March  9, 2017   : Initial version.
+ *    March 14, 2017   : Updated debug messages.
+ *     July 27, 2017   : Removed extra loop initially inherited from GenParticleProducer. 
+ *   August 17, 2017   : Replaced std::auto_ptr with std::unique_ptr. 
+ * September 6, 2017   : Updated module to edm::global::EDProducer with ConvertParticle as RunCache following GenParticleProducer. 
  *
  */
 
@@ -19,14 +20,13 @@
 
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
+#include <unordered_map>
 
-namespace GenPUProtonProducer_utilities {
+namespace {
 
   class ConvertParticle {
     public:
-     static const int PDGCacheMax = 32768;
+     static constexpr int PDGCacheMax = 32768;
      static constexpr double mmToCm = 0.1;
 
      ConvertParticle() :
@@ -56,15 +56,15 @@ namespace GenPUProtonProducer_utilities {
 		 chargeP_[ apdgId ] = -q3;
 		 chargeM_[ apdgId ] = q3;
 	      } else {
-		 chargeMap_[ pdgId ] = q3;
-		 chargeMap_[ -pdgId ] = -q3;
+	         chargeMap_.emplace( pdgId, q3);
+	         chargeMap_.emplace( -pdgId, -q3);
 	      }
 	   }
 	   initialized_ = true;
 	}
      }
 
-     bool operator() (reco::GenParticle& cand, HepMC::GenParticle const* part) {
+     bool operator() (reco::GenParticle& cand, HepMC::GenParticle const* part) const {
 	reco::Candidate::LorentzVector p4( part->momentum() );
 	int pdgId = part->pdg_id();
 	cand.setThreeCharge( chargeTimesThree( pdgId ) );
@@ -87,13 +87,13 @@ namespace GenPUProtonProducer_utilities {
      bool abortOnUnknownPDGCode_;
      bool initialized_; 
      std::vector<int> chargeP_, chargeM_;
-     std::map<int, int> chargeMap_;
+     std::unordered_map<int, int> chargeMap_;
 
      int chargeTimesThree( int id ) const {
 	if( std::abs( id ) < PDGCacheMax )
 	   return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
 
-	std::map<int, int>::const_iterator f = chargeMap_.find( id );
+	auto f = chargeMap_.find( id );
 	if ( f == chargeMap_.end() )  {
 	   if ( abortOnUnknownPDGCode_ )
 	      throw edm::Exception( edm::errors::LogicError ) << "invalid PDG id: " << id << std::endl;
@@ -114,9 +114,9 @@ namespace GenPUProtonProducer_utilities {
         }
   };
 
-}
+} // Anonymous namespace
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -129,13 +129,14 @@ namespace GenPUProtonProducer_utilities {
 
 namespace edm { class ParameterSet; }
 
-class GenPUProtonProducer : public edm::EDProducer {
+class GenPUProtonProducer : public edm::global::EDProducer<edm::RunCache<ConvertParticle> > {
  public:
   GenPUProtonProducer( const edm::ParameterSet & );
-  ~GenPUProtonProducer();
+  ~GenPUProtonProducer() override;
 
-  virtual void produce( edm::Event& e, const edm::EventSetup&) override;
-  reco::GenParticleRefProd ref_;
+  void produce( edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
+  std::shared_ptr<ConvertParticle> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
 
  private:
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixToken_;
@@ -143,8 +144,7 @@ class GenPUProtonProducer : public edm::EDProducer {
   bool abortOnUnknownPDGCode_;
   std::vector<int> bunchList_;
   double minPz_; 
-  GenPUProtonProducer_utilities::ConvertParticle convertParticle_;
-  GenPUProtonProducer_utilities::SelectProton    select_;
+  SelectProton select_;
 
 };
 
@@ -152,6 +152,7 @@ class GenPUProtonProducer : public edm::EDProducer {
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -177,17 +178,19 @@ GenPUProtonProducer::GenPUProtonProducer( const ParameterSet & cfg ) :
 
 GenPUProtonProducer::~GenPUProtonProducer() { }
 
-void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
+std::shared_ptr<ConvertParticle> GenPUProtonProducer::globalBeginRun(const Run&, const EventSetup& es) const {
+  ESHandle<HepPDT::ParticleDataTable> pdt;
+  es.getData( pdt );
+  auto convert_ptr = std::make_shared<ConvertParticle>( abortOnUnknownPDGCode_ );
+  if( !convert_ptr->initialized() ) convert_ptr->init( *pdt );
 
-   if ( !convertParticle_.initialized() ) {
-     ESHandle<HepPDT::ParticleDataTable> pdt_handle;
-     es.getData( pdt_handle );
-     HepPDT::ParticleDataTable const& pdt = *pdt_handle.product();
-     convertParticle_.init( pdt ); 
-   }
+  return convert_ptr;
+}
 
-   unsigned int totalSize = 0;
-   unsigned int npiles = 1;
+void GenPUProtonProducer::produce( StreamID, Event& evt, const EventSetup& es ) const {
+
+   size_t totalSize = 0;
+   size_t npiles = 1;
 
    Handle<CrossingFrame<HepMCProduct> > cf;
    evt.getByToken(mixToken_,cf);
@@ -196,7 +199,7 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
 
    LogDebug("GenPUProtonProducer") << " Number of pile-up events : " << npiles << endl;
 
-   for(unsigned int icf = 0; icf < npiles; ++icf){
+   for(size_t icf = 0; icf < npiles; ++icf){
       LogDebug("GenPUProtonProducer") << "CF " << icf << " size : " << cfhepmcprod->getObject(icf).GetEvent()->particles_size() << endl;
       totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
    }
@@ -207,6 +210,8 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
    GenParticleCollection& cands = *candsPtr;
 
    // Loop over pile-up events
+   ConvertParticle const& convertParticle_ = *runCache( evt.getRun().index() );
+
    MixCollection<HepMCProduct>::MixItr mixHepMC_itr;
    unsigned int total_number_of_protons = 0;
    size_t idx_mix = 0;
@@ -226,7 +231,7 @@ void GenPUProtonProducer::produce( Event& evt, const EventSetup& es ) {
 	    HepMC::GenParticle const* part = *p;  
 	    if( select_(part, minPz_) ) {
 	       reco::GenParticle cand;
-	       convertParticle_( cand, part);
+	       convertParticle_( cand, part );
                ++number_of_protons;
                cands.push_back( cand );
 	    } 
