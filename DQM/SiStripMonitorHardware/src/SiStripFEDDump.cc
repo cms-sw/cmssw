@@ -24,9 +24,9 @@ class SiStripFEDDumpPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDDumpPlugin(const edm::ParameterSet&);
-  ~SiStripFEDDumpPlugin();
+  ~SiStripFEDDumpPlugin() override;
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   //tag of FEDRawData collection
