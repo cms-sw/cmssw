@@ -91,7 +91,6 @@ MicroEventContentMC.outputCommands += [
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
         'keep recoGenParticles_genPUProtons_*_*', 
-        'keep recoGenParticles_*_genPUProtons_*',
         # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
