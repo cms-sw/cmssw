@@ -27,7 +27,9 @@ BSTRecord::BSTRecord(const tcds::BST_v1& bst) :
   intensityBeam1_(bst.intensityBeam1),
   intensityBeam2_(bst.intensityBeam2)
 {
-  if ( lhcFill_ >= 5698 ) // scale factor changed from 1GeV/LSB to 120MeV/LSB
+  if ( beamMomentum_ == 65535 ) // Invalid value
+    beamMomentum_ = -1;
+  else if ( lhcFill_ >= 5698 ) // scale factor changed from 1GeV/LSB to 120MeV/LSB
     beamMomentum_ *= 0.120;
 }
 
