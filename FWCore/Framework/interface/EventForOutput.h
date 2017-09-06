@@ -51,7 +51,7 @@ namespace edm {
   public:
     EventForOutput(EventPrincipal const& ep, ModuleDescription const& md,
           ModuleCallingContext const*);
-    virtual ~EventForOutput();
+    ~EventForOutput() override;
     
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
     EventID const& id() const {return aux_.id();}

@@ -37,7 +37,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
 
-    std::shared_ptr<cms::Exception> make() const {
+    std::shared_ptr<cms::Exception> make() const override {
       return m_functor();
     }
   private:

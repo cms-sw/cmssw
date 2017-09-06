@@ -65,7 +65,8 @@ namespace edm {
        */
       template<typename T>
       void pushAndWait(const T& iAction);
-      
+     
+     unsigned int concurrencyLimit() const { return m_queues.size(); }
    private:
       LimitedTaskQueue(const LimitedTaskQueue&) = delete;
       const LimitedTaskQueue& operator=(const LimitedTaskQueue&) = delete;
