@@ -4,8 +4,8 @@
   </class>
   <class name="std::vector<L1aInfo>"/>
 
-  <class name="BSTRecord" ClassVersion="10">
-    <version ClassVersion="10" checksum="176678963"/>
+  <class name="BSTRecord" ClassVersion="11">
+    <version ClassVersion="11" checksum="47860967"/>
   </class>
 
   <class name="TCDSRecord" ClassVersion="10">
