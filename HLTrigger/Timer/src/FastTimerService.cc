@@ -72,16 +72,16 @@ namespace {
 FastTimerService::Resources::Resources() :
   time_thread(boost::chrono::nanoseconds::zero()),
   time_real(boost::chrono::nanoseconds::zero()),
-  allocated(0UL),
-  deallocated(0UL)
+  allocated(0ul),
+  deallocated(0ul)
 { }
 
 void
 FastTimerService::Resources::reset() {
   time_thread = boost::chrono::nanoseconds::zero();
   time_real   = boost::chrono::nanoseconds::zero();
-  allocated   = 0UL;
-  deallocated = 0UL;
+  allocated   = 0ul;
+  deallocated = 0ul;
 }
 
 FastTimerService::Resources &
@@ -106,10 +106,10 @@ FastTimerService::Resources::operator+(Resources const& other) const {
 // of results should yield the correct result.
 
 FastTimerService::AtomicResources::AtomicResources() :
-  time_thread(0UL),
-  time_real(0UL),
-  allocated(0UL),
-  deallocated(0UL)
+  time_thread(0ul),
+  time_real(0ul),
+  allocated(0ul),
+  deallocated(0ul)
 { }
 
 FastTimerService::AtomicResources::AtomicResources(AtomicResources const& other) :
@@ -121,10 +121,10 @@ FastTimerService::AtomicResources::AtomicResources(AtomicResources const& other)
 
 void
 FastTimerService::AtomicResources::reset() {
-  time_thread = 0UL;
-  time_real   = 0UL;
-  allocated   = 0UL;
-  deallocated = 0UL;
+  time_thread = 0ul;
+  time_real   = 0ul;
+  allocated   = 0ul;
+  deallocated = 0ul;
 }
 
 FastTimerService::AtomicResources &
@@ -309,8 +309,9 @@ FastTimerService::ResourcesPerJob::operator+(ResourcesPerJob const& other) const
 
 // Measurement
 
-FastTimerService::Measurement::Measurement()
-  = default;
+FastTimerService::Measurement::Measurement() {
+  measure();
+}
 
 void
 FastTimerService::Measurement::measure() {
