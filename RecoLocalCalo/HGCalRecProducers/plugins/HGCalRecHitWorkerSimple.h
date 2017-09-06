@@ -19,17 +19,19 @@
 class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
  public:
   HGCalRecHitWorkerSimple(const edm::ParameterSet&);
-  virtual ~HGCalRecHitWorkerSimple();                       
+  ~HGCalRecHitWorkerSimple() override;                       
   
-  void set(const edm::EventSetup& es);
-  bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result);
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result) override;
   
  protected:
   
   double hgcEE_keV2DIGI_,  hgceeUncalib2GeV_;
   std::vector<double> hgcEE_fCPerMIP_;
+  std::vector<double> hgcEE_cce_;
   double hgcHEF_keV2DIGI_, hgchefUncalib2GeV_;
   std::vector<double> hgcHEF_fCPerMIP_;
+  std::vector<double> hgcHEF_cce_;
   double hgcHEB_keV2DIGI_, hgchebUncalib2GeV_;
   bool hgcEE_isSiFE_, hgcHEF_isSiFE_, hgcHEB_isSiFE_;
   
