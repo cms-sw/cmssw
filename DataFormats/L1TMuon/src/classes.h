@@ -9,6 +9,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
@@ -35,6 +36,9 @@ namespace DataFormats_L1TMuon {
 
     l1t::EMTFTrackCollection emtfTrack;
     edm::Wrapper<l1t::EMTFTrackCollection> emtfTrackWrap;
+   
+    l1t::CPPFDigiCollection cppfDigi;
+    edm::Wrapper<l1t::CPPFDigiCollection> cppfDigiWrap;
   };
 }
 
