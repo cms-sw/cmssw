@@ -930,10 +930,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// get the seed collection
 	edm::Handle<edm::View<TrajectorySeed> > seedHandle;
 	iEvent.getByToken(seedToken_, seedHandle );
-	const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
 	
 	// fill the seed info
 	if (seedHandle.isValid()) {
+          const auto& seedCollection = *seedHandle;
 	  
 	  if(doAllSeedPlots || doSeedNumberPlot) {
 	    NumberOfSeeds->Fill(seedCollection.size());
@@ -963,10 +963,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    const reco::BeamSpot& bs = *recoBeamSpotHandle;      
 	    
 	    iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-	    for(size_t i=0; i < seedHandle->size(); ++i) {
-	      
-	      edm::RefToBase<TrajectorySeed> seed(seedHandle, i);
-	      theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *seed, bs, theMF, theTTRHBuilder);
+	    for(size_t i=0; i < seedCollection.size(); ++i) {
+	      theTrackBuildingAnalyzer->analyze(iEvent, iSetup, seedCollection[i], bs, theMF, theTTRHBuilder);
 	    }
 	  }
 	  

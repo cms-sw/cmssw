@@ -20,30 +20,26 @@
 
 #include <iostream>
 
-TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : TrackingRegionCandidatePt(nullptr)
-    , TrackingRegionCandidateEta(nullptr)
-    , TrackingRegionCandidatePhi(nullptr)
-    , TrackingRegionCandidatePhiVsEta(nullptr)
-    , SeedPt(nullptr)
-    , SeedEta(nullptr)
-    , SeedPhi(nullptr)
-    , SeedPhiVsEta(nullptr)
-    , SeedTheta(nullptr)
-    , SeedQ(nullptr)
-    , SeedDxy(nullptr)
-    , SeedDz(nullptr)
-    , NumberOfRecHitsPerSeed(nullptr)
-    , NumberOfRecHitsPerSeedVsPhiProfile(nullptr)
-    , NumberOfRecHitsPerSeedVsEtaProfile(nullptr)
-    , stoppingSource(nullptr)
-    , stoppingSourceVSeta(nullptr)
-    , stoppingSourceVSphi(nullptr)
+TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig):
+  doAllPlots(    iConfig.getParameter<bool>("doAllPlots")),
+  doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),
+  doTCPlots(     iConfig.getParameter<bool>("doTrackCandHistos")),
+  doAllTCPlots(  iConfig.getParameter<bool>("doAllTrackCandHistos")),
+  doPT(          iConfig.getParameter<bool>("doSeedPTHisto")),
+  doETA(         iConfig.getParameter<bool>("doSeedETAHisto")),
+  doPHI(         iConfig.getParameter<bool>("doSeedPHIHisto")),
+  doPHIVsETA(    iConfig.getParameter<bool>("doSeedPHIVsETAHisto")),
+  doTheta(       iConfig.getParameter<bool>("doSeedThetaHisto")),
+  doQ(           iConfig.getParameter<bool>("doSeedQHisto")),
+  doDxy(         iConfig.getParameter<bool>("doSeedDxyHisto")),
+  doDz(          iConfig.getParameter<bool>("doSeedDzHisto")),
+  doNRecHits(    iConfig.getParameter<bool>("doSeedNRecHitsHisto")),
+  doProfPHI(     iConfig.getParameter<bool>("doSeedNVsPhiProf")),
+  doProfETA(     iConfig.getParameter<bool>("doSeedNVsEtaProf")),
+  doStopSource(  iConfig.getParameter<bool>("doStopSource")),
+  doMVAPlots(    iConfig.getParameter<bool>("doMVAPlots")),
+  doRegionPlots( iConfig.getParameter<bool>("doRegionPlots"))
 {
-}
-
-TrackBuildingAnalyzer::~TrackBuildingAnalyzer() 
-{ 
 }
 
 void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet& iConfig)
@@ -112,25 +108,6 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
   std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
   edm::InputTag regionProducer = iConfig.getParameter<edm::InputTag>("RegionProducer");
-  
-  doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
-  doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
-  doTCPlots      = iConfig.getParameter<bool>("doTrackCandHistos");
-  doAllTCPlots   = iConfig.getParameter<bool>("doAllTrackCandHistos");
-  doPT           = iConfig.getParameter<bool>("doSeedPTHisto");
-  doETA          = iConfig.getParameter<bool>("doSeedETAHisto");
-  doPHI          = iConfig.getParameter<bool>("doSeedPHIHisto");
-  doPHIVsETA     = iConfig.getParameter<bool>("doSeedPHIVsETAHisto");
-  doTheta        = iConfig.getParameter<bool>("doSeedThetaHisto");
-  doQ            = iConfig.getParameter<bool>("doSeedQHisto");
-  doDxy          = iConfig.getParameter<bool>("doSeedDxyHisto");
-  doDz           = iConfig.getParameter<bool>("doSeedDzHisto");
-  doNRecHits     = iConfig.getParameter<bool>("doSeedNRecHitsHisto");
-  doProfPHI      = iConfig.getParameter<bool>("doSeedNVsPhiProf");
-  doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
-  doStopSource   = iConfig.getParameter<bool>("doStopSource");
-  doMVAPlots     = iConfig.getParameter<bool>("doMVAPlots");
-  doRegionPlots  = iConfig.getParameter<bool>("doRegionPlots");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
