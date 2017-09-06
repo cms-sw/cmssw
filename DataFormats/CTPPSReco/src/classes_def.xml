@@ -90,6 +90,20 @@
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
+<class name="CTPPSPixelLocalTrack" ClassVersion="4">
+    <version ClassVersion="3" checksum="2597505479"/>
+    <version ClassVersion="4" checksum="1279766578"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> >"/>
+  <class name="std::vector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>"/>
+
 <!-- common objects -->
 
   <class name="CTPPSLocalTrackLite" ClassVersion="3">
