@@ -146,20 +146,21 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   std::ostringstream os;
   if (banner)
     os << "stats: class/operation/attempts/successes/amount/time-total/time-min/time-max\n";
-  for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
-    auto const& opStats = m_stats[i->second];
-    for (auto j = opStats.begin (); j != opStats.end (); ++j, first = false) {
-      if (i->first.first != OpenLabel::Aggregate) continue;
-      if (j->second.attempts == 0) continue;
+  for (const auto &i : s_nameToToken) {
+    auto const& opStats = m_stats[i.second];
+    for (const auto &j : opStats) {
+      if (i.first.first != OpenLabel::Aggregate) continue;
+      if (j.second.attempts == 0) continue;
       os << (first ? "" : "; ")
-         << (i->first.second) << '/'
-         << kOperationNames[j->first] << '='
-         << j->second.attempts << '/'
-         << j->second.successes << '/'
-         << (static_cast<double>(j->second.amount) / 1024 / 1024) << "MB/"
-         << (static_cast<double>(j->second.timeTotal) / 1000 / 1000) << "ms/"
-         << (static_cast<double>(j->second.timeMin) / 1000 / 1000) << "ms/"
-         << (static_cast<double>(j->second.timeMax) / 1000 / 1000) << "ms";
+         << (i.first.second) << '/'
+         << kOperationNames[j.first] << '='
+         << j.second.attempts << '/'
+         << j.second.successes << '/'
+         << (static_cast<double>(j.second.amount) / 1024 / 1024) << "MB/"
+         << (static_cast<double>(j.second.timeTotal) / 1000 / 1000) << "ms/"
+         << (static_cast<double>(j.second.timeMin) / 1000 / 1000) << "ms/"
+         << (static_cast<double>(j.second.timeMax) / 1000 / 1000) << "ms";
+      first = false;
     }
   }
   return os.str ();
@@ -171,23 +172,23 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
 
   int const oneM = 1000 * 1000;
   int const oneMeg = 1024 * 1024;
-  for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
-    auto const& opStats = m_stats[i->second];
-    for (auto j = opStats.begin(); j != opStats.end(); ++j) {
+  for (const auto &i : s_nameToToken) {
+    auto const& opStats = m_stats[i.second];
+    for (const auto &j : opStats) {
       std::ostringstream os;
-      if (j->second.attempts == 0) continue;
-      if (i->first.first == OpenLabel::Aggregate) {
-        os << "Timing-" << i->first.second << "-" << kOperationNames[j->first] << "-";
+      if (j.second.attempts == 0) continue;
+      if (i.first.first == OpenLabel::Aggregate) {
+        os << "Timing-" << i.first.second << "-" << kOperationNames[j.first] << "-";
       } else {
-        os << "Timing-" << kLabelNames[static_cast<int>(i->first.first)]
-           << "-" << i->first.second << "-" << kOperationNames[j->first] << "-";
+        os << "Timing-" << kLabelNames[static_cast<int>(i.first.first)]
+           << "-" << i.first.second << "-" << kOperationNames[j.first] << "-";
       }
-      summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
-      summary.insert(std::make_pair(os.str() + "numSuccessfulOperations", i2str(j->second.successes)));
-      summary.insert(std::make_pair(os.str() + "totalMegabytes", d2str(static_cast<double>(j->second.amount) / oneMeg)));
-      summary.insert(std::make_pair(os.str() + "totalMsecs", d2str(static_cast<double>(j->second.timeTotal) / oneM)));
-      summary.insert(std::make_pair(os.str() + "minMsecs", d2str(static_cast<double>(j->second.timeMin) / oneM)));
-      summary.insert(std::make_pair(os.str() + "maxMsecs", d2str(static_cast<double>(j->second.timeMax) / oneM)));
+      summary.insert(std::make_pair(os.str() + "numOperations", i2str(j.second.attempts)));
+      summary.insert(std::make_pair(os.str() + "numSuccessfulOperations", i2str(j.second.successes)));
+      summary.insert(std::make_pair(os.str() + "totalMegabytes", d2str(static_cast<double>(j.second.amount) / oneMeg)));
+      summary.insert(std::make_pair(os.str() + "totalMsecs", d2str(static_cast<double>(j.second.timeTotal) / oneM)));
+      summary.insert(std::make_pair(os.str() + "minMsecs", d2str(static_cast<double>(j.second.timeMin) / oneM)));
+      summary.insert(std::make_pair(os.str() + "maxMsecs", d2str(static_cast<double>(j.second.timeMax) / oneM)));
     }
   }
 }
