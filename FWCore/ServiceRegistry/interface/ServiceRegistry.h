@@ -47,8 +47,8 @@ namespace edm {
 
          //override operator new to stop use on heap?
       private:
-         Operate(Operate const&); //stop default
-         Operate const& operator=(Operate const&); //stop default
+         Operate(Operate const&) = delete; //stop default
+         Operate const& operator=(Operate const&) = delete; //stop default
          ServiceToken oldToken_;
       };
 
@@ -61,7 +61,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       template<typename T>
       T& get() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");
@@ -71,7 +71,7 @@ namespace edm {
 
       template<typename T>
       bool isAvailable() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");

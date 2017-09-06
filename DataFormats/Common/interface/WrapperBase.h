@@ -18,7 +18,7 @@ namespace edm {
   class WrapperBase : public ViewTypeChecker {
   public:
     WrapperBase();
-    virtual ~WrapperBase();
+    ~WrapperBase() override;
     bool isPresent() const {return isPresent_();}
 
     // We have to use vector<void*> to keep the type information out

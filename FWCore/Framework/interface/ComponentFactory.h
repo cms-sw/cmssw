@@ -63,7 +63,7 @@ template<typename T>
          {
             std::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
             
-            if(wm.get() == 0) {
+            if(wm.get() == nullptr) {
 	      Exception::throwThis(errors::Configuration,
 	      "UnknownModule",
 	       T::name().c_str(),

@@ -12,6 +12,7 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/limited/EDProducer.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -180,6 +181,46 @@ namespace edmtest {
     e.put(std::make_unique<IntProduct>(value_+sum));
   }
 
+  //--------------------------------------------------------------------
+  class BusyWaitIntLimitedProducer : public edm::limited::EDProducer<> {
+  public:
+    explicit BusyWaitIntLimitedProducer(edm::ParameterSet const& p) :
+    edm::limited::EDProducerBase(p),
+    edm::limited::EDProducer<>(p),
+    value_(p.getParameter<int>("ivalue")),
+    iterations_(p.getParameter<unsigned int>("iterations")),
+    pi_(std::acos(-1)){
+      produces<IntProduct>();
+    }
+    
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    
+  private:
+    const int value_;
+    const unsigned int iterations_;
+    const double pi_;
+    mutable std::atomic<unsigned int> reentrancy_{0};
+    
+  };
+  
+  void
+  BusyWaitIntLimitedProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    auto v = ++reentrancy_;
+    if( v > concurrencyLimit()) {
+      --reentrancy_;
+      throw cms::Exception("NotLimited","produce called to many times concurrently.");
+    }
+    
+    double sum = 0.;
+    const double stepSize = pi_/iterations_;
+    for(unsigned int i = 0; i < iterations_; ++i) {
+      sum += stepSize*cos(i*stepSize);
+    }
+    
+    e.put(std::make_unique<IntProduct>(value_+sum));
+    --reentrancy_;
+  }
+  
   //--------------------------------------------------------------------
   class BusyWaitIntLegacyProducer : public edm::EDProducer {
   public:
@@ -389,6 +430,7 @@ using edmtest::NonProducer;
 using edmtest::IntProducer;
 using edmtest::IntLegacyProducer;
 using edmtest::BusyWaitIntProducer;
+using edmtest::BusyWaitIntLimitedProducer;
 using edmtest::BusyWaitIntLegacyProducer;
 using edmtest::ConsumingIntProducer;
 using edmtest::EventNumberIntProducer;
@@ -402,6 +444,7 @@ DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(IntLegacyProducer);
 DEFINE_FWK_MODULE(BusyWaitIntProducer);
+DEFINE_FWK_MODULE(BusyWaitIntLimitedProducer);
 DEFINE_FWK_MODULE(BusyWaitIntLegacyProducer);
 DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);

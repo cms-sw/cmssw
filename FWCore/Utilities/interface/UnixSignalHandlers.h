@@ -8,7 +8,7 @@ and manipulate Unix-style signal handling.
 
 ----------------------------------------------------------------------*/
 
-#include <signal.h>
+#include <csignal>
 #include <atomic>
 
 namespace edm {

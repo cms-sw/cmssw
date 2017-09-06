@@ -142,21 +142,10 @@ namespace edm {
                               EventSetup const& eventSetup);
 
     template <typename T>
-    void processOneGlobal(typename T::MyPrincipal& principal,
-                          EventSetup const& eventSetup,
-                          bool cleaningUpAfterException = false);
-
-    template <typename T>
     void processOneGlobalAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
                                bool cleaningUpAfterException = false);
-
-    template <typename T>
-    void processOneStream(unsigned int iStreamID,
-                          typename T::MyPrincipal& principal,
-                          EventSetup const& eventSetup,
-                          bool cleaningUpAfterException = false);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
@@ -308,15 +297,6 @@ namespace edm {
     volatile bool           endpathsAreActive_;
   };
 
-
-  template <typename T>
-  void Schedule::processOneStream(unsigned int iStreamID,
-                                  typename T::MyPrincipal& ep,
-                                  EventSetup const& es,
-                                  bool cleaningUpAfterException) {
-    assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneStream<T>(ep,es,cleaningUpAfterException);
-  }
   
   template <typename T>
   void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
@@ -328,14 +308,6 @@ namespace edm {
     streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,cleaningUpAfterException);
   }
 
-  template <typename T>
-  void
-  Schedule::processOneGlobal(typename T::MyPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
-    globalSchedule_->processOneGlobal<T>(ep,es,cleaningUpAfterException);
-  }
-  
   template <typename T>
   void
   Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,

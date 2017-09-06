@@ -50,8 +50,8 @@ namespace edm {
     }
 
   private:
-    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&); // stop default
-    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&); // stop default
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete; // stop default
+    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete; // stop default
     
   };
 
@@ -183,8 +183,8 @@ namespace edm {
     }
 
   private:
-    DescriptionFillerForESSources(const DescriptionFillerForESSources&); // stop default
-    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&); // stop default
+    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete; // stop default
+    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete; // stop default
   };
 
   template<typename T>
@@ -216,8 +216,8 @@ namespace edm {
     }
 
   private:
-    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&); // stop default
-    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&); // stop default
+    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete; // stop default
+    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete; // stop default
   };
 }
 #endif
