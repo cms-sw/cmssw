@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 
@@ -40,7 +40,7 @@ namespace {
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
   SherpaHadronizer(const edm::ParameterSet &params);
-  ~SherpaHadronizer();
+  ~SherpaHadronizer() override;
 
   bool readSettings( int ) { return true; }
   bool initializeForInternalPartons();
@@ -58,7 +58,7 @@ public:
 
 private:
 
-  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+  void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
 
   std::string SherpaProcess;
   std::string SherpaChecksum;
@@ -188,11 +188,11 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
 
   //create the command line
-  arguments.push_back(shRun.c_str());
-  arguments.push_back(shPath.c_str());
-  arguments.push_back(shPathPiece.c_str());
-  arguments.push_back(shRes.c_str());
-  arguments.push_back(shRng.c_str());
+  arguments.push_back(shRun);
+  arguments.push_back(shPath);
+  arguments.push_back(shPathPiece);
+  arguments.push_back(shRes);
+  arguments.push_back(shRng);
   isInitialized=false;
  //initialization of Sherpa moved to initializeForInternalPartons
 }
