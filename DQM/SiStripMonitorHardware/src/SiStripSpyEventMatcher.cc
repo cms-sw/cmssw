@@ -82,7 +82,8 @@ namespace sistrip {
   {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1),
+                             nullptr,nullptr,false);
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";

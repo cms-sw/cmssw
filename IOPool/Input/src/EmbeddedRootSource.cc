@@ -54,8 +54,8 @@ namespace edm {
   }
 
   bool
-  EmbeddedRootSource::readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* id) {
-    return fileSequence_->readOneEvent(cache, fileNameHash, engine, id);
+  EmbeddedRootSource::readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
+    return fileSequence_->readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
   }
 
   void

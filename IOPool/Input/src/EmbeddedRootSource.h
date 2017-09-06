@@ -52,7 +52,7 @@ namespace edm {
     virtual void closeFile_();
     void beginJob() override;
     void endJob() override;
-    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id) override;
+    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) override;
     void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) override;
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) override;
 
