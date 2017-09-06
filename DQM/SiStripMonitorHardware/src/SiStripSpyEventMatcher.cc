@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
-#include "boost/bind.hpp"
 #include <algorithm>
 #include <limits>
 #include <memory>
@@ -82,8 +81,9 @@ namespace sistrip {
   {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1),
-                             nullptr,nullptr,false);
+    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),
+                            [this](auto const& iE, auto const&){ this->addNextEventToMap(iE); },
+                            nullptr,nullptr,false);
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -228,8 +228,8 @@ namespace sistrip {
     size_t fileNameHash = 0U;
     FEDRawDataCollection outputRawData;
     MatchingOutput mo(outputRawData);
-    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),boost::bind(&SpyEventMatcher::getCollections,this,_1,
-                                                       eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
+    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),
+                           [&](auto const& iE, auto const&){ this->getCollections(iE,eventId,apvAddress,cabling,mo); });
     collectionsToCreate = SpyDataCollections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
                                    mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get());
