@@ -125,6 +125,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
     double t_dt2 =std::pow(tk.dtErrorExt(),2.) + std::pow(vertexSizeTime_,2.); // the ~injected~ timing error, need to add a small minimum vertex size in time
     t_dt2 = 1./t_dt2;
     if (edm::isNotFinite(t_dz2) || t_dz2 < std::numeric_limits<double>::min() ) continue;
+    if (edm::isNotFinite(t_dt2) || t_dt2 < std::numeric_limits<double>::min() ) continue;
     if (d0CutOff_ > 0) {
       Measurement1D atIP =
 	tk.stateAtBeamLine().transverseImpactParameter();// error contains beamspot
@@ -210,8 +211,6 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
 						  vertex_t & y_vec ) {
     auto tmp_trk_pi = tks_vec.pi_[track_num];
     auto o_trk_Z_sum = 1./tks_vec.Z_sum_[track_num];
-    //auto o_trk_dz2 = tks_vec.dz2_[track_num];
-    //auto o_trk_dt2 = tks_vec.dt2_[track_num];
     auto o_trk_err_sum = tks_vec.errsum_[track_num];
     auto tmp_trk_z = tks_vec.z_[track_num];
     auto tmp_trk_t = tks_vec.t_[track_num];
@@ -254,14 +253,13 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
     }
   }
   
-  // now update z and pk
+  // now update z, t, and pk
   auto kernel_calc_zt = [  sumpi, nv, this, useRho0 ] (vertex_t & vertices ) -> double {
     
     double delta=0;
     // does not vectorizes
     for (unsigned int ivertex = 0; ivertex < nv; ++ ivertex ) {
       if (vertices.sw_[ivertex] > 0.) {
-	//std::cout << " DA2D_vect sw = " << vertices.sw_[ ivertex ] << ' ' << vertices.swz_[ ivertex ] << ' ' << vertices.swt_[ ivertex ] << std::endl;
 	auto znew = vertices.swz_[ ivertex ] / vertices.sw_[ ivertex ];
 	// prevents from vectorizing if 
 	delta += std::pow( vertices.z_[ ivertex ] - znew, 2 );
@@ -371,12 +369,12 @@ DAClusterizerInZT_vect::purge(vertex_t & y, track_t & tks, double & rho0, const 
   double sump = 0;
 
   std::vector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt);
-  double * inverse_zsums_;
-  double * arg_cache_;
-  double * eik_cache_;
-  inverse_zsums_ = inverse_zsums.data();
-  arg_cache_ = arg_cache.data();
-  eik_cache_ = eik_cache.data();
+  double * pinverse_zsums;
+  double * parg_cache;
+  double * peik_cache;
+  pinverse_zsums = inverse_zsums.data();
+  parg_cache = arg_cache.data();
+  peik_cache = eik_cache.data();
   for(unsigned i = 0; i < nt; ++i) {
     inverse_zsums[i] = tks.Z_sum_[i] > eps ? 1./tks.Z_sum_[i] : 0.0;
   }
@@ -396,11 +394,11 @@ DAClusterizerInZT_vect::purge(vertex_t & y, track_t & tks, double & rho0, const 
       
       const auto mult_resz = track_z - y.z_[k];
       const auto mult_rest = track_t - y.t_[k];
-      arg_cache_[i] = botrack_dz2 * ( mult_resz * mult_resz ) + botrack_dt2 * ( mult_rest * mult_rest );
+      parg_cache[i] = botrack_dz2 * ( mult_resz * mult_resz ) + botrack_dt2 * ( mult_rest * mult_rest );
     }
-    local_exp_list(arg_cache_, eik_cache_, nt);
+    local_exp_list(parg_cache, peik_cache, nt);
     for (unsigned int i = 0; i < nt; ++i) {
-      const double p = y.pk_[k] * eik_cache_[i] * inverse_zsums_[i];
+      const double p = y.pk_[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
       nUnique += ( ( p > pcut ) & ( tks.pi_[i] > 0 ) );
     }
