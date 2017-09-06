@@ -1,4 +1,19 @@
 <lcgdict>
+  <class name="L1aInfo" ClassVersion="10">
+    <version ClassVersion="10" checksum="938245612"/>
+  </class>
+  <class name="std::vector<L1aInfo>"/>
+
+  <class name="BSTRecord" ClassVersion="10">
+    <version ClassVersion="10" checksum="176678963"/>
+  </class>
+
+  <class name="TCDSRecord" ClassVersion="10">
+    <version ClassVersion="10" checksum="3491510633"/>
+  </class>
+
   <class name="edm::RefProd<TCDSRecord>"/>
+
   <class name="edm::Wrapper<TCDSRecord>"/>
+  <class name="edm::Wrapper<BSTRecord>"/>
 </lcgdict>
