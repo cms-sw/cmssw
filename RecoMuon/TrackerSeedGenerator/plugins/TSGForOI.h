@@ -33,9 +33,9 @@
 class TSGForOI : public edm::global::EDProducer<> {
 public:
 	explicit TSGForOI(const edm::ParameterSet & iConfig);
-	virtual ~TSGForOI();
+	~TSGForOI() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	virtual void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+	void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 private:
 	/// Labels for input collections
 	const edm::EDGetTokenT<reco::TrackCollection> src_;
