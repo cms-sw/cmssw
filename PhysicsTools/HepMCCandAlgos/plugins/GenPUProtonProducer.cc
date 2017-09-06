@@ -73,7 +73,7 @@ namespace {
 	cand.setP4( p4 );
 	cand.setCollisionId(0);
 	HepMC::GenVertex const* v = part->production_vertex();
-	if ( v != 0 ) {
+	if ( v != nullptr ) {
 	   HepMC::ThreeVector vtx = v->point3d();
 	   reco::Candidate::Point vertex( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
 	   cand.setVertex( vertex );
