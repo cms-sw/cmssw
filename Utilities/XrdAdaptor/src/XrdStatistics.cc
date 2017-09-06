@@ -19,12 +19,12 @@ std::atomic<XrdSiteStatisticsInformation*> XrdSiteStatisticsInformation::m_insta
 
 XrdStatisticsService::XrdStatisticsService(const edm::ParameterSet &iPS, edm::ActivityRegistry &iRegistry)
 {
+    XrdSiteStatisticsInformation::createInstance();
+
     if (iPS.getUntrackedParameter<bool>("reportToFJR", false))
     {
-        XrdSiteStatisticsInformation::createInstance();
+        iRegistry.watchPostEndJob(this, &XrdStatisticsService::postEndJob);
     }
-
-    iRegistry.watchPostEndJob(this, &XrdStatisticsService::postEndJob);
 }
 
 
@@ -42,6 +42,27 @@ void XrdStatisticsService::postEndJob()
         stats->recomputeProperties(props);
         reportSvc->reportPerformanceForModule(stats->site(), "XrdSiteStatistics", props);
     }
+}
+
+std::vector<std::pair<std::string, XrdStatisticsService::CondorIOStats>>
+XrdStatisticsService::condorUpdate()
+{
+    std::vector<std::pair<std::string, XrdStatisticsService::CondorIOStats>> result;
+    XrdSiteStatisticsInformation *instance = XrdSiteStatisticsInformation::getInstance();
+    if (!instance) {return result;}
+
+    std::lock_guard<std::mutex> lock(instance->m_mutex);
+    result.reserve(instance->m_sites.size());
+    for (auto& stats : instance->m_sites)
+    {
+        CondorIOStats cs;
+        std::shared_ptr<XrdSiteStatistics> ss = get_underlying_safe(stats);
+        if (!ss) continue;
+        cs.bytesRead = ss->getTotalBytes();
+        cs.transferTime = ss->getTotalReadTime();
+        result.emplace_back(ss->site(), cs);
+    }
+    return result;
 }
 
 
@@ -171,10 +192,10 @@ XrdReadStatistics::XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, 
 }
 
 
-float
+uint64_t
 XrdReadStatistics::elapsedNS() const
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    return static_cast<int>(std::chrono::duration_cast<std::chrono::nanoseconds>(end-m_start).count());
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(end-m_start).count();
 }
 
