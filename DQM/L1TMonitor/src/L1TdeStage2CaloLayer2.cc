@@ -338,15 +338,6 @@ void L1TdeStage2CaloLayer2::analyze (
      - missing jet is in the middle
   */
 
-  l1t::EGammaBxCollection::const_iterator dataEGIt = egDataCol->begin(currBx);
-  l1t::EGammaBxCollection::const_iterator emulEGIt = egEmulCol->begin(currBx);
-
-  l1t::TauBxCollection::const_iterator dataTauIt = tauDataCol->begin(currBx);
-  l1t::TauBxCollection::const_iterator emulTauIt = tauEmulCol->begin(currBx);
-
-  l1t::EtSumBxCollection::const_iterator dataSumIt = sumDataCol->begin(currBx);
-  l1t::EtSumBxCollection::const_iterator emulSumIt = sumEmulCol->begin(currBx);
-
   if (!compareJets(jetDataCol, jetEmulCol)) {
     if (verbose)
       edm::LogInfo("L1TdeStage2CaloLayer2") << "l1t calol2 dqm: jet problem "
