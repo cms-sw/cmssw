@@ -72,9 +72,9 @@ namespace edm {
 
       // ---------- member functions ---------------------------
    private:
-      ComponentMaker(const ComponentMaker&); // stop default
+      ComponentMaker(const ComponentMaker&) = delete; // stop default
 
-      const ComponentMaker& operator=(const ComponentMaker&); // stop default
+      const ComponentMaker& operator=(const ComponentMaker&) = delete; // stop default
 
       void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
         iProv->setDescription(iDesc);

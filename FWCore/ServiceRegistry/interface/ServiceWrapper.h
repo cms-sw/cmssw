@@ -50,9 +50,9 @@ public:
          T& get() { return *service_; }
 
 private:
-         ServiceWrapper(const ServiceWrapper&); // stop default
+         ServiceWrapper(const ServiceWrapper&) = delete; // stop default
          
-         const ServiceWrapper& operator=(const ServiceWrapper&); // stop default
+         const ServiceWrapper& operator=(const ServiceWrapper&) = delete; // stop default
          
          // ---------- member data --------------------------------
          edm::propagate_const<std::unique_ptr<T>> service_;

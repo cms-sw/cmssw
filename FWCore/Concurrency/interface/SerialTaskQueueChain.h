@@ -93,7 +93,7 @@ namespace edm {
     if(m_queues.size() == 1) {
       m_queues[0]->push( [this,iAction]() {this->actionToRun(iAction);} );
     } else {
-      assert(m_queues.size()>0);
+      assert(!m_queues.empty());
       m_queues[0]->push([this, iAction]() {
         this->passDownChain(1, iAction);
       });
