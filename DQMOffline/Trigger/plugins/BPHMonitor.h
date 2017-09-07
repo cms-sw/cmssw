@@ -69,7 +69,7 @@ class BPHMonitor : public DQMEDAnalyzer
 {
 public:
   BPHMonitor( const edm::ParameterSet& );
-  ~BPHMonitor();
+  ~BPHMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
@@ -178,6 +178,10 @@ private:
   double minmassUpsilon;
   double maxmassJpsiTk;
   double minmassJpsiTk;
+  double kaon_mass;
+  double mu_mass;
+  double min_dR;
+
   double minprob;
   double mincos;
   double minDS;
