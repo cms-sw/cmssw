@@ -1,4 +1,5 @@
 <use   name="DataFormats/Common"/>
+<flags GENREFLEX_FAILES_ON_WARNS="0"/>
 <export>
   <lib   name="1"/>
 </export>
