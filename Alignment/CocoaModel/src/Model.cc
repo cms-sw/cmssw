@@ -33,6 +33,8 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <stdlib.h>
 #include <ctype.h>
 //#include <algo.h>
@@ -1507,14 +1509,18 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
       meastemp = new MeasurementDistancemeter( 1, measType, measName );
     } else if ( meas->type() == ALIstring("TILTMETER") ) {
       meastemp = new MeasurementTiltmeter( 1, measType, measName );
-    } else if ( meas->type() == ALIstring("DIFFCENTRE") ) {
- //     meastemp = new MeasurementDiffCentre( 1, measType, measName );
-    } else if ( meas->type() == ALIstring("DIFFANGLE") ) {
-//      meastemp = new MeasurementDiffAngle( 1, measType, measName );
+    // } else if ( meas->type() == ALIstring("DIFFCENTRE") ) {
+    //   meastemp = new MeasurementDiffCentre( 1, measType, measName );
+    // } else if ( meas->type() == ALIstring("DIFFANGLE") ) {
+    //   meastemp = new MeasurementDiffAngle( 1, measType, measName );
     } else if ( meas->type() == ALIstring("DIFFENTRY") ) {
       meastemp = new MeasurementDiffEntry( 1, measType, measName );
     } else if ( meas->type() == ALIstring("COPS") ) {
       meastemp = new MeasurementCOPS( 4, measType, measName );
+    } else {
+      throw cms::Exception("LogicError")
+        << "@SUB=Model::copyMeasurements\n"
+        << "unknown measurement type: " << meas->type();
     }
 
     //later        meastemp->copyConversionFactor( wordlist );
@@ -1646,15 +1652,15 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
       meastemp = new MeasurementTiltmeter( 1, measType, measName );
     } else if ( measType == ALIstring("COPS") ) {
       meastemp = new MeasurementCOPS( 4, measType, measName );
-    } else if ( measType == ALIstring("DIFFCENTRE") ) {
-      //t       meastemp = new MeasurementDiffCentre( 1, measType, measName );
-    } else if ( measType == ALIstring("DIFFANGLE") ) {
-      //t        meastemp = new MeasurementDiffAngle( 2, measType, measName );
+    // } else if ( measType == ALIstring("DIFFCENTRE") ) {
+    //   meastemp = new MeasurementDiffCentre( 1, measType, measName );
+    // } else if ( measType == ALIstring("DIFFANGLE") ) {
+    //   meastemp = new MeasurementDiffAngle( 2, measType, measName );
     } else if ( measType == ALIstring("DIFFENTRY") ) {
       meastemp = new MeasurementDiffEntry( 1, measType, measName );
     } else {
       std::cerr << " !!! Model::BuildMeasurementsFromOA : measType not found " << measType << std::endl;
-    std::exception();
+      throw std::exception();
     }
     meastemp->constructFromOA( *mite );
 
