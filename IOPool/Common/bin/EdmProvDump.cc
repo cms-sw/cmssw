@@ -149,7 +149,7 @@ operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
 
 void HistoryNode::printHistory(std::string const& iIndent) const {
   std::string const indentDelta("  ");
-  std::string indent = iIndent;
+  const std::string& indent = iIndent;
   for(auto const& item : *this) {
     std::cout << indent << item;
     item.printHistory(indent + indentDelta);
@@ -163,7 +163,7 @@ std::string eventSetupComponent(char const* iType,
   std::ostringstream result;
   edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string name(pset.getParameter<std::string>("@module_label"));
-  if(0 == name.size()) {
+  if(name.empty()) {
     name = pset.getParameter<std::string>("@module_type");
   }
 
@@ -341,7 +341,7 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
 
       std::vector<std::string> results;
       for(auto const& name: allNames){
-        if (name.size() == 0 || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
+        if (name.empty() || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
           continue;
         }
         std::string retValue = topLevelPSet(name,processConfig,itH.processName());
@@ -592,7 +592,7 @@ void
 ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
 
   TTree* history = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventHistoryTreeName().c_str()));
-  if(history != 0) {
+  if(history != nullptr) {
     edm::History h;
     edm::History* ph = &h;
 
@@ -604,9 +604,9 @@ ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     }
   } else {
     TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
-    assert (events != 0);
+    assert (events != nullptr);
     TBranch* eventSelectionsBranch = events->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
-    assert (eventSelectionsBranch != 0);
+    assert (eventSelectionsBranch != nullptr);
     edm::EventSelectionIDVector ids;
     edm::EventSelectionIDVector* pids = &ids;
     eventSelectionsBranch->SetAddress(&pids);
@@ -687,17 +687,17 @@ void
 ProvenanceDumper::work_() {
 
   TTree* meta = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
-  assert(0 != meta);
+  assert(nullptr != meta);
 
   edm::ProductRegistry* pReg = &reg_;
   meta->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &pReg);
 
   ParameterSetMap* pPsm = &psm_;
-  if(meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != nullptr) {
     meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &pPsm);
   } else {
     TTree* psetTree = dynamic_cast<TTree *>(inputFile_->Get(edm::poolNames::parameterSetsTreeName().c_str()));
-    assert(0 != psetTree);
+    assert(nullptr != psetTree);
     typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
     IdToBlobs idToBlob;
     IdToBlobs* pIdToBlob = &idToBlob;
@@ -709,21 +709,21 @@ ProvenanceDumper::work_() {
   }
 
   edm::ProcessHistoryVector* pPhv = &phv_;
-  if(meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != nullptr) {
     meta->SetBranchAddress(edm::poolNames::processHistoryBranchName().c_str(), &pPhv);
   }
 
   edm::ProcessHistoryMap phm;
   edm::ProcessHistoryMap* pPhm = &phm;
-  if(meta->FindBranch(edm::poolNames::processHistoryMapBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::processHistoryMapBranchName().c_str()) != nullptr) {
     meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pPhm);
   }
 
-  if(meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != nullptr) {
     if(meta->GetBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
-      meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
+      meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), false);
     } else {
-      meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), 0);
+      meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), false);
     }
   }
 
@@ -795,13 +795,13 @@ ProvenanceDumper::work_() {
         registry.insertMapped(parentageBuffer);
         orderedParentageIDs.push_back(parentageBuffer.id());
       }
-      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), 0);
+      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), nullptr);
 
       TTree* eventMetaTree = dynamic_cast<TTree*>(inputFile_->Get(edm::BranchTypeToMetaDataTreeName(edm::InEvent).c_str()));
-      if(0 == eventMetaTree) {
+      if(nullptr == eventMetaTree) {
         eventMetaTree = dynamic_cast<TTree*>(inputFile_->Get(edm::BranchTypeToProductTreeName(edm::InEvent).c_str()));
       }
-      if(0 == eventMetaTree) {
+      if(nullptr == eventMetaTree) {
         std::cerr << "ERROR, no '" << edm::BranchTypeToProductTreeName(edm::InEvent)<< "' Tree in file so can not show dependencies\n";
         showDependencies_ = false;
         extendedAncestors_ = false;
@@ -809,7 +809,7 @@ ProvenanceDumper::work_() {
       } else {
         TBranch* storedProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToProductProvenanceBranchName(edm::InEvent).c_str());
 
-        if(0!=storedProvBranch) {
+        if(nullptr!=storedProvBranch) {
           std::vector<edm::StoredProductProvenance> info;
           std::vector<edm::StoredProductProvenance>* pInfo = &info;
           storedProvBranch->SetAddress(&pInfo);
@@ -823,7 +823,7 @@ ProvenanceDumper::work_() {
         } else {
           //backwards compatible check
           TBranch* productProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
-          if (0 != productProvBranch) {
+          if (nullptr != productProvBranch) {
             std::vector<edm::ProductProvenance> info;
             std::vector<edm::ProductProvenance>* pInfo = &info;
             productProvBranch->SetAddress(&pInfo);
@@ -852,7 +852,7 @@ ProvenanceDumper::work_() {
       edm::BranchID childBranchID = itParentageSet.first;
       for (auto const& itParentageID : itParentageSet.second) {
         edm::Parentage const* parentage = registry.getMapped(itParentageID);
-        if(0 != parentage) {
+        if(nullptr != parentage) {
             for(auto const& branch : parentage->parents()) {
               parentToChildren[branch].insert(childBranchID);
             }
@@ -1039,7 +1039,7 @@ ProvenanceDumper::addAncestors(edm::BranchID const& branchID, std::set<edm::Bran
   std::set<edm::ParentageID> const& parentIDs = perProductParentage[branchID];
   for (auto const& parentageID : parentIDs) {
     edm::Parentage const* parentage = registry.getMapped(parentageID);
-    if(0 != parentage) {
+    if(nullptr != parentage) {
       for(auto const& branch : parentage->parents()) {
 
         if(ancestorBranchIDs.insert(branch).second) {
