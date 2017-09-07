@@ -36,7 +36,7 @@ size_t Tensor::getTensorSize(int rank, Shape* shape, DataType dtype)
 
     // get the number of elements
     size_t nElements = 1;
-    for (int i = 0; i < rank; ++i)
+    for (int i = 0; i < rank; i++)
     {
         nElements *= shape[i];
     }
@@ -124,7 +124,6 @@ Shape Tensor::getIndex(Shape* pos) const
     // prod is cached to increase performance and calculated via:
     // prod_i = { 1                        , i = rank - 1
     //          { prod_{i+1} * shape_{i+1} , 0 <= i < rank - 1
-
     if (empty())
     {
         throw cms::Exception("InvalidTensor") << "cannot find index on uninitialized tensors";
