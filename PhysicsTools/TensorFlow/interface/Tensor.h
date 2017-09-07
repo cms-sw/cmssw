@@ -33,7 +33,7 @@ public:
     Tensor();
 
     // disable implicit copy constructor
-    Tensor(const Tensor& t) = delete;
+    Tensor(const Tensor&) = delete;
 
     // constructor that initializes the internal tensorflow tensor object
     Tensor(int rank, Shape* shape, DataType dtype = TF_FLOAT);
@@ -92,10 +92,10 @@ public:
     // returns the index in a one dimensional array given a coordinate with multi-dimensional shape
     Shape getIndex(Shape* pos) const;
 
-    // returns a pointer to the data object or nullptr when empty
+    // returns a pointer to the data object or 0 when empty
     inline void* getData()
     {
-        return empty() ? nullptr : TF_TensorData(tf_tensor_);
+        return empty() ? 0 : TF_TensorData(tf_tensor_);
     }
 
     // returns the pointer to the data at an arbitrary position
