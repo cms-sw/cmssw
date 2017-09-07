@@ -19,6 +19,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <iomanip>
@@ -151,8 +152,10 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 	break;
       }
     }
-    if( omeas == 0 ) {
-      std::cerr << "!!!EXITING OptOSensor2D::fastTraversesLightRay: meas " << name() << " not found " << std::endl;
+    if (omeas == nullptr) {
+      throw cms::Exception("LogicError")
+        << "@SUB=OptOSensor2D::fastTraversesLightRay\n"
+        << "meas " << name() << " not found";
     }
 
     ALIdouble interslcx = omeas->value( 0 );
@@ -217,10 +220,13 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 	deviX = devi;
 	deviY = devi;
       }
+      if(ALIUtils::debug >= 4) {
+        std::cout << "devi " << devi << " devi x  " << deviX << " devi y  " << deviY << std::endl;
+      }
     }
   }
   if(ALIUtils::debug >= 4) {
-    std::cout << "devi " << devi << " devi x  " << deviX << " devi y  " << deviY << std::endl;
+    std::cout << " devi x  " << deviX << " devi y  " << deviY << std::endl;
   }
 
   lightray.setPoint( inters );
