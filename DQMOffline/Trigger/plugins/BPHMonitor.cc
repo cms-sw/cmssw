@@ -48,6 +48,9 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , minmassUpsilon     ( iConfig.getParameter<double>("minmassUpsilon" )     )
   , maxmassJpsiTk     ( iConfig.getParameter<double>("maxmassJpsiTk" )     )
   , minmassJpsiTk     ( iConfig.getParameter<double>("minmassJpsiTk" )     )
+  , kaon_mass     ( iConfig.getParameter<double>("kaon_mass" )     )
+  , mu_mass     ( iConfig.getParameter<double>("mu_mass" )     )
+  , min_dR     ( iConfig.getParameter<double>("min_dR" )     )
   , minprob     ( iConfig.getParameter<double>("minprob" )     )
   , mincos     ( iConfig.getParameter<double>("mincos" )     )
   , minDS     ( iConfig.getParameter<double>("minDS" )     )
@@ -458,7 +461,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         }
         double DiMuMass = (m1.p4()+m.p4()).M();
         switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
-        case 1: tnp_=1;//already filled hists for tnp method
+        case 1: tnp_=true;//already filled hists for tnp method
         case 2:
           if ((Jpsi_) && (!Upsilon_)){
             if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
@@ -554,7 +557,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           break;    
   
         case 7:// the hists for photon monitoring will be filled on 515 line
-          tnp_=0;
+          tnp_=false;
           break;
           
         case 8://vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
@@ -586,16 +589,16 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       
 	      if(!trSelection_ref(t))continue;
 	      if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
-              reco::Track itrk1       = t ;                                                
+              const reco::Track& itrk1       = t ;                                                
               
-              if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-              if((reco::deltaR(t,m) <= 0.001)) continue;
+              if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+              if((reco::deltaR(t,m) <= min_dR)) continue;
    
               if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
   
               reco::Particle::LorentzVector pB, p1, p2, p3;
-              double trackMass2 = 0.493677 *0.493677;
-              double MuMass2 = 0.1056583745 *0.1056583745;
+              double trackMass2 = kaon_mass * kaon_mass;
+              double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
               double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
               double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
               double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
@@ -647,13 +650,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	    for (auto const & t : *trHandle) {
 	      if(!trSelection_ref(t))continue;
 	      if(false && !matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
-	      reco::Track itrk1       = t ;                                                
-	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      const reco::Track& itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= min_dR)) continue;
 	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
 	      reco::Particle::LorentzVector pB, p2, p3;
-	      double trackMass2 = 0.493677 *0.493677;
-	      double MuMass2 = 0.1056583745 *0.1056583745;
+        double trackMass2 = kaon_mass * kaon_mass;
+        double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
 	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
 	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
 	      p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
@@ -701,16 +704,16 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	      for (auto const & t1 : *trHandle) {
 		if(!trSelection_ref(t1))continue;
 		if(false && !matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
-		reco::Track itrk1       = t ;                                                
-		reco::Track itrk2       = t1 ;                                                
-		if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-		if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
-		if((reco::deltaR(t,m) <= 0.001)) continue;
+		const reco::Track& itrk1       = t ;                                                
+		const reco::Track& itrk2       = t1 ;                                                
+		if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+		if((reco::deltaR(t,t1) <= min_dR))continue;//checking overlaping
+		if((reco::deltaR(t,m) <= min_dR)) continue;
 		if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
 		if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
 		reco::Particle::LorentzVector pB, p1, p2, p3, p4;
-		double trackMass2 = 0.493677 *0.493677;
-		double MuMass2 = 0.1056583745 *0.1056583745;
+    double trackMass2 = kaon_mass * kaon_mass;
+    double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
 		double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
 		double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
 		double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
@@ -825,7 +828,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	}
 	double DiMuMass = (m1.p4()+m.p4()).M();
 	switch(enum_){//enum_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
-	case 1: tnp_=1;//already filled hists for tnp method
+	case 1: tnp_=true;//already filled hists for tnp method
 	case 2:
 	  if ((Jpsi_) && (!Upsilon_)){
 	    if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi)continue;
@@ -920,7 +923,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	  }      
 	  break;    
 	case 7:// the hists for photon monitoring will be filled on 515 line
-	  tnp_=0;
+	  tnp_=false;
 	  break;
 	case 8://vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
 	  if ((Jpsi_) && (!Upsilon_)){
@@ -945,13 +948,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	    for (auto const & t : *trHandle) {
 	      if(!trSelection_ref(t))continue;
 	      if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
-	      reco::Track itrk1       = t ;                                                
-	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      const reco::Track& itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= min_dR)) continue;
 	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
 	      reco::Particle::LorentzVector pB, p1, p2, p3;
-	      double trackMass2 = 0.493677 *0.493677;
-	      double MuMass2 = 0.1056583745 *0.1056583745;
+        double trackMass2 = kaon_mass * kaon_mass;
+        double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
 	      double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
 	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
 	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
@@ -999,13 +1002,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	    for (auto const & t : *trHandle) {
 	      if(!trSelection_ref(t))continue;
 	      if(false && !matchToTrigger(hltpath1,t, handleTriggerEvent)) continue;
-	      reco::Track itrk1       = t ;                                                
-	      if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-	      if((reco::deltaR(t,m) <= 0.001)) continue;
+	      const reco::Track& itrk1       = t ;                                                
+	      if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+	      if((reco::deltaR(t,m) <= min_dR)) continue;
 	      if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
 	      reco::Particle::LorentzVector pB, p2, p3;
-	      double trackMass2 = 0.493677 *0.493677;
-	      double MuMass2 = 0.1056583745 *0.1056583745;
+        double trackMass2 = kaon_mass * kaon_mass;
+        double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
 	      double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
 	      double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
 	      p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
@@ -1053,17 +1056,17 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	      for (auto const & t1 : *trHandle) {
 		if(!trSelection_ref(t1))continue;
 		if(false && !matchToTrigger(hltpath1,t1, handleTriggerEvent)) continue;
-		reco::Track itrk1       = t ;
-		reco::Track itrk2       = t1 ;
-		if((reco::deltaR(t,m1) <= 0.001))continue;//checking overlaping
-		if((reco::deltaR(t,t1) <= 0.001))continue;//checking overlaping
-		if((reco::deltaR(t,m) <= 0.001)) continue;
+		const reco::Track& itrk1       = t ;
+		const reco::Track& itrk2       = t1 ;
+		if((reco::deltaR(t,m1) <= min_dR))continue;//checking overlaping
+		if((reco::deltaR(t,t1) <= min_dR))continue;//checking overlaping
+		if((reco::deltaR(t,m) <= min_dR)) continue;
 		if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
 		if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
 
 		reco::Particle::LorentzVector pB, p1, p2, p3, p4;
-		double trackMass2 = 0.493677 *0.493677;
-		double MuMass2 = 0.1056583745 *0.1056583745;
+    double trackMass2 = kaon_mass * kaon_mass;
+    double MuMass2 = mu_mass * mu_mass;//0.1056583745 *0.1056583745;
 		double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
 		double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
 		double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
@@ -1163,7 +1166,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("DMSelection_ref", "Pt>4 & abs(eta)");
 
   desc.add<int>("nmuons",     1);
-  desc.add<bool>( "tnp", 0 );
+  desc.add<bool>( "tnp", false );
   desc.add<int>( "L3", 0 );
   desc.add<int>( "trOrMu", 0 );//if =0, track param monitoring
   desc.add<int>( "Jpsi", 0 );
@@ -1178,6 +1181,9 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<double>( "minmassUpsilon", 8. );
   desc.add<double>( "maxmassJpsiTk", 5.46 );
   desc.add<double>( "minmassJpsiTk", 5.1 );
+  desc.add<double>( "kaon_mass", 0.493677 );
+  desc.add<double>( "mu_mass", 0.1056583745);
+  desc.add<double>( "min_dR", 0.001);
   desc.add<double>( "minprob", 0.005 );
   desc.add<double>( "mincos", 0.95 );
   desc.add<double>( "minDS", 3. );
