@@ -234,6 +234,7 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
 	}
 
       // check in which volume it is
+#ifdef EDM_ML_DEBUG
       G4StepPoint * thePreStepPoint = theStep->GetPreStepPoint();
       G4VPhysicalVolume * thePreStepPhysicalVolume = thePreStepPoint->GetPhysicalVolume();
       G4String thePreStepPhysicalVolumeName = thePreStepPhysicalVolume->GetName();
@@ -251,5 +252,6 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Position = " << thePostStepPoint->GetPosition()
 					    << "\n<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Physical Volume = " << thePostStepPhysicalVolumeName
 					    << "\n<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Material = " << thePostStepMaterial->GetName();
+#endif
     }
 }
