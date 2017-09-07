@@ -51,6 +51,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 //#include "DataFormats/EcalDetId/interface/EcalDetId.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -543,7 +544,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
   
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-    double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
+    double tof = (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag())/29.98;//speed of light
     CaloHitID current_id(cell.rawId(),tof,myTrack.id());
     std::map<CaloHitID,float> hitMap;
     hitMap[current_id] = emeas;
@@ -834,7 +835,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-	  double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
+	  double tof = (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag())/29.98;//speed of light
 	  CaloHitID current_id(cell.rawId(),tof,myTrack.id());
 	  std::map<CaloHitID,float> hitMap;
 	  hitMap[current_id] = emeas;
