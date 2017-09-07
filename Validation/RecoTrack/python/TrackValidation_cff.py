@@ -706,19 +706,19 @@ tracksValidationLite = cms.Sequence(
 )
 
 ## customization for timing
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify( generalTracksFromPV, 
-                        vertexTag = cms.InputTag('offlinePrimaryVertices4D'),
-                        timesTag  = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel'), 
-                        timeResosTag = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution'), 
-                        nSigmaDtVertex = cms.double(3) )
-phase2_timing.toModify( trackValidatorStandalone,
-                        label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
-phase2_timing.toModify( trackValidatorFromPVStandalone,
-                        label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
-phase2_timing.toModify( trackValidatorFromPVAllTPStandalone,
-                        label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
-phase2_timing.toModify( trackValidatorConversionStandalone,
-                        label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
-phase2_timing.toModify( trackValidatorGsfTracks,
-                        label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify( generalTracksFromPV, 
+                              vertexTag = cms.InputTag('offlinePrimaryVertices4D'),
+                              timesTag  = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel'), 
+                              timeResosTag = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution'), 
+                              nSigmaDtVertex = cms.double(3) )
+phase2_timing_layer.toModify( trackValidatorStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVAllTPStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorConversionStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorGsfTracks,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
