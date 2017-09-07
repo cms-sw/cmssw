@@ -7,7 +7,6 @@ output_names = ["ID_pred/Softmax", "regression_pred/BiasAdd"]
 pfDeepFlavourJetTags = cms.EDProducer(
     'DeepFlavourJetTagProducer',
     src = cms.InputTag('pfDeepFlavourTagInfos'),
-    # path to .meta file (will be stripped)
     graph_path = cms.FileInPath('RecoBTag/Combined/data/DeepFlavourV01_C/saved_model.pb'),
     flav_table = cms.PSet(
                       probb = cms.vuint32([0]),
