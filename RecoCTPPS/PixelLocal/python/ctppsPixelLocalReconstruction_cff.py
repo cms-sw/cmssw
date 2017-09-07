@@ -17,6 +17,9 @@ from RecoCTPPS.PixelLocal.ctppsPixelTracks_cfi import ctppsPixelTracks
 #  patterFinderAlgorithm = cms.string('testPatternAlgorithm')
 #)
 
+from Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi import *
+ctppsIncludeAlignments.RealFiles = cms.vstring("Geometry/VeryForwardData/data/RPixGeometryCorrections.xml")
+
 ctppsPixelLocalReconstruction = cms.Sequence(
     ctppsPixelClusters*ctppsPixelRecHits*ctppsPixelTracks
 )
