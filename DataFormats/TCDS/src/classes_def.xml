@@ -1,15 +1,15 @@
 <lcgdict>
-  <class name="L1aInfo" ClassVersion="10">
-    <version ClassVersion="10" checksum="938245612"/>
+  <class name="L1aInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="938245612"/>
   </class>
   <class name="std::vector<L1aInfo>"/>
 
-  <class name="BSTRecord" ClassVersion="11">
-    <version ClassVersion="11" checksum="47860967"/>
+  <class name="BSTRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="47860967"/>
   </class>
 
-  <class name="TCDSRecord" ClassVersion="10">
-    <version ClassVersion="10" checksum="3491510633"/>
+  <class name="TCDSRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="3491510633"/>
   </class>
 
   <class name="edm::RefProd<TCDSRecord>"/>
