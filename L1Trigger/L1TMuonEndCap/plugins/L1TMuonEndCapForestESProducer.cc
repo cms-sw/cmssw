@@ -23,7 +23,7 @@ using namespace std;
 class L1TMuonEndCapForestESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapForestESProducer() {}
+  ~L1TMuonEndCapForestESProducer() override {}
 
   typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
 
@@ -62,7 +62,7 @@ L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* n
     local_root.splitVal = node->getSplitValue();
     local_root.fitVal   = node->getFitValue();
     // shift children indicies and place the subtrees into the newly allocated tree
-    local_root.ileft    = (left_subtree.size()?1:0); // left subtree (if exists) is placed right after the root -> index=1
+    local_root.ileft    = (!left_subtree.empty()?1:0); // left subtree (if exists) is placed right after the root -> index=1
     transform(left_subtree.cbegin(), // source from
               left_subtree.cend(),   // source till
               cond_tree.begin() + 1, // destination

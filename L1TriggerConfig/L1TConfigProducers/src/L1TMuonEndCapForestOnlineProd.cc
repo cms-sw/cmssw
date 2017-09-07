@@ -10,10 +10,10 @@
 class L1TMuonEndCapForestOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndCapForestO2ORcd,L1TMuonEndCapForest> {
 private:
 public:
-    virtual std::shared_ptr<L1TMuonEndCapForest> newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) override ;
+    std::shared_ptr<L1TMuonEndCapForest> newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) override ;
 
     L1TMuonEndCapForestOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndCapForestOnlineProd(void){}
+    ~L1TMuonEndCapForestOnlineProd(void) override{}
 };
 
 L1TMuonEndCapForestOnlineProd::L1TMuonEndCapForestOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapForestO2ORcd,L1TMuonEndCapForest>(iConfig) {}

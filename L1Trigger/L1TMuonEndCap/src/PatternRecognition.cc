@@ -3,9 +3,9 @@
 #include "helper.h"  // to_hex, to_binary
 
 namespace {
-  static const int padding_w_st1 = 15;
-  static const int padding_w_st3 = 7;
-  static const int padding_extra_w_st1 = padding_w_st1 - padding_w_st3;
+  const int padding_w_st1 = 15;
+  const int padding_w_st3 = 7;
+  const int padding_extra_w_st1 = padding_w_st1 - padding_w_st3;
 }
 
 
@@ -181,7 +181,7 @@ void PatternRecognition::process(
   int num_conv_hits = 0;
   for (const auto& conv_hits : extended_conv_hits)
     num_conv_hits += conv_hits.size();
-  bool early_exit = (num_conv_hits == 0) && (patt_lifetime_map.size() == 0);
+  bool early_exit = (num_conv_hits == 0) && (patt_lifetime_map.empty());
 
   if (early_exit)
     return;
@@ -468,7 +468,7 @@ void PatternRecognition::process_single_zone(
 
   // Ghost cancellation logic by considering neighbor patterns
 
-  if (roads.size() > 0) {
+  if (!roads.empty()) {
     std::array<int, NUM_ZONE_HITS> quality_codes;
     quality_codes.fill(0);
 

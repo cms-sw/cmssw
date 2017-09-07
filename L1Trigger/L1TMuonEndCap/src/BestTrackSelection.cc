@@ -120,9 +120,9 @@ void BestTrackSelection::cancel_one_bx(
 
   for (i = 0; i < max_zn; ++i) {
     for (j = 0; j < max_zn; ++j) {
-      larger[i][j] = 0;
+      larger[i][j] = false;
     }
-    larger[i][i] = 1; // result of comparison with itself
+    larger[i][i] = true; // result of comparison with itself
     //ri = rank[i%4][i/4]; // first index loops zone, second loops candidate. Zone loops faster, so we give equal priority to zones
     ri = rank[i];
 
@@ -135,7 +135,7 @@ void BestTrackSelection::cancel_one_bx(
       gt = ri > rj;
       eq = ri == rj;
       if ((i < j && (gt || eq)) || (i > j && gt))
-        larger[i][j] = 1;
+        larger[i][j] = true;
     }
     // "larger" array shows the result of comparison for each rank
 
@@ -160,9 +160,9 @@ void BestTrackSelection::cancel_one_bx(
       if (shared_segs > 0) {  // a single shared segment means it's ghost
         // kill candidate that has lower rank
         if (larger[i][j])
-          killed[j] = 1;
+          killed[j] = true;
         else
-          killed[i] = 1;
+          killed[i] = true;
       }
     }
   }
@@ -185,7 +185,7 @@ void BestTrackSelection::cancel_one_bx(
       if (exists[i])
         larger[i][j] = larger[i][j] | (!exists[j]);
       else
-        larger[i][j] = 0;
+        larger[i][j] = false;
     }
   }
 
@@ -330,7 +330,7 @@ void BestTrackSelection::cancel_multi_bx(
     //for (j = 0; j < max_hzn; ++j) {
     //  larger[i][j] = 0;
     //}
-    larger[i][i] = 1; // result of comparison with itself
+    larger[i][i] = true; // result of comparison with itself
     //ri = rank[i%4][i/4]; // first index loops zone, second loops candidate. Zone loops faster, so we give equal priority to zones
     ri = rank[i];
 
@@ -339,9 +339,9 @@ void BestTrackSelection::cancel_multi_bx(
       //rj = rank[j%4][j/4];
       rj = rank[j];
       if (ri >= rj)
-        larger[i][j] = 1;
+        larger[i][j] = true;
       else
-        larger[j][i] = 1;
+        larger[j][i] = true;
     }
     // "larger" array shows the result of comparison for each rank
 
@@ -366,9 +366,9 @@ void BestTrackSelection::cancel_multi_bx(
       if (shared_segs > 0) {  // a single shared segment means it's ghost
         // kill candidate that has lower rank
         if (larger[i][j])
-          killed[j] = 1;
+          killed[j] = true;
         else
-          killed[i] = 1;
+          killed[i] = true;
       }
     }
   }
@@ -397,7 +397,7 @@ void BestTrackSelection::cancel_multi_bx(
       if (exists[i])
         larger[i][j] = larger[i][j] | (!exists[j]);
       else
-        larger[i][j] = 0;
+        larger[i][j] = false;
     }
   }
 
