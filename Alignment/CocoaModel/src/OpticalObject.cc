@@ -1111,11 +1111,8 @@ void OpticalObject::displaceCentreGlob( const CLHEP::Hep3Vector& dispVec)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceExtraEntry(const ALIuint entryNo, const ALIdouble disp)
 {
-  //  std::vector< ALIdouble >::iterator ite =  theExtraEntryValueVector.begin();
-  ALIdouble Pentry_value = (*(theExtraEntryValueVector.begin() + entryNo));
-
   ALIdouble Pentry_orig_value = *(theExtraEntryValueOriginalVector.begin() + entryNo);
-  Pentry_value = (Pentry_orig_value) + disp;
+  ALIdouble Pentry_value = (Pentry_orig_value) + disp;
   LogDebug("OpticalObject::displaceExtraEntry")
     << " displaceExtraEntry " << Pentry_value << " <> " << Pentry_orig_value
     << std::endl;
