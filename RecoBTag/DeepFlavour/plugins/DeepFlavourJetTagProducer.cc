@@ -18,18 +18,33 @@
 
 #include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
 
+// Declaration of the data structure that is hold by the edm::GlobalCache.
+// We cannot use the tf::Graph* instance itself due to some aspects of the TensorFlow C API:
+// The graph instance is passed to the session objects of the stream module copies inside which it
+// is used to obtain pointers to operations it holds. This happens via a non-const C API call, so we
+// need to protect it via std::atomic (although this only happens within the constructor of the
+// DeepFlavourJetTagProducer and never within the actual produce()).
+struct Cache {
+  Cache() : graph(nullptr)
+  {
+  }
+
+  std::atomic<tf::Graph*> graph;
+};
 
 
-class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
+class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
 
   public:
-    explicit DeepFlavourJetTagProducer(const edm::ParameterSet&);
+    explicit DeepFlavourJetTagProducer(const edm::ParameterSet&, const Cache*);
     ~DeepFlavourJetTagProducer();
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+    static std::unique_ptr<Cache> initializeGlobalCache(const edm::ParameterSet&);
+    static void globalEndJob(const Cache*);
 
   private:
-
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
 
@@ -38,14 +53,12 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
     virtual void endStream() override {}
 
     const edm::EDGetTokenT< TagInfoCollection > src_;
-    edm::FileInPath graph_path_;
     std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
     std::vector<std::string> input_names_;
     std::vector<std::string> output_names_;
     std::vector<std::string> lp_names_;
 
-    // graph and session for TF evaluation
-    tf::Graph graph_;
+    // session for TF evaluation
     tf::Session session_;
 
     // vector of tensors for inputs, outputs and scalar learning phase 
@@ -54,14 +67,12 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<> {
     tf::IOs dnn_outputs_;
 };
 
-DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig) :
+DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-  graph_path_(iConfig.getParameter<edm::FileInPath>("graph_path")),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
   lp_names_(iConfig.getParameter<std::vector<std::string>>("lp_names")),
-  graph_(graph_path_.fullPath().substr(0, graph_path_.fullPath().find_last_of("/")), "serve"),
-  session_(&graph_)
+  session_(cache->graph)
 {
 
   // get output names from flav_table
@@ -110,7 +121,6 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   }
 }
 
-
 DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 {
   // cleanup inputs
@@ -132,6 +142,24 @@ DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 
 void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
+}
+
+std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
+{
+  // build the graph exportDir from graph_path
+  edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
+  std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
+
+  // create the cache instance and attach the graph to it
+  Cache* cache = new Cache();
+  cache->graph = new tf::Graph(exportDir, "serve");
+
+  return std::unique_ptr<Cache>(cache);
+}
+
+void DeepFlavourJetTagProducer::globalEndJob(const Cache* cache)
+{
+  delete cache->graph;
 }
 
 void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
