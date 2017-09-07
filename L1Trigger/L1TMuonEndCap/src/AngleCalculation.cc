@@ -4,10 +4,10 @@
 #include "helper.h"  // to_hex, to_binary
 
 namespace {
-  static const int bw_fph = 13;  // bit width of ph, full precision
-  static const int bw_th = 7;    // bit width of th
-  static const int invalid_dtheta = (1<<bw_th) - 1;  // = 127
-  static const int invalid_dphi = (1<<bw_fph) - 1;   // = 8191
+  const int bw_fph = 13;  // bit width of ph, full precision
+  const int bw_th = 7;    // bit width of th
+  const int invalid_dtheta = (1<<bw_th) - 1;  // = 127
+  const int invalid_dphi = (1<<bw_fph) - 1;   // = 8191
 }
 
 
@@ -455,7 +455,7 @@ void AngleCalculation::erase_tracks(EMTFTrackCollection& tracks) const {
   tracks.erase(std::remove_if(tracks.begin(), tracks.end(), rank_zero_pred), tracks.end());
 
   for (const auto& track : tracks) {
-    assert(track.Hits().size() > 0);
+    assert(!track.Hits().empty());
     assert(track.Hits().size() <= NUM_STATIONS);
   }
 }

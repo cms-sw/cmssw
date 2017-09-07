@@ -13,7 +13,7 @@ public:
     std::shared_ptr<L1TMuonEndCapForest> produce(const L1TMuonEndCapForestO2ORcd& record);
 
     L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet&);
-    ~L1TMuonEndCapForestOnlineProxy(void){}
+    ~L1TMuonEndCapForestOnlineProxy(void) override{}
 };
 
 L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {

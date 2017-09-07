@@ -3,9 +3,9 @@
 #include "helper.h"  // to_hex, to_binary
 
 namespace {
-  static const int bw_fph = 13;  // bit width of ph, full precision
-  static const int bpow = 7;     // (1 << bpow) is count of input ranks
-  static const int invalid_ph_diff = 0x1ff;  // 511 (9-bit)
+  const int bw_fph = 13;  // bit width of ph, full precision
+  const int bpow = 7;     // (1 << bpow) is count of input ranks
+  const int invalid_ph_diff = 0x1ff;  // 511 (9-bit)
 }
 
 
@@ -90,7 +90,7 @@ void PrimitiveMatching::process(
 
       // A hit can go into multiple zones
       for (int izone = 0; izone < NUM_ZONES; ++izone) {
-        if (zone_roads.at(izone).size() > 0) {
+        if (!zone_roads.at(izone).empty()) {
 
           if (zone_code & (1<<izone)) {
             const int zs = (izone*NUM_STATIONS) + istation;
@@ -204,7 +204,7 @@ void PrimitiveMatching::process(
       }
 
       if (fixZonePhi_) {
-        assert(track.Hits().size() > 0);
+        assert(!track.Hits().empty());
       }
 
       // Output track

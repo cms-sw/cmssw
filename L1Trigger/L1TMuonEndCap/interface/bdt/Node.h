@@ -61,8 +61,8 @@ class Node
         void theMiracleOfChildBirth();
  
     private:
-        Node(const Node &);
-        Node& operator=(const Node &);
+        Node(const Node &) = delete;
+        Node& operator=(const Node &) = delete;
 
         std::string name;
 

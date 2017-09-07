@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <map>
 
@@ -16,10 +16,10 @@
 class L1TMuonEndCapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
 public:
-    virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
+    std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
     L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndCapParamsOnlineProd(void){}
+    ~L1TMuonEndCapParamsOnlineProd(void) override{}
 };
 
 L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){}

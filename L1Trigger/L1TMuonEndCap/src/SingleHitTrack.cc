@@ -20,7 +20,7 @@ void SingleHitTrack::process(
     EMTFTrackCollection& best_tracks
 ) const {
 
-  if (conv_hits.size() == 0)
+  if (conv_hits.empty())
     return;
 
   if (!useSingleHits_)
@@ -134,12 +134,12 @@ void SingleHitTrack::process(
 	break;
     
       // Firmware only sends one single-hit track per sector
-      if (one_hit_trks.size() > 0) 
+      if (!one_hit_trks.empty()) 
 	break;
 
     } // End loop:  for (const auto & conv_hits_it : conv_hits)
 
-    if (one_hit_trks.size() > 0) 
+    if (!one_hit_trks.empty()) 
       break;
 
   } // End loop: for (int sub_ID = 5; sub_ID > 0; sub_ID--) {

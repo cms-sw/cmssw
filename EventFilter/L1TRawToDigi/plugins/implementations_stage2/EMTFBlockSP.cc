@@ -13,7 +13,7 @@ namespace l1t {
       class SPBlockUnpacker : public Unpacker { // "SPBlockUnpacker" inherits from "Unpacker"
       public:
 	virtual int  checkFormat(const Block& block);
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
       
@@ -191,7 +191,7 @@ namespace l1t {
 	ImportSP( Track_, SP_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
 	// Track_.ImportPtLUT( Track_.Mode(), Track_.Pt_LUT_addr() );  // Deprecated ... replace? - AWB 15.03.17
 
-	if ( (res->at(iOut)).PtrSPCollection()->size() > 0 )
+	if ( !(res->at(iOut)).PtrSPCollection()->empty() )
 	  if ( SP_.TBIN() == (res->at(iOut)).PtrSPCollection()->at( (res->at(iOut)).PtrSPCollection()->size() - 1 ).TBIN() )
 	    Track_.set_track_num( (res->at(iOut)).PtrSPCollection()->size() );
 	  else Track_.set_track_num( 0 );

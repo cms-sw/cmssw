@@ -21,7 +21,7 @@ using namespace std;
 class L1TMuonEndCapParamsESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapParamsESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapParamsESProducer();
+  ~L1TMuonEndCapParamsESProducer() override;
   
   typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
 

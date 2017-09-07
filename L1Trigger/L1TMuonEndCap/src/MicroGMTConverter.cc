@@ -22,7 +22,7 @@ void MicroGMTConverter::convert(
   out_cand.setHwSign          ( in_track.GMT_charge() );
   out_cand.setHwSignValid     ( in_track.GMT_charge_valid() );
   out_cand.setHwQual          ( in_track.GMT_quality() );
-  out_cand.setHwHF            ( 0 );  // EMTF: halo -> 1
+  out_cand.setHwHF            ( false );  // EMTF: halo -> 1
   out_cand.setTFIdentifiers   ( sector, tftype );
 
   const EMTFPtLUT& ptlut_data = in_track.PtLUT();
