@@ -44,7 +44,6 @@ class RHStopTracer :  public SimProducer,
   bool mStopRegular;
   double mTraceEnergy;
   std::string mTraceParticleName;
-  const G4ParticleDefinition* mParticle;
   std::vector <StopPoint> mStopPoints;
 };
 
